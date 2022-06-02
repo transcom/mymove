@@ -45,7 +45,7 @@ const mockMTOShipment = {
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
-    advanceRequested: null,
+    hasRequestedAdvance: null,
   },
   eTag: btoa(new Date()),
 };
@@ -54,8 +54,8 @@ const mockMTOShipmentWithAdvance = {
   ...mockMTOShipment,
   ppmShipment: {
     ...mockMTOShipment.ppmShipment,
-    advance: 40000,
-    advanceRequested: true,
+    hasRequestedAdvance: true,
+    advanceAmountRequested: 40000,
     eTag: btoa(new Date()),
   },
   eTag: btoa(new Date()),
@@ -126,18 +126,18 @@ describe('Advance page', () => {
 
       render(<Advance />, { wrapper: MockProviders });
 
-      const advanceRequestedYesInput = screen.getByRole('radio', { name: /yes/i });
-      const advanceRequestedNoInput = screen.getByRole('radio', { name: /no/i });
+      const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
+      const hasRequestedAdvanceNoInput = screen.getByRole('radio', { name: /no/i });
 
-      if (preExistingShipment.ppmShipment.advance) {
-        expect(advanceRequestedYesInput.checked).toBe(true);
-        expect(advanceRequestedNoInput.checked).toBe(false);
+      if (preExistingShipment.ppmShipment.hasRequestedAdvance) {
+        expect(hasRequestedAdvanceYesInput.checked).toBe(true);
+        expect(hasRequestedAdvanceNoInput.checked).toBe(false);
         await waitFor(() => {
           expect(screen.getByLabelText('Amount requested').value).toBe('400');
         });
       } else {
-        expect(advanceRequestedYesInput.checked).toBe(false);
-        expect(advanceRequestedNoInput.checked).toBe(true);
+        expect(hasRequestedAdvanceYesInput.checked).toBe(false);
+        expect(hasRequestedAdvanceNoInput.checked).toBe(true);
         expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
       }
     },
@@ -146,14 +146,14 @@ describe('Advance page', () => {
   it('can toggle optional fields', async () => {
     render(<Advance />, { wrapper: MockProviders });
 
-    const advanceRequestedYesInput = screen.getByRole('radio', { name: /yes/i });
-    userEvent.click(advanceRequestedYesInput);
+    const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
+    userEvent.click(hasRequestedAdvanceYesInput);
 
     const advanceInput = await screen.findByLabelText('Amount requested');
     expect(advanceInput).toBeInstanceOf(HTMLInputElement);
 
-    const advanceRequestedNoInput = screen.getByRole('radio', { name: /no/i });
-    userEvent.click(advanceRequestedNoInput);
+    const hasRequestedAdvanceNoInput = screen.getByRole('radio', { name: /no/i });
+    userEvent.click(hasRequestedAdvanceNoInput);
 
     await waitFor(() => {
       expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
@@ -176,14 +176,14 @@ describe('Advance page', () => {
     render(<Advance />, { wrapper: MockProviders });
 
     const advance = 4000;
-    const advanceRequestedYesInput = screen.getByRole('radio', { name: /yes/i });
-    await userEvent.click(advanceRequestedYesInput);
-
-    const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
-    userEvent.click(agreeToTerms);
+    const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
+    await userEvent.click(hasRequestedAdvanceYesInput);
 
     const advanceInput = screen.getByLabelText('Amount requested');
     userEvent.type(advanceInput, String(advance));
+
+    const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
+    userEvent.click(agreeToTerms);
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
     expect(saveButton).not.toBeDisabled();
@@ -203,14 +203,46 @@ describe('Advance page', () => {
     );
   });
 
+  it('passes null for advance amount if advance requested is false', async () => {
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithAdvance);
+    patchMTOShipment.mockResolvedValueOnce({ id: mockMTOShipment.id });
+
+    render(<Advance />, { wrapper: MockProviders });
+
+    const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
+    const hasRequestedAdvanceNoInput = screen.getByRole('radio', { name: /no/i });
+
+    expect(hasRequestedAdvanceYesInput.checked).toBe(true);
+    expect(hasRequestedAdvanceNoInput.checked).toBe(false);
+
+    await userEvent.click(hasRequestedAdvanceNoInput);
+
+    const saveButton = screen.getByRole('button', { name: /save & continue/i });
+    expect(saveButton).not.toBeDisabled();
+    userEvent.click(saveButton);
+
+    const expectedPayload = {
+      shipmentType: mockMTOShipment.shipmentType,
+      ppmShipment: {
+        advance: null,
+        advanceRequested: false,
+        id: mockMTOShipment.ppmShipment.id,
+      },
+    };
+
+    await waitFor(() =>
+      expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, expectedPayload, mockMTOShipment.eTag),
+    );
+  });
+
   it('updates the state if shipment patch is successful', async () => {
     patchMTOShipment.mockResolvedValue(mockMTOShipment);
 
     render(<Advance />, { wrapper: MockProviders });
 
     const advance = 4000;
-    const advanceRequestedYesInput = screen.getByRole('radio', { name: /yes/i });
-    userEvent.click(advanceRequestedYesInput);
+    const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
+    userEvent.click(hasRequestedAdvanceYesInput);
 
     const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
     userEvent.click(agreeToTerms);
@@ -228,8 +260,8 @@ describe('Advance page', () => {
     patchMTOShipment.mockResolvedValue({});
 
     render(<Advance />, { wrapper: MockProviders });
-    const advanceRequestedYesInput = screen.getByRole('radio', { name: /yes/i });
-    userEvent.click(advanceRequestedYesInput);
+    const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
+    userEvent.click(hasRequestedAdvanceYesInput);
 
     const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
     userEvent.click(agreeToTerms);
@@ -258,8 +290,8 @@ describe('Advance page', () => {
     getResponseError.mockReturnValue(mockErrorMsg);
 
     render(<Advance />, { wrapper: MockProviders });
-    const advanceRequestedYesInput = screen.getByRole('radio', { name: /yes/i });
-    userEvent.click(advanceRequestedYesInput);
+    const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
+    userEvent.click(hasRequestedAdvanceYesInput);
 
     const advanceInput = screen.getByLabelText('Amount requested');
     userEvent.type(advanceInput, '4000');

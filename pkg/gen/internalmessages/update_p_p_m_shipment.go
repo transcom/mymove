@@ -12,6 +12,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
+	"github.com/transcom/mymove/pkg/swagger/nullable"
 )
 
 // UpdatePPMShipment update p p m shipment
@@ -19,13 +20,33 @@ import (
 // swagger:model UpdatePPMShipment
 type UpdatePPMShipment struct {
 
+	// ZIP
+	//
+	// The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
+	//
+	// Example: 90210
+	// Pattern: ^(\d{5})$
+	ActualDestinationPostalCode *string `json:"actualDestinationPostalCode,omitempty"`
+
 	// actual move date
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actualMoveDate,omitempty"`
 
-	// The amount request for an advance, or null if no advance is requested
+	// ZIP
+	//
+	// The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
+	//
+	// Example: 90210
+	// Pattern: ^(\d{5})$
+	ActualPickupPostalCode *string `json:"actualPickupPostalCode,omitempty"`
+
+	// The amount requested for an advance, or null if no advance is requested
 	//
 	Advance *int64 `json:"advance,omitempty"`
+
+	// The amount received for an advance, or null if no advance is received.
+	//
+	AdvanceAmountReceived *int64 `json:"advanceAmountReceived,omitempty"`
 
 	// Indicates whether an advance has been requested for the PPM shipment.
 	//
@@ -35,9 +56,6 @@ type UpdatePPMShipment struct {
 	// Example: 90210
 	// Pattern: ^(\d{5})$
 	DestinationPostalCode *string `json:"destinationPostalCode,omitempty"`
-
-	// estimated incentive
-	EstimatedIncentive *int64 `json:"estimatedIncentive,omitempty"`
 
 	// estimated weight
 	// Example: 4200
@@ -51,6 +69,10 @@ type UpdatePPMShipment struct {
 	// Indicates whether PPM shipment has pro gear.
 	//
 	HasProGear *bool `json:"hasProGear,omitempty"`
+
+	// Indicates whether an advance was received for the PPM shipment.
+	//
+	HasReceivedAdvance *bool `json:"hasReceivedAdvance,omitempty"`
 
 	// The net weight of the shipment once it has been weight
 	//
@@ -69,13 +91,11 @@ type UpdatePPMShipment struct {
 
 	// ZIP
 	// Example: 90210
-	// Pattern: ^(\d{5})$
-	SecondaryDestinationPostalCode *string `json:"secondaryDestinationPostalCode,omitempty"`
+	SecondaryDestinationPostalCode nullable.String `json:"secondaryDestinationPostalCode,omitempty"`
 
 	// ZIP
 	// Example: 90210
-	// Pattern: ^(\d{5})$
-	SecondaryPickupPostalCode *string `json:"secondaryPickupPostalCode,omitempty"`
+	SecondaryPickupPostalCode nullable.String `json:"secondaryPickupPostalCode,omitempty"`
 
 	// sit expected
 	SitExpected *bool `json:"sitExpected,omitempty"`
@@ -88,7 +108,15 @@ type UpdatePPMShipment struct {
 func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateActualDestinationPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateActualMoveDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateActualPickupPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -118,12 +146,36 @@ func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *UpdatePPMShipment) validateActualDestinationPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.ActualDestinationPostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("actualDestinationPostalCode", "body", *m.ActualDestinationPostalCode, `^(\d{5})$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *UpdatePPMShipment) validateActualMoveDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ActualMoveDate) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("actualMoveDate", "body", "date", m.ActualMoveDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdatePPMShipment) validateActualPickupPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.ActualPickupPostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("actualPickupPostalCode", "body", *m.ActualPickupPostalCode, `^(\d{5})$`); err != nil {
 		return err
 	}
 
@@ -171,7 +223,12 @@ func (m *UpdatePPMShipment) validateSecondaryDestinationPostalCode(formats strfm
 		return nil
 	}
 
-	if err := validate.Pattern("secondaryDestinationPostalCode", "body", *m.SecondaryDestinationPostalCode, `^(\d{5})$`); err != nil {
+	if err := m.SecondaryDestinationPostalCode.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("secondaryDestinationPostalCode")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("secondaryDestinationPostalCode")
+		}
 		return err
 	}
 
@@ -183,15 +240,61 @@ func (m *UpdatePPMShipment) validateSecondaryPickupPostalCode(formats strfmt.Reg
 		return nil
 	}
 
-	if err := validate.Pattern("secondaryPickupPostalCode", "body", *m.SecondaryPickupPostalCode, `^(\d{5})$`); err != nil {
+	if err := m.SecondaryPickupPostalCode.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("secondaryPickupPostalCode")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("secondaryPickupPostalCode")
+		}
 		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validates this update p p m shipment based on context it is used
+// ContextValidate validate this update p p m shipment based on the context it is used
 func (m *UpdatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateSecondaryDestinationPostalCode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryPickupPostalCode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UpdatePPMShipment) contextValidateSecondaryDestinationPostalCode(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.SecondaryDestinationPostalCode.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("secondaryDestinationPostalCode")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("secondaryDestinationPostalCode")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdatePPMShipment) contextValidateSecondaryPickupPostalCode(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.SecondaryPickupPostalCode.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("secondaryPickupPostalCode")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("secondaryPickupPostalCode")
+		}
+		return err
+	}
+
 	return nil
 }
 

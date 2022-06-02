@@ -72,6 +72,36 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUnpackPricer() {
 		suite.Error(err)
 		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to a string", models.ServiceItemParamNameContractCode))
 	})
+
+	suite.Run("successfully finds dom unpack price for ppm with weight < 500 lbs with PriceUsingParams method", func() {
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDUPK, dupkTestServicesScheduleDest, dupkTestIsPeakPeriod, dupkTestBasePriceCents, dupkTestContractYearName, dupkTestEscalationCompounded)
+		paymentServiceItem := suite.setupDomesticUnpackServiceItem()
+		params := paymentServiceItem.PaymentServiceItemParams
+		params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
+		weightBilledIndex := 3
+
+		params[weightBilledIndex].Value = "500"
+		basePriceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+
+		params[weightBilledIndex].Value = "250"
+		halfPriceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(basePriceCents/2, halfPriceCents)
+
+		params[weightBilledIndex].Value = "100"
+		fifthPriceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(basePriceCents/5, fifthPriceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: dupkTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dupkTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dupkTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dupkTestBasePriceCents)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticUnpackServiceItem() models.PaymentServiceItem {

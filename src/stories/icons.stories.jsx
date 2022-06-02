@@ -61,8 +61,8 @@ export const all = () => (
         <code> x | icon=&quot;times&quot;</code>
       </div>
       <div>
-        <FontAwesomeIcon icon={['far', 'check-circle']} />
-        <code>accept (regular) | {`icon={['far', 'check-circle']}`}</code>
+        <FontAwesomeIcon icon={['far', 'circle-check']} />
+        <code>accept (regular) | {`icon={['far', 'circle-check']}`}</code>
       </div>
       <div>
         <FontAwesomeIcon icon={['far', 'times-circle']} />
@@ -109,12 +109,12 @@ export const all = () => (
         <code>calendar | {`icon={['far', 'calendar']}`}</code>
       </div>
       <div>
-        <FontAwesomeIcon icon={['far', 'question-circle']} />
-        <code>question circle (regular) | {`icon={['far', 'question-circle']}`}</code>
+        <FontAwesomeIcon icon={['far', 'circle-question']} />
+        <code>question circle (regular) | {`icon={['far', 'circle-question']}`}</code>
       </div>
       <div>
-        <FontAwesomeIcon icon="question-circle" />
-        <code>question circle (solid) | icon=&quot;question-circle&quot;</code>
+        <FontAwesomeIcon icon="circle-question" />
+        <code>question circle (solid) | icon=&quot;circle-question&quot;</code>
       </div>
       <div>
         <FontAwesomeIcon icon="phone-alt" />

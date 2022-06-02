@@ -5,7 +5,7 @@ import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
 import { customerRoutes } from 'constants/routes';
-import EstimatedWeightsProGearForm from 'components/Customer/PPMBooking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm';
+import EstimatedWeightsProGearForm from 'components/Customer/PPM/Booking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm';
 import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
@@ -56,7 +56,6 @@ const EstimatedWeightsProGear = () => {
       })
       .catch((err) => {
         setSubmitting(false);
-
         setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
       });
   };

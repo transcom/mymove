@@ -35,8 +35,12 @@ export const shipmentStatuses = {
 };
 
 export const ppmShipmentStatuses = {
-  WAITING_ON_CUSTOMER: 'WAITING_ON_CUSTOMER',
+  DRAFT: 'DRAFT',
   SUBMITTED: 'SUBMITTED',
+  WAITING_ON_CUSTOMER: 'WAITING_ON_CUSTOMER',
+  NEEDS_ADVANCE_APPROVAL: 'NEEDS_ADVANCE_APPROVAL',
+  NEEDS_PAYMENT_APPROVAL: 'NEEDS_PAYMENT_APPROVAL',
+  PAYMENT_APPROVED: 'PAYMENT_APPROVED',
 };
 
 export const shipmentDestinationTypes = {
@@ -47,3 +51,5 @@ export const shipmentDestinationTypes = {
 };
 
 export const LONGHAUL_MIN_DISTANCE = 50;
+
+export const PPM_MAX_ADVANCE_RATIO = 0.6;

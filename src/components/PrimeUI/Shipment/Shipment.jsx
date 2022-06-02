@@ -135,6 +135,12 @@ const Shipment = ({ shipment, moveId }) => {
         <dt>Diversion:</dt>
         <dd>{shipment.diversion ? 'yes' : 'no'}</dd>
       </div>
+      {shipment.ppmShipment && (
+        <div className={descriptionListStyles.row}>
+          <dt>PPM Status:</dt>
+          <dd>{shipment.ppmShipment.status}</dd>
+        </div>
+      )}
     </dl>
   );
 };

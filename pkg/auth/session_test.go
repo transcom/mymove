@@ -1,10 +1,15 @@
 package auth
 
 import (
+	"context"
+	"fmt"
+	"os"
 	"time"
 
+	"github.com/alexedwards/scs/redisstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/alexedwards/scs/v2/memstore"
+	"github.com/gomodule/redigo/redis"
 )
 
 func (suite *authSuite) TestSetupSessionManagers() {
@@ -20,6 +25,43 @@ func (suite *authSuite) TestSetupSessionManagers() {
 	milSession := sessionManagers[0]
 	adminSession := sessionManagers[1]
 	officeSession := sessionManagers[2]
+
+	suite.Run("With redis enabled", func() {
+		// on local dev machines, this shares the same redis server as
+		// development. Should we spin up a separate server for test?
+		// Use the same server but a different redis database?
+		redisHost := os.Getenv("REDIS_HOST")
+		redisPort, ok := os.LookupEnv("REDIS_PORT")
+		if !ok {
+			redisPort = "6379"
+		}
+
+		redisAddr := fmt.Sprintf("%s:%s", redisHost, redisPort)
+		pool := &redis.Pool{
+			Dial: func() (redis.Conn, error) { return redis.Dial("tcp", redisAddr) },
+		}
+		store := redisstore.New(pool)
+		sessionManagers := SetupSessionManagers(
+			redisEnabled, store, useSecureCookie, idleTimeout, lifetime,
+		)
+		milSessionManager := sessionManagers[0]
+		ctx := context.Background()
+		fakeSessionID := "fakeid"
+		fakeSession := &Session{
+			Hostname: "fake",
+		}
+		expiry := time.Now().Add(30 * time.Minute).UTC()
+		b, err := milSessionManager.Codec.Encode(expiry,
+			map[string]interface{}{
+				fakeSessionID: fakeSession,
+			})
+		suite.NoError(err)
+
+		// make sure we can store and load from redis without error
+		suite.NoError(milSessionManager.Store.Commit("token", b, expiry))
+		_, err = milSessionManager.Load(ctx, "session")
+		suite.NoError(err)
+	})
 
 	suite.Run("With a supported scs.Store other than redisstore", func() {
 		sessionStore = memstore.New()

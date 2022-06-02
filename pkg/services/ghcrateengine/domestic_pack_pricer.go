@@ -19,8 +19,8 @@ func NewDomesticPackPricer() services.DomesticPackPricer {
 }
 
 // Price determines the price for a domestic pack service
-func (p domesticPackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDPK, contractCode, referenceDate, weight, servicesScheduleOrigin)
+func (p domesticPackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDPK, contractCode, referenceDate, weight, servicesScheduleOrigin, isPPM)
 }
 
 // PriceUsingParams determines the price for a domestic pack service given PaymentServiceItemParams
@@ -45,5 +45,13 @@ func (p domesticPackPricer) PriceUsingParams(appCtx appcontext.AppContext, param
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), servicesScheduleOrigin)
+	var isPPM = false
+	if params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypePPM {
+		// PPMs do not require minimums for a shipment's weight
+		// this flag is passed into the Price function to ensure the weight min
+		// are not enforced for PPMs
+		isPPM = true
+	}
+
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), servicesScheduleOrigin, isPPM)
 }

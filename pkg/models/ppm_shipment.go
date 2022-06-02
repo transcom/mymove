@@ -57,17 +57,23 @@ type PPMShipment struct {
 	ApprovedAt                     *time.Time        `json:"approved_at" db:"approved_at"`
 	PickupPostalCode               string            `json:"pickup_postal_code" db:"pickup_postal_code"`
 	SecondaryPickupPostalCode      *string           `json:"secondary_pickup_postal_code" db:"secondary_pickup_postal_code"`
+	ActualPickupPostalCode         *string           `json:"actual_pickup_postal_code" db:"actual_pickup_postal_code"`
 	DestinationPostalCode          string            `json:"destination_postal_code" db:"destination_postal_code"`
 	SecondaryDestinationPostalCode *string           `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
-	SitExpected                    *bool             `json:"sit_expected" db:"sit_expected"`
+	ActualDestinationPostalCode    *string           `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
 	EstimatedWeight                *unit.Pound       `json:"estimated_weight" db:"estimated_weight"`
 	NetWeight                      *unit.Pound       `json:"net_weight" db:"net_weight"`
 	HasProGear                     *bool             `json:"has_pro_gear" db:"has_pro_gear"`
 	ProGearWeight                  *unit.Pound       `json:"pro_gear_weight" db:"pro_gear_weight"`
 	SpouseProGearWeight            *unit.Pound       `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
 	EstimatedIncentive             *unit.Cents       `json:"estimated_incentive" db:"estimated_incentive"`
-	Advance                        *unit.Cents       `json:"advance" db:"advance"`
-	AdvanceRequested               *bool             `json:"advance_requested" db:"advance_requested"`
+	AdvanceRequested               *bool             `json:"advance_requested" db:"advance_requested"`               // TODO: These will be removed in a future PR.
+	Advance                        *unit.Cents       `json:"advance" db:"advance"`                                   // TODO: These will be removed in a future PR.
+	HasRequestedAdvance            *bool             `json:"has_requested_advance" db:"has_requested_advance"`       // TODO: Replace usages of AdvanceRequested with this field instead (will be done in a future PR).
+	AdvanceAmountRequested         *unit.Cents       `json:"advance_amount_requested" db:"advance_amount_requested"` // TODO: Replace usages of Advance with this field instead (will be done in a future PR).
+	HasReceivedAdvance             *bool             `json:"has_received_advance" db:"has_received_advance"`
+	AdvanceAmountReceived          *unit.Cents       `json:"advance_amount_received" db:"advance_amount_received"`
+	SITExpected                    *bool             `json:"sit_expected" db:"sit_expected"`
 	SITLocation                    *SITLocationType  `json:"sit_location" db:"sit_location"`
 	SITEstimatedWeight             *unit.Pound       `json:"sit_estimated_weight" db:"sit_estimated_weight"`
 	SITEstimatedEntryDate          *time.Time        `json:"sit_estimated_entry_date" db:"sit_estimated_entry_date"`

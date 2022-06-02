@@ -6,15 +6,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './shipmentApprovalPreview.module.scss';
 
-import { serviceItemCodes } from 'content/serviceItems';
-import { mtoShipmentTypes } from 'constants/shipments';
+import { Modal, ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
-import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import ShipmentServiceItemsTable from 'components/Office/ShipmentServiceItemsTable/ShipmentServiceItemsTable';
-import { Modal, ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
-import { MTOShipmentShape, OrdersInfoShape } from 'types/order';
+import { serviceItemCodes } from 'content/serviceItems';
+import { mtoShipmentTypes } from 'constants/shipments';
+import { OrdersInfoShape } from 'types/order';
+import { ShipmentShape } from 'types/shipment';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,
@@ -126,7 +127,7 @@ const ShipmentApprovalPreview = ({
 };
 
 ShipmentApprovalPreview.propTypes = {
-  mtoShipments: PropTypes.arrayOf(MTOShipmentShape).isRequired,
+  mtoShipments: PropTypes.arrayOf(ShipmentShape).isRequired,
   counselingFee: PropTypes.bool.isRequired,
   shipmentManagementFee: PropTypes.bool.isRequired,
   ordersInfo: OrdersInfoShape.isRequired,

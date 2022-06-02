@@ -2933,10 +2933,6 @@ definitions:
         format: date-time
         type: string
         readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
       status:
         $ref: '#/definitions/PPMShipmentStatus'
       expectedDepartureDate:
@@ -2979,6 +2975,17 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
+      actualPickupPostalCode:
+        description: >
+          The actual postal code where the PPM shipment started. To be filled
+          once the customer has moved the shipment.
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+        x-omitempty: false
       destinationPostalCode:
         format: zip
         type: string
@@ -2986,6 +2993,17 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
       secondaryDestinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+        x-omitempty: false
+      actualDestinationPostalCode:
+        description: >
+          The actual postal code where the PPM shipment ended. To be filled once
+          the customer has moved the shipment.
         format: zip
         type: string
         title: ZIP
@@ -3026,20 +3044,31 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
-      advance:
-        description: |
-          The amount request for an advance, or null if no advance is requested
-        type: integer
-        format: cents
-        x-nullable: true
-      advanceRequested:
+      hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
-      deletedAt:
-        format: date-time
-        type: string
+        x-omitempty: false
+      advanceAmountRequested:
+        description: >
+          The amount requested for an advance, or null if no advance is
+          requested
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      hasReceivedAdvance:
+        description: |
+          Indicates whether an advance was received for the PPM shipment.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      advanceAmountReceived:
+        description: |
+          The amount received for an advance, or null if no advance is received.
+        type: integer
+        format: cents
         x-nullable: true
         x-omitempty: false
       sitLocation:
@@ -3073,6 +3102,16 @@ definitions:
           header for any updates.
         type: string
         readOnly: true
+    required:
+      - id
+      - shipmentId
+      - createdAt
+      - status
+      - expectedDepartureDate
+      - pickupPostalCode
+      - destinationPostalCode
+      - sitExpected
+      - eTag
   ExcessWeightRecord:
     description: >-
       A document uploaded by the movers proving that the customer has been
