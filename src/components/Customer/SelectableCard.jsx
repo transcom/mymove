@@ -30,7 +30,7 @@ const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, 
             className={styles.helpButton}
             aria-label="help"
           >
-            <FontAwesomeIcon icon={['far', 'question-circle']} />
+            <FontAwesomeIcon icon={['far', 'circle-question']} />
           </Button>
         )}
       </div>

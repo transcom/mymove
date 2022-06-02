@@ -1,12 +1,13 @@
 package primeapi
 
 import (
-	"encoding/base64"
 	"fmt"
 	"net/http/httptest"
-	"testing"
 	"time"
 
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 
 	"github.com/go-openapi/swag"
@@ -73,12 +74,13 @@ func (suite *HandlerSuite) TestListMovesHandlerReturnsUpdated() {
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
-	handler := GetMoveTaskOrderHandler{handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
-	}
 
-	suite.T().Run("Success with Prime-available move by ID", func(t *testing.T) {
+	suite.Run("Success with Prime-available move by ID", func() {
+		handler := GetMoveTaskOrderHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
+
 		successMove := testdatagen.MakeAvailableMove(suite.DB())
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
@@ -96,7 +98,11 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
 	})
 
-	suite.T().Run("Success with Prime-available move by Locator", func(t *testing.T) {
+	suite.Run("Success with Prime-available move by Locator", func() {
+		handler := GetMoveTaskOrderHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
 		successMove := testdatagen.MakeAvailableMove(suite.DB())
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
@@ -114,7 +120,11 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
 	})
 
-	suite.T().Run("Returns the destination address type for a shipment on a move if it exists", func(t *testing.T) {
+	suite.Run("Returns the destination address type for a shipment on a move if it exists", func() {
+		handler := GetMoveTaskOrderHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
 		successMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				AvailableToPrimeAt: swag.Time(time.Now()),
@@ -150,7 +160,11 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	})
 
-	suite.T().Run("Success returns reweighs on shipments if they exist", func(t *testing.T) {
+	suite.Run("Success returns reweighs on shipments if they exist", func() {
+		handler := GetMoveTaskOrderHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
 		successMove := testdatagen.MakeAvailableMove(suite.DB())
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
@@ -175,7 +189,11 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(strfmt.UUID(reweigh.ID.String()), reweighPayload.ID)
 	})
 
-	suite.T().Run("Success - returns sit extensions on shipments if they exist", func(t *testing.T) {
+	suite.Run("Success - returns sit extensions on shipments if they exist", func() {
+		handler := GetMoveTaskOrderHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
 		successMove := testdatagen.MakeAvailableMove(suite.DB())
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
@@ -201,7 +219,11 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(strfmt.UUID(sitExtension.ID.String()), reweighPayload.ID)
 	})
 
-	suite.T().Run("Success - filters shipments handled by an external vendor", func(t *testing.T) {
+	suite.Run("Success - filters shipments handled by an external vendor", func() {
+		handler := GetMoveTaskOrderHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
 		move := testdatagen.MakeAvailableMove(suite.DB())
 
 		// Create two shipments, one prime, one external.  Only prime one should be returned.
@@ -237,7 +259,11 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		}
 	})
 
-	suite.T().Run("Success - returns shipment with attached PpmShipment", func(t *testing.T) {
+	suite.Run("Success - returns shipment with attached PpmShipment", func() {
+		handler := GetMoveTaskOrderHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -261,7 +287,11 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(ppmShipment.ID.String(), movePayload.MtoShipments[0].PpmShipment.ID.String())
 	})
 
-	suite.T().Run("Failure 'Not Found' for non-available move", func(t *testing.T) {
+	suite.Run("Failure 'Not Found' for non-available move", func() {
+		handler := GetMoveTaskOrderHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			movetaskorder.NewMoveTaskOrderFetcher(),
+		}
 		failureMove := testdatagen.MakeDefaultMove(suite.DB()) // default is not available to Prime
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
@@ -280,16 +310,16 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 	request := httptest.NewRequest("POST", "/move-task-orders/{moveTaskOrderID}", nil)
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig.SetFileStorer(fakeS3)
-	handler := CreateExcessWeightRecordHandler{
-		handlerConfig,
-		// Must use the Prime service object in particular:
-		moverouter.NewPrimeMoveExcessWeightUploader(upload.NewUploadCreator(handlerConfig.FileStorer())),
-	}
 
-	suite.T().Run("Success - Created an excess weight record", func(t *testing.T) {
+	suite.Run("Success - Created an excess weight record", func() {
+		handler := CreateExcessWeightRecordHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			// Must use the Prime service object in particular:
+			moverouter.NewPrimeMoveExcessWeightUploader(upload.NewUploadCreator(fakeS3)),
+		}
+		handler.HandlerConfig.SetFileStorer(fakeS3)
+
 		now := time.Now()
 		availableMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -316,7 +346,14 @@ func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 		suite.NotEmpty(okResponse.Payload.ID)
 	})
 
-	suite.T().Run("Fail - Move not found - 404", func(t *testing.T) {
+	suite.Run("Fail - Move not found - 404", func() {
+		handler := CreateExcessWeightRecordHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			// Must use the Prime service object in particular:
+			moverouter.NewPrimeMoveExcessWeightUploader(upload.NewUploadCreator(fakeS3)),
+		}
+		handler.HandlerConfig.SetFileStorer(fakeS3)
+
 		params := movetaskorderops.CreateExcessWeightRecordParams{
 			HTTPRequest:     request,
 			File:            suite.Fixture("test.pdf"),
@@ -331,7 +368,14 @@ func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 		suite.Contains(*notFoundResponse.Payload.Detail, params.MoveTaskOrderID.String())
 	})
 
-	suite.T().Run("Fail - Move not Prime-available - 404", func(t *testing.T) {
+	suite.Run("Fail - Move not Prime-available - 404", func() {
+		handler := CreateExcessWeightRecordHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			// Must use the Prime service object in particular:
+			moverouter.NewPrimeMoveExcessWeightUploader(upload.NewUploadCreator(fakeS3)),
+		}
+		handler.HandlerConfig.SetFileStorer(fakeS3)
+
 		unavailableMove := testdatagen.MakeDefaultMove(suite.DB()) // default move is not available to Prime
 		params := movetaskorderops.CreateExcessWeightRecordParams{
 			HTTPRequest:     request,
@@ -350,21 +394,20 @@ func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 }
 
 func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
-	mto := testdatagen.MakeAvailableMove(suite.DB())
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	eTag := base64.StdEncoding.EncodeToString([]byte(mto.UpdatedAt.Format(time.RFC3339Nano)))
 
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
+	suite.Run("Successful patch - Integration Test", func() {
+		mto := testdatagen.MakeAvailableMove(suite.DB())
+		eTag := etag.GenerateEtag(mto.UpdatedAt)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
 
-	params := movetaskorderops.UpdateMTOPostCounselingInformationParams{
-		HTTPRequest:     req,
-		MoveTaskOrderID: mto.ID.String(),
-		IfMatch:         eTag,
-	}
-
-	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
+		params := movetaskorderops.UpdateMTOPostCounselingInformationParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: mto.ID.String(),
+			IfMatch:         eTag,
+		}
 		// Create two shipments, one prime, one external.  Only prime one should be returned.
 		primeShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto,
@@ -422,12 +465,9 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		suite.Equal(primemessages.PPMShipmentStatusWAITINGONCUSTOMER, okPayload.MtoShipments[0].PpmShipment.Status)
 	})
 
-	suite.T().Run("Unsuccessful patch - Integration Test - patch fail MTO not available", func(t *testing.T) {
+	suite.Run("Unsuccessful patch - Integration Test - patch fail MTO not available", func() {
 		defaultMTO := testdatagen.MakeDefaultMove(suite.DB())
-
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-		eTag := base64.StdEncoding.EncodeToString([]byte(defaultMTO.UpdatedAt.Format(time.RFC3339Nano)))
-
+		eTag := etag.GenerateEtag(defaultMTO.UpdatedAt)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", defaultMTO.ID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -454,7 +494,12 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationNotFound{}, response)
 	})
 
-	suite.T().Run("Patch failure - 500", func(t *testing.T) {
+	suite.Run("Patch failure - 500", func() {
+		mto := testdatagen.MakeAvailableMove(suite.DB())
+		eTag := etag.GenerateEtag(mto.UpdatedAt)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
@@ -467,19 +512,28 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		}
 
 		internalServerErr := errors.New("ServerError")
+		params := movetaskorderops.UpdateMTOPostCounselingInformationParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: mto.ID.String(),
+			IfMatch:         eTag,
+		}
 
 		mockUpdater.On("UpdatePostCounselingInfo",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mto.ID,
+			eTag,
 		).Return(nil, internalServerErr)
 
 		response := handler.Handle(params)
 		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationInternalServerError{}, response)
 	})
 
-	suite.T().Run("Patch failure - 404", func(t *testing.T) {
+	suite.Run("Patch failure - 404", func() {
+		mto := testdatagen.MakeAvailableMove(suite.DB())
+		eTag := etag.GenerateEtag(mto.UpdatedAt)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
@@ -490,19 +544,28 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			&mockUpdater,
 			mtoChecker,
 		}
+		params := movetaskorderops.UpdateMTOPostCounselingInformationParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: mto.ID.String(),
+			IfMatch:         eTag,
+		}
 
 		mockUpdater.On("UpdatePostCounselingInfo",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mto.ID,
+			eTag,
 		).Return(nil, apperror.NotFoundError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationNotFound{}, response)
 	})
 
-	suite.T().Run("Patch failure - 409", func(t *testing.T) {
+	suite.Run("Patch failure - 409", func() {
+		mto := testdatagen.MakeAvailableMove(suite.DB())
+		eTag := etag.GenerateEtag(mto.UpdatedAt)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
@@ -513,19 +576,27 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			&mockUpdater,
 			mtoChecker,
 		}
-
+		params := movetaskorderops.UpdateMTOPostCounselingInformationParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: mto.ID.String(),
+			IfMatch:         eTag,
+		}
 		mockUpdater.On("UpdatePostCounselingInfo",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mto.ID,
+			eTag,
 		).Return(nil, apperror.ConflictError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationConflict{}, response)
 	})
 
-	suite.T().Run("Patch failure - 422", func(t *testing.T) {
+	suite.Run("Patch failure - 422", func() {
+		mto := testdatagen.MakeAvailableMove(suite.DB())
+		eTag := etag.GenerateEtag(mto.UpdatedAt)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
@@ -539,11 +610,14 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 		mockUpdater.On("UpdatePostCounselingInfo",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-		).Return(nil, apperror.NewInvalidInputError(mto.ID, nil, validate.NewErrors(), ""))
-
+			mto.ID,
+			eTag,
+		).Return(nil, apperror.NewInvalidInputError(uuid.Nil, nil, validate.NewErrors(), ""))
+		params := movetaskorderops.UpdateMTOPostCounselingInformationParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: mto.ID.String(),
+			IfMatch:         eTag,
+		}
 		response := handler.Handle(params)
 		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationUnprocessableEntity{}, response)
 	})

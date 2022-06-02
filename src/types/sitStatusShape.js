@@ -15,7 +15,7 @@ const serviceItemStatuses = {
   REJECTED: 'REJECTED',
 };
 
-const locationTypesOneOf = PropTypes.oneOf([LOCATION_TYPES.ORIGIN, LOCATION_TYPES.DESTINATION]);
+export const LOCATION_TYPES_ONE_OF = PropTypes.oneOf([LOCATION_TYPES.ORIGIN, LOCATION_TYPES.DESTINATION]);
 
 const serviceItemStatusesOneOf = PropTypes.oneOf([
   serviceItemStatuses.SUBMITTED,
@@ -65,7 +65,7 @@ const PastServiceItemsShape = PropTypes.shape({
 });
 
 export const SitStatusShape = PropTypes.shape({
-  location: locationTypesOneOf,
+  location: LOCATION_TYPES_ONE_OF,
   totalSITDaysUsed: PropTypes.number,
   totalDaysRemaining: PropTypes.number,
   daysInSIT: PropTypes.number,

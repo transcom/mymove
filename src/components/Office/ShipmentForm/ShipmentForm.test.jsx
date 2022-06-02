@@ -13,7 +13,7 @@ const mockPush = jest.fn();
 
 const defaultProps = {
   isCreatePage: true,
-  match: { isExact: false, path: '', url: '', params: { moveCode: 'move123', shipementId: 'shipment123' } },
+  match: { isExact: false, path: '', url: '', params: { moveCode: 'move123', shipmentId: 'shipment123' } },
   history: {
     push: mockPush,
   },
@@ -87,7 +87,7 @@ const mockShipmentWithDestinationType = {
 const defaultPropsRetirement = {
   ...defaultProps,
   displayDestinationType: true,
-  desintationType: 'HOME_OF_RECORD',
+  destinationType: 'HOME_OF_RECORD',
   orderType: ORDERS_TYPE.RETIREMENT,
 };
 

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http/httptest"
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -31,34 +30,41 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	reServiceID, _ := uuid.NewV4()
 	serviceItemID, _ := uuid.NewV4()
 	mtoShipmentID, _ := uuid.NewV4()
+	var mtoID uuid.UUID
 
-	mto := testdatagen.MakeDefaultMove(suite.DB())
-	reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			ID:   reServiceID,
-			Code: "TEST10000",
-		},
-	})
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{ID: mtoShipmentID},
-	})
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: serviceItemID, MoveTaskOrderID: mto.ID, ReServiceID: reService.ID, MTOShipmentID: &mtoShipment.ID,
-		},
-	})
-	serviceItems := models.MTOServiceItems{serviceItem}
+	setupTestData := func() (models.User, models.MTOServiceItems) {
+		mto := testdatagen.MakeDefaultMove(suite.DB())
+		mtoID = mto.ID
+		reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				ID:   reServiceID,
+				Code: "TEST10000",
+			},
+		})
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{ID: mtoShipmentID},
+		})
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				ID: serviceItemID, MoveTaskOrderID: mto.ID, ReServiceID: reService.ID, MTOShipmentID: &mtoShipment.ID,
+			},
+		})
+		serviceItems := models.MTOServiceItems{serviceItem}
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mto.ID.String()), nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
-
-	params := mtoserviceitemop.ListMTOServiceItemsParams{
-		HTTPRequest:     req,
-		MoveTaskOrderID: *handlers.FmtUUID(serviceItem.MoveTaskOrderID),
+		return requestUser, serviceItems
 	}
 
-	suite.T().Run("Successful list fetch - Integration Test", func(t *testing.T) {
+	suite.Run("Successful list fetch - Integration Test", func() {
+		requestUser, serviceItems := setupTestData()
+		req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mtoID.String()), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := mtoserviceitemop.ListMTOServiceItemsParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: *handlers.FmtUUID(serviceItems[0].MoveTaskOrderID),
+		}
+
 		queryBuilder := query.NewQueryBuilder()
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
@@ -76,7 +82,15 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		suite.Equal(serviceItems[0].ID.String(), okResponse.Payload[0].ID.String())
 	})
 
-	suite.T().Run("Failure list fetch - Internal Server Error", func(t *testing.T) {
+	suite.Run("Failure list fetch - Internal Server Error", func() {
+		requestUser, serviceItems := setupTestData()
+		req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mtoID.String()), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := mtoserviceitemop.ListMTOServiceItemsParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: *handlers.FmtUUID(serviceItems[0].MoveTaskOrderID),
+		}
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOServiceItemsHandler{
@@ -106,7 +120,16 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsInternalServerError{}, response)
 	})
 
-	suite.T().Run("Failure list fetch - 404 Not Found - Move Task Order ID", func(t *testing.T) {
+	suite.Run("Failure list fetch - 404 Not Found - Move Task Order ID", func() {
+		requestUser, serviceItems := setupTestData()
+		req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mtoID.String()), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := mtoserviceitemop.ListMTOServiceItemsParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: *handlers.FmtUUID(serviceItems[0].MoveTaskOrderID),
+		}
+
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOServiceItemsHandler{
@@ -156,7 +179,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 
 	// With this first set of tests we'll use mocked service object responses so that we can make sure the handler
 	// is returning the right HTTP code given a set of circumstances.
-	suite.T().Run("404 - not found response", func(t *testing.T) {
+	suite.Run("404 - not found response", func() {
 		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
 		fetcher := mocks.Fetcher{}
 		fetcher.On("FetchRecord",
@@ -174,7 +197,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusNotFound{}, response)
 	})
 
-	suite.T().Run("200 - success response", func(t *testing.T) {
+	suite.Run("200 - success response", func() {
 		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
 		fetcher := mocks.Fetcher{}
 		fetcher.On("FetchRecord",
@@ -200,7 +223,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
 	})
 
-	suite.T().Run("412 - precondition failed response", func(t *testing.T) {
+	suite.Run("412 - precondition failed response", func() {
 		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
 		fetcher := mocks.Fetcher{}
 		fetcher.On("FetchRecord",
@@ -226,7 +249,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("500 - internal server error response", func(t *testing.T) {
+	suite.Run("500 - internal server error response", func() {
 		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
 		fetcher := mocks.Fetcher{}
 		fetcher.On("FetchRecord",
@@ -252,7 +275,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusInternalServerError{}, response)
 	})
 
-	suite.T().Run("422 - unprocessable entity response", func(t *testing.T) {
+	suite.Run("422 - unprocessable entity response", func() {
 		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
 		fetcher := mocks.Fetcher{}
 		params.MtoServiceItemID = ""
@@ -273,7 +296,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 
 	// With this we'll do a happy path integration test to ensure that the use of the service object
 	// by the handler is working as expected.
-	suite.T().Run("Successful rejected status update - Integration test", func(t *testing.T) {
+	suite.Run("Successful rejected status update - Integration test", func() {
 		queryBuilder := query.NewQueryBuilder()
 		mtoServiceItem, move := suite.createServiceItem()
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
@@ -311,7 +334,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 
 	// With this we'll do a happy path integration test to ensure that the use of the service object
 	// by the handler is working as expected.
-	suite.T().Run("Successful status update of MTO service item and event trigger", func(t *testing.T) {
+	suite.Run("Successful status update of MTO service item and event trigger", func() {
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		mtoServiceItem, availableMove := suite.createServiceItem()

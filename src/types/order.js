@@ -3,21 +3,10 @@ import PropTypes from 'prop-types';
 import { AddressShape } from './address';
 import { BackupContactShape } from './backupContact';
 
-import dimensionTypes from 'constants/dimensionTypes';
 import customerContactTypes from 'constants/customerContactTypes';
+import dimensionTypes from 'constants/dimensionTypes';
+import { DutyLocationShape } from 'types/dutyLocation';
 import { ShipmentOptionsOneOf } from 'types/shipment';
-
-export const DestinationDutyLocationShape = PropTypes.shape({
-  name: PropTypes.string,
-  address: AddressShape,
-});
-
-export const OriginDutyLocationShape = PropTypes.shape({
-  id: PropTypes.string,
-  name: PropTypes.string,
-  address_id: PropTypes.string,
-  address: AddressShape,
-});
 
 export const EntitlementShape = PropTypes.shape({
   authorizedWeight: PropTypes.number,
@@ -40,15 +29,15 @@ export const OrderShape = PropTypes.shape({
   order_type_detail: PropTypes.string,
   tac: PropTypes.string,
   sac: PropTypes.string,
-  destinationDutyLocation: DestinationDutyLocationShape,
-  originDutyLocation: OriginDutyLocationShape,
+  destinationDutyLocation: DutyLocationShape,
+  originDutyLocation: DutyLocationShape,
   entitlement: EntitlementShape,
 });
 
 export const OrdersInfoShape = PropTypes.shape({
   id: PropTypes.string,
-  currentDutyLocation: OriginDutyLocationShape,
-  newDutyLocation: DestinationDutyLocationShape,
+  currentDutyLocation: DutyLocationShape,
+  newDutyLocation: DutyLocationShape,
   issuedDate: PropTypes.string,
   reportByDate: PropTypes.string,
   departmentIndicator: PropTypes.string,
@@ -68,25 +57,6 @@ export const CustomerShape = PropTypes.shape({
   email: PropTypes.string,
   current_address: AddressShape,
   backup_contact: BackupContactShape,
-});
-
-export const MTOShipmentShape = PropTypes.shape({
-  id: PropTypes.string,
-  shipmentType: PropTypes.string, // TODO - is this in API response?
-  scheduledPickupDate: PropTypes.string,
-  requestedPickupDate: PropTypes.string,
-  pickupAddress: AddressShape,
-  destinationAddress: AddressShape,
-  diversion: PropTypes.bool,
-});
-
-export const MTOAgentShape = PropTypes.shape({
-  id: PropTypes.string,
-  firstName: PropTypes.string,
-  lastName: PropTypes.string,
-  agentType: PropTypes.string,
-  email: PropTypes.string,
-  phone: PropTypes.string,
 });
 
 export const MoveTaskOrderShape = PropTypes.shape({

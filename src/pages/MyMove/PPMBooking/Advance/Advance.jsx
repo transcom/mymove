@@ -32,14 +32,14 @@ const Advance = () => {
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
 
-    const advanceRequested = values.advanceRequested === 'true';
+    const hasRequestedAdvance = values.hasRequestedAdvance === 'true';
 
     const payload = {
       shipmentType: mtoShipment.shipmentType,
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
-        advance: advanceRequested ? values.amountRequested * 100 : null,
-        advanceRequested,
+        advance: hasRequestedAdvance ? values.advanceAmountRequested * 100 : null,
+        advanceRequested: hasRequestedAdvance,
       },
     };
 

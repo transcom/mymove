@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http/httptest"
-	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
 
@@ -25,7 +24,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 	req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/mto-agents", testMTOAgent.ID.String()), nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 
-	suite.T().Run("Successful Response", func(t *testing.T) {
+	suite.Run("Successful Response", func() {
 		params := mtoagentop.FetchMTOAgentListParams{
 			HTTPRequest: req,
 			ShipmentID:  strfmt.UUID(testMTOAgent.MTOShipmentID.String()),
@@ -49,7 +48,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 		suite.IsType(mtoagentop.NewFetchMTOAgentListOK(), response)
 	})
 
-	suite.T().Run("Error Response", func(t *testing.T) {
+	suite.Run("Error Response", func() {
 		params := mtoagentop.FetchMTOAgentListParams{
 			HTTPRequest: req,
 			ShipmentID:  strfmt.UUID(testMTOAgent.MTOShipmentID.String()),
@@ -73,7 +72,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 		suite.Equal(expectedResponse, response)
 	})
 
-	suite.T().Run("404 Response", func(t *testing.T) {
+	suite.Run("404 Response", func() {
 		params := mtoagentop.FetchMTOAgentListParams{
 			HTTPRequest: req,
 			ShipmentID:  strfmt.UUID(testMTOAgent.MTOShipmentID.String()),
