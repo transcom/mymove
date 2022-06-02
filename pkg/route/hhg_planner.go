@@ -17,37 +17,32 @@ type hhgPlanner struct {
 // TransitDistance calculates the distance between two valid addresses
 func (p *hhgPlanner) TransitDistance(appCtx appcontext.AppContext, source *models.Address, destination *models.Address) (int, error) {
 	// This might get retired after we transition over fully to GHC.
-
-	panic("implement me")
+	panic("the HHG planner does not need this method and this will be deprecated when the HERE planner is deprecated")
 }
 
 // LatLongTransitDistance calculates the distance between two sets of LatLong coordinates
 func (p *hhgPlanner) LatLongTransitDistance(appCtx appcontext.AppContext, source LatLong, destination LatLong) (int, error) {
 	// This might get retired after we transition over fully to GHC.
-
-	panic("implement me")
+	panic("the HHG planner does not need this method and this will be deprecated when the HERE planner is deprecated")
 }
 
 // Zip5TransitDistanceLineHaul calculates the distance between two valid Zip5s; it is used by the PPM flow
 // and checks for minimum distance restriction as PPM doesn't allow short hauls.
 func (p *hhgPlanner) Zip5TransitDistanceLineHaul(appCtx appcontext.AppContext, source string, destination string) (int, error) {
 	// This might get retired after we transition over fully to GHC.
-
-	panic("implement me")
+	panic("the HHG planner does not need this method and this will be deprecated when the HERE planner is deprecated")
 }
 
 // Zip5TransitDistance calculates the distance between two valid Zip5s; it is used by the PPM flow
 func (p *hhgPlanner) Zip5TransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error) {
 	// This might get retired after we transition over fully to GHC.
-
-	panic("implement me")
+	panic("the HHG planner does not need this method and this will be deprecated when the HERE planner is deprecated")
 }
 
 // Zip3TransitDistance calculates the distance between two valid Zip5s; it is used by the PPM flow
 func (p *hhgPlanner) Zip3TransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error) {
 	// This might get retired after we transition over fully to GHC.
-
-	panic("implement me")
+	panic("the HHG planner does not need this method and this will be deprecated when the HERE planner is deprecated")
 }
 
 // ZipTransitDistance calculates the distance between two valid Zips
