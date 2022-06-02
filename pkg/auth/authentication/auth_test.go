@@ -250,7 +250,9 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	suite.Equal(handlerSession.UserID, user.ID, "the authenticated user is different from expected")
 }
 
-func (suite *AuthSuite) TestRequirePermissionsMiddleware() {
+// Test permissions middleware with a user who will be ALLOWED POST access on the endpoint: ghc/v1/shipments/:shipmentID/approve
+// role must have update.shipment permissions
+func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 	// TIO users have the proper permissions for our test - update.shipment
 	tioOfficeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
@@ -267,7 +269,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddleware() {
 	suite.NoError(err)
 
 	rr := httptest.NewRecorder()
-	// using a fake ID for a shipment, since we only care about validating the permissions flow
+	// using an arbitrary ID here for the shipment
 	req := httptest.NewRequest("POST", "/ghc/v1/shipments/123456/approve", nil)
 
 	// And: the context contains the auth values
@@ -295,10 +297,59 @@ func (suite *AuthSuite) TestRequirePermissionsMiddleware() {
 
 	middleware(handler).ServeHTTP(rr, req)
 
-	// We expect a failed response given the shipment ID is fake, but it should not be a permissions rejection
+	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+	suite.Equal(handlerSession.UserID, tioOfficeUser.User.ID, "the authenticated user is different from expected")
+}
 
-	// suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
-	suite.Equal(handlerSession.UserID, tioOfficeUser.ID, "the authenticated user is different from expected")
+// Test permissions middleware with a user who will be DENIED POST access on the endpoint: ghc/v1/shipments/:shipmentID/approve
+// role must NOT have update.shipment permissions
+func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
+	// QAECSR users will be denied access as they lack the proper permissions for our test - update.shipment
+	qaeCsrOfficeUser := testdatagen.MakeQAECSROfficeUser(suite.DB(), testdatagen.Assertions{})
+
+	testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
+		User: qaeCsrOfficeUser.User,
+		UsersRoles: models.UsersRoles{
+			UserID: qaeCsrOfficeUser.User.ID,
+			RoleID: qaeCsrOfficeUser.User.Roles[0].ID,
+		},
+	})
+
+	identity, err := models.FetchUserIdentity(suite.DB(), qaeCsrOfficeUser.User.LoginGovUUID.String())
+
+	suite.NoError(err)
+
+	rr := httptest.NewRecorder()
+	// using an arbitrary ID here for the shipment
+	req := httptest.NewRequest("POST", "/ghc/v1/shipments/123456/approve", nil)
+
+	// And: the context contains the auth values
+	handlerSession := auth.Session{
+		UserID:          qaeCsrOfficeUser.User.ID,
+		IDToken:         "fake Token",
+		ApplicationName: "mil",
+	}
+
+	handlerSession.Roles = append(handlerSession.Roles, identity.Roles...)
+
+	ctx := auth.SetSessionInRequestContext(req, &handlerSession)
+	req = req.WithContext(ctx)
+
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	api := ghcapi.NewGhcAPIHandler(handlerConfig)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+
+	middleware := PermissionsMiddleware(suite.AppContextForTest(), api)
+
+	root := mux.NewRouter()
+	ghcMux := root.PathPrefix("/ghc/v1/").Subrouter()
+	ghcMux.PathPrefix("/").Handler(api.Serve(middleware))
+
+	middleware(handler).ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusUnauthorized, rr.Code, "handler returned wrong status code")
+	suite.Equal(handlerSession.UserID, qaeCsrOfficeUser.User.ID, "the authenticated user is different from expected")
 }
 
 func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {

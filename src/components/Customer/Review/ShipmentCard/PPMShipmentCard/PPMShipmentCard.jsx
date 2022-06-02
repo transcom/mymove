@@ -24,7 +24,8 @@ const PPMShipmentCard = ({ shipment, shipmentNumber, showEditAndDeleteBtn, onEdi
     spouseProGearWeight,
     estimatedWeight,
     estimatedIncentive,
-    advance,
+    hasRequestedAdvance,
+    advanceAmountRequested,
   } = shipment?.ppmShipment || {};
 
   const editPath = `${generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
@@ -102,7 +103,7 @@ const PPMShipmentCard = ({ shipment, shipmentNumber, showEditAndDeleteBtn, onEdi
           </div>
           <div className={styles.row}>
             <dt>Advance requested?</dt>
-            <dd>{advance ? `Yes, $${formatCentsTruncateWhole(advance)}` : 'No'}</dd>
+            <dd>{hasRequestedAdvance ? `Yes, $${formatCentsTruncateWhole(advanceAmountRequested)}` : 'No'}</dd>
           </div>
         </dl>
       </ShipmentContainer>

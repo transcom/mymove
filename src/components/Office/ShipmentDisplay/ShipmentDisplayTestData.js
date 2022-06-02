@@ -139,8 +139,8 @@ export const ppmInfo = {
   heading: 'PPM',
   ppmShipment: {
     actualMoveDate: null,
-    advance: 598700,
-    advanceRequested: true,
+    advanceAmountRequested: 598700,
+    hasRequestedAdvance: true,
     approvedAt: null,
     createdAt: '2022-04-29T21:48:21.581Z',
     deletedAt: null,

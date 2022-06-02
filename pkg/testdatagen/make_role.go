@@ -1,6 +1,8 @@
 package testdatagen
 
 import (
+	"strings"
+
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -100,11 +102,23 @@ func MakeContractingOfficerRole(db *pop.Connection) roles.Role {
 	})
 }
 
-// lookup a role by role type
-func LookupRole(db *pop.Connection, roleType roles.RoleType) (roles.Role, error) {
+// lookup a role by role type, if it doesn't exist make it
+func LookupOrMakeRole(db *pop.Connection, roleType roles.RoleType, roleName roles.RoleName) (roles.Role, error) {
 
 	var role roles.Role
-	err := db.RawQuery(`SELECT * FROM roles WHERE role_type = ?`, roleType).First(&role)
+	err := db.RawQuery(`SELECT * FROM roles WHERE role_type = ? AND role_name = ?`, roleType, roleName).First(&role)
+
+	if err != nil {
+		// if no role found we need to create one - there may be a better way to do this
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return MakeRole(db, Assertions{
+				Role: roles.Role{
+					RoleType: roleType,
+					RoleName: roleName,
+				},
+			}), nil
+		}
+	}
 
 	return role, err
 }

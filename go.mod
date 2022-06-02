@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/DATA-DOG/go-txdb v0.1.5
 	github.com/XSAM/otelsql v0.14.1
-	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
+	github.com/alexedwards/scs/redisstore v0.0.0-20220216073957-c252878bcf5a
 	github.com/alexedwards/scs/v2 v2.5.0
 	github.com/aws/aws-sdk-go v1.44.13
 	github.com/benbjohnson/clock v1.3.0
@@ -31,7 +31,7 @@ require (
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/golang-jwt/jwt/v4 v4.4.1
-	github.com/gomodule/redigo v2.0.0+incompatible
+	github.com/gomodule/redigo v1.8.8
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.1
 	github.com/gorilla/mux v1.8.0
