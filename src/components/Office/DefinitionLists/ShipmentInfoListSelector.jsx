@@ -1,7 +1,7 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 
-import { ShipmentShape, PPMShipmentShape } from 'types/shipment';
+import { ShipmentShape } from 'types/shipment';
 import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
 import PPMShipmentInfoList from 'components/Office/DefinitionLists/PPMShipmentInfoList';
 import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
@@ -78,7 +78,7 @@ const ShipmentInfoListSelector = ({
 
 ShipmentInfoListSelector.propTypes = {
   className: PropTypes.string,
-  shipment: PropTypes.oneOfType([ShipmentShape, PPMShipmentShape]).isRequired,
+  shipment: ShipmentShape.isRequired,
   isExpanded: PropTypes.bool,
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),

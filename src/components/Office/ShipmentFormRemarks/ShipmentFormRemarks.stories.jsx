@@ -9,6 +9,7 @@ import shipmentFormStyles from 'components/Office/ShipmentForm/ShipmentForm.modu
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import { roleTypes } from 'constants/userRoles';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default {
   title: 'Office Components / Forms / ShipmentForm / ShipmentFormRemarks',
@@ -37,6 +38,14 @@ export default {
 };
 
 export const AsServiceCounselor = () => (
-  <ShipmentFormRemarks userRole={roleTypes.SERVICES_COUNSELOR} customerRemarks="mock customer remarks" />
+  <ShipmentFormRemarks
+    userRole={roleTypes.SERVICES_COUNSELOR}
+    shipmentType={SHIPMENT_OPTIONS.HHG}
+    customerRemarks="mock customer remarks"
+  />
 );
-export const AsTOO = () => <ShipmentFormRemarks userRole={roleTypes.TOO} />;
+export const AsSCWithPPMShipment = () => (
+  <ShipmentFormRemarks userRole={roleTypes.SERVICES_COUNSELOR} shipmentType={SHIPMENT_OPTIONS.PPM} />
+);
+
+export const AsTOO = () => <ShipmentFormRemarks userRole={roleTypes.TOO} shipmentType={SHIPMENT_OPTIONS.HHG} />;
