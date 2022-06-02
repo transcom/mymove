@@ -111,7 +111,7 @@ describe('ServiceItemCalculations DLH', () => {
       details: ['Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
     },
     {
-      value: '210',
+      value: '32210',
       label: 'Mileage',
       details: ['ZIP 322 to ZIP 919'],
     },

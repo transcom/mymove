@@ -122,7 +122,7 @@ const DistanceZip = {
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'INTEGER',
-  value: '210',
+  value: '32210',
 };
 const ContractCode = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNDYwMDRa',
