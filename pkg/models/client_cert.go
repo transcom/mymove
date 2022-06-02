@@ -39,6 +39,7 @@ func (c *ClientCert) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: c.Sha256Digest, Name: "Sha256Digest"},
 		&validators.StringIsPresent{Field: c.Subject, Name: "Subject"},
+		&validators.UUIDIsPresent{Field: c.UserID, Name: "UserID"},
 	), nil
 }
 
