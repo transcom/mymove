@@ -39,29 +39,27 @@ func (suite *EventServiceSuite) getNotification(mtoID uuid.UUID, traceID uuid.UU
 func (suite *EventServiceSuite) Test_EventTrigger() {
 
 	now := time.Now()
+	setupTestData := func() models.PaymentRequest {
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+		})
 
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-		},
-	})
-	paymentRequestID := paymentRequest.ID
-	mtoID := paymentRequest.MoveTaskOrderID
-
-	unavailablePaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-
-	appCtx := suite.AppContextForTest()
+		return paymentRequest
+	}
 
 	// Test successful event passing with Support API
-	suite.T().Run("Success with support api endpoint", func(t *testing.T) {
+	suite.Run("Success with support api endpoint", func() {
+		paymentRequest := setupTestData()
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		_, err := TriggerEvent(Event{
 			EventKey:        PaymentRequestCreateEventKey,
-			MtoID:           mtoID,
-			UpdatedObjectID: paymentRequestID,
+			MtoID:           paymentRequest.MoveTaskOrderID,
+			UpdatedObjectID: paymentRequest.ID,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
-			AppContext:      appCtx,
+			AppContext:      suite.AppContextForTest(),
 			TraceID:         uuid.Must(uuid.NewV4()),
 		})
 		suite.Nil(err)
@@ -71,15 +69,16 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 	})
 
 	// Test successful event passing with GHC API
-	suite.T().Run("Success with ghc api endpoint", func(t *testing.T) {
+	suite.Run("Success with ghc api endpoint", func() {
+		paymentRequest := setupTestData()
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		_, err := TriggerEvent(Event{
 			EventKey:        PaymentRequestCreateEventKey,
-			MtoID:           mtoID,
-			UpdatedObjectID: paymentRequestID,
+			MtoID:           paymentRequest.MoveTaskOrderID,
+			UpdatedObjectID: paymentRequest.ID,
 			EndpointKey:     GhcUpdatePaymentRequestStatusEndpointKey,
-			AppContext:      appCtx,
+			AppContext:      suite.AppContextForTest(),
 			TraceID:         uuid.Must(uuid.NewV4()),
 		})
 		suite.Nil(err)
@@ -90,7 +89,8 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 
 	// This test verifies that if the object updated is not on an MTO that
 	// is available to prime, no notification is created.
-	suite.T().Run("Fail with no notification - unavailable mto", func(t *testing.T) {
+	suite.Run("Fail with no notification - unavailable mto", func() {
+		unavailablePaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		unavailablePRID := unavailablePaymentRequest.ID
@@ -101,7 +101,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			MtoID:           unavailableMTOID,
 			UpdatedObjectID: unavailablePRID,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
-			AppContext:      appCtx,
+			AppContext:      suite.AppContextForTest(),
 			TraceID:         uuid.Must(uuid.NewV4()),
 		})
 		suite.Nil(err)
@@ -111,29 +111,31 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 
 	})
 
-	suite.T().Run("Fail with bad event key", func(t *testing.T) {
+	suite.Run("Fail with bad event key", func() {
+		paymentRequest := setupTestData()
 		// Pass a bad event key
 		_, err := TriggerEvent(Event{
 			EventKey:        "BadEventKey",
-			MtoID:           mtoID,
-			UpdatedObjectID: paymentRequestID,
+			MtoID:           paymentRequest.MoveTaskOrderID,
+			UpdatedObjectID: paymentRequest.ID,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
-			AppContext:      appCtx,
+			AppContext:      suite.AppContextForTest(),
 			TraceID:         uuid.Must(uuid.NewV4()),
 		})
 		// Check that at least one error was returned
 		suite.NotNil(err)
 	})
-	suite.T().Run("Fail with bad endpoint key", func(t *testing.T) {
+	suite.Run("Fail with bad endpoint key", func() {
+		paymentRequest := setupTestData()
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		// Pass a bad endpoint key
 		_, err := TriggerEvent(Event{
 			EventKey:        PaymentRequestCreateEventKey,
-			MtoID:           mtoID,
-			UpdatedObjectID: paymentRequestID,
+			MtoID:           paymentRequest.MoveTaskOrderID,
+			UpdatedObjectID: paymentRequest.ID,
 			EndpointKey:     "Bad Endpoint Key That Doesn't Exist",
-			AppContext:      appCtx,
+			AppContext:      suite.AppContextForTest(),
 			TraceID:         uuid.Must(uuid.NewV4()),
 		})
 		// Check that at least one error was returned
@@ -143,18 +145,18 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 		suite.Equal(count, newCount)
 
 	})
-	suite.T().Run("Fail with bad object ID", func(t *testing.T) {
+	suite.Run("Fail with bad object ID", func() {
+		paymentRequest := setupTestData()
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		// Pass a bad payment request ID
-		uuidString := "88c9922f-58c7-45cd-8c10-48f2a52bbabc"
-		paymentRequestID, _ = uuid.FromString(uuidString)
+		randomID := uuid.Must(uuid.NewV4())
 		_, err := TriggerEvent(Event{
 			EventKey:        PaymentRequestCreateEventKey,
-			MtoID:           mtoID,
-			UpdatedObjectID: paymentRequestID,
+			MtoID:           paymentRequest.MoveTaskOrderID,
+			UpdatedObjectID: randomID,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
-			AppContext:      appCtx,
+			AppContext:      suite.AppContextForTest(),
 			TraceID:         uuid.Must(uuid.NewV4()),
 		})
 		// Check that at least one error was returned
@@ -168,18 +170,17 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 
 func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 
-	now := time.Now()
-	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-		},
-	})
-	mtoID := mto.ID
-
-	traceID := uuid.Must(uuid.NewV4())
-
 	// Test successful event
-	suite.T().Run("Success with GHC MoveTaskOrder endpoint", func(t *testing.T) {
+	suite.Run("Success with GHC MoveTaskOrder endpoint", func() {
+		now := time.Now()
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+		})
+		mtoID := mto.ID
+
+		traceID := uuid.Must(uuid.NewV4())
 
 		_, err := TriggerEvent(Event{
 			EventKey:        MoveTaskOrderCreateEventKey,
@@ -193,7 +194,7 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 
 		// Get the notification
 		notification, err := suite.getNotification(mtoID, traceID)
-		suite.NoError(err)
+		suite.FatalNoError(err)
 		suite.Equal(&mtoID, notification.ObjectID)
 
 		// Reinflate the json from the notification payload
@@ -218,7 +219,7 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 
 func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 	// Test successful event passing with Support API
-	suite.T().Run("Success with GHC MTOShipment endpoint", func(t *testing.T) {
+	suite.Run("Success with GHC MTOShipment endpoint", func() {
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				AvailableToPrimeAt: swag.Time(time.Now()),
@@ -264,7 +265,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		suite.Nil(mtoShipment.NTSRecordedWeight)
 	})
 
-	suite.T().Run("No notification for GHC MTOShipment endpoint when shipment uses external vendor", func(t *testing.T) {
+	suite.Run("No notification for GHC MTOShipment endpoint when shipment uses external vendor", func() {
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				UsesExternalVendor: true,
@@ -298,7 +299,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 	})
 
 	// Test successful event passing with Support API
-	suite.T().Run("Success with GHC MTOShipment endpoint for NTS Shipment", func(t *testing.T) {
+	suite.Run("Success with GHC MTOShipment endpoint for NTS Shipment", func() {
 		ntsRecordedWeight := unit.Pound(6989)
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -351,7 +352,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 	})
 
 	// Test successful no event passing with Support API when shipment is assigned to external vendor
-	suite.T().Run("Error with GHC MTOShipment endpoint for NTS Shipment using external vendor", func(t *testing.T) {
+	suite.Run("Error with GHC MTOShipment endpoint for NTS Shipment using external vendor", func() {
 
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -390,20 +391,19 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 
 func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 
-	now := time.Now()
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-		},
-	})
-
-	mtoServiceItemID := mtoServiceItem.ID
-	mtoID := mtoServiceItem.MoveTaskOrderID
-
-	traceID := uuid.Must(uuid.NewV4())
-
 	// Test successful event passing with Support API
-	suite.T().Run("Success with GHC ServiceItem endpoint", func(t *testing.T) {
+	suite.Run("Success with GHC ServiceItem endpoint", func() {
+		now := time.Now()
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+		})
+
+		mtoServiceItemID := mtoServiceItem.ID
+		mtoID := mtoServiceItem.MoveTaskOrderID
+
+		traceID := uuid.Must(uuid.NewV4())
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		_, err := TriggerEvent(Event{
@@ -423,11 +423,12 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 }
 
 func (suite *EventServiceSuite) TestOrderEventTrigger() {
-	move := testdatagen.MakeAvailableMove(suite.DB())
-	traceID := uuid.Must(uuid.NewV4())
 
 	// Test successful event passing with Support API
-	suite.T().Run("Success with GHC ServiceItem endpoint", func(t *testing.T) {
+	suite.Run("Success with GHC ServiceItem endpoint", func() {
+
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		traceID := uuid.Must(uuid.NewV4())
 		_, err := TriggerEvent(Event{
 			EventKey:        OrderUpdateEventKey,
 			MtoID:           move.ID,
@@ -440,7 +441,7 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 
 		// Get the notification
 		notification, err := suite.getNotification(move.OrdersID, traceID)
-		suite.NoError(err)
+		suite.FatalNoError(err)
 		suite.Equal(&move.OrdersID, notification.ObjectID)
 
 		// Reinflate the json from the notification payload
@@ -457,11 +458,11 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 }
 
 func (suite *EventServiceSuite) TestNotificationEventHandler() {
-	order := testdatagen.MakeDefaultOrder(suite.DB())
-	traceID := uuid.Must(uuid.NewV4())
 
 	// Test a nil MTO ID is present and no notification stored
-	suite.T().Run("No move and notification stored", func(t *testing.T) {
+	suite.Run("No move and notification stored", func() {
+		order := testdatagen.MakeDefaultOrder(suite.DB())
+		traceID := uuid.Must(uuid.NewV4())
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 		event := Event{
 			EventKey:        OrderUpdateEventKey,
