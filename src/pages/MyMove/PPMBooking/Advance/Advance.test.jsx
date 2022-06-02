@@ -136,6 +136,19 @@ describe('Advance page', () => {
     expect(saveButton).not.toBeDisabled();
   });
 
+  it.each([
+    [mockMTOShipment, undefined],
+    [undefined, mockOrders],
+    [undefined, undefined],
+  ])('renders the loading placeholder when mtoShipment or orders are missing', async (loadedShipment, loadedOrders) => {
+    selectMTOShipmentById.mockImplementationOnce(() => loadedShipment);
+    selectCurrentOrders.mockImplementationOnce(() => loadedOrders);
+
+    render(<Advance />, { wrapper: MockProviders });
+
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Loading, please wait...');
+  });
+
   it.each([[mockMTOShipment], [mockMTOShipmentWithAdvance]])(
     'renders the form with and without previously filled in amount requested for an advance',
     async (preExistingShipment) => {
