@@ -39,15 +39,17 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
   const {
     actualMoveDate,
     actualPickupPostalCode,
+    pickupPostalCode,
     actualDestinationPostalCode,
+    destinationPostalCode,
     hasReceivedAdvance,
     advanceAmountReceived,
   } = mtoShipment?.ppmShipment || {};
 
   const initialValues = {
     actualMoveDate: actualMoveDate || '',
-    actualPickupPostalCode: actualPickupPostalCode || '',
-    actualDestinationPostalCode: actualDestinationPostalCode || '',
+    actualPickupPostalCode: actualPickupPostalCode || pickupPostalCode || '',
+    actualDestinationPostalCode: actualDestinationPostalCode || destinationPostalCode || '',
     hasReceivedAdvance: hasReceivedAdvance ? 'true' : 'false',
     advanceAmountReceived: hasReceivedAdvance ? formatCentsTruncateWhole(advanceAmountReceived) : '',
   };
