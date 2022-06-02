@@ -10,6 +10,7 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { MockProviders } from 'testUtils';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const mockMoveId = v4();
 const mockMTOShipmentId = v4();
@@ -35,7 +36,7 @@ jest.mock('services/internalApi', () => ({
 
 const mockMTOShipment = {
   id: mockMTOShipmentId,
-  shipmentType: 'PPM',
+  shipmentType: SHIPMENT_OPTIONS.PPM,
   ppmShipment: {
     id: mockPPMShipmentId,
     pickupPostalCode: '10001',
