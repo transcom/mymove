@@ -3842,8 +3842,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createMoveWithNTSRShipment(appCtx, "EXTNTR", true)
 
 	createMoveWithServiceItemsandPaymentRequests(appCtx, userUploader, "TIOFLO")
-	createMoveWithServiceItemsandPaymentRequests(appCtx, userUploader, "TIOFLO2")
-	createMoveWithServiceItemsandPaymentRequests(appCtx, userUploader, "TIOFLO3")
+	createMoveWithServiceItemsandPaymentRequests(appCtx, userUploader, "TIOFL2")
+	createMoveWithServiceItemsandPaymentRequests(appCtx, userUploader, "TIOFL3")
 	createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx, userUploader, primeUploader)
 	createMoveWithSinceParamater(appCtx, userUploader)
 	createMoveWithTaskOrderServices(appCtx, userUploader)
