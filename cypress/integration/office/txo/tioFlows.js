@@ -107,7 +107,7 @@ describe('TIO user', () => {
 
     // TIO Payment Requests queue
     cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
-    cy.get('#locator').type('TIOFLO');
+    cy.get('#locator').type('TIOFLO1');
     cy.get('th[data-testid="locator"]').first().click();
     cy.get('[data-testid="locator-0"]').click();
 
@@ -281,7 +281,7 @@ describe('TIO user', () => {
 
     // TIO Payment Requests queue
     cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
-    cy.get('#locator').type('TIOFLO');
+    cy.get('#locator').type('TIOFLO2');
     cy.get('th[data-testid="locator"]').first().click();
     cy.get('[data-testid="locator-0"]').click();
 
@@ -311,7 +311,7 @@ describe('TIO user', () => {
 
     // TIO Payment Requests queue
     cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
-    cy.get('#locator').type('TIOFLO');
+    cy.get('#locator').type('TIOFLO3');
     cy.get('th[data-testid="locator"]').first().click();
     cy.get('[data-testid="locator-0"]').click();
 

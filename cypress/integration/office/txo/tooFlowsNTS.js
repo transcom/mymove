@@ -24,6 +24,7 @@ describe('TOO user', () => {
     // By using this type of user, we can catch bugs like the one fixed in PR 6706.
     const userId = 'dcf86235-53d3-43dd-8ee8-54212ae3078f';
     cy.apiSignInAsUser(userId, TOOOfficeUserType);
+    ('');
   });
 
   // TODO FOR NTS-RELEASE
@@ -120,7 +121,7 @@ describe('TOO user', () => {
     // Make sure that it shows all the relevant information on the approve page
     // captures the information about the NTS Facility and relevant storage information
     // verifies that all the information is shown for NTS shipments handled by the GHC Contractor
-    navigateToMove('PRINTS');
+    navigateToMove('PRINT2');
 
     cy.get('#approved-shipments').should('not.exist');
     cy.get('#requested-shipments');
@@ -173,7 +174,7 @@ describe('TOO user', () => {
   });
 
   it('TOO can view and edit Domestic NTS Shipments handled by the Prime on the MTO page', () => {
-    navigateToMove('PRINTS');
+    navigateToMove('PRINT3');
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
     cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
 
