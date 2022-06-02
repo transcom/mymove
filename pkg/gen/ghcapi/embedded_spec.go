@@ -1563,7 +1563,7 @@ func init() {
           }
         },
         "x-permissions": [
-          "update.financial_review_flag"
+          "update.financialReviewFlag"
         ]
       },
       "parameters": [
@@ -8993,7 +8993,7 @@ func init() {
           }
         },
         "x-permissions": [
-          "update.financial_review_flag"
+          "update.financialReviewFlag"
         ]
       },
       "parameters": [
