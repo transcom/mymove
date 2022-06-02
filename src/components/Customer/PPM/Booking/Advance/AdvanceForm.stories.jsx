@@ -46,7 +46,8 @@ PreFilledAdvanceForm.args = {
     ppmShipment: {
       id: '123',
       estimatedIncentive: 1000000,
-      advance: 30000,
+      hasRequestedAdvance: true,
+      advanceAmountRequested: 30000,
     },
   },
 };
@@ -60,7 +61,8 @@ MaxRequestedExceededAdvanceForm.args = {
     ppmShipment: {
       id: '123',
       estimatedIncentive: 1000000,
-      advance: 300000000,
+      hasRequestedAdvance: true,
+      advanceAmountRequested: 300000000,
     },
   },
 };

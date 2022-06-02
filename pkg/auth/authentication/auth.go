@@ -63,23 +63,23 @@ type APIWithContext interface {
 func PermissionsMiddleware(appCtx appcontext.AppContext, api APIWithContext) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			// TODO: clean up logging
-			//ctx := r.Context()
-			//logger := logging.FromContext(ctx)
+
+			logger := logging.FromContext(r.Context())
 			session := auth.SessionFromRequestContext(r)
 
 			route, r, _ := api.Context().RouteInfo(r)
 			if route == nil {
-				// TODO: could pick a better error status here
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				// If we reach this error, something went wrong with the swagger router initialization, in reality will probably never be an issue except potentially in local testing
+				logger.Error("Route not found on permission lookup")
+				http.Error(w, http.StatusText(400), http.StatusBadRequest)
 				return
 			}
 
 			permissionsRequired, exists := route.Operation.VendorExtensible.Extensions["x-permissions"]
-			fmt.Printf("permissionsRequired: %v\n", permissionsRequired)
 
 			// no permissions defined on the route, we can move on
 			if !exists {
+				logger.Info("No permissions required on this route")
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -89,21 +89,20 @@ func PermissionsMiddleware(appCtx appcontext.AppContext, api APIWithContext) fun
 
 			for _, v := range permissionsRequiredAsInterfaceArray {
 				permission := v.(string)
+				logger.Info("Permission required: ", zap.String("permission", permission))
 				access, err := checkUserPermission(appCtx, session, permission)
 
 				if err != nil {
-					// TODO: should we log here?
+					logger.Error("Unexpected error looking up permissions", zap.String("permission error", err.Error()))
 					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 					return
 				}
 
 				if !access {
+					logger.Warn("Permission denied", zap.String("permission", permission))
 					http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 					return
 				}
-
-				// TODO: otherwise store permission on appCtx.Permissions (?)
-
 			}
 
 			next.ServeHTTP(w, r)

@@ -94,7 +94,7 @@ WithPpms.args = {
       shipmentType: SHIPMENT_OPTIONS.PPM,
       ppmShipment: {
         id: 'completePPM',
-        advanceRequested: false,
+        hasRequestedAdvance: false,
       },
     },
     {
@@ -102,7 +102,7 @@ WithPpms.args = {
       shipmentType: SHIPMENT_OPTIONS.PPM,
       ppmShipment: {
         id: 'completePPM',
-        advanceRequested: null,
+        hasRequestedAdvance: null,
       },
     },
   ],
