@@ -94,9 +94,7 @@ export function submitsEstimatedWeights() {
 export function navigateFromEstimatedWeightsPageToEstimatedIncentivePage() {
   cy.get('button').contains('Save & Continue').should('be.enabled').click();
 
-  cy.wait('@patchShipment').then(() => {
-    debugger;
-  });
+  cy.wait('@patchShipment');
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/estimated-incentive/);
