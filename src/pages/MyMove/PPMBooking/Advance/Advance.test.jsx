@@ -181,7 +181,7 @@ describe('Advance page', () => {
       render(<Advance />, { wrapper: MockProviders });
 
       const nonPCSOrdersAdvanceText =
-        'People retiring or separating from the military typically do not receive advances. Please address any questions to your counselor.';
+        'People leaving the military may not be eligible to receive an advance, based on individual service policies. Your counselor can give you more information after you make your request.';
 
       if (orders.orders_type === ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION) {
         expect(screen.queryByText(nonPCSOrdersAdvanceText)).not.toBeInTheDocument();

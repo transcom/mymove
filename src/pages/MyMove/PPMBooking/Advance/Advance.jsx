@@ -80,8 +80,8 @@ const Advance = () => {
             <h1>Advances</h1>
             {isRetireeOrSeparatee && (
               <Alert slim type="info">
-                People retiring or separating from the military typically do not receive advances. Please address any
-                questions to your counselor.
+                People leaving the military may not be eligible to receive an advance, based on individual service
+                policies. Your counselor can give you more information after you make your request.
               </Alert>
             )}
             {errorMessage && (
