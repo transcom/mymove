@@ -16,6 +16,8 @@ import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { tooRoutes } from 'constants/routes';
 import { shipmentDestinationTypes } from 'constants/shipments';
+import { permissionTypes } from 'constants/permissions';
+import Restricted from 'components/Restricted/Restricted';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -222,42 +224,47 @@ const RequestedShipments = ({
                 })}
             </div>
 
-            <div className={styles.serviceItems}>
-              {!moveTaskOrder.availableToPrimeAt && (
-                <>
-                  <h2>Add service items to this move</h2>
-                  <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
-                    <Checkbox
-                      id="shipmentManagementFee"
-                      label={serviceItemCodes.MS}
-                      name="shipmentManagementFee"
-                      onChange={formik.handleChange}
-                    />
-                    {moveTaskOrder.serviceCounselingCompletedAt ? (
-                      <p className={styles.serviceCounselingCompleted} data-testid="services-counseling-completed-text">
-                        The customer has received counseling for this move.
-                      </p>
-                    ) : (
+            <Restricted to={permissionTypes.updateShipment}>
+              <div className={styles.serviceItems}>
+                {!moveTaskOrder.availableToPrimeAt && (
+                  <>
+                    <h2>Add service items to this move</h2>
+                    <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
                       <Checkbox
-                        id="counselingFee"
-                        label={serviceItemCodes.CS}
-                        name="counselingFee"
+                        id="shipmentManagementFee"
+                        label={serviceItemCodes.MS}
+                        name="shipmentManagementFee"
                         onChange={formik.handleChange}
                       />
-                    )}
-                  </Fieldset>
-                </>
-              )}
-              <Button
-                data-testid="shipmentApproveButton"
-                className={styles.approveButton}
-                onClick={handleReviewClick}
-                type="button"
-                disabled={!isButtonEnabled}
-              >
-                <span>Approve selected</span>
-              </Button>
-            </div>
+                      {moveTaskOrder.serviceCounselingCompletedAt ? (
+                        <p
+                          className={styles.serviceCounselingCompleted}
+                          data-testid="services-counseling-completed-text"
+                        >
+                          The customer has received counseling for this move.
+                        </p>
+                      ) : (
+                        <Checkbox
+                          id="counselingFee"
+                          label={serviceItemCodes.CS}
+                          name="counselingFee"
+                          onChange={formik.handleChange}
+                        />
+                      )}
+                    </Fieldset>
+                  </>
+                )}
+                <Button
+                  data-testid="shipmentApproveButton"
+                  className={styles.approveButton}
+                  onClick={handleReviewClick}
+                  type="button"
+                  disabled={!isButtonEnabled}
+                >
+                  <span>Approve selected</span>
+                </Button>
+              </div>
+            </Restricted>
           </form>
         </>
       )}
