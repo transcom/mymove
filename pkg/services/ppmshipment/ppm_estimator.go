@@ -128,7 +128,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 			// This is where the lookup() method of each service item param is actually evaluated
 			paramValue, valueErr := keyData.ServiceParamValue(appCtx, paramKey.Key)
 			if valueErr != nil {
-				logger.Error("could not calculate param value lookup", zap.Error(err))
+				logger.Error("could not calculate param value lookup", zap.Error(valueErr))
 				return nil, valueErr
 			}
 
