@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
-import { Checkbox, Tag } from '@trussworks/react-uswds';
+import { Button, Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
@@ -16,6 +16,8 @@ import { ShipmentStatusesOneOf } from 'types/shipment';
 import { OrdersLOAShape } from 'types/order';
 import { AgentShape } from 'types/agent';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const ShipmentDisplay = ({
   shipmentType,
@@ -51,18 +53,20 @@ const ShipmentDisplay = ({
     <div className={styles.ShipmentCard} data-testid="shipment-display">
       <ShipmentContainer className={containerClasses} shipmentType={shipmentType}>
         <div className={styles.heading}>
-          {allowApproval && isSubmitted && !displayInfo.usesExternalVendor && (
-            <Checkbox
-              id={`shipment-display-checkbox-${shipmentId}`}
-              data-testid="shipment-display-checkbox"
-              onChange={onChange}
-              name="shipments"
-              label=""
-              value={shipmentId}
-              aria-labelledby={`shipment-display-label-${shipmentId}`}
-              disabled={disableApproval}
-            />
-          )}
+          <Restricted to={permissionTypes.updateShipment}>
+            {allowApproval && isSubmitted && !displayInfo.usesExternalVendor && (
+              <Checkbox
+                id={`shipment-display-checkbox-${shipmentId}`}
+                data-testid="shipment-display-checkbox"
+                onChange={onChange}
+                name="shipments"
+                label=""
+                value={shipmentId}
+                aria-labelledby={`shipment-display-label-${shipmentId}`}
+                disabled={disableApproval}
+              />
+            )}
+          </Restricted>
 
           {allowApproval && !isSubmitted && (
             <FontAwesomeIcon icon={['far', 'circle-check']} className={styles.approved} />
@@ -92,17 +96,26 @@ const ShipmentDisplay = ({
           showWhenCollapsed={showWhenCollapsed}
           neverShow={neverShow}
         />
-        {editURL && (
-          <EditButton
-            onClick={() => {
-              history.push(editURL);
-            }}
-            className={styles.editButton}
-            data-testid={editURL}
-            label="Edit shipment"
-            secondary
-          />
-        )}
+        <Restricted
+          to={permissionTypes.updateShipment}
+          fallback={
+            <Button className={styles.editButton} label="View shipment" secondary>
+              View shipment
+            </Button>
+          }
+        >
+          {editURL && (
+            <EditButton
+              onClick={() => {
+                history.push(editURL);
+              }}
+              className={styles.editButton}
+              data-testid={editURL}
+              label="Edit shipment"
+              secondary
+            />
+          )}
+        </Restricted>
       </ShipmentContainer>
     </div>
   );
