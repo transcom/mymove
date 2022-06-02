@@ -1,7 +1,6 @@
 package order
 
 import (
-	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -67,34 +66,48 @@ func (suite *OrderServiceSuite) TestFetchOrderWithEmptyFields() {
 }
 
 func (suite *OrderServiceSuite) TestListOrders() {
-	// Create a Move without a shipment to test that only Orders with shipments
-	// are displayed to the TOO
-	testdatagen.MakeDefaultMove(suite.DB())
-
-	expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	//"30813"
-	// May have to create postalcodetogbloc for office user
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(),
-		expectedMove.MTOShipments[0].PickupAddress.PostalCode,
-		officeUser.TransportationOffice.Gbloc)
 
 	agfmPostalCode := "06001"
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), agfmPostalCode, "AGFM")
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
+	setupTestData := func() (models.OfficeUser, models.Move) {
+		// Make an office user → GBLOC X
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
 
+		// Create a move with a shipment → GBLOC X
+		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		// Ensure there's an entry connecting the shipment pickup postal code with the office user's gbloc
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(),
+			move.MTOShipments[0].PickupAddress.PostalCode,
+			officeUser.TransportationOffice.Gbloc)
+
+		// Make a postal code and GBLOC → AGFM
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), agfmPostalCode, "AGFM")
+
+		return officeUser, move
+	}
 	orderFetcher := NewOrderFetcher()
 
-	suite.T().Run("returns moves", func(t *testing.T) {
+	suite.Run("returns moves", func() {
+		// Under test: ListOrders
+		// Mocked:           None
+		// Set up:           Make 2 moves, one with a shipment and one without.
+		//                   The shipment should have a pickup GBLOC that matches the office users transportation GBLOC
+		//                   In other words, shipment should originate from same GBLOC as the office user
+		// Expected outcome: Only the move with a shipment should be returned by ListOrders
+		officeUser, expectedMove := setupTestData()
+
+		// Create a Move without a shipment
+		testdatagen.MakeDefaultMove(suite.DB())
+
 		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{})
 
+		// Expect a single move returned
 		suite.FatalNoError(err)
 		suite.Equal(1, moveCount)
 		suite.Len(moves, 1)
 
+		// Check that move matches
 		move := moves[0]
-
 		suite.NotNil(move.Orders.ServiceMember)
 		suite.Equal(expectedMove.Orders.ServiceMember.FirstName, move.Orders.ServiceMember.FirstName)
 		suite.Equal(expectedMove.Orders.ServiceMember.LastName, move.Orders.ServiceMember.LastName)
@@ -110,8 +123,14 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(expectedMove.Orders.OriginDutyLocation.Address.StreetAddress1, move.Orders.OriginDutyLocation.Address.StreetAddress1)
 	})
 
-	suite.T().Run("returns moves filtered by GBLOC", func(t *testing.T) {
-		// This move is outside of the office user's GBLOC, so it should not be returned
+	suite.Run("returns moves filtered by GBLOC", func() {
+		// Under test: ListOrders
+		// Set up:           Make 2 moves, one with a pickup GBLOC that matches the office users transportation GBLOC
+		//                   (which is done in setupTestData) and one with a pickup GBLOC that doesn't
+		// Expected outcome: Only the move with the correct GBLOC should be returned by ListOrders
+		officeUser, expectedMove := setupTestData()
+
+		// This move's pickup GBLOC of the office user's GBLOC, so it should not be returned
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			PickupAddress: models.Address{
 				PostalCode: agfmPostalCode,
@@ -122,9 +141,18 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
+		move := moves[0]
+		suite.Equal(expectedMove.ID, move.ID)
+
 	})
 
-	suite.T().Run("only returns visible moves (where show = True)", func(t *testing.T) {
+	suite.Run("only returns visible moves (where show = True)", func() {
+		// Under test: ListOrders
+		// Set up:           Make 2 moves, one correctly setup in setupTestData (show = True)
+		//                   and one with show = False
+		// Expected outcome: Only the move with show = True should be returned by ListOrders
+		officeUser, expectedMove := setupTestData()
+
 		params := services.ListOrderParams{}
 		testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
@@ -132,10 +160,17 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
+		move := moves[0]
+		suite.Equal(expectedMove.ID, move.ID)
+
 	})
 
-	suite.T().Run("includes combo hhg and ppm moves", func(t *testing.T) {
-		// Create a combination HHG and PPM move and make sure it's included
+	suite.Run("includes combo hhg and ppm moves", func() {
+		// Under test: ListOrders
+		// Set up:           Make 2 moves, one default move setup in setupTestData (show = True)
+		//                   and one a combination HHG and PPM move and make sure it's included
+		// Expected outcome: Both moves should be returned by ListOrders
+		officeUser, expectedMove := setupTestData()
 		expectedComboMove := testdatagen.MakeHHGPPMMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
 		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{})
@@ -144,37 +179,56 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(2, moveCount)
 		suite.Len(moves, 2)
 
-		moveIDs := []uuid.UUID{moves[0].ID, moves[1].ID}
-
+		var moveIDs []uuid.UUID
+		for _, move := range moves {
+			moveIDs = append(moveIDs, move.ID)
+		}
 		suite.Contains(moveIDs, expectedComboMove.ID)
+		suite.Contains(moveIDs, expectedMove.ID)
 	})
 
-	suite.T().Run("returns moves filtered by service member affiliation", func(t *testing.T) {
+	suite.Run("returns moves filtered by service member affiliation", func() {
+		// Under test: ListOrders
+		// Set up:           Make 2 moves, one default move setup in setupTestData (show = True)
+		//                   and one specific to Airforce and make sure it's included
+		//                   Fetch filtered to Airfornce moves.
+		// Expected outcome: Only the Airforce move should be returned
+		officeUser, _ := setupTestData()
+
+		// Create the airforce move
 		airForce := models.AffiliationAIRFORCE
 		airForceString := "AIR_FORCE"
-		params := services.ListOrderParams{Branch: &airForceString, Page: swag.Int64(1)}
-		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		airForceMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{
 				Affiliation: &airForce,
 			},
 		})
-
+		// Filter by airforce move
+		params := services.ListOrderParams{Branch: &airForceString, Page: swag.Int64(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
+		move := moves[0]
+		suite.Equal(airForceMove.ID, move.ID)
+
 	})
 
-	suite.T().Run("returns moves filtered submitted at", func(t *testing.T) {
+	suite.Run("returns moves filtered submitted at", func() {
+		// Under test: ListOrders
+		// Set up:           Make 3 moves, with different submitted_at times, and search for a specific move
+		// Expected outcome: Only the one move with the right date should be returned
+		officeUser, _ := setupTestData()
 
+		// Move with specified timestamp
 		submittedAt := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
-		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				SubmittedAt: &submittedAt,
 			},
 		})
 
-		// Test edge cases
+		// Test edge cases (one day later)
 		submittedAt2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -182,7 +236,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			},
 		})
 
-		// Test edge cases
+		// Test edge cases (one second earlier)
 		submittedAt3 := time.Date(2022, 03, 31, 23, 59, 59, 59, time.UTC)
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -190,15 +244,23 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			},
 		})
 
+		// Filter by submittedAt timestamp
 		params := services.ListOrderParams{SubmittedAt: &submittedAt}
-
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
+		move := moves[0]
+		suite.Equal(expectedMove.ID, move.ID)
+
 	})
 
-	suite.T().Run("returns moves filtered by requested pickup date", func(t *testing.T) {
+	suite.Run("returns moves filtered by requested pickup date", func() {
+		// Under test: ListOrders
+		// Set up:           Make 3 moves, with different submitted_at times, and search for a specific move
+		// Expected outcome: Only the one move with the right date should be returned
+		officeUser, _ := setupTestData()
+
 		requestedPickupDate := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
 		createdMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -218,7 +280,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 	orderFetcher := NewOrderFetcher()
 
-	suite.T().Run("returns USMC order for USMC office user", func(t *testing.T) {
+	suite.Run("returns USMC order for USMC office user", func() {
 		// Map default shipment ZIP code to default office user GBLOC
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", "KKFA")
 		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", "KKFA")
@@ -254,7 +316,7 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersMarines() {
-	suite.T().Run("does not return moves where the service member affiliation is Marines for non-USMC office user", func(t *testing.T) {
+	suite.Run("does not return moves where the service member affiliation is Marines for non-USMC office user", func() {
 		orderFetcher := NewOrderFetcher()
 		marines := models.AffiliationMARINES
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
@@ -334,11 +396,6 @@ func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
-	// SET UP: Dates for sorting by Requested Move Date
-	// - We want dates 2 and 3 to sandwich requestedMoveDate1 so we can test that the min() query is working
-	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 02, 20, 0, 0, 0, 0, time.UTC)
-	requestedMoveDate2 := time.Date(testdatagen.GHCTestYear, 03, 03, 0, 0, 0, 0, time.UTC)
-	requestedMoveDate3 := time.Date(testdatagen.GHCTestYear, 01, 15, 0, 0, 0, 0, time.UTC)
 
 	// SET UP: Service Members for sorting by Service Member Last Name and Branch
 	// - We'll need two other service members to test the last name sort, Lea Spacemen and Leo Zephyer
@@ -346,41 +403,54 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	serviceMemberLastName := "Zephyer"
 	affiliation := models.AffiliationNAVY
 	edipi := "9999999999"
+	var officeUser models.OfficeUser
 
-	// CREATE EXPECTED MOVES
-	expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-		// Default New Duty Location name is Fort Gordon
-		Move: models.Move{
-			Status:  models.MoveStatusAPPROVED,
-			Locator: "AA1234",
-		},
-		MTOShipment: models.MTOShipment{
-			RequestedPickupDate: &requestedMoveDate1,
-		},
-	})
-	expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Locator: "TTZ123",
-		},
-		// Lea Spacemen
-		ServiceMember: models.ServiceMember{Affiliation: &affiliation, FirstName: &serviceMemberFirstName, Edipi: &edipi},
-		MTOShipment: models.MTOShipment{
-			RequestedPickupDate: &requestedMoveDate2,
-		},
-	})
-	// Create a second shipment so we can test min() sort
-	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &expectedMove2, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			RequestedPickupDate: &requestedMoveDate3,
-		},
-	})
+	// SET UP: Dates for sorting by Requested Move Date
+	// - We want dates 2 and 3 to sandwich requestedMoveDate1 so we can test that the min() query is working
+	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 02, 20, 0, 0, 0, 0, time.UTC)
+	requestedMoveDate2 := time.Date(testdatagen.GHCTestYear, 03, 03, 0, 0, 0, 0, time.UTC)
+	requestedMoveDate3 := time.Date(testdatagen.GHCTestYear, 01, 15, 0, 0, 0, 0, time.UTC)
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
+	setupTestData := func() (models.Move, models.Move) {
+
+		// CREATE EXPECTED MOVES
+		expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			// Default New Duty Location name is Fort Gordon
+			Move: models.Move{
+				Status:  models.MoveStatusAPPROVED,
+				Locator: "AA1234",
+			},
+			MTOShipment: models.MTOShipment{
+				RequestedPickupDate: &requestedMoveDate1,
+			},
+		})
+		expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Locator: "TTZ123",
+			},
+			// Lea Spacemen
+			ServiceMember: models.ServiceMember{Affiliation: &affiliation, FirstName: &serviceMemberFirstName, Edipi: &edipi},
+			MTOShipment: models.MTOShipment{
+				RequestedPickupDate: &requestedMoveDate2,
+			},
+		})
+		// Create a second shipment so we can test min() sort
+		testdatagen.MakeMTOShipmentWithMove(suite.DB(), &expectedMove2, testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				RequestedPickupDate: &requestedMoveDate3,
+			},
+		})
+		officeUser = testdatagen.MakeDefaultOfficeUser(suite.DB())
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "90210", officeUser.TransportationOffice.Gbloc)
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
+
+		return expectedMove1, expectedMove2
+	}
+
 	orderFetcher := NewOrderFetcher()
 
-	suite.T().Run("Sort by locator code", func(t *testing.T) {
+	suite.Run("Sort by locator code", func() {
+		expectedMove1, expectedMove2 := setupTestData()
 		params := services.ListOrderParams{Sort: swag.String("locator"), Order: swag.String("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
@@ -396,7 +466,8 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(expectedMove1.Locator, moves[1].Locator)
 	})
 
-	suite.T().Run("Sort by move status", func(t *testing.T) {
+	suite.Run("Sort by move status", func() {
+		expectedMove1, expectedMove2 := setupTestData()
 		params := services.ListOrderParams{Sort: swag.String("status"), Order: swag.String("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
@@ -412,7 +483,8 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(expectedMove1.Status, moves[1].Status)
 	})
 
-	suite.T().Run("Sort by service member affiliations", func(t *testing.T) {
+	suite.Run("Sort by service member affiliations", func() {
+		expectedMove1, expectedMove2 := setupTestData()
 		params := services.ListOrderParams{Sort: swag.String("branch"), Order: swag.String("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
@@ -428,7 +500,8 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(*expectedMove1.Orders.ServiceMember.Affiliation, *moves[1].Orders.ServiceMember.Affiliation)
 	})
 
-	suite.T().Run("Sort by request move date", func(t *testing.T) {
+	suite.Run("Sort by request move date", func() {
+		setupTestData()
 		params := services.ListOrderParams{Sort: swag.String("requestedMoveDate"), Order: swag.String("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 		suite.NoError(err)
@@ -448,7 +521,9 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	})
 
 	// MUST BE LAST, ADDS EXTRA MOVE
-	suite.T().Run("Sort by service member last name", func(t *testing.T) {
+	suite.Run("Sort by service member last name", func() {
+		setupTestData()
+
 		// Last name sort is the only one that needs 3 moves for a complete test, so add that here at the end
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			// Leo Zephyer
@@ -477,79 +552,69 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 
 func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOCSortFilter() {
 
-	// TESTCASE SCENARIO
-	// Under test: OrderFetcher.ListOrders function
-	// Mocked:     None
-	// Set up:     We create 2 USMC moves with different GBLOCs, LKNQ and ZANY
-	//             We create an office user with the LKNQ GBLOC
+	suite.Run("Filter by origin GBLOC", func() {
 
-	// Create a services counselor with defauult GBLOC, LKNQ
-	officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
-
-	// Default Origin Duty Location GBLOC is LKNQ
-	hhgMoveType := models.SelectedMoveTypeHHG
-	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
-	lknqMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
-			Status:           models.MoveStatusNeedsServiceCounseling,
-			SubmittedAt:      &submittedAt,
-		},
-	})
-
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
-
-	// Create a dutyLocation with ZANY GBLOC
-	dutyLocationAddress2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			StreetAddress1: "Anchor 1212",
-			City:           "Augusta",
-			State:          "GA",
-			PostalCode:     "89898",
-			Country:        swag.String("United States"),
-		},
-	})
-
-	originDutyLocation2 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-		DutyLocation: models.DutyLocation{
-			Name:      "Fort Sam Snap",
-			AddressID: dutyLocationAddress2.ID,
-			Address:   dutyLocationAddress2,
-		},
-	})
-
-	testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyLocationAddress2.PostalCode, "ZANY")
-
-	// Create a second move from the ZANY gbloc
-	testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status:  models.MoveStatusNeedsServiceCounseling,
-			Locator: "ZZ1234",
-		},
-		Order: models.Order{
-			OriginDutyLocation:   &originDutyLocation2,
-			OriginDutyLocationID: &originDutyLocation2.ID,
-		},
-	})
-
-	suite.T().Run("Filter by origin GBLOC", func(t *testing.T) {
 		// TESTCASE SCENARIO
 		// Under test: OrderFetcher.ListOrders function
 		// Mocked:     None
-		// Set up:     We create 2 USMC moves with different GBLOCs, ACME and ZANY
-		//             We create an office user with the ACME GBLOC
-		//             Then we request a list of moves sorted by GBLOC, first ascending then descending
+		// Set up:     We create 2 moves with different GBLOCs, LKNQ and ZANY. Both moves require service counseling
+		//             We create an office user with the GBLOC LKNQ
+		//             Then we request a list of moves sorted by GBLOC, ascending for service counseling
 		// Expected outcome:
-		//             We expect one move to be returned: the the ACME move
+		//             We expect only the move that matches the counselors GBLOC - aka the LKNQ move.
 
-		// Setup and run the function under test sorting GBLOC with ascending mode
+		// Create a services counselor (default GBLOC is LKNQ)
+		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+		// Create a move with Origin LKNQ, needs service couseling
+		hhgMoveType := models.SelectedMoveTypeHHG
+		lknqMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SelectedMoveType: &hhgMoveType,
+				Status:           models.MoveStatusNeedsServiceCounseling,
+			},
+		})
+
+		// Create data for a second Origin ZANY
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), "50309", officeUser.TransportationOffice.Gbloc)
+		dutyLocationAddress2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				StreetAddress1: "Anchor 1212",
+				City:           "Augusta",
+				State:          "GA",
+				PostalCode:     "89898",
+				Country:        swag.String("United States"),
+			},
+		})
+		originDutyLocation2 := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+			DutyLocation: models.DutyLocation{
+				Name:      "Fort Sam Snap",
+				AddressID: dutyLocationAddress2.ID,
+				Address:   dutyLocationAddress2,
+			},
+		})
+		testdatagen.MakePostalCodeToGBLOC(suite.DB(), dutyLocationAddress2.PostalCode, "ZANY")
+
+		// Create a second move from the ZANY gbloc
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status:  models.MoveStatusNeedsServiceCounseling,
+				Locator: "ZZ1234",
+			},
+			Order: models.Order{
+				OriginDutyLocation:   &originDutyLocation2,
+				OriginDutyLocationID: &originDutyLocation2.ID,
+			},
+		})
+
+		// Setup and run the function under test requesting status NEEDS SERVICE COUNSELING
 		orderFetcher := NewOrderFetcher()
 		statuses := []string{"NEEDS SERVICE COUNSELING"}
-		// Sort by service member name
+		// Sort by origin GBLOC, filter by status
 		params := services.ListOrderParams{Sort: swag.String("originGBLOC"), Order: swag.String("asc"), Status: statuses}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &params)
 
-		// Check the results
+		// Expect only LKNQ move to be returned
 		suite.NoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(lknqMove.ID, moves[0].ID)
