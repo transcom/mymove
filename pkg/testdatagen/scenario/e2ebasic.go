@@ -1905,16 +1905,14 @@ func createMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContext, 
 	})
 
 	deletedAt := time.Now()
-	contractorUUID, _ := uuid.NewV4()
 	testdatagen.MakePrimeUpload(appCtx.DB(), testdatagen.Assertions{
 		PrimeUpload: models.PrimeUpload{
 			ProofOfServiceDoc:   proofOfService,
 			ProofOfServiceDocID: proofOfService.ID,
 			Contractor: models.Contractor{
-				ID: contractorUUID, // Prime
+				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
 			},
-			ContractorID: contractorUUID,
-			DeletedAt:    &deletedAt,
+			DeletedAt: &deletedAt,
 		},
 	})
 
