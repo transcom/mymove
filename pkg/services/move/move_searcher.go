@@ -42,7 +42,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *string,
 		Where("show = TRUE")
 
 	if customerName != nil && len(*customerName) > 0 {
-		query = query.Where("? % translate(lower(first_name || ' ' || last_name),'àáâãäåèéêëìíîïòóôõöùúûüñ', 'aaaaaaeeeeiiiiooooouuuun')", *customerName).Order("similarity(translate(lower(first_name || ' ' || last_name),'àáâãäåèéêëìíîïòóôõöùúûüñ', 'aaaaaaeeeeiiiiooooouuuun'), ?) desc", *customerName)
+		query = query.Where("lower_unaccent(?) % searchable_full_name(first_name, last_name)", *customerName).Order("similarity(searchable_full_name(first_name, last_name), lower_unaccent(?)) desc", *customerName)
 	}
 
 	if locator != nil {

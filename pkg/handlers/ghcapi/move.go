@@ -72,7 +72,7 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 			payload := &ghcmessages.SearchMovesResult{
 				Page:        1,
 				PerPage:     100,
-				TotalCount:  1,
+				TotalCount:  int64(len(moves)),
 				SearchMoves: *searchMoves,
 			}
 			return moveop.NewSearchMovesOK().WithPayload(payload), nil
