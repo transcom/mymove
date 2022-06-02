@@ -991,15 +991,37 @@ jobs:
           keys:
             - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - restore_cache:
+          keys:
+            - server-tests-coverage
+      - run:
+          name: Save Baseline Test Coverage
+          command: |
+            [ -r ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt ] && cp ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt /tmp/coverage_baseline.txt || echo "Skipping saving baseline"
+            rm -rf ~/transcom/mymove/tmp/test-results
       # make -j 2 tells make to run 2 simultaneous builds
       - run: make -j 2 bin/milmove bin/go-junit-report
       - server_tests_step:
           application: app
+      - run:
+          name: Ensure Test Coverage Increasing
+          command: |
+            ./scripts/ensure-go-test-coverage /tmp/coverage_baseline.txt tmp/test-results/gotest/app/go-coverage.txt
       - store_artifacts:
           path: ~/transcom/mymove/tmp/test-results
           destination: test-results
       - store_test_results:
           path: ~/transcom/mymove/tmp/test-results
+      # only save the cache on master builds because we only want to
+      # change the baseline of test results on master builds
+      - when:
+          condition:
+            equal: [ master, << pipeline.git.branch >>]
+          steps:
+            save_cache:
+              key: server-tests-coverage
+              paths:
+                - ~/transcom/mymove/tmp/test-results
       - announce_failure
 
   # `client_test` runs the client side Javascript tests
@@ -1010,15 +1032,37 @@ jobs:
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - client-tests-coverage
+      - run:
+          name: Save Baseline Test Coverage
+          command: |
+            [ -r ~/transcom/mymove/coverage/clover.xml ] && cp ~/transcom/mymove/coverage/clover.xml /tmp/clover_baseline.xml || echo "Skipping saving baseline"
+            rm -rf ~/transcom/mymove/coverage
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       - run: make client_test_coverage
+      - run:
+          name: Ensure Test Coverage Increasing
+          command: |
+            ./scripts/ensure-js-test-coverage /tmp/clover_baseline.xml coverage/clover.xml
       - store_artifacts:
           path: ~/transcom/mymove/coverage
           destination: coverage
       - store_test_results:
           path: ~/transcom/mymove
+      # only save the cache on master builds because we only want to
+      # change the baseline of test results on master builds
+      - when:
+          condition:
+            equal: [ master, << pipeline.git.branch >>]
+          steps:
+            save_cache:
+              key: client-tests-coverage
+              paths:
+                - ~/transcom/mymove/coverage
       - announce_failure
 
   # `webhook_client_test` runs the webhook client Go tests

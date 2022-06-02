@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+
+import os.path
+import sys
+import xml.etree.ElementTree as ET
+
+if len(sys.argv) != 3:
+  print(f"Usage: {sys.argv[0]} baseline_coverage.xml new_coverage.xml")
+  sys.exit(1)
+
+def total_coverage_percent(filename):
+  """parse out the total coverage percentage from the junit xml
+  """
+  root = ET.parse(filename).getroot()
+  attrs = root.find("./project/metrics").attrib
+  # use statements as our percentage, round to 1 decimal place
+  return round(int(attrs["coveredstatements"]) / int(attrs["statements"]) * 100, 1)
+
+baseline_file = sys.argv[1]
+new_file = sys.argv[2]
+
+baseline_percent = 0.0
+# we can remove this conditional once the baselines are being saved on master
+if not os.path.exists(baseline_file):
+  print(f"Baseline file '{baseline_file}' does not exist, assuming 0")
+else:
+  baseline_percent = total_coverage_percent(baseline_file)
+
+new_percent = total_coverage_percent(new_file)
+
+print(f"Baseline test coverage: {baseline_percent}")
+print(f"New test coverage: {new_percent}")
+
+if new_percent < baseline_percent:
+  print("Test Coverage has decreased")
+  sys.exit(1)
