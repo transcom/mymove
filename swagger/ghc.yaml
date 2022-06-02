@@ -1783,7 +1783,7 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
       x-permissions:
-        - update.financial_review_flag
+        - update.financialReviewFlag
   /payment-requests/{paymentRequestID}/shipments-payment-sit-balance:
     parameters:
       - description: >-
