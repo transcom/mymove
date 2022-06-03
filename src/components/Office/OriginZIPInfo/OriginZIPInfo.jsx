@@ -11,17 +11,27 @@ import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
 
 const OriginZIPInfo = ({ currentZip, postalCodeValidator }) => {
   const [postalCodeValid, setPostalCodeValid] = useState({});
+  const [isChecked, setIsChecked] = useState(false);
   const [, , postalCodeHelperProps] = useField('pickupPostalCode');
   const [, , checkBoxHelperProps] = useField('useResidentialAddressZIP');
 
-  const setOriginZipToCurrentZip = (isChecked) => {
-    if (isChecked) {
+  const setOriginZipToCurrentZip = (checkboxValue) => {
+    if (checkboxValue) {
       postalCodeHelperProps.setValue(currentZip);
       checkBoxHelperProps.setValue('checked');
+      setIsChecked(true);
     } else {
       postalCodeHelperProps.setValue('');
       checkBoxHelperProps.setValue('');
+      setIsChecked(false);
     }
+  };
+
+  const handlePrefillPostalCodeChange = (value) => {
+    if (isChecked && value !== currentZip) {
+      checkBoxHelperProps.setValue('checked');
+    }
+    postalCodeHelperProps.setValue(value);
   };
 
   const postalCodeValidate = async (value, location, name) => {
@@ -52,6 +62,9 @@ const OriginZIPInfo = ({ currentZip, postalCodeValidator }) => {
           id="pickupPostalCode"
           name="pickupPostalCode"
           maxLength={5}
+          onChange={(e) => {
+            handlePrefillPostalCodeChange(e.target.value);
+          }}
           validate={(value) => postalCodeValidate(value, 'origin', 'pickupPostalCode')}
         />
       </div>
@@ -63,10 +76,11 @@ const OriginZIPInfo = ({ currentZip, postalCodeValidator }) => {
       />
       <div className="display-inline-block">
         <TextField
-          label="Second origin ZIP (optional)"
+          label="Second origin ZIP"
           id="secondPickupPostalCode"
           name="secondPickupPostalCode"
           maxLength={5}
+          optional
           validate={(value) => postalCodeValidate(value, 'origin', 'secondaryPickupPostalCode')}
         />
       </div>

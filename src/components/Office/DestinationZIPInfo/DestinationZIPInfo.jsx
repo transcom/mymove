@@ -11,17 +11,27 @@ import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
 
 const DestinationZIPInfo = ({ dutyZip, postalCodeValidator }) => {
   const [postalCodeValid, setPostalCodeValid] = useState({});
+  const [isChecked, setIsChecked] = useState(false);
   const [, , postalCodeHelperProps] = useField('destinationPostalCode');
   const [, , checkBoxHelperProps] = useField('useDutyZIP');
 
-  const setDestinationZipToDutyZip = (isChecked) => {
-    if (isChecked) {
+  const setDestinationZipToDutyZip = (checkboxValue) => {
+    if (checkboxValue) {
       postalCodeHelperProps.setValue(dutyZip);
       checkBoxHelperProps.setValue('checked');
+      setIsChecked(true);
     } else {
       postalCodeHelperProps.setValue('');
       checkBoxHelperProps.setValue('');
+      setIsChecked(false);
     }
+  };
+
+  const handlePrefillPostalCodeChange = (value) => {
+    if (isChecked && value !== dutyZip) {
+      checkBoxHelperProps.setValue('checked');
+    }
+    postalCodeHelperProps.setValue(value);
   };
 
   const postalCodeValidate = async (value, location, name) => {
@@ -51,6 +61,9 @@ const DestinationZIPInfo = ({ dutyZip, postalCodeValidator }) => {
           id="destinationPostalCode"
           name="destinationPostalCode"
           maxLength={5}
+          onChange={(e) => {
+            handlePrefillPostalCodeChange(e.target.value);
+          }}
           validate={(value) => postalCodeValidate(value, 'destination', 'secondaryDestinationPostalCode')}
         />
       </div>
@@ -62,10 +75,11 @@ const DestinationZIPInfo = ({ dutyZip, postalCodeValidator }) => {
       />
       <div className="display-inline-block">
         <TextField
-          label="Second destination ZIP (optional)"
+          label="Second destination ZIP"
           id="secondDestinationPostalCode"
           name="secondDestinationPostalCode"
           maxLength={5}
+          optional
           validate={(value) => postalCodeValidate(value, 'destination', 'secondaryDestinationPostalCode')}
         />
       </div>
