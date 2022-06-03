@@ -41,12 +41,7 @@ var AllRolesPermissions = []RolePermissions{TOO, TIO, QAECSR}
 func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, permission string) (bool, error) {
 
 	logger := appCtx.Logger()
-	userPermissions, err := getPermissionsForUser(appCtx, session.UserID)
-
-	if err != nil {
-		logger.Error("Error while looking up permissions: ", zap.String("permission error", err.Error()))
-		return false, err
-	}
+	userPermissions := getPermissionsForUser(appCtx, session.UserID)
 
 	for _, perm := range userPermissions {
 		if permission == perm {
@@ -60,15 +55,14 @@ func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, pe
 }
 
 // for a given user return the permissions associated with their roles
-func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]string, error) {
-	logger := appCtx.Logger()
+func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) []string {
 	var userPermissions []string
 
-	//check the users roles
+	// check the users roles
 	userRoles, err := getRolesForUser(appCtx, userID)
+	// if there's an error looking up roles return an empty permission array
 	if err != nil {
-		logger.Error("Error while looking up user roles: ", zap.String("permission error", err.Error()))
-		return nil, err
+		return userPermissions
 	}
 
 	for _, ur := range userRoles {
@@ -80,7 +74,7 @@ func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]st
 		}
 	}
 
-	return userPermissions, nil
+	return userPermissions
 }
 
 // load the [user.role] given a valid user ID
@@ -102,5 +96,5 @@ func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]roles.Ro
 
 	logger.Info("User has the following roles: ", zap.String("user roles", cast.ToString(userRoleTypes)))
 
-	return userRoleTypes, err
+	return userRoleTypes, nil
 }

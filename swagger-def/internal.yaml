@@ -41,6 +41,7 @@ definitions:
         items:
           $ref: '#/definitions/Role'
         x-nullable: true
+      # Here we are returning permissions on the user session to the FE, rather than requiring them on the endpoint. This is why this is permissions rather than x-permissions
       permissions:
         type: array
         items:
