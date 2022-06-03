@@ -610,7 +610,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	handlerConfig.SetHHGPlanner(hhgRoutePlanner)
 
 	// Create a secondary planner specifically for DTOD.
-	dtodRoutePlanner, initRouteErr := route.InitDtodRoutePlanner(v, routeTLSConfig)
+	routeTLSConfigDtod := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+	dtodRoutePlanner, initRouteErr := route.InitDtodRoutePlanner(v, routeTLSConfigDtod)
 	if initRouteErr != nil {
 		logger.Fatal("Could not instantiate dtod route planner", zap.Error(initRouteErr))
 	}
