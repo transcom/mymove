@@ -20,6 +20,14 @@ export function signInAndNavigateFromHomePageToReviewPage(userId, isMoveSubmitte
   navigateFromHomePageToReviewPage(isMoveSubmitted);
 }
 
+export function signInAndNavigateToAboutPage(userId, isMoveSubmitted = true) {
+  cy.apiSignInAsUser(userId);
+
+  cy.wait('@getShipment');
+
+  navigateToAboutPage(isMoveSubmitted);
+}
+
 export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
   if (isMoveSubmitted) {
     cy.get('h3').contains('Next step: Your move gets approved');
@@ -30,6 +38,15 @@ export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
 
     cy.get('button').contains('Review and submit').click();
   }
+}
+
+export function navigateToAboutPage() {
+  cy.get('dd').contains(''); // find out how to pass in Move Code
+  cy.get('button').contains('Upload PPM Documents').click();
+  // FILL OUT FORM HERE
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+  });
 }
 
 export function signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId) {
