@@ -15,6 +15,7 @@ import { validatePostalCode } from 'utils/validation';
 import { formatDateForSwagger } from 'shared/dates';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 const About = () => {
   const [errorMessage, setErrorMessage] = useState();
@@ -55,6 +56,10 @@ const About = () => {
         setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
       });
   };
+
+  if (!mtoShipment) {
+    return <LoadingPlaceholder />;
+  }
 
   return (
     <div className={ppmPageStyles.ppmPageStyle}>

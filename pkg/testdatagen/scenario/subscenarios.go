@@ -524,3 +524,10 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		createPaymentRequestsWithPartialSITInvoice(appCtx, primeUploader)
 	}
 }
+
+func subScenarioPrimeUserAndClientCert(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
+	return func() {
+		primeUser := createPrimeUser(appCtx)
+		createDevClientCertForUser(appCtx, primeUser)
+	}
+}

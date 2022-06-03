@@ -1,7 +1,6 @@
 package payloads
 
 import (
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -51,7 +50,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		ExcessWeightUploadID:       &excessWeightUploadID,
 	}
 
-	suite.T().Run("Success - Returns a basic move payload with no payment requests, service items or shipments", func(t *testing.T) {
+	suite.Run("Success - Returns a basic move payload with no payment requests, service items or shipments", func() {
 		returnedModel := MoveTaskOrder(&basicMove)
 
 		suite.IsType(&primemessages.MoveTaskOrder{}, returnedModel)
@@ -86,7 +85,7 @@ func (suite *PayloadsSuite) TestReweigh() {
 		UpdatedAt:   updatedAt,
 	}
 
-	suite.T().Run("Success - Returns a reweigh payload without optional fields", func(t *testing.T) {
+	suite.Run("Success - Returns a reweigh payload without optional fields", func() {
 		returnedPayload := Reweigh(&reweigh)
 
 		suite.IsType(&primemessages.Reweigh{}, returnedPayload)
@@ -103,7 +102,7 @@ func (suite *PayloadsSuite) TestReweigh() {
 
 	})
 
-	suite.T().Run("Success - Returns a reweigh payload with optional fields", func(t *testing.T) {
+	suite.Run("Success - Returns a reweigh payload with optional fields", func() {
 		// Set optional fields
 		weight := int64(2000)
 		reweigh.Weight = handlers.PoundPtrFromInt64Ptr(&weight)
@@ -139,7 +138,7 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 	fakeFileStorer := test.NewFakeS3Storage(true)
 	upload := testdatagen.MakeStubbedUpload(suite.DB(), testdatagen.Assertions{})
 
-	suite.T().Run("Success - all data populated", func(t *testing.T) {
+	suite.Run("Success - all data populated", func() {
 		move := models.Move{
 			ID:                         id,
 			ExcessWeightQualifiedAt:    &now,
@@ -157,7 +156,7 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 		suite.Equal(move.ExcessWeightUpload.ID.String(), excessWeightRecord.ID.String())
 	})
 
-	suite.T().Run("Success - some nil data, but no errors", func(t *testing.T) {
+	suite.Run("Success - some nil data, but no errors", func() {
 		move := models.Move{ID: id}
 
 		excessWeightRecord := ExcessWeightRecord(suite.AppContextForTest(), fakeFileStorer, &move)
@@ -204,7 +203,7 @@ func (suite *PayloadsSuite) TestSitExtension() {
 		Status:        models.SITExtensionStatusPending,
 	}
 
-	suite.T().Run("Success - Returns a sitextension payload without optional fields", func(t *testing.T) {
+	suite.Run("Success - Returns a sitextension payload without optional fields", func() {
 		returnedPayload := SITExtension(&sitExtension)
 
 		suite.IsType(&primemessages.SITExtension{}, returnedPayload)
@@ -220,7 +219,7 @@ func (suite *PayloadsSuite) TestSitExtension() {
 
 	})
 
-	suite.T().Run("Success - Returns a sit extension payload with optional fields", func(t *testing.T) {
+	suite.Run("Success - Returns a sit extension payload with optional fields", func() {
 		// Set optional fields
 		approvedDays := int(30)
 		sitExtension.ApprovedDays = &approvedDays
@@ -253,7 +252,7 @@ func (suite *PayloadsSuite) TestSitExtension() {
 
 func (suite *PayloadsSuite) TestEntitlement() {
 
-	suite.T().Run("Success - Returns the entitlement payload with only required fields", func(t *testing.T) {
+	suite.Run("Success - Returns the entitlement payload with only required fields", func() {
 		entitlement := models.Entitlement{
 			ID:                             uuid.Must(uuid.NewV4()),
 			DependentsAuthorized:           nil,
@@ -291,7 +290,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(int64(0), payload.TotalWeight)
 	})
 
-	suite.T().Run("Success - Returns the entitlement payload with all optional fields populated", func(t *testing.T) {
+	suite.Run("Success - Returns the entitlement payload with all optional fields populated", func() {
 		entitlement := models.Entitlement{
 			ID:                             uuid.Must(uuid.NewV4()),
 			DependentsAuthorized:           handlers.FmtBool(true),
@@ -330,7 +329,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
 	})
 
-	suite.T().Run("Success - Returns the entitlement payload with total weight self when dependents are not authorized", func(t *testing.T) {
+	suite.Run("Success - Returns the entitlement payload with total weight self when dependents are not authorized", func() {
 		entitlement := models.Entitlement{
 			ID:                             uuid.Must(uuid.NewV4()),
 			DependentsAuthorized:           handlers.FmtBool(false),

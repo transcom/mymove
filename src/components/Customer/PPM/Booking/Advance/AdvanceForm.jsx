@@ -6,20 +6,20 @@ import { Button, Form, Radio } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
-import { MtoShipmentShape } from 'types/customerShapes';
-import formStyles from 'styles/form.module.scss';
+import SectionWrapper from 'components/Customer/SectionWrapper';
+import { CheckboxField } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import Hint from 'components/Hint';
-import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
-import { CheckboxField } from 'components/form/fields';
-import { calculateMaxAdvanceAndFormatAdvanceAndIncentive, getFormattedMaxAdvancePercentage } from 'utils/incentives';
+import formStyles from 'styles/form.module.scss';
+import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole } from 'utils/formatters';
+import { calculateMaxAdvanceAndFormatAdvanceAndIncentive, getFormattedMaxAdvancePercentage } from 'utils/incentives';
 
 const validationSchema = (maxAdvance, formattedMaxAdvance) => {
   return Yup.object().shape({
-    advanceRequested: Yup.boolean().required('Required'),
-    amountRequested: Yup.number().when('advanceRequested', {
+    hasRequestedAdvance: Yup.boolean().required('Required'),
+    advanceAmountRequested: Yup.number().when('hasRequestedAdvance', {
       is: true,
       then: (schema) =>
         schema
@@ -27,7 +27,7 @@ const validationSchema = (maxAdvance, formattedMaxAdvance) => {
           .min(1, "The minimum advance request is $1. If you don't want an advance, select No.")
           .max(maxAdvance, `Enter an amount $${formattedMaxAdvance} or less`),
     }),
-    agreeToTerms: Yup.boolean().when('advanceRequested', {
+    agreeToTerms: Yup.boolean().when('hasRequestedAdvance', {
       is: true,
       then: (schema) => schema.oneOf([true], 'Required'),
     }),
@@ -35,10 +35,10 @@ const validationSchema = (maxAdvance, formattedMaxAdvance) => {
 };
 
 const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
-  const { advance, estimatedIncentive } = mtoShipment?.ppmShipment || {};
+  const { hasRequestedAdvance, advanceAmountRequested, estimatedIncentive } = mtoShipment?.ppmShipment || {};
   const initialValues = {
-    amountRequested: advance ? formatCentsTruncateWhole(advance) : '',
-    advanceRequested: advance ? 'true' : 'false',
+    advanceAmountRequested: hasRequestedAdvance ? formatCentsTruncateWhole(advanceAmountRequested) : '',
+    hasRequestedAdvance: hasRequestedAdvance ? 'true' : 'false',
     agreeToTerms: false,
   };
 
@@ -67,28 +67,28 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                   <legend className="usa-label">Would you like to request an advance on your incentive?</legend>
                   <Field
                     as={Radio}
-                    id="advanceRequestedYes"
+                    id="hasRequestedAdvanceYes"
                     label="Yes"
-                    name="advanceRequested"
+                    name="hasRequestedAdvance"
                     value="true"
-                    checked={values.advanceRequested === 'true'}
+                    checked={values.hasRequestedAdvance === 'true'}
                   />
                   <Field
                     as={Radio}
-                    id="advanceRequestedNo"
+                    id="hasRequestedAdvanceNo"
                     label="No"
-                    name="advanceRequested"
+                    name="hasRequestedAdvance"
                     value="false"
-                    checked={values.advanceRequested === 'false'}
+                    checked={values.hasRequestedAdvance === 'false'}
                   />
                 </Fieldset>
-                {values.advanceRequested === 'true' && (
+                {values.hasRequestedAdvance === 'true' && (
                   <>
                     <MaskedTextField
                       defaultValue="0"
-                      name="amountRequested"
+                      name="advanceAmountRequested"
                       label="Amount requested"
-                      id="amountRequested"
+                      id="advanceAmountRequested"
                       mask={Number}
                       scale={0} // digits after point, 0 for integers
                       signed={false} // disallow negative
@@ -131,7 +131,7 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
 };
 
 AdvanceForm.propTypes = {
-  mtoShipment: MtoShipmentShape,
+  mtoShipment: ShipmentShape,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
 };

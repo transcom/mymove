@@ -3,19 +3,20 @@ import { useDispatch } from 'react-redux';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
-import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import { MtoShipmentShape, ServiceMemberShape } from 'types/customerShapes';
-import { DutyLocationShape } from 'types';
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
-import { validatePostalCode } from 'utils/validation';
+import ScrollToTop from 'components/ScrollToTop';
+import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes, generalRoutes } from 'constants/routes';
+import { shipmentTypes } from 'constants/shipments';
+import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import { shipmentTypes } from 'constants/shipments';
 import { formatDateForSwagger } from 'shared/dates';
 import { updateMTOShipment } from 'store/entities/actions';
-import ScrollToTop from 'components/ScrollToTop';
+import { DutyLocationShape } from 'types';
+import { ServiceMemberShape } from 'types/customerShapes';
+import { ShipmentShape } from 'types/shipment';
+import { validatePostalCode } from 'utils/validation';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }) => {
   const [errorMessage, setErrorMessage] = useState();
@@ -122,7 +123,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
 };
 
 DateAndLocation.propTypes = {
-  mtoShipment: MtoShipmentShape,
+  mtoShipment: ShipmentShape,
   serviceMember: ServiceMemberShape.isRequired,
   destinationDutyLocation: DutyLocationShape.isRequired,
 };

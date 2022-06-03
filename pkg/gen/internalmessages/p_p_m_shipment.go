@@ -39,17 +39,13 @@ type PPMShipment struct {
 	// Pattern: ^(\d{5})$
 	ActualPickupPostalCode *string `json:"actualPickupPostalCode"`
 
-	// The amount requested for an advance, or null if no advance is requested
-	//
-	Advance *int64 `json:"advance"`
-
 	// The amount received for an advance, or null if no advance is received.
 	//
 	AdvanceAmountReceived *int64 `json:"advanceAmountReceived"`
 
-	// Indicates whether an advance has been requested for the PPM shipment.
+	// The amount requested for an advance, or null if no advance is requested
 	//
-	AdvanceRequested *bool `json:"advanceRequested"`
+	AdvanceAmountRequested *int64 `json:"advanceAmountRequested"`
 
 	// approved at
 	// Format: date-time
@@ -60,10 +56,6 @@ type PPMShipment struct {
 	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt"`
-
-	// deleted at
-	// Format: date-time
-	DeletedAt *strfmt.DateTime `json:"deletedAt"`
 
 	// ZIP
 	// Example: 90210
@@ -96,6 +88,10 @@ type PPMShipment struct {
 	// Indicates whether an advance was received for the PPM shipment.
 	//
 	HasReceivedAdvance *bool `json:"hasReceivedAdvance"`
+
+	// Indicates whether an advance has been requested for the PPM shipment.
+	//
+	HasRequestedAdvance *bool `json:"hasRequestedAdvance"`
 
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -173,12 +169,6 @@ type PPMShipment struct {
 	// submitted at
 	// Format: date-time
 	SubmittedAt *strfmt.DateTime `json:"submittedAt"`
-
-	// updated at
-	// Required: true
-	// Read Only: true
-	// Format: date-time
-	UpdatedAt strfmt.DateTime `json:"updatedAt"`
 }
 
 // Validate validates this p p m shipment
@@ -202,10 +192,6 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateDeletedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -266,10 +252,6 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSubmittedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -334,18 +316,6 @@ func (m *PPMShipment) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PPMShipment) validateDeletedAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.DeletedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("deletedAt", "body", "date-time", m.DeletedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -544,19 +514,6 @@ func (m *PPMShipment) validateSubmittedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *PPMShipment) validateUpdatedAt(formats strfmt.Registry) error {
-
-	if err := validate.Required("updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // ContextValidate validate this p p m shipment based on the context it is used
 func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -582,10 +539,6 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -655,15 +608,6 @@ func (m *PPMShipment) contextValidateStatus(ctx context.Context, formats strfmt.
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("status")
 		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *PPMShipment) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 

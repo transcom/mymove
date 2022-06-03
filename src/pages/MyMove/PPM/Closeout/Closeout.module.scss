@@ -5,11 +5,11 @@
 .closing-section {
   ul {
     @include u-padding-left(2.5);
-    margin-top: 0;
-    font-size: 1rem;
+    @include u-margin-top(0);
+    @include u-font-size('body', 'xs');
   }
 
   p:last-of-type {
-    margin-bottom: 0;
+    @include u-margin-bottom(0);
   }
 }

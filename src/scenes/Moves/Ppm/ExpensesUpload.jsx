@@ -178,7 +178,7 @@ class ExpensesUpload extends Component {
           <p>
             Upload expenses one at a time.{' '}
             <Link to="/allowable-expenses" className="usa-link">
-              <FontAwesomeIcon aria-hidden className="color_blue_link" icon="question-circle" />
+              <FontAwesomeIcon aria-hidden className="color_blue_link" icon="circle-question" />
             </Link>
           </p>
           <form>
@@ -271,7 +271,7 @@ class ExpensesUpload extends Component {
                   <FontAwesomeIcon
                     aria-hidden
                     className="color_blue_link"
-                    icon="question-circle"
+                    icon="circle-question"
                     onClick={this.handleHowDidYouPayForThis}
                   />
                 </div>

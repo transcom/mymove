@@ -3,5 +3,7 @@
 @import 'shared/styles/colors';
 
 .ppmPageStyle {
-  @include u-margin-top(2.5);
+  @include at-media('tablet') {
+    @include u-margin-top(2.5);
+  }
 }

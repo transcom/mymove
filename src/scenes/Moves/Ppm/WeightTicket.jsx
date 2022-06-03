@@ -258,7 +258,7 @@ class WeightTicket extends Component {
                 <h3 className="expenses-header">Weight Tickets - {weightTicketSetOrdinal} set</h3>
                 Upload weight tickets for each vehicle trip and pro-gear weigh.{' '}
                 <Link to="/weight-ticket-examples" className="usa-link">
-                  <FontAwesomeIcon aria-hidden className="color_blue_link" icon="question-circle" />
+                  <FontAwesomeIcon aria-hidden className="color_blue_link" icon="circle-question" />
                 </Link>
                 <SwaggerField
                   fieldName="weight_ticket_set_type"

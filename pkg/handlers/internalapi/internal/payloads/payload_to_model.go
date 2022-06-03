@@ -68,7 +68,15 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 	model := &models.MTOShipment{
 		MoveTaskOrderID: uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
 		CustomerRemarks: mtoShipment.CustomerRemarks,
-		Status:          models.MTOShipmentStatusDraft,
+		ShipmentType:    models.MTOShipmentType(*mtoShipment.ShipmentType),
+	}
+
+	// A PPM type shipment begins in DRAFT because it requires a multi-page series to complete.
+	// After move submission a PPM's status will change to SUBMITTED
+	if model.ShipmentType == models.MTOShipmentTypePPM {
+		model.Status = models.MTOShipmentStatusDraft
+	} else {
+		model.Status = models.MTOShipmentStatusSubmitted
 	}
 
 	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
@@ -79,10 +87,6 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 	requestedDeliveryDate := time.Time(mtoShipment.RequestedDeliveryDate)
 	if !requestedDeliveryDate.IsZero() {
 		model.RequestedDeliveryDate = &requestedDeliveryDate
-	}
-
-	if mtoShipment.ShipmentType != nil {
-		model.ShipmentType = models.MTOShipmentType(*mtoShipment.ShipmentType)
 	}
 
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
@@ -145,10 +149,8 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
-		AdvanceRequested:               ppmShipment.AdvanceRequested,
-		HasRequestedAdvance:            ppmShipment.AdvanceRequested,
-		Advance:                        handlers.FmtInt64PtrToPopPtr(ppmShipment.Advance),
-		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.Advance),
+		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
+		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
 	}
