@@ -76,7 +76,7 @@ module.exports = {
   settings: {
     'import/resolver': {
       node: {
-        paths: ['src'],
+        moduleDirectory: ['src', 'node_modules'],
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
       },
     },
