@@ -9,19 +9,21 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './Summary.module.scss';
 
-import { customerRoutes } from 'constants/routes';
+import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
+import ConnectedAddShipmentModal from 'components/Customer/Review/AddShipmentModal/AddShipmentModal';
+import OrdersTable from 'components/Customer/Review/OrdersTable/OrdersTable';
+import ProfileTable from 'components/Customer/Review/ProfileTable/ProfileTable';
+import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard/HHGShipmentCard';
+import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard/NTSRShipmentCard';
+import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard/NTSShipmentCard';
+import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard/PPMShipmentCard';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { customerRoutes } from 'constants/routes';
+import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import ProfileTable from 'components/Customer/Review/ProfileTable/ProfileTable';
-import OrdersTable from 'components/Customer/Review/OrdersTable/OrdersTable';
-import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard/PPMShipmentCard';
-import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard/HHGShipmentCard';
-import SectionWrapper from 'components/Customer/SectionWrapper';
-import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard/NTSShipmentCard';
-import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard/NTSRShipmentCard';
-import ConnectedAddShipmentModal from 'components/Customer/Review/AddShipmentModal/AddShipmentModal';
-import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
+import { updateMTOShipments } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
@@ -30,10 +32,9 @@ import {
   selectHasCanceledMove,
   selectMTOShipmentsForCurrentMove,
 } from 'store/entities/selectors';
-import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
-import { updateMTOShipments } from 'store/entities/actions';
 import { setFlashMessage } from 'store/flash/actions';
-import { OrdersShape, MoveShape, MtoShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
+import { OrdersShape, MoveShape, HistoryShape, MatchShape } from 'types/customerShapes';
+import { ShipmentShape } from 'types/shipment';
 
 export class Summary extends Component {
   constructor(props) {
@@ -284,7 +285,7 @@ export class Summary extends Component {
                 unstyled
                 className={styles.buttonRight}
               >
-                <FontAwesomeIcon icon={['far', 'question-circle']} />
+                <FontAwesomeIcon icon={['far', 'circle-question']} />
               </Button>
             </Grid>
           </Grid>
@@ -309,7 +310,7 @@ Summary.propTypes = {
   history: HistoryShape.isRequired,
   match: MatchShape.isRequired,
   moveIsApproved: bool.isRequired,
-  mtoShipments: arrayOf(MtoShipmentShape).isRequired,
+  mtoShipments: arrayOf(ShipmentShape).isRequired,
   onDidMount: func.isRequired,
   serviceMember: shape({ id: string.isRequired }).isRequired,
   updateShipmentList: func.isRequired,

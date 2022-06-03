@@ -24,7 +24,8 @@ const mtoShipmentProps = {
     ppmShipment: {
       id: '123',
       estimatedIncentive: 1000000,
-      advance: 30000,
+      hasRequestedAdvance: true,
+      advanceAmountRequested: 30000,
     },
   },
 };
@@ -69,13 +70,13 @@ describe('AdvanceForm component', () => {
     it('marks amount requested input as required when conditionally displayed', async () => {
       render(<AdvanceForm {...defaultProps} />);
 
-      const inputAdvanceRequested = screen.getByLabelText('Yes');
+      const inputHasRequestedAdvance = screen.getByLabelText('Yes');
 
-      await userEvent.click(inputAdvanceRequested);
+      await userEvent.click(inputHasRequestedAdvance);
 
-      const amountRequested = screen.getByLabelText('Amount requested');
+      const advanceAmountRequested = screen.getByLabelText('Amount requested');
 
-      await userEvent.click(amountRequested);
+      await userEvent.click(advanceAmountRequested);
       await userEvent.tab();
 
       await waitFor(() => {
@@ -90,14 +91,14 @@ describe('AdvanceForm component', () => {
     it('marks amount requested input as min of $1 expected when conditionally displayed', async () => {
       render(<AdvanceForm {...defaultProps} />);
 
-      const inputAdvanceRequested = screen.getByLabelText('Yes');
+      const inputHasRequestedAdvance = screen.getByLabelText('Yes');
 
-      await userEvent.click(inputAdvanceRequested);
+      await userEvent.click(inputHasRequestedAdvance);
 
-      const amountRequested = screen.getByLabelText('Amount requested');
+      const advanceAmountRequested = screen.getByLabelText('Amount requested');
 
-      await userEvent.click(amountRequested);
-      await userEvent.type(amountRequested, '0');
+      await userEvent.click(advanceAmountRequested);
+      await userEvent.type(advanceAmountRequested, '0');
       await userEvent.tab();
 
       await waitFor(() => {
@@ -114,14 +115,14 @@ describe('AdvanceForm component', () => {
     it('sets error for requested advance input if it is over allowed amount', async () => {
       render(<AdvanceForm {...defaultProps} />);
 
-      const inputAdvanceRequested = screen.getByLabelText('Yes');
+      const inputHasRequestedAdvance = screen.getByLabelText('Yes');
 
-      await userEvent.click(inputAdvanceRequested);
+      await userEvent.click(inputHasRequestedAdvance);
 
-      const amountRequested = screen.getByLabelText('Amount requested');
+      const advanceAmountRequested = screen.getByLabelText('Amount requested');
 
-      await userEvent.click(amountRequested);
-      await userEvent.type(amountRequested, '10000');
+      await userEvent.click(advanceAmountRequested);
+      await userEvent.type(advanceAmountRequested, '10000');
       await userEvent.tab();
 
       await waitFor(() => {
@@ -138,7 +139,7 @@ describe('AdvanceForm component', () => {
     it('renders prefilled form on load', async () => {
       render(<AdvanceForm {...mtoShipmentProps} />);
       await waitFor(() => {
-        expect(screen.queryByLabelText('Yes').value).toBe('true');
+        expect(screen.queryByLabelText('Yes').checked).toBe(true);
         expect(screen.getByLabelText('Amount requested').value).toBe('300');
       });
     });

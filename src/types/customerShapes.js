@@ -1,4 +1,4 @@
-import { arrayOf, bool, func, number, object, shape, string } from 'prop-types';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 
 import { AddressShape } from 'types/address';
 import { DutyLocationShape } from 'types/dutyLocation';
@@ -71,85 +71,6 @@ export const OrdersShape = shape({
   }),
 });
 
-export const DocumentShape = shape({});
-
-export const MtoAgentShape = shape({
-  firstName: string,
-  lastName: string,
-  phone: string,
-  email: string,
-  agentType: string,
-});
-
-const placeShape = shape({
-  requestedDate: string,
-  address: AddressShape,
-  agent: MtoAgentShape,
-});
-
-export const MtoShipmentFormValuesShape = shape({
-  pickup: placeShape,
-  delivery: placeShape,
-  customerRemarks: string,
-});
-
-export const PPMShipmentShape = shape({
-  pickupPostalCode: string,
-  actualPickupPostalCode: string,
-  secondaryPickupPostalCode: string,
-  destinationPostalCode: string,
-  actualDestinationPostalCode: string,
-  secondaryDestinationPostalCode: string,
-  sitExpected: bool,
-  expectedDepartureDate: string,
-  actualMoveDate: string,
-  hasProGear: bool,
-  proGearWeight: number,
-  spouseProGearWeight: number,
-  estimatedWeight: number,
-  estimatedIncentive: number,
-  advance: number,
-  advanceRequested: bool,
-  hasRequestedAdvance: bool,
-  advanceAmountRequested: number,
-  hasReceivedAdvance: bool,
-  advanceAmountReceived: number,
-  status: string,
-});
-
-export const MtoShipmentShape = shape({
-  agents: arrayOf(MtoAgentShape),
-  customerRemarks: string,
-  counselorRemarks: string,
-  shipmentType: string,
-  requestedPickupDate: string,
-  pickupAddress: AddressShape,
-  requestedDeliveryDate: string,
-  destinationAddress: AddressShape,
-  secondaryDeliveryAddress: AddressShape,
-  secondaryPickupAddress: AddressShape,
-  ppmShipment: PPMShipmentShape,
-  status: string,
-});
-
-export const HhgShipmentShape = MtoShipmentShape;
-
-export const NtsShipmentShape = shape({
-  agents: arrayOf(MtoAgentShape),
-  customerRemarks: string,
-  shipmentType: string,
-  requestedPickupDate: string,
-  pickupAddress: AddressShape,
-});
-
-export const NtsrShipmentShape = shape({
-  agents: arrayOf(MtoAgentShape),
-  customerRemarks: string,
-  shipmentType: string,
-  requestedDeliveryDate: string,
-  destinationAddress: AddressShape,
-});
-
 export const MatchShape = shape({
   isExact: bool.isRequired,
   params: shape({
@@ -164,19 +85,6 @@ export const HistoryShape = shape({
   push: func.isRequired,
 });
 
-export const PageListShape = arrayOf(string);
-
-export const PageKeyShape = string;
-
-export const AdditionalParamsShape = object;
-
-export const WizardPageShape = shape({
-  pageList: PageListShape.isRequired,
-  pageKey: PageKeyShape.isRequired,
-  match: MatchShape.isRequired,
-  history: HistoryShape.isRequired,
-});
-
 export const BackupContactShape = shape({
   name: string.isRequired,
   telephone: string.isRequired,
@@ -186,14 +94,4 @@ export const BackupContactShape = shape({
 export default {
   MatchShape,
   HistoryShape,
-  PageListShape,
-  PageKeyShape,
-  WizardPageShape,
-  MtoShipmentFormValuesShape,
-  MtoAgentShape,
-  MtoShipmentShape,
-  HhgShipmentShape,
-  NtsShipmentShape,
-  NtsrShipmentShape,
-  AdditionalParamsShape,
 };

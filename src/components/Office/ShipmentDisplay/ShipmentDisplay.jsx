@@ -6,15 +6,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
 import { EditButton } from 'components/form/IconButtons';
-import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types/address';
+import { AgentShape } from 'types/agent';
+import { OrdersLOAShape } from 'types/order';
 import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
-import { OrdersLOAShape } from 'types/order';
-import { AgentShape } from 'types/agent';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 
 const ShipmentDisplay = ({
@@ -65,7 +65,7 @@ const ShipmentDisplay = ({
           )}
 
           {allowApproval && !isSubmitted && (
-            <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />
+            <FontAwesomeIcon icon={['far', 'circle-check']} className={styles.approved} />
           )}
           <div className={styles.headingTagWrapper}>
             <h3>
@@ -153,7 +153,8 @@ ShipmentDisplay.propTypes = {
     PropTypes.shape({
       heading: PropTypes.string.isRequired,
       shipmentType: PropTypes.string,
-      advanceRequested: PropTypes.bool,
+      hasRequestedAdvance: PropTypes.bool,
+      advanceAmountRequested: PropTypes.number,
       destinationPostalCode: PropTypes.string,
       estimatedIncentive: PropTypes.number,
       estimatedWeight: PropTypes.string,
