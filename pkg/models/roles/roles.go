@@ -32,6 +32,8 @@ const (
 	RoleTypePrimeSimulator RoleType = "prime_simulator"
 	// RoleTypeQaeCsr is the Quality Assurance and Customer Support Role
 	RoleTypeQaeCsr RoleType = "qae_csr"
+	// RoleTypePrime is the Role associated with actions performed by the Prime
+	RoleTypePrime RoleType = "prime"
 )
 
 // Role represents a Role for users
