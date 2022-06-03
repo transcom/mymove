@@ -1837,7 +1837,9 @@ func init() {
             "$ref": "#/responses/ServerError"
           }
         },
-        "x-permissions": "update.allowances"
+        "x-permissions": [
+          "update.allowances"
+        ]
       },
       "parameters": [
         {
@@ -9349,7 +9351,9 @@ func init() {
             }
           }
         },
-        "x-permissions": "update.allowances"
+        "x-permissions": [
+          "update.allowances"
+        ]
       },
       "parameters": [
         {
