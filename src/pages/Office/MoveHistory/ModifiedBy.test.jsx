@@ -14,4 +14,9 @@ describe('Move History ModifiedBy view', () => {
     render(<ModifiedBy firstName="" lastName="" email="" phone="" />);
     expect(screen.getByText('MilMove')).toBeInTheDocument();
   });
+
+  it('supports system modifications made by the Prime', () => {
+    render(<ModifiedBy firstName="Prime" lastName="" email="" phone="" />);
+    expect(screen.getByText('Prime')).toBeInTheDocument();
+  });
 });
