@@ -898,7 +898,7 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx appcontext
 			ApprovedAt:                  &approvedAt,
 			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42442"),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
