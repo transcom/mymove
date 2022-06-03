@@ -1,5 +1,5 @@
 @import './shared/styles/settings';
-@import 'uswds';
+@import '../node_modules/uswds/dist/scss/uswds.scss';
 @import '~@trussworks/react-uswds/lib/index.css';
 @import './shared/styles/colors';
 @import './shared/styles/variables';
