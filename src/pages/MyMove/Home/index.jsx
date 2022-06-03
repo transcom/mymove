@@ -334,6 +334,9 @@ export class Home extends Component {
     const allSortedShipments = this.sortAllShipments(mtoShipments);
     const ppmShipments = allSortedShipments.filter((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.PPM);
 
+    // eslint-disable-next-line camelcase
+    const currentLocation = current_location;
+
     return (
       <>
         <ScrollToTop />
@@ -490,9 +493,9 @@ export class Home extends Component {
                 </SectionWrapper>
                 <Contact
                   header="Contacts"
-                  dutyLocationName={current_location?.transportation_office?.name}
+                  dutyLocationName={currentLocation?.transportation_office?.name}
                   officeType="Origin Transportation Office"
-                  telephone={current_location?.transportation_office?.phone_lines[0]}
+                  telephone={currentLocation?.transportation_office?.phone_lines[0]}
                 />
               </>
             )}
