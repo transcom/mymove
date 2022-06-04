@@ -7,13 +7,18 @@ export default {
   action: a.INSERT,
   eventName: o.createPaymentRequest,
   tableName: t.payment_requests,
-  detailsType: d.PLAIN_TEXT,
+  detailsType: d.LABELED,
   getEventNameDisplay: ({ changedValues }) => `Submitted payment request ${changedValues?.payment_request_number}`,
-  getDetailsPlainText: ({ context }) => {
-    return context
-      .reduce((serviceItemsString, contextItem) => {
-        return `${serviceItemsString}, ${contextItem.name}`;
-      }, '')
-      .slice(2);
+  getDetailsLabeledDetails: ({ context }) => {
+    let moveServices = '';
+    let shipmentServices = '';
+    context.forEach((serviceItem) => {
+      if (serviceItem.name === 'Move management' || serviceItem.name === 'Counseling') {
+        moveServices += `, ${serviceItem.name}`;
+      } else {
+        shipmentServices += `, ${serviceItem.name}`;
+      }
+    });
+    return { move_services: moveServices.slice(2), shipment_services: shipmentServices.slice(2), shipment_type: 'HHG' };
   },
 };

@@ -17,6 +17,10 @@ describe('when given a payment request is created through shipment update', () =
   it('correctly matches the create payment request event', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(e);
-    expect(result.getDetailsPlainText(item)).toEqual('Test Service, Domestic origin price');
+    expect(result.getDetailsLabeledDetails(item)).toMatchObject({
+      move_services: '',
+      shipment_services: 'Test Service, Domestic origin price',
+      shipment_type: 'HHG',
+    });
   });
 });
