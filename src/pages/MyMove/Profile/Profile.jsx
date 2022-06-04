@@ -36,7 +36,11 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
       <div className="grid-row">
         <div className="grid-col-12">
           <h1>Profile</h1>
-          {showMessages && <Alert type="info">Contact your movers if you need to make changes to your move.</Alert>}
+          {showMessages && (
+            <Alert headingLevel="h4" type="info">
+              Contact your movers if you need to make changes to your move.
+            </Alert>
+          )}
           <SectionWrapper className={formStyles.formSection}>
             <ContactInfoDisplay
               telephone={serviceMember?.telephone || ''}

@@ -74,7 +74,7 @@ const Advance = () => {
             <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
             <h1>Advances</h1>
             {errorMessage && (
-              <Alert slim type="error">
+              <Alert headingLevel="h4" slim type="error">
                 {errorMessage}
               </Alert>
             )}

@@ -52,7 +52,9 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
         return (
           <div className={classnames(styles.EstimatedWeightsProGearForm, ppmStyles.formContainer)}>
             <Form className={(formStyles.form, ppmStyles.form)}>
-              <Alert type="info">{`Total weight allowance for your move: ${formatWeight(authorizedWeight)}`}</Alert>
+              <Alert headingLevel="h4" type="info">{`Total weight allowance for your move: ${formatWeight(
+                authorizedWeight,
+              )}`}</Alert>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Full PPM</h2>
                 <p>
