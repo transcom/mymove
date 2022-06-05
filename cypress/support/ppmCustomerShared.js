@@ -167,7 +167,7 @@ export function navigateFromAdvancesPageToReviewPage(isMobile = false) {
 
   cy.get('h1').should('contain', 'Review your details');
 
-  cy.get('h3')
+  cy.get('.usa-alert__heading')
     .contains('Details saved')
     .next()
     .contains('Review your info and submit your move request now, or come back and finish later.');
