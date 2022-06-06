@@ -35,22 +35,15 @@ describe('PPM Onboarding - Review', function () {
 
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
-    cy.intercept(
-      'PATCH',
-      '**/internal/mto-shipments/**',
-      cy.intercept('PATCH', '**/internal/mto-shipments/**', {
-        ppmShipment: {
-          estimatedIncentive: 4779372,
-          estimatedWeight: 4000,
-          expectedDepartureDate: '2020-03-15',
-          hasProGear: true,
-          pickupPostalCode: 90210,
-          proGearWeight: 500,
-          sitExpected: false,
-          spouseProGearWeight: 400,
-        },
-      }),
-    ).as('patchShipment');
+    cy.intercept('PATCH', '**/internal/mto-shipments/**', (req) => {
+      if (req.body.ppmShipment.estimatedWeight) {
+        req.reply({
+          statusCode: 200,
+          fixture: 'ppmWithEstimatedIncentive.json',
+        });
+      }
+    }).as('patchShipment');
+
     cy.intercept('DELETE', '**/internal/mto-shipments/**').as('deleteShipment');
     cy.intercept('GET', '**/internal/moves/**/signed_certifications').as('signedCertifications');
   });
