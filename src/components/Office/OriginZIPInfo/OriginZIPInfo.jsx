@@ -29,7 +29,8 @@ const OriginZIPInfo = ({ currentZip, postalCodeValidator }) => {
 
   const handlePrefillPostalCodeChange = (value) => {
     if (isChecked && value !== currentZip) {
-      checkBoxHelperProps.setValue('checked');
+      checkBoxHelperProps.setValue('');
+      setIsChecked(false);
     }
     postalCodeHelperProps.setValue(value);
   };
@@ -56,7 +57,7 @@ const OriginZIPInfo = ({ currentZip, postalCodeValidator }) => {
     <SectionWrapper className={styles.OriginZIPInfo}>
       <h2>Origin info</h2>
       <DatePickerInput label="Planned departure date" name="expectedDepartureDate" required />
-      <div className="display-inline-block">
+      <div className="display-inline-block" data-testid="originZIP">
         <TextField
           label="Origin ZIP"
           id="pickupPostalCode"
@@ -74,7 +75,7 @@ const OriginZIPInfo = ({ currentZip, postalCodeValidator }) => {
         label="Use current ZIP"
         onChange={(e) => setOriginZipToCurrentZip(e.target.checked)}
       />
-      <div className="display-inline-block">
+      <div className="display-inline-block" data-testid="secondOriginZIP">
         <TextField
           label="Second origin ZIP"
           id="secondPickupPostalCode"

@@ -29,7 +29,8 @@ const DestinationZIPInfo = ({ dutyZip, postalCodeValidator }) => {
 
   const handlePrefillPostalCodeChange = (value) => {
     if (isChecked && value !== dutyZip) {
-      checkBoxHelperProps.setValue('checked');
+      checkBoxHelperProps.setValue('');
+      setIsChecked(false);
     }
     postalCodeHelperProps.setValue(value);
   };
@@ -55,7 +56,7 @@ const DestinationZIPInfo = ({ dutyZip, postalCodeValidator }) => {
   return (
     <SectionWrapper className={styles.DestinationZIPInfo}>
       <h2>Destination info</h2>
-      <div className="display-inline-block">
+      <div className="display-inline-block" data-testid="destinationZIP">
         <TextField
           label="Destination ZIP"
           id="destinationPostalCode"
@@ -73,7 +74,7 @@ const DestinationZIPInfo = ({ dutyZip, postalCodeValidator }) => {
         label="Use ZIP for new duty location"
         onChange={(e) => setDestinationZipToDutyZip(e.target.checked)}
       />
-      <div className="display-inline-block">
+      <div className="display-inline-block" data-testid="secondDestinationZIP">
         <TextField
           label="Second destination ZIP"
           id="secondDestinationPostalCode"
