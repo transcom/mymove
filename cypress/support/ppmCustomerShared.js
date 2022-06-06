@@ -57,7 +57,7 @@ export function submitsDateAndLocation() {
   cy.get('input[name="destinationPostalCode"]').clear().type('76127');
   cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
 
-  navigateFromDateAndLocationPageToEstimatedWeightsPage('@createShipment');
+  navigateFromDateAndLocationPageToEstimatedWeightsPage();
 }
 
 export function navigateFromDateAndLocationPageToEstimatedWeightsPage(actionToWaitOn) {
