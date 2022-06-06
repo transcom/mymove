@@ -806,7 +806,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					})
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
-					AdvanceRequested: handlers.FmtBool(false),
+					HasRequestedAdvance: handlers.FmtBool(false),
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
 				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
@@ -815,7 +815,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated
-					suite.Equal(desiredShipment.AdvanceRequested, updatedShipment.PpmShipment.HasRequestedAdvance)
+					suite.Equal(desiredShipment.HasRequestedAdvance, updatedShipment.PpmShipment.HasRequestedAdvance)
 					suite.Nil(updatedShipment.PpmShipment.AdvanceAmountRequested)
 				},
 			},
@@ -830,8 +830,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					})
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
-					AdvanceRequested: handlers.FmtBool(true),
-					Advance:          handlers.FmtInt64(200000),
+					HasRequestedAdvance:    handlers.FmtBool(true),
+					AdvanceAmountRequested: handlers.FmtInt64(200000),
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
 				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
@@ -840,8 +840,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated
-					suite.Equal(desiredShipment.AdvanceRequested, updatedShipment.PpmShipment.HasRequestedAdvance)
-					suite.Equal(desiredShipment.Advance, updatedShipment.PpmShipment.AdvanceAmountRequested)
+					suite.Equal(desiredShipment.HasRequestedAdvance, updatedShipment.PpmShipment.HasRequestedAdvance)
+					suite.Equal(desiredShipment.AdvanceAmountRequested, updatedShipment.PpmShipment.AdvanceAmountRequested)
 				},
 			},
 			"Remove advance requested": {
@@ -857,7 +857,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					})
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
-					AdvanceRequested: handlers.FmtBool(false),
+					HasRequestedAdvance: handlers.FmtBool(false),
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
 				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
@@ -866,7 +866,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated
-					suite.Equal(desiredShipment.AdvanceRequested, updatedShipment.PpmShipment.HasRequestedAdvance)
+					suite.Equal(desiredShipment.HasRequestedAdvance, updatedShipment.PpmShipment.HasRequestedAdvance)
 					suite.Nil(updatedShipment.PpmShipment.AdvanceAmountRequested)
 				},
 			},
@@ -1183,10 +1183,10 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 		Move: mto,
 	})
 
-	advance := unit.Cents(10000)
+	advanceAmountRequested := unit.Cents(10000)
 	ppmShipment3 := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 		Move:        mto,
-		PPMShipment: models.PPMShipment{Advance: &advance},
+		PPMShipment: models.PPMShipment{AdvanceAmountRequested: &advanceAmountRequested},
 	})
 
 	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2, ppmShipment.Shipment, ppmShipment2.Shipment, ppmShipment3.Shipment}
@@ -1232,7 +1232,6 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 				suite.EqualUUID(expectedShipment.PPMShipment.ID, returnedShipment.PpmShipment.ID)
 				suite.EqualUUID(expectedShipment.PPMShipment.ShipmentID, returnedShipment.PpmShipment.ShipmentID)
 				suite.EqualDateTime(expectedShipment.PPMShipment.CreatedAt, returnedShipment.PpmShipment.CreatedAt)
-				suite.EqualDateTime(expectedShipment.PPMShipment.UpdatedAt, returnedShipment.PpmShipment.UpdatedAt)
 				suite.Equal(string(expectedShipment.PPMShipment.Status), string(returnedShipment.PpmShipment.Status))
 				suite.EqualDate(expectedShipment.PPMShipment.ExpectedDepartureDate, *returnedShipment.PpmShipment.ExpectedDepartureDate)
 				suite.EqualDatePtr(expectedShipment.PPMShipment.ActualMoveDate, returnedShipment.PpmShipment.ActualMoveDate)

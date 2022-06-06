@@ -683,7 +683,8 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 		return
 	}
 	appCtx.Session().Roles = append(appCtx.Session().Roles, userIdentity.Roles...)
-	appCtx.Session().Permissions, _ = getPermissionsForUser(appCtx, userIdentity.ID)
+	appCtx.Session().Permissions = getPermissionsForUser(appCtx, userIdentity.ID)
+
 	appCtx.Session().UserID = userIdentity.ID
 	if appCtx.Session().IsMilApp() && userIdentity.ServiceMemberID != nil {
 		appCtx.Session().ServiceMemberID = *(userIdentity.ServiceMemberID)

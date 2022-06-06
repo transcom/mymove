@@ -13,7 +13,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http/httptest"
-	"testing"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -248,20 +247,23 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 }
 
 func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler() {
-	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
-	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
-	handler := UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
-		handlerConfig,
-		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
+	setupTestData := func() UpdateMTOStatusServiceCounselingCompletedHandlerFunc {
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+		handler := UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
+			handlerConfig,
+			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
+		}
+		return handler
 	}
 
-	requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
-	request = suite.AuthenticateOfficeRequest(request, requestUser)
-
-	suite.T().Run("Successful move status update to Service Counseling Completed - Integration", func(t *testing.T) {
+	suite.Run("Successful move status update to Service Counseling Completed - Integration", func() {
+		handler := setupTestData()
+		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
+		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusNeedsServiceCounseling,
@@ -286,7 +288,9 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		suite.EqualValues(models.MoveStatusServiceCounselingCompleted, moveTaskOrderPayload.Status)
 	})
 
-	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, forbidden - Integration", func(t *testing.T) {
+	suite.Run("Unsuccessful move status update to Service Counseling Completed, forbidden - Integration", func() {
+		handler := setupTestData()
+		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
 		forbiddenUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
 		forbiddenRequest := suite.AuthenticateOfficeRequest(request, forbiddenUser)
 
@@ -299,7 +303,11 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedForbidden{}, response)
 	})
 
-	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, not found - Integration", func(t *testing.T) {
+	suite.Run("Unsuccessful move status update to Service Counseling Completed, not found - Integration", func() {
+		handler := setupTestData()
+		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
+		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
 		params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()).String(),
@@ -310,7 +318,11 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedNotFound{}, response)
 	})
 
-	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, eTag does not match - Integration", func(t *testing.T) {
+	suite.Run("Unsuccessful move status update to Service Counseling Completed, eTag does not match - Integration", func() {
+		handler := setupTestData()
+		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
+		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -327,7 +339,11 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, state conflict - Integration", func(t *testing.T) {
+	suite.Run("Unsuccessful move status update to Service Counseling Completed, state conflict - Integration", func() {
+		handler := setupTestData()
+		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
+		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
 		draftMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusDRAFT,
@@ -348,7 +364,11 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		suite.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedConflict{}, response)
 	})
 
-	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, misc mocked errors - Integration", func(t *testing.T) {
+	suite.Run("Unsuccessful move status update to Service Counseling Completed, misc mocked errors - Integration", func() {
+		handlerOrig := setupTestData()
+		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
+		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
 		testCases := []struct {
 			mockError       error
 			handlerResponse middleware.Responder
@@ -375,7 +395,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			).Return(&models.Move{}, testCase.mockError)
 
 			handler := UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
-				handlerConfig,
+				handlerOrig.HandlerConfig,
 				&mockUpdater,
 			}
 
@@ -387,33 +407,38 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
-	order := testdatagen.MakeDefaultOrder(suite.DB())
-	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusNeedsServiceCounseling,
-		},
-		Order: order,
-	})
+	setupTestData := func() (models.Move, UpdateMoveTIORemarksHandlerFunc, models.User) {
 
-	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/tio-remarks", nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	request = suite.AuthenticateUserRequest(request, requestUser)
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
-	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
-	handler := UpdateMoveTIORemarksHandlerFunc{
-		handlerConfig,
-		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
+		order := testdatagen.MakeDefaultOrder(suite.DB())
+		moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+			},
+			Order: order,
+		})
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+		handler := UpdateMoveTIORemarksHandlerFunc{
+			handlerConfig,
+			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
+		}
+		return moveTaskOrder, handler, requestUser
 	}
 
 	remarks := "Reweigh requested"
-	suite.T().Run("Successfully update the Move's TIORemarks field", func(t *testing.T) {
+	suite.Run("Successfully update the Move's TIORemarks field", func() {
+		move, handler, requestUser := setupTestData()
+		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/tio-remarks", nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+
 		params := move_task_order.UpdateMoveTIORemarksParams{
 			HTTPRequest:     request,
-			MoveTaskOrderID: moveTaskOrder.ID.String(),
+			MoveTaskOrderID: move.ID.String(),
 			Body:            &ghcmessages.Move{TioRemarks: &remarks},
-			IfMatch:         etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+			IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -426,10 +451,14 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 		suite.Equal(moveTaskOrderPayload.TioRemarks, updatedMove.TIORemarks)
 	})
 
-	suite.T().Run("Unsuccessful move TIO Remarks, eTag does not match", func(t *testing.T) {
+	suite.Run("Unsuccessful move TIO Remarks, eTag does not match", func() {
+		move, handler, requestUser := setupTestData()
+		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/tio-remarks", nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+
 		params := move_task_order.UpdateMoveTIORemarksParams{
 			HTTPRequest:     request,
-			MoveTaskOrderID: moveTaskOrder.ID.String(),
+			MoveTaskOrderID: move.ID.String(),
 			Body:            &ghcmessages.Move{TioRemarks: &remarks},
 		}
 		response := handler.Handle(params)
@@ -438,7 +467,11 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 		suite.Assertions.IsType(&move_task_order.UpdateMoveTIORemarksPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("Unsuccessful move TIO Remarks update, not found", func(t *testing.T) {
+	suite.Run("Unsuccessful move TIO Remarks update, not found", func() {
+		_, handler, requestUser := setupTestData()
+		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/tio-remarks", nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+
 		params := move_task_order.UpdateMoveTIORemarksParams{
 			HTTPRequest:     request,
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()).String(),

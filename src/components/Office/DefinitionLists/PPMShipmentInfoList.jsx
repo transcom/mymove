@@ -6,7 +6,7 @@ import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss
 
 import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
-import { PPMShipmentShape } from 'types/shipment';
+import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags } from 'utils/displayFlags';
 
@@ -167,7 +167,7 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
 
 PPMShipmentInfoList.propTypes = {
   className: PropTypes.string,
-  shipment: PPMShipmentShape.isRequired,
+  shipment: ShipmentShape.isRequired,
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),

@@ -21,7 +21,7 @@ func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator) services.PPMShipm
 			checkShipmentID(),
 			checkPPMShipmentID(),
 			checkRequiredFields(),
-			checkAdvance(),
+			checkAdvanceAmountRequested(),
 		},
 		estimator: ppmEstimator,
 	}

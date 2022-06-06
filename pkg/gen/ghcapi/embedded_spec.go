@@ -5368,7 +5368,6 @@ func init() {
         "id",
         "shipmentId",
         "createdAt",
-        "updatedAt",
         "status",
         "expectedDepartureDate",
         "pickupPostalCode",
@@ -5427,12 +5426,6 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
         },
         "destinationPostalCode": {
           "type": "string",
@@ -5590,11 +5583,6 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
         }
       },
       "x-nullable": true
@@ -6633,15 +6621,10 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "advance": {
+        "advanceAmountRequested": {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
           "format": "cents",
-          "x-nullable": true
-        },
-        "advanceRequested": {
-          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
-          "type": "boolean",
           "x-nullable": true
         },
         "destinationPostalCode": {
@@ -6665,6 +6648,11 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "hasRequestedAdvance": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
         },
@@ -13178,7 +13166,6 @@ func init() {
         "id",
         "shipmentId",
         "createdAt",
-        "updatedAt",
         "status",
         "expectedDepartureDate",
         "pickupPostalCode",
@@ -13237,12 +13224,6 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
         },
         "destinationPostalCode": {
           "type": "string",
@@ -13400,11 +13381,6 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
         }
       },
       "x-nullable": true
@@ -14450,15 +14426,10 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "advance": {
+        "advanceAmountRequested": {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
           "format": "cents",
-          "x-nullable": true
-        },
-        "advanceRequested": {
-          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
-          "type": "boolean",
           "x-nullable": true
         },
         "destinationPostalCode": {
@@ -14482,6 +14453,11 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "hasRequestedAdvance": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
         },

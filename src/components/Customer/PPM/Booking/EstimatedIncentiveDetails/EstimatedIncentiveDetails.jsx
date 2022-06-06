@@ -1,7 +1,7 @@
 import React from 'react';
 
 import styles from 'components/Customer/PPM/Booking/EstimatedIncentiveDetails/EstimatedIncentiveDetails.module.scss';
-import { MtoShipmentShape } from 'types/customerShapes';
+import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 
 const EstimatedIncentiveDetails = ({ shipment }) => {
@@ -45,7 +45,7 @@ const EstimatedIncentiveDetails = ({ shipment }) => {
 };
 
 EstimatedIncentiveDetails.propTypes = {
-  shipment: MtoShipmentShape.isRequired,
+  shipment: ShipmentShape.isRequired,
 };
 
 export default EstimatedIncentiveDetails;

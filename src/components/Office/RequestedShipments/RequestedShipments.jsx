@@ -7,17 +7,18 @@ import { generatePath } from 'react-router';
 
 import styles from './RequestedShipments.module.scss';
 
-import { serviceItemCodes } from 'content/serviceItems';
-import { shipmentTypeLabels } from 'content/shipments';
 import ShipmentApprovalPreview from 'components/Office/ShipmentApprovalPreview/ShipmentApprovalPreview';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
-import { formatDateFromIso } from 'utils/formatters';
-import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
-import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { tooRoutes } from 'constants/routes';
 import { shipmentDestinationTypes } from 'constants/shipments';
 import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
+import { serviceItemCodes } from 'content/serviceItems';
+import { shipmentTypeLabels } from 'content/shipments';
+import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
+import { MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
+import { ShipmentShape } from 'types/shipment';
+import { formatDateFromIso } from 'utils/formatters';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -336,7 +337,7 @@ const RequestedShipments = ({
 };
 
 RequestedShipments.propTypes = {
-  mtoShipments: PropTypes.arrayOf(MTOShipmentShape).isRequired,
+  mtoShipments: PropTypes.arrayOf(ShipmentShape).isRequired,
   shipmentsStatus: PropTypes.string.isRequired,
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
   ordersInfo: OrdersInfoShape.isRequired,

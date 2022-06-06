@@ -41,6 +41,8 @@ definitions:
         items:
           $ref: '#/definitions/Role'
         x-nullable: true
+      # Here we are returning permissions on the user session to the FE, rather than requiring them on the endpoint. This is why this is permissions rather than x-permissions
+      # TODO: once we have decided on data store and a firm set of permissions, update the entries here to be ENUM type
       permissions:
         type: array
         items:
@@ -2505,12 +2507,12 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
-      advanceRequested:
+      hasRequestedAdvance:
         description: >
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
-      advance:
+      advanceAmountRequested:
         description: >
           The amount requested for an advance, or null if no advance is requested
         type: integer
