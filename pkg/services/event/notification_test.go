@@ -1,7 +1,6 @@
 package event
 
 import (
-	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -15,101 +14,20 @@ import (
 func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 	now := time.Now()
 
-	mtoServiceItemDOFSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOFSIT,
-			Name: "Destination 1st Day SIT",
-		},
-	})
-
-	mtoServiceItemDDFSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDFSIT,
-			Name: "Destination 1st Day SIT",
-		},
-	})
-
-	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
-		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			MTOServiceItemID:           mtoServiceItemDDFSIT.ID,
-			Type:                       models.CustomerContactTypeFirst,
-			TimeMilitary:               "0800Z",
-			FirstAvailableDeliveryDate: time.Now(),
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDFSIT,
-			Name: "Destination 1st Day SIT",
-		},
-	})
-
-	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
-		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			MTOServiceItemID:           mtoServiceItemDDFSIT.ID,
-			Type:                       models.CustomerContactTypeSecond,
-			TimeMilitary:               "0400Z",
-			FirstAvailableDeliveryDate: time.Now(),
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDFSIT,
-		},
-	})
-
-	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDCRT,
-			Name: "Dom. Crating",
-		},
-	})
-
-	itemDimension1 := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Type:      models.DimensionTypeItem,
-			Length:    900,
-			Height:    900,
-			Width:     900,
-			CreatedAt: time.Time{},
-			UpdatedAt: time.Time{},
-		},
-		MTOServiceItem: mtoServiceItemDCRT,
-	})
-
-	crateDimension1 := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			MTOServiceItemID: mtoServiceItemDCRT.ID,
-			Type:             models.DimensionTypeCrate,
-			Length:           2000,
-			Height:           2000,
-			Width:            2000,
-			CreatedAt:        time.Time{},
-			UpdatedAt:        time.Time{},
-		},
-	})
-
-	testString := "Lorem ipsum"
-
-	mtoServiceItemDOSHUT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOSHUT,
-		},
-		MTOServiceItem: models.MTOServiceItem{
-			Description: &testString,
-			Reason:      &testString,
-		},
-	})
-
-	suite.T().Run("Success with MTOServiceItemDOFSIT", func(t *testing.T) {
+	suite.Run("Success with MTOServiceItemDOFSIT", func() {
+		// Under test: assembleMTOServiceItemPayload
+		// Mocked:     None
+		// Set up:     Create a DOFSIT in the db, assemble the webhook notification payload
+		// Expected outcome: Payload should contain the DOFSIT details
+		mtoServiceItemDOFSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+				Name: "Destination 1st Day SIT",
+			},
+		})
 		data := &primemessages.MTOServiceItemOriginSIT{}
 
 		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDOFSIT.ID)
@@ -124,7 +42,42 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		suite.Equal(mtoServiceItemDOFSIT.Reason, data.Reason)
 	})
 
-	suite.T().Run("Success with MTOServiceItemDDFSIT", func(t *testing.T) {
+	suite.Run("Success with MTOServiceItemDDFSIT", func() {
+		// Under test: assembleMTOServiceItemPayload
+		// Set up:     Create a DDFSIT in the db, assemble the webhook notification payload
+		// Expected outcome: Payload should contain the DDFSIT details
+		mtoServiceItemDDFSIT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+				Name: "Destination 1st Day SIT",
+			},
+		})
+		customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+				MTOServiceItemID:           mtoServiceItemDDFSIT.ID,
+				Type:                       models.CustomerContactTypeFirst,
+				TimeMilitary:               "0800Z",
+				FirstAvailableDeliveryDate: time.Now(),
+			},
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+				Name: "Destination 1st Day SIT",
+			},
+		})
+		customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+				MTOServiceItemID:           mtoServiceItemDDFSIT.ID,
+				Type:                       models.CustomerContactTypeSecond,
+				TimeMilitary:               "0400Z",
+				FirstAvailableDeliveryDate: time.Now(),
+			},
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+			},
+		})
 		data := &primemessages.MTOServiceItemDestSIT{}
 
 		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDDFSIT.ID)
@@ -141,7 +94,43 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 
 	})
 
-	suite.T().Run("Success with MTOServiceItemDCRT", func(t *testing.T) {
+	suite.Run("Success with MTOServiceItemDCRT", func() {
+		// Under test: assembleMTOServiceItemPayload
+		// Set up:     Create a DCRT in the db, assemble the webhook notification payload
+		// Expected outcome: Payload should contain the DCRT details
+		mtoServiceItemDCRT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDCRT,
+				Name: "Dom. Crating",
+			},
+		})
+
+		itemDimension1 := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemDimension: models.MTOServiceItemDimension{
+				Type:      models.DimensionTypeItem,
+				Length:    900,
+				Height:    900,
+				Width:     900,
+				CreatedAt: time.Time{},
+				UpdatedAt: time.Time{},
+			},
+			MTOServiceItem: mtoServiceItemDCRT,
+		})
+
+		crateDimension1 := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemDimension: models.MTOServiceItemDimension{
+				MTOServiceItemID: mtoServiceItemDCRT.ID,
+				Type:             models.DimensionTypeCrate,
+				Length:           2000,
+				Height:           2000,
+				Width:            2000,
+				CreatedAt:        time.Time{},
+				UpdatedAt:        time.Time{},
+			},
+		})
 		data := &primemessages.MTOServiceItemDomesticCrating{}
 
 		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDCRT.ID)
@@ -158,7 +147,21 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 
 	})
 
-	suite.T().Run("Success with MTOServiceItemDOSHUT", func(t *testing.T) {
+	suite.Run("Success with MTOServiceItemDOSHUT", func() {
+		testString := "Lorem ipsum"
+
+		mtoServiceItemDOSHUT := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOSHUT,
+			},
+			MTOServiceItem: models.MTOServiceItem{
+				Description: &testString,
+				Reason:      &testString,
+			},
+		})
 		data := &primemessages.MTOServiceItemShuttle{}
 
 		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.AppContextForTest(), mtoServiceItemDOSHUT.ID)
@@ -176,15 +179,15 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 }
 
 func (suite *EventServiceSuite) TestAssembleOrderPayload() {
-	order := testdatagen.MakeDefaultOrder(suite.DB())
 
-	suite.T().Run("Success with default Order", func(t *testing.T) {
+	suite.Run("Success with default Order", func() {
+		order := testdatagen.MakeDefaultOrder(suite.DB())
 		payload, err := assembleOrderPayload(suite.AppContextForTest(), order.ID)
+		suite.FatalNoError(err)
 
 		data := &primemessages.Order{}
 		unmarshalErr := data.UnmarshalBinary(payload)
 
-		suite.Nil(err)
 		suite.Nil(unmarshalErr)
 		suite.Equal(order.ID.String(), data.ID.String())
 		suite.NotNil(order.ServiceMember)
@@ -202,7 +205,7 @@ func (suite *EventServiceSuite) TestAssembleOrderPayload() {
 }
 
 func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
-	suite.T().Run("Non-external shipment returns payload with all associations", func(t *testing.T) {
+	suite.Run("Non-external shipment returns payload with all associations", func() {
 		// Setup test data
 		pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 		secondaryPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
@@ -242,7 +245,7 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 		suite.Equal(agent.ID.String(), data.Agents[0].ID.String())
 	})
 
-	suite.T().Run("External shipment reports that it should not notify", func(t *testing.T) {
+	suite.Run("External shipment reports that it should not notify", func() {
 		// Setup test data
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{

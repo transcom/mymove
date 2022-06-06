@@ -23,7 +23,7 @@ func (suite *HandlerSuite) TestGetDocumentHandler() {
 
 	err := suite.DB().Eager("ServiceMember.User").Find(&document, documentID)
 	if err != nil {
-		t.Fatalf("could not load document: %s", err)
+		suite.Fail("could not load document: %s", err)
 	}
 
 	params := documentop.NewGetDocumentParams()
@@ -41,7 +41,7 @@ func (suite *HandlerSuite) TestGetDocumentHandler() {
 
 	showResponse, ok := response.(*documentop.GetDocumentOK)
 	if !ok {
-		t.Fatalf("Request failed: %#v", response)
+		suite.Fail("Request failed: %#v", response)
 	}
 	documentPayload := showResponse.Payload
 

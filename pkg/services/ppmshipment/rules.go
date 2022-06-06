@@ -83,23 +83,23 @@ func checkRequiredFields() ppmShipmentValidator {
 	})
 }
 
-// check Advance checks that the advance fields are updated appropriately
-func checkAdvance() ppmShipmentValidator {
+// checkAdvanceAmountRequested()  checks that the advance fields are updated appropriately
+func checkAdvanceAmountRequested() ppmShipmentValidator {
 	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
-		if newPPMShipment.AdvanceRequested == nil || !*newPPMShipment.AdvanceRequested {
-			if newPPMShipment.Advance != nil {
-				verrs.Add("advance", "Advance must be nil because of the advance requested value")
+		if newPPMShipment.HasRequestedAdvance == nil || !*newPPMShipment.HasRequestedAdvance {
+			if newPPMShipment.AdvanceAmountRequested != nil {
+				verrs.Add("advanceAmountRequested", "Advance amount requested must be nil because of the value of the field indicating if an advance was requested")
 			}
 		} else {
 
-			if newPPMShipment.Advance == nil {
-				verrs.Add("advance", "An advance amount is required")
-			} else if float64(*newPPMShipment.Advance) < float64(100) {
-				verrs.Add("advance", "Advance cannot be a value less than $1")
-			} else if float64(*newPPMShipment.Advance) > math.Floor(float64(*newPPMShipment.EstimatedIncentive)*0.6) {
-				verrs.Add("advance", "Advance can not be greater than 60% of the estimated incentive")
+			if newPPMShipment.AdvanceAmountRequested == nil {
+				verrs.Add("advanceAmountRequested", "An advance amount is required")
+			} else if float64(*newPPMShipment.AdvanceAmountRequested) < float64(100) {
+				verrs.Add("advanceAmountRequested", "Advance amount requested cannot be a value less than $1")
+			} else if float64(*newPPMShipment.AdvanceAmountRequested) > math.Floor(float64(*newPPMShipment.EstimatedIncentive)*0.6) {
+				verrs.Add("advanceAmountRequested", "Advance amount requested can not be greater than 60% of the estimated incentive")
 			}
 		}
 

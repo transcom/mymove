@@ -77,9 +77,7 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 			ProGearWeight:                  models.PoundPointer(unit.Pound(1987)),
 			SpouseProGearWeight:            models.PoundPointer(unit.Pound(498)),
 			EstimatedIncentive:             models.CentPointer(unit.Cents(1000000)),
-			AdvanceRequested:               models.BoolPointer(true),
 			HasRequestedAdvance:            models.BoolPointer(true),
-			Advance:                        models.CentPointer(unit.Cents(598700)),
 			AdvanceAmountRequested:         models.CentPointer(unit.Cents(598700)),
 		},
 	}
@@ -88,14 +86,6 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 	// default of submitted.
 	if assertions.PPMShipment.Status == "" || assertions.PPMShipment.Status == models.PPMShipmentStatusSubmitted {
 		fullAssertions.PPMShipment.SubmittedAt = models.TimePointer(time.Now())
-	}
-
-	if assertions.PPMShipment.AdvanceRequested != nil && *assertions.PPMShipment.AdvanceRequested {
-		estimatedIncentiveCents := unit.Cents(*fullAssertions.PPMShipment.EstimatedIncentive)
-
-		advance := estimatedIncentiveCents.MultiplyFloat64(0.5)
-
-		fullAssertions.PPMShipment.Advance = &advance
 	}
 
 	if assertions.PPMShipment.HasRequestedAdvance != nil && *assertions.PPMShipment.HasRequestedAdvance {
