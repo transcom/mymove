@@ -122,7 +122,7 @@
     "@dump247/storybook-state": "^1.6.1",
     "@stoplight/spectral": "^5.9.2",
     "@storybook/addon-a11y": "^6.4.22",
-    "@storybook/addon-essentials": "^6.4.22",
+    "@storybook/addon-essentials": "^6.5.7",
     "@storybook/addon-knobs": "^6.4.0",
     "@storybook/addon-links": "^6.4.22",
     "@storybook/addons": "^6.4.14",
