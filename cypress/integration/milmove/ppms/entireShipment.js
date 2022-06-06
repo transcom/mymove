@@ -99,7 +99,7 @@ function submitAndVerifyUpdateDateAndLocation() {
   cy.get('input[name="destinationPostalCode"]').clear().type('76127');
   // TODO: The user has secondary destination zips. We should test clearing this value by selecting the no radio btn. This doesn't work atm
   cy.get('input[name="sitExpected"][value="false"]').check();
-  cy.get('input[name="expectedDepartureDate"]').clear().type('15 Apr 2022').blur();
+  cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
 
   navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
 
@@ -111,7 +111,7 @@ function submitAndVerifyUpdateDateAndLocation() {
   cy.get('input[name="secondaryPickupPostalCode"]').should('have.value', '90212');
   cy.get('input[name="destinationPostalCode"]').should('have.value', '76127');
   cy.get('input[name="hasSecondaryDestinationPostalCode"]').eq(0).should('be.checked').and('have.value', 'true');
-  cy.get('input[name="expectedDepartureDate"]').should('have.value', '15 Apr 2022');
+  cy.get('input[name="expectedDepartureDate"]').should('have.value', '01 Feb 2022');
   cy.get('input[name="sitExpected"]').last().should('be.checked').and('have.value', 'false');
 
   navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
