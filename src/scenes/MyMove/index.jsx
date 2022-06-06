@@ -62,10 +62,11 @@ const EditContactInfo = lazy(() => import('pages/MyMove/Profile/EditContactInfo'
 const AmendOrders = lazy(() => import('pages/MyMove/AmendOrders/AmendOrders'));
 const EditOrders = lazy(() => import('pages/MyMove/EditOrders'));
 const EstimatedWeightsProGear = lazy(() =>
-  import('pages/MyMove/PPMBooking/EstimatedWeightsProGear/EstimatedWeightsProGear'),
+  import('pages/MyMove/PPM/Booking/EstimatedWeightsProGear/EstimatedWeightsProGear'),
 );
-const EstimatedIncentive = lazy(() => import('pages/MyMove/PPMBooking/EstimatedIncentive/EstimatedIncentive'));
-const Advance = lazy(() => import('pages/MyMove/PPMBooking/Advance/Advance'));
+const EstimatedIncentive = lazy(() => import('pages/MyMove/PPM/Booking/EstimatedIncentive/EstimatedIncentive'));
+const Advance = lazy(() => import('pages/MyMove/PPM/Booking/Advance/Advance'));
+const About = lazy(() => import('pages/MyMove/PPM/Closeout/About/About'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -182,6 +183,7 @@ export class CustomerApp extends Component {
                     path={customerRoutes.CONTACT_INFO_EDIT_PATH}
                     component={EditContactInfo}
                   />
+                  <CustomerPrivateRoute exact path={customerRoutes.SHIPMENT_PPM_ABOUT_PATH} component={About} />
                   <CustomerPrivateRoute path={customerRoutes.ORDERS_EDIT_PATH} component={EditOrders} />
                   <CustomerPrivateRoute path={customerRoutes.ORDERS_AMEND_PATH} component={AmendOrders} />
                   <CustomerPrivateRoute
