@@ -120,9 +120,9 @@ function submitAndVerifyUpdateDateAndLocation() {
 function verifyEstimatedWeightsAndProGear() {
   cy.get('button').contains('Back').click();
 
-  cy.get('input[name="estimatedWeight"]').should('have.value', '500');
+  cy.get('input[name="estimatedWeight"]').should('have.value', '4000');
   cy.get('input[name="hasProGear"][value="true"]').should('be.checked');
-  cy.get('input[name="proGearWeight"]').should('be.visible').and('have.value', '500');
+  cy.get('input[name="proGearWeight"]').should('be.visible').and('have.value', '4000');
   cy.get('input[name="spouseProGearWeight"]').should('be.visible').and('have.value', '400');
 
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
@@ -130,7 +130,7 @@ function verifyEstimatedWeightsAndProGear() {
 
 function verifyShipmentSpecificInfoOnEstimatedIncentivePage() {
   cy.get('.container li')
-    .should('contain', '500 lbs')
+    .should('contain', '4000 lbs')
     .and('contain', '90210')
     .and('contain', '76127')
     .and('contain', '15 Apr 2022');

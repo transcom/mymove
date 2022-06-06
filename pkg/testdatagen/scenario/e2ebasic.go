@@ -1619,7 +1619,8 @@ func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploa
 		PPMShipment: models.PPMShipment{
 			ID:                 testdatagen.ConvertUUIDStringToUUID("c2983fc5-5298-4f68-83bb-0a6f75c6a07f"),
 			Status:             models.PPMShipmentStatusDraft,
-			EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+			EstimatedWeight:    models.PoundPointer(unit.Pound(4000)),
+			EstimatedIncentive: models.CentPointer(unit.Cents(1000000)),
 		},
 	}
 
@@ -1645,7 +1646,8 @@ func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploa
 		PPMShipment: models.PPMShipment{
 			ID:                 testdatagen.ConvertUUIDStringToUUID("d39f5601-cd10-476c-a802-0ab2bcb8c96b"),
 			Status:             models.PPMShipmentStatusDraft,
-			EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+			EstimatedWeight:    models.PoundPointer(unit.Pound(4000)),
+			EstimatedIncentive: models.CentPointer(unit.Cents(1000000)),
 		},
 	}
 
