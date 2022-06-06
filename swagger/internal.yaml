@@ -2512,12 +2512,12 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
-      advanceRequested:
+      hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
-      advance:
+      advanceAmountRequested:
         description: >
           The amount requested for an advance, or null if no advance is
           requested
@@ -2894,10 +2894,6 @@ definitions:
         format: date-time
         type: string
         readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
       status:
         $ref: '#/definitions/PPMShipmentStatus'
       expectedDepartureDate:
@@ -3036,11 +3032,6 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
-      deletedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        x-omitempty: false
       sitLocation:
         allOf:
           - $ref: '#/definitions/SITLocationType'
@@ -3076,7 +3067,6 @@ definitions:
       - id
       - shipmentId
       - createdAt
-      - updatedAt
       - status
       - expectedDepartureDate
       - pickupPostalCode

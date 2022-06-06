@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"net/http/httptest"
-	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -57,18 +56,17 @@ func getMoveHistoryForTest() models.MoveHistory {
 func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 	moveHistory := getMoveHistoryForTest()
 
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
-	params := moveops.GetMoveHistoryParams{
-		HTTPRequest: req,
-		Locator:     "ABCD1234",
-		Page:        swag.Int64(1),
-		PerPage:     swag.Int64(20),
-	}
-
-	suite.T().Run("Successful move history fetch", func(t *testing.T) {
+	suite.Run("Successful move history fetch", func() {
 		mockHistoryFetcher := mocks.MoveHistoryFetcher{}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+		params := moveops.GetMoveHistoryParams{
+			HTTPRequest: req,
+			Locator:     "ABCD1234",
+			Page:        swag.Int64(1),
+			PerPage:     swag.Int64(20),
+		}
 
 		handler := GetMoveHistoryHandler{
 			HandlerConfig:      handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
@@ -112,8 +110,11 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 
 	})
 
-	suite.T().Run("Unsuccessful move history fetch - empty string bad request", func(t *testing.T) {
+	suite.Run("Unsuccessful move history fetch - empty string bad request", func() {
 		mockHistoryFetcher := mocks.MoveHistoryFetcher{}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		handler := GetMoveHistoryHandler{
 			HandlerConfig:      handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
@@ -130,8 +131,17 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		suite.IsType(&moveops.GetMoveHistoryBadRequest{}, response)
 	})
 
-	suite.T().Run("Unsuccessful move history fetch - locator not found", func(t *testing.T) {
+	suite.Run("Unsuccessful move history fetch - locator not found", func() {
 		mockHistoryFetcher := mocks.MoveHistoryFetcher{}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+		params := moveops.GetMoveHistoryParams{
+			HTTPRequest: req,
+			Locator:     "ABCD1234",
+			Page:        swag.Int64(1),
+			PerPage:     swag.Int64(20),
+		}
 
 		handler := GetMoveHistoryHandler{
 			HandlerConfig:      handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
@@ -147,8 +157,17 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		suite.IsType(&moveops.GetMoveHistoryNotFound{}, response)
 	})
 
-	suite.T().Run("Unsuccessful move history fetch - internal server error", func(t *testing.T) {
+	suite.Run("Unsuccessful move history fetch - internal server error", func() {
 		mockHistoryFetcher := mocks.MoveHistoryFetcher{}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+		params := moveops.GetMoveHistoryParams{
+			HTTPRequest: req,
+			Locator:     "ABCD1234",
+			Page:        swag.Int64(1),
+			PerPage:     swag.Int64(20),
+		}
 
 		handler := GetMoveHistoryHandler{
 			HandlerConfig:      handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
@@ -164,7 +183,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		suite.IsType(&moveops.GetMoveHistoryInternalServerError{}, response)
 	})
 
-	suite.T().Run("Paginated move history fetch results", func(t *testing.T) {
+	suite.Run("Paginated move history fetch results", func() {
 		// Create a move
 		move := testdatagen.MakeDefaultMove(suite.DB())
 

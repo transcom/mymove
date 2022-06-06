@@ -36,6 +36,21 @@ Blank.args = {
   postalCodeValidator: () => {},
 };
 
+export const BlankWithDefaultZIPs = Template.bind({});
+BlankWithDefaultZIPs.storyName = 'Blank With Default ZIPs';
+BlankWithDefaultZIPs.args = {
+  mtoShipment: {
+    id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',
+    moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
+    shipmentType: SHIPMENT_OPTIONS.PPM,
+    ppmShipment: {
+      pickupPostalCode: '10001',
+      destinationPostalCode: '10002',
+    },
+  },
+  postalCodeValidator: () => {},
+};
+
 export const RequiredValues = Template.bind({});
 RequiredValues.args = {
   mtoShipment: {

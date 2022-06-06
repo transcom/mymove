@@ -15,7 +15,6 @@ const ppmInfo = {
     advanceAmountRequested: 598700,
     approvedAt: null,
     createdAt: '2022-04-29T21:48:21.581Z',
-    deletedAt: null,
     destinationPostalCode: '30813',
     eTag: 'MjAyMi0wNC0yOVQyMTo0ODoyMS41ODE0MzFa',
     estimatedIncentive: 1000000,
@@ -33,7 +32,6 @@ const ppmInfo = {
     spouseProGearWeight: 498,
     status: 'SUBMITTED',
     submittedAt: '2022-04-29T21:48:21.573Z',
-    updatedAt: '2022-04-29T21:48:21.581Z',
   },
 };
 
