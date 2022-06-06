@@ -1611,16 +1611,20 @@ func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploa
 		moveLocator: "PPMFUL",
 	}
 
+	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		MTOShipment: models.MTOShipment{
 			ID: testdatagen.ConvertUUIDStringToUUID("e245b4e1-96f6-4501-b421-60d535b02568"),
 		},
 		PPMShipment: models.PPMShipment{
-			ID:                 testdatagen.ConvertUUIDStringToUUID("c2983fc5-5298-4f68-83bb-0a6f75c6a07f"),
-			Status:             models.PPMShipmentStatusDraft,
-			EstimatedWeight:    models.PoundPointer(unit.Pound(4000)),
-			EstimatedIncentive: models.CentPointer(unit.Cents(1000000)),
+			ID:                    testdatagen.ConvertUUIDStringToUUID("c2983fc5-5298-4f68-83bb-0a6f75c6a07f"),
+			Status:                models.PPMShipmentStatusDraft,
+			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
+			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
+			PickupPostalCode:      "90210",
+			DestinationPostalCode: "76127",
+			ExpectedDepartureDate: departureDate,
 		},
 	}
 

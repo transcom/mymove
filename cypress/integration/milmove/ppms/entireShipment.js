@@ -59,8 +59,8 @@ describe('Entire PPM onboarding flow', function () {
 });
 
 function navigateHappyPathWithDelete(userId, isMobile = false) {
-  cy.apiSignInAsUser(userId);
-  cy.wait('@getShipment');
+  // cy.apiSignInAsUser(userId);
+  // cy.wait('@getShipment');
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId);
   // customerDeletesExistingShipment();
   // customerStartsAddingAPPMShipment();
