@@ -1742,6 +1742,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.financialReviewFlag
   '/payment-requests/{paymentRequestID}/shipments-payment-sit-balance':
     parameters:
       - description: payment request ID of the payment request with SIT service items being reviewed
