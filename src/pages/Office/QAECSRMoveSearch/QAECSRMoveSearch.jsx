@@ -127,9 +127,7 @@ const QAECSRMoveSearch = ({ history }) => {
           showFilters
           showPagination
           defaultCanSort
-          defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
-          manualSortBy={false}
           manualFilters={false}
           disableSortBy={false}
           columns={tableColumns}
