@@ -18,16 +18,14 @@ const LabeledPaymentRequestDetails = ({ context, getLabeledPaymentRequestDetails
       <div>
         <b>Move services</b>: {valuesToDisplay.moveServices}
       </div>
-      {valuesToDisplay.shipmentServices.map((shipmentService) => {
+      {valuesToDisplay.shipmentServices?.map((shipmentService) => {
         const shipmentType = shipmentTypes[shipmentService.shipmentType];
 
         return (
-          <>
+          <div key={shipmentService.shipmentId}>
             <span className={labeledStyles.shipmentType}>{shipmentType} shipment</span>
-            <div key={shipmentService.shipmentId}>
-              <b>Shipment services</b>: {shipmentService.serviceItems}
-            </div>
-          </>
+            <b>Shipment services</b>: {shipmentService.serviceItems}
+          </div>
         );
       })}
     </>
