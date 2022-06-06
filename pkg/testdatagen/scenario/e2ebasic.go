@@ -1617,8 +1617,9 @@ func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploa
 			ID: testdatagen.ConvertUUIDStringToUUID("e245b4e1-96f6-4501-b421-60d535b02568"),
 		},
 		PPMShipment: models.PPMShipment{
-			ID:     testdatagen.ConvertUUIDStringToUUID("c2983fc5-5298-4f68-83bb-0a6f75c6a07f"),
-			Status: models.PPMShipmentStatusDraft,
+			ID:                 testdatagen.ConvertUUIDStringToUUID("c2983fc5-5298-4f68-83bb-0a6f75c6a07f"),
+			Status:             models.PPMShipmentStatusDraft,
+			EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
 		},
 	}
 
@@ -1642,8 +1643,9 @@ func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploa
 			ID: testdatagen.ConvertUUIDStringToUUID("3c0def3a-64af-4715-a2d9-8310c5c48f5d"),
 		},
 		PPMShipment: models.PPMShipment{
-			ID:     testdatagen.ConvertUUIDStringToUUID("d39f5601-cd10-476c-a802-0ab2bcb8c96b"),
-			Status: models.PPMShipmentStatusDraft,
+			ID:                 testdatagen.ConvertUUIDStringToUUID("d39f5601-cd10-476c-a802-0ab2bcb8c96b"),
+			Status:             models.PPMShipmentStatusDraft,
+			EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
 		},
 	}
 
