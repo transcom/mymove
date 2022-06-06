@@ -23,7 +23,7 @@ describe('OriginZIPInfo component', () => {
     expect(await screen.getByRole('heading', { level: 2, name: 'Origin info' })).toBeInTheDocument();
     expect(screen.getByLabelText('Planned departure date')).toBeInstanceOf(HTMLInputElement);
     expect(screen.getByLabelText('Origin ZIP')).toBeInstanceOf(HTMLInputElement);
-    expect(screen.getByLabelText('Second origin ZIP (optional)')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('Second origin ZIP')).toBeInstanceOf(HTMLInputElement);
   });
 
   it('fills in current ZIP when use current ZIP checkbox is checked', async () => {

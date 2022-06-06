@@ -19,7 +19,7 @@ describe('DestinationZIPInfo component', () => {
     );
     expect(await screen.getByRole('heading', { level: 2, name: 'Destination info' })).toBeInTheDocument();
     expect(screen.getByLabelText('Destination ZIP')).toBeInstanceOf(HTMLInputElement);
-    expect(screen.getByLabelText('Second destination ZIP (optional)')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('Second destination ZIP')).toBeInstanceOf(HTMLInputElement);
   });
 
   it('fills in duty ZIP when use duty ZIP checkbox is checked', async () => {
