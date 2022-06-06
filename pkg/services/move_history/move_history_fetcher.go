@@ -185,7 +185,10 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 					'price',
 					payment_service_items.price_cents::TEXT,
 					'status',
-					payment_service_items.status))::TEXT AS context,
+					payment_service_items.status,
+					'shipment_id',
+					mto_shipments.id::TEXT,
+					'shipment_type', mto_shipments.shipment_type))::TEXT AS context,
 			payment_requests.id AS id,
 			payment_requests.move_id,
 			payment_requests.payment_request_number
@@ -193,6 +196,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			payment_requests
 		JOIN payment_service_items ON payment_service_items.payment_request_id = payment_requests.id
 		JOIN mto_service_items ON mto_service_items.id = mto_service_item_id
+		LEFT JOIN mto_shipments ON mto_shipments.id = mto_service_items.mto_shipment_id
 		JOIN re_services ON mto_service_items.re_service_id = re_services.id
 	WHERE
 		payment_requests.move_id = (
