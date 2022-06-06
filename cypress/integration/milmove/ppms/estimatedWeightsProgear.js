@@ -13,8 +13,9 @@ describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**', (req) => {
-      req.on('response', (res) => {
-        res.send({ fixture: 'ppmWithEstimatedIncentive.json' });
+      req.reply({
+        statusCode: 200,
+        fixture: 'ppmWithEstimatedIncentive.json',
       });
     }).as('patchShipment');
   });
