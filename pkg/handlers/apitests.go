@@ -169,7 +169,7 @@ func (suite *BaseHandlerTestSuite) AuthenticateOfficeRequest(req *http.Request, 
 	return req.WithContext(ctx)
 }
 
-// AuthenticateAdminRequest authenticates DPS users
+// AuthenticateAdminRequest authenticates Admin users
 func (suite *BaseHandlerTestSuite) AuthenticateAdminRequest(req *http.Request, user models.User) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.AdminApp,

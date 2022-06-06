@@ -13,7 +13,7 @@ const (
 	InternalSwaggerFlag string = "internal-swagger"
 	// OrdersSwaggerFlag is the Orders Swagger Flag
 	OrdersSwaggerFlag string = "orders-swagger"
-	// DPSSwaggerFlag is the DPS Swagger Flag
+	// AdminSwaggerFlag is the Admin Swagger Flag
 	AdminSwaggerFlag string = "admin-swagger"
 	// GHCSwaggerFlag is the GHC Swagger Flag
 	GHCSwaggerFlag string = "ghc-swagger"
