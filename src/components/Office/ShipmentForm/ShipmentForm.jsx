@@ -9,33 +9,33 @@ import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOption
 
 import styles from './ShipmentForm.module.scss';
 
-import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
-import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { Form } from 'components/form/Form';
-import ShipmentAccountingCodes from 'components/Office/ShipmentAccountingCodes/ShipmentAccountingCodes';
-import ShipmentWeightInput from 'components/Office/ShipmentWeightInput/ShipmentWeightInput';
-import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
-import StorageFacilityInfo from 'components/Office/StorageFacilityInfo/StorageFacilityInfo';
-import StorageFacilityAddress from 'components/Office/StorageFacilityAddress/StorageFacilityAddress';
-import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
-import { formatWeight, dropdownInputOptions } from 'utils/formatters';
-import { shipmentDestinationTypes } from 'constants/shipments';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HhgShipmentShape, MtoShipmentShape } from 'types/customerShapes';
-import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
-import { MatchShape } from 'types/officeShapes';
-import { AccountingCodesShape } from 'types/accountingCodes';
-import { validateDate } from 'utils/validation';
-import { deleteShipment } from 'services/ghcApi';
-import { officeRoles, roleTypes } from 'constants/userRoles';
+import { DatePickerInput, DropdownInput } from 'components/form/fields';
+import { Form } from 'components/form/Form';
+import ShipmentAccountingCodes from 'components/Office/ShipmentAccountingCodes/ShipmentAccountingCodes';
 import ShipmentFormRemarks from 'components/Office/ShipmentFormRemarks/ShipmentFormRemarks';
 import ShipmentVendor from 'components/Office/ShipmentVendor/ShipmentVendor';
+import ShipmentWeightInput from 'components/Office/ShipmentWeightInput/ShipmentWeightInput';
+import StorageFacilityAddress from 'components/Office/StorageFacilityAddress/StorageFacilityAddress';
+import StorageFacilityInfo from 'components/Office/StorageFacilityInfo/StorageFacilityInfo';
+import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
+import { MTO_SHIPMENTS } from 'constants/queryKeys';
+import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
+import { shipmentDestinationTypes } from 'constants/shipments';
+import { officeRoles, roleTypes } from 'constants/userRoles';
+import { deleteShipment } from 'services/ghcApi';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import formStyles from 'styles/form.module.scss';
+import { AccountingCodesShape } from 'types/accountingCodes';
+import { AddressShape, SimpleAddressShape } from 'types/address';
+import { MatchShape } from 'types/officeShapes';
+import { ShipmentShape } from 'types/shipment';
+import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
+import { formatWeight, dropdownInputOptions } from 'utils/formatters';
+import { validateDate } from 'utils/validation';
 
 const ShipmentForm = ({
   match,
@@ -448,6 +448,7 @@ const ShipmentForm = ({
 
                 <ShipmentFormRemarks
                   userRole={userRole}
+                  shipmentType={shipmentType}
                   customerRemarks={mtoShipment.customerRemarks}
                   counselorRemarks={mtoShipment.counselorRemarks}
                 />
@@ -512,9 +513,9 @@ ShipmentForm.propTypes = {
   currentResidence: AddressShape.isRequired,
   newDutyLocationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
-  mtoShipment: HhgShipmentShape,
+  mtoShipment: ShipmentShape,
   moveTaskOrderID: string.isRequired,
-  mtoShipments: arrayOf(MtoShipmentShape).isRequired,
+  mtoShipments: arrayOf(ShipmentShape).isRequired,
   serviceMember: shape({
     weightAllotment: shape({
       totalWeightSelf: number,

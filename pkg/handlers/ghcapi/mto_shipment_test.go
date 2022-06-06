@@ -2347,7 +2347,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			suite.Equal(ghcmessages.PPMShipmentStatusSUBMITTED, ppmPayload.Status)
 			suite.Equal(int64(estimatedIncentive), *ppmPayload.EstimatedIncentive)
 			suite.NotZero(ppmPayload.CreatedAt)
-			suite.NotZero(ppmPayload.UpdatedAt)
 		}
 	})
 
@@ -2432,7 +2431,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			suite.Equal(ghcmessages.PPMShipmentStatusSUBMITTED, ppmPayload.Status)
 			suite.Equal(int64(estimatedIncentive), *ppmPayload.EstimatedIncentive)
 			suite.NotZero(ppmPayload.CreatedAt)
-			suite.NotZero(ppmPayload.UpdatedAt)
 		}
 	})
 }

@@ -11,8 +11,9 @@ import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { updateMTOShipment } from 'store/entities/actions';
 import { setFlashMessage } from 'store/flash/actions';
-import { selectMTOShipmentById } from 'store/entities/selectors';
+import { selectCurrentOrders, selectMTOShipmentById } from 'store/entities/selectors';
 import { MockProviders } from 'testUtils';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const mockPush = jest.fn();
 
@@ -29,6 +30,9 @@ const estimatedIncentivePath = generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATE
   mtoShipmentId: mockMTOShipmentId,
 });
 
+const mockShipmentETag = Buffer.from(new Date()).toString('base64');
+const mockPPMShipmentETag = Buffer.from(new Date()).toString('base64');
+
 const mockMTOShipment = {
   id: mockMTOShipmentId,
   moveTaskOrderID: mockMoveId,
@@ -39,7 +43,7 @@ const mockMTOShipment = {
     destinationPostalCode: '20004',
     sitExpected: false,
     expectedDepartureDate: '2022-12-31',
-    eTag: btoa(new Date()),
+    eTag: mockPPMShipmentETag,
     estimatedIncentive: 1000000,
     estimatedWeight: 4000,
     hasProGear: false,
@@ -47,7 +51,19 @@ const mockMTOShipment = {
     spouseProGearWeight: null,
     hasRequestedAdvance: null,
   },
-  eTag: btoa(new Date()),
+  eTag: mockShipmentETag,
+};
+
+const mockOrders = {
+  orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+};
+
+const mockOrdersRetiree = {
+  orders_type: ORDERS_TYPE.RETIREMENT,
+};
+
+const mockOrdersSeparatee = {
+  orders_type: ORDERS_TYPE.SEPARATION,
 };
 
 const mockMTOShipmentWithAdvance = {
@@ -56,9 +72,9 @@ const mockMTOShipmentWithAdvance = {
     ...mockMTOShipment.ppmShipment,
     hasRequestedAdvance: true,
     advanceAmountRequested: 40000,
-    eTag: btoa(new Date()),
+    eTag: mockPPMShipmentETag,
   },
-  eTag: btoa(new Date()),
+  eTag: mockShipmentETag,
 };
 
 const mockDispatch = jest.fn();
@@ -88,6 +104,7 @@ jest.mock('services/internalApi', () => ({
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectMTOShipmentById: jest.fn().mockImplementation(() => mockMTOShipment),
+  selectCurrentOrders: jest.fn().mockImplementation(() => mockOrders),
 }));
 
 beforeEach(() => {
@@ -119,6 +136,19 @@ describe('Advance page', () => {
     expect(saveButton).not.toBeDisabled();
   });
 
+  it.each([
+    [mockMTOShipment, undefined],
+    [undefined, mockOrders],
+    [undefined, undefined],
+  ])('renders the loading placeholder when mtoShipment or orders are missing', async (loadedShipment, loadedOrders) => {
+    selectMTOShipmentById.mockImplementationOnce(() => loadedShipment);
+    selectCurrentOrders.mockImplementationOnce(() => loadedOrders);
+
+    render(<Advance />, { wrapper: MockProviders });
+
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Loading, please wait...');
+  });
+
   it.each([[mockMTOShipment], [mockMTOShipmentWithAdvance]])(
     'renders the form with and without previously filled in amount requested for an advance',
     async (preExistingShipment) => {
@@ -139,6 +169,24 @@ describe('Advance page', () => {
         expect(hasRequestedAdvanceYesInput.checked).toBe(false);
         expect(hasRequestedAdvanceNoInput.checked).toBe(true);
         expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
+      }
+    },
+  );
+
+  it.each([[mockOrders], [mockOrdersRetiree], [mockOrdersSeparatee]])(
+    'displays info alert guidance for advance to retirees and separatees',
+    async (orders) => {
+      selectCurrentOrders.mockImplementation(() => orders);
+
+      render(<Advance />, { wrapper: MockProviders });
+
+      const nonPCSOrdersAdvanceText =
+        'People leaving the military may not be eligible to receive an advance, based on individual service policies. Your counselor can give you more information after you make your request.';
+
+      if (orders.orders_type === ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION) {
+        expect(screen.queryByText(nonPCSOrdersAdvanceText)).not.toBeInTheDocument();
+      } else {
+        expect(screen.getByText(nonPCSOrdersAdvanceText)).toBeInTheDocument();
       }
     },
   );
@@ -192,8 +240,8 @@ describe('Advance page', () => {
     const expectedPayload = {
       shipmentType: mockMTOShipment.shipmentType,
       ppmShipment: {
-        advance: 400000,
-        advanceRequested: true,
+        hasRequestedAdvance: true,
+        advanceAmountRequested: 400000,
         id: mockMTOShipment.ppmShipment.id,
       },
     };
@@ -224,8 +272,8 @@ describe('Advance page', () => {
     const expectedPayload = {
       shipmentType: mockMTOShipment.shipmentType,
       ppmShipment: {
-        advance: null,
-        advanceRequested: false,
+        hasRequestedAdvance: false,
+        advanceAmountRequested: null,
         id: mockMTOShipment.ppmShipment.id,
       },
     };

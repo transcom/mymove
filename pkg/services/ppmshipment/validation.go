@@ -73,9 +73,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.ProGearWeight = services.SetNoNilOptionalPoundField(newPPMShipment.ProGearWeight, ppmShipment.ProGearWeight)
 	ppmShipment.SpouseProGearWeight = services.SetNoNilOptionalPoundField(newPPMShipment.SpouseProGearWeight, ppmShipment.SpouseProGearWeight)
 	ppmShipment.EstimatedIncentive = services.SetNoNilOptionalCentField(newPPMShipment.EstimatedIncentive, ppmShipment.EstimatedIncentive)
-	ppmShipment.AdvanceRequested = services.SetNoNilOptionalBoolField(newPPMShipment.AdvanceRequested, ppmShipment.AdvanceRequested)
 	ppmShipment.HasRequestedAdvance = services.SetNoNilOptionalBoolField(newPPMShipment.HasRequestedAdvance, ppmShipment.HasRequestedAdvance)
-	ppmShipment.Advance = services.SetNoNilOptionalCentField(newPPMShipment.Advance, ppmShipment.Advance)
 	ppmShipment.AdvanceAmountRequested = services.SetNoNilOptionalCentField(newPPMShipment.AdvanceAmountRequested, ppmShipment.AdvanceAmountRequested)
 	ppmShipment.HasReceivedAdvance = services.SetNoNilOptionalBoolField(newPPMShipment.HasReceivedAdvance, ppmShipment.HasReceivedAdvance)
 	ppmShipment.AdvanceAmountReceived = services.SetNoNilOptionalCentField(newPPMShipment.AdvanceAmountReceived, ppmShipment.AdvanceAmountReceived)
@@ -100,10 +98,6 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	if ppmShipment.HasProGear != nil && !*ppmShipment.HasProGear {
 		ppmShipment.ProGearWeight = nil
 		ppmShipment.SpouseProGearWeight = nil
-	}
-
-	if ppmShipment.AdvanceRequested != nil && !*ppmShipment.AdvanceRequested {
-		ppmShipment.Advance = nil
 	}
 
 	if ppmShipment.HasRequestedAdvance != nil && !*ppmShipment.HasRequestedAdvance {

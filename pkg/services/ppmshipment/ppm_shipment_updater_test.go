@@ -345,7 +345,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		})
 
 		newPPM := models.PPMShipment{
-			AdvanceRequested: models.BoolPointer(false),
+			HasRequestedAdvance: models.BoolPointer(false),
 		}
 
 		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil)
@@ -366,8 +366,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
 
 		// Fields that should now be updated
-		suite.Equal(*newPPM.AdvanceRequested, *updatedPPM.AdvanceRequested)
-		suite.Nil(updatedPPM.Advance)
+		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
+		suite.Nil(updatedPPM.AdvanceAmountRequested)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - add advance info - yes advance", func() {
@@ -382,8 +382,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		})
 
 		newPPM := models.PPMShipment{
-			AdvanceRequested: models.BoolPointer(true),
-			Advance:          models.CentPointer(unit.Cents(300000)),
+			HasRequestedAdvance:    models.BoolPointer(true),
+			AdvanceAmountRequested: models.CentPointer(unit.Cents(300000)),
 		}
 
 		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil)
@@ -404,8 +404,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Nil(updatedPPM.SpouseProGearWeight)
 
 		// Fields that should now be updated
-		suite.Equal(*newPPM.AdvanceRequested, *updatedPPM.AdvanceRequested)
-		suite.Equal(*newPPM.Advance, *updatedPPM.Advance)
+		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
+		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit advance - advance requested no to yes", func() {
@@ -413,15 +413,15 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
-				EstimatedIncentive: fakeEstimatedIncentive,
-				AdvanceRequested:   models.BoolPointer(false),
-				Advance:            nil,
+				EstimatedIncentive:     fakeEstimatedIncentive,
+				HasRequestedAdvance:    models.BoolPointer(false),
+				AdvanceAmountRequested: nil,
 			},
 		})
 
 		newPPM := models.PPMShipment{
-			AdvanceRequested: models.BoolPointer(true),
-			Advance:          models.CentPointer(unit.Cents(400000)),
+			HasRequestedAdvance:    models.BoolPointer(true),
+			AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
 		}
 
 		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil)
@@ -442,8 +442,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
 
 		// Fields that should now be updated
-		suite.Equal(*newPPM.AdvanceRequested, *updatedPPM.AdvanceRequested)
-		suite.Equal(*newPPM.Advance, *updatedPPM.Advance)
+		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
+		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit advance - advance requested yes to no", func() {
@@ -451,14 +451,14 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
-				EstimatedIncentive: fakeEstimatedIncentive,
-				AdvanceRequested:   models.BoolPointer(true),
-				Advance:            models.CentPointer(unit.Cents(300000)),
+				EstimatedIncentive:     fakeEstimatedIncentive,
+				HasRequestedAdvance:    models.BoolPointer(true),
+				AdvanceAmountRequested: models.CentPointer(unit.Cents(300000)),
 			},
 		})
 
 		newPPM := models.PPMShipment{
-			AdvanceRequested: models.BoolPointer(false),
+			HasRequestedAdvance: models.BoolPointer(false),
 		}
 
 		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil)
@@ -479,8 +479,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
 
 		// Fields that should now be updated
-		suite.Equal(*newPPM.AdvanceRequested, *updatedPPM.AdvanceRequested)
-		suite.Nil(updatedPPM.Advance)
+		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
+		suite.Nil(updatedPPM.AdvanceAmountRequested)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit SIT - yes to no", func() {
@@ -519,8 +519,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
 		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
 		suite.Equal(*originalPPM.SpouseProGearWeight, *updatedPPM.SpouseProGearWeight)
-		suite.Equal(*originalPPM.Advance, *updatedPPM.Advance)
-		suite.Equal(*originalPPM.AdvanceRequested, *updatedPPM.AdvanceRequested)
+		suite.Equal(*originalPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
+		suite.Equal(*originalPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
 
 		// Fields that should now be updated
 		suite.Equal(*newPPM.SITExpected, *updatedPPM.SITExpected)
@@ -566,8 +566,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
 		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
 		suite.Equal(*originalPPM.SpouseProGearWeight, *updatedPPM.SpouseProGearWeight)
-		suite.Equal(*originalPPM.Advance, *updatedPPM.Advance)
-		suite.Equal(*originalPPM.AdvanceRequested, *updatedPPM.AdvanceRequested)
+		suite.Equal(*originalPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
+		suite.Equal(*originalPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
 
 		// Fields that should now be updated
 		suite.Equal(*newPPM.SITExpected, *updatedPPM.SITExpected)
@@ -598,10 +598,10 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		originalPPMShipment := testdatagen.MakeDefaultPPMShipment(appCtx.DB())
 
-		// Easiest invalid input to trigger is to set an invalid Advance value. The rest are harder to trigger based
-		// on how the service object is set up.
+		// Easiest invalid input to trigger is to set an invalid AdvanceAmountRequested value. The rest are harder to
+		// trigger based on how the service object is set up.
 		newPPMShipment := models.PPMShipment{
-			Advance: models.CentPointer(unit.Cents(3000000)),
+			AdvanceAmountRequested: models.CentPointer(unit.Cents(3000000)),
 		}
 
 		updatedPPMShipment, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPMShipment, originalPPMShipment.ShipmentID)
@@ -622,7 +622,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPMShipment := testdatagen.MakeDefaultPPMShipment(appCtx.DB())
 
 		newPPMShipment := models.PPMShipment{
-			AdvanceRequested: models.BoolPointer(false),
+			HasRequestedAdvance: models.BoolPointer(false),
 		}
 
 		updatedPPMShipment, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPMShipment, originalPPMShipment.ShipmentID)

@@ -2507,12 +2507,12 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
-      advanceRequested:
+      hasRequestedAdvance:
         description: >
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
-      advance:
+      advanceAmountRequested:
         description: >
           The amount requested for an advance, or null if no advance is requested
         type: integer

@@ -2,7 +2,6 @@ package payloads
 
 import (
 	"fmt"
-	"testing"
 
 	"github.com/gofrs/uuid"
 
@@ -55,7 +54,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	DCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
-	suite.T().Run("Success - Returns a basic service item model", func(t *testing.T) {
+	suite.Run("Success - Returns a basic service item model", func() {
 		returnedModel, verrs := MTOServiceItemModel(basicServieItem)
 
 		suite.NoVerrs(verrs)
@@ -64,7 +63,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(models.ReServiceCodeFSC, returnedModel.ReService.Code)
 	})
 
-	suite.T().Run("Success - Returns a DCRT service item model", func(t *testing.T) {
+	suite.Run("Success - Returns a DCRT service item model", func() {
 		returnedModel, verrs := MTOServiceItemModel(DCRTServiceItem)
 
 		var returnedItem, returnedCrate models.MTOServiceItemDimension
@@ -86,7 +85,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(unit.ThousandthInches(*DCRTServiceItem.Crate.Length), returnedCrate.Length)
 	})
 
-	suite.T().Run("Fail -  Returns error for DCRT service item because of validation error", func(t *testing.T) {
+	suite.Run("Fail -  Returns error for DCRT service item because of validation error", func() {
 		badCrateMeasurement := int32(200)
 		badCrate := &primemessages.MTOServiceItemDimension{
 			Height: &badCrateMeasurement,
@@ -128,7 +127,7 @@ func (suite *PayloadsSuite) TestReweighModelFromUpdate() {
 		Weight:             &weight,
 	}
 
-	suite.T().Run("Success - Returns a reweigh model", func(t *testing.T) {
+	suite.Run("Success - Returns a reweigh model", func() {
 		returnedModel := ReweighModelFromUpdate(reweigh, *idString, *mtoShipmentIDString)
 
 		suite.Equal(idField.String(), returnedModel.ID.String())
@@ -153,7 +152,7 @@ func (suite *PayloadsSuite) TestSITExtensionModel() {
 		RequestReason:     &reason,
 	}
 
-	suite.T().Run("Success - Returns a sit extension model", func(t *testing.T) {
+	suite.Run("Success - Returns a sit extension model", func() {
 		returnedModel := SITExtensionModel(sitExtension, *mtoShipmentIDString)
 
 		suite.Equal(mtoShipmentIDField, returnedModel.MTOShipmentID)

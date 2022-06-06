@@ -40,17 +40,13 @@ type UpdatePPMShipment struct {
 	// Pattern: ^(\d{5})$
 	ActualPickupPostalCode *string `json:"actualPickupPostalCode,omitempty"`
 
-	// The amount requested for an advance, or null if no advance is requested
-	//
-	Advance *int64 `json:"advance,omitempty"`
-
 	// The amount received for an advance, or null if no advance is received.
 	//
 	AdvanceAmountReceived *int64 `json:"advanceAmountReceived,omitempty"`
 
-	// Indicates whether an advance has been requested for the PPM shipment.
+	// The amount requested for an advance, or null if no advance is requested
 	//
-	AdvanceRequested *bool `json:"advanceRequested,omitempty"`
+	AdvanceAmountRequested *int64 `json:"advanceAmountRequested,omitempty"`
 
 	// ZIP
 	// Example: 90210
@@ -73,6 +69,10 @@ type UpdatePPMShipment struct {
 	// Indicates whether an advance was received for the PPM shipment.
 	//
 	HasReceivedAdvance *bool `json:"hasReceivedAdvance,omitempty"`
+
+	// Indicates whether an advance has been requested for the PPM shipment.
+	//
+	HasRequestedAdvance *bool `json:"hasRequestedAdvance,omitempty"`
 
 	// The net weight of the shipment once it has been weight
 	//
