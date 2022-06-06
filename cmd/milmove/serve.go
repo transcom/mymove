@@ -997,8 +997,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
 
-		permissionsMiddelware := authentication.PermissionsMiddleware(appCtx, api)
-		ghcAPIMux.Use(permissionsMiddelware)
+		permissionsMiddleware := authentication.PermissionsMiddleware(appCtx, api)
+		ghcAPIMux.Use(permissionsMiddleware)
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		ghcAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
