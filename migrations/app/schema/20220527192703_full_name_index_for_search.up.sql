@@ -7,27 +7,23 @@
 -- BUT it is stable, not immutable, so we cannot use it in an index.
 -- Many people suggest wrapping it in a function that is declared immutable
 --   eg: https://stackoverflow.com/a/11007216
--- The other main option is to implement our own function to remove accents, which is
--- what I've tentatively gone with here, although it also feels like a bad option.
--- This approach to removing diacritics should work in the majority of cases that we will
--- see, but is certainly not going to work in all cases. The nice thing about it
--- is that it is actually immutable in the postgres sense and will not break
--- our index if we update the database.
 
+CREATE EXTENSION unaccent;
 
-CREATE OR REPLACE FUNCTION lower_unaccent(text text)
-	RETURNS text
-	LANGUAGE sql
-	IMMUTABLE STRICT
-AS
-$function$
-SELECT TRANSLATE(
-		   LOWER(text),
-		   'àáâãäåèéêëìíîïòóôõöùúûüñ',
-		   'aaaaaaeeeeiiiiooooouuuun');
-$function$;
+CREATE OR REPLACE FUNCTION public.immutable_unaccent(regdictionary, text)
+	RETURNS text LANGUAGE c IMMUTABLE PARALLEL SAFE STRICT AS
+'$libdir/unaccent', 'unaccent_dict';
 
-COMMENT ON FUNCTION lower_unaccent(text text) IS 'Lowercase and remove common accents';
+COMMENT ON FUNCTION immutable_unaccent(regdictionary, text) IS 'Do not use outside of the wrapper f_unnacent! This is a copy of the C unaccent function that we are marking as IMMUTABLE';
+
+CREATE OR REPLACE FUNCTION public.f_unaccent(text)
+	RETURNS text LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT AS
+$func$
+SELECT public.immutable_unaccent(regdictionary 'public.unaccent', $1)
+$func$;
+
+COMMENT ON FUNCTION f_unaccent(text) IS 'Wrapper around unaccent that is marked as immutable so it can be used in indexes';
+
 
 CREATE OR REPLACE FUNCTION searchable_full_name(first_name text, last_name text)
 	RETURNS text
@@ -36,7 +32,7 @@ CREATE OR REPLACE FUNCTION searchable_full_name(first_name text, last_name text)
 AS
 $function$
 	-- CONCAT_WS is immutable when given only text arguments
-SELECT lower_unaccent(CONCAT_WS(' ', first_name, last_name));
+SELECT f_unaccent(LOWER(CONCAT_WS(' ', first_name, last_name)));
 $function$;
 
 COMMENT ON FUNCTION searchable_full_name(first_name text, last_name text) IS 'Prepares a first/last name for search by lowercasing and removing diacritics';
