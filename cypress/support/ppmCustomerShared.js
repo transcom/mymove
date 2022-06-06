@@ -85,7 +85,7 @@ export function submitsEstimatedWeightsAndProGear() {
 }
 
 export function submitsEstimatedWeights() {
-  cy.get('input[name="estimatedWeight"]').clear().type(500).blur();
+  cy.get('input[name="estimatedWeight"]').clear().type(4000).blur();
   cy.get('button').contains('Save & Continue').should('be.enabled');
 
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
