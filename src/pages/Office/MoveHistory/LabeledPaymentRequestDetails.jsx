@@ -23,6 +23,7 @@ const LabeledPaymentRequestDetails = ({ context, getLabeledPaymentRequestDetails
 
         return (
           <div key={shipmentService.shipmentId}>
+            <br />
             <span className={labeledStyles.shipmentType}>{shipmentType} shipment</span>
             <b>Shipment services</b>: {shipmentService.serviceItems}
           </div>
