@@ -8,7 +8,6 @@ import (
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/metric/instrument"
-
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -42,10 +41,8 @@ FROM pg_stat_user_tables
 ORDER BY relname
 `
 
-func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Meter) error {
-
-	// this should be configurable
-	const minDuration = time.Second * 60
+func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Meter, config *Config) error {
+	minDuration := time.Duration(config.CollectSeconds * int(time.Second))
 
 	var lock sync.Mutex
 
@@ -55,6 +52,9 @@ func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Me
 	// lock prevents a race between batch observer and instrument registration.
 	lock.Lock()
 	defer lock.Unlock()
+
+	// do the query once at register time to get the list of tables
+	// and create the gauges
 
 	allStats := []pgStatLiveDead{}
 
@@ -143,6 +143,6 @@ func RegisterMilmoveDataObserver(appCtx appcontext.AppContext, config *Config) e
 	milmoveDataMeter := meterProvider.Meter("github.com/transcom/mymove/data",
 		metric.WithInstrumentationVersion("0.4"))
 
-	return registerTableLiveDeadCallback(appCtx, milmoveDataMeter)
+	return registerTableLiveDeadCallback(appCtx, milmoveDataMeter, config)
 
 }

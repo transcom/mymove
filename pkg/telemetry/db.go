@@ -18,8 +18,7 @@ const dbTelemetryVersion = "0.1"
 // RegisterDBStatsObserver creates a custom metric that is updated
 // automatically using an observer
 func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) error {
-	// this should be configurable
-	const minDuration = time.Second * 15
+	minDuration := time.Duration(config.CollectSeconds * int(time.Second))
 
 	if !config.Enabled {
 		return nil

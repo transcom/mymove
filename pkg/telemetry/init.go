@@ -3,6 +3,7 @@ package telemetry
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/go-logr/zapr"
@@ -73,7 +74,9 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 
 	switch config.Endpoint {
 	case "stdout":
-		spanExporter, err = stdouttrace.New(stdouttrace.WithPrettyPrint())
+		// explictly call WithWriter so we can override os.Stdout in tests
+		spanExporter, err = stdouttrace.New(stdouttrace.WithPrettyPrint(),
+			stdouttrace.WithWriter(os.Stdout))
 		if err != nil {
 			logger.Error("unable to create otel stdout span exporter", zap.Error(err))
 			break
@@ -106,7 +109,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	}
 	// Create a tracer provider that processes spans using a
 	// batch-span-processor.
-	bsp := sdktrace.NewBatchSpanProcessor(spanExporter)
+	bsp := sdktrace.NewBatchSpanProcessor(spanExporter, sdktrace.WithBatchTimeout(time.Duration(config.CollectSeconds*int(time.Second))))
 
 	sampler := sdktrace.TraceIDRatioBased(config.SamplingFraction)
 	resourceAttrs := []attribute.KeyValue{
@@ -160,6 +163,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		if err = metricExporter.Shutdown(ctx); err != nil {
 			logger.Error("shutdown problems with metrics pusher", zap.Error(err))
 		}
+		logger.Info("Shutting down telemetry")
 	}
 
 	otel.SetTracerProvider(tp)

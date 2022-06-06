@@ -17,7 +17,6 @@ import (
 
 // The traceid needs to be formatted like so
 // https://docs.aws.amazon.com/xray/latest/devguide/xray-api-sendingdata.html
-//
 func awsXrayIDFromBytes(data []byte) (string, error) {
 	if 16 != len(data) {
 		return "",
