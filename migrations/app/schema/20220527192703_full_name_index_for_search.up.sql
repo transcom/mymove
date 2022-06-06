@@ -1,3 +1,5 @@
+-- POP RAW MIGRATION --
+
 -- "Removing" diacritics is a surprisingly awkward problem
 -- Diacritics are not just decorative, they are an important part of a person's name.
 -- However, when searching for names, we should not expect office users to be able to
