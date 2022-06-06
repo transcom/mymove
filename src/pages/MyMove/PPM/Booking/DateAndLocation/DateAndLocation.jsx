@@ -8,7 +8,7 @@ import ScrollToTop from 'components/ScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
-import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
+import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
@@ -95,7 +95,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
   };
 
   return (
-    <div className={ppmBookingPageStyles.PPMBookingPage}>
+    <div className={ppmPageStyles.ppmPageStyle}>
       <ScrollToTop otherDep={errorMessage} />
       <GridContainer>
         <Grid row>
