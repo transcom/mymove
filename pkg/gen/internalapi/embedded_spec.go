@@ -4088,6 +4088,12 @@ func init() {
         "office_user": {
           "$ref": "#/definitions/OfficeUser"
         },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -10963,6 +10969,12 @@ func init() {
         },
         "office_user": {
           "$ref": "#/definitions/OfficeUser"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "roles": {
           "type": "array",

@@ -992,10 +992,13 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 
 		// Mux for GHC API that enforces auth
+		api := ghcapi.NewGhcAPIHandler(handlerConfig)
 		ghcAPIMux := ghcMux.PathPrefix("/").Subrouter()
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
-		api := ghcapi.NewGhcAPIHandler(handlerConfig)
+
+		permissionsMiddleware := authentication.PermissionsMiddleware(appCtx, api)
+		ghcAPIMux.Use(permissionsMiddleware)
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		ghcAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
