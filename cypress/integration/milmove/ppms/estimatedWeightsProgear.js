@@ -12,7 +12,18 @@ describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
 
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
-    cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.intercept('PATCH', '**/internal/mto-shipments/**', {
+      ppmShipment: {
+        estimatedIncentive: 4779372,
+        estimatedWeight: 500,
+        expectedDepartureDate: '2020-03-15',
+        hasProGear: true,
+        pickupPostalCode: 90210,
+        proGearWeight: 500,
+        sitExpected: false,
+        spouseProGearWeight: 400,
+      },
+    }).as('patchShipment');
   });
 
   it('doesn’t allow SM to progress if form is in an invalid state', () => {
