@@ -44,6 +44,4 @@ export default {
   releasing_agent: 'Releasing agent',
   tio_remarks: 'Max billable weight remark',
   prime_actual_weight: 'Shipment weight',
-  move_services: 'Move services',
-  shipment_services: 'Shipment services',
 };

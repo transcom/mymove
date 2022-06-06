@@ -7,18 +7,28 @@ export default {
   action: a.INSERT,
   eventName: o.createPaymentRequest,
   tableName: t.payment_requests,
-  detailsType: d.LABELED,
+  detailsType: d.LABELED_PAYMENT_REQUEST,
   getEventNameDisplay: ({ changedValues }) => `Submitted payment request ${changedValues?.payment_request_number}`,
-  getDetailsLabeledDetails: ({ context }) => {
+  getLabeledPaymentRequestDetails: (context) => {
     let moveServices = '';
-    let shipmentServices = '';
+    const shipmentServices = {};
     context.forEach((serviceItem) => {
       if (serviceItem.name === 'Move management' || serviceItem.name === 'Counseling') {
         moveServices += `, ${serviceItem.name}`;
       } else {
-        shipmentServices += `, ${serviceItem.name}`;
+        const shipmentId = serviceItem.shipment_id;
+        if (shipmentServices[shipmentId]) {
+          const { serviceItems } = shipmentServices[shipmentId];
+          shipmentServices[shipmentId].serviceItems = `${serviceItems}, ${serviceItem.name}`;
+        } else {
+          shipmentServices[shipmentId] = {
+            serviceItems: serviceItem.name,
+            shipmentType: serviceItem.shipment_type,
+            shipmentId,
+          };
+        }
       }
     });
-    return { move_services: moveServices.slice(2), shipment_services: shipmentServices.slice(2), shipment_type: 'HHG' };
+    return { moveServices: moveServices.slice(2), shipmentServices: Object.values(shipmentServices) };
   },
 };
