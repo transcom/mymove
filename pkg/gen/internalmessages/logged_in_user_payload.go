@@ -40,6 +40,9 @@ type LoggedInUserPayload struct {
 	// office user
 	OfficeUser *OfficeUser `json:"office_user,omitempty"`
 
+	// permissions
+	Permissions []string `json:"permissions"`
+
 	// roles
 	Roles []*Role `json:"roles"`
 

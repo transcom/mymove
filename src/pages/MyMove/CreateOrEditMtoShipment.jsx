@@ -5,7 +5,7 @@ import { withRouter } from 'react-router-dom';
 import qs from 'query-string';
 
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
-import DateAndLocation from 'pages/MyMove/PPMBooking/DateAndLocation/DateAndLocation';
+import DateAndLocation from 'pages/MyMove/PPM/Booking/DateAndLocation/DateAndLocation';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { updateMTOShipment as updateMTOShipmentAction } from 'store/entities/actions';

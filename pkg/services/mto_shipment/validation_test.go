@@ -206,3 +206,39 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 	})
 
 }
+
+func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
+	suite.Run("checkDeleteAllowed", func() {
+		testCases := map[models.MoveStatus]bool{
+			models.MoveStatusDRAFT:                      true,
+			models.MoveStatusSUBMITTED:                  false,
+			models.MoveStatusAPPROVED:                   false,
+			models.MoveStatusCANCELED:                   false,
+			models.MoveStatusAPPROVALSREQUESTED:         false,
+			models.MoveStatusNeedsServiceCounseling:     true,
+			models.MoveStatusServiceCounselingCompleted: false,
+		}
+
+		for status, allowed := range testCases {
+			suite.Run("Move status "+string(status), func() {
+				shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+					Move: models.Move{
+						Status: status,
+					},
+				})
+
+				err := checkDeleteAllowed().Validate(
+					suite.AppContextForTest(),
+					nil,
+					&shipment,
+				)
+
+				if allowed {
+					suite.NoError(err)
+				} else {
+					suite.Error(err)
+				}
+			})
+		}
+	})
+}

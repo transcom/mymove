@@ -11,7 +11,6 @@ package internalapi
 
 import (
 	"net/http/httptest"
-	"testing"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -131,19 +130,26 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreate() {
 
 func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreateFailure() {
 
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	sm := ppm.Move.Orders.ServiceMember
+	setupTestData := func() (models.PersonallyProcuredMove, []strfmt.UUID) {
 
-	uploadUser := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-		UserUpload: models.UserUpload{
-			UploaderID: sm.UserID,
-		},
-	})
-	uploadUser.DocumentID = nil
-	suite.MustSave(&uploadUser)
-	uploadIds := []strfmt.UUID{*handlers.FmtUUID(uploadUser.Upload.ID)}
+		ppm := testdatagen.MakeDefaultPPM(suite.DB())
+		sm := ppm.Move.Orders.ServiceMember
 
-	suite.T().Run("car without make and model fails", func(t *testing.T) {
+		uploadUser := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			UserUpload: models.UserUpload{
+				UploaderID: sm.UserID,
+			},
+		})
+		uploadUser.DocumentID = nil
+		suite.MustSave(&uploadUser)
+		uploadIds := []strfmt.UUID{*handlers.FmtUUID(uploadUser.Upload.ID)}
+		return ppm, uploadIds
+	}
+
+	suite.Run("car without make and model fails", func() {
+		ppm, uploadIds := setupTestData()
+		sm := ppm.Move.Orders.ServiceMember
+
 		request := httptest.NewRequest("POST", "/fake/path", nil)
 		request = suite.AuthenticateRequest(request, sm)
 
@@ -175,7 +181,10 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreateFailure() {
 		suite.CheckErrorResponse(response, 422, "weight ticket set for type CAR must have values for vehicle make and model")
 	})
 
-	suite.T().Run("box truck without nickname fails", func(t *testing.T) {
+	suite.Run("box truck without nickname fails", func() {
+		ppm, uploadIds := setupTestData()
+		sm := ppm.Move.Orders.ServiceMember
+
 		request := httptest.NewRequest("POST", "/fake/path", nil)
 		request = suite.AuthenticateRequest(request, sm)
 

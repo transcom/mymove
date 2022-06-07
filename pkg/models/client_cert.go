@@ -30,6 +30,7 @@ type ClientCert struct {
 	AllowNavyOrdersRead         bool      `db:"allow_navy_orders_read"`
 	AllowNavyOrdersWrite        bool      `db:"allow_navy_orders_write"`
 	AllowPrime                  bool      `db:"allow_prime"`
+	UserID                      uuid.UUID `db:"user_id"`
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
@@ -38,6 +39,7 @@ func (c *ClientCert) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: c.Sha256Digest, Name: "Sha256Digest"},
 		&validators.StringIsPresent{Field: c.Subject, Name: "Subject"},
+		&validators.UUIDIsPresent{Field: c.UserID, Name: "UserID"},
 	), nil
 }
 

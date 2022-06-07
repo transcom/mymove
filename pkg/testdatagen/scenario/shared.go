@@ -898,8 +898,8 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx appcontext
 			ApprovedAt:                  &approvedAt,
 			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("90800"),
-			ActualDestinationPostalCode: models.StringPointer("30894"),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 		},
@@ -4719,6 +4719,48 @@ func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
 			TransportationOffice: transportationOfficeUSMC,
 		},
 	})
+}
+
+func createPrimeUser(appCtx appcontext.AppContext) models.User {
+	db := appCtx.DB()
+	/* A user with the prime role */
+
+	var userRole roles.Role
+	err := db.Where("role_type = (?)", roles.RoleTypePrime).First(&userRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to find prime user RoleType in the DB: %w", err))
+	}
+
+	userUUID := uuid.Must(uuid.FromString("3ce06fa9-590a-48e5-9e30-6ad1e82b528c"))
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	email := "prime_role@office.mil"
+
+	// Make a user
+	primeUser := testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            userUUID,
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         roles.Roles{userRole},
+		},
+	})
+	return primeUser
+}
+
+func createDevClientCertForUser(appCtx appcontext.AppContext, user models.User) {
+	// Create dev client cert from 20191212230438_add_devlocal-mtls_client_cert.up.sql
+	devClientCert := models.ClientCert{
+		ID:              uuid.Must(uuid.FromString("190b1e07-eef8-445a-9696-5a2b49ee488d")),
+		Sha256Digest:    "2c0c1fc67a294443292a9e71de0c71cc374fe310e8073f8cdc15510f6b0ef4db",
+		Subject:         "/C=US/ST=DC/L=Washington/O=Truss/OU=AppClientTLS/CN=devlocal",
+		AllowDpsAuthAPI: false,
+		UserID:          user.ID,
+	}
+	assertions := testdatagen.Assertions{
+		ClientCert: devClientCert,
+	}
+	testdatagen.MakeDevClientCert(appCtx.DB(), assertions)
 }
 
 func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
