@@ -16,7 +16,7 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '32210',
+        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
       },
@@ -60,7 +60,7 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '32210',
+        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
       },
@@ -104,7 +104,7 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '32210',
+        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
       },
@@ -149,7 +149,7 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '32210',
+        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
       },
@@ -193,7 +193,7 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '32210',
+        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
       },
@@ -870,12 +870,12 @@ describe('makeCalculations', () => {
         details: [{ text: 'Estimated: 8,000 lbs', styles: {} }],
       },
       {
-        value: '32210',
+        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
       },
       {
-        value: '13.43',
+        value: '0.09',
         label: 'Fuel surcharge price (per mi)',
         details: [
           { text: 'EIA diesel: $2.73', styles: {} },

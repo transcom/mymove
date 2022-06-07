@@ -115,15 +115,25 @@ const ZipPickupAddress = {
   type: 'STRING',
   value: '32210',
 };
-const DistanceZip = {
+const DistanceZip3 = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: 'b4ba804d-f661-4df1-a488-11da9668647b',
-  key: 'DistanceZip',
+  key: 'DistanceZip3',
+  origin: 'SYSTEM',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'INTEGER',
+  value: '210',
+};
+const DistanceZip5 = {
+  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
+  id: 'b4ba804d-f661-4df1-a488-11da9668647b',
+  key: 'DistanceZip5',
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'INTEGER',
   value: '32210',
 };
+
 const ContractCode = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNDYwMDRa',
   id: 'f2a3e73f-6450-43d6-a783-181501cfab22',
@@ -442,7 +452,7 @@ const testParams = {
     WeightOriginal,
     WeightBilled,
     WeightEstimated,
-    DistanceZip,
+    DistanceZip3,
     ZipDestAddress,
     ZipPickupAddress,
   ],
@@ -458,7 +468,7 @@ const testParams = {
     WeightBilled,
     WeightEstimated,
     WeightReweigh,
-    DistanceZip,
+    DistanceZip3,
     ZipDestAddress,
     ZipPickupAddress,
   ],
@@ -475,7 +485,7 @@ const testParams = {
     WeightBilled,
     WeightEstimated,
     WeightReweigh,
-    DistanceZip,
+    DistanceZip3,
     ZipDestAddress,
     ZipPickupAddress,
   ],
@@ -491,7 +501,7 @@ const testParams = {
     WeightOriginal,
     WeightBilled,
     WeightEstimated,
-    DistanceZip,
+    DistanceZip3,
     ZipDestAddress,
     ZipPickupAddress,
   ],
@@ -506,7 +516,7 @@ const testParams = {
     WeightOriginal,
     WeightBilled,
     WeightEstimated,
-    DistanceZip,
+    DistanceZip5,
     ZipDestAddress,
     ZipPickupAddress,
   ],
@@ -742,7 +752,7 @@ const testParams = {
   ],
   FuelSurchage: [
     ActualPickupDate,
-    DistanceZip,
+    DistanceZip3,
     EIAFuelPrice,
     FSCWeightBasedDistanceMultiplier,
     WeightBilled,

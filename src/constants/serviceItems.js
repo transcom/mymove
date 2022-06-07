@@ -13,6 +13,8 @@ const SERVICE_ITEM_PARAM_KEYS = {
   DimensionHeight: 'DimensionHeight',
   DimensionLength: 'DimensionLength',
   DimensionWidth: 'DimensionWidth',
+  DistanceZip3: 'DistanceZip3',
+  DistanceZip5: 'DistanceZip5',
   DistanceZip: 'DistanceZip',
   DistanceZipSITDest: 'DistanceZipSITDest',
   DistanceZipSITOrigin: 'DistanceZipSITOrigin',
