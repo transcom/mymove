@@ -805,11 +805,17 @@ func createUnSubmittedMoveWithFullPPMShipment2(appCtx appcontext.AppContext, use
 		moveLocator: "PPMHPE",
 	}
 
+	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		PPMShipment: models.PPMShipment{
-			ID:     testdatagen.ConvertUUIDStringToUUID("d328333e-e6c8-47d7-8cdf-5864a16abf45"),
-			Status: models.PPMShipmentStatusDraft,
+			ID:                    testdatagen.ConvertUUIDStringToUUID("d328333e-e6c8-47d7-8cdf-5864a16abf45"),
+			Status:                models.PPMShipmentStatusDraft,
+			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
+			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
+			PickupPostalCode:      "90210",
+			DestinationPostalCode: "76127",
+			ExpectedDepartureDate: departureDate,
 		},
 	}
 
@@ -830,11 +836,17 @@ func createUnSubmittedMoveWithFullPPMShipment3(appCtx appcontext.AppContext, use
 		moveLocator: "PPMHPM",
 	}
 
+	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		PPMShipment: models.PPMShipment{
-			ID:     testdatagen.ConvertUUIDStringToUUID("6f7d6ac2-a38b-4df6-a82a-1ea9b352de89"),
-			Status: models.PPMShipmentStatusDraft,
+			ID:                    testdatagen.ConvertUUIDStringToUUID("6f7d6ac2-a38b-4df6-a82a-1ea9b352de89"),
+			Status:                models.PPMShipmentStatusDraft,
+			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
+			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
+			PickupPostalCode:      "90210",
+			DestinationPostalCode: "76127",
+			ExpectedDepartureDate: departureDate,
 		},
 	}
 
