@@ -2,6 +2,8 @@
 @import 'shared/styles/_variables';
 @import 'shared/styles/colors';
 
-.PPMBookingPage {
-  @include u-margin-top(2.5)
+.ppmPageStyle {
+  @include at-media('tablet') {
+    @include u-margin-top(2.5);
+  }
 }

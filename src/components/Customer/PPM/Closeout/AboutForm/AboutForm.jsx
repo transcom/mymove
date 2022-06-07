@@ -8,16 +8,16 @@ import * as Yup from 'yup';
 import styles from './AboutForm.module.scss';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
-import formStyles from 'styles/form.module.scss';
-import { DatePickerInput } from 'components/form/fields';
-import Hint from 'components/Hint';
-import { MtoShipmentShape } from 'types/customerShapes';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import TextField from 'components/form/fields/TextField/TextField';
-import { InvalidZIPTypeError, UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX } from 'utils/validation';
-import Fieldset from 'shared/Fieldset';
-import { formatCentsTruncateWhole } from 'utils/formatters';
+import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
+import TextField from 'components/form/fields/TextField/TextField';
+import Hint from 'components/Hint';
+import Fieldset from 'shared/Fieldset';
+import formStyles from 'styles/form.module.scss';
+import { ShipmentShape } from 'types/shipment';
+import { formatCentsTruncateWhole } from 'utils/formatters';
+import { InvalidZIPTypeError, UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX } from 'utils/validation';
 
 const validationSchema = Yup.object().shape({
   actualMoveDate: Yup.date()
@@ -39,15 +39,17 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
   const {
     actualMoveDate,
     actualPickupPostalCode,
+    pickupPostalCode,
     actualDestinationPostalCode,
+    destinationPostalCode,
     hasReceivedAdvance,
     advanceAmountReceived,
   } = mtoShipment?.ppmShipment || {};
 
   const initialValues = {
     actualMoveDate: actualMoveDate || '',
-    actualPickupPostalCode: actualPickupPostalCode || '',
-    actualDestinationPostalCode: actualDestinationPostalCode || '',
+    actualPickupPostalCode: actualPickupPostalCode || pickupPostalCode || '',
+    actualDestinationPostalCode: actualDestinationPostalCode || destinationPostalCode || '',
     hasReceivedAdvance: hasReceivedAdvance ? 'true' : 'false',
     advanceAmountReceived: hasReceivedAdvance ? formatCentsTruncateWhole(advanceAmountReceived) : '',
   };
@@ -168,7 +170,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
 };
 
 AboutForm.propTypes = {
-  mtoShipment: MtoShipmentShape.isRequired,
+  mtoShipment: ShipmentShape.isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
   postalCodeValidator: func.isRequired,

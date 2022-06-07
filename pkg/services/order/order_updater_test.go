@@ -2,7 +2,6 @@ package order
 
 import (
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -25,7 +24,7 @@ import (
 )
 
 func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
-	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
+	suite.Run("Returns an error when order is not found", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
@@ -39,7 +38,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Returns an error when origin duty location is not found", func(t *testing.T) {
+	suite.Run("Returns an error when origin duty location is not found", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
@@ -58,7 +57,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Returns an error when new duty location is not found", func(t *testing.T) {
+	suite.Run("Returns an error when new duty location is not found", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
@@ -77,7 +76,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
+	suite.Run("Returns an error when the etag does not match", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
@@ -91,7 +90,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
-	suite.T().Run("Updates the order when all fields are valid", func(t *testing.T) {
+	suite.Run("Updates the order when all fields are valid", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		move := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
@@ -150,7 +149,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.Equal(move.Status, moveInDB.Status)
 	})
 
-	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {
+	suite.Run("Rolls back transaction if Order is invalid", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
@@ -184,7 +183,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
-	suite.T().Run("Allow Order update to have a missing HHG SAC", func(t *testing.T) {
+	suite.Run("Allow Order update to have a missing HHG SAC", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
@@ -228,7 +227,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.Nil(updatedOrder.SAC)
 	})
 
-	suite.T().Run("Allow Order update to have a missing NTS SAC", func(t *testing.T) {
+	suite.Run("Allow Order update to have a missing NTS SAC", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
@@ -272,7 +271,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.Nil(updatedOrder.NtsSAC)
 	})
 
-	suite.T().Run("Allow Order update to have a missing NTS TAC", func(t *testing.T) {
+	suite.Run("Allow Order update to have a missing NTS TAC", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
@@ -316,7 +315,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.Nil(updatedOrder.NtsTAC)
 	})
 
-	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {
+	suite.Run("Rolls back transaction if Order is invalid", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
@@ -351,7 +350,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
-	suite.T().Run("Rolls back transaction if Order is missing required fields", func(t *testing.T) {
+	suite.Run("Rolls back transaction if Order is missing required fields", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
@@ -393,7 +392,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 }
 
 func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
-	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
+	suite.Run("Returns an error when order is not found", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
@@ -407,7 +406,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
+	suite.Run("Returns an error when the etag does not match", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
@@ -421,7 +420,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
-	suite.T().Run("Updates the order when it is found", func(t *testing.T) {
+	suite.Run("Updates the order when it is found", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
@@ -469,7 +468,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		suite.EqualValues(body.Sac.Value, updatedOrder.SAC)
 	})
 
-	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {
+	suite.Run("Rolls back transaction if Order is invalid", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
@@ -504,7 +503,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 }
 
 func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
-	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
+	suite.Run("Returns an error when order is not found", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
@@ -518,7 +517,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
+	suite.Run("Returns an error when the etag does not match", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
@@ -532,7 +531,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
-	suite.T().Run("Updates the allowance when all fields are valid", func(t *testing.T) {
+	suite.Run("Updates the allowance when all fields are valid", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
@@ -575,7 +574,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 }
 
 func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
-	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
+	suite.Run("Returns an error when order is not found", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
@@ -589,7 +588,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
+	suite.Run("Returns an error when the etag does not match", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
@@ -603,7 +602,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
-	suite.T().Run("Updates the allowance when all fields are valid", func(t *testing.T) {
+	suite.Run("Updates the allowance when all fields are valid", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
@@ -646,7 +645,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
 	})
 
-	suite.T().Run("Updates the allowance when move needs service counseling and order fields are missing", func(t *testing.T) {
+	suite.Run("Updates the allowance when move needs service counseling and order fields are missing", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
@@ -704,7 +703,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.Nil(updatedOrder.OrdersTypeDetail)
 	})
 
-	suite.T().Run("Entire update is aborted when ProGearWeight is over max amount", func(t *testing.T) {
+	suite.Run("Entire update is aborted when ProGearWeight is over max amount", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
@@ -740,7 +739,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.Nil(updatedOrder)
 	})
 
-	suite.T().Run("Entire update is aborted when ProGearWeightSpouse is over max amount", func(t *testing.T) {
+	suite.Run("Entire update is aborted when ProGearWeightSpouse is over max amount", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
@@ -779,7 +778,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 
 func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 
-	suite.T().Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func(t *testing.T) {
+	suite.Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
@@ -821,7 +820,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 
 		expectedChecksum := "nOE6HwzyE4VEDXn67ULeeA=="
 		if upload.Checksum != expectedChecksum {
-			t.Errorf("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
+			suite.Fail("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
 		}
 
 		var orderInDB models.Order
@@ -836,13 +835,13 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		findUpload := models.Upload{}
 		err = suite.DB().Find(&findUpload, upload.ID)
 		if err != nil {
-			t.Fatalf("Couldn't find expected upload.")
+			suite.Fail("Couldn't find expected upload.")
 		}
 		suite.Equal(upload.ID.String(), findUpload.ID.String(), "found upload in db")
 		suite.NotEmpty(url, "URL is populated")
 	})
 
-	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
+	suite.Run("Returns an error when order is not found", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
@@ -869,7 +868,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		suite.NoVerrs(verrs)
 	})
 
-	suite.T().Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func(t *testing.T) {
+	suite.Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{

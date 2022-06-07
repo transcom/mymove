@@ -336,7 +336,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			move_logs
 	) SELECT DISTINCT
 		combined_logs.*,
-		office_users.first_name AS session_user_first_name,
+		COALESCE(office_users.first_name, prime_user_first_name) AS session_user_first_name,
 		office_users.last_name AS session_user_last_name,
 		office_users.email AS session_user_email,
 		office_users.telephone AS session_user_telephone
@@ -344,13 +344,16 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		combined_logs
 		LEFT JOIN users_roles ON session_userid = users_roles.user_id
 		LEFT JOIN roles ON users_roles.role_id = roles.id
+		LEFT JOIN office_users ON office_users.user_id = session_userid
 			AND(roles.role_type = 'transportation_ordering_officer'
 				OR roles.role_type = 'transportation_invoicing_officer'
 				OR roles.role_type = 'ppm_office_users'
 				OR role_type = 'services_counselor'
 				OR role_type = 'contracting_officer'
 				OR role_type = 'qae_csr')
-		LEFT JOIN office_users ON office_users.user_id = session_userid
+		LEFT JOIN (
+			SELECT 'Prime' AS prime_user_first_name
+			) prime_users ON roles.role_type LIKE 'prime%'
 	ORDER BY
 		action_tstamp_tx DESC`
 

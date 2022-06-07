@@ -4088,6 +4088,12 @@ func init() {
         "office_user": {
           "$ref": "#/definitions/OfficeUser"
         },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -5080,7 +5086,6 @@ func init() {
         "id",
         "shipmentId",
         "createdAt",
-        "updatedAt",
         "status",
         "expectedDepartureDate",
         "pickupPostalCode",
@@ -5139,12 +5144,6 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
         },
         "destinationPostalCode": {
           "type": "string",
@@ -5302,11 +5301,6 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
         }
       },
       "x-nullable": true
@@ -6375,21 +6369,16 @@ func init() {
           "x-nullable": true,
           "example": "90210"
         },
-        "advance": {
-          "description": "The amount requested for an advance, or null if no advance is requested\n",
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true
-        },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
           "type": "integer",
           "format": "cents",
           "x-nullable": true
         },
-        "advanceRequested": {
-          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
-          "type": "boolean",
+        "advanceAmountRequested": {
+          "description": "The amount requested for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
           "x-nullable": true
         },
         "destinationPostalCode": {
@@ -6418,6 +6407,11 @@ func init() {
         },
         "hasReceivedAdvance": {
           "description": "Indicates whether an advance was received for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "hasRequestedAdvance": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
         },
@@ -10976,6 +10970,12 @@ func init() {
         "office_user": {
           "$ref": "#/definitions/OfficeUser"
         },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -11970,7 +11970,6 @@ func init() {
         "id",
         "shipmentId",
         "createdAt",
-        "updatedAt",
         "status",
         "expectedDepartureDate",
         "pickupPostalCode",
@@ -12029,12 +12028,6 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
         },
         "destinationPostalCode": {
           "type": "string",
@@ -12192,11 +12185,6 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
         }
       },
       "x-nullable": true
@@ -13269,21 +13257,16 @@ func init() {
           "x-nullable": true,
           "example": "90210"
         },
-        "advance": {
-          "description": "The amount requested for an advance, or null if no advance is requested\n",
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true
-        },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
           "type": "integer",
           "format": "cents",
           "x-nullable": true
         },
-        "advanceRequested": {
-          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
-          "type": "boolean",
+        "advanceAmountRequested": {
+          "description": "The amount requested for an advance, or null if no advance is requested\n",
+          "type": "integer",
+          "format": "cents",
           "x-nullable": true
         },
         "destinationPostalCode": {
@@ -13312,6 +13295,11 @@ func init() {
         },
         "hasReceivedAdvance": {
           "description": "Indicates whether an advance was received for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "hasRequestedAdvance": {
+          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
         },

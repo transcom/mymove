@@ -21,13 +21,14 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gobuffalo/pop/v6"
+
 	"github.com/alexedwards/scs/redisstore"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/gobuffalo/pop/v6"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
@@ -1000,10 +1001,13 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 
 		// Mux for GHC API that enforces auth
+		api := ghcapi.NewGhcAPIHandler(handlerConfig)
 		ghcAPIMux := ghcMux.PathPrefix("/").Subrouter()
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
-		api := ghcapi.NewGhcAPIHandler(handlerConfig)
+
+		permissionsMiddleware := authentication.PermissionsMiddleware(appCtx, api)
+		ghcAPIMux.Use(permissionsMiddleware)
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		ghcAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}

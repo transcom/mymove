@@ -3,10 +3,21 @@ package models_test
 import (
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) Test_FetchClientCert() {
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	userForClientCert := models.User{
+		ID:            uuid.Must(uuid.NewV4()),
+		LoginGovUUID:  &loginGovUUID,
+		LoginGovEmail: "prime_user_with_client_cert@login.gov.test",
+		Active:        true,
+	}
+	suite.MustCreate(&userForClientCert)
+
 	digest := "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
 	subject := "/C=US/ST=DC/L=Washington/O=Test/OU=Test Cert/CN=localhost"
 	certNew := models.ClientCert{
@@ -16,6 +27,7 @@ func (suite *ModelSuite) Test_FetchClientCert() {
 		AllowOrdersAPI:  true,
 		CreatedAt:       time.Now(),
 		UpdatedAt:       time.Now(),
+		UserID:          userForClientCert.ID,
 	}
 	suite.MustSave(&certNew)
 
@@ -37,6 +49,7 @@ func (suite *ModelSuite) Test_ClientCertValidations() {
 	var expErrors = map[string][]string{
 		"sha256_digest": {"Sha256Digest can not be blank."},
 		"subject":       {"Subject can not be blank."},
+		"user_id":       {"UserID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(cert, expErrors)

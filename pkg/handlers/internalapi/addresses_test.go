@@ -2,7 +2,6 @@ package internalapi
 
 import (
 	"net/http/httptest"
-	"testing"
 
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -26,28 +25,29 @@ func fakeAddressPayload() *internalmessages.Address {
 }
 
 func (suite *HandlerSuite) TestShowAddressHandler() {
-	address := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "12345",
-	}
-	suite.MustSave(&address)
 
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	suite.Run("successful lookup", func() {
+		address := models.Address{
+			StreetAddress1: "some address",
+			City:           "city",
+			State:          "state",
+			PostalCode:     "12345",
+		}
+		suite.MustSave(&address)
 
-	fakeUUID, _ := uuid.FromString("not-valid-uuid")
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
-	tests := []struct {
-		ID        uuid.UUID
-		hasResult bool
-		resultID  string
-	}{
-		{ID: address.ID, hasResult: true, resultID: address.ID.String()},
-		{ID: fakeUUID, hasResult: false, resultID: ""},
-	}
+		fakeUUID, _ := uuid.FromString("not-valid-uuid")
 
-	suite.T().Run("successful lookup", func(t *testing.T) {
+		tests := []struct {
+			ID        uuid.UUID
+			hasResult bool
+			resultID  string
+		}{
+			{ID: address.ID, hasResult: true, resultID: address.ID.String()},
+			{ID: fakeUUID, hasResult: false, resultID: ""},
+		}
+
 		for _, ts := range tests {
 			req := httptest.NewRequest("GET", "/addresses/"+ts.ID.String(), nil)
 			req = suite.AuthenticateUserRequest(req, requestUser)

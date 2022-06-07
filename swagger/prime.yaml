@@ -2932,10 +2932,6 @@ definitions:
         format: date-time
         type: string
         readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
       status:
         $ref: '#/definitions/PPMShipmentStatus'
       expectedDepartureDate:
@@ -3074,11 +3070,6 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
-      deletedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        x-omitempty: false
       sitLocation:
         allOf:
           - $ref: '#/definitions/SITLocationType'
@@ -3114,7 +3105,6 @@ definitions:
       - id
       - shipmentId
       - createdAt
-      - updatedAt
       - status
       - expectedDepartureDate
       - pickupPostalCode

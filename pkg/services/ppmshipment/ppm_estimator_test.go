@@ -338,10 +338,8 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 		suite.NilOrNoVerrs(err)
-		suite.Nil(newPPM.Advance)
-		suite.Nil(newPPM.AdvanceAmountRequested)
-		suite.Nil(newPPM.AdvanceRequested)
 		suite.Nil(newPPM.HasRequestedAdvance)
+		suite.Nil(newPPM.AdvanceAmountRequested)
 		suite.Equal(unit.Cents(39319267), *ppmEstimate)
 	})
 
@@ -364,11 +362,9 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 		suite.True(oldPPMShipment.ExpectedDepartureDate.Equal(newPPM.ExpectedDepartureDate))
 		suite.Equal(*oldPPMShipment.EstimatedIncentive, *estimatedIncentive)
 		suite.Equal(models.BoolPointer(true), newPPM.HasRequestedAdvance)
-		suite.Equal(models.BoolPointer(true), newPPM.AdvanceRequested)
 		suite.Equal(unit.Cents(598700), *newPPM.AdvanceAmountRequested)
-		suite.Equal(unit.Cents(598700), *newPPM.Advance)
 	})
-	suite.Run("Estimated Incentive - Failure - is not created when status is not DRAFT", func() {
+	suite.Run("Estimated Incentive - does not change when status is not DRAFT", func() {
 		oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
 				EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
@@ -384,13 +380,12 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			DestinationPostalCode: "94040",
 			EstimatedWeight:       oldPPMShipment.EstimatedWeight,
 			SITExpected:           oldPPMShipment.SITExpected,
-			EstimatedIncentive:    models.CentPointer(unit.Cents(500000)),
+			EstimatedIncentive:    models.CentPointer(unit.Cents(600000)),
 		}
 
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 		suite.NilOrNoVerrs(err)
-		suite.Nil(ppmEstimate)
-		suite.Equal(models.CentPointer(unit.Cents(500000)), newPPM.EstimatedIncentive)
+		suite.Equal(oldPPMShipment.EstimatedIncentive, ppmEstimate)
 	})
 
 	suite.Run("Estimated Incentive - Failure - is not created when Estimated Weight is missing", func() {

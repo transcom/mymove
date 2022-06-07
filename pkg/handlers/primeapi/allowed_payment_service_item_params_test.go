@@ -2,7 +2,6 @@ package primeapi
 
 import (
 	"fmt"
-	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -31,7 +30,7 @@ var invalidParamsTestCases = []paramTestCase{
 
 func (suite *HandlerSuite) TestAllowedParams() {
 	for _, tc := range allowedParamsTestCases {
-		suite.T().Run(fmt.Sprintf("param %s should be allowed for service code %s", tc.paramKeyName, string(tc.reServiceCode)), func(t *testing.T) {
+		suite.Run(fmt.Sprintf("param %s should be allowed for service code %s", tc.paramKeyName, string(tc.reServiceCode)), func() {
 			suite.True(AllowedParamKeysPaymentRequest.Contains(tc.reServiceCode, tc.paramKeyName))
 		})
 	}
@@ -39,7 +38,7 @@ func (suite *HandlerSuite) TestAllowedParams() {
 
 func (suite *HandlerSuite) TestNotAllowedParams() {
 	for _, tc := range invalidParamsTestCases {
-		suite.T().Run(fmt.Sprintf("param %s should not be allowed for service code %s", tc.paramKeyName, string(tc.reServiceCode)), func(t *testing.T) {
+		suite.Run(fmt.Sprintf("param %s should not be allowed for service code %s", tc.paramKeyName, string(tc.reServiceCode)), func() {
 			suite.False(AllowedParamKeysPaymentRequest.Contains(tc.reServiceCode, tc.paramKeyName))
 		})
 	}

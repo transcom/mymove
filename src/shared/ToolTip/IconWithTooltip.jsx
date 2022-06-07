@@ -21,7 +21,7 @@ class IconWithTooltip extends Component {
         <FontAwesomeIcon
           aria-hidden
           className={`${styles['color_blue_link']} ${iconClassName}`}
-          icon={icon ? icon : 'question-circle'}
+          icon={icon ? icon : 'circle-question'}
           onClick={this.toggleTooltip}
         />
         {showTooltip && (

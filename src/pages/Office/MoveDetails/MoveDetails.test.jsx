@@ -9,6 +9,7 @@ import MoveDetails from './MoveDetails';
 
 import { MockProviders } from 'testUtils';
 import { useMoveDetailsQueries } from 'hooks/queries';
+import { permissionTypes } from 'constants/permissions';
 
 const mockRequestedMoveCode = 'LR4T8V';
 
@@ -955,6 +956,38 @@ describe('MoveDetails page', () => {
       );
 
       expect(await screen.findByTestId('shipment-missing-info-alert')).toBeInTheDocument();
+    });
+  });
+
+  describe('permission dependent rendering', () => {
+    const testProps = {
+      setUnapprovedShipmentCount,
+      setUnapprovedServiceItemCount,
+      setExcessWeightRiskCount,
+      setUnapprovedSITExtensionCount,
+    };
+
+    it('renders the financial review flag button when user has permission', async () => {
+      render(
+        <MockProviders
+          initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}
+          permissions={[permissionTypes.updateFinancialReviewFlag]}
+        >
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(await screen.getByText('Flag move for financial review')).toBeInTheDocument();
+    });
+
+    it('does not show the financial review flag button if user does not have permission', () => {
+      render(
+        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(screen.queryByText('Flag move for financial review')).not.toBeInTheDocument();
     });
   });
 });

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
 
 import { selectMTOShipmentById } from 'store/entities/selectors';
-import EstimatedIncentive from 'pages/MyMove/PPMBooking/EstimatedIncentive/EstimatedIncentive';
+import EstimatedIncentive from 'pages/MyMove/PPM/Booking/EstimatedIncentive/EstimatedIncentive';
 import { MockProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 
