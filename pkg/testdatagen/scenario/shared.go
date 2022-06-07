@@ -871,7 +871,7 @@ func createUnSubmittedMoveWithFullPPMShipment4(appCtx appcontext.AppContext, use
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		PPMShipment: models.PPMShipment{
-			ID:                    testdatagen.ConvertUUIDStringToUUID("6f7d6ac2-a38b-4df6-a82a-1ea9b352de89"),
+			ID:                    testdatagen.ConvertUUIDStringToUUID("47f6cb98-fbd1-4b95-a91b-2d394d555d21"),
 			Status:                models.PPMShipmentStatusDraft,
 			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
 			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
@@ -902,7 +902,7 @@ func createUnSubmittedMoveWithFullPPMShipment5(appCtx appcontext.AppContext, use
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		PPMShipment: models.PPMShipment{
-			ID:                    testdatagen.ConvertUUIDStringToUUID("6f7d6ac2-a38b-4df6-a82a-1ea9b352de89"),
+			ID:                    testdatagen.ConvertUUIDStringToUUID("0a62f7c6-72d2-4f4f-9889-202f3c0222a6"),
 			Status:                models.PPMShipmentStatusDraft,
 			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
 			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
