@@ -23,10 +23,12 @@ import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatus, updateMTOShipmentStatus, updateFinancialFlag } from 'services/ghcApi';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
+import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
+import { permissionTypes } from 'constants/permissions';
 
 const errorIfMissing = {
   HHG_INTO_NTS_DOMESTIC: ['storageFacility', 'serviceOrderNumber', 'tacType'],
@@ -297,12 +299,14 @@ const MoveDetails = ({
         <GridContainer className={styles.gridContainer} data-testid="too-move-details">
           <div className={styles.tooMoveDetailsHeadingFlexbox}>
             <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
-            <div className={styles.tooFinancialReviewContainer}>
-              <FinancialReviewButton
-                onClick={handleShowFinancialReviewModal}
-                reviewRequested={move.financialReviewFlag}
-              />
-            </div>
+            <Restricted to={permissionTypes.updateFinancialReviewFlag}>
+              <div className={styles.tooFinancialReviewContainer}>
+                <FinancialReviewButton
+                  onClick={handleShowFinancialReviewModal}
+                  reviewRequested={move.financialReviewFlag}
+                />
+              </div>
+            </Restricted>
           </div>
           {isFinancialModalVisible && (
             <FinancialReviewModal

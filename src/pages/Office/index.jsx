@@ -33,6 +33,7 @@ import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape } from 'types/index';
 import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes, qaeCSRRoutes } from 'constants/routes';
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
+import PermissionProvider from 'components/Restricted/PermissionProvider';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -106,6 +107,7 @@ export class OfficeApp extends Component {
     const {
       activeRole,
       userIsLoggedIn,
+      userPermissions,
       userRoles,
       location: { pathname },
       hasRecentError,
@@ -171,7 +173,7 @@ export class OfficeApp extends Component {
     });
 
     return (
-      <>
+      <PermissionProvider permissions={userPermissions}>
         <div id="app-root">
           <div className={siteClasses}>
             <BypassBlock />
@@ -341,7 +343,7 @@ export class OfficeApp extends Component {
           </div>
         </div>
         <div id="modal-root" />
-      </>
+      </PermissionProvider>
     );
   }
 }
@@ -352,6 +354,7 @@ OfficeApp.propTypes = {
   loadUser: PropTypes.func.isRequired,
   location: LocationShape,
   userIsLoggedIn: PropTypes.bool,
+  userPermissions: PropTypes.arrayOf(PropTypes.string),
   userRoles: UserRolesShape,
   activeRole: PropTypes.string,
   hasRecentError: PropTypes.bool.isRequired,
@@ -366,6 +369,7 @@ OfficeApp.propTypes = {
 OfficeApp.defaultProps = {
   location: { pathname: '' },
   userIsLoggedIn: false,
+  userPermissions: [],
   userRoles: [],
   activeRole: null,
   history: {
@@ -379,6 +383,7 @@ const mapStateToProps = (state) => {
   return {
     swaggerError: state.swaggerInternal.hasErrored,
     userIsLoggedIn: selectIsLoggedIn(state),
+    userPermissions: user?.permissions || [],
     userRoles: user?.roles || [],
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,
