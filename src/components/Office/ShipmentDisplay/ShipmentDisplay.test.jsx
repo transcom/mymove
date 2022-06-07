@@ -83,9 +83,6 @@ describe('Shipment Container', () => {
         </MockProviders>,
       );
 
-      // Should not have View button since we have edit button
-      expect(screen.queryByRole('button', { name: 'View shipment' })).not.toBeInTheDocument();
-
       const button = screen.getByRole('button', { name: 'Edit shipment' });
       expect(button).toBeInTheDocument();
       userEvent.click(button);
@@ -93,14 +90,7 @@ describe('Shipment Container', () => {
         expect(mockPush).toHaveBeenCalledWith('/');
       });
     });
-    it('renders a view button when user does not have edit permission', () => {
-      render(
-        <ShipmentDisplay shipmentId="1" displayInfo={hhgInfo} onChange={jest.fn()} isSubmitted={false} editURL="/" />,
-      );
-      expect(screen.getByRole('button', { name: 'View shipment' })).toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
-    });
-    it('renders without edit button', () => {
+    it('renders without edit button when user does not have permissions', () => {
       render(<ShipmentDisplay shipmentId="1" displayInfo={hhgInfo} onChange={jest.fn()} isSubmitted={false} />);
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
     });

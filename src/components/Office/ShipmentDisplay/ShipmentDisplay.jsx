@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
-import { Button, Checkbox, Tag } from '@trussworks/react-uswds';
+import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
@@ -96,14 +96,7 @@ const ShipmentDisplay = ({
           showWhenCollapsed={showWhenCollapsed}
           neverShow={neverShow}
         />
-        <Restricted
-          to={permissionTypes.updateShipment}
-          fallback={
-            <Button className={styles.editButton} label="View shipment" secondary>
-              View shipment
-            </Button>
-          }
-        >
+        <Restricted to={permissionTypes.updateShipment}>
           {editURL && (
             <EditButton
               onClick={() => {
