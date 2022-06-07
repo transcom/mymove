@@ -15,6 +15,8 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';
+import DestinationZIPInfo from 'components/Office/DestinationZIPInfo/DestinationZIPInfo';
+import OriginZIPInfo from 'components/Office/OriginZIPInfo/OriginZIPInfo';
 import ShipmentAccountingCodes from 'components/Office/ShipmentAccountingCodes/ShipmentAccountingCodes';
 import ShipmentCustomerSIT from 'components/Office/ShipmentCustomerSIT/ShipmentCustomerSIT';
 import ShipmentFormRemarks from 'components/Office/ShipmentFormRemarks/ShipmentFormRemarks';
@@ -43,11 +45,12 @@ import {
   formatPpmShipmentForDisplay,
 } from 'utils/formatMtoShipment';
 import { formatWeight, dropdownInputOptions } from 'utils/formatters';
-import { validateDate } from 'utils/validation';
+import { validateDate, validatePostalCode } from 'utils/validation';
 
 const ShipmentForm = ({
   match,
   history,
+  oldDutyLocationAddress,
   newDutyLocationAddress,
   selectedMoveType,
   isCreatePage,
@@ -488,10 +491,19 @@ const ShipmentForm = ({
                   </SectionWrapper>
                 )}
 
-                {isPPM && !isAdvancePage && <ShipmentCustomerSIT />}
-
                 {isPPM && !isAdvancePage && (
-                  <ShipmentWeight authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()} />
+                  <>
+                    <OriginZIPInfo
+                      postalCodeValidator={validatePostalCode}
+                      currentZip={oldDutyLocationAddress.postalCode}
+                    />
+                    <DestinationZIPInfo
+                      postalCodeValidator={validatePostalCode}
+                      dutyZip={newDutyLocationAddress.postalCode}
+                    />
+                    <ShipmentCustomerSIT />
+                    <ShipmentWeight authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()} />
+                  </>
                 )}
 
                 {isPPM && isAdvancePage && (
@@ -565,6 +577,7 @@ ShipmentForm.propTypes = {
   isCreatePage: bool,
   isForServicesCounseling: bool,
   currentResidence: AddressShape.isRequired,
+  oldDutyLocationAddress: SimpleAddressShape,
   newDutyLocationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
   mtoShipment: ShipmentShape,
@@ -587,6 +600,11 @@ ShipmentForm.defaultProps = {
   isForServicesCounseling: false,
   match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
   history: { push: () => {} },
+  oldDutyLocationAddress: {
+    city: '',
+    state: '',
+    postalCode: '',
+  },
   newDutyLocationAddress: {
     city: '',
     state: '',

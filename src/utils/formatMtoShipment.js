@@ -87,15 +87,23 @@ const emptyAddressShape = {
 
 export function formatPpmShipmentForDisplay({ ppmShipment = {} }) {
   const displayValues = {
+    expectedDepartureDate: ppmShipment.expectedDepartureDate,
+    pickupPostalCode: ppmShipment.pickupPostalCode,
+    secondPickupPostalCode: ppmShipment.secondaryPickupPostalCode,
+    destinationPostalCode: ppmShipment.destinationPostalCode,
+    secondDestinationPostalCode: ppmShipment.secondaryDestinationPostalCode,
+
     sitExpected: ppmShipment.sitExpected,
     sitLocation: ppmShipment.sitLocation,
     sitEstimatedWeight: (ppmShipment.sitEstimatedWeight || '').toString(),
     sitEstimatedEntryDate: ppmShipment.sitEstimatedEntryDate,
     sitEstimatedDepartureDate: ppmShipment.sitEstimatedDepartureDate,
+
+    estimatedWeight: (ppmShipment.estimatedWeight || '').toString(),
     hasProGear: !!ppmShipment.hasProGear,
     proGearWeight: (ppmShipment.proGearWeight || '').toString(),
     spouseProGearWeight: (ppmShipment.spouseProGearWeight || '').toString(),
-    estimatedWeight: (ppmShipment.estimatedWeight || '').toString(),
+
     estimatedIncentive: ppmShipment.estimatedIncentive,
     advanceRequested: ppmShipment.advanceRequested ? 'Yes' : 'No',
     advance: (ppmShipment.advance || '').toString(),
@@ -229,9 +237,11 @@ export function formatMtoShipmentForDisplay({
 
 export function formatPpmShipmentForAPI(formValues) {
   let ppmShipmentValues = {
-    expectedDepartureDate: '2022-01-01',
-    pickupPostalCode: '53719',
-    destinationPostalCode: '08004',
+    expectedDepartureDate: formatDateForSwagger(formValues.expectedDepartureDate),
+    pickupPostalCode: formValues.pickupPostalCode,
+    secondaryPickupPostalCode: formValues.secondPickupPostalCode,
+    destinationPostalCode: formValues.destinationPostalCode,
+    secondaryDestinationPostalCode: formValues.secondDestinationPostalCode,
     sitExpected: !!formValues.sitExpected,
     estimatedWeight: Number(formValues.estimatedWeight || '0'),
     hasProGear: !!formValues.hasProGear,
