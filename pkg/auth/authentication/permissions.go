@@ -22,17 +22,17 @@ type RolePermissions struct {
 var TOO = RolePermissions{
 	RoleType: roles.RoleTypeTOO,
 	Permissions: []string{"update.move", "create.serviceItem",
-		"update.shipment", "update.financialReviewFlag"},
+		"update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances"},
 }
 
 var TIO = RolePermissions{
 	RoleType:    roles.RoleTypeTIO,
-	Permissions: []string{"create.serviceItem", "update.shipment", "update.financialReviewFlag"},
+	Permissions: []string{"create.serviceItem", "update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances"},
 }
 
 var ServicesCounselor = RolePermissions{
 	RoleType:    roles.RoleTypeServicesCounselor,
-	Permissions: []string{"update.financialReviewFlag"},
+	Permissions: []string{"update.financialReviewFlag", "update.shipment", "update.orders", "update.allowances"},
 }
 
 var QAECSR = RolePermissions{

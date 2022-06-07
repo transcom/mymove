@@ -15,6 +15,9 @@ import {
 } from './ShipmentDisplayTestData';
 import ShipmentDisplay from './ShipmentDisplay';
 
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
+
 const mockPush = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -73,9 +76,11 @@ describe('Shipment Container', () => {
       expect(screen.getByText('Counselor remarks')).toBeInTheDocument();
     });
 
-    it('renders with edit button', async () => {
+    it('renders with edit button when user has permission', async () => {
       render(
-        <ShipmentDisplay shipmentId="1" displayInfo={hhgInfo} onChange={jest.fn()} isSubmitted={false} editURL="/" />,
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay shipmentId="1" displayInfo={hhgInfo} onChange={jest.fn()} isSubmitted={false} editURL="/" />
+        </MockProviders>,
       );
 
       const button = screen.getByRole('button', { name: 'Edit shipment' });
@@ -85,7 +90,7 @@ describe('Shipment Container', () => {
         expect(mockPush).toHaveBeenCalledWith('/');
       });
     });
-    it('renders without edit button', () => {
+    it('renders without edit button when user does not have permissions', () => {
       render(<ShipmentDisplay shipmentId="1" displayInfo={hhgInfo} onChange={jest.fn()} isSubmitted={false} />);
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
     });
@@ -101,7 +106,11 @@ describe('Shipment Container', () => {
 
   describe('NTS shipment', () => {
     it('renders the container successfully', () => {
-      render(<ShipmentDisplay shipmentId="1" displayInfo={ntsInfo} onChange={jest.fn()} isSubmitted editURL="/" />);
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay shipmentId="1" displayInfo={ntsInfo} onChange={jest.fn()} isSubmitted editURL="/" />
+        </MockProviders>,
+      );
       expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
       expect(screen.queryByTestId('checkbox')).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
@@ -121,13 +130,15 @@ describe('Shipment Container', () => {
     });
     it('checkbox is disabled when information is missing', () => {
       render(
-        <ShipmentDisplay
-          shipmentId="1"
-          displayInfo={{ ...ntsMissingInfo }}
-          onChange={jest.fn()}
-          isSubmitted
-          errorIfMissing={errorIfMissingStorageFacility}
-        />,
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay
+            shipmentId="1"
+            displayInfo={{ ...ntsMissingInfo }}
+            onChange={jest.fn()}
+            isSubmitted
+            errorIfMissing={errorIfMissingStorageFacility}
+          />
+        </MockProviders>,
       );
       expect(screen.getByTestId('shipment-display-checkbox')).toBeDisabled();
     });
@@ -136,14 +147,16 @@ describe('Shipment Container', () => {
   describe('NTS-release shipment', () => {
     it('renders the container successfully', () => {
       render(
-        <ShipmentDisplay
-          shipmentId="1"
-          displayInfo={ntsReleaseInfo}
-          ordersLOA={ordersLOA}
-          onChange={jest.fn()}
-          isSubmitted
-          editURL="/"
-        />,
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay
+            shipmentId="1"
+            displayInfo={ntsReleaseInfo}
+            ordersLOA={ordersLOA}
+            onChange={jest.fn()}
+            isSubmitted
+            editURL="/"
+          />
+        </MockProviders>,
       );
 
       expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
@@ -177,14 +190,16 @@ describe('Shipment Container', () => {
     });
     it('checkbox is disabled when information is missing', () => {
       render(
-        <ShipmentDisplay
-          shipmentId="1"
-          displayInfo={{ ...ntsReleaseMissingInfo }}
-          ordersLOA={ordersLOA}
-          onChange={jest.fn()}
-          isSubmitted
-          errorIfMissing={errorIfMissingStorageFacility}
-        />,
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay
+            shipmentId="1"
+            displayInfo={{ ...ntsReleaseMissingInfo }}
+            ordersLOA={ordersLOA}
+            onChange={jest.fn()}
+            isSubmitted
+            errorIfMissing={errorIfMissingStorageFacility}
+          />
+        </MockProviders>,
       );
       expect(screen.getByTestId('shipment-display-checkbox')).toBeDisabled();
     });

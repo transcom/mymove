@@ -254,7 +254,7 @@ const renderMockedComponent = (props) => {
 };
 
 const mockedComponent = (
-  <MockProviders initialEntries={[detailsURL]}>
+  <MockProviders initialEntries={[detailsURL]} permissions={[permissionTypes.updateShipment]}>
     <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
   </MockProviders>
 );

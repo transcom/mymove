@@ -1000,6 +1000,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 		permissionsMiddleware := authentication.PermissionsMiddleware(appCtx, api)
 		ghcAPIMux.Use(permissionsMiddleware)
+
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		ghcAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}
