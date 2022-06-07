@@ -15,6 +15,3 @@ VALUES
 
 DELETE FROM service_params WHERE service_item_param_key_id = '7a99efc3-df2b-401f-ae56-f293517afbde';
 DELETE FROM service_params WHERE service_item_param_key_id = '60b0d960-eb2e-4597-846b-d97720493799';
-DELETE FROM service_item_param_keys WHERE id = '7a99efc3-df2b-401f-ae56-f293517afbde';
-DELETE FROM service_item_param_keys WHERE id = '60b0d960-eb2e-4597-846b-d97720493799';
-
