@@ -1,6 +1,4 @@
 import {
-  customerStartsAddingAPPMShipment,
-  deleteShipment,
   generalVerifyEstimatedIncentivePage,
   navigateFromDateAndLocationPageToEstimatedWeightsPage,
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage,
@@ -23,7 +21,6 @@ describe('Entire PPM onboarding flow', function () {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('POST', '**/internal/mto_shipments').as('createShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
-    cy.intercept('DELETE', '**/internal/mto-shipments/**').as('deleteShipment');
     cy.intercept('GET', '**/internal/moves/**/signed_certifications').as('signedCertifications');
   });
 
@@ -56,21 +53,6 @@ describe('Entire PPM onboarding flow', function () {
       navigateHappyPathWithEditsAndBacks(userId, isMobile);
     });
   });
-
-  const viewportType3 = [
-    { viewport: 'desktop', isMobile: false, userId: '57d58062-93ac-4eb7-b1da-21dd137e4f65' }, // deleteShipment@ppm.unsubmitted
-    { viewport: 'mobile', isMobile: true, userId: '781cf194-4eb2-4def-9da6-01abdc62333d' }, // deleteShipmentMobile@ppm.unsubmitted
-  ];
-
-  viewportType3.forEach(({ viewport, isMobile, userId }) => {
-    it(`deletes shipment - ${viewport}`, () => {
-      if (isMobile) {
-        setMobileViewport();
-      }
-
-      navigateDeletingShipment(userId, isMobile);
-    });
-  });
 });
 
 function navigateHappyPath(userId, isMobile = false) {
@@ -82,12 +64,6 @@ function navigateHappyPath(userId, isMobile = false) {
   navigateToAgreementAndSign();
   submitMove('@signedCertifications');
   verifyStep5ExistsAndBtnIsDisabled();
-}
-
-function navigateDeletingShipment(userId, isMobile = false) {
-  cy.apiSignInAsUser(userId);
-  cy.wait('@getShipment');
-  customerDeletesExistingShipment();
 }
 
 function navigateHappyPathWithEditsAndBacks(userId, isMobile = false) {
@@ -152,11 +128,6 @@ function verifyShipmentSpecificInfoOnEstimatedIncentivePage() {
     .and('contain', '90210')
     .and('contain', '76127')
     .and('contain', '01 Feb 2022');
-}
-
-function customerDeletesExistingShipment() {
-  cy.get('[data-testid="shipment-list-item-container"]').as('shipmentListContainer');
-  deleteShipment('@shipmentListContainer', 0);
 }
 
 function verifyStep5ExistsAndBtnIsDisabled() {
