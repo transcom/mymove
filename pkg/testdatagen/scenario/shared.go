@@ -853,6 +853,68 @@ func createUnSubmittedMoveWithFullPPMShipment3(appCtx appcontext.AppContext, use
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
+func createUnSubmittedMoveWithFullPPMShipment4(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	/*
+	 * A service member with orders and a full PPM Shipment.
+	 */
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("781cf194-4eb2-4def-9da6-01abdc62333d"),
+		email:       "deleteShipmentMobile@ppm.unsubmitted",
+		smID:        testdatagen.ConvertUUIDStringToUUID("fc9264ae-4290-4445-987d-f6950b97c865"),
+		firstName:   "Delete",
+		lastName:    "PPM",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("a11cae72-56f0-45a3-a546-3af43a1d50ea"),
+		moveLocator: "PPMDEL",
+	}
+
+	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		PPMShipment: models.PPMShipment{
+			ID:                    testdatagen.ConvertUUIDStringToUUID("6f7d6ac2-a38b-4df6-a82a-1ea9b352de89"),
+			Status:                models.PPMShipmentStatusDraft,
+			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
+			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
+			PickupPostalCode:      "90210",
+			DestinationPostalCode: "76127",
+			ExpectedDepartureDate: departureDate,
+		},
+	}
+
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
+
+func createUnSubmittedMoveWithFullPPMShipment5(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	/*
+	 * A service member with orders and a full PPM Shipment.
+	 */
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("57d58062-93ac-4eb7-b1da-21dd137e4f65"),
+		email:       "deleteShipmentMobile@ppm.unsubmitted",
+		smID:        testdatagen.ConvertUUIDStringToUUID("d5778927-7366-44c2-8dbf-1bce14906adc"),
+		firstName:   "Delete",
+		lastName:    "PPM",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("ae5e7087-8e1e-49ae-98cc-0727a5cd11eb"),
+		moveLocator: "DELPPM",
+	}
+
+	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		PPMShipment: models.PPMShipment{
+			ID:                    testdatagen.ConvertUUIDStringToUUID("6f7d6ac2-a38b-4df6-a82a-1ea9b352de89"),
+			Status:                models.PPMShipmentStatusDraft,
+			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
+			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
+			PickupPostalCode:      "90210",
+			DestinationPostalCode: "76127",
+			ExpectedDepartureDate: departureDate,
+		},
+	}
+
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
+
 func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("cde987a1-a717-4a61-98b5-1f05e2e0844d"),

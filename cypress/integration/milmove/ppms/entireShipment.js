@@ -33,12 +33,12 @@ describe('Entire PPM onboarding flow', function () {
   ];
 
   viewportType1.forEach(({ viewport, isMobile, userId }) => {
-    it(`deletes existing shipment and then start happy path with new shipment - ${viewport}`, () => {
+    it(`flows through happy path for existing shipment - ${viewport}`, () => {
       if (isMobile) {
         setMobileViewport();
       }
 
-      navigateHappyPathWithDelete(userId, isMobile);
+      navigateHappyPath(userId, isMobile);
     });
   });
 
@@ -56,14 +56,25 @@ describe('Entire PPM onboarding flow', function () {
       navigateHappyPathWithEditsAndBacks(userId, isMobile);
     });
   });
+
+  const viewportType3 = [
+    { viewport: 'desktop', isMobile: false, userId: '57d58062-93ac-4eb7-b1da-21dd137e4f65' }, // deleteShipment@ppm.unsubmitted
+    { viewport: 'mobile', isMobile: true, userId: '781cf194-4eb2-4def-9da6-01abdc62333d' }, // deleteShipmentMobile@ppm.unsubmitted
+  ];
+
+  viewportType3.forEach(({ viewport, isMobile, userId }) => {
+    it(`deletes shipment - ${viewport}`, () => {
+      if (isMobile) {
+        setMobileViewport();
+      }
+
+      navigateDeletingShipment(userId, isMobile);
+    });
+  });
 });
 
-function navigateHappyPathWithDelete(userId, isMobile = false) {
-  // cy.apiSignInAsUser(userId);
-  // cy.wait('@getShipment');
+function navigateHappyPath(userId, isMobile = false) {
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId);
-  // customerDeletesExistingShipment();
-  // customerStartsAddingAPPMShipment();
   submitsDateAndLocation();
   submitsEstimatedWeightsAndProGear();
   generalVerifyEstimatedIncentivePage(isMobile);
@@ -71,6 +82,13 @@ function navigateHappyPathWithDelete(userId, isMobile = false) {
   navigateToAgreementAndSign();
   submitMove('@signedCertifications');
   verifyStep5ExistsAndBtnIsDisabled();
+}
+
+function navigateDeletingShipment(userId, isMobile = false) {
+  cy.apiSignInAsUser(userId);
+  cy.wait('@getShipment');
+  signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId);
+  customerDeletesExistingShipment();
 }
 
 function navigateHappyPathWithEditsAndBacks(userId, isMobile = false) {
@@ -121,9 +139,9 @@ function submitAndVerifyUpdateDateAndLocation() {
 function verifyEstimatedWeightsAndProGear() {
   cy.get('button').contains('Back').click();
 
-  cy.get('input[name="estimatedWeight"]').should('have.value', '4000');
+  cy.get('input[name="estimatedWeight"]').should('have.value', '4,000');
   cy.get('input[name="hasProGear"][value="true"]').should('be.checked');
-  cy.get('input[name="proGearWeight"]').should('be.visible').and('have.value', '4000');
+  cy.get('input[name="proGearWeight"]').should('be.visible').and('have.value', '500');
   cy.get('input[name="spouseProGearWeight"]').should('be.visible').and('have.value', '400');
 
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage();

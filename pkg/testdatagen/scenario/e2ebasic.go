@@ -4177,6 +4177,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createUnSubmittedMoveWithFullPPMShipment1(appCtx, userUploader)
 	createUnSubmittedMoveWithFullPPMShipment2(appCtx, userUploader)
 	createUnSubmittedMoveWithFullPPMShipment3(appCtx, userUploader)
+	createUnSubmittedMoveWithFullPPMShipment4(appCtx, userUploader)
+	createUnSubmittedMoveWithFullPPMShipment5(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
 	createApprovedMoveWithPPM(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
