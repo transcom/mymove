@@ -87,7 +87,6 @@ function navigateHappyPath(userId, isMobile = false) {
 function navigateDeletingShipment(userId, isMobile = false) {
   cy.apiSignInAsUser(userId);
   cy.wait('@getShipment');
-  signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId);
   customerDeletesExistingShipment();
 }
 
@@ -149,10 +148,10 @@ function verifyEstimatedWeightsAndProGear() {
 
 function verifyShipmentSpecificInfoOnEstimatedIncentivePage() {
   cy.get('.container li')
-    .should('contain', '4000 lbs')
+    .should('contain', '4,000 lbs')
     .and('contain', '90210')
     .and('contain', '76127')
-    .and('contain', '15 Apr 2022');
+    .and('contain', '01 Feb 2022');
 }
 
 function customerDeletesExistingShipment() {
