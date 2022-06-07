@@ -44,6 +44,7 @@ const approvedBypassableRules = new Set([
   'import/no-named-as-default',
   'import/order',
   'import/prefer-default-export',
+  'import/no-relative-packages',
   'camelcase',
   'class-methods-use-this',
   'func-names',

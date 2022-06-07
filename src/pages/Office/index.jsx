@@ -6,7 +6,8 @@ import { connect } from 'react-redux';
 import classnames from 'classnames';
 
 import styles from './Office.module.scss';
-import 'uswds/dist/css/uswds.css';
+// eslint-disable-next-line import/no-relative-packages
+import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'scenes/Office/office.scss';
 
 // API / Redux actions
