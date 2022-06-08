@@ -20,14 +20,21 @@ export function signInAndNavigateFromHomePageToReviewPage(userId, isMoveSubmitte
   navigateFromHomePageToReviewPage(isMoveSubmitted);
 }
 
-export function signInAndNavigateToAboutPage(userId, isMoveSubmitted = true) {
+export function signInAndNavigateToAboutPageWithAdvance(userId, isMoveSubmitted = true) {
   cy.apiSignInAsUser(userId);
 
   cy.wait('@getShipment');
 
-  navigateToAboutPage(isMoveSubmitted);
+  navigateToAboutPageWithAdvance(isMoveSubmitted);
 }
 
+export function signInAndNavigateToAboutPageWithoutAdvance(userId, isMoveSubmitted = true) {
+  cy.apiSignInAsUser(userId);
+
+  cy.wait('@getShipment');
+
+  navigateToAboutPageWithoutAdvance(isMoveSubmitted);
+}
 export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
   if (isMoveSubmitted) {
     cy.get('h3').contains('Next step: Your move gets approved');
@@ -40,10 +47,35 @@ export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
   }
 }
 
-export function navigateToAboutPage() {
-  cy.get('dd').contains(''); // find out how to pass in Move Code
+export function navigateToAboutPageWithAdvance() {
+  cy.get('dt').contains('Weight allowance');
   cy.get('button').contains('Upload PPM Documents').click();
-  // FILL OUT FORM HERE
+  cy.get('input[name="actualMoveDate"]').clear().type('01 Feb 2022').blur();
+  cy.get('input[name="actualPickupPostalCode"]').clear().type('90210').blur();
+
+  cy.get('input[name="actualDestinationPostalCode"]').clear().type('76127');
+  cy.get('input[name="hasReceivedAdvance"][value="true"]').check({ force: true });
+  cy.get('input[name="advanceAmountReceived"]').clear().type('5000');
+  cy.get('button').contains('Save & Continue').should('be.enabled').click();
+}
+
+export function navigateToAboutPageWithoutAdvance() {
+  cy.get('dt').contains('Weight allowance');
+  cy.get('button').contains('Upload PPM Documents').click();
+  cy.get('input[name="actualMoveDate"]').clear().type('01 Feb 2022').blur();
+  cy.get('input[name="actualPickupPostalCode"]').clear().type('90210').blur();
+
+  cy.get('input[name="actualDestinationPostalCode"]').clear().type('76127');
+  cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: true });
+  cy.get('button').contains('Save & Continue').should('be.enabled').click();
+}
+
+export function navigateBackToAboutPageWithAdvance() {
+  cy.get('dt').contains('Weight allowance');
+  cy.get('button').contains('Upload PPM Documents').click();
+  cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: false });
+  // cy.get('input[name="advanceAmountReceived"]').clear().type('5000');
+  cy.get('button').contains('Save & Continue').should('be.enabled').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
   });
