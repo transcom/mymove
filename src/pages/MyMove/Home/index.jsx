@@ -71,13 +71,6 @@ Description.defaultProps = {
 };
 
 export class Home extends Component {
-  static sortAllShipments = (mtoShipments) => {
-    const allShipments = JSON.parse(JSON.stringify(mtoShipments));
-    allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
-
-    return allShipments;
-  };
-
   constructor(props) {
     super(props);
     this.state = {
@@ -102,11 +95,6 @@ export class Home extends Component {
       getSignedCertification(move.id);
     }
   }
-
-  static handlePrintLegalese = (e) => {
-    e.preventDefault();
-    window.print();
-  };
 
   get hasOrders() {
     const { orders, uploadedOrderDocuments } = this.props;
@@ -298,6 +286,18 @@ export class Home extends Component {
       mtoShipmentId: shipmentId,
     });
     history.push(path);
+  };
+
+  sortAllShipments = (mtoShipments) => {
+    const allShipments = JSON.parse(JSON.stringify(mtoShipments));
+    allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
+
+    return allShipments;
+  };
+
+  handlePrintLegalese = (e) => {
+    e.preventDefault();
+    window.print();
   };
 
   render() {
