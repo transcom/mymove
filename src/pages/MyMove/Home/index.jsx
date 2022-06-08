@@ -289,6 +289,7 @@ export class Home extends Component {
     history.push(path);
   };
 
+  // eslint-disable-next-line class-methods-use-this
   sortAllShipments = (mtoShipments) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
     allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
@@ -296,6 +297,7 @@ export class Home extends Component {
     return allShipments;
   };
 
+  // eslint-disable-next-line class-methods-use-this
   handlePrintLegalese = (e) => {
     e.preventDefault();
     window.print();
