@@ -109,6 +109,8 @@ export const ShipmentShape = shape({
   ppmShipment: PPMShipmentShape,
 });
 
+export const WeightTicketShape = shape({});
+
 export const StorageFacilityShape = shape({
   facilityName: string,
   phone: string,
