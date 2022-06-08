@@ -188,6 +188,9 @@
     },
     "transformIgnorePatterns": [
       "node_modules/(?!(imask)/)/"
-    ]
+    ],
+    "moduleNameMapper": {
+      "react-markdown": "<rootDir>/node_modules/react-markdown/react-markdown.min.js"
+    }
   }
 }
