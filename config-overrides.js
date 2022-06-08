@@ -1,12 +1,14 @@
-const rewireEslint = require('react-app-rewire-eslint');
+const webpack = require('webpack');
 
-function overrideEslintOptions(options) {
-  // do stuff with the eslint options...
-  return options;
-}
+module.exports = function override(config /* , env */) {
+  config.resolve.fallback = {
+    http: require.resolve('stream-http'),
+  };
+  config.plugins.push(
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
+  );
 
-/* config-overrides.js */
-module.exports = function override(config, env) {
-  config = rewireEslint(config, env, overrideEslintOptions);
   return config;
 };
