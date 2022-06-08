@@ -101,7 +101,7 @@ function verifyPPMShipmentCard(shipmentCardFields, isEditable = false) {
   cy.get('@moveSetup')
     .next()
     .within(() => {
-      cy.get('h4').contains('PPM 1');
+      cy.get('[data-testid="ShipmentCardNumber"]').contains('PPM 1');
 
       if (isEditable) {
         cy.get('button').contains('Edit');
