@@ -50,9 +50,6 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		}
 	default:
 		originalWeight = r.MTOShipment.PrimeActualWeight
-		if r.MTOShipment.ShipmentType == models.MTOShipmentTypePPM && r.MTOShipment.PPMShipment != nil {
-			originalWeight = r.MTOShipment.PPMShipment.EstimatedWeight
-		}
 		// Make sure there's an actual weight since that's nullable but required for pricing
 		if originalWeight == nil {
 			// TODO: Do we need a different error -- is this a "normal" scenario?
