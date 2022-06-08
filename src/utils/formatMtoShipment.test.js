@@ -1,4 +1,9 @@
-import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from './formatMtoShipment';
+import {
+  formatMtoShipmentForAPI,
+  formatMtoShipmentForDisplay,
+  formatPpmShipmentForAPI,
+  formatPpmShipmentForDisplay,
+} from './formatMtoShipment';
 
 import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -386,5 +391,95 @@ describe('formatMtoShipmentForAPI', () => {
 
     expect(actual.secondaryDeliveryAddress).not.toBeUndefined();
     expect(actual.secondaryDeliveryAddress.streetAddress1).toEqual('441 SW Río de la Plata Drive');
+  });
+});
+
+describe('formatPpmShipmentForDisplay', () => {
+  it('creates a base display values object without an existing shipment', () => {
+    const display = formatPpmShipmentForDisplay({});
+
+    expect(display.estimatedWeight).toEqual('');
+    expect(display.hasProGear).toEqual(false);
+    expect(display.advanceRequested).toEqual('No');
+  });
+
+  it('converts an existing shipment to formatted display values', () => {
+    const api = {
+      expectedDepatureDate: '2022-12-25',
+      pickupPostalCode: '90210',
+      secondaryPickupPostalCode: '80014',
+      destinationPostalCode: '22201',
+      secondaryDestinationPostalCode: '20002',
+
+      sitExpected: true,
+      sitLocation: 'DESTINATION',
+      sitEstimatedWeight: 2750,
+      sitEstimatedEntryDate: '2022-12-01',
+      sitEstimatedDepartureDate: '2022-12-15',
+
+      estimatedWeight: 9000,
+      hasProGear: true,
+      proGearWeight: 1000,
+
+      estimatedIncentive: 400000,
+      advanceRequested: true,
+      advance: 200000,
+    };
+
+    const display = formatPpmShipmentForDisplay({ ppmShipment: api });
+
+    expect(display.secondPickupPostalCode).toEqual('80014');
+    expect(display.sitEstimatedWeight).toEqual('2750');
+    expect(display.estimatedWeight).toEqual('9000');
+    expect(display.proGearWeight).toEqual('1000');
+    expect(display.advance).toEqual('200000');
+  });
+});
+
+describe('formatPpmShipmentForAPI', () => {
+  it('converts fully filled-out formValues to api values', () => {
+    const formValues = {
+      expectedDepatureDate: '2022-12-25',
+      pickupPostalCode: '90210',
+      secondPickupPostalCode: '80014',
+      destinationPostalCode: '22201',
+
+      sitExpected: true,
+      sitLocation: 'ORIGIN',
+      sitEstimatedWeight: '2500',
+      sitEstimatedEntryDate: '2022-12-01',
+      sitEstimatedDepartureDate: '2022-12-15',
+
+      estimatedWeight: '7500',
+      hasProGear: true,
+      proGearWeight: '1000',
+    };
+
+    const { ppmShipment } = formatPpmShipmentForAPI(formValues);
+
+    expect(ppmShipment.secondaryPickupPostalCode).toEqual('80014');
+    expect(ppmShipment.estimatedWeight).toEqual(7500);
+    expect(ppmShipment.proGearWeight).toEqual(1000);
+    expect(ppmShipment.spouseProGearWeight).toEqual(undefined);
+  });
+
+  it('converts minimal formValues to api values', () => {
+    const formValues = {
+      expectedDepatureDate: '2022-12-25',
+      pickupPostalCode: '90210',
+      destinationPostalCode: '22201',
+
+      sitExpected: false,
+
+      estimatedWeight: '7500',
+      hasProGear: false,
+    };
+
+    const { ppmShipment } = formatPpmShipmentForAPI(formValues);
+
+    expect(ppmShipment.estimatedWeight).toEqual(7500);
+
+    expect(ppmShipment.sitLocation).toEqual(undefined);
+    expect(ppmShipment.proGearWeight).toEqual(undefined);
   });
 });
