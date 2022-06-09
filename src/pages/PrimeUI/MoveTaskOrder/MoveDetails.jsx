@@ -1,9 +1,14 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Alert, Button } from '@trussworks/react-uswds';
+import { Link, useParams, withRouter } from 'react-router-dom';
 import classnames from 'classnames';
+import { queryCache, useMutation } from 'react-query';
+import { func } from 'prop-types';
+import { connect } from 'react-redux';
 
 import styles from './MoveDetails.module.scss';
 
+import { PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
 import Shipment from 'components/PrimeUI/Shipment/Shipment';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -11,12 +16,54 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
+import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
+import { completeCounseling } from 'services/primeApi';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import scrollToTop from 'shared/scrollToTop';
 
-const MoveDetails = () => {
+const MoveDetails = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
 
+  const [errorMessage, setErrorMessage] = useState();
+
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
+
+  const [completeCounselingMutation] = useMutation(completeCounseling, {
+    onSuccess: () => {
+      setFlashMessage(
+        `MSG_COMPLETE_COUNSELING${moveCodeOrID}`,
+        'success',
+        'Successfully completed counseling',
+        '',
+        true,
+      );
+
+      queryCache.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
+      queryCache.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]).then(() => {});
+    },
+    onError: (error) => {
+      const { response: { body } = {} } = error;
+
+      if (body) {
+        setErrorMessage({
+          title: `Prime API: ${body.title} `,
+          detail: `${body.detail}`,
+        });
+      } else {
+        setErrorMessage({
+          title: 'Unexpected error',
+          detail:
+            'An unknown error has occurred, please check the state of the shipment and service items data for this move',
+        });
+      }
+      scrollToTop();
+    },
+  });
+
+  const handleCompleteCounseling = () => {
+    completeCounselingMutation({ moveTaskOrderID: moveTaskOrder.id, ifMatchETag: moveTaskOrder.eTag });
+  };
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -36,7 +83,18 @@ const MoveDetails = () => {
                     <Link to="payment-requests/new" className="usa-button usa-button-secondary">
                       Create Payment Request
                     </Link>
+                    {!moveTaskOrder.primeCounselingCompletedAt && (
+                      <Button onClick={handleCompleteCounseling}>Complete Counseling</Button>
+                    )}
                   </div>
+                  {errorMessage?.detail && (
+                    <div className={primeStyles.errorContainer}>
+                      <Alert slim type="error">
+                        <span className={primeStyles.errorTitle}>{errorMessage.title}</span>
+                        <span className={primeStyles.errorDetail}>{errorMessage.detail}</span>
+                      </Alert>
+                    </div>
+                  )}
                   <div className={descriptionListStyles.row}>
                     <dt>Move Code:</dt>
                     <dd>{moveTaskOrder.moveCode}</dd>
@@ -45,6 +103,12 @@ const MoveDetails = () => {
                     <dt>Move Id:</dt>
                     <dd>{moveTaskOrder.id}</dd>
                   </div>
+                  {moveTaskOrder.primeCounselingCompletedAt && (
+                    <div className={descriptionListStyles.row}>
+                      <dt>Prime Counseling Completed At:</dt>
+                      <dd>{moveTaskOrder.primeCounselingCompletedAt}</dd>
+                    </div>
+                  )}
                 </dl>
               </SectionWrapper>
               <SectionWrapper className={formStyles.formSection}>
@@ -95,4 +159,12 @@ const MoveDetails = () => {
   );
 };
 
-export default MoveDetails;
+MoveDetails.propTypes = {
+  setFlashMessage: func.isRequired,
+};
+
+const mapDispatchToProps = {
+  setFlashMessage: setFlashMessageAction,
+};
+
+export default withRouter(connect(() => ({}), mapDispatchToProps)(MoveDetails));

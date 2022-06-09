@@ -10,6 +10,7 @@ import { MockProviders } from 'testUtils';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
+import { permissionTypes } from 'constants/permissions';
 
 jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: jest.fn(),
@@ -694,6 +695,33 @@ describe('MovePaymentRequests', () => {
 
       const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
       expect(reviewWeights).toHaveClass('usa-button--secondary');
+    });
+  });
+
+  describe('permission dependent rendering', () => {
+    useMovePaymentRequestsQueries.mockReturnValue(singleReviewedPaymentRequest);
+
+    it('renders the financial review flag button when user has permission', async () => {
+      render(
+        <MockProviders
+          initialEntries={[`/moves/L2BKD6/payment-requests`]}
+          permissions={[permissionTypes.updateFinancialReviewFlag]}
+        >
+          <MovePaymentRequests {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(await screen.getByText('Flag move for financial review')).toBeInTheDocument();
+    });
+
+    it('does not show the financial review flag button if user does not have permission', () => {
+      render(
+        <MockProviders initialEntries={[`/moves/L2BKD6/payment-requests`]}>
+          <MovePaymentRequests {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(screen.queryByText('Flag move for financial review')).not.toBeInTheDocument();
     });
   });
 });

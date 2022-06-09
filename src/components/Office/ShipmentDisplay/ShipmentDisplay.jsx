@@ -6,16 +6,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
 import { EditButton } from 'components/form/IconButtons';
-import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types/address';
+import { AgentShape } from 'types/agent';
+import { OrdersLOAShape } from 'types/order';
 import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
-import { OrdersLOAShape } from 'types/order';
-import { AgentShape } from 'types/agent';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const ShipmentDisplay = ({
   shipmentType,
@@ -51,21 +53,23 @@ const ShipmentDisplay = ({
     <div className={styles.ShipmentCard} data-testid="shipment-display">
       <ShipmentContainer className={containerClasses} shipmentType={shipmentType}>
         <div className={styles.heading}>
-          {allowApproval && isSubmitted && !displayInfo.usesExternalVendor && (
-            <Checkbox
-              id={`shipment-display-checkbox-${shipmentId}`}
-              data-testid="shipment-display-checkbox"
-              onChange={onChange}
-              name="shipments"
-              label=""
-              value={shipmentId}
-              aria-labelledby={`shipment-display-label-${shipmentId}`}
-              disabled={disableApproval}
-            />
-          )}
+          <Restricted to={permissionTypes.updateShipment}>
+            {allowApproval && isSubmitted && !displayInfo.usesExternalVendor && (
+              <Checkbox
+                id={`shipment-display-checkbox-${shipmentId}`}
+                data-testid="shipment-display-checkbox"
+                onChange={onChange}
+                name="shipments"
+                label=""
+                value={shipmentId}
+                aria-labelledby={`shipment-display-label-${shipmentId}`}
+                disabled={disableApproval}
+              />
+            )}
+          </Restricted>
 
           {allowApproval && !isSubmitted && (
-            <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />
+            <FontAwesomeIcon icon={['far', 'circle-check']} className={styles.approved} />
           )}
           <div className={styles.headingTagWrapper}>
             <h3>
@@ -92,17 +96,19 @@ const ShipmentDisplay = ({
           showWhenCollapsed={showWhenCollapsed}
           neverShow={neverShow}
         />
-        {editURL && (
-          <EditButton
-            onClick={() => {
-              history.push(editURL);
-            }}
-            className={styles.editButton}
-            data-testid={editURL}
-            label="Edit shipment"
-            secondary
-          />
-        )}
+        <Restricted to={permissionTypes.updateShipment}>
+          {editURL && (
+            <EditButton
+              onClick={() => {
+                history.push(editURL);
+              }}
+              className={styles.editButton}
+              data-testid={editURL}
+              label="Edit shipment"
+              secondary
+            />
+          )}
+        </Restricted>
       </ShipmentContainer>
     </div>
   );
@@ -153,7 +159,8 @@ ShipmentDisplay.propTypes = {
     PropTypes.shape({
       heading: PropTypes.string.isRequired,
       shipmentType: PropTypes.string,
-      advanceRequested: PropTypes.bool,
+      hasRequestedAdvance: PropTypes.bool,
+      advanceAmountRequested: PropTypes.number,
       destinationPostalCode: PropTypes.string,
       estimatedIncentive: PropTypes.number,
       estimatedWeight: PropTypes.string,

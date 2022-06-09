@@ -35,6 +35,7 @@ type Assertions struct {
 	AdminUser                                models.AdminUser
 	TestDataAuditHistory                     TestDataAuditHistory
 	BackupContact                            models.BackupContact
+	ClientCert                               models.ClientCert
 	Contractor                               models.Contractor
 	DestinationAddress                       models.Address
 	DistanceCalculation                      models.DistanceCalculation

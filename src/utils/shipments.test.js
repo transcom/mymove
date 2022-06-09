@@ -4,7 +4,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 describe('shipments utils', () => {
   describe('isPPMShipmentComplete', () => {
-    it('returns true when the advanceRequested field is set to true', () => {
+    it('returns true when the hasRequestedAdvance field is set to true', () => {
       const completePPMShipment = {
         id: '1',
         shipmentType: SHIPMENT_OPTIONS.PPM,
@@ -17,14 +17,14 @@ describe('shipments utils', () => {
           estimatedWeight: 7999,
           hasProGear: false,
           estimatedIncentive: 1234500,
-          advanceRequested: true,
-          advance: 487500,
+          hasRequestedAdvance: true,
+          advanceAmountRequested: 487500,
         },
       };
       expect(isPPMShipmentComplete(completePPMShipment)).toBe(true);
     });
 
-    it('returns true when the advanceRequested field is set to false', () => {
+    it('returns true when the hasRequestedAdvance field is set to false', () => {
       const completePPMShipment = {
         id: '1',
         shipmentType: SHIPMENT_OPTIONS.PPM,
@@ -37,13 +37,13 @@ describe('shipments utils', () => {
           estimatedWeight: 7999,
           hasProGear: false,
           estimatedIncentive: 1234500,
-          advanceRequested: false,
+          hasRequestedAdvance: false,
         },
       };
       expect(isPPMShipmentComplete(completePPMShipment)).toBe(true);
     });
 
-    it('returns false when the advanceRequested field is undefined', () => {
+    it('returns false when the hasRequestedAdvance field is undefined', () => {
       const incompletePPMShipment = {
         id: '1',
         shipmentType: SHIPMENT_OPTIONS.PPM,
@@ -61,7 +61,7 @@ describe('shipments utils', () => {
       expect(isPPMShipmentComplete(incompletePPMShipment)).toBe(false);
     });
 
-    it('returns false when the advanceRequested field is null', () => {
+    it('returns false when the hasRequestedAdvance field is null', () => {
       const incompletePPMShipment = {
         id: '1',
         shipmentType: SHIPMENT_OPTIONS.PPM,
@@ -74,7 +74,7 @@ describe('shipments utils', () => {
           estimatedWeight: 7999,
           hasProGear: false,
           estimatedIncentive: 1234500,
-          advanceRequested: null,
+          hasRequestedAdvance: null,
         },
       };
       expect(isPPMShipmentComplete(incompletePPMShipment)).toBe(false);

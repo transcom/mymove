@@ -185,7 +185,10 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 					'price',
 					payment_service_items.price_cents::TEXT,
 					'status',
-					payment_service_items.status))::TEXT AS context,
+					payment_service_items.status,
+					'shipment_id',
+					mto_shipments.id::TEXT,
+					'shipment_type', mto_shipments.shipment_type))::TEXT AS context,
 			payment_requests.id AS id,
 			payment_requests.move_id,
 			payment_requests.payment_request_number
@@ -193,6 +196,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			payment_requests
 		JOIN payment_service_items ON payment_service_items.payment_request_id = payment_requests.id
 		JOIN mto_service_items ON mto_service_items.id = mto_service_item_id
+		LEFT JOIN mto_shipments ON mto_shipments.id = mto_service_items.mto_shipment_id
 		JOIN re_services ON mto_service_items.re_service_id = re_services.id
 	WHERE
 		payment_requests.move_id = (
@@ -336,7 +340,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			move_logs
 	) SELECT DISTINCT
 		combined_logs.*,
-		office_users.first_name AS session_user_first_name,
+		COALESCE(office_users.first_name, prime_user_first_name) AS session_user_first_name,
 		office_users.last_name AS session_user_last_name,
 		office_users.email AS session_user_email,
 		office_users.telephone AS session_user_telephone
@@ -344,13 +348,16 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		combined_logs
 		LEFT JOIN users_roles ON session_userid = users_roles.user_id
 		LEFT JOIN roles ON users_roles.role_id = roles.id
+		LEFT JOIN office_users ON office_users.user_id = session_userid
 			AND(roles.role_type = 'transportation_ordering_officer'
 				OR roles.role_type = 'transportation_invoicing_officer'
 				OR roles.role_type = 'ppm_office_users'
 				OR role_type = 'services_counselor'
 				OR role_type = 'contracting_officer'
 				OR role_type = 'qae_csr')
-		LEFT JOIN office_users ON office_users.user_id = session_userid
+		LEFT JOIN (
+			SELECT 'Prime' AS prime_user_first_name
+			) prime_users ON roles.role_type LIKE 'prime%'
 	ORDER BY
 		action_tstamp_tx DESC`
 

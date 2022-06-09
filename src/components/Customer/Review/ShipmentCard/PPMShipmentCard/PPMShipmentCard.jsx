@@ -3,12 +3,12 @@ import { bool, func, number } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 
-import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import styles from 'components/Customer/Review/ShipmentCard/ShipmentCard.module.scss';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
-import { MtoShipmentShape } from 'types/customerShapes';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { ShipmentShape } from 'types/shipment';
+import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 
 const PPMShipmentCard = ({ shipment, shipmentNumber, showEditAndDeleteBtn, onEditClick, onDeleteClick }) => {
@@ -24,7 +24,8 @@ const PPMShipmentCard = ({ shipment, shipmentNumber, showEditAndDeleteBtn, onEdi
     spouseProGearWeight,
     estimatedWeight,
     estimatedIncentive,
-    advance,
+    hasRequestedAdvance,
+    advanceAmountRequested,
   } = shipment?.ppmShipment || {};
 
   const editPath = `${generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
@@ -102,7 +103,7 @@ const PPMShipmentCard = ({ shipment, shipmentNumber, showEditAndDeleteBtn, onEdi
           </div>
           <div className={styles.row}>
             <dt>Advance requested?</dt>
-            <dd>{advance ? `Yes, $${formatCentsTruncateWhole(advance)}` : 'No'}</dd>
+            <dd>{hasRequestedAdvance ? `Yes, $${formatCentsTruncateWhole(advanceAmountRequested)}` : 'No'}</dd>
           </div>
         </dl>
       </ShipmentContainer>
@@ -111,7 +112,7 @@ const PPMShipmentCard = ({ shipment, shipmentNumber, showEditAndDeleteBtn, onEdi
 };
 
 PPMShipmentCard.propTypes = {
-  shipment: MtoShipmentShape.isRequired,
+  shipment: ShipmentShape.isRequired,
   shipmentNumber: number,
   showEditAndDeleteBtn: bool.isRequired,
   onEditClick: func,

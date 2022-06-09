@@ -38,6 +38,14 @@ export async function createPaymentRequest({ moveTaskOrderID, serviceItems }) {
   );
 }
 
+export async function completeCounseling({ moveTaskOrderID, ifMatchETag }) {
+  return makePrimeSimulatorRequest(
+    'moveTaskOrder.updateMTOPostCounselingInformation',
+    { moveTaskOrderID, 'If-Match': ifMatchETag },
+    { normalize: false },
+  );
+}
+
 export async function createUpload({ paymentRequestID, file }) {
   return makePrimeSimulatorRequest('paymentRequest.createUpload', { paymentRequestID, file }, { normalize: false });
 }

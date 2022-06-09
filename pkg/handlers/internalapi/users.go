@@ -36,6 +36,11 @@ func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUserP
 	}
 }
 
+// decoratePayloadWithPermissions will add session permissions to the logged in user payload and return it
+func decoratePayloadWithPermissions(s *auth.Session, p *internalmessages.LoggedInUserPayload) {
+	p.Permissions = append(p.Permissions, s.Permissions...)
+}
+
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
@@ -59,6 +64,8 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 					OfficeUser: payloads.OfficeUser(&officeUser),
 				}
 				decoratePayloadWithRoles(appCtx.Session(), &userPayload)
+				decoratePayloadWithPermissions(appCtx.Session(), &userPayload)
+
 				return userop.NewShowLoggedInUserOK().WithPayload(&userPayload), nil
 			}
 
@@ -141,6 +148,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				Email:         appCtx.Session().Email,
 			}
 			decoratePayloadWithRoles(appCtx.Session(), &userPayload)
+			decoratePayloadWithPermissions(appCtx.Session(), &userPayload)
 			return userop.NewShowLoggedInUserOK().WithPayload(&userPayload), nil
 		})
 }

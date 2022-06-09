@@ -336,6 +336,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.allowances
   /orders/{orderID}/acknowledge-excess-weight-risk:
     parameters:
       - description: ID of order to use
@@ -817,6 +819,8 @@ paths:
       description: Approves a shipment
       operationId: approveShipment
       summary: Approves a shipment
+      x-permissions:
+        - update.shipment
   /shipments/{shipmentID}/request-diversion:
     parameters:
       - description: ID of the shipment
@@ -892,6 +896,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.shipment
       tags:
         - shipment
       description: Approves a shipment diversion
@@ -1380,6 +1386,9 @@ paths:
       description: Changes move task order status to make it available to prime
       operationId: updateMoveTaskOrderStatus
       summary: Change the status of a move task order to make it available to prime
+      x-permissions:
+        - update.move
+        - create.serviceItem
   /move-task-orders/{moveTaskOrderID}/status/service-counseling-completed:
     patch:
       consumes:
@@ -1777,6 +1786,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.financialReviewFlag
   /payment-requests/{paymentRequestID}/shipments-payment-sit-balance:
     parameters:
       - description: >-
@@ -2074,6 +2085,9 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.move
+        - create.serviceItem
   /queues/payment-requests:
     get:
       produces:
@@ -3546,16 +3560,16 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
-      advance:
+      hasRequestedAdvance:
+        description: |
+          Indicates whether an advance has been requested for the PPM shipment.
+        type: boolean
+        x-nullable: true
+      advanceAmountRequested:
         description: |
           The amount request for an advance, or null if no advance is requested
         type: integer
         format: cents
-        x-nullable: true
-      advanceRequested:
-        description: |
-          Indicates whether an advance has been requested for the PPM shipment.
-        type: boolean
         x-nullable: true
   MTOShipments:
     items:
@@ -4738,10 +4752,6 @@ definitions:
         format: date-time
         type: string
         readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
       status:
         $ref: '#/definitions/PPMShipmentStatus'
       expectedDepartureDate:
@@ -4853,13 +4863,13 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
-      advanceRequested:
+      hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
         x-omitempty: false
-      advance:
+      advanceAmountRequested:
         description: >
           The amount requested for an advance, or null if no advance is
           requested
@@ -4878,11 +4888,6 @@ definitions:
           The amount received for an advance, or null if no advance is received.
         type: integer
         format: cents
-        x-nullable: true
-        x-omitempty: false
-      deletedAt:
-        format: date-time
-        type: string
         x-nullable: true
         x-omitempty: false
       sitLocation:
@@ -4920,7 +4925,6 @@ definitions:
       - id
       - shipmentId
       - createdAt
-      - updatedAt
       - status
       - expectedDepartureDate
       - pickupPostalCode
