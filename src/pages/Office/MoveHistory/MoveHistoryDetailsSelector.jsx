@@ -1,5 +1,6 @@
 import React from 'react';
 
+import LabeledPaymentRequestDetails from './LabeledPaymentRequestDetails';
 import LabeledDetails from './LabeledDetails';
 import PaymentDetails from './PaymentDetails';
 
@@ -20,6 +21,13 @@ const MoveHistoryDetailsSelector = ({ historyRecord }) => {
       );
     case detailsTypes.PAYMENT:
       return <PaymentDetails context={historyRecord.context} />;
+    case detailsTypes.LABELED_PAYMENT_REQUEST:
+      return (
+        <LabeledPaymentRequestDetails
+          context={historyRecord.context}
+          getLabeledPaymentRequestDetails={eventTemplate.getLabeledPaymentRequestDetails}
+        />
+      );
     case detailsTypes.STATUS:
       return (
         <div>

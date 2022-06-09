@@ -3,48 +3,43 @@ import { useDispatch, useSelector } from 'react-redux';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
-import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
+import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { customerRoutes } from 'constants/routes';
-import EstimatedWeightsProGearForm from 'components/Customer/PPM/Booking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm';
+import AdvanceForm from 'components/Customer/PPM/Booking/Advance/AdvanceForm';
 import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
-import {
-  selectCurrentOrders,
-  selectMTOShipmentById,
-  selectServiceMemberFromLoggedInUser,
-} from 'store/entities/selectors';
+import { selectCurrentOrders, selectMTOShipmentById } from 'store/entities/selectors';
+import { setFlashMessage } from 'store/flash/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ScrollToTop from 'components/ScrollToTop';
+import { matchesOrdersType } from 'utils/orders';
+import { ORDERS_TYPE } from 'constants/orders';
 
-const EstimatedWeightsProGear = () => {
+const Advance = () => {
   const [errorMessage, setErrorMessage] = useState();
   const history = useHistory();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const dispatch = useDispatch();
-
-  const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
-  const orders = useSelector((state) => selectCurrentOrders(state));
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
+  const orders = useSelector((state) => selectCurrentOrders(state));
 
   const handleBack = () => {
-    history.push(generatePath(customerRoutes.SHIPMENT_EDIT_PATH, { moveId, mtoShipmentId }));
+    history.push(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId }));
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
 
-    const hasProGear = values.hasProGear === 'true';
+    const hasRequestedAdvance = values.hasRequestedAdvance === 'true';
 
     const payload = {
       shipmentType: mtoShipment.shipmentType,
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
-        estimatedWeight: Number(values.estimatedWeight),
-        hasProGear,
-        proGearWeight: hasProGear ? Number(values.proGearWeight) : null,
-        spouseProGearWeight: hasProGear ? Number(values.spouseProGearWeight) : null,
+        hasRequestedAdvance,
+        advanceAmountRequested: hasRequestedAdvance ? values.advanceAmountRequested * 100 : null,
       },
     };
 
@@ -52,38 +47,49 @@ const EstimatedWeightsProGear = () => {
       .then((response) => {
         setSubmitting(false);
         dispatch(updateMTOShipment(response));
-        history.push(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId }));
+        dispatch(
+          setFlashMessage(
+            'PPM_ONBOARDING_SUBMIT_SUCCESS',
+            'success',
+            'Review your info and submit your move request now, or come back and finish later.',
+            'Details saved',
+          ),
+        );
+        history.push(generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId }));
       })
       .catch((err) => {
         setSubmitting(false);
+
         setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
       });
   };
 
-  if (!serviceMember || !orders || !mtoShipment) {
+  const isRetireeOrSeparatee = matchesOrdersType(orders, ORDERS_TYPE.RETIREMENT, ORDERS_TYPE.SEPARATION);
+
+  if (!mtoShipment || !orders) {
     return <LoadingPlaceholder />;
   }
 
   return (
-    <div className={ppmBookingPageStyles.PPMBookingPage}>
+    <div className={ppmPageStyles.ppmPageStyle}>
       <ScrollToTop otherDep={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
-            <h1>Estimated weight</h1>
+            <h1>Advances</h1>
+            {isRetireeOrSeparatee && (
+              <Alert slim type="info">
+                People leaving the military may not be eligible to receive an advance, based on individual service
+                policies. Your counselor can give you more information after you make your request.
+              </Alert>
+            )}
             {errorMessage && (
               <Alert headingLevel="h4" slim type="error">
                 {errorMessage}
               </Alert>
             )}
-            <EstimatedWeightsProGearForm
-              orders={orders}
-              serviceMember={serviceMember}
-              mtoShipment={mtoShipment}
-              onSubmit={handleSubmit}
-              onBack={handleBack}
-            />
+            <AdvanceForm mtoShipment={mtoShipment} onSubmit={handleSubmit} onBack={handleBack} />
           </Grid>
         </Grid>
       </GridContainer>
@@ -91,4 +97,4 @@ const EstimatedWeightsProGear = () => {
   );
 };
 
-export default EstimatedWeightsProGear;
+export default Advance;

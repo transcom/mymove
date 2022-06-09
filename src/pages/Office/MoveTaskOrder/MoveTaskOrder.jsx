@@ -55,6 +55,8 @@ import FinancialReviewModal from 'components/Office/FinancialReviewModal/Financi
 import leftNavStyles from 'components/LeftNav/LeftNav.module.scss';
 import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -706,12 +708,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             <div className={styles.pageHeaderDetails}>
               <h6>MTO Reference ID #{move?.referenceId}</h6>
               <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
-              <div className={moveTaskOrderStyles.financialReviewContainer}>
-                <FinancialReviewButton
-                  onClick={handleShowFinancialReviewModal}
-                  reviewRequested={move.financialReviewFlag}
-                />
-              </div>
+              <Restricted to={permissionTypes.updateFinancialReviewFlag}>
+                <div className={moveTaskOrderStyles.financialReviewContainer}>
+                  <FinancialReviewButton
+                    onClick={handleShowFinancialReviewModal}
+                    reviewRequested={move.financialReviewFlag}
+                  />
+                </div>
+              </Restricted>
             </div>
           </div>
 

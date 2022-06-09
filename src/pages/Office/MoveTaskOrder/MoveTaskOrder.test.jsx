@@ -23,6 +23,7 @@ import {
 import { MoveTaskOrder } from 'pages/Office/MoveTaskOrder/MoveTaskOrder';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 import SERVICE_ITEM_STATUS from 'constants/serviceItems';
 
 jest.mock('hooks/queries', () => ({
@@ -765,6 +766,43 @@ describe('MoveTaskOrder', () => {
       const navLinks = wrapper.find('nav a');
       // We should get just the shipment text in the nav link
       expect(navLinks.at(1).text()).toEqual('HHG shipment ');
+    });
+  });
+
+  describe('permission dependent rendering', () => {
+    beforeEach(() => {
+      useMoveTaskOrderQueries.mockReturnValue(someShipmentsApprovedMTOQuery);
+    });
+
+    const testProps = {
+      ...requiredProps,
+      setUnapprovedShipmentCount,
+      setUnapprovedServiceItemCount,
+      setExcessWeightRiskCount,
+      setUnapprovedSITExtensionCount,
+    };
+
+    it('renders the financial review flag button when user has permission', async () => {
+      render(
+        <MockProviders
+          initialEntries={['moves/1000/allowances']}
+          permissions={[permissionTypes.updateFinancialReviewFlag]}
+        >
+          <MoveTaskOrder {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(await screen.getByText('Flag move for financial review')).toBeInTheDocument();
+    });
+
+    it('does not show the financial review flag button if user does not have permission', () => {
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(screen.queryByText('Flag move for financial review')).not.toBeInTheDocument();
     });
   });
 });

@@ -149,10 +149,8 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
-		AdvanceRequested:               ppmShipment.AdvanceRequested,
-		HasRequestedAdvance:            ppmShipment.AdvanceRequested,
-		Advance:                        handlers.FmtInt64PtrToPopPtr(ppmShipment.Advance),
-		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.Advance),
+		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
+		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
 	}

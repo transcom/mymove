@@ -30,18 +30,34 @@ const mtoShipmentProps = {
   },
 };
 
+const mtoShipmentWithZips = {
+  mtoShipment: {
+    ppmShipment: {
+      pickupPostalCode: '42442',
+      destinationPostalCode: '42444',
+    },
+  },
+};
+
 describe('AboutForm component', () => {
   describe('displays form', () => {
-    it('renders blank form on load', async () => {
-      render(<AboutForm {...defaultProps} />);
+    it('renders blank form on load (except zips)', async () => {
+      render(<AboutForm {...defaultProps} {...mtoShipmentWithZips} />);
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 2, name: 'Departure date' })).toBeInTheDocument();
       });
       expect(screen.getByLabelText('When did you leave your origin?')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Locations' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Starting ZIP')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('Ending ZIP')).toBeInstanceOf(HTMLInputElement);
+
+      const startingZip = screen.getByLabelText('Starting ZIP');
+      expect(startingZip).toBeInstanceOf(HTMLInputElement);
+      expect(startingZip).toHaveDisplayValue('42442');
+
+      const endingZip = screen.getByLabelText('Ending ZIP');
+      expect(endingZip).toBeInstanceOf(HTMLInputElement);
+      expect(endingZip).toHaveDisplayValue('42444');
+
       expect(screen.getByRole('heading', { level: 2, name: 'Advance (AOA)' })).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);

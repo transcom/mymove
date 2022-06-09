@@ -6,12 +6,12 @@ import { Tag, Button } from '@trussworks/react-uswds';
 
 import styles from './ShipmentList.module.scss';
 
-import { isPPMShipmentComplete } from 'utils/shipments';
-import { formatWeight } from 'utils/formatters';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { shipmentTypes } from 'constants/shipments';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { ShipmentShape } from 'types/shipment';
+import { formatWeight } from 'utils/formatters';
+import { isPPMShipmentComplete } from 'utils/shipments';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
-import { PPMShipmentShape } from 'types/customerShapes';
 
 export const ShipmentListItem = ({
   shipment,
@@ -166,14 +166,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
 };
 
 ShipmentList.propTypes = {
-  shipments: arrayOf(
-    shape({
-      id: string.isRequired,
-      shipmentType: string.isRequired,
-      reweigh: shape({ id: string.isRequired, weight: number }),
-      ppmShipment: PPMShipmentShape,
-    }),
-  ).isRequired,
+  shipments: arrayOf(ShipmentShape).isRequired,
   onShipmentClick: func,
   onDeleteClick: func,
   moveSubmitted: bool.isRequired,

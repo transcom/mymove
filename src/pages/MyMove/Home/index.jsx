@@ -16,16 +16,30 @@ import {
   HelperSubmittedMove,
 } from './HomeHelpers';
 
-import ScrollToTop from 'components/ScrollToTop';
-import { customerRoutes } from 'constants/routes';
-import { withContext } from 'shared/AppContext';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import Step from 'components/Customer/Home/Step';
-import DocsUploaded from 'components/Customer/Home/DocsUploaded';
+import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import DocsUploaded from 'components/Customer/Home/DocsUploaded';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
+import Step from 'components/Customer/Home/Step';
+import SectionWrapper from 'components/Customer/SectionWrapper';
+import PPMSummaryList from 'components/PPMSummaryList/PPMSummaryList';
+import ScrollToTop from 'components/ScrollToTop';
 import ShipmentList from 'components/ShipmentList/ShipmentList';
+import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
+import { profileStates } from 'constants/customerStates';
+import MOVE_STATUSES from 'constants/moves';
+import { customerRoutes } from 'constants/routes';
+import { shipmentTypes } from 'constants/shipments';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
+import { withContext } from 'shared/AppContext';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import {
+  getSignedCertification as getSignedCertificationAction,
+  selectSignedCertification,
+} from 'shared/Entities/modules/signed_certifications';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { updateMTOShipments } from 'store/entities/actions';
 import {
   selectCurrentMove,
   selectCurrentOrders,
@@ -35,23 +49,10 @@ import {
   selectUploadsForCurrentAmendedOrders,
   selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
-import {
-  getSignedCertification as getSignedCertificationAction,
-  selectSignedCertification,
-} from 'shared/Entities/modules/signed_certifications';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-import MOVE_STATUSES from 'constants/moves';
+import { HistoryShape, MoveShape, OrdersShape, UploadShape } from 'types/customerShapes';
+import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } from 'types/customerShapes';
-import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
-import { profileStates } from 'constants/customerStates';
-import { shipmentTypes } from 'constants/shipments';
 import { isPPMShipmentComplete } from 'utils/shipments';
-import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
-import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
-import { updateMTOShipments } from 'store/entities/actions';
-import PPMSummaryList from 'components/PPMSummaryList/PPMSummaryList';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -510,7 +511,7 @@ Home.propTypes = {
     first_name: string,
     last_name: string,
   }),
-  mtoShipments: arrayOf(MtoShipmentShape).isRequired,
+  mtoShipments: arrayOf(ShipmentShape).isRequired,
   uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
   uploadedAmendedOrderDocuments: arrayOf(UploadShape),
   history: HistoryShape.isRequired,

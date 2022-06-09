@@ -5,21 +5,22 @@ import { func, arrayOf } from 'prop-types';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 
-import formStyles from 'styles/form.module.scss';
-import { generalRoutes, customerRoutes } from 'constants/routes';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { selectCurrentMove, selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
-import SelectableCard from 'components/Customer/SelectableCard';
-import { loadMTOShipments as loadMTOShipmentsAction } from 'shared/Entities/modules/mtoShipments';
-import { patchMove, getResponseError } from 'services/internalApi';
-import { updateMove as updateMoveAction } from 'store/entities/actions';
-import { MoveTaskOrderShape, MTOShipmentShape } from 'types/order';
-import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
 import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
+import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
+import SelectableCard from 'components/Customer/SelectableCard';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import ScrollToTop from 'components/ScrollToTop';
-import determineShipmentInfo from 'utils/shipmentInfo';
+import { generalRoutes, customerRoutes } from 'constants/routes';
 import styles from 'pages/MyMove/SelectShipmentType.module.scss';
+import { patchMove, getResponseError } from 'services/internalApi';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { loadMTOShipments as loadMTOShipmentsAction } from 'shared/Entities/modules/mtoShipments';
+import { updateMove as updateMoveAction } from 'store/entities/actions';
+import { selectCurrentMove, selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
+import formStyles from 'styles/form.module.scss';
+import { MoveTaskOrderShape } from 'types/order';
+import { ShipmentShape } from 'types/shipment';
+import determineShipmentInfo from 'utils/shipmentInfo';
 
 export class SelectShipmentType extends Component {
   constructor(props) {
@@ -224,7 +225,7 @@ SelectShipmentType.propTypes = {
   updateMove: func.isRequired,
   loadMTOShipments: func.isRequired,
   move: MoveTaskOrderShape.isRequired,
-  mtoShipments: arrayOf(MTOShipmentShape).isRequired,
+  mtoShipments: arrayOf(ShipmentShape).isRequired,
 };
 
 const mapStateToProps = (state) => {

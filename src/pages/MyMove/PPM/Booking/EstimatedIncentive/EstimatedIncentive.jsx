@@ -7,7 +7,7 @@ import classnames from 'classnames';
 import styles from './EstimatedIncentive.module.scss';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
-import ppmBookingPageStyles from 'pages/MyMove/PPMBooking/PPMBooking.module.scss';
+import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { selectMTOShipmentById } from 'store/entities/selectors';
@@ -28,7 +28,7 @@ const EstimatedIncentive = () => {
   };
 
   return (
-    <div className={classnames(ppmBookingPageStyles.PPMBookingPage, styles.EstimatedIncentive)}>
+    <div className={classnames(ppmPageStyles.ppmPageStyle, styles.EstimatedIncentive)}>
       <ScrollToTop />
       <GridContainer>
         <Grid row>
