@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/runtime/middleware"
+
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -51,6 +53,62 @@ func IsLoggedInMiddleware(globalLogger *zap.Logger) http.HandlerFunc {
 		if newEncoderErr != nil {
 			logger.Error("Failed encoding is_logged_in check response", zap.Error(newEncoderErr))
 		}
+	}
+}
+
+type APIWithContext interface {
+	Context() *middleware.Context
+}
+
+func PermissionsMiddleware(appCtx appcontext.AppContext, api APIWithContext) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+
+			logger := logging.FromContext(r.Context())
+			session := auth.SessionFromRequestContext(r)
+
+			route, r, _ := api.Context().RouteInfo(r)
+			if route == nil {
+				// If we reach this error, something went wrong with the swagger router initialization, in reality will probably never be an issue except potentially in local testing
+				logger.Error("Route not found on permission lookup")
+				http.Error(w, http.StatusText(400), http.StatusBadRequest)
+				return
+			}
+
+			permissionsRequired, exists := route.Operation.VendorExtensible.Extensions["x-permissions"]
+
+			// no permissions defined on the route, we can move on
+			if !exists {
+				logger.Info("No permissions required on this route")
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			// transform the object so we can iterate over permissions
+			permissionsRequiredAsInterfaceArray := permissionsRequired.([]interface{})
+
+			for _, v := range permissionsRequiredAsInterfaceArray {
+				permission := v.(string)
+				logger.Info("Permission required: ", zap.String("permission", permission))
+				access, err := checkUserPermission(appCtx, session, permission)
+
+				if err != nil {
+					logger.Error("Unexpected error looking up permissions", zap.String("permission error", err.Error()))
+					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+					return
+				}
+
+				if !access {
+					logger.Warn("Permission denied", zap.String("permission", permission))
+					http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+					return
+				}
+			}
+
+			next.ServeHTTP(w, r)
+		}
+
+		return http.HandlerFunc(mw)
 	}
 }
 
@@ -625,6 +683,8 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 		return
 	}
 	appCtx.Session().Roles = append(appCtx.Session().Roles, userIdentity.Roles...)
+	appCtx.Session().Permissions = getPermissionsForUser(appCtx, userIdentity.ID)
+
 	appCtx.Session().UserID = userIdentity.ID
 	if appCtx.Session().IsMilApp() && userIdentity.ServiceMemberID != nil {
 		appCtx.Session().ServiceMemberID = *(userIdentity.ServiceMemberID)

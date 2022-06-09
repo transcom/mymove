@@ -310,7 +310,7 @@ describe('MtoShipmentForm component', () => {
       const expectedCreateResponse = {
         createdAt: '2021-06-11T18:12:11.918Z',
         customerRemarks: '',
-        eTag: btoa(updatedAt),
+        eTag: window.btoa(updatedAt),
         id: uuidv4(),
         moveTaskOrderID: moveId,
         pickupAddress: { ...shipmentInfo.pickupAddress, id: uuidv4() },
@@ -422,7 +422,7 @@ describe('MtoShipmentForm component', () => {
 
     const mockMtoShipment = {
       id: uuidv4(),
-      eTag: btoa(updatedAt),
+      eTag: window.btoa(updatedAt),
       createdAt: '2021-06-11T18:12:11.918Z',
       updatedAt,
       moveTaskOrderId: moveId,
@@ -677,7 +677,7 @@ describe('MtoShipmentForm component', () => {
         ...mockMtoShipment,
         pickupAddress: { ...shipmentInfo.pickupAddress },
         shipmentType: SHIPMENT_OPTIONS.HHG,
-        eTag: btoa(newUpdatedAt),
+        eTag: window.btoa(newUpdatedAt),
         status: 'SUBMITTED',
       };
 

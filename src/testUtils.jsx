@@ -9,6 +9,7 @@ import { render } from '@testing-library/react';
 
 import { configureStore } from 'shared/store';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import PermissionProvider from 'components/Restricted/PermissionProvider';
 
 export const createMockHistory = (initialEntries) => {
   return createMemoryHistory({ initialEntries });
@@ -21,16 +22,18 @@ export const renderWithRouter = (ui, { route = '/', history = createMockHistory(
   };
 };
 
-export const MockProviders = ({ children, initialState, initialEntries, history }) => {
+export const MockProviders = ({ children, initialState, initialEntries, permissions, history }) => {
   const mockHistory = history || createMockHistory(initialEntries);
   const mockStore = configureStore(mockHistory, initialState);
 
   return (
-    <Provider store={mockStore.store}>
-      <ConnectedRouter history={mockHistory}>
-        <Suspense fallback={<LoadingPlaceholder />}>{children}</Suspense>
-      </ConnectedRouter>
-    </Provider>
+    <PermissionProvider permissions={permissions}>
+      <Provider store={mockStore.store}>
+        <ConnectedRouter history={mockHistory}>
+          <Suspense fallback={<LoadingPlaceholder />}>{children}</Suspense>
+        </ConnectedRouter>
+      </Provider>
+    </PermissionProvider>
   );
 };
 
@@ -42,10 +45,12 @@ MockProviders.propTypes = {
     push: func.isRequired,
     goBack: func.isRequired,
   }),
+  permissions: arrayOf(string),
 };
 
 MockProviders.defaultProps = {
   initialState: {},
   initialEntries: ['/'],
   history: null,
+  permissions: [],
 };

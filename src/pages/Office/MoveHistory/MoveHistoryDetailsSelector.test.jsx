@@ -80,4 +80,33 @@ describe('MoveHistoryDetailsSelector', () => {
       expect(screen.getByText('Pending', { exact: false })).toBeInTheDocument();
     });
   });
+
+  describe('handle a create payment request insert event', () => {
+    const historyRecord = {
+      action: 'INSERT',
+      eventName: 'createPaymentRequest',
+      tableName: 'payment_requests',
+      context: [
+        {
+          name: 'Test service',
+          price: '10123',
+          status: 'REQUESTED',
+          shipment_id: '123',
+          shipment_type: 'HHG',
+        },
+        {
+          name: 'Domestic uncrating',
+          price: '5555',
+          status: 'REQUESTED',
+          shipment_id: '456',
+          shipment_type: 'HHG_INTO_NTS_DOMESTIC',
+        },
+        { name: 'Move management', price: '1234', status: 'REQUESTED' },
+      ],
+    };
+    it('renders the payment request appropriately', () => {
+      render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
+      expect(screen.getByText('Move services')).toBeInTheDocument();
+    });
+  });
 });
