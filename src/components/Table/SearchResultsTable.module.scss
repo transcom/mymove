@@ -8,7 +8,6 @@
   @include u-padding-x(0);
   flex-direction: column;
   flex: auto;
-  max-width: 1376px;
 
   p {
     @include u-margin-x(1.5);
@@ -23,7 +22,6 @@
     flex: auto;
 
     @include u-margin-top(1);
-    max-width: 1376px;
     width: 100%;
     overflow-x: auto;
   }
