@@ -2,6 +2,7 @@ import o from 'constants/MoveHistory/UIDisplay/Operations';
 import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
+import { shipmentTypes } from 'constants/shipments';
 
 export default {
   action: a.INSERT,
@@ -10,6 +11,7 @@ export default {
   detailsType: d.PLAIN_TEXT,
   getEventNameDisplay: () => `Updated shipment`,
   getDetailsPlainText: ({ context }) => {
-    return `${context[0].shipment_type} shipment, reweigh requested`;
+    const shipmentType = context[0].shipment_type;
+    return `${shipmentTypes[shipmentType]} shipment, reweigh requested`;
   },
 };
