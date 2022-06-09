@@ -35,7 +35,6 @@ const MoveSearchForm = ({ onSubmit }) => {
         return (
           <Form
             className={classnames(formStyles.form, styles.MoveSearchForm)}
-            id={styles.SearchForm}
             onSubmit={formik.handleSubmit}
             role="search"
           >

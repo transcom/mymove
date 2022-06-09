@@ -3,10 +3,8 @@
 @import 'styles/office.scss';
 
 .QAECSRMoveSearchPage {
-  background-color: $bg-gray;
   @include u-padding-y(3);
   @include u-padding-x(3);
-  height: 100%;
 
   h1, h2, h3 {
     color: $mm-blue;
@@ -16,4 +14,11 @@
   h1 {
     font-size: 40px;
   }
+}
+
+.QAECSRMoveSearchWrapper {
+  @include u-display(flex);
+  flex-direction: column;
+  flex: auto;
+  background-color: $bg-gray;
 }

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { withRouter } from 'react-router-dom';
+import { GridContainer } from '@trussworks/react-uswds';
 
 import styles from './QAECSRMoveSearch.module.scss';
 
@@ -80,7 +81,7 @@ const columns = (showBranchFilter = true) => [
       ),
     },
   ),
-  createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
+  createHeader('Number of shipments', 'shipmentsCount', { disableSortBy: true }),
 ];
 
 const QAECSRMoveSearch = ({ history }) => {
@@ -117,26 +118,28 @@ const QAECSRMoveSearch = ({ history }) => {
   const tableColumns = useMemo(() => columns(true), []);
   const tableData = useMemo(() => data, [data]);
   return (
-    <div className={styles.QAECSRMoveSearchPage}>
-      <h1>Search for a move</h1>
-      <MoveSearchForm onSubmit={onSubmit} />
-      {isLoading && <LoadingPlaceholder />}
-      {!isLoading && isError && <SomethingWentWrong />}
-      {!isLoading && !isError && searchHappened && (
-        <SearchResultsTable
-          showFilters
-          showPagination
-          defaultCanSort
-          disableMultiSort
-          manualFilters={false}
-          disableSortBy={false}
-          columns={tableColumns}
-          title="Results"
-          handleClick={handleClick}
-          useQueries={useQAECSRMoveSearchQueries}
-          data={tableData}
-        />
-      )}
+    <div className={styles.QAECSRMoveSearchWrapper}>
+      <GridContainer data-testid="move-search" containerSize="widescreen" className={styles.QAECSRMoveSearchPage}>
+        <h1>Search for a move</h1>
+        <MoveSearchForm onSubmit={onSubmit} />
+        {isLoading && <LoadingPlaceholder />}
+        {!isLoading && isError && <SomethingWentWrong />}
+        {!isLoading && !isError && searchHappened && (
+          <SearchResultsTable
+            showFilters
+            showPagination
+            defaultCanSort
+            disableMultiSort
+            manualFilters={false}
+            disableSortBy={false}
+            columns={tableColumns}
+            title="Results"
+            handleClick={handleClick}
+            useQueries={useQAECSRMoveSearchQueries}
+            data={tableData}
+          />
+        )}
+      </GridContainer>
     </div>
   );
 };

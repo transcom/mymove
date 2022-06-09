@@ -2,10 +2,6 @@
 @import 'shared/styles/colors';
 @import 'styles/office.scss';
 
-#SearchForm {
-  max-width: 1358px;
-}
-
 .MoveSearchForm {
   @include u-padding-y(3);
   @include u-padding-x(4);

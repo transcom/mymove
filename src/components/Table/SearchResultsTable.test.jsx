@@ -102,7 +102,7 @@ const columns = [
       ),
     },
   ),
-  createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
+  createHeader('Number of shipments', 'shipmentsCount', { disableSortBy: true }),
 ];
 
 describe('SearchResultsTable', () => {
