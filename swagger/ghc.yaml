@@ -1726,6 +1726,8 @@ paths:
       description: Fetches payment requests for a move
       operationId: getPaymentRequestsForMove
       summary: Fetches payment requests using the move code (locator).
+      x-permissions:
+        - read.paymentRequest
   /moves/{moveID}/financial-review-flag:
     parameters:
       - description: ID of move to flag

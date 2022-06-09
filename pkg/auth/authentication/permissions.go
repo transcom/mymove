@@ -27,7 +27,7 @@ var TOO = RolePermissions{
 
 var TIO = RolePermissions{
 	RoleType:    roles.RoleTypeTIO,
-	Permissions: []string{"create.serviceItem", "update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances"},
+	Permissions: []string{"create.serviceItem", "read.paymentRequest", "update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances"},
 }
 
 var ServicesCounselor = RolePermissions{
@@ -37,7 +37,7 @@ var ServicesCounselor = RolePermissions{
 
 var QAECSR = RolePermissions{
 	RoleType:    roles.RoleTypeQaeCsr,
-	Permissions: []string{"read.move"},
+	Permissions: []string{"read.paymentRequest"},
 }
 
 var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAECSR}
