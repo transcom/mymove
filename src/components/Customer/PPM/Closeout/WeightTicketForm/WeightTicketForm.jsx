@@ -230,13 +230,14 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
 
 WeightTicketForm.propTypes = {
   weightTicket: WeightTicketShape,
-  tripNumber: number.isRequired,
+  tripNumber: number,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
 };
 
 WeightTicketForm.defaultProps = {
   weightTicket: undefined,
+  tripNumber: 1,
 };
 
 export default WeightTicketForm;

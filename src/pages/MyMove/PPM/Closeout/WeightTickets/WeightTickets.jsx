@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { generatePath, useHistory, useParams } from 'react-router-dom';
+import { generatePath, useHistory, useParams, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
+import qs from 'query-string';
 
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
@@ -21,7 +22,10 @@ const WeightTickets = () => {
 
   const history = useHistory();
   const { moveId, mtoShipmentId } = useParams();
+  const { search } = useLocation();
   const dispatch = useDispatch();
+
+  const { tripNumber } = qs.parse(search);
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   // TODO add selector for selecting weight ticket from Redux store when data changes are solidified
@@ -82,7 +86,12 @@ const WeightTickets = () => {
               <p>Weight tickets must be certified, legible, and unaltered. Files must be 25MB or smaller.</p>
               <p>You must upload at least one set of weight tickets to get paid for your PPM.</p>
             </div>
-            <WeightTicketForm mtoShipment={mtoShipment} onSubmit={handleSubmit} onBack={handleBack} />
+            <WeightTicketForm
+              mtoShipment={mtoShipment}
+              tripNumber={tripNumber}
+              onSubmit={handleSubmit}
+              onBack={handleBack}
+            />
           </Grid>
         </Grid>
       </GridContainer>
