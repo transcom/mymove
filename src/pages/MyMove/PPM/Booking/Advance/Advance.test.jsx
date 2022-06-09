@@ -30,8 +30,8 @@ const estimatedIncentivePath = generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATE
   mtoShipmentId: mockMTOShipmentId,
 });
 
-const mockShipmentETag = Buffer.from(new Date()).toString('base64');
-const mockPPMShipmentETag = Buffer.from(new Date()).toString('base64');
+const mockShipmentETag = window.btoa(new Date());
+const mockPPMShipmentETag = window.btoa(new Date());
 
 const mockMTOShipment = {
   id: mockMTOShipmentId,
