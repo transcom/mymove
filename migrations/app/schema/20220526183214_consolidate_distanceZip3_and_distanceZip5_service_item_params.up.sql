@@ -1,8 +1,10 @@
+-- Create a new service item param called DistanceZip
 INSERT INTO service_item_param_keys
 (id,key,description,type,origin,created_at,updated_at)
 VALUES
 ('2cbc2251-eb7d-4c69-a120-9a83785c994b','DistanceZip', 'Distance between two zips', 'INTEGER', 'SYSTEM', now(), now());
 
+-- Add the new new DistanceZip param to the service items that need it: DLH, DSH and FSC
 INSERT INTO service_params
 (id,service_id,service_item_param_key_id,created_at,updated_at)
 VALUES
@@ -15,3 +17,9 @@ VALUES
 
 DELETE FROM service_params WHERE service_item_param_key_id = '7a99efc3-df2b-401f-ae56-f293517afbde';
 DELETE FROM service_params WHERE service_item_param_key_id = '60b0d960-eb2e-4597-846b-d97720493799';
+
+-- For any existing payment service item params, replace references to DistanceZip3 and DistanceZip5 with the new DistanceZip param
+INSERT INTO payment_service_item_params(id, payment_service_item_id, service_item_param_key_id, value, created_at, updated_at)
+	SELECT uuid_generate_v4(), payment_service_item_id, '2cbc2251-eb7d-4c69-a120-9a83785c994b', value, now(), now()
+    FROM payment_service_item_params
+    WHERE service_item_param_key_id = '7a99efc3-df2b-401f-ae56-f293517afbde' OR service_item_param_key_id = '60b0d960-eb2e-4597-846b-d97720493799';
