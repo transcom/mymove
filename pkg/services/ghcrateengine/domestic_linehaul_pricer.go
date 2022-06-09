@@ -13,10 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-const (
-	dlhPricerMinimumWeight   = unit.Pound(500)
-	dlhPricerMinimumDistance = unit.Miles(50)
-)
+const dlhPricerMinimumWeight = unit.Pound(500)
 
 type domesticLinehaulPricer struct {
 }
@@ -34,9 +31,6 @@ func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode
 	}
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
-	}
-	if !isPPM && distance < dlhPricerMinimumDistance {
-		return 0, nil, fmt.Errorf("Distance must be at least %d", dlhPricerMinimumDistance)
 	}
 	if !isPPM && weight < dlhPricerMinimumWeight {
 		return 0, nil, fmt.Errorf("Weight must be at least %d", dlhPricerMinimumWeight)
