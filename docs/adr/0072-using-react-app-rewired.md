@@ -1,6 +1,6 @@
 # Using React-App-Rewired
 
-**User Story:** *[MB-9033](https://dp3.atlassian.net/browse/MB-9033)* <!-- optional -->
+**User Story:** *[MB-9033](https://dp3.atlassian.net/browse/MB-9033)* :lock:
 
 ## Background
 
