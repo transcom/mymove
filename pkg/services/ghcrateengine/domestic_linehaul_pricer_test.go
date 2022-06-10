@@ -188,16 +188,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		suite.Error(err)
 		suite.Equal("ReferenceDate is required", err.Error())
 
-		// No distance
-		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, unit.Miles(0), dlhTestWeight, dlhTestServiceArea, isPPM)
-		suite.Error(err)
-		suite.Equal("Distance must be at least 50", err.Error())
-
-		// Short haul distance
-		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, unit.Miles(49), dlhTestWeight, dlhTestServiceArea, isPPM)
-		suite.Error(err)
-		suite.Equal("Distance must be at least 50", err.Error())
-
 		// No weight
 		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(0), dlhTestServiceArea, isPPM)
 		suite.Error(err)
@@ -221,7 +211,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulServiceItem() model
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameDistanceZip3,
+				Key:     models.ServiceItemParamNameDistanceZip,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(dlhTestDistance)),
 			},

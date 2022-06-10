@@ -104,7 +104,7 @@ export function submitsDateAndLocation() {
   cy.get('input[name="destinationPostalCode"]').clear().type('76127');
   cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
 
-  navigateFromDateAndLocationPageToEstimatedWeightsPage('@createShipment');
+  navigateFromDateAndLocationPageToEstimatedWeightsPage();
 }
 
 export function navigateFromDateAndLocationPageToEstimatedWeightsPage(actionToWaitOn) {
@@ -122,7 +122,7 @@ export function navigateFromDateAndLocationPageToEstimatedWeightsPage(actionToWa
 }
 
 export function submitsEstimatedWeightsAndProGear() {
-  cy.get('input[name="estimatedWeight"]').clear().type(500).blur();
+  cy.get('input[name="estimatedWeight"]').clear().type(4000).blur();
   cy.get('input[name="hasProGear"][value="true"]').check({ force: true });
   cy.get('input[name="proGearWeight"]').clear().type(500).blur();
   cy.get('input[name="spouseProGearWeight"]').clear().type(400).blur();
@@ -132,7 +132,7 @@ export function submitsEstimatedWeightsAndProGear() {
 }
 
 export function submitsEstimatedWeights() {
-  cy.get('input[name="estimatedWeight"]').clear().type(500).blur();
+  cy.get('input[name="estimatedWeight"]').clear().type(4000).blur();
   cy.get('button').contains('Save & Continue').should('be.enabled');
 
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
