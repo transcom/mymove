@@ -76,6 +76,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0069](0069-use-orchestrator-service-objects.md) - Use orchestrator service objects
 - [ADR-0070](0070-cypress-tests-file-layout.md) - Use a consistent file structure for cypress tests
 - [ADR-0071](0071-move-history-events.md) - Introduce Move History Events
+- [ADR-0072](0072-using-react-app-rewired.md) - Using React-App-Rewired
 
 <!-- adrlogstop -->
 
