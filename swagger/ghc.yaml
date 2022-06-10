@@ -465,6 +465,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.maxBillableWeight
   /counseling/orders/{orderID}/allowances:
     parameters:
       - description: ID of order to use

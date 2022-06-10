@@ -28,7 +28,7 @@ var TOO = RolePermissions{
 var TIO = RolePermissions{
 	RoleType: roles.RoleTypeTIO,
 	Permissions: []string{"create.serviceItem", "read.paymentRequest", "update.paymentServiceItemStatus",
-		"update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances"},
+		"update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.maxBillableWeight"},
 }
 
 var ServicesCounselor = RolePermissions{
