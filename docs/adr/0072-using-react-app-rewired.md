@@ -59,10 +59,15 @@ build toolchain.
 
 * Chosen Alternative: *Dynamically patch the configurations*
 
-We can leverage React-App-Rewired in order to perform dynamic patching of the
-Webpack configuration, and other configurations as needed, in order to bring
-back these Node Polyfills for supporting the `process` object that the client
-application currently relies on.
+We can leverage [**React-App-Rewired** in order to perform dynamic patching of
+the **webpack** configuration][gh-rar], and other configurations as needed, in
+order to bring back these Node polyfills for supporting the `process` object
+that the client application currently relies on. This is also useful in case
+there are other configuration options that would like to be modified or extended
+in the future. The **React-App-Rewired** library supports modifying **webpack**
+& **Jest** configurations.
+
+[gh-rar]: https://github.com/timarney/react-app-rewired
 
 ## Pros and Cons of the Alternatives <!-- optional -->
 
