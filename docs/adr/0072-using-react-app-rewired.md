@@ -18,42 +18,65 @@ will remove the single build dependency from your project._ This is not an
 option currently on MilMove as ejecting would add some maintainability overhead
 that the development team may address at a later time or a later ADR.
 
+## Decision drivers
 
+Some of the issues we've seen is that in order to best control our build
+toolchain there are certain configurations that need to be updated. For
+instance, Webpack 5 removed the Node Polyfills that are used by the MilMove
+client application. This causes our client application to break in unique ways
+around `process` not being defined. Refactoring our client application is a
+possible solution, but there are ways to have Webpack 5 use Node Polyfills that
+we need by defining it in a Webpack configuration file. The issue here is that
+Create-React-App and React-Scripts prevent us from modifying these scripts as
+they are not exposed to engineers.
 
-*[context and problem statement]*
-*[context and problem statement]*
-*[decision drivers | forces]* <!-- optional -->
+This is true for other tools such as ESLint as well and has been an issue
+previously on the client application for the project. Sometimes the
+React-Scripts and Create-React-App tools update and support some level of
+customization but it leaves the MilMove engineering team in a holding pattern
+without a clear path forward besides following contributions upstream or
+contributing upstream to the Create-React-App project.
+
+It's also true that Facebook's Create-React-App development team is notorious
+for denying any changes for specific configuration updates. As stated above,
+their own documentation states that `ejecting` or maintaining a fork of
+Create-React-App are the only viable solutions for customization using their
+build toolchain.
 
 ## Considered Alternatives
 
-* *[alternative 1]*
-* *[alternative 2]*
-* *[alternative 3]*
-* *[...]* <!-- numbers of alternatives can vary -->
+> **bold denotes chosen**
+
+* *Do nothing*
+* *Eject the Create-React-App configuration*
+* **Dynamically patch the configurations**
 
 ## Decision Outcome
 
-* Chosen Alternative: *[alternative 1]*
-* *[justification. e.g., only alternative, which meets KO criterion decision driver | which resolves force force | ... | comes out best (see below)]*
-* *[consequences. e.g., negative impact on quality attribute, follow-up decisions required, ...]* <!-- optional -->
+* Chosen Alternative: *Dynamically patch the configurations*
+
+We can leverage React-App-Rewired in order to perform dynamic patching of the
+Webpack configuration, and other configurations as needed, in order to bring
+back these Node Polyfills for supporting the `process` object that the client
+application currently relies on.
 
 ## Pros and Cons of the Alternatives <!-- optional -->
 
-### *[alternative 1]*
+### *Do nothing*
 
 * `+` *[argument 1 pro]*
 * `+` *[argument 2 pro]*
 * `-` *[argument 1 con]*
 * *[...]* <!-- numbers of pros and cons can vary -->
 
-### *[alternative 2]*
+### *Eject the Create-React-App configuration*
 
 * `+` *[argument 1 pro]*
 * `+` *[argument 2 pro]*
 * `-` *[argument 1 con]*
 * *[...]* <!-- numbers of pros and cons can vary -->
 
-### *[alternative 3]*
+### *Dynamically patch the configurations*
 
 * `+` *[argument 1 pro]*
 * `+` *[argument 2 pro]*
