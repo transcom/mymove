@@ -4,17 +4,17 @@
 
 ## Background
 
-The MilMove client application uses Create-React-App and React-Scripts for its
-build toolchain. This build toolchain has many benefits to developing the client
-application, but also has limitations when it comes to updating the
-configuration of various build tools that are used in the development of the
-client application. These tools such as webpack, ESlint, and Babel are
-configured with pre-determined configurations that are in-accessible without
-_ejecting_ from the Create-React-App toolchain.
+The MilMove client application uses **Create-React-App** and **React-Scripts**
+for its build toolchain. This build toolchain has many benefits to developing
+the client application, but also has limitations when it comes to updating
+the configuration of various build tools that are used in the development of
+the client application. These tools such as **webpack**, **ESLint**, and
+**Babel** are configured with pre-determined configurations that are
+in-accessible without *ejecting* from the **Create-React-App** toolchain.
 
-Facebook's own documentation mentions that _If you aren't satisfied with the
+Facebook's own documentation mentions that *If you aren't satisfied with the
 build tool and configuration choices, you can `eject` at any time. This command
-will remove the single build dependency from your project._ This is not an
+will remove the single build dependency from your project.* This is not an
 option currently on MilMove as ejecting would add some maintainability overhead
 that the development team may address at a later time or a later ADR.
 
