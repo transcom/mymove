@@ -98,7 +98,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 
 		distanceStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		expected := strconv.Itoa(defaultZip5Distance)
+		expected := strconv.Itoa(defaultZipDistance)
 		suite.Equal(expected, distanceStr)
 	})
 
@@ -110,7 +110,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 
 		distanceStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		expected := strconv.Itoa(defaultZip3Distance)
+		expected := strconv.Itoa(defaultZipDistance)
 		suite.Equal(expected, distanceStr)
 	})
 
@@ -154,11 +154,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 		setupTestData()
 
 		errorPlanner := &mocks.Planner{}
-		errorPlanner.On("Zip5TransitDistance",
+		errorPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-		).Return(0, errors.New("error with Zip5TransitDistance"))
+		).Return(0, errors.New("error with ZipTransitDistance"))
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), errorPlanner, mtoServiceItemSameZip3, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)

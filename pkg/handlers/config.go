@@ -38,8 +38,10 @@ type HandlerConfig interface {
 	SetNotificationSender(sender notifications.NotificationSender)
 	Planner() route.Planner
 	SetPlanner(planner route.Planner)
-	GHCPlanner() route.Planner
-	SetGHCPlanner(planner route.Planner)
+	HHGPlanner() route.Planner
+	SetHHGPlanner(planner route.Planner)
+	DtodPlanner() route.Planner
+	SetDtodPlanner(planner route.Planner)
 	CookieSecret() string
 	SetCookieSecret(secret string)
 	IWSPersonLookup() iws.PersonLookup
@@ -76,7 +78,8 @@ type handlerConfig struct {
 	logger                *zap.Logger
 	cookieSecret          string
 	planner               route.Planner
-	ghcPlanner            route.Planner
+	hhgPlanner            route.Planner
+	dtodPlanner           route.Planner
 	storage               storage.FileStorer
 	notificationSender    notifications.NotificationSender
 	iwsPersonLookup       iws.PersonLookup
@@ -205,14 +208,24 @@ func (h *handlerConfig) SetPlanner(planner route.Planner) {
 	h.planner = planner
 }
 
-// GHCPlanner returns the GHC planner for the current context
-func (h *handlerConfig) GHCPlanner() route.Planner {
-	return h.ghcPlanner
+// HHGPlanner returns the HHG planner for the current context
+func (h *handlerConfig) HHGPlanner() route.Planner {
+	return h.hhgPlanner
 }
 
-// SetGHCPlanner is a simple setter for the route.Planner private field
-func (h *handlerConfig) SetGHCPlanner(ghcPlanner route.Planner) {
-	h.ghcPlanner = ghcPlanner
+// SetHHGPlanner is a simple setter for the route.Planner private field
+func (h *handlerConfig) SetHHGPlanner(hhgPlanner route.Planner) {
+	h.hhgPlanner = hhgPlanner
+}
+
+// DtodPlanner returns the DTOD planner for the current context
+func (h *handlerConfig) DtodPlanner() route.Planner {
+	return h.dtodPlanner
+}
+
+// SetDtodPlanner is a simple setter for the route.Planner private field
+func (h *handlerConfig) SetDtodPlanner(dtodPlanner route.Planner) {
+	h.dtodPlanner = dtodPlanner
 }
 
 // CookieSecret returns the secret key to use when signing cookies

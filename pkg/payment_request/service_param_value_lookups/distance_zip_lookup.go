@@ -14,13 +14,13 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// DistanceZip3Lookup contains zip3 lookup
-type DistanceZip3Lookup struct {
+// DistanceZipLookup contains zip3 lookup
+type DistanceZipLookup struct {
 	PickupAddress      models.Address
 	DestinationAddress models.Address
 }
 
-func (r DistanceZip3Lookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	planner := keyData.planner
 	db := appCtx.DB()
 
@@ -45,14 +45,9 @@ func (r DistanceZip3Lookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		return strconv.Itoa(mtoShipment.Distance.Int()), nil
 	}
 
-	// Now calculate the distance between zip3s
+	// Now calculate the distance between zips
 	pickupZip := r.PickupAddress.PostalCode
 	destinationZip := r.DestinationAddress.PostalCode
-	distanceMiles, err := planner.Zip3TransitDistance(appCtx, pickupZip, destinationZip)
-	if err != nil {
-		return "", err
-	}
-
 	errorMsgForPickupZip := fmt.Sprintf("Shipment must have valid pickup zipcode. Received: %s", pickupZip)
 	errorMsgForDestinationZip := fmt.Sprintf("Shipment must have valid destination zipcode. Received: %s", destinationZip)
 	if len(pickupZip) < 5 {
@@ -61,16 +56,16 @@ func (r DistanceZip3Lookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 	if len(destinationZip) < 5 {
 		return "", apperror.NewInvalidInputError(*mtoShipmentID, fmt.Errorf(errorMsgForDestinationZip), nil, errorMsgForDestinationZip)
 	}
+	distanceMiles, err := planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
+	if err != nil {
+		return "", err
+	}
 
-	pickupZip3 := pickupZip[:3]
-	destinationZip3 := destinationZip[:3]
-	if pickupZip3 != destinationZip3 {
-		miles := unit.Miles(distanceMiles)
-		mtoShipment.Distance = &miles
-		err = db.Save(&mtoShipment)
-		if err != nil {
-			return "", err
-		}
+	miles := unit.Miles(distanceMiles)
+	mtoShipment.Distance = &miles
+	err = db.Save(&mtoShipment)
+	if err != nil {
+		return "", err
 	}
 
 	return strconv.Itoa(distanceMiles), nil
