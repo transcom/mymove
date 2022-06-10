@@ -69,25 +69,26 @@ in the future. The **React-App-Rewired** library supports modifying **webpack**
 
 [gh-rar]: https://github.com/timarney/react-app-rewired
 
-## Pros and Cons of the Alternatives <!-- optional -->
+## Pros and Cons of the Alternatives
 
 ### *Do nothing*
 
-* `+` *[argument 1 pro]*
-* `+` *[argument 2 pro]*
-* `-` *[argument 1 con]*
-* *[...]* <!-- numbers of pros and cons can vary -->
+* `+` *There's no work to be done so teams can focus on other work.*
+* `-` *Leaves dependencies out of date due to not being able to update to the
+  latest versions of NPM packages.*
 
-### *Eject the Create-React-App configuration*
+### *Eject the **Create-React-App** configuration*
 
-* `+` *[argument 1 pro]*
-* `+` *[argument 2 pro]*
-* `-` *[argument 1 con]*
-* *[...]* <!-- numbers of pros and cons can vary -->
+* `+` *Reduces the dependency on **Create-React-App**.*
+* `+` *Allows engineering team to take ownership of the configuration for the
+  client application.*
+* `-` *No wide-support from engineering team to maintain the build toolchain.*
+* `-` *Breaks out of the update cycle for **Create-React-App** and
+  **React-Scripts**.*
 
 ### *Dynamically patch the configurations*
 
-* `+` *[argument 1 pro]*
-* `+` *[argument 2 pro]*
-* `-` *[argument 1 con]*
-* *[...]* <!-- numbers of pros and cons can vary -->
+* `+` *Allows for control of extending or modifying build toolchain
+  configurations.*
+* `+` *Removes the need to `eject` from the **Create-React-App** ecosystem.*
+* `-` *Changes the build toolchain commands due to dynamic patching.*
