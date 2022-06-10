@@ -536,7 +536,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 			StreetAddress1: "7 Q St",
 			City:           "Birmingham",
 			State:          "AL",
-			PostalCode:     "35203",
+			PostalCode:     "90210",
 		},
 	})
 	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
@@ -544,7 +544,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 			StreetAddress1: "148 S East St",
 			City:           "Miami",
 			State:          "FL",
-			PostalCode:     "33130",
+			PostalCode:     "94535",
 		},
 	})
 	testEstWeight := dlhTestWeight
@@ -640,8 +640,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 }
 
 func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreator() {
-	const defaultZip3Distance = 1234
-	const defaultZip5Distance = 48
+	const defaultZipDistance = 1234
 
 	suite.Run("successfully create payment request with real PaymentRequestCreator", func() {
 
@@ -658,17 +657,13 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-		).Return(defaultZip5Distance, nil)
-		planner.On("Zip3TransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(defaultZip3Distance, nil)
-		planner.On("Zip5TransitDistance",
+		).Return(defaultZipDistance, nil)
+
+		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
-		).Return(defaultZip5Distance, nil)
+		).Return(defaultZipDistance, nil)
 
 		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 			planner,
@@ -713,8 +708,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 }
 
 func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID() {
-	const defaultZip3Distance = 1234
-	const defaultZip5Distance = 48
+	const defaultZipDistance = 48
 
 	suite.Run("fail to create payment request with real PaymentRequestCreator and empty MTO Reference ID", func() {
 
@@ -731,17 +725,12 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-		).Return(defaultZip5Distance, nil)
-		planner.On("Zip3TransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(defaultZip3Distance, nil)
-		planner.On("Zip5TransitDistance",
+		).Return(defaultZipDistance, nil)
+		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
-		).Return(defaultZip5Distance, nil)
+		).Return(defaultZipDistance, nil)
 
 		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 			planner,
@@ -793,17 +782,12 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-		).Return(defaultZip5Distance, nil)
-		planner.On("Zip3TransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(defaultZip3Distance, nil)
-		planner.On("Zip5TransitDistance",
+		).Return(defaultZipDistance, nil)
+		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
-		).Return(defaultZip5Distance, nil)
+		).Return(defaultZipDistance, nil)
 
 		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 			planner,

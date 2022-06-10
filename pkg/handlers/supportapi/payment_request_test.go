@@ -304,9 +304,9 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 				Value:   "4242",
 			},
 			{
-				Key:     models.ServiceItemParamNameDistanceZip3,
+				Key:     models.ServiceItemParamNameDistanceZip,
 				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "2424",
+				Value:   "24246",
 			},
 		}
 		paymentServiceItem := testdatagen.MakePaymentServiceItemWithParams(
@@ -493,12 +493,7 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 				Value:   "4242",
 			},
 			{
-				Key:     models.ServiceItemParamNameDistanceZip3,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "2424",
-			},
-			{
-				Key:     models.ServiceItemParamNameDistanceZip5,
+				Key:     models.ServiceItemParamNameDistanceZip,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "24245",
 			},

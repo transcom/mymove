@@ -29,7 +29,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 
 	// Mock out a planner.
 	mockPlanner := &routemocks.Planner{}
-	mockPlanner.On("Zip3TransitDistance",
+	mockPlanner.On("ZipTransitDistance",
 		recalculateTestPickupZip,
 		recalculateTestDestinationZip,
 	).Return(recalculateTestZip3Distance, nil)
