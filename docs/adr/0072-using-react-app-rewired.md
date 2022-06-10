@@ -22,25 +22,29 @@ that the development team may address at a later time or a later ADR.
 
 Some of the issues we've seen is that in order to best control our build
 toolchain there are certain configurations that need to be updated. For
-instance, Webpack 5 removed the Node Polyfills that are used by the MilMove
-client application. This causes our client application to break in unique ways
-around `process` not being defined. Refactoring our client application is a
-possible solution, but there are ways to have Webpack 5 use Node Polyfills that
-we need by defining it in a Webpack configuration file. The issue here is that
-Create-React-App and React-Scripts prevent us from modifying these scripts as
-they are not exposed to engineers.
+instance, [**webpack** 5 removed the Node polyfills][wp5-migrate] that are used
+by the MilMove client application. This causes our client application to break
+in unique ways around `process` not being defined. Refactoring our client
+application is a possible solution, but there are ways to have **webpack** 5 use
+the Node polyfills that we need by defining it in a **webpack** configuration
+file. Our issue here is that **Create-React-App** and **React-Scripts** prevent
+us from modifying these scripts as they are not exposed to users of those
+libraries.
 
-This is true for other tools such as ESLint as well and has been an issue
+[wp5-migrate]:
+https://webpack.js.org/migrate/5/#run-a-single-build-and-follow-advice
+
+This is true for other tools such as **ESLint** as well and has been an issue
 previously on the client application for the project. Sometimes the
-React-Scripts and Create-React-App tools update and support some level of
-customization but it leaves the MilMove engineering team in a holding pattern
+**React-Scripts** and **Create-React-App** tools update and support some level
+of customization but it leaves the MilMove engineering team in a holding pattern
 without a clear path forward besides following contributions upstream or
-contributing upstream to the Create-React-App project.
+contributing upstream to the **Create-React-App** project.
 
-It's also true that Facebook's Create-React-App development team is notorious
-for denying any changes for specific configuration updates. As stated above,
-their own documentation states that `ejecting` or maintaining a fork of
-Create-React-App are the only viable solutions for customization using their
+It's also true that Facebook's **Create-React-App** development team is
+notorious for denying any changes for specific configuration updates. As stated
+above, their own documentation states that `ejecting` or maintaining a fork of
+**Create-React-App** are the only viable solutions for customization using their
 build toolchain.
 
 ## Considered Alternatives
