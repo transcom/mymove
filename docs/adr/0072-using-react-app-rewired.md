@@ -52,7 +52,7 @@ build toolchain.
 > **bold denotes chosen**
 
 * *Do nothing*
-* *Eject the Create-React-App configuration*
+* *Eject the **Create-React-App** configuration*
 * **Dynamically patch the configurations**
 
 ## Decision Outcome
