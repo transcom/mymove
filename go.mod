@@ -35,7 +35,7 @@ require (
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.1
 	github.com/gorilla/mux v1.8.0
-	github.com/imdario/mergo v0.3.12
+	github.com/imdario/mergo v0.3.13
 	github.com/jackc/pgerrcode v0.0.0-20201024163028-a0d42d470451
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/jmoiron/sqlx v1.3.5
@@ -202,7 +202,7 @@ require (
 	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.0 // indirect
 	pault.ag/go/fasc v0.0.0-20190505145209-c337c3c0bbf0 // indirect
 	pault.ag/go/othername v0.0.0-20190316144542-859caba4369b // indirect
 	pault.ag/go/piv v0.0.0-20190320181422-d9d61c70919c // indirect
