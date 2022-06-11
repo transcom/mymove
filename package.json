@@ -92,7 +92,7 @@
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "build": "react-app-rewired build",
-    "eject": "react-app-rewired eject",
+    "eject": "react-scripts eject",
     "start": "react-app-rewired start",
     "test": "react-app-rewired test --env=jsdom",
     "test:debug": "react-app-rewired --inspect-brk test --runInBand --env=jsdom",
