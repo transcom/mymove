@@ -25,7 +25,7 @@ export function signInAndNavigateToAboutPageWithAdvance(userId, isMoveSubmitted 
 
   cy.wait('@getShipment');
 
-  navigateToAboutPageWithAdvance(isMoveSubmitted);
+  navigateToAboutPageWithAdvance();
 }
 
 export function signInAndNavigateToAboutPageWithoutAdvance(userId, isMoveSubmitted = true) {
@@ -33,7 +33,7 @@ export function signInAndNavigateToAboutPageWithoutAdvance(userId, isMoveSubmitt
 
   cy.wait('@getShipment');
 
-  navigateToAboutPageWithoutAdvance(isMoveSubmitted);
+  navigateToAboutPageWithoutAdvance();
 }
 export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
   if (isMoveSubmitted) {
