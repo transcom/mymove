@@ -13,8 +13,6 @@ describe('About Your PPM - With Advances', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
-    cy.intercept('DELETE', '**/internal/mto-shipments/**').as('deleteShipment');
-    cy.intercept('GET', '**/internal/moves/**/signed_certifications').as('signedCertifications');
   });
   // Get another user for desktop
   const viewportType = [
@@ -41,8 +39,6 @@ describe('About Your PPM - Without Advances', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
-    cy.intercept('DELETE', '**/internal/mto-shipments/**').as('deleteShipment');
-    cy.intercept('GET', '**/internal/moves/**/signed_certifications').as('signedCertifications');
   });
   const viewportType = [
     { viewport: 'desktop', isMobile: false, userId: 'cde987a1-a717-4a61-98b5-1f05e2e0844d' }, // readyToFinish@ppm.approved
