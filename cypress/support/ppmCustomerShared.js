@@ -68,17 +68,6 @@ export function navigateToAboutPageWithoutAdvance() {
   cy.get('button').contains('Save & Continue').should('be.enabled').click();
 }
 
-export function navigateBackToAboutPageWithAdvance() {
-  cy.get('dt').contains('Weight allowance');
-  cy.get('button').contains('Upload PPM Documents').click();
-  cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: false });
-  // cy.get('input[name="advanceAmountReceived"]').clear().type('5000');
-  cy.get('button').contains('Save & Continue').should('be.enabled').click();
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
-  });
-}
-
 export function signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId) {
   cy.apiSignInAsUser(userId);
 
