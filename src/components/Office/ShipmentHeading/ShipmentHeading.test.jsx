@@ -5,6 +5,7 @@ import ShipmentHeading from './ShipmentHeading';
 
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import { shipmentStatuses } from 'constants/shipments';
 
 const shipmentDestinationAddressWithPostalOnly = {
   postalCode: '98421',
@@ -105,6 +106,24 @@ describe('Shipment Heading with cancelled shipment', () => {
 
   it('renders the cancelled tag next to the shipment type', () => {
     expect(wrapper.find({ 'data-testid': 'tag' }).text()).toEqual('cancelled');
+  });
+
+  it('hides the request cancellation button', () => {
+    expect(wrapper.find('button').length).toBeFalsy();
+  });
+});
+
+describe('Shipment Heading with shipment cancellation requested', () => {
+  const wrapper = mount(
+    <ShipmentHeading
+      shipmentInfo={{ isDiversion: false, ...headingInfo, shipmentStatus: shipmentStatuses.CANCELLATION_REQUESTED }}
+      handleUpdateMTOShipmentStatus={jest.fn()}
+      handleShowCancellationModal={jest.fn()}
+    />,
+  );
+
+  it('renders the cancellation requested tag next to the shipment type', () => {
+    expect(wrapper.find({ 'data-testid': 'tag' }).text()).toEqual('Cancellation Requested');
   });
 
   it('hides the request cancellation button', () => {

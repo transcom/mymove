@@ -21,13 +21,18 @@ function formatDestinationAddress(address) {
 }
 
 function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
+  const { shipmentStatus } = shipmentInfo;
+  // cancelation modal is visible if shipment is not already canceled, AND if shipment cancellation hasn't already been requested
+  const isCancelModalVisible = shipmentStatus !== shipmentStatuses.CANCELED || shipmentStatuses.CANCELLATION_REQUESTED;
+  const isCancellationRequested = shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED;
+
   return (
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
       <div className={styles.shipmentHeadingType}>
         <h2>{shipmentInfo.shipmentType}</h2>
-        {shipmentInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
+        {shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
         {shipmentInfo.isDiversion && <Tag>diversion</Tag>}
-        {!shipmentInfo.isDiversion && shipmentInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (
+        {!shipmentInfo.isDiversion && shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (
           <Tag>diversion requested</Tag>
         )}
       </div>
@@ -36,20 +41,14 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
           {`${shipmentInfo.originCity}, ${shipmentInfo.originState} ${shipmentInfo.originPostalCode} to
         ${formatDestinationAddress(shipmentInfo.destinationAddress)} on ${shipmentInfo.scheduledPickupDate}`}
         </small>
-        {shipmentInfo.shipmentStatus !== shipmentStatuses.CANCELED && (
+        {isCancelModalVisible && (
           <Restricted to={permissionTypes.requestShipmentCancellation}>
-            <Button
-              type="button"
-              onClick={() => handleShowCancellationModal(shipmentInfo)}
-              unstyled
-              disabled={shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED}
-            >
-              {shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED
-                ? 'Cancellation Requested'
-                : 'Request Cancellation'}
+            <Button type="button" onClick={() => handleShowCancellationModal(shipmentInfo)} unstyled>
+              Request Cancellation
             </Button>
           </Restricted>
         )}
+        {isCancellationRequested && <Tag>Cancellation Requested</Tag>}
       </div>
     </div>
   );
