@@ -1,11 +1,10 @@
-import o from 'constants/MoveHistory/UIDisplay/Operations';
 import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 
 export default {
   action: a.INSERT,
-  eventName: o.createPaymentRequest,
+  eventName: '*',
   tableName: t.payment_requests,
   detailsType: d.LABELED_PAYMENT_REQUEST,
   getEventNameDisplay: ({ changedValues }) => `Submitted payment request ${changedValues?.payment_request_number}`,
