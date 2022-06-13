@@ -48,7 +48,7 @@ require (
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
-	github.com/pkg/sftp v1.13.4
+	github.com/pkg/sftp v1.13.5
 	github.com/pterm/pterm v0.12.41
 	github.com/rickar/cal/v2 v2.1.4
 	github.com/spf13/afero v1.8.2
