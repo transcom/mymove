@@ -8,6 +8,8 @@ import { AddressShape } from '../../../types/address';
 import styles from './shipmentHeading.module.scss';
 
 import { shipmentStatuses } from 'constants/shipments';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 function formatDestinationAddress(address) {
   if (address.city) {
@@ -35,16 +37,18 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
         ${formatDestinationAddress(shipmentInfo.destinationAddress)} on ${shipmentInfo.scheduledPickupDate}`}
         </small>
         {shipmentInfo.shipmentStatus !== shipmentStatuses.CANCELED && (
-          <Button
-            type="button"
-            onClick={() => handleShowCancellationModal(shipmentInfo)}
-            unstyled
-            disabled={shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED}
-          >
-            {shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED
-              ? 'Cancellation Requested'
-              : 'Request Cancellation'}
-          </Button>
+          <Restricted to={permissionTypes.requestShipmentCancellation}>
+            <Button
+              type="button"
+              onClick={() => handleShowCancellationModal(shipmentInfo)}
+              unstyled
+              disabled={shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED}
+            >
+              {shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED
+                ? 'Cancellation Requested'
+                : 'Request Cancellation'}
+            </Button>
+          </Restricted>
         )}
       </div>
     </div>

@@ -22,12 +22,12 @@ type RolePermissions struct {
 var TOO = RolePermissions{
 	RoleType: roles.RoleTypeTOO,
 	Permissions: []string{"update.move", "create.serviceItem",
-		"update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight"},
+		"update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight", "create.shipmentCancellation"},
 }
 
 var TIO = RolePermissions{
 	RoleType:    roles.RoleTypeTIO,
-	Permissions: []string{"create.serviceItem", "update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight"},
+	Permissions: []string{"create.serviceItem", "update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight", "create.ShipmentCancellation"},
 }
 
 var ServicesCounselor = RolePermissions{

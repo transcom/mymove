@@ -2793,7 +2793,8 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": "-create.ShipmentCancellation"
       },
       "parameters": [
         {
@@ -10488,7 +10489,8 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": "-create.ShipmentCancellation"
       },
       "parameters": [
         {

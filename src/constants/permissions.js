@@ -5,4 +5,5 @@ export const permissionTypes = {
   updateOrders: 'update.orders',
   updateShipment: 'update.shipment',
   updateBillableWeight: 'update.billableWeight',
+  requestShipmentCancellation: 'create.shipmentCancellation',
 };

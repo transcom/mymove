@@ -968,6 +968,7 @@ paths:
       description: Requests a shipment cancellation
       operationId: requestShipmentCancellation
       summary: Requests a shipment cancellation
+      x-permissions: -create.ShipmentCancellation
   '/shipments/{shipmentID}/request-reweigh':
     parameters:
       - description: ID of the shipment
