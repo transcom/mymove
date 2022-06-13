@@ -3,7 +3,6 @@ package move
 import (
 	"errors"
 	"reflect"
-	"testing"
 
 	"github.com/gofrs/uuid"
 
@@ -43,7 +42,7 @@ func defaultOrdering() services.QueryOrder {
 }
 
 func (suite *MoveServiceSuite) TestFetchMoveList() {
-	suite.T().Run("if the move is fetched, it should be returned", func(t *testing.T) {
+	suite.Run("if the move is fetched, it should be returned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
 		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
@@ -66,7 +65,7 @@ func (suite *MoveServiceSuite) TestFetchMoveList() {
 		suite.Equal(id, moves[0].ID)
 	})
 
-	suite.T().Run("if there is an error, we get it with no moves", func(t *testing.T) {
+	suite.Run("if there is an error, we get it with no moves", func() {
 		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
 			return errors.New("Fetch error")
 		}
