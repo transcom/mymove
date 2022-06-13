@@ -11,10 +11,18 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 
 const UploadsTable = ({ uploads, onDelete }) => {
   const getIcon = (fileType) => {
-    if (fileType === 'application/pdf') {
-      return 'file-pdf';
+    switch (fileType) {
+      case 'application/pdf':
+        return 'file-pdf';
+      case 'application/vnd.ms-excel':
+      case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+        return 'file-excel';
+      case 'image/png':
+      case 'image/jpeg':
+        return 'file-image';
+      default:
+        return 'file';
     }
-    return 'file-image';
   };
 
   return (

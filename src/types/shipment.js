@@ -7,6 +7,7 @@ import { AddressShape, ResidentialAddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { LOCATION_TYPES_ONE_OF, SitStatusShape } from 'types/sitStatusShape';
 import { SITExtensionShape } from 'types/sitExtensions';
+import { ExistingUploadsShape } from 'types/order';
 
 export const ShipmentOptionsOneOf = oneOf(Object.values(SHIPMENT_OPTIONS));
 
@@ -109,7 +110,19 @@ export const ShipmentShape = shape({
   ppmShipment: PPMShipmentShape,
 });
 
-export const WeightTicketShape = shape({});
+export const WeightTicketShape = shape({
+  id: string,
+  vehicleDescription: string,
+  missingEmptyWeightTicket: bool,
+  emptyWeight: number,
+  emptyWeightTickets: ExistingUploadsShape,
+  fullWeight: number,
+  missingFullWeightTicket: bool,
+  fullWeightTickets: ExistingUploadsShape,
+  hasOwnTrailer: bool,
+  hasClaimedTrailer: bool,
+  trailerOwnershipDocs: ExistingUploadsShape,
+});
 
 export const StorageFacilityShape = shape({
   facilityName: string,

@@ -17,6 +17,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { WeightTicketShape } from 'types/shipment';
 import FileUpload from 'components/FileUpload/FileUpload';
 import { formatWeight } from 'utils/formatters';
+import UploadsTable from 'components/UploadsTable/UploadsTable';
 
 const validationSchema = Yup.object().shape({
   vehicleDescription: Yup.string().required('Required'),
@@ -39,13 +40,13 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
     vehicleDescription,
     missingEmptyWeightTicket,
     emptyWeight,
-    // emptyWeightTickets,
+    emptyWeightTickets,
     fullWeight,
     missingFullWeightTicket,
-    // fullWeightTickets,
+    fullWeightTickets,
     hasOwnTrailer,
     hasClaimedTrailer,
-    // trailerOwnershipDocs,
+    trailerOwnershipDocs,
   } = weightTicket || {};
 
   const initialValues = {
@@ -60,6 +61,8 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
     hasClaimedTrailer: hasClaimedTrailer === true ? 'true' : 'false',
     trailerOwnershipDocs: [],
   };
+
+  const handleUploadDelete = () => {};
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -91,6 +94,7 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
                   label="I don't have this weight ticket"
                 />
                 <div>
+                  <UploadsTable uploads={emptyWeightTickets} onDelete={handleUploadDelete} />
                   <Label htmlFor="emptyWeightTickets">Upload empty weight ticket</Label>
                   <Hint>PDF, JPG, or PNG only. Maximum file size 25 MB. Each page must be clear and legible.</Hint>
                   <FileUpload
@@ -117,6 +121,7 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
                   label="I don't have this weight ticket"
                 />
                 <div>
+                  <UploadsTable uploads={fullWeightTickets} onDelete={handleUploadDelete} />
                   <Label htmlFor="emptyWeightTickets">Upload empty weight ticket</Label>
                   <Hint>PDF, JPG, or PNG only. Maximum file size 25 MB. Each page must be clear and legible.</Hint>
                   <FileUpload
@@ -194,6 +199,7 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
                                 PDF, JPG, or PNG only. Maximum file size 25 MB. Each page must be clear and legible.
                               </p>
                             </Hint>
+                            <UploadsTable uploads={trailerOwnershipDocs} onDelete={handleUploadDelete} />
                             <FileUpload
                               name="trailerOwnershipDocs"
                               labelIdle='Drag files here or <span class="filepond--label-action">choose from folder</span>'

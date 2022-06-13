@@ -140,6 +140,7 @@ export const ExistingUploadsShape = PropTypes.arrayOf(
     bytes: PropTypes.number.isRequired,
     url: PropTypes.string.isRequired,
     filename: PropTypes.string.isRequired,
+    content_type: PropTypes.string.isRequired,
   }),
 );
 
