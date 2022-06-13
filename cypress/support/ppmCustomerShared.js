@@ -24,6 +24,7 @@ export function signInAndNavigateToAboutPageWithAdvance(userId, isMoveSubmitted 
   cy.apiSignInAsUser(userId);
 
   cy.wait('@getShipment');
+  cy.screenshot();
   cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
   navigateToAboutPageWithAdvance();
 }
@@ -32,6 +33,7 @@ export function signInAndNavigateToAboutPageWithoutAdvance(userId, isMoveSubmitt
   cy.apiSignInAsUser(userId);
 
   cy.wait('@getShipment');
+  cy.screenshot();
   cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
 
   navigateToAboutPageWithoutAdvance();
