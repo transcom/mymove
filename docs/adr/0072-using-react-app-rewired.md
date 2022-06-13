@@ -83,8 +83,17 @@ in the future. The **React-App-Rewired** library supports modifying **webpack**
 * `+` *Allows engineering team to take ownership of the configuration for the
   client application.*
 * `-` *No wide-support from engineering team to maintain the build toolchain.*
+  * Without wide-support from engineering, the lack of configuration is a safer
+  space to exist in for the project regardless of the benefits or
+  responsibilities to leverage the build toolchain manually.
+* `-` *Removes the reliance on **Create-React-App** and **React-Scripts** to
+  incorporate security fixes which have much larger teams dedicated to this.*
 * `-` *Breaks out of the update cycle for **Create-React-App** and
   **React-Scripts**.*
+  * The update cycle of **Create-React-App** and **React-Scripts** is one that
+  is owned by their upstream development team. This cycle is a benefit to the
+  MilMove engineering team as there are less dependencies that need to be
+  managed by us.
 
 ### *Dynamically patch the configurations*
 
