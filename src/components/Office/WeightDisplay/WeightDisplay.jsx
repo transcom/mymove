@@ -6,17 +6,27 @@ import { Button } from '@trussworks/react-uswds';
 
 import styles from 'components/Office/WeightDisplay/WeightDisplay.module.scss';
 import { formatWeight } from 'utils/formatters';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const WeightDisplay = ({ heading, weightValue, onEdit, children }) => {
   return (
     <div className={classnames('maxw-tablet', styles.WeightDisplay)}>
       <div className={styles.heading}>
         <div>{heading}</div>
-        {onEdit && (
-          <Button unstyled type="button" className={styles.editButton} onClick={onEdit} data-testid="weightDisplayEdit">
-            <FontAwesomeIcon icon="pen" title="edit" alt="" />
-          </Button>
-        )}
+        <Restricted to={permissionTypes.updateBillableWeight}>
+          {onEdit && (
+            <Button
+              unstyled
+              type="button"
+              className={styles.editButton}
+              onClick={onEdit}
+              data-testid="weightDisplayEdit"
+            >
+              <FontAwesomeIcon icon="pen" title="edit" alt="" />
+            </Button>
+          )}
+        </Restricted>
       </div>
       <div data-testid="weight-display" className={styles.value}>
         {Number.isFinite(weightValue) ? formatWeight(weightValue) : '—'}

@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 import { Tag } from '@trussworks/react-uswds';
 
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 describe('WeightDisplay', () => {
   it('renders without crashing', () => {
@@ -17,13 +19,17 @@ describe('WeightDisplay', () => {
     expect(screen.getByText('1,234 lbs')).toBeInTheDocument();
   });
 
-  it('renders with edit button', () => {
-    render(<WeightDisplay heading="heading test" value={1234} onEdit={jest.fn()} />);
+  it('renders with edit button when user has permissions', () => {
+    render(
+      <MockProviders permissions={[permissionTypes.updateBillableWeight]}>
+        <WeightDisplay heading="heading test" value={1234} onEdit={jest.fn()} />
+      </MockProviders>,
+    );
 
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
-  it('renders with no edit button', () => {
+  it('renders with no edit button when user does not have permissions', () => {
     render(<WeightDisplay heading="heading test" value={1234} />);
 
     expect(screen.queryByRole('button')).not.toBeInTheDocument();

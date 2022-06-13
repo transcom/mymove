@@ -1904,7 +1904,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.billableWeight"
+        ]
       },
       "parameters": [
         {
@@ -9421,7 +9424,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.billableWeight"
+        ]
       },
       "parameters": [
         {

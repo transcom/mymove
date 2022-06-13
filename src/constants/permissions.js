@@ -4,4 +4,5 @@ export const permissionTypes = {
   updateFinancialReviewFlag: 'update.financialReviewFlag',
   updateOrders: 'update.orders',
   updateShipment: 'update.shipment',
+  updateBillableWeight: 'update.billableWeight',
 };

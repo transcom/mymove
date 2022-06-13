@@ -423,6 +423,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.billableWeight
   /orders/{orderID}/update-max-billable-weight/tio:
     parameters:
       - description: ID of order to use
