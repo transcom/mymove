@@ -3,7 +3,7 @@
 ###########
 
 # Base builder so the ci build image hash is referenced once
-FROM milmove/circleci-docker:milmove-app-f678d1c6a5e2085f733f5408b7affd628f9f3576 as builder
+FROM milmove/circleci-docker:milmove-app-0a37160d4d9d1e18ea6f1b72f346988fd95c119e as builder
 
 ENV CIRCLECI=docker
 ENV REACT_APP_NODE_ENV=development
@@ -75,7 +75,7 @@ USER nobody
 
 ENTRYPOINT ["/bin/sh", "-c", \
   "/bin/milmove migrate && /bin/generate-test-data --named-scenario='dev_seed' --db-env='development'" \
-]
+  ]
 
 # build client after migrate since migrations don't need client
 
