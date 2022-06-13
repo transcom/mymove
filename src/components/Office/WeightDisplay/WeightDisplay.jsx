@@ -14,8 +14,8 @@ const WeightDisplay = ({ heading, weightValue, onEdit, children }) => {
     <div className={classnames('maxw-tablet', styles.WeightDisplay)}>
       <div className={styles.heading}>
         <div>{heading}</div>
-        <Restricted to={permissionTypes.updateBillableWeight}>
-          {onEdit && (
+        {onEdit && (
+          <Restricted to={permissionTypes.updateBillableWeight}>
             <Button
               unstyled
               type="button"
@@ -25,8 +25,8 @@ const WeightDisplay = ({ heading, weightValue, onEdit, children }) => {
             >
               <FontAwesomeIcon icon="pen" title="edit" alt="" />
             </Button>
-          )}
-        </Restricted>
+          </Restricted>
+        )}
       </div>
       <div data-testid="weight-display" className={styles.value}>
         {Number.isFinite(weightValue) ? formatWeight(weightValue) : '—'}

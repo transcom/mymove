@@ -29,6 +29,18 @@ describe('WeightDisplay', () => {
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
+  it('edit button is clicked', () => {
+    const mockEditBtn = jest.fn();
+    render(
+      <MockProviders permissions={[permissionTypes.updateBillableWeight]}>
+        <WeightDisplay heading="heading test" value={1234} showEditBtn onEdit={mockEditBtn} />
+      </MockProviders>,
+    );
+    screen.getByRole('button').click();
+
+    expect(mockEditBtn).toHaveBeenCalledTimes(1);
+  });
+
   it('renders with no edit button when user does not have permissions', () => {
     render(<WeightDisplay heading="heading test" value={1234} />);
 
@@ -53,13 +65,5 @@ describe('WeightDisplay', () => {
     );
 
     expect(screen.getByText('text passed in')).toBeInTheDocument();
-  });
-
-  it('edit button is clicked', () => {
-    const mockEditBtn = jest.fn();
-    render(<WeightDisplay heading="heading test" value={1234} showEditBtn onEdit={mockEditBtn} />);
-    screen.getByRole('button').click();
-
-    expect(mockEditBtn).toHaveBeenCalledTimes(1);
   });
 });
