@@ -24,7 +24,7 @@ export function signInAndNavigateToAboutPageWithAdvance(userId, isMoveSubmitted 
   cy.apiSignInAsUser(userId);
 
   cy.wait('@getShipment');
-
+  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
   navigateToAboutPageWithAdvance();
 }
 
@@ -32,6 +32,7 @@ export function signInAndNavigateToAboutPageWithoutAdvance(userId, isMoveSubmitt
   cy.apiSignInAsUser(userId);
 
   cy.wait('@getShipment');
+  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
 
   navigateToAboutPageWithoutAdvance();
 }
@@ -48,7 +49,6 @@ export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
 }
 
 export function navigateToAboutPageWithAdvance() {
-  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
   cy.get('input[name="actualMoveDate"]').clear().type('01 Feb 2022').blur();
   cy.get('input[name="actualPickupPostalCode"]').clear().type('90210').blur();
 
@@ -59,7 +59,6 @@ export function navigateToAboutPageWithAdvance() {
 }
 
 export function navigateToAboutPageWithoutAdvance() {
-  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
   cy.get('input[name="actualMoveDate"]').clear().type('01 Feb 2022').blur();
   cy.get('input[name="actualPickupPostalCode"]').clear().type('90210').blur();
 
