@@ -1,7 +1,6 @@
 package customer
 
 import (
-	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -18,19 +17,19 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 
 	customerUpdater := NewCustomerUpdater()
 
-	suite.T().Run("NewNotFoundError when customer if doesn't exist", func(t *testing.T) {
+	suite.Run("NewNotFoundError when customer if doesn't exist", func() {
 		_, err := customerUpdater.UpdateCustomer(suite.AppContextForTest(), "", models.ServiceMember{})
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("PreconditionsError when etag is stale", func(t *testing.T) {
+	suite.Run("PreconditionsError when etag is stale", func() {
 		staleEtag := etag.GenerateEtag(expectedCustomer.UpdatedAt.Add(-1 * time.Minute))
 		_, err := customerUpdater.UpdateCustomer(suite.AppContextForTest(), staleEtag, models.ServiceMember{ID: expectedCustomer.ID})
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
-	suite.T().Run("Customer fields are updated", func(t *testing.T) {
+	suite.Run("Customer fields are updated", func() {
 		defaultCustomer := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
 
 		var backupContacts []models.BackupContact
