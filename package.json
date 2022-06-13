@@ -96,7 +96,7 @@
     "start": "react-app-rewired start",
     "test": "react-app-rewired test --env=jsdom",
     "test:debug": "react-app-rewired --inspect-brk test --runInBand --env=jsdom",
-    "test:coverage": "react-scripts test --coverage --reporters=default --reporters=jest-junit --env=jsdom --coverageDirectory=coverage --runInBand --watchAll=false",
+    "test:coverage": "react-app-rewired test --coverage --reporters=default --reporters=jest-junit --env=jsdom --coverageDirectory=coverage --runInBand --watchAll=false",
     "test:e2e": "cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "test:e2e-debug": "DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "test:e2e-clean-debug": "make db_dev_e2e_populate; DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
@@ -176,19 +176,6 @@
   ],
   "jest": {
     "resetMocks": false,
-    "collectCoverageFrom": [
-      "src/**/*.{js,jsx,ts,tsx}",
-      "!src/**/*.stories.{jsx,tsx}",
-      "!<rootDir>/node_modules/"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 60,
-        "functions": 40,
-        "lines": 60,
-        "statements": 60
-      }
-    },
     "transformIgnorePatterns": [
       "node_modules/(?!(imask)/)/"
     ],

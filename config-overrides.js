@@ -10,16 +10,36 @@
 // Webpack is a dependency of React-Scripts
 const webpack = require('webpack');
 
-module.exports = function override(config /* , env */) {
-  config.resolve.fallback = {
-    // This is the Node Polyfill for process/bowser
-    http: require.resolve('stream-http'),
-  };
-  config.plugins.push(
-    new webpack.ProvidePlugin({
-      process: 'process/browser',
-    }),
-  );
+module.exports = {
+  webpack: (config) => {
+    config.resolve.fallback = {
+      // This is the Node Polyfill for process/bowser
+      http: require.resolve('stream-http'),
+    };
+    config.plugins.push(
+      new webpack.ProvidePlugin({
+        process: 'process/browser',
+      }),
+    );
 
-  return config;
+    return config;
+  },
+  jest: (config) => {
+    config.collectCoverageFrom = [
+      '**/src/**/*.{js,jsx,ts,tsx}',
+      '!**/src/**/*.stories.{js,jsx,ts,tsx}',
+      '!**/node_modules/**',
+    ];
+
+    config.coverageThreshold = {
+      global: {
+        branches: 60,
+        functions: 40,
+        lines: 60,
+        statements: 60,
+      },
+    };
+
+    return config;
+  },
 };
