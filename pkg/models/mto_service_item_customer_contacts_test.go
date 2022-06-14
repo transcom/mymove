@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -10,7 +9,7 @@ import (
 )
 
 func (suite *ModelSuite) TestMTOServiceItemCustomerContactValidation() {
-	suite.T().Run("test valid MTOServiceItemCustomerContact", func(t *testing.T) {
+	suite.Run("test valid MTOServiceItemCustomerContact", func() {
 		mtoServiceItemDimensionID := uuid.Must(uuid.NewV4())
 
 		validMTOServiceItemDimension := models.MTOServiceItemCustomerContact{
@@ -23,7 +22,7 @@ func (suite *ModelSuite) TestMTOServiceItemCustomerContactValidation() {
 		suite.verifyValidationErrors(&validMTOServiceItemDimension, expErrors)
 	})
 
-	suite.T().Run("test invalid MTOServiceItemCustomerContact", func(t *testing.T) {
+	suite.Run("test invalid MTOServiceItemCustomerContact", func() {
 		validMTOServiceItemDimension := models.MTOServiceItemCustomerContact{
 			MTOServiceItemID:           uuid.Nil,
 			Type:                       "NOT VALID",

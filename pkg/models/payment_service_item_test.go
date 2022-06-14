@@ -2,7 +2,6 @@ package models_test
 
 import (
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -16,7 +15,7 @@ import (
 func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 	cents := unit.Cents(1000)
 
-	suite.T().Run("test valid PaymentServiceItem", func(t *testing.T) {
+	suite.Run("test valid PaymentServiceItem", func() {
 		validPaymentServiceItem := models.PaymentServiceItem{
 			PaymentRequestID: uuid.Must(uuid.NewV4()),
 			MTOServiceItemID: uuid.Must(uuid.NewV4()), //MTO Service Item
@@ -28,7 +27,7 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 		suite.verifyValidationErrors(&validPaymentServiceItem, expErrors)
 	})
 
-	suite.T().Run("test empty PaymentServiceItem", func(t *testing.T) {
+	suite.Run("test empty PaymentServiceItem", func() {
 		invalidPaymentServiceItem := models.PaymentServiceItem{}
 
 		expErrors := map[string][]string{
@@ -41,7 +40,7 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 		suite.verifyValidationErrors(&invalidPaymentServiceItem, expErrors)
 	})
 
-	suite.T().Run("test invalid status for PaymentServiceItem", func(t *testing.T) {
+	suite.Run("test invalid status for PaymentServiceItem", func() {
 		invalidPaymentServiceItem := models.PaymentServiceItem{
 			PaymentRequestID: uuid.Must(uuid.NewV4()),
 			MTOServiceItemID: uuid.Must(uuid.NewV4()), //MTO Service Item
@@ -63,7 +62,7 @@ func (suite *ModelSuite) TestPSIBeforeCreate() {
 		Move: move,
 	})
 
-	suite.T().Run("test with no ID or Reference ID", func(t *testing.T) {
+	suite.Run("test with no ID or Reference ID", func() {
 		paymentServiceItem := models.PaymentServiceItem{
 			PaymentRequestID: paymentRequest.ID,
 			MTOServiceItemID: serviceItem.ID,
@@ -77,7 +76,7 @@ func (suite *ModelSuite) TestPSIBeforeCreate() {
 		suite.NotEmpty(paymentServiceItem.ReferenceID)
 	})
 
-	suite.T().Run("test with ID and Reference ID already provided", func(t *testing.T) {
+	suite.Run("test with ID and Reference ID already provided", func() {
 		psiID := uuid.FromStringOrNil("8dce708b-58ab-4adc-a243-ae0c53a44a41")
 		referenceID := "1234-5678-8dce708b"
 		filledPaymentServiceItem := models.PaymentServiceItem{
@@ -95,7 +94,7 @@ func (suite *ModelSuite) TestPSIBeforeCreate() {
 		suite.Equal(referenceID, filledPaymentServiceItem.ReferenceID)
 	})
 
-	suite.T().Run("test failure because payment request not found", func(t *testing.T) {
+	suite.Run("test failure because payment request not found", func() {
 		badPaymentServiceItem := models.PaymentServiceItem{
 			PaymentRequestID: uuid.Must(uuid.NewV4()), // new UUID pointing nowhere
 			MTOServiceItemID: serviceItem.ID,
@@ -135,7 +134,7 @@ func (suite *ModelSuite) TestGeneratePSIReferenceID() {
 		RequestedAt:      time.Now(),
 	}
 
-	suite.T().Run("test normal reference ID generation", func(t *testing.T) {
+	suite.Run("test normal reference ID generation", func() {
 		referenceID, err := paymentServiceItem.GeneratePSIReferenceID(suite.DB())
 		suite.NoError(err)
 
@@ -146,7 +145,7 @@ func (suite *ModelSuite) TestGeneratePSIReferenceID() {
 		suite.MustCreate(&paymentServiceItem)
 	})
 
-	suite.T().Run("test another payment request with ID that differs by a digit", func(t *testing.T) {
+	suite.Run("test another payment request with ID that differs by a digit", func() {
 		psiIDDigits := fmt.Sprintf("%x", paymentServiceItem2.ID)
 
 		referenceID, err := paymentServiceItem2.GeneratePSIReferenceID(suite.DB())
@@ -154,7 +153,7 @@ func (suite *ModelSuite) TestGeneratePSIReferenceID() {
 		suite.Equal(*mtoReferenceID+"-"+psiIDDigits[:models.PaymentServiceItemMinReferenceIDSuffixLength+1], referenceID)
 	})
 
-	suite.T().Run("test running out of hex digits", func(t *testing.T) {
+	suite.Run("test running out of hex digits", func() {
 		// Need to create PSIs up to the max hex digits -- we already have the first one from above.
 		start := models.PaymentServiceItemMinReferenceIDSuffixLength + 1
 		end := models.PaymentServiceItemMaxReferenceIDLength - len(*mtoReferenceID) - 1

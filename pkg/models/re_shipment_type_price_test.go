@@ -1,15 +1,13 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestReShipmentTypePriceValidation() {
-	suite.T().Run("test valid ReShipmentTypePrice", func(t *testing.T) {
+	suite.Run("test valid ReShipmentTypePrice", func() {
 		validReShipmentTypePrice := models.ReShipmentTypePrice{
 			ContractID: uuid.Must(uuid.NewV4()),
 			ServiceID:  uuid.Must(uuid.NewV4()),
@@ -20,7 +18,7 @@ func (suite *ModelSuite) TestReShipmentTypePriceValidation() {
 		suite.verifyValidationErrors(&validReShipmentTypePrice, expErrors)
 	})
 
-	suite.T().Run("test invalid ReShipmentTypePrice", func(t *testing.T) {
+	suite.Run("test invalid ReShipmentTypePrice", func() {
 		invalidReShipmentTypePrice := models.ReShipmentTypePrice{}
 		expErrors := map[string][]string{
 			"contract_id": {"ContractID can not be blank."},
@@ -31,7 +29,7 @@ func (suite *ModelSuite) TestReShipmentTypePriceValidation() {
 		suite.verifyValidationErrors(&invalidReShipmentTypePrice, expErrors)
 	})
 
-	suite.T().Run("test invalid market for ReShipmentTypePrice", func(t *testing.T) {
+	suite.Run("test invalid market for ReShipmentTypePrice", func() {
 		invalidShipmentTypePrice := models.ReShipmentTypePrice{
 			ContractID: uuid.Must(uuid.NewV4()),
 			ServiceID:  uuid.Must(uuid.NewV4()),
@@ -44,7 +42,7 @@ func (suite *ModelSuite) TestReShipmentTypePriceValidation() {
 		suite.verifyValidationErrors(&invalidShipmentTypePrice, expErrors)
 	})
 
-	suite.T().Run("test factor hundredths less than 1 for ReShipmentTypePrice", func(t *testing.T) {
+	suite.Run("test factor hundredths less than 1 for ReShipmentTypePrice", func() {
 		invalidShipmentTypePrice := models.ReShipmentTypePrice{
 			ContractID: uuid.Must(uuid.NewV4()),
 			ServiceID:  uuid.Must(uuid.NewV4()),

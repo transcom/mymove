@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -43,7 +42,7 @@ func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 	order := move.Orders
 	order.Moves = append(order.Moves, move)
 
-	suite.T().Run("test valid UploadedAmendedOrdersID", func(t *testing.T) {
+	suite.Run("test valid UploadedAmendedOrdersID", func() {
 		testUUID := uuid.Must(uuid.NewV4())
 		order.UploadedAmendedOrdersID = &testUUID
 
@@ -52,7 +51,7 @@ func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 		suite.verifyValidationErrors(&order, expErrors)
 	})
 
-	suite.T().Run("test UploadedAmendedOrdersID is not nil UUID", func(t *testing.T) {
+	suite.Run("test UploadedAmendedOrdersID is not nil UUID", func() {
 		order.UploadedAmendedOrdersID = &uuid.Nil
 
 		expErrors := map[string][]string{
@@ -187,7 +186,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	suite.Error(err)
 	suite.Equal(ErrFetchForbidden, err)
 
-	suite.T().Run("successfully excludes deleted orders uploads", func(t *testing.T) {
+	suite.Run("successfully excludes deleted orders uploads", func() {
 		nonDeletedOrdersUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{})
 		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
 			UserUpload: UserUpload{

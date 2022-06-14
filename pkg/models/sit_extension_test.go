@@ -2,7 +2,6 @@ package models_test
 
 import (
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -17,7 +16,7 @@ func (suite *ModelSuite) TestSITExtensionCreation() {
 	suite.NotNil(shipment)
 	suite.NotEqual(uuid.Nil, shipment.ID)
 
-	suite.T().Run("test valid SITExtension", func(t *testing.T) {
+	suite.Run("test valid SITExtension", func() {
 		approvedDays := 90
 		decisionDate := time.Now()
 		contractorRemarks := "some remarks here from the contractor"
@@ -42,7 +41,7 @@ func (suite *ModelSuite) TestSITExtensionCreation() {
 		suite.NotEqual(time.Time{}, validSITExtension.UpdatedAt)
 	})
 
-	suite.T().Run("test minimal valid SITExtension", func(t *testing.T) {
+	suite.Run("test minimal valid SITExtension", func() {
 		validSITExtension := models.SITExtension{
 			MTOShipment:   shipment,
 			MTOShipmentID: shipment.ID,
@@ -61,7 +60,7 @@ func (suite *ModelSuite) TestSITExtensionCreation() {
 }
 
 func (suite *ModelSuite) TestSITExtensionValidation() {
-	suite.T().Run("test valid SITExtension", func(t *testing.T) {
+	suite.Run("test valid SITExtension", func() {
 		approvedDays := 1
 		decisionDate := time.Now()
 		contractorRemarks := "some remarks here from the contractor"
@@ -91,7 +90,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 	}
 
 	for _, reason := range reasons {
-		suite.T().Run(fmt.Sprintf("test valid SITExtension Reasons (%s)", reason), func(t *testing.T) {
+		suite.Run(fmt.Sprintf("test valid SITExtension Reasons (%s)", reason), func() {
 			validSITExtension := models.SITExtension{
 				MTOShipmentID: uuid.Must(uuid.NewV4()),
 				RequestReason: reason,
@@ -110,7 +109,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 	}
 
 	for _, status := range statuses {
-		suite.T().Run(fmt.Sprintf("test valid SITExtension Status (%s)", status), func(t *testing.T) {
+		suite.Run(fmt.Sprintf("test valid SITExtension Status (%s)", status), func() {
 			validSITExtension := models.SITExtension{
 				MTOShipmentID: uuid.Must(uuid.NewV4()),
 				RequestReason: models.SITExtensionRequestReasonSeriousIllnessMember,
@@ -122,7 +121,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 		})
 	}
 
-	suite.T().Run("test invalid sit extension", func(t *testing.T) {
+	suite.Run("test invalid sit extension", func() {
 		const badReason models.SITExtensionRequestReason = "bad reason"
 		const badStatus models.SITExtensionStatus = "bad status"
 		approvedDays := 0

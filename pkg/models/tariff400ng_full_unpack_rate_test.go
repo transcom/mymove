@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	. "github.com/transcom/mymove/pkg/models"
@@ -9,7 +8,7 @@ import (
 )
 
 func (suite *ModelSuite) Test_Tariff400ngFullUnpackRateValidation() {
-	suite.T().Run("test valid Tariff400ngFullUnpackRate", func(t *testing.T) {
+	suite.Run("test valid Tariff400ngFullUnpackRate", func() {
 		now := time.Now()
 		validTariff400ngFullUnpackRate := Tariff400ngFullUnpackRate{
 			Schedule:           1,
@@ -21,7 +20,7 @@ func (suite *ModelSuite) Test_Tariff400ngFullUnpackRateValidation() {
 		suite.verifyValidationErrors(&validTariff400ngFullUnpackRate, expErrors)
 	})
 
-	suite.T().Run("test invalid Tariff400ngFullUnpackRate", func(t *testing.T) {
+	suite.Run("test invalid Tariff400ngFullUnpackRate", func() {
 		invalidTariff400ngFullUnpackRate := Tariff400ngFullUnpackRate{}
 		expErrors := map[string][]string{
 			"schedule":             {"Schedule can not be blank."},
@@ -31,7 +30,7 @@ func (suite *ModelSuite) Test_Tariff400ngFullUnpackRateValidation() {
 		suite.verifyValidationErrors(&invalidTariff400ngFullUnpackRate, expErrors)
 	})
 
-	suite.T().Run("test negative RateMillicents, badly ordered dates for Tariff400ngFullUnpackRate", func(t *testing.T) {
+	suite.Run("test negative RateMillicents, badly ordered dates for Tariff400ngFullUnpackRate", func() {
 		now := time.Now()
 		invalidTariff400ngFullUnpackRate := Tariff400ngFullUnpackRate{
 			Schedule:           1,

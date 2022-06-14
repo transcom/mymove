@@ -13,7 +13,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -57,7 +56,7 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 func (suite *ModelSuite) TestGenerateReferenceID() {
 
 	refID, err := GenerateReferenceID(suite.DB())
-	suite.T().Run("reference id is properly created", func(t *testing.T) {
+	suite.Run("reference id is properly created", func() {
 		suite.NoError(err)
 		suite.NotZero(refID)
 		firstNum, _ := strconv.Atoi(strings.Split(refID, "-")[0])
@@ -119,7 +118,7 @@ func (suite *ModelSuite) TestFetchMove() {
 	_, err = FetchMove(suite.DB(), session, move.ID)
 	suite.Equal(ErrFetchForbidden, err, "Expected to get a Forbidden back.")
 
-	suite.T().Run("Hidden move is not returned", func(t *testing.T) {
+	suite.Run("Hidden move is not returned", func() {
 		// Create a hidden move
 		hiddenMove := testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
@@ -128,7 +127,7 @@ func (suite *ModelSuite) TestFetchMove() {
 		suite.Equal(ErrFetchNotFound, err, "Expected to get FetchNotFound.")
 	})
 
-	suite.T().Run("deleted shipments are excluded from the results", func(t *testing.T) {
+	suite.Run("deleted shipments are excluded from the results", func() {
 		mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		mto := mtoShipment.MoveTaskOrder
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
