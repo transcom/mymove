@@ -1,11 +1,7 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateBGN() {
-	suite.T().Run("validate success all fields", func(t *testing.T) {
+	suite.Run("validate success all fields", func() {
 		validBGN := BGN{
 			TransactionSetPurposeCode: "11",
 			ReferenceIdentification:   "hello",
@@ -15,7 +11,7 @@ func (suite *SegmentSuite) TestValidateBGN() {
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		bgn := BGN{
 			TransactionSetPurposeCode: "10",       // eq
 			ReferenceIdentification:   "",         // min
@@ -29,7 +25,7 @@ func (suite *SegmentSuite) TestValidateBGN() {
 		suite.ValidateErrorLen(err, 3)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		bgn := BGN{
 			TransactionSetPurposeCode: "11",
 			ReferenceIdentification:   "long string that exceeds max length", // max
@@ -43,7 +39,7 @@ func (suite *SegmentSuite) TestValidateBGN() {
 }
 
 func (suite *SegmentSuite) TestStringArrayBGN() {
-	suite.T().Run("string array all fields", func(t *testing.T) {
+	suite.Run("string array all fields", func() {
 		validBGN := BGN{
 			TransactionSetPurposeCode: "11",
 			ReferenceIdentification:   "hello",
@@ -55,7 +51,7 @@ func (suite *SegmentSuite) TestStringArrayBGN() {
 }
 
 func (suite *SegmentSuite) TestParseBGN() {
-	suite.T().Run("parse success all fields", func(t *testing.T) {
+	suite.Run("parse success all fields", func() {
 		arrayValidBGN := []string{"11", "hello", "20210310"}
 		expectedBGN := BGN{
 			TransactionSetPurposeCode: "11",
@@ -70,7 +66,7 @@ func (suite *SegmentSuite) TestParseBGN() {
 		}
 	})
 
-	suite.T().Run("wrong number of fields", func(t *testing.T) {
+	suite.Run("wrong number of fields", func() {
 		badArrayBGN := []string{"11", "hello"}
 		var badBGN BGN
 		err := badBGN.Parse(badArrayBGN)

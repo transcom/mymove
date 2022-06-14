@@ -39,7 +39,7 @@ func (suite *EDISuite) TestNewScanLine() {
 		"line 4",
 	}
 
-	suite.T().Run("successfully read lines broken by newline \\n", func(t *testing.T) {
+	suite.Run("successfully read lines broken by newline \\n", func() {
 		scanner := bufio.NewScanner(strings.NewReader(strings.Join(expected, "\n")))
 		scanner.Split(SplitLines)
 		idx := 0
@@ -50,7 +50,7 @@ func (suite *EDISuite) TestNewScanLine() {
 		suite.Equal(len(expected), idx, "Processed less lines than expected")
 	})
 
-	suite.T().Run("successfully read lines broken by carriage return and newline \\r\\n", func(t *testing.T) {
+	suite.Run("successfully read lines broken by carriage return and newline \\r\\n", func() {
 		scanner := bufio.NewScanner(strings.NewReader(strings.Join(expected, "\r\n")))
 		scanner.Split(SplitLines)
 		idx := 0
@@ -61,7 +61,7 @@ func (suite *EDISuite) TestNewScanLine() {
 		suite.Equal(len(expected), idx, "Processed less lines than expected")
 	})
 
-	suite.T().Run("successfully read lines broken by only carriage return \\r", func(t *testing.T) {
+	suite.Run("successfully read lines broken by only carriage return \\r", func() {
 		scanner := bufio.NewScanner(strings.NewReader(strings.Join(expected, "\r")))
 		scanner.Split(SplitLines)
 		idx := 0

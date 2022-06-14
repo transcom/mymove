@@ -2,11 +2,10 @@ package edisegment
 
 import (
 	"fmt"
-	"testing"
 )
 
 func (suite *SegmentSuite) TestValidateAK9() {
-	suite.T().Run("validate success all fields", func(t *testing.T) {
+	suite.Run("validate success all fields", func() {
 		validAK9 := AK9{
 			FunctionalGroupAcknowledgeCode:      "A",
 			NumberOfTransactionSetsIncluded:     1,
@@ -22,7 +21,7 @@ func (suite *SegmentSuite) TestValidateAK9() {
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate success only required fields", func(t *testing.T) {
+	suite.Run("validate success only required fields", func() {
 		validAK9 := AK9{
 			FunctionalGroupAcknowledgeCode:  "E",
 			NumberOfTransactionSetsIncluded: 1,
@@ -33,7 +32,7 @@ func (suite *SegmentSuite) TestValidateAK9() {
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate success for all valid FunctionalGroupAcknowledgeCode values", func(t *testing.T) {
+	suite.Run("validate success for all valid FunctionalGroupAcknowledgeCode values", func() {
 		validAK9 := AK9{
 			FunctionalGroupAcknowledgeCode:  "A",
 			NumberOfTransactionSetsIncluded: 1,
@@ -48,7 +47,7 @@ func (suite *SegmentSuite) TestValidateAK9() {
 		}
 	})
 
-	suite.T().Run("validate failure for invalid FunctionalGroupAcknowledgeCode", func(t *testing.T) {
+	suite.Run("validate failure for invalid FunctionalGroupAcknowledgeCode", func() {
 		validAK9 := AK9{
 			FunctionalGroupAcknowledgeCode:  "B",
 			NumberOfTransactionSetsIncluded: 1,
@@ -59,7 +58,7 @@ func (suite *SegmentSuite) TestValidateAK9() {
 		suite.ValidateError(err, "FunctionalGroupAcknowledgeCode", "oneof")
 	})
 
-	suite.T().Run("failure due to missing required fields", func(t *testing.T) {
+	suite.Run("failure due to missing required fields", func() {
 
 		ak9 := AK9{
 			FunctionalGroupSyntaxErrorCodeAK905: "AAA",
@@ -76,7 +75,7 @@ func (suite *SegmentSuite) TestValidateAK9() {
 		suite.ValidateErrorLen(err, 4)
 	})
 
-	suite.T().Run("validate failure max", func(t *testing.T) {
+	suite.Run("validate failure max", func() {
 		// length of characters are more than max
 		ak9 := AK9{
 			FunctionalGroupAcknowledgeCode:      "AA",
@@ -103,7 +102,7 @@ func (suite *SegmentSuite) TestValidateAK9() {
 		suite.ValidateErrorLen(err, 9)
 	})
 
-	suite.T().Run("validate failure min", func(t *testing.T) {
+	suite.Run("validate failure min", func() {
 		// length of characters are less than min
 		ak9 := AK9{
 			FunctionalGroupAcknowledgeCode:  "",
@@ -122,7 +121,7 @@ func (suite *SegmentSuite) TestValidateAK9() {
 }
 
 func (suite *SegmentSuite) TestStringArrayAK9() {
-	suite.T().Run("string array all fields", func(t *testing.T) {
+	suite.Run("string array all fields", func() {
 		validAK9 := AK9{
 			FunctionalGroupAcknowledgeCode:      "A",
 			NumberOfTransactionSetsIncluded:     1,
@@ -138,7 +137,7 @@ func (suite *SegmentSuite) TestStringArrayAK9() {
 		suite.Equal(arrayValidAK9, validAK9.StringArray())
 	})
 
-	suite.T().Run("string array only required fields", func(t *testing.T) {
+	suite.Run("string array only required fields", func() {
 		validOptionalAK9 := AK9{
 			FunctionalGroupAcknowledgeCode:  "A",
 			NumberOfTransactionSetsIncluded: 1,
@@ -151,7 +150,7 @@ func (suite *SegmentSuite) TestStringArrayAK9() {
 }
 
 func (suite *SegmentSuite) TestParseAK9() {
-	suite.T().Run("parse success all fields", func(t *testing.T) {
+	suite.Run("parse success all fields", func() {
 		arrayValidAK9 := []string{"A", "1", "2", "3", "AAA", "BBB", "CCC", "DDD", "EEE"}
 		expectedAK9 := AK9{
 			FunctionalGroupAcknowledgeCode:      "A",
@@ -172,7 +171,7 @@ func (suite *SegmentSuite) TestParseAK9() {
 		}
 	})
 
-	suite.T().Run("parse success only required fields", func(t *testing.T) {
+	suite.Run("parse success only required fields", func() {
 		arrayValidOptionalAK9 := []string{"A", "1", "2", "3", "", "", "", "", ""}
 		expectedOptionalAK9 := AK9{
 			FunctionalGroupAcknowledgeCode:  "A",
@@ -188,7 +187,7 @@ func (suite *SegmentSuite) TestParseAK9() {
 		}
 	})
 
-	suite.T().Run("wrong number of elements", func(t *testing.T) {
+	suite.Run("wrong number of elements", func() {
 		badArrayAK9 := []string{"A", "abc"}
 		var badAK9 AK9
 		err := badAK9.Parse(badArrayAK9)
@@ -197,7 +196,7 @@ func (suite *SegmentSuite) TestParseAK9() {
 		}
 	})
 
-	suite.T().Run("parse fails for invalid ints", func(t *testing.T) {
+	suite.Run("parse fails for invalid ints", func() {
 		var validOptionalAK9 AK9
 		arrayInvalidIntsAK9 := []string{"A", "g", "2", "3", "", "", "", "", ""}
 
