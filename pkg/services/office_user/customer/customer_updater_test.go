@@ -13,7 +13,6 @@ import (
 )
 
 func (suite *CustomerServiceSuite) TestCustomerUpdater() {
-	expectedCustomer := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
 
 	customerUpdater := NewCustomerUpdater()
 
@@ -24,6 +23,7 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 	})
 
 	suite.Run("PreconditionsError when etag is stale", func() {
+		expectedCustomer := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
 		staleEtag := etag.GenerateEtag(expectedCustomer.UpdatedAt.Add(-1 * time.Minute))
 		_, err := customerUpdater.UpdateCustomer(suite.AppContextForTest(), staleEtag, models.ServiceMember{ID: expectedCustomer.ID})
 		suite.IsType(apperror.PreconditionFailedError{}, err)

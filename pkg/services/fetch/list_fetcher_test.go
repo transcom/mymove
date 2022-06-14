@@ -3,7 +3,6 @@ package fetch
 import (
 	"errors"
 	"reflect"
-	"testing"
 
 	"github.com/gofrs/uuid"
 
@@ -43,7 +42,7 @@ func defaultOrdering() services.QueryOrder {
 }
 
 func (suite *FetchServiceSuite) TestFetchRecordList() {
-	suite.T().Run("if the user is fetched, it should be returned", func(t *testing.T) {
+	suite.Run("if the user is fetched, it should be returned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
 		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
@@ -67,7 +66,7 @@ func (suite *FetchServiceSuite) TestFetchRecordList() {
 		suite.Equal(id, officeUsers[0].ID)
 	})
 
-	suite.T().Run("if there is an error, we get it with no office users", func(t *testing.T) {
+	suite.Run("if there is an error, we get it with no office users", func() {
 		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
 			return errors.New("Fetch error")
 		}
