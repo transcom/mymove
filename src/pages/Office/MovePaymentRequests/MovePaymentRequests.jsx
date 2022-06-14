@@ -35,6 +35,8 @@ import FinancialReviewButton from 'components/Office/FinancialReviewButton/Finan
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const MovePaymentRequests = ({
   setUnapprovedShipmentCount,
@@ -240,7 +242,7 @@ const MovePaymentRequests = ({
           <Grid row className={txoStyles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={txoStyles.alertContainer}>
-                <Alert slim type={alertType}>
+                <Alert headingLevel="h4" slim type={alertType}>
                   {alertMessage}
                 </Alert>
               </Grid>
@@ -248,10 +250,12 @@ const MovePaymentRequests = ({
           </Grid>
           <div className={styles.tioPaymentRequestsHeadingFlexbox}>
             <h1>Payment Requests</h1>
-            <FinancialReviewButton
-              onClick={handleShowFinancialReviewModal}
-              reviewRequested={move?.financialReviewFlag}
-            />
+            <Restricted to={permissionTypes.updateFinancialReviewFlag}>
+              <FinancialReviewButton
+                onClick={handleShowFinancialReviewModal}
+                reviewRequested={move?.financialReviewFlag}
+              />
+            </Restricted>
           </div>
           {isFinancialModalVisible && (
             <FinancialReviewModal

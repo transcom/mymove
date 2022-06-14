@@ -16,6 +16,8 @@ import { OrdersLOAShape } from 'types/order';
 import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const ShipmentDisplay = ({
   shipmentType,
@@ -51,18 +53,20 @@ const ShipmentDisplay = ({
     <div className={styles.ShipmentCard} data-testid="shipment-display">
       <ShipmentContainer className={containerClasses} shipmentType={shipmentType}>
         <div className={styles.heading}>
-          {allowApproval && isSubmitted && !displayInfo.usesExternalVendor && (
-            <Checkbox
-              id={`shipment-display-checkbox-${shipmentId}`}
-              data-testid="shipment-display-checkbox"
-              onChange={onChange}
-              name="shipments"
-              label=""
-              value={shipmentId}
-              aria-labelledby={`shipment-display-label-${shipmentId}`}
-              disabled={disableApproval}
-            />
-          )}
+          <Restricted to={permissionTypes.updateShipment}>
+            {allowApproval && isSubmitted && !displayInfo.usesExternalVendor && (
+              <Checkbox
+                id={`shipment-display-checkbox-${shipmentId}`}
+                data-testid="shipment-display-checkbox"
+                onChange={onChange}
+                name="shipments"
+                label=""
+                value={shipmentId}
+                aria-labelledby={`shipment-display-label-${shipmentId}`}
+                disabled={disableApproval}
+              />
+            )}
+          </Restricted>
 
           {allowApproval && !isSubmitted && (
             <FontAwesomeIcon icon={['far', 'circle-check']} className={styles.approved} />
@@ -92,17 +96,19 @@ const ShipmentDisplay = ({
           showWhenCollapsed={showWhenCollapsed}
           neverShow={neverShow}
         />
-        {editURL && (
-          <EditButton
-            onClick={() => {
-              history.push(editURL);
-            }}
-            className={styles.editButton}
-            data-testid={editURL}
-            label="Edit shipment"
-            secondary
-          />
-        )}
+        <Restricted to={permissionTypes.updateShipment}>
+          {editURL && (
+            <EditButton
+              onClick={() => {
+                history.push(editURL);
+              }}
+              className={styles.editButton}
+              data-testid={editURL}
+              label="Edit shipment"
+              secondary
+            />
+          )}
+        </Restricted>
       </ShipmentContainer>
     </div>
   );

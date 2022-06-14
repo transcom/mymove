@@ -75,7 +75,7 @@ const SubmitMoveForm = (props) => {
               </div>
 
               {error && (
-                <Alert type="error" heading="Server Error">
+                <Alert type="error" headingLevel="h4" heading="Server Error">
                   There was a problem saving your signature.
                 </Alert>
               )}

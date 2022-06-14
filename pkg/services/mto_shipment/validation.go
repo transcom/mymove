@@ -130,3 +130,15 @@ func checkUpdateAllowed() validator {
 		return err
 	})
 }
+
+// Checks if a shipment can be deleted
+func checkDeleteAllowed() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
+		move := older.MoveTaskOrder
+		if move.Status != models.MoveStatusDRAFT && move.Status != models.MoveStatusNeedsServiceCounseling {
+			return apperror.NewForbiddenError("A shipment can only be deleted if the move is in Draft or NeedsServiceCounseling")
+		}
+
+		return nil
+	})
+}

@@ -123,6 +123,27 @@ func (_m *Planner) Zip5TransitDistanceLineHaul(appCtx appcontext.AppContext, sou
 	return r0, r1
 }
 
+// ZipTransitDistance provides a mock function with given fields: appCtx, source, destination
+func (_m *Planner) ZipTransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error) {
+	ret := _m.Called(appCtx, source, destination)
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) int); ok {
+		r0 = rf(appCtx, source, destination)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, string) error); ok {
+		r1 = rf(appCtx, source, destination)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewPlanner creates a new instance of Planner. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
 func NewPlanner(t testing.TB) *Planner {
 	mock := &Planner{}

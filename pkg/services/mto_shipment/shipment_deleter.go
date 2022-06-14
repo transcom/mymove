@@ -8,16 +8,16 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/db/utilities"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type shipmentDeleter struct {
+	checks []validator
 }
 
 // NewShipmentDeleter creates a new struct with the service dependencies
 func NewShipmentDeleter() services.ShipmentDeleter {
-	return &shipmentDeleter{}
+	return &shipmentDeleter{[]validator{checkDeleteAllowed()}}
 }
 
 // DeleteShipment soft deletes the shipment
@@ -27,9 +27,9 @@ func (f *shipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentI
 		return uuid.Nil, err
 	}
 
-	err = f.verifyShipmentCanBeDeleted(appCtx, shipment)
-	if err != nil {
-		return uuid.Nil, err
+	// run the (read-only) validations
+	if verr := validateShipment(appCtx, shipment, shipment, f.checks...); verr != nil {
+		return uuid.Nil, verr
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
@@ -52,13 +52,4 @@ func (f *shipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentI
 	}
 
 	return shipment.MoveTaskOrderID, err
-}
-
-func (f *shipmentDeleter) verifyShipmentCanBeDeleted(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
-	move := shipment.MoveTaskOrder
-	if move.Status != models.MoveStatusDRAFT && move.Status != models.MoveStatusNeedsServiceCounseling {
-		return apperror.NewForbiddenError("A shipment can only be deleted if the move is in Draft or NeedsServiceCounseling")
-	}
-
-	return nil
 }

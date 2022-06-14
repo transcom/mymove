@@ -33,6 +33,7 @@ import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape } from 'types/index';
 import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes, qaeCSRRoutes } from 'constants/routes';
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
+import PermissionProvider from 'components/Restricted/PermissionProvider';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -61,6 +62,7 @@ const PrimeSimulatorMoveDetails = lazy(() => import('pages/PrimeUI/MoveTaskOrder
 const PrimeSimulatorCreatePaymentRequest = lazy(() =>
   import('pages/PrimeUI/CreatePaymentRequest/CreatePaymentRequest'),
 );
+const PrimeUIShipmentCreateForm = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentCreate'));
 const PrimeUIShipmentForm = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdate'));
 
 const PrimeSimulatorUploadPaymentRequestDocuments = lazy(() =>
@@ -106,6 +108,7 @@ export class OfficeApp extends Component {
     const {
       activeRole,
       userIsLoggedIn,
+      userPermissions,
       userRoles,
       location: { pathname },
       hasRecentError,
@@ -171,7 +174,7 @@ export class OfficeApp extends Component {
     });
 
     return (
-      <>
+      <PermissionProvider permissions={userPermissions}>
         <div id="app-root">
           <div className={siteClasses}>
             <BypassBlock />
@@ -251,6 +254,13 @@ export class OfficeApp extends Component {
                       key="primeSimulatorMovePath"
                       path={primeSimulatorRoutes.VIEW_MOVE_PATH}
                       component={PrimeSimulatorMoveDetails}
+                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                    />
+
+                    <PrivateRoute
+                      key="primeSimulatorCreateShipmentPath"
+                      path={primeSimulatorRoutes.CREATE_SHIPMENT_PATH}
+                      component={PrimeUIShipmentCreateForm}
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}
                     />
 
@@ -341,7 +351,7 @@ export class OfficeApp extends Component {
           </div>
         </div>
         <div id="modal-root" />
-      </>
+      </PermissionProvider>
     );
   }
 }
@@ -352,6 +362,7 @@ OfficeApp.propTypes = {
   loadUser: PropTypes.func.isRequired,
   location: LocationShape,
   userIsLoggedIn: PropTypes.bool,
+  userPermissions: PropTypes.arrayOf(PropTypes.string),
   userRoles: UserRolesShape,
   activeRole: PropTypes.string,
   hasRecentError: PropTypes.bool.isRequired,
@@ -366,6 +377,7 @@ OfficeApp.propTypes = {
 OfficeApp.defaultProps = {
   location: { pathname: '' },
   userIsLoggedIn: false,
+  userPermissions: [],
   userRoles: [],
   activeRole: null,
   history: {
@@ -379,6 +391,7 @@ const mapStateToProps = (state) => {
   return {
     swaggerError: state.swaggerInternal.hasErrored,
     userIsLoggedIn: selectIsLoggedIn(state),
+    userPermissions: user?.permissions || [],
     userRoles: user?.roles || [],
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,

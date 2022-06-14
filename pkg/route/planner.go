@@ -103,6 +103,13 @@ func zip3TransitDistanceHelper(appCtx appcontext.AppContext, planner Planner, so
 	return distance, err
 }
 
+// SoapCaller provides an interface for the Call method of the gosoap Client so it can be mocked.
+// NOTE: Placing this in a separate package/directory to avoid a circular dependency from an existing mock.
+//go:generate mockery --name SoapCaller --outpkg ghcmocks --output ./ghcmocks --disable-version-string
+type SoapCaller interface {
+	Call(m string, p gosoap.SoapParams) (res *gosoap.Response, err error)
+}
+
 // Planner is the interface needed by Handlers to be able to evaluate the distance to be used for move accounting
 //go:generate mockery --name Planner --disable-version-string
 type Planner interface {
@@ -111,8 +118,9 @@ type Planner interface {
 	// Zip5TransitDistanceLineHaul is used by PPM flow and checks for minimum distance restriction as PPM doesn't allow short hauls
 	// New code should probably make the minimum checks after calling Zip5TransitDistance over using this method
 	Zip5TransitDistanceLineHaul(appCtx appcontext.AppContext, source string, destination string) (int, error)
-	Zip5TransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error)
+	ZipTransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error)
 	Zip3TransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error)
+	Zip5TransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error)
 }
 
 // InitRoutePlanner creates a new HERE route planner that adheres to the Planner interface
@@ -126,8 +134,8 @@ func InitRoutePlanner(v *viper.Viper) Planner {
 		v.GetString(cli.HEREMapsAppCodeFlag))
 }
 
-// InitGHCRoutePlanner creates a new GHC route planner that adheres to the Planner interface
-func InitGHCRoutePlanner(v *viper.Viper, tlsConfig *tls.Config) (Planner, error) {
+// InitHHGRoutePlanner creates a new HHG route planner that adheres to the Planner interface
+func InitHHGRoutePlanner(v *viper.Viper, tlsConfig *tls.Config) (Planner, error) {
 	tr := &http.Transport{TLSClientConfig: tlsConfig}
 	httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
 
@@ -140,10 +148,32 @@ func InitGHCRoutePlanner(v *viper.Viper, tlsConfig *tls.Config) (Planner, error)
 	}
 	soapClient.URL = dtodURL
 
-	ghcPlanner := NewGHCPlanner(
+	hhgPlanner := NewHHGPlanner(
 		soapClient,
 		v.GetString(cli.DTODApiUsernameFlag),
 		v.GetString(cli.DTODApiPasswordFlag))
 
-	return ghcPlanner, nil
+	return hhgPlanner, nil
+}
+
+// InitDtodRoutePlanner creates a new DTOD route planner that adheres to the Planner interface
+func InitDtodRoutePlanner(v *viper.Viper, tlsConfig *tls.Config) (Planner, error) {
+	tr := &http.Transport{TLSClientConfig: tlsConfig}
+	httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
+
+	dtodWSDL := v.GetString(cli.DTODApiWSDLFlag)
+	dtodURL := v.GetString(cli.DTODApiURLFlag)
+
+	soapClient, err := gosoap.SoapClient(dtodWSDL, httpClient)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create SOAP client: %w", err)
+	}
+	soapClient.URL = dtodURL
+
+	dtodPlanner := NewDtodPlanner(
+		soapClient,
+		v.GetString(cli.DTODApiUsernameFlag),
+		v.GetString(cli.DTODApiPasswordFlag))
+
+	return dtodPlanner, nil
 }

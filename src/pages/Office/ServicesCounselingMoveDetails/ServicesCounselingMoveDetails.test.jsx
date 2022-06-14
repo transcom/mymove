@@ -9,6 +9,7 @@ import ServicesCounselingMoveDetails from './ServicesCounselingMoveDetails';
 import MOVE_STATUSES from 'constants/moves';
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
+import { permissionTypes } from 'constants/permissions';
 import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { formatDate } from 'shared/dates';
@@ -253,7 +254,7 @@ const renderMockedComponent = (props) => {
 };
 
 const mockedComponent = (
-  <MockProviders initialEntries={[detailsURL]}>
+  <MockProviders initialEntries={[detailsURL]} permissions={[permissionTypes.updateShipment]}>
     <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
   </MockProviders>
 );
@@ -715,6 +716,30 @@ describe('MoveDetails page', () => {
         expect(screen.queryByRole('link', { name: 'View and edit orders' })).not.toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit customer info' })).not.toBeInTheDocument();
+      });
+    });
+
+    describe('permission dependent rendering', () => {
+      useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+
+      it('renders the financial review flag button when user has permission', async () => {
+        render(
+          <MockProviders initialEntries={[detailsURL]} permissions={[permissionTypes.updateFinancialReviewFlag]}>
+            <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
+          </MockProviders>,
+        );
+
+        expect(await screen.getByText('Flag move for financial review')).toBeInTheDocument();
+      });
+
+      it('does not show the financial review flag button if user does not have permission', () => {
+        render(
+          <MockProviders initialEntries={[detailsURL]}>
+            <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
+          </MockProviders>,
+        );
+
+        expect(screen.queryByText('Flag move for financial review')).not.toBeInTheDocument();
       });
     });
   });

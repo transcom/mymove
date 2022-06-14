@@ -55,6 +55,8 @@ import FinancialReviewModal from 'components/Office/FinancialReviewModal/Financi
 import leftNavStyles from 'components/LeftNav/LeftNav.module.scss';
 import LeftNavSection from 'components/LeftNavSection/LeftNavSection';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -634,14 +636,20 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           <Grid row className={styles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={styles.alertContainer}>
-                <Alert slim type={alertType}>
+                <Alert headingLevel="h4" slim type={alertType}>
                   {alertMessage}
                 </Alert>
               </Grid>
             )}
           </Grid>
           {isWeightAlertVisible && (
-            <Alert slim type="warning" cta={excessWeightAlertControl} className={styles.alertWithButton}>
+            <Alert
+              headingLevel="h4"
+              slim
+              type="warning"
+              cta={excessWeightAlertControl}
+              className={styles.alertWithButton}
+            >
               <span>
                 This move is at risk for excess weight.{' '}
                 <span className={styles.rightAlignButtonWrapper}>
@@ -653,7 +661,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             </Alert>
           )}
           {isSuccessAlertVisible && (
-            <Alert slim type="success">
+            <Alert headingLevel="h4" slim type="success">
               Your changes were saved
             </Alert>
           )}
@@ -700,12 +708,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             <div className={styles.pageHeaderDetails}>
               <h6>MTO Reference ID #{move?.referenceId}</h6>
               <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
-              <div className={moveTaskOrderStyles.financialReviewContainer}>
-                <FinancialReviewButton
-                  onClick={handleShowFinancialReviewModal}
-                  reviewRequested={move.financialReviewFlag}
-                />
-              </div>
+              <Restricted to={permissionTypes.updateFinancialReviewFlag}>
+                <div className={moveTaskOrderStyles.financialReviewContainer}>
+                  <FinancialReviewButton
+                    onClick={handleShowFinancialReviewModal}
+                    reviewRequested={move.financialReviewFlag}
+                  />
+                </div>
+              </Restricted>
             </div>
           </div>
 
