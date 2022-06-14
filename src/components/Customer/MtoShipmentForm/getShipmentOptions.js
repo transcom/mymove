@@ -9,6 +9,7 @@ import {
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { roleTypes } from 'constants/userRoles';
+import { getFormattedMaxAdvancePercentage } from 'utils/incentives';
 
 const hhgShipmentSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
@@ -59,11 +60,32 @@ const ntsReleaseShipmentTOOSchema = Yup.object().shape({
   storageFacility: StorageFacilityAddressSchema,
 });
 
-const ppmSchema = Yup.object().shape({
-  // todo
-});
+const ppmSchema = (estimatedIncentive = 0) =>
+  Yup.object().shape({
+    estimatedWeight: Yup.number().min(1, 'Enter a weight greater than 0 lbs').required('Required'),
+    hasProGear: Yup.boolean().required('Required'),
+    proGearWeight: Yup.number()
+      .min(0, 'Enter a weight 0 lbs or greater')
+      .when(['hasProGear', 'spouseProGearWeight'], {
+        is: (hasProGear, spouseProGearWeight) => hasProGear && !spouseProGearWeight,
+        then: (schema) =>
+          schema
+            .required(
+              `Enter weight in at least one pro-gear field. If the customer will not move pro-gear in this PPM, select No above.`,
+            )
+            .max(2000, 'Enter a weight 2,000 lbs or less'),
+        otherwise: Yup.number().min(0, 'Enter a weight 0 lbs or greater').max(2000, 'Enter a weight 2,000 lbs or less'),
+      }),
+    spouseProGearWeight: Yup.number()
+      .min(0, 'Enter a weight 0 lbs or greater')
+      .max(2000, 'Enter a weight 2,000 lbs or less'),
+    advance: Yup.number().max(
+      (estimatedIncentive * 0.6) / 100,
+      `Enter an amount that is less than or equal to the maximum advance (${getFormattedMaxAdvancePercentage()} of estimated incentive)`,
+    ),
+  });
 
-function getShipmentOptions(shipmentType, userRole) {
+function getShipmentOptions(shipmentType, userRole, estimatedIncentive) {
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
       return {
@@ -124,7 +146,7 @@ function getShipmentOptions(shipmentType, userRole) {
 
     case SHIPMENT_OPTIONS.PPM:
       return {
-        schema: ppmSchema,
+        schema: ppmSchema(estimatedIncentive),
       };
 
     default:

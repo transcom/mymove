@@ -191,3 +191,15 @@ export const PPMShipment = () => {
     <ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.PPM} userRole={roleTypes.SERVICES_COUNSELOR} />
   );
 };
+
+export const PPMShipmentAdvance = () => {
+  return (
+    <ShipmentForm
+      {...defaultProps}
+      selectedMoveType={SHIPMENT_OPTIONS.PPM}
+      userRole={roleTypes.SERVICES_COUNSELOR}
+      isAdvancePage
+      mtoShipment={{ ppmShipment: { estimatedIncentive: 1000000 } }}
+    />
+  );
+};
