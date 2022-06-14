@@ -26,7 +26,10 @@ export function signInAndNavigateToAboutPageWithAdvance(userId, isMoveSubmitted 
   cy.wait('@getShipment');
   cy.screenshot();
   cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
-  navigateToAboutPageWithAdvance();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/about/);
+  });
+  fillOutAboutPageWithAdvance();
 }
 
 export function signInAndNavigateToAboutPageWithoutAdvance(userId, isMoveSubmitted = true) {
@@ -35,8 +38,10 @@ export function signInAndNavigateToAboutPageWithoutAdvance(userId, isMoveSubmitt
   cy.wait('@getShipment');
   cy.screenshot();
   cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
-
-  navigateToAboutPageWithoutAdvance();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/about/);
+  });
+  fillOutAboutPageWithoutAdvance();
 }
 export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
   if (isMoveSubmitted) {
@@ -50,23 +55,32 @@ export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
   }
 }
 
-export function navigateToAboutPageWithAdvance() {
+export function fillOutAboutPageWithAdvance() {
   cy.get('input[name="actualMoveDate"]').clear().type('01 Feb 2022').blur();
   cy.get('input[name="actualPickupPostalCode"]').clear().type('90210').blur();
 
   cy.get('input[name="actualDestinationPostalCode"]').clear().type('76127');
   cy.get('input[name="hasReceivedAdvance"][value="true"]').check({ force: true });
   cy.get('input[name="advanceAmountReceived"]').clear().type('5000');
-  cy.get('button').contains('Save & Continue').should('be.enabled').click();
+  cy.get('button').contains('Save & Continue').should('be.enabled');
+  navigateToWeightTicket();
 }
 
-export function navigateToAboutPageWithoutAdvance() {
+export function fillOutAboutPageWithoutAdvance() {
   cy.get('input[name="actualMoveDate"]').clear().type('01 Feb 2022').blur();
   cy.get('input[name="actualPickupPostalCode"]').clear().type('90210').blur();
 
   cy.get('input[name="actualDestinationPostalCode"]').clear().type('76127');
   cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: true });
-  cy.get('button').contains('Save & Continue').should('be.enabled').click();
+  cy.get('button').contains('Save & Continue').should('be.enabled');
+  navigateToWeightTicket();
+}
+
+export function navigateToWeightTicket() {
+  cy.get('button').contains('Save & Continue').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+  });
 }
 
 export function signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId) {
