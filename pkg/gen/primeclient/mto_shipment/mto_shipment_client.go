@@ -36,6 +36,8 @@ type ClientService interface {
 
 	CreateSITExtension(params *CreateSITExtensionParams, opts ...ClientOption) (*CreateSITExtensionCreated, error)
 
+	DeleteMTOShipment(params *DeleteMTOShipmentParams, opts ...ClientOption) (*DeleteMTOShipmentNoContent, error)
+
 	UpdateMTOAgent(params *UpdateMTOAgentParams, opts ...ClientOption) (*UpdateMTOAgentOK, error)
 
 	UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...ClientOption) (*UpdateMTOShipmentOK, error)
@@ -187,6 +189,46 @@ func (a *Client) CreateSITExtension(params *CreateSITExtensionParams, opts ...Cl
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for createSITExtension: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  DeleteMTOShipment softs deletes a shipment by ID
+
+  Soft deletes a shipment by ID
+*/
+func (a *Client) DeleteMTOShipment(params *DeleteMTOShipmentParams, opts ...ClientOption) (*DeleteMTOShipmentNoContent, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDeleteMTOShipmentParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "deleteMTOShipment",
+		Method:             "DELETE",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &DeleteMTOShipmentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*DeleteMTOShipmentNoContent)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for deleteMTOShipment: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

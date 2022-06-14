@@ -20,9 +20,14 @@ func NewShipmentDeleter() services.ShipmentDeleter {
 	return &shipmentDeleter{[]validator{checkDeleteAllowed()}}
 }
 
+// NewPrimeShipmentDeleter creates a new struct with the service dependencies
+func NewPrimeShipmentDeleter() services.ShipmentDeleter {
+	return &shipmentDeleter{[]validator{checkAvailToPrime(), checkPrimeDeleteAllowed()}}
+}
+
 // DeleteShipment soft deletes the shipment
 func (f *shipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (uuid.UUID, error) {
-	shipment, err := FindShipment(appCtx, shipmentID, "MoveTaskOrder")
+	shipment, err := FindShipment(appCtx, shipmentID, "MoveTaskOrder", "PPMShipment")
 	if err != nil {
 		return uuid.Nil, err
 	}

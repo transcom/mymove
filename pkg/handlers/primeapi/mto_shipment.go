@@ -171,6 +171,39 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		})
 }
 
+// DeleteMTOShipmentHandler is the handler to soft delete MTO shipments
+type DeleteMTOShipmentHandler struct {
+	handlers.HandlerConfig
+	services.ShipmentDeleter
+}
+
+// Handle handler that updates a mto shipment
+func (h DeleteMTOShipmentHandler) Handle(params mtoshipmentops.DeleteMTOShipmentParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+			_, err := h.DeleteShipment(appCtx, shipmentID)
+			if err != nil {
+				appCtx.Logger().Error("primeapi.DeleteMTOShipmentHandler", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return mtoshipmentops.NewDeleteMTOShipmentNotFound(), err
+				case apperror.ConflictError:
+					return mtoshipmentops.NewDeleteMTOShipmentConflict(), err
+				case apperror.ForbiddenError:
+					return mtoshipmentops.NewDeleteMTOShipmentForbidden(), err
+				case apperror.UnprocessableEntityError:
+					return mtoshipmentops.NewDeleteMTOShipmentUnprocessableEntity(), err
+				default:
+					return mtoshipmentops.NewDeleteMTOShipmentInternalServerError(), err
+				}
+			}
+
+			return mtoshipmentops.NewDeleteMTOShipmentNoContent(), nil
+		})
+}
+
 // This function checks Prime specific validations on the model
 // It expects dbShipment to represent what's in the db and mtoShipment to represent the requested update
 // It updates mtoShipment accordingly if there are dependent updates like requiredDeliveryDate

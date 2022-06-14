@@ -241,4 +241,74 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 			})
 		}
 	})
+
+	suite.Run("checkPrimeDeleteAllowed for non-PPM shipments", func() {
+		testCases := map[models.MTOShipmentType]bool{
+			models.MTOShipmentTypeHHG:              false,
+			models.MTOShipmentTypeInternationalHHG: false,
+			models.MTOShipmentTypeInternationalUB:  false,
+			models.MTOShipmentTypeHHGLongHaulDom:   false,
+			models.MTOShipmentTypeHHGShortHaulDom:  false,
+			models.MTOShipmentTypeHHGIntoNTSDom:    false,
+			models.MTOShipmentTypeHHGOutOfNTSDom:   false,
+			models.MTOShipmentTypeMotorhome:        false,
+			models.MTOShipmentTypeBoatHaulAway:     false,
+			models.MTOShipmentTypeBoatTowAway:      false,
+		}
+
+		for shipmentType, allowed := range testCases {
+			suite.Run("Shipment type "+string(shipmentType), func() {
+				shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+					MTOShipment: models.MTOShipment{
+						ShipmentType: shipmentType,
+					},
+				})
+
+				err := checkPrimeDeleteAllowed().Validate(
+					suite.AppContextForTest(),
+					nil,
+					&shipment,
+				)
+
+				if allowed {
+					suite.NoError(err)
+				} else {
+					suite.Error(err)
+				}
+			})
+		}
+	})
+
+	suite.Run("checkPrimeDeleteAllowed based on PPM status", func() {
+		testCases := map[models.PPMShipmentStatus]bool{
+			models.PPMShipmentStatusDraft:                true,
+			models.PPMShipmentStatusSubmitted:            true,
+			models.PPMShipmentStatusWaitingOnCustomer:    false,
+			models.PPMShipmentStatusNeedsAdvanceApproval: true,
+			models.PPMShipmentStatusNeedsPaymentApproval: true,
+			models.PPMShipmentStatusPaymentApproved:      true,
+		}
+
+		for status, allowed := range testCases {
+			suite.Run("PPM status "+string(status), func() {
+				ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+					PPMShipment: models.PPMShipment{
+						Status: status,
+					},
+				})
+
+				err := checkPrimeDeleteAllowed().Validate(
+					suite.AppContextForTest(),
+					nil,
+					&ppmShipment.Shipment,
+				)
+
+				if allowed {
+					suite.NoError(err)
+				} else {
+					suite.Error(err)
+				}
+			})
+		}
+	})
 }

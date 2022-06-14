@@ -142,3 +142,16 @@ func checkDeleteAllowed() validator {
 		return nil
 	})
 }
+
+// Checks if a shipment can be deleted
+func checkPrimeDeleteAllowed() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
+		if older.ShipmentType != models.MTOShipmentTypePPM {
+			return apperror.NewForbiddenError("Prime can only delete PPM shipments")
+		}
+		if older.PPMShipment != nil && older.PPMShipment.Status == models.PPMShipmentStatusWaitingOnCustomer {
+			return apperror.NewForbiddenError(fmt.Sprintf("A PPM shipment with the status %v cannot be deleted", models.PPMShipmentStatusWaitingOnCustomer))
+		}
+		return nil
+	})
+}

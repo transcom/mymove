@@ -272,6 +272,36 @@ paths:
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a shipment by ID
+      description: Soft deletes a shipment by ID
+      operationId: deleteMTOShipment
+      tags:
+        - mtoShipment
+      produces:
+        - application/json
+      parameters:
+        - description: ID of the shipment to be deleted
+          in: path
+          name: mtoShipmentID
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully soft deleted the shipment
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: 'responses/PermissionDenied.yaml'
+        '404':
+          $ref: 'responses/NotFound.yaml'
+        '409':
+          $ref: 'responses/Conflict.yaml'
+        '422':
+          $ref: 'responses/UnprocessableEntity.yaml'
+        '500':
+          $ref: '#/responses/ServerError'
   '/mto-shipments/{mtoShipmentID}/addresses/{addressID}':
     put:
       summary: updateMTOShipmentAddress
@@ -794,7 +824,7 @@ paths:
         '400':
           description: Request payload is invalid.
           schema:
-            $ref: '#/definitions/ClientError'
+            $ref: 'definitions/ClientError.yaml'
         '401':
           $ref: 'responses/PermissionDenied.yaml'
         '403':
@@ -854,20 +884,6 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
 definitions:
-  ClientError:
-    type: object
-    properties:
-      title:
-        type: string
-      detail:
-        type: string
-      instance:
-        type: string
-        format: uuid
-    required:
-      - title
-      - detail
-      - instance
   CreateMTOShipment:
     type: object
     properties:
@@ -2204,7 +2220,7 @@ responses:
   InvalidRequest:
     description: The request payload is invalid.
     schema:
-      $ref: '#/definitions/ClientError'
+      $ref: 'definitions/ClientError.yaml'
   ServerError:
     description: A server error occurred.
     schema:
@@ -2216,4 +2232,4 @@ responses:
   PreconditionFailed:
     description: Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
     schema:
-      $ref: '#/definitions/ClientError'
+      $ref: 'definitions/ClientError.yaml'
