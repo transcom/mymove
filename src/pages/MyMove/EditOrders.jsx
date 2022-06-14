@@ -27,6 +27,7 @@ import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import { formatWeight, formatYesNoInputValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { ExistingUploadsShape } from 'types';
+import { formatDateForSwagger } from 'shared/dates';
 
 export const EditOrders = ({
   serviceMember,
@@ -96,6 +97,8 @@ export const EditOrders = ({
       service_member_id: serviceMember.id,
       has_dependents: hasDependents,
       new_duty_location_id: newDutyLocationId,
+      issue_date: formatDateForSwagger(fieldValues.issue_date),
+      report_by_date: formatDateForSwagger(fieldValues.report_by_date),
       // spouse_has_pro_gear is not updated by this form but is a required value because the endpoint is shared with the
       // ppm office edit orders
       spouse_has_pro_gear: currentOrders.spouse_has_pro_gear,
