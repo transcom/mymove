@@ -13,7 +13,7 @@ const webpack = require('webpack');
 module.exports = {
   webpack: (config) => {
     config.resolve.fallback = {
-      // This is the Node Polyfill for process/bowser
+      // This is the Node polyfill for process/browser
       http: require.resolve('stream-http'),
     };
     config.plugins.push(
