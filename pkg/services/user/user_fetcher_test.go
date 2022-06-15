@@ -3,7 +3,6 @@ package user
 import (
 	"errors"
 	"reflect"
-	"testing"
 
 	"github.com/gobuffalo/validate/v3"
 
@@ -30,7 +29,7 @@ func (t *testUserQueryBuilder) UpdateOne(appCtx appcontext.AppContext, model int
 }
 
 func (suite *UserServiceSuite) TestFetchUser() {
-	suite.T().Run("if the user is fetched, it should be returned", func(t *testing.T) {
+	suite.Run("if the user is fetched, it should be returned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
@@ -51,7 +50,7 @@ func (suite *UserServiceSuite) TestFetchUser() {
 		suite.Equal(id, user.ID)
 	})
 
-	suite.T().Run("if there is an error, we get it with zero user", func(t *testing.T) {
+	suite.Run("if there is an error, we get it with zero user", func() {
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			return errors.New("Fetch error")
 		}

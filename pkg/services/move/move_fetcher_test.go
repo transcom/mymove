@@ -1,7 +1,6 @@
 package move
 
 import (
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -14,7 +13,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 	moveFetcher := NewMoveFetcher()
 	defaultSearchParams := services.MoveFetcherParams{}
 
-	suite.T().Run("successfully returns default draft move", func(t *testing.T) {
+	suite.Run("successfully returns default draft move", func() {
 		expectedMove := testdatagen.MakeDefaultMove(suite.DB())
 
 		actualMove, err := moveFetcher.FetchMove(suite.AppContextForTest(), expectedMove.Locator, &defaultSearchParams)
@@ -32,7 +31,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 		suite.Equal(expectedMove.ReferenceID, actualMove.ReferenceID)
 	})
 
-	suite.T().Run("successfully returns submitted move available to prime", func(t *testing.T) {
+	suite.Run("successfully returns submitted move available to prime", func() {
 		expectedMove := testdatagen.MakeAvailableMove(suite.DB())
 
 		actualMove, err := moveFetcher.FetchMove(suite.AppContextForTest(), expectedMove.Locator, &defaultSearchParams)
@@ -50,7 +49,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 		suite.Equal(expectedMove.ReferenceID, actualMove.ReferenceID)
 	})
 
-	suite.T().Run("returns not found error for unknown locator", func(t *testing.T) {
+	suite.Run("returns not found error for unknown locator", func() {
 		_ = testdatagen.MakeAvailableMove(suite.DB())
 
 		_, err := moveFetcher.FetchMove(suite.AppContextForTest(), "QX97UY", &defaultSearchParams)
@@ -58,7 +57,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Returns not found for a move that is marked hidden in the db", func(t *testing.T) {
+	suite.Run("Returns not found for a move that is marked hidden in the db", func() {
 		hide := false
 		hiddenMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -76,7 +75,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Returns hidden move if explicit param is passed in", func(t *testing.T) {
+	suite.Run("Returns hidden move if explicit param is passed in", func() {
 		hide := false
 		actualMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
