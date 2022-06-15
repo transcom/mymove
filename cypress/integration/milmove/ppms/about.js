@@ -1,9 +1,4 @@
-import {
-  deleteShipment,
-  setMobileViewport,
-  signInAndNavigateToAboutPageWithAdvance,
-  signInAndNavigateToAboutPageWithoutAdvance,
-} from '../../../support/ppmCustomerShared';
+import { deleteShipment, setMobileViewport, signInAndNavigateToAboutPage } from '../../../support/ppmCustomerShared';
 
 describe('About Your PPM', function () {
   before(() => {
@@ -27,7 +22,7 @@ describe('About Your PPM', function () {
         setMobileViewport();
       }
 
-      signInAndNavigateToAboutPageWithAdvance(userId);
+      signInAndNavigateToAboutPage(userId, true);
     });
   });
 
@@ -37,7 +32,7 @@ describe('About Your PPM', function () {
       if (isMobile) {
         setMobileViewport();
       }
-      signInAndNavigateToAboutPageWithoutAdvance(userId);
+      signInAndNavigateToAboutPage(userId, false);
     });
   });
 });
