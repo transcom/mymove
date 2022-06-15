@@ -42,7 +42,7 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
         ${formatDestinationAddress(shipmentInfo.destinationAddress)} on ${shipmentInfo.scheduledPickupDate}`}
         </small>
         {isCancelModalVisible && (
-          <Restricted to={permissionTypes.requestShipmentCancellation}>
+          <Restricted to={permissionTypes.createShipmentCancellation}>
             <Button type="button" onClick={() => handleShowCancellationModal(shipmentInfo)} unstyled>
               Request Cancellation
             </Button>

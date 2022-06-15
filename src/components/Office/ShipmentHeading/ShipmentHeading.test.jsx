@@ -133,7 +133,7 @@ describe('Shipment Heading with shipment cancellation requested', () => {
 
 describe('Shipment Heading shows cancellation button with permissions', () => {
   const wrapper = mount(
-    <MockProviders permissions={[permissionTypes.requestShipmentCancellation]}>
+    <MockProviders permissions={[permissionTypes.createShipmentCancellation]}>
       <ShipmentHeading
         shipmentInfo={headingInfo}
         handleUpdateMTOShipmentStatus={jest.fn()}

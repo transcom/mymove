@@ -2794,7 +2794,9 @@ func init() {
             "$ref": "#/responses/ServerError"
           }
         },
-        "x-permissions": "-create.ShipmentCancellation"
+        "x-permissions": [
+          "create.shipmentCancellation"
+        ]
       },
       "parameters": [
         {
@@ -2982,7 +2984,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "create.SITExtension"
+        ]
       }
     },
     "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve": {
@@ -3042,7 +3047,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.SITExtension"
+        ]
       },
       "parameters": [
         {
@@ -3119,7 +3127,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.SITExtension"
+        ]
       },
       "parameters": [
         {
@@ -10490,7 +10501,9 @@ func init() {
             }
           }
         },
-        "x-permissions": "-create.ShipmentCancellation"
+        "x-permissions": [
+          "create.shipmentCancellation"
+        ]
       },
       "parameters": [
         {
@@ -10729,7 +10742,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "create.SITExtension"
+        ]
       }
     },
     "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve": {
@@ -10807,7 +10823,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.SITExtension"
+        ]
       },
       "parameters": [
         {
@@ -10902,7 +10921,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.SITExtension"
+        ]
       },
       "parameters": [
         {
