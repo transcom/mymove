@@ -1008,6 +1008,8 @@ paths:
       description: Requests a shipment reweigh
       operationId: requestShipmentReweigh
       summary: Requests a shipment reweigh
+      x-permissions:
+        - create.reweighRequest
   '/shipments/{shipmentID}/sit-extensions/':
     post:
       summary: Create an approved SIT extension

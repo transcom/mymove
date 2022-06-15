@@ -2912,7 +2912,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "create.reweighRequest"
+        ]
       },
       "parameters": [
         {
@@ -10657,7 +10660,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "create.reweighRequest"
+        ]
       },
       "parameters": [
         {
