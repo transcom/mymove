@@ -110,7 +110,7 @@ func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 		HandlerConfig: handlerConfig,
 		PaymentRequestRecalculator: paymentrequest.NewPaymentRequestRecalculator(
 			paymentrequest.NewPaymentRequestCreator(
-				handlerConfig.GHCPlanner(),
+				handlerConfig.HHGPlanner(),
 				ghcrateengine.NewServiceItemPricer(),
 			),
 			paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),

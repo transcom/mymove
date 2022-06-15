@@ -17,28 +17,19 @@ type DistanceZipSITDestLookup struct {
 func (r DistanceZipSITDestLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	planner := keyData.planner
 
-	// If the zip3s are identical, we do a zip3 distance calc (which uses RM).
-	// If they are different, we do a zip5 distance calc (which uses DTOD).
-
 	destZip := r.DestinationAddress.PostalCode
 	if len(destZip) < 5 {
 		return "", fmt.Errorf("invalid destination postal code of %s", destZip)
 	}
-	destZip3 := destZip[:3]
 
 	finalDestZip := r.FinalDestinationAddress.PostalCode
 	if len(finalDestZip) < 5 {
 		return "", fmt.Errorf("invalid SIT final destination postal code of %s", destZip)
 	}
-	finalDestZip3 := finalDestZip[:3]
 
 	var distanceMiles int
 	var distanceErr error
-	if destZip3 == finalDestZip3 {
-		distanceMiles, distanceErr = planner.Zip5TransitDistance(appCtx, destZip, finalDestZip)
-	} else {
-		distanceMiles, distanceErr = planner.Zip3TransitDistance(appCtx, destZip, finalDestZip)
-	}
+	distanceMiles, distanceErr = planner.ZipTransitDistance(appCtx, destZip, finalDestZip)
 	if distanceErr != nil {
 		return "", distanceErr
 	}

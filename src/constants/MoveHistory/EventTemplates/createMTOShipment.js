@@ -7,7 +7,6 @@ export default {
   action: a.INSERT,
   eventName: o.createMTOShipment,
   tableName: t.mto_shipments,
-  detailsType: d.PLAIN_TEXT,
-  getEventNameDisplay: () => 'Submitted/Requested shipments',
-  getDetailsPlainText: () => '-',
+  detailsType: d.LABELED,
+  getEventNameDisplay: () => 'Created shipment',
 };

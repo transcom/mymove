@@ -50,6 +50,17 @@ export async function createUpload({ paymentRequestID, file }) {
   return makePrimeSimulatorRequest('paymentRequest.createUpload', { paymentRequestID, file }, { normalize: false });
 }
 
+export function createPrimeMTOShipment({ normalize = false, schemaKey = 'mtoShipment', body }) {
+  const operationPath = 'mtoShipment.createMTOShipment';
+  return makePrimeSimulatorRequest(
+    operationPath,
+    {
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
 export function updatePrimeMTOShipment({
   mtoShipmentID,
   ifMatchETag,

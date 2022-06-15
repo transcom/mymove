@@ -49,14 +49,9 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 				Value:   "4242",
 			},
 			{
-				Key:     models.ServiceItemParamNameDistanceZip3,
+				Key:     models.ServiceItemParamNameDistanceZip,
 				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "2424",
-			},
-			{
-				Key:     models.ServiceItemParamNameDistanceZip5,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "24245",
+				Value:   "24246",
 			},
 		}
 

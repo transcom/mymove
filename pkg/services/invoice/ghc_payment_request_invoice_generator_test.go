@@ -66,14 +66,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			Value:   "4242",
 		},
 		{
-			Key:     models.ServiceItemParamNameDistanceZip3,
+			Key:     models.ServiceItemParamNameDistanceZip,
 			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "2424",
-		},
-		{
-			Key:     models.ServiceItemParamNameDistanceZip5,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "24245",
+			Value:   "24246",
 		},
 	}
 
@@ -647,13 +642,13 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 				switch serviceCode {
 				case models.ReServiceCodeDSH:
-					suite.Equal(float64(24245), l0.BilledRatedAsQuantity)
+					suite.Equal(float64(24246), l0.BilledRatedAsQuantity)
 				case models.ReServiceCodeDDDSIT:
 					suite.Equal(float64(44), l0.BilledRatedAsQuantity)
 				case models.ReServiceCodeDOPSIT:
 					suite.Equal(float64(33), l0.BilledRatedAsQuantity)
 				default:
-					suite.Equal(float64(2424), l0.BilledRatedAsQuantity)
+					suite.Equal(float64(24246), l0.BilledRatedAsQuantity)
 				}
 				suite.Equal("DM", l0.BilledRatedAsQualifier)
 				suite.Equal(float64(4242), l0.Weight)
@@ -756,9 +751,9 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 			Value:   "4242",
 		},
 		{
-			Key:     models.ServiceItemParamNameDistanceZip3,
+			Key:     models.ServiceItemParamNameDistanceZip,
 			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "2424",
+			Value:   "24246",
 		},
 	}
 
@@ -953,9 +948,9 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 			Value:   "4242",
 		},
 		{
-			Key:     models.ServiceItemParamNameDistanceZip3,
+			Key:     models.ServiceItemParamNameDistanceZip,
 			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "2424",
+			Value:   "24246",
 		},
 	}
 

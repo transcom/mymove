@@ -62,6 +62,7 @@ const PrimeSimulatorMoveDetails = lazy(() => import('pages/PrimeUI/MoveTaskOrder
 const PrimeSimulatorCreatePaymentRequest = lazy(() =>
   import('pages/PrimeUI/CreatePaymentRequest/CreatePaymentRequest'),
 );
+const PrimeUIShipmentCreateForm = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentCreate'));
 const PrimeUIShipmentForm = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdate'));
 
 const PrimeSimulatorUploadPaymentRequestDocuments = lazy(() =>
@@ -253,6 +254,13 @@ export class OfficeApp extends Component {
                       key="primeSimulatorMovePath"
                       path={primeSimulatorRoutes.VIEW_MOVE_PATH}
                       component={PrimeSimulatorMoveDetails}
+                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                    />
+
+                    <PrivateRoute
+                      key="primeSimulatorCreateShipmentPath"
+                      path={primeSimulatorRoutes.CREATE_SHIPMENT_PATH}
+                      component={PrimeUIShipmentCreateForm}
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}
                     />
 

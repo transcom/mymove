@@ -27,11 +27,11 @@ func (suite *GHCRateEngineServiceSuite) Test_getPaymentServiceItemParam() {
 
 func (suite *GHCRateEngineServiceSuite) Test_getParamInt() {
 	params := models.PaymentServiceItemParams{
-		setupParamConvertParam(models.ServiceItemParamNameDistanceZip5, models.ServiceItemParamTypeInteger, "1234"),
+		setupParamConvertParam(models.ServiceItemParamNameDistanceZip, models.ServiceItemParamTypeInteger, "1234"),
 	}
 
 	suite.Run("finding expected param value", func() {
-		value, err := getParamInt(params, models.ServiceItemParamNameDistanceZip5)
+		value, err := getParamInt(params, models.ServiceItemParamNameDistanceZip)
 		suite.NoError(err)
 		suite.Equal(1234, value)
 	})
