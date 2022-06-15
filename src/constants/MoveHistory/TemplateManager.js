@@ -6,7 +6,7 @@ const allMoveHistoryEventTemplates = [];
 
 const registerTemplate = ({
   action = '*',
-  eventName = '*',
+  eventName,
   tableName = '*',
   detailsType = detailsTypes.PLAIN_TEXT,
   getEventNameDisplay = () => {
