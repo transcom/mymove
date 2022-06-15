@@ -2856,7 +2856,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "create.shipmentDiversionRequest"
+        ]
       },
       "parameters": [
         {
@@ -10580,7 +10583,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "create.shipmentDiversionRequest"
+        ]
       },
       "parameters": [
         {

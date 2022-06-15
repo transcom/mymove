@@ -5,6 +5,8 @@ import userEvent from '@testing-library/user-event';
 import ShipmentAddresses from './ShipmentAddresses';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 const testProps = {
   pickupAddress: {
@@ -76,7 +78,11 @@ const cancelledShipment = {
 
 describe('ShipmentAddresses', () => {
   it('calls props.handleDivertShipment on request diversion button click', async () => {
-    render(<ShipmentAddresses {...testProps} />);
+    render(
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest]}>
+        <ShipmentAddresses {...testProps} />
+      </MockProviders>,
+    );
     const requestDiversionBtn = screen.getByRole('button', { name: 'Request diversion' });
 
     userEvent.click(requestDiversionBtn);
@@ -90,6 +96,19 @@ describe('ShipmentAddresses', () => {
   });
 
   it('hides the request diversion button for a cancelled shipment', async () => {
+    render(
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest]}>
+        <ShipmentAddresses {...cancelledShipment} />
+      </MockProviders>,
+    );
+    const requestDiversionBtn = screen.queryByRole('button', { name: 'Request diversion' });
+
+    await waitFor(() => {
+      expect(requestDiversionBtn).toBeNull();
+    });
+  });
+
+  it('hides the request diversion button when user does not have permissions', async () => {
     render(<ShipmentAddresses {...cancelledShipment} />);
     const requestDiversionBtn = screen.queryByRole('button', { name: 'Request diversion' });
 

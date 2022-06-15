@@ -22,17 +22,17 @@ type RolePermissions struct {
 var TOO = RolePermissions{
 	RoleType: roles.RoleTypeTOO,
 	Permissions: []string{"update.move", "create.serviceItem",
-		"update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight", "create.shipmentCancellation", "create.SITExtension", "update.SITExtension"},
+		"update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight", "create.shipmentCancellation", "create.SITExtension", "update.SITExtension", "create.shipmentDiversionRequest"},
 }
 
 var TIO = RolePermissions{
 	RoleType:    roles.RoleTypeTIO,
-	Permissions: []string{"create.serviceItem", "update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight", "create.ShipmentCancellation"},
+	Permissions: []string{"create.serviceItem", "update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight", "create.ShipmentCancellation", "create.shipmentDiversionRequest"},
 }
 
 var ServicesCounselor = RolePermissions{
 	RoleType:    roles.RoleTypeServicesCounselor,
-	Permissions: []string{"update.financialReviewFlag", "update.shipment", "update.orders", "update.allowances", "update.billableWeight"},
+	Permissions: []string{"update.financialReviewFlag", "update.shipment", "update.orders", "update.allowances", "update.billableWeight", "create.shipmentDiversionRequest"},
 }
 
 var QAECSR = RolePermissions{

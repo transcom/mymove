@@ -841,6 +841,8 @@ paths:
       description: Requests a shipment diversion
       operationId: requestShipmentDiversion
       summary: Requests a shipment diversion
+      x-permissions:
+        - create.shipmentDiversionRequest
   '/shipments/{shipmentID}/approve-diversion':
     parameters:
       - description: ID of the shipment

@@ -8,4 +8,5 @@ export const permissionTypes = {
   createShipmentCancellation: 'create.shipmentCancellation',
   updateSITExtension: 'update.SITExtension',
   createSITExtension: 'create.SITExtension',
+  createShipmentDiversionRequest: 'create.shipmentDiversionRequest',
 };
