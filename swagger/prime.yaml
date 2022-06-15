@@ -1081,20 +1081,6 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
 definitions:
-  ClientError:
-    type: object
-    properties:
-      title:
-        type: string
-      detail:
-        type: string
-      instance:
-        type: string
-        format: uuid
-    required:
-      - title
-      - detail
-      - instance
   CreateMTOShipment:
     type: object
     properties:
@@ -2547,6 +2533,20 @@ definitions:
         type: string
         x-nullable: true
         x-omitempty: false
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
   Address:
     description: A postal address
     type: object
