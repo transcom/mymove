@@ -90,8 +90,8 @@ const MoveDetails = ({ setFlashMessage }) => {
     },
   });
 
-  const handleDeleteShipment = (shipmentID) => {
-    deleteShipmentMutation({ shipmentID });
+  const handleDeleteShipment = (mtoShipmentID) => {
+    deleteShipmentMutation({ mtoShipmentID });
   };
 
   if (isLoading) return <LoadingPlaceholder />;
