@@ -1,13 +1,13 @@
-// README: This is necessary due to the fact that Webpack 5 dropped support for
-// Node Polyfills. We use the `process` object to do things in a couple of
+// README: This is necessary due to the fact that webpack 5 dropped support for
+// Node polyfills. We use the `process` object to do things in a couple of
 // files. Search the project for `process.` to see where. To mitigate this
-// update to Webpack 5 and not update our code, we can configure Webpack to
+// update to webpack 5 and not update our code, we can configure webpack to
 // support `process` again by using the `stream-http` package. We also override
 // our react-scripts calls with a new package called `react-app-rewired` which
 // wraps calls to `react-scripts` and allows for configuration updates to
 // configuration files inside of Create React App.
 
-// Webpack is a dependency of React-Scripts
+// webpack is a dependency of React-Scripts
 const webpack = require('webpack');
 
 module.exports = {
