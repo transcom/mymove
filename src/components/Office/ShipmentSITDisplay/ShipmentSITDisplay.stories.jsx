@@ -73,6 +73,6 @@ export const AtDestinationPreviousSITAndExtensionWithComments = () => (
       sitExtensions={SITExtensionsWithComments}
       sitStatus={SITStatusWithPastSITServiceItems}
       shipment={SITShipment}
-    />{' '}
+    />
   </MockProviders>
 );
