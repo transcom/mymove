@@ -5,9 +5,9 @@ import * as eventTemplates from 'constants/MoveHistory/EventTemplates';
 const allMoveHistoryEventTemplates = [];
 
 const registerTemplate = ({
-  action = '*',
+  action,
   eventName,
-  tableName = '*',
+  tableName,
   detailsType = detailsTypes.PLAIN_TEXT,
   getEventNameDisplay = () => {
     return 'Undefined event type';
