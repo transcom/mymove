@@ -22,17 +22,17 @@ type RolePermissions struct {
 var TOO = RolePermissions{
 	RoleType: roles.RoleTypeTOO,
 	Permissions: []string{"update.move", "create.serviceItem",
-		"update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight", "create.shipmentCancellation", "create.SITExtension", "update.SITExtension", "create.shipmentDiversionRequest", "create.reweighRequest"},
+		"update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight", "create.shipmentCancellation", "create.SITExtension", "update.SITExtension", "create.shipmentDiversionRequest", "create.reweighRequest", "update.MTOServiceItem"},
 }
 
 var TIO = RolePermissions{
 	RoleType:    roles.RoleTypeTIO,
-	Permissions: []string{"create.serviceItem", "update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight", "create.ShipmentCancellation", "create.shipmentDiversionRequest", "create.reweighRequest"},
+	Permissions: []string{"create.serviceItem", "update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight", "create.ShipmentCancellation", "create.shipmentDiversionRequest", "create.reweighRequest", "update.MTOServiceItem"},
 }
 
 var ServicesCounselor = RolePermissions{
 	RoleType:    roles.RoleTypeServicesCounselor,
-	Permissions: []string{"update.financialReviewFlag", "update.shipment", "update.orders", "update.allowances", "update.billableWeight", "create.shipmentDiversionRequest", "create.reweighRequest"},
+	Permissions: []string{"update.financialReviewFlag", "update.shipment", "update.orders", "update.allowances", "update.billableWeight", "create.shipmentDiversionRequest", "create.reweighRequest", "update.MTOServiceItem"},
 }
 
 var QAECSR = RolePermissions{

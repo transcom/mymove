@@ -10,4 +10,5 @@ export const permissionTypes = {
   createSITExtension: 'create.SITExtension',
   createShipmentDiversionRequest: 'create.shipmentDiversionRequest',
   createReweighRequest: 'create.reweighRequest',
+  updateMTOServiceItem: 'update.MTOServiceItem',
 };

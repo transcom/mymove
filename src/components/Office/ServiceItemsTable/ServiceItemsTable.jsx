@@ -11,6 +11,8 @@ import styles from './ServiceItemsTable.module.scss';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 import { formatDateFromIso } from 'utils/formatters';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const ServiceItemsTable = ({
   serviceItems,
@@ -45,61 +47,67 @@ const ServiceItemsTable = ({
         </td>
         <td>
           {statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED && (
-            <div className={styles.statusAction}>
-              <Button
-                type="button"
-                className="usa-button--icon usa-button--small acceptButton"
-                data-testid="acceptButton"
-                onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
-              >
-                <span className="icon">
-                  <FontAwesomeIcon icon="check" />
-                </span>
-                <span>Accept</span>
-              </Button>
-              <Button
-                type="button"
-                secondary
-                className="usa-button--small usa-button--icon margin-left-1 rejectButton"
-                data-testid="rejectButton"
-                onClick={() => handleShowRejectionDialog(id, mtoShipmentID)}
-              >
-                <span className="icon">
-                  <FontAwesomeIcon icon="times" />
-                </span>
-                <span>Reject</span>
-              </Button>
-            </div>
+            <Restricted to={permissionTypes.updateMTOServiceItem}>
+              <div className={styles.statusAction}>
+                <Button
+                  type="button"
+                  className="usa-button--icon usa-button--small acceptButton"
+                  data-testid="acceptButton"
+                  onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
+                >
+                  <span className="icon">
+                    <FontAwesomeIcon icon="check" />
+                  </span>
+                  <span>Accept</span>
+                </Button>
+                <Button
+                  type="button"
+                  secondary
+                  className="usa-button--small usa-button--icon margin-left-1 rejectButton"
+                  data-testid="rejectButton"
+                  onClick={() => handleShowRejectionDialog(id, mtoShipmentID)}
+                >
+                  <span className="icon">
+                    <FontAwesomeIcon icon="times" />
+                  </span>
+                  <span>Reject</span>
+                </Button>
+              </div>
+            </Restricted>
           )}
           {statusForTableType === SERVICE_ITEM_STATUS.APPROVED && (
-            <div className={styles.statusAction}>
-              <Button
-                type="button"
-                data-testid="rejectTextButton"
-                className="text-blue usa-button--unstyled margin-left-1"
-                onClick={() => handleShowRejectionDialog(id, mtoShipmentID)}
-              >
-                <span className="icon">
-                  <FontAwesomeIcon icon="times" />
-                </span>{' '}
-                Reject
-              </Button>
-            </div>
+            <Restricted to={permissionTypes.updateMTOServiceItem}>
+              <div className={styles.statusAction}>
+                <Button
+                  type="button"
+                  data-testid="rejectTextButton"
+                  className="text-blue usa-button--unstyled margin-left-1"
+                  onClick={() => handleShowRejectionDialog(id, mtoShipmentID)}
+                >
+                  <span className="icon">
+                    <FontAwesomeIcon icon="times" />
+                  </span>{' '}
+                  Reject
+                </Button>
+              </div>
+            </Restricted>
           )}
           {statusForTableType === SERVICE_ITEM_STATUS.REJECTED && (
-            <div className={styles.statusAction}>
-              <Button
-                type="button"
-                data-testid="approveTextButton"
-                className="text-blue usa-button--unstyled"
-                onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
-              >
-                <span className="icon">
-                  <FontAwesomeIcon icon="times" />
-                </span>{' '}
-                Approve
-              </Button>
-            </div>
+            <Restricted to={permissionTypes.updateMTOServiceItem}>
+              <div className={styles.statusAction}>
+                <Button
+                  type="button"
+                  data-testid="approveTextButton"
+                  className="text-blue usa-button--unstyled"
+                  onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
+                >
+                  <span className="icon">
+                    <FontAwesomeIcon icon="times" />
+                  </span>{' '}
+                  Approve
+                </Button>
+              </div>
+            </Restricted>
           )}
         </td>
       </tr>
