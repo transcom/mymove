@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateG62() {
 	validG62ActualPickupDateTime := G62{
 		DateQualifier: 86,
@@ -22,7 +18,7 @@ func (suite *SegmentSuite) TestValidateG62() {
 		Date:          "20200909",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validG62ActualPickupDateTime)
 		suite.NoError(err)
 		err = suite.validator.Struct(validG62RequestedPickupDateTime)
@@ -31,7 +27,7 @@ func (suite *SegmentSuite) TestValidateG62() {
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		g62 := G62{
 			DateQualifier: 42,         // oneof
 			Date:          "20190945", // datetime

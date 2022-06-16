@@ -1,21 +1,17 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateGE() {
 	validGE := GE{
 		NumberOfTransactionSetsIncluded: 1,
 		GroupControlNumber:              1234567,
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validGE)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		ge := GE{
 			NumberOfTransactionSetsIncluded: 2, // eq
 			GroupControlNumber:              0, // min
@@ -27,7 +23,7 @@ func (suite *SegmentSuite) TestValidateGE() {
 		suite.ValidateErrorLen(err, 2)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		ge := validGE
 		ge.GroupControlNumber = 1000000000 // max
 
