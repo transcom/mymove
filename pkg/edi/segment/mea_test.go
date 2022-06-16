@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateMEA() {
 	validMEADefault := MEA{
 		MeasurementValue: 100.0,
@@ -15,17 +11,17 @@ func (suite *SegmentSuite) TestValidateMEA() {
 		MeasurementValue:           100.0,
 	}
 
-	suite.T().Run("validate success default", func(t *testing.T) {
+	suite.Run("validate success default", func() {
 		err := suite.validator.Struct(validMEADefault)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate success with values", func(t *testing.T) {
+	suite.Run("validate success with values", func() {
 		err := suite.validator.Struct(validMEAWithValues)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure", func(t *testing.T) {
+	suite.Run("validate failure", func() {
 		mea := MEA{
 			MeasurementReferenceIDCode: "ABC", // len
 			MeasurementQualifier:       "XX",  // oneof
