@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import Shipment from './Shipment';
 
@@ -169,7 +169,10 @@ describe('Shipment details component', () => {
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toBe(shipment.approvedDate);
 
-    // This is an HHG, so the PPM Status should not be visible.
+    // This is an HHG, so make sure elements that are specific to PPMs are not visible.
+    const deleteShipmentButton = screen.queryByText(/Delete Shipment/, { selector: 'button' });
+    expect(deleteShipmentButton).not.toBeInTheDocument();
+
     field = screen.queryByText('PPM Status:');
     expect(field).not.toBeInTheDocument();
   });
@@ -268,7 +271,7 @@ const ppmShipment = {
 };
 
 describe('PPM shipment renders', () => {
-  it('renders the component when shipment is a PPM', () => {
+  it('renders the component when shipment is a PPM (and deletion is allowed)', () => {
     render(
       <MockProviders>
         <Shipment shipment={ppmShipment} moveId={moveId} />
@@ -278,5 +281,12 @@ describe('PPM shipment renders', () => {
     const field = screen.getByText('PPM Status:');
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toBe(ppmShipment.ppmShipment.status);
+
+    const deleteShipmentButton = screen.queryByText(/Delete Shipment/, { selector: 'button' });
+    expect(deleteShipmentButton).toBeInTheDocument();
+
+    fireEvent.click(deleteShipmentButton);
+    const areYouSure = screen.queryByText(/Are you sure?/, { selector: 'h3' });
+    expect(areYouSure).toBeInTheDocument();
   });
 });

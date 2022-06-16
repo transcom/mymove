@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 
 import styles from './MoveDetails.module.scss';
 
-import { PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
+import { MTO_SHIPMENTS, PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
 import Shipment from 'components/PrimeUI/Shipment/Shipment';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -18,7 +18,7 @@ import formStyles from 'styles/form.module.scss';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
-import { completeCounseling } from 'services/primeApi';
+import { completeCounseling, deleteShipment } from 'services/primeApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
 
@@ -63,6 +63,35 @@ const MoveDetails = ({ setFlashMessage }) => {
 
   const handleCompleteCounseling = () => {
     completeCounselingMutation({ moveTaskOrderID: moveTaskOrder.id, ifMatchETag: moveTaskOrder.eTag });
+  };
+
+  const [deleteShipmentMutation] = useMutation(deleteShipment, {
+    onSuccess: () => {
+      setFlashMessage(`MSG_DELETE_SHIPMENT${moveCodeOrID}`, 'success', 'Successfully deleted shipment', '', true);
+
+      // queryCache.setQueryData([MTO_SHIPMENTS, moveCodeOrID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, moveCodeOrID]).then(() => {});
+    },
+    onError: (error) => {
+      const { response: { body } = {} } = error;
+
+      if (body) {
+        setErrorMessage({
+          title: `Prime API: ${body.title} `,
+          detail: `${body.detail}`,
+        });
+      } else {
+        setErrorMessage({
+          title: 'Unexpected error',
+          detail: 'An unknown error has occurred, please check the state of the shipment for this move',
+        });
+      }
+      scrollToTop();
+    },
+  });
+
+  const handleDeleteShipment = (shipmentID) => {
+    deleteShipmentMutation({ shipmentID });
   };
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -125,7 +154,7 @@ const MoveDetails = ({ setFlashMessage }) => {
                   {mtoShipments?.map((mtoShipment) => {
                     return (
                       <div key={mtoShipment.id}>
-                        <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} />
+                        <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} onDelete={handleDeleteShipment} />
                       </div>
                     );
                   })}
