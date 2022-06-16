@@ -109,6 +109,7 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createMoveWithPPM(appCtx, userUploader, moveRouter)
 		createNeedsServicesCounselingWithoutCompletedOrders(appCtx, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION, models.MTOShipmentTypePPM, nil, "SCPPM1")
 		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
+		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMADD")
 		// Post-onboarding
 		createApprovedMoveWithPPM(appCtx, userUploader)
 		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx, userUploader)

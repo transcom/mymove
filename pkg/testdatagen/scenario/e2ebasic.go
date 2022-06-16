@@ -4182,6 +4182,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
 	createApprovedMoveWithPPM(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
+	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMADD")
 
 	// TIO
 	createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx, userUploader, "NTSRT1")
