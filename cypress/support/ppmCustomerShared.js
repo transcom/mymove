@@ -29,7 +29,7 @@ export function signInAndNavigateToAboutPage(userId, selectAdvance) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/about/);
   });
-  // cy.get('input[name="hasReceivedAdvance"][value="true"]').check({ force: true });
+
   fillOutAboutPage(selectAdvance);
 }
 
@@ -58,6 +58,8 @@ export function fillOutAboutPage(selectAdvance) {
   cy.get('button').contains('Save & Continue').should('be.enabled');
   navigateToWeightTicket();
 }
+
+// Navigates to the Weight Ticket page from the About page
 export function navigateToWeightTicket() {
   cy.get('button').contains('Save & Continue').click();
   cy.location().should((loc) => {
