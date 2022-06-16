@@ -13,6 +13,9 @@ import {
   SITExtensionsWithComments,
 } from './ShipmentSITDisplayTestParams';
 
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
+
 const mockedDate = '2020-12-08T00:00:00.000Z';
 
 export default {
@@ -30,32 +33,46 @@ export default {
   ],
 };
 
-export const AtOriginNoPreviousSIT = () => <ShipmentSITDisplay sitStatus={SITStatusOrigin} shipment={SITShipment} />;
+export const AtOriginNoPreviousSIT = () => (
+  <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+    <ShipmentSITDisplay sitStatus={SITStatusOrigin} shipment={SITShipment} />
+  </MockProviders>
+);
 
 export const AtDestinationNoPreviousSIT = () => (
-  <ShipmentSITDisplay sitStatus={SITStatusDestination} shipment={SITShipment} />
+  <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+    <ShipmentSITDisplay sitStatus={SITStatusDestination} shipment={SITShipment} />
+  </MockProviders>
 );
 
 export const AtDestinationPreviousSITAtOrigin = () => (
-  <ShipmentSITDisplay sitStatus={SITStatusWithPastSITOriginServiceItem} shipment={SITShipment} />
+  <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+    <ShipmentSITDisplay sitStatus={SITStatusWithPastSITOriginServiceItem} shipment={SITShipment} />
+  </MockProviders>
 );
 
 export const AtDestinationPreviousMulitpleSIT = () => (
-  <ShipmentSITDisplay sitStatus={SITStatusWithPastSITServiceItems} shipment={SITShipment} />
+  <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+    <ShipmentSITDisplay sitStatus={SITStatusWithPastSITServiceItems} shipment={SITShipment} />
+  </MockProviders>
 );
 
 export const AtDestinationPreviousSITAndExtension = () => (
-  <ShipmentSITDisplay
-    sitExtensions={SITExtensions}
-    sitStatus={SITStatusWithPastSITServiceItems}
-    shipment={SITShipment}
-  />
+  <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+    <ShipmentSITDisplay
+      sitExtensions={SITExtensions}
+      sitStatus={SITStatusWithPastSITServiceItems}
+      shipment={SITShipment}
+    />
+  </MockProviders>
 );
 
 export const AtDestinationPreviousSITAndExtensionWithComments = () => (
-  <ShipmentSITDisplay
-    sitExtensions={SITExtensionsWithComments}
-    sitStatus={SITStatusWithPastSITServiceItems}
-    shipment={SITShipment}
-  />
+  <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+    <ShipmentSITDisplay
+      sitExtensions={SITExtensionsWithComments}
+      sitStatus={SITStatusWithPastSITServiceItems}
+      shipment={SITShipment}
+    />{' '}
+  </MockProviders>
 );
