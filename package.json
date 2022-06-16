@@ -12,6 +12,7 @@
     "classnames": "^2.3.1",
     "connected-react-router": "^6.9.2",
     "core-js": "^3.20.3",
+    "customize-cra": "^1.0.0",
     "eslint-plugin-react": "^7.28",
     "filepond": "^4.30.4",
     "filepond-plugin-file-validate-size": "^2.2.5",
@@ -73,6 +74,7 @@
     "swagger-ui-dist": "^4.11.1",
     "uswds": "2.13.1",
     "uuid": "^8.3.2",
+    "webpack": "5",
     "yup": "^0.32.11"
   },
   "resolutions": {
@@ -166,8 +168,7 @@
     "react-select-event": "^5.3.0",
     "react-test-renderer": "^17.0.1",
     "source-map-explorer": "^2.5.2",
-    "storybook-addons-abstract": "^6.2.1",
-    "webpack": "5"
+    "storybook-addons-abstract": "^6.2.1"
   },
   "browserslist": [
     ">0.2%",
