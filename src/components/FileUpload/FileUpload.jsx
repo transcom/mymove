@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { func, string, arrayOf } from 'prop-types';
+import { func, string, arrayOf, bool, int } from 'prop-types';
 import isMobile from 'is-mobile';
 import { FilePond, registerPlugin } from 'react-filepond';
 import 'filepond-polyfill/dist/filepond-polyfill';
@@ -21,7 +21,20 @@ registerPlugin(
 );
 
 const FileUpload = forwardRef(
-  ({ name, createUpload, onChange, labelIdle, labelIdleMobile, onAddFile, acceptedFileTypes }, ref) => {
+  (
+    {
+      name,
+      createUpload,
+      onChange,
+      labelIdle,
+      labelIdleMobile,
+      onAddFile,
+      acceptedFileTypes,
+      allowMultiple,
+      maxParralelUploads,
+    },
+    ref,
+  ) => {
     const handleOnChange = () => {
       if (onChange) onChange();
     };
@@ -64,7 +77,6 @@ const FileUpload = forwardRef(
      * component and passed through (like labelIdle)
      */
     const filePondProps = {
-      allowMultiple: true,
       server: serverConfig,
       imagePreviewMaxHeight: 100,
       labelIdle: isMobile() ? labelIdleMobile : labelIdle,
@@ -77,6 +89,8 @@ const FileUpload = forwardRef(
       <FilePond
         ref={ref}
         {...filePondProps}
+        allowMultiple={allowMultiple}
+        maxParralelUploads={maxParralelUploads}
         acceptedFileTypes={acceptedFileTypes}
         name={name}
         onprocessfile={handleProcessFile}
@@ -93,6 +107,8 @@ FileUpload.propTypes = {
   onChange: func,
   onAddFile: func,
   acceptedFileTypes: arrayOf(string),
+  allowMultiple: bool,
+  maxParralelUploads: int,
   // FilePond instance props
   labelIdle: string,
   labelIdleMobile: string,
@@ -103,6 +119,8 @@ FileUpload.defaultProps = {
   createUpload: createUploadApi,
   onChange: undefined,
   onAddFile: undefined,
+  allowMultiple: true,
+  maxParralelUploads: 2,
   acceptedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
   labelIdle: 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
   labelIdleMobile: '<span class="filepond--label-action">Upload</span>',

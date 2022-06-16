@@ -34,6 +34,18 @@ FileUploadWithExtendedAcceptedFileTypes.args = {
   ],
 };
 
+export const FileUploadWithLimitOneFile = Template.bind({});
+FileUploadWithLimitOneFile.args = {
+  createUpload: mockCreateUploadSuccess,
+  allowMultiple: false,
+};
+
+export const FileUploadWithNoParallelUploads = Template.bind({});
+FileUploadWithNoParallelUploads.args = {
+  createUpload: mockCreateUploadSuccess,
+  maxParallelUploads: 1,
+};
+
 export const FileUploadError = Template.bind({});
 FileUploadError.args = {
   createUpload: mockCreateUploadError,
