@@ -1,6 +1,4 @@
 import {
-  customerStartsAddingAPPMShipment,
-  deleteShipment,
   generalVerifyEstimatedIncentivePage,
   navigateFromDateAndLocationPageToEstimatedWeightsPage,
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage,
@@ -23,7 +21,6 @@ describe('Entire PPM onboarding flow', function () {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('POST', '**/internal/mto_shipments').as('createShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
-    cy.intercept('DELETE', '**/internal/mto-shipments/**').as('deleteShipment');
     cy.intercept('GET', '**/internal/moves/**/signed_certifications').as('signedCertifications');
   });
 
@@ -33,12 +30,12 @@ describe('Entire PPM onboarding flow', function () {
   ];
 
   viewportType1.forEach(({ viewport, isMobile, userId }) => {
-    it(`deletes existing shipment and then start happy path with new shipment - ${viewport}`, () => {
+    it(`flows through happy path for existing shipment - ${viewport}`, () => {
       if (isMobile) {
         setMobileViewport();
       }
 
-      navigateHappyPathWithDelete(userId, isMobile);
+      navigateHappyPath(userId, isMobile);
     });
   });
 
@@ -58,11 +55,8 @@ describe('Entire PPM onboarding flow', function () {
   });
 });
 
-function navigateHappyPathWithDelete(userId, isMobile = false) {
-  cy.apiSignInAsUser(userId);
-  cy.wait('@getShipment');
-  customerDeletesExistingShipment();
-  customerStartsAddingAPPMShipment();
+function navigateHappyPath(userId, isMobile = false) {
+  signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId);
   submitsDateAndLocation();
   submitsEstimatedWeightsAndProGear();
   generalVerifyEstimatedIncentivePage(isMobile);
@@ -98,7 +92,7 @@ function submitAndVerifyUpdateDateAndLocation() {
   cy.get('input[name="destinationPostalCode"]').clear().type('76127');
   // TODO: The user has secondary destination zips. We should test clearing this value by selecting the no radio btn. This doesn't work atm
   cy.get('input[name="sitExpected"][value="false"]').check();
-  cy.get('input[name="expectedDepartureDate"]').clear().type('15 Apr 2022').blur();
+  cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
 
   navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
 
@@ -110,7 +104,7 @@ function submitAndVerifyUpdateDateAndLocation() {
   cy.get('input[name="secondaryPickupPostalCode"]').should('have.value', '90212');
   cy.get('input[name="destinationPostalCode"]').should('have.value', '76127');
   cy.get('input[name="hasSecondaryDestinationPostalCode"]').eq(0).should('be.checked').and('have.value', 'true');
-  cy.get('input[name="expectedDepartureDate"]').should('have.value', '15 Apr 2022');
+  cy.get('input[name="expectedDepartureDate"]').should('have.value', '01 Feb 2022');
   cy.get('input[name="sitExpected"]').last().should('be.checked').and('have.value', 'false');
 
   navigateFromDateAndLocationPageToEstimatedWeightsPage('@patchShipment');
@@ -120,7 +114,7 @@ function submitAndVerifyUpdateDateAndLocation() {
 function verifyEstimatedWeightsAndProGear() {
   cy.get('button').contains('Back').click();
 
-  cy.get('input[name="estimatedWeight"]').should('have.value', '500');
+  cy.get('input[name="estimatedWeight"]').should('have.value', '4,000');
   cy.get('input[name="hasProGear"][value="true"]').should('be.checked');
   cy.get('input[name="proGearWeight"]').should('be.visible').and('have.value', '500');
   cy.get('input[name="spouseProGearWeight"]').should('be.visible').and('have.value', '400');
@@ -130,15 +124,10 @@ function verifyEstimatedWeightsAndProGear() {
 
 function verifyShipmentSpecificInfoOnEstimatedIncentivePage() {
   cy.get('.container li')
-    .should('contain', '500 lbs')
+    .should('contain', '4,000 lbs')
     .and('contain', '90210')
     .and('contain', '76127')
-    .and('contain', '15 Apr 2022');
-}
-
-function customerDeletesExistingShipment() {
-  cy.get('[data-testid="shipment-list-item-container"]').as('shipmentListContainer');
-  deleteShipment('@shipmentListContainer', 0);
+    .and('contain', '01 Feb 2022');
 }
 
 function verifyStep5ExistsAndBtnIsDisabled() {

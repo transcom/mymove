@@ -803,11 +803,17 @@ func createUnSubmittedMoveWithFullPPMShipment2(appCtx appcontext.AppContext, use
 		moveLocator: "PPMHPE",
 	}
 
+	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		PPMShipment: models.PPMShipment{
-			ID:     testdatagen.ConvertUUIDStringToUUID("d328333e-e6c8-47d7-8cdf-5864a16abf45"),
-			Status: models.PPMShipmentStatusDraft,
+			ID:                    testdatagen.ConvertUUIDStringToUUID("d328333e-e6c8-47d7-8cdf-5864a16abf45"),
+			Status:                models.PPMShipmentStatusDraft,
+			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
+			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
+			PickupPostalCode:      "90210",
+			DestinationPostalCode: "76127",
+			ExpectedDepartureDate: departureDate,
 		},
 	}
 
@@ -828,11 +834,79 @@ func createUnSubmittedMoveWithFullPPMShipment3(appCtx appcontext.AppContext, use
 		moveLocator: "PPMHPM",
 	}
 
+	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		PPMShipment: models.PPMShipment{
-			ID:     testdatagen.ConvertUUIDStringToUUID("6f7d6ac2-a38b-4df6-a82a-1ea9b352de89"),
-			Status: models.PPMShipmentStatusDraft,
+			ID:                    testdatagen.ConvertUUIDStringToUUID("6f7d6ac2-a38b-4df6-a82a-1ea9b352de89"),
+			Status:                models.PPMShipmentStatusDraft,
+			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
+			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
+			PickupPostalCode:      "90210",
+			DestinationPostalCode: "76127",
+			ExpectedDepartureDate: departureDate,
+		},
+	}
+
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
+
+func createUnSubmittedMoveWithFullPPMShipment4(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	/*
+	 * A service member with orders and a full PPM Shipment.
+	 */
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("781cf194-4eb2-4def-9da6-01abdc62333d"),
+		email:       "deleteShipmentMobile@ppm.unsubmitted",
+		smID:        testdatagen.ConvertUUIDStringToUUID("fc9264ae-4290-4445-987d-f6950b97c865"),
+		firstName:   "Delete",
+		lastName:    "PPM",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("a11cae72-56f0-45a3-a546-3af43a1d50ea"),
+		moveLocator: "PPMDEL",
+	}
+
+	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		PPMShipment: models.PPMShipment{
+			ID:                    testdatagen.ConvertUUIDStringToUUID("47f6cb98-fbd1-4b95-a91b-2d394d555d21"),
+			Status:                models.PPMShipmentStatusDraft,
+			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
+			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
+			PickupPostalCode:      "90210",
+			DestinationPostalCode: "76127",
+			ExpectedDepartureDate: departureDate,
+		},
+	}
+
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
+
+func createUnSubmittedMoveWithFullPPMShipment5(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	/*
+	 * A service member with orders and a full PPM Shipment.
+	 */
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("57d58062-93ac-4eb7-b1da-21dd137e4f65"),
+		email:       "deleteShipmentMobile@ppm.unsubmitted",
+		smID:        testdatagen.ConvertUUIDStringToUUID("d5778927-7366-44c2-8dbf-1bce14906adc"),
+		firstName:   "Delete",
+		lastName:    "PPM",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("ae5e7087-8e1e-49ae-98cc-0727a5cd11eb"),
+		moveLocator: "DELPPM",
+	}
+
+	departureDate := time.Date(2022, time.February, 01, 0, 0, 0, 0, time.UTC)
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		PPMShipment: models.PPMShipment{
+			ID:                    testdatagen.ConvertUUIDStringToUUID("0a62f7c6-72d2-4f4f-9889-202f3c0222a6"),
+			Status:                models.PPMShipmentStatusDraft,
+			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
+			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
+			PickupPostalCode:      "90210",
+			DestinationPostalCode: "76127",
+			ExpectedDepartureDate: departureDate,
 		},
 	}
 
@@ -871,6 +945,38 @@ func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploa
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
+func createApprovedMoveWithPPMEmptyAboutPage(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("c28b2eb1-975f-49f7-b8a3-c7377c0da908"),
+		email:       "readyToFinish2@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("6456ffbb-d114-4ec5-a736-6cb63a65bfd7"),
+		firstName:   "Ready2",
+		lastName:    "Finish2",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("0e33adbc-20b4-4a93-9ce5-7ee4695a0307"),
+		moveLocator: "NEWNAN",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("ef256d30-a6e7-4be8-8a60-b4ffb7dc7a7f"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:         testdatagen.ConvertUUIDStringToUUID("1ce52409-009d-4d9c-a48c-b12013fa2d2b"),
+			ApprovedAt: &approvedAt,
+			Status:     models.PPMShipmentStatusWaitingOnCustomer,
+		},
+	}
+
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
+
 func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("88007896-6ae7-4600-866a-873d3bc67fd3"),
@@ -898,8 +1004,8 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx appcontext
 			ApprovedAt:                  &approvedAt,
 			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("90800"),
-			ActualDestinationPostalCode: models.StringPointer("30894"),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 		},
@@ -1907,24 +2013,24 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(3, nil).Times(5)
 
 	// called for zip 3 domestic linehaul service item
-	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 		"94535", "94535").Return(348, nil).Times(2)
 
 	// called for zip 5 domestic linehaul service item
-	planner.On("Zip5TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "94535").Return(348, nil).Once()
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "94535").Return(348, nil).Once()
 
 	// called for domestic shorthaul service item
 	planner.On("Zip5TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 		"90210", "90211").Return(3, nil).Times(7)
 
 	// called for domestic shorthaul service item
-	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "90211").Return(348, nil).Times(10)
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "90211").Return(348, nil).Times(10)
 
 	// called for domestic origin SIT pickup service item
-	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "94535").Return(348, nil).Once()
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "90210", "94535").Return(348, nil).Once()
 
 	// called for domestic destination SIT delivery service item
-	planner.On("Zip3TransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 		"94535", "90210").Return(348, nil).Once()
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
@@ -2407,16 +2513,11 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		mock.Anything,
 		mock.Anything,
 	).Return(90210, nil)
-	planner.On("Zip3TransitDistance",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(910, nil)
-	planner.On("Zip5TransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(90210, nil)
 
 	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 		planner,
@@ -5461,14 +5562,9 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 			Value:   "4242",
 		},
 		{
-			Key:     models.ServiceItemParamNameDistanceZip3,
+			Key:     models.ServiceItemParamNameDistanceZip,
 			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "2424",
-		},
-		{
-			Key:     models.ServiceItemParamNameDistanceZip5,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "24245",
+			Value:   "24246",
 		},
 	}
 

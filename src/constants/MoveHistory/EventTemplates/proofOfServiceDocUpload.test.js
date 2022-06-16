@@ -2,11 +2,12 @@ import getTemplate from 'constants/MoveHistory/TemplateManager';
 import e from 'constants/MoveHistory/EventTemplates/proofOfServiceDocUpload';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
+import o from 'constants/MoveHistory/UIDisplay/Operations';
 
 describe('when given a proof of service document upload history record', () => {
   const item = {
     action: a.INSERT,
-    eventName: 'createUpload',
+    eventName: o.createUpload,
     tableName: t.proof_of_service_docs,
     context: [{ payment_request_number: '1234-5678-1' }],
   };

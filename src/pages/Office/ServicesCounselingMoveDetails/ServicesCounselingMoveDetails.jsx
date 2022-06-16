@@ -34,6 +34,8 @@ import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCount }) => {
   const { moveCode } = useParams();
@@ -298,14 +300,14 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
           <Grid row className={scMoveDetailsStyles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
-                <Alert slim type={alertType}>
+                <Alert headingLevel="h4" slim type={alertType}>
                   {alertMessage}
                 </Alert>
               </Grid>
             )}
             {infoSavedAlert && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
-                <Alert slim type={infoSavedAlert.alertType}>
+                <Alert headingLevel="h4" slim type={infoSavedAlert.alertType}>
                   {infoSavedAlert.message}
                 </Alert>
               </Grid>
@@ -347,12 +349,14 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
               financialReviewOpen={handleShowFinancialReviewModal}
               title="Shipments"
             >
-              <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
-                <FinancialReviewButton
-                  onClick={handleShowFinancialReviewModal}
-                  reviewRequested={move.financialReviewFlag}
-                />
-              </div>
+              <Restricted to={permissionTypes.updateFinancialReviewFlag}>
+                <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
+                  <FinancialReviewButton
+                    onClick={handleShowFinancialReviewModal}
+                    reviewRequested={move.financialReviewFlag}
+                  />
+                </div>
+              </Restricted>
               <div className={shipmentCardsStyles.shipmentCards}>
                 {shipmentsInfo.map((shipment) => (
                   <ShipmentDisplay

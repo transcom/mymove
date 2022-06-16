@@ -21,13 +21,14 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gobuffalo/pop/v6"
+
 	"github.com/alexedwards/scs/redisstore"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/gobuffalo/pop/v6"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
@@ -601,13 +602,21 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	routePlanner := route.InitRoutePlanner(v)
 	handlerConfig.SetPlanner(routePlanner)
 
-	// Create a secondary planner specifically for GHC.
+	// Create a secondary planner specifically for HHG.
 	routeTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
-	ghcRoutePlanner, initRouteErr := route.InitGHCRoutePlanner(v, routeTLSConfig)
+	hhgRoutePlanner, initRouteErr := route.InitHHGRoutePlanner(v, routeTLSConfig)
 	if initRouteErr != nil {
-		logger.Fatal("Could not instantiate GHC route planner", zap.Error(initRouteErr))
+		logger.Fatal("Could not instantiate HHG route planner", zap.Error(initRouteErr))
 	}
-	handlerConfig.SetGHCPlanner(ghcRoutePlanner)
+	handlerConfig.SetHHGPlanner(hhgRoutePlanner)
+
+	// Create a secondary planner specifically for DTOD.
+	routeTLSConfigDtod := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+	dtodRoutePlanner, initRouteErr := route.InitDtodRoutePlanner(v, routeTLSConfigDtod)
+	if initRouteErr != nil {
+		logger.Fatal("Could not instantiate dtod route planner", zap.Error(initRouteErr))
+	}
+	handlerConfig.SetDtodPlanner(dtodRoutePlanner)
 
 	// Set the GexSender() and GexSender fields
 	gexTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
@@ -992,10 +1001,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 
 		// Mux for GHC API that enforces auth
+		api := ghcapi.NewGhcAPIHandler(handlerConfig)
 		ghcAPIMux := ghcMux.PathPrefix("/").Subrouter()
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
-		api := ghcapi.NewGhcAPIHandler(handlerConfig)
+
+		permissionsMiddleware := authentication.PermissionsMiddleware(appCtx, api)
+		ghcAPIMux.Use(permissionsMiddleware)
+
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		ghcAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}

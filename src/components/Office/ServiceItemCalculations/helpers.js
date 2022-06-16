@@ -163,23 +163,8 @@ const shuttleBillableWeight = (params) => {
   return calculation(value, label, formatDetail(weightBilledDetail), formatDetail(weightEstimatedDetail));
 };
 
-// display the first 3 digits of the ZIP code
-const mileageFirstThreeZip = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip3, params);
-  const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
-  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
-    SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
-    params,
-  )?.slice(0, 3)} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
-    SERVICE_ITEM_PARAM_KEYS.ZipDestAddress,
-    params,
-  )?.slice(0, 3)}`;
-
-  return calculation(value, label, formatDetail(detail));
-};
-
-const mileageZip5 = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip5, params);
+const mileageZip = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
@@ -345,12 +330,12 @@ const priceEscalationFactorWithoutContractYear = (params) => {
 };
 
 const fuelSurchargePrice = (params) => {
-  // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by DistanceZip3
+  // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by DistanceZip
   // which gets the dollar value
   const value = parseFloat(
     String(
       getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params) *
-        getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip3, params),
+        getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params),
     ),
   ).toFixed(2);
   const label = SERVICE_ITEM_CALCULATION_LABELS.FuelSurchargePrice;
@@ -592,7 +577,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
     case SERVICE_ITEM_CODES.DLH:
       result = [
         billableWeight(params),
-        mileageFirstThreeZip(params),
+        mileageZip(params),
         baselineLinehaulPrice(params, shipmentType),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
@@ -602,7 +587,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
     case SERVICE_ITEM_CODES.FSC:
       result = [
         billableWeight(params),
-        mileageFirstThreeZip(params),
+        mileageZip(params),
         fuelSurchargePrice(params),
         totalAmountRequested(totalAmount),
       ];
@@ -657,7 +642,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
     case SERVICE_ITEM_CODES.DSH:
       result = [
         billableWeight(params),
-        mileageZip5(params),
+        mileageZip(params),
         baselineShorthaulPrice(params, shipmentType),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),

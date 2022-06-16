@@ -84,4 +84,30 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		_, err = shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
+
+	suite.Run("Soft deletes the associated PPM shipment", func() {
+		shipmentDeleter := NewShipmentDeleter()
+		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+			},
+		})
+
+		moveID, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), ppmShipment.ShipmentID)
+		suite.NoError(err)
+		// Verify that the shipment's Move ID is returned because the
+		// handler needs it to generate the TriggerEvent.
+		suite.Equal(ppmShipment.Shipment.MoveTaskOrderID, moveID)
+
+		// Verify the shipment still exists in the DB
+		var shipmentInDB models.MTOShipment
+		err = suite.DB().EagerPreload("PPMShipment").Find(&shipmentInDB, ppmShipment.ShipmentID)
+		suite.NoError(err)
+
+		actualDeletedAt := shipmentInDB.DeletedAt
+		suite.WithinDuration(time.Now(), *actualDeletedAt, 2*time.Second)
+
+		actualDeletedAt = shipmentInDB.PPMShipment.DeletedAt
+		suite.WithinDuration(time.Now(), *actualDeletedAt, 2*time.Second)
+	})
 }

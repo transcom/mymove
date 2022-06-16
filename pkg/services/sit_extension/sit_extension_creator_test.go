@@ -1,8 +1,6 @@
 package sitextension
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -15,18 +13,18 @@ import (
 )
 
 func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
-	move := testdatagen.MakeAvailableMove(suite.DB())
 
 	// Create move router for SitExtension Createor
 	moveRouter := moverouter.NewMoveRouter()
 	sitExtensionCreator := NewSitExtensionCreator(moveRouter)
 	movefetcher := movefetcher.NewMoveTaskOrderFetcher()
 
-	suite.T().Run("Success - CreateSITExtension with no status passed in", func(t *testing.T) {
+	suite.Run("Success - CreateSITExtension with no status passed in", func() {
 		// Under test:	CreateSITExtension
 		// Set up:		Established valid shipment and valid SIT extension
 		// Expected:	New sit successfully created
 		// Create new mtoShipment
+		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
 
 		// Create a valid SIT Extension for the move
@@ -57,7 +55,8 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 	})
 
 	// InvalidInputError
-	suite.T().Run("Failure - SIT Extension with validation errors returns an InvalidInputError", func(t *testing.T) {
+	suite.Run("Failure - SIT Extension with validation errors returns an InvalidInputError", func() {
+		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
 
 		// Create a SIT Extension for the move
@@ -74,7 +73,7 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
-	suite.T().Run("Failure - Not Found Error because shipment not found", func(t *testing.T) {
+	suite.Run("Failure - Not Found Error because shipment not found", func() {
 		// Create a SIT Extension for the move
 		sit := &models.SITExtension{
 			MTOShipmentID: uuid.Must(uuid.NewV4()),
@@ -86,7 +85,8 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Failure - Not Found Error because shipment uses external vendor", func(t *testing.T) {
+	suite.Run("Failure - Not Found Error because shipment uses external vendor", func() {
+		move := testdatagen.MakeAvailableMove(suite.DB())
 		externalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
@@ -106,8 +106,9 @@ func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Success - CreateSITExtension with status passed in ", func(t *testing.T) {
+	suite.Run("Success - CreateSITExtension with status passed in ", func() {
 		// Create new mtoShipment
+		move := testdatagen.MakeAvailableMove(suite.DB())
 		move2 := testdatagen.MakeAvailableMove(suite.DB())
 		shipment2 := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &move, testdatagen.Assertions{})
 

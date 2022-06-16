@@ -13,10 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-const (
-	dlhPricerMinimumWeight   = unit.Pound(500)
-	dlhPricerMinimumDistance = unit.Miles(50)
-)
+const dlhPricerMinimumWeight = unit.Pound(500)
 
 type domesticLinehaulPricer struct {
 }
@@ -34,9 +31,6 @@ func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode
 	}
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
-	}
-	if !isPPM && distance < dlhPricerMinimumDistance {
-		return 0, nil, fmt.Errorf("Distance must be at least %d", dlhPricerMinimumDistance)
 	}
 	if !isPPM && weight < dlhPricerMinimumWeight {
 		return 0, nil, fmt.Errorf("Weight must be at least %d", dlhPricerMinimumWeight)
@@ -91,7 +85,7 @@ func (p domesticLinehaulPricer) PriceUsingParams(appCtx appcontext.AppContext, p
 		return unit.Cents(0), nil, err
 	}
 
-	distanceZip3, err := getParamInt(params, models.ServiceItemParamNameDistanceZip3)
+	distance, err := getParamInt(params, models.ServiceItemParamNameDistanceZip)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -119,7 +113,7 @@ func (p domesticLinehaulPricer) PriceUsingParams(appCtx appcontext.AppContext, p
 		isPPM = true
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distanceZip3), unit.Pound(weightBilled), serviceAreaOrigin, isPPM)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distance), unit.Pound(weightBilled), serviceAreaOrigin, isPPM)
 }
 
 func fetchDomesticLinehaulPrice(appCtx appcontext.AppContext, contractCode string, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (models.ReDomesticLinehaulPrice, error) {

@@ -97,7 +97,7 @@ export const EditServiceInfo = ({
     <GridContainer>
       <ScrollToTop />
       {serverError && (
-        <Alert type="error" heading="An error occurred">
+        <Alert type="error" headingLevel="h4" heading="An error occurred">
           {serverError}
         </Alert>
       )}

@@ -113,7 +113,7 @@ describe('ServiceItemCalculations DLH', () => {
     {
       value: '210',
       label: 'Mileage',
-      details: ['ZIP 322 to ZIP 919'],
+      details: ['ZIP 32210 to ZIP 91910'],
     },
     {
       value: '1.71',

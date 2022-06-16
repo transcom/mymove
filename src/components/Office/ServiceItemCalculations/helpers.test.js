@@ -18,7 +18,7 @@ describe('makeCalculations', () => {
       {
         value: '210',
         label: 'Mileage',
-        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
+        details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
       {
         value: '1.71',
@@ -62,7 +62,7 @@ describe('makeCalculations', () => {
       {
         value: '210',
         label: 'Mileage',
-        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
+        details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
       {
         value: '1.71',
@@ -106,7 +106,7 @@ describe('makeCalculations', () => {
       {
         value: '210',
         label: 'Mileage',
-        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
+        details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
       {
         value: '1.71',
@@ -151,7 +151,7 @@ describe('makeCalculations', () => {
       {
         value: '210',
         label: 'Mileage',
-        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
+        details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
       {
         value: '1.71',
@@ -195,7 +195,7 @@ describe('makeCalculations', () => {
       {
         value: '210',
         label: 'Mileage',
-        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
+        details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
       {
         value: '1.71',
@@ -231,7 +231,7 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '32210',
+        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
@@ -872,7 +872,7 @@ describe('makeCalculations', () => {
       {
         value: '210',
         label: 'Mileage',
-        details: [{ text: 'ZIP 322 to ZIP 919', styles: {} }],
+        details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
       {
         value: '0.09',
