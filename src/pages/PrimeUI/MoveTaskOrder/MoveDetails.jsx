@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 
 import styles from './MoveDetails.module.scss';
 
-import { MTO_SHIPMENTS, PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
+import { PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
 import Shipment from 'components/PrimeUI/Shipment/Shipment';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -69,8 +69,8 @@ const MoveDetails = ({ setFlashMessage }) => {
     onSuccess: () => {
       setFlashMessage(`MSG_DELETE_SHIPMENT${moveCodeOrID}`, 'success', 'Successfully deleted shipment', '', true);
 
-      // queryCache.setQueryData([MTO_SHIPMENTS, moveCodeOrID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, moveCodeOrID]).then(() => {});
+      queryCache.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
+      queryCache.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]).then(() => {});
     },
     onError: (error) => {
       const { response: { body } = {} } = error;
