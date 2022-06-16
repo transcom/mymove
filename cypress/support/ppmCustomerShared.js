@@ -20,6 +20,31 @@ export function signInAndNavigateFromHomePageToReviewPage(userId, isMoveSubmitte
   navigateFromHomePageToReviewPage(isMoveSubmitted);
 }
 
+export function signInAndNavigateToAboutPage(userId, selectAdvance) {
+  cy.apiSignInAsUser(userId);
+
+  cy.wait('@getShipment');
+  cy.screenshot();
+  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/about/);
+  });
+  // cy.get('input[name="hasReceivedAdvance"][value="true"]').check({ force: true });
+  fillOutAboutPage(selectAdvance);
+}
+
+// export function signInAndNavigateToAboutPageWithoutAdvance(userId, selectAdvance = false) {
+//   cy.apiSignInAsUser(userId);
+//
+//   cy.wait('@getShipment');
+//   cy.screenshot();
+//   cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
+//   cy.location().should((loc) => {
+//     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/about/);
+//   });
+//   cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: true });
+//   fillOutAboutPage();
+// }
 export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
   if (isMoveSubmitted) {
     cy.get('h3').contains('Next step: Your move gets approved');
@@ -30,6 +55,26 @@ export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
 
     cy.get('button').contains('Review and submit').click();
   }
+}
+
+export function fillOutAboutPage(selectAdvance) {
+  cy.get('input[name="actualMoveDate"]').clear().type('01 Feb 2022').blur();
+  cy.get('input[name="actualPickupPostalCode"]').clear().type('90210').blur();
+  cy.get('input[name="actualDestinationPostalCode"]').clear().type('76127');
+  if (selectAdvance) {
+    cy.get('input[name="hasReceivedAdvance"][value="true"]').check({ force: true });
+    cy.get('input[name="advanceAmountReceived"]').clear().type('5000');
+  } else {
+    cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: true });
+  }
+  cy.get('button').contains('Save & Continue').should('be.enabled');
+  navigateToWeightTicket();
+}
+export function navigateToWeightTicket() {
+  cy.get('button').contains('Save & Continue').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+  });
 }
 
 export function signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId) {
