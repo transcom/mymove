@@ -11,7 +11,7 @@
 }
 
 .customerSupportRemarkText {
-  @include u-margin-bottom(.5);
+  @include u-margin-bottom(0.5);
   @include u-margin-top(0);
 }
 
@@ -33,5 +33,24 @@
   @include u-margin-bottom(3);
 }
 
+.remarkForm {
+  max-width: 100%;
+}
 
+.row {
+  display: flex;
+  margin-left: auto;
+}
 
+.editDeleteButtons {
+  @include u-margin(0);
+  @include u-padding(1);
+}
+
+.editDeleteButtons:focus {
+  outline: none !important;
+}
+
+.editTextArea {
+  resize: vertical;
+}
