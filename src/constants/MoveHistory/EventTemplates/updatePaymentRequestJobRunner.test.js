@@ -1,10 +1,9 @@
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/updatePaymentRequest';
+import e from 'constants/MoveHistory/EventTemplates/updatePaymentRequestJobRunner';
 
 describe('when a payment request has an update', () => {
   const item = {
     action: 'UPDATE',
-    eventName: '',
     tableName: 'payment_requests',
   };
   it('correctly matches the update payment request event for when a payment has been sent to GEX', () => {
