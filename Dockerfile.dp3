@@ -18,6 +18,9 @@ COPY config/tls/api.loadtest.dp3.us.crt /config/tls/api.loadtest.dp3.us.crt
 COPY config/tls/api.exp.dp3.us.chain.der.p7b /config/tls/api.exp.dp3.us.chain.der.p7b
 COPY config/tls/api.exp.dp3.us.crt /config/tls/api.exp.dp3.us.crt
 
+# DOD CA Certs needed for DTOD
+COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+
 COPY swagger/* /swagger/
 COPY build /build
 

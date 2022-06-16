@@ -87,7 +87,7 @@ func (r RBSPersonLookup) GetPersonUsingWorkEmail(workEmail string) (uint64, *Per
 
 // NewRBSPersonLookup creates a new instance of RBSPersonLookup. This should
 // only be instantiated once
-func NewRBSPersonLookup(host string, dodCACertPackage string, certString string, keyString string) (*RBSPersonLookup, error) {
+func NewRBSPersonLookup(host string, dodCACertPackages []string, certString string, keyString string) (*RBSPersonLookup, error) {
 	if host == "" {
 		return nil, errors.New("IWS host is not set")
 	}
@@ -98,24 +98,29 @@ func NewRBSPersonLookup(host string, dodCACertPackage string, certString string,
 		return nil, err
 	}
 
-	// DMDC has switched from a DOD-signed cert to a commercially-signed cert.
-	// Seems prudent to trust both DOD and commercial certs when connecting to
-	// them from now on, just in case they change back.
-	pkcs7Package, err := ioutil.ReadFile(filepath.Clean(dodCACertPackage)) // filepath.Clean placates GOSEC
-	if err != nil {
-		return nil, err
-	}
-	p7, err := pkcs7.Parse(pkcs7Package)
-	if err != nil {
-		return nil, err
-	}
 	// Add the DOD certs to a copy of the system cert pool
 	caCertPool, err := x509.SystemCertPool()
 	if err != nil {
 		return nil, err
 	}
-	for _, cert := range p7.Certificates {
-		caCertPool.AddCert(cert)
+
+	for i := range dodCACertPackages {
+		dodCACertPackage := dodCACertPackages[i]
+
+		// DMDC has switched from a DOD-signed cert to a commercially-signed cert.
+		// Seems prudent to trust both DOD and commercial certs when connecting to
+		// them from now on, just in case they change back.
+		pkcs7Package, err := ioutil.ReadFile(filepath.Clean(dodCACertPackage)) // filepath.Clean placates GOSEC
+		if err != nil {
+			return nil, err
+		}
+		p7, err := pkcs7.Parse(pkcs7Package)
+		if err != nil {
+			return nil, err
+		}
+		for _, cert := range p7.Certificates {
+			caCertPool.AddCert(cert)
+		}
 	}
 
 	// Setup HTTPS client
@@ -266,7 +271,7 @@ func InitRBSPersonLookup(appCtx appcontext.AppContext, v *viper.Viper) (PersonLo
 		appCtx.Logger().Debug("Enabling IWS RBS Person Lookup")
 		rbs, err := NewRBSPersonLookup(
 			v.GetString(cli.IWSRBSHostFlag),
-			v.GetString(cli.DoDCAPackageFlag),
+			v.GetStringSlice(cli.DoDCAPackageFlag),
 			v.GetString(cli.MoveMilDoDTLSCertFlag),
 			v.GetString(cli.MoveMilDoDTLSKeyFlag))
 		if err != nil {

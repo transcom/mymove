@@ -26,7 +26,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String(cli.GEXBasicAuthPasswordFlag, "", "GEX api auth password")
 	flag.String(cli.GEXURLFlag, "", "URL for sending an HTTP POST request to GEX")
 
-	flag.String(cli.DoDCAPackageFlag, "", "Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs")
+	flag.StringSlice(cli.DoDCAPackageFlag, []string{}, "Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs")
 	flag.String(cli.MoveMilDoDCACertFlag, "", "The DoD CA certificate used to sign the move.mil TLS certificate.")
 	flag.String(cli.MoveMilDoDTLSCertFlag, "", "The DoD-signed TLS certificate for various move.mil services.")
 	flag.String(cli.MoveMilDoDTLSKeyFlag, "", "The private key for the DoD-signed TLS certificate for various move.mil services.")

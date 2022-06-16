@@ -4,40 +4,98 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
-	"github.com/namsral/flag"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/iws"
 )
 
-func main() {
-	host := flag.String("iws_rbs_host", "", "hostname of the IWS RBS environment")
-	dodCaCertPackage := flag.String("dod_ca_package", "", "Path to PKCS7 package containing all DoD Certificate Authority certificates.")
-	moveMilDODTLSCert := flag.String("move_mil_dod_tls_cert", "", "The DoD-signed TLS certificate for various move.mil services.")
-	moveMilDODTLSKey := flag.String("move_mil_dod_tls_key", "", "The private key for the DoD-signed TLS certificate for various move.mil services.")
-	edipi := flag.Uint64("edipi", 0, "10-digit EDIPI to look up (op=edi)")
-	ssn := flag.String("ssn", "", "9-digit SSN to look up, without dashes (op=pids)")
-	lastName := flag.String("last", "", "Last Name to look up (op=pids)")
-	firstName := flag.String("first", "", "First Name to look up (op=pids) [optional]")
-	workEmail := flag.String("email", "", "Work e-mail address to look up (op=wkEma)")
+const (
+	edipiFlag = "edipi"
+	ssnFlag   = "ssn"
+	lastFlag  = "last"
+	firstFlag = "first"
+	emailFlag = "email"
+)
 
-	flag.Parse()
+func initFlags(flag *pflag.FlagSet) {
+
+	cli.InitIWSFlags(flag)
+	cli.InitCertFlags(flag)
+
+	flag.Uint64(edipiFlag, 0, "10-digit EDIPI to look up (op=edi)")
+	flag.String(ssnFlag, "", "9-digit SSN to look up, without dashes (op=pids)")
+	flag.String(lastFlag, "", "Last Name to look up (op=pids)")
+	flag.String(firstFlag, "", "First Name to look up (op=pids) [optional]")
+	flag.String(emailFlag, "", "Work e-mail address to look up (op=wkEma)")
+
+	// Don't sort flags
+	flag.SortFlags = false
+}
+
+func checkConfig(v *viper.Viper) error {
+
+	if err := cli.CheckIWS(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckCert(v); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func main() {
+
+	flag := pflag.CommandLine
+	initFlags(flag)
+	err := flag.Parse(os.Args[1:])
+	if err != nil {
+		log.Fatal("Could not parse flags", err)
+	}
+
+	v := viper.New()
+	err = v.BindPFlags(flag)
+	if err != nil {
+		log.Fatal("Could not find flags", err)
+	}
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
+	err = checkConfig(v)
+	if err != nil {
+		log.Fatal("Cannot validate config", err)
+	}
 
 	// Load client cert
-	rbs, err := iws.NewRBSPersonLookup(*host, *dodCaCertPackage, *moveMilDODTLSCert, *moveMilDODTLSKey)
+	rbs, err := iws.NewRBSPersonLookup(
+		v.GetString(cli.IWSRBSHostFlag),
+		v.GetStringSlice(cli.DoDCAPackageFlag),
+		v.GetString(cli.MoveMilDoDTLSCertFlag),
+		v.GetString(cli.MoveMilDoDTLSKeyFlag))
+
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		log.Fatal("Cannot initialize rbs person lookup", err)
 	}
 
 	var retcode int
 
-	if *edipi != 0 {
-		retcode = edi(*rbs, *edipi)
-	} else if *ssn != "" {
-		retcode = pids(*rbs, *ssn, *lastName, *firstName)
-	} else if *workEmail != "" {
-		retcode = wkEma(*rbs, *workEmail)
+	edipi := v.GetUint64(edipiFlag)
+	ssn := v.GetString(ssnFlag)
+	lastName := v.GetString(lastFlag)
+	firstName := v.GetString(firstFlag)
+	workEmail := v.GetString(emailFlag)
+
+	if edipi != 0 {
+		retcode = edi(*rbs, edipi)
+	} else if ssn != "" {
+		retcode = pids(*rbs, ssn, lastName, firstName)
+	} else if workEmail != "" {
+		retcode = wkEma(*rbs, workEmail)
 	} else {
 		flag.Usage()
 		retcode = -1

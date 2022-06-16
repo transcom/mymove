@@ -49,21 +49,25 @@ func InitDoDCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate,
 
 	logger.Info("DOD keypair", zap.Any("certificates", len(keyPair.Certificate)))
 
-	pathToPackage := v.GetString(cli.DoDCAPackageFlag)
-	pkcs7Package, err := ioutil.ReadFile(filepath.Clean(pathToPackage))
-	if err != nil {
-		return make([]tls.Certificate, 0), nil, errors.Wrap(err, fmt.Sprintf("%s is invalid", cli.DoDCAPackageFlag))
+	certPool := x509.NewCertPool()
+	paths := v.GetStringSlice(cli.DoDCAPackageFlag)
+	for i := range paths {
+		pathToPackage := paths[i]
+		pkcs7Package, err := ioutil.ReadFile(filepath.Clean(pathToPackage))
+		if err != nil {
+			return make([]tls.Certificate, 0), nil, errors.Wrap(err, fmt.Sprintf("%s is invalid", pathToPackage))
+		}
+
+		if len(pkcs7Package) == 0 {
+			return make([]tls.Certificate, 0), nil, errors.Wrap(&cli.ErrInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is an empty file", pathToPackage))
+		}
+
+		err = server.AddToCertPoolFromPkcs7Package(certPool, pkcs7Package)
+		if err != nil {
+			return make([]tls.Certificate, 0), certPool, errors.Wrap(err, "Failed to parse DoD CA certificate package")
+		}
 	}
 
-	if len(pkcs7Package) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Wrap(&cli.ErrInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is an empty file", cli.DoDCAPackageFlag))
-	}
-
-	dodCACertPool, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
-	if err != nil {
-		return make([]tls.Certificate, 0), dodCACertPool, errors.Wrap(err, "Failed to parse DoD CA certificate package")
-	}
-
-	return []tls.Certificate{keyPair}, dodCACertPool, nil
+	return []tls.Certificate{keyPair}, certPool, nil
 
 }

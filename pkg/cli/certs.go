@@ -35,7 +35,7 @@ func (e *ErrInvalidPKCS7) Error() string {
 // InitCertFlags initializes the Certificate Flags
 func InitCertFlags(flag *pflag.FlagSet) {
 	flag.String(DevlocalCAFlag, "", "Path to PEM-encoded devlocal CA certificate, enabled in development and test builds")
-	flag.String(DoDCAPackageFlag, "", "Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs")
+	flag.StringSlice(DoDCAPackageFlag, []string{}, "Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs")
 	flag.String(MoveMilDoDCACertFlag, "", "The DoD CA certificate used to sign the move.mil TLS certificate.")
 	flag.String(MoveMilDoDTLSCertFlag, "", "The DoD-signed TLS certificate for various move.mil services.")
 	flag.String(MoveMilDoDTLSKeyFlag, "", "The private key for the DoD-signed TLS certificate for various move.mil services.")
@@ -66,7 +66,7 @@ func CheckCert(v *viper.Viper) error {
 	}
 	pathToPackage := v.GetString(DoDCAPackageFlag)
 	if len(pathToPackage) == 0 {
-		return errors.Wrap(&ErrInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is missing", DoDCAPackageFlag))
+		return errors.Wrap(&ErrInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is missing", pathToPackage))
 	}
 
 	return nil
