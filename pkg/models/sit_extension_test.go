@@ -12,11 +12,11 @@ import (
 )
 
 func (suite *ModelSuite) TestSITExtensionCreation() {
-	shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
-	suite.NotNil(shipment)
-	suite.NotEqual(uuid.Nil, shipment.ID)
 
 	suite.Run("test valid SITExtension", func() {
+		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		suite.NotNil(shipment)
+		suite.NotEqual(uuid.Nil, shipment.ID)
 		approvedDays := 90
 		decisionDate := time.Now()
 		contractorRemarks := "some remarks here from the contractor"
@@ -42,6 +42,9 @@ func (suite *ModelSuite) TestSITExtensionCreation() {
 	})
 
 	suite.Run("test minimal valid SITExtension", func() {
+		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		suite.NotNil(shipment)
+		suite.NotEqual(uuid.Nil, shipment.ID)
 		validSITExtension := models.SITExtension{
 			MTOShipment:   shipment,
 			MTOShipmentID: shipment.ID,

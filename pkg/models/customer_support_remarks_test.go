@@ -8,13 +8,13 @@ import (
 )
 
 func (suite *ModelSuite) TestCustomerSupportRemarkCreation() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	suite.NotNil(move)
-
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	suite.NotNil(officeUser)
 
 	suite.Run("test valid office remark", func() {
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		suite.NotNil(move)
+
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		suite.NotNil(officeUser)
 		customerSupportRemark := "This is a note that's saying something about the move."
 		validCustomerSupportRemark := models.CustomerSupportRemark{
 			Content:      customerSupportRemark,

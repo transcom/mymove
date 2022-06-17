@@ -56,13 +56,12 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 }
 
 func (suite *ModelSuite) TestPSIBeforeCreate() {
-	serviceItem := testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{})
-	move := serviceItem.MoveTaskOrder
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
 
 	suite.Run("test with no ID or Reference ID", func() {
+		serviceItem := testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{})
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: serviceItem.MoveTaskOrder,
+		})
 		paymentServiceItem := models.PaymentServiceItem{
 			PaymentRequestID: paymentRequest.ID,
 			MTOServiceItemID: serviceItem.ID,
@@ -77,6 +76,10 @@ func (suite *ModelSuite) TestPSIBeforeCreate() {
 	})
 
 	suite.Run("test with ID and Reference ID already provided", func() {
+		serviceItem := testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{})
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: serviceItem.MoveTaskOrder,
+		})
 		psiID := uuid.FromStringOrNil("8dce708b-58ab-4adc-a243-ae0c53a44a41")
 		referenceID := "1234-5678-8dce708b"
 		filledPaymentServiceItem := models.PaymentServiceItem{
@@ -95,6 +98,10 @@ func (suite *ModelSuite) TestPSIBeforeCreate() {
 	})
 
 	suite.Run("test failure because payment request not found", func() {
+		serviceItem := testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: serviceItem.MoveTaskOrder,
+		})
 		badPaymentServiceItem := models.PaymentServiceItem{
 			PaymentRequestID: uuid.Must(uuid.NewV4()), // new UUID pointing nowhere
 			MTOServiceItemID: serviceItem.ID,
@@ -108,55 +115,102 @@ func (suite *ModelSuite) TestPSIBeforeCreate() {
 }
 
 func (suite *ModelSuite) TestGeneratePSIReferenceID() {
-	serviceItem := testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{})
-	move := serviceItem.MoveTaskOrder
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
-	mtoReferenceID := move.ReferenceID
-	suite.NotNil(mtoReferenceID)
 
-	baseIDMinusTwoDigits := "caaa0192-c41a-4448-b023-01e15e8fd1"
-	paymentServiceItem := models.PaymentServiceItem{
-		ID:               uuid.FromStringOrNil(baseIDMinusTwoDigits + "00"),
-		PaymentRequestID: paymentRequest.ID,
-		MTOServiceItemID: serviceItem.ID,
-		Status:           "REQUESTED",
-		RequestedAt:      time.Now(),
-	}
+	setupTestData := func() (models.PaymentRequest, models.MTOServiceItem) {
+		serviceItem := testdatagen.MakeMTOServiceItemBasic(suite.DB(), testdatagen.Assertions{})
+		move := serviceItem.MoveTaskOrder
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+		fmt.Println("paymentRequestID", paymentRequest.ID)
+		fmt.Println("moveTaskOrderID", paymentRequest.MoveTaskOrderID)
+		fmt.Println("moveReferenceID", *paymentRequest.MoveTaskOrder.ReferenceID)
 
-	// Another PSI with am ID that differs by a digit.
-	paymentServiceItem2 := models.PaymentServiceItem{
-		ID:               uuid.FromStringOrNil(baseIDMinusTwoDigits + "01"),
-		PaymentRequestID: paymentRequest.ID,
-		MTOServiceItemID: uuid.Must(uuid.NewV4()),
-		Status:           "REQUESTED",
-		RequestedAt:      time.Now(),
+		return paymentRequest, serviceItem
 	}
 
 	suite.Run("test normal reference ID generation", func() {
+		// Under test:       GeneratePSIReferenceID returns a reference ID for the PaymentServiceItem it is being called on.
+		// Mocked:
+		// Set up:           Create a PSI, then generate a reference id.
+		// Expected outcome: Generated referenceID matches the expected pattern of reference id + psiIDDigits
+		paymentRequest, serviceItem := setupTestData()
+
+		// We want both PSIs to have similar UUIDs, so we force them to be similar
+		baseIDMinusTwoDigits := "caaa0192-c41a-4448-b023-01e15e8fd1"
+		paymentServiceItem1ID := uuid.FromStringOrNil(baseIDMinusTwoDigits + "00")
+		paymentServiceItem2ID := uuid.FromStringOrNil(baseIDMinusTwoDigits + "01")
+
+		// Create first psi
+		paymentServiceItem := models.PaymentServiceItem{
+			ID:               paymentServiceItem1ID,
+			PaymentRequestID: paymentRequest.ID,
+			MTOServiceItemID: serviceItem.ID,
+			Status:           "REQUESTED",
+			RequestedAt:      time.Now(),
+		}
+		// Generate ID
 		referenceID, err := paymentServiceItem.GeneratePSIReferenceID(suite.DB())
 		suite.NoError(err)
+		fmt.Println("paymentServiceItemID", paymentServiceItem.ID.String())
 
+		// Calculated expected PSI reference id (combo of mtoReferenceID + first N digits of PaymentServiceID)
+		mtoReferenceID := serviceItem.MoveTaskOrder.ReferenceID
 		psiIDDigits := fmt.Sprintf("%x", paymentServiceItem.ID)
-		suite.Equal(*mtoReferenceID+"-"+psiIDDigits[:models.PaymentServiceItemMinReferenceIDSuffixLength], referenceID)
+		psiIDDigits = psiIDDigits[:models.PaymentServiceItemMinReferenceIDSuffixLength]
+		suite.Equal(*mtoReferenceID+"-"+psiIDDigits, referenceID)
 
+		// Store the first PSI
 		paymentServiceItem.ReferenceID = referenceID
 		suite.MustCreate(&paymentServiceItem)
-	})
 
-	suite.Run("test another payment request with ID that differs by a digit", func() {
-		psiIDDigits := fmt.Sprintf("%x", paymentServiceItem2.ID)
-
-		referenceID, err := paymentServiceItem2.GeneratePSIReferenceID(suite.DB())
+		// Now we check that a second PSI with similar ID gets a different reference ID
+		paymentServiceItem2 := models.PaymentServiceItem{
+			ID:               paymentServiceItem2ID,
+			PaymentRequestID: paymentRequest.ID,
+			MTOServiceItemID: uuid.Must(uuid.NewV4()),
+			Status:           "REQUESTED",
+			RequestedAt:      time.Now(),
+		}
+		// Generate ID
+		referenceID, err = paymentServiceItem.GeneratePSIReferenceID(suite.DB())
 		suite.NoError(err)
-		suite.Equal(*mtoReferenceID+"-"+psiIDDigits[:models.PaymentServiceItemMinReferenceIDSuffixLength+1], referenceID)
+
+		// Calculated expected PSI reference id (combo of mtoReferenceID + first N PLUS ONE digits of PaymentServiceID)
+		mtoReferenceID = serviceItem.MoveTaskOrder.ReferenceID
+		psiIDDigits = fmt.Sprintf("%x", paymentServiceItem2.ID)
+		psiIDDigits = psiIDDigits[:models.PaymentServiceItemMinReferenceIDSuffixLength+1]
+		suite.Equal(*mtoReferenceID+"-"+psiIDDigits, referenceID)
+
 	})
 
 	suite.Run("test running out of hex digits", func() {
+		// Under test:       GeneratePSIReferenceID returns a reference ID for the PaymentServiceItem it is being called on.
+		// Mocked:
+		// Set up:           Create a PSI, then generate a reference id.
+		//                   Then create PSIs so as to max out the possible reference ids.
+		//                   Then create one more PSI
+		// Expected outcome: Error due to running out of possible reference ids.
+
+		paymentRequest, serviceItem := setupTestData()
+
+		// We want both PSIs to have similar UUIDs, so we force them to be similar
+		baseIDMinusTwoDigits := "caaa0192-c41a-4448-b023-01e15e8fd1"
+		paymentServiceItem1ID := uuid.FromStringOrNil(baseIDMinusTwoDigits + "00")
+		// Create first psi
+		paymentServiceItem := models.PaymentServiceItem{
+			ID:               paymentServiceItem1ID,
+			PaymentRequestID: paymentRequest.ID,
+			MTOServiceItemID: serviceItem.ID,
+			Status:           "REQUESTED",
+			RequestedAt:      time.Now(),
+		}
+		suite.MustCreate(&paymentServiceItem)
+
 		// Need to create PSIs up to the max hex digits -- we already have the first one from above.
+		mtoReferenceID := serviceItem.MoveTaskOrder.ReferenceID
 		start := models.PaymentServiceItemMinReferenceIDSuffixLength + 1
-		end := models.PaymentServiceItemMaxReferenceIDLength - len(*mtoReferenceID) - 1
+		end := models.PaymentServiceItemMaxReferenceIDLength - len(*mtoReferenceID)
 		if end >= len(baseIDMinusTwoDigits)+2 {
 			end = len(baseIDMinusTwoDigits)
 		}
@@ -176,7 +230,16 @@ func (suite *ModelSuite) TestGeneratePSIReferenceID() {
 			suite.MustCreate(&psiLongReferenceID)
 		}
 
-		_, err := paymentServiceItem2.GeneratePSIReferenceID(suite.DB())
+		// Now we check that a second PSI with similar ID gets a different reference ID
+		paymentServiceItem2ID := uuid.FromStringOrNil(baseIDMinusTwoDigits + "01")
+		finalPaymentServiceItem := models.PaymentServiceItem{
+			ID:               paymentServiceItem2ID,
+			PaymentRequestID: paymentRequest.ID,
+			MTOServiceItemID: uuid.Must(uuid.NewV4()),
+			Status:           "REQUESTED",
+			RequestedAt:      time.Now(),
+		}
+		_, err := finalPaymentServiceItem.GeneratePSIReferenceID(suite.DB())
 		suite.Error(err)
 		suite.Equal("cannot find unique PSI reference ID", err.Error())
 	})

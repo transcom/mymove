@@ -19,6 +19,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -69,58 +70,108 @@ func (suite *ModelSuite) TestGenerateReferenceID() {
 }
 
 func (suite *ModelSuite) TestFetchMove() {
-	order1 := testdatagen.MakeDefaultOrder(suite.DB())
-	order2 := testdatagen.MakeDefaultOrder(suite.DB())
-	testdatagen.MakeDefaultContractor(suite.DB())
 
-	session := &auth.Session{
-		UserID:          order1.ServiceMember.UserID,
-		ServiceMemberID: order1.ServiceMemberID,
-		ApplicationName: auth.MilApp,
+	setupTestData := func() (*auth.Session, models.Order) {
+
+		order := testdatagen.MakeDefaultOrder(suite.DB())
+		testdatagen.MakeDefaultContractor(suite.DB())
+
+		session := &auth.Session{
+			UserID:          order.ServiceMember.UserID,
+			ServiceMemberID: order.ServiceMemberID,
+			ApplicationName: auth.MilApp,
+		}
+		return session, order
+
 	}
-	selectedMoveType := SelectedMoveTypeHHG
 
-	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
-	}
-	move, verrs, err := order1.CreateNewMove(suite.DB(), moveOptions)
-	suite.NoError(err)
-	suite.False(verrs.HasAny(), "failed to validate move")
-	suite.Equal(6, len(move.Locator))
+	suite.Run("Fetch a move", func() {
+		// Under test:       FetchMove fetches a move associated with a specific order
+		// Mocked:           None
+		// Set up:           Create an HHG move, then fetch it, then move to status completed, fetch again
+		// Expected outcome: Move found, in both cases
+		session, order := setupTestData()
 
-	// All correct
-	fetchedMove, err := FetchMove(suite.DB(), session, move.ID)
-	suite.Nil(err, "Expected to get moveResult back.")
-	suite.Equal(fetchedMove.ID, move.ID, "Expected new move to match move.")
+		// Create HHG Move
+		selectedMoveType := SelectedMoveTypeHHG
+		moveOptions := MoveOptions{
+			SelectedType: &selectedMoveType,
+			Show:         swag.Bool(true),
+		}
+		move, verrs, err := order.CreateNewMove(suite.DB(), moveOptions)
+		suite.NoError(err)
+		suite.Zero(verrs.Count())
+		suite.Equal(6, len(move.Locator))
 
-	// We're asserting that if for any reason
-	// a move gets into the remove "COMPLETED" state
-	// it does not fail being queried
-	move.Status = "COMPLETED"
-	suite.DB().Save(move)
+		// Fetch move
+		fetchedMove, err := FetchMove(suite.DB(), session, move.ID)
+		suite.Nil(err, "Expected to get moveResult back.")
+		suite.Equal(fetchedMove.ID, move.ID, "Expected new move to match move.")
 
-	actualMove, err := FetchMove(suite.DB(), session, move.ID)
+		// We're asserting that if for any reason
+		// a move gets into the remove "COMPLETED" state
+		// it does not fail being queried
+		move.Status = "COMPLETED"
+		suite.DB().Save(move)
 
-	suite.NoError(err, "Failed fetching completed move")
-	suite.Equal("COMPLETED", string(actualMove.Status))
+		// Fetch move again
+		actualMove, err := FetchMove(suite.DB(), session, move.ID)
+		suite.NoError(err, "Failed fetching completed move")
+		suite.Equal("COMPLETED", string(actualMove.Status))
 
-	move.Status = MoveStatusDRAFT
-	suite.DB().Save(move) // teardown/reset back to draft
+	})
 
-	// Bad Move
-	_, err = FetchMove(suite.DB(), session, uuid.Must(uuid.NewV4()))
-	suite.Equal(ErrFetchNotFound, err, "Expected to get FetchNotFound.")
+	suite.Run("Fetch a move not found", func() {
+		// Under test:       FetchMove
+		// Mocked:           None
+		// Set up:           Fetch a non-existent move
+		// Expected outcome: Move not found, ErrFetchNotFound error
 
-	// Bad User
-	session.UserID = order2.ServiceMember.UserID
-	session.ServiceMemberID = order2.ServiceMemberID
-	_, err = FetchMove(suite.DB(), session, move.ID)
-	suite.Equal(ErrFetchForbidden, err, "Expected to get a Forbidden back.")
+		session, _ := setupTestData()
+
+		// Bad Move
+		_, err := FetchMove(suite.DB(), session, uuid.Must(uuid.NewV4()))
+		suite.Equal(ErrFetchNotFound, err, "Expected to get FetchNotFound.")
+	})
+
+	suite.Run("Fetch a move bad user", func() {
+		// Under test:       FetchMove
+		// Mocked:           None
+		// Set up:           Create a user and orders, no move. Create a second user and a move.
+		//                   Fetch the second user's move, but with the first user logged in.
+		// Expected outcome: Move not found, ErrFetchForbidden
+		session, _ := setupTestData()
+
+		// Create a second sm and a move only on that sm
+		order2 := testdatagen.MakeDefaultOrder(suite.DB())
+		selectedMoveType := SelectedMoveTypeHHG
+		moveOptions := MoveOptions{
+			SelectedType: &selectedMoveType,
+			Show:         swag.Bool(true),
+		}
+		move2, verrs, err := order2.CreateNewMove(suite.DB(), moveOptions)
+		suite.NoError(err)
+		suite.Zero(verrs.Count())
+		suite.Equal(6, len(move2.Locator))
+
+		// A fetch on the second moveID, with the first user logged in, should fail
+		_, err = FetchMove(suite.DB(), session, move2.ID)
+
+		suite.Equal(ErrFetchForbidden, err, "Expected to get a Forbidden back.")
+	})
 
 	suite.Run("Hidden move is not returned", func() {
+		// Under test:       FetchMove
+		// Mocked:           None
+		// Set up:           Create an sm with orders, then create a hidden move
+		// Expected outcome: Move not found, ErrFetchNotFound error
+		session, order := setupTestData()
 		// Create a hidden move
-		hiddenMove := testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		hiddenMove := testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				ID: order.ID,
+			},
+		})
 
 		// Attempt to fetch this move. We should receive an error.
 		_, err := FetchMove(suite.DB(), session, hiddenMove.ID)
