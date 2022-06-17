@@ -1,5 +1,6 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import Shipment from './Shipment';
 
@@ -270,8 +271,8 @@ const ppmShipment = {
   updatedAt: '2022-05-24T21:07:21.067Z',
 };
 
-describe('PPM shipment renders', () => {
-  it('renders the component when shipment is a PPM (and deletion is allowed)', () => {
+describe('PPM shipments are handled', () => {
+  it('renders the component when shipment is a PPM', () => {
     render(
       <MockProviders>
         <Shipment shipment={ppmShipment} moveId={moveId} />
@@ -281,12 +282,29 @@ describe('PPM shipment renders', () => {
     const field = screen.getByText('PPM Status:');
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toBe(ppmShipment.ppmShipment.status);
+  });
+
+  it('PPM can be deleted', () => {
+    const onDelete = jest.fn();
+
+    render(
+      <MockProviders>
+        <Shipment shipment={ppmShipment} moveId={moveId} onDelete={onDelete} />
+      </MockProviders>,
+    );
 
     const deleteShipmentButton = screen.queryByText(/Delete Shipment/, { selector: 'button' });
     expect(deleteShipmentButton).toBeInTheDocument();
 
-    fireEvent.click(deleteShipmentButton);
-    const areYouSure = screen.queryByText(/Are you sure?/, { selector: 'h3' });
-    expect(areYouSure).toBeInTheDocument();
+    userEvent.click(deleteShipmentButton);
+    let modalTitle = screen.getByText('Are you sure?');
+    expect(modalTitle).toBeInTheDocument();
+
+    const deleteButton = screen.getByText('Delete shipment');
+    userEvent.click(deleteButton);
+    expect(onDelete).toHaveBeenCalledTimes(1);
+
+    modalTitle = screen.queryByText('Are you sure?');
+    expect(modalTitle).not.toBeInTheDocument();
   });
 });
