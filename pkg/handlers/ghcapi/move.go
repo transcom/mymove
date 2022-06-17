@@ -61,7 +61,7 @@ type SearchMovesHandler struct {
 func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			moves, err := h.MoveSearcher.SearchMoves(appCtx, params.Body.Locator, params.Body.DodID)
+			moves, err := h.MoveSearcher.SearchMoves(appCtx, params.Body.Locator, params.Body.DodID, params.Body.CustomerName)
 
 			if err != nil {
 				appCtx.Logger().Error("Error retrieving move by locator", zap.Error(err))
@@ -72,7 +72,7 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 			payload := &ghcmessages.SearchMovesResult{
 				Page:        1,
 				PerPage:     100,
-				TotalCount:  1,
+				TotalCount:  int64(len(moves)),
 				SearchMoves: *searchMoves,
 			}
 			return moveop.NewSearchMovesOK().WithPayload(payload), nil

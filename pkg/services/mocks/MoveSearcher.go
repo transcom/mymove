@@ -16,13 +16,13 @@ type MoveSearcher struct {
 	mock.Mock
 }
 
-// SearchMoves provides a mock function with given fields: appCtx, locator, dodID
-func (_m *MoveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *string, dodID *string) (models.Moves, error) {
-	ret := _m.Called(appCtx, locator, dodID)
+// SearchMoves provides a mock function with given fields: appCtx, locator, dodID, customerName
+func (_m *MoveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *string, dodID *string, customerName *string) (models.Moves, error) {
+	ret := _m.Called(appCtx, locator, dodID, customerName)
 
 	var r0 models.Moves
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *string, *string) models.Moves); ok {
-		r0 = rf(appCtx, locator, dodID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *string, *string, *string) models.Moves); ok {
+		r0 = rf(appCtx, locator, dodID, customerName)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.Moves)
@@ -30,8 +30,8 @@ func (_m *MoveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *strin
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *string, *string) error); ok {
-		r1 = rf(appCtx, locator, dodID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *string, *string, *string) error); ok {
+		r1 = rf(appCtx, locator, dodID, customerName)
 	} else {
 		r1 = ret.Error(1)
 	}
