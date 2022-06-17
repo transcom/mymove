@@ -6,7 +6,7 @@ import MoveDetails from './MoveDetails';
 
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { MockProviders, renderWithRouter } from 'testUtils';
-import { completeCounseling } from 'services/primeApi';
+import { completeCounseling, deleteShipment } from 'services/primeApi';
 
 const mockUseHistoryPush = jest.fn();
 const mockRequestedMoveCode = 'LN4T89';
@@ -25,6 +25,7 @@ jest.mock('hooks/queries', () => ({
 
 jest.mock('services/primeApi', () => ({
   completeCounseling: jest.fn(),
+  deleteShipment: jest.fn(),
 }));
 
 const moveTaskOrder = {
@@ -57,6 +58,33 @@ const moveTaskOrder = {
         postalCode: '10002',
       },
     },
+    {
+      id: '4',
+      approvedDate: '2022-05-24',
+      createdAt: '2022-05-24T21:06:35.888Z',
+      eTag: 'MjAyMi0wNS0yNFQyMTowNzoyMS4wNjc0MzJa',
+      moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+      ppmShipment: {
+        advance: 598700,
+        advanceRequested: true,
+        createdAt: '2022-05-24T21:06:35.901Z',
+        destinationPostalCode: '30813',
+        eTag: 'MjAyMi0wNS0yNFQyMTowNjozNS45MDEwMjNa',
+        estimatedIncentive: 1000000,
+        estimatedWeight: 4000,
+        expectedDepartureDate: '2020-03-15',
+        hasProGear: false,
+        id: '5b21b808-6933-43ea-8f6f-02fc0a639835',
+        pickupPostalCode: '90210',
+        shipmentId: '88ececed-eaf1-42e2-b060-cd90d11ad080',
+        status: 'WAITING_ON_CUSTOMER',
+        submittedAt: '2022-05-24T21:06:35.890Z',
+        updatedAt: '2022-05-24T21:06:35.901Z',
+      },
+      shipmentType: 'PPM',
+      status: 'APPROVED',
+      updatedAt: '2022-05-24T21:07:21.067Z',
+    },
   ],
   paymentRequests: [
     {
@@ -72,20 +100,8 @@ const moveReturnValue = {
   isError: false,
 };
 
-const moveTaskOrderCounselingReady = {
-  id: '1',
-  moveCode: mockRequestedMoveCode,
-  shipmentType: 'PPM',
-};
-
-const moveTaskOrderCounselingReadyReturnValue = {
-  moveTaskOrder: moveTaskOrderCounselingReady,
-  isLoading: false,
-  isError: false,
-};
-
 const moveTaskOrderCounselingCompleted = {
-  ...moveTaskOrderCounselingReady,
+  ...moveTaskOrder,
   primeCounselingCompletedAt: '2022-05-24T21:06:35.890Z',
 };
 
@@ -113,7 +129,7 @@ describe('PrimeUI MoveDetails page', () => {
     });
 
     it('counseling ready to be completed', async () => {
-      usePrimeSimulatorGetMove.mockReturnValue(moveTaskOrderCounselingReadyReturnValue);
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       renderWithRouter(
         <MockProviders>
           <MoveDetails />
@@ -144,7 +160,7 @@ describe('PrimeUI MoveDetails page', () => {
     });
 
     it('success when completing counseling', async () => {
-      usePrimeSimulatorGetMove.mockReturnValue(moveTaskOrderCounselingReadyReturnValue);
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       renderWithRouter(
         <MockProviders>
           <MoveDetails />
@@ -161,7 +177,7 @@ describe('PrimeUI MoveDetails page', () => {
     });
 
     it('error when completing counseling', async () => {
-      usePrimeSimulatorGetMove.mockReturnValue(moveTaskOrderCounselingReadyReturnValue);
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       completeCounseling.mockRejectedValue({
         response: { body: { title: 'Error title', detail: 'Error detail' } },
       });
@@ -174,6 +190,51 @@ describe('PrimeUI MoveDetails page', () => {
 
       const completeCounselingButton = screen.getByText(/Complete Counseling/, { selector: 'button' });
       userEvent.click(completeCounselingButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Error title/)).toBeInTheDocument();
+        expect(screen.getByText('Error detail')).toBeInTheDocument();
+      });
+    });
+
+    it('success when deleting PPM', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      renderWithRouter(
+        <MockProviders>
+          <MoveDetails />
+        </MockProviders>,
+      );
+
+      const deleteShipmentButton = screen.getByText(/Delete Shipment/, { selector: 'button' });
+      expect(deleteShipmentButton).toBeInTheDocument();
+      userEvent.click(deleteShipmentButton);
+
+      const modalDeleteButton = screen.getByText('Delete shipment', { selector: 'button.usa-button--destructive' });
+      userEvent.click(modalDeleteButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('Successfully deleted shipment')).toBeInTheDocument();
+      });
+    });
+
+    it('error when deleting PPM', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      deleteShipment.mockRejectedValue({
+        response: { body: { title: 'Error title', detail: 'Error detail' } },
+      });
+
+      renderWithRouter(
+        <MockProviders>
+          <MoveDetails />
+        </MockProviders>,
+      );
+
+      const deleteShipmentButton = screen.getByText(/Delete Shipment/, { selector: 'button' });
+      expect(deleteShipmentButton).toBeInTheDocument();
+      userEvent.click(deleteShipmentButton);
+
+      const modalDeleteButton = screen.getByText('Delete shipment', { selector: 'button.usa-button--destructive' });
+      userEvent.click(modalDeleteButton);
 
       await waitFor(() => {
         expect(screen.getByText(/Error title/)).toBeInTheDocument();

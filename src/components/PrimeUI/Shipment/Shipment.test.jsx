@@ -300,8 +300,8 @@ describe('PPM shipments are handled', () => {
     let modalTitle = screen.getByText('Are you sure?');
     expect(modalTitle).toBeInTheDocument();
 
-    const deleteButton = screen.getByText('Delete shipment');
-    userEvent.click(deleteButton);
+    const modalDeleteButton = screen.getByText('Delete shipment', { selector: 'button.usa-button--destructive' });
+    userEvent.click(modalDeleteButton);
     expect(onDelete).toHaveBeenCalledTimes(1);
 
     modalTitle = screen.queryByText('Are you sure?');
