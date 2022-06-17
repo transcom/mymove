@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';
 
@@ -19,20 +19,20 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 const columns = (showBranchFilter = true) => [
   createHeader('Move code', 'locator', {
     id: 'locator',
-    isFilterable: true,
+    isFilterable: false,
   }),
-  createHeader('DOD ID', 'customer.dodID', {
+  createHeader('DOD ID', 'dodID', {
     id: 'dodID',
-    isFilterable: true,
+    isFilterable: false,
   }),
   createHeader(
     'Customer name',
     (row) => {
-      return `${row.customer.last_name}, ${row.customer.first_name}`;
+      return `${row.lastName}, ${row.firstName}`;
     },
     {
-      id: 'lastName',
-      isFilterable: true,
+      id: 'customerName',
+      isFilterable: false,
     },
   ),
   createHeader(
@@ -50,27 +50,27 @@ const columns = (showBranchFilter = true) => [
   createHeader(
     'Origin ZIP',
     (row) => {
-      return `${row.originDutyLocation?.address?.postalCode}`;
+      return row.originDutyLocationPostalCode;
     },
     {
-      id: 'originZIP',
+      id: 'originPostalCode',
       isFilterable: true,
     },
   ),
   createHeader(
     'Destination ZIP',
     (row) => {
-      return `${row.destinationDutyLocation?.address?.postalCode}`;
+      return row.destinationDutyLocationPostalCode;
     },
     {
-      id: 'destinationZIP',
+      id: 'destinationPostalCode',
       isFilterable: true,
     },
   ),
   createHeader(
     'Branch',
     (row) => {
-      return serviceMemberAgencyLabel(row.customer?.agency);
+      return serviceMemberAgencyLabel(row.branch);
     },
     {
       id: 'branch',
@@ -81,17 +81,26 @@ const columns = (showBranchFilter = true) => [
       ),
     },
   ),
-  createHeader('Number of shipments', 'shipmentsCount', { disableSortBy: true }),
+  createHeader(
+    'Number of Shipments',
+    (row) => {
+      return Number(row.shipmentsCount);
+    },
+    { id: 'shipmentsCount', isFilterable: true },
+  ),
 ];
 
 const QAECSRMoveSearch = ({ history }) => {
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
 
-  const handleClick = (values) => {
-    history.push(`/moves/${values.locator}/details`);
-  };
-  const onSubmit = (values) => {
+  const handleClick = useCallback(
+    (values) => {
+      history.push(`/moves/${values.locator}/details`);
+    },
+    [history],
+  );
+  const onSubmit = useCallback((values) => {
     const payload = {
       moveCode: null,
       dodID: null,
@@ -106,17 +115,13 @@ const QAECSRMoveSearch = ({ history }) => {
     }
     setSearch(payload);
     setSearchHappened(true);
-  };
+  }, []);
 
-  const { searchResult, isLoading, isError } = useQAECSRMoveSearchQueries({
-    moveCode: search.moveCode,
-    dodID: search.dodID,
-    customerName: search.customerName,
-  });
+  const isLoading = false;
+  const isError = false;
 
-  const { data = [] } = searchResult;
   const tableColumns = useMemo(() => columns(true), []);
-  const tableData = useMemo(() => data, [data]);
+
   return (
     <div className={styles.QAECSRMoveSearchWrapper}>
       <GridContainer data-testid="move-search" containerSize="widescreen" className={styles.QAECSRMoveSearchPage}>
@@ -130,13 +135,14 @@ const QAECSRMoveSearch = ({ history }) => {
             showPagination
             defaultCanSort
             disableMultiSort
-            manualFilters={false}
             disableSortBy={false}
             columns={tableColumns}
             title="Results"
             handleClick={handleClick}
             useQueries={useQAECSRMoveSearchQueries}
-            data={tableData}
+            moveCode={search.moveCode}
+            dodID={search.dodID}
+            customerName={search.customerName}
           />
         )}
       </GridContainer>

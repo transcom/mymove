@@ -1067,36 +1067,24 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 		customer := move.Orders.ServiceMember
 
 		var validMTOShipments []models.MTOShipment
-		var earliestRequestedPickup *time.Time
-		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
-		// TODO do we need this for this page as well?
+		// TODO this can either be done in the main query or should just use an int counter
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status != models.MTOShipmentStatusDraft {
-				if earliestRequestedPickup == nil {
-					earliestRequestedPickup = shipment.RequestedPickupDate
-				} else if shipment.RequestedPickupDate != nil && shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
-					earliestRequestedPickup = shipment.RequestedPickupDate
-				}
 				validMTOShipments = append(validMTOShipments, shipment)
 			}
 		}
 
-		var deptIndicator ghcmessages.DeptIndicator
-		if move.Orders.DepartmentIndicator != nil {
-			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
-		}
-
 		searchMoves[i] = &ghcmessages.SearchMove{
-			Customer:                Customer(&customer),
-			Status:                  ghcmessages.MoveStatus(move.Status),
-			ID:                      *handlers.FmtUUID(move.ID),
-			Locator:                 move.Locator,
-			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
-			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
-			DepartmentIndicator:     &deptIndicator,
-			ShipmentsCount:          int64(len(validMTOShipments)),
-			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
-			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
+			FirstName:                         *customer.FirstName, // TODO should probably check for null
+			LastName:                          *customer.LastName,  // TODO should probably check for null
+			DodID:                             *customer.Edipi,     // TODO should probably check for null
+			Branch:                            customer.Affiliation.String(),
+			Status:                            ghcmessages.MoveStatus(move.Status),
+			ID:                                *handlers.FmtUUID(move.ID),
+			Locator:                           move.Locator,
+			ShipmentsCount:                    int64(len(validMTOShipments)),
+			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
+			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
 		}
 	}
 	return &searchMoves

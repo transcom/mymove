@@ -2099,6 +2099,11 @@ paths:
           name: body
           schema:
             properties:
+              page:
+                type: integer
+                description: requested page of results
+              perPage:
+                type: integer
               locator:
                 description: Move locator
                 type: string
@@ -2116,6 +2121,38 @@ paths:
                 type: string
                 minLength: 1
                 x-nullable: true
+              status:
+                type: array
+                description: Filtering for the status.
+                uniqueItems: true
+                items:
+                  type: string
+                  enum:
+                    - SUBMITTED
+                    - APPROVALS REQUESTED
+                    - APPROVED
+              originPostalCode:
+                type: string
+                x-nullable: true
+              destinationPostalCode:
+                type: string
+                x-nullable: true
+              branch:
+                type: string
+                x-nullable: true
+              shipmentsCount:
+                type: integer
+                x-nullable: true
+              sort:
+                type: string
+                x-nullable: true
+                enum:
+                  [customerName, dodID, branch, locator, status, originPostalCode, destinationPostalCode, shipmentsCount]
+              order:
+                type: string
+                x-nullable: true
+                enum: [ asc, desc ]
+          description: field that results should be sorted by
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3878,28 +3915,34 @@ definitions:
       id:
         type: string
         format: uuid
-      customer:
-        $ref: '#/definitions/Customer'
+      firstName:
+        type: string
+        example: John
+      lastName:
+        type: string
+        example: Doe
+      dodID:
+        type: string
       status:
         $ref: '#/definitions/MoveStatus'
       locator:
         type: string
-      submittedAt:
-        format: date-time
+      branch:
         type: string
-        x-nullable: true
-      requestedMoveDate:
-        format: date
-        type: string
-        x-nullable: true
-      departmentIndicator:
-        $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
         type: integer
-      originDutyLocation:
-        $ref: 'definitions/DutyLocation.yaml'
-      destinationDutyLocation:
-        $ref: 'definitions/DutyLocation.yaml'
+      originDutyLocationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+      destinationDutyLocationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
   SearchMovesResult:
     type: object
     properties:

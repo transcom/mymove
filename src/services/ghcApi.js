@@ -78,10 +78,32 @@ export async function getCustomer(key, customerID) {
   return makeGHCRequest('customer.getCustomer', { customerID });
 }
 
-export async function searchMoves(key, locator, dodID, customerName) {
+export async function searchMoves(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
+  // TODO transform [{id:'id1',value:'val1'},...] to {id1: val1, ...}
+  const paramFilters = filters.reduce((acc, current) => {
+    acc[current.id] = current.value;
+    if (current.id === 'shipmentsCount') {
+      acc[current.id] = Number(acc[current.id]);
+    }
+    return acc;
+  }, {});
+  if (paramFilters.status) {
+    paramFilters.status = paramFilters.status.split(',');
+  }
   return makeGHCRequest(
     'move.searchMoves',
-    { body: { locator, dodID, customerName } },
+    {
+      body: {
+        sort,
+        order,
+        locator: paramFilters.moveCode,
+        customerName: paramFilters.customerName,
+        // status: paramFilters.status ? paramFilters.status.split(',') : null,
+        page: currentPage,
+        perPage: currentPageSize,
+        ...paramFilters,
+      },
+    },
     { schemaKey: 'searchMovesResult', normalize: false },
   );
 }

@@ -9,6 +9,7 @@ import { createHeader } from './utils';
 import MultiSelectCheckBoxFilter from './Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from './Filters/SelectFilter';
 
+// TODO update test data
 const mockTableData = [
   {
     customer: {
@@ -42,7 +43,7 @@ const columns = [
     id: 'locator',
     isFilterable: true,
   }),
-  createHeader('DOD ID', 'customer.dodID', {
+  createHeader('DOD ID', 'dodID', {
     id: 'dodID',
     isFilterable: true,
   }),
@@ -102,7 +103,7 @@ const columns = [
       ),
     },
   ),
-  createHeader('Number of shipments', 'shipmentsCount', { disableSortBy: true }),
+  createHeader('Number of shipments', 'shipmentsCount', { id: 'shipmentsCount', disableSortBy: true }),
 ];
 
 describe('SearchResultsTable', () => {
