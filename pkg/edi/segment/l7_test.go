@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateL7() {
 	validL7Default := L7{}
 	validL7WithValues := L7{
@@ -13,17 +9,17 @@ func (suite *SegmentSuite) TestValidateL7() {
 		TariffDistance:       1,
 	}
 
-	suite.T().Run("validate success default", func(t *testing.T) {
+	suite.Run("validate success default", func() {
 		err := suite.validator.Struct(validL7Default)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate success with values", func(t *testing.T) {
+	suite.Run("validate success with values", func() {
 		err := suite.validator.Struct(validL7WithValues)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		l7 := L7{
 			LadingLineItemNumber: -3,                  // min
 			TariffNumber:         "XXXXXXXX",          // max
@@ -39,7 +35,7 @@ func (suite *SegmentSuite) TestValidateL7() {
 		suite.ValidateErrorLen(err, 4)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		l7 := L7{
 			LadingLineItemNumber: 1000,   // max
 			TariffDistance:       100000, // max

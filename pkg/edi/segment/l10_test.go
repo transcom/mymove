@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateL10() {
 	validL10 := L10{
 		Weight:          100.0,
@@ -11,12 +7,12 @@ func (suite *SegmentSuite) TestValidateL10() {
 		WeightUnitCode:  "L",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validL10)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure", func(t *testing.T) {
+	suite.Run("validate failure", func() {
 		l10 := L10{
 			// Weight required
 			WeightQualifier: "X",

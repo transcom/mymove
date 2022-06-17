@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateL3() {
 	validWeightL3 := L3{
 		Weight:          300.0,
@@ -11,12 +7,12 @@ func (suite *SegmentSuite) TestValidateL3() {
 		PriceCents:      100,
 	}
 
-	suite.T().Run("validate success weight", func(t *testing.T) {
+	suite.Run("validate success weight", func() {
 		err := suite.validator.Struct(validWeightL3)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		l3 := L3{
 			Weight:     300.0,
 			PriceCents: 100,
@@ -27,7 +23,7 @@ func (suite *SegmentSuite) TestValidateL3() {
 		suite.ValidateErrorLen(err, 1)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		l3 := L3{
 			Weight:          300.0,
 			WeightQualifier: "INVALID",
@@ -39,7 +35,7 @@ func (suite *SegmentSuite) TestValidateL3() {
 		suite.ValidateErrorLen(err, 1)
 	})
 
-	suite.T().Run("validate failure 3", func(t *testing.T) {
+	suite.Run("validate failure 3", func() {
 		l3 := L3{
 			Weight:          99999999999, // 10 digits
 			WeightQualifier: "B",
@@ -52,7 +48,7 @@ func (suite *SegmentSuite) TestValidateL3() {
 		suite.ValidateErrorLen(err, 2)
 	})
 
-	suite.T().Run("validate failure 3", func(t *testing.T) {
+	suite.Run("validate failure 3", func() {
 		l3 := L3{
 			Weight:     -1,
 			PriceCents: -9999999999999, // 13 digits
