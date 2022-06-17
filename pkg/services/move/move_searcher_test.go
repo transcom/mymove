@@ -1,6 +1,8 @@
 package move
 
 import (
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -16,7 +18,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 			Locator: "BBBBBB",
 		}})
 
-		_, err := searcher.SearchMoves(suite.AppContextForTest(), nil, nil)
+		_, err := searcher.SearchMoves(suite.AppContextForTest(), nil, nil, nil)
 		suite.Error(err)
 	})
 	suite.Run("search with valid locator", func() {
@@ -27,7 +29,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 			Locator: "BBBBBB",
 		}})
 
-		moves, err := searcher.SearchMoves(suite.AppContextForTest(), &firstMove.Locator, nil)
+		moves, err := searcher.SearchMoves(suite.AppContextForTest(), &firstMove.Locator, nil, nil)
 		suite.NoError(err)
 		suite.Len(moves, 1)
 		suite.Equal(firstMove.Locator, moves[0].Locator)
@@ -40,10 +42,29 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 			Locator: "BBBBBB",
 		}})
 
-		moves, err := searcher.SearchMoves(suite.AppContextForTest(), nil, secondMove.Orders.ServiceMember.Edipi)
+		moves, err := searcher.SearchMoves(suite.AppContextForTest(), nil, secondMove.Orders.ServiceMember.Edipi, nil)
 		suite.NoError(err)
 		suite.Len(moves, 1)
 		suite.Equal(secondMove.Locator, moves[0].Locator)
+	})
+	suite.Run("search with customer name", func() {
+		firstMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Locator: "AAAAAA",
+			},
+			ServiceMember: models.ServiceMember{
+				FirstName: swag.String("Grace"),
+				LastName:  swag.String("Griffin"),
+			},
+		})
+		_ = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{
+			Locator: "BBBBBB",
+		}})
+
+		moves, err := searcher.SearchMoves(suite.AppContextForTest(), nil, nil, swag.String("Grace Griffin"))
+		suite.NoError(err)
+		suite.Len(moves, 1)
+		suite.Equal(firstMove.Locator, moves[0].Locator)
 	})
 	suite.Run("search with both DOD ID and locator filters should fail", func() {
 		firstMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{
@@ -54,12 +75,12 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		}})
 
 		// Search for Locator of one move and DOD ID of another move
-		_, err := searcher.SearchMoves(suite.AppContextForTest(), &firstMove.Locator, secondMove.Orders.ServiceMember.Edipi)
+		_, err := searcher.SearchMoves(suite.AppContextForTest(), &firstMove.Locator, secondMove.Orders.ServiceMember.Edipi, nil)
 		suite.Error(err)
 	})
 	suite.Run("search with no results", func() {
 		nonexistantLocator := "CCCCCC"
-		moves, err := searcher.SearchMoves(suite.AppContextForTest(), &nonexistantLocator, nil)
+		moves, err := searcher.SearchMoves(suite.AppContextForTest(), &nonexistantLocator, nil, nil)
 		suite.NoError(err)
 		suite.Len(moves, 0)
 	})

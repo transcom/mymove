@@ -19,10 +19,10 @@ func NewMoveSearcher() services.MoveSearcher {
 	return &moveSearcher{}
 }
 
-func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *string, dodID *string) (models.Moves, error) {
-	if locator == nil && dodID == nil {
+func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *string, dodID *string, customerName *string) (models.Moves, error) {
+	if locator == nil && dodID == nil && customerName == nil {
 		verrs := validate.NewErrors()
-		verrs.Add("search key", "move locator or DOD ID must be provided")
+		verrs.Add("search key", "move locator, DOD ID, or customer name must be provided")
 		return models.Moves{}, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	}
 	if locator != nil && dodID != nil {
@@ -40,6 +40,10 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *string,
 		Join("orders", "orders.id = moves.orders_id").
 		Join("service_members", "service_members.id = orders.service_member_id").
 		Where("show = TRUE")
+
+	if customerName != nil && len(*customerName) > 0 {
+		query = query.Where("f_unaccent(lower(?)) % searchable_full_name(first_name, last_name)", *customerName).Order("similarity(searchable_full_name(first_name, last_name), f_unaccent(lower(?))) desc", *customerName)
+	}
 
 	if locator != nil {
 		searchLocator := strings.ToUpper(*locator)
