@@ -300,7 +300,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
 
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"90210", "30813").Return(2361, nil).Once()
+			"90210", "30813").Return(2361, nil)
 
 		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 		suite.NilOrNoVerrs(err)
