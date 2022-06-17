@@ -120,7 +120,7 @@
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
     "@dump247/storybook-state": "^1.6.1",
     "@stoplight/spectral": "^5.9.2",
-    "@storybook/addon-a11y": "^6.4.22",
+    "@storybook/addon-a11y": "^6.5.9",
     "@storybook/addon-essentials": "^6.4.22",
     "@storybook/addon-knobs": "^6.4.0",
     "@storybook/addon-links": "^6.4.22",
