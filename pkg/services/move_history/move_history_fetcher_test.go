@@ -2,11 +2,13 @@ package movehistory
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -15,6 +17,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -305,7 +308,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 
 	suite.T().Run("returns Audit History with session information", func(t *testing.T) {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
-		fakeRole := testdatagen.MakeTOORole(suite.DB())
+		fakeRole, _ := testdatagen.LookupOrMakeRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
 		fakeUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
 		_ = testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
 			User: fakeUser,
@@ -529,4 +532,75 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.True(verifyReweighHistoryFound, "AuditHistories contains an AuditHistory with a Reweigh creation")
 		suite.True(verifyReweighContext, "Reweigh creation AuditHistory contains a context with the appropriate shipment type")
 	})
+}
+
+func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
+	moveHistoryFetcher := NewMoveHistoryFetcher()
+
+	// MOVE DB SETUP TO A FUNCTION
+	setupTestData := func(userID *uuid.UUID, userFirstName string, roleTypes []roles.RoleType) string {
+		// Prepare the database with testdatagen and suite.DB() calls
+
+		assertions := testdatagen.Assertions{
+			OfficeUser: models.OfficeUser{
+				FirstName: userFirstName,
+			},
+			User: models.User{
+				ID: *userID,
+			},
+		}
+		officeUser := testdatagen.MakeOfficeUserWithRoleTypes(suite.DB(), roleTypes, assertions)
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		auditHistory := testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
+			User: officeUser.User,
+			Move: models.Move{
+				ID: approvedMove.ID,
+			},
+		})
+		fmt.Print(auditHistory)
+		return approvedMove.Locator
+	}
+
+	suite.Run("Test with TOO user", func() {
+		userID, _ := uuid.NewV4()
+		userName := "TOO"
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO})
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.Nil(err)
+		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
+		suite.Equal(1, len(auditHistoriesForUser))
+	})
+
+	suite.Run("Test with Prime user", func() {
+		userID, _ := uuid.NewV4()
+		userName := "Prime"
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypePrime})
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.Nil(err)
+		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
+		suite.Equal(1, len(auditHistoriesForUser))
+	})
+
+	suite.Run("Test with TOO and Prime Simulator user", func() {
+		userID, _ := uuid.NewV4()
+		userName := "TOO_and_prime_simulator"
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypePrimeSimulator})
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.Nil(err)
+		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
+		suite.Equal(1, len(auditHistoriesForUser))
+	})
+}
+
+func filterAuditHistoryByUserID(auditHistories models.AuditHistories, userID uuid.UUID) models.AuditHistories {
+	auditHistoriesForUser := models.AuditHistories{}
+	for _, auditHistory := range auditHistories {
+		if auditHistory.SessionUserID != nil && *auditHistory.SessionUserID == userID {
+			auditHistoriesForUser = append(auditHistoriesForUser, auditHistory)
+		}
+	}
+	return auditHistoriesForUser
 }
