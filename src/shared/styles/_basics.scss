@@ -2,16 +2,18 @@
 TEMPORARY UNTIL WE CAN ADD https://github.com/shakacode/sass-resources-loader
 This must be included in the top of any .module.scss file that uses USWDS SCSS
 **/
-@import '../../../node_modules/uswds/src/stylesheets/theme/_uswds-theme-general.scss';
-@import '../../../node_modules/uswds/src/stylesheets/theme/_uswds-theme-typography.scss';
-@import '../../../node_modules/uswds/src/stylesheets/theme/_uswds-theme-spacing.scss';
-@import '../../../node_modules/uswds/src/stylesheets/theme/_uswds-theme-color.scss';
-@import '../../../node_modules/uswds/src/stylesheets/theme/_uswds-theme-utilities.scss';
+$theme-font-path: '~uswds/fonts';
+$theme-image-path: '~uswds/img';
+@import '~uswds/scss/theme/_uswds-theme-general.scss';
+@import '~uswds/scss/theme/_uswds-theme-typography.scss';
+@import '~uswds/scss/theme/_uswds-theme-spacing.scss';
+@import '~uswds/scss/theme/_uswds-theme-color.scss';
+@import '~uswds/scss/theme/_uswds-theme-utilities.scss';
 // Custom theme settings/USWDS overrides go here
-@import '../../shared/styles/settings';
+@import 'shared/styles/settings';
 
 // Set these to true to view USWDS CSS compile warnings
 $theme-show-compile-warnings: false;
 $theme-show-notifications: false;
 
-@import '../../../node_modules/uswds/src/stylesheets/packages/_required.scss';
+@import '~uswds/scss/packages/_required.scss';
