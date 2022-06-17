@@ -563,35 +563,38 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 
 	suite.Run("Test with TOO user", func() {
 		userID, _ := uuid.NewV4()
-		userName := "TOO"
+		userName := "TOO_user"
 		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO})
 		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
 		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Nil(err)
 		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
 		suite.Equal(1, len(auditHistoriesForUser))
+		suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
 	})
 
 	suite.Run("Test with Prime user", func() {
 		userID, _ := uuid.NewV4()
-		userName := "Prime"
+		userName := "Prime_user"
 		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypePrime})
 		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
 		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Nil(err)
 		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
 		suite.Equal(1, len(auditHistoriesForUser))
+		suite.Equal("Prime", *auditHistoriesForUser[0].SessionUserFirstName)
 	})
 
 	suite.Run("Test with TOO and Prime Simulator user", func() {
 		userID, _ := uuid.NewV4()
-		userName := "TOO_and_prime_simulator"
+		userName := "TOO_and_prime_simulator_user"
 		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypePrimeSimulator})
 		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
 		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Nil(err)
 		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
 		suite.Equal(1, len(auditHistoriesForUser))
+		suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
 	})
 }
 
