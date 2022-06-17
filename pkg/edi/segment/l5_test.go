@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateL5() {
 	validL5 := L5{
 		LadingLineItemNumber:   1,
@@ -12,12 +8,12 @@ func (suite *SegmentSuite) TestValidateL5() {
 		CommodityCodeQualifier: "D",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validL5)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure of lading description", func(t *testing.T) {
+	suite.Run("validate failure of lading description", func() {
 		l5 := L5{
 			LadingLineItemNumber: 1,
 		}
@@ -27,7 +23,7 @@ func (suite *SegmentSuite) TestValidateL5() {
 		suite.ValidateErrorLen(err, 1)
 	})
 
-	suite.T().Run("validate failure of missing CommodityCodeQualifier", func(t *testing.T) {
+	suite.Run("validate failure of missing CommodityCodeQualifier", func() {
 		l5 := L5{
 			LadingLineItemNumber: 1,
 			LadingDescription:    "DLH - Domestic Line Haul",
@@ -39,7 +35,7 @@ func (suite *SegmentSuite) TestValidateL5() {
 		suite.ValidateErrorLen(err, 1)
 	})
 
-	suite.T().Run("validate failure of missing CommodityCode ", func(t *testing.T) {
+	suite.Run("validate failure of missing CommodityCode ", func() {
 		l5 := L5{
 			LadingLineItemNumber:   1,
 			LadingDescription:      "DLH - Domestic Line Haul",

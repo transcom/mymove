@@ -51,7 +51,7 @@ func TestInvoiceSuite(t *testing.T) {
 }
 
 func (suite *InvoiceSuite) TestEDIString() {
-	suite.T().Run("full EDI string is expected", func(t *testing.T) {
+	suite.Run("full EDI string is expected", func() {
 		invoice := MakeValidEdi()
 		ediString, err := invoice.EDIString(suite.Logger())
 		suite.NoError(err)
@@ -89,7 +89,7 @@ IEA*1*000009999
 }
 
 func (suite *InvoiceSuite) TestValidate() {
-	suite.T().Run("everything validates successfully", func(t *testing.T) {
+	suite.Run("everything validates successfully", func() {
 		invoice := MakeValidEdi()
 		err := invoice.Validate()
 		suite.NoError(err, "Failed to get invoice 858C as EDI string")

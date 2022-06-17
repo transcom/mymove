@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateL1() {
 	freightRate := float64(0)
 	validL1 := L1{
@@ -18,19 +14,19 @@ func (suite *SegmentSuite) TestValidateL1() {
 		Charge:               10000,
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validL1)
 		suite.NoError(err)
 		suite.Equal([]string{"L1", "1", "0.00", "LB", "10000"}, validL1.StringArray())
 	})
 
-	suite.T().Run("validate alt success", func(t *testing.T) {
+	suite.Run("validate alt success", func() {
 		err := suite.validator.Struct(altValidL1)
 		suite.NoError(err)
 		suite.Equal([]string{"L1", "12", "", "", "10000"}, altValidL1.StringArray())
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		freightRate := float64(-1)
 		l1 := L1{
 			// LadingLineItemNumber:          // required
@@ -47,7 +43,7 @@ func (suite *SegmentSuite) TestValidateL1() {
 		suite.ValidateErrorLen(err, 4)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		l1 := validL1
 		l1.LadingLineItemNumber = 1000 // max
 		l1.Charge = 1000000000000      // max
@@ -58,7 +54,7 @@ func (suite *SegmentSuite) TestValidateL1() {
 		suite.ValidateErrorLen(err, 2)
 	})
 
-	suite.T().Run("validate failure 3", func(t *testing.T) {
+	suite.Run("validate failure 3", func() {
 		l1 := validL1
 		l1.LadingLineItemNumber = -3 // min
 		l1.RateValueQualifier = ""   // required_with
