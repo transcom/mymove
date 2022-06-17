@@ -30,34 +30,35 @@ references:
   #
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for dp3 deploys. See the branch settings below.
-  dp3-branch: &dp3-branch mb-MB-12446-fix-migration
+  dp3-branch: &dp3-branch placeholder_branch_name
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!
-  dp3-env: &dp3-env exp
+  dp3-env: &dp3-env placeholder_env
 
   # set acceptance-branch to the branch you want to ENABLE acceptance
   # tests, or `placeholder_branch_name` if you don't want to run them
-  acceptance-branch: &acceptance-branch mb-MB-12446-fix-migration
+  acceptance-branch: &acceptance-branch placeholder_branch_name
 
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch mb-MB-12446-fix-migration
+  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch mb-MB-12446-fix-migration
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
   # them
-  client-ignore-branch: &client-ignore-branch mb-MB-12446-fix-migration
+  client-ignore-branch: &client-ignore-branch placeholder_branch_name
 
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch mb-MB-12446-fix-migration
+  server-ignore-branch: &server-ignore-branch placeholder_branch_name
+
 executors:
   av_medium:
     resource_class: medium
@@ -276,6 +277,7 @@ commands:
             scripts/circleci-announce-broken-branch
           when: on_fail
 
+
   deploy_migrations_steps:
     parameters:
       ecr_env:
@@ -449,6 +451,7 @@ commands:
           no_output_timeout: 20m
       - announce_failure
 
+
   deploy_app_storybook:
     parameters:
       s3_bucket:
@@ -534,7 +537,8 @@ commands:
       application:
         type: string
     steps:
-      - run: echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+      - run:
+          echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
           source $BASH_ENV
       - run:
           name: make server_test_build for <<parameters.application>>
@@ -1012,7 +1016,7 @@ jobs:
       # change the baseline of test results on master builds
       - when:
           condition:
-            equal: [master, << pipeline.git.branch >>]
+            equal: [ master, << pipeline.git.branch >>]
           steps:
             save_cache:
               key: server-tests-coverage
@@ -1053,7 +1057,7 @@ jobs:
       # change the baseline of test results on master builds
       - when:
           condition:
-            equal: [master, << pipeline.git.branch >>]
+            equal: [ master, << pipeline.git.branch >>]
           steps:
             save_cache:
               key: client-tests-coverage
@@ -1148,6 +1152,7 @@ jobs:
             - pkg/testdatagen/testdata
       - announce_failure
 
+
   # Compile the client side of the app once and persist the relevant
   # build artifacts to the workspace.
   # This way we don't have to re-run the build and since all necessary
@@ -1190,7 +1195,7 @@ jobs:
       # the cache
       - when:
           condition:
-            equal: [master, << pipeline.git.branch >>]
+            equal: [ master, << pipeline.git.branch >>]
           steps:
             save_cache:
               key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
@@ -1686,8 +1691,8 @@ workflows:
           requires:
             - pre_deps_golang
           filters:
-            branches:
-              ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
+              branches:
+                ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
 
       - anti_virus:
           filters:
