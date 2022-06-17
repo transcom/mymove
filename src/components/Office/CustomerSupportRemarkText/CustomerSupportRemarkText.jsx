@@ -101,9 +101,9 @@ const CustomerSupportRemarkText = ({ customerSupportRemark }) => {
                         disabled={!isValid}
                         data-testid="edit-remark-save-button"
                       >
-                        Save
+                        <small>Save</small>
                       </Button>
-                      |
+                      <small className={customerSupportRemarkStyles.buttonDivider}>|</small>
                       <Button
                         className={classnames(
                           customerSupportRemarkStyles.editDeleteButtons,
@@ -117,7 +117,7 @@ const CustomerSupportRemarkText = ({ customerSupportRemark }) => {
                         }}
                         data-testid="edit-remark-cancel-button"
                       >
-                        Cancel
+                        <small>Cancel</small>
                       </Button>
                     </div>
                   </Restricted>
@@ -174,9 +174,9 @@ const CustomerSupportRemarkText = ({ customerSupportRemark }) => {
               }}
               data-testid="edit-remark-button"
             >
-              Edit
+              <small>Edit</small>
             </Button>
-            |
+            <small className={customerSupportRemarkStyles.buttonDivider}>|</small>
             <Button
               className={classnames(
                 customerSupportRemarkStyles.editDeleteButtons,
@@ -187,7 +187,7 @@ const CustomerSupportRemarkText = ({ customerSupportRemark }) => {
               onClick={() => {}}
               data-testid="delete-remark-button"
             >
-              Delete
+              <small>Delete</small>
             </Button>
           </div>
         </Restricted>

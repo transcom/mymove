@@ -40,6 +40,7 @@
 .row {
   display: flex;
   margin-left: auto;
+  @include u-padding(0);
 }
 
 .editDeleteButtons {
@@ -53,4 +54,8 @@
 
 .editTextArea {
   resize: vertical;
+}
+
+.buttonDivider {
+  padding-top: 6px;
 }
