@@ -24,7 +24,7 @@ func TestEDI997Suite(t *testing.T) {
 
 func (suite *EDI997Suite) TestParse() {
 
-	suite.T().Run("successfully parse simple 997 string", func(t *testing.T) {
+	suite.Run("successfully parse simple 997 string", func() {
 		sample997EDIString := `
 ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
 GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010
@@ -152,7 +152,7 @@ IEA*1*000000022
 		suite.validateIEA(ieaString, iea)
 	})
 
-	suite.T().Run("successfully parse simple 997 string with AK4 and AK5 present", func(t *testing.T) {
+	suite.Run("successfully parse simple 997 string with AK4 and AK5 present", func() {
 		sample997EDIString := `
 ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
 GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010
@@ -247,7 +247,7 @@ IEA*1*000000022
 		suite.validateIEA(ieaString, iea)
 	})
 
-	suite.T().Run("successfully parse simple 997 string with carriage returns instead of newlines", func(t *testing.T) {
+	suite.Run("successfully parse simple 997 string with carriage returns instead of newlines", func() {
 		sample997EDIString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:\rGS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010\rST*997*0001\rAK1*SI*100001251\rAK2*858*0001\rAK3*ab*123\rAK4*1*2*3*4*MM*bad data goes here 89\rAK5*A\rAK9*A*1*1*1\rSE*6*0001\rGE*1*220001\rIEA*1*000000022\r"
 		edi997 := EDI{}
 		err := edi997.Parse(sample997EDIString)
@@ -329,7 +329,7 @@ IEA*1*000000022
 		suite.validateIEA(ieaString, iea)
 	})
 
-	suite.T().Run("successfully parse complex 997 with loops", func(t *testing.T) {
+	suite.Run("successfully parse complex 997 with loops", func() {
 		sample997EDIString := `
 ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
 GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010
@@ -638,7 +638,7 @@ IEA*1*000000022
 
 	})
 
-	suite.T().Run("fail to parse 997 with unknown segment", func(t *testing.T) {
+	suite.Run("fail to parse 997 with unknown segment", func() {
 		sample997EDIString := `
 ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
 GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010
@@ -659,7 +659,7 @@ IEA*1*000000022
 		suite.Contains(err.Error(), "unexpected row for EDI 997")
 	})
 
-	suite.T().Run("fail to parse 997 with bad format", func(t *testing.T) {
+	suite.Run("fail to parse 997 with bad format", func() {
 		sample997EDIString := `
 ISA*00
 GS

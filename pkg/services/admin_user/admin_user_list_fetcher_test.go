@@ -3,7 +3,6 @@ package adminuser
 import (
 	"errors"
 	"reflect"
-	"testing"
 
 	"github.com/gofrs/uuid"
 
@@ -43,7 +42,7 @@ func defaultOrdering() services.QueryOrder {
 }
 
 func (suite *AdminUserServiceSuite) TestFetchAdminUserList() {
-	suite.T().Run("if the users are successfully fetched, they should be returned", func(t *testing.T) {
+	suite.Run("if the users are successfully fetched, they should be returned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
 		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
@@ -66,7 +65,7 @@ func (suite *AdminUserServiceSuite) TestFetchAdminUserList() {
 		suite.Equal(id, adminUsers[0].ID)
 	})
 
-	suite.T().Run("if there is an error, we get it with no admin users", func(t *testing.T) {
+	suite.Run("if there is an error, we get it with no admin users", func() {
 		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
 			return errors.New("Fetch error")
 		}

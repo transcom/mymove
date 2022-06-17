@@ -3,7 +3,6 @@ package officeuser
 import (
 	"errors"
 	"reflect"
-	"testing"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -42,7 +41,7 @@ func (t *testOfficeUserQueryBuilder) QueryForAssociations(appCtx appcontext.AppC
 }
 
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
-	suite.T().Run("if the user is fetched, it should be returned", func(t *testing.T) {
+	suite.Run("if the user is fetched, it should be returned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
@@ -68,7 +67,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 		suite.Equal(id, officeUser.ID)
 	})
 
-	suite.T().Run("if there is an error, we get it with zero office user", func(t *testing.T) {
+	suite.Run("if there is an error, we get it with zero office user", func() {
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			return errors.New("Fetch error")
 		}
@@ -86,7 +85,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 }
 
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
-	suite.T().Run("returns office user on success", func(t *testing.T) {
+	suite.Run("returns office user on success", func() {
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		fetcher := NewOfficeUserFetcherPop()
 
@@ -96,7 +95,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 		suite.Equal(officeUser.ID, fetchedUser.ID)
 	})
 
-	suite.T().Run("returns zero value office user on error", func(t *testing.T) {
+	suite.Run("returns zero value office user on error", func() {
 		fetcher := NewOfficeUserFetcherPop()
 		officeUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), uuid.Nil)
 

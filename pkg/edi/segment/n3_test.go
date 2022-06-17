@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateN3() {
 	validN3Line1Only := N3{
 		AddressInformation1: "ABC",
@@ -14,17 +10,17 @@ func (suite *SegmentSuite) TestValidateN3() {
 		AddressInformation2: "XYZ",
 	}
 
-	suite.T().Run("validate success line 1 only", func(t *testing.T) {
+	suite.Run("validate success line 1 only", func() {
 		err := suite.validator.Struct(validN3Line1Only)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate success both lines", func(t *testing.T) {
+	suite.Run("validate success both lines", func() {
 		err := suite.validator.Struct(validN3BothLines)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		n3 := N3{
 			AddressInformation1: "",                                                         // min
 			AddressInformation2: "12345678901234567890123456789012345678901234567890123456", // max
@@ -36,7 +32,7 @@ func (suite *SegmentSuite) TestValidateN3() {
 		suite.ValidateErrorLen(err, 2)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		n3 := N3{
 			AddressInformation1: "12345678901234567890123456789012345678901234567890123456", // max
 		}

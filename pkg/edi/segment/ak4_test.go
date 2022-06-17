@@ -1,11 +1,7 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateAK4() {
-	suite.T().Run("validate success all fields", func(t *testing.T) {
+	suite.Run("validate success all fields", func() {
 		validAK4 := AK4{
 			PositionInSegment:                       1,
 			ElementPositionInSegment:                1,
@@ -18,7 +14,7 @@ func (suite *SegmentSuite) TestValidateAK4() {
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate success only required fields", func(t *testing.T) {
+	suite.Run("validate success only required fields", func() {
 		validOptionalAK4 := AK4{
 			PositionInSegment:          1,
 			ElementPositionInSegment:   1,
@@ -28,7 +24,7 @@ func (suite *SegmentSuite) TestValidateAK4() {
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		ak4 := AK4{
 			PositionInSegment:                       -1, // min
 			ElementPositionInSegment:                -1, // min
@@ -46,7 +42,7 @@ func (suite *SegmentSuite) TestValidateAK4() {
 		suite.ValidateErrorLen(err, 5)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		ak4 := AK4{
 			PositionInSegment:                       100,                                                                                                    // max
 			ElementPositionInSegment:                100,                                                                                                    // max
@@ -68,7 +64,7 @@ func (suite *SegmentSuite) TestValidateAK4() {
 }
 
 func (suite *SegmentSuite) TestStringArrayAK4() {
-	suite.T().Run("string array all fields", func(t *testing.T) {
+	suite.Run("string array all fields", func() {
 		validAK4 := AK4{
 			PositionInSegment:                       1,
 			ElementPositionInSegment:                1,
@@ -81,7 +77,7 @@ func (suite *SegmentSuite) TestStringArrayAK4() {
 		suite.Equal(arrayValidAK4, validAK4.StringArray())
 	})
 
-	suite.T().Run("string array only required fields", func(t *testing.T) {
+	suite.Run("string array only required fields", func() {
 		validOptionalAK4 := AK4{
 			PositionInSegment:          1,
 			ElementPositionInSegment:   1,
@@ -93,7 +89,7 @@ func (suite *SegmentSuite) TestStringArrayAK4() {
 }
 
 func (suite *SegmentSuite) TestParseAK4() {
-	suite.T().Run("parse success all fields", func(t *testing.T) {
+	suite.Run("parse success all fields", func() {
 		arrayValidAK4 := []string{"1", "1", "11", "1111", "ABC", "Bad data element"}
 		expectedAK4 := AK4{
 			PositionInSegment:                       1,
@@ -111,7 +107,7 @@ func (suite *SegmentSuite) TestParseAK4() {
 		}
 	})
 
-	suite.T().Run("parse success only required fields", func(t *testing.T) {
+	suite.Run("parse success only required fields", func() {
 		arrayValidOptionalAK4 := []string{"1", "1", "", "", "ABC", ""}
 		expectedOptionalAK4 := AK4{
 			PositionInSegment:          1,
@@ -126,7 +122,7 @@ func (suite *SegmentSuite) TestParseAK4() {
 		}
 	})
 
-	suite.T().Run("wrong number of fields", func(t *testing.T) {
+	suite.Run("wrong number of fields", func() {
 		badArrayAK4 := []string{"1", "1"}
 		var badAK4 AK4
 		err := badAK4.Parse(badArrayAK4)
@@ -135,7 +131,7 @@ func (suite *SegmentSuite) TestParseAK4() {
 		}
 	})
 
-	suite.T().Run("invalid integers", func(t *testing.T) {
+	suite.Run("invalid integers", func() {
 		// First four fields are integers that could fail conversion
 		for i := 0; i < 4; i++ {
 			badArrayAK4 := []string{"1", "1", "11", "1111", "ABC", "Bad data element"}

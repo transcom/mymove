@@ -1,8 +1,6 @@
 package paymentserviceitem
 
 import (
-	"testing"
-
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
@@ -14,7 +12,7 @@ import (
 )
 
 func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
-	suite.T().Run("Successfully approves a payment service item", func(t *testing.T) {
+	suite.Run("Successfully approves a payment service item", func() {
 		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
 		eTag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		updater := NewPaymentServiceItemStatusUpdater()
@@ -32,7 +30,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 
 	})
 
-	suite.T().Run("Successfully rejects a payment service item", func(t *testing.T) {
+	suite.Run("Successfully rejects a payment service item", func() {
 		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
 		eTag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		updater := NewPaymentServiceItemStatusUpdater()
@@ -50,7 +48,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 
 	})
 
-	suite.T().Run("Fails if we can't find an existing paymentServiceItem", func(t *testing.T) {
+	suite.Run("Fails if we can't find an existing paymentServiceItem", func() {
 		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
 		eTag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		updater := NewPaymentServiceItemStatusUpdater()
@@ -63,7 +61,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Fails if we have a stale eTag", func(t *testing.T) {
+	suite.Run("Fails if we have a stale eTag", func() {
 		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
 		// Arbitrary date time that isn't the record updatedAt used here
 		badETag := etag.GenerateEtag(testdatagen.DateInsidePerformancePeriod)
@@ -76,7 +74,7 @@ func (suite *PaymentServiceItemSuite) TestUpdatePaymentServiceItemStatus() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
-	suite.T().Run("Fails if we attempt to reject without a rejection reason", func(t *testing.T) {
+	suite.Run("Fails if we attempt to reject without a rejection reason", func() {
 		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
 		eTag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		updater := NewPaymentServiceItemStatusUpdater()
