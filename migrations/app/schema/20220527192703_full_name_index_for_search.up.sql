@@ -12,20 +12,13 @@
 
 CREATE EXTENSION unaccent;
 
-CREATE OR REPLACE FUNCTION public.immutable_unaccent(regdictionary, text)
-	RETURNS text LANGUAGE c IMMUTABLE PARALLEL SAFE STRICT AS
-'$libdir/unaccent', 'unaccent_dict';
-
-COMMENT ON FUNCTION immutable_unaccent(regdictionary, text) IS 'Do not use outside of the wrapper f_unnacent! This is a copy of the C unaccent function that we are marking as IMMUTABLE';
-
 CREATE OR REPLACE FUNCTION public.f_unaccent(text)
 	RETURNS text LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT AS
 $func$
-SELECT public.immutable_unaccent(regdictionary 'public.unaccent', $1)
+SELECT public.unaccent('public.unaccent', $1)  -- schema-qualify function and dictionary
 $func$;
 
 COMMENT ON FUNCTION f_unaccent(text) IS 'Wrapper around unaccent that is marked as immutable so it can be used in indexes';
-
 
 CREATE OR REPLACE FUNCTION searchable_full_name(first_name text, last_name text)
 	RETURNS text
