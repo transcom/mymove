@@ -44,4 +44,11 @@ export default {
   releasing_agent: 'Releasing agent',
   tio_remarks: 'Max billable weight remark',
   prime_actual_weight: 'Shipment weight',
+  actual_weight: 'Actual weight',
+  estimated_weight: 'Estimated weight',
+  description: 'Description',
+  reason: 'Reason',
+  sit_departure_date: 'SIT departure date',
+  sit_entry_date: 'SIT entry date',
+  sit_postal_code: 'SIT postal code',
 };

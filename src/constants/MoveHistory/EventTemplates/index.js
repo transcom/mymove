@@ -2,6 +2,7 @@ export { default as acknowledgeExcessWeightRisk } from './acknowledgeExcessWeigh
 export { default as approveShipment } from './approveShipment';
 export { default as approveShipmentDiversion } from './approveShipmentDiversion';
 export { default as createBasicServiceItem } from './createBasicServiceItem';
+export { default as createMTOServiceItem } from './createMTOServiceItem';
 export { default as createMTOShipment } from './createMTOShipment';
 export { default as createMTOShipmentAddresses } from './createMTOShipmentAddresses';
 export { default as createMTOShipmentAgent } from './createMTOShipmentAgent';
@@ -28,6 +29,7 @@ export { default as updateMTOShipmentAddresses } from './updateMTOShipmentAddres
 export { default as updateMTOShipmentAgent } from './updateMTOShipmentAgent';
 export { default as updateMTOShipmentDeprecatePaymentRequest } from './updateMTOShipmentDeprecatePaymentRequest';
 export { default as reweighPaymentRequest } from './reweighPaymentRequest';
+export { default as updateMTOServiceItemAddress } from './updateMTOServiceItemAddress';
 export { default as updateOrder } from './updateOrder';
 export { default as updatePaymentRequest } from './updatePaymentRequest';
 export { default as updatePaymentRequestStatus } from './updatePaymentRequestStatus';
