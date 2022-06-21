@@ -2763,8 +2763,7 @@ definitions:
       - DimensionHeight
       - DimensionLength
       - DimensionWidth
-      - DistanceZip3
-      - DistanceZip5
+      - DistanceZip
       - DistanceZipSITDest
       - DistanceZipSITOrigin
       - EIAFuelPrice
