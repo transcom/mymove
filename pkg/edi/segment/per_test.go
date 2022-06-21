@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidatePER() {
 	validPERDefault := PER{
 		ContactFunctionCode: "IC",
@@ -16,17 +12,17 @@ func (suite *SegmentSuite) TestValidatePER() {
 		CommunicationNumber:          "5551234567",
 	}
 
-	suite.T().Run("validate success default", func(t *testing.T) {
+	suite.Run("validate success default", func() {
 		err := suite.validator.Struct(validPERDefault)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate success all", func(t *testing.T) {
+	suite.Run("validate success all", func() {
 		err := suite.validator.Struct(validPERAll)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		per := PER{
 			Name:                         "Cross Dock Testing With Too Long a Name Cross Dock Testing With Too Long a Name",
 			CommunicationNumberQualifier: "BX",
@@ -41,7 +37,7 @@ func (suite *SegmentSuite) TestValidatePER() {
 		suite.ValidateErrorLen(err, 4)
 	})
 
-	suite.T().Run("validate segment is parsed correctly", func(t *testing.T) {
+	suite.Run("validate segment is parsed correctly", func() {
 		values := []string{"IC", "Cross Dock", "TE", "5551234567"}
 		per := PER{
 			ContactFunctionCode:          "IC",

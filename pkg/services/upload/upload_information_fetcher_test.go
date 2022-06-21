@@ -1,8 +1,6 @@
 package upload
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -10,7 +8,7 @@ import (
 )
 
 func (suite *UploadServiceSuite) TestFetchUploadInformation() {
-	suite.T().Run("fetch office user upload", func(t *testing.T) {
+	suite.Run("fetch office user upload", func() {
 		email := "officeuser1@example.com"
 		ou := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
 			User: models.User{
@@ -43,7 +41,7 @@ func (suite *UploadServiceSuite) TestFetchUploadInformation() {
 		suite.Equal(ou.Telephone, *ui.OfficeUserPhone)
 	})
 
-	suite.T().Run("fetch service member upload", func(t *testing.T) {
+	suite.Run("fetch service member upload", func() {
 		uu := testdatagen.MakeDefaultUserUpload(suite.DB())
 		uif := NewUploadInformationFetcher()
 		suite.NotNil(uu.UploadID)

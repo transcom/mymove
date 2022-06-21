@@ -101,6 +101,14 @@ func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID
 		return nil, apperror.NewQueryError("MTOShipment", err, "")
 	}
 
+	if shipment.ShipmentType == models.MTOShipmentTypePPM {
+		err = appCtx.DB().Load(shipment, "PPMShipment")
+	}
+
+	if err != nil {
+		return nil, apperror.NewQueryError("MTOShipment", err, "")
+	}
+
 	return shipment, nil
 }
 

@@ -24,7 +24,7 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
     secondaryPickupPostalCode,
     sitExpected,
     spouseProGearWeight,
-  } = shipment.ppmShipment;
+  } = shipment.ppmShipment || {};
 
   setFlagStyles({
     row: styles.row,
