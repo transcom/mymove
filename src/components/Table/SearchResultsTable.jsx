@@ -118,7 +118,7 @@ const SearchResultsTable = (props) => {
   useEffect(() => {
     const filtersToAdd = [];
     if (moveCode) {
-      filtersToAdd.push({ id: 'moveCode', value: moveCode });
+      filtersToAdd.push({ id: 'locator', value: moveCode });
     }
     if (dodID) {
       filtersToAdd.push({ id: 'dodID', value: dodID });

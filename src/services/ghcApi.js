@@ -79,16 +79,15 @@ export async function getCustomer(key, customerID) {
 }
 
 export async function searchMoves(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
-  // TODO transform [{id:'id1',value:'val1'},...] to {id1: val1, ...}
-  const paramFilters = filters.reduce((acc, current) => {
-    acc[current.id] = current.value;
-    if (current.id === 'shipmentsCount') {
-      acc[current.id] = Number(acc[current.id]);
-    }
-    return acc;
-  }, {});
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
   if (paramFilters.status) {
     paramFilters.status = paramFilters.status.split(',');
+  }
+  if (paramFilters.shipmentsCount) {
+    paramFilters.shipmentsCount = Number(paramFilters.shipmentsCount);
   }
   return makeGHCRequest(
     'move.searchMoves',
@@ -96,9 +95,6 @@ export async function searchMoves(key, { sort, order, filters = [], currentPage 
       body: {
         sort,
         order,
-        locator: paramFilters.moveCode,
-        customerName: paramFilters.customerName,
-        // status: paramFilters.status ? paramFilters.status.split(',') : null,
         page: currentPage,
         perPage: currentPageSize,
         ...paramFilters,
