@@ -86,7 +86,7 @@ func (suite *ModelSuite) Test_FetchBaseLinehaulRate() {
 	// Test the best case
 	rate, err := FetchBaseLinehaulRate(suite.DB(), goodDistance, goodWeight, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
-		t.Fatalf("Something went wrong with saving the test object: %s\n", err)
+		t.Errorf("Something went wrong with saving the test object: %s\n", err)
 	}
 	if rate != mySpecificRate {
 		t.Errorf("The record object didn't save!")

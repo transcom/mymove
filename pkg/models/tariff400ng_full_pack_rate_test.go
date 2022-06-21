@@ -147,7 +147,7 @@ func (suite *ModelSuite) Test_FetchFullPackRateCents() {
 
 	rate, err := FetchTariff400ngFullPackRateCents(suite.DB(), weight, schedule, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
-		t.Fatalf("Unable to query full pack rate: %v", err)
+		t.Errorf("Unable to query full pack rate: %v", err)
 	}
 	if rate != rateExpected {
 		t.Errorf("Incorrect full pack rate received. Got: %d. Expected: %d.", rate, rateExpected)
