@@ -652,11 +652,13 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             >
               <span>
                 This move is at risk for excess weight.{' '}
-                <span className={styles.rightAlignButtonWrapper}>
-                  <Button type="button" onClick={handleShowWeightModal} unstyled>
-                    Review billable weight
-                  </Button>
-                </span>
+                <Restricted to={permissionTypes.updateBillableWeight}>
+                  <span className={styles.rightAlignButtonWrapper}>
+                    <Button type="button" onClick={handleShowWeightModal} unstyled>
+                      Review billable weight
+                    </Button>
+                  </span>
+                </Restricted>
               </span>
             </Alert>
           )}
