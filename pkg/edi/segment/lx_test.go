@@ -1,20 +1,16 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateLX() {
 	validLX := LX{
 		AssignedNumber: 1,
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validLX)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		lx := LX{
 			AssignedNumber: 0, // min
 		}
@@ -24,7 +20,7 @@ func (suite *SegmentSuite) TestValidateLX() {
 		suite.ValidateErrorLen(err, 1)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		lx := LX{
 			AssignedNumber: 1000000, // max
 		}

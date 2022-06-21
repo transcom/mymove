@@ -198,7 +198,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		On("PriceServiceItem", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(testPrice, displayParams, nil)
 
 	planner := &routemocks.Planner{}
-	planner.On("Zip5TransitDistanceLineHaul",
+	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
@@ -436,7 +436,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			On("PriceServiceItem", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(unit.Cents(0), nil, errors.New(errMsg))
 
 		planner := &routemocks.Planner{}
-		planner.On("Zip5TransitDistanceLineHaul",
+		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
@@ -1163,7 +1163,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 
 	// Mock out a planner.
 	mockPlanner := &routemocks.Planner{}
-	mockPlanner.On("Zip3TransitDistance",
+	mockPlanner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		testStorageFacilityZip,
 		testDestinationZip,

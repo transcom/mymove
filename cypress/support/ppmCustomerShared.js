@@ -20,6 +20,19 @@ export function signInAndNavigateFromHomePageToReviewPage(userId, isMoveSubmitte
   navigateFromHomePageToReviewPage(isMoveSubmitted);
 }
 
+export function signInAndNavigateToAboutPage(userId, selectAdvance) {
+  cy.apiSignInAsUser(userId);
+
+  cy.wait('@getShipment');
+  cy.screenshot();
+  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/about/);
+  });
+
+  fillOutAboutPage(selectAdvance);
+}
+
 export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
   if (isMoveSubmitted) {
     cy.get('h3').contains('Next step: Your move gets approved');
@@ -30,6 +43,27 @@ export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
 
     cy.get('button').contains('Review and submit').click();
   }
+}
+
+export function fillOutAboutPage(selectAdvance) {
+  cy.get('input[name="actualMoveDate"]').clear().type('01 Feb 2022').blur();
+  cy.get('input[name="actualPickupPostalCode"]').clear().type('90210').blur();
+  cy.get('input[name="actualDestinationPostalCode"]').clear().type('76127');
+  if (selectAdvance) {
+    cy.get('input[name="hasReceivedAdvance"][value="true"]').check({ force: true });
+    cy.get('input[name="advanceAmountReceived"]').clear().type('5000');
+  } else {
+    cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: true });
+  }
+  cy.get('button').contains('Save & Continue').should('be.enabled');
+  navigateFromAboutPageToWeightTicketPage();
+}
+
+export function navigateFromAboutPageToWeightTicketPage() {
+  cy.get('button').contains('Save & Continue').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+  });
 }
 
 export function signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId) {
@@ -57,7 +91,7 @@ export function submitsDateAndLocation() {
   cy.get('input[name="destinationPostalCode"]').clear().type('76127');
   cy.get('input[name="expectedDepartureDate"]').clear().type('01 Feb 2022').blur();
 
-  navigateFromDateAndLocationPageToEstimatedWeightsPage('@createShipment');
+  navigateFromDateAndLocationPageToEstimatedWeightsPage();
 }
 
 export function navigateFromDateAndLocationPageToEstimatedWeightsPage(actionToWaitOn) {
@@ -75,7 +109,7 @@ export function navigateFromDateAndLocationPageToEstimatedWeightsPage(actionToWa
 }
 
 export function submitsEstimatedWeightsAndProGear() {
-  cy.get('input[name="estimatedWeight"]').clear().type(500).blur();
+  cy.get('input[name="estimatedWeight"]').clear().type(4000).blur();
   cy.get('input[name="hasProGear"][value="true"]').check({ force: true });
   cy.get('input[name="proGearWeight"]').clear().type(500).blur();
   cy.get('input[name="spouseProGearWeight"]').clear().type(400).blur();
@@ -85,7 +119,7 @@ export function submitsEstimatedWeightsAndProGear() {
 }
 
 export function submitsEstimatedWeights() {
-  cy.get('input[name="estimatedWeight"]').clear().type(500).blur();
+  cy.get('input[name="estimatedWeight"]').clear().type(4000).blur();
   cy.get('button').contains('Save & Continue').should('be.enabled');
 
   navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
@@ -167,7 +201,7 @@ export function navigateFromAdvancesPageToReviewPage(isMobile = false) {
 
   cy.get('h1').should('contain', 'Review your details');
 
-  cy.get('h3')
+  cy.get('.usa-alert__heading')
     .contains('Details saved')
     .next()
     .contains('Review your info and submit your move request now, or come back and finish later.');

@@ -1,8 +1,6 @@
 package adminuser
 
 import (
-	"testing"
-
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -20,7 +18,7 @@ func (suite *AdminUserServiceSuite) TestUpdateAdminUser() {
 	}
 
 	// Happy path
-	suite.T().Run("If the user is updated successfully it should be returned", func(t *testing.T) {
+	suite.Run("If the user is updated successfully it should be returned", func() {
 		fakeUpdateOne := func(appcontext.AppContext, interface{}, *string) (*validate.Errors, error) {
 			return nil, nil
 		}
@@ -41,7 +39,7 @@ func (suite *AdminUserServiceSuite) TestUpdateAdminUser() {
 	})
 
 	// Bad organization ID
-	suite.T().Run("If we are provided a organization that doesn't exist, the create should fail", func(t *testing.T) {
+	suite.Run("If we are provided a organization that doesn't exist, the create should fail", func() {
 		fakeUpdateOne := func(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error) {
 			return nil, nil
 		}

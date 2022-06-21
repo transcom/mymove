@@ -71,6 +71,7 @@ const BASE_PRIME_SIMULATOR_PATH = '/simulator/moves/:moveCodeOrID';
 
 export const primeSimulatorRoutes = {
   VIEW_MOVE_PATH: `${BASE_PRIME_SIMULATOR_PATH}/details`,
+  CREATE_SHIPMENT_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/new`,
   UPDATE_SHIPMENT_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId`,
   CREATE_PAYMENT_REQUEST_PATH: `${BASE_PRIME_SIMULATOR_PATH}/payment-requests/new`,
   CREATE_SERVICE_ITEM_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/service-items/new`,

@@ -5,7 +5,7 @@ import t from 'constants/MoveHistory/Database/Tables';
 
 export default {
   action: a.INSERT,
-  eventName: '',
+  eventName: '*',
   tableName: t.addresses,
   detailsType: d.LABELED,
   getEventNameDisplay: () => 'Updated shipment',

@@ -113,7 +113,15 @@ const MoveDetails = ({ setFlashMessage }) => {
               </SectionWrapper>
               <SectionWrapper className={formStyles.formSection}>
                 <dl className={descriptionListStyles.descriptionList}>
-                  <h2>Shipments</h2>
+                  <div className={styles.mainShipmentHeader}>
+                    <h2>Shipments</h2>
+                    <Link
+                      to={`/simulator/moves/${moveTaskOrder.id}/shipments/new`}
+                      className="usa-button usa-button-secondary"
+                    >
+                      Create Shipment
+                    </Link>
+                  </div>
                   {mtoShipments?.map((mtoShipment) => {
                     return (
                       <div key={mtoShipment.id}>

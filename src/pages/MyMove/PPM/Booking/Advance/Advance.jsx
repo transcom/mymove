@@ -85,7 +85,7 @@ const Advance = () => {
               </Alert>
             )}
             {errorMessage && (
-              <Alert slim type="error">
+              <Alert headingLevel="h4" slim type="error">
                 {errorMessage}
               </Alert>
             )}

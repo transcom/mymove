@@ -1,7 +1,6 @@
 package reweigh
 
 import (
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -14,19 +13,19 @@ import (
 
 func (suite *ReweighSuite) TestReweighCreator() {
 	// Create new mtoShipment
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
 
-	// Create a valid reweigh for the move
-	newReweigh := &models.Reweigh{
-		RequestedAt: time.Now(),
-		RequestedBy: models.ReweighRequesterPrime,
-		ShipmentID:  mtoShipment.ID,
-	}
-
-	suite.T().Run("CreateReweigh - Success", func(t *testing.T) {
+	suite.Run("CreateReweigh - Success", func() {
 		// Under test:	CreateReweigh
 		// Set up:		Established valid shipment and valid reweigh
 		// Expected:	New reweigh successfully created
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+
+		// Create a valid reweigh for the move
+		newReweigh := &models.Reweigh{
+			RequestedAt: time.Now(),
+			RequestedBy: models.ReweighRequesterPrime,
+			ShipmentID:  mtoShipment.ID,
+		}
 		reweighCreator := NewReweighCreator()
 		createdReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), newReweigh)
 
@@ -37,9 +36,15 @@ func (suite *ReweighSuite) TestReweighCreator() {
 	})
 
 	// InvalidInputError
-	suite.T().Run("Reweigh with validation errors returns an InvalidInputError", func(t *testing.T) {
-		badRequestedby := models.ReweighRequester("not requested by anyone")
-		newReweigh.RequestedBy = badRequestedby
+	suite.Run("Reweigh with validation errors returns an InvalidInputError", func() {
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+
+		// Create a reweigh with a bad requester
+		newReweigh := &models.Reweigh{
+			RequestedAt: time.Now(),
+			RequestedBy: models.ReweighRequester("not requested by anyone"),
+			ShipmentID:  mtoShipment.ID,
+		}
 		reweighCreator := NewReweighCreator()
 		createReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), newReweigh)
 
@@ -48,9 +53,14 @@ func (suite *ReweighSuite) TestReweighCreator() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
-	suite.T().Run("Not Found Error", func(t *testing.T) {
-		notFoundUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
-		newReweigh.ShipmentID = notFoundUUID
+	suite.Run("Not Found Error", func() {
+
+		// Create a reweigh with a shipment that doesn't exist
+		newReweigh := &models.Reweigh{
+			RequestedAt: time.Now(),
+			RequestedBy: models.ReweighRequesterPrime,
+			ShipmentID:  uuid.Must(uuid.NewV4()),
+		}
 		reweighCreator := NewReweighCreator()
 		createdReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), newReweigh)
 

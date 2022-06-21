@@ -2,11 +2,10 @@ package edisegment
 
 import (
 	"strings"
-	"testing"
 )
 
 func (suite *SegmentSuite) TestValidateTED() {
-	suite.T().Run("validate success all fields", func(t *testing.T) {
+	suite.Run("validate success all fields", func() {
 		validTED := TED{
 			ApplicationErrorConditionCode: "007",
 			FreeFormMessage:               "free form message",
@@ -15,7 +14,7 @@ func (suite *SegmentSuite) TestValidateTED() {
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate success only required fields", func(t *testing.T) {
+	suite.Run("validate success only required fields", func() {
 		validOptionalTED := TED{
 			ApplicationErrorConditionCode: "007",
 		}
@@ -23,7 +22,7 @@ func (suite *SegmentSuite) TestValidateTED() {
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure", func(t *testing.T) {
+	suite.Run("validate failure", func() {
 		ted := TED{
 			ApplicationErrorConditionCode: "123",                   // oneof
 			FreeFormMessage:               strings.Repeat("x", 61), // max
@@ -37,7 +36,7 @@ func (suite *SegmentSuite) TestValidateTED() {
 }
 
 func (suite *SegmentSuite) TestStringArrayTED() {
-	suite.T().Run("string array all fields", func(t *testing.T) {
+	suite.Run("string array all fields", func() {
 		validTED := TED{
 			ApplicationErrorConditionCode: "007",
 			FreeFormMessage:               "free form message",
@@ -46,7 +45,7 @@ func (suite *SegmentSuite) TestStringArrayTED() {
 		suite.Equal(arrayValidTED, validTED.StringArray())
 	})
 
-	suite.T().Run("string array only required fields", func(t *testing.T) {
+	suite.Run("string array only required fields", func() {
 		validOptionalTED := TED{
 			ApplicationErrorConditionCode: "007",
 		}
@@ -56,7 +55,7 @@ func (suite *SegmentSuite) TestStringArrayTED() {
 }
 
 func (suite *SegmentSuite) TestParseTED() {
-	suite.T().Run("parse success all fields", func(t *testing.T) {
+	suite.Run("parse success all fields", func() {
 		arrayValidTED := []string{"007", "free form message"}
 		expectedTED := TED{
 			ApplicationErrorConditionCode: "007",
@@ -70,7 +69,7 @@ func (suite *SegmentSuite) TestParseTED() {
 		}
 	})
 
-	suite.T().Run("parse success only required fields", func(t *testing.T) {
+	suite.Run("parse success only required fields", func() {
 		arrayValidOptionalTED := []string{"007", ""}
 		expectedOptionalTED := TED{
 			ApplicationErrorConditionCode: "007",
@@ -83,7 +82,7 @@ func (suite *SegmentSuite) TestParseTED() {
 		}
 	})
 
-	suite.T().Run("wrong number of fields", func(t *testing.T) {
+	suite.Run("wrong number of fields", func() {
 		badArrayTED := []string{"007", "hello", "world"}
 		var badTED TED
 		err := badTED.Parse(badArrayTED)
