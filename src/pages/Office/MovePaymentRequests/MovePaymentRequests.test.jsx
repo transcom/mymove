@@ -424,7 +424,10 @@ const errorReturnValue = {
 
 function renderMovePaymentRequests(props) {
   return render(
-    <MockProviders initialEntries={[`/moves/L2BKD6/payment-requests`]}>
+    <MockProviders
+      initialEntries={[`/moves/L2BKD6/payment-requests`]}
+      permissions={[permissionTypes.updateMaxBillableWeight]}
+    >
       <MovePaymentRequests {...props} />
     </MockProviders>,
   );
