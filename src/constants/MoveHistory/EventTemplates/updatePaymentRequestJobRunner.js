@@ -5,7 +5,6 @@ import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 
 export default {
   action: a.UPDATE,
-  eventName: '',
   tableName: t.payment_requests,
   detailsType: d.STATUS,
   getEventNameDisplay: ({ oldValues }) => `Updated payment request ${oldValues?.payment_request_number}`,

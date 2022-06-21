@@ -76,8 +76,10 @@ describe('CustomerSupportRemarkForm', () => {
     // Ensure the expected mutation was called with expected data
     expect(mutationSpy).toHaveBeenCalledTimes(1);
     expect(mutationSpy).toHaveBeenCalledWith({
+      body: {
+        content: 'Test Remark',
+      },
       locator: 'LR4T8V',
-      content: 'Test Remark',
     });
   });
 
