@@ -404,14 +404,14 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}": {
       "delete": {
-        "description": "Soft deletes a shipment by ID",
+        "description": "### Functionality\nThis endpoint deletes an individual shipment by ID.\n\n### Errors\nThe mtoShipment should be associated with an MTO that is available to prime.\nThe mtoShipment must be a PPM shipment\nCounseling should not have already been completed for the associated MTO\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Soft deletes a shipment by ID",
+        "summary": "Deletes a shipment by ID",
         "operationId": "deleteMTOShipment",
         "parameters": [
           {
@@ -4143,14 +4143,14 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}": {
       "delete": {
-        "description": "Soft deletes a shipment by ID",
+        "description": "### Functionality\nThis endpoint deletes an individual shipment by ID.\n\n### Errors\nThe mtoShipment should be associated with an MTO that is available to prime.\nThe mtoShipment must be a PPM shipment\nCounseling should not have already been completed for the associated MTO\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Soft deletes a shipment by ID",
+        "summary": "Deletes a shipment by ID",
         "operationId": "deleteMTOShipment",
         "parameters": [
           {

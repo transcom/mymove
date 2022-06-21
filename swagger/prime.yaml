@@ -364,8 +364,21 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
     delete:
-      summary: Soft deletes a shipment by ID
-      description: Soft deletes a shipment by ID
+      summary: Deletes a shipment by ID
+      description: >
+        ### Functionality
+
+        This endpoint deletes an individual shipment by ID.
+
+
+        ### Errors
+
+        The mtoShipment should be associated with an MTO that is available to
+        prime.
+
+        The mtoShipment must be a PPM shipment
+
+        Counseling should not have already been completed for the associated MTO
       operationId: deleteMTOShipment
       tags:
         - mtoShipment

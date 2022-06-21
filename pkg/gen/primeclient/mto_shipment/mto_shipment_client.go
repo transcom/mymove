@@ -193,9 +193,16 @@ func (a *Client) CreateSITExtension(params *CreateSITExtensionParams, opts ...Cl
 }
 
 /*
-  DeleteMTOShipment softs deletes a shipment by ID
+  DeleteMTOShipment deletes a shipment by ID
 
-  Soft deletes a shipment by ID
+  ### Functionality
+This endpoint deletes an individual shipment by ID.
+
+### Errors
+The mtoShipment should be associated with an MTO that is available to prime.
+The mtoShipment must be a PPM shipment
+Counseling should not have already been completed for the associated MTO
+
 */
 func (a *Client) DeleteMTOShipment(params *DeleteMTOShipmentParams, opts ...ClientOption) (*DeleteMTOShipmentNoContent, error) {
 	// TODO: Validate the params before sending

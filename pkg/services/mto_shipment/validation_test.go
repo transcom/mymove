@@ -258,9 +258,13 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 
 		for shipmentType, allowed := range testCases {
 			suite.Run("Shipment type "+string(shipmentType), func() {
+				now := time.Now()
 				shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 					MTOShipment: models.MTOShipment{
 						ShipmentType: shipmentType,
+					},
+					Move: models.Move{
+						AvailableToPrimeAt: &now,
 					},
 					Stub: true,
 				})
@@ -275,6 +279,7 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 					suite.NoError(err)
 				} else {
 					suite.Error(err)
+					suite.Contains(err.Error(), "Prime can only delete PPM shipments")
 				}
 			})
 		}
@@ -312,8 +317,28 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 					suite.NoError(err)
 				} else {
 					suite.Error(err)
+					suite.Contains(err.Error(), "A PPM shipment with the status WAITING_ON_CUSTOMER cannot be deleted")
 				}
 			})
 		}
+	})
+
+	suite.Run("checkPrimeDeleteAllowed for move not available to prime", func() {
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			Move: models.Move{
+				AvailableToPrimeAt: nil,
+			},
+		})
+
+		err := checkPrimeDeleteAllowed().Validate(
+			suite.AppContextForTest(),
+			nil,
+			&shipment,
+		)
+		suite.Error(err)
+		suite.Contains(err.Error(), "not found for mtoShipment")
 	})
 }
