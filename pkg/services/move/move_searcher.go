@@ -39,6 +39,16 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		return models.Moves{}, 0, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	}
 
+	// The SQL % operator filters out strings that are below this similarity threshold
+	// We have to set it here because other areas of the code that do a trigram search
+	// (eg Duty Location search) may set a different threshold.
+	// If the threshold is too high, we may filter out too many results and make searching harder.
+	// If it's too low, the query will get slower/more memory intensive.
+	err := appCtx.DB().RawQuery("SET pg_trgm.similarity_threshold = 0.1").Exec()
+	if err != nil {
+		return nil, 0, err
+	}
+
 	query := appCtx.DB().EagerPreload(
 		"MTOShipments",
 		"Orders.ServiceMember",
@@ -74,7 +84,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	}
 
 	var moves models.Moves
-	err := query.Paginate(int(params.Page), int(params.PerPage)).All(&moves)
+	err = query.Paginate(int(params.Page), int(params.PerPage)).All(&moves)
 
 	if err != nil {
 		return models.Moves{}, 0, apperror.NewQueryError("Move", err, "")
