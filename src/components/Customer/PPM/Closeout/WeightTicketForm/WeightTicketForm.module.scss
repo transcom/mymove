@@ -3,7 +3,47 @@
 
 
 .WeightTicketForm {
- li {
-   color: $base;
- }
+  h2 {
+    @include u-margin-bottom(4);
+  }
+
+  h3 {
+    @include u-margin-top(4);
+    @include u-margin-bottom(1.5)
+  }
+
+  li {
+    color: $base;
+  }
+
+  .uploadTypeHint {
+    @include u-margin-bottom(1);
+  }
+
+  .constructedWeightLink {
+    @include u-margin-top(2);
+    width: fit-content;
+    @include u-text-decoration(no-underline);
+
+    &:hover {
+      color: $primary-dark;
+    }
+  }
+
+  fieldset + fieldset {
+    @include u-margin-y(2);
+  }
+
+  .trailerOwnershipFieldset {
+    @include u-padding-bottom(0);
+    @include u-margin-top(3);
+    @include u-margin-bottom(2);
+
+    @include u-border-bottom(0);
+  }
+
+  .doNotClaimTrailerWeight {
+    @include u-font-weight(bold);
+    @include u-margin-bottom(0);
+  }
 }

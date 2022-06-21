@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 import React from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
-import { Button, Form, FormGroup, Label, Radio } from '@trussworks/react-uswds';
+import { Button, Form, FormGroup, Label, Link, Radio } from '@trussworks/react-uswds';
 import { func, number } from 'prop-types';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
@@ -18,13 +18,25 @@ import { WeightTicketShape } from 'types/shipment';
 import FileUpload from 'components/FileUpload/FileUpload';
 import { formatWeight } from 'utils/formatters';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
+import {
+  DocumentAndImageUploadInstructions,
+  SpreadsheetUploadInstructions,
+  UploadDropZoneLabel,
+} from 'content/uploads';
 
 const validationSchema = Yup.object().shape({
   vehicleDescription: Yup.string().required('Required'),
-  emptyWeight: Yup.number().required('Required'),
+  emptyWeight: Yup.number().min(0, 'Enter a weight 0 lbs or greater').required('Required'),
   missingEmptyWeightTicket: Yup.boolean(),
   emptyWeightTickets: Yup.string(),
-  fullWeight: Yup.number().required('Required'),
+  fullWeight: Yup.number()
+    .min(0, 'Enter a weight 0 lbs or greater')
+    .required('Required')
+    .when('emptyWeight', (emptyWeight, schema) => {
+      return emptyWeight
+        ? schema.min(emptyWeight + 1, 'The full weight must be greater than the empty weight')
+        : schema;
+    }),
   missingFullWeightTicket: Yup.boolean(),
   fullWeightTickets: Yup.string(),
   hasOwnTrailer: Yup.boolean().required('Required'),
@@ -64,6 +76,23 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
 
   const handleUploadDelete = () => {};
 
+  const constructedWeightDownload = (
+    <>
+      <p>Download the official government spreadsheet to calculate constructed weight.</p>
+      <Link
+        className={classnames('usa-button', 'usa-button--secondary', styles.constructedWeightLink)}
+        to="https://www.ustranscom.mil/dp3/weightestimator.cfm"
+      >
+        Go to download page
+      </Link>
+      <p>
+        Enter the constructed weight you calculated.
+        <br />
+        Upload a completed copy of the spreadsheet.
+      </p>
+    </>
+  );
+
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, values }) => {
@@ -95,12 +124,19 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
                 />
                 <div>
                   <UploadsTable uploads={emptyWeightTickets} onDelete={handleUploadDelete} />
-                  <Label htmlFor="emptyWeightTickets">Upload empty weight ticket</Label>
-                  <Hint>PDF, JPG, or PNG only. Maximum file size 25 MB. Each page must be clear and legible.</Hint>
-                  <FileUpload
-                    name="emptyWeightTickets"
-                    labelIdle='Drag files here or <span class="filepond--label-action">choose from folder</span>'
-                  />
+                  {values.missingEmptyWeightTicket ? (
+                    <>
+                      {constructedWeightDownload}
+                      <Label htmlFor="emptyWeightTickets">Upload constructed weight spreadsheet</Label>
+                      <Hint className={styles.uploadTypeHint}>{SpreadsheetUploadInstructions}</Hint>
+                    </>
+                  ) : (
+                    <>
+                      <Label htmlFor="emptyWeightTickets">Upload empty weight ticket</Label>
+                      <Hint className={styles.uploadTypeHint}>{DocumentAndImageUploadInstructions}</Hint>
+                    </>
+                  )}
+                  <FileUpload name="emptyWeightTickets" labelIdle={UploadDropZoneLabel} />
                 </div>
                 <h3>Full Weight</h3>
                 <MaskedTextField
@@ -122,12 +158,19 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
                 />
                 <div>
                   <UploadsTable uploads={fullWeightTickets} onDelete={handleUploadDelete} />
-                  <Label htmlFor="emptyWeightTickets">Upload empty weight ticket</Label>
-                  <Hint>PDF, JPG, or PNG only. Maximum file size 25 MB. Each page must be clear and legible.</Hint>
-                  <FileUpload
-                    name="fullWeightTickets"
-                    labelIdle='Drag files here or <span class="filepond--label-action">choose from folder</span>'
-                  />
+                  {values.missingFullWeightTicket ? (
+                    <>
+                      {constructedWeightDownload}
+                      <Label htmlFor="fullWeightTickets">Upload constructed weight spreadsheet</Label>
+                      <Hint className={styles.uploadTypeHint}>{SpreadsheetUploadInstructions}</Hint>
+                    </>
+                  ) : (
+                    <>
+                      <Label htmlFor="fullWeightTickets">Upload full weight ticket</Label>
+                      <Hint className={styles.uploadTypeHint}>{DocumentAndImageUploadInstructions}</Hint>
+                    </>
+                  )}
+                  <FileUpload name="fullWeightTickets" labelIdle={UploadDropZoneLabel} />
                 </div>
                 {values.fullWeight > 0 && values.emptyWeight > 0 ? (
                   <h3>{`Trip weight: ${formatWeight(values.fullWeight - values.emptyWeight)}`}</h3>
@@ -136,7 +179,7 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
                 )}
                 <h3>Trailer</h3>
                 <FormGroup>
-                  <Fieldset>
+                  <Fieldset className={styles.trailerOwnershipFieldset}>
                     <legend className="usa-label">On this trip, were you using a trailer that you own?</legend>
                     <Field
                       as={Radio}
@@ -195,19 +238,16 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
                                 If you don’t have that documentation, upload a signed, dated statement certifying that
                                 you or your spouse own this trailer.
                               </p>
-                              <p>
-                                PDF, JPG, or PNG only. Maximum file size 25 MB. Each page must be clear and legible.
-                              </p>
+                              <p className={styles.uploadTypeHint}>{DocumentAndImageUploadInstructions}</p>
                             </Hint>
                             <UploadsTable uploads={trailerOwnershipDocs} onDelete={handleUploadDelete} />
-                            <FileUpload
-                              name="trailerOwnershipDocs"
-                              labelIdle='Drag files here or <span class="filepond--label-action">choose from folder</span>'
-                            />
+                            <FileUpload name="trailerOwnershipDocs" labelIdle={UploadDropZoneLabel} />
                           </div>
                         </>
                       ) : (
-                        <p className="text-bold">Do not claim the weight of this trailer for this trip.</p>
+                        <p className={styles.doNotClaimTrailerWeight}>
+                          Do not claim the weight of this trailer for this trip.
+                        </p>
                       )}
                     </Fieldset>
                   )}
