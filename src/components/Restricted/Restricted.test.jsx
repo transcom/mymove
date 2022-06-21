@@ -67,4 +67,33 @@ describe('Restricted', () => {
     expect(screen.getByText('Child Component')).toBeInTheDocument();
     expect(screen.queryByText('Fallback Component')).not.toBeInTheDocument();
   });
+
+  it('renders children if current user matches the restricted access user', () => {
+    const testUserId = 'testUserId';
+
+    render(
+      <PermissionProvider currentUserId={testUserId}>
+        <Restricted user={testUserId}>
+          <div>Child Component</div>
+        </Restricted>
+      </PermissionProvider>,
+    );
+
+    expect(screen.getByText('Child Component')).toBeInTheDocument();
+  });
+
+  it('does not render children if current user does not match the restricted access user', () => {
+    const userId1 = 'user1';
+    const userId2 = 'user2';
+
+    render(
+      <PermissionProvider currentUserId={userId1}>
+        <Restricted user={userId2}>
+          <div>Child Component</div>
+        </Restricted>
+      </PermissionProvider>,
+    );
+
+    expect(screen.queryByText('Child Component')).not.toBeInTheDocument();
+  });
 });
