@@ -1066,11 +1066,10 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
-		var validMTOShipments []models.MTOShipment
-		// TODO this can either be done in the main query or should just use an int counter
+		numShipments := 0
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status != models.MTOShipmentStatusDraft {
-				validMTOShipments = append(validMTOShipments, shipment)
+				numShipments++
 			}
 		}
 
@@ -1082,7 +1081,7 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 			Status:                            ghcmessages.MoveStatus(move.Status),
 			ID:                                *handlers.FmtUUID(move.ID),
 			Locator:                           move.Locator,
-			ShipmentsCount:                    int64(len(validMTOShipments)),
+			ShipmentsCount:                    int64(numShipments),
 			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
 			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
 		}
