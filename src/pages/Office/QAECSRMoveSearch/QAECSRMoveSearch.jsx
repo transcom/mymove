@@ -84,7 +84,7 @@ const columns = (showBranchFilter = true) => [
   createHeader(
     'Number of Shipments',
     (row) => {
-      return Number(row.shipmentsCount);
+      return Number(row.shipmentsCount || 0);
     },
     { id: 'shipmentsCount', isFilterable: true },
   ),

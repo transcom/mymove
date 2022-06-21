@@ -2,8 +2,8 @@ package move
 
 import (
 	"fmt"
-	"strings"
 
+	"github.com/gobuffalo/pop/v6"
 	"go.uber.org/zap"
 
 	"github.com/gobuffalo/validate/v3"
@@ -22,6 +22,10 @@ func NewMoveSearcher() services.MoveSearcher {
 	return &moveSearcher{}
 }
 
+// QueryOption defines the type for the functional arguments passed to SearchMoves
+type QueryOption func(*pop.Query)
+
+// SearchMoves returns a list of results for a QAE/CSR move search query
 func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services.SearchMovesParams) (models.Moves, int, error) {
 	appCtx.Logger().Warn("🐢 SearchMoves", zap.Any("params", params))
 	if params.Locator == nil && params.DodID == nil && params.CustomerName == nil {
@@ -51,40 +55,22 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
 		Where("show = TRUE")
 
-	if params.CustomerName != nil && len(*params.CustomerName) > 0 {
-		query = query.Where("f_unaccent(lower(?)) % searchable_full_name(first_name, last_name)", *params.CustomerName)
+	customerNameQuery := customerNameSearch(params.CustomerName)
+	locatorQuery := locatorFilter(params.Locator)
+	dodIDQuery := dodIDFilter(params.DodID)
+	branchQuery := branchFilter(params.Branch)
+	originPostalCodeQuery := originPostalFilter(params.OriginPostalCode)
+	destinationPostalCodeQuery := destinationPostalCodeFilter(params.DestinationPostalCode)
+	statusQuery := moveStatusFilter(params.Status)
+	shipmentsCountQuery := shipmentsCountFilter(params.ShipmentsCount)
+	orderQuery := sortOrder(params.Sort, params.Order, params.CustomerName)
 
-		if params.Sort == nil || params.Order == nil {
-			query = query.Order("similarity(searchable_full_name(first_name, last_name), f_unaccent(lower(?))) desc", *params.CustomerName)
+	options := [10]QueryOption{customerNameQuery, locatorQuery, dodIDQuery, branchQuery, orderQuery, originPostalCodeQuery, destinationPostalCodeQuery, statusQuery, shipmentsCountQuery}
+
+	for _, option := range options {
+		if option != nil {
+			option(query)
 		}
-	}
-
-	if params.Locator != nil {
-		searchLocator := strings.ToUpper(*params.Locator)
-		query = query.Where("locator = ?", searchLocator)
-	}
-
-	if params.DodID != nil {
-		query = query.Where("service_members.edipi = ?", *params.DodID)
-	}
-
-	if params.OriginPostalCode != nil {
-		query = query.Where("origin_addresses.postal_code = ?", *params.OriginPostalCode)
-	}
-	if params.DestinationPostalCode != nil {
-		query = query.Where("new_addresses.postal_code = ?", *params.DestinationPostalCode)
-	}
-	if params.Status != nil && len(params.Status) > 0 {
-		query = query.Where("moves.status in (?)", params.Status)
-	}
-	if params.Branch != nil {
-		query = query.Where("service_members.affiliation = ?", params.Branch)
-	}
-	if params.ShipmentsCount != nil {
-		query = query.Having("COUNT(mto_shipments.id) = ?", *params.ShipmentsCount)
-	}
-	if params.Sort != nil && params.Order != nil {
-		query = query.Order(fmt.Sprintf("%s %s", qualifySortColumn(*params.Sort), *params.Order))
 	}
 
 	var moves models.Moves
@@ -96,27 +82,97 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	return moves, query.Paginator.TotalEntriesSize, nil
 }
 
-// TODO rename
-// TODO and have this modify the query
-func qualifySortColumn(sort string) string {
-	if sort == "customerName" {
-		return "service_members.last_name"
-	}
-	if sort == "status" {
-		return "moves.status"
-	}
-	if sort == "originPostalCode" {
-		return "origin_addresses.postal_code"
-	}
-	if sort == "destinationPostalCode" {
-		return "new_addresses.postal_code"
-	}
-	if sort == "branch" {
-		return "service_members.affiliation"
-	}
-	if sort == "shipmentsCount" {
-		return "COUNT(mto_shipments.id)"
-	}
+var parameters = map[string]string{
+	"customerName":          "service_members.last_name",
+	"dodID":                 "service_members.edipi",
+	"branch":                "service_members.affiliation",
+	"locator":               "moves.locator",
+	"status":                "moves.status",
+	"originPostalCode":      "origin_addresses.postal_code",
+	"destinationPostalCode": "new_addresses.postal_code",
+	"shipmentsCount":        "COUNT(mto_shipments.id)",
+}
 
-	return "moves.locator" // TODO what do we do in the default case?
+func dodIDFilter(dodID *string) QueryOption {
+	return func(query *pop.Query) {
+		if dodID != nil {
+			query.Where("service_members.edipi = ?", dodID)
+		}
+	}
+}
+
+func locatorFilter(locator *string) QueryOption {
+	return func(query *pop.Query) {
+		if locator != nil {
+			query.Where("moves.locator = ?", *locator)
+		}
+	}
+}
+
+func branchFilter(branch *string) QueryOption {
+	return func(query *pop.Query) {
+		if branch != nil {
+			query.Where("service_members.affiliation = ?", *branch)
+		}
+	}
+}
+func originPostalFilter(postalCode *string) QueryOption {
+	return func(query *pop.Query) {
+		if postalCode != nil {
+			query.Where("origin_addresses.postal_code = ?", *postalCode)
+		}
+	}
+}
+func destinationPostalCodeFilter(postalCode *string) QueryOption {
+	return func(query *pop.Query) {
+		if postalCode != nil {
+			query.Where("new_addresses.postal_code = ?", *postalCode)
+		}
+	}
+}
+
+func moveStatusFilter(statuses []string) QueryOption {
+	return func(query *pop.Query) {
+		if len(statuses) > 0 {
+			query.Where("moves.status in (?)", statuses)
+		}
+	}
+}
+
+func customerNameSearch(customerName *string) QueryOption {
+	return func(query *pop.Query) {
+		if customerName != nil && len(*customerName) > 0 {
+			query.Where("f_unaccent(lower(?)) % searchable_full_name(first_name, last_name)", *customerName)
+		}
+	}
+}
+
+func shipmentsCountFilter(shipmentsCount *int64) QueryOption {
+	return func(query *pop.Query) {
+		if shipmentsCount != nil {
+			query.Having("COUNT(mto_shipments.id) = ?", *shipmentsCount)
+		}
+	}
+}
+
+func sortOrder(sort *string, order *string, customerNameSearch *string) QueryOption {
+	return func(query *pop.Query) {
+		if sort != nil && order != nil {
+			sortTerm := parameters[*sort]
+			if *sort == "customerName" {
+				orderName(query, order)
+			} else {
+				query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
+			}
+		} else if customerNameSearch != nil {
+			query.Order("similarity(searchable_full_name(first_name, last_name), f_unaccent(lower(?))) DESC", *customerNameSearch)
+		} else {
+			query.Order("moves.created_at DESC")
+		}
+	}
+}
+
+func orderName(query *pop.Query, order *string) *pop.Query {
+	query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
+	return query
 }
