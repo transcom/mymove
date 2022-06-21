@@ -91,6 +91,11 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		),
 	}
 
+	primeAPI.MtoShipmentDeleteMTOShipmentHandler = DeleteMTOShipmentHandler{
+		handlerConfig,
+		mtoshipment.NewPrimeShipmentDeleter(),
+	}
+
 	primeAPI.PaymentRequestCreatePaymentRequestHandler = CreatePaymentRequestHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestCreator(
