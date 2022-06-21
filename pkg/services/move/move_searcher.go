@@ -34,7 +34,6 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		verrs.Add("search key", "search by multiple keys is not supported")
 		return models.Moves{}, 0, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	}
-	//query := appCtx.DB().Select("moves.locator", "service_members.first_name", "service_members.last_name").
 
 	query := appCtx.DB().EagerPreload(
 		"MTOShipments",
@@ -44,11 +43,11 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	).
 		Join("orders", "orders.id = moves.orders_id").
 		Join("service_members", "service_members.id = orders.service_member_id").
-		Join("duty_locations as origin_duty_locations", "origin_duty_locations.id = orders.origin_duty_location_id").
+		LeftJoin("duty_locations as origin_duty_locations", "origin_duty_locations.id = orders.origin_duty_location_id").
 		Join("addresses as origin_addresses", "origin_addresses.id = origin_duty_locations.address_id").
 		Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
 		Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
-		Join("mto_shipments", "mto_shipments.move_id = moves.id").
+		LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id").
 		GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
 		Where("show = TRUE")
 
