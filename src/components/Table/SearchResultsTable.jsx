@@ -108,13 +108,13 @@ const SearchResultsTable = (props) => {
   useEffect(() => {
     if (!isLoading && !isError) {
       setParamSort(sortBy);
-      // setParamFilters(filters);
       setCurrentPage(pageIndex + 1);
       setCurrentPageSize(pageSize);
       setPageCount(Math.ceil(totalCount / pageSize));
     }
   }, [sortBy, pageIndex, pageSize, isLoading, isError, totalCount]);
 
+  // Update filters when we get a new search or a column filter is edited
   useEffect(() => {
     const filtersToAdd = [];
     if (moveCode) {
@@ -126,7 +126,7 @@ const SearchResultsTable = (props) => {
     if (customerName) {
       filtersToAdd.push({ id: 'customerName', value: customerName });
     }
-    setParamFilters(filtersToAdd.concat(filters)); // TODO ignoring filters from table
+    setParamFilters(filtersToAdd.concat(filters));
   }, [filters, moveCode, dodID, customerName]);
 
   if (isLoading) return <LoadingPlaceholder />;
