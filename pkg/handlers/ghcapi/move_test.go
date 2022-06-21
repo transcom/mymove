@@ -166,7 +166,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 		payloadMove := *(*payload).SearchMoves[0]
 		suite.Equal(move.ID.String(), payloadMove.ID.String())
-		suite.Equal(*move.Orders.ServiceMember.Edipi, payloadMove.DodID)
+		suite.Equal(*move.Orders.ServiceMember.Edipi, *payloadMove.DodID)
 		suite.Equal(move.Orders.NewDutyLocation.Address.PostalCode, payloadMove.DestinationDutyLocationPostalCode)
 		suite.Equal(move.Orders.OriginDutyLocation.Address.PostalCode, payloadMove.OriginDutyLocationPostalCode)
 		suite.Equal(ghcmessages.MoveStatusDRAFT, payloadMove.Status)
