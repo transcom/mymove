@@ -28,11 +28,12 @@ type SearchMove struct {
 	DestinationDutyLocationPostalCode string `json:"destinationDutyLocationPostalCode,omitempty"`
 
 	// dod ID
-	DodID string `json:"dodID,omitempty"`
+	// Example: 1234567890
+	DodID *string `json:"dodID,omitempty"`
 
 	// first name
 	// Example: John
-	FirstName string `json:"firstName,omitempty"`
+	FirstName *string `json:"firstName,omitempty"`
 
 	// id
 	// Format: uuid
@@ -40,7 +41,7 @@ type SearchMove struct {
 
 	// last name
 	// Example: Doe
-	LastName string `json:"lastName,omitempty"`
+	LastName *string `json:"lastName,omitempty"`
 
 	// locator
 	Locator string `json:"locator,omitempty"`

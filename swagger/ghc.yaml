@@ -4062,11 +4062,15 @@ definitions:
       firstName:
         type: string
         example: John
+        x-nullable: true
       lastName:
         type: string
         example: Doe
+        x-nullable: true
       dodID:
         type: string
+        example: 1234567890
+        x-nullable: true
       status:
         $ref: '#/definitions/MoveStatus'
       locator:

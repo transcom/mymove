@@ -1075,9 +1075,9 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 		}
 
 		searchMoves[i] = &ghcmessages.SearchMove{
-			FirstName:                         *customer.FirstName, // TODO should probably check for null
-			LastName:                          *customer.LastName,  // TODO should probably check for null
-			DodID:                             *customer.Edipi,     // TODO should probably check for null
+			FirstName:                         customer.FirstName,
+			LastName:                          customer.LastName,
+			DodID:                             customer.Edipi,
 			Branch:                            customer.Affiliation.String(),
 			Status:                            ghcmessages.MoveStatus(move.Status),
 			ID:                                *handlers.FmtUUID(move.ID),

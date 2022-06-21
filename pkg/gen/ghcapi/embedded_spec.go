@@ -6229,10 +6229,13 @@ func init() {
           "example": "90210"
         },
         "dodID": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true,
+          "example": 1234567890
         },
         "firstName": {
           "type": "string",
+          "x-nullable": true,
           "example": "John"
         },
         "id": {
@@ -6241,6 +6244,7 @@ func init() {
         },
         "lastName": {
           "type": "string",
+          "x-nullable": true,
           "example": "Doe"
         },
         "locator": {
@@ -14100,10 +14104,13 @@ func init() {
           "example": "90210"
         },
         "dodID": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true,
+          "example": 1234567890
         },
         "firstName": {
           "type": "string",
+          "x-nullable": true,
           "example": "John"
         },
         "id": {
@@ -14112,6 +14119,7 @@ func init() {
         },
         "lastName": {
           "type": "string",
+          "x-nullable": true,
           "example": "Doe"
         },
         "locator": {
