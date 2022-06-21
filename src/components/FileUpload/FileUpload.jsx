@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { func, string, arrayOf, bool, int } from 'prop-types';
+import { func, string, arrayOf, bool, number } from 'prop-types';
 import isMobile from 'is-mobile';
 import { FilePond, registerPlugin } from 'react-filepond';
 import 'filepond-polyfill/dist/filepond-polyfill';
@@ -32,6 +32,8 @@ const FileUpload = forwardRef(
       acceptedFileTypes,
       allowMultiple,
       maxParralelUploads,
+      fileValidateTypeLabelExpectedTypes,
+      labelFileTypeNotAllowed,
     },
     ref,
   ) => {
@@ -95,9 +97,10 @@ const FileUpload = forwardRef(
         name={name}
         onprocessfile={handleProcessFile}
         onaddfilestart={onAddFile}
+        labelFileTypeNotAllowed={labelFileTypeNotAllowed}
+        fileValidateTypeLabelExpectedTypes={fileValidateTypeLabelExpectedTypes}
       />
     );
-    /* eslint-enable react/jsx-props-no-spreading */
   },
 );
 
@@ -108,7 +111,9 @@ FileUpload.propTypes = {
   onAddFile: func,
   acceptedFileTypes: arrayOf(string),
   allowMultiple: bool,
-  maxParralelUploads: int,
+  maxParralelUploads: number,
+  labelFileTypeNotAllowed: string,
+  fileValidateTypeLabelExpectedTypes: string,
   // FilePond instance props
   labelIdle: string,
   labelIdleMobile: string,
@@ -121,6 +126,8 @@ FileUpload.defaultProps = {
   onAddFile: undefined,
   allowMultiple: true,
   maxParralelUploads: 2,
+  labelFileTypeNotAllowed: 'File of invalid type',
+  fileValidateTypeLabelExpectedTypes: '',
   acceptedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
   labelIdle: 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
   labelIdleMobile: '<span class="filepond--label-action">Upload</span>',
