@@ -30,13 +30,10 @@ describe('TOO user', () => {
   it('is able to approve a shipment', () => {
     const moveLocator = 'TEST12';
 
-    // TOO Moves queue
-    cy.wait(['@getSortedOrders']);
+    // Navigate to Move details page from TOO Moves queue
+    navigateToMove(moveLocator);
     cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveLocator}/details`);
 
-    // Move Details page
-    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
     cy.get('#approved-shipments').should('not.exist');
     cy.get('#requested-shipments');
     cy.contains('Approve selected').should('be.disabled');
@@ -134,10 +131,8 @@ describe('TOO user', () => {
   it('is able to approve and reject mto service items', () => {
     const moveLocator = 'TEST12';
 
-    // TOO Moves queue
-    cy.wait(['@getSortedOrders']);
-    cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // Navigate to Move details page from TOO Moves queue
+    navigateToMove(moveLocator);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
     cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.url().should('include', `/moves/${moveLocator}/mto`);
@@ -207,13 +202,8 @@ describe('TOO user', () => {
   it('is able to edit orders', () => {
     const moveLocator = 'TEST12';
 
-    // TOO Moves queue
-    cy.wait(['@getSortedOrders']);
-    cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveLocator}/details`);
-
-    // Move Details page
-    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    // Navigate to Move details page from TOO Moves queue
+    navigateToMove(moveLocator);
 
     // Navigate to Edit orders page
     cy.get('[data-testid="edit-orders"]').contains('Edit orders').click();
@@ -236,14 +226,11 @@ describe('TOO user', () => {
         .first()
         .click(0, 0);
 
-      cy.get('[class*="-control"]')
-        .eq(1)
-        .click(0, 0)
-        .type('JB McGuire-Dix-Lakehurst')
-        .get('[class*="-menu"]')
-        .find('[class*="-option"]')
-        .eq(5)
-        .click(0, 0);
+      // Wait for duty locations to populate to avoid flakiness
+      cy.intercept('/internal/duty_locations?search=JB%20McGuire-Dix-Lakehurst').as('dutyLocationSearch');
+      cy.get('[class*="-control"]').eq(1).as('dutyLocationSearchBox').click(0, 0).type('JB McGuire-Dix-Lakehurst');
+      cy.wait('@dutyLocationSearch');
+      cy.get('@dutyLocationSearchBox').get('[class*="-menu"]').find('[class*="-option"]').eq(5).click(0, 0);
 
       cy.get('input[name="issueDate"]').click({ force: true }).clear().type('16 Mar 2018');
       cy.get('input[name="reportByDate"]').click({ force: true }).clear().type('22 Mar 2018');
@@ -280,13 +267,8 @@ describe('TOO user', () => {
   it('is able to edit allowances', () => {
     const moveLocator = 'TEST12';
 
-    // TOO Moves queue
-    cy.wait(['@getSortedOrders']);
-    cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveLocator}/details`);
-
-    // Move Details page
-    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    // Navigate to Move details page from TOO Moves queue
+    navigateToMove(moveLocator);
 
     // Navigate to Edit allowances page
     cy.get('[data-testid="edit-allowances"]').contains('Edit allowances').click();
@@ -349,10 +331,9 @@ describe('TOO user', () => {
     const moveLocator = 'TEST12';
     const deliveryDate = new Date().toLocaleDateString('en-US');
 
-    // TOO Moves queue
-    cy.wait(['@getSortedOrders']);
-    cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // Navigate to Move details page from TOO Moves queue
+    navigateToMove(moveLocator);
+
     // Edit the shipment
     cy.get('[data-testid="ShipmentContainer"] .usa-button').first().click();
     // fill out some changes on the form
@@ -370,10 +351,9 @@ describe('TOO user', () => {
     const moveLocator = 'R3T1R3';
     const deliveryDate = new Date().toLocaleDateString('en-US');
 
-    // TOO Moves queue
-    cy.wait(['@getSortedOrders']);
-    cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // Navigate to Move details page from TOO Moves queue
+    navigateToMove(moveLocator);
+
     // Edit the shipment
     cy.get('[data-testid="ShipmentContainer"] .usa-button').first().click();
     // fill out some changes on the form
@@ -391,10 +371,9 @@ describe('TOO user', () => {
   it('is able to request cancellation for a shipment', () => {
     const moveLocator = 'TEST12';
 
-    // TOO Moves queue
-    cy.wait(['@getSortedOrders']);
-    cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // Navigate to Move details page from TOO Moves queue
+    navigateToMove(moveLocator);
+
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
     // cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.url().should('include', `/moves/${moveLocator}/mto`);
@@ -429,10 +408,9 @@ describe('TOO user', () => {
   it('is able to view SIT and create and edit SIT extensions', () => {
     const moveLocator = 'TEST12';
 
-    // TOO Moves queue
-    cy.wait(['@getSortedOrders']);
-    cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // Navigate to Move details page from TOO Moves queue
+    navigateToMove(moveLocator);
+
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
     cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.url().should('include', `/moves/${moveLocator}/mto`);
@@ -464,3 +442,20 @@ describe('TOO user', () => {
     cy.contains('The service member is unable to move into their new home at the expected time');
   });
 });
+
+function navigateToMove(moveLocator) {
+  // TOO Moves queue
+  cy.wait(['@getSortedOrders']);
+  cy.get('input[name="locator"]').as('moveCodeFilterInput');
+
+  // type in move code/locator to filter
+  cy.get('@moveCodeFilterInput').type(moveLocator).blur();
+  cy.get('tbody > tr').as('results');
+
+  // click result to navigate to move details page
+  cy.get('@results').first().click();
+  cy.url().should('include', `/moves/${moveLocator}/details`);
+
+  // Move Details page
+  cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+}
