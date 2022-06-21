@@ -84,7 +84,6 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		query = query.Having("COUNT(mto_shipments.id) = ?", *params.ShipmentsCount)
 	}
 	if params.Sort != nil && params.Order != nil {
-		appCtx.Logger().Warn("Ordering!!!", zap.String("col", qualifySortColumn(*params.Sort)), zap.String("ord", *params.Order))
 		query = query.Order(fmt.Sprintf("%s %s", qualifySortColumn(*params.Sort), *params.Order))
 	}
 
