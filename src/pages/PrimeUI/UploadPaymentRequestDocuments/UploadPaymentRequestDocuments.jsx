@@ -75,7 +75,7 @@ const UploadPaymentRequest = ({ setFlashMessage }) => {
       {serverError && (
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
-            <Alert type="error" heading="An error occurred">
+            <Alert type="error" headingLevel="h4" heading="An error occurred">
               {serverError}
             </Alert>
           </Grid>
@@ -85,7 +85,9 @@ const UploadPaymentRequest = ({ setFlashMessage }) => {
       {uploadSuccess && (
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
-            <Alert type="success">Upload saved successfully</Alert>
+            <Alert headingLevel="h4" type="success">
+              Upload saved successfully
+            </Alert>
           </Grid>
         </Grid>
       )}

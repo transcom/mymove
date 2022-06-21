@@ -2,7 +2,6 @@ package electronicorder
 
 import (
 	"errors"
-	"testing"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -20,7 +19,7 @@ func (t *testElectronicOrderCategoricalCountQueryBuilder) FetchCategoricalCounts
 }
 
 func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderCategoricalCounts() {
-	suite.T().Run("If we get a match on the category we should get a map with the count", func(t *testing.T) {
+	suite.Run("If we get a match on the category we should get a map with the count", func() {
 
 		fakeFetchCategoricalCountsFromOneModel := func(appCtx appcontext.AppContext, model interface{}) (map[interface{}]int, error) {
 			value := map[interface{}]int{
@@ -43,7 +42,7 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderCategoricalCou
 		suite.Equal(3, counts[models.IssuerArmy])
 	})
 
-	suite.T().Run("If there's an error, we get it without counts", func(t *testing.T) {
+	suite.Run("If there's an error, we get it without counts", func() {
 		fakeFetchCategoricalCountsFromOneModel := func(appCtx appcontext.AppContext, model interface{}) (map[interface{}]int, error) {
 			return nil, errors.New("Fetch error")
 		}

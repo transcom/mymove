@@ -68,6 +68,10 @@ func (o *SearchMoves) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 // swagger:model SearchMovesBody
 type SearchMovesBody struct {
 
+	// Customer Name
+	// Min Length: 1
+	CustomerName *string `json:"customerName,omitempty"`
+
 	// DOD ID
 	// Max Length: 10
 	// Min Length: 10
@@ -83,6 +87,10 @@ type SearchMovesBody struct {
 func (o *SearchMovesBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateCustomerName(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateDodID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -94,6 +102,18 @@ func (o *SearchMovesBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *SearchMovesBody) validateCustomerName(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomerName) { // not required
+		return nil
+	}
+
+	if err := validate.MinLength("body"+"."+"customerName", "body", *o.CustomerName, 1); err != nil {
+		return err
+	}
+
 	return nil
 }
 

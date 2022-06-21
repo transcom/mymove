@@ -3,7 +3,6 @@ package office
 import (
 	"errors"
 	"reflect"
-	"testing"
 
 	"github.com/gofrs/uuid"
 
@@ -23,7 +22,7 @@ func (t *testOfficeQueryBuilder) FetchOne(appCtx appcontext.AppContext, model in
 }
 
 func (suite *OfficeServiceSuite) TestFetchOffice() {
-	suite.T().Run("if the transportation office is fetched, it should be returned", func(t *testing.T) {
+	suite.Run("if the transportation office is fetched, it should be returned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
@@ -43,7 +42,7 @@ func (suite *OfficeServiceSuite) TestFetchOffice() {
 		suite.Equal(id, office.ID)
 	})
 
-	suite.T().Run("if there is an error, we get it with zero office", func(t *testing.T) {
+	suite.Run("if there is an error, we get it with zero office", func() {
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			return errors.New("Fetch error")
 		}

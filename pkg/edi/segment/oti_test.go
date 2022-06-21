@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateOTI() {
 	validOTI := OTI{
 		ApplicationAcknowledgementCode:   "TA",
@@ -17,12 +13,12 @@ func (suite *SegmentSuite) TestValidateOTI() {
 		TransactionSetControlNumber:      "ABCDE",
 	}
 
-	suite.T().Run("validate success all fields", func(t *testing.T) {
+	suite.Run("validate success all fields", func() {
 		err := suite.validator.Struct(validOTI)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate success only required fields", func(t *testing.T) {
+	suite.Run("validate success only required fields", func() {
 		validOptionalOTI := OTI{
 			ApplicationAcknowledgementCode:   "TA",
 			ReferenceIdentificationQualifier: "BM",
@@ -32,7 +28,7 @@ func (suite *SegmentSuite) TestValidateOTI() {
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		oti := OTI{
 			ApplicationAcknowledgementCode:   "XX",       // oneof
 			ReferenceIdentificationQualifier: "XX",       // oneof
@@ -58,7 +54,7 @@ func (suite *SegmentSuite) TestValidateOTI() {
 		suite.ValidateErrorLen(err, 9)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		oti := validOTI
 		oti.ReferenceIdentification = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" // max
 		oti.ApplicationSendersCode = "MILMOVEMILMOVEMILMOVE"            // max
@@ -75,7 +71,7 @@ func (suite *SegmentSuite) TestValidateOTI() {
 		suite.ValidateErrorLen(err, 5)
 	})
 
-	suite.T().Run("validate failure 3", func(t *testing.T) {
+	suite.Run("validate failure 3", func() {
 		oti := validOTI
 		oti.GroupControlNumber = 0 // required_with
 
@@ -86,7 +82,7 @@ func (suite *SegmentSuite) TestValidateOTI() {
 }
 
 func (suite *SegmentSuite) TestStringArrayOTI() {
-	suite.T().Run("string array all fields", func(t *testing.T) {
+	suite.Run("string array all fields", func() {
 		validOTI := OTI{
 			ApplicationAcknowledgementCode:   "TA",
 			ReferenceIdentificationQualifier: "BM",
@@ -102,7 +98,7 @@ func (suite *SegmentSuite) TestStringArrayOTI() {
 		suite.Equal(arrayValidOTI, validOTI.StringArray())
 	})
 
-	suite.T().Run("string array only required fields", func(t *testing.T) {
+	suite.Run("string array only required fields", func() {
 		validOptionalOTI := OTI{
 			ApplicationAcknowledgementCode:   "TA",
 			ReferenceIdentificationQualifier: "BM",
@@ -114,7 +110,7 @@ func (suite *SegmentSuite) TestStringArrayOTI() {
 }
 
 func (suite *SegmentSuite) TestParseOTI() {
-	suite.T().Run("parse success all fields", func(t *testing.T) {
+	suite.Run("parse success all fields", func() {
 		arrayValidOTI := []string{"TA", "BM", "ABC", "MILMOVE", "RECEIVER", "20210311", "1057", "12345", "ABCDE"}
 		expectedOTI := OTI{
 			ApplicationAcknowledgementCode:   "TA",
@@ -135,7 +131,7 @@ func (suite *SegmentSuite) TestParseOTI() {
 		}
 	})
 
-	suite.T().Run("parse success only required fields", func(t *testing.T) {
+	suite.Run("parse success only required fields", func() {
 		arrayValidOptionalOTI := []string{"TA", "BM", "ABC", "", "", "", "", "", ""}
 		expectedOptionalOTI := OTI{
 			ApplicationAcknowledgementCode:   "TA",
@@ -150,7 +146,7 @@ func (suite *SegmentSuite) TestParseOTI() {
 		}
 	})
 
-	suite.T().Run("wrong number of fields", func(t *testing.T) {
+	suite.Run("wrong number of fields", func() {
 		badArrayOTI := []string{"TA", "BM"}
 		var badOTI OTI
 		err := badOTI.Parse(badArrayOTI)
@@ -159,7 +155,7 @@ func (suite *SegmentSuite) TestParseOTI() {
 		}
 	})
 
-	suite.T().Run("invalid integers", func(t *testing.T) {
+	suite.Run("invalid integers", func() {
 		badArrayOTI := []string{"TA", "BM", "ABC", "MILMOVE", "RECEIVER", "20210311", "1057", "A12345", "ABCDE"}
 		var badOTI OTI
 		err := badOTI.Parse(badArrayOTI)

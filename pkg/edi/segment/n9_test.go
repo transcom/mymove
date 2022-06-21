@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateN9() {
 	validN9Default := N9{
 		ReferenceIdentificationQualifier: "DY",
@@ -17,17 +13,17 @@ func (suite *SegmentSuite) TestValidateN9() {
 		Date:                             "20190903",
 	}
 
-	suite.T().Run("validate success default", func(t *testing.T) {
+	suite.Run("validate success default", func() {
 		err := suite.validator.Struct(validN9Default)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate success all", func(t *testing.T) {
+	suite.Run("validate success all", func() {
 		err := suite.validator.Struct(validN9All)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		n9 := N9{
 			ReferenceIdentificationQualifier: "XX",                                             // oneof
 			ReferenceIdentification:          "",                                               // min
@@ -43,7 +39,7 @@ func (suite *SegmentSuite) TestValidateN9() {
 		suite.ValidateErrorLen(err, 4)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		n9 := validN9All
 		n9.ReferenceIdentification = "1234567890123456789012345678901" // max
 
