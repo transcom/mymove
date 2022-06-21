@@ -1,21 +1,17 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateIEA() {
 	validIEA := IEA{
 		NumberOfIncludedFunctionalGroups: 1,
 		InterchangeControlNumber:         1,
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validIEA)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		iea := IEA{
 			NumberOfIncludedFunctionalGroups: 2, // eq
 			InterchangeControlNumber:         0, // min
@@ -27,7 +23,7 @@ func (suite *SegmentSuite) TestValidateIEA() {
 		suite.ValidateErrorLen(err, 2)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		iea := validIEA
 		iea.InterchangeControlNumber = 1000000000 // max
 

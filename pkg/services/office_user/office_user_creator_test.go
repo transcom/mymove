@@ -3,7 +3,6 @@ package officeuser
 import (
 	"errors"
 	"reflect"
-	"testing"
 
 	"github.com/transcom/mymove/pkg/notifications"
 
@@ -59,7 +58,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 	}
 
 	// Happy path - creates a new User as well
-	suite.T().Run("If the user is created successfully it should be returned", func(t *testing.T) {
+	suite.Run("If the user is created successfully it should be returned", func() {
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.TransportationOffice:
@@ -89,11 +88,11 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 		suite.NotNil(officeUser.User)
 		suite.Equal(officeUser.User.ID, *officeUser.UserID)
 		suite.Equal(userInfo.Email, officeUser.User.LoginGovEmail)
-		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 1)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 	})
 
 	// Reuses existing user if it's already been created for an admin or service member
-	suite.T().Run("Finds existing user by email and associates with office user", func(t *testing.T) {
+	suite.Run("Finds existing user by email and associates with office user", func() {
 		existingUserInfo := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",
@@ -129,11 +128,11 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 		suite.Nil(verrs)
 		suite.NotNil(officeUser.User)
 		suite.Equal(officeUser.User.ID, *officeUser.UserID)
-		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 0)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 0)
 	})
 
 	// Bad transportation office ID
-	suite.T().Run("If we are provided a transportation office that doesn't exist, the create should fail", func(t *testing.T) {
+	suite.Run("If we are provided a transportation office that doesn't exist, the create should fail", func() {
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			return models.ErrFetchNotFound
 		}
@@ -150,7 +149,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 	})
 
 	// Transaction rollback on createOne validation failure
-	suite.T().Run("CreateOne validation error should rollback transaction", func(t *testing.T) {
+	suite.Run("CreateOne validation error should rollback transaction", func() {
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.TransportationOffice:
@@ -194,7 +193,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 	})
 
 	// Transaction rollback on createOne error failure
-	suite.T().Run("CreateOne error should rollback transaction", func(t *testing.T) {
+	suite.Run("CreateOne error should rollback transaction", func() {
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.TransportationOffice:

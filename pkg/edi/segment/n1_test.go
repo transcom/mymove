@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateN1() {
 	validN1 := N1{
 		EntityIdentifierCode:        "SF",
@@ -12,12 +8,12 @@ func (suite *SegmentSuite) TestValidateN1() {
 		IdentificationCode:          "XX",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validN1)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		n1 := N1{
 			EntityIdentifierCode:        "XX", // oneof
 			Name:                        "",   // min
@@ -31,7 +27,7 @@ func (suite *SegmentSuite) TestValidateN1() {
 		suite.ValidateErrorLen(err, 3)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		n1 := validN1
 		n1.Name = "1234567890123456789012345678901234567890123456789012345678901" // max
 		n1.IdentificationCodeQualifier = "19"                                     // oneof
@@ -44,7 +40,7 @@ func (suite *SegmentSuite) TestValidateN1() {
 		suite.ValidateErrorLen(err, 3)
 	})
 
-	suite.T().Run("validate failure 3", func(t *testing.T) {
+	suite.Run("validate failure 3", func() {
 		n1 := validN1
 		n1.IdentificationCode = "123456789012345678901234567890123456789012345678901234567890123456789012345678901" // max
 

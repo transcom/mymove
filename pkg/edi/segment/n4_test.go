@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateN4() {
 	validN4 := N4{
 		CityName:            "Augusta",
@@ -11,12 +7,12 @@ func (suite *SegmentSuite) TestValidateN4() {
 		PostalCode:          "30907",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validN4)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		n4 := N4{
 			CityName:            "A",       // min
 			StateOrProvinceCode: "Georgia", // len
@@ -36,7 +32,7 @@ func (suite *SegmentSuite) TestValidateN4() {
 		suite.ValidateErrorLen(err, 6)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		n4 := validN4
 		n4.CityName = "1234567890123456789012345678901" // max
 		n4.PostalCode = "01234567890123456"             // max

@@ -1,21 +1,17 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateAK1() {
 	validAK1 := AK1{
 		FunctionalIdentifierCode: "SI",
 		GroupControlNumber:       1234567,
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validAK1)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		ak1 := AK1{
 			FunctionalIdentifierCode: "XX", // eq
 			GroupControlNumber:       0,    // min
@@ -27,7 +23,7 @@ func (suite *SegmentSuite) TestValidateAK1() {
 		suite.ValidateErrorLen(err, 2)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		ak1 := AK1{
 			FunctionalIdentifierCode: "SI",
 			GroupControlNumber:       999999999999999, // max

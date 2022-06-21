@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage/test"
@@ -19,7 +18,7 @@ func (suite *UploadServiceSuite) TestCreateUpload() {
 	testFile, fileErr := os.Open("../../testdatagen/testdata/test.pdf")
 	suite.Require().NoError(fileErr)
 
-	suite.T().Run("Success - Upload is created", func(t *testing.T) {
+	suite.Run("Success - Upload is created", func() {
 		upload, err := uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, testFileName, models.UploadTypePRIME)
 		suite.NoError(err)
 		suite.Require().NotNil(upload)
@@ -30,7 +29,7 @@ func (suite *UploadServiceSuite) TestCreateUpload() {
 		suite.Equal(upload.Filename, upload.StorageKey)
 	})
 
-	suite.T().Run("Fail - Upload with invalid type causes an error", func(t *testing.T) {
+	suite.Run("Fail - Upload with invalid type causes an error", func() {
 		upload, err := uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, testFileName, "INVALID")
 		suite.Nil(upload)
 		suite.Require().Error(err)

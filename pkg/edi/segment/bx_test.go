@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateBX() {
 	validBX := BX{
 		TransactionSetPurposeCode:    "00",
@@ -14,12 +10,12 @@ func (suite *SegmentSuite) TestValidateBX() {
 		ShipmentQualifier:            "4",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validBX)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		bx := BX{
 			TransactionSetPurposeCode:    "01",    // eq
 			TransactionMethodTypeCode:    "K",     // eq
@@ -41,7 +37,7 @@ func (suite *SegmentSuite) TestValidateBX() {
 		suite.ValidateErrorLen(err, 7)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		bx := validBX
 		bx.StandardCarrierAlphaCode = "T" // min
 
@@ -50,7 +46,7 @@ func (suite *SegmentSuite) TestValidateBX() {
 		suite.ValidateErrorLen(err, 1)
 	})
 
-	suite.T().Run("validate failure 3", func(t *testing.T) {
+	suite.Run("validate failure 3", func() {
 		bx := validBX
 		bx.ShipmentIdentificationNumber = "A123456789012345678901234567890" // max
 		bx.StandardCarrierAlphaCode = "TESTING"                             // max

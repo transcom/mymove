@@ -1,21 +1,17 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateAK2() {
 	validAK2 := AK2{
 		TransactionSetIdentifierCode: "858",
 		TransactionSetControlNumber:  "ABCDE",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validAK2)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		ak2 := AK2{
 			TransactionSetIdentifierCode: "123", // eq
 			TransactionSetControlNumber:  "123", // min
@@ -27,7 +23,7 @@ func (suite *SegmentSuite) TestValidateAK2() {
 		suite.ValidateErrorLen(err, 2)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		ak2 := validAK2
 		ak2.TransactionSetControlNumber = "1234567890" // max
 

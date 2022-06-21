@@ -2,7 +2,6 @@ package edisegment
 
 import (
 	"fmt"
-	"testing"
 )
 
 func (suite *SegmentSuite) TestValidateISA() {
@@ -25,7 +24,7 @@ func (suite *SegmentSuite) TestValidateISA() {
 		ComponentElementSeparator:         "|",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validISA)
 		suite.NoError(err)
 	})
@@ -47,12 +46,12 @@ func (suite *SegmentSuite) TestValidateISA() {
 		ComponentElementSeparator:         "|",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(altValidISA)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		isa := ISA{
 			AuthorizationInformationQualifier: "11",                           // eq
 			AuthorizationInformation:          "1111111111",                   // eq
@@ -92,7 +91,7 @@ func (suite *SegmentSuite) TestValidateISA() {
 		suite.ValidateErrorLen(err, 16)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		isa := validISA
 		isa.InterchangeControlNumber = 1000000000 // max
 

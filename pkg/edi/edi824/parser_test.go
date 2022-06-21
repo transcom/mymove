@@ -22,7 +22,7 @@ func TestEDI824(t *testing.T) {
 }
 
 func (suite *EDI824Suite) TestParse() {
-	suite.T().Run("successfully parse simple 824 string", func(t *testing.T) {
+	suite.Run("successfully parse simple 824 string", func() {
 		sample824EDIString := `
 ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -142,7 +142,7 @@ IEA*1*000000001
 		suite.validateIEA(ieaString, iea)
 	})
 
-	suite.T().Run("successfully parse simple 824 string with missing optional TED", func(t *testing.T) {
+	suite.Run("successfully parse simple 824 string with missing optional TED", func() {
 		sample824EDIString := `
 ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -214,7 +214,7 @@ IEA*1*000000001
 		suite.validateIEA(ieaString, iea)
 	})
 
-	suite.T().Run("successfully parse complex 824 with loops", func(t *testing.T) {
+	suite.Run("successfully parse complex 824 with loops", func() {
 		sample824EDIString := `
 ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -620,7 +620,7 @@ IEA*1*000000001
 		suite.validateIEA(ieaString, iea)
 	})
 
-	suite.T().Run("successfully parse sample real 824", func(t *testing.T) {
+	suite.Run("successfully parse sample real 824", func() {
 		sample824EDIString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|\rGS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010\rST*824*000000001\rBGN*11*1126-9404*20210217\rOTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001\rSE*5*000000001\rGE*1*1\rIEA*1*000000001\r"
 		edi824 := EDI{}
 		err := edi824.Parse(sample824EDIString)
@@ -682,7 +682,7 @@ IEA*1*000000001
 		suite.validateIEA(ieaString, iea)
 	})
 
-	suite.T().Run("fail to parse 824 with unknown segment", func(t *testing.T) {
+	suite.Run("fail to parse 824 with unknown segment", func() {
 		sample824EDIString := `
 ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -700,7 +700,7 @@ IEA*1*000000001
 		suite.Contains(err.Error(), "unexpected row for EDI 824")
 	})
 
-	suite.T().Run("fail to parse 824 with bad format", func(t *testing.T) {
+	suite.Run("fail to parse 824 with bad format", func() {
 		sample824EDIString := `
 ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010

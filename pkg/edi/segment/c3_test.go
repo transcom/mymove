@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateC3() {
 	validC3 := C3{
 		CurrencyCodeC301: "USD",
@@ -12,12 +8,12 @@ func (suite *SegmentSuite) TestValidateC3() {
 		CurrencyCodeC304: "EUR",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validC3)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		c3 := C3{
 			CurrencyCodeC301: "TTTT", // max
 			ExchangeRate:     "K",    // none

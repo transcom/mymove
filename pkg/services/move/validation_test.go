@@ -1,7 +1,6 @@
 package move
 
 import (
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -53,7 +52,7 @@ func (suite *MoveServiceSuite) TestMoveValidation() {
 			},
 		}
 		for name, test := range testCases {
-			suite.T().Run(name, func(t *testing.T) {
+			suite.Run(name, func() {
 				err := checkMoveVisibility().Validate(appCtx, test.move, test.delta)
 				suite.IsType(test.result, err)
 			})
@@ -101,7 +100,7 @@ func (suite *MoveServiceSuite) TestMoveValidation() {
 			},
 		}
 		for name, test := range testCases {
-			suite.T().Run(name, func(t *testing.T) {
+			suite.Run(name, func() {
 				err := checkPrimeAvailability().Validate(appCtx, test.move, test.delta)
 				suite.IsType(test.result, err)
 			})

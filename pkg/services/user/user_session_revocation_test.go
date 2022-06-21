@@ -11,7 +11,6 @@ package user
 
 import (
 	"reflect"
-	"testing"
 	"time"
 
 	"github.com/alexedwards/scs/v2/memstore"
@@ -47,7 +46,7 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 		RevokeMilSession: &boolean,
 	}
 
-	suite.T().Run("Key is removed from Redis when boolean is true", func(t *testing.T) {
+	suite.Run("Key is removed from Redis when boolean is true", func() {
 		_, existsBefore, _ := sessionStore.Find(sessionID)
 
 		suite.Equal(existsBefore, true)
@@ -60,7 +59,7 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 		suite.Equal(existsAfter, false)
 	})
 
-	suite.T().Run("Key is not removed from Redis when boolean is false", func(t *testing.T) {
+	suite.Run("Key is not removed from Redis when boolean is false", func() {
 		sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
 		boolean = false
 		payload = &adminmessages.UserUpdatePayload{
@@ -75,7 +74,7 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 		suite.Equal(exists, true)
 	})
 
-	suite.T().Run("Returns an error if user is not found", func(t *testing.T) {
+	suite.Run("Returns an error if user is not found", func() {
 		fakeUpdateOne := func(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error) {
 			return nil, nil
 		}
@@ -121,7 +120,7 @@ func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 		RevokeAdminSession: &boolean,
 	}
 
-	suite.T().Run("Key is removed from Redis when boolean is true", func(t *testing.T) {
+	suite.Run("Key is removed from Redis when boolean is true", func() {
 		_, existsBefore, _ := sessionStore.Find(sessionID)
 
 		suite.Equal(existsBefore, true)
@@ -134,7 +133,7 @@ func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 		suite.Equal(existsAfter, false)
 	})
 
-	suite.T().Run("Key is not removed from Redis when boolean is false", func(t *testing.T) {
+	suite.Run("Key is not removed from Redis when boolean is false", func() {
 		sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
 		boolean = false
 		payload = &adminmessages.UserUpdatePayload{
@@ -174,7 +173,7 @@ func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 		RevokeOfficeSession: &boolean,
 	}
 
-	suite.T().Run("Key is removed from Redis when boolean is true", func(t *testing.T) {
+	suite.Run("Key is removed from Redis when boolean is true", func() {
 		_, existsBefore, _ := sessionStore.Find(sessionID)
 
 		suite.Equal(existsBefore, true)
@@ -187,7 +186,7 @@ func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 		suite.Equal(existsAfter, false)
 	})
 
-	suite.T().Run("Key is not removed from Redis when boolean is false", func(t *testing.T) {
+	suite.Run("Key is not removed from Redis when boolean is false", func() {
 		sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
 		boolean = false
 		payload = &adminmessages.UserUpdatePayload{
@@ -235,7 +234,7 @@ func (suite *UserServiceSuite) TestRevokeMultipleSessions() {
 		RevokeMilSession:    &boolean,
 	}
 
-	suite.T().Run("All keys are removed from Redis when boolean is true", func(t *testing.T) {
+	suite.Run("All keys are removed from Redis when boolean is true", func() {
 		_, adminExistsBefore, _ := sessionStore.Find(adminSessionID)
 		_, officeExistsBefore, _ := sessionStore.Find(officeSessionID)
 		_, milExistsBefore, _ := sessionStore.Find(milSessionID)

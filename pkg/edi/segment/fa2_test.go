@@ -1,21 +1,17 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateFA2() {
 	validFA2 := FA2{
 		BreakdownStructureDetailCode: "TA",
 		FinancialInformationCode:     "307",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validFA2)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		fa2 := FA2{
 			BreakdownStructureDetailCode: "XX", // eq
 			FinancialInformationCode:     "",   // min
@@ -27,7 +23,7 @@ func (suite *SegmentSuite) TestValidateFA2() {
 		suite.ValidateErrorLen(err, 2)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		fa2 := validFA2
 		fa2.FinancialInformationCode = "123456789012345678901234567890123456789012345678901234567890123456789012345678901" // max
 
