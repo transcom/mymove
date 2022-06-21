@@ -262,6 +262,7 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 					MTOShipment: models.MTOShipment{
 						ShipmentType: shipmentType,
 					},
+					Stub: true,
 				})
 
 				err := checkPrimeDeleteAllowed().Validate(
@@ -290,10 +291,14 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 		}
 
 		for status, allowed := range testCases {
+			now := time.Now()
 			suite.Run("PPM status "+string(status), func() {
 				ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 					PPMShipment: models.PPMShipment{
 						Status: status,
+					},
+					Move: models.Move{
+						AvailableToPrimeAt: &now,
 					},
 				})
 

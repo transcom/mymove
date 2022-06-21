@@ -188,7 +188,8 @@ func (h DeleteMTOShipmentHandler) Handle(params mtoshipmentops.DeleteMTOShipment
 
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return mtoshipmentops.NewDeleteMTOShipmentNotFound(), err
+					return mtoshipmentops.NewDeleteMTOShipmentNotFound().WithPayload(
+						payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.ConflictError:
 					return mtoshipmentops.NewDeleteMTOShipmentConflict(), err
 				case apperror.ForbiddenError:
@@ -196,7 +197,8 @@ func (h DeleteMTOShipmentHandler) Handle(params mtoshipmentops.DeleteMTOShipment
 				case apperror.UnprocessableEntityError:
 					return mtoshipmentops.NewDeleteMTOShipmentUnprocessableEntity(), err
 				default:
-					return mtoshipmentops.NewDeleteMTOShipmentInternalServerError(), err
+					return mtoshipmentops.NewDeleteMTOShipmentInternalServerError().WithPayload(
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 			}
 

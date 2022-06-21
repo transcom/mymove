@@ -22,7 +22,7 @@ func NewShipmentDeleter() services.ShipmentDeleter {
 
 // NewPrimeShipmentDeleter creates a new struct with the service dependencies
 func NewPrimeShipmentDeleter() services.ShipmentDeleter {
-	return &shipmentDeleter{[]validator{checkAvailToPrime(), checkPrimeDeleteAllowed()}}
+	return &shipmentDeleter{[]validator{checkPrimeDeleteAllowed()}}
 }
 
 // DeleteShipment soft deletes the shipment

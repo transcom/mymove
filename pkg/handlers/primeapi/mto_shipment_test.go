@@ -1909,6 +1909,57 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 		response := handler.Handle(deletionParams)
 		suite.IsType(&mtoshipmentops.DeleteMTOShipmentNotFound{}, response)
 	})
+
+	suite.Run("Returns 409 - Conflict error", func() {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		deleter := &mocks.ShipmentDeleter{}
+		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ConflictError{})
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := DeleteMTOShipmentHandler{
+			handlerConfig,
+			deleter,
+		}
+		deletionParams := mtoshipmentops.DeleteMTOShipmentParams{
+			HTTPRequest:   request,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+		}
+		response := handler.Handle(deletionParams)
+		suite.IsType(&mtoshipmentops.DeleteMTOShipmentConflict{}, response)
+	})
+
+	suite.Run("Returns 422 - Unprocessable Enitity error", func() {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		deleter := &mocks.ShipmentDeleter{}
+		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.UnprocessableEntityError{})
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := DeleteMTOShipmentHandler{
+			handlerConfig,
+			deleter,
+		}
+		deletionParams := mtoshipmentops.DeleteMTOShipmentParams{
+			HTTPRequest:   request,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+		}
+		response := handler.Handle(deletionParams)
+		suite.IsType(&mtoshipmentops.DeleteMTOShipmentUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Returns 500 - Server error", func() {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		deleter := &mocks.ShipmentDeleter{}
+		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.EventError{})
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := DeleteMTOShipmentHandler{
+			handlerConfig,
+			deleter,
+		}
+		deletionParams := mtoshipmentops.DeleteMTOShipmentParams{
+			HTTPRequest:   request,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+		}
+		response := handler.Handle(deletionParams)
+		suite.IsType(&mtoshipmentops.DeleteMTOShipmentInternalServerError{}, response)
+	})
 }
 
 func getFakeAddress() struct{ primemessages.Address } {

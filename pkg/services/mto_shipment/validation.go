@@ -146,6 +146,9 @@ func checkDeleteAllowed() validator {
 // Checks if a shipment can be deleted
 func checkPrimeDeleteAllowed() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
+		if older.MoveTaskOrder.AvailableToPrimeAt == nil {
+			return apperror.NewNotFoundError(older.ID, "for mtoShipment")
+		}
 		if older.ShipmentType != models.MTOShipmentTypePPM {
 			return apperror.NewForbiddenError("Prime can only delete PPM shipments")
 		}
