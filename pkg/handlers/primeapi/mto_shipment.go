@@ -193,7 +193,8 @@ func (h DeleteMTOShipmentHandler) Handle(params mtoshipmentops.DeleteMTOShipment
 				case apperror.ConflictError:
 					return mtoshipmentops.NewDeleteMTOShipmentConflict(), err
 				case apperror.ForbiddenError:
-					return mtoshipmentops.NewDeleteMTOShipmentForbidden(), err
+					return mtoshipmentops.NewDeleteMTOShipmentForbidden().WithPayload(
+						payloads.ClientError(handlers.ForbiddenErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.UnprocessableEntityError:
 					return mtoshipmentops.NewDeleteMTOShipmentUnprocessableEntity(), err
 				default:
