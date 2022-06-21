@@ -1,4 +1,4 @@
-import { QAECSROfficeUserType } from '../../../support/constants';
+import { QAECSROfficeUserType, TIOOfficeUserType } from '../../../support/constants';
 
 describe('Customer Support User Flows', () => {
   before(() => {
@@ -21,9 +21,10 @@ describe('Customer Support User Flows', () => {
   });
 
   // This test performs a mutation so it can only succeed on a fresh DB.
-  it('is able to add a remark', () => {
+  it('is able to add and edit a remark', () => {
     const moveLocator = 'TEST12';
     const testRemarkText = 'This is a test remark';
+    const editString = '-edit';
 
     // Moves queue (eventually will come via QAE/CSR move search)
     cy.wait(['@getSortedOrders']);
@@ -59,5 +60,43 @@ describe('Customer Support User Flows', () => {
     cy.wait(['@getCustomerSupportRemarks']);
     cy.contains('No remarks yet').should('not.exist');
     cy.contains(testRemarkText).should('exist');
+
+    // Open edit and cancel
+    cy.get('[data-testid="edit-remark-button"]').click();
+    cy.get('[data-testid="edit-remark-textarea"]').type(editString);
+    cy.get('[data-testid="edit-remark-cancel-button"]').click();
+
+    // Validate remark was not edited
+    cy.contains(testRemarkText).should('exist');
+    cy.contains(testRemarkText + editString).should('not.exist');
+
+    // Edit the remark
+    cy.get('[data-testid="edit-remark-button"]').click();
+    cy.get('[data-testid="edit-remark-textarea"]').type(editString);
+
+    // Save the remark edit
+    cy.get('[data-testid="edit-remark-save-button"]').click();
+
+    // Validate remark was edited
+    cy.wait(['@getCustomerSupportRemarks']);
+    cy.contains(testRemarkText + editString).should('exist');
+    cy.contains('(edited)').should('exist');
+
+    // Changer user
+    cy.contains('Sign out').click();
+    cy.apiSignInAsUser('3b2cc1b0-31a2-4d1b-874f-0591f9127374', TIOOfficeUserType);
+
+    // Validate another user can not edit the remark
+    cy.contains(moveLocator).click();
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments']);
+
+    // Go to Customer support remarks
+    cy.contains('Customer support remarks').click();
+    cy.wait(['@getCustomerSupportRemarks']);
+
+    // Edited remark should exist but no edit/delete buttons as I am a different user
+    cy.contains(testRemarkText + editString).should('exist');
+    cy.get('[data-testid="edit-remark-button"]').should('not.exist');
+    cy.get('[data-testid="edit-remark-delete-button"]').should('not.exist');
   });
 });

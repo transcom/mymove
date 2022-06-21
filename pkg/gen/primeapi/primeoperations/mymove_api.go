@@ -69,6 +69,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PaymentRequestCreateUploadHandler: payment_request.CreateUploadHandlerFunc(func(params payment_request.CreateUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.CreateUpload has not yet been implemented")
 		}),
+		MtoShipmentDeleteMTOShipmentHandler: mto_shipment.DeleteMTOShipmentHandlerFunc(func(params mto_shipment.DeleteMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.DeleteMTOShipment has not yet been implemented")
+		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
 		}),
@@ -154,6 +157,8 @@ type MymoveAPI struct {
 	MtoShipmentCreateSITExtensionHandler mto_shipment.CreateSITExtensionHandler
 	// PaymentRequestCreateUploadHandler sets the operation handler for the create upload operation
 	PaymentRequestCreateUploadHandler payment_request.CreateUploadHandler
+	// MtoShipmentDeleteMTOShipmentHandler sets the operation handler for the delete m t o shipment operation
+	MtoShipmentDeleteMTOShipmentHandler mto_shipment.DeleteMTOShipmentHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// MoveTaskOrderListMovesHandler sets the operation handler for the list moves operation
@@ -272,6 +277,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentRequestCreateUploadHandler == nil {
 		unregistered = append(unregistered, "payment_request.CreateUploadHandler")
+	}
+	if o.MtoShipmentDeleteMTOShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.DeleteMTOShipmentHandler")
 	}
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
@@ -418,6 +426,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/payment-requests/{paymentRequestID}/uploads"] = payment_request.NewCreateUpload(o.context, o.PaymentRequestCreateUploadHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/mto-shipments/{mtoShipmentID}"] = mto_shipment.NewDeleteMTOShipment(o.context, o.MtoShipmentDeleteMTOShipmentHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

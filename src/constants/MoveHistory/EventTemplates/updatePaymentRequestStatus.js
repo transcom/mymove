@@ -8,5 +8,8 @@ export default {
   eventName: o.updatePaymentRequestStatus,
   tableName: t.payment_requests,
   detailsType: d.PAYMENT,
-  getEventNameDisplay: () => 'Submitted payment request',
+  getEventNameDisplay: ({ oldValues, changedValues }) => {
+    const paymentRequestNumber = oldValues?.payment_request_number ?? changedValues?.payment_request_number;
+    return `Submitted payment request ${paymentRequestNumber}`;
+  },
 };

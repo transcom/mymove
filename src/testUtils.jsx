@@ -22,12 +22,12 @@ export const renderWithRouter = (ui, { route = '/', history = createMockHistory(
   };
 };
 
-export const MockProviders = ({ children, initialState, initialEntries, permissions, history }) => {
+export const MockProviders = ({ children, initialState, initialEntries, permissions, history, currentUserId }) => {
   const mockHistory = history || createMockHistory(initialEntries);
   const mockStore = configureStore(mockHistory, initialState);
 
   return (
-    <PermissionProvider permissions={permissions}>
+    <PermissionProvider permissions={permissions} currentUserId={currentUserId}>
       <Provider store={mockStore.store}>
         <ConnectedRouter history={mockHistory}>
           <Suspense fallback={<LoadingPlaceholder />}>{children}</Suspense>
@@ -46,6 +46,7 @@ MockProviders.propTypes = {
     goBack: func.isRequired,
   }),
   permissions: arrayOf(string),
+  currentUserId: string,
 };
 
 MockProviders.defaultProps = {
@@ -53,4 +54,5 @@ MockProviders.defaultProps = {
   initialEntries: ['/'],
   history: null,
   permissions: [],
+  currentUserId: null,
 };

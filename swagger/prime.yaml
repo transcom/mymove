@@ -363,6 +363,49 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+    delete:
+      summary: Deletes a shipment by ID
+      description: >
+        ### Functionality
+
+        This endpoint deletes an individual shipment by ID.
+
+
+        ### Errors
+
+        The mtoShipment should be associated with an MTO that is available to
+        prime.
+
+        The mtoShipment must be a PPM shipment
+
+        Counseling should not have already been completed for the associated MTO
+      operationId: deleteMTOShipment
+      tags:
+        - mtoShipment
+      produces:
+        - application/json
+      parameters:
+        - description: ID of the shipment to be deleted
+          in: path
+          name: mtoShipmentID
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully soft deleted the shipment
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/addresses/{addressID}:
     put:
       summary: updateMTOShipmentAddress
@@ -1051,20 +1094,6 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
 definitions:
-  ClientError:
-    type: object
-    properties:
-      title:
-        type: string
-      detail:
-        type: string
-      instance:
-        type: string
-        format: uuid
-    required:
-      - title
-      - detail
-      - instance
   CreateMTOShipment:
     type: object
     properties:
@@ -2517,6 +2546,20 @@ definitions:
         type: string
         x-nullable: true
         x-omitempty: false
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
   Address:
     description: A postal address
     type: object
