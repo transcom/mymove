@@ -29,22 +29,10 @@ export function signInAndNavigateToAboutPage(userId, selectAdvance) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/about/);
   });
-  // cy.get('input[name="hasReceivedAdvance"][value="true"]').check({ force: true });
+
   fillOutAboutPage(selectAdvance);
 }
 
-// export function signInAndNavigateToAboutPageWithoutAdvance(userId, selectAdvance = false) {
-//   cy.apiSignInAsUser(userId);
-//
-//   cy.wait('@getShipment');
-//   cy.screenshot();
-//   cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
-//   cy.location().should((loc) => {
-//     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/about/);
-//   });
-//   cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: true });
-//   fillOutAboutPage();
-// }
 export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
   if (isMoveSubmitted) {
     cy.get('h3').contains('Next step: Your move gets approved');
@@ -68,9 +56,10 @@ export function fillOutAboutPage(selectAdvance) {
     cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: true });
   }
   cy.get('button').contains('Save & Continue').should('be.enabled');
-  navigateToWeightTicket();
+  navigateFromAboutPageToWeightTicketPage();
 }
-export function navigateToWeightTicket() {
+
+export function navigateFromAboutPageToWeightTicketPage() {
   cy.get('button').contains('Save & Continue').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);

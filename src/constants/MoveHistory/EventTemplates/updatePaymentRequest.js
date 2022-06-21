@@ -1,9 +1,10 @@
+import a from 'constants/MoveHistory/Database/Actions';
 import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import t from 'constants/MoveHistory/Database/Tables';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 
 export default {
-  action: 'UPDATE',
+  action: a.UPDATE,
   eventName: '',
   tableName: t.payment_requests,
   detailsType: d.STATUS,

@@ -15,6 +15,8 @@ import { toDollarString, formatDateFromIso, formatCents } from 'utils/formatters
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 import ConnectedAcountingCodesModal from 'components/Office/AccountingCodesModal/AccountingCodesModal';
 import { groupByShipment } from 'utils/serviceItems';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
@@ -167,24 +169,26 @@ const PaymentRequestCard = ({
               )}
             </>
           )}
-          {paymentRequest.status === 'PENDING' && (
-            <div className={styles.reviewButton}>
-              <Button
-                style={{ maxWidth: '225px' }}
-                onClick={handleClick}
-                disabled={hasBillableWeightIssues}
-                test-dataid="reviewBtn"
-              >
-                <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
-                Review service items
-              </Button>
-              {hasBillableWeightIssues && (
-                <span className={styles.errorText} test-dataid="errorTxt">
-                  Resolve billable weight before reviewing service items.
-                </span>
-              )}
-            </div>
-          )}
+          <Restricted to={permissionTypes.updatePaymentServiceItemStatus}>
+            {paymentRequest.status === 'PENDING' && (
+              <div className={styles.reviewButton}>
+                <Button
+                  style={{ maxWidth: '225px' }}
+                  onClick={handleClick}
+                  disabled={hasBillableWeightIssues}
+                  test-dataid="reviewBtn"
+                >
+                  <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
+                  Review service items
+                </Button>
+                {hasBillableWeightIssues && (
+                  <span className={styles.errorText} test-dataid="errorTxt">
+                    Resolve billable weight before reviewing service items.
+                  </span>
+                )}
+              </div>
+            )}
+          </Restricted>
         </div>
         <div className={styles.footer}>
           <dl>

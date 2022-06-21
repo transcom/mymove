@@ -33,12 +33,17 @@ export async function getCustomerSupportRemarksForMove(key, locator) {
   return makeGHCRequest('customerSupportRemarks.getCustomerSupportRemarksForMove', { locator }, { normalize: false });
 }
 
-export async function createCustomerSupportRemarkForMove(body) {
+export async function createCustomerSupportRemarkForMove({ body, locator }) {
   return makeGHCRequest('customerSupportRemarks.createCustomerSupportRemarkForMove', {
     body,
-    locator: body.locator,
+    locator,
   });
 }
+
+export async function updateCustomerSupportRemarkForMove({ body, locator }) {
+  return makeGHCRequest('customerSupportRemarks.updateCustomerSupportRemarkForMove', { body, locator });
+}
+
 export async function getMoveHistory(key, { moveCode, currentPage = 1, currentPageSize = 20 }) {
   return makeGHCRequest(
     'move.getMoveHistory',
@@ -78,10 +83,10 @@ export async function getCustomer(key, customerID) {
   return makeGHCRequest('customer.getCustomer', { customerID });
 }
 
-export async function searchMoves(key, locator, dodID) {
+export async function searchMoves(key, locator, dodID, customerName) {
   return makeGHCRequest(
     'move.searchMoves',
-    { body: { locator, dodID } },
+    { body: { locator, dodID, customerName } },
     { schemaKey: 'searchMovesResult', normalize: false },
   );
 }
