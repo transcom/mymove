@@ -77,7 +77,7 @@ const moveTaskOrder = {
         id: '5b21b808-6933-43ea-8f6f-02fc0a639835',
         pickupPostalCode: '90210',
         shipmentId: '88ececed-eaf1-42e2-b060-cd90d11ad080',
-        status: 'WAITING_ON_CUSTOMER',
+        status: 'SUBMITTED',
         submittedAt: '2022-05-24T21:06:35.890Z',
         updatedAt: '2022-05-24T21:06:35.901Z',
       },

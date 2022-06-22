@@ -12,7 +12,7 @@ import { shipmentTypeLabels } from 'content/shipments';
 import { formatDateFromIso } from 'utils/formatters';
 import { ShipmentShape } from 'types/shipment';
 import { primeSimulatorRoutes } from 'constants/routes';
-import { shipmentDestinationTypes } from 'constants/shipments';
+import { ppmShipmentStatuses, shipmentDestinationTypes } from 'constants/shipments';
 import styles from 'pages/PrimeUI/MoveTaskOrder/MoveDetails.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -56,9 +56,11 @@ const Shipment = ({ shipment, moveId, onDelete }) => {
             >
               Update Shipment
             </Link>
-            {shipment.shipmentType === SHIPMENT_OPTIONS.PPM && (
-              <Button onClick={showDeleteModal}>Delete Shipment</Button>
-            )}
+            {shipment.shipmentType === SHIPMENT_OPTIONS.PPM &&
+              shipment.ppmShipment &&
+              shipment.ppmShipment.status !== ppmShipmentStatuses.WAITING_ON_CUSTOMER && (
+                <Button onClick={showDeleteModal}>Delete Shipment</Button>
+              )}
             <Link to={`shipments/${shipment.id}/service-items/new`} className="usa-button usa-button-secondary">
               Add Service Item
             </Link>

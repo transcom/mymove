@@ -262,13 +262,26 @@ const ppmShipment = {
     id: '5b21b808-6933-43ea-8f6f-02fc0a639835',
     pickupPostalCode: '90210',
     shipmentId: '88ececed-eaf1-42e2-b060-cd90d11ad080',
-    status: 'WAITING_ON_CUSTOMER',
+    status: 'SUBMITTED',
     submittedAt: '2022-05-24T21:06:35.890Z',
     updatedAt: '2022-05-24T21:06:35.901Z',
   },
   shipmentType: 'PPM',
   status: 'APPROVED',
   updatedAt: '2022-05-24T21:07:21.067Z',
+};
+
+const ppmShipmentWaitingOnCustomer = {
+  ...ppmShipment,
+  ppmShipment: {
+    ...ppmShipment.ppmShipment,
+    status: 'WAITING_ON_CUSTOMER',
+  },
+};
+
+const ppmShipmentMissingObject = {
+  ...ppmShipment,
+  ppmShipment: null,
 };
 
 describe('PPM shipments are handled', () => {
@@ -306,5 +319,27 @@ describe('PPM shipments are handled', () => {
 
     modalTitle = screen.queryByText('Are you sure?');
     expect(modalTitle).not.toBeInTheDocument();
+  });
+
+  it('PPM status does not allow deletion', () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={ppmShipmentWaitingOnCustomer} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    const deleteShipmentButton = screen.queryByText(/Delete Shipment/, { selector: 'button' });
+    expect(deleteShipmentButton).not.toBeInTheDocument();
+  });
+
+  it('PPM shipment is missing ppmShipment object', () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={ppmShipmentMissingObject} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    const deleteShipmentButton = screen.queryByText(/Delete Shipment/, { selector: 'button' });
+    expect(deleteShipmentButton).not.toBeInTheDocument();
   });
 });
