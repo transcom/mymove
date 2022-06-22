@@ -963,6 +963,40 @@ jobs:
           path: cypress/results
       - announce_failure
 
+  # `integration_tests_devseed` runs the devseed data generation
+  integration_tests_devseed:
+    executor: mymove_tester
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run:
+          name: db_dev_fresh
+          command: |
+            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)' >> $BASH_ENV
+            source $BASH_ENV
+            make db_dev_fresh
+          environment:
+            APPLICATION: app
+            DB_PASSWORD: mysecretpassword
+            DB_USER_LOW_PRIV: crud
+            DB_PASSWORD_LOW_PRIV: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT: 5432
+            DB_NAME: dev_db
+            DB_NAME_DEV: dev_db
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
+            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+            ENVIRONMENT: development
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+      - announce_failure
+
   # `integration_tests` is just a fake step so that we don't have to
   # keep track of the manual splitting of the integration_tests when
   # specifying dependencies
@@ -1763,6 +1797,15 @@ workflows:
             branches:
               ignore: *integration-ignore-branch
 
+      - integration_tests_devseed:
+          requires:
+            - pre_deps_golang
+          # See comments at the top of this file for configuring/using
+          # this branch config
+          filters:
+            branches:
+              ignore: *integration-ignore-branch
+
       - integration_tests:
           requires:
             - integration_tests_admin
@@ -1770,6 +1813,7 @@ workflows:
             - integration_tests_prime
             - integration_tests_mymove
             - integration_tests_milmove
+            - integration_tests_devseed
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:
