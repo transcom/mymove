@@ -8,8 +8,6 @@ import { HistoryShape } from 'types/router';
 import { useQAECSRMoveSearchQueries } from 'hooks/queries';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const QAECSRMoveSearch = ({ history }) => {
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
@@ -38,17 +36,12 @@ const QAECSRMoveSearch = ({ history }) => {
     setSearchHappened(true);
   }, []);
 
-  const isLoading = false;
-  const isError = false;
-
   return (
     <div className={styles.QAECSRMoveSearchWrapper}>
       <GridContainer data-testid="move-search" containerSize="widescreen" className={styles.QAECSRMoveSearchPage}>
         <h1>Search for a move</h1>
         <MoveSearchForm onSubmit={onSubmit} />
-        {isLoading && <LoadingPlaceholder />}
-        {!isLoading && isError && <SomethingWentWrong />}
-        {!isLoading && !isError && searchHappened && (
+        {searchHappened && (
           <SearchResultsTable
             showFilters
             showPagination
