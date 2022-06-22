@@ -11,10 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-// test pagination
-// - no pagination stuff passed in: give the first page? or give an error
-// - get an arbitrary page. maybe two items, get first page, get second page
-
 func (suite *MoveServiceSuite) TestMoveSearch() {
 	searcher := NewMoveSearcher()
 
@@ -94,6 +90,48 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		moves, _, err := searcher.SearchMoves(suite.AppContextForTest(), &services.SearchMovesParams{Locator: &nonexistantLocator})
 		suite.NoError(err)
 		suite.Len(moves, 0)
+	})
+
+	suite.Run("test pagination", func() {
+		firstMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Locator: "AAAAAA",
+			},
+			ServiceMember: models.ServiceMember{
+				FirstName: swag.String("Grace"),
+				LastName:  swag.String("Griffin"),
+			},
+		})
+		secondMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Locator: "BBBBBB",
+			},
+			ServiceMember: models.ServiceMember{
+				FirstName: swag.String("Grace"),
+				LastName:  swag.String("Groffin"),
+			},
+		})
+		// get first page
+		moves, totalCount, err := searcher.SearchMoves(suite.AppContextForTest(), &services.SearchMovesParams{
+			CustomerName: swag.String("grace griffin"),
+			PerPage:      1,
+			Page:         1,
+		})
+		suite.NoError(err)
+		suite.Len(moves, 1)
+		suite.Equal(firstMove.Locator, moves[0].Locator)
+		suite.Equal(2, totalCount)
+
+		// get second page
+		moves, totalCount, err = searcher.SearchMoves(suite.AppContextForTest(), &services.SearchMovesParams{
+			CustomerName: swag.String("grace griffin"),
+			PerPage:      1,
+			Page:         2,
+		})
+		suite.NoError(err)
+		suite.Len(moves, 1)
+		suite.Equal(secondMove.Locator, moves[0].Locator)
+		suite.Equal(2, totalCount)
 	})
 }
 func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
