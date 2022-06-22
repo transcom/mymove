@@ -31,15 +31,15 @@ func NewDeleteMTOShipment(ctx *middleware.Context, handler DeleteMTOShipmentHand
 
 /* DeleteMTOShipment swagger:route DELETE /mto-shipments/{mtoShipmentID} mtoShipment deleteMTOShipment
 
-Deletes a shipment by ID
+deleteMTOShipment
 
 ### Functionality
 This endpoint deletes an individual shipment by ID.
 
 ### Errors
-The mtoShipment should be associated with an MTO that is available to prime.
-The mtoShipment must be a PPM shipment
-Counseling should not have already been completed for the associated MTO
+* The mtoShipment should be associated with an MTO that is available to prime.
+* The mtoShipment must be a PPM shipment.
+* Counseling should not have already been completed for the associated MTO.
 
 
 */

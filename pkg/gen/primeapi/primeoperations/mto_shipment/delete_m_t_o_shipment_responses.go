@@ -16,7 +16,7 @@ import (
 // DeleteMTOShipmentNoContentCode is the HTTP code returned for type DeleteMTOShipmentNoContent
 const DeleteMTOShipmentNoContentCode int = 204
 
-/*DeleteMTOShipmentNoContent Successfully soft deleted the shipment
+/*DeleteMTOShipmentNoContent Successfully deleted the MTO shipment.
 
 swagger:response deleteMTOShipmentNoContent
 */
