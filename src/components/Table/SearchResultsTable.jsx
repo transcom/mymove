@@ -174,6 +174,8 @@ const SearchResultsTable = (props) => {
       defaultCanSort,
       disableSortBy,
       autoResetSortBy: false,
+      // If this option is true, the filters we get back from this hook
+      // will not be memoized, which makes it easy to get into infinite render loops
       autoResetFilters: false,
     },
     useFilters,
