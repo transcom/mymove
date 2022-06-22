@@ -364,7 +364,7 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
     delete:
-      summary: Deletes a shipment by ID
+      summary: deleteMTOShipment
       description: >
         ### Functionality
 
@@ -373,19 +373,20 @@ paths:
 
         ### Errors
 
-        The mtoShipment should be associated with an MTO that is available to
+        * The mtoShipment should be associated with an MTO that is available to
         prime.
 
-        The mtoShipment must be a PPM shipment
+        * The mtoShipment must be a PPM shipment.
 
-        Counseling should not have already been completed for the associated MTO
+        * Counseling should not have already been completed for the associated
+        MTO.
       operationId: deleteMTOShipment
       tags:
         - mtoShipment
       produces:
         - application/json
       parameters:
-        - description: ID of the shipment to be deleted
+        - description: UUID of the shipment to be deleted
           in: path
           name: mtoShipmentID
           required: true
@@ -393,7 +394,7 @@ paths:
           type: string
       responses:
         '204':
-          description: Successfully soft deleted the shipment
+          description: Successfully deleted the MTO shipment.
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':

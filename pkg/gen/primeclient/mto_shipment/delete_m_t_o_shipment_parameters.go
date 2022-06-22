@@ -61,7 +61,7 @@ type DeleteMTOShipmentParams struct {
 
 	/* MtoShipmentID.
 
-	   ID of the shipment to be deleted
+	   UUID of the shipment to be deleted
 
 	   Format: uuid
 	*/

@@ -31,7 +31,7 @@ type DeleteMTOShipmentParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*ID of the shipment to be deleted
+	/*UUID of the shipment to be deleted
 	  Required: true
 	  In: path
 	*/

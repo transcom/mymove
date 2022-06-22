@@ -77,7 +77,7 @@ func NewDeleteMTOShipmentNoContent() *DeleteMTOShipmentNoContent {
 
 /* DeleteMTOShipmentNoContent describes a response with status code 204, with default header values.
 
-Successfully soft deleted the shipment
+Successfully deleted the MTO shipment.
 */
 type DeleteMTOShipmentNoContent struct {
 }

@@ -404,20 +404,20 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}": {
       "delete": {
-        "description": "### Functionality\nThis endpoint deletes an individual shipment by ID.\n\n### Errors\nThe mtoShipment should be associated with an MTO that is available to prime.\nThe mtoShipment must be a PPM shipment\nCounseling should not have already been completed for the associated MTO\n",
+        "description": "### Functionality\nThis endpoint deletes an individual shipment by ID.\n\n### Errors\n* The mtoShipment should be associated with an MTO that is available to prime.\n* The mtoShipment must be a PPM shipment.\n* Counseling should not have already been completed for the associated MTO.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Deletes a shipment by ID",
+        "summary": "deleteMTOShipment",
         "operationId": "deleteMTOShipment",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
-            "description": "ID of the shipment to be deleted",
+            "description": "UUID of the shipment to be deleted",
             "name": "mtoShipmentID",
             "in": "path",
             "required": true
@@ -425,7 +425,7 @@ func init() {
         ],
         "responses": {
           "204": {
-            "description": "Successfully soft deleted the shipment"
+            "description": "Successfully deleted the MTO shipment."
           },
           "400": {
             "$ref": "#/responses/InvalidRequest"
@@ -4142,20 +4142,20 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}": {
       "delete": {
-        "description": "### Functionality\nThis endpoint deletes an individual shipment by ID.\n\n### Errors\nThe mtoShipment should be associated with an MTO that is available to prime.\nThe mtoShipment must be a PPM shipment\nCounseling should not have already been completed for the associated MTO\n",
+        "description": "### Functionality\nThis endpoint deletes an individual shipment by ID.\n\n### Errors\n* The mtoShipment should be associated with an MTO that is available to prime.\n* The mtoShipment must be a PPM shipment.\n* Counseling should not have already been completed for the associated MTO.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Deletes a shipment by ID",
+        "summary": "deleteMTOShipment",
         "operationId": "deleteMTOShipment",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
-            "description": "ID of the shipment to be deleted",
+            "description": "UUID of the shipment to be deleted",
             "name": "mtoShipmentID",
             "in": "path",
             "required": true
@@ -4163,7 +4163,7 @@ func init() {
         ],
         "responses": {
           "204": {
-            "description": "Successfully soft deleted the shipment"
+            "description": "Successfully deleted the MTO shipment."
           },
           "400": {
             "description": "The request payload is invalid.",
