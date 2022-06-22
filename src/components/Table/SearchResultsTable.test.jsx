@@ -29,6 +29,28 @@ function mockQueries() {
     isSuccess: true,
   };
 }
+function mockLoadingQuery() {
+  return {
+    searchResult: {
+      data: [],
+      totalCount: 0,
+    },
+    isLoading: true,
+    isError: false,
+    isSuccess: false,
+  };
+}
+function mockErrorQuery() {
+  return {
+    searchResult: {
+      data: [],
+      totalCount: 0,
+    },
+    isLoading: false,
+    isError: true,
+    isSuccess: false,
+  };
+}
 
 describe('SearchResultsTable', () => {
   it('renders', () => {
@@ -37,5 +59,22 @@ describe('SearchResultsTable', () => {
     expect(results).toBeInTheDocument();
     const locator = screen.queryByText('P33YJB');
     expect(locator).toBeInTheDocument();
+  });
+  it('loading', () => {
+    render(
+      <SearchResultsTable handleClick={() => {}} title="Results" useQueries={mockLoadingQuery} dodID="1234567890" />,
+    );
+    expect(screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 })).toBeInTheDocument();
+  });
+  it('error', () => {
+    render(
+      <SearchResultsTable
+        handleClick={() => {}}
+        title="Results"
+        useQueries={mockErrorQuery}
+        customerName="leo spacemen"
+      />,
+    );
+    expect(screen.getByRole('heading', { name: /something went wrong/i, level: 2 })).toBeInTheDocument();
   });
 });
