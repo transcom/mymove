@@ -191,10 +191,12 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
 		Order:              models.Order{NewDutyLocationID: secondMoveNewDutyLocation.ID, NewDutyLocation: secondMoveNewDutyLocation},
 	})
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: secondMove,
+		Move:        secondMove,
+		MTOShipment: models.MTOShipment{Status: models.MTOShipmentStatusSubmitted},
 	})
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: secondMove,
+		Move:        secondMove,
+		MTOShipment: models.MTOShipment{Status: models.MTOShipmentStatusApproved},
 	})
 
 	return firstMove, secondMove
