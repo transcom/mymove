@@ -67,7 +67,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	branchQuery := branchFilter(params.Branch)
-	originPostalCodeQuery := originPostalFilter(params.OriginPostalCode)
+	originPostalCodeQuery := originPostalCodeFilter(params.OriginPostalCode)
 	destinationPostalCodeQuery := destinationPostalCodeFilter(params.DestinationPostalCode)
 	statusQuery := moveStatusFilter(params.Status)
 	shipmentsCountQuery := shipmentsCountFilter(params.ShipmentsCount)
@@ -124,7 +124,7 @@ func branchFilter(branch *string) QueryOption {
 		}
 	}
 }
-func originPostalFilter(postalCode *string) QueryOption {
+func originPostalCodeFilter(postalCode *string) QueryOption {
 	return func(query *pop.Query) {
 		if postalCode != nil {
 			query.Where("origin_addresses.postal_code = ?", *postalCode)
