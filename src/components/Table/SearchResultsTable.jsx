@@ -4,18 +4,95 @@ import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
 
 import styles from './SearchResultsTable.module.scss';
+import { createHeader } from './utils';
 
 import Table from 'components/Table/Table';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
-import { SortShape } from 'constants/queues';
+import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, MOVE_STATUS_OPTIONS, SortShape } from 'constants/queues';
+import { serviceMemberAgencyLabel } from 'utils/formatters';
+import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
+import SelectFilter from 'components/Table/Filters/SelectFilter';
+
+const columns = [
+  createHeader('Move code', 'locator', {
+    id: 'locator',
+    isFilterable: false,
+  }),
+  createHeader('DOD ID', 'dodID', {
+    id: 'dodID',
+    isFilterable: false,
+  }),
+  createHeader(
+    'Customer name',
+    (row) => {
+      return `${row.lastName}, ${row.firstName}`;
+    },
+    {
+      id: 'customerName',
+      isFilterable: false,
+    },
+  ),
+  createHeader(
+    'Status',
+    (row) => {
+      return MOVE_STATUS_LABELS[`${row.status}`];
+    },
+    {
+      id: 'status',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
+    },
+  ),
+  createHeader(
+    'Origin ZIP',
+    (row) => {
+      return row.originDutyLocationPostalCode;
+    },
+    {
+      id: 'originPostalCode',
+      isFilterable: true,
+    },
+  ),
+  createHeader(
+    'Destination ZIP',
+    (row) => {
+      return row.destinationDutyLocationPostalCode;
+    },
+    {
+      id: 'destinationPostalCode',
+      isFilterable: true,
+    },
+  ),
+  createHeader(
+    'Branch',
+    (row) => {
+      return serviceMemberAgencyLabel(row.branch);
+    },
+    {
+      id: 'branch',
+      isFilterable: true,
+      Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <SelectFilter options={BRANCH_OPTIONS} {...props} />
+      ),
+    },
+  ),
+  createHeader(
+    'Number of Shipments',
+    (row) => {
+      return Number(row.shipmentsCount || 0);
+    },
+    { id: 'shipmentsCount', isFilterable: true },
+  ),
+];
 
 // SearchResultsTable is a react-table that uses react-hooks to fetch, filter, sort and page data
 const SearchResultsTable = (props) => {
   const {
     title,
-    columns,
     disableMultiSort,
     defaultCanSort,
     disableSortBy,
@@ -63,7 +140,7 @@ const SearchResultsTable = (props) => {
     [],
   );
   const tableData = useMemo(() => data, [data]);
-  const tableColumns = useMemo(() => columns, [columns]);
+  const tableColumns = useMemo(() => columns, []);
   const {
     getTableProps,
     getTableBodyProps,
@@ -168,8 +245,6 @@ SearchResultsTable.propTypes = {
   useQueries: PropTypes.func.isRequired,
   // title is the table title
   title: PropTypes.string.isRequired,
-  // columns is the columns to show in the table
-  columns: PropTypes.arrayOf(PropTypes.object).isRequired,
   // showFilters is bool value to show filters or not
   showFilters: PropTypes.bool,
   // showPagination is bool value to show pagination or not
