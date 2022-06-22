@@ -38,6 +38,7 @@ export const FileUploadWithLimitOneFile = Template.bind({});
 FileUploadWithLimitOneFile.args = {
   createUpload: mockCreateUploadSuccess,
   allowMultiple: false,
+  labelIdle: 'Drag & drop or <span class="filepond--label-action">click to upload</span> (1 file at a time)',
 };
 
 export const FileUploadWithNoParallelUploads = Template.bind({});
