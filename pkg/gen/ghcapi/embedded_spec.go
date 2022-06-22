@@ -590,7 +590,9 @@ func init() {
             "$ref": "#/responses/ServerError"
           }
         },
-        "x-permissions": "-update.paymentServiceItemStatus"
+        "x-permissions": [
+          "update.paymentServiceItemStatus"
+        ]
       },
       "parameters": [
         {
@@ -7842,7 +7844,9 @@ func init() {
             }
           }
         },
-        "x-permissions": "-update.paymentServiceItemStatus"
+        "x-permissions": [
+          "update.paymentServiceItemStatus"
+        ]
       },
       "parameters": [
         {

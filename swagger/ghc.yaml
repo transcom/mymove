@@ -1502,7 +1502,8 @@ paths:
       description: Changes the status of a line item for a move by ID
       operationId: updatePaymentServiceItemStatus
       summary: Change the status of a payment service item for a move by ID
-      x-permissions: '-update.paymentServiceItemStatus'
+      x-permissions:
+        - update.paymentServiceItemStatus
   /move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at:
     patch:
       consumes:
