@@ -2,6 +2,8 @@ import React from 'react';
 import { Tag } from '@trussworks/react-uswds';
 
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 export default {
   title: 'Office Components/WeightDisplay',
@@ -20,7 +22,11 @@ const ExternalVendorShipmentMessage = () => (
   </small>
 );
 
-const Template = (args) => <WeightDisplay {...args} />;
+const Template = (args) => (
+  <MockProviders permissions={[permissionTypes.updateBillableWeight]}>
+    <WeightDisplay {...args} />
+  </MockProviders>
+);
 
 export const WithNoWeight = Template.bind({});
 WithNoWeight.args = {

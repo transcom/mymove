@@ -415,7 +415,7 @@ describe('TOO user', () => {
     cy.wait(['@requestShipmentCancellation']);
     // After updating, the button is disabeld and an alert is shown
     cy.get('[data-testid="request-cancellation-modal"]').should('not.exist');
-    cy.get('.shipment-heading').find('button').should('be.disabled').and('contain', 'Cancellation Requested');
+    cy.get('.shipment-heading').contains('Cancellation Requested');
     cy.get('[data-testid="alert"]')
       .should('exist')
       .and('contain', 'The request to cancel that shipment has been sent to the movers.');

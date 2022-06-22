@@ -16,6 +16,8 @@ import { utcDateFormat } from 'shared/dates';
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const ShipmentSITDisplay = ({
   sitExtensions,
@@ -108,20 +110,24 @@ const ShipmentSITDisplay = ({
         <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Extension requested</Tag>}</p>
         {!hideSITExtensionAction &&
           (pendingSITExtension ? (
-            <p>
-              <Button type="button" onClick={() => showReviewSITExtension(true)} unstyled>
-                View request
-              </Button>
-            </p>
+            <Restricted to={permissionTypes.createSITExtension}>
+              <p>
+                <Button type="button" onClick={() => showReviewSITExtension(true)} unstyled>
+                  View request
+                </Button>
+              </p>
+            </Restricted>
           ) : (
-            <Button
-              type="button"
-              onClick={() => showSubmitSITExtension(true)}
-              unstyled
-              className={styles.submitSITEXtensionLink}
-            >
-              Edit
-            </Button>
+            <Restricted to={permissionTypes.updateSITExtension}>
+              <Button
+                type="button"
+                onClick={() => showSubmitSITExtension(true)}
+                unstyled
+                className={styles.submitSITEXtensionLink}
+              >
+                Edit
+              </Button>
+            </Restricted>
           ))}
       </div>
 

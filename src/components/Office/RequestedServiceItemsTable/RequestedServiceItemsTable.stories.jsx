@@ -4,6 +4,9 @@ import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 
 import RequestedServiceItemsTable from './RequestedServiceItemsTable';
 
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
+
 export default {
   title: 'Office Components/RequestedServiceItemsTable',
   component: RequestedServiceItemsTable,
@@ -94,11 +97,17 @@ const rejectedServiceItems = serviceItems.map((serviceItem) => {
 });
 
 export const Default = () => (
-  <RequestedServiceItemsTable serviceItems={serviceItems} statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED} />
+  <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+    <RequestedServiceItemsTable serviceItems={serviceItems} statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED} />
+  </MockProviders>
 );
 export const ApprovedServiceItems = () => (
-  <RequestedServiceItemsTable serviceItems={approvedServiceItems} statusForTableType={SERVICE_ITEM_STATUS.APPROVED} />
+  <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+    <RequestedServiceItemsTable serviceItems={approvedServiceItems} statusForTableType={SERVICE_ITEM_STATUS.APPROVED} />
+  </MockProviders>
 );
 export const RejectedServiceItems = () => (
-  <RequestedServiceItemsTable serviceItems={rejectedServiceItems} statusForTableType={SERVICE_ITEM_STATUS.REJECTED} />
+  <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+    <RequestedServiceItemsTable serviceItems={rejectedServiceItems} statusForTableType={SERVICE_ITEM_STATUS.REJECTED} />
+  </MockProviders>
 );

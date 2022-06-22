@@ -589,7 +589,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.paymentServiceItemStatus"
+        ]
       },
       "parameters": [
         {
@@ -697,7 +700,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.MTOServiceItem"
+        ]
       },
       "parameters": [
         {
@@ -1956,7 +1962,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.billableWeight"
+        ]
       },
       "parameters": [
         {
@@ -2845,7 +2854,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "create.shipmentCancellation"
+        ]
       },
       "parameters": [
         {
@@ -2905,7 +2917,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "create.shipmentDiversionRequest"
+        ]
       },
       "parameters": [
         {
@@ -2958,7 +2973,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "create.reweighRequest"
+        ]
       },
       "parameters": [
         {
@@ -3033,7 +3051,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "create.SITExtension"
+        ]
       }
     },
     "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve": {
@@ -3093,7 +3114,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.SITExtension"
+        ]
       },
       "parameters": [
         {
@@ -3170,7 +3194,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.SITExtension"
+        ]
       },
       "parameters": [
         {
@@ -7816,7 +7843,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.paymentServiceItemStatus"
+        ]
       },
       "parameters": [
         {
@@ -7957,7 +7987,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.MTOServiceItem"
+        ]
       },
       "parameters": [
         {
@@ -9552,7 +9585,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.billableWeight"
+        ]
       },
       "parameters": [
         {
@@ -10616,7 +10652,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "create.shipmentCancellation"
+        ]
       },
       "parameters": [
         {
@@ -10694,7 +10733,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "create.shipmentDiversionRequest"
+        ]
       },
       "parameters": [
         {
@@ -10765,7 +10807,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "create.reweighRequest"
+        ]
       },
       "parameters": [
         {
@@ -10855,7 +10900,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "create.SITExtension"
+        ]
       }
     },
     "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve": {
@@ -10933,7 +10981,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.SITExtension"
+        ]
       },
       "parameters": [
         {
@@ -11028,7 +11079,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.SITExtension"
+        ]
       },
       "parameters": [
         {
