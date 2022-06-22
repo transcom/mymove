@@ -1,7 +1,6 @@
 package movetaskorder_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -14,40 +13,39 @@ import (
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
-	expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
 
-	// Make a couple of shipments for the move; one prime, one external
-	primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: expectedMTO,
-		MTOShipment: models.MTOShipment{
-			UsesExternalVendor: false,
-		},
-	})
-	testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: expectedMTO,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-			UsesExternalVendor: true,
-		},
-	})
-	testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: expectedMTO,
-		MTOShipment: models.MTOShipment{
-			DeletedAt: models.TimePointer(time.Now()),
-		},
-	})
+	setupTestData := func() (models.Move, models.MTOShipment) {
 
-	mtoWithAllShipmentsDelted := testdatagen.MakeDefaultMove(suite.DB())
-	testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: mtoWithAllShipmentsDelted,
-		MTOShipment: models.MTOShipment{
-			DeletedAt: models.TimePointer(time.Now()),
-		},
-	})
+		expectedMTO := testdatagen.MakeDefaultMove(suite.DB())
+
+		// Make a couple of shipments for the move; one prime, one external
+		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: expectedMTO,
+			MTOShipment: models.MTOShipment{
+				UsesExternalVendor: false,
+			},
+		})
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: expectedMTO,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				UsesExternalVendor: true,
+			},
+		})
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: expectedMTO,
+			MTOShipment: models.MTOShipment{
+				DeletedAt: models.TimePointer(time.Now()),
+			},
+		})
+
+		return expectedMTO, primeShipment
+	}
 
 	mtoFetcher := NewMoveTaskOrderFetcher()
 
-	suite.T().Run("Success with Prime-available move by ID, fetch all non-deleted shipments", func(t *testing.T) {
+	suite.Run("Success with Prime-available move by ID, fetch all non-deleted shipments", func() {
+		expectedMTO, _ := setupTestData()
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:   false,
 			MoveTaskOrderID: expectedMTO.ID,
@@ -68,7 +66,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.Len(actualMTO.MTOShipments, 2)
 	})
 
-	suite.T().Run("Success with Prime-available move by Locator, no deleted or external shipments", func(t *testing.T) {
+	suite.Run("Success with Prime-available move by Locator, no deleted or external shipments", func() {
+		expectedMTO, primeShipment := setupTestData()
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:            false,
 			Locator:                  expectedMTO.Locator,
@@ -93,31 +92,38 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		}
 	})
 
-	suite.T().Run("Success with move that has only deleted shipments", func(t *testing.T) {
+	suite.Run("Success with move that has only deleted shipments", func() {
+		mtoWithAllShipmentsDeleted := testdatagen.MakeDefaultMove(suite.DB())
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: mtoWithAllShipmentsDeleted,
+			MTOShipment: models.MTOShipment{
+				DeletedAt: models.TimePointer(time.Now()),
+			},
+		})
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:   false,
-			MoveTaskOrderID: mtoWithAllShipmentsDelted.ID,
+			MoveTaskOrderID: mtoWithAllShipmentsDeleted.ID,
 		}
 
 		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
 		suite.NoError(err)
-		suite.Equal(mtoWithAllShipmentsDelted.ID, actualMTO.ID)
+		suite.Equal(mtoWithAllShipmentsDeleted.ID, actualMTO.ID)
 		suite.Len(actualMTO.MTOShipments, 0)
 	})
 
-	suite.T().Run("Failure - nil searchParams", func(t *testing.T) {
+	suite.Run("Failure - nil searchParams", func() {
 		_, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), nil)
 		suite.Error(err)
 		suite.Contains(err.Error(), "searchParams should not be nil")
 	})
 
-	suite.T().Run("Failure - searchParams with no ID/locator set", func(t *testing.T) {
+	suite.Run("Failure - searchParams with no ID/locator set", func() {
 		_, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &services.MoveTaskOrderFetcherParams{})
 		suite.Error(err)
 		suite.Contains(err.Error(), "searchParams should have either a move ID or locator set")
 	})
 
-	suite.T().Run("Failure - Not Found with Bad ID", func(t *testing.T) {
+	suite.Run("Failure - Not Found with Bad ID", func() {
 		badID, _ := uuid.NewV4()
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:   false,
@@ -129,118 +135,157 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	})
 }
 
+// Checks that there are expectedMatchCount matches between the moves and move ID list
+// Allows caller to check that expected moves are in the list
+// Also returns a map from uuids → moves
+func doIDsMatch(moves []models.Move, moveIDs []*uuid.UUID, expectedMatchCount int) (bool, map[uuid.UUID]models.Move) {
+	matched := 0
+	mapIDs := make(map[uuid.UUID]models.Move)
+	for _, expectedID := range moveIDs {
+		for _, actualMove := range moves {
+			if expectedID != nil && actualMove.ID == *expectedID {
+				mapIDs[*expectedID] = actualMove
+				expectedID = nil // if found, clear so we don't match again
+				matched++        // keep count so we match all
+			}
+		}
+	}
+	return expectedMatchCount == matched, mapIDs
+}
+
 func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	// Set up a hidden move so we can check if it's in the output:
 	now := time.Now()
 	show := false
-	hiddenMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-			Show:               &show,
-		},
-	})
+	setupTestData := func() (models.Move, models.Move, models.MTOShipment) {
+		hiddenMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+				Show:               &show,
+			},
+		})
 
-	mto := testdatagen.MakeDefaultMove(suite.DB())
+		mto := testdatagen.MakeDefaultMove(suite.DB())
 
-	// Make a couple of shipments for the default move; one prime, one external
-	primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		MTOShipment: models.MTOShipment{
-			UsesExternalVendor: false,
-		},
-	})
-	testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-			UsesExternalVendor: true,
-		},
-	})
+		// Make a couple of shipments for the default move; one prime, one external
+		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				UsesExternalVendor: false,
+			},
+		})
+		testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+				UsesExternalVendor: true,
+			},
+		})
+		return hiddenMTO, mto, primeShipment
+	}
 
 	mtoFetcher := NewMoveTaskOrderFetcher()
 
-	suite.RunWithPreloadedData("all move task orders", func() {
+	suite.Run("all move task orders", func() {
+		hiddenMTO, mto, _ := setupTestData()
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IsAvailableToPrime: false,
 			IncludeHidden:      true,
 			Since:              nil,
 		}
 
-		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(suite.AppContextForTest(), &searchParams)
+		moves, err := mtoFetcher.ListAllMoveTaskOrders(suite.AppContextForTest(), &searchParams)
 		suite.NoError(err)
 
-		move := moveTaskOrders[0]
+		move := moves[0]
 
-		suite.Equal(2, len(moveTaskOrders))
+		suite.Equal(2, len(moves))
+		// These are the move ids we want to find in the return list
+		moveIDs := []*uuid.UUID{&hiddenMTO.ID, &mto.ID}
+		suite.True(doIDsMatch(moves, moveIDs, 2))
 		suite.NotNil(move.Orders)
 		suite.NotNil(move.Orders.OriginDutyLocation)
 		suite.NotNil(move.Orders.NewDutyLocation)
 	})
 
-	suite.RunWithPreloadedData("default search - excludes hidden move task orders", func() {
-		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(suite.AppContextForTest(), nil)
+	suite.Run("default search - excludes hidden move task orders", func() {
+		hiddenMTO, expectedMove, _ := setupTestData()
+		moves, err := mtoFetcher.ListAllMoveTaskOrders(suite.AppContextForTest(), nil)
 		suite.NoError(err)
 
 		// The hidden move should be nowhere in the output list:
-		for _, move := range moveTaskOrders {
+		for _, move := range moves {
 			suite.NotEqual(move.ID, hiddenMTO.ID)
 		}
 
-		if suite.Equal(1, len(moveTaskOrders)) { // minus the one hidden MTO
-			// We should get back all shipments on that move since we did not exclude external vendor shipments.
-			suite.Equal(mto.ID.String(), moveTaskOrders[0].ID.String())
-			suite.Len(moveTaskOrders[0].MTOShipments, 2)
-		}
+		// These are the move ids we have but we expect to find just one
+		moveIDs := []*uuid.UUID{&hiddenMTO.ID, &expectedMove.ID}
+		result, mapMoves := doIDsMatch(moves, moveIDs, 1)
+		suite.True(result)                                   // exactly one ID should match
+		suite.Contains(mapMoves, expectedMove.ID)            // it should be the expectedMove
+		suite.Len(mapMoves[expectedMove.ID].MTOShipments, 2) // That move should have 2 shipments
+
 	})
 
-	suite.RunWithPreloadedData("returns shipments that respect the external searchParams flag", func() {
+	suite.Run("returns shipments that respect the external searchParams flag", func() {
+		hiddenMTO, expectedMove, primeShipment := setupTestData()
+
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:            false,
 			ExcludeExternalShipments: true,
 		}
 
-		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(suite.AppContextForTest(), &searchParams)
+		moves, err := mtoFetcher.ListAllMoveTaskOrders(suite.AppContextForTest(), &searchParams)
 		suite.NoError(err)
 
 		// We should only get back the one move that's not hidden.
-		if suite.Len(moveTaskOrders, 1) {
-			if suite.Equal(mto.ID.String(), moveTaskOrders[0].ID.String()) {
-				// That move should get one shipment back since we requested no external shipments.
-				if suite.Len(moveTaskOrders[0].MTOShipments, 1) {
-					suite.Equal(primeShipment.ID.String(), moveTaskOrders[0].MTOShipments[0].ID.String())
-				}
-			}
-		}
+		// These are the move ids we have but we expect to find just one
+		moveIDs := []*uuid.UUID{&hiddenMTO.ID, &expectedMove.ID}
+		result, mapMoves := doIDsMatch(moves, moveIDs, 1)
+		suite.True(result)                                   // exactly one ID should match
+		suite.Len(mapMoves[expectedMove.ID].MTOShipments, 1) // That move should have one shipment
+		suite.Equal(primeShipment.ID.String(), mapMoves[expectedMove.ID].MTOShipments[0].ID.String())
 	})
 
-	suite.RunWithPreloadedData("all move task orders that are available to prime and using since", func() {
+	suite.Run("all move task orders that are available to prime and using since", func() {
+		// Under test: ListAllMoveOrders
+		// Mocked:     None
+		// Set up:     Create an old and new move, first check that both are returned.
+		//             Then make one move "old" by moving the updatedAt time back
+		//             Request all move orders again
+		// Expected outcome: Only the new move should be returned
 		now = time.Now()
 
-		testdatagen.MakeAvailableMove(suite.DB())
+		// Create the two moves
+		newMove := testdatagen.MakeAvailableMove(suite.DB())
 		oldMTO := testdatagen.MakeAvailableMove(suite.DB())
 
+		// Check that they're both returned
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IsAvailableToPrime: true,
 			// IncludeHidden should be false by default
 			Since: nil,
 		}
-
-		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(suite.AppContextForTest(), &searchParams)
+		moves, err := mtoFetcher.ListAllMoveTaskOrders(suite.AppContextForTest(), &searchParams)
 		suite.NoError(err)
-		suite.Equal(2, len(moveTaskOrders))
-
-		// The hidden move should be nowhere in the output list:
-		for _, move := range moveTaskOrders {
-			suite.NotEqual(move.ID, hiddenMTO.ID)
-		}
+		suite.Len(moves, 2)
 
 		// Put 1 Move updatedAt in the past
 		suite.NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
-			now.Add(-2*time.Second), oldMTO.ID).Exec())
+			now.Add(-2*time.Hour), oldMTO.ID).Exec())
+
+		// Make search params search for moves newer than timestamp
 		searchParams.Since = &now
 		mtosWithSince, err := mtoFetcher.ListAllMoveTaskOrders(suite.AppContextForTest(), &searchParams)
 		suite.NoError(err)
+
+		// Expect one move, the newer one
 		suite.Equal(1, len(mtosWithSince))
+		moveIDs := []*uuid.UUID{&oldMTO.ID, &newMove.ID}
+		result, mapMoves2 := doIDsMatch(mtosWithSince, moveIDs, 1) // only one should match
+		suite.True(result)
+		suite.Contains(mapMoves2, newMove.ID)                                                                            // and it should be the new one
+		suite.NotContains(mapMoves2, oldMTO.ID, "Returned moves should not contain the old move %s", oldMTO.ID.String()) // it's not the hiddenMTO
 	})
 }
 
