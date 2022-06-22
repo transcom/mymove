@@ -2,10 +2,9 @@ package move
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gobuffalo/pop/v6"
-	"go.uber.org/zap"
-
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -27,7 +26,6 @@ type QueryOption func(*pop.Query)
 
 // SearchMoves returns a list of results for a QAE/CSR move search query
 func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services.SearchMovesParams) (models.Moves, int, error) {
-	appCtx.Logger().Warn("🐢 SearchMoves", zap.Any("params", params))
 	if params.Locator == nil && params.DodID == nil && params.CustomerName == nil {
 		verrs := validate.NewErrors()
 		verrs.Add("search key", "move locator, DOD ID, or customer name must be provided")
@@ -144,7 +142,15 @@ func destinationPostalCodeFilter(postalCode *string) QueryOption {
 func moveStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
 		if len(statuses) > 0 {
-			query.Where("moves.status in (?)", statuses)
+			var translatedStatuses []string
+			for _, status := range statuses {
+				if strings.EqualFold(status, string(models.MoveStatusSUBMITTED)) {
+					translatedStatuses = append(translatedStatuses, string(models.MoveStatusSUBMITTED), string(models.MoveStatusServiceCounselingCompleted))
+				} else {
+					translatedStatuses = append(translatedStatuses, status)
+				}
+			}
+			query.Where("moves.status in (?)", translatedStatuses)
 		}
 	}
 }
