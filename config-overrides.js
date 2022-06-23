@@ -22,6 +22,22 @@ module.exports = {
       }),
     );
 
+    // Loop through all the plugins in the Array and update the
+    // MiniCssExtractPlugin one with the ignoreOrder flag as True
+    // README: This has to be done because of the fact that Create-React-App
+    // already includes the mini-css-extract-plugin and configures it. This
+    // means that just pushing a new configuration won't modify the original
+    // one. So we need to find the original and override just the properties we
+    // need. There may be better ways to do this but this works for now.
+    config.plugins.forEach((p) => {
+      if (p.options) {
+        // Ignore warnings about ordering from mini-css-extract-plugin
+        if (p.options.hasOwnProperty('ignoreOrder')) {
+          p.options.ignoreOrder = true;
+        }
+      }
+    });
+
     return config;
   },
   jest: (config) => {
