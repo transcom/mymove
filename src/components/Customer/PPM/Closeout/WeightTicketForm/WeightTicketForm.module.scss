@@ -29,9 +29,13 @@
     width: fit-content;
     @include u-text-decoration(no-underline);
 
-    &:hover {
+    &:hover, &:hover:visited {
       color: $primary-dark;
       @include u-text-decoration(no-underline);
+    }
+
+    &:visited {
+      color: $primary;
     }
   }
 

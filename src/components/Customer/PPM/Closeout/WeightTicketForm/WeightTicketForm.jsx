@@ -62,7 +62,9 @@ const constructedWeightDownload = (
     <p>Download the official government spreadsheet to calculate constructed weight.</p>
     <Link
       className={classnames('usa-button', 'usa-button--secondary', styles.constructedWeightLink)}
-      to="https://www.ustranscom.mil/dp3/weightestimator.cfm"
+      href="https://www.ustranscom.mil/dp3/weightestimator.cfm"
+      target="_blank"
+      rel="noopener"
     >
       Go to download page
     </Link>
@@ -132,7 +134,7 @@ const WeightTicketUpload = ({
 
 WeightTicketUpload.propTypes = {
   fieldName: string.isRequired,
-  missingWeightTicket: bool.isRequired,
+  missingWeightTicket: bool,
   onCreateUpload: func.isRequired,
   onUploadComplete: func.isRequired,
   onUploadDelete: func.isRequired,
@@ -144,6 +146,10 @@ WeightTicketUpload.propTypes = {
     setFieldTouched: func,
     setFieldValue: func,
   }).isRequired,
+};
+
+WeightTicketUpload.defaultProps = {
+  missingWeightTicket: false,
 };
 
 const WeightTicketForm = ({
