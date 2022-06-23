@@ -7,7 +7,7 @@ import { AddressShape, ResidentialAddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { LOCATION_TYPES_ONE_OF, SitStatusShape } from 'types/sitStatusShape';
 import { SITExtensionShape } from 'types/sitExtensions';
-import { ExistingUploadsShape } from 'types/order';
+import { ExistingUploadsShape } from 'types/uploads';
 
 export const ShipmentOptionsOneOf = oneOf(Object.values(SHIPMENT_OPTIONS));
 

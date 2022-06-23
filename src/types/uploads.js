@@ -1,6 +1,7 @@
 import * as Yup from 'yup';
+import PropTypes from 'prop-types';
 
-const uploadShape = Yup.object({
+export const uploadShape = Yup.object({
   id: Yup.string(),
   created_at: Yup.string(),
   bytes: Yup.number(),
@@ -9,4 +10,13 @@ const uploadShape = Yup.object({
   content_type: Yup.string(),
 });
 
-export default uploadShape;
+export const ExistingUploadsShape = PropTypes.arrayOf(
+  PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    created_at: PropTypes.string.isRequired,
+    bytes: PropTypes.number.isRequired,
+    url: PropTypes.string.isRequired,
+    filename: PropTypes.string.isRequired,
+    content_type: PropTypes.string.isRequired,
+  }),
+);

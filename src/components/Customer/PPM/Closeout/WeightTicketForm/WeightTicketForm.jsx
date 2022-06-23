@@ -23,7 +23,7 @@ import {
   SpreadsheetUploadInstructions,
   UploadDropZoneLabel,
 } from 'content/uploads';
-import uploadShape from 'types/uploads';
+import { uploadShape } from 'types/uploads';
 
 const validationSchema = Yup.object().shape({
   vehicleDescription: Yup.string().required('Required'),
