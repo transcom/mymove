@@ -4,12 +4,13 @@ import bytes from 'bytes';
 import moment from 'moment';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import classnames from 'classnames';
 
 import styles from './UploadsTable.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
-const UploadsTable = ({ uploads, onDelete }) => {
+const UploadsTable = ({ className, uploads, onDelete }) => {
   const getIcon = (fileType) => {
     switch (fileType) {
       case 'application/pdf':
@@ -27,7 +28,7 @@ const UploadsTable = ({ uploads, onDelete }) => {
 
   return (
     uploads?.length > 0 && (
-      <SectionWrapper className={styles.uploadsTableContainer}>
+      <SectionWrapper className={classnames(styles.uploadsTableContainer, className)}>
         <h6>{uploads.length} Files Uploaded</h6>
         <ul>
           {uploads.map((upload) => (
@@ -54,6 +55,7 @@ const UploadsTable = ({ uploads, onDelete }) => {
 };
 
 UploadsTable.propTypes = {
+  className: PropTypes.string,
   uploads: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
@@ -64,6 +66,10 @@ UploadsTable.propTypes = {
     }),
   ).isRequired,
   onDelete: PropTypes.func.isRequired,
+};
+
+UploadsTable.defaultProps = {
+  className: '',
 };
 
 export default UploadsTable;

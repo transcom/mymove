@@ -115,13 +115,13 @@ export const WeightTicketShape = shape({
   vehicleDescription: string,
   missingEmptyWeightTicket: bool,
   emptyWeight: number,
-  emptyWeightTickets: ExistingUploadsShape,
+  emptyWeightTickets: oneOf([undefined, ExistingUploadsShape]),
   fullWeight: number,
   missingFullWeightTicket: bool,
-  fullWeightTickets: ExistingUploadsShape,
+  fullWeightTickets: oneOf([undefined, ExistingUploadsShape]),
   hasOwnTrailer: bool,
   hasClaimedTrailer: bool,
-  trailerOwnershipDocs: ExistingUploadsShape,
+  trailerOwnershipDocs: oneOf([undefined, ExistingUploadsShape]),
 });
 
 export const StorageFacilityShape = shape({

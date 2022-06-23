@@ -1,8 +1,8 @@
 import * as Yup from 'yup';
-import React from 'react';
+import React, { createRef } from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
-import { Button, Form, FormGroup, Label, Link, Radio } from '@trussworks/react-uswds';
+import { Button, ErrorMessage, Form, FormGroup, Label, Link, Radio } from '@trussworks/react-uswds';
 import { func, number } from 'prop-types';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
@@ -23,12 +23,13 @@ import {
   SpreadsheetUploadInstructions,
   UploadDropZoneLabel,
 } from 'content/uploads';
+import uploadShape from 'types/uploads';
 
 const validationSchema = Yup.object().shape({
   vehicleDescription: Yup.string().required('Required'),
   emptyWeight: Yup.number().min(0, 'Enter a weight 0 lbs or greater').required('Required'),
   missingEmptyWeightTicket: Yup.boolean(),
-  emptyWeightTickets: Yup.string(),
+  emptyWeightTickets: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
   fullWeight: Yup.number()
     .min(0, 'Enter a weight 0 lbs or greater')
     .required('Required')
@@ -38,13 +39,25 @@ const validationSchema = Yup.object().shape({
         : schema;
     }),
   missingFullWeightTicket: Yup.boolean(),
-  fullWeightTickets: Yup.string(),
+  fullWeightTickets: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
   hasOwnTrailer: Yup.boolean().required('Required'),
   hasClaimedTrailer: Yup.boolean(),
-  trailerOwnershipDocs: Yup.string(),
+  trailerOwnershipDocs: Yup.array()
+    .of(uploadShape)
+    .when('hasClaimedTrailer', (hasClaimedTrailer, schema) => {
+      return hasClaimedTrailer ? schema.min(1, 'At least one upload is required') : schema;
+    }),
 });
 
-const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
+const WeightTicketForm = ({
+  weightTicket,
+  tripNumber,
+  onCreateUpload,
+  onUploadComplete,
+  onUploadDelete,
+  onBack,
+  onSubmit,
+}) => {
   // const { id: mtoShipmentId } = mtoShipment;
 
   const {
@@ -65,16 +78,14 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
     vehicleDescription: vehicleDescription || '',
     missingEmptyWeightTicket,
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
-    emptyWeightTickets: [],
+    emptyWeightTickets: emptyWeightTickets || [],
     fullWeight: fullWeight ? `${fullWeight}` : '',
     missingFullWeightTicket,
-    fullWeightTickets: [],
+    fullWeightTickets: fullWeightTickets || [],
     hasOwnTrailer: hasOwnTrailer === true ? 'true' : 'false',
     hasClaimedTrailer: hasClaimedTrailer === true ? 'true' : 'false',
-    trailerOwnershipDocs: [],
+    trailerOwnershipDocs: trailerOwnershipDocs || [],
   };
-
-  const handleUploadDelete = () => {};
 
   const constructedWeightDownload = (
     <>
@@ -93,9 +104,25 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
     </>
   );
 
+  const emptyWeightTicketUploadLabel = (showConstructedWeight) => {
+    return showConstructedWeight ? 'Upload constructed weight spreadsheet' : 'Upload empty weight ticket';
+  };
+
+  const fullWeightTicketUploadLabel = (showConstructedWeight) => {
+    return showConstructedWeight ? 'Upload constructed weight spreadsheet' : 'Upload full weight ticket';
+  };
+
+  const weightTicketUploadHint = (showConstructedWeight) => {
+    return showConstructedWeight ? SpreadsheetUploadInstructions : DocumentAndImageUploadInstructions;
+  };
+
+  const emptyWeightTicketsRef = createRef();
+  const fullWeightTicketsRef = createRef();
+  const trailerOwnershipDocsRef = createRef();
+
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, values }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, touched, errors, setFieldTouched, setFieldValue }) => {
         return (
           <div className={classnames(ppmStyles.formContainer, styles.WeightTicketForm)}>
             <Form className={classnames(formStyles.form, ppmStyles.form)}>
@@ -123,20 +150,41 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
                   label="I don't have this weight ticket"
                 />
                 <div>
-                  <UploadsTable uploads={emptyWeightTickets} onDelete={handleUploadDelete} />
-                  {values.missingEmptyWeightTicket ? (
-                    <>
-                      {constructedWeightDownload}
-                      <Label htmlFor="emptyWeightTickets">Upload constructed weight spreadsheet</Label>
-                      <Hint className={styles.uploadTypeHint}>{SpreadsheetUploadInstructions}</Hint>
-                    </>
-                  ) : (
-                    <>
-                      <Label htmlFor="emptyWeightTickets">Upload empty weight ticket</Label>
-                      <Hint className={styles.uploadTypeHint}>{DocumentAndImageUploadInstructions}</Hint>
-                    </>
-                  )}
-                  <FileUpload name="emptyWeightTickets" labelIdle={UploadDropZoneLabel} />
+                  {values.missingEmptyWeightTicket && constructedWeightDownload}
+                  <UploadsTable
+                    className={styles.uploadsTable}
+                    uploads={values.emptyWeightTickets}
+                    onDelete={(uploadId) =>
+                      onUploadDelete(uploadId, 'emptyWeightTickets', values, setFieldTouched, setFieldValue)
+                    }
+                  />
+                  <FormGroup error={touched?.emptyWeightTickets && errors?.emptyWeightTickets}>
+                    <div className="labelWrapper">
+                      <Label
+                        error={touched?.emptyWeightTickets && errors?.emptyWeightTickets}
+                        htmlFor="emptyWeightTickets"
+                      >
+                        {emptyWeightTicketUploadLabel(values.missingEmptyWeightTicket)}
+                      </Label>
+                    </div>
+                    {touched?.emptyWeightTickets && errors?.emptyWeightTickets && (
+                      <ErrorMessage>{errors?.emptyWeightTickets}</ErrorMessage>
+                    )}
+                    <Hint className={styles.uploadTypeHint}>
+                      {weightTicketUploadHint(values.missingEmptyWeightTicket)}
+                    </Hint>
+                    <FileUpload
+                      name="emptyWeightTickets"
+                      labelIdle={UploadDropZoneLabel}
+                      createUpload={onCreateUpload}
+                      onChange={(err, upload) => {
+                        setFieldTouched('emptyWeightTickets', true);
+                        onUploadComplete(upload, err, 'emptyWeightTickets', values, setFieldValue);
+                        emptyWeightTicketsRef.current.removeFile(upload.id);
+                      }}
+                      ref={emptyWeightTicketsRef}
+                    />
+                  </FormGroup>
                 </div>
                 <h3>Full Weight</h3>
                 <MaskedTextField
@@ -157,20 +205,39 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
                   label="I don't have this weight ticket"
                 />
                 <div>
-                  <UploadsTable uploads={fullWeightTickets} onDelete={handleUploadDelete} />
-                  {values.missingFullWeightTicket ? (
-                    <>
-                      {constructedWeightDownload}
-                      <Label htmlFor="fullWeightTickets">Upload constructed weight spreadsheet</Label>
-                      <Hint className={styles.uploadTypeHint}>{SpreadsheetUploadInstructions}</Hint>
-                    </>
-                  ) : (
-                    <>
-                      <Label htmlFor="fullWeightTickets">Upload full weight ticket</Label>
-                      <Hint className={styles.uploadTypeHint}>{DocumentAndImageUploadInstructions}</Hint>
-                    </>
-                  )}
-                  <FileUpload name="fullWeightTickets" labelIdle={UploadDropZoneLabel} />
+                  {values.missingFullWeightTicket && constructedWeightDownload}
+                  <UploadsTable
+                    className={styles.uploadsTable}
+                    uploads={values.fullWeightTickets}
+                    onDelete={onUploadDelete}
+                  />
+                  <FormGroup error={touched?.fullWeightTickets && errors?.fullWeightTickets}>
+                    <div className="labelWrapper">
+                      <Label
+                        error={touched?.fullWeightTickets && errors?.fullWeightTickets}
+                        htmlFor="emptyWeightTickets"
+                      >
+                        {fullWeightTicketUploadLabel(values.missingFullWeightTicket)}
+                      </Label>
+                    </div>
+                    {touched?.fullWeightTickets && errors?.fullWeightTickets && (
+                      <ErrorMessage>{errors?.fullWeightTickets}</ErrorMessage>
+                    )}
+                    <Hint className={styles.uploadTypeHint}>
+                      {weightTicketUploadHint(values.missingFullWeightTicket)}
+                    </Hint>
+                    <FileUpload
+                      name="fullWeightTickets"
+                      labelIdle={UploadDropZoneLabel}
+                      createUpload={onCreateUpload}
+                      onChange={(err, upload) => {
+                        setFieldTouched('fullWeightTickets', true);
+                        onUploadComplete(upload, err, 'fullWeightTickets', values, setFieldValue);
+                        fullWeightTicketsRef.current.removeFile(upload.id);
+                      }}
+                      ref={fullWeightTicketsRef}
+                    />
+                  </FormGroup>
                 </div>
                 {values.fullWeight > 0 && values.emptyWeight > 0 ? (
                   <h3>{`Trip weight: ${formatWeight(values.fullWeight - values.emptyWeight)}`}</h3>
@@ -231,17 +298,43 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
                         <>
                           <p>You can claim the weight of this trailer one time during your move.</p>
                           <div>
-                            <Label htmlFor="trailerOwnershipDocs">Upload proof of ownership</Label>
-                            <Hint>
-                              <p>Examples include a registration or bill of sale.</p>
-                              <p>
-                                If you don’t have that documentation, upload a signed, dated statement certifying that
-                                you or your spouse own this trailer.
-                              </p>
-                              <p className={styles.uploadTypeHint}>{DocumentAndImageUploadInstructions}</p>
-                            </Hint>
-                            <UploadsTable uploads={trailerOwnershipDocs} onDelete={handleUploadDelete} />
-                            <FileUpload name="trailerOwnershipDocs" labelIdle={UploadDropZoneLabel} />
+                            <UploadsTable
+                              className={styles.uploadsTable}
+                              uploads={values.trailerOwnershipDocs}
+                              onDelete={onUploadDelete}
+                            />
+                            <FormGroup error={touched?.trailerOwnershipDocs && errors?.trailerOwnershipDocs}>
+                              <div className="labelWrapper">
+                                <Label
+                                  error={touched?.trailerOwnershipDocs && errors?.trailerOwnershipDocs}
+                                  htmlFor="trailerOwnershipDocs"
+                                >
+                                  Upload proof of ownership
+                                </Label>
+                              </div>
+                              {touched?.trailerOwnershipDocs && errors?.trailerOwnershipDocs && (
+                                <ErrorMessage>{errors?.trailerOwnershipDocs}</ErrorMessage>
+                              )}
+                              <Hint>
+                                <p>Examples include a registration or bill of sale.</p>
+                                <p>
+                                  If you don’t have that documentation, upload a signed, dated statement certifying that
+                                  you or your spouse own this trailer.
+                                </p>
+                                <p className={styles.uploadTypeHint}>{DocumentAndImageUploadInstructions}</p>
+                              </Hint>
+                              <FileUpload
+                                name="trailerOwnershipDocs"
+                                createUpload={onCreateUpload}
+                                labelIdle={UploadDropZoneLabel}
+                                onChange={(err, upload) => {
+                                  setFieldTouched('trailerOwnershipDocs', true);
+                                  onUploadComplete(upload, err, 'trailerOwnershipDocs', values, setFieldValue);
+                                  trailerOwnershipDocsRef.current.removeFile(upload.id);
+                                }}
+                                ref={trailerOwnershipDocsRef}
+                              />
+                            </FormGroup>
                           </div>
                         </>
                       ) : (
@@ -277,12 +370,16 @@ const WeightTicketForm = ({ weightTicket, tripNumber, onBack, onSubmit }) => {
 WeightTicketForm.propTypes = {
   weightTicket: WeightTicketShape,
   tripNumber: number,
+  onCreateUpload: func.isRequired,
+  onUploadComplete: func.isRequired,
+  onUploadDelete: func,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
 };
 
 WeightTicketForm.defaultProps = {
   weightTicket: undefined,
+  onUploadDelete: undefined,
   tripNumber: 1,
 };
 

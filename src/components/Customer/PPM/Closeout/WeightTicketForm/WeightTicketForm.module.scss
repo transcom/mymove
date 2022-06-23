@@ -16,6 +16,10 @@
     color: $base;
   }
 
+  .uploadsTable {
+    @include u-margin-y(2);
+  }
+
   .uploadTypeHint {
     @include u-margin-bottom(1);
   }
