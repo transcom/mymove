@@ -3,6 +3,9 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/pop/v6"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -33,3 +36,18 @@ type WeightTicket struct {
 }
 
 type WeightTickets []WeightTicket
+
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate,
+// pop.ValidateAndUpdate) method. This should contain validation that is for data integrity. Business validation should
+// occur in service objects.
+func (w *WeightTicket) Validate(_ *pop.Connection) (*validate.Errors, error) {
+	return validate.Validate(
+		&OptionalTimeIsPresent{Name: "DeletedAt", Field: w.DeletedAt},
+		&StringIsNilOrNotBlank{Name: "VehicleDescription", Field: w.VehicleDescription},
+		&OptionalPoundIsNonNegative{Name: "EmptyWeight", Field: w.EmptyWeight},
+		&validators.UUIDIsPresent{Name: "EmptyDocumentID", Field: w.EmptyDocumentID},
+		&OptionalPoundIsNonNegative{Name: "FullWeight", Field: w.FullWeight},
+		&validators.UUIDIsPresent{Name: "FullDocumentID", Field: w.FullDocumentID},
+		&OptionalUUIDIsPresent{Name: "ProofOfTrailerOwnershipDocumentID", Field: w.ProofOfTrailerOwnershipDocumentID},
+	), nil
+}
