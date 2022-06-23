@@ -150,7 +150,7 @@
     "dotenv": "^10.0.0",
     "enzyme": "^3.11.0",
     "eslint-config-airbnb": "19.0.4",
-    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-ato": "file:./eslint-plugin-ato",
     "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-prettier": "^4.0.0",
