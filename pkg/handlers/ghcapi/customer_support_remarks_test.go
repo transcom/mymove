@@ -5,10 +5,12 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	customersupportremarksop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -135,5 +137,79 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.CreateCustomerSupportRemarkForMoveInternalServerError{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
+
+	suite.Run("Successful PATCH", func() {
+		locator := models.GenerateLocator()
+		remarkID := uuid.Must(uuid.NewV4())
+
+		remark := models.CustomerSupportRemark{
+			ID: remarkID,
+		}
+
+		updatedRemarkText := "This is an updated customer support remark."
+		id := strfmt.UUID(remarkID.String())
+		body := &ghcmessages.UpdateCustomerSupportRemarkPayload{
+			Content: &updatedRemarkText,
+			ID:      &id,
+		}
+
+		updater := &mocks.CustomerSupportRemarkUpdater{}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := UpdateCustomerSupportRemarkHandler{handlerConfig, updater}
+
+		request := httptest.NewRequest("PATCH", fmt.Sprintf("/moves/%s/customer-support-remarks/", locator), nil)
+
+		params := customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams{
+			HTTPRequest: request,
+			Locator:     locator,
+			Body:        body,
+		}
+
+		updater.On("UpdateCustomerSupportRemark",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(&remark, nil).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&customersupportremarksop.UpdateCustomerSupportRemarkForMoveOK{}, response)
+	})
+
+	suite.Run("unsuccessful PATCH", func() {
+
+		locator := models.GenerateLocator()
+		remarkID := uuid.Must(uuid.NewV4())
+
+		updatedRemarkText := "This is an updated customer support remark."
+		id := strfmt.UUID(remarkID.String())
+		body := &ghcmessages.UpdateCustomerSupportRemarkPayload{
+			Content: &updatedRemarkText,
+			ID:      &id,
+		}
+
+		updater := &mocks.CustomerSupportRemarkUpdater{}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := UpdateCustomerSupportRemarkHandler{handlerConfig, updater}
+
+		request := httptest.NewRequest("PATCH", fmt.Sprintf("/moves/%s/customer-support-remarks/", locator), nil)
+
+		params := customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams{
+			HTTPRequest: request,
+			Locator:     locator,
+			Body:        body,
+		}
+
+		updater.On("UpdateCustomerSupportRemark",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(nil, fmt.Errorf("error")).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&customersupportremarksop.UpdateCustomerSupportRemarkForMoveInternalServerError{}, response)
 	})
 }

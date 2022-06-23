@@ -3,6 +3,10 @@ import { shallow, mount } from 'enzyme';
 
 import ShipmentHeading from './ShipmentHeading';
 
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
+import { shipmentStatuses } from 'constants/shipments';
+
 const shipmentDestinationAddressWithPostalOnly = {
   postalCode: '98421',
 };
@@ -28,14 +32,15 @@ const headingInfo = {
 };
 
 describe('Shipment Heading with full destination address', () => {
+  const wrapper = shallow(
+    <ShipmentHeading
+      shipmentInfo={headingInfo}
+      handleUpdateMTOShipmentStatus={jest.fn()}
+      handleShowCancellationModal={jest.fn()}
+    />,
+  );
+
   it('should render the data passed to it within the heading', () => {
-    const wrapper = shallow(
-      <ShipmentHeading
-        shipmentInfo={headingInfo}
-        handleUpdateMTOShipmentStatus={jest.fn()}
-        handleShowCancellationModal={jest.fn()}
-      />,
-    );
     expect(wrapper.find('h2').text()).toEqual('Household Goods');
     expect(wrapper.find('small').text()).toContain('San Antonio, TX 98421');
     expect(wrapper.find('small').text()).toContain('Tacoma, WA 98421');
@@ -104,6 +109,54 @@ describe('Shipment Heading with cancelled shipment', () => {
   });
 
   it('hides the request cancellation button', () => {
+    expect(wrapper.find('button').length).toBeFalsy();
+  });
+});
+
+describe('Shipment Heading with shipment cancellation requested', () => {
+  const wrapper = mount(
+    <ShipmentHeading
+      shipmentInfo={{ isDiversion: false, ...headingInfo, shipmentStatus: shipmentStatuses.CANCELLATION_REQUESTED }}
+      handleUpdateMTOShipmentStatus={jest.fn()}
+      handleShowCancellationModal={jest.fn()}
+    />,
+  );
+
+  it('renders the cancellation requested tag next to the shipment type', () => {
+    expect(wrapper.find({ 'data-testid': 'tag' }).text()).toEqual('Cancellation Requested');
+  });
+
+  it('hides the request cancellation button', () => {
+    expect(wrapper.find('button').length).toBeFalsy();
+  });
+});
+
+describe('Shipment Heading shows cancellation button with permissions', () => {
+  const wrapper = mount(
+    <MockProviders permissions={[permissionTypes.createShipmentCancellation]}>
+      <ShipmentHeading
+        shipmentInfo={headingInfo}
+        handleUpdateMTOShipmentStatus={jest.fn()}
+        handleShowCancellationModal={jest.fn()}
+      />
+    </MockProviders>,
+  );
+
+  it('renders with request shipment cancellation when user has permission', () => {
+    expect(wrapper.find('button').length).toEqual(1);
+  });
+});
+
+describe('Shipment Heading hides cancellation button without permissions', () => {
+  const wrapper = mount(
+    <ShipmentHeading
+      shipmentInfo={headingInfo}
+      handleUpdateMTOShipmentStatus={jest.fn()}
+      handleShowCancellationModal={jest.fn()}
+    />,
+  );
+
+  it('renders withour request shipment cancellation when user does not have permission', () => {
     expect(wrapper.find('button').length).toBeFalsy();
   });
 });

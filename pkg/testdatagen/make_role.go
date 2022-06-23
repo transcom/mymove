@@ -5,6 +5,8 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -111,6 +113,28 @@ func LookupOrMakeRole(db *pop.Connection, roleType roles.RoleType, roleName role
 	if err != nil {
 		// if no role found we need to create one - there may be a better way to do this
 		if strings.Contains(err.Error(), "no rows in result set") {
+			return MakeRole(db, Assertions{
+				Role: roles.Role{
+					RoleType: roleType,
+					RoleName: roleName,
+				},
+			}), nil
+		}
+	}
+
+	return role, err
+}
+
+// lookup a role by role type, if it doesn't exist make it
+func LookupOrMakeRoleByRoleType(db *pop.Connection, roleType roles.RoleType) (roles.Role, error) {
+
+	var role roles.Role
+	err := db.RawQuery(`SELECT * FROM roles WHERE role_type = ?`, roleType).First(&role)
+
+	if err != nil {
+		// if no role found we need to create one - there may be a better way to do this
+		if strings.Contains(err.Error(), "no rows in result set") {
+			roleName := roles.RoleName(cases.Title(language.Und).String(string(roleType)))
 			return MakeRole(db, Assertions{
 				Role: roles.Role{
 					RoleType: roleType,

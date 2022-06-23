@@ -319,7 +319,7 @@ const MoveDetails = ({
           <Grid row className={styles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={styles.alertContainer}>
-                <Alert slim type={alertType}>
+                <Alert headingLevel="h4" slim type={alertType}>
                   {alertMessage}
                 </Alert>
               </Grid>
@@ -367,9 +367,18 @@ const MoveDetails = ({
               title="Orders"
               tag={hasAmendedOrders ? 'NEW' : ''}
               editButton={
-                <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
-                  Edit orders
-                </Link>
+                <Restricted
+                  to={permissionTypes.updateOrders}
+                  fallback={
+                    <Link className="usa-button usa-button--secondary" data-testid="view-orders" to="orders">
+                      View orders
+                    </Link>
+                  }
+                >
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
+                    Edit orders
+                  </Link>
+                </Restricted>
               }
             >
               <OrdersList ordersInfo={ordersInfo} />
@@ -379,9 +388,18 @@ const MoveDetails = ({
             <DetailsPanel
               title="Allowances"
               editButton={
-                <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
-                  Edit allowances
-                </Link>
+                <Restricted
+                  to={permissionTypes.updateAllowances}
+                  fallback={
+                    <Link className="usa-button usa-button--secondary" data-testid="view-allowances" to="allowances">
+                      View allowances
+                    </Link>
+                  }
+                >
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+                    Edit allowances
+                  </Link>
+                </Restricted>
               }
             >
               <AllowancesList info={allowancesInfo} />

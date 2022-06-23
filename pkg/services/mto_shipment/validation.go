@@ -130,3 +130,31 @@ func checkUpdateAllowed() validator {
 		return err
 	})
 }
+
+// Checks if a shipment can be deleted
+func checkDeleteAllowed() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
+		move := older.MoveTaskOrder
+		if move.Status != models.MoveStatusDRAFT && move.Status != models.MoveStatusNeedsServiceCounseling {
+			return apperror.NewForbiddenError("A shipment can only be deleted if the move is in Draft or NeedsServiceCounseling")
+		}
+
+		return nil
+	})
+}
+
+// Checks if a shipment can be deleted
+func checkPrimeDeleteAllowed() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
+		if older.MoveTaskOrder.AvailableToPrimeAt == nil {
+			return apperror.NewNotFoundError(older.ID, "for mtoShipment")
+		}
+		if older.ShipmentType != models.MTOShipmentTypePPM {
+			return apperror.NewForbiddenError("Prime can only delete PPM shipments")
+		}
+		if older.PPMShipment != nil && older.PPMShipment.Status == models.PPMShipmentStatusWaitingOnCustomer {
+			return apperror.NewForbiddenError(fmt.Sprintf("A PPM shipment with the status %v cannot be deleted", models.PPMShipmentStatusWaitingOnCustomer))
+		}
+		return nil
+	})
+}

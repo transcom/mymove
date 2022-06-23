@@ -43,7 +43,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
-			handlerConfig.GHCPlanner(),
+			handlerConfig.HHGPlanner(),
 			ghcrateengine.NewServiceItemPricer(),
 		),
 		paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
@@ -91,10 +91,15 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		),
 	}
 
+	primeAPI.MtoShipmentDeleteMTOShipmentHandler = DeleteMTOShipmentHandler{
+		handlerConfig,
+		mtoshipment.NewPrimeShipmentDeleter(),
+	}
+
 	primeAPI.PaymentRequestCreatePaymentRequestHandler = CreatePaymentRequestHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestCreator(
-			handlerConfig.GHCPlanner(),
+			handlerConfig.HHGPlanner(),
 			ghcrateengine.NewServiceItemPricer(),
 		),
 	}

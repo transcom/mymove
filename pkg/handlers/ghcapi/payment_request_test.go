@@ -225,31 +225,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 		suite.Assertions.IsType(&paymentrequestop.GetPaymentRequestNotFound{}, response)
 	})
 
-	suite.Run("Failed list fetch - Forbidden", func() {
-		paymentServiceItemParam, _ := setupTestData()
-		paymentRequests := models.PaymentRequests{paymentServiceItemParam.PaymentServiceItem.PaymentRequest}
-
-		officeUserTOO := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-
-		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
-		paymentRequestListFetcher.On("FetchPaymentRequestListByMove", mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything).Return(&paymentRequests, nil).Once()
-
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/payment-requests/", "ABC123"), nil)
-		request = suite.AuthenticateOfficeRequest(request, officeUserTOO)
-		params := paymentrequestop.GetPaymentRequestsForMoveParams{
-			HTTPRequest: request,
-			Locator:     "ABC123",
-		}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
-		handler := GetPaymentRequestForMoveHandler{
-			HandlerConfig:             handlerConfig,
-			PaymentRequestListFetcher: paymentRequestListFetcher,
-		}
-		response := handler.Handle(params)
-		suite.Assertions.IsType(&paymentrequestop.GetPaymentRequestsForMoveForbidden{}, response)
-	})
 }
 
 func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {

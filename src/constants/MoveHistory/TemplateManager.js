@@ -5,9 +5,9 @@ import * as eventTemplates from 'constants/MoveHistory/EventTemplates';
 const allMoveHistoryEventTemplates = [];
 
 const registerTemplate = ({
-  action = '*',
-  eventName = '*',
-  tableName = '*',
+  action,
+  eventName,
+  tableName,
   detailsType = detailsTypes.PLAIN_TEXT,
   getEventNameDisplay = () => {
     return 'Undefined event type';
@@ -19,6 +19,7 @@ const registerTemplate = ({
     return 'Undefined status';
   },
   getDetailsLabeledDetails = null,
+  getLabeledPaymentRequestDetails = null,
 }) => {
   const eventType = {};
   eventType.action = action;
@@ -28,6 +29,7 @@ const registerTemplate = ({
   eventType.getEventNameDisplay = getEventNameDisplay;
   eventType.getDetailsPlainText = getDetailsPlainText;
   eventType.getStatusDetails = getStatusDetails;
+  eventType.getLabeledPaymentRequestDetails = getLabeledPaymentRequestDetails;
   eventType.getDetailsLabeledDetails = getDetailsLabeledDetails;
 
   // Used for matching properties on Events when building an Event Template

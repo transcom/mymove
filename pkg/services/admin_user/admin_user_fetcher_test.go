@@ -3,7 +3,6 @@ package adminuser
 import (
 	"errors"
 	"reflect"
-	"testing"
 
 	"github.com/gobuffalo/validate/v3"
 
@@ -35,7 +34,7 @@ func (t *testAdminUserQueryBuilder) UpdateOne(appConfig appcontext.AppContext, m
 }
 
 func (suite *AdminUserServiceSuite) TestFetchAdminUser() {
-	suite.T().Run("if the user is fetched, it should be returned", func(t *testing.T) {
+	suite.Run("if the user is fetched, it should be returned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
 		fakeFetchOne := func(appConfig appcontext.AppContext, model interface{}) error {
@@ -56,7 +55,7 @@ func (suite *AdminUserServiceSuite) TestFetchAdminUser() {
 		suite.Equal(id, adminUser.ID)
 	})
 
-	suite.T().Run("if there is an error, we get it with zero admin user", func(t *testing.T) {
+	suite.Run("if there is an error, we get it with zero admin user", func() {
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			return errors.New("Fetch error")
 		}

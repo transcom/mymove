@@ -1,21 +1,17 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateHL() {
 	validHL := HL{
 		HierarchicalIDNumber:  "303",
 		HierarchicalLevelCode: "SS",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validHL)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure", func(t *testing.T) {
+	suite.Run("validate failure", func() {
 		hl := HL{
 			HierarchicalIDNumber:       "A-123", // alphanum
 			HierarchicalParentIDNumber: "1",     // isdefault
@@ -29,7 +25,7 @@ func (suite *SegmentSuite) TestValidateHL() {
 		suite.ValidateErrorLen(err, 3)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		hl := validHL
 		hl.HierarchicalIDNumber = "" // alphanum takes precidence over min
 
@@ -38,7 +34,7 @@ func (suite *SegmentSuite) TestValidateHL() {
 		suite.ValidateErrorLen(err, 1)
 	})
 
-	suite.T().Run("validate failure 3", func(t *testing.T) {
+	suite.Run("validate failure 3", func() {
 		hl := validHL
 		hl.HierarchicalIDNumber = "0123456789ABCDF" // max
 

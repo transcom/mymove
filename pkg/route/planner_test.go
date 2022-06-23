@@ -101,7 +101,7 @@ const txZip = "76825"
 const caZip = "93007"
 const ca2Zip = "93101"
 
-func (suite *PlannerFullSuite) TestZip3Distance() {
+func (suite *PlannerFullSuite) TestZipDistance() {
 	tests := []struct {
 		zip1        string
 		zip2        string
@@ -113,7 +113,7 @@ func (suite *PlannerFullSuite) TestZip3Distance() {
 		{zip1: "902101234", zip2: caZip, distanceMin: 30, distanceMax: 49},
 	}
 	for _, ts := range tests {
-		distance, err := suite.planner.Zip3TransitDistance(suite.AppContextForTest(), ts.zip1, ts.zip2)
+		distance, err := suite.planner.ZipTransitDistance(suite.AppContextForTest(), ts.zip1, ts.zip2)
 		if len(ts.zip1) > 5 {
 			suite.Error(err)
 			suite.Equal(distance, 0)

@@ -1,11 +1,7 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateAK5() {
-	suite.T().Run("validate success all fields", func(t *testing.T) {
+	suite.Run("validate success all fields", func() {
 		validAK5 := AK5{
 			TransactionSetAcknowledgmentCode:   "A",
 			TransactionSetSyntaxErrorCodeAK502: "abc",
@@ -18,7 +14,7 @@ func (suite *SegmentSuite) TestValidateAK5() {
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate success only required fields", func(t *testing.T) {
+	suite.Run("validate success only required fields", func() {
 		validAK5 := AK5{
 			TransactionSetAcknowledgmentCode: "A",
 		}
@@ -26,7 +22,7 @@ func (suite *SegmentSuite) TestValidateAK5() {
 		suite.NoError(err)
 	})
 
-	suite.T().Run("failure due to missing required fields", func(t *testing.T) {
+	suite.Run("failure due to missing required fields", func() {
 
 		ak5 := AK5{
 			TransactionSetSyntaxErrorCodeAK502: "abc",
@@ -39,7 +35,7 @@ func (suite *SegmentSuite) TestValidateAK5() {
 		suite.ValidateError(err, "TransactionSetAcknowledgmentCode", "len")
 	})
 
-	suite.T().Run("validate failure max", func(t *testing.T) {
+	suite.Run("validate failure max", func() {
 		// length of characters are more than max
 		ak5 := AK5{
 			TransactionSetAcknowledgmentCode:   "AAAAA",
@@ -60,7 +56,7 @@ func (suite *SegmentSuite) TestValidateAK5() {
 		suite.ValidateErrorLen(err, 6)
 	})
 
-	suite.T().Run("validate failure min", func(t *testing.T) {
+	suite.Run("validate failure min", func() {
 		// length of characters are less than min
 		ak5 := AK5{
 			TransactionSetAcknowledgmentCode:   "",
@@ -78,7 +74,7 @@ func (suite *SegmentSuite) TestValidateAK5() {
 }
 
 func (suite *SegmentSuite) TestStringArrayAK5() {
-	suite.T().Run("string array all fields", func(t *testing.T) {
+	suite.Run("string array all fields", func() {
 		validAK5 := AK5{
 			TransactionSetAcknowledgmentCode:   "A",
 			TransactionSetSyntaxErrorCodeAK502: "abc",
@@ -91,7 +87,7 @@ func (suite *SegmentSuite) TestStringArrayAK5() {
 		suite.Equal(arrayValidAK5, validAK5.StringArray())
 	})
 
-	suite.T().Run("string array only required fields", func(t *testing.T) {
+	suite.Run("string array only required fields", func() {
 		validOptionalAK5 := AK5{
 			TransactionSetAcknowledgmentCode: "A",
 		}
@@ -101,7 +97,7 @@ func (suite *SegmentSuite) TestStringArrayAK5() {
 }
 
 func (suite *SegmentSuite) TestParseAK5() {
-	suite.T().Run("parse success all fields", func(t *testing.T) {
+	suite.Run("parse success all fields", func() {
 		arrayValidAK5 := []string{"A", "abc", "def", "ghi", "jkl", "mno"}
 		expectedAK5 := AK5{
 			TransactionSetAcknowledgmentCode:   "A",
@@ -119,7 +115,7 @@ func (suite *SegmentSuite) TestParseAK5() {
 		}
 	})
 
-	suite.T().Run("parse success only required fields", func(t *testing.T) {
+	suite.Run("parse success only required fields", func() {
 		arrayValidOptionalAK5 := []string{"A", "", "", "", "", ""}
 		expectedOptionalAK5 := AK5{
 			TransactionSetAcknowledgmentCode: "A",
@@ -132,7 +128,7 @@ func (suite *SegmentSuite) TestParseAK5() {
 		}
 	})
 
-	suite.T().Run("wrong number of fields", func(t *testing.T) {
+	suite.Run("wrong number of fields", func() {
 		badArrayAK5 := []string{"A", "abc", "def", "ghi", "jkl", "mno", "zzz"}
 		var badAK5 AK5
 		err := badAK5.Parse(badArrayAK5)

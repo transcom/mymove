@@ -322,6 +322,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.allowances
   '/orders/{orderID}/acknowledge-excess-weight-risk':
     parameters:
       - description: ID of order to use
@@ -403,6 +405,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.billableWeight
   '/orders/{orderID}/update-max-billable-weight/tio':
     parameters:
       - description: ID of order to use
@@ -443,6 +447,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.maxBillableWeight
   '/counseling/orders/{orderID}/allowances':
     parameters:
       - description: ID of order to use
@@ -837,6 +843,8 @@ paths:
       description: Requests a shipment diversion
       operationId: requestShipmentDiversion
       summary: Requests a shipment diversion
+      x-permissions:
+        - create.shipmentDiversionRequest
   '/shipments/{shipmentID}/approve-diversion':
     parameters:
       - description: ID of the shipment
@@ -872,6 +880,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.shipment
       tags:
         - shipment
       description: Approves a shipment diversion
@@ -962,6 +972,8 @@ paths:
       description: Requests a shipment cancellation
       operationId: requestShipmentCancellation
       summary: Requests a shipment cancellation
+      x-permissions:
+        - create.shipmentCancellation
   '/shipments/{shipmentID}/request-reweigh':
     parameters:
       - description: ID of the shipment
@@ -998,6 +1010,8 @@ paths:
       description: Requests a shipment reweigh
       operationId: requestShipmentReweigh
       summary: Requests a shipment reweigh
+      x-permissions:
+        - create.reweighRequest
   '/shipments/{shipmentID}/sit-extensions/':
     post:
       summary: Create an approved SIT extension
@@ -1042,6 +1056,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - create.SITExtension
   '/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve':
     parameters:
       - description: ID of the shipment
@@ -1095,6 +1111,8 @@ paths:
       description: Approves a SIT extension
       operationId: approveSITExtension
       summary: Approves a SIT extension
+      x-permissions:
+        - update.SITExtension
   '/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny':
     parameters:
       - description: ID of the shipment
@@ -1147,6 +1165,8 @@ paths:
       description: Denies a SIT extension
       operationId: denySITExtension
       summary: Denies a SIT extension
+      x-permissions:
+        - update.SITExtension
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
@@ -1254,6 +1274,8 @@ paths:
       description: Updates a service item by ID for a move by ID
       operationId: updateMTOServiceItem
       summary: Updates a service item by ID for a move by ID
+      x-permissions:
+        - update.MTOServiceItem
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status':
     parameters:
       - description: ID of move to use
@@ -1452,6 +1474,8 @@ paths:
       description: Changes the status of a line item for a move by ID
       operationId: updatePaymentServiceItemStatus
       summary: Change the status of a payment service item for a move by ID
+      x-permissions:
+        - update.paymentServiceItemStatus
   '/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at':
     patch:
       consumes:
@@ -1660,6 +1684,34 @@ paths:
       description: Fetches customer support remarks for a move
       operationId: getCustomerSupportRemarksForMove
       summary: Fetches customer support remarks using the move code (locator).
+    patch:
+      tags:
+        - customerSupportRemarks
+      description: Updates a customer support remark for a move
+      operationId: updateCustomerSupportRemarkForMove
+      summary: Updates a customer support remark for a move
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/UpdateCustomerSupportRemarkPayload'
+      responses:
+        '200':
+          description: Successfully updated customer support remark
+          schema:
+            $ref: 'definitions/CustomerSupportRemark.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/moves/{locator}/payment-requests':
     parameters:
       - description: move code to identify a move for payment requests
@@ -1690,6 +1742,8 @@ paths:
       description: Fetches payment requests for a move
       operationId: getPaymentRequestsForMove
       summary: Fetches payment requests using the move code (locator).
+      x-permissions:
+        - read.paymentRequest
   '/moves/{moveID}/financial-review-flag':
     parameters:
       - description: ID of move to flag
@@ -2106,6 +2160,11 @@ paths:
                 type: string
                 minLength: 10
                 maxLength: 10
+                x-nullable: true
+              customerName:
+                description: Customer Name
+                type: string
+                minLength: 1
                 x-nullable: true
       responses:
         '200':
@@ -3933,19 +3992,30 @@ definitions:
       A text remark written by an customer support user that is associated with a specific
       move.
     required:
-      - locator
       - content
       - officeUserID
     properties:
-      locator:
-        type: string
-        example: 1K43AR
       content:
         example: This is a remark about a move.
         type: string
       officeUserID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
+        type: string
+  UpdateCustomerSupportRemarkPayload:
+    type: object
+    description: >-
+      A text remark written by an customer support user that is associated with a specific
+      move.
+    required:
+      - id
+      - content
+    properties:
+      id:
+        type: string
+        format: uuid
+      content:
+        example: This is a remark about a move.
         type: string
 responses:
   InvalidRequest:

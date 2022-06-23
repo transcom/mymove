@@ -151,6 +151,33 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		}
 	})
 
+	suite.Run("approves shipment of type PPM and loads PPMShipment association", func() {
+		subtestData := suite.createApproveShipmentSubtestData()
+		appCtx := subtestData.appCtx
+		move := subtestData.move
+		approver := subtestData.shipmentApprover
+		planner := subtestData.planner
+
+		shipmentForAutoApprove := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+			Move: subtestData.move,
+		})
+		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.Shipment.UpdatedAt)
+
+		// Verify that required delivery date is not calculated when it does not need to be
+		planner.AssertNumberOfCalls(suite.T(), "TransitDistance", 0)
+
+		shipment, approverErr := approver.ApproveShipment(appCtx, shipmentForAutoApprove.Shipment.ID, shipmentForAutoApproveEtag)
+
+		suite.NoError(approverErr)
+		suite.Equal(move.ID, shipment.MoveTaskOrderID)
+
+		suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
+		suite.Equal(shipment.ID, shipmentForAutoApprove.Shipment.ID)
+
+		suite.Equal(shipmentForAutoApprove.ID, shipment.PPMShipment.ID)
+		suite.Equal(models.PPMShipmentStatusSubmitted, shipment.PPMShipment.Status)
+	})
+
 	suite.Run("If we act on a shipment with a weight that has a 0 upper weight it should still work", func() {
 		subtestData := suite.createApproveShipmentSubtestData()
 		appCtx := subtestData.appCtx

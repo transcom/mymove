@@ -40,6 +40,7 @@ docker run \
        make pkg/assets/assets.go \
        server_build \
        bin/generate-test-data \
+       bin/prime-api-client \
        bin/rds-ca-2019-root.pem \
        bin/rds-ca-rsa4096-g1.pem
 docker build -t milmove_e2e:local -f Dockerfile.e2e .

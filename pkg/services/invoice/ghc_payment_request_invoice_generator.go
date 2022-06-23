@@ -677,14 +677,12 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(appCtx app
 
 	var distanceModel models.ServiceItemParamName
 	switch serviceItem.MTOServiceItem.ReService.Code {
-	case models.ReServiceCodeDSH:
-		distanceModel = models.ServiceItemParamNameDistanceZip5
 	case models.ReServiceCodeDDDSIT:
 		distanceModel = models.ServiceItemParamNameDistanceZipSITDest
 	case models.ReServiceCodeDOPSIT:
 		distanceModel = models.ServiceItemParamNameDistanceZipSITOrigin
 	default:
-		distanceModel = models.ServiceItemParamNameDistanceZip3
+		distanceModel = models.ServiceItemParamNameDistanceZip
 	}
 
 	distance, err := g.fetchPaymentServiceItemParam(appCtx, serviceItem.ID, distanceModel)

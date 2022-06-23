@@ -477,6 +477,11 @@ describe('Office App', () => {
       it.each([
         ['PrimeSimulatorMoveDetails', '/simulator/moves/AU67C6/details', '/simulator/moves/:moveCodeOrID/details'],
         [
+          'PrimeSimulatorCreateShipment',
+          '/simulator/moves/AU67C6/shipments/new',
+          '/simulator/moves/:moveCodeOrID/shipments/new',
+        ],
+        [
           'PrimeSimulatorUpdateShipment',
           '/simulator/moves/AU67C6/shipments/c73d3fbd-8a93-4bd9-8c0b-99bd52e45b2c',
           '/simulator/moves/:moveCodeOrID/shipments/:shipmentId',

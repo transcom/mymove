@@ -148,7 +148,7 @@ const PrimeUIShipmentUpdateAddress = () => {
             <Grid col desktop={{ col: 8, offset: 2 }}>
               {errorMessage?.detail && (
                 <div className={primeStyles.errorContainer}>
-                  <Alert type="error">
+                  <Alert headingLevel="h4" type="error">
                     <span className={primeStyles.errorTitle}>{errorMessage.title}</span>
                     <span className={primeStyles.errorDetail}>{errorMessage.detail}</span>
                   </Alert>

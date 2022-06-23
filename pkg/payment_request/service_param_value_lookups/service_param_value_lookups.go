@@ -49,8 +49,7 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameActualPickupDate,
 	models.ServiceItemParamNameRequestedPickupDate,
 	models.ServiceItemParamNameReferenceDate,
-	models.ServiceItemParamNameDistanceZip5,
-	models.ServiceItemParamNameDistanceZip3,
+	models.ServiceItemParamNameDistanceZip,
 	models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
 	models.ServiceItemParamNameWeightAdjusted,
 	models.ServiceItemParamNameWeightBilled,
@@ -256,12 +255,7 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 		MTOShipment: shipment,
 	}
 
-	lookups[models.ServiceItemParamNameDistanceZip5] = DistanceZip5Lookup{
-		PickupAddress:      *shipment.PickupAddress,
-		DestinationAddress: *shipment.DestinationAddress,
-	}
-
-	lookups[models.ServiceItemParamNameDistanceZip3] = DistanceZip3Lookup{
+	lookups[models.ServiceItemParamNameDistanceZip] = DistanceZipLookup{
 		PickupAddress:      *shipment.PickupAddress,
 		DestinationAddress: *shipment.DestinationAddress,
 	}

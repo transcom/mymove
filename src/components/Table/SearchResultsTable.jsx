@@ -108,9 +108,6 @@ const SearchResultsTable = (props) => {
   );
 };
 
-// TODO use an actual shape here
-const SearchResultsShape = PropTypes.array;
-
 SearchResultsTable.propTypes = {
   // handleClick is the handler to handle functionality to click on a row
   handleClick: PropTypes.func.isRequired,
@@ -136,7 +133,7 @@ SearchResultsTable.propTypes = {
   defaultSortedColumns: SortShape,
   // defaultHiddenColumns is an array of columns to hide
   defaultHiddenColumns: PropTypes.arrayOf(PropTypes.string),
-  data: SearchResultsShape,
+  data: PropTypes.arrayOf(PropTypes.object),
 };
 
 SearchResultsTable.defaultProps = {

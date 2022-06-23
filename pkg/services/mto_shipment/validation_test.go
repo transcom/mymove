@@ -206,3 +206,139 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 	})
 
 }
+
+func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
+	suite.Run("checkDeleteAllowed", func() {
+		testCases := map[models.MoveStatus]bool{
+			models.MoveStatusDRAFT:                      true,
+			models.MoveStatusSUBMITTED:                  false,
+			models.MoveStatusAPPROVED:                   false,
+			models.MoveStatusCANCELED:                   false,
+			models.MoveStatusAPPROVALSREQUESTED:         false,
+			models.MoveStatusNeedsServiceCounseling:     true,
+			models.MoveStatusServiceCounselingCompleted: false,
+		}
+
+		for status, allowed := range testCases {
+			suite.Run("Move status "+string(status), func() {
+				shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+					Move: models.Move{
+						Status: status,
+					},
+				})
+
+				err := checkDeleteAllowed().Validate(
+					suite.AppContextForTest(),
+					nil,
+					&shipment,
+				)
+
+				if allowed {
+					suite.NoError(err)
+				} else {
+					suite.Error(err)
+				}
+			})
+		}
+	})
+
+	suite.Run("checkPrimeDeleteAllowed for non-PPM shipments", func() {
+		testCases := map[models.MTOShipmentType]bool{
+			models.MTOShipmentTypeHHG:              false,
+			models.MTOShipmentTypeInternationalHHG: false,
+			models.MTOShipmentTypeInternationalUB:  false,
+			models.MTOShipmentTypeHHGLongHaulDom:   false,
+			models.MTOShipmentTypeHHGShortHaulDom:  false,
+			models.MTOShipmentTypeHHGIntoNTSDom:    false,
+			models.MTOShipmentTypeHHGOutOfNTSDom:   false,
+			models.MTOShipmentTypeMotorhome:        false,
+			models.MTOShipmentTypeBoatHaulAway:     false,
+			models.MTOShipmentTypeBoatTowAway:      false,
+		}
+
+		for shipmentType, allowed := range testCases {
+			suite.Run("Shipment type "+string(shipmentType), func() {
+				now := time.Now()
+				shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+					MTOShipment: models.MTOShipment{
+						ShipmentType: shipmentType,
+					},
+					Move: models.Move{
+						AvailableToPrimeAt: &now,
+					},
+					Stub: true,
+				})
+
+				err := checkPrimeDeleteAllowed().Validate(
+					suite.AppContextForTest(),
+					nil,
+					&shipment,
+				)
+
+				if allowed {
+					suite.NoError(err)
+				} else {
+					suite.Error(err)
+					suite.Contains(err.Error(), "Prime can only delete PPM shipments")
+				}
+			})
+		}
+	})
+
+	suite.Run("checkPrimeDeleteAllowed based on PPM status", func() {
+		testCases := map[models.PPMShipmentStatus]bool{
+			models.PPMShipmentStatusDraft:                true,
+			models.PPMShipmentStatusSubmitted:            true,
+			models.PPMShipmentStatusWaitingOnCustomer:    false,
+			models.PPMShipmentStatusNeedsAdvanceApproval: true,
+			models.PPMShipmentStatusNeedsPaymentApproval: true,
+			models.PPMShipmentStatusPaymentApproved:      true,
+		}
+
+		for status, allowed := range testCases {
+			now := time.Now()
+			suite.Run("PPM status "+string(status), func() {
+				ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+					PPMShipment: models.PPMShipment{
+						Status: status,
+					},
+					Move: models.Move{
+						AvailableToPrimeAt: &now,
+					},
+				})
+
+				err := checkPrimeDeleteAllowed().Validate(
+					suite.AppContextForTest(),
+					nil,
+					&ppmShipment.Shipment,
+				)
+
+				if allowed {
+					suite.NoError(err)
+				} else {
+					suite.Error(err)
+					suite.Contains(err.Error(), "A PPM shipment with the status WAITING_ON_CUSTOMER cannot be deleted")
+				}
+			})
+		}
+	})
+
+	suite.Run("checkPrimeDeleteAllowed for move not available to prime", func() {
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			Move: models.Move{
+				AvailableToPrimeAt: nil,
+			},
+		})
+
+		err := checkPrimeDeleteAllowed().Validate(
+			suite.AppContextForTest(),
+			nil,
+			&shipment,
+		)
+		suite.Error(err)
+		suite.Contains(err.Error(), "not found for mtoShipment")
+	})
+}

@@ -18,7 +18,7 @@ import formStyles from 'styles/form.module.scss';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
-import { completeCounseling } from 'services/primeApi';
+import { completeCounseling, deleteShipment } from 'services/primeApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
 
@@ -63,6 +63,35 @@ const MoveDetails = ({ setFlashMessage }) => {
 
   const handleCompleteCounseling = () => {
     completeCounselingMutation({ moveTaskOrderID: moveTaskOrder.id, ifMatchETag: moveTaskOrder.eTag });
+  };
+
+  const [deleteShipmentMutation] = useMutation(deleteShipment, {
+    onSuccess: () => {
+      setFlashMessage(`MSG_DELETE_SHIPMENT${moveCodeOrID}`, 'success', 'Successfully deleted shipment', '', true);
+
+      queryCache.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
+      queryCache.invalidateQueries([PRIME_SIMULATOR_MOVE, moveCodeOrID]).then(() => {});
+    },
+    onError: (error) => {
+      const { response: { body } = {} } = error;
+
+      if (body) {
+        setErrorMessage({
+          title: `Prime API: ${body.title} `,
+          detail: `${body.detail}`,
+        });
+      } else {
+        setErrorMessage({
+          title: 'Unexpected error',
+          detail: 'An unknown error has occurred, please check the state of the shipment for this move',
+        });
+      }
+      scrollToTop();
+    },
+  });
+
+  const handleDeleteShipment = (mtoShipmentID) => {
+    deleteShipmentMutation({ mtoShipmentID });
   };
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -113,11 +142,19 @@ const MoveDetails = ({ setFlashMessage }) => {
               </SectionWrapper>
               <SectionWrapper className={formStyles.formSection}>
                 <dl className={descriptionListStyles.descriptionList}>
-                  <h2>Shipments</h2>
+                  <div className={styles.mainShipmentHeader}>
+                    <h2>Shipments</h2>
+                    <Link
+                      to={`/simulator/moves/${moveTaskOrder.id}/shipments/new`}
+                      className="usa-button usa-button-secondary"
+                    >
+                      Create Shipment
+                    </Link>
+                  </div>
                   {mtoShipments?.map((mtoShipment) => {
                     return (
                       <div key={mtoShipment.id}>
-                        <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} />
+                        <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} onDelete={handleDeleteShipment} />
                       </div>
                     );
                   })}

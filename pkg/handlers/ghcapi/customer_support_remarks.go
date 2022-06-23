@@ -24,6 +24,11 @@ type CreateCustomerSupportRemarksHandler struct {
 	services.CustomerSupportRemarksCreator
 }
 
+type UpdateCustomerSupportRemarkHandler struct {
+	handlers.HandlerConfig
+	services.CustomerSupportRemarkUpdater
+}
+
 // Handle handles the handling for getting a list of customer support remarks for a move
 func (h ListCustomerSupportRemarksHandler) Handle(params customersupportremarksop.GetCustomerSupportRemarksForMoveParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
@@ -60,5 +65,22 @@ func (h CreateCustomerSupportRemarksHandler) Handle(params customersupportremark
 			returnPayload := payloads.CustomerSupportRemark(customerSupportRemark)
 
 			return customersupportremarksop.NewCreateCustomerSupportRemarkForMoveOK().WithPayload(returnPayload), nil
+		})
+}
+
+func (h UpdateCustomerSupportRemarkHandler) Handle(params customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			payload := params.Body
+
+			customerSupportRemark, err := h.UpdateCustomerSupportRemark(appCtx, *payload)
+			if err != nil {
+				appCtx.Logger().Error("Error updating customer support remark: ", zap.Error(err))
+				return customersupportremarksop.NewUpdateCustomerSupportRemarkForMoveInternalServerError(), err
+			}
+
+			returnPayload := payloads.CustomerSupportRemark(customerSupportRemark)
+
+			return customersupportremarksop.NewUpdateCustomerSupportRemarkForMoveOK().WithPayload(returnPayload), nil
 		})
 }

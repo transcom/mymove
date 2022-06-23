@@ -15,6 +15,8 @@ import { toDollarString, formatDateFromIso, formatCents } from 'utils/formatters
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 import ConnectedAcountingCodesModal from 'components/Office/AccountingCodesModal/AccountingCodesModal';
 import { groupByShipment } from 'utils/serviceItems';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
@@ -40,8 +42,6 @@ const PaymentRequestCard = ({
   hasBillableWeightIssues,
   onEditAccountingCodes,
 }) => {
-  const sortedShipments = groupByShipment(paymentRequest.serviceItems);
-
   // show details by default if in pending/needs review
   const defaultShowDetails = paymentRequest.status === 'PENDING';
   // only show button in reviewed/paid
@@ -81,8 +81,11 @@ const PaymentRequestCard = ({
   const { locator } = paymentRequest.moveTaskOrder;
   const { sac, tac, ntsTac, ntsSac } = paymentRequest.moveTaskOrder.orders;
   const { contractNumber } = paymentRequest.moveTaskOrder.contractor;
+  let sortedShipments = [];
 
   if (paymentRequest.serviceItems) {
+    sortedShipments = groupByShipment(paymentRequest.serviceItems);
+
     paymentRequest.serviceItems.forEach((item) => {
       if (item.priceCents != null) {
         requestedAmount += item.priceCents;
@@ -167,24 +170,26 @@ const PaymentRequestCard = ({
               )}
             </>
           )}
-          {paymentRequest.status === 'PENDING' && (
-            <div className={styles.reviewButton}>
-              <Button
-                style={{ maxWidth: '225px' }}
-                onClick={handleClick}
-                disabled={hasBillableWeightIssues}
-                test-dataid="reviewBtn"
-              >
-                <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
-                Review service items
-              </Button>
-              {hasBillableWeightIssues && (
-                <span className={styles.errorText} test-dataid="errorTxt">
-                  Resolve billable weight before reviewing service items.
-                </span>
-              )}
-            </div>
-          )}
+          <Restricted to={permissionTypes.updatePaymentServiceItemStatus}>
+            {paymentRequest.status === 'PENDING' && (
+              <div className={styles.reviewButton}>
+                <Button
+                  style={{ maxWidth: '225px' }}
+                  onClick={handleClick}
+                  disabled={hasBillableWeightIssues}
+                  test-dataid="reviewBtn"
+                >
+                  <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
+                  Review service items
+                </Button>
+                {hasBillableWeightIssues && (
+                  <span className={styles.errorText} test-dataid="errorTxt">
+                    Resolve billable weight before reviewing service items.
+                  </span>
+                )}
+              </div>
+            )}
+          </Restricted>
         </div>
         <div className={styles.footer}>
           <dl>

@@ -8,6 +8,9 @@ import ServiceItemsTable from '../components/Office/ServiceItemsTable/ServiceIte
 import DataTable from '../components/DataTable';
 import DataTableWrapper from '../components/DataTableWrapper';
 
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
+
 const DataTableBody = (
   <>
     Dorothy Lagomarsino
@@ -307,21 +310,24 @@ export const ServiceItemTables = () => (
   <div id="sb-tables" style={{ padding: '20px', minWidth: '1240px' }}>
     <hr />
     <h3>Service item table</h3>
-    <ServiceItemsTable
-      statusForTableType="SUBMITTED"
-      serviceItems={[
-        {
-          id: 'abc12345',
-          createdAt: '2020-11-22T00:00:00',
-          serviceItem: 'Dom. Crating',
-          code: 'DCRT',
-          details: {
-            description: "Here's the description",
-            itemDimensions: { length: 8400, width: 2600, height: 4200 },
-            crateDimensions: { length: 110000, width: 36000, height: 54000 },
+
+    <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <ServiceItemsTable
+        statusForTableType="SUBMITTED"
+        serviceItems={[
+          {
+            id: 'abc12345',
+            createdAt: '2020-11-22T00:00:00',
+            serviceItem: 'Dom. Crating',
+            code: 'DCRT',
+            details: {
+              description: "Here's the description",
+              itemDimensions: { length: 8400, width: 2600, height: 4200 },
+              crateDimensions: { length: 110000, width: 36000, height: 54000 },
+            },
           },
-        },
-      ]}
-    />
+        ]}
+      />
+    </MockProviders>
   </div>
 );

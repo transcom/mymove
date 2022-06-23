@@ -51,9 +51,9 @@ const mockMTOShipment = {
     destinationPostalCode: '20004',
     sitExpected: false,
     expectedDepartureDate: '2022-12-31',
-    eTag: btoa(new Date()),
+    eTag: window.btoa(new Date()),
   },
-  eTag: btoa(new Date()),
+  eTag: window.btoa(new Date()),
 };
 
 const mockPreExistingShipment = {
@@ -64,9 +64,9 @@ const mockPreExistingShipment = {
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
-    eTag: btoa(new Date()),
+    eTag: window.btoa(new Date()),
   },
-  eTag: btoa(new Date()),
+  eTag: window.btoa(new Date()),
 };
 
 const mockPreExistingShipmentWithProGear = {
@@ -76,9 +76,9 @@ const mockPreExistingShipmentWithProGear = {
     hasProGear: true,
     proGearWeight: 1000,
     spouseProGearWeight: 100,
-    eTag: btoa(new Date()),
+    eTag: window.btoa(new Date()),
   },
-  eTag: btoa(new Date()),
+  eTag: window.btoa(new Date()),
 };
 
 const mockDispatch = jest.fn();
