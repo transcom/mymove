@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import classnames from 'classnames';
 
 import styles from './Office.module.scss';
-import 'uswds/dist/css/uswds.css';
+import 'styles/full_uswds.scss';
 import 'scenes/Office/office.scss';
 
 // API / Redux actions
