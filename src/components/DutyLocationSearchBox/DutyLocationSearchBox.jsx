@@ -77,10 +77,49 @@ const customStyles = {
 };
 
 export const DutyLocationSearchBoxComponent = (props) => {
-  const { searchDutyLocations, showAddress, title, input, name, errorMsg, displayAddress, hint, placeholder } = props;
+  const {
+    searchDutyLocations,
+    showAddress,
+    title,
+    input,
+    name,
+    errorMsg,
+    displayAddress,
+    hint,
+    placeholder,
+    isDisabled,
+  } = props;
   const { value, onChange, name: inputName } = input;
 
   const [inputValue, setInputValue] = useState('');
+  let disabledStyles = {};
+  if (isDisabled) {
+    disabledStyles = {
+      ...customStyles,
+      control: (provided, state) => ({
+        ...provided,
+        backgroundColor: '#DCDEE0',
+        borderRadius: '0px',
+        borderColor: uswdsBlack,
+        padding: '0.1rem',
+        maxWidth: '32rem',
+        ':hover': {
+          ...styles[':hover'],
+          borderColor: uswdsBlack,
+        },
+        boxShadow: state.isFocused ? `0 0 0 0.26667rem ${uswdsBlue}` : '',
+      }),
+      singleValue: () => {
+        const color = uswdsBlack;
+        return { color };
+      },
+      valueContainer: (provided) => ({
+        ...provided,
+        display: 'flex',
+        backgroundColor: '#DCDEE0',
+      }),
+    };
+  }
 
   const loadOptions = debounce((query, callback) => {
     if (!query || query.length < MIN_SEARCH_LENGTH) {
@@ -128,7 +167,6 @@ export const DutyLocationSearchBoxComponent = (props) => {
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
   const hasDutyLocation = !!value && !!value.address;
-
   return (
     <FormGroup>
       <div className="labelWrapper">
@@ -151,7 +189,8 @@ export const DutyLocationSearchBoxComponent = (props) => {
           placeholder={placeholder || 'Start typing a duty location...'}
           value={hasDutyLocation ? value : null}
           noOptionsMessage={noOptionsMessage}
-          styles={customStyles}
+          styles={isDisabled ? disabledStyles : customStyles}
+          isDisabled={isDisabled}
         />
       </div>
       {displayAddress && hasDutyLocation && (
@@ -165,8 +204,14 @@ export const DutyLocationSearchBoxComponent = (props) => {
 };
 
 export const DutyLocationSearchBoxContainer = (props) => {
+  const { isDisabled } = props;
   return (
-    <DutyLocationSearchBoxComponent {...props} searchDutyLocations={SearchDutyLocations} showAddress={ShowAddress} />
+    <DutyLocationSearchBoxComponent
+      {...props}
+      searchDutyLocations={SearchDutyLocations}
+      showAddress={ShowAddress}
+      isDisabled={isDisabled}
+    />
   );
 };
 
@@ -182,6 +227,7 @@ DutyLocationSearchBoxContainer.propTypes = {
   }),
   hint: PropTypes.node,
   placeholder: PropTypes.string,
+  isDisabled: PropTypes.bool,
 };
 
 DutyLocationSearchBoxContainer.defaultProps = {
@@ -195,16 +241,19 @@ DutyLocationSearchBoxContainer.defaultProps = {
   },
   hint: '',
   placeholder: 'Start typing a duty location...',
+  isDisabled: false,
 };
 
 DutyLocationSearchBoxComponent.propTypes = {
   ...DutyLocationSearchBoxContainer.propTypes,
   searchDutyLocations: PropTypes.func.isRequired,
   showAddress: PropTypes.func.isRequired,
+  isDisabled: PropTypes.bool,
 };
 
 DutyLocationSearchBoxComponent.defaultProps = {
   ...DutyLocationSearchBoxContainer.defaultProps,
+  isDisabled: false,
 };
 
 export default DutyLocationSearchBoxContainer;

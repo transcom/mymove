@@ -1,0 +1,5 @@
+@import 'shared/styles/colors';
+
+select:disabled {
+  background-color: $border-color;
+}

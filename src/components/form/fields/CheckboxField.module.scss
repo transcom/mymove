@@ -1,0 +1,8 @@
+@import 'shared/styles/colors';
+
+:global {
+  .usa-checkbox__input:disabled + .usa-checkbox__label, .usa-radio__input:disabled + .usa-radio__label {
+    color: $base-darker;
+  }
+
+}
