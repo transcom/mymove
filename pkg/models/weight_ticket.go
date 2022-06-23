@@ -8,6 +8,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// WeightTicket represents the weight tickets and related data for a single trip of a PPM Shipment. Each trip should be
+// its own record
 type WeightTicket struct {
 	ID                                uuid.UUID   `json:"id" db:"id"`
 	PPMShipmentID                     uuid.UUID   `json:"ppm_shipment_id" db:"ppm_shipment_id"`
