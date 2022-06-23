@@ -49,6 +49,14 @@ const validationSchema = Yup.object().shape({
     }),
 });
 
+const acceptableFileTypes = [
+  'image/jpeg',
+  'image/png',
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-excel',
+];
+
 const WeightTicketForm = ({
   weightTicket,
   tripNumber,
@@ -182,6 +190,7 @@ const WeightTicketForm = ({
                         onUploadComplete(upload, err, 'emptyWeightTickets', values, setFieldValue);
                         emptyWeightTicketsRef.current.removeFile(upload.id);
                       }}
+                      acceptedFileTypes={acceptableFileTypes}
                       ref={emptyWeightTicketsRef}
                     />
                   </FormGroup>
@@ -235,6 +244,7 @@ const WeightTicketForm = ({
                         onUploadComplete(upload, err, 'fullWeightTickets', values, setFieldValue);
                         fullWeightTicketsRef.current.removeFile(upload.id);
                       }}
+                      acceptedFileTypes={acceptableFileTypes}
                       ref={fullWeightTicketsRef}
                     />
                   </FormGroup>
@@ -332,6 +342,7 @@ const WeightTicketForm = ({
                                   onUploadComplete(upload, err, 'trailerOwnershipDocs', values, setFieldValue);
                                   trailerOwnershipDocsRef.current.removeFile(upload.id);
                                 }}
+                                acceptedFileTypes={acceptableFileTypes}
                                 ref={trailerOwnershipDocsRef}
                               />
                             </FormGroup>
