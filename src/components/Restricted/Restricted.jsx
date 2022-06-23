@@ -33,7 +33,9 @@ Restricted.propTypes = {
 };
 
 Restricted.defaultProps = {
+  to: '',
   fallback: null,
+  user: '',
 };
 
 export default Restricted;

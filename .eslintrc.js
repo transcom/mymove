@@ -36,6 +36,14 @@ module.exports = {
     'react/jsx-no-target-blank': 'error',
     'react/jsx-curly-brace-presence': 'error',
     'react/require-default-props': 'warn',
+    // TODO: The following rules were introduced in the dependency update to
+    // `eslint-plugin-react` and require some additiona refactor of things in
+    // our app to enable. They're disabled for now, but we should address these
+    // in future changes to the affected files. {
+    'react/prop-types': 'off',
+    'react/no-array-index-key': 'off',
+    'react/forbid-prop-types': 'off',
+    // }
     'no-unused-vars': 'warn',
     'import/order': [
       'error',
@@ -76,7 +84,7 @@ module.exports = {
   settings: {
     'import/resolver': {
       node: {
-        paths: ['src'],
+        moduleDirectory: ['src', 'node_modules'],
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
       },
     },
