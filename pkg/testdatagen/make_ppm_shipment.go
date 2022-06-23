@@ -158,6 +158,60 @@ func MakeMinimalStubbedPPMShipment(db *pop.Connection) models.PPMShipment {
 	})
 }
 
+// MakeApprovedPPMShipmentWaitingOnCustomer creates a single PPMShipment that has been approved by a counselor and is
+// waiting on the customer to fill in the info for the actual move and upload necessary documents.
+func MakeApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	submittedTime := time.Now()
+	approvedTime := submittedTime.AddDate(0, 0, 3)
+
+	fullAssertions := Assertions{
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			Status:      models.PPMShipmentStatusWaitingOnCustomer,
+			SubmittedAt: &submittedTime,
+			ApprovedAt:  &approvedTime,
+		},
+	}
+
+	// Overwrite values with those from assertions
+	mergeModels(&fullAssertions, assertions)
+
+	return MakePPMShipment(db, fullAssertions)
+}
+
+// MakeApprovedPPMShipmentWithActualInfo creates a single PPMShipment that has been approved by a counselor, has some
+// actual move info, and is waiting on the customer to finish filling out info and upload documents.
+func MakeApprovedPPMShipmentWithActualInfo(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
+	// changes on top of those changes.
+	ppmShipment := MakeApprovedPPMShipmentWaitingOnCustomer(db, assertions)
+
+	ppmShipment.ActualMoveDate = models.TimePointer(ppmShipment.ExpectedDepartureDate.AddDate(0, 0, 1))
+	ppmShipment.ActualPickupPostalCode = &ppmShipment.PickupPostalCode
+	ppmShipment.ActualDestinationPostalCode = &ppmShipment.DestinationPostalCode
+
+	if ppmShipment.HasRequestedAdvance != nil && *ppmShipment.HasRequestedAdvance {
+		ppmShipment.HasReceivedAdvance = models.BoolPointer(true)
+
+		ppmShipment.AdvanceAmountReceived = ppmShipment.AdvanceAmountRequested
+	} else {
+		ppmShipment.HasReceivedAdvance = models.BoolPointer(false)
+	}
+
+	mergeModels(&ppmShipment, assertions.PPMShipment)
+
+	if !assertions.Stub {
+		MustSave(db, &ppmShipment)
+	}
+
+	return ppmShipment
+}
+
 // MakeApprovedPPMShipment creates a single approved PPMShipment and associated relationships
 func MakeApprovedPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	approvedTime := time.Now()
