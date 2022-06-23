@@ -9,7 +9,8 @@ import (
 )
 
 // WeightTicket represents the weight tickets and related data for a single trip of a PPM Shipment. Each trip should be
-// its own record
+// its own record. EmptyDocumentID and FullDocumentID are pointers, but based on our plan for how we'll be using this
+// model, they should be filled in. Mainly made pointers to give us wiggle room if our implementation changes.
 type WeightTicket struct {
 	ID                                uuid.UUID   `json:"id" db:"id"`
 	PPMShipmentID                     uuid.UUID   `json:"ppm_shipment_id" db:"ppm_shipment_id"`
