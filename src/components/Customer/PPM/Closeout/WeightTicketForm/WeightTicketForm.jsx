@@ -3,7 +3,7 @@ import React, { createRef } from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { Button, ErrorMessage, Form, FormGroup, Label, Link, Radio } from '@trussworks/react-uswds';
-import { func, number } from 'prop-types';
+import { string, bool, func, number, shape, instanceOf } from 'prop-types';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import styles from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm.module.scss';
@@ -57,6 +57,95 @@ const acceptableFileTypes = [
   'application/vnd.ms-excel',
 ];
 
+const constructedWeightDownload = (
+  <>
+    <p>Download the official government spreadsheet to calculate constructed weight.</p>
+    <Link
+      className={classnames('usa-button', 'usa-button--secondary', styles.constructedWeightLink)}
+      to="https://www.ustranscom.mil/dp3/weightestimator.cfm"
+    >
+      Go to download page
+    </Link>
+    <p>
+      Enter the constructed weight you calculated.
+      <br />
+      Upload a completed copy of the spreadsheet.
+    </p>
+  </>
+);
+
+const WeightTicketUpload = ({
+  fieldName,
+  missingWeightTicket,
+  onCreateUpload,
+  onUploadComplete,
+  onUploadDelete,
+  fileUploadRef,
+  formikProps: { values, touched, errors, setFieldTouched, setFieldValue },
+}) => {
+  const weightTicketUploadLabel = (name, showConstructedWeight) => {
+    if (name === 'emptyWeightTickets') {
+      return showConstructedWeight ? 'Upload constructed weight spreadsheet' : 'Upload empty weight ticket';
+    }
+
+    return showConstructedWeight ? 'Upload constructed weight spreadsheet' : 'Upload full weight ticket';
+  };
+
+  const weightTicketUploadHint = (showConstructedWeight) => {
+    return showConstructedWeight ? SpreadsheetUploadInstructions : DocumentAndImageUploadInstructions;
+  };
+
+  const showError = touched[`${fieldName}`] && errors[`${fieldName}`];
+
+  return (
+    <>
+      {missingWeightTicket && constructedWeightDownload}
+      <UploadsTable
+        className={styles.uploadsTable}
+        uploads={values[`${fieldName}`]}
+        onDelete={(uploadId) => onUploadDelete(uploadId, fieldName, values, setFieldTouched, setFieldValue)}
+      />
+      <FormGroup error={showError}>
+        <div className="labelWrapper">
+          <Label error={showError} htmlFor={fieldName}>
+            {weightTicketUploadLabel(fieldName, missingWeightTicket)}
+          </Label>
+        </div>
+        {showError && <ErrorMessage>{errors[`${fieldName}`]}</ErrorMessage>}
+        <Hint className={styles.uploadTypeHint}>{weightTicketUploadHint(missingWeightTicket)}</Hint>
+        <FileUpload
+          name={fieldName}
+          labelIdle={UploadDropZoneLabel}
+          createUpload={onCreateUpload}
+          onChange={(err, upload) => {
+            setFieldTouched(fieldName, true);
+            onUploadComplete(upload, err, fieldName, values, setFieldValue);
+            fileUploadRef.current.removeFile(upload.id);
+          }}
+          acceptedFileTypes={acceptableFileTypes}
+          ref={fileUploadRef}
+        />
+      </FormGroup>
+    </>
+  );
+};
+
+WeightTicketUpload.propTypes = {
+  fieldName: string.isRequired,
+  missingWeightTicket: bool.isRequired,
+  onCreateUpload: func.isRequired,
+  onUploadComplete: func.isRequired,
+  onUploadDelete: func.isRequired,
+  fileUploadRef: shape({ current: instanceOf(FileUpload) }).isRequired,
+  formikProps: shape({
+    values: shape({}),
+    touched: shape({}),
+    errors: shape({}),
+    setFieldTouched: func,
+    setFieldValue: func,
+  }).isRequired,
+};
+
 const WeightTicketForm = ({
   weightTicket,
   tripNumber,
@@ -95,42 +184,13 @@ const WeightTicketForm = ({
     trailerOwnershipDocs: trailerOwnershipDocs || [],
   };
 
-  const constructedWeightDownload = (
-    <>
-      <p>Download the official government spreadsheet to calculate constructed weight.</p>
-      <Link
-        className={classnames('usa-button', 'usa-button--secondary', styles.constructedWeightLink)}
-        to="https://www.ustranscom.mil/dp3/weightestimator.cfm"
-      >
-        Go to download page
-      </Link>
-      <p>
-        Enter the constructed weight you calculated.
-        <br />
-        Upload a completed copy of the spreadsheet.
-      </p>
-    </>
-  );
-
-  const emptyWeightTicketUploadLabel = (showConstructedWeight) => {
-    return showConstructedWeight ? 'Upload constructed weight spreadsheet' : 'Upload empty weight ticket';
-  };
-
-  const fullWeightTicketUploadLabel = (showConstructedWeight) => {
-    return showConstructedWeight ? 'Upload constructed weight spreadsheet' : 'Upload full weight ticket';
-  };
-
-  const weightTicketUploadHint = (showConstructedWeight) => {
-    return showConstructedWeight ? SpreadsheetUploadInstructions : DocumentAndImageUploadInstructions;
-  };
-
   const emptyWeightTicketsRef = createRef();
   const fullWeightTicketsRef = createRef();
   const trailerOwnershipDocsRef = createRef();
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, values, touched, errors, setFieldTouched, setFieldValue }) => {
+      {({ isValid, isSubmitting, handleSubmit, ...formikProps }) => {
         return (
           <div className={classnames(ppmStyles.formContainer, styles.WeightTicketForm)}>
             <Form className={classnames(formStyles.form, ppmStyles.form)}>
@@ -158,42 +218,15 @@ const WeightTicketForm = ({
                   label="I don't have this weight ticket"
                 />
                 <div>
-                  {values.missingEmptyWeightTicket && constructedWeightDownload}
-                  <UploadsTable
-                    className={styles.uploadsTable}
-                    uploads={values.emptyWeightTickets}
-                    onDelete={(uploadId) =>
-                      onUploadDelete(uploadId, 'emptyWeightTickets', values, setFieldTouched, setFieldValue)
-                    }
+                  <WeightTicketUpload
+                    fieldName="emptyWeightTickets"
+                    missingWeightTicket={formikProps.values.missingEmptyWeightTicket}
+                    onCreateUpload={onCreateUpload}
+                    onUploadComplete={onUploadComplete}
+                    onUploadDelete={onUploadDelete}
+                    fileUploadRef={emptyWeightTicketsRef}
+                    formikProps={formikProps}
                   />
-                  <FormGroup error={touched?.emptyWeightTickets && errors?.emptyWeightTickets}>
-                    <div className="labelWrapper">
-                      <Label
-                        error={touched?.emptyWeightTickets && errors?.emptyWeightTickets}
-                        htmlFor="emptyWeightTickets"
-                      >
-                        {emptyWeightTicketUploadLabel(values.missingEmptyWeightTicket)}
-                      </Label>
-                    </div>
-                    {touched?.emptyWeightTickets && errors?.emptyWeightTickets && (
-                      <ErrorMessage>{errors?.emptyWeightTickets}</ErrorMessage>
-                    )}
-                    <Hint className={styles.uploadTypeHint}>
-                      {weightTicketUploadHint(values.missingEmptyWeightTicket)}
-                    </Hint>
-                    <FileUpload
-                      name="emptyWeightTickets"
-                      labelIdle={UploadDropZoneLabel}
-                      createUpload={onCreateUpload}
-                      onChange={(err, upload) => {
-                        setFieldTouched('emptyWeightTickets', true);
-                        onUploadComplete(upload, err, 'emptyWeightTickets', values, setFieldValue);
-                        emptyWeightTicketsRef.current.removeFile(upload.id);
-                      }}
-                      acceptedFileTypes={acceptableFileTypes}
-                      ref={emptyWeightTicketsRef}
-                    />
-                  </FormGroup>
                 </div>
                 <h3>Full Weight</h3>
                 <MaskedTextField
@@ -214,43 +247,20 @@ const WeightTicketForm = ({
                   label="I don't have this weight ticket"
                 />
                 <div>
-                  {values.missingFullWeightTicket && constructedWeightDownload}
-                  <UploadsTable
-                    className={styles.uploadsTable}
-                    uploads={values.fullWeightTickets}
-                    onDelete={onUploadDelete}
+                  <WeightTicketUpload
+                    fieldName="fullWeightTickets"
+                    missingWeightTicket={formikProps.values.missingFullWeightTicket}
+                    onCreateUpload={onCreateUpload}
+                    onUploadComplete={onUploadComplete}
+                    onUploadDelete={onUploadDelete}
+                    fileUploadRef={fullWeightTicketsRef}
+                    formikProps={formikProps}
                   />
-                  <FormGroup error={touched?.fullWeightTickets && errors?.fullWeightTickets}>
-                    <div className="labelWrapper">
-                      <Label
-                        error={touched?.fullWeightTickets && errors?.fullWeightTickets}
-                        htmlFor="emptyWeightTickets"
-                      >
-                        {fullWeightTicketUploadLabel(values.missingFullWeightTicket)}
-                      </Label>
-                    </div>
-                    {touched?.fullWeightTickets && errors?.fullWeightTickets && (
-                      <ErrorMessage>{errors?.fullWeightTickets}</ErrorMessage>
-                    )}
-                    <Hint className={styles.uploadTypeHint}>
-                      {weightTicketUploadHint(values.missingFullWeightTicket)}
-                    </Hint>
-                    <FileUpload
-                      name="fullWeightTickets"
-                      labelIdle={UploadDropZoneLabel}
-                      createUpload={onCreateUpload}
-                      onChange={(err, upload) => {
-                        setFieldTouched('fullWeightTickets', true);
-                        onUploadComplete(upload, err, 'fullWeightTickets', values, setFieldValue);
-                        fullWeightTicketsRef.current.removeFile(upload.id);
-                      }}
-                      acceptedFileTypes={acceptableFileTypes}
-                      ref={fullWeightTicketsRef}
-                    />
-                  </FormGroup>
                 </div>
-                {values.fullWeight > 0 && values.emptyWeight > 0 ? (
-                  <h3>{`Trip weight: ${formatWeight(values.fullWeight - values.emptyWeight)}`}</h3>
+                {formikProps.values.fullWeight > 0 && formikProps.values.emptyWeight > 0 ? (
+                  <h3>{`Trip weight: ${formatWeight(
+                    formikProps.values.fullWeight - formikProps.values.emptyWeight,
+                  )}`}</h3>
                 ) : (
                   <h3>Trip weight:</h3>
                 )}
@@ -264,7 +274,7 @@ const WeightTicketForm = ({
                       label="Yes"
                       name="hasOwnTrailer"
                       value="true"
-                      checked={values.hasOwnTrailer === 'true'}
+                      checked={formikProps.values.hasOwnTrailer === 'true'}
                     />
                     <Field
                       as={Radio}
@@ -272,10 +282,10 @@ const WeightTicketForm = ({
                       label="No"
                       name="hasOwnTrailer"
                       value="false"
-                      checked={values.hasOwnTrailer === 'false'}
+                      checked={formikProps.values.hasOwnTrailer === 'false'}
                     />
                   </Fieldset>
-                  {values.hasOwnTrailer === 'true' && (
+                  {formikProps.values.hasOwnTrailer === 'true' && (
                     <Fieldset>
                       <legend className="usa-label">Does your trailer meet all of these criteria?</legend>
                       <ul>
@@ -294,7 +304,7 @@ const WeightTicketForm = ({
                         label="Yes"
                         name="hasClaimedTrailer"
                         value="true"
-                        checked={values.hasClaimedTrailer === 'true'}
+                        checked={formikProps.values.hasClaimedTrailer === 'true'}
                       />
                       <Field
                         as={Radio}
@@ -302,29 +312,37 @@ const WeightTicketForm = ({
                         label="No"
                         name="hasClaimedTrailer"
                         value="false"
-                        checked={values.hasClaimedTrailer === 'false'}
+                        checked={formikProps.values.hasClaimedTrailer === 'false'}
                       />
-                      {values.hasClaimedTrailer === 'true' ? (
+                      {formikProps.values.hasClaimedTrailer === 'true' ? (
                         <>
                           <p>You can claim the weight of this trailer one time during your move.</p>
                           <div>
                             <UploadsTable
                               className={styles.uploadsTable}
-                              uploads={values.trailerOwnershipDocs}
+                              uploads={formikProps.values.trailerOwnershipDocs}
                               onDelete={onUploadDelete}
                             />
-                            <FormGroup error={touched?.trailerOwnershipDocs && errors?.trailerOwnershipDocs}>
+                            <FormGroup
+                              error={
+                                formikProps.touched?.trailerOwnershipDocs && formikProps.errors?.trailerOwnershipDocs
+                              }
+                            >
                               <div className="labelWrapper">
                                 <Label
-                                  error={touched?.trailerOwnershipDocs && errors?.trailerOwnershipDocs}
+                                  error={
+                                    formikProps.touched?.trailerOwnershipDocs &&
+                                    formikProps.errors?.trailerOwnershipDocs
+                                  }
                                   htmlFor="trailerOwnershipDocs"
                                 >
                                   Upload proof of ownership
                                 </Label>
                               </div>
-                              {touched?.trailerOwnershipDocs && errors?.trailerOwnershipDocs && (
-                                <ErrorMessage>{errors?.trailerOwnershipDocs}</ErrorMessage>
-                              )}
+                              {formikProps.touched?.trailerOwnershipDocs &&
+                                formikProps.errors?.trailerOwnershipDocs && (
+                                  <ErrorMessage>{formikProps.errors?.trailerOwnershipDocs}</ErrorMessage>
+                                )}
                               <Hint>
                                 <p>Examples include a registration or bill of sale.</p>
                                 <p>
@@ -338,8 +356,14 @@ const WeightTicketForm = ({
                                 createUpload={onCreateUpload}
                                 labelIdle={UploadDropZoneLabel}
                                 onChange={(err, upload) => {
-                                  setFieldTouched('trailerOwnershipDocs', true);
-                                  onUploadComplete(upload, err, 'trailerOwnershipDocs', values, setFieldValue);
+                                  formikProps.setFieldTouched('trailerOwnershipDocs', true);
+                                  onUploadComplete(
+                                    upload,
+                                    err,
+                                    'trailerOwnershipDocs',
+                                    formikProps.values,
+                                    formikProps.setFieldValue,
+                                  );
                                   trailerOwnershipDocsRef.current.removeFile(upload.id);
                                 }}
                                 acceptedFileTypes={acceptableFileTypes}
