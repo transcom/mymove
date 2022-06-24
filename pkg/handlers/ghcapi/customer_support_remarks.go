@@ -2,7 +2,12 @@ package ghcapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/apperror"
+	shipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
+	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -27,6 +32,10 @@ type CreateCustomerSupportRemarksHandler struct {
 type UpdateCustomerSupportRemarkHandler struct {
 	handlers.HandlerConfig
 	services.CustomerSupportRemarkUpdater
+}
+type DeleteCustomerSupportRemarkHandler struct {
+	handlers.HandlerConfig
+	services.CustomerSupportRemarkDeleter
 }
 
 // Handle handles the handling for getting a list of customer support remarks for a move
@@ -82,5 +91,41 @@ func (h UpdateCustomerSupportRemarkHandler) Handle(params customersupportremarks
 			returnPayload := payloads.CustomerSupportRemark(customerSupportRemark)
 
 			return customersupportremarksop.NewUpdateCustomerSupportRemarkForMoveOK().WithPayload(returnPayload), nil
+		})
+}
+func (h DeleteCustomerSupportRemarkHandler) Handle(params customersupportremarksop.DeleteCustomerSupportRemarkParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				forbiddenError := apperror.NewForbiddenError("user is not authenticated with service counselor office role")
+				appCtx.Logger().Error(forbiddenError.Error())
+				return shipmentops.NewDeleteShipmentForbidden(), forbiddenError
+			}
+
+			// TODO what's the point of this conversion?
+			remarkID := uuid.FromStringOrNil(params.CustomerSupportRemarkID.String())
+			err := h.DeleteCustomerSupportRemark(appCtx, remarkID)
+
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.DeleteCustomerSupportRemarkHandler", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return customersupportremarksop.NewDeleteCustomerSupportRemarkNotFound(), err
+				case apperror.ConflictError:
+					return customersupportremarksop.NewDeleteCustomerSupportRemarkConflict(), err
+				case apperror.ForbiddenError:
+					return customersupportremarksop.NewDeleteCustomerSupportRemarkForbidden(), err
+				case apperror.UnprocessableEntityError:
+					return customersupportremarksop.NewDeleteCustomerSupportRemarkUnprocessableEntity(), err
+				default:
+					return customersupportremarksop.NewDeleteCustomerSupportRemarkInternalServerError(), err
+				}
+			}
+
+			// TODO do we need to trigger an event for this? it should be done here if so
+
+			return customersupportremarksop.NewDeleteCustomerSupportRemarkNoContent(), nil
 		})
 }

@@ -1658,6 +1658,37 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
+  /customer-support-remarks/{customerSupportRemarkID}:
+    delete:
+      summary: Soft deletes a customer support remark by ID
+      description: Soft deletes a customer support remark by ID
+      operationId: deleteCustomerSupportRemark
+      tags:
+        - customerSupportRemarks
+      produces:
+        - application/json
+      parameters:
+        - description: ID of the customer support remark to be deleted
+          in: path
+          name: customerSupportRemarkID
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully soft deleted the shipment
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /moves/{locator}/customer-support-remarks:
     parameters:
       - description: move code to identify a move for customer support remarks
