@@ -285,6 +285,8 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 	}
 
 	suite.Run("Estimated Incentive - Success", func() {
+		testdatagen.MakeMinimalDefaultWeightTicket(suite.DB())
+		testdatagen.MakeDefaultWeightTicket(suite.DB())
 		oldPPMShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
 
 		setupPricerData()

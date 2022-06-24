@@ -17,14 +17,17 @@ func MakeMinimalWeightTicket(db *pop.Connection, assertions Assertions) models.W
 	// so we'll look at assertions.WeightTicket.<Document>
 	emptyDocument := getOrCreateDocument(db, assertions.WeightTicket.EmptyDocument, assertions)
 	fullDocument := getOrCreateDocument(db, assertions.WeightTicket.FullDocument, assertions)
+	trailerDocument := getOrCreateDocument(db, assertions.WeightTicket.FullDocument, assertions)
 
 	newWeightTicket := models.WeightTicket{
-		PPMShipmentID:   ppmShipment.ID,
-		PPMShipment:     ppmShipment,
-		EmptyDocumentID: emptyDocument.ID,
-		EmptyDocument:   emptyDocument,
-		FullDocumentID:  fullDocument.ID,
-		FullDocument:    fullDocument,
+		PPMShipmentID:                     ppmShipment.ID,
+		PPMShipment:                       ppmShipment,
+		EmptyDocumentID:                   emptyDocument.ID,
+		EmptyDocument:                     emptyDocument,
+		FullDocumentID:                    fullDocument.ID,
+		FullDocument:                      fullDocument,
+		ProofOfTrailerOwnershipDocumentID: trailerDocument.ID,
+		ProofOfTrailerOwnershipDocument:   trailerDocument,
 	}
 
 	// Overwrite values with those from assertions
