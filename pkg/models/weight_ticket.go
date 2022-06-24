@@ -31,8 +31,8 @@ type WeightTicket struct {
 	FullDocument                      Document    `belongs_to:"documents" fk_id:"full_document_id"`
 	OwnsTrailer                       *bool       `json:"owns_trailer" db:"owns_trailer"`
 	TrailerMeetsCriteria              *bool       `json:"trailer_meets_criteria" db:"trailer_meets_criteria"`
-	ProofOfTrailerOwnershipDocumentID *uuid.UUID  `json:"proof_of_trailer_ownership_document_id" db:"proof_of_trailer_ownership_document_id"`
-	ProofOfTrailerOwnershipDocument   *Document   `belongs_to:"documents" fk_id:"proof_of_trailer_ownership_document_id"`
+	ProofOfTrailerOwnershipDocumentID uuid.UUID   `json:"proof_of_trailer_ownership_document_id" db:"proof_of_trailer_ownership_document_id"`
+	ProofOfTrailerOwnershipDocument   Document    `belongs_to:"documents" fk_id:"proof_of_trailer_ownership_document_id"`
 }
 
 type WeightTickets []WeightTicket
@@ -48,6 +48,6 @@ func (w *WeightTicket) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Name: "EmptyDocumentID", Field: w.EmptyDocumentID},
 		&OptionalPoundIsNonNegative{Name: "FullWeight", Field: w.FullWeight},
 		&validators.UUIDIsPresent{Name: "FullDocumentID", Field: w.FullDocumentID},
-		&OptionalUUIDIsPresent{Name: "ProofOfTrailerOwnershipDocumentID", Field: w.ProofOfTrailerOwnershipDocumentID},
+		&validators.UUIDIsPresent{Name: "ProofOfTrailerOwnershipDocumentID", Field: w.ProofOfTrailerOwnershipDocumentID},
 	), nil
 }
