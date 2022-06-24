@@ -11,9 +11,31 @@ import (
 func MakeMinimalWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTicket {
 	ppmShipment := checkOrCreatePPMShipment(db, assertions)
 
+	// Several of the downstream functions need a service member, but they don't always share assertions, look at the
+	// same assertion, or create the service members in the same ways. We'll check now to see if we already have one
+	// created, and if not, create one that we can place in the assertions for all the rest.
+	if !assertions.Stub && assertions.ServiceMember.CreatedAt.IsZero() || assertions.ServiceMember.ID.IsNil() {
+		serviceMember := MakeExtendedServiceMember(db, assertions)
+
+		assertions.ServiceMember = serviceMember
+		assertions.Order.ServiceMemberID = serviceMember.ID
+		assertions.Order.ServiceMember = serviceMember
+		assertions.Document.ServiceMemberID = serviceMember.ID
+		assertions.Document.ServiceMember = serviceMember
+	}
+
+	// Because this model points at multiple documents, it's not really good to point at the base assertions.Document,
+	// so we'll look at assertions.WeightTicket.<Document>
+	emptyDocument := getOrCreateDocument(db, assertions.WeightTicket.EmptyDocument, assertions)
+	fullDocument := getOrCreateDocument(db, assertions.WeightTicket.FullDocument, assertions)
+
 	newWeightTicket := models.WeightTicket{
-		PPMShipmentID: ppmShipment.ID,
-		PPMShipment:   ppmShipment,
+		PPMShipmentID:   ppmShipment.ID,
+		PPMShipment:     ppmShipment,
+		EmptyDocumentID: emptyDocument.ID,
+		EmptyDocument:   emptyDocument,
+		FullDocumentID:  fullDocument.ID,
+		FullDocument:    fullDocument,
 	}
 
 	// Overwrite values with those from assertions
@@ -34,34 +56,12 @@ func MakeWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTi
 	emptyWeight := unit.Pound(14500)
 	fullWeight := emptyWeight + unit.Pound(4000)
 
-	// Several of the downstream functions need a service member, but they don't always share assertions, look at the
-	// same assertion, or create the service members in the same ways. We'll check now to see if we already have one
-	// created, and if not, create one that we can place in the assertions for all the rest.
-	if !assertions.Stub && assertions.ServiceMember.CreatedAt.IsZero() || assertions.ServiceMember.ID.IsNil() {
-		serviceMember := MakeExtendedServiceMember(db, assertions)
-
-		assertions.ServiceMember = serviceMember
-		assertions.Order.ServiceMemberID = serviceMember.ID
-		assertions.Order.ServiceMember = serviceMember
-		assertions.Document.ServiceMemberID = serviceMember.ID
-		assertions.Document.ServiceMember = serviceMember
-	}
-
-	// Because this model points at multiple documents, it's not really good to point at the base assertions.Document,
-	// so we'll look at assertions.WeightTicket.<Document>
-	emptyDocument := getOrCreateDocument(db, assertions.WeightTicket.EmptyDocument, assertions)
-	fullDocument := getOrCreateDocument(db, assertions.WeightTicket.FullDocument, assertions)
-
 	fullAssertions := Assertions{
 		WeightTicket: models.WeightTicket{
 			EmptyWeight:          &emptyWeight,
 			HasEmptyWeightTicket: models.BoolPointer(true),
-			EmptyDocumentID:      &emptyDocument.ID,
-			EmptyDocument:        &emptyDocument,
 			FullWeight:           &fullWeight,
 			HasFullWeightTicket:  models.BoolPointer(true),
-			FullDocumentID:       &fullDocument.ID,
-			FullDocument:         &fullDocument,
 			OwnsTrailer:          models.BoolPointer(false),
 		},
 	}
@@ -89,12 +89,12 @@ func checkOrCreatePPMShipment(db *pop.Connection, assertions Assertions) models.
 }
 
 // getOrCreateDocument checks if a document exists. If it does, it returns it, otherwise, it creates it
-func getOrCreateDocument(db *pop.Connection, document *models.Document, assertions Assertions) models.Document {
-	if document == nil || assertions.Stub && document.CreatedAt.IsZero() || document.ID.IsNil() {
+func getOrCreateDocument(db *pop.Connection, document models.Document, assertions Assertions) models.Document {
+	if assertions.Stub && document.CreatedAt.IsZero() || document.ID.IsNil() {
 		upload := MakeUserUpload(db, assertions)
 
 		return upload.Document
 	}
 
-	return *document
+	return document
 }
