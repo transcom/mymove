@@ -9,9 +9,9 @@ import (
 
 // MakeMinimalWeightTicket creates a single WeightTicket and associated relationships with a minimal set of data
 func MakeMinimalWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTicket {
-	ppmShipment := checkOrCreatePPMShipment(db, assertions)
-
 	assertions = ensureServiceMemberIsSetUpInAssertions(db, assertions)
+
+	ppmShipment := checkOrCreatePPMShipment(db, assertions)
 
 	// Because this model points at multiple documents, it's not really good to point at the base assertions.Document,
 	// so we'll look at assertions.WeightTicket.<Document>
