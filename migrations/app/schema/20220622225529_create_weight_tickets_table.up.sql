@@ -7,12 +7,12 @@ CREATE TABLE weight_tickets
 	vehicle_description varchar,
 	empty_weight int,
 	has_empty_weight_ticket bool,
-	empty_document_id uuid
+	empty_document_id uuid NOT NULL
 	    CONSTRAINT weight_tickets_empty_document_id_fkey
 	    REFERENCES documents,
 	full_weight int,
 	has_full_weight_ticket bool,
-	full_document_id uuid
+	full_document_id uuid NOT NULL
 	    CONSTRAINT weight_tickets_full_document_id_fkey
 		REFERENCES documents,
 	owns_trailer bool,
