@@ -71,16 +71,11 @@
       color: $base-darkest;
 
       .usa-checkbox label {
-        display: flex;
-        align-items: center;
-        padding-left: 0;
         text-indent: unset;
       }
 
       .usa-checkbox label:before {
-        flex-grow: 0;
-        flex-shrink: 0;
-        display: none;
+        margin-top: 12px;
       }
     }
 
