@@ -80,7 +80,7 @@ const MaskedTextField = ({
               helpers.setTouched(true, false);
             }}
             onBlur={field.onBlur}
-            disabled
+            disabled={isDisabled}
             {...props}
           />
           {suffix && <div className="suffix">{suffix}</div>}
