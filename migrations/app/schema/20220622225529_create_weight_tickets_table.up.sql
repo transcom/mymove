@@ -17,7 +17,7 @@ CREATE TABLE weight_tickets
 		REFERENCES documents,
 	owns_trailer bool,
 	trailer_meets_criteria bool,
-	proof_of_trailer_ownership_document_id uuid
+	proof_of_trailer_ownership_document_id uuid NOT NULL
 		CONSTRAINT weight_tickets_proof_of_trailer_ownership_document_id_fkey
 		REFERENCES documents,
 	created_at timestamp NOT NULL,
