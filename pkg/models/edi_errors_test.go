@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -74,7 +72,7 @@ func (suite *ModelSuite) TestEdiErrors() {
 	}
 
 	for name, test := range testCases {
-		suite.T().Run(name, func(t *testing.T) {
+		suite.Run(name, func() {
 			suite.verifyValidationErrors(&test.ediError, test.expectedErrs)
 		})
 	}

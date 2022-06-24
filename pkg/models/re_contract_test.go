@@ -1,13 +1,11 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestReContractValidations() {
-	suite.T().Run("test valid ReContract", func(t *testing.T) {
+	suite.Run("test valid ReContract", func() {
 		validReContract := models.ReContract{
 			Code: "ABC",
 			Name: "ABC, Inc.",
@@ -16,7 +14,7 @@ func (suite *ModelSuite) TestReContractValidations() {
 		suite.verifyValidationErrors(&validReContract, expErrors)
 	})
 
-	suite.T().Run("test empty ReContract", func(t *testing.T) {
+	suite.Run("test empty ReContract", func() {
 		emptyReContract := models.ReContract{}
 		expErrors := map[string][]string{
 			"code": {"Code can not be blank."},

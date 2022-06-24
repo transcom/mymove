@@ -1,13 +1,11 @@
 package models_test
 
 import (
-	"testing"
-
 	. "github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) Test_Tariff400ngZip5RateAreaValidation() {
-	suite.T().Run("test valid Tariff400ngZip5RateArea", func(t *testing.T) {
+	suite.Run("test valid Tariff400ngZip5RateArea", func() {
 		validTariff400ngZip5RateArea := Tariff400ngZip5RateArea{
 			Zip5:     "13945",
 			RateArea: "US14",
@@ -16,7 +14,7 @@ func (suite *ModelSuite) Test_Tariff400ngZip5RateAreaValidation() {
 		suite.verifyValidationErrors(&validTariff400ngZip5RateArea, expErrors)
 	})
 
-	suite.T().Run("test invalid Tariff400ngZip5RateArea", func(t *testing.T) {
+	suite.Run("test invalid Tariff400ngZip5RateArea", func() {
 		invalidTariff400ngZip5RateArea := Tariff400ngZip5RateArea{}
 		expErrors := map[string][]string{
 			"zip5":      {"Zip5 not in range(5, 5)"},
