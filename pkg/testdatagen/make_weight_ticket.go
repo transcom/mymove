@@ -11,18 +11,7 @@ import (
 func MakeMinimalWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTicket {
 	ppmShipment := checkOrCreatePPMShipment(db, assertions)
 
-	// Several of the downstream functions need a service member, but they don't always share assertions, look at the
-	// same assertion, or create the service members in the same ways. We'll check now to see if we already have one
-	// created, and if not, create one that we can place in the assertions for all the rest.
-	if !assertions.Stub && assertions.ServiceMember.CreatedAt.IsZero() || assertions.ServiceMember.ID.IsNil() {
-		serviceMember := MakeExtendedServiceMember(db, assertions)
-
-		assertions.ServiceMember = serviceMember
-		assertions.Order.ServiceMemberID = serviceMember.ID
-		assertions.Order.ServiceMember = serviceMember
-		assertions.Document.ServiceMemberID = serviceMember.ID
-		assertions.Document.ServiceMember = serviceMember
-	}
+	assertions = ensureServiceMemberIsSetUpInAssertions(db, assertions)
 
 	// Because this model points at multiple documents, it's not really good to point at the base assertions.Document,
 	// so we'll look at assertions.WeightTicket.<Document>
@@ -86,6 +75,24 @@ func checkOrCreatePPMShipment(db *pop.Connection, assertions Assertions) models.
 	}
 
 	return ppmShipment
+}
+
+// ensureServiceMemberIsSetUpInAssertions checks for ServiceMember in assertions, or creates one if none exists. Several
+// of the downstream functions need a service member, but they don't always share assertions, look at the same
+// assertion, or create the service members in the same ways. We'll check now to see if we already have one created,
+// and if not, create one that we can place in the assertions for all the rest.
+func ensureServiceMemberIsSetUpInAssertions(db *pop.Connection, assertions Assertions) Assertions {
+	if !assertions.Stub && assertions.ServiceMember.CreatedAt.IsZero() || assertions.ServiceMember.ID.IsNil() {
+		serviceMember := MakeExtendedServiceMember(db, assertions)
+
+		assertions.ServiceMember = serviceMember
+		assertions.Order.ServiceMemberID = serviceMember.ID
+		assertions.Order.ServiceMember = serviceMember
+		assertions.Document.ServiceMemberID = serviceMember.ID
+		assertions.Document.ServiceMember = serviceMember
+	}
+
+	return assertions
 }
 
 // getOrCreateDocument checks if a document exists. If it does, it returns it, otherwise, it creates it
