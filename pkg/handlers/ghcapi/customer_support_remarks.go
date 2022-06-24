@@ -5,11 +5,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/apperror"
-	shipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
-	"github.com/transcom/mymove/pkg/models/roles"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -96,12 +93,6 @@ func (h UpdateCustomerSupportRemarkHandler) Handle(params customersupportremarks
 func (h DeleteCustomerSupportRemarkHandler) Handle(params customersupportremarksop.DeleteCustomerSupportRemarkParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-				forbiddenError := apperror.NewForbiddenError("user is not authenticated with service counselor office role")
-				appCtx.Logger().Error(forbiddenError.Error())
-				return shipmentops.NewDeleteShipmentForbidden(), forbiddenError
-			}
 
 			// TODO what's the point of this conversion?
 			remarkID := uuid.FromStringOrNil(params.CustomerSupportRemarkID.String())
