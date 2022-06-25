@@ -144,8 +144,8 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 	return payload
 }
 
-func removeEscapeJSONtoObject(data *string) map[string]string {
-	var result map[string]string
+func removeEscapeJSONtoObject(data *string) map[string]interface{} {
+	var result map[string]interface{}
 	if data == nil || *data == "" {
 		return result
 	}
