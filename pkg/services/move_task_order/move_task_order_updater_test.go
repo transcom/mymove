@@ -86,17 +86,16 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 				Email: swag.String("old@email.com"),
 			},
 		})
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				StorageFacility: &storageFacility,
-			},
-		})
-		var mtoShipments []models.MTOShipment
-		mtoShipments = append(mtoShipments, shipment)
+
 		expectedMTOWithFacility := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
-				Status:       models.MoveStatusNeedsServiceCounseling,
-				MTOShipments: mtoShipments,
+				Status: models.MoveStatusNeedsServiceCounseling,
+			},
+		})
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: expectedMTOWithFacility,
+			MTOShipment: models.MTOShipment{
+				StorageFacility: &storageFacility,
 			},
 		})
 		eTag := etag.GenerateEtag(expectedMTOWithFacility.UpdatedAt)

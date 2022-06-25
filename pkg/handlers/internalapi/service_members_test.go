@@ -368,10 +368,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	suite.MustSave(&newServiceMember)
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMember:   newServiceMember,
-			ServiceMemberID: newServiceMember.ID,
-		},
+		ServiceMember: newServiceMember,
 	})
 
 	// The testdatagen sets these values, fails if you try to blank them out via Assertions,
