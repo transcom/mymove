@@ -21,8 +21,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/paperwork/mocks"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -32,9 +30,6 @@ import (
 )
 
 func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.ShipmentSummaryWorksheetPage1Values {
-	moveID, _ := uuid.NewV4()
-	serviceMemberID, _ := uuid.NewV4()
-	//advanceID, _ := uuid.NewV4()
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
 	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
@@ -43,7 +38,6 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
-			ID:               moveID,
 			SelectedMoveType: &moveType,
 		},
 		Order: models.Order{
@@ -51,11 +45,13 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 			NewDutyLocationID: fortGordon.ID,
 		},
 		ServiceMember: models.ServiceMember{
-			ID:             serviceMemberID,
 			DutyLocationID: &yuma.ID,
 			Rank:           &rank,
 		},
 	})
+
+	moveID := move.ID
+	serviceMemberID := move.Orders.ServiceMemberID
 
 	netWeight := unit.Pound(10000)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{

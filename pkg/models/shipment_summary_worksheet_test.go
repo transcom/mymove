@@ -25,8 +25,6 @@ import (
 )
 
 func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
-	moveID, _ := uuid.NewV4()
-	serviceMemberID, _ := uuid.NewV4()
 	//advanceID, _ := uuid.NewV4()
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
@@ -36,7 +34,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
-			ID:               moveID,
 			SelectedMoveType: &moveType,
 		},
 		Order: models.Order{
@@ -44,12 +41,13 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 			NewDutyLocationID: fortGordon.ID,
 		},
 		ServiceMember: models.ServiceMember{
-			ID:             serviceMemberID,
 			DutyLocationID: &yuma.ID,
 			Rank:           &rank,
 		},
 	})
 
+	moveID := move.ID
+	serviceMemberID := move.Orders.ServiceMemberID
 	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 	netWeight := unit.Pound(10000)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
@@ -138,9 +136,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 }
 
 func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
-	moveID, _ := uuid.NewV4()
-	serviceMemberID, _ := uuid.NewV4()
-	//advanceID, _ := uuid.NewV4()
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
 	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
@@ -149,7 +144,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
-			ID:               moveID,
 			SelectedMoveType: &moveType,
 		},
 		Order: models.Order{
@@ -157,12 +151,13 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 			NewDutyLocationID: fortGordon.ID,
 		},
 		ServiceMember: models.ServiceMember{
-			ID:             serviceMemberID,
 			DutyLocationID: &yuma.ID,
 			Rank:           &rank,
 		},
 	})
 
+	moveID := move.ID
+	serviceMemberID := move.Orders.ServiceMemberID
 	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 	netWeight := unit.Pound(10000)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
