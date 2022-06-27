@@ -46,9 +46,9 @@ func (f *weightTicketCreator) CreateWeightTicket(appCtx appcontext.AppContext, p
 		}
 
 		weightTicket = models.WeightTicket{
-			EmptyDocumentID:                   &emptyDocument.ID,
-			FullDocumentID:                    &fullDocument.ID,
-			ProofOfTrailerOwnershipDocumentID: &proofOfOwnership.ID,
+			EmptyDocumentID:                   emptyDocument.ID,
+			FullDocumentID:                    fullDocument.ID,
+			ProofOfTrailerOwnershipDocumentID: proofOfOwnership.ID,
 			PPMShipmentID:                     ppmShipmentID,
 		}
 		verrs, err := txnCtx.DB().ValidateAndCreate(&weightTicket)
