@@ -124,6 +124,9 @@ const GhcUpdateMaxBillableWeightAsTIOEndpointKey = "Ghc.UpdateMaxBillableWeightA
 // GhcAcknowledgeExcessWeightRiskEndpointKey is the key for the AcknowledgeExcessWeightRisk endpoint in ghc
 const GhcAcknowledgeExcessWeightRiskEndpointKey = "Ghc.AcknowledgeExcessWeightRisk"
 
+// GhcDeleteCustomerSupportRemarkEndpointKey is the key for the DeleteCustomerSupportRemark endpoint in ghc
+const GhcDeleteCustomerSupportRemarkEndpointKey = "Ghc.DeleteCustomerSupportRemark"
+
 // -------------------- ENDPOINT MAP ENTRIES --------------------
 var ghcEndpoints = EndpointMapType{
 	GhcGetCustomerEndpointKey: {
@@ -277,5 +280,9 @@ var ghcEndpoints = EndpointMapType{
 	GhcAcknowledgeExcessWeightRiskEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "AcknowledgeExcessWeightRisk",
+	},
+	GhcDeleteCustomerSupportRemarkEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "deleteCustomerSupportRemark",
 	},
 }

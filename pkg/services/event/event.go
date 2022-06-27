@@ -89,6 +89,9 @@ const PaymentRequestCreateEventKey KeyType = "PaymentRequest.Create"
 // PaymentRequestUpdateEventKey is a key containing PaymentRequest.Update
 const PaymentRequestUpdateEventKey KeyType = "PaymentRequest.Update"
 
+// CustomerSupportRemarkDeleteEventKey is a key containing CustomerSupportRemark.Delete
+const CustomerSupportRemarkDeleteEventKey KeyType = "CustomerSupportRemark.Delete"
+
 // TestCreateEventKey is a key containing Test.Create
 const TestCreateEventKey KeyType = "Test.Create"
 
