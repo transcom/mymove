@@ -118,7 +118,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "~7.17.10",
+    "@babel/core": "~7.18.5",
     "@babel/helper-builder-react-jsx": "^7.16.7",
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
     "@dump247/storybook-state": "^1.6.1",
