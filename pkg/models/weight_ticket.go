@@ -22,11 +22,11 @@ type WeightTicket struct {
 	DeletedAt                         *time.Time  `json:"deleted_at" db:"deleted_at"`
 	VehicleDescription                *string     `json:"vehicle_description" db:"vehicle_description"`
 	EmptyWeight                       *unit.Pound `json:"empty_weight" db:"empty_weight"`
-	HasEmptyWeightTicket              *bool       `json:"has_empty_weight_ticket" db:"has_empty_weight_ticket"`
+	MissingEmptyWeightTicket          *bool       `json:"missing_empty_weight_ticket" db:"missing_empty_weight_ticket"`
 	EmptyDocumentID                   uuid.UUID   `json:"empty_document_id" db:"empty_document_id"`
 	EmptyDocument                     Document    `belongs_to:"documents" fk_id:"empty_document_id"`
 	FullWeight                        *unit.Pound `json:"full_weight" db:"full_weight"`
-	HasFullWeightTicket               *bool       `json:"has_full_weight_ticket" db:"has_full_weight_ticket"`
+	MissingFullWeightTicket           *bool       `json:"missing_full_weight_ticket" db:"missing_full_weight_ticket"`
 	FullDocumentID                    uuid.UUID   `json:"full_document_id" db:"full_document_id"`
 	FullDocument                      Document    `belongs_to:"documents" fk_id:"full_document_id"`
 	OwnsTrailer                       *bool       `json:"owns_trailer" db:"owns_trailer"`
