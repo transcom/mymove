@@ -5,6 +5,9 @@ import (
 	"math"
 	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gofrs/uuid"
@@ -102,9 +105,9 @@ func CustomerSupportRemarks(customerSupportRemarks models.CustomerSupportRemarks
 }
 
 // MoveHistory payload
-func MoveHistory(moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
+func MoveHistory(appCtx appcontext.AppContext, moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{
-		HistoryRecords: moveHistoryRecords(moveHistory.AuditHistories),
+		HistoryRecords: moveHistoryRecords(appCtx, moveHistory.AuditHistories),
 		ID:             strfmt.UUID(moveHistory.ID.String()),
 		Locator:        moveHistory.Locator,
 		ReferenceID:    moveHistory.ReferenceID,
@@ -114,15 +117,15 @@ func MoveHistory(moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 }
 
 // MoveAuditHistory payload
-func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHistory {
+func MoveAuditHistory(appCtx appcontext.AppContext, auditHistory models.AuditHistory) *ghcmessages.MoveAuditHistory {
 
 	payload := &ghcmessages.MoveAuditHistory{
 		Action:               auditHistory.Action,
 		ActionTstampClk:      strfmt.DateTime(auditHistory.ActionTstampClk),
 		ActionTstampStm:      strfmt.DateTime(auditHistory.ActionTstampStm),
 		ActionTstampTx:       strfmt.DateTime(auditHistory.ActionTstampTx),
-		ChangedValues:        removeEscapeJSONtoObject(auditHistory.ChangedData),
-		OldValues:            removeEscapeJSONtoObject(auditHistory.OldData),
+		ChangedValues:        removeEscapeJSONtoObject(appCtx, auditHistory.ChangedData),
+		OldValues:            removeEscapeJSONtoObject(appCtx, auditHistory.OldData),
 		ClientQuery:          auditHistory.ClientQuery,
 		EventName:            auditHistory.EventName,
 		ID:                   strfmt.UUID(auditHistory.ID.String()),
@@ -133,7 +136,7 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 		SessionUserLastName:  auditHistory.SessionUserLastName,
 		SessionUserEmail:     auditHistory.SessionUserEmail,
 		SessionUserTelephone: auditHistory.SessionUserTelephone,
-		Context:              removeEscapeJSONtoArray(auditHistory.Context),
+		Context:              removeEscapeJSONtoArray(appCtx, auditHistory.Context),
 		ContextID:            auditHistory.ContextID,
 		StatementOnly:        auditHistory.StatementOnly,
 		TableName:            auditHistory.TableName,
@@ -144,34 +147,44 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 	return payload
 }
 
-func removeEscapeJSONtoObject(data *string) map[string]interface{} {
+func removeEscapeJSONtoObject(appCtx appcontext.AppContext, data *string) map[string]interface{} {
 	var result map[string]interface{}
 	if data == nil || *data == "" {
 		return result
 	}
 	var byteData = []byte(*data)
 
-	_ = json.Unmarshal(byteData, &result)
+	err := json.Unmarshal(byteData, &result)
+
+	if err != nil {
+		appCtx.Logger().Error("error unmarshalling the escaped json to object", zap.Error(err))
+	}
+
 	return result
 
 }
 
-func removeEscapeJSONtoArray(data *string) []map[string]string {
+func removeEscapeJSONtoArray(appCtx appcontext.AppContext, data *string) []map[string]string {
 	var result []map[string]string
 	if data == nil || *data == "" {
 		return result
 	}
 	var byteData = []byte(*data)
 
-	_ = json.Unmarshal(byteData, &result)
+	err := json.Unmarshal(byteData, &result)
+
+	if err != nil {
+		appCtx.Logger().Error("error unmarshalling the escaped json to array", zap.Error(err))
+	}
+
 	return result
 }
 
-func moveHistoryRecords(auditHistories models.AuditHistories) ghcmessages.MoveAuditHistories {
+func moveHistoryRecords(appCtx appcontext.AppContext, auditHistories models.AuditHistories) ghcmessages.MoveAuditHistories {
 	payload := make(ghcmessages.MoveAuditHistories, len(auditHistories))
 
 	for i, a := range auditHistories {
-		payload[i] = MoveAuditHistory(a)
+		payload[i] = MoveAuditHistory(appCtx, a)
 	}
 	return payload
 }
