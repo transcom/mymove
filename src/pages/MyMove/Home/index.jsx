@@ -289,6 +289,7 @@ export class Home extends Component {
     history.push(path);
   };
 
+  // eslint-disable-next-line class-methods-use-this
   sortAllShipments = (mtoShipments) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
     allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
@@ -296,6 +297,7 @@ export class Home extends Component {
     return allShipments;
   };
 
+  // eslint-disable-next-line class-methods-use-this
   handlePrintLegalese = (e) => {
     e.preventDefault();
     window.print();
@@ -334,6 +336,9 @@ export class Home extends Component {
     const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
     const allSortedShipments = this.sortAllShipments(mtoShipments);
     const ppmShipments = allSortedShipments.filter((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.PPM);
+
+    // eslint-disable-next-line camelcase
+    const currentLocation = current_location;
 
     return (
       <>
@@ -491,9 +496,9 @@ export class Home extends Component {
                 </SectionWrapper>
                 <Contact
                   header="Contacts"
-                  dutyLocationName={current_location?.transportation_office?.name}
+                  dutyLocationName={currentLocation?.transportation_office?.name}
                   officeType="Origin Transportation Office"
-                  telephone={current_location?.transportation_office?.phone_lines[0]}
+                  telephone={currentLocation?.transportation_office?.phone_lines[0]}
                 />
               </>
             )}

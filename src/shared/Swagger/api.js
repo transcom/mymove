@@ -1,5 +1,5 @@
 import Swagger from 'swagger-client';
-import * as Cookies from 'js-cookie';
+import Cookies from 'js-cookie';
 import { getInternalClient } from 'services/internalApi';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 

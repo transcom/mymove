@@ -39,7 +39,7 @@ export const MoveInfoModal = ({ closeModal }) => (
     <h5>Cons</h5>
     <ul>
       <li>You pack and move everything</li>
-      <li>You’re responsible if your things get damaged — no compensation</li>
+      <li>You’re responsible if your things get damaged — no compensation</li>
       <li>The more you own, the more you have to do</li>
     </ul>
     <ModalActions>
