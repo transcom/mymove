@@ -1290,12 +1290,12 @@ jobs:
           name: On success
           when: on_success
           command: |
-            aws events put-events --entries '[{ "Source": "circleci.myapp", "DetailType": "CircleCI state change", "Detail": "{ \"app\": \"myapp\", \"type\": \"success\" }"}]'
+            aws events put-events --entries '[{ "Source": "circleci.logging", "DetailType": "CircleCI state change", "Detail": "{ \"app\": \"myapp\", \"type\": \"success\" }"}]'
       - run:
           name: On fail
           when: on_fail
           command: |
-            aws events put-events --entries '[{ "Source": "circleci.myapp", "DetailType": "CircleCI state change", "Detail": "{ \"app\": \"myapp\", \"type\": \"fail\" }"}]'
+            aws events put-events --entries '[{ "Source": "circleci.logging", "DetailType": "CircleCI state change", "Detail": "{ \"app\": \"myapp\", \"type\": \"fail\" }"}]'
       - announce_failure
 
   # `push_app_stg` pushes the app container to the milmove-stg container repository
