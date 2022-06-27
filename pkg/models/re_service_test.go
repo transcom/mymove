@@ -1,13 +1,11 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestReServiceValidation() {
-	suite.T().Run("test valid ReService", func(t *testing.T) {
+	suite.Run("test valid ReService", func() {
 		validReService := models.ReService{
 			Code: "123abc",
 			Name: "California",
@@ -16,7 +14,7 @@ func (suite *ModelSuite) TestReServiceValidation() {
 		suite.verifyValidationErrors(&validReService, expErrors)
 	})
 
-	suite.T().Run("test empty ReService", func(t *testing.T) {
+	suite.Run("test empty ReService", func() {
 		emptyReService := models.ReService{}
 		expErrors := map[string][]string{
 			"code": {"Code can not be blank."},
