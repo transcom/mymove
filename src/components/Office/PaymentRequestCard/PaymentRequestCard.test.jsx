@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import PaymentRequestCard from './PaymentRequestCard';
 
 import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: () => {
@@ -110,31 +111,31 @@ describe('PaymentRequestCard', () => {
     contractor,
     orders: order,
   };
+  const pendingPaymentRequest = {
+    id: '29474c6a-69b6-4501-8e08-670a12512e5f',
+    createdAt: '2020-12-01T00:00:00.000Z',
+    moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+    paymentRequestNumber: '1843-9061-2',
+    moveTaskOrder: move,
+    status: 'PENDING',
+    serviceItems: [
+      {
+        id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+        createdAt: '2020-12-01T00:00:00.000Z',
+        mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+        priceCents: 2000001,
+        status: 'REQUESTED',
+      },
+      {
+        id: '39474c6a-69b6-4501-8e08-670a12512a5f',
+        createdAt: '2020-12-01T00:00:00.000Z',
+        mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+        priceCents: 4000001,
+        status: 'REQUESTED',
+      },
+    ],
+  };
   describe('pending payment request', () => {
-    const pendingPaymentRequest = {
-      id: '29474c6a-69b6-4501-8e08-670a12512e5f',
-      createdAt: '2020-12-01T00:00:00.000Z',
-      moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
-      paymentRequestNumber: '1843-9061-2',
-      moveTaskOrder: move,
-      status: 'PENDING',
-      serviceItems: [
-        {
-          id: '09474c6a-69b6-4501-8e08-670a12512a5f',
-          createdAt: '2020-12-01T00:00:00.000Z',
-          mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
-          priceCents: 2000001,
-          status: 'REQUESTED',
-        },
-        {
-          id: '39474c6a-69b6-4501-8e08-670a12512a5f',
-          createdAt: '2020-12-01T00:00:00.000Z',
-          mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
-          priceCents: 4000001,
-          status: 'REQUESTED',
-        },
-      ],
-    };
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestCard
@@ -174,7 +175,10 @@ describe('PaymentRequestCard', () => {
 
     it('renders review payment request button disabled when shipment and/or move has billable weight issues', () => {
       render(
-        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <MockProviders
+          initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}
+          permissions={[permissionTypes.updatePaymentServiceItemStatus]}
+        >
           <PaymentRequestCard
             paymentRequest={pendingPaymentRequest}
             shipmentInfo={shipmentInfo}
@@ -188,7 +192,10 @@ describe('PaymentRequestCard', () => {
 
     it('does not render the review payment request button disabled when shipment and/or move has no billable weight issues', () => {
       render(
-        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <MockProviders
+          initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}
+          permissions={[permissionTypes.updatePaymentServiceItemStatus]}
+        >
           <PaymentRequestCard
             paymentRequest={pendingPaymentRequest}
             shipmentInfo={shipmentInfo}
@@ -482,6 +489,39 @@ describe('PaymentRequestCard', () => {
         </MockProviders>,
       );
       expect(paid.find({ 'data-testid': 'tag' }).contains('Paid')).toBe(true);
+    });
+  });
+
+  describe('permission dependent rendering', () => {
+    it('renders the review service items button when user has permission', () => {
+      render(
+        <MockProviders
+          initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}
+          permissions={[permissionTypes.updatePaymentServiceItemStatus]}
+        >
+          <PaymentRequestCard
+            paymentRequest={pendingPaymentRequest}
+            shipmentInfo={shipmentInfo}
+            hasBillableWeightIssues
+          />
+        </MockProviders>,
+      );
+
+      expect(screen.getByRole('button', { name: 'Review service items' })).toBeInTheDocument();
+    });
+
+    it('does not render the review service items button when user does not have permission', () => {
+      render(
+        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]} permissions={[]}>
+          <PaymentRequestCard
+            paymentRequest={pendingPaymentRequest}
+            shipmentInfo={shipmentInfo}
+            hasBillableWeightIssues
+          />
+        </MockProviders>,
+      );
+
+      expect(screen.queryByRole('button', { name: 'Review service items' })).not.toBeInTheDocument();
     });
   });
 });

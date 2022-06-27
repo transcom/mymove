@@ -1,15 +1,13 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestReRateAreaValidation() {
-	suite.T().Run("test valid ReRateArea", func(t *testing.T) {
+	suite.Run("test valid ReRateArea", func() {
 		validReRateArea := models.ReRateArea{
 			ContractID: uuid.Must(uuid.NewV4()),
 			IsOconus:   true,
@@ -20,7 +18,7 @@ func (suite *ModelSuite) TestReRateAreaValidation() {
 		suite.verifyValidationErrors(&validReRateArea, expErrors)
 	})
 
-	suite.T().Run("test empty ReRateArea", func(t *testing.T) {
+	suite.Run("test empty ReRateArea", func() {
 		emptyReRateArea := models.ReRateArea{}
 		expErrors := map[string][]string{
 			"contract_id": {"ContractID can not be blank."},

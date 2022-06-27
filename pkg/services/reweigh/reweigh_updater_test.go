@@ -1,7 +1,6 @@
 package reweigh
 
 import (
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -29,7 +28,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 
 	// Mock out a planner.
 	mockPlanner := &routemocks.Planner{}
-	mockPlanner.On("Zip3TransitDistance",
+	mockPlanner.On("ZipTransitDistance",
 		recalculateTestPickupZip,
 		recalculateTestDestinationZip,
 	).Return(recalculateTestZip3Distance, nil)
@@ -42,19 +41,20 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 
 	reweighUpdater := NewReweighUpdater(movetaskorder.NewMoveTaskOrderChecker(), paymentRequestShipmentRecalculator)
 	currentTime := time.Now()
-	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &currentTime,
-		},
-	})
-	oldReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
-		MTOShipment: shipment,
-	})
-	eTag := etag.GenerateEtag(oldReweigh.UpdatedAt)
-	newReweigh := oldReweigh
 
 	// Test Success - Reweigh updated
-	suite.T().Run("Updated reweigh - Success", func(t *testing.T) {
+	suite.Run("Updated reweigh - Success", func() {
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &currentTime,
+			},
+		})
+		oldReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+			MTOShipment: shipment,
+		})
+		eTag := etag.GenerateEtag(oldReweigh.UpdatedAt)
+
+		newReweigh := oldReweigh
 		newWeight := unit.Pound(200)
 		newReweigh.Weight = &newWeight
 		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &newReweigh, eTag)
@@ -62,24 +62,39 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 		suite.NoError(err)
 		suite.NotNil(updatedReweigh)
 		suite.Equal(newWeight, *updatedReweigh.Weight)
-		eTag = etag.GenerateEtag(updatedReweigh.UpdatedAt)
 	})
 	// Test NotFoundError
-	suite.T().Run("Not Found Error", func(t *testing.T) {
-		notFoundUUID := "00000000-0000-0000-0000-000000000001"
-		notFoundReweigh := newReweigh
-		notFoundReweigh.ID = uuid.FromStringOrNil(notFoundUUID)
+	suite.Run("Not Found Error", func() {
+		notFoundReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+			Stub: true,
+			Reweigh: models.Reweigh{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		})
+		eTag := etag.GenerateEtag(time.Now())
 
 		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &notFoundReweigh, eTag)
 
 		suite.Nil(updatedReweigh)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Contains(err.Error(), notFoundUUID)
+		suite.Contains(err.Error(), notFoundReweigh.ID.String())
 	})
 	// PreconditionFailedError
-	suite.T().Run("Precondition Failed", func(t *testing.T) {
-		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &newReweigh, "nada") // base validation
+	suite.Run("Precondition Failed", func() {
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &currentTime,
+			},
+		})
+		oldReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+			MTOShipment: shipment,
+		})
+		// bad etag value
+		eTag := etag.GenerateEtag(time.Now())
+		newReweigh := oldReweigh
+
+		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &newReweigh, eTag) // base validation
 
 		suite.Nil(updatedReweigh)
 		suite.Error(err)

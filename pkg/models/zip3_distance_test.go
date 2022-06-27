@@ -1,13 +1,11 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestZip3DistanceValidations() {
-	suite.T().Run("test valid Zip3Distance", func(t *testing.T) {
+	suite.Run("test valid Zip3Distance", func() {
 		validZip3Distance := models.Zip3Distance{
 			FromZip3:      "010",
 			ToZip3:        "011",
@@ -17,7 +15,7 @@ func (suite *ModelSuite) TestZip3DistanceValidations() {
 		suite.verifyValidationErrors(&validZip3Distance, expErrors)
 	})
 
-	suite.T().Run("test invalid Zip3Distance", func(t *testing.T) {
+	suite.Run("test invalid Zip3Distance", func() {
 		emptyZip3Distance := models.Zip3Distance{}
 		expErrors := map[string][]string{
 			"from_zip3":      {"FromZip3 not in range(3, 3)"},
@@ -27,7 +25,7 @@ func (suite *ModelSuite) TestZip3DistanceValidations() {
 		suite.verifyValidationErrors(&emptyZip3Distance, expErrors)
 	})
 
-	suite.T().Run("test when from_zip3 is not a length of 3", func(t *testing.T) {
+	suite.Run("test when from_zip3 is not a length of 3", func() {
 		invalidFromZip3Distance := models.Zip3Distance{
 			FromZip3:      "01",
 			ToZip3:        "011",
@@ -39,7 +37,7 @@ func (suite *ModelSuite) TestZip3DistanceValidations() {
 		suite.verifyValidationErrors(&invalidFromZip3Distance, expErrors)
 	})
 
-	suite.T().Run("test when to_zip3 is not a length of 3", func(t *testing.T) {
+	suite.Run("test when to_zip3 is not a length of 3", func() {
 		invalidToZip3Distance := models.Zip3Distance{
 			FromZip3:      "010",
 			ToZip3:        "0115",
@@ -51,7 +49,7 @@ func (suite *ModelSuite) TestZip3DistanceValidations() {
 		suite.verifyValidationErrors(&invalidToZip3Distance, expErrors)
 	})
 
-	suite.T().Run("test when distance_miles is not provided", func(t *testing.T) {
+	suite.Run("test when distance_miles is not provided", func() {
 		invalidDistance := models.Zip3Distance{
 			FromZip3: "010",
 			ToZip3:   "011",

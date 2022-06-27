@@ -24,11 +24,6 @@ type CreateCustomerSupportRemark struct {
 	// Required: true
 	Content *string `json:"content"`
 
-	// locator
-	// Example: 1K43AR
-	// Required: true
-	Locator *string `json:"locator"`
-
 	// office user ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
@@ -41,10 +36,6 @@ func (m *CreateCustomerSupportRemark) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateContent(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateLocator(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -61,15 +52,6 @@ func (m *CreateCustomerSupportRemark) Validate(formats strfmt.Registry) error {
 func (m *CreateCustomerSupportRemark) validateContent(formats strfmt.Registry) error {
 
 	if err := validate.Required("content", "body", m.Content); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreateCustomerSupportRemark) validateLocator(formats strfmt.Registry) error {
-
-	if err := validate.Required("locator", "body", m.Locator); err != nil {
 		return err
 	}
 

@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import classnames from 'classnames';
 
 import styles from './Office.module.scss';
-import 'uswds/dist/css/uswds.css';
+import 'styles/full_uswds.scss';
 import 'scenes/Office/office.scss';
 
 // API / Redux actions
@@ -62,6 +62,7 @@ const PrimeSimulatorMoveDetails = lazy(() => import('pages/PrimeUI/MoveTaskOrder
 const PrimeSimulatorCreatePaymentRequest = lazy(() =>
   import('pages/PrimeUI/CreatePaymentRequest/CreatePaymentRequest'),
 );
+const PrimeUIShipmentCreateForm = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentCreate'));
 const PrimeUIShipmentForm = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdate'));
 
 const PrimeSimulatorUploadPaymentRequestDocuments = lazy(() =>
@@ -106,6 +107,7 @@ export class OfficeApp extends Component {
     const { hasError, error, info } = this.state;
     const {
       activeRole,
+      officeUserId,
       userIsLoggedIn,
       userPermissions,
       userRoles,
@@ -173,7 +175,7 @@ export class OfficeApp extends Component {
     });
 
     return (
-      <PermissionProvider permissions={userPermissions}>
+      <PermissionProvider permissions={userPermissions} currentUserId={officeUserId}>
         <div id="app-root">
           <div className={siteClasses}>
             <BypassBlock />
@@ -253,6 +255,13 @@ export class OfficeApp extends Component {
                       key="primeSimulatorMovePath"
                       path={primeSimulatorRoutes.VIEW_MOVE_PATH}
                       component={PrimeSimulatorMoveDetails}
+                      requiredRoles={[roleTypes.PRIME_SIMULATOR]}
+                    />
+
+                    <PrivateRoute
+                      key="primeSimulatorCreateShipmentPath"
+                      path={primeSimulatorRoutes.CREATE_SHIPMENT_PATH}
+                      component={PrimeUIShipmentCreateForm}
                       requiredRoles={[roleTypes.PRIME_SIMULATOR]}
                     />
 
@@ -353,6 +362,7 @@ OfficeApp.propTypes = {
   loadPublicSchema: PropTypes.func.isRequired,
   loadUser: PropTypes.func.isRequired,
   location: LocationShape,
+  officeUserId: PropTypes.string,
   userIsLoggedIn: PropTypes.bool,
   userPermissions: PropTypes.arrayOf(PropTypes.string),
   userRoles: UserRolesShape,
@@ -368,6 +378,7 @@ OfficeApp.propTypes = {
 
 OfficeApp.defaultProps = {
   location: { pathname: '' },
+  officeUserId: null,
   userIsLoggedIn: false,
   userPermissions: [],
   userRoles: [],
@@ -382,6 +393,7 @@ const mapStateToProps = (state) => {
 
   return {
     swaggerError: state.swaggerInternal.hasErrored,
+    officeUserId: user?.office_user?.id,
     userIsLoggedIn: selectIsLoggedIn(state),
     userPermissions: user?.permissions || [],
     userRoles: user?.roles || [],

@@ -242,7 +242,7 @@ const MovePaymentRequests = ({
           <Grid row className={txoStyles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={txoStyles.alertContainer}>
-                <Alert slim type={alertType}>
+                <Alert headingLevel="h4" slim type={alertType}>
                   {alertMessage}
                 </Alert>
               </Grid>

@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -10,7 +8,7 @@ import (
 )
 
 func (suite *ModelSuite) TestMTOShipmentValidation() {
-	suite.T().Run("test valid MTOShipment", func(t *testing.T) {
+	suite.Run("test valid MTOShipment", func() {
 		// mock weights
 		estimatedWeight := unit.Pound(1000)
 		actualWeight := unit.Pound(980)
@@ -30,7 +28,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		suite.verifyValidationErrors(&validMTOShipment, expErrors)
 	})
 
-	suite.T().Run("test empty MTOShipment", func(t *testing.T) {
+	suite.Run("test empty MTOShipment", func() {
 		emptyMTOShipment := models.MTOShipment{}
 		expErrors := map[string][]string{
 			"move_task_order_id": {"MoveTaskOrderID can not be blank."},
@@ -39,7 +37,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		suite.verifyValidationErrors(&emptyMTOShipment, expErrors)
 	})
 
-	suite.T().Run("test rejected MTOShipment", func(t *testing.T) {
+	suite.Run("test rejected MTOShipment", func() {
 		rejectionReason := "bad shipment"
 		rejectedMTOShipment := models.MTOShipment{
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()),
@@ -50,7 +48,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		suite.verifyValidationErrors(&rejectedMTOShipment, expErrors)
 	})
 
-	suite.T().Run("test validation failures", func(t *testing.T) {
+	suite.Run("test validation failures", func() {
 		// mock weights
 		estimatedWeight := unit.Pound(-1000)
 		actualWeight := unit.Pound(-980)

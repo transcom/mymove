@@ -19,7 +19,7 @@ export const FlashMessage = ({ flash, clearFlashMessage }) => {
   return (
     // We use {title || undefined} here because an empty string as the title will render a blank header in Firefox,
     // so we must pass in undefined if we want to see no header at all.
-    <Alert slim={slim} type={type} heading={title || undefined}>
+    <Alert slim={slim} type={type} headingLevel="h4" heading={title || undefined}>
       {message}
     </Alert>
   );

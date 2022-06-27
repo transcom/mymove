@@ -354,10 +354,11 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 				OR roles.role_type = 'ppm_office_users'
 				OR role_type = 'services_counselor'
 				OR role_type = 'contracting_officer'
-				OR role_type = 'qae_csr')
+				OR role_type = 'qae_csr'
+				OR role_type = 'prime_simulator')
 		LEFT JOIN (
 			SELECT 'Prime' AS prime_user_first_name
-			) prime_users ON roles.role_type LIKE 'prime%'
+			) prime_users ON roles.role_type = 'prime'
 	ORDER BY
 		action_tstamp_tx DESC`
 

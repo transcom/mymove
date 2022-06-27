@@ -162,7 +162,7 @@ export class Home extends Component {
   renderAlert = () => {
     if (this.hasUnapprovedAmendedOrders) {
       return (
-        <Alert type="success" slim data-testid="unapproved-amended-orders-alert">
+        <Alert headingLevel="h4" type="success" slim data-testid="unapproved-amended-orders-alert">
           <span className={styles.alertMessageFirstLine}>
             The transportation office will review your new documents and update your move info. Contact your movers to
             coordinate any changes to your move.
@@ -289,6 +289,7 @@ export class Home extends Component {
     history.push(path);
   };
 
+  // eslint-disable-next-line class-methods-use-this
   sortAllShipments = (mtoShipments) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
     allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
@@ -296,6 +297,7 @@ export class Home extends Component {
     return allShipments;
   };
 
+  // eslint-disable-next-line class-methods-use-this
   handlePrintLegalese = (e) => {
     e.preventDefault();
     window.print();
@@ -335,6 +337,9 @@ export class Home extends Component {
     const allSortedShipments = this.sortAllShipments(mtoShipments);
     const ppmShipments = allSortedShipments.filter((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.PPM);
 
+    // eslint-disable-next-line camelcase
+    const currentLocation = current_location;
+
     return (
       <>
         <ScrollToTop />
@@ -359,12 +364,12 @@ export class Home extends Component {
           </header>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
             {showDeleteSuccessAlert && (
-              <Alert slim type="success">
+              <Alert headingLevel="h4" slim type="success">
                 The shipment was deleted.
               </Alert>
             )}
             {showDeleteErrorAlert && (
-              <Alert slim type="error">
+              <Alert headingLevel="h4" slim type="error">
                 Something went wrong, and your changes were not saved. Please try again later or contact your counselor.
               </Alert>
             )}
@@ -491,9 +496,9 @@ export class Home extends Component {
                 </SectionWrapper>
                 <Contact
                   header="Contacts"
-                  dutyLocationName={current_location?.transportation_office?.name}
+                  dutyLocationName={currentLocation?.transportation_office?.name}
                   officeType="Origin Transportation Office"
-                  telephone={current_location?.transportation_office?.phone_lines[0]}
+                  telephone={currentLocation?.transportation_office?.phone_lines[0]}
                 />
               </>
             )}

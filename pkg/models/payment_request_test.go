@@ -1,15 +1,13 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestPaymentRequestValidation() {
-	suite.T().Run("test valid PaymentRequest", func(t *testing.T) {
+	suite.Run("test valid PaymentRequest", func() {
 		recalculationOfPaymentRequestID := uuid.Must(uuid.NewV4())
 		validPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID:                 uuid.Must(uuid.NewV4()),
@@ -22,7 +20,7 @@ func (suite *ModelSuite) TestPaymentRequestValidation() {
 		suite.verifyValidationErrors(&validPaymentRequest, expErrors)
 	})
 
-	suite.T().Run("test empty PaymentServiceItem", func(t *testing.T) {
+	suite.Run("test empty PaymentServiceItem", func() {
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()),
 		}
@@ -36,7 +34,7 @@ func (suite *ModelSuite) TestPaymentRequestValidation() {
 		suite.verifyValidationErrors(&invalidPaymentRequest, expErrors)
 	})
 
-	suite.T().Run("test invalid fields for PaymentRequest", func(t *testing.T) {
+	suite.Run("test invalid fields for PaymentRequest", func() {
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID:                 uuid.Must(uuid.NewV4()),
 			Status:                          "Sleeping",

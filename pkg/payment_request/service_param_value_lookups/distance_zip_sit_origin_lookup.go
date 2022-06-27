@@ -16,9 +16,6 @@ type DistanceZipSITOriginLookup struct {
 func (r DistanceZipSITOriginLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	planner := keyData.planner
 
-	// If the zip3s are identical, we do a zip3 distance calc (which uses RM).
-	// If they are different, we do a zip5 distance calc (which uses DTOD).
-
 	originZip, err := keyData.ServiceParamValue(appCtx, models.ServiceItemParamNameZipSITOriginHHGOriginalAddress)
 	if err != nil {
 		return "", err
@@ -26,8 +23,6 @@ func (r DistanceZipSITOriginLookup) lookup(appCtx appcontext.AppContext, keyData
 	if len(originZip) < 5 {
 		return "", fmt.Errorf("invalid origin postal code of %s", originZip)
 	}
-
-	originZip3 := originZip[:3]
 
 	var actualOriginZip string
 	actualOriginZip, err = keyData.ServiceParamValue(appCtx, models.ServiceItemParamNameZipSITOriginHHGActualAddress)
@@ -38,15 +33,9 @@ func (r DistanceZipSITOriginLookup) lookup(appCtx appcontext.AppContext, keyData
 		return "", fmt.Errorf("invalid SIT origin postal code of %s", actualOriginZip)
 	}
 
-	actualOriginZip3 := actualOriginZip[:3]
-
 	var distanceMiles int
 	var distanceErr error
-	if originZip3 == actualOriginZip3 {
-		distanceMiles, distanceErr = planner.Zip5TransitDistance(appCtx, originZip, actualOriginZip)
-	} else {
-		distanceMiles, distanceErr = planner.Zip3TransitDistance(appCtx, originZip, actualOriginZip)
-	}
+	distanceMiles, distanceErr = planner.ZipTransitDistance(appCtx, originZip, actualOriginZip)
 	if distanceErr != nil {
 		return "", distanceErr
 	}

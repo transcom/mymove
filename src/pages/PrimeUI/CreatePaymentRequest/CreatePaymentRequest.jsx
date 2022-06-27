@@ -188,7 +188,7 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
         <div className="grid-col-12">
           {errorMessage?.detail && (
             <div className={primeStyles.errorContainer}>
-              <Alert slim type="error">
+              <Alert headingLevel="h4" slim type="error">
                 <span className={primeStyles.errorTitle}>{errorMessage.title}</span>
                 <span className={primeStyles.errorDetail}>{errorMessage.detail}</span>
               </Alert>

@@ -38,7 +38,7 @@ const PPMShipmentCard = ({ shipment, shipmentNumber, showEditAndDeleteBtn, onEdi
       <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.PPM}>
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
-            <h3>
+            <h3 data-testid="ShipmentCardNumber">
               {getShipmentTypeLabel(shipmentType)} {shipmentNumber}
             </h3>
             <p>#{id.substring(0, 8).toUpperCase()}</p>

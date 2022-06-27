@@ -90,7 +90,7 @@ func (p domesticShorthaulPricer) PriceUsingParams(appCtx appcontext.AppContext, 
 		return unit.Cents(0), nil, err
 	}
 
-	distanceZip5, err := getParamInt(params, models.ServiceItemParamNameDistanceZip5)
+	distanceZip, err := getParamInt(params, models.ServiceItemParamNameDistanceZip)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -110,5 +110,5 @@ func (p domesticShorthaulPricer) PriceUsingParams(appCtx appcontext.AppContext, 
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distanceZip5), unit.Pound(weightBilled), serviceAreaOrigin)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distanceZip), unit.Pound(weightBilled), serviceAreaOrigin)
 }

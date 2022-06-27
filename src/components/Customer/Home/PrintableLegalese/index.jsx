@@ -2,7 +2,7 @@ import React from 'react';
 import { string } from 'prop-types';
 import { FormGroup, Label, TextInput } from '@trussworks/react-uswds';
 
-import * as styles from './PrintableLegalese.module.scss';
+import styles from './PrintableLegalese.module.scss';
 
 import { completeCertificationText } from 'scenes/Legalese/legaleseText';
 import CertificationText from 'scenes/Legalese/CertificationText';

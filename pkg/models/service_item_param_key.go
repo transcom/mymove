@@ -34,10 +34,8 @@ const (
 	ServiceItemParamNameDimensionLength ServiceItemParamName = "DimensionLength"
 	// ServiceItemParamNameDimensionWidth is the param key name DimensionWidth
 	ServiceItemParamNameDimensionWidth ServiceItemParamName = "DimensionWidth"
-	// ServiceItemParamNameDistanceZip3 is the param key name DistanceZip3
-	ServiceItemParamNameDistanceZip3 ServiceItemParamName = "DistanceZip3"
-	// ServiceItemParamNameDistanceZip5 is the param key name DistanceZip5
-	ServiceItemParamNameDistanceZip5 ServiceItemParamName = "DistanceZip5"
+	// ServiceItemParamNameDistanceZip is the param key name DistanceZip
+	ServiceItemParamNameDistanceZip ServiceItemParamName = "DistanceZip"
 	// ServiceItemParamNameDistanceZipSITDest is the param key name DistanceZipSITDest
 	ServiceItemParamNameDistanceZipSITDest ServiceItemParamName = "DistanceZipSITDest"
 	// ServiceItemParamNameDistanceZipSITOrigin is the param key name DistanceZipSITOrigin
@@ -202,8 +200,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameDimensionHeight,
 	ServiceItemParamNameDimensionLength,
 	ServiceItemParamNameDimensionWidth,
-	ServiceItemParamNameDistanceZip3,
-	ServiceItemParamNameDistanceZip5,
+	ServiceItemParamNameDistanceZip,
 	ServiceItemParamNameDistanceZipSITDest,
 	ServiceItemParamNameDistanceZipSITOrigin,
 	ServiceItemParamNameEIAFuelPrice,
@@ -270,8 +267,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameDimensionHeight),
 	string(ServiceItemParamNameDimensionLength),
 	string(ServiceItemParamNameDimensionWidth),
-	string(ServiceItemParamNameDistanceZip3),
-	string(ServiceItemParamNameDistanceZip5),
+	string(ServiceItemParamNameDistanceZip),
 	string(ServiceItemParamNameDistanceZipSITDest),
 	string(ServiceItemParamNameDistanceZipSITOrigin),
 	string(ServiceItemParamNameEIAFuelPrice),

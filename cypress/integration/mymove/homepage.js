@@ -1,3 +1,5 @@
+import { deleteShipment, setMobileViewport } from '../../support/ppmCustomerShared';
+
 describe('The Home Page', function () {
   before(() => {
     cy.prepareCustomerApp();
@@ -5,6 +7,8 @@ describe('The Home Page', function () {
 
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
+    cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
+    cy.intercept('DELETE', '**/internal/mto-shipments/**').as('deleteShipment');
   });
 
   it('passes a pa11y audit', function () {
@@ -59,4 +63,26 @@ describe('The Home Page', function () {
       }
     });
   });
+
+  const viewportType = [
+    { viewport: 'desktop', isMobile: false, userId: '57d58062-93ac-4eb7-b1da-21dd137e4f65' }, // deleteShipment@ppm.unsubmitted
+    { viewport: 'mobile', isMobile: true, userId: '781cf194-4eb2-4def-9da6-01abdc62333d' }, // deleteShipmentMobile@ppm.unsubmitted
+  ];
+
+  viewportType.forEach(({ viewport, isMobile, userId }) => {
+    it(`deletes shipment - ${viewport}`, () => {
+      if (isMobile) {
+        setMobileViewport();
+      }
+
+      navigateDeletingShipment(userId, isMobile);
+    });
+  });
 });
+
+function navigateDeletingShipment(userId, isMobile = false) {
+  cy.apiSignInAsUser(userId);
+  cy.wait('@getShipment');
+  cy.get('[data-testid="shipment-list-item-container"]').as('shipmentListContainer');
+  deleteShipment('@shipmentListContainer', 0);
+}

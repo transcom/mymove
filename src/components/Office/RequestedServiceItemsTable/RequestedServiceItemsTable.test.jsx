@@ -6,6 +6,9 @@ import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 
 import RequestedServiceItemsTable from './RequestedServiceItemsTable';
 
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
+
 const defaultProps = {
   handleShowRejectionDialog: jest.fn(),
   handleUpdateMTOServiceItemStatus: jest.fn(),
@@ -136,11 +139,13 @@ describe('RequestedServiceItemsTable', () => {
 
     const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
-      <RequestedServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-      />,
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <RequestedServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
     );
 
     const acceptButtons = wrapper.find({ 'data-testid': 'acceptButton' });
@@ -160,11 +165,13 @@ describe('RequestedServiceItemsTable', () => {
     serviceItemWithContact.status = 'APPROVED';
     const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
-      <RequestedServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
-      />,
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <RequestedServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
     );
 
     testDetails(wrapper);
@@ -180,11 +187,13 @@ describe('RequestedServiceItemsTable', () => {
     serviceItemWithContact.status = 'REJECTED';
     const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
-      <RequestedServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
-      />,
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <RequestedServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
+        />
+      </MockProviders>,
     );
 
     testDetails(wrapper);

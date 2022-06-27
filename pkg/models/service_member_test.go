@@ -1,13 +1,13 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/auth"
 	. "github.com/transcom/mymove/pkg/models"
@@ -151,81 +151,87 @@ func (suite *ModelSuite) TestFetchServiceMemberNotForUser() {
 }
 
 func (suite *ModelSuite) TestFetchLatestOrders() {
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	setupTestData := func() (models.Order, *auth.Session) {
 
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+		user := testdatagen.MakeDefaultUser(suite.DB())
 
-	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
-	dutyLocation2 := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
-	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
-	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	hasDependents := true
-	spouseHasProGear := true
-	uploadedOrder := Document{
-		ServiceMember:   serviceMember,
-		ServiceMemberID: serviceMember.ID,
-	}
-	deptIndicator := testdatagen.DefaultDepartmentIndicator
-	TAC := testdatagen.DefaultTransportationAccountingCode
-	suite.MustSave(&uploadedOrder)
+		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	SAC := "N002214CSW32Y9"
-	ordersNumber := "FD4534JFJ"
+		dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+		dutyLocation2 := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
+		issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+		reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+		ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+		hasDependents := true
+		spouseHasProGear := true
+		uploadedOrder := Document{
+			ServiceMember:   serviceMember,
+			ServiceMemberID: serviceMember.ID,
+		}
+		deptIndicator := testdatagen.DefaultDepartmentIndicator
+		TAC := testdatagen.DefaultTransportationAccountingCode
+		suite.MustSave(&uploadedOrder)
+		SAC := "N002214CSW32Y9"
+		ordersNumber := "FD4534JFJ"
 
-	order := Order{
-		ServiceMemberID:      serviceMember.ID,
-		ServiceMember:        serviceMember,
-		IssueDate:            issueDate,
-		ReportByDate:         reportByDate,
-		OrdersType:           ordersType,
-		HasDependents:        hasDependents,
-		SpouseHasProGear:     spouseHasProGear,
-		OriginDutyLocationID: &dutyLocation.ID,
-		OriginDutyLocation:   &dutyLocation,
-		NewDutyLocationID:    dutyLocation2.ID,
-		NewDutyLocation:      dutyLocation2,
-		UploadedOrdersID:     uploadedOrder.ID,
-		UploadedOrders:       uploadedOrder,
-		Status:               OrderStatusSUBMITTED,
-		OrdersNumber:         &ordersNumber,
-		TAC:                  &TAC,
-		SAC:                  &SAC,
-		DepartmentIndicator:  &deptIndicator,
-		Grade:                swag.String("E-1"),
-	}
-	suite.MustSave(&order)
+		order := Order{
+			ServiceMemberID:      serviceMember.ID,
+			ServiceMember:        serviceMember,
+			IssueDate:            issueDate,
+			ReportByDate:         reportByDate,
+			OrdersType:           ordersType,
+			HasDependents:        hasDependents,
+			SpouseHasProGear:     spouseHasProGear,
+			OriginDutyLocationID: &dutyLocation.ID,
+			OriginDutyLocation:   &dutyLocation,
+			NewDutyLocationID:    dutyLocation2.ID,
+			NewDutyLocation:      dutyLocation2,
+			UploadedOrdersID:     uploadedOrder.ID,
+			UploadedOrders:       uploadedOrder,
+			Status:               OrderStatusSUBMITTED,
+			OrdersNumber:         &ordersNumber,
+			TAC:                  &TAC,
+			SAC:                  &SAC,
+			DepartmentIndicator:  &deptIndicator,
+			Grade:                swag.String("E-1"),
+		}
+		suite.MustSave(&order)
 
-	// User is authorized to fetch service member
-	session := &auth.Session{
-		ApplicationName: auth.MilApp,
-		UserID:          user.ID,
-		ServiceMemberID: serviceMember.ID,
-	}
-
-	actualOrder, err := FetchLatestOrder(session, suite.DB())
-
-	if suite.NoError(err) {
-		suite.Equal(order.Grade, actualOrder.Grade)
-		suite.Equal(order.OriginDutyLocationID, actualOrder.OriginDutyLocationID)
-		suite.Equal(order.NewDutyLocationID, actualOrder.NewDutyLocationID)
-		suite.True(order.IssueDate.Equal(actualOrder.IssueDate))
-		suite.True(order.ReportByDate.Equal(actualOrder.ReportByDate))
-		suite.Equal(order.OrdersType, actualOrder.OrdersType)
-		suite.Equal(order.HasDependents, actualOrder.HasDependents)
-		suite.Equal(order.SpouseHasProGear, actualOrder.SpouseHasProGear)
-		suite.Equal(order.UploadedOrdersID, actualOrder.UploadedOrdersID)
-
+		// User is authorized to fetch service member
+		session := &auth.Session{
+			ApplicationName: auth.MilApp,
+			UserID:          user.ID,
+			ServiceMemberID: serviceMember.ID,
+		}
+		return order, session
 	}
 
-	// Wrong ServiceMember
-	wrongID, _ := uuid.NewV4()
-	_, err = FetchServiceMemberForUser(suite.DB(), session, wrongID)
-	if suite.Error(err) {
-		suite.Equal(ErrFetchNotFound, err)
-	}
+	suite.Run("successfully returns orders with uploads", func() {
+		order, session := setupTestData()
+		actualOrder, err := FetchLatestOrder(session, suite.DB())
 
-	suite.T().Run("successfully returns orders without any existing uploads", func(t *testing.T) {
+		if suite.NoError(err) {
+			suite.Equal(order.Grade, actualOrder.Grade)
+			suite.Equal(order.OriginDutyLocationID, actualOrder.OriginDutyLocationID)
+			suite.Equal(order.NewDutyLocationID, actualOrder.NewDutyLocationID)
+			suite.True(order.IssueDate.Equal(actualOrder.IssueDate))
+			suite.True(order.ReportByDate.Equal(actualOrder.ReportByDate))
+			suite.Equal(order.OrdersType, actualOrder.OrdersType)
+			suite.Equal(order.HasDependents, actualOrder.HasDependents)
+			suite.Equal(order.SpouseHasProGear, actualOrder.SpouseHasProGear)
+			suite.Equal(order.UploadedOrdersID, actualOrder.UploadedOrdersID)
+
+		}
+
+		// Wrong ServiceMember
+		wrongID, _ := uuid.NewV4()
+		_, err = FetchServiceMemberForUser(suite.DB(), session, wrongID)
+		if suite.Error(err) {
+			suite.Equal(ErrFetchNotFound, err)
+		}
+	})
+
+	suite.Run("successfully returns orders without any existing uploads", func() {
 		expectedOrder := testdatagen.MakeOrderWithoutUpload(suite.DB(), testdatagen.Assertions{})
 
 		userSession := auth.Session{
@@ -234,14 +240,14 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 			ServiceMemberID: expectedOrder.ServiceMemberID,
 		}
 
-		actualOrder, err = FetchLatestOrder(&userSession, suite.DB())
+		actualOrder, err := FetchLatestOrder(&userSession, suite.DB())
 
 		suite.NoError(err)
 		suite.Equal(expectedOrder.ID, actualOrder.ID)
 		suite.Len(actualOrder.UploadedOrders.UserUploads, 0)
 	})
 
-	suite.T().Run("successfully returns non deleted orders and amended orders uploads", func(t *testing.T) {
+	suite.Run("successfully returns non deleted orders and amended orders uploads", func() {
 		nonDeletedOrdersUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{})
 		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
 			UserUpload: UserUpload{
@@ -279,7 +285,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 			ServiceMemberID: expectedOrder.ServiceMemberID,
 		}
 
-		actualOrder, err = FetchLatestOrder(&userSession, suite.DB())
+		actualOrder, err := FetchLatestOrder(&userSession, suite.DB())
 
 		suite.NoError(err)
 		suite.Len(actualOrder.UploadedOrders.UserUploads, 1)

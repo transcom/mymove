@@ -319,7 +319,7 @@ const MoveDetails = ({
           <Grid row className={styles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={styles.alertContainer}>
-                <Alert slim type={alertType}>
+                <Alert headingLevel="h4" slim type={alertType}>
                   {alertMessage}
                 </Alert>
               </Grid>

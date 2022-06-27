@@ -2,8 +2,18 @@ import React from 'react';
 
 import CustomerSupportRemarkText from './CustomerSupportRemarkText';
 
+import { MockProviders } from 'testUtils';
+
 export default {
   title: 'Office Components/CustomerSupportRemarkText',
+  component: CustomerSupportRemarkText,
+  decorators: [
+    (Story) => (
+      <div style={{ padding: '40px', width: '550px', minWidth: '550px' }}>
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 const customerSupportRemark = {
@@ -14,6 +24,25 @@ const customerSupportRemark = {
   officeUserFirstName: 'Grace',
   officeUserLastName: 'Griffin',
   createdAt: '2020-06-10T15:58:02.404031Z',
+  updatedAt: '2020-06-10T15:58:02.404031Z',
 };
 
-export const Default = () => <CustomerSupportRemarkText customerSupportRemark={customerSupportRemark} />;
+export const Default = () => (
+  <MockProviders>
+    <CustomerSupportRemarkText customerSupportRemark={customerSupportRemark} />
+  </MockProviders>
+);
+
+export const Edited = () => (
+  <MockProviders>
+    <CustomerSupportRemarkText
+      customerSupportRemark={{ ...customerSupportRemark, updatedAt: '2022-06-15T13:34:34.434543Z' }}
+    />
+  </MockProviders>
+);
+
+export const WithEditPermission = () => (
+  <MockProviders currentUserId={customerSupportRemark.officeUserID}>
+    <CustomerSupportRemarkText customerSupportRemark={customerSupportRemark} />
+  </MockProviders>
+);

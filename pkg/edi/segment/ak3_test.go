@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateAK3() {
 	validAK3 := AK3{
 		SegmentIDCode:                   "ID",
@@ -12,7 +8,7 @@ func (suite *SegmentSuite) TestValidateAK3() {
 		SegmentSyntaxErrorCode:          "ERR",
 	}
 
-	suite.T().Run("validate success all fields", func(t *testing.T) {
+	suite.Run("validate success all fields", func() {
 		err := suite.validator.Struct(validAK3)
 		suite.NoError(err)
 	})
@@ -22,12 +18,12 @@ func (suite *SegmentSuite) TestValidateAK3() {
 		SegmentPositionInTransactionSet: 12345,
 	}
 
-	suite.T().Run("validate success with only required fields", func(t *testing.T) {
+	suite.Run("validate success with only required fields", func() {
 		err := suite.validator.Struct(altValidAK3)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure for min", func(t *testing.T) {
+	suite.Run("validate failure for min", func() {
 		ak3 := AK3{
 			SegmentIDCode:                   "", // min
 			SegmentPositionInTransactionSet: 0,  // min
@@ -39,7 +35,7 @@ func (suite *SegmentSuite) TestValidateAK3() {
 		suite.ValidateErrorLen(err, 2)
 	})
 
-	suite.T().Run("validate failure for max", func(t *testing.T) {
+	suite.Run("validate failure for max", func() {
 		ak3 := AK3{
 			SegmentIDCode:                   "XXXX",    // max
 			SegmentPositionInTransactionSet: 9999999,   // max
@@ -57,7 +53,7 @@ func (suite *SegmentSuite) TestValidateAK3() {
 }
 
 func (suite *SegmentSuite) TestStringArrayAK3() {
-	suite.T().Run("string array all fields", func(t *testing.T) {
+	suite.Run("string array all fields", func() {
 		validAK3 := AK3{
 			SegmentIDCode:                   "ID",
 			SegmentPositionInTransactionSet: 12345,
@@ -68,7 +64,7 @@ func (suite *SegmentSuite) TestStringArrayAK3() {
 		suite.Equal(arrayValidAK3, validAK3.StringArray())
 	})
 
-	suite.T().Run("string array only required fields", func(t *testing.T) {
+	suite.Run("string array only required fields", func() {
 		validAK3 := AK3{
 			SegmentIDCode:                   "ID",
 			SegmentPositionInTransactionSet: 12345,
@@ -79,7 +75,7 @@ func (suite *SegmentSuite) TestStringArrayAK3() {
 }
 
 func (suite *SegmentSuite) TestParseAK3() {
-	suite.T().Run("parse success all fields", func(t *testing.T) {
+	suite.Run("parse success all fields", func() {
 		arrayValidAK3 := []string{"ID", "12345", "CODE", "ERR"}
 
 		expectedAK3 := AK3{
@@ -96,7 +92,7 @@ func (suite *SegmentSuite) TestParseAK3() {
 		}
 	})
 
-	suite.T().Run("parse success on required fields", func(t *testing.T) {
+	suite.Run("parse success on required fields", func() {
 		arrayValidAK3 := []string{"ID", "12345", "", ""}
 
 		expectedAK3 := AK3{
@@ -111,7 +107,7 @@ func (suite *SegmentSuite) TestParseAK3() {
 		}
 	})
 
-	suite.T().Run("wrong number of elements", func(t *testing.T) {
+	suite.Run("wrong number of elements", func() {
 		badArrayAK3 := []string{"11"}
 		var badAK3 AK3
 		err := badAK3.Parse(badArrayAK3)
@@ -120,7 +116,7 @@ func (suite *SegmentSuite) TestParseAK3() {
 		}
 	})
 
-	suite.T().Run("wrong number of elements greater than max", func(t *testing.T) {
+	suite.Run("wrong number of elements greater than max", func() {
 		badArrayAK3 := []string{"11", "12", "by", "goo", "fooz"}
 		var badAK3 AK3
 		err := badAK3.Parse(badArrayAK3)
@@ -129,7 +125,7 @@ func (suite *SegmentSuite) TestParseAK3() {
 		}
 	})
 
-	suite.T().Run("fail when SegmentPositionInTransactionSet not a valid int", func(t *testing.T) {
+	suite.Run("fail when SegmentPositionInTransactionSet not a valid int", func() {
 		badArrayAK3 := []string{"ID", "12345.4", "", ""}
 
 		var badAK3 AK3

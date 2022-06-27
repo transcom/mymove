@@ -120,6 +120,7 @@ class MtoShipmentForm extends Component {
     }
   };
 
+  // eslint-disable-next-line class-methods-use-this
   getShipmentNumber = () => {
     // TODO - this is not supported by IE11, shipment number should be calculable from Redux anyways
     // we should fix this also b/c it doesn't display correctly in storybook
@@ -204,7 +205,7 @@ class MtoShipmentForm extends Component {
               <Grid row>
                 <Grid col desktop={{ col: 8, offset: 2 }}>
                   {errorMessage && (
-                    <Alert type="error" heading="An error occurred">
+                    <Alert type="error" headingLevel="h4" heading="An error occurred">
                       {errorMessage}
                     </Alert>
                   )}
@@ -214,7 +215,7 @@ class MtoShipmentForm extends Component {
 
                     <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
 
-                    <Alert type="info" noIcon>
+                    <Alert headingLevel="h4" type="info" noIcon>
                       Remember: You can move{' '}
                       {orders.has_dependents
                         ? formatWeight(serviceMember.weight_allotment?.total_weight_self_plus_dependents)

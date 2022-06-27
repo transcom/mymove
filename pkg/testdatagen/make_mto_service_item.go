@@ -28,15 +28,9 @@ var (
 		Type:        models.ServiceItemParamTypeString,
 		Origin:      models.ServiceItemParamOriginPricer,
 	}
-	paramDistanceZip3 = models.ServiceItemParamKey{
-		Key:         models.ServiceItemParamNameDistanceZip3,
-		Description: "distance zip3",
-		Type:        models.ServiceItemParamTypeInteger,
-		Origin:      models.ServiceItemParamOriginSystem,
-	}
-	paramDistanceZip5 = models.ServiceItemParamKey{
-		Key:         models.ServiceItemParamNameDistanceZip5,
-		Description: "distance zip5",
+	paramDistanceZip = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameDistanceZip,
+		Description: "distance zip",
 		Type:        models.ServiceItemParamTypeInteger,
 		Origin:      models.ServiceItemParamOriginSystem,
 	}
@@ -189,7 +183,7 @@ var fixtureServiceItemParamsMap = map[models.ReServiceCode]models.ServiceItemPar
 		paramActualPickupDate,
 		paramContractCode,
 		paramContractYearName,
-		paramDistanceZip3,
+		paramDistanceZip,
 		paramEscalationCompounded,
 		paramIsPeak,
 		paramPriceRateOrFactor,
@@ -207,8 +201,7 @@ var fixtureServiceItemParamsMap = map[models.ReServiceCode]models.ServiceItemPar
 	models.ReServiceCodeFSC: {
 		paramActualPickupDate,
 		paramContractCode,
-		paramDistanceZip3,
-		paramDistanceZip5,
+		paramDistanceZip,
 		paramEIAFuelPrice,
 		paramFSCMultiplier,
 		paramFSCPriceDifferenceInCents,

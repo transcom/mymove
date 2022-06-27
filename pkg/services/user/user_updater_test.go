@@ -10,8 +10,6 @@
 package user
 
 import (
-	"testing"
-
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/notifications/mocks"
@@ -21,8 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/notifications"
 
-	"github.com/transcom/mymove/pkg/gen/adminmessages"
-	"github.com/transcom/mymove/pkg/handlers/adminapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	adminUser "github.com/transcom/mymove/pkg/services/admin_user"
 	officeUser "github.com/transcom/mymove/pkg/services/office_user"
@@ -46,34 +42,30 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 	builder := query.NewQueryBuilder()
 	officeUserUpdater := officeUser.NewOfficeUserUpdater(builder)
 	adminUserUpdater := adminUser.NewAdminUserUpdater(builder)
-	appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
 
-	active := true
-	inactive := false
+	activeStatus := true
+	inactiveStatus := false
 
-	activeUser := testdatagen.MakeDefaultUser(suite.DB())
-
-	suite.T().Run("Deactivate a user successfully", func(t *testing.T) {
+	suite.Run("Deactivate a user successfully", func() {
 		// This case should send an email to sys admins
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		user := testdatagen.MakeDefaultUser(suite.DB())
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
 
-		payload := adminmessages.UserUpdatePayload{
-			Active: &inactive,
-		}
-		modelToPayload, _ := payloads.UserModel(&payload, activeUser.ID, activeUser.Active)
+		user.Active = inactiveStatus
 		// Take our existing active user and change their Active status to False
-		updatedUser, verr, err := updater.UpdateUser(appCtx, activeUser.ID, modelToPayload)
+		updatedUser, verr, err := updater.UpdateUser(appCtx, user.ID, &user)
 
 		suite.Nil(verr)
 		suite.Nil(err)
 		suite.False(updatedUser.Active)
-		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 1)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 	})
 
-	suite.T().Run("Deactivate an Office User successfully", func(t *testing.T) {
+	suite.Run("Deactivate an Office User successfully", func() {
 		// Under test: updateUser, updateOfficeUser
-		//
+		// Mocked:     Notification sender
 		// Set up:     We provide an ACTIVE user/office user, and then deactivate
 		//			   the user by calling updateUser.
 		//
@@ -82,37 +74,32 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		//            	to update the office_users table. Both tables have an ACTIVE
 		//				status set to False.
 
-		activeOfficeUser := testdatagen.MakeActiveOfficeUser(suite.DB())
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		officeUser := testdatagen.MakeActiveOfficeUser(suite.DB())
 
-		// Create the payload to update a user's active status. This should also
+		// Deactivate: Update the user with an inactive status. This should also
 		// update their officeUser status in parallel.
-		payload := adminmessages.UserUpdatePayload{
-			Active: &inactive,
-		}
-
-		modelToPayload, _ := payloads.UserModel(&payload, *activeOfficeUser.UserID, activeOfficeUser.Active)
-
-		// Deactivate user
 		// This case should send an email to sys admins
+		officeUser.User.Active = inactiveStatus
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
-		updatedUser, verr, err := updater.UpdateUser(appCtx, *activeOfficeUser.UserID, modelToPayload)
+		updatedUser, verr, err := updater.UpdateUser(appCtx, *officeUser.UserID, &officeUser.User)
 
 		// Fetch updated office user to confirm status
 		updatedOfficeUser := models.OfficeUser{}
-		suite.DB().Eager("OfficeUser.User").Find(&updatedOfficeUser, activeOfficeUser.ID)
+		suite.DB().Eager("OfficeUser.User").Find(&updatedOfficeUser, officeUser.ID)
 
 		// Check that there are no errors and both statuses successfully updated
 		suite.Nil(verr)
 		suite.Nil(err)
 		suite.False(updatedOfficeUser.Active)
 		suite.False(updatedUser.Active)
-		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 1)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 	})
 
-	suite.T().Run("Deactivate an Admin User successfully", func(t *testing.T) {
+	suite.Run("Deactivate an Admin User successfully", func() {
 		// Under test: updateUser, updateAdminUser
-		//
+		// Mocked:     notificationSender
 		// Set up:     We provide an ACTIVE user/admin user, and then deactivate
 		//			   the user by calling updateUser.
 		//
@@ -121,89 +108,96 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		//            	to update the admin_users table. Both tables have an ACTIVE
 		//				status set to False.
 
-		activeAdminUser := testdatagen.MakeActiveAdminUser(suite.DB())
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		adminUser := testdatagen.MakeActiveAdminUser(suite.DB())
 
-		// Create the payload to update a user's active status. This should also
-		// update their adminUser status in parallel.
-		payload := adminmessages.UserUpdatePayload{
-			Active: &inactive,
-		}
-
-		modelToPayload, _ := payloads.UserModel(&payload, *activeAdminUser.UserID, activeAdminUser.Active)
-
-		// Deactivate user
+		// Deactivate user. This should also update their adminUser status in parallel.
 		// This case should send an email to sys admins
+		adminUser.User.Active = inactiveStatus
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
-		updatedUser, verr, err := updater.UpdateUser(appCtx, *activeAdminUser.UserID, modelToPayload)
+		updatedUser, verr, err := updater.UpdateUser(appCtx, *adminUser.UserID, &adminUser.User)
 
 		// Fetch updated admin user to confirm status
 		updatedAdminUser := models.AdminUser{}
-		suite.DB().Eager("AdminUser.User").Find(&updatedAdminUser, activeAdminUser.ID)
+		suite.DB().Eager("AdminUser.User").Find(&updatedAdminUser, adminUser.ID)
 
 		// Check that there are no errors and both statuses successfully updated
 		suite.Nil(verr)
 		suite.Nil(err)
 		suite.False(updatedAdminUser.Active)
 		suite.False(updatedUser.Active)
-		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 1)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 	})
 
-	suite.T().Run("Activate a user successfully", func(t *testing.T) {
-		// This case should send an email to sys admins
+	suite.Run("Activate a user successfully", func() {
+		// Under test: updateUser
+		// Mocked:     notificationSender
+		// Set up:     We provide an inactive user, and then activate them
+		//
+		// Expected outcome:
+		//           	updateUser updates the user to active
+		//              A notification is sent to sys admins
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		// Make an inactive user
+		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
+
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
 
-		payload := adminmessages.UserUpdatePayload{
-			Active: &active,
-		}
-		modelToPayload, _ := payloads.UserModel(&payload, activeUser.ID, activeUser.Active)
+		// Activate the user
 		// Take our existing inactive user and change their Active status to True
-		updatedUser, verr, err := updater.UpdateUser(appCtx, activeUser.ID, modelToPayload)
+		user.Active = activeStatus
+		updatedUser, verr, err := updater.UpdateUser(appCtx, user.ID, &user)
 
 		suite.Nil(verr)
 		suite.Nil(err)
 		suite.True(updatedUser.Active)
-		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 1)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 	})
 
-	suite.T().Run("Make no change to active user", func(t *testing.T) {
-		// This case should NOT send an email to sys admins
+	suite.Run("Make no change to active user", func() {
+		// Under test: updateUser
+		// Mocked:     notificationSender
+		// Set up:     We provide an active user, and then "activate" them
+		//
+		// Expected outcome:
+		//           	updateUser returns the active user
+		//              A notification is NOT sent to sys admins
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		user := testdatagen.MakeDefaultUser(suite.DB()) // Default user is active
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
 
-		payload := adminmessages.UserUpdatePayload{
-			Active: nil,
-		}
-		modelToPayload, _ := payloads.UserModel(&payload, activeUser.ID, activeUser.Active)
-		updatedUser, verr, err := updater.UpdateUser(appCtx, activeUser.ID, modelToPayload)
+		user.Active = activeStatus
+		updatedUser, verr, err := updater.UpdateUser(appCtx, user.ID, &user)
 
 		suite.Nil(verr)
 		suite.Nil(err)
 		suite.True(updatedUser.Active)
-		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 0)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 0)
 	})
 
-	suite.T().Run("Make no change to inactive user", func(t *testing.T) {
-		// This case should NOT send an email to sys admins
+	suite.Run("Make no change to inactive user", func() {
+		// Under test: updateUser
+		// Mocked:     notificationSender
+		// Set up:     We provide an inactive user, and then deactivate them
+		//
+		// Expected outcome:
+		//           	updateUser returns the inactive user
+		//              A notification is NOT sent to sys admins
+		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
 
-		inactiveUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-			User: models.User{
-				Active: false,
-			},
-		})
+		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{}) // MakeUser makes an inactive user
 
-		payload := adminmessages.UserUpdatePayload{
-			Active: nil,
-		}
-		modelToPayload, _ := payloads.UserModel(&payload, inactiveUser.ID, inactiveUser.Active)
-		updatedUser, verr, err := updater.UpdateUser(appCtx, inactiveUser.ID, modelToPayload)
+		user.Active = inactiveStatus
+		updatedUser, verr, err := updater.UpdateUser(appCtx, user.ID, &user)
 
 		suite.Nil(verr)
 		suite.Nil(err)
 		suite.False(updatedUser.Active)
-		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 0)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 0)
 	})
 }
