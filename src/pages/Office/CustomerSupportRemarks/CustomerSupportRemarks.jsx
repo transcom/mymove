@@ -17,21 +17,22 @@ import CustomerSupportRemarkText from 'components/Office/CustomerSupportRemarkTe
 import CustomerSupportRemarkForm from 'components/Office/CustomerSupportRemarkForm/CustomerSupportRemarkForm';
 import { CUSTOMER_SUPPORT_REMARKS } from 'constants/queryKeys';
 import { deleteCustomerSupportRemark } from 'services/ghcApi';
+import Alert from 'shared/Alert';
 
 const CustomerSupportRemarks = () => {
   const { moveCode } = useParams();
-  // const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [showDeletionSuccess, setShowDeletionSuccess] = useState(false);
   const [customerSupportRemarkIDToDelete, setCustomerSupportRemarkIDToDelete] = useState(null);
   const { customerSupportRemarks, isLoading, isError } = useCustomerSupportRemarksQueries(moveCode);
   const [deleteCustomerSupportRemarkMutation] = useMutation(deleteCustomerSupportRemark, {
     onSuccess: async () => {
       await queryCache.invalidateQueries([CUSTOMER_SUPPORT_REMARKS, moveCode]);
       setCustomerSupportRemarkIDToDelete(null);
+      setShowDeletionSuccess(true);
     },
   });
 
   const onDelete = (remarkID) => {
-    // TODO need to add a confirmation modal in for this
     deleteCustomerSupportRemarkMutation({ customerSupportRemarkID: remarkID });
   };
 
@@ -50,6 +51,7 @@ const CustomerSupportRemarks = () => {
         <GridContainer className={customerSupportRemarkStyles.customerSupportRemarksTitle}>
           <Grid row>
             <Grid col desktop={{ col: 8, offset: 2 }}>
+              {showDeletionSuccess && <Alert type="success">Your remark has been deleted.</Alert>}
               <h1>Customer support remarks</h1>
             </Grid>
           </Grid>
