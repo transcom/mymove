@@ -16,7 +16,7 @@ import Restricted from 'components/Restricted/Restricted';
 import { updateCustomerSupportRemarkForMove } from 'services/ghcApi';
 import { CUSTOMER_SUPPORT_REMARKS } from 'constants/queryKeys';
 
-const CustomerSupportRemarkText = ({ customerSupportRemark }) => {
+const CustomerSupportRemarkText = ({ customerSupportRemark, onDelete }) => {
   const { moveCode } = useParams();
 
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -184,7 +184,9 @@ const CustomerSupportRemarkText = ({ customerSupportRemark }) => {
                 'usa-button--unstyled',
               )}
               type="delete"
-              onClick={() => {}}
+              onClick={() => {
+                onDelete(customerSupportRemark.id);
+              }}
               data-testid="delete-remark-button"
             >
               <small>Delete</small>
