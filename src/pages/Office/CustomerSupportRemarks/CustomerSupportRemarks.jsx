@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import 'styles/office.scss';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { useParams } from 'react-router-dom';
@@ -9,6 +9,7 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import customerSupportRemarkStyles from './CustomerSupportRemarks.module.scss';
 
+import ConnectedDeleteCustomerSupportRemarkConfirmationModal from 'components/ConfirmationModals/DeleteCustomerSupportRemarkConfirmationModal';
 import { useCustomerSupportRemarksQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -19,10 +20,13 @@ import { deleteCustomerSupportRemark } from 'services/ghcApi';
 
 const CustomerSupportRemarks = () => {
   const { moveCode } = useParams();
+  // const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [customerSupportRemarkIDToDelete, setCustomerSupportRemarkIDToDelete] = useState(null);
   const { customerSupportRemarks, isLoading, isError } = useCustomerSupportRemarksQueries(moveCode);
   const [deleteCustomerSupportRemarkMutation] = useMutation(deleteCustomerSupportRemark, {
     onSuccess: async () => {
       await queryCache.invalidateQueries([CUSTOMER_SUPPORT_REMARKS, moveCode]);
+      setCustomerSupportRemarkIDToDelete(null);
     },
   });
 
@@ -35,41 +39,49 @@ const CustomerSupportRemarks = () => {
   if (isError) return <SomethingWentWrong />;
 
   return (
-    <div className={classnames(styles.tabContent, customerSupportRemarkStyles.customerSupportRemarksContent)}>
-      <GridContainer className={customerSupportRemarkStyles.customerSupportRemarksTitle}>
-        <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
-            <h1>Customer support remarks</h1>
+    <>
+      <ConnectedDeleteCustomerSupportRemarkConfirmationModal
+        isOpen={customerSupportRemarkIDToDelete !== null}
+        customerSupportRemarkID={customerSupportRemarkIDToDelete}
+        onClose={() => setCustomerSupportRemarkIDToDelete(null)}
+        onSubmit={onDelete}
+      />
+      <div className={classnames(styles.tabContent, customerSupportRemarkStyles.customerSupportRemarksContent)}>
+        <GridContainer className={customerSupportRemarkStyles.customerSupportRemarksTitle}>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <h1>Customer support remarks</h1>
+            </Grid>
           </Grid>
-        </Grid>
-      </GridContainer>
-      <GridContainer>
-        <Grid row>
-          <Grid
-            className={customerSupportRemarkStyles.customerSupportRemarksContainer}
-            col
-            desktop={{ col: 8, offset: 2 }}
-          >
-            <h2>Remarks</h2>
+        </GridContainer>
+        <GridContainer>
+          <Grid row>
+            <Grid
+              className={customerSupportRemarkStyles.customerSupportRemarksContainer}
+              col
+              desktop={{ col: 8, offset: 2 }}
+            >
+              <h2>Remarks</h2>
 
-            <CustomerSupportRemarkForm />
+              <CustomerSupportRemarkForm />
 
-            <h3>Past remarks</h3>
-            {customerSupportRemarks.length === 0 && <p>No remarks yet.</p>}
-            {customerSupportRemarks.length > 0 &&
-              customerSupportRemarks.map((customerSupportRemark) => {
-                return (
-                  <CustomerSupportRemarkText
-                    customerSupportRemark={customerSupportRemark}
-                    key={customerSupportRemark.id}
-                    onDelete={onDelete}
-                  />
-                );
-              })}
+              <h3>Past remarks</h3>
+              {customerSupportRemarks.length === 0 && <p>No remarks yet.</p>}
+              {customerSupportRemarks.length > 0 &&
+                customerSupportRemarks.map((customerSupportRemark) => {
+                  return (
+                    <CustomerSupportRemarkText
+                      customerSupportRemark={customerSupportRemark}
+                      key={customerSupportRemark.id}
+                      onDelete={setCustomerSupportRemarkIDToDelete}
+                    />
+                  );
+                })}
+            </Grid>
           </Grid>
-        </Grid>
-      </GridContainer>
-    </div>
+        </GridContainer>
+      </div>
+    </>
   );
 };
 export default CustomerSupportRemarks;
