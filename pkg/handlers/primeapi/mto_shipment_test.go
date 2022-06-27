@@ -6,6 +6,9 @@ import (
 	"net/http/httptest"
 	"time"
 
+	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
+
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -396,8 +399,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-	updater := mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
-
+	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
+	ppmEstimator := mocks.PPMEstimator{}
+	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 	setupTestData := func() (UpdateMTOShipmentHandler, models.MTOShipment) {
 		// Add a 12 day transit time for a distance of 400
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -410,7 +415,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			updater,
+			shipmentUpdater,
 		}
 		handler.HandlerConfig.SetPlanner(planner)
 
@@ -448,7 +453,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			IfMatch: eTag,
 		}
 
-		mockUpdater := mocks.MTOShipmentUpdater{}
+		mockUpdater := mocks.ShipmentUpdater{}
 		mockHandler := UpdateMTOShipmentHandler{
 			handler.HandlerConfig,
 			&mockUpdater,
@@ -460,7 +465,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.Anything,
 		).Return(true, nil)
 
-		mockUpdater.On("UpdateMTOShipment",
+		mockUpdater.On("UpdateShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
@@ -978,12 +983,15 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-	updater := mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
+	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
+	ppmEstimator := mocks.PPMEstimator{}
+	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 
 	setupTestData := func() (UpdateMTOShipmentHandler, models.MTOShipment) {
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
-			updater,
+			shipmentUpdater,
 		}
 		handler.HandlerConfig.SetPlanner(planner)
 		// Create a shipment in the DB that has no addresses populated:
@@ -1154,14 +1162,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-	updater := mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
+	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
+	ppmEstimator := mocks.PPMEstimator{}
+	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 
 	setupTestData := func() (UpdateMTOShipmentHandler, models.Move) {
 		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		handlerConfig.SetPlanner(planner)
 		handler := UpdateMTOShipmentHandler{
 			handlerConfig,
-			updater,
+			shipmentUpdater,
 		}
 		// Create an available move to be used for the shipments
 		move := testdatagen.MakeAvailableMove(suite.DB())
