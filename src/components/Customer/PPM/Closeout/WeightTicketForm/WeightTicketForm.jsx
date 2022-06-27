@@ -3,7 +3,7 @@ import React, { createRef } from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { Button, ErrorMessage, Form, FormGroup, Label, Link, Radio } from '@trussworks/react-uswds';
-import { string, bool, func, number, shape, instanceOf } from 'prop-types';
+import { string, bool, func, number, shape } from 'prop-types';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import styles from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm.module.scss';
@@ -138,7 +138,7 @@ WeightTicketUpload.propTypes = {
   onCreateUpload: func.isRequired,
   onUploadComplete: func.isRequired,
   onUploadDelete: func.isRequired,
-  fileUploadRef: shape({ current: instanceOf(FileUpload) }).isRequired,
+  fileUploadRef: shape({ current: shape({}) }).isRequired,
   formikProps: shape({
     values: shape({}),
     touched: shape({}),
@@ -179,14 +179,14 @@ const WeightTicketForm = ({
 
   const initialValues = {
     vehicleDescription: vehicleDescription || '',
-    missingEmptyWeightTicket,
+    missingEmptyWeightTicket: !!missingEmptyWeightTicket,
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
     emptyWeightTickets: emptyWeightTickets || [],
     fullWeight: fullWeight ? `${fullWeight}` : '',
-    missingFullWeightTicket,
+    missingFullWeightTicket: !!missingFullWeightTicket,
     fullWeightTickets: fullWeightTickets || [],
-    hasOwnTrailer: hasOwnTrailer === true ? 'true' : 'false',
-    hasClaimedTrailer: hasClaimedTrailer === true ? 'true' : 'false',
+    hasOwnTrailer: hasOwnTrailer ? 'true' : 'false',
+    hasClaimedTrailer: hasClaimedTrailer ? 'true' : 'false',
     trailerOwnershipDocs: trailerOwnershipDocs || [],
   };
 
@@ -205,7 +205,7 @@ const WeightTicketForm = ({
                 <h3>Vehicle</h3>
                 <TextField label="Vehicle description" name="vehicleDescription" id="vehicleDescription" />
                 <Hint className={ppmStyles.hint}>Car make and model, type of truck or van, etc.</Hint>
-                <h3>Empty Weight</h3>
+                <h3>Empty weight</h3>
                 <MaskedTextField
                   defaultValue="0"
                   name="emptyWeight"
@@ -234,7 +234,7 @@ const WeightTicketForm = ({
                     formikProps={formikProps}
                   />
                 </div>
-                <h3>Full Weight</h3>
+                <h3>Full weight</h3>
                 <MaskedTextField
                   defaultValue="0"
                   name="fullWeight"
@@ -306,7 +306,7 @@ const WeightTicketForm = ({
                       </ul>
                       <Field
                         as={Radio}
-                        id="yesHasClaimTrailer"
+                        id="yesHasClaimedTrailer"
                         label="Yes"
                         name="hasClaimedTrailer"
                         value="true"
@@ -314,7 +314,7 @@ const WeightTicketForm = ({
                       />
                       <Field
                         as={Radio}
-                        id="noHasClaimTrailer"
+                        id="noHasClaimedTrailer"
                         label="No"
                         name="hasClaimedTrailer"
                         value="false"
