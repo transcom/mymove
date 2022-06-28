@@ -3,7 +3,7 @@ import React, { createRef } from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { Button, ErrorMessage, Form, FormGroup, Label, Link, Radio } from '@trussworks/react-uswds';
-import { string, bool, func, number, shape } from 'prop-types';
+import { string, bool, func, shape } from 'prop-types';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import styles from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm.module.scss';
@@ -83,7 +83,8 @@ const WeightTicketUpload = ({
   onUploadComplete,
   onUploadDelete,
   fileUploadRef,
-  formikProps: { values, touched, errors, setFieldTouched, setFieldValue },
+  values,
+  formikProps: { touched, errors, setFieldTouched, setFieldValue },
 }) => {
   const weightTicketUploadLabel = (name, showConstructedWeight) => {
     if (name === 'emptyWeightTickets') {
@@ -118,13 +119,15 @@ const WeightTicketUpload = ({
         <FileUpload
           name={fieldName}
           labelIdle={UploadDropZoneLabel}
-          createUpload={onCreateUpload}
+          createUpload={(file) => onCreateUpload(fieldName, file)}
           onChange={(err, upload) => {
             setFieldTouched(fieldName, true);
             onUploadComplete(upload, err, fieldName, values, setFieldValue);
             fileUploadRef.current.removeFile(upload.id);
           }}
           acceptedFileTypes={acceptableFileTypes}
+          labelFileTypeNotAllowed="Upload a supported file type"
+          fileValidateTypeLabelExpectedTypes="Supported file types: PDF, JPG, PNG, XLS, or XLSX"
           ref={fileUploadRef}
         />
       </FormGroup>
@@ -139,8 +142,8 @@ WeightTicketUpload.propTypes = {
   onUploadComplete: func.isRequired,
   onUploadDelete: func.isRequired,
   fileUploadRef: shape({ current: shape({}) }).isRequired,
+  values: shape({}).isRequired,
   formikProps: shape({
-    values: shape({}),
     touched: shape({}),
     errors: shape({}),
     setFieldTouched: func,
@@ -196,7 +199,7 @@ const WeightTicketForm = ({
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, ...formikProps }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, ...formikProps }) => {
         return (
           <div className={classnames(ppmStyles.formContainer, styles.WeightTicketForm)}>
             <Form className={classnames(formStyles.form, ppmStyles.form)}>
@@ -226,11 +229,12 @@ const WeightTicketForm = ({
                 <div>
                   <WeightTicketUpload
                     fieldName="emptyWeightTickets"
-                    missingWeightTicket={formikProps.values.missingEmptyWeightTicket}
+                    missingWeightTicket={values.missingEmptyWeightTicket}
                     onCreateUpload={onCreateUpload}
                     onUploadComplete={onUploadComplete}
                     onUploadDelete={onUploadDelete}
                     fileUploadRef={emptyWeightTicketsRef}
+                    values={values}
                     formikProps={formikProps}
                   />
                 </div>
@@ -255,18 +259,17 @@ const WeightTicketForm = ({
                 <div>
                   <WeightTicketUpload
                     fieldName="fullWeightTickets"
-                    missingWeightTicket={formikProps.values.missingFullWeightTicket}
+                    missingWeightTicket={values.missingFullWeightTicket}
                     onCreateUpload={onCreateUpload}
                     onUploadComplete={onUploadComplete}
                     onUploadDelete={onUploadDelete}
                     fileUploadRef={fullWeightTicketsRef}
+                    values={values}
                     formikProps={formikProps}
                   />
                 </div>
-                {formikProps.values.fullWeight > 0 && formikProps.values.emptyWeight > 0 ? (
-                  <h3>{`Trip weight: ${formatWeight(
-                    formikProps.values.fullWeight - formikProps.values.emptyWeight,
-                  )}`}</h3>
+                {values.fullWeight > 0 && values.emptyWeight > 0 ? (
+                  <h3>{`Trip weight: ${formatWeight(values.fullWeight - values.emptyWeight)}`}</h3>
                 ) : (
                   <h3>Trip weight:</h3>
                 )}
@@ -280,7 +283,7 @@ const WeightTicketForm = ({
                       label="Yes"
                       name="hasOwnTrailer"
                       value="true"
-                      checked={formikProps.values.hasOwnTrailer === 'true'}
+                      checked={values.hasOwnTrailer === 'true'}
                     />
                     <Field
                       as={Radio}
@@ -288,10 +291,10 @@ const WeightTicketForm = ({
                       label="No"
                       name="hasOwnTrailer"
                       value="false"
-                      checked={formikProps.values.hasOwnTrailer === 'false'}
+                      checked={values.hasOwnTrailer === 'false'}
                     />
                   </Fieldset>
-                  {formikProps.values.hasOwnTrailer === 'true' && (
+                  {values.hasOwnTrailer === 'true' && (
                     <Fieldset>
                       <legend className="usa-label">Does your trailer meet all of these criteria?</legend>
                       <ul>
@@ -310,7 +313,7 @@ const WeightTicketForm = ({
                         label="Yes"
                         name="hasClaimedTrailer"
                         value="true"
-                        checked={formikProps.values.hasClaimedTrailer === 'true'}
+                        checked={values.hasClaimedTrailer === 'true'}
                       />
                       <Field
                         as={Radio}
@@ -318,15 +321,15 @@ const WeightTicketForm = ({
                         label="No"
                         name="hasClaimedTrailer"
                         value="false"
-                        checked={formikProps.values.hasClaimedTrailer === 'false'}
+                        checked={values.hasClaimedTrailer === 'false'}
                       />
-                      {formikProps.values.hasClaimedTrailer === 'true' ? (
+                      {values.hasClaimedTrailer === 'true' ? (
                         <>
                           <p>You can claim the weight of this trailer one time during your move.</p>
                           <div>
                             <UploadsTable
                               className={styles.uploadsTable}
-                              uploads={formikProps.values.trailerOwnershipDocs}
+                              uploads={values.trailerOwnershipDocs}
                               onDelete={onUploadDelete}
                             />
                             <FormGroup
@@ -410,7 +413,7 @@ const WeightTicketForm = ({
 
 WeightTicketForm.propTypes = {
   weightTicket: WeightTicketShape,
-  tripNumber: number,
+  tripNumber: string,
   onCreateUpload: func.isRequired,
   onUploadComplete: func.isRequired,
   onUploadDelete: func,
@@ -421,7 +424,7 @@ WeightTicketForm.propTypes = {
 WeightTicketForm.defaultProps = {
   weightTicket: undefined,
   onUploadDelete: undefined,
-  tripNumber: 1,
+  tripNumber: '1',
 };
 
 export default WeightTicketForm;

@@ -1,4 +1,5 @@
 import Swagger from 'swagger-client';
+import { v4 as uuidv4 } from 'uuid';
 
 import { makeSwaggerRequest, requestInterceptor, responseInterceptor } from './swaggerRequest';
 
@@ -286,6 +287,19 @@ export async function deleteMTOShipment(mtoShipmentId) {
       normalize: false,
     },
   );
+}
+
+export async function createWeightTicket() {
+  return Promise.resolve({
+    id: uuidv4(),
+    emptyWeightDocumentId: uuidv4(),
+    fullWeightDocumentId: uuidv4(),
+    trailerOwnershipDocumentId: uuidv4(),
+  });
+}
+
+export async function patchWeightTicket() {
+  return {};
 }
 
 /** PPMS */

@@ -17,7 +17,7 @@ const defaultProps = {
     fullWeightDocumentId: '1ec00b40-447d-4c22-ac73-708b98b8bc20',
     trailerOwnershipDocumentId: '5bf3ed20-08dd-4d8e-92ad-7603bb6377a5',
   },
-  tripNumber: 2,
+  tripNumber: '2',
   onCreateUpload: jest.fn(),
   onUploadComplete: jest.fn(),
   onUploadDelete: jest.fn(),
