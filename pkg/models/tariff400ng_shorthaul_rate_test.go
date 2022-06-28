@@ -108,7 +108,7 @@ func (suite *ModelSuite) Test_FetchShorthaulRateCents() {
 	// Test inclusivity CwtMilesLower
 	rate, err := FetchShorthaulRateCents(suite.DB(), 1000, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
-		t.Fatalf("Unable to query shorthaul rate: %s", err)
+		t.Errorf("Unable to query shorthaul rate: %s", err)
 	}
 	if rate != rate1 {
 		t.Errorf("Incorrect shorthaul rate. Got: %d, expected %d", rate, rate1)
@@ -145,7 +145,7 @@ func (suite *ModelSuite) Test_FetchShorthaulRateCents() {
 	// Test the upper bound of the CwtMiles
 	rate, err = FetchShorthaulRateCents(suite.DB(), 2999, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
-		t.Fatalf("Unable to query shorthaul rate: %s", err)
+		t.Errorf("Unable to query shorthaul rate: %s", err)
 	}
 	if rate != rate2 {
 		t.Errorf("Incorrect shorthaul rate. Got: %d, expected %d", rate, rate2)
@@ -164,7 +164,7 @@ func (suite *ModelSuite) Test_FetchShorthaulRateCents() {
 
 	rate, err = FetchShorthaulRateCents(suite.DB(), 1000, testdatagen.DateOutsidePeakRateCycle)
 	if err != nil {
-		t.Fatalf("Unable to query shorthaul rate: %s", err)
+		t.Errorf("Unable to query shorthaul rate: %s", err)
 	}
 	if rate != rate3 {
 		t.Errorf("Incorrect shorthaul rate. Got: %d, expected %d", rate, rate3)
