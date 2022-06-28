@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -10,13 +8,13 @@ import (
 )
 
 func (suite *ModelSuite) TestCustomerSupportRemarkCreation() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	suite.NotNil(move)
 
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	suite.NotNil(officeUser)
+	suite.Run("test valid office remark", func() {
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		suite.NotNil(move)
 
-	suite.T().Run("test valid office remark", func(t *testing.T) {
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		suite.NotNil(officeUser)
 		customerSupportRemark := "This is a note that's saying something about the move."
 		validCustomerSupportRemark := models.CustomerSupportRemark{
 			Content:      customerSupportRemark,

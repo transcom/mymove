@@ -110,6 +110,7 @@ const PaymentRequestQueue = ({ history }) => {
     isError,
   } = useUserQueries();
 
+  // eslint-disable-next-line camelcase
   const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
 
   const handleClick = (values) => {

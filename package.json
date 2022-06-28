@@ -7,11 +7,13 @@
     "@material-ui/core": "^4.12.4",
     "@material-ui/icons": "^4.11.2",
     "@trussworks/react-file-viewer": "git+https://github.com/trussworks/react-file-viewer",
-    "@trussworks/react-uswds": "2.9.0",
+    "@trussworks/react-uswds": "3.0.2",
     "bytes": "^3.1.1",
     "classnames": "^2.3.1",
     "connected-react-router": "^6.9.2",
     "core-js": "^3.20.3",
+    "customize-cra": "^1.0.0",
+    "eslint-plugin-react": "^7.28",
     "filepond": "^4.30.4",
     "filepond-plugin-file-validate-size": "^2.2.5",
     "filepond-plugin-file-validate-type": "^1.2.8",
@@ -21,6 +23,7 @@
     "formik": "^2.2.9",
     "history": "^4.10.1",
     "http-proxy-middleware": "^2.0.6",
+    "https-browserify": "^1.0.0",
     "is-mobile": "3.1.1",
     "jest-canvas-mock": "^2.3.1",
     "js-cookie": "^3.0.1",
@@ -69,8 +72,9 @@
     "sass": "^1.49.9",
     "swagger-client": "^3.18.5",
     "swagger-ui-dist": "^4.11.1",
-    "uswds": "2.11.2",
+    "uswds": "2.13.1",
     "uuid": "^8.3.2",
+    "webpack": "5",
     "yup": "^0.32.11"
   },
   "resolutions": {
@@ -81,7 +85,6 @@
     "immer": "^9.0.2",
     "url-parse": "^1.5.1",
     "y18n": "^5.0.5",
-    "webpack": "4.44.2",
     "eslint-plugin-react": "^7.28",
     "**/ua-parser-js": "0.7.28",
     "node-fetch": "^2.6.7",
@@ -91,12 +94,12 @@
   "private": true,
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "build": "react-scripts build",
+    "build": "react-app-rewired build",
     "eject": "react-scripts eject",
-    "start": "react-scripts start",
-    "test": "react-scripts test --env=jsdom",
-    "test:debug": "react-scripts --inspect-brk test --runInBand --env=jsdom",
-    "test:coverage": "react-scripts test --coverage --testResultsProcessor=jest-junit  --env=jsdom --watchAll=false --coverageDirectory=coverage --runInBand",
+    "start": "react-app-rewired start",
+    "test": "react-app-rewired test --env=jsdom",
+    "test:debug": "react-app-rewired --inspect-brk test --runInBand --env=jsdom",
+    "test:coverage": "react-app-rewired test --coverage --reporters=default --reporters=jest-junit --env=jsdom --coverageDirectory=coverage --runInBand --watchAll=false",
     "test:e2e": "cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "test:e2e-debug": "DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "test:e2e-clean-debug": "make db_dev_e2e_populate; DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
@@ -120,14 +123,16 @@
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
     "@dump247/storybook-state": "^1.6.1",
     "@stoplight/spectral": "^5.9.2",
-    "@storybook/addon-a11y": "^6.4.22",
-    "@storybook/addon-essentials": "^6.4.22",
+    "@storybook/addon-a11y": "^6.5.7",
+    "@storybook/addon-essentials": "^6.5.7",
     "@storybook/addon-knobs": "^6.4.0",
-    "@storybook/addon-links": "^6.4.22",
-    "@storybook/addons": "^6.4.14",
-    "@storybook/preset-create-react-app": "^3.2.0",
-    "@storybook/react": "^6.4.22",
+    "@storybook/addon-links": "^6.5.7",
+    "@storybook/addons": "^6.5.7",
+    "@storybook/builder-webpack5": "^6.5.8",
     "@storybook/jest": "^0.0.10",
+    "@storybook/manager-webpack5": "^6.5.8",
+    "@storybook/preset-create-react-app": "^4.1.2",
+    "@storybook/react": "^6.5.7",
     "@storybook/testing-library": "^0.0.11",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.5",
@@ -150,14 +155,16 @@
     "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-security": "^1.5.0",
+    "eslint-plugin-storybook": "0.5.12",
     "eslint-plugin-you-dont-need-lodash-underscore": "^6.12.0",
     "happo-plugin-storybook": "^2.11.2",
     "happo.io": "^7.1.1",
     "jest-junit": "^13.2.0",
-    "mime-types": "^2.1.34",
+    "mime-types": "^2.1.35",
     "mockdate": "^3.0.5",
     "prettier": "2.6.2",
-    "react-scripts": "^4.0.3",
+    "react-app-rewired": "^2.2.1",
+    "react-scripts": "5.0.1",
     "react-select-event": "^5.3.0",
     "react-test-renderer": "^17.0.1",
     "source-map-explorer": "^2.5.2",
@@ -171,21 +178,11 @@
   ],
   "jest": {
     "resetMocks": false,
-    "collectCoverageFrom": [
-      "src/**/*.{js,jsx,ts,tsx}",
-      "!src/**/*.stories.{jsx,tsx}",
-      "!<rootDir>/node_modules/"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 60,
-        "functions": 47.96,
-        "lines": 62.95,
-        "statements": 62.5
-      }
-    },
     "transformIgnorePatterns": [
       "node_modules/(?!(imask)/)/"
-    ]
+    ],
+    "moduleNameMapper": {
+      "react-markdown": "<rootDir>/node_modules/react-markdown/react-markdown.min.js"
+    }
   }
 }

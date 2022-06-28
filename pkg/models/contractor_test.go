@@ -1,13 +1,11 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestContractorValidation() {
-	suite.T().Run("test valid Contractor", func(t *testing.T) {
+	suite.Run("test valid Contractor", func() {
 		newContractor := models.Contractor{
 			Name:           "Contractor 1",
 			Type:           "Prime",
@@ -18,7 +16,7 @@ func (suite *ModelSuite) TestContractorValidation() {
 		suite.verifyValidationErrors(&newContractor, expErrors)
 	})
 
-	suite.T().Run("test empty Contractor", func(t *testing.T) {
+	suite.Run("test empty Contractor", func() {
 		emptyContractor := models.Contractor{}
 		expErrors := map[string][]string{
 			"name":            {"Name can not be blank."},
