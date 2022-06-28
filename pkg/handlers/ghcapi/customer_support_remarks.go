@@ -96,7 +96,6 @@ func (h DeleteCustomerSupportRemarkHandler) Handle(params customersupportremarks
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			// TODO what's the point of this conversion?
 			remarkID := uuid.FromStringOrNil(params.CustomerSupportRemarkID.String())
 			err := h.DeleteCustomerSupportRemark(appCtx, remarkID)
 
