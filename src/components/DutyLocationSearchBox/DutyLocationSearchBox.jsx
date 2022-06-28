@@ -110,7 +110,7 @@ export const DutyLocationSearchBoxComponent = (props) => {
         boxShadow: state.isFocused ? `0 0 0 0.26667rem ${uswdsBlue}` : '',
       }),
       singleValue: () => {
-        const color = uswdsBlack;
+        const color = '#1B1B1B';
         return { color };
       },
       valueContainer: (provided) => ({

@@ -2,4 +2,6 @@
 
 select:disabled {
   background-color: $border-color;
+  pointer-events: none;
 }
+
