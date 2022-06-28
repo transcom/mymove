@@ -26,5 +26,5 @@ type CustomerSupportRemarkUpdater interface {
 
 //go:generate mockery --name CustomerSupportRemarkDeleter --disable-version-string
 type CustomerSupportRemarkDeleter interface {
-	DeleteCustomerSupportRemark(appCtx appcontext.AppContext, customerSupportRemarkID uuid.UUID) error
+	DeleteCustomerSupportRemark(appCtx appcontext.AppContext, customerSupportRemarkID uuid.UUID) (uuid.UUID, error)
 }

@@ -21,15 +21,15 @@ func NewCustomerSupportRemarkDeleter() services.CustomerSupportRemarkDeleter {
 	return &customerSupportRemarkDeleter{}
 }
 
-func (o customerSupportRemarkDeleter) DeleteCustomerSupportRemark(appCtx appcontext.AppContext, customerSupportRemarkID uuid.UUID) error {
+func (o customerSupportRemarkDeleter) DeleteCustomerSupportRemark(appCtx appcontext.AppContext, customerSupportRemarkID uuid.UUID) (uuid.UUID, error) {
 	var remark models.CustomerSupportRemark
 	err := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope()).Find(&remark, customerSupportRemarkID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return apperror.NewNotFoundError(customerSupportRemarkID, "attempting to delete CustomerSupportRemark")
+			return uuid.Nil, apperror.NewNotFoundError(customerSupportRemarkID, "attempting to delete CustomerSupportRemark")
 		default:
-			return apperror.NewQueryError("CustomerSupportRemark", err, "")
+			return uuid.Nil, apperror.NewQueryError("CustomerSupportRemark", err, "")
 		}
 	}
 
@@ -49,7 +49,7 @@ func (o customerSupportRemarkDeleter) DeleteCustomerSupportRemark(appCtx appcont
 	})
 
 	if transactionError != nil {
-		return transactionError
+		return uuid.Nil, transactionError
 	}
-	return nil
+	return remark.MoveID, nil
 }

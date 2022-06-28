@@ -77,6 +77,10 @@ func checkAvailabilityToPrime(event *Event) (bool, error) {
 
 }
 
+func assembleCustomerSupportRemarkPayload(appCtx appcontext.AppContext, updatedObjectID uuid.UUID) ([]byte, bool, error) {
+	return nil, false, nil
+}
+
 // assembleMTOShipmentPayload assembles the MTOShipment Payload and returns the JSON in bytes and a bool
 // representing whether this notification should continue (we don't want to notify when the shipment
 // is handled by an external vendor, for instance).
@@ -255,6 +259,12 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 		payloadArray, err = assembleMTOServiceItemPayload(appCtx, event.UpdatedObjectID)
 	case models.Move:
 		payloadArray, err = assembleMTOPayload(appCtx, event.UpdatedObjectID)
+	case models.CustomerSupportRemark:
+		var shouldNotify bool
+		payloadArray, shouldNotify, err = assembleCustomerSupportRemarkPayload(appCtx, event.UpdatedObjectID)
+		if !shouldNotify {
+			return false, err
+		}
 	default:
 		appCtx.Logger().Error("event.NotificationEventHandler: Unknown logical object being updated.")
 		err = apperror.NewEventError(fmt.Sprintf("No notification handler for event %s", event.EventKey), nil)

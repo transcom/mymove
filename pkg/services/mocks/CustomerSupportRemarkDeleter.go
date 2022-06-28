@@ -17,17 +17,26 @@ type CustomerSupportRemarkDeleter struct {
 }
 
 // DeleteCustomerSupportRemark provides a mock function with given fields: appCtx, customerSupportRemarkID
-func (_m *CustomerSupportRemarkDeleter) DeleteCustomerSupportRemark(appCtx appcontext.AppContext, customerSupportRemarkID uuid.UUID) error {
+func (_m *CustomerSupportRemarkDeleter) DeleteCustomerSupportRemark(appCtx appcontext.AppContext, customerSupportRemarkID uuid.UUID) (uuid.UUID, error) {
 	ret := _m.Called(appCtx, customerSupportRemarkID)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) error); ok {
+	var r0 uuid.UUID
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) uuid.UUID); ok {
 		r0 = rf(appCtx, customerSupportRemarkID)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(uuid.UUID)
+		}
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, customerSupportRemarkID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewCustomerSupportRemarkDeleter creates a new instance of CustomerSupportRemarkDeleter. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
