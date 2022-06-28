@@ -519,7 +519,7 @@ func (suite *PopTestSuite) NilOrNoVerrs(err error) {
 //
 // If the code under test starts its own transaction, this is the
 // approach that should be used. If it does not use transactions, you
-// can probably get away with using RunWithRollback (see below).
+// can probably get away with using RunWithPreloadedData (see below).
 //
 // When using per test transactions, watch out for subtests that do
 // not use testify.suite as they won't use this code and thus won't
@@ -556,21 +556,18 @@ func (suite *PopTestSuite) Run(name string, subtest func()) bool {
 	})
 }
 
-// RunWithRollback, with WithPerTestTransaction enabled, means
-// each subtest will get rolled back. This means each subtest is
-// isolated from sibling tests but NOT isolated from any db changes
-// made in the main test.
+// RunWithPreloadedData, with WithPerTestTransaction enabled, means
+// each subtest will have access to preloaded data from the main test
+// but the subtest changes will get rolled back.
 //
-// RunWithRollback runs a subtest inside a transaction that is
-// rolled back. Not all tests will work with this approach
+// This means each subtest is isolated from sibling tests but NOT
+// isolated from any db changes made in the main test.
 //
-// See Run above for more details, but if the code under test does not
-// use transactions, this way of running subtests should work. If that
-// is true, you can reuse database models created in the main test in
-// each subtest.
-func (suite *PopTestSuite) RunWithRollback(name string, subtest func()) bool {
+// Each subtest will run in a transaction that rolls back when the
+// subtest returns.
+func (suite *PopTestSuite) RunWithPreloadedData(name string, subtest func()) bool {
 	if !suite.usePerTestTransaction {
-		log.Fatal("Cannot use RunWithRollback without per test transaction")
+		log.Fatal("Cannot use RunWithPreloadedData without per test transaction")
 	}
 	// call suite.DB to ensure a connection is established outside the subtest
 	oldDB := suite.DB()

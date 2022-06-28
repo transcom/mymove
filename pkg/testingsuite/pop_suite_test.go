@@ -19,10 +19,10 @@ func TestPopTestSuite(t *testing.T) {
 	ps.TearDown()
 }
 
-func (suite *PopTestSuite) TestRunWithRollback() {
+func (suite *PopTestSuite) TestRunWithPreloadedData() {
 	address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 
-	suite.RunWithRollback("Main test records available in subtest", func() {
+	suite.RunWithPreloadedData("Main test records available in subtest", func() {
 		var foundAddress models.Address
 		err := suite.DB().Find(&foundAddress, address.ID)
 		suite.NoError(err)
@@ -31,12 +31,12 @@ func (suite *PopTestSuite) TestRunWithRollback() {
 	})
 
 	var address2 models.Address
-	suite.RunWithRollback("Subtest record creation", func() {
+	suite.RunWithPreloadedData("Subtest record creation", func() {
 		// Create address to search for in the next test
 		address2 = testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
 	})
 
-	suite.RunWithRollback("Subtest record not found", func() {
+	suite.RunWithPreloadedData("Subtest record not found", func() {
 		// Check that address2 cannot be found
 		var foundAddress models.Address
 		err := suite.DB().Find(&foundAddress, address2.ID)
