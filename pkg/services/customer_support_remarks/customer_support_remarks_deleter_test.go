@@ -13,17 +13,16 @@ func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarkDeleter() {
 
 	suite.Run("delete existing remark", func() {
 		remark := testdatagen.MakeDefaultCustomerSupportRemark(suite.DB())
-		_, err := deleter.DeleteCustomerSupportRemark(suite.AppContextForTest(), remark.ID)
-		suite.NoError(err)
+		suite.NoError(deleter.DeleteCustomerSupportRemark(suite.AppContextForTest(), remark.ID))
 		var dbRemark models.CustomerSupportRemark
-		err = suite.DB().Find(&dbRemark, remark.ID)
+		err := suite.DB().Find(&dbRemark, remark.ID)
 		suite.NoError(err)
 		suite.NotNil(dbRemark.DeletedAt)
 	})
 
 	suite.Run("Returns an error when delete non-existent remark", func() {
 		uuid := uuid.Must(uuid.NewV4())
-		_, err := deleter.DeleteCustomerSupportRemark(suite.AppContextForTest(), uuid)
+		err := deleter.DeleteCustomerSupportRemark(suite.AppContextForTest(), uuid)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 
@@ -31,13 +30,12 @@ func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarkDeleter() {
 
 	suite.Run("Returns an error when attempting to delete an already deleted remark", func() {
 		remark := testdatagen.MakeDefaultCustomerSupportRemark(suite.DB())
-		_, err := deleter.DeleteCustomerSupportRemark(suite.AppContextForTest(), remark.ID)
-		suite.NoError(err)
+		suite.NoError(deleter.DeleteCustomerSupportRemark(suite.AppContextForTest(), remark.ID))
 		var dbRemark models.CustomerSupportRemark
-		err = suite.DB().Find(&dbRemark, remark.ID)
+		err := suite.DB().Find(&dbRemark, remark.ID)
 		suite.NoError(err)
 		suite.NotNil(dbRemark.DeletedAt)
-		_, err = deleter.DeleteCustomerSupportRemark(suite.AppContextForTest(), remark.ID)
+		err = deleter.DeleteCustomerSupportRemark(suite.AppContextForTest(), remark.ID)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})

@@ -97,7 +97,7 @@ func (h DeleteCustomerSupportRemarkHandler) Handle(params customersupportremarks
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			remarkID := uuid.FromStringOrNil(params.CustomerSupportRemarkID.String())
-			moveID, err := h.DeleteCustomerSupportRemark(appCtx, remarkID)
+			err := h.DeleteCustomerSupportRemark(appCtx, remarkID)
 
 			if err != nil {
 				appCtx.Logger().Error("ghcapi.DeleteCustomerSupportRemarkHandler", zap.Error(err))
@@ -118,7 +118,7 @@ func (h DeleteCustomerSupportRemarkHandler) Handle(params customersupportremarks
 
 			// TODO how should I get the move ID for the event trigger? we either need to query for it here
 			// TODO  or we need to just ask for it as a param
-			h.triggerCustomerSupportRemarkDeletionEvent(appCtx, remarkID, moveID, params)
+			h.triggerCustomerSupportRemarkDeletionEvent(appCtx, remarkID, uuid.Nil, params)
 
 			return customersupportremarksop.NewDeleteCustomerSupportRemarkNoContent(), nil
 		})

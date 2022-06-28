@@ -120,7 +120,6 @@ var eventModels = map[KeyType]eventModel{
 	MTOServiceItemUpdateEventKey:        {MTOServiceItemUpdateEventKey, models.MTOServiceItem{}},
 	PaymentRequestCreateEventKey:        {PaymentRequestCreateEventKey, models.PaymentRequest{}},
 	PaymentRequestUpdateEventKey:        {PaymentRequestUpdateEventKey, models.PaymentRequest{}},
-	CustomerSupportRemarkDeleteEventKey: {CustomerSupportRemarkDeleteEventKey, models.CustomerSupportRemark{}},
 	TestCreateEventKey:                  {TestCreateEventKey, nil},
 	TestUpdateEventKey:                  {TestUpdateEventKey, nil},
 	TestDeleteEventKey:                  {TestDeleteEventKey, nil}}
