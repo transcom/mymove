@@ -114,8 +114,6 @@ func (h DeleteCustomerSupportRemarkHandler) Handle(params customersupportremarks
 				}
 			}
 
-			// TODO do we need to trigger an event for this? it should be done here if so
-
 			return customersupportremarksop.NewDeleteCustomerSupportRemarkNoContent(), nil
 		})
 }
