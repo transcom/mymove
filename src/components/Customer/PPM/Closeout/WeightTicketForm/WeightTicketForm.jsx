@@ -22,6 +22,7 @@ import {
   DocumentAndImageUploadInstructions,
   SpreadsheetUploadInstructions,
   UploadDropZoneLabel,
+  UploadDropZoneLabelMobile,
 } from 'content/uploads';
 import { uploadShape } from 'types/uploads';
 
@@ -119,6 +120,7 @@ const WeightTicketUpload = ({
         <FileUpload
           name={fieldName}
           labelIdle={UploadDropZoneLabel}
+          labelIdleMobile={UploadDropZoneLabelMobile}
           createUpload={(file) => onCreateUpload(fieldName, file)}
           onChange={(err, upload) => {
             setFieldTouched(fieldName, true);
@@ -372,6 +374,7 @@ const WeightTicketForm = ({
                                 name="trailerOwnershipDocs"
                                 createUpload={(file) => onCreateUpload('trailerOwnershipDocs', file)}
                                 labelIdle={UploadDropZoneLabel}
+                                labelIdleMobile={UploadDropZoneLabelMobile}
                                 onChange={(err, upload) => {
                                   formikProps.setFieldTouched('trailerOwnershipDocs', true);
                                   onUploadComplete(

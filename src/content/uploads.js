@@ -4,3 +4,5 @@ export const DocumentAndImageUploadInstructions =
 export const SpreadsheetUploadInstructions = 'XLS or XLSX only. Maximum file size 25 MB.';
 
 export const UploadDropZoneLabel = 'Drag files here or <span class="filepond--label-action">choose from folder</span>';
+
+export const UploadDropZoneLabelMobile = '<span class="filepond--label-action">Upload files</span>';
