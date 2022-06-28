@@ -32,7 +32,7 @@ describe('QAE/CSR orders and allowances read only view', () => {
     cy.get('@results').first().click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
 
-    // Navigate to Edit orders page
+    // Navigate to view orders page
     cy.get('[data-testid="view-orders"]').contains('View orders').click();
 
     cy.get('input[name="issueDate"]').should('be.disabled');
@@ -65,29 +65,27 @@ describe('QAE/CSR orders and allowances read only view', () => {
     // Move Details page
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
-    // Navigate to Edit allowances page
+    // Navigate to view allowances page
     cy.get('[data-testid="view-allowances"]').contains('View allowances').click();
 
     cy.wait(['@getMoves', '@getOrders']);
 
-    // Edit pro-gear, pro-gear spouse, RME, SIT, and OCIE fields
+    // read only pro-gear, pro-gear spouse, RME, SIT, and OCIE fields
     cy.get('input[name="proGearWeight"]').should('be.disabled');
     cy.get('input[name="proGearWeightSpouse"]').should('be.disabled');
     cy.get('input[name="requiredMedicalEquipmentWeight"]').should('be.disabled');
     cy.get('input[name="storageInTransit"]').should('be.disabled');
     cy.get('input[name="organizationalClothingAndIndividualEquipment"]').should('be.disabled');
 
-    // Edit grade and authorized weight
+    // read only grade and authorized weight
     cy.get('select[name=agency]').should('be.disabled');
     cy.get('select[name=agency]').should('be.disabled');
     cy.get('select[name="grade"]').should('be.disabled');
     cy.get('select[name="grade"]').should('be.disabled');
     cy.get('input[name="authorizedWeight"]').should('be.disabled');
-
-    //Edit DependentsAuthorized
     cy.get('input[name="dependentsAuthorized"]').should('be.disabled');
 
-    // Edit allowances page | Save
+    // no save button should exist
     cy.get('button').contains('Save').should('not.exist');
   });
 });
