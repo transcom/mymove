@@ -3,6 +3,12 @@
 
 
 .WeightTicketForm {
+  @include at-media-max(tablet) {
+    .weightTicketSectionWrapper {
+      @include u-margin-bottom(1);
+    }
+  }
+
   h2 {
     @include u-margin-bottom(4);
   }
@@ -49,6 +55,16 @@
     @include u-margin-bottom(2);
 
     @include u-border-bottom(0);
+  }
+
+  .trailerClaimedFieldset {
+    @include u-margin-bottom(0);
+    @include u-padding-bottom(0);
+    @include u-border-bottom(0);
+
+    :global(.file-pond--root) {
+      @include u-margin-bottom(0);
+    }
   }
 
   .doNotClaimTrailerWeight {

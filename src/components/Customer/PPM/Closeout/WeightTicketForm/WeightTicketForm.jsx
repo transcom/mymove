@@ -203,7 +203,7 @@ const WeightTicketForm = ({
         return (
           <div className={classnames(ppmStyles.formContainer, styles.WeightTicketForm)}>
             <Form className={classnames(formStyles.form, ppmStyles.form)}>
-              <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
+              <SectionWrapper className={classnames(formStyles.formSection, styles.weightTicketSectionWrapper)}>
                 <h2>{`Trip ${tripNumber}`}</h2>
                 <h3>Vehicle</h3>
                 <TextField label="Vehicle description" name="vehicleDescription" id="vehicleDescription" />
@@ -295,7 +295,7 @@ const WeightTicketForm = ({
                     />
                   </Fieldset>
                   {values.hasOwnTrailer === 'true' && (
-                    <Fieldset>
+                    <Fieldset className={styles.trailerClaimedFieldset}>
                       <legend className="usa-label">Does your trailer meet all of these criteria?</legend>
                       <ul>
                         <li>Single axle</li>
