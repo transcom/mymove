@@ -135,20 +135,25 @@ const reviewPath = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
 });
 
 describe('Weight Tickets page', () => {
-  it('loads the selected shipment from redux', () => {
+  it('loads the selected shipment from redux', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
-    expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
+    await waitFor(() => {
+      expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
+    });
   });
 
-  it('renders the page Content', () => {
+  it('renders the page Content', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
-    expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
+    await waitFor(() => {
+      expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
+    });
+
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Weight Tickets');
     expect(
       screen.getByText(
@@ -174,12 +179,15 @@ describe('Weight Tickets page', () => {
     });
   });
 
-  it('routes back to home when finish later is clicked', () => {
+  it('routes back to home when finish later is clicked', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
-    userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+    });
+    await userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
     expect(mockPush).toHaveBeenCalledWith(homePath);
   });
 
@@ -198,7 +206,7 @@ describe('Weight Tickets page', () => {
     await userEvent.click(screen.getByLabelText('Yes'));
     await userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
-    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
       expect(patchWeightTicket).toHaveBeenCalledWith(
@@ -221,12 +229,13 @@ describe('Weight Tickets page', () => {
     expect(mockPush).toHaveBeenCalledWith(reviewPath);
   });
 
-  it('displays an error when the patch shipment API fails', async () => {});
-
-  it('expect loadingPlaceholder when mtoShipment is falsy', () => {
+  it('expect loadingPlaceholder when mtoShipment is falsy', async () => {
     selectMTOShipmentById.mockReturnValue(null);
 
     render(<WeightTickets />, { wrapper: MockProviders });
-    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Loading, please wait...');
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Loading, please wait...');
+    });
   });
 });
