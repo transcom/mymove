@@ -15,6 +15,9 @@ import {
   SITExtensionDenied,
 } from './ShipmentSITDisplayTestParams';
 
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
+
 describe('ShipmentSITDisplay', () => {
   it('renders the Shipment SIT Extensions', async () => {
     render(<ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusOrigin} shipment={SITShipment} />);
@@ -107,12 +110,14 @@ describe('ShipmentSITDisplay', () => {
   it('calls review SIT extension callback when button is clicked', async () => {
     const showReviewSITExtension = jest.fn();
     render(
-      <ShipmentSITDisplay
-        sitExtensions={SITExtensionPending}
-        sitStatus={SITStatusDestination}
-        shipment={SITShipment}
-        showReviewSITExtension={showReviewSITExtension}
-      />,
+      <MockProviders permissions={[permissionTypes.createSITExtension]}>
+        <ShipmentSITDisplay
+          sitExtensions={SITExtensionPending}
+          sitStatus={SITStatusDestination}
+          shipment={SITShipment}
+          showReviewSITExtension={showReviewSITExtension}
+        />
+      </MockProviders>,
     );
 
     const reviewButton = screen.getByRole('button', { name: 'View request' });
@@ -127,12 +132,14 @@ describe('ShipmentSITDisplay', () => {
   it('calls submit SIT extension callback when button is clicked', async () => {
     const showSubmitSITExtension = jest.fn();
     render(
-      <ShipmentSITDisplay
-        sitExtensions={SITExtensions}
-        sitStatus={SITStatusDestination}
-        shipment={SITShipment}
-        showSubmitSITExtension={showSubmitSITExtension}
-      />,
+      <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+        <ShipmentSITDisplay
+          sitExtensions={SITExtensions}
+          sitStatus={SITStatusDestination}
+          shipment={SITShipment}
+          showSubmitSITExtension={showSubmitSITExtension}
+        />
+      </MockProviders>,
     );
 
     const reviewButton = screen.getByRole('button', { name: 'Edit' });
@@ -146,12 +153,14 @@ describe('ShipmentSITDisplay', () => {
 
   it('hides review pending SIT Extension button when hide prop is true', async () => {
     render(
-      <ShipmentSITDisplay
-        sitExtensions={SITExtensionPending}
-        sitStatus={SITStatusDestination}
-        shipment={SITShipment}
-        hideSITExtensionAction
-      />,
+      <MockProviders permissions={[permissionTypes.createSITExtension]}>
+        <ShipmentSITDisplay
+          sitExtensions={SITExtensionPending}
+          sitStatus={SITStatusDestination}
+          shipment={SITShipment}
+          hideSITExtensionAction
+        />
+      </MockProviders>,
     );
 
     expect(await screen.queryByRole('button', { name: 'View request' })).not.toBeInTheDocument();
@@ -159,12 +168,30 @@ describe('ShipmentSITDisplay', () => {
 
   it('hides submit new SIT Extension button when hide prop is true', async () => {
     render(
-      <ShipmentSITDisplay
-        sitExtensions={SITExtensions}
-        sitStatus={SITStatusDestination}
-        shipment={SITShipment}
-        hideSITExtensionAction
-      />,
+      <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+        <ShipmentSITDisplay
+          sitExtensions={SITExtensions}
+          sitStatus={SITStatusDestination}
+          shipment={SITShipment}
+          hideSITExtensionAction
+        />
+      </MockProviders>,
+    );
+
+    expect(await screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+  });
+
+  it('View request button is hidden when user does not have permissions', async () => {
+    render(
+      <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />,
+    );
+
+    expect(await screen.queryByRole('button', { name: 'View request' })).not.toBeInTheDocument();
+  });
+
+  it('Edit button is hidden when user does not have permissions', async () => {
+    render(
+      <ShipmentSITDisplay sitExtensions={SITExtensions} sitStatus={SITStatusDestination} shipment={SITShipment} />,
     );
 
     expect(await screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();

@@ -177,6 +177,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		CustomerUpdateCustomerHandler: customer.UpdateCustomerHandlerFunc(func(params customer.UpdateCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.UpdateCustomer has not yet been implemented")
 		}),
+		CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler: customer_support_remarks.UpdateCustomerSupportRemarkForMoveHandlerFunc(func(params customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer_support_remarks.UpdateCustomerSupportRemarkForMove has not yet been implemented")
+		}),
 		MtoServiceItemUpdateMTOServiceItemHandler: mto_service_item.UpdateMTOServiceItemHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItem has not yet been implemented")
 		}),
@@ -329,6 +332,8 @@ type MymoveAPI struct {
 	OrderUpdateBillableWeightHandler order.UpdateBillableWeightHandler
 	// CustomerUpdateCustomerHandler sets the operation handler for the update customer operation
 	CustomerUpdateCustomerHandler customer.UpdateCustomerHandler
+	// CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler sets the operation handler for the update customer support remark for move operation
+	CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler customer_support_remarks.UpdateCustomerSupportRemarkForMoveHandler
 	// MtoServiceItemUpdateMTOServiceItemHandler sets the operation handler for the update m t o service item operation
 	MtoServiceItemUpdateMTOServiceItemHandler mto_service_item.UpdateMTOServiceItemHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
@@ -547,6 +552,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.CustomerUpdateCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.UpdateCustomerHandler")
+	}
+	if o.CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler == nil {
+		unregistered = append(unregistered, "customer_support_remarks.UpdateCustomerSupportRemarkForMoveHandler")
 	}
 	if o.MtoServiceItemUpdateMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemHandler")
@@ -829,6 +837,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/customer/{customerID}"] = customer.NewUpdateCustomer(o.context, o.CustomerUpdateCustomerHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/moves/{locator}/customer-support-remarks"] = customer_support_remarks.NewUpdateCustomerSupportRemarkForMove(o.context, o.CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

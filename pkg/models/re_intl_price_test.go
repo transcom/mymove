@@ -1,15 +1,13 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestReIntlPriceValidation() {
-	suite.T().Run("test valid ReIntlPrice", func(t *testing.T) {
+	suite.Run("test valid ReIntlPrice", func() {
 
 		validReIntlPrice := models.ReIntlPrice{
 			ContractID:            uuid.Must(uuid.NewV4()),
@@ -23,7 +21,7 @@ func (suite *ModelSuite) TestReIntlPriceValidation() {
 		suite.verifyValidationErrors(&validReIntlPrice, expErrors)
 	})
 
-	suite.T().Run("test empty ReIntlPrice", func(t *testing.T) {
+	suite.Run("test empty ReIntlPrice", func() {
 		invalidReIntlPrice := models.ReIntlPrice{}
 		expErrors := map[string][]string{
 			"contract_id":              {"ContractID can not be blank."},
@@ -35,7 +33,7 @@ func (suite *ModelSuite) TestReIntlPriceValidation() {
 		suite.verifyValidationErrors(&invalidReIntlPrice, expErrors)
 	})
 
-	suite.T().Run("test empty ReIntlPrice", func(t *testing.T) {
+	suite.Run("test empty ReIntlPrice", func() {
 		reIntlPrice := models.ReIntlPrice{
 			ContractID:            uuid.Must(uuid.NewV4()),
 			ServiceID:             uuid.Must(uuid.NewV4()),

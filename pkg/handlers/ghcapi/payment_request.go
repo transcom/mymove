@@ -39,14 +39,6 @@ func (h GetPaymentRequestForMoveHandler) Handle(
 ) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with TIO office role",
-				)
-				appCtx.Logger().Error(forbiddenErr.Error())
-				return paymentrequestop.NewGetPaymentRequestsForMoveForbidden(), forbiddenErr
-			}
 
 			locator := params.Locator
 

@@ -1,15 +1,13 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestReZip3Validations() {
-	suite.T().Run("test valid ReZip3", func(t *testing.T) {
+	suite.Run("test valid ReZip3", func() {
 		validReZip3 := models.ReZip3{
 			ContractID:            uuid.Must(uuid.NewV4()),
 			Zip3:                  "606",
@@ -21,7 +19,7 @@ func (suite *ModelSuite) TestReZip3Validations() {
 		suite.verifyValidationErrors(&validReZip3, expErrors)
 	})
 
-	suite.T().Run("test invalid ReZip3", func(t *testing.T) {
+	suite.Run("test invalid ReZip3", func() {
 		emptyReZip3 := models.ReZip3{}
 		expErrors := map[string][]string{
 			"contract_id":              {"ContractID can not be blank."},
@@ -33,7 +31,7 @@ func (suite *ModelSuite) TestReZip3Validations() {
 		suite.verifyValidationErrors(&emptyReZip3, expErrors)
 	})
 
-	suite.T().Run("test when zip3 is not a length of 3", func(t *testing.T) {
+	suite.Run("test when zip3 is not a length of 3", func() {
 		invalidReZip3 := models.ReZip3{
 			ContractID:            uuid.Must(uuid.NewV4()),
 			Zip3:                  "60",

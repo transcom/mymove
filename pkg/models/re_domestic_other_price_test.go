@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -10,7 +8,7 @@ import (
 )
 
 func (suite *ModelSuite) TestReDomesticOtherPriceValidations() {
-	suite.T().Run("test valid ReDomesticOtherPrice", func(t *testing.T) {
+	suite.Run("test valid ReDomesticOtherPrice", func() {
 		validReDomesticOtherPrice := models.ReDomesticOtherPrice{
 			ContractID:   uuid.Must(uuid.NewV4()),
 			ServiceID:    uuid.Must(uuid.NewV4()),
@@ -22,7 +20,7 @@ func (suite *ModelSuite) TestReDomesticOtherPriceValidations() {
 		suite.verifyValidationErrors(&validReDomesticOtherPrice, expErrors)
 	})
 
-	suite.T().Run("test empty ReDomesticOtherPrice", func(t *testing.T) {
+	suite.Run("test empty ReDomesticOtherPrice", func() {
 		emptyReDomesticOtherPrice := models.ReDomesticOtherPrice{}
 		expErrors := map[string][]string{
 			"contract_id": {"ContractID can not be blank."},
@@ -33,7 +31,7 @@ func (suite *ModelSuite) TestReDomesticOtherPriceValidations() {
 		suite.verifyValidationErrors(&emptyReDomesticOtherPrice, expErrors)
 	})
 
-	suite.T().Run("test ReDomesticOtherPrice with schedule about limit", func(t *testing.T) {
+	suite.Run("test ReDomesticOtherPrice with schedule about limit", func() {
 		badScheduleReDomesticOtherPrice := models.ReDomesticOtherPrice{
 			ContractID:   uuid.Must(uuid.NewV4()),
 			ServiceID:    uuid.Must(uuid.NewV4()),

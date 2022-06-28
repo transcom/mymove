@@ -589,7 +589,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.paymentServiceItemStatus"
+        ]
       },
       "parameters": [
         {
@@ -697,7 +700,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.MTOServiceItem"
+        ]
       },
       "parameters": [
         {
@@ -1507,6 +1513,49 @@ func init() {
           }
         }
       },
+      "patch": {
+        "description": "Updates a customer support remark for a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Updates a customer support remark for a move",
+        "operationId": "updateCustomerSupportRemarkForMove",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateCustomerSupportRemarkPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated customer support remark",
+            "schema": {
+              "$ref": "#/definitions/CustomerSupportRemark"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "parameters": [
         {
           "type": "string",
@@ -1548,7 +1597,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "read.paymentRequest"
+        ]
       },
       "parameters": [
         {
@@ -1969,7 +2021,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.billableWeight"
+        ]
       },
       "parameters": [
         {
@@ -2031,7 +2086,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.maxBillableWeight"
+        ]
       },
       "parameters": [
         {
@@ -2855,7 +2913,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "create.shipmentCancellation"
+        ]
       },
       "parameters": [
         {
@@ -2915,7 +2976,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "create.shipmentDiversionRequest"
+        ]
       },
       "parameters": [
         {
@@ -2968,7 +3032,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "create.reweighRequest"
+        ]
       },
       "parameters": [
         {
@@ -3043,7 +3110,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "create.SITExtension"
+        ]
       }
     },
     "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve": {
@@ -3103,7 +3173,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.SITExtension"
+        ]
       },
       "parameters": [
         {
@@ -3180,7 +3253,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.SITExtension"
+        ]
       },
       "parameters": [
         {
@@ -3641,7 +3717,6 @@ func init() {
       "description": "A text remark written by an customer support user that is associated with a specific move.",
       "type": "object",
       "required": [
-        "locator",
         "content",
         "officeUserID"
       ],
@@ -3649,10 +3724,6 @@ func init() {
         "content": {
           "type": "string",
           "example": "This is a remark about a move."
-        },
-        "locator": {
-          "type": "string",
-          "example": "1K43AR"
         },
         "officeUserID": {
           "type": "string",
@@ -6578,6 +6649,24 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "Jr."
+        }
+      }
+    },
+    "UpdateCustomerSupportRemarkPayload": {
+      "description": "A text remark written by an customer support user that is associated with a specific move.",
+      "type": "object",
+      "required": [
+        "id",
+        "content"
+      ],
+      "properties": {
+        "content": {
+          "type": "string",
+          "example": "This is a remark about a move."
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
         }
       }
     },
@@ -7823,7 +7912,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.paymentServiceItemStatus"
+        ]
       },
       "parameters": [
         {
@@ -7964,7 +8056,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.MTOServiceItem"
+        ]
       },
       "parameters": [
         {
@@ -8978,6 +9073,61 @@ func init() {
           }
         }
       },
+      "patch": {
+        "description": "Updates a customer support remark for a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Updates a customer support remark for a move",
+        "operationId": "updateCustomerSupportRemarkForMove",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateCustomerSupportRemarkPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated customer support remark",
+            "schema": {
+              "$ref": "#/definitions/CustomerSupportRemark"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "parameters": [
         {
           "type": "string",
@@ -9031,7 +9181,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "read.paymentRequest"
+        ]
       },
       "parameters": [
         {
@@ -9560,7 +9713,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.billableWeight"
+        ]
       },
       "parameters": [
         {
@@ -9641,7 +9797,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.maxBillableWeight"
+        ]
       },
       "parameters": [
         {
@@ -10621,7 +10780,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "create.shipmentCancellation"
+        ]
       },
       "parameters": [
         {
@@ -10699,7 +10861,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "create.shipmentDiversionRequest"
+        ]
       },
       "parameters": [
         {
@@ -10770,7 +10935,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "create.reweighRequest"
+        ]
       },
       "parameters": [
         {
@@ -10860,7 +11028,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "create.SITExtension"
+        ]
       }
     },
     "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve": {
@@ -10938,7 +11109,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.SITExtension"
+        ]
       },
       "parameters": [
         {
@@ -11033,7 +11207,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.SITExtension"
+        ]
       },
       "parameters": [
         {
@@ -11513,7 +11690,6 @@ func init() {
       "description": "A text remark written by an customer support user that is associated with a specific move.",
       "type": "object",
       "required": [
-        "locator",
         "content",
         "officeUserID"
       ],
@@ -11521,10 +11697,6 @@ func init() {
         "content": {
           "type": "string",
           "example": "This is a remark about a move."
-        },
-        "locator": {
-          "type": "string",
-          "example": "1K43AR"
         },
         "officeUserID": {
           "type": "string",
@@ -14457,6 +14629,24 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "Jr."
+        }
+      }
+    },
+    "UpdateCustomerSupportRemarkPayload": {
+      "description": "A text remark written by an customer support user that is associated with a specific move.",
+      "type": "object",
+      "required": [
+        "id",
+        "content"
+      ],
+      "properties": {
+        "content": {
+          "type": "string",
+          "example": "This is a remark about a move."
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
         }
       }
     },

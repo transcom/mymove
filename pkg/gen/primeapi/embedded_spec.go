@@ -403,6 +403,50 @@ func init() {
       }
     },
     "/mto-shipments/{mtoShipmentID}": {
+      "delete": {
+        "description": "### Functionality\nThis endpoint deletes an individual shipment by ID.\n\n### Errors\n* The mtoShipment should be associated with an MTO that is available to prime.\n* The mtoShipment must be a PPM shipment.\n* Counseling should not have already been completed for the associated MTO.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "deleteMTOShipment",
+        "operationId": "deleteMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment to be deleted",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted the MTO shipment."
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "patch": {
         "description": "Updates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
         "consumes": [
@@ -4097,6 +4141,68 @@ func init() {
       }
     },
     "/mto-shipments/{mtoShipmentID}": {
+      "delete": {
+        "description": "### Functionality\nThis endpoint deletes an individual shipment by ID.\n\n### Errors\n* The mtoShipment should be associated with an MTO that is available to prime.\n* The mtoShipment must be a PPM shipment.\n* Counseling should not have already been completed for the associated MTO.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "deleteMTOShipment",
+        "operationId": "deleteMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment to be deleted",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted the MTO shipment."
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "patch": {
         "description": "Updates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
         "consumes": [

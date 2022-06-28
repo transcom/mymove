@@ -11,6 +11,7 @@ import PaymentRequestCard from './PaymentRequestCard';
 import { MockProviders } from 'testUtils';
 import { serviceItemCodes } from 'content/serviceItems';
 import { formatPaymentRequestAddressString } from 'utils/shipmentDisplay';
+import { permissionTypes } from 'constants/permissions';
 
 const mockedDate = '2020-12-08T00:00:00.000Z';
 
@@ -18,14 +19,15 @@ export default {
   title: 'Office Components/PaymentRequestCard',
   component: PaymentRequestCard,
   decorators: [
-    (Story) => {
+    (Story, context) => {
       if (isHappoRun()) {
         MockDate.set(mockedDate);
         addons.getChannel().on('storyRendered', MockDate.reset);
       }
+      const permissions = context.name.includes('Read Only') ? [] : [permissionTypes.updatePaymentServiceItemStatus];
       return (
         <div style={{ padding: '1em', backgroundColor: '#f9f9f9', minWidth: '1200px' }}>
-          <MockProviders initialEntries={['/moves/L0CATR/payment-requests']}>
+          <MockProviders initialEntries={['/moves/L0CATR/payment-requests']} permissions={permissions}>
             <Story />
           </MockProviders>
         </div>
@@ -243,3 +245,30 @@ export const Rejected = () => (
     onEditAccountingCodes={onEditAccountingCodes}
   />
 );
+
+export const ReadOnly = () => {
+  const [modifiedShipments, setModifiedShipments] = React.useState(shipmentsInfo);
+  const handleEditAccountingCodes = (id, values) => {
+    const updatedShipments = modifiedShipments.map((s) => {
+      if (s.mtoShipmentID !== id) {
+        return s;
+      }
+
+      return {
+        ...s,
+        tacType: values.tacType,
+        sacType: values.sacType,
+      };
+    });
+
+    setModifiedShipments(updatedShipments);
+  };
+
+  return (
+    <PaymentRequestCard
+      paymentRequest={pendingPaymentRequest}
+      shipmentsInfo={modifiedShipments}
+      onEditAccountingCodes={handleEditAccountingCodes}
+    />
+  );
+};

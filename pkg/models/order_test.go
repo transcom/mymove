@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -43,7 +42,7 @@ func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 	order := move.Orders
 	order.Moves = append(order.Moves, move)
 
-	suite.T().Run("test valid UploadedAmendedOrdersID", func(t *testing.T) {
+	suite.Run("test valid UploadedAmendedOrdersID", func() {
 		testUUID := uuid.Must(uuid.NewV4())
 		order.UploadedAmendedOrdersID = &testUUID
 
@@ -52,7 +51,7 @@ func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 		suite.verifyValidationErrors(&order, expErrors)
 	})
 
-	suite.T().Run("test UploadedAmendedOrdersID is not nil UUID", func(t *testing.T) {
+	suite.Run("test UploadedAmendedOrdersID is not nil UUID", func() {
 		order.UploadedAmendedOrdersID = &uuid.Nil
 
 		expErrors := map[string][]string{
@@ -109,85 +108,61 @@ func (suite *ModelSuite) TestTacFormat() {
 }
 
 func (suite *ModelSuite) TestFetchOrderForUser() {
-	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
-	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyLocation := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
-	dutyLocation2 := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
-	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
-	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	hasDependents := true
-	spouseHasProGear := true
-	uploadedOrder := Document{
-		ServiceMember:   serviceMember1,
-		ServiceMemberID: serviceMember1.ID,
-	}
-	deptIndicator := testdatagen.DefaultDepartmentIndicator
-	TAC := testdatagen.DefaultTransportationAccountingCode
-	suite.MustSave(&uploadedOrder)
+	suite.Run("successful fetch by authorized user", func() {
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
 
-	SAC := "N002214CSW32Y9"
-	ordersNumber := "FD4534JFJ"
+		// User is authorized to fetch order
+		session := &auth.Session{
+			ApplicationName: auth.MilApp,
+			UserID:          order.ServiceMember.UserID,
+			ServiceMemberID: order.ServiceMemberID,
+		}
+		goodOrder, err := FetchOrderForUser(suite.DB(), session, order.ID)
 
-	order := Order{
-		ServiceMemberID:      serviceMember1.ID,
-		ServiceMember:        serviceMember1,
-		IssueDate:            issueDate,
-		ReportByDate:         reportByDate,
-		OrdersType:           ordersType,
-		HasDependents:        hasDependents,
-		SpouseHasProGear:     spouseHasProGear,
-		OriginDutyLocationID: &dutyLocation.ID,
-		OriginDutyLocation:   &dutyLocation,
-		NewDutyLocationID:    dutyLocation2.ID,
-		NewDutyLocation:      dutyLocation2,
-		UploadedOrdersID:     uploadedOrder.ID,
-		UploadedOrders:       uploadedOrder,
-		Status:               OrderStatusSUBMITTED,
-		OrdersNumber:         &ordersNumber,
-		TAC:                  &TAC,
-		SAC:                  &SAC,
-		DepartmentIndicator:  &deptIndicator,
-		Grade:                swag.String("E-3"),
-	}
-	suite.MustSave(&order)
+		suite.NoError(err)
+		suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
+		suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
+		suite.Equal(order.OrdersType, goodOrder.OrdersType)
+		suite.Equal(order.HasDependents, goodOrder.HasDependents)
+		suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
+		suite.Equal(order.OriginDutyLocation.ID, goodOrder.OriginDutyLocation.ID)
+		suite.Equal(order.NewDutyLocation.ID, goodOrder.NewDutyLocation.ID)
+		suite.Equal(order.Grade, goodOrder.Grade)
+		suite.Equal(order.UploadedOrdersID, goodOrder.UploadedOrdersID)
+	})
 
-	// User is authorized to fetch order
-	session := &auth.Session{
-		ApplicationName: auth.MilApp,
-		UserID:          serviceMember1.UserID,
-		ServiceMemberID: serviceMember1.ID,
-	}
-	goodOrder, err := FetchOrderForUser(suite.DB(), session, order.ID)
+	suite.Run("fetch not found due to bad id", func() {
+		sm := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{})
+		session := &auth.Session{
+			ApplicationName: auth.MilApp,
+			UserID:          sm.UserID,
+			ServiceMemberID: sm.ID,
+		}
+		// Wrong Order ID
+		wrongID, _ := uuid.NewV4()
+		_, err := FetchOrderForUser(suite.DB(), session, wrongID)
 
-	suite.NoError(err)
-	suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
-	suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
-	suite.Equal(order.OrdersType, goodOrder.OrdersType)
-	suite.Equal(order.HasDependents, goodOrder.HasDependents)
-	suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
-	suite.Equal(order.OriginDutyLocation.ID, goodOrder.OriginDutyLocation.ID)
-	suite.Equal(order.NewDutyLocation.ID, goodOrder.NewDutyLocation.ID)
-	suite.Equal(order.Grade, goodOrder.Grade)
-	suite.Equal(order.UploadedOrdersID, goodOrder.UploadedOrdersID)
+		suite.Error(err)
+		suite.Equal(ErrFetchNotFound, err)
+	})
 
-	// Wrong Order ID
-	wrongID, _ := uuid.NewV4()
-	_, err = FetchOrderForUser(suite.DB(), session, wrongID)
+	suite.Run("forbidden user cannot fetch order", func() {
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+		// User is forbidden from fetching order
+		serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
+		session := &auth.Session{
+			ApplicationName: auth.MilApp,
+			UserID:          serviceMember2.UserID,
+			ServiceMemberID: serviceMember2.ID,
+		}
+		_, err := FetchOrderForUser(suite.DB(), session, order.ID)
 
-	suite.Error(err)
-	suite.Equal(ErrFetchNotFound, err)
+		suite.Error(err)
+		suite.Equal(ErrFetchForbidden, err)
+	})
 
-	// User is forbidden from fetching order
-	session.UserID = serviceMember2.UserID
-	session.ServiceMemberID = serviceMember2.ID
-	_, err = FetchOrderForUser(suite.DB(), session, order.ID)
-
-	suite.Error(err)
-	suite.Equal(ErrFetchForbidden, err)
-
-	suite.T().Run("successfully excludes deleted orders uploads", func(t *testing.T) {
+	suite.Run("successfully excludes deleted orders uploads", func() {
 		nonDeletedOrdersUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{})
 		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
 			UserUpload: UserUpload{

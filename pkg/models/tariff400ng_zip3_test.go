@@ -1,14 +1,12 @@
 package models_test
 
 import (
-	"testing"
-
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) Test_Tariff400ngZip3Validation() {
-	suite.T().Run("test valid Tariff400ngZip3", func(t *testing.T) {
+	suite.Run("test valid Tariff400ngZip3", func() {
 		validTariff400ngZip3 := Tariff400ngZip3{
 			Zip3:          "139",
 			BasepointCity: "Dogtown",
@@ -21,7 +19,7 @@ func (suite *ModelSuite) Test_Tariff400ngZip3Validation() {
 		suite.verifyValidationErrors(&validTariff400ngZip3, expErrors)
 	})
 
-	suite.T().Run("test invalid Tariff400ngZip3", func(t *testing.T) {
+	suite.Run("test invalid Tariff400ngZip3", func() {
 		invalidTariff400ngZip3 := Tariff400ngZip3{}
 		expErrors := map[string][]string{
 			"basepoint_city": {"BasepointCity can not be blank."},

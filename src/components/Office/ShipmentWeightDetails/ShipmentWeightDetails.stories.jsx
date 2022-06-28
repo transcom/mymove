@@ -2,6 +2,8 @@ import React from 'react';
 
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 export default {
   title: 'Office Components/ShipmentWeightDetails',
@@ -30,17 +32,23 @@ const shipmentInfoNoReweigh = {
 export const WithNoDetails = () => <ShipmentWeightDetails shipmentInfo={shipmentInfoNoReweigh} />;
 
 export const WithDetailsNoReweighRequested = () => (
-  <ShipmentWeightDetails estimatedWeight={1000} actualWeight={1000} shipmentInfo={shipmentInfoNoReweigh} />
+  <MockProviders permissions={[permissionTypes.createReweighRequest]}>
+    <ShipmentWeightDetails estimatedWeight={1000} actualWeight={1000} shipmentInfo={shipmentInfoNoReweigh} />
+  </MockProviders>
 );
 
 export const WithDetailsReweighRequested = () => (
-  <ShipmentWeightDetails estimatedWeight={1000} actualWeight={1000} shipmentInfo={shipmentInfoReweighRequested} />
+  <MockProviders permissions={[permissionTypes.createReweighRequest]}>
+    <ShipmentWeightDetails estimatedWeight={1000} actualWeight={1000} shipmentInfo={shipmentInfoReweighRequested} />
+  </MockProviders>
 );
 
 export const NTSRWithDetails = () => (
-  <ShipmentWeightDetails
-    estimatedWeight={null}
-    actualWeight={1000}
-    shipmentInfo={{ ...shipmentInfoNoReweigh, shipmentType: SHIPMENT_OPTIONS.NTSR }}
-  />
+  <MockProviders permissions={[permissionTypes.createReweighRequest]}>
+    <ShipmentWeightDetails
+      estimatedWeight={null}
+      actualWeight={1000}
+      shipmentInfo={{ ...shipmentInfoNoReweigh, shipmentType: SHIPMENT_OPTIONS.NTSR }}
+    />
+  </MockProviders>
 );

@@ -4,6 +4,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import ShipmentWeightDetails from './ShipmentWeightDetails';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 const shipmentInfoReweighRequested = {
   shipmentID: 'shipment1',
@@ -31,12 +33,14 @@ const handleRequestReweighModal = jest.fn();
 describe('ShipmentWeightDetails', () => {
   it('renders without crashing', async () => {
     render(
-      <ShipmentWeightDetails
-        estimatedWeight={4500}
-        actualWeight={5000}
-        shipmentInfo={shipmentInfoNoReweigh}
-        handleRequestReweighModal={handleRequestReweighModal}
-      />,
+      <MockProviders permissions={[permissionTypes.createReweighRequest]}>
+        <ShipmentWeightDetails
+          estimatedWeight={4500}
+          actualWeight={5000}
+          shipmentInfo={shipmentInfoNoReweigh}
+          handleRequestReweighModal={handleRequestReweighModal}
+        />
+      </MockProviders>,
     );
 
     const estWeight = await screen.findByText('Estimated weight');
@@ -92,12 +96,14 @@ describe('ShipmentWeightDetails', () => {
 
   it('calls the submit function when submit button is clicked', async () => {
     render(
-      <ShipmentWeightDetails
-        estimatedWeight={11000}
-        actualWeight={12000}
-        shipmentInfo={shipmentInfoNoReweigh}
-        handleRequestReweighModal={handleRequestReweighModal}
-      />,
+      <MockProviders permissions={[permissionTypes.createReweighRequest]}>
+        <ShipmentWeightDetails
+          estimatedWeight={11000}
+          actualWeight={12000}
+          shipmentInfo={shipmentInfoNoReweigh}
+          handleRequestReweighModal={handleRequestReweighModal}
+        />
+      </MockProviders>,
     );
 
     await fireEvent.click(screen.getByText('Request reweigh'));
@@ -106,12 +112,14 @@ describe('ShipmentWeightDetails', () => {
 
   it('renders without the reweigh button if a reweigh has been requested', async () => {
     render(
-      <ShipmentWeightDetails
-        estimatedWeight={11000}
-        actualWeight={12000}
-        shipmentInfo={shipmentInfoReweighRequested}
-        handleRequestReweighModal={handleRequestReweighModal}
-      />,
+      <MockProviders permissions={[permissionTypes.createReweighRequest]}>
+        <ShipmentWeightDetails
+          estimatedWeight={11000}
+          actualWeight={12000}
+          shipmentInfo={shipmentInfoReweighRequested}
+          handleRequestReweighModal={handleRequestReweighModal}
+        />
+      </MockProviders>,
     );
 
     const reweighButton = await screen.queryByText('Request reweigh');
@@ -121,6 +129,20 @@ describe('ShipmentWeightDetails', () => {
     expect(reweighButton).toBeFalsy();
     expect(reweighRequestedLabel).toBeTruthy();
     expect(reweighedLabel).toBeFalsy();
+  });
+
+  it('renders without the rewiegh button when the user does not have permission', async () => {
+    render(
+      <ShipmentWeightDetails
+        estimatedWeight={11000}
+        actualWeight={12000}
+        shipmentInfo={shipmentInfoNoReweigh}
+        handleRequestReweighModal={handleRequestReweighModal}
+      />,
+    );
+
+    const reweighButton = await screen.queryByText('Request reweigh');
+    expect(reweighButton).toBeFalsy();
   });
 
   it('only renders the reweighed label if a shipment has been reweighed', async () => {
