@@ -120,7 +120,7 @@ describe('Customer Support User Flows', () => {
     cy.contains('Sign out').click();
     cy.apiSignInAsUser('3b2cc1b0-31a2-4d1b-874f-0591f9127374', TIOOfficeUserType);
 
-    // Validate another user can not edit the remark
+    // Validate another user can not edit or delete the remark
     cy.contains(moveLocator).click();
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments']);
 
@@ -131,6 +131,6 @@ describe('Customer Support User Flows', () => {
     // Edited remark should exist but no edit/delete buttons as I am a different user
     cy.contains(testRemarkText + editString).should('exist');
     cy.get('[data-testid="edit-remark-button"]').should('not.exist');
-    cy.get('[data-testid="edit-remark-delete-button"]').should('not.exist');
+    cy.get('[data-testid="delete-remark-button"]').should('not.exist');
   });
 });
