@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	. "github.com/transcom/mymove/pkg/models"
@@ -10,7 +9,7 @@ import (
 )
 
 func (suite *ModelSuite) Test_Tariff400ngLinehaulRateValidation() {
-	suite.T().Run("test valid Tariff400ngLinehaulRate", func(t *testing.T) {
+	suite.Run("test valid Tariff400ngLinehaulRate", func() {
 		now := time.Now()
 		validTariff400ngLinehaulRate := Tariff400ngLinehaulRate{
 			DistanceMilesLower: 100,
@@ -26,7 +25,7 @@ func (suite *ModelSuite) Test_Tariff400ngLinehaulRateValidation() {
 		suite.verifyValidationErrors(&validTariff400ngLinehaulRate, expErrors)
 	})
 
-	suite.T().Run("test invalid Tariff400ngLinehaulRate", func(t *testing.T) {
+	suite.Run("test invalid Tariff400ngLinehaulRate", func() {
 		invalidTariff400ngLinehaulRate := Tariff400ngLinehaulRate{}
 		expErrors := map[string][]string{
 			"distance_miles_lower": {"DistanceMilesLower can not be blank.", "0 is not less than 0."},
@@ -40,7 +39,7 @@ func (suite *ModelSuite) Test_Tariff400ngLinehaulRateValidation() {
 		suite.verifyValidationErrors(&invalidTariff400ngLinehaulRate, expErrors)
 	})
 
-	suite.T().Run("test negative RateCents, badly ordered dates for Tariff400ngLinehaulRate", func(t *testing.T) {
+	suite.Run("test negative RateCents, badly ordered dates for Tariff400ngLinehaulRate", func() {
 		now := time.Now()
 		invalidTariff400ngLinehaulRate := Tariff400ngLinehaulRate{
 			DistanceMilesLower: 100,
@@ -87,7 +86,7 @@ func (suite *ModelSuite) Test_FetchBaseLinehaulRate() {
 	// Test the best case
 	rate, err := FetchBaseLinehaulRate(suite.DB(), goodDistance, goodWeight, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
-		t.Fatalf("Something went wrong with saving the test object: %s\n", err)
+		t.Errorf("Something went wrong with saving the test object: %s\n", err)
 	}
 	if rate != mySpecificRate {
 		t.Errorf("The record object didn't save!")

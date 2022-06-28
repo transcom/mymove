@@ -25,7 +25,7 @@ func (suite *ModelSuite) TestGHCDieselFuelPriceUniqueness() {
 	}
 
 	if verrs, err := suite.DB().ValidateAndCreate(ghcDieselFuelPrice); err != nil || verrs.HasAny() {
-		t.Fatalf("Didn't create GHC Diesel Fuel Price: %s", err)
+		t.Errorf("Didn't create GHC Diesel Fuel Price: %s", err)
 	}
 
 	anotherGHCDieselFuelPrice := &GHCDieselFuelPrice{
