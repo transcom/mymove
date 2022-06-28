@@ -1,15 +1,13 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestReTaskOrderFeeValidation() {
-	suite.T().Run("test valid ReTaskOrderFee", func(t *testing.T) {
+	suite.Run("test valid ReTaskOrderFee", func() {
 		validReTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: uuid.Must(uuid.NewV4()),
 			ServiceID:      uuid.Must(uuid.NewV4()),
@@ -19,7 +17,7 @@ func (suite *ModelSuite) TestReTaskOrderFeeValidation() {
 		suite.verifyValidationErrors(&validReTaskOrderFee, expErrors)
 	})
 
-	suite.T().Run("test invalid ReTaskOrderFee", func(t *testing.T) {
+	suite.Run("test invalid ReTaskOrderFee", func() {
 		invalidReTaskOrderFee := models.ReTaskOrderFee{}
 		expErrors := map[string][]string{
 			"contract_year_id": {"ContractYearID can not be blank."},
@@ -29,7 +27,7 @@ func (suite *ModelSuite) TestReTaskOrderFeeValidation() {
 		suite.verifyValidationErrors(&invalidReTaskOrderFee, expErrors)
 	})
 
-	suite.T().Run("test price cents less than 1 for ReDomesticServiceArea", func(t *testing.T) {
+	suite.Run("test price cents less than 1 for ReDomesticServiceArea", func() {
 		invalidReTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: uuid.Must(uuid.NewV4()),
 			ServiceID:      uuid.Must(uuid.NewV4()),

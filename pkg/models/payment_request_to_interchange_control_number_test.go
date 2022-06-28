@@ -1,15 +1,13 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestPaymentRequestToInterchangeControlNumber() {
-	suite.T().Run("test valid PaymentRequestToInterchangeControlNumber", func(t *testing.T) {
+	suite.Run("test valid PaymentRequestToInterchangeControlNumber", func() {
 		validPR2ICN := models.PaymentRequestToInterchangeControlNumber{
 			PaymentRequestID:         uuid.Must(uuid.NewV4()),
 			InterchangeControlNumber: 1,
@@ -19,7 +17,7 @@ func (suite *ModelSuite) TestPaymentRequestToInterchangeControlNumber() {
 		suite.verifyValidationErrors(&validPR2ICN, expErrors)
 	})
 
-	suite.T().Run("test invalid PaymentRequestToInterchangeControlNumber", func(t *testing.T) {
+	suite.Run("test invalid PaymentRequestToInterchangeControlNumber", func() {
 		validPR2ICN := models.PaymentRequestToInterchangeControlNumber{
 			PaymentRequestID:         uuid.Nil,
 			InterchangeControlNumber: 0,
@@ -33,7 +31,7 @@ func (suite *ModelSuite) TestPaymentRequestToInterchangeControlNumber() {
 		suite.verifyValidationErrors(&validPR2ICN, expErrors)
 	})
 
-	suite.T().Run("test invalid InterchangeControlNumber max", func(t *testing.T) {
+	suite.Run("test invalid InterchangeControlNumber max", func() {
 		validPR2ICN := models.PaymentRequestToInterchangeControlNumber{
 			PaymentRequestID:         uuid.Must(uuid.NewV4()),
 			InterchangeControlNumber: 1000000000,

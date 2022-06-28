@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -10,7 +8,7 @@ import (
 )
 
 func (suite *ModelSuite) TestReDomesticLinehaulPriceValidations() {
-	suite.T().Run("test valid ReDomesticLinehaulPrice", func(t *testing.T) {
+	suite.Run("test valid ReDomesticLinehaulPrice", func() {
 		validReDomesticLinehaulPrice := models.ReDomesticLinehaulPrice{
 			ContractID:            uuid.Must(uuid.NewV4()),
 			WeightLower:           unit.Pound(5000),
@@ -25,7 +23,7 @@ func (suite *ModelSuite) TestReDomesticLinehaulPriceValidations() {
 		suite.verifyValidationErrors(&validReDomesticLinehaulPrice, expErrors)
 	})
 
-	suite.T().Run("test empty ReDomesticLinehaulPrice", func(t *testing.T) {
+	suite.Run("test empty ReDomesticLinehaulPrice", func() {
 		emptyReDomesticLinehaulPrice := models.ReDomesticLinehaulPrice{}
 		expErrors := map[string][]string{
 			"contract_id":              {"ContractID can not be blank."},
@@ -38,7 +36,7 @@ func (suite *ModelSuite) TestReDomesticLinehaulPriceValidations() {
 		suite.verifyValidationErrors(&emptyReDomesticLinehaulPrice, expErrors)
 	})
 
-	suite.T().Run("test negative weight lower for ReDomesticLinehaulPrice", func(t *testing.T) {
+	suite.Run("test negative weight lower for ReDomesticLinehaulPrice", func() {
 		validReDomesticLinehaulPrice := models.ReDomesticLinehaulPrice{
 			ContractID:            uuid.Must(uuid.NewV4()),
 			WeightLower:           unit.Pound(5000),

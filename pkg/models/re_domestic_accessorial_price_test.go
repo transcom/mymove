@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gofrs/uuid"
@@ -11,7 +9,7 @@ import (
 )
 
 func (suite *ModelSuite) TestReDomesticAccessorialPriceValidation() {
-	suite.T().Run("test valid ReDomesticAccessorialPrice", func(t *testing.T) {
+	suite.Run("test valid ReDomesticAccessorialPrice", func() {
 		validReDomesticAccessorialPrice := models.ReDomesticAccessorialPrice{
 			ContractID:       uuid.Must(uuid.NewV4()),
 			ServiceID:        uuid.Must(uuid.NewV4()),
@@ -22,7 +20,7 @@ func (suite *ModelSuite) TestReDomesticAccessorialPriceValidation() {
 		suite.verifyValidationErrors(&validReDomesticAccessorialPrice, expErrors)
 	})
 
-	suite.T().Run("test invalid ReDomesticAccessorialPrice", func(t *testing.T) {
+	suite.Run("test invalid ReDomesticAccessorialPrice", func() {
 		invalidReDomesticAccessorialPrice := models.ReDomesticAccessorialPrice{}
 		expErrors := map[string][]string{
 			"contract_id":       {"ContractID can not be blank."},
@@ -33,7 +31,7 @@ func (suite *ModelSuite) TestReDomesticAccessorialPriceValidation() {
 		suite.verifyValidationErrors(&invalidReDomesticAccessorialPrice, expErrors)
 	})
 
-	suite.T().Run("test service schedule over 3 for ReDomesticAccessorialPrice", func(t *testing.T) {
+	suite.Run("test service schedule over 3 for ReDomesticAccessorialPrice", func() {
 		invalidReDomesticAccessorialPrice := models.ReDomesticAccessorialPrice{
 			ContractID:       uuid.Must(uuid.NewV4()),
 			ServiceID:        uuid.Must(uuid.NewV4()),
@@ -46,7 +44,7 @@ func (suite *ModelSuite) TestReDomesticAccessorialPriceValidation() {
 		suite.verifyValidationErrors(&invalidReDomesticAccessorialPrice, expErrors)
 	})
 
-	suite.T().Run("test per unit cents is not negative ReDomesticAccessorialPrice", func(t *testing.T) {
+	suite.Run("test per unit cents is not negative ReDomesticAccessorialPrice", func() {
 		invalidReDomesticAccessorialPrice := models.ReDomesticAccessorialPrice{
 			ContractID:       uuid.Must(uuid.NewV4()),
 			ServiceID:        uuid.Must(uuid.NewV4()),
