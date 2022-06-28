@@ -9,6 +9,12 @@
     }
   }
 
+  .weightTicketSectionWrapper {
+    :global(.usa-form-group:first-of-type .usa-label) {
+      @include u-margin-top(0);
+    }
+  }
+
   h2 {
     @include u-margin-bottom(4);
   }
