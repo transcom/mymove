@@ -498,8 +498,9 @@ func (suite *PopTestSuite) NilOrNoVerrs(err error) {
 	}
 }
 
-// Run overrides the default testify Run to ensure that the testdb is
-// torn down for per txn tests
+// Run, with WithPerTestTransaction enabled, means each subtest
+// gets a new connection and is isolated from both any database
+// changes made in the main test, and in sibling subtests.
 //
 // It would be nice if subtests could start a new transaction inside
 // the current connection so they could reuse db setup between
@@ -555,6 +556,11 @@ func (suite *PopTestSuite) Run(name string, subtest func()) bool {
 	})
 }
 
+// RunWithRollback, with WithPerTestTransaction enabled, means
+// each subtest will get rolled back. This means each subtest is
+// isolated from sibling tests but NOT isolated from any db changes
+// made in the main test.
+//
 // RunWithRollback runs a subtest inside a transaction that is
 // rolled back. Not all tests will work with this approach
 //
