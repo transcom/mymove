@@ -5,8 +5,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/services/event"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -116,28 +114,8 @@ func (h DeleteCustomerSupportRemarkHandler) Handle(params customersupportremarks
 				}
 			}
 
-			// TODO how should I get the move ID for the event trigger? we either need to query for it here
-			// TODO  or we need to just ask for it as a param
-			h.triggerCustomerSupportRemarkDeletionEvent(appCtx, remarkID, uuid.Nil, params)
+			// TODO do we need to trigger an event for this? it should be done here if so
 
 			return customersupportremarksop.NewDeleteCustomerSupportRemarkNoContent(), nil
 		})
-}
-
-func (h DeleteCustomerSupportRemarkHandler) triggerCustomerSupportRemarkDeletionEvent(appCtx appcontext.AppContext, customerSupportRemarkID uuid.UUID, moveID uuid.UUID, params customersupportremarksop.DeleteCustomerSupportRemarkParams) {
-
-	_, err := event.TriggerEvent(event.Event{
-		EndpointKey: event.GhcDeleteCustomerSupportRemarkEndpointKey,
-		// Endpoint that is being handled
-		EventKey:        event.CustomerSupportRemarkDeleteEventKey, // Event that you want to trigger
-		UpdatedObjectID: customerSupportRemarkID,                   // ID of the updated logical object
-		MtoID:           moveID,                                    // ID of the associated Move
-		AppContext:      appCtx,
-		TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
-	})
-
-	// If the event trigger fails, just log the error.
-	if err != nil {
-		appCtx.Logger().Error("ghcapi.DeleteCustomerSupportRemarkHandler could not generate the event", zap.Error(err))
-	}
 }
