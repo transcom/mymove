@@ -182,6 +182,7 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 		ScheduledPickupDate:        handlers.FmtDatePtrToPopPtr(mtoShipment.ScheduledPickupDate),
 		ShipmentType:               models.MTOShipmentType(mtoShipment.ShipmentType),
 		Diversion:                  mtoShipment.Diversion,
+		CounselorRemarks:           mtoShipment.CounselorRemarks,
 	}
 
 	if mtoShipment.PrimeActualWeight > 0 {

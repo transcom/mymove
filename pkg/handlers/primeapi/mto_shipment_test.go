@@ -587,6 +587,111 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	})
 
+	suite.Run("Successful PATCH - Integration Test (PPM)", func() {
+		// Under test: updateMTOShipmentHandler.Handle
+		// Mocked:     Planner, PPMEstimator
+		// Set up:     We create a ppm shipment
+		//             We provide an update
+		// Expected:   Handler returns OK
+		//             Updates are completed
+		mockSender := suite.TestNotificationSender()
+		mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
+		handler := UpdateMTOShipmentHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			shipmentUpdater,
+		}
+
+		hasProGear := true
+		now := time.Now()
+		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+			PPMShipment: models.PPMShipment{
+				HasProGear: &hasProGear,
+			},
+		})
+		year, month, day := time.Now().Date()
+		actualMoveDate := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
+		expectedDepartureDate := actualMoveDate.Add(time.Hour * 24 * 2)
+		pickupPostalCode := "30907"
+		secondaryPickupPostalCode := "30809"
+		destinationPostalCode := "36106"
+		secondaryDestinationPostalCode := "36101"
+		sitExpected := true
+		sitLocation := primemessages.SITLocationTypeDESTINATION
+		sitEstimatedWeight := unit.Pound(1700)
+		sitEstimatedEntryDate := expectedDepartureDate.AddDate(0, 0, 5)
+		sitEstimatedDepartureDate := sitEstimatedEntryDate.AddDate(0, 0, 20)
+		estimatedWeight := unit.Pound(3000)
+		proGearWeight := unit.Pound(300)
+		spouseProGearWeight := unit.Pound(200)
+		estimatedIncentive := 654321
+
+		req := httptest.NewRequest("PATCH", "/mto-shipments/{MtoShipmentID}", nil)
+		eTag := etag.GenerateEtag(ppmShipment.Shipment.UpdatedAt)
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(ppmShipment.ShipmentID),
+			IfMatch:       eTag,
+			Body: &primemessages.UpdateMTOShipment{
+				CounselorRemarks: handlers.FmtString("Test remark"),
+				PpmShipment: &primemessages.UpdatePPMShipment{
+					ActualMoveDate:                 handlers.FmtDatePtr(&actualMoveDate),
+					ExpectedDepartureDate:          handlers.FmtDatePtr(&expectedDepartureDate),
+					PickupPostalCode:               &pickupPostalCode,
+					SecondaryPickupPostalCode:      &secondaryPickupPostalCode,
+					DestinationPostalCode:          &destinationPostalCode,
+					SecondaryDestinationPostalCode: &secondaryDestinationPostalCode,
+					SitExpected:                    &sitExpected,
+					SitEstimatedWeight:             handlers.FmtPoundPtr(&sitEstimatedWeight),
+					SitEstimatedEntryDate:          handlers.FmtDatePtr(&sitEstimatedEntryDate),
+					SitEstimatedDepartureDate:      handlers.FmtDatePtr(&sitEstimatedDepartureDate),
+					SitLocation:                    &sitLocation,
+					EstimatedWeight:                handlers.FmtPoundPtr(&estimatedWeight),
+					HasProGear:                     &hasProGear,
+					ProGearWeight:                  handlers.FmtPoundPtr(&proGearWeight),
+					SpouseProGearWeight:            handlers.FmtPoundPtr(&spouseProGearWeight),
+				},
+			},
+		}
+
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil).Once()
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+		suite.Equal(ppmShipment.Shipment.ID.String(), updatedShipment.ID.String())
+		suite.Equal(handlers.FmtDatePtr(&actualMoveDate), updatedShipment.PpmShipment.ActualMoveDate)
+		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), updatedShipment.PpmShipment.ExpectedDepartureDate)
+		suite.Equal(&pickupPostalCode, updatedShipment.PpmShipment.PickupPostalCode)
+		suite.Equal(&secondaryPickupPostalCode, updatedShipment.PpmShipment.SecondaryPickupPostalCode)
+		suite.Equal(&destinationPostalCode, updatedShipment.PpmShipment.DestinationPostalCode)
+		suite.Equal(&secondaryDestinationPostalCode, updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
+		suite.Equal(sitExpected, *updatedShipment.PpmShipment.SitExpected)
+		suite.Equal(&sitLocation, updatedShipment.PpmShipment.SitLocation)
+		suite.Equal(handlers.FmtPoundPtr(&sitEstimatedWeight), updatedShipment.PpmShipment.SitEstimatedWeight)
+		suite.Equal(handlers.FmtDate(sitEstimatedEntryDate), updatedShipment.PpmShipment.SitEstimatedEntryDate)
+		suite.Equal(handlers.FmtDate(sitEstimatedDepartureDate), updatedShipment.PpmShipment.SitEstimatedDepartureDate)
+		suite.Equal(handlers.FmtPoundPtr(&estimatedWeight), updatedShipment.PpmShipment.EstimatedWeight)
+		suite.Equal(int64(estimatedIncentive), *updatedShipment.PpmShipment.EstimatedIncentive)
+		suite.Equal(handlers.FmtBool(hasProGear), updatedShipment.PpmShipment.HasProGear)
+		suite.Equal(handlers.FmtPoundPtr(&proGearWeight), updatedShipment.PpmShipment.ProGearWeight)
+		suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), updatedShipment.PpmShipment.SpouseProGearWeight)
+		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)
+	})
+
 	suite.Run("PATCH failure 404 not found because not available to prime", func() {
 		// Under test: updateMTOShipmentHandler.Handle
 		// Mocked:     Planner

@@ -127,7 +127,8 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				"SecondaryPickupAddress",
 				"SecondaryDeliveryAddress",
 				"MTOAgents",
-				"StorageFacility").
+				"StorageFacility",
+				"PPMShipment").
 				Where("uses_external_vendor = FALSE").
 				Find(&dbShipment, params.MtoShipmentID)
 
