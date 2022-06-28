@@ -51,8 +51,7 @@ const WeightTickets = () => {
           setErrorMessage('Failed to create trip record');
         });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [weightTicketId]);
+  }, [weightTicketId, moveId, mtoShipmentId, history]);
 
   const handleCreateUpload = (fieldName, file) => {
     let documentId;
