@@ -35,7 +35,6 @@ func (o customerSupportRemarkDeleter) DeleteCustomerSupportRemark(appCtx appcont
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		err := utilities.SoftDestroy(appCtx.DB(), &remark)
-		// TODO is this error handling here necessary? can we just bubble the error up?
 		if err != nil {
 			switch err.Error() {
 			case "error updating model":
