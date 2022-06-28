@@ -117,6 +117,8 @@ ExistingWeightTickets.args = {
     hasClaimedTrailer: false,
   },
   onCreateUpload: mockCreateUploadSuccess,
+  onUploadComplete: mockUploadComplete,
+  onUploadDelete: mockUploadDelete,
   tripNumber: '1',
 };
 
@@ -159,6 +161,8 @@ MissingWeightTickets.args = {
     hasClaimedTrailer: false,
   },
   onCreateUpload: mockCreateUploadSuccess,
+  onUploadComplete: mockUploadComplete,
+  onUploadDelete: mockUploadDelete,
   tripNumber: '1',
 };
 
@@ -219,5 +223,7 @@ TrailerOwnership.args = {
     ],
   },
   onCreateUpload: mockCreateUploadSuccess,
+  onUploadComplete: mockUploadComplete,
+  onUploadDelete: mockUploadDelete,
   tripNumber: '1',
 };
