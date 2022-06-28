@@ -330,7 +330,15 @@ const WeightTicketForm = ({
                             <UploadsTable
                               className={styles.uploadsTable}
                               uploads={values.trailerOwnershipDocs}
-                              onDelete={onUploadDelete}
+                              onDelete={(uploadId) =>
+                                onUploadDelete(
+                                  uploadId,
+                                  'trailerOwnershipDocs',
+                                  values,
+                                  formikProps.setFieldTouched,
+                                  formikProps.setFieldValue,
+                                )
+                              }
                             />
                             <FormGroup
                               error={
@@ -362,7 +370,7 @@ const WeightTicketForm = ({
                               </Hint>
                               <FileUpload
                                 name="trailerOwnershipDocs"
-                                createUpload={onCreateUpload}
+                                createUpload={(file) => onCreateUpload('trailerOwnershipDocs', file)}
                                 labelIdle={UploadDropZoneLabel}
                                 onChange={(err, upload) => {
                                   formikProps.setFieldTouched('trailerOwnershipDocs', true);
@@ -370,7 +378,7 @@ const WeightTicketForm = ({
                                     upload,
                                     err,
                                     'trailerOwnershipDocs',
-                                    formikProps.values,
+                                    values,
                                     formikProps.setFieldValue,
                                   );
                                   trailerOwnershipDocsRef.current.removeFile(upload.id);
