@@ -1,12 +1,13 @@
 package customersupportremarks
 
 import (
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	customersupportremarksop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -17,8 +18,17 @@ func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarksUpdater() {
 		origRemark := testdatagen.MakeDefaultCustomerSupportRemark(suite.DB())
 
 		remarkEdit := "Test Remark"
-		payload := ghcmessages.UpdateCustomerSupportRemarkPayload{Content: &remarkEdit, ID: handlers.FmtUUID(origRemark.ID)}
-		updatedCustomerSupportRemark, err := updater.UpdateCustomerSupportRemark(suite.AppContextForTest(), payload)
+		remarkID := origRemark.ID
+		payload := ghcmessages.UpdateCustomerSupportRemarkPayload{
+			Content: &remarkEdit,
+		}
+
+		params := customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams{
+			Body: &payload,
+			// IS there a better way to do this or is golang JUST like this :/
+			CustomerSupportRemarkID: strfmt.UUID(remarkID.String()),
+		}
+		updatedCustomerSupportRemark, err := updater.UpdateCustomerSupportRemark(suite.AppContextForTest(), params)
 
 		suite.Nil(err)
 		suite.NotNil(updatedCustomerSupportRemark)
@@ -34,8 +44,15 @@ func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarksUpdater() {
 	suite.Run("Returns an error when remark is not found", func() {
 		badID := uuid.Must(uuid.NewV4())
 		remarkEdit := "Test Remark"
-		payload := ghcmessages.UpdateCustomerSupportRemarkPayload{Content: &remarkEdit, ID: handlers.FmtUUID(badID)}
-		_, err := updater.UpdateCustomerSupportRemark(suite.AppContextForTest(), payload)
+		payload := ghcmessages.UpdateCustomerSupportRemarkPayload{Content: &remarkEdit}
+
+		params := customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams{
+			Body: &payload,
+			// IS there a better way to do this or is golang JUST like this :/
+			CustomerSupportRemarkID: strfmt.UUID(badID.String()),
+		}
+
+		_, err := updater.UpdateCustomerSupportRemark(suite.AppContextForTest(), params)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)

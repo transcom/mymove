@@ -71,9 +71,8 @@ func (h CreateCustomerSupportRemarksHandler) Handle(params customersupportremark
 func (h UpdateCustomerSupportRemarkHandler) Handle(params customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			payload := params.Body
 
-			customerSupportRemark, err := h.UpdateCustomerSupportRemark(appCtx, *payload)
+			customerSupportRemark, err := h.UpdateCustomerSupportRemark(appCtx, params)
 			if err != nil {
 				appCtx.Logger().Error("Error updating customer support remark: ", zap.Error(err))
 				return customersupportremarksop.NewUpdateCustomerSupportRemarkForMoveInternalServerError(), err

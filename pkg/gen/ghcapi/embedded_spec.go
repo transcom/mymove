@@ -166,6 +166,68 @@ func init() {
         }
       ]
     },
+    "/customer-support-remarks/{customerSupportRemarkID}": {
+      "patch": {
+        "description": "Updates a customer support remark for a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Updates a customer support remark for a move",
+        "operationId": "updateCustomerSupportRemarkForMove",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateCustomerSupportRemarkPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated customer support remark",
+            "schema": {
+              "$ref": "#/definitions/CustomerSupportRemark"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the customer support remark ID to be modified",
+          "name": "customerSupportRemarkID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -1495,49 +1557,6 @@ func init() {
         "responses": {
           "200": {
             "description": "Successfully created customer support remark",
-            "schema": {
-              "$ref": "#/definitions/CustomerSupportRemark"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "patch": {
-        "description": "Updates a customer support remark for a move",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "customerSupportRemarks"
-        ],
-        "summary": "Updates a customer support remark for a move",
-        "operationId": "updateCustomerSupportRemarkForMove",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/UpdateCustomerSupportRemarkPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated customer support remark",
             "schema": {
               "$ref": "#/definitions/CustomerSupportRemark"
             }
@@ -6653,20 +6672,15 @@ func init() {
       }
     },
     "UpdateCustomerSupportRemarkPayload": {
-      "description": "A text remark written by an customer support user that is associated with a specific move.",
+      "description": "A text remark update to an existing remark created by the current active user (the CSR).",
       "type": "object",
       "required": [
-        "id",
         "content"
       ],
       "properties": {
         "content": {
           "type": "string",
           "example": "This is a remark about a move."
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid"
         }
       }
     },
@@ -7331,6 +7345,80 @@ func init() {
           "format": "uuid",
           "description": "ID of order to use",
           "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/customer-support-remarks/{customerSupportRemarkID}": {
+      "patch": {
+        "description": "Updates a customer support remark for a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Updates a customer support remark for a move",
+        "operationId": "updateCustomerSupportRemarkForMove",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateCustomerSupportRemarkPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated customer support remark",
+            "schema": {
+              "$ref": "#/definitions/CustomerSupportRemark"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the customer support remark ID to be modified",
+          "name": "customerSupportRemarkID",
           "in": "path",
           "required": true
         }
@@ -9043,61 +9131,6 @@ func init() {
         "responses": {
           "200": {
             "description": "Successfully created customer support remark",
-            "schema": {
-              "$ref": "#/definitions/CustomerSupportRemark"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "patch": {
-        "description": "Updates a customer support remark for a move",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "customerSupportRemarks"
-        ],
-        "summary": "Updates a customer support remark for a move",
-        "operationId": "updateCustomerSupportRemarkForMove",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/UpdateCustomerSupportRemarkPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated customer support remark",
             "schema": {
               "$ref": "#/definitions/CustomerSupportRemark"
             }
@@ -14633,20 +14666,15 @@ func init() {
       }
     },
     "UpdateCustomerSupportRemarkPayload": {
-      "description": "A text remark written by an customer support user that is associated with a specific move.",
+      "description": "A text remark update to an existing remark created by the current active user (the CSR).",
       "type": "object",
       "required": [
-        "id",
         "content"
       ],
       "properties": {
         "content": {
           "type": "string",
           "example": "This is a remark about a move."
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid"
         }
       }
     },

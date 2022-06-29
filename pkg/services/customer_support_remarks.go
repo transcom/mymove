@@ -2,7 +2,7 @@ package services
 
 import (
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	customersupportremarksop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -19,5 +19,5 @@ type CustomerSupportRemarksCreator interface {
 
 //go:generate mockery --name CustomerSupportRemarkUpdater --disable-version-string
 type CustomerSupportRemarkUpdater interface {
-	UpdateCustomerSupportRemark(appCtx appcontext.AppContext, payload ghcmessages.UpdateCustomerSupportRemarkPayload) (*models.CustomerSupportRemark, error)
+	UpdateCustomerSupportRemark(appCtx appcontext.AppContext, params customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams) (*models.CustomerSupportRemark, error)
 }

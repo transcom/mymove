@@ -1684,19 +1684,32 @@ paths:
       description: Fetches customer support remarks for a move
       operationId: getCustomerSupportRemarksForMove
       summary: Fetches customer support remarks using the move code (locator).
+  '/customer-support-remarks/{customerSupportRemarkID}':
+    parameters:
+      - in: path
+        description: the customer support remark ID to be modified
+        name: customerSupportRemarkID
+        required: true
+        type: string
+        format: uuid
     patch:
       tags:
         - customerSupportRemarks
       description: Updates a customer support remark for a move
       operationId: updateCustomerSupportRemarkForMove
       summary: Updates a customer support remark for a move
-      produces:
-        - application/json
       consumes:
         - application/json
+      produces:
+        - application/json
       parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
         - in: body
           name: body
+          required: true
           schema:
             $ref: '#/definitions/UpdateCustomerSupportRemarkPayload'
       responses:
@@ -2197,11 +2210,20 @@ paths:
                 type: string
                 x-nullable: true
                 enum:
-                  [customerName, dodID, branch, locator, status, originPostalCode, destinationPostalCode, shipmentsCount]
+                  [
+                    customerName,
+                    dodID,
+                    branch,
+                    locator,
+                    status,
+                    originPostalCode,
+                    destinationPostalCode,
+                    shipmentsCount,
+                  ]
               order:
                 type: string
                 x-nullable: true
-                enum: [ asc, desc ]
+                enum: [asc, desc]
           description: field that results should be sorted by
       responses:
         '200':
@@ -4052,15 +4074,10 @@ definitions:
   UpdateCustomerSupportRemarkPayload:
     type: object
     description: >-
-      A text remark written by an customer support user that is associated with a specific
-      move.
+      A text remark update to an existing remark created by the current active user (the CSR).
     required:
-      - id
       - content
     properties:
-      id:
-        type: string
-        format: uuid
       content:
         example: This is a remark about a move.
         type: string
