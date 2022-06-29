@@ -51,4 +51,6 @@ export default {
   sit_departure_date: 'SIT departure date',
   sit_entry_date: 'SIT entry date',
   sit_postal_code: 'SIT postal code',
+  item_size: 'Item size',
+  crate_size: 'Crate size',
 };
