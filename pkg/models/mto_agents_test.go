@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
@@ -10,7 +8,7 @@ import (
 )
 
 func (suite *ModelSuite) TestMTOAgentValidation() {
-	suite.T().Run("test valid MTOAgent", func(t *testing.T) {
+	suite.Run("test valid MTOAgent", func() {
 		mtoShipmentID := uuid.Must(uuid.NewV4())
 		mtoAgentID := uuid.Must(uuid.NewV4())
 

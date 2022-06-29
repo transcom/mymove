@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/benbjohnson/clock"
@@ -70,7 +69,7 @@ func (suite *ModelSuite) TestBasicFuelEIADieselPriceInstantiation() {
 	}
 
 	for name, test := range testCases {
-		suite.T().Run(name, func(t *testing.T) {
+		suite.Run(name, func() {
 			suite.verifyValidationErrors(&test.fuelEIADP, test.expectedErrs)
 		})
 	}
@@ -81,7 +80,7 @@ func (suite *ModelSuite) TestFuelEIADieselPriceOverlappingDatesConstraint() {
 	now := time.Now()
 	id := uuid.Must(uuid.NewV4())
 
-	suite.T().Run("Overlapping Dates Constraint Test", func(t *testing.T) {
+	suite.Run("Overlapping Dates Constraint Test", func() {
 
 		// Test for overalapping start and end dates
 		newFuelPrice := models.FuelEIADieselPrice{

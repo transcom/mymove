@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -27,7 +25,7 @@ func (suite *ModelSuite) TestWebhookSubscription_NotNullConstraint() {
 
 func (suite *ModelSuite) TestWebhookSubscription_Instantiation() {
 
-	suite.T().Run("Default subscription", func(t *testing.T) {
+	suite.Run("Default subscription", func() {
 		webhookSubscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
 
 		verrs, err := suite.DB().ValidateAndSave(&webhookSubscription)
@@ -39,7 +37,7 @@ func (suite *ModelSuite) TestWebhookSubscription_Instantiation() {
 		suite.Equal(0, webhookSubscription.Severity)
 	})
 
-	suite.T().Run("Updated subscription severity", func(t *testing.T) {
+	suite.Run("Updated subscription severity", func() {
 		webhookSubscription := testdatagen.MakeWebhookSubscription(suite.DB(), testdatagen.Assertions{
 			WebhookSubscription: models.WebhookSubscription{
 				Severity: 2,

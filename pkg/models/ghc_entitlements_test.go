@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -16,14 +14,14 @@ func (suite *ModelSuite) TestAuthorizedWeightWhenExistsInDB() {
 }
 
 func (suite *ModelSuite) TestAuthorizedWeightWhenNotInDBAndHaveWeightAllotment() {
-	suite.T().Run("with no dependents authorized, TotalWeightSelf is AuthorizedWeight", func(t *testing.T) {
+	suite.Run("with no dependents authorized, TotalWeightSelf is AuthorizedWeight", func() {
 		entitlement := models.Entitlement{}
 		entitlement.SetWeightAllotment("E_1")
 
 		suite.Equal(entitlement.WeightAllotment().TotalWeightSelf, *entitlement.AuthorizedWeight())
 	})
 
-	suite.T().Run("with dependents authorized, TotalWeightSelfPlusDependents is AuthorizedWeight", func(t *testing.T) {
+	suite.Run("with dependents authorized, TotalWeightSelfPlusDependents is AuthorizedWeight", func() {
 		dependentsAuthorized := true
 		entitlement := models.Entitlement{DependentsAuthorized: &dependentsAuthorized}
 		entitlement.SetWeightAllotment("E_1")
@@ -33,7 +31,7 @@ func (suite *ModelSuite) TestAuthorizedWeightWhenNotInDBAndHaveWeightAllotment()
 }
 
 func (suite *ModelSuite) TestProGearAndProGearSpouseWeight() {
-	suite.T().Run("no validation errors for ProGearWeight and ProGearSpouseWeight", func(t *testing.T) {
+	suite.Run("no validation errors for ProGearWeight and ProGearSpouseWeight", func() {
 		entitlement := models.Entitlement{
 			ProGearWeight:       2000,
 			ProGearWeightSpouse: 500,
@@ -42,7 +40,7 @@ func (suite *ModelSuite) TestProGearAndProGearSpouseWeight() {
 		suite.False(verrs.HasAny(), "Should not have validation errors")
 	})
 
-	suite.T().Run("validation errors for ProGearWeight and ProGearSpouseWeight over max value", func(t *testing.T) {
+	suite.Run("validation errors for ProGearWeight and ProGearSpouseWeight over max value", func() {
 		entitlement := models.Entitlement{
 			ProGearWeight:       2001,
 			ProGearWeightSpouse: 501,
@@ -53,7 +51,7 @@ func (suite *ModelSuite) TestProGearAndProGearSpouseWeight() {
 		suite.NotNil(verrs.Get("pro_gear_weight_spouse"))
 	})
 
-	suite.T().Run("validation errors for ProGearWeight and ProGearSpouseWeight under min value", func(t *testing.T) {
+	suite.Run("validation errors for ProGearWeight and ProGearSpouseWeight under min value", func() {
 		entitlement := models.Entitlement{
 			ProGearWeight:       -1,
 			ProGearWeightSpouse: -1,
