@@ -15,7 +15,7 @@ import (
 )
 
 type ProcessEDI824Suite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestProcessEDI824Suite(t *testing.T) {

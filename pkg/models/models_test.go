@@ -12,7 +12,7 @@ import (
 )
 
 type ModelSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func (suite *ModelSuite) SetupTest() {

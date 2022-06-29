@@ -19,7 +19,7 @@ import (
 )
 
 type SyncadaSftpSenderSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestSyncadaSftpSenderSuite(t *testing.T) {

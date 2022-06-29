@@ -25,7 +25,7 @@ import (
 
 // BaseHandlerTestSuite abstracts the common methods needed for handler tests
 type BaseHandlerTestSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 	filesToClose       []*runtime.File
 	notificationSender notifications.NotificationSender
 }

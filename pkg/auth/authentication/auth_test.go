@@ -72,7 +72,7 @@ func ApplicationTestServername() auth.ApplicationServername {
 }
 
 type AuthSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func (suite *AuthSuite) SetupTest() {

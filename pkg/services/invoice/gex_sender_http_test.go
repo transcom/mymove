@@ -13,7 +13,7 @@ import (
 )
 
 type GexSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestGexSuite(t *testing.T) {

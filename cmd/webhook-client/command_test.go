@@ -16,7 +16,7 @@ import (
 
 // WebhookClientTestingSuite is a suite for testing the webhook client
 type WebhookClientTestingSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 	logger   *zap.Logger
 	certPath string
 	keyPath  string
