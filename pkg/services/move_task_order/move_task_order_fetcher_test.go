@@ -159,7 +159,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 
 	mtoFetcher := NewMoveTaskOrderFetcher()
 
-	suite.RunWithRollback("all move task orders", func() {
+	suite.RunWithPreloadedData("all move task orders", func() {
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IsAvailableToPrime: false,
 			IncludeHidden:      true,
@@ -177,7 +177,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		suite.NotNil(move.Orders.NewDutyLocation)
 	})
 
-	suite.RunWithRollback("default search - excludes hidden move task orders", func() {
+	suite.RunWithPreloadedData("default search - excludes hidden move task orders", func() {
 		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(suite.AppContextForTest(), nil)
 		suite.NoError(err)
 
@@ -193,7 +193,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		}
 	})
 
-	suite.RunWithRollback("returns shipments that respect the external searchParams flag", func() {
+	suite.RunWithPreloadedData("returns shipments that respect the external searchParams flag", func() {
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden:            false,
 			ExcludeExternalShipments: true,
@@ -213,7 +213,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		}
 	})
 
-	suite.RunWithRollback("all move task orders that are available to prime and using since", func() {
+	suite.RunWithPreloadedData("all move task orders that are available to prime and using since", func() {
 		now = time.Now()
 
 		testdatagen.MakeAvailableMove(suite.DB())
