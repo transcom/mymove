@@ -50,11 +50,11 @@ func MakeWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTi
 
 	fullAssertions := Assertions{
 		WeightTicket: models.WeightTicket{
-			EmptyWeight:          &emptyWeight,
-			HasEmptyWeightTicket: models.BoolPointer(true),
-			FullWeight:           &fullWeight,
-			HasFullWeightTicket:  models.BoolPointer(true),
-			OwnsTrailer:          models.BoolPointer(false),
+			EmptyWeight:              &emptyWeight,
+			MissingEmptyWeightTicket: models.BoolPointer(false),
+			FullWeight:               &fullWeight,
+			MissingFullWeightTicket:  models.BoolPointer(false),
+			OwnsTrailer:              models.BoolPointer(false),
 		},
 	}
 
