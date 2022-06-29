@@ -47,7 +47,7 @@ func (h GetMoveHistoryHandler) Handle(params moveop.GetMoveHistoryParams) middle
 				}
 			}
 
-			historyRecords := payloads.MoveHistory(appCtx, moveHistory)
+			historyRecords := payloads.MoveHistory(appCtx.Logger(), moveHistory)
 
 			result := &ghcmessages.MoveHistoryResult{
 				Page:           *moveHistoryRequestParams.Page,

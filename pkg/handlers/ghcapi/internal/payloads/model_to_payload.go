@@ -7,7 +7,6 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gofrs/uuid"
@@ -105,9 +104,9 @@ func CustomerSupportRemarks(customerSupportRemarks models.CustomerSupportRemarks
 }
 
 // MoveHistory payload
-func MoveHistory(appCtx appcontext.AppContext, moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
+func MoveHistory(logger *zap.Logger, moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{
-		HistoryRecords: moveHistoryRecords(appCtx, moveHistory.AuditHistories),
+		HistoryRecords: moveHistoryRecords(logger, moveHistory.AuditHistories),
 		ID:             strfmt.UUID(moveHistory.ID.String()),
 		Locator:        moveHistory.Locator,
 		ReferenceID:    moveHistory.ReferenceID,
@@ -117,15 +116,15 @@ func MoveHistory(appCtx appcontext.AppContext, moveHistory *models.MoveHistory) 
 }
 
 // MoveAuditHistory payload
-func MoveAuditHistory(appCtx appcontext.AppContext, auditHistory models.AuditHistory) *ghcmessages.MoveAuditHistory {
+func MoveAuditHistory(logger *zap.Logger, auditHistory models.AuditHistory) *ghcmessages.MoveAuditHistory {
 
 	payload := &ghcmessages.MoveAuditHistory{
 		Action:               auditHistory.Action,
 		ActionTstampClk:      strfmt.DateTime(auditHistory.ActionTstampClk),
 		ActionTstampStm:      strfmt.DateTime(auditHistory.ActionTstampStm),
 		ActionTstampTx:       strfmt.DateTime(auditHistory.ActionTstampTx),
-		ChangedValues:        removeEscapeJSONtoObject(appCtx, auditHistory.ChangedData),
-		OldValues:            removeEscapeJSONtoObject(appCtx, auditHistory.OldData),
+		ChangedValues:        removeEscapeJSONtoObject(logger, auditHistory.ChangedData),
+		OldValues:            removeEscapeJSONtoObject(logger, auditHistory.OldData),
 		ClientQuery:          auditHistory.ClientQuery,
 		EventName:            auditHistory.EventName,
 		ID:                   strfmt.UUID(auditHistory.ID.String()),
@@ -136,7 +135,7 @@ func MoveAuditHistory(appCtx appcontext.AppContext, auditHistory models.AuditHis
 		SessionUserLastName:  auditHistory.SessionUserLastName,
 		SessionUserEmail:     auditHistory.SessionUserEmail,
 		SessionUserTelephone: auditHistory.SessionUserTelephone,
-		Context:              removeEscapeJSONtoArray(appCtx, auditHistory.Context),
+		Context:              removeEscapeJSONtoArray(logger, auditHistory.Context),
 		ContextID:            auditHistory.ContextID,
 		StatementOnly:        auditHistory.StatementOnly,
 		TableName:            auditHistory.TableName,
@@ -147,7 +146,7 @@ func MoveAuditHistory(appCtx appcontext.AppContext, auditHistory models.AuditHis
 	return payload
 }
 
-func removeEscapeJSONtoObject(appCtx appcontext.AppContext, data *string) map[string]interface{} {
+func removeEscapeJSONtoObject(logger *zap.Logger, data *string) map[string]interface{} {
 	var result map[string]interface{}
 	if data == nil || *data == "" {
 		return result
@@ -157,14 +156,14 @@ func removeEscapeJSONtoObject(appCtx appcontext.AppContext, data *string) map[st
 	err := json.Unmarshal(byteData, &result)
 
 	if err != nil {
-		appCtx.Logger().Error("error unmarshalling the escaped json to object", zap.Error(err))
+		logger.Error("error unmarshalling the escaped json to object", zap.Error(err))
 	}
 
 	return result
 
 }
 
-func removeEscapeJSONtoArray(appCtx appcontext.AppContext, data *string) []map[string]string {
+func removeEscapeJSONtoArray(logger *zap.Logger, data *string) []map[string]string {
 	var result []map[string]string
 	if data == nil || *data == "" {
 		return result
@@ -174,17 +173,17 @@ func removeEscapeJSONtoArray(appCtx appcontext.AppContext, data *string) []map[s
 	err := json.Unmarshal(byteData, &result)
 
 	if err != nil {
-		appCtx.Logger().Error("error unmarshalling the escaped json to array", zap.Error(err))
+		logger.Error("error unmarshalling the escaped json to array", zap.Error(err))
 	}
 
 	return result
 }
 
-func moveHistoryRecords(appCtx appcontext.AppContext, auditHistories models.AuditHistories) ghcmessages.MoveAuditHistories {
+func moveHistoryRecords(logger *zap.Logger, auditHistories models.AuditHistories) ghcmessages.MoveAuditHistories {
 	payload := make(ghcmessages.MoveAuditHistories, len(auditHistories))
 
 	for i, a := range auditHistories {
-		payload[i] = MoveAuditHistory(appCtx, a)
+		payload[i] = MoveAuditHistory(logger, a)
 	}
 	return payload
 }
