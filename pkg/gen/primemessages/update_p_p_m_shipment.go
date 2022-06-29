@@ -19,10 +19,6 @@ import (
 // swagger:model UpdatePPMShipment
 type UpdatePPMShipment struct {
 
-	// actual move date
-	// Format: date
-	ActualMoveDate *strfmt.Date `json:"actualMoveDate,omitempty"`
-
 	// ZIP
 	// Example: 90210
 	// Pattern: ^(\d{5})$
@@ -92,10 +88,6 @@ type UpdatePPMShipment struct {
 func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateActualMoveDate(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateDestinationPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
@@ -131,18 +123,6 @@ func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *UpdatePPMShipment) validateActualMoveDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.ActualMoveDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("actualMoveDate", "body", "date", m.ActualMoveDate.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 

@@ -3457,11 +3457,6 @@ func init() {
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
-        "actualMoveDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -7534,11 +7529,6 @@ func init() {
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
-        "actualMoveDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",

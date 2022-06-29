@@ -640,7 +640,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			Body: &primemessages.UpdateMTOShipment{
 				CounselorRemarks: handlers.FmtString("Test remark"),
 				PpmShipment: &primemessages.UpdatePPMShipment{
-					ActualMoveDate:                 handlers.FmtDatePtr(&actualMoveDate),
 					ExpectedDepartureDate:          handlers.FmtDatePtr(&expectedDepartureDate),
 					PickupPostalCode:               &pickupPostalCode,
 					SecondaryPickupPostalCode:      &secondaryPickupPostalCode,
@@ -673,7 +672,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
 		suite.Equal(ppmShipment.Shipment.ID.String(), updatedShipment.ID.String())
-		suite.Equal(handlers.FmtDatePtr(&actualMoveDate), updatedShipment.PpmShipment.ActualMoveDate)
 		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), updatedShipment.PpmShipment.ExpectedDepartureDate)
 		suite.Equal(&pickupPostalCode, updatedShipment.PpmShipment.PickupPostalCode)
 		suite.Equal(&secondaryPickupPostalCode, updatedShipment.PpmShipment.SecondaryPickupPostalCode)

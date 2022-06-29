@@ -247,7 +247,6 @@ func PPMShipmentModelFromUpdate(ppmShipment *primemessages.UpdatePPMShipment) *m
 	}
 
 	model := &models.PPMShipment{
-		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		SITExpected:                    ppmShipment.SitExpected,
