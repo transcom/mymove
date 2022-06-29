@@ -1,15 +1,13 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestPaymentServiceItemParamValidation() {
-	suite.T().Run("test valid PaymentServiceItemParam", func(t *testing.T) {
+	suite.Run("test valid PaymentServiceItemParam", func() {
 		validPaymentServiceItemParam := models.PaymentServiceItemParam{
 			PaymentServiceItemID:  uuid.Must(uuid.NewV4()),
 			ServiceItemParamKeyID: uuid.Must(uuid.NewV4()),
@@ -19,7 +17,7 @@ func (suite *ModelSuite) TestPaymentServiceItemParamValidation() {
 		suite.verifyValidationErrors(&validPaymentServiceItemParam, expErrors)
 	})
 
-	suite.T().Run("test empty PaymentServiceItemParam", func(t *testing.T) {
+	suite.Run("test empty PaymentServiceItemParam", func() {
 		invalidPaymentServiceItemParam := models.PaymentServiceItemParam{}
 
 		expErrors := map[string][]string{

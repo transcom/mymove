@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -48,7 +47,7 @@ func (suite *ModelSuite) TestBasicEDIProcessingInstantiation() {
 	}
 
 	for name, test := range testCases {
-		suite.T().Run(name, func(t *testing.T) {
+		suite.Run(name, func() {
 			suite.verifyValidationErrors(&test.ediProcessing, test.expectedErrs)
 		})
 	}

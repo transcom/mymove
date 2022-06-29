@@ -46,8 +46,13 @@ describe('The document viewer', function () {
       cy.get('input[name="notes"]').type('burn after reading');
       cy.get('button.submit').should('be.disabled');
 
+      cy.intercept('/internal/uploads').as('uploadFile');
       cy.upload_file('.filepond--root', 'sample-orders.png');
+      cy.wait('@uploadFile');
+
+      cy.intercept('/internal/moves/*/move_documents').as('postDocument');
       cy.get('button.submit', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
+      cy.wait('@postDocument');
     });
     it('can upload a weight ticket set', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
@@ -58,8 +63,13 @@ describe('The document viewer', function () {
       cy.get('input[name="notes"]').type('burn after reading');
       cy.get('button.submit').should('be.disabled');
 
+      cy.intercept('/internal/uploads').as('uploadFile');
       cy.upload_file('.filepond--root', 'sample-orders.png');
+      cy.wait('@uploadFile');
+
+      cy.intercept('/internal/moves/*/move_documents').as('postDocument');
       cy.get('button.submit', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
+      cy.wait('@postDocument');
     });
 
     it('shows the newly uploaded document in the document list tab', () => {
@@ -83,8 +93,13 @@ describe('The document viewer', function () {
 
       cy.get('button.submit').should('be.disabled');
 
+      cy.intercept('/internal/uploads').as('uploadFile');
       cy.upload_file('.filepond--root', 'sample-orders.png');
-      cy.get('button.submit', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
+      cy.wait('@uploadFile');
+
+      cy.intercept('/internal/moves/*/moving_expense_documents').as('postExpenseDocument');
+      cy.get('button.submit').should('not.be.disabled').click();
+      cy.wait('@postExpenseDocument');
     });
     it('can select and update newly-uploaded expense document', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');

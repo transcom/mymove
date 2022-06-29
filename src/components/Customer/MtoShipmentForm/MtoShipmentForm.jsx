@@ -120,6 +120,7 @@ class MtoShipmentForm extends Component {
     }
   };
 
+  // eslint-disable-next-line class-methods-use-this
   getShipmentNumber = () => {
     // TODO - this is not supported by IE11, shipment number should be calculable from Redux anyways
     // we should fix this also b/c it doesn't display correctly in storybook
