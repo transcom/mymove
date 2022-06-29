@@ -112,7 +112,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 				if *h.ObjectID == approvedMove.Orders.ID {
 					if h.OldData != nil {
 						oldData := removeEscapeJSONtoObject(h.OldData)
-						if oldData["sac"] == nil {
+						if sac, ok := oldData["sac"]; !ok || sac == nil {
 							verifyOldSAC = true
 						}
 					}
@@ -133,14 +133,14 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 			} else if h.TableName == "entitlements" {
 				if h.ChangedData != nil {
 					oldData := removeEscapeJSONtoObject(h.OldData)
-					if oldData["authorized_weight"] == nil {
+					if authorizedWeight, ok := oldData["authorized_weight"]; !ok || authorizedWeight == nil {
 						verifyDBAuthorizedWeight = true
 					}
 				}
 			} else if h.TableName == "moves" {
 				if h.OldData != nil {
 					oldData := removeEscapeJSONtoObject(h.OldData)
-					if oldData["tio_remarks"] == nil {
+					if tioRemarks, ok := oldData["tio_remarks"]; !ok || tioRemarks == nil {
 						verifyOldTIORemarks = true
 					}
 				}
