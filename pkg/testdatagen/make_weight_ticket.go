@@ -101,9 +101,7 @@ func ensureServiceMemberIsSetUpInAssertions(db *pop.Connection, assertions Asser
 // getOrCreateDocument checks if a document exists. If it does, it returns it, otherwise, it creates it
 func getOrCreateDocument(db *pop.Connection, document models.Document, assertions Assertions) models.Document {
 	if assertions.Stub && document.CreatedAt.IsZero() || document.ID.IsNil() {
-		upload := MakeUserUpload(db, assertions)
-
-		return upload.Document
+		return MakeDocument(db, assertions)
 	}
 
 	return document
