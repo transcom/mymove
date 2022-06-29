@@ -93,6 +93,11 @@ func ensureServiceMemberIsSetUpInAssertions(db *pop.Connection, assertions Asser
 		assertions.Order.ServiceMember = serviceMember
 		assertions.Document.ServiceMemberID = serviceMember.ID
 		assertions.Document.ServiceMember = serviceMember
+	} else {
+		assertions.Order.ServiceMemberID = assertions.ServiceMember.ID
+		assertions.Order.ServiceMember = assertions.ServiceMember
+		assertions.Document.ServiceMemberID = assertions.ServiceMember.ID
+		assertions.Document.ServiceMember = assertions.ServiceMember
 	}
 
 	return assertions
