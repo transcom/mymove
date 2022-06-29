@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -11,7 +10,7 @@ import (
 )
 
 func (suite *ModelSuite) TestReweighValidation() {
-	suite.T().Run("test valid Reweigh", func(t *testing.T) {
+	suite.Run("test valid Reweigh", func() {
 		validReweigh := models.Reweigh{
 			RequestedAt: time.Now(),
 			RequestedBy: models.ReweighRequesterCustomer,
@@ -21,7 +20,7 @@ func (suite *ModelSuite) TestReweighValidation() {
 		suite.verifyValidationErrors(&validReweigh, expErrors)
 	})
 
-	suite.T().Run("test empty reweigh", func(t *testing.T) {
+	suite.Run("test empty reweigh", func() {
 		expErrors := map[string][]string{
 			"requested_at": {"RequestedAt can not be blank."},
 			"requested_by": {"RequestedBy is not in the list [CUSTOMER, PRIME, SYSTEM, TOO]."},
@@ -30,7 +29,7 @@ func (suite *ModelSuite) TestReweighValidation() {
 		suite.verifyValidationErrors(&models.Reweigh{}, expErrors)
 	})
 
-	suite.T().Run("test validation failures", func(t *testing.T) {
+	suite.Run("test validation failures", func() {
 		var verificationReason string
 		weight := unit.Pound(-1)
 		invalidReweigh := models.Reweigh{

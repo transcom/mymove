@@ -111,3 +111,66 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		suite.WithinDuration(time.Now(), *actualDeletedAt, 2*time.Second)
 	})
 }
+
+func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
+	suite.Run("Doesn't return an error when allowed to delete a shipment", func() {
+		shipmentDeleter := NewPrimeShipmentDeleter()
+		now := time.Now()
+		shipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusSubmitted,
+			},
+		})
+
+		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
+		suite.Error(err)
+	})
+
+	suite.Run("Returns an error when a shipment is not available to prime", func() {
+		shipmentDeleter := NewPrimeShipmentDeleter()
+
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: nil,
+			},
+		})
+
+		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
+		suite.Error(err)
+	})
+
+	suite.Run("Returns an error when a shipment is not a PPM", func() {
+		shipmentDeleter := NewPrimeShipmentDeleter()
+		now := time.Now()
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHG,
+			},
+		})
+
+		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
+		suite.Error(err)
+	})
+
+	suite.Run("Returns an error when PPM status is WAITING_ON_CUSTOMER", func() {
+		shipmentDeleter := NewPrimeShipmentDeleter()
+		now := time.Now()
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHG,
+			},
+		})
+
+		_, err := shipmentDeleter.DeleteShipment(suite.AppContextForTest(), shipment.ID)
+		suite.Error(err)
+	})
+}

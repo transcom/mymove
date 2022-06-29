@@ -80,14 +80,14 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 
 	mtoHider := NewMoveTaskOrderHider()
 
-	suite.RunWithRollback("valid MTO, none to hide", func() {
+	suite.RunWithPreloadedData("valid MTO, none to hide", func() {
 		result, err := mtoHider.Hide(suite.AppContextForTest())
 		suite.NoError(err)
 
 		suite.Len(result, 0)
 	})
 
-	suite.RunWithRollback("invalid MTO, one to hide", func() {
+	suite.RunWithPreloadedData("invalid MTO, one to hide", func() {
 		// Change an MTO agent name to an invalid name.
 		mtoAgent.FirstName = swag.String("Beyonce")
 		suite.MustSave(&mtoAgent)
@@ -189,7 +189,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 	}
 
 	for idx, invalidData := range invalidFakeData {
-		suite.RunWithRollback(fmt.Sprintf("invalid fake Service Member data %d", idx), func() {
+		suite.RunWithPreloadedData(fmt.Sprintf("invalid fake Service Member data %d", idx), func() {
 			sm := testdatagen.MakeServiceMember(suite.DB(), invalidData)
 			result, reasons, err := IsValidFakeModelServiceMember(sm)
 			suite.NoError(err)
@@ -220,7 +220,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 		{MTOAgent: models.MTOAgent{Email: swag.String("billy@move.mil")}},
 	}
 	for idx, badData := range badFakeData {
-		suite.RunWithRollback(fmt.Sprintf("invalid fake MTOAgent data %d", idx), func() {
+		suite.RunWithPreloadedData(fmt.Sprintf("invalid fake MTOAgent data %d", idx), func() {
 			agent := testdatagen.MakeMTOAgent(suite.DB(), badData)
 			result, err := IsValidFakeModelMTOAgent(agent)
 			suite.NoError(err)
@@ -250,7 +250,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelB
 	}
 
 	for idx, invalidData := range invalidFakeData {
-		suite.RunWithRollback(fmt.Sprintf("invalid fake Backup Contact data %d", idx), func() {
+		suite.RunWithPreloadedData(fmt.Sprintf("invalid fake Backup Contact data %d", idx), func() {
 
 			bc := testdatagen.MakeBackupContact(suite.DB(), invalidData)
 			result, err = IsValidFakeModelBackupContact(bc)
@@ -368,7 +368,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 		invalidMTO4,
 	}
 	for idx, invalidData := range invalidFakeData {
-		suite.RunWithRollback(fmt.Sprintf("invalid fake MTOShipment data %d", idx), func() {
+		suite.RunWithPreloadedData(fmt.Sprintf("invalid fake MTOShipment data %d", idx), func() {
 			shipment := testdatagen.MakeMTOShipment(suite.DB(), invalidData)
 			result, reasons, err := IsValidFakeModelMTOShipment(shipment)
 			suite.NoError(err)

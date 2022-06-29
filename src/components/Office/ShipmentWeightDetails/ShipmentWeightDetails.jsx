@@ -12,6 +12,8 @@ import returnLowestValue from 'utils/returnLowestValue';
 import { formatWeight } from 'utils/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentOptionsOneOf } from 'types/shipment';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, handleRequestReweighModal }) => {
   const lowestWeight = returnLowestValue(actualWeight, shipmentInfo.reweighWeight);
@@ -20,9 +22,11 @@ const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, ha
       <span>Shipment weight</span>
       {!shipmentInfo.reweighID && (
         <div className={styles.rightAlignButtonWrapper}>
-          <Button type="button" onClick={() => handleRequestReweighModal(shipmentInfo)} unstyled>
-            Request reweigh
-          </Button>
+          <Restricted to={permissionTypes.createReweighRequest}>
+            <Button type="button" onClick={() => handleRequestReweighModal(shipmentInfo)} unstyled>
+              Request reweigh
+            </Button>
+          </Restricted>
         </div>
       )}
       {shipmentInfo.reweighID && !shipmentInfo.reweighWeight && <Tag>reweigh requested</Tag>}

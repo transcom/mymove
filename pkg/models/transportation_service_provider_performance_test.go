@@ -114,7 +114,7 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 	// Increment offer count twice
 	performance, err := IncrementTSPPerformanceOfferCount(suite.DB(), perf.ID)
 	if err != nil {
-		t.Fatalf("Could not increment offer_count: %v", err)
+		t.Errorf("Could not increment offer_count: %v", err)
 	}
 	if performance.OfferCount != 1 {
 		t.Errorf("Wrong OfferCount returned: expected %d, got %d", 1, performance.OfferCount)
@@ -122,7 +122,7 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 
 	performance, err = IncrementTSPPerformanceOfferCount(suite.DB(), perf.ID)
 	if err != nil {
-		t.Fatalf("Could not increment offer_count: %v", err)
+		t.Errorf("Could not increment offer_count: %v", err)
 	}
 	if performance.OfferCount != 2 {
 		t.Errorf("Wrong OfferCount returned: expected %d, got %d", 2, performance.OfferCount)
@@ -130,7 +130,7 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 
 	performance = TransportationServiceProviderPerformance{}
 	if err := suite.DB().Find(&performance, perf.ID); err != nil {
-		t.Fatalf("could not find perf: %v", err)
+		t.Errorf("could not find perf: %v", err)
 	}
 
 	if performance.OfferCount != 2 {
@@ -158,12 +158,12 @@ func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 
 	err := AssignQualityBandToTSPPerformance(suite.DB(), band, perf.ID)
 	if err != nil {
-		t.Fatalf("Did not update quality band: %v", err)
+		t.Errorf("Did not update quality band: %v", err)
 	}
 
 	performance := TransportationServiceProviderPerformance{}
 	if err := suite.DB().Find(&performance, perf.ID); err != nil {
-		t.Fatalf("could not find perf: %v", err)
+		t.Errorf("could not find perf: %v", err)
 	}
 
 	if performance.QualityBand == nil {
@@ -776,7 +776,7 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 
 	discountRate, sitRate, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", moveDate)
 	if err != nil {
-		t.Fatalf("Failed to find tsp performance: %s", err)
+		t.Errorf("Failed to find tsp performance: %s", err)
 	}
 
 	expectedLinehaul := unit.DiscountRate(.505)
@@ -848,7 +848,7 @@ func (suite *ModelSuite) Test_FetchDiscountRatesSameBVS() {
 
 	discountRate, sitRate, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", moveDate)
 	if err != nil {
-		t.Fatalf("Failed to find tsp performance: %s", err)
+		t.Errorf("Failed to find tsp performance: %s", err)
 	}
 
 	expectedLinehaul := targetTspPerformance.LinehaulRate
@@ -895,21 +895,21 @@ func (suite *ModelSuite) Test_FetchDiscountRatesPerformancePeriodBoundaries() {
 	suite.MustSave(&tspPerformance)
 
 	if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppEnd); err != nil {
-		t.Fatalf("Failed to find tsp performance for last day in performance period: %s", err)
+		t.Errorf("Failed to find tsp performance for last day in performance period: %s", err)
 	}
 
 	if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppStart); err != nil {
-		t.Fatalf("Failed to find tsp performance for first day in performance period: %s", err)
+		t.Errorf("Failed to find tsp performance for first day in performance period: %s", err)
 	}
 
 	// discount rates are being hard coded so ignore this test
 	// if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppStart.Add(time.Hour*-24)); err == nil {
-	// 	t.Fatalf("Should not have found a TSPP for the last day before the start of a performance period: %s", err)
+	// 	t.Errorf("Should not have found a TSPP for the last day before the start of a performance period: %s", err)
 	// }
 
 	// discount rates are being hard coded so ignore this test
 	// if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppEnd.Add(time.Hour*24)); err == nil {
-	// 	t.Fatalf("Should not have found a TSPP for the first day following a performance period: %s", err)
+	// 	t.Errorf("Should not have found a TSPP for the first day following a performance period: %s", err)
 	// }
 }
 

@@ -6,6 +6,8 @@ import { SITStatusOrigin } from '../ShipmentSITDisplay/ShipmentSITDisplayTestPar
 import ShipmentDetails from './ShipmentDetails';
 
 import { LOA_TYPE } from 'shared/constants';
+import { permissionTypes } from 'constants/permissions';
+import { MockProviders } from 'testUtils';
 
 export default {
   title: 'Office Components/Shipment Details',
@@ -138,7 +140,9 @@ export const Default = () => {
 
   return (
     <div className="officeApp">
-      <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
+      <MockProviders permissions={[permissionTypes.updateShipment]}>
+        <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
+      </MockProviders>
     </div>
   );
 };

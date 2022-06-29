@@ -14,6 +14,8 @@ import { retrieveSAC, retrieveTAC, formatAgent, formatAddress, formatAccountingC
 import { ShipmentShape } from 'types/shipment';
 import { OrdersLOAShape } from 'types/order';
 import { tooRoutes } from 'constants/routes';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const ShipmentDetailsSidebar = ({
   className,
@@ -112,16 +114,18 @@ const ShipmentDetailsSidebar = ({
           header={
             <div className={styles.ShipmentDetailsSidebar}>
               Facility info and address
-              <Button
-                size="small"
-                type="button"
-                onClick={handleShowEditFacilityInfoModal}
-                className="float-right usa-link modal-link"
-                data-testid="edit-facility-info-modal-open"
-                unstyled
-              >
-                Edit
-              </Button>
+              <Restricted to={permissionTypes.updateShipment}>
+                <Button
+                  size="small"
+                  type="button"
+                  onClick={handleShowEditFacilityInfoModal}
+                  className="float-right usa-link modal-link"
+                  data-testid="edit-facility-info-modal-open"
+                  unstyled
+                >
+                  Edit
+                </Button>
+              </Restricted>
             </div>
           }
           border
@@ -139,16 +143,18 @@ const ShipmentDetailsSidebar = ({
           header={
             <div className={styles.ShipmentDetailsSidebar}>
               Service order number
-              <Button
-                size="small"
-                type="button"
-                onClick={handleShowSonModal}
-                className="float-right usa-link modal-link"
-                data-testid="service-order-number-modal-open"
-                unstyled
-              >
-                Edit
-              </Button>
+              <Restricted to={permissionTypes.updateShipment}>
+                <Button
+                  size="small"
+                  type="button"
+                  onClick={handleShowSonModal}
+                  className="float-right usa-link modal-link"
+                  data-testid="service-order-number-modal-open"
+                  unstyled
+                >
+                  Edit
+                </Button>
+              </Restricted>
             </div>
           }
           border
@@ -163,16 +169,18 @@ const ShipmentDetailsSidebar = ({
           header={
             <div className={styles.ShipmentDetailsSidebar}>
               Accounting codes
-              <Button
-                size="small"
-                type="button"
-                onClick={handleShowAccountingCodesModal}
-                className="float-right usa-link modal-link"
-                data-testid="edit-accounting-codes-modal-open"
-                unstyled
-              >
-                Edit
-              </Button>
+              <Restricted to={permissionTypes.updateShipment}>
+                <Button
+                  size="small"
+                  type="button"
+                  onClick={handleShowAccountingCodesModal}
+                  className="float-right usa-link modal-link"
+                  data-testid="edit-accounting-codes-modal-open"
+                  unstyled
+                >
+                  Edit
+                </Button>
+              </Restricted>
             </div>
           }
           border

@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gofrs/uuid"
@@ -11,7 +9,7 @@ import (
 )
 
 func (suite *ModelSuite) TestMTOServiceItemDimension() {
-	suite.T().Run("test valid MTOServiceItemDimension", func(t *testing.T) {
+	suite.Run("test valid MTOServiceItemDimension", func() {
 		mtoServiceItemDimensionID := uuid.Must(uuid.NewV4())
 
 		validMTOServiceItemDimension := models.MTOServiceItemDimension{
@@ -25,7 +23,7 @@ func (suite *ModelSuite) TestMTOServiceItemDimension() {
 		suite.verifyValidationErrors(&validMTOServiceItemDimension, expErrors)
 	})
 
-	suite.T().Run("test invalid MTOServiceItemDimension", func(t *testing.T) {
+	suite.Run("test invalid MTOServiceItemDimension", func() {
 		validMTOServiceItemDimension := models.MTOServiceItemDimension{
 			MTOServiceItemID: uuid.Nil,
 			Type:             "NOT VALID",
@@ -43,7 +41,7 @@ func (suite *ModelSuite) TestMTOServiceItemDimension() {
 		suite.verifyValidationErrors(&validMTOServiceItemDimension, expErrors)
 	})
 
-	suite.T().Run("correct volume is calculated by Volume function", func(t *testing.T) {
+	suite.Run("correct volume is calculated by Volume function", func() {
 		validMTOServiceItemDimension := models.MTOServiceItemDimension{
 			Length: 6000,
 			Height: 10000,

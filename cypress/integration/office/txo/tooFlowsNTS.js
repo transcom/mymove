@@ -1,4 +1,5 @@
 import { TOOOfficeUserType } from '../../../support/constants';
+import { navigateToMove } from './tooNavigateToMove';
 
 describe('TOO user', () => {
   before(() => {
@@ -418,14 +419,4 @@ function editTacSac() {
   cy.get('[data-testid="sacSDN"]').contains('4K988AS098F');
   cy.get('[data-testid="NTStac"]').contains('F123');
   cy.get('[data-testid="NTSsac"]').contains('3L988AS098F');
-}
-
-function navigateToMove(moveLocator) {
-  // TOO Moves queue
-  cy.wait(['@getSortedOrders']);
-  cy.contains(moveLocator).click();
-  cy.url().should('include', `/moves/${moveLocator}/details`);
-
-  // Move Details page
-  cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
 }

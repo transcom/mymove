@@ -1,15 +1,13 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestStorageFacilityValidation() {
-	suite.T().Run("test valid StorageFacility", func(t *testing.T) {
+	suite.Run("test valid StorageFacility", func() {
 		validMTOShipment := models.StorageFacility{
 			FacilityName: "Test Storage Facility",
 			AddressID:    uuid.Must(uuid.NewV4()),
@@ -18,7 +16,7 @@ func (suite *ModelSuite) TestStorageFacilityValidation() {
 		suite.verifyValidationErrors(&validMTOShipment, expErrors)
 	})
 
-	suite.T().Run("test invalid StorageFacility", func(t *testing.T) {
+	suite.Run("test invalid StorageFacility", func() {
 		lotNumber := ""
 		phone := ""
 		email := ""

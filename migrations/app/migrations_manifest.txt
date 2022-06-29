@@ -737,3 +737,4 @@
 20220531203704_add_user_id_to_client_certs.up.sql
 20220531203716_add_user_for_each_client_cert.up.sql
 20220601203717_remove_old_ppm_advance_requested_columns.up.sql
+20220622225529_create_weight_tickets_table.up.sql

@@ -42,8 +42,6 @@ const PaymentRequestCard = ({
   hasBillableWeightIssues,
   onEditAccountingCodes,
 }) => {
-  const sortedShipments = groupByShipment(paymentRequest.serviceItems);
-
   // show details by default if in pending/needs review
   const defaultShowDetails = paymentRequest.status === 'PENDING';
   // only show button in reviewed/paid
@@ -83,8 +81,11 @@ const PaymentRequestCard = ({
   const { locator } = paymentRequest.moveTaskOrder;
   const { sac, tac, ntsTac, ntsSac } = paymentRequest.moveTaskOrder.orders;
   const { contractNumber } = paymentRequest.moveTaskOrder.contractor;
+  let sortedShipments = [];
 
   if (paymentRequest.serviceItems) {
+    sortedShipments = groupByShipment(paymentRequest.serviceItems);
+
     paymentRequest.serviceItems.forEach((item) => {
       if (item.priceCents != null) {
         requestedAmount += item.priceCents;

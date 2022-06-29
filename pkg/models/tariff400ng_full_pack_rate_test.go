@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	. "github.com/transcom/mymove/pkg/models"
@@ -11,7 +10,7 @@ import (
 
 func (suite *ModelSuite) TestTariff400ngFullPackRateValidations() {
 	now := time.Now()
-	suite.T().Run("test valid Tariff400ngFullPackRate", func(t *testing.T) {
+	suite.Run("test valid Tariff400ngFullPackRate", func() {
 		validTariff400ngFullPackRate := Tariff400ngFullPackRate{
 			Schedule:           1,
 			WeightLbsLower:     100,
@@ -24,7 +23,7 @@ func (suite *ModelSuite) TestTariff400ngFullPackRateValidations() {
 		suite.verifyValidationErrors(&validTariff400ngFullPackRate, expErrors)
 	})
 
-	suite.T().Run("test empty Tariff400ngFullPackRate", func(t *testing.T) {
+	suite.Run("test empty Tariff400ngFullPackRate", func() {
 		emptyTariff400ngFullPackRate := Tariff400ngFullPackRate{}
 		expErrors := map[string][]string{
 			"schedule":             {"Schedule can not be blank."},
@@ -148,7 +147,7 @@ func (suite *ModelSuite) Test_FetchFullPackRateCents() {
 
 	rate, err := FetchTariff400ngFullPackRateCents(suite.DB(), weight, schedule, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
-		t.Fatalf("Unable to query full pack rate: %v", err)
+		t.Errorf("Unable to query full pack rate: %v", err)
 	}
 	if rate != rateExpected {
 		t.Errorf("Incorrect full pack rate received. Got: %d. Expected: %d.", rate, rateExpected)
