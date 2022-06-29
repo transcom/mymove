@@ -27,12 +27,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	document := assertions.Order.UploadedOrders
 	// Note above
 	if isZeroUUID(assertions.Order.UploadedOrdersID) {
-		document = MakeDocument(db, Assertions{
-			Document: models.Document{
-				ServiceMemberID: sm.ID,
-				ServiceMember:   sm,
-			},
-		})
+		document = MakeDocument(db, assertions)
 		u := MakeUserUpload(db, Assertions{
 			UserUpload: models.UserUpload{
 				DocumentID: &document.ID,

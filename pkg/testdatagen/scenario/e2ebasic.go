@@ -65,7 +65,7 @@ func serviceMemberNoUploadedOrders(appCtx appcontext.AppContext) {
 	uuidStr := "feac0e92-66ec-4cab-ad29-538129bf918e"
 	loginGovID := uuid.Must(uuid.NewV4())
 
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+	user := testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovUUID:  &loginGovID,
@@ -82,6 +82,7 @@ func serviceMemberNoUploadedOrders(appCtx appcontext.AppContext) {
 			LastName:      models.StringPointer("ORDERS"),
 			PersonalEmail: models.StringPointer(email),
 		},
+		User: user,
 	})
 }
 
@@ -435,7 +436,6 @@ func serviceMemberWithUploadedOrdersAndNewPPM(appCtx appcontext.AppContext, user
 	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 	ppm0 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("94ced723-fabc-42af-b9ee-87f8986bb5c9"),
 			UserID:        uuid.FromStringOrNil(uuidStr),
 			FirstName:     models.StringPointer("PPM"),
 			LastName:      models.StringPointer("Submitted"),
@@ -952,6 +952,7 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, user
 	// currently don't have "combo move" selection option, so testing ppm office when type is HHG
 	selectedMoveType := models.SelectedMoveTypeHHG
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: smWithCombo,
 		Order: models.Order{
 			ServiceMemberID: uuid.FromStringOrNil(smIDCombo),
 			ServiceMember:   smWithCombo,
@@ -1050,6 +1051,7 @@ func serviceMemberWithUnsubmittedHHG(appCtx appcontext.AppContext, userUploader 
 
 	selectedMoveType := models.SelectedMoveTypeHHG
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: smWithHHG,
 		Order: models.Order{
 			ServiceMemberID: uuid.FromStringOrNil(smWithHHGID),
 			ServiceMember:   smWithHHG,
@@ -1105,6 +1107,7 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 
 	selectedMoveType := models.SelectedMoveTypeNTS
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: smWithNTS,
 		Order: models.Order{
 			ServiceMemberID: uuid.FromStringOrNil(smWithNTSID),
 			ServiceMember:   smWithNTS,
@@ -1189,6 +1192,7 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 
 	selectedMoveType := models.SelectedMoveTypeNTS
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: smWithNTS,
 		Order: models.Order{
 			ServiceMemberID: uuid.FromStringOrNil(smWithNTSID),
 			ServiceMember:   smWithNTS,
@@ -1669,6 +1673,7 @@ func serviceMemberWithOrdersAndPPMMove07(appCtx appcontext.AppContext, userUploa
 		},
 	})
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: customer,
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("8779beda-f69a-43bf-8606-ebd22973d474"),
 			ServiceMemberID: customer.ID,
@@ -1692,6 +1697,7 @@ func serviceMemberWithOrdersAndPPMMove08(appCtx appcontext.AppContext, userUploa
 		},
 	})
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: customer,
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("f2473488-2504-4872-a6b6-dd385dad4bf9"),
 			ServiceMemberID: customer.ID,
@@ -1860,6 +1866,7 @@ func createMoveWithServiceItemsandPaymentRequests01(appCtx appcontext.AppContext
 	})
 
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: customer,
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-6b0b8477ae2a"),
 			ServiceMemberID: customer.ID,
@@ -2234,6 +2241,7 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		},
 	})
 	orders8 := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: customer8,
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("1d49bb07-d9dd-4308-934d-baad94f2de9b"),
 			ServiceMemberID: customer8.ID,
@@ -2527,6 +2535,7 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 		},
 	})
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: customer,
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988"),
 			ServiceMemberID: customer.ID,
@@ -2759,6 +2768,7 @@ func createMoveWithSinceParamater(appCtx appcontext.AppContext, userUploader *up
 		},
 	})
 	orders6 := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: customer6,
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981"),
 			ServiceMemberID: customer6.ID,
@@ -3123,6 +3133,7 @@ func createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContex
 
 	// Create Orders
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: customer,
 		Order: models.Order{
 			ServiceMemberID: customer.ID,
 			ServiceMember:   customer,
@@ -3640,6 +3651,7 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 
 	// Create Orders
 	orders := testdatagen.MakeOrder(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: customer,
 		Order: models.Order{
 			ServiceMemberID: customer.ID,
 			ServiceMember:   customer,
@@ -3760,6 +3772,7 @@ func createNTSMoveWithServiceItemsandPaymentRequests(appCtx appcontext.AppContex
 
 	selectedMoveType := models.SelectedMoveTypeNTS
 	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: serviceMember,
 		Order: models.Order{
 			ServiceMemberID: uuid.FromStringOrNil(serviceMemberID),
 			ServiceMember:   serviceMember,
