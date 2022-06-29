@@ -45,15 +45,27 @@ func MakeMinimalDefaultWeightTicket(db *pop.Connection) models.WeightTicket {
 
 // MakeWeightTicket creates a single WeightTicket and associated relationships with weights and documents
 func MakeWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTicket {
+	assertions = ensureServiceMemberIsSetUpInAssertions(db, assertions)
+
+	// Because this model points at multiple documents, it's not really good to point at the base assertions.Document,
+	// so we'll look at assertions.WeightTicket.<Document>
+	emptyDocument := getOrCreateDocumentWithUploads(db, assertions.WeightTicket.EmptyDocument, assertions)
+	fullDocument := getOrCreateDocumentWithUploads(db, assertions.WeightTicket.FullDocument, assertions)
+
 	emptyWeight := unit.Pound(14500)
 	fullWeight := emptyWeight + unit.Pound(4000)
 
 	fullAssertions := Assertions{
 		WeightTicket: models.WeightTicket{
+
 			EmptyWeight:              &emptyWeight,
 			MissingEmptyWeightTicket: models.BoolPointer(false),
+			EmptyDocumentID:          emptyDocument.ID,
+			EmptyDocument:            emptyDocument,
 			FullWeight:               &fullWeight,
 			MissingFullWeightTicket:  models.BoolPointer(false),
+			FullDocumentID:           fullDocument.ID,
+			FullDocument:             fullDocument,
 			OwnsTrailer:              models.BoolPointer(false),
 		},
 	}
@@ -110,4 +122,22 @@ func getOrCreateDocument(db *pop.Connection, document models.Document, assertion
 	}
 
 	return document
+}
+
+// getOrCreateDocumentWithUploads checks if a document exists. If it doesn't, it creates it. Then checks if the document
+// has any uploads. If not, creates an upload associated with the document. Returns the document at the end.
+func getOrCreateDocumentWithUploads(db *pop.Connection, document models.Document, assertions Assertions) models.Document {
+	doc := getOrCreateDocument(db, document, assertions)
+
+	if len(doc.UserUploads) == 0 {
+		// This will be overriding the assertions locally only because we pass a copy to this function rather than a pointer
+		assertions.UserUpload.DocumentID = &doc.ID
+		assertions.UserUpload.Document = doc
+
+		upload := MakeUserUpload(db, assertions)
+
+		doc.UserUploads = append(doc.UserUploads, upload)
+	}
+
+	return doc
 }
