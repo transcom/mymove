@@ -19,11 +19,13 @@ import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInf
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { addressSchema } from 'utils/validation';
+import { addressSchema, InvalidZIPTypeError, ZIP5_CODE_REGEX } from 'utils/validation';
 import { isValidWeight, isEmpty } from 'shared/utils';
 import { fromPrimeAPIAddressFormat, formatAddressForPrimeAPI, formatSwaggerDate } from 'utils/formatters';
 import PrimeUIShipmentUpdateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdateForm';
+import PrimeUIShipmentUpdatePPMForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdatePPMForm';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
@@ -81,6 +83,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const isPPM = shipment.shipmentType === SHIPMENT_OPTIONS.PPM;
+
   const emptyAddress = {
     streetAddress1: '',
     streetAddress2: '',
@@ -98,50 +102,115 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   const editableDestinationAddress = isEmpty(reformatPrimeApiDestinationAddress);
 
   const onSubmit = (values, { setSubmitting }) => {
-    const {
-      estimatedWeight,
-      actualWeight,
-      actualPickupDate,
-      scheduledPickupDate,
-      pickupAddress,
-      destinationAddress,
-      destinationType,
-      diversion,
-    } = values;
+    let body;
+    if (isPPM) {
+      const {
+        ppmShipment: {
+          pickupPostalCode,
+          secondaryPickupPostalCode,
+          destinationPostalCode,
+          secondaryDestinationPostalCode,
+          sitExpected,
+          sitLocation,
+          sitEstimatedWeight,
+          sitEstimatedEntryDate,
+          sitEstimatedDepartureDate,
+          estimatedWeight,
+          netWeight,
+          proGearWeight,
+          spouseProGearWeight,
+        },
+      } = values;
+      body = {
+        ppmShipment: {
+          pickupPostalCode,
+          secondaryPickupPostalCode: secondaryPickupPostalCode || null,
+          destinationPostalCode,
+          secondaryDestinationPostalCode: secondaryDestinationPostalCode || null,
+          sitExpected,
+          sitLocation: sitLocation || null,
+          sitEstimatedWeight: sitEstimatedWeight ? parseInt(sitEstimatedWeight, 10) : null,
+          sitEstimatedEntryDate: sitEstimatedEntryDate ? formatSwaggerDate(sitEstimatedEntryDate) : null,
+          sitEstimatedDepartureDate: sitEstimatedDepartureDate ? formatSwaggerDate(sitEstimatedDepartureDate) : null,
+          estimatedWeight: estimatedWeight ? parseInt(estimatedWeight, 10) : null,
+          netWeight: netWeight ? parseInt(netWeight, 10) : null,
+          proGearWeight: proGearWeight ? parseInt(proGearWeight, 10) : null,
+          spouseProGearWeight: spouseProGearWeight ? parseInt(spouseProGearWeight, 10) : null,
+        },
+      };
+    } else {
+      const {
+        estimatedWeight,
+        actualWeight,
+        actualPickupDate,
+        scheduledPickupDate,
+        pickupAddress,
+        destinationAddress,
+        destinationType,
+        diversion,
+      } = values;
 
-    const body = {
-      primeEstimatedWeight: editableWeightEstimateField ? parseInt(estimatedWeight, 10) : null,
-      primeActualWeight: parseInt(actualWeight, 10),
-      scheduledPickupDate: scheduledPickupDate ? formatSwaggerDate(scheduledPickupDate) : null,
-      actualPickupDate: actualPickupDate ? formatSwaggerDate(actualPickupDate) : null,
-      pickupAddress: editablePickupAddress ? formatAddressForPrimeAPI(pickupAddress) : null,
-      destinationAddress: editableDestinationAddress ? formatAddressForPrimeAPI(destinationAddress) : null,
-      destinationType,
-      diversion,
-    };
+      body = {
+        primeEstimatedWeight: editableWeightEstimateField ? parseInt(estimatedWeight, 10) : null,
+        primeActualWeight: parseInt(actualWeight, 10),
+        scheduledPickupDate: scheduledPickupDate ? formatSwaggerDate(scheduledPickupDate) : null,
+        actualPickupDate: actualPickupDate ? formatSwaggerDate(actualPickupDate) : null,
+        pickupAddress: editablePickupAddress ? formatAddressForPrimeAPI(pickupAddress) : null,
+        destinationAddress: editableDestinationAddress ? formatAddressForPrimeAPI(destinationAddress) : null,
+        destinationType,
+        diversion,
+      };
+    }
+
     mutateMTOShipment({ mtoShipmentID: shipmentId, ifMatchETag: shipment.eTag, body }).then(() => {
       setSubmitting(false);
     });
   };
 
-  const initialValues = {
-    estimatedWeight: shipment.primeEstimatedWeight?.toLocaleString(),
-    actualWeight: shipment.primeActualWeight?.toLocaleString(),
-    requestedPickupDate: shipment.requestedPickupDate,
-    scheduledPickupDate: shipment.scheduledPickupDate,
-    actualPickupDate: shipment.actualPickupDate,
-    pickupAddress: editablePickupAddress ? emptyAddress : reformatPrimeApiPickupAddress,
-    destinationAddress: editableDestinationAddress ? emptyAddress : reformatPrimeApiDestinationAddress,
-    destinationType: shipment.destinationType,
-    diversion: shipment.diversion,
-  };
+  let initialValues;
+  let validationSchema;
+  if (isPPM) {
+    initialValues = {
+      ppmShipment: {
+        ...shipment.ppmShipment,
+        sitEstimatedWeight: shipment.ppmShipment.sitEstimatedWeight?.toLocaleString(),
+        estimatedWeight: shipment.ppmShipment.estimatedWeight?.toLocaleString(),
+        netWeight: shipment.ppmShipment.netWeight?.toLocaleString(),
+        proGearWeight: shipment.ppmShipment.proGearWeight?.toLocaleString(),
+        spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toLocaleString(),
+      },
+    };
 
-  const validationSchema = Yup.object().shape({
-    pickupAddress: addressSchema,
-    destinationAddress: addressSchema,
-    scheduledPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
-    actualPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
-  });
+    validationSchema = Yup.object().shape({
+      ppmShipment: Yup.object().shape({
+        pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+        secondaryPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError),
+        destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+        secondaryDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError),
+        sitEstimatedEntryDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+        sitEstimatedDepartureDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+      }),
+    });
+  } else {
+    initialValues = {
+      estimatedWeight: shipment.primeEstimatedWeight?.toLocaleString(),
+      actualWeight: shipment.primeActualWeight?.toLocaleString(),
+      requestedPickupDate: shipment.requestedPickupDate,
+      scheduledPickupDate: shipment.scheduledPickupDate,
+      actualPickupDate: shipment.actualPickupDate,
+      pickupAddress: editablePickupAddress ? emptyAddress : reformatPrimeApiPickupAddress,
+      destinationAddress: editableDestinationAddress ? emptyAddress : reformatPrimeApiDestinationAddress,
+      destinationType: shipment.destinationType,
+      diversion: shipment.diversion,
+    };
+
+    validationSchema = Yup.object().shape({
+      pickupAddress: addressSchema,
+      destinationAddress: addressSchema,
+      scheduledPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+      actualPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+    });
+  }
 
   return (
     <div className={styles.tabContent}>
@@ -166,18 +235,22 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                 {({ isValid, isSubmitting, handleSubmit }) => {
                   return (
                     <Form className={formStyles.form}>
-                      <PrimeUIShipmentUpdateForm
-                        editableWeightEstimateField={editableWeightEstimateField}
-                        editableWeightActualField={editableWeightActualField}
-                        editablePickupAddress={editablePickupAddress}
-                        editableDestinationAddress={editableDestinationAddress}
-                        estimatedWeight={initialValues.estimatedWeight}
-                        actualWeight={initialValues.actualWeight}
-                        requestedPickupDate={initialValues.requestedPickupDate}
-                        pickupAddress={initialValues.pickupAddress}
-                        destinationAddress={initialValues.destinationAddress}
-                        diversion={initialValues.diversion}
-                      />
+                      {isPPM ? (
+                        <PrimeUIShipmentUpdatePPMForm />
+                      ) : (
+                        <PrimeUIShipmentUpdateForm
+                          editableWeightEstimateField={editableWeightEstimateField}
+                          editableWeightActualField={editableWeightActualField}
+                          editablePickupAddress={editablePickupAddress}
+                          editableDestinationAddress={editableDestinationAddress}
+                          estimatedWeight={initialValues.estimatedWeight}
+                          actualWeight={initialValues.actualWeight}
+                          requestedPickupDate={initialValues.requestedPickupDate}
+                          pickupAddress={initialValues.pickupAddress}
+                          destinationAddress={initialValues.destinationAddress}
+                          diversion={initialValues.diversion}
+                        />
+                      )}
                       <div className={formStyles.formActions}>
                         <WizardNavigation
                           editMode
