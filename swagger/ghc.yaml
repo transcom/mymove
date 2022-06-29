@@ -269,6 +269,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.orders
     get:
       produces:
         - application/json
