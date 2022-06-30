@@ -181,6 +181,7 @@ const initialValues = {
       bytes: 1,
       url: 'url',
       filename: 'Test Upload',
+      content_type: 'application/pdf',
     },
   ],
 };
@@ -242,6 +243,7 @@ describe('EditOrdersForm component', () => {
               bytes: 1,
               url: 'url',
               filename: 'Test Upload',
+              content_type: 'application/pdf',
             },
           ],
         }}
@@ -311,6 +313,7 @@ describe('EditOrdersForm component', () => {
               bytes: 1,
               url: 'url',
               filename: 'Test Upload',
+              content_type: 'application/pdf',
             },
           ],
         }}
@@ -408,6 +411,7 @@ describe('EditOrdersForm component', () => {
           bytes: 1,
           url: 'url',
           filename: 'Test Upload',
+          content_type: 'application/pdf',
         },
       ],
     };
@@ -476,6 +480,7 @@ describe('EditOrdersForm component', () => {
               bytes: 1,
               url: 'url',
               filename: 'Test Upload',
+              content_type: 'application/pdf',
             },
           ],
         },

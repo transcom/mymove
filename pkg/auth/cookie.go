@@ -20,8 +20,6 @@ type ApplicationServername struct {
 	OfficeServername string
 	AdminServername  string
 	OrdersServername string
-	DpsServername    string
-	SddcServername   string
 	PrimeServername  string
 }
 

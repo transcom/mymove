@@ -10,7 +10,14 @@ import { EntitlementShape } from 'types/order';
 import { formatWeight } from 'utils/formatters';
 import Hint from 'components/Hint';
 
-const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions, editableAuthorizedWeight }) => {
+const AllowancesDetailForm = ({
+  header,
+  entitlements,
+  rankOptions,
+  branchOptions,
+  editableAuthorizedWeight,
+  formIsDisabled,
+}) => {
   return (
     <div className={styles.AllowancesDetailForm}>
       {header && <h3 data-testid="header">{header}</h3>}
@@ -25,6 +32,7 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         signed={false} // disallow negative
         thousandsSeparator=","
         lazy={false} // immediate masking evaluation
+        isDisabled={formIsDisabled}
       >
         <Hint data-testid="proGearWeightHint">
           <p>Max. 2,000 lbs</p>
@@ -42,6 +50,7 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         signed={false} // disallow negative
         thousandsSeparator=","
         lazy={false} // immediate masking evaluation
+        isDisabled={formIsDisabled}
       >
         <Hint data-testid="proGearWeightSpouseHint">
           <p>Max. 500 lbs</p>
@@ -59,6 +68,7 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         signed={false} // disallow negative
         thousandsSeparator=","
         lazy={false} // immediate masking evaluation
+        isDisabled={formIsDisabled}
       />
       <DropdownInput
         data-testid="branchInput"
@@ -66,6 +76,7 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         label="Branch"
         options={branchOptions}
         showDropdownPlaceholderText={false}
+        isDisabled={formIsDisabled}
       />
       <DropdownInput
         data-testid="rankInput"
@@ -73,6 +84,7 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         label="Rank"
         options={rankOptions}
         showDropdownPlaceholderText={false}
+        isDisabled={formIsDisabled}
       />
       <MaskedTextField
         data-testid="sitInput"
@@ -85,6 +97,7 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         signed={false} // disallow negative
         thousandsSeparator=","
         lazy={false} // immediate masking evaluation
+        isDisabled={formIsDisabled}
       />
       <div className={styles.wrappedCheckbox}>
         <CheckboxField
@@ -92,6 +105,7 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
           id="ocieInput"
           name="organizationalClothingAndIndividualEquipment"
           label="OCIE authorized (Army only)"
+          isDisabled={formIsDisabled}
         />
       </div>
 
@@ -107,6 +121,7 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
           signed={false} // disallow negative
           thousandsSeparator=","
           lazy={false} // immediate masking evaluation
+          isDisabled={formIsDisabled}
         />
       )}
 
@@ -126,6 +141,7 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
           data-testid="dependentsAuthorizedInput"
           name="dependentsAuthorized"
           label="Dependents authorized"
+          isDisabled={formIsDisabled}
         />
       </div>
     </div>
@@ -138,11 +154,13 @@ AllowancesDetailForm.propTypes = {
   branchOptions: DropdownArrayOf.isRequired,
   header: PropTypes.string,
   editableAuthorizedWeight: PropTypes.bool,
+  formIsDisabled: PropTypes.bool,
 };
 
 AllowancesDetailForm.defaultProps = {
   header: null,
   editableAuthorizedWeight: false,
+  formIsDisabled: false,
 };
 
 export default AllowancesDetailForm;

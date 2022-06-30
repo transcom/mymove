@@ -16,7 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
-	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/dps_auth"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
@@ -162,11 +161,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.UploadsDeleteUploadsHandler == nil {
 		api.UploadsDeleteUploadsHandler = uploads.DeleteUploadsHandlerFunc(func(params uploads.DeleteUploadsParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.DeleteUploads has not yet been implemented")
-		})
-	}
-	if api.DpsAuthGetCookieURLHandler == nil {
-		api.DpsAuthGetCookieURLHandler = dps_auth.GetCookieURLHandlerFunc(func(params dps_auth.GetCookieURLParams) middleware.Responder {
-			return middleware.NotImplemented("operation dps_auth.GetCookieURL has not yet been implemented")
 		})
 	}
 	if api.EntitlementsIndexEntitlementsHandler == nil {
