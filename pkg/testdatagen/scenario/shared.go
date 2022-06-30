@@ -4852,11 +4852,10 @@ func createPrimeUser(appCtx appcontext.AppContext) models.User {
 func createDevClientCertForUser(appCtx appcontext.AppContext, user models.User) {
 	// Create dev client cert from 20191212230438_add_devlocal-mtls_client_cert.up.sql
 	devClientCert := models.ClientCert{
-		ID:              uuid.Must(uuid.FromString("190b1e07-eef8-445a-9696-5a2b49ee488d")),
-		Sha256Digest:    "2c0c1fc67a294443292a9e71de0c71cc374fe310e8073f8cdc15510f6b0ef4db",
-		Subject:         "/C=US/ST=DC/L=Washington/O=Truss/OU=AppClientTLS/CN=devlocal",
-		AllowDpsAuthAPI: false,
-		UserID:          user.ID,
+		ID:           uuid.Must(uuid.FromString("190b1e07-eef8-445a-9696-5a2b49ee488d")),
+		Sha256Digest: "2c0c1fc67a294443292a9e71de0c71cc374fe310e8073f8cdc15510f6b0ef4db",
+		Subject:      "/C=US/ST=DC/L=Washington/O=Truss/OU=AppClientTLS/CN=devlocal",
+		UserID:       user.ID,
 	}
 	assertions := testdatagen.Assertions{
 		ClientCert: devClientCert,

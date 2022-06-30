@@ -149,50 +149,6 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 	}
 }
 
-func (suite *AuthSuite) TestCreateUserHandlerDPS() {
-	t := suite.T()
-
-	appnames := ApplicationTestServername()
-	callbackPort := 1234
-
-	form := url.Values{}
-	form.Add("userType", "dps")
-
-	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/create", appnames.MilServername), strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-	req.ParseForm()
-
-	sessionManagers := setupSessionManagers()
-	milSession := sessionManagers[0]
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
-	handler := NewCreateUserHandler(authContext, handlerConfig, appnames)
-
-	rr := httptest.NewRecorder()
-	milSession.LoadAndSave(handler).ServeHTTP(rr, req)
-
-	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusOK)
-	}
-
-	cookies := rr.Result().Cookies()
-	if _, err := getCookie("mil_session_token", cookies); err != nil {
-		t.Error("could not find session token in response")
-	}
-
-	user := models.User{}
-	err := json.Unmarshal(rr.Body.Bytes(), &user)
-	if err != nil {
-		t.Error("Could not unmarshal json data into User model.", err)
-	}
-
-	_, err = models.FetchDPSUserByEmail(suite.DB(), user.LoginGovEmail)
-	if err != nil {
-		t.Error("Could not find dps user for this user.", err)
-	}
-}
-
 func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 	t := suite.T()
 
