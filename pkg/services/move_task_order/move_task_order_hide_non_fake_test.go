@@ -56,6 +56,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 		serviceMember := setupTestData()
 		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			ServiceMember: serviceMember,
+			Order: models.Order{
+				ServiceMemberID: serviceMember.ID,
+				ServiceMember:   serviceMember,
+			},
 		})
 
 		result, err := mtoHider.Hide(suite.AppContextForTest())
@@ -74,6 +78,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 		serviceMember := setupTestData()
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			ServiceMember: serviceMember,
+			Order: models.Order{
+				ServiceMemberID: serviceMember.ID,
+				ServiceMember:   serviceMember,
+			},
 		})
 		testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 			MTOShipment: mtoShipment,
