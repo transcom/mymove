@@ -22,7 +22,6 @@ const PrimeUIShipmentUpdatePPMForm = () => {
         id="expectedDepartureDateInput"
         name="ppmShipment.expectedDepartureDate"
       />
-      <DatePickerInput label="Actual Move Date" id="actualMoveDateInput" name="ppmShipment.actualMoveDate" />
       <h2 className={styles.sectionHeader}>Origin Info</h2>
       <TextField
         label="Pickup Postal Code"

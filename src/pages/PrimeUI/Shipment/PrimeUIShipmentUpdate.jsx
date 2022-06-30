@@ -107,7 +107,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       const {
         ppmShipment: {
           expectedDepartureDate,
-          actualMoveDate,
           pickupPostalCode,
           secondaryPickupPostalCode,
           destinationPostalCode,
@@ -128,7 +127,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       body = {
         ppmShipment: {
           expectedDepartureDate: expectedDepartureDate ? formatSwaggerDate(expectedDepartureDate) : null,
-          actualMoveDate: actualMoveDate ? formatSwaggerDate(actualMoveDate) : null,
           pickupPostalCode,
           secondaryPickupPostalCode: secondaryPickupPostalCode || null,
           destinationPostalCode,
@@ -194,7 +192,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         expectedDepartureDate: Yup.date()
           .typeError('Invalid date. Must be in the format: DD MMM YYYY')
           .required('Required'),
-        actualMoveDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
         pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
         secondaryPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError),
         destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
