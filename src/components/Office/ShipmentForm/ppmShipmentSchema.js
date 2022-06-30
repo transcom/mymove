@@ -18,11 +18,21 @@ const ppmShipmentSchema = ({ estimatedIncentive = 0, weightAllotment = {} }) => 
     destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
     secondDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError),
 
-    sitExpected: Yup.boolean().required('Required'),
-
     sitEstimatedWeight: Yup.number().when('sitExpected', {
       is: true,
       then: (schema) => schema.required('Required'),
+    }),
+
+    sitEstimatedEntryDate: Yup.date().when('sitExpected', {
+      is: true,
+      then: (schema) =>
+        schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+    }),
+
+    sitEstimatedDepartureDate: Yup.date().when('sitExpected', {
+      is: true,
+      then: (schema) =>
+        schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
     }),
 
     estimatedWeight: Yup.number()
