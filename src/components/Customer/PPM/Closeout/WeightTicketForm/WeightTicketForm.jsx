@@ -42,11 +42,11 @@ const validationSchema = Yup.object().shape({
   missingFullWeightTicket: Yup.boolean(),
   fullWeightTickets: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
   hasOwnTrailer: Yup.boolean().required('Required'),
-  hasClaimedTrailer: Yup.boolean(),
+  trailerMeetsCriteria: Yup.boolean(),
   trailerOwnershipDocs: Yup.array()
     .of(uploadShape)
-    .when('hasClaimedTrailer', (hasClaimedTrailer, schema) => {
-      return hasClaimedTrailer ? schema.min(1, 'At least one upload is required') : schema;
+    .when('trailerMeetsCriteria', (trailerMeetsCriteria, schema) => {
+      return trailerMeetsCriteria ? schema.min(1, 'At least one upload is required') : schema;
     }),
 });
 
@@ -178,7 +178,7 @@ const WeightTicketForm = ({
     missingFullWeightTicket,
     fullWeightTickets,
     hasOwnTrailer,
-    hasClaimedTrailer,
+    trailerMeetsCriteria,
     trailerOwnershipDocs,
   } = weightTicket || {};
 
@@ -191,7 +191,7 @@ const WeightTicketForm = ({
     missingFullWeightTicket: !!missingFullWeightTicket,
     fullWeightTickets: fullWeightTickets || [],
     hasOwnTrailer: hasOwnTrailer ? 'true' : 'false',
-    hasClaimedTrailer: hasClaimedTrailer ? 'true' : 'false',
+    trailerMeetsCriteria: trailerMeetsCriteria ? 'true' : 'false',
     trailerOwnershipDocs: trailerOwnershipDocs || [],
   };
 
@@ -311,21 +311,21 @@ const WeightTicketForm = ({
                       </ul>
                       <Field
                         as={Radio}
-                        id="yesHasClaimedTrailer"
+                        id="yestrailerMeetsCriteria"
                         label="Yes"
-                        name="hasClaimedTrailer"
+                        name="trailerMeetsCriteria"
                         value="true"
-                        checked={values.hasClaimedTrailer === 'true'}
+                        checked={values.trailerMeetsCriteria === 'true'}
                       />
                       <Field
                         as={Radio}
-                        id="noHasClaimedTrailer"
+                        id="notrailerMeetsCriteria"
                         label="No"
-                        name="hasClaimedTrailer"
+                        name="trailerMeetsCriteria"
                         value="false"
-                        checked={values.hasClaimedTrailer === 'false'}
+                        checked={values.trailerMeetsCriteria === 'false'}
                       />
-                      {values.hasClaimedTrailer === 'true' ? (
+                      {values.trailerMeetsCriteria === 'true' ? (
                         <>
                           <p>You can claim the weight of this trailer one time during your move.</p>
                           <div>

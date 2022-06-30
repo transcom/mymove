@@ -120,7 +120,7 @@ const constructedWeightTrailerProps = {
       },
     ],
     hasOwnTrailer: true,
-    hasClaimedTrailer: true,
+    trailerMeetsCriteria: true,
     trailerOwnershipDocumentId: '5bf3ed20-08dd-4d8e-92ad-7603bb6377a5',
     trailerOwnershipDocs: [
       {
@@ -276,7 +276,7 @@ describe('WeightTicketForm component', () => {
       expect(within(invalidAlerts[4].previousSibling).getByText('Upload full weight ticket')).toBeInTheDocument();
     });
 
-    it('triggers error if the full weight is less than the empty weight', async () => {
+    it('triggers error if the full weight is less than or equal to the empty weight', async () => {
       render(<WeightTicketForm {...defaultProps} />);
 
       await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
@@ -346,7 +346,7 @@ describe('WeightTicketForm component', () => {
               },
             ],
             hasOwnTrailer: 'false',
-            hasClaimedTrailer: 'false',
+            trailerMeetsCriteria: 'false',
             trailerOwnershipDocs: [],
           },
           expect.anything(),
@@ -387,7 +387,7 @@ describe('WeightTicketForm component', () => {
               },
             ],
             hasOwnTrailer: 'true',
-            hasClaimedTrailer: 'true',
+            trailerMeetsCriteria: 'true',
             trailerOwnershipDocs: [
               {
                 id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',

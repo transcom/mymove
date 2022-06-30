@@ -108,16 +108,16 @@ const WeightTickets = () => {
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
     const hasOwnTrailer = values.hasOwnTrailer === 'true';
-    const hasClaimedTrailer = hasOwnTrailer ? !!values.hasClaimedTrailer : false;
+    const trailerMeetsCriteria = hasOwnTrailer ? !!values.trailerMeetsCriteria : false;
     const payload = {
-      shipmentId: mtoShipment.ppmShipment.id,
+      ppmShipmentId: mtoShipment.ppmShipment.id,
       vehicleDescription: values.vehicleDescription,
       emptyWeight: parseInt(values.emptyWeight, 10),
       missingEmptyWeightTicket: values.missingEmptyWeightTicket,
       fullWeight: parseInt(values.fullWeight, 10),
       missingFullWeightTicket: values.missingFullWeightTicket,
       hasOwnTrailer,
-      hasClaimedTrailer,
+      trailerMeetsCriteria,
     };
 
     patchWeightTicket(mtoShipment.id, weightTicket.id, payload, weightTicket.eTag)

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { generatePath } from 'react-router';
+import { useParams, generatePath } from 'react-router-dom';
 import { v4 } from 'uuid';
 
 import { selectMTOShipmentById } from 'store/entities/selectors';
@@ -11,8 +11,8 @@ import { MockProviders } from 'testUtils';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import WeightTickets from 'pages/MyMove/PPM/Closeout/WeightTickets/WeightTickets';
 
-const mockMoveId = v4();
-const mockMTOShipmentId = v4();
+const mockMoveId = 'cc03c553-d317-46af-8b2d-3c9f899f6451';
+const mockMTOShipmentId = '6b7a5769-4393-46fb-a4c4-d3f6ac7584c7';
 const mockPPMShipmentId = v4();
 const mockWeightTicketId = v4();
 const mockWeightTicketETag = window.btoa(new Date());
@@ -25,10 +25,10 @@ jest.mock('react-router-dom', () => ({
     push: mockPush,
     replace: mockReplace,
   }),
-  useParams: () => ({
-    moveId: mockMoveId,
-    mtoShipmentId: mockMTOShipmentId,
-  }),
+  useParams: jest.fn(() => ({
+    moveId: 'cc03c553-d317-46af-8b2d-3c9f899f6451',
+    mtoShipmentId: '6b7a5769-4393-46fb-a4c4-d3f6ac7584c7',
+  })),
   useLocation: () => ({
     search: 'tripNumber=2',
   }),
@@ -145,6 +145,20 @@ describe('Weight Tickets page', () => {
     });
   });
 
+  it('does not make create weight ticket api request if id param exists', async () => {
+    useParams.mockImplementationOnce(() => ({
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+      weightTicketId: mockWeightTicketId,
+    }));
+
+    render(<WeightTickets />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(createWeightTicket).not.toHaveBeenCalled();
+    });
+  });
+
   it('renders the page Content', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
 
@@ -213,14 +227,14 @@ describe('Weight Tickets page', () => {
         mockMTOShipmentId,
         mockWeightTicketId,
         {
-          shipmentId: mockWeightTicketWithUploads.ppmShipmentId,
+          ppmShipmentId: mockWeightTicketWithUploads.ppmShipmentId,
           vehicleDescription: 'DMC Delorean',
           emptyWeight: 4999,
           missingEmptyWeightTicket: false,
           fullWeight: 6999,
           missingFullWeightTicket: false,
           hasOwnTrailer: true,
-          hasClaimedTrailer: true,
+          trailerMeetsCriteria: true,
         },
         mockWeightTicketETag,
       );

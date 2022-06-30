@@ -289,6 +289,7 @@ export async function deleteMTOShipment(mtoShipmentId) {
   );
 }
 
+// To be replaced with real backend integration when that work is completed
 export async function createWeightTicket() {
   return Promise.resolve({
     id: uuidv4(),

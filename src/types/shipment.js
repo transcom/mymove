@@ -112,7 +112,7 @@ export const ShipmentShape = shape({
 
 export const WeightTicketShape = shape({
   id: string,
-  shipmentId: string,
+  ppmShipmentId: string,
   vehicleDescription: string,
   missingEmptyWeightTicket: bool,
   emptyWeight: number,
@@ -123,7 +123,7 @@ export const WeightTicketShape = shape({
   fullWeightDocumentId: string,
   fullWeightTickets: ExistingUploadsShape,
   hasOwnTrailer: bool,
-  hasClaimedTrailer: bool,
+  trailerMeetsCriteria: bool,
   trailerOwnershipDocumentId: string,
   trailerOwnershipDocs: ExistingUploadsShape,
 });
