@@ -106,6 +106,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     if (isPPM) {
       const {
         ppmShipment: {
+          expectedDepartureDate,
+          actualMoveDate,
           pickupPostalCode,
           secondaryPickupPostalCode,
           destinationPostalCode,
@@ -117,12 +119,16 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           sitEstimatedDepartureDate,
           estimatedWeight,
           netWeight,
+          hasProGear,
           proGearWeight,
           spouseProGearWeight,
         },
+        counselorRemarks,
       } = values;
       body = {
         ppmShipment: {
+          expectedDepartureDate: expectedDepartureDate ? formatSwaggerDate(expectedDepartureDate) : null,
+          actualMoveDate: actualMoveDate ? formatSwaggerDate(actualMoveDate) : null,
           pickupPostalCode,
           secondaryPickupPostalCode: secondaryPickupPostalCode || null,
           destinationPostalCode,
@@ -134,9 +140,11 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           sitEstimatedDepartureDate: sitEstimatedDepartureDate ? formatSwaggerDate(sitEstimatedDepartureDate) : null,
           estimatedWeight: estimatedWeight ? parseInt(estimatedWeight, 10) : null,
           netWeight: netWeight ? parseInt(netWeight, 10) : null,
+          hasProGear,
           proGearWeight: proGearWeight ? parseInt(proGearWeight, 10) : null,
           spouseProGearWeight: spouseProGearWeight ? parseInt(spouseProGearWeight, 10) : null,
         },
+        counselorRemarks,
       };
     } else {
       const {
@@ -179,10 +187,14 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         proGearWeight: shipment.ppmShipment.proGearWeight?.toLocaleString(),
         spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toLocaleString(),
       },
+      counselorRemarks: shipment.counselorRemarks,
     };
-
     validationSchema = Yup.object().shape({
       ppmShipment: Yup.object().shape({
+        expectedDepartureDate: Yup.date()
+          .typeError('Invalid date. Must be in the format: DD MMM YYYY')
+          .required('Required'),
+        actualMoveDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
         pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
         secondaryPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError),
         destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
