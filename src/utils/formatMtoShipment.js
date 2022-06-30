@@ -88,10 +88,10 @@ const emptyAddressShape = {
 export function formatPpmShipmentForDisplay({ ppmShipment = {} }) {
   const displayValues = {
     expectedDepartureDate: ppmShipment.expectedDepartureDate,
-    pickupPostalCode: ppmShipment.pickupPostalCode,
-    secondPickupPostalCode: ppmShipment.secondaryPickupPostalCode,
-    destinationPostalCode: ppmShipment.destinationPostalCode,
-    secondDestinationPostalCode: ppmShipment.secondaryDestinationPostalCode,
+    pickupPostalCode: ppmShipment.pickupPostalCode || '',
+    secondPickupPostalCode: ppmShipment.secondaryPickupPostalCode || '',
+    destinationPostalCode: ppmShipment.destinationPostalCode || '',
+    secondDestinationPostalCode: ppmShipment.secondaryDestinationPostalCode || '',
 
     sitExpected: ppmShipment.sitExpected,
     sitLocation: ppmShipment.sitLocation,

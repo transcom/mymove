@@ -18,6 +18,11 @@ const defaultProps = {
   },
   moveTaskOrderID: 'task123',
   history: { push: () => {} },
+  originDutyLocationAddress: {
+    city: 'Washington',
+    state: 'DC',
+    postalCode: '20001',
+  },
   newDutyLocationAddress: {
     city: 'Fort Benning',
     state: 'GA',

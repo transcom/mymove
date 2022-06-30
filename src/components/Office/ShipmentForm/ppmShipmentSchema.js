@@ -18,6 +18,13 @@ const ppmShipmentSchema = ({ estimatedIncentive = 0, weightAllotment = {} }) => 
     destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
     secondDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError),
 
+    sitExpected: Yup.boolean().required('Required'),
+
+    sitEstimatedWeight: Yup.number().when('sitExpected', {
+      is: true,
+      then: (schema) => schema.required('Required'),
+    }),
+
     estimatedWeight: Yup.number()
       .min(1, 'Enter a weight greater than 0 lbs')
       .max(estimatedWeightLimit, "Note: This weight exceeds the customer's weight allowance.")
