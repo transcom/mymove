@@ -37,8 +37,11 @@ print(f"Baseline test coverage: {baseline_percent}")
 print(f"New test coverage: {new_percent}")
 
 if new_percent < baseline_percent:
-  print("Test Coverage has decreased\n")
-  print("Below is the diff of the baseline test coverage compared to this PR")
-  print("Note, not all changes will be meaningful, look for test coverage %% decreases")
+  print("\n--- DIFF of the baseline test coverage compared to this PR")
+  print("   Note, not all changes will be meaningful, look for test coverage %% decreases")
   coverage_diff(baseline_file, new_file)
+
+  print(f"Baseline test coverage: {baseline_percent}")
+  print(f"New test coverage: {new_percent}")
+  print("Test Coverage has decreased\n")
   sys.exit(1)
