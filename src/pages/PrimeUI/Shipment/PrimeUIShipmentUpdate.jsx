@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { useHistory, useParams, withRouter } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import { useMutation } from 'react-query';
-import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
+import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
@@ -20,8 +20,8 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { addressSchema, InvalidZIPTypeError, ZIP5_CODE_REGEX } from 'utils/validation';
-import { isValidWeight, isEmpty } from 'shared/utils';
-import { fromPrimeAPIAddressFormat, formatAddressForPrimeAPI, formatSwaggerDate } from 'utils/formatters';
+import { isEmpty, isValidWeight } from 'shared/utils';
+import { formatAddressForPrimeAPI, formatSwaggerDate, fromPrimeAPIAddressFormat } from 'utils/formatters';
 import PrimeUIShipmentUpdateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdateForm';
 import PrimeUIShipmentUpdatePPMForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdatePPMForm';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
@@ -132,17 +132,21 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           destinationPostalCode,
           secondaryDestinationPostalCode: secondaryDestinationPostalCode || null,
           sitExpected,
-          sitLocation: sitLocation || null,
-          sitEstimatedWeight: sitEstimatedWeight ? parseInt(sitEstimatedWeight, 10) : null,
-          sitEstimatedEntryDate: sitEstimatedEntryDate ? formatSwaggerDate(sitEstimatedEntryDate) : null,
-          sitEstimatedDepartureDate: sitEstimatedDepartureDate ? formatSwaggerDate(sitEstimatedDepartureDate) : null,
+          ...(sitExpected && {
+            sitLocation: sitLocation || null,
+            sitEstimatedWeight: sitEstimatedWeight ? parseInt(sitEstimatedWeight, 10) : null,
+            sitEstimatedEntryDate: sitEstimatedEntryDate ? formatSwaggerDate(sitEstimatedEntryDate) : null,
+            sitEstimatedDepartureDate: sitEstimatedDepartureDate ? formatSwaggerDate(sitEstimatedDepartureDate) : null,
+          }),
           estimatedWeight: estimatedWeight ? parseInt(estimatedWeight, 10) : null,
           netWeight: netWeight ? parseInt(netWeight, 10) : null,
           hasProGear,
-          proGearWeight: proGearWeight ? parseInt(proGearWeight, 10) : null,
-          spouseProGearWeight: spouseProGearWeight ? parseInt(spouseProGearWeight, 10) : null,
+          ...(hasProGear && {
+            proGearWeight: proGearWeight ? parseInt(proGearWeight, 10) : null,
+            spouseProGearWeight: spouseProGearWeight ? parseInt(spouseProGearWeight, 10) : null,
+          }),
         },
-        counselorRemarks,
+        counselorRemarks: counselorRemarks || null,
       };
     } else {
       const {
@@ -196,8 +200,9 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         secondaryPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError),
         destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
         secondaryDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError),
-        sitEstimatedEntryDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
-        sitEstimatedDepartureDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+        // TODO: Figure out how to validate this but be optional.
+        // sitEstimatedEntryDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+        // sitEstimatedDepartureDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
       }),
     });
   } else {

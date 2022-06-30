@@ -1,6 +1,6 @@
 import React from 'react';
 import { Label, Textarea } from '@trussworks/react-uswds';
-import { Field } from 'formik';
+import { Field, useFormikContext } from 'formik';
 
 import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
@@ -14,6 +14,9 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
 const PrimeUIShipmentUpdatePPMForm = () => {
+  const { values } = useFormikContext();
+  const { sitExpected, hasProGear } = values.ppmShipment;
+
   return (
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
       <h2 className={styles.sectionHeader}>Dates</h2>
@@ -50,32 +53,36 @@ const PrimeUIShipmentUpdatePPMForm = () => {
       />
       <h2 className={styles.sectionHeader}>Storage In Transit (SIT)</h2>
       <CheckboxField label="SIT Expected" id="sitExpectedInput" name="ppmShipment.sitExpected" />
-      <DropdownInput
-        label="SIT Location"
-        id="sitLocationInput"
-        name="ppmShipment.sitLocation"
-        options={sitLocationOptions}
-      />
-      <MaskedTextField
-        label="SIT Estimated Weight (lbs)"
-        id="sitEstimatedWeightInput"
-        name="ppmShipment.sitEstimatedWeight"
-        mask={Number}
-        scale={0} // digits after point, 0 for integers
-        signed={false} // disallow negative
-        thousandsSeparator=","
-        lazy={false} // immediate masking evaluation
-      />
-      <DatePickerInput
-        label="SIT Estimated Entry Date"
-        id="sitEstimatedEntryDateInput"
-        name="ppmShipment.sitEstimatedEntryDate"
-      />
-      <DatePickerInput
-        label="SIT Estimated Departure Date"
-        id="sitEstimatedDepartureDateInput"
-        name="ppmShipment.sitEstimatedDepartureDate"
-      />
+      {sitExpected && (
+        <>
+          <DropdownInput
+            label="SIT Location"
+            id="sitLocationInput"
+            name="ppmShipment.sitLocation"
+            options={sitLocationOptions}
+          />
+          <MaskedTextField
+            label="SIT Estimated Weight (lbs)"
+            id="sitEstimatedWeightInput"
+            name="ppmShipment.sitEstimatedWeight"
+            mask={Number}
+            scale={0} // digits after point, 0 for integers
+            signed={false} // disallow negative
+            thousandsSeparator=","
+            lazy={false} // immediate masking evaluation
+          />
+          <DatePickerInput
+            label="SIT Estimated Entry Date"
+            id="sitEstimatedEntryDateInput"
+            name="ppmShipment.sitEstimatedEntryDate"
+          />
+          <DatePickerInput
+            label="SIT Estimated Departure Date"
+            id="sitEstimatedDepartureDateInput"
+            name="ppmShipment.sitEstimatedDepartureDate"
+          />
+        </>
+      )}
       <h2 className={styles.sectionHeader}>Weights</h2>
       <MaskedTextField
         label="Estimated Weight (lbs)"
@@ -98,26 +105,30 @@ const PrimeUIShipmentUpdatePPMForm = () => {
         lazy={false} // immediate masking evaluation
       />
       <CheckboxField label="Has Pro Gear" id="hasProGearInput" name="ppmShipment.hasProGear" />
-      <MaskedTextField
-        label="Pro Gear Weight (lbs)"
-        id="proGearWeightInput"
-        name="ppmShipment.proGearWeight"
-        mask={Number}
-        scale={0} // digits after point, 0 for integers
-        signed={false} // disallow negative
-        thousandsSeparator=","
-        lazy={false} // immediate masking evaluation
-      />
-      <MaskedTextField
-        label="Spouse Pro Gear Weight (lbs)"
-        id="spouseProGearWeightInput"
-        name="ppmShipment.spouseProGearWeight"
-        mask={Number}
-        scale={0} // digits after point, 0 for integers
-        signed={false} // disallow negative
-        thousandsSeparator=","
-        lazy={false} // immediate masking evaluation
-      />
+      {hasProGear && (
+        <>
+          <MaskedTextField
+            label="Pro Gear Weight (lbs)"
+            id="proGearWeightInput"
+            name="ppmShipment.proGearWeight"
+            mask={Number}
+            scale={0} // digits after point, 0 for integers
+            signed={false} // disallow negative
+            thousandsSeparator=","
+            lazy={false} // immediate masking evaluation
+          />
+          <MaskedTextField
+            label="Spouse Pro Gear Weight (lbs)"
+            id="spouseProGearWeightInput"
+            name="ppmShipment.spouseProGearWeight"
+            mask={Number}
+            scale={0} // digits after point, 0 for integers
+            signed={false} // disallow negative
+            thousandsSeparator=","
+            lazy={false} // immediate masking evaluation
+          />
+        </>
+      )}
       <h2 className={styles.sectionHeader}>Remarks</h2>
       <Label htmlFor="counselorRemarks">Counselor Remarks</Label>
       <Field id="counselorRemarksInput" name="counselorRemarks" as={Textarea} className={`${formStyles.remarks}`} />
