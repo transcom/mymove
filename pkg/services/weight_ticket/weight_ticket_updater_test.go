@@ -2,6 +2,7 @@ package weightticket
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -13,7 +14,7 @@ import (
 )
 
 func (suite WeightTicketSuite) TestUpdateWeightTicket() {
-	setupForTest := func(appCtx appcontext.AppContext, overrides *models.WeightTicket) *models.WeightTicket {
+	setupForTest := func(appCtx appcontext.AppContext, overrides *models.WeightTicket, hasEmptyFiles bool, hasFullFiles bool, hasProofFiles bool) *models.WeightTicket {
 		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
 
@@ -26,6 +27,48 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 		emptyDocument := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
 		fullDocument := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
 		proofOfOwnership := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
+
+		now := time.Now()
+		if hasEmptyFiles {
+			for i := 0; i < 2; i++ {
+				var deletedAt *time.Time
+				if i == 1 {
+					deletedAt = &now
+				}
+				testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
+					UserUpload: models.UserUpload{
+						UploaderID: serviceMember.UserID,
+						DocumentID: &emptyDocument.ID,
+						Document:   emptyDocument,
+						DeletedAt:  deletedAt,
+					},
+				})
+			}
+		}
+
+		if hasFullFiles {
+			for i := 0; i < 2; i++ {
+				testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
+					UserUpload: models.UserUpload{
+						UploaderID: serviceMember.UserID,
+						DocumentID: &fullDocument.ID,
+						Document:   fullDocument,
+					},
+				})
+			}
+		}
+
+		if hasProofFiles {
+			for i := 0; i < 2; i++ {
+				testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
+					UserUpload: models.UserUpload{
+						UploaderID: serviceMember.UserID,
+						DocumentID: &proofOfOwnership.ID,
+						Document:   proofOfOwnership,
+					},
+				})
+			}
+		}
 
 		originalWeightTicket := models.WeightTicket{
 			EmptyDocumentID:                   emptyDocument.ID,
@@ -71,7 +114,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 	suite.Run("Returns a PreconditionFailedError if the input eTag is stale/incorrect", func() {
 		appCtx := suite.AppContextForTest()
 
-		originalWeightTicket := setupForTest(appCtx, nil)
+		originalWeightTicket := setupForTest(appCtx, nil, false, false, false)
 
 		updater := NewCustomerWeightTicketUpdater()
 
@@ -92,7 +135,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 	suite.Run("Successfully updates", func() {
 		appCtx := suite.AppContextForTest()
 
-		originalWeightTicket := setupForTest(appCtx, nil)
+		originalWeightTicket := setupForTest(appCtx, nil, false, false, false)
 
 		updater := NewCustomerWeightTicketUpdater()
 
@@ -121,5 +164,42 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.MissingFullWeightTicket, *updatedWeightTicket.MissingFullWeightTicket)
 		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.OwnsTrailer)
 		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
+	})
+
+	suite.Run("Succesfully updates when files are required", func() {
+		appCtx := suite.AppContextForTest()
+
+		originalWeightTicket := setupForTest(appCtx, nil, true, true, true)
+
+		updater := NewCustomerWeightTicketUpdater()
+
+		desiredWeightTicket := &models.WeightTicket{
+			ID:                       originalWeightTicket.ID,
+			VehicleDescription:       models.StringPointer("2004 Toyota Prius"),
+			EmptyWeight:              models.PoundPointer(3000),
+			MissingEmptyWeightTicket: models.BoolPointer(false),
+			FullWeight:               models.PoundPointer(4200),
+			MissingFullWeightTicket:  models.BoolPointer(false),
+			OwnsTrailer:              models.BoolPointer(true),
+			TrailerMeetsCriteria:     models.BoolPointer(true),
+		}
+
+		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+		suite.Nil(updateErr)
+		suite.Equal(originalWeightTicket.ID, updatedWeightTicket.ID)
+		suite.Equal(originalWeightTicket.EmptyDocumentID, updatedWeightTicket.EmptyDocumentID)
+		suite.Equal(originalWeightTicket.FullDocumentID, updatedWeightTicket.FullDocumentID)
+		suite.Equal(originalWeightTicket.ProofOfTrailerOwnershipDocumentID, updatedWeightTicket.ProofOfTrailerOwnershipDocumentID)
+		suite.Equal(*desiredWeightTicket.VehicleDescription, *updatedWeightTicket.VehicleDescription)
+		suite.Equal(*desiredWeightTicket.EmptyWeight, *updatedWeightTicket.EmptyWeight)
+		suite.Equal(*desiredWeightTicket.MissingEmptyWeightTicket, *updatedWeightTicket.MissingEmptyWeightTicket)
+		suite.Equal(*desiredWeightTicket.FullWeight, *updatedWeightTicket.FullWeight)
+		suite.Equal(*desiredWeightTicket.MissingFullWeightTicket, *updatedWeightTicket.MissingFullWeightTicket)
+		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.OwnsTrailer)
+		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.TrailerMeetsCriteria)
+		suite.Equal(1, len(updatedWeightTicket.EmptyDocument.UserUploads))
+		suite.Equal(2, len(updatedWeightTicket.FullDocument.UserUploads))
+		suite.Equal(2, len(updatedWeightTicket.ProofOfTrailerOwnershipDocument.UserUploads))
 	})
 }

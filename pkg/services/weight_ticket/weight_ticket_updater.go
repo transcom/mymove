@@ -1,11 +1,8 @@
 package weightticket
 
 import (
-	"database/sql"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -24,25 +21,10 @@ func NewCustomerWeightTicketUpdater() services.WeightTicketUpdater {
 
 // UpdateWeightTicket updates a weightTicket
 func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, weightTicket models.WeightTicket, eTag string) (*models.WeightTicket, error) {
-	originalWeightTicket := models.WeightTicket{}
-
 	// get existing WeightTicket
-	// TODO: verify if this works when multiple uploads are present
-	// TODO: Filter out deleted uploads
-	if err := appCtx.DB().
-		Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload(
-			"EmptyDocument.UserUploads.Upload",
-			"FullDocument.UserUploads.Upload",
-			"ProofOfTrailerOwnershipDocument.UserUploads.Upload",
-		).
-		Find(&originalWeightTicket, weightTicket.ID); err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(weightTicket.ID, "while looking for WeightTicket")
-		default:
-			return nil, apperror.NewQueryError("WeightTicket fetch original", err, "")
-		}
+	originalWeightTicket, err := models.FetchWeightTicketByIDExcludeDeletedUploads(appCtx.DB(), weightTicket.ID)
+	if err != nil {
+		return nil, err
 	}
 
 	// verify ETag
@@ -51,7 +33,7 @@ func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, w
 	}
 
 	// merge
-	mergedWeightTicket := originalWeightTicket
+	mergedWeightTicket := *originalWeightTicket
 	mergedWeightTicket.VehicleDescription = services.SetOptionalStringField(weightTicket.VehicleDescription, mergedWeightTicket.VehicleDescription)
 	mergedWeightTicket.EmptyWeight = services.SetNoNilOptionalPoundField(weightTicket.EmptyWeight, mergedWeightTicket.EmptyWeight)
 	mergedWeightTicket.MissingEmptyWeightTicket = services.SetNoNilOptionalBoolField(weightTicket.MissingEmptyWeightTicket, mergedWeightTicket.MissingEmptyWeightTicket)
@@ -61,7 +43,7 @@ func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, w
 	mergedWeightTicket.TrailerMeetsCriteria = services.SetNoNilOptionalBoolField(weightTicket.TrailerMeetsCriteria, mergedWeightTicket.TrailerMeetsCriteria)
 
 	// validate updated model
-	if err := validateWeightTicket(appCtx, &mergedWeightTicket, &originalWeightTicket, f.checks...); err != nil {
+	if err := validateWeightTicket(appCtx, &mergedWeightTicket, originalWeightTicket, f.checks...); err != nil {
 		return nil, err
 	}
 
