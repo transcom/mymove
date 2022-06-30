@@ -77,6 +77,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 		ID:                             *handlers.FmtUUID(ppmShipment.ID),
 		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
 		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
+		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
 		Status:                         internalmessages.PPMShipmentStatus(ppmShipment.Status),
 		ExpectedDepartureDate:          handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
 		ActualMoveDate:                 handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
