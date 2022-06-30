@@ -23,6 +23,10 @@ type UpdateMTOShipment struct {
 	// Format: date
 	ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
 
+	// counselor remarks
+	// Example: counselor approved
+	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
+
 	// Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details
 	// during onboarding, if they know their new address already.
 	//
@@ -58,6 +62,9 @@ type UpdateMTOShipment struct {
 	// Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.
 	//
 	PointOfContact string `json:"pointOfContact,omitempty"`
+
+	// ppm shipment
+	PpmShipment *UpdatePPMShipment `json:"ppmShipment,omitempty"`
 
 	// The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
 	// Example: 4500
@@ -110,6 +117,10 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePpmShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -198,6 +209,25 @@ func (m *UpdateMTOShipment) validatePickupAddress(formats strfmt.Registry) error
 	return nil
 }
 
+func (m *UpdateMTOShipment) validatePpmShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.PpmShipment) { // not required
+		return nil
+	}
+
+	if m.PpmShipment != nil {
+		if err := m.PpmShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppmShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppmShipment")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *UpdateMTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ScheduledPickupDate) { // not required
 		return nil
@@ -278,6 +308,10 @@ func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePpmShipment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -322,6 +356,22 @@ func (m *UpdateMTOShipment) contextValidateDestinationType(ctx context.Context, 
 }
 
 func (m *UpdateMTOShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PpmShipment != nil {
+		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppmShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppmShipment")
+			}
+			return err
+		}
+	}
 
 	return nil
 }

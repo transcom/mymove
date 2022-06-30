@@ -409,6 +409,10 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
+		SitEstimatedWeight:             handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
+		SitEstimatedEntryDate:          handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
+		SitEstimatedDepartureDate:      handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
+		SitEstimatedCost:               handlers.FmtCost(ppmShipment.SITEstimatedCost),
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),
@@ -420,6 +424,11 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
+	}
+
+	if ppmShipment.SITLocation != nil {
+		sitLocation := primemessages.SITLocationType(*ppmShipment.SITLocation)
+		payloadPPMShipment.SitLocation = &sitLocation
 	}
 
 	return payloadPPMShipment

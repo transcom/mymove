@@ -1,7 +1,6 @@
 package mtoshipment
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -58,20 +57,18 @@ func checkStatus() validator {
 func checkAvailToPrime() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
 		var move models.Move
-		err := appCtx.DB().Q().
+		availToPrime, err := appCtx.DB().Q().
 			Join("mto_shipments", "moves.id = mto_shipments.move_id").
 			Where("available_to_prime_at IS NOT NULL").
 			Where("mto_shipments.id = ?", newer.ID).
 			Where("show = TRUE").
 			Where("uses_external_vendor = FALSE").
-			First(&move)
+			Exists(&move)
 		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				return apperror.NewNotFoundError(newer.ID, "for mtoShipment")
-			default:
-				return apperror.NewQueryError("Move", err, "Unexpected error")
-			}
+			return apperror.NewQueryError("Move", err, "Unexpected error")
+		}
+		if !availToPrime {
+			return apperror.NewNotFoundError(newer.ID, "for mtoShipment")
 		}
 		return nil
 	})
