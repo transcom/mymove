@@ -17,7 +17,8 @@ import { calculatePPMEstimate } from 'services/internalApi';
 import { updatePPMEstimate } from 'store/entities/actions';
 import { setPPMEstimateError } from 'store/onboarding/actions';
 
-import './PpmSummary.css';
+import styles from 'scenes/PpmLanding/PpmSummary.module.css';
+import classnames from 'classnames';
 
 const MoveInfoHeader = (props) => {
   const { orders, profile, move, entitlement } = props;
@@ -136,9 +137,9 @@ export class PpmSummaryComponent extends React.Component {
           </div>
         </div>
         <div className="grid-row">
-          <div className="st-wrapper tablet:grid-col-9 grid-col-12">
+          <div className={classnames(styles['st-wrapper'], 'tablet:grid-col-9', 'grid-col-12')}>
             <PPMComponent
-              className="status-component"
+              className={styles['status-component']}
               ppm={ppm}
               orders={orders}
               profile={profile}
@@ -152,7 +153,7 @@ export class PpmSummaryComponent extends React.Component {
             />
           </div>
 
-          <div className="sidebar tablet:grid-col-3 grid-col-12 tablet:padding-left-3">
+          <div className={classnames(styles.sidebar, 'tablet:grid-col-3', 'grid-col-12', 'tablet:padding-left-3')}>
             <div>
               <button
                 className="usa-button usa-button--secondary"
@@ -163,7 +164,7 @@ export class PpmSummaryComponent extends React.Component {
                 Edit Move
               </button>
             </div>
-            <div className="contact_block">
+            <div className={styles.contact_block}>
               <h2>Contacts</h2>
               <TransportationOfficeContactInfo dutyLocation={profile.current_location} isOrigin={true} />
             </div>
