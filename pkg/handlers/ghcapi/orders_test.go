@@ -516,39 +516,6 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		suite.Equal(body.NtsSac.Value, ordersPayload.NtsSac)
 	})
 
-	suite.Run("Returns a 403 when the user does not have TXO role", func() {
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
-		subtestData := suite.makeUpdateOrderHandlerSubtestData()
-		order := subtestData.order
-		body := subtestData.body
-
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-		request = suite.AuthenticateOfficeRequest(request, requestUser)
-
-		params := orderop.UpdateOrderParams{
-			HTTPRequest: request,
-			OrderID:     strfmt.UUID(order.ID.String()),
-			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
-			Body:        body,
-		}
-
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		updater := &mocks.OrderUpdater{}
-		handler := UpdateOrderHandler{
-			handlerConfig,
-			updater,
-			&mocks.MoveTaskOrderUpdater{},
-		}
-
-		updater.AssertNumberOfCalls(suite.T(), "UpdateOrderAsTOO", 0)
-		updater.AssertNumberOfCalls(suite.T(), "UpdateOrderAsCounselor", 0)
-
-		response := handler.Handle(params)
-
-		suite.IsType(&orderop.UpdateOrderForbidden{}, response)
-	})
-
 	// We need to confirm whether a user who only has the TIO role should indeed
 	// be authorized to update orders. If not, we also need to prevent them from
 	// clicking the Edit Orders button in the frontend.
@@ -1047,38 +1014,6 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		suite.Equal(*body.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
 		suite.Equal(*body.RequiredMedicalEquipmentWeight, ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
 		suite.Equal(*body.StorageInTransit, *ordersPayload.Entitlement.StorageInTransit)
-	})
-
-	suite.Run("Returns a 403 when the user does not have TOO role", func() {
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
-		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
-		order := subtestData.order
-		body := subtestData.body
-
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-		request = suite.AuthenticateOfficeRequest(request, requestUser)
-
-		params := orderop.UpdateAllowanceParams{
-			HTTPRequest: request,
-			OrderID:     strfmt.UUID(order.ID.String()),
-			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
-			Body:        body,
-		}
-
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		updater := &mocks.OrderUpdater{}
-		handler := UpdateAllowanceHandler{
-			handlerConfig,
-			updater,
-		}
-
-		updater.AssertNumberOfCalls(suite.T(), "UpdateAllowanceAsTOO", 0)
-		updater.AssertNumberOfCalls(suite.T(), "UpdateAllowanceAsCounselor", 0)
-
-		response := handler.Handle(params)
-
-		suite.IsType(&orderop.UpdateAllowanceForbidden{}, response)
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {

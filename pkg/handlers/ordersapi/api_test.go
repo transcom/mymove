@@ -58,7 +58,6 @@ func makeAllPowerfulClientCert() *models.ClientCert {
 		AllowArmyOrdersWrite:        true,
 		AllowCoastGuardOrdersRead:   true,
 		AllowCoastGuardOrdersWrite:  true,
-		AllowDpsAuthAPI:             true,
 		AllowMarineCorpsOrdersRead:  true,
 		AllowMarineCorpsOrdersWrite: true,
 		AllowNavyOrdersRead:         true,

@@ -47,12 +47,10 @@ import (
 	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/db/sequence"
-	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/ecs"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/adminapi"
-	"github.com/transcom/mymove/pkg/handlers/dpsapi"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
@@ -84,9 +82,6 @@ func initServeFlags(flag *pflag.FlagSet) {
 
 	// Hosts
 	cli.InitHostFlags(flag)
-
-	// SDDC + DPS Auth config
-	cli.InitDPSFlags(flag)
 
 	// Initialize Swagger
 	cli.InitSwaggerFlags(flag)
@@ -169,10 +164,6 @@ func checkServeConfig(v *viper.Viper, logger *zap.Logger) error {
 	}
 
 	if err := cli.CheckHosts(v); err != nil {
-		return err
-	}
-
-	if err := cli.CheckDPS(v); err != nil {
 		return err
 	}
 
@@ -525,8 +516,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		OfficeServername: v.GetString(cli.HTTPOfficeServerNameFlag),
 		AdminServername:  v.GetString(cli.HTTPAdminServerNameFlag),
 		OrdersServername: v.GetString(cli.HTTPOrdersServerNameFlag),
-		DpsServername:    v.GetString(cli.HTTPDPSServerNameFlag),
-		SddcServername:   v.GetString(cli.HTTPSDDCServerNameFlag),
 		PrimeServername:  v.GetString(cli.HTTPPrimeServerNameFlag),
 	}
 
@@ -666,14 +655,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 	handlerConfig.SetIWSPersonLookup(rbs)
 
-	dpsAuthSecretKey := v.GetString(cli.DPSAuthSecretKeyFlag)
-	dpsCookieDomain := v.GetString(cli.DPSCookieDomainFlag)
-	dpsCookieSecret := []byte(v.GetString(cli.DPSAuthCookieSecretKeyFlag))
-	dpsCookieExpires := v.GetInt(cli.DPSCookieExpiresInMinutesFlag)
-
-	dpsAuthParams := dpsauth.InitDPSAuthParams(v, appnames)
-	handlerConfig.SetDPSAuthParams(dpsAuthParams)
-
 	// site is the base
 	site := mux.NewRouter()
 	storageBackend := v.GetString(cli.StorageBackendFlag)
@@ -809,41 +790,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		api := ordersapi.NewOrdersAPI(handlerConfig)
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		ordersMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
-	}
-	if v.GetBool(cli.ServeDPSFlag) {
-		dpsMux := site.Host(appnames.DpsServername).PathPrefix("/dps/v0/").Subrouter()
-		dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.DpsServername)
-		dpsMux.Use(dpsDetectionMiddleware)
-		dpsMux.Use(middleware.NoCache(logger))
-		dpsMux.Use(clientCertMiddleware)
-		dpsMux.Use(middleware.RequestLogger(logger))
-		dpsMux.HandleFunc("/swagger.yaml", fileHandler(v.GetString(cli.DPSSwaggerFlag))).Methods("GET")
-		if v.GetBool(cli.ServeSwaggerUIFlag) {
-			logger.Info("DPS API Swagger UI serving is enabled")
-			dpsMux.HandleFunc("/docs", fileHandler(path.Join(build, "swagger-ui", "dps.html"))).Methods("GET")
-		} else {
-			dpsMux.Handle("/docs", http.NotFoundHandler()).Methods("GET")
-		}
-		api := dpsapi.NewDPSAPI(handlerConfig)
-		tracingMiddleware := middleware.OpenAPITracing(api)
-		dpsMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
-	}
-
-	if v.GetBool(cli.ServeSDDCFlag) {
-		sddcDPSMux := site.Host(appnames.SddcServername).PathPrefix("/dps_auth/").Subrouter()
-
-		sddcDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.SddcServername)
-		sddcDPSMux.Use(sddcDetectionMiddleware)
-		sddcDPSMux.Use(middleware.NoCache(logger))
-		sddcDPSMux.Use(middleware.RequestLogger(logger))
-		if telemetryConfig.Enabled {
-			sddcDPSMux.Use(otelmux.Middleware("sddc"))
-		}
-		sddcDPSMux.Handle("/set_cookie",
-			dpsauth.NewSetCookieHandler(dpsAuthSecretKey,
-				dpsCookieDomain,
-				dpsCookieSecret,
-				dpsCookieExpires))
 	}
 
 	if v.GetBool(cli.ServePrimeFlag) {
