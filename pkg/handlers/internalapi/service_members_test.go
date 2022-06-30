@@ -302,6 +302,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.Equal(*serviceMemberPayload.Orders[0].Grade, (string)(rank))
 	suite.NotEqual(*serviceMemberPayload.Orders[0].Grade, orderGrade)
 }
+
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	// Given: a logged in user
 	user := testdatagen.MakeDefaultUser(suite.DB())
@@ -455,9 +456,9 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	addresses := []models.Address{}
 	suite.DB().All(&addresses)
 	suite.Equal(6, len(addresses))
-	// Why 8? Here's what I found
-	// Make duty locations - 2 addresses each DL => 4
-	// Patch service member - 2 addresses added => 2
+	// Why 6?
+	// Make duty locations +2 addresses each DL => 4
+	// Patch service member +2 addresses added to service member => 2
 	// Total => 6
 }
 
