@@ -160,6 +160,10 @@ const Shipment = ({ shipment, moveId, onDelete }) => {
         <dt>Diversion:</dt>
         <dd>{shipment.diversion ? 'yes' : 'no'}</dd>
       </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Counselor Remarks:</dt>
+        <dd>{shipment.counselorRemarks}</dd>
+      </div>
       {shipment.ppmShipment && (
         <>
           <h4>PPM-specific fields</h4>
@@ -249,7 +253,11 @@ const Shipment = ({ shipment, moveId, onDelete }) => {
           </div>
           <div className={descriptionListStyles.row}>
             <dt>PPM Estimated Incentive:</dt>
-            <dd>{shipment.ppmShipment.estimatedIncentive}</dd>
+            <dd>
+              {shipment.ppmShipment.estimatedIncentive == null
+                ? ''
+                : toDollarString(formatCents(shipment.ppmShipment.estimatedIncentive))}
+            </dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>PPM SIT Location:</dt>
