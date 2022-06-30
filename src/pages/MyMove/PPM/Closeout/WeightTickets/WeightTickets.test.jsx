@@ -145,6 +145,16 @@ describe('Weight Tickets page', () => {
     });
   });
 
+  it('displays an error if the createWeightTicket request fails', async () => {
+    createWeightTicket.mockRejectedValueOnce('an error occurred');
+
+    render(<WeightTickets />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to create trip record')).toBeInTheDocument();
+    });
+  });
+
   it('does not make create weight ticket api request if id param exists', async () => {
     useParams.mockImplementationOnce(() => ({
       moveId: mockMoveId,
@@ -243,8 +253,46 @@ describe('Weight Tickets page', () => {
     expect(mockPush).toHaveBeenCalledWith(reviewPath);
   });
 
+  it('displays an error if patchWeightTicket fails', async () => {
+    createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
+    patchWeightTicket.mockRejectedValueOnce('an error occurred');
+
+    render(<WeightTickets />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 2');
+    });
+    await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
+    await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
+    await userEvent.type(screen.getByLabelText('Full weight'), '6999');
+    await userEvent.click(screen.getByLabelText('Yes'));
+    await userEvent.click(screen.getAllByLabelText('Yes')[1]);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to save updated trip record')).toBeInTheDocument();
+    });
+  });
+
+  it('calls the delete handler when removing an existing upload', async () => {
+    createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
+
+    render(<WeightTickets />, { wrapper: MockProviders });
+
+    let deleteButtons;
+    await waitFor(() => {
+      deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
+      expect(deleteButtons).toHaveLength(2);
+    });
+    await userEvent.click(deleteButtons[0]);
+    await waitFor(() => {
+      expect(screen.queryByText('empty_weight.jpg')).not.toBeInTheDocument();
+    });
+  });
+
   it('expect loadingPlaceholder when mtoShipment is falsy', async () => {
-    selectMTOShipmentById.mockReturnValue(null);
+    selectMTOShipmentById.mockReturnValueOnce(null);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
