@@ -1703,10 +1703,6 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: header
-          name: If-Match
-          type: string
-          required: true
         - in: body
           name: body
           required: true

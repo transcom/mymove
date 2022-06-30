@@ -182,12 +182,6 @@ func init() {
         "operationId": "updateCustomerSupportRemarkForMove",
         "parameters": [
           {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          },
-          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -7365,12 +7359,6 @@ func init() {
         "summary": "Updates a customer support remark for a move",
         "operationId": "updateCustomerSupportRemarkForMove",
         "parameters": [
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          },
           {
             "name": "body",
             "in": "body",

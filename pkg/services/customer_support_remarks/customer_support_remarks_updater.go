@@ -37,14 +37,14 @@ func (o CustomerSupportRemarkUpdater) UpdateCustomerSupportRemark(appCtx appcont
 	}
 
 	/*
-		userID on the session must match original remark creator
-
-		should this be session().officeUserID?
+		  https://dp3.atlassian.net/browse/MB-12730
+			MB-12730 udpdates to customer support remarks are restricted to the original remark creator
 	*/
-	sessionUserID := appCtx.Session().UserID
+	sessionUserID := appCtx.Session().OfficeUserID
 
-	if remark.OfficeUser.UserID != &sessionUserID {
+	if remark.OfficeUserID != sessionUserID {
 		appCtx.Logger().Warn("Customer Support Remarks may only be edited by the user who created them.", zap.String("Customer Support RemarkID", remarkID.String()))
+
 		return nil, apperror.NewForbiddenError("Action not allowed")
 	}
 
