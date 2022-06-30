@@ -1066,37 +1066,24 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
-		var validMTOShipments []models.MTOShipment
-		var earliestRequestedPickup *time.Time
-		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
-		// TODO do we need this for this page as well?
+		numShipments := 0
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status != models.MTOShipmentStatusDraft {
-				if earliestRequestedPickup == nil {
-					earliestRequestedPickup = shipment.RequestedPickupDate
-				} else if shipment.RequestedPickupDate != nil && shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
-					earliestRequestedPickup = shipment.RequestedPickupDate
-				}
-				validMTOShipments = append(validMTOShipments, shipment)
+				numShipments++
 			}
 		}
 
-		var deptIndicator ghcmessages.DeptIndicator
-		if move.Orders.DepartmentIndicator != nil {
-			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
-		}
-
 		searchMoves[i] = &ghcmessages.SearchMove{
-			Customer:                Customer(&customer),
-			Status:                  ghcmessages.MoveStatus(move.Status),
-			ID:                      *handlers.FmtUUID(move.ID),
-			Locator:                 move.Locator,
-			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
-			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
-			DepartmentIndicator:     &deptIndicator,
-			ShipmentsCount:          int64(len(validMTOShipments)),
-			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
-			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
+			FirstName:                         customer.FirstName,
+			LastName:                          customer.LastName,
+			DodID:                             customer.Edipi,
+			Branch:                            customer.Affiliation.String(),
+			Status:                            ghcmessages.MoveStatus(move.Status),
+			ID:                                *handlers.FmtUUID(move.ID),
+			Locator:                           move.Locator,
+			ShipmentsCount:                    int64(numShipments),
+			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
+			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
 		}
 	}
 	return &searchMoves

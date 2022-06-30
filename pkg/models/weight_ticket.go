@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -8,6 +9,8 @@ import (
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -50,4 +53,45 @@ func (w *WeightTicket) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Name: "FullDocumentID", Field: w.FullDocumentID},
 		&validators.UUIDIsPresent{Name: "ProofOfTrailerOwnershipDocumentID", Field: w.ProofOfTrailerOwnershipDocumentID},
 	), nil
+}
+
+func FetchWeightTicketByIDExcludeDeletedUploads(db *pop.Connection, weightTicketID uuid.UUID) (*WeightTicket, error) {
+	var weightTicket WeightTicket
+
+	err := db.Scope(utilities.ExcludeDeletedScope()).
+		EagerPreload(
+			"EmptyDocument.UserUploads.Upload",
+			"FullDocument.UserUploads.Upload",
+			"ProofOfTrailerOwnershipDocument.UserUploads.Upload",
+		).
+		Find(&weightTicket, weightTicketID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(weightTicketID, "while looking for WeightTicket")
+		default:
+			return nil, apperror.NewQueryError("WeightTicket fetch original", err, "")
+		}
+	}
+
+	weightTicket.EmptyDocument.UserUploads = filterDeletedValued(weightTicket.EmptyDocument.UserUploads)
+	weightTicket.FullDocument.UserUploads = filterDeletedValued(weightTicket.FullDocument.UserUploads)
+	weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = filterDeletedValued(weightTicket.ProofOfTrailerOwnershipDocument.UserUploads)
+
+	return &weightTicket, nil
+}
+
+func filterDeletedValued(userUploads UserUploads) UserUploads {
+	if userUploads != nil {
+		index := 0
+		for _, userUpload := range userUploads {
+			if userUpload.DeletedAt == nil {
+				userUploads[index] = userUpload
+				index++
+			}
+		}
+		userUploads = userUploads[:index]
+	}
+	return userUploads
 }

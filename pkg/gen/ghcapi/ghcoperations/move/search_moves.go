@@ -7,7 +7,9 @@ package move
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
@@ -68,9 +70,15 @@ func (o *SearchMoves) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 // swagger:model SearchMovesBody
 type SearchMovesBody struct {
 
+	// branch
+	Branch *string `json:"branch,omitempty"`
+
 	// Customer Name
 	// Min Length: 1
 	CustomerName *string `json:"customerName,omitempty"`
+
+	// destination postal code
+	DestinationPostalCode *string `json:"destinationPostalCode,omitempty"`
 
 	// DOD ID
 	// Max Length: 10
@@ -81,6 +89,30 @@ type SearchMovesBody struct {
 	// Max Length: 6
 	// Min Length: 6
 	Locator *string `json:"locator,omitempty"`
+
+	// order
+	// Enum: [asc desc]
+	Order *string `json:"order,omitempty"`
+
+	// origin postal code
+	OriginPostalCode *string `json:"originPostalCode,omitempty"`
+
+	// requested page of results
+	Page int64 `json:"page,omitempty"`
+
+	// per page
+	PerPage int64 `json:"perPage,omitempty"`
+
+	// shipments count
+	ShipmentsCount *int64 `json:"shipmentsCount,omitempty"`
+
+	// sort
+	// Enum: [customerName dodID branch locator status originPostalCode destinationPostalCode shipmentsCount]
+	Sort *string `json:"sort,omitempty"`
+
+	// Filtering for the status.
+	// Unique: true
+	Status []string `json:"status"`
 }
 
 // Validate validates this search moves body
@@ -96,6 +128,18 @@ func (o *SearchMovesBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateLocator(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateOrder(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSort(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -144,6 +188,148 @@ func (o *SearchMovesBody) validateLocator(formats strfmt.Registry) error {
 
 	if err := validate.MaxLength("body"+"."+"locator", "body", *o.Locator, 6); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+var searchMovesBodyTypeOrderPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["asc","desc"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		searchMovesBodyTypeOrderPropEnum = append(searchMovesBodyTypeOrderPropEnum, v)
+	}
+}
+
+const (
+
+	// SearchMovesBodyOrderAsc captures enum value "asc"
+	SearchMovesBodyOrderAsc string = "asc"
+
+	// SearchMovesBodyOrderDesc captures enum value "desc"
+	SearchMovesBodyOrderDesc string = "desc"
+)
+
+// prop value enum
+func (o *SearchMovesBody) validateOrderEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, searchMovesBodyTypeOrderPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *SearchMovesBody) validateOrder(formats strfmt.Registry) error {
+	if swag.IsZero(o.Order) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateOrderEnum("body"+"."+"order", "body", *o.Order); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var searchMovesBodyTypeSortPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["customerName","dodID","branch","locator","status","originPostalCode","destinationPostalCode","shipmentsCount"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		searchMovesBodyTypeSortPropEnum = append(searchMovesBodyTypeSortPropEnum, v)
+	}
+}
+
+const (
+
+	// SearchMovesBodySortCustomerName captures enum value "customerName"
+	SearchMovesBodySortCustomerName string = "customerName"
+
+	// SearchMovesBodySortDodID captures enum value "dodID"
+	SearchMovesBodySortDodID string = "dodID"
+
+	// SearchMovesBodySortBranch captures enum value "branch"
+	SearchMovesBodySortBranch string = "branch"
+
+	// SearchMovesBodySortLocator captures enum value "locator"
+	SearchMovesBodySortLocator string = "locator"
+
+	// SearchMovesBodySortStatus captures enum value "status"
+	SearchMovesBodySortStatus string = "status"
+
+	// SearchMovesBodySortOriginPostalCode captures enum value "originPostalCode"
+	SearchMovesBodySortOriginPostalCode string = "originPostalCode"
+
+	// SearchMovesBodySortDestinationPostalCode captures enum value "destinationPostalCode"
+	SearchMovesBodySortDestinationPostalCode string = "destinationPostalCode"
+
+	// SearchMovesBodySortShipmentsCount captures enum value "shipmentsCount"
+	SearchMovesBodySortShipmentsCount string = "shipmentsCount"
+)
+
+// prop value enum
+func (o *SearchMovesBody) validateSortEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, searchMovesBodyTypeSortPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *SearchMovesBody) validateSort(formats strfmt.Registry) error {
+	if swag.IsZero(o.Sort) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateSortEnum("body"+"."+"sort", "body", *o.Sort); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var searchMovesBodyStatusItemsEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SUBMITTED","APPROVALS REQUESTED","APPROVED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		searchMovesBodyStatusItemsEnum = append(searchMovesBodyStatusItemsEnum, v)
+	}
+}
+
+func (o *SearchMovesBody) validateStatusItemsEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, searchMovesBodyStatusItemsEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *SearchMovesBody) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	if err := validate.UniqueItems("body"+"."+"status", "body", o.Status); err != nil {
+		return err
+	}
+
+	for i := 0; i < len(o.Status); i++ {
+
+		// value enum
+		if err := o.validateStatusItemsEnum("body"+"."+"status"+"."+strconv.Itoa(i), "body", o.Status[i]); err != nil {
+			return err
+		}
+
 	}
 
 	return nil
