@@ -1,7 +1,6 @@
 package webhooksubscription
 
 import (
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -17,13 +16,12 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 	builder := query.NewQueryBuilder()
 	updater := NewWebhookSubscriptionUpdater(builder)
 
-	// Create a webhook subscription
-	origSub := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
-
-	suite.T().Run("Updates a webhook subscription successfully", func(t *testing.T) {
+	suite.Run("Updates a webhook subscription successfully", func() {
 		// Testing:           WebhookSubscriptionUpdater
 		// Set up:            Provide a valid request to update an existing webhook subscription
 		// Expected Outcome:  We receive an updated model with no error and changed fields
+		// Create a webhook subscription
+		origSub := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
 		newSub := models.WebhookSubscription{
 			ID:          origSub.ID,
 			CallbackURL: "/this/is/changed",
@@ -42,7 +40,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 		suite.Equal(origSub.Status, updatedSub.Status)
 	})
 
-	suite.T().Run("Fails to find correct webhookSubscription - return empty webhookSubscription and error", func(t *testing.T) {
+	suite.Run("Fails to find correct webhookSubscription - return empty webhookSubscription and error", func() {
 		// Testing:           WebhookSubscriptionUpdater
 		// Set up:            Call the updater with an ID that doesn't exist
 		// Expected Outcome:  We receive a RecordNotFound error and no updatedSub
@@ -58,7 +56,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 		suite.Nil(updatedSub)
 	})
 
-	suite.T().Run("Fails to update - return empty webhookSubscription and error", func(t *testing.T) {
+	suite.Run("Fails to update - return empty webhookSubscription and error", func() {
 		// Testing:           WebhookSubscriptionUpdater
 		// Set up:            Call the updater with a subscription that doesn't exist
 		// Expected Outcome:  We receive an error and no updatedSub
@@ -77,10 +75,13 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 		suite.Nil(updatedSub)
 	})
 
-	suite.T().Run("Fails to update - precondition failed", func(t *testing.T) {
+	suite.Run("Fails to update - precondition failed", func() {
 		// Testing:           WebhookSubscriptionUpdater
 		// Set up:            Call the updater with a stale eTag value
 		// Expected Outcome:  We receive an error and no updatedSub
+		// Create a webhook subscription
+		origSub := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
+
 		newSub := models.WebhookSubscription{
 			ID:          origSub.ID,
 			CallbackURL: "/this/is/changed",

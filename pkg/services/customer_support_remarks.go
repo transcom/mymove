@@ -1,6 +1,8 @@
 package services
 
 import (
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -20,4 +22,9 @@ type CustomerSupportRemarksCreator interface {
 //go:generate mockery --name CustomerSupportRemarkUpdater --disable-version-string
 type CustomerSupportRemarkUpdater interface {
 	UpdateCustomerSupportRemark(appCtx appcontext.AppContext, payload ghcmessages.UpdateCustomerSupportRemarkPayload) (*models.CustomerSupportRemark, error)
+}
+
+//go:generate mockery --name CustomerSupportRemarkDeleter --disable-version-string
+type CustomerSupportRemarkDeleter interface {
+	DeleteCustomerSupportRemark(appCtx appcontext.AppContext, customerSupportRemarkID uuid.UUID) error
 }

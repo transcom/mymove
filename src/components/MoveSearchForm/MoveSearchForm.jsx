@@ -19,7 +19,7 @@ const validationSchema = Yup.object().shape({
     otherwise: Yup.string().when('searchType', {
       is: 'dodID',
       then: Yup.string().length(10, 'DOD ID must be exactly 10 characters'),
-      otherwise: Yup.string().min(1, 'pls type something'),
+      otherwise: Yup.string().min(1, 'Search must contain at least one character'),
     }),
   }),
 });

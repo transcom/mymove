@@ -1,0 +1,13 @@
+@import 'shared/styles/colors';
+
+:global {
+  .usa-checkbox__input:disabled + .usa-checkbox__label, .usa-radio__input:disabled + .usa-radio__label {
+    color: $base-darker;
+  }
+  .usa-checkbox__input:disabled + .usa-checkbox__label:before {
+    background-color: $base-darker;
+    box-shadow: 0 0 0 2px $base-dark;
+  }
+
+
+}

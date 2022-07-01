@@ -56,7 +56,6 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
   * [Other Possible Setups](#other-possible-setups)
     * [Setup: Office Local client](#setup-office-local-client)
     * [Setup: Admin Local client](#setup-admin-local-client)
-    * [Setup: DPS user](#setup-dps-user)
     * [Setup: Orders Gateway](#setup-orders-gateway)
     * [Setup: Prime API](#setup-prime-api)
 * [Development](#development)
@@ -674,12 +673,6 @@ Run
 ```shell
 make admin_client_run
 ````
-
-#### Setup: DPS user
-
-1. Ensure that you have a login.gov test account
-2. Log into [MilMove Devlocal Auth](http://milmovelocal:3000/devlocal-auth/login) and create a new DPS user from the
-   interface.
 
 #### Setup: Orders Gateway
 

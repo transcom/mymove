@@ -19,7 +19,6 @@ A description of the certificates in this directory will helpful:
 | `devlocal-faux-(air-force/all/army-hrc/coast-guard/marine-corps/navy)-orders.(cer/key)` | Certs signed by Devlocal CA for Orders API testing |
 | `devlocal-https.(key/pem)` | a self-signed TLS cert/key pair |
 | `devlocal-mtls.(cer/key)` | Certs signed by Devlocal CA for mTLS testing |
-| `devlocal-not-dps.(cer/key)` | Certs signed by Devlocal CA for DPS Auth testing |
 | `dod-sw-ca-54.pem` | DoD SW CA-54 package |
 | `dod-wcf-intermediate-ca-1-.pem` | DoD WCF Intermediate CA 1 for allowing TLS connectivity to AWS services in the BCAP |
 | `dod-wcf-root-ca-1-.pem` | DoD WCF Root CA 1 for allowing TLS connectivity to AWS services in the BCAP |
