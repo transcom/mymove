@@ -13,6 +13,7 @@ CREATE TYPE evaluation_location_type AS enum (
 CREATE TABLE IF NOT EXISTS evaluation_reports
 (
 	id                        uuid PRIMARY KEY,
+	office_user_id            uuid REFERENCES office_users NOT NULL,
 	shipment_id               uuid REFERENCES mto_shipments,
 	inspection_date           date,
 	type                      evaluation_report_type,
@@ -24,11 +25,16 @@ CREATE TABLE IF NOT EXISTS evaluation_reports
 	violations_observed       bool,
 	remarks                   text,
 	submitted_at              timestamp WITH TIME ZONE,
-	created_at                timestamp WITH TIME ZONE NOT NULL,
-	updated_at                timestamp WITH TIME ZONE NOT NULL
+	created_at                timestamp WITH TIME ZONE     NOT NULL,
+	updated_at                timestamp WITH TIME ZONE     NOT NULL
 );
 
+CREATE INDEX evaluation_reports_office_user_id_idx ON evaluation_reports (office_user_id);
+CREATE INDEX evaluation_reports_shipment_id_idx ON evaluation_reports (shipment_id);
+CREATE INDEX evaluation_reports_submitted_at_idx ON evaluation_reports (submitted_at);
+
 COMMENT ON TABLE evaluation_reports IS 'Contains QAE evaluation reports. There are two kinds of reports: shipment and counseling. You can tell them apart based on whether shipment_id is NULL.';
+COMMENT ON COLUMN evaluation_reports.office_user_id IS 'The office_user who authored the evaluation report.';
 COMMENT ON COLUMN evaluation_reports.shipment_id IS 'NULL if this is not a shipment report. If present, indicates the shipment that this report is based on';
 COMMENT ON COLUMN evaluation_reports.inspection_date IS 'date of inspection';
 COMMENT ON COLUMN evaluation_reports.type IS 'Indicates the type of evaluation that is being described by this report. Either physical, virtual, or data review';

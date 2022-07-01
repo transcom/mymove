@@ -27,6 +27,8 @@ const (
 
 type EvaluationReport struct {
 	ID                      uuid.UUID                     `json:"id" db:"id"`
+	OfficeUser              OfficeUser                    `belongs_to:"office_users" fk_id:"office_user_id"`
+	OfficeUserID            uuid.UUID                     `db:"office_user_id"`
 	Shipment                *MTOShipment                  `belongs_to:"mto_shipments" fk_id:"shipment_id"`
 	ShipmentID              *uuid.UUID                    `json:"shipment_id" db:"shipment_id"`
 	InspectionDate          *time.Time                    `json:"inspection_date" db:"inspection_date"`
