@@ -23,7 +23,7 @@ func NewCustomerSupportRemarkDeleter() services.CustomerSupportRemarkDeleter {
 
 func (o customerSupportRemarkDeleter) DeleteCustomerSupportRemark(appCtx appcontext.AppContext, customerSupportRemarkID uuid.UUID) error {
 	var remark models.CustomerSupportRemark
-	err := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope()).Find(&remark, customerSupportRemarkID)
+	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Find(&remark, customerSupportRemarkID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
