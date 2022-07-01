@@ -10,8 +10,8 @@ import { selectIsLoggedIn } from 'store/auth/selectors';
 import Alert from 'shared/Alert';
 import { LogoutUser } from 'utils/api';
 
-const defaultMaxIdleTimeInSeconds = 3;
-const defaultMaxWarningTimeInSeconds = 3;
+const defaultMaxIdleTimeInSeconds = 14 * 60;
+const defaultMaxWarningTimeInSeconds = 60;
 const keepAliveEndpoint = '/internal/users/logged_in';
 
 const LogoutOnInactivity = ({ maxIdleTimeInSeconds, maxWarningTimeInSeconds }) => {
