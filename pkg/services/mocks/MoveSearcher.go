@@ -8,6 +8,8 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
+	services "github.com/transcom/mymove/pkg/services"
+
 	testing "testing"
 )
 
@@ -16,27 +18,34 @@ type MoveSearcher struct {
 	mock.Mock
 }
 
-// SearchMoves provides a mock function with given fields: appCtx, locator, dodID, customerName
-func (_m *MoveSearcher) SearchMoves(appCtx appcontext.AppContext, locator *string, dodID *string, customerName *string) (models.Moves, error) {
-	ret := _m.Called(appCtx, locator, dodID, customerName)
+// SearchMoves provides a mock function with given fields: appCtx, params
+func (_m *MoveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services.SearchMovesParams) (models.Moves, int, error) {
+	ret := _m.Called(appCtx, params)
 
 	var r0 models.Moves
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *string, *string, *string) models.Moves); ok {
-		r0 = rf(appCtx, locator, dodID, customerName)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.SearchMovesParams) models.Moves); ok {
+		r0 = rf(appCtx, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.Moves)
 		}
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *string, *string, *string) error); ok {
-		r1 = rf(appCtx, locator, dodID, customerName)
+	var r1 int
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.SearchMovesParams) int); ok {
+		r1 = rf(appCtx, params)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(int)
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *services.SearchMovesParams) error); ok {
+		r2 = rf(appCtx, params)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // NewMoveSearcher creates a new instance of MoveSearcher. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.

@@ -18,6 +18,8 @@ import { useOrdersDocumentQueries } from 'hooks/queries';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import { ORDERS } from 'constants/queryKeys';
+import { permissionTypes } from 'constants/permissions';
+import Restricted from 'components/Restricted/Restricted';
 
 const rankDropdownOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
@@ -158,23 +160,38 @@ const MoveAllowances = () => {
                 </div>
               </div>
               <div className={styles.body}>
-                <AllowancesDetailForm
-                  entitlements={order.entitlement}
-                  rankOptions={rankDropdownOptions}
-                  branchOptions={branchDropdownOption}
-                  editableAuthorizedWeight
-                />
+                <Restricted
+                  to={permissionTypes.updateAllowances}
+                  fallback={
+                    <AllowancesDetailForm
+                      entitlements={order.entitlement}
+                      rankOptions={rankDropdownOptions}
+                      branchOptions={branchDropdownOption}
+                      editableAuthorizedWeight
+                      formIsDisabled
+                    />
+                  }
+                >
+                  <AllowancesDetailForm
+                    entitlements={order.entitlement}
+                    rankOptions={rankDropdownOptions}
+                    branchOptions={branchDropdownOption}
+                    editableAuthorizedWeight
+                  />
+                </Restricted>
               </div>
-              <div className={styles.bottom}>
-                <div className={styles.buttonGroup}>
-                  <Button disabled={formik.isSubmitting} type="submit">
-                    Save
-                  </Button>
-                  <Button type="button" secondary onClick={handleClose}>
-                    Cancel
-                  </Button>
+              <Restricted to={permissionTypes.updateAllowances}>
+                <div className={styles.bottom}>
+                  <div className={styles.buttonGroup}>
+                    <Button disabled={formik.isSubmitting} type="submit">
+                      Save
+                    </Button>
+                    <Button type="button" secondary onClick={handleClose}>
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              </Restricted>
             </div>
           </form>
         )}

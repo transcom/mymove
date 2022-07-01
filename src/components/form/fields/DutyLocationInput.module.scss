@@ -1,0 +1,5 @@
+@import 'shared/styles/colors';
+
+input:disabled {
+  color: $base-darker;
+}

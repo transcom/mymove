@@ -690,10 +690,6 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 		appCtx.Session().ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 
-	if userIdentity.DpsUserID != nil && (userIdentity.DpsActive != nil && *userIdentity.DpsActive) {
-		appCtx.Session().DpsUserID = *(userIdentity.DpsUserID)
-	}
-
 	if appCtx.Session().IsOfficeApp() {
 		if userIdentity.OfficeActive != nil && !*userIdentity.OfficeActive {
 			appCtx.Logger().Error("Office user is deactivated", zap.String("userID", appCtx.Session().UserID.String()))

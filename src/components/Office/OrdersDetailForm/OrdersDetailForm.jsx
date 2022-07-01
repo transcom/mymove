@@ -27,6 +27,7 @@ const OrdersDetailForm = ({
   showOrdersAcknowledgement,
   ordersType,
   setFieldValue,
+  formIsDisabled,
 }) => {
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
@@ -34,19 +35,32 @@ const OrdersDetailForm = ({
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(formOrdersType);
   return (
     <div className={styles.OrdersDetailForm}>
-      <DutyLocationInput name="originDutyLocation" label="Current duty location" displayAddress={false} />
+      <DutyLocationInput
+        name="originDutyLocation"
+        label="Current duty location"
+        displayAddress={false}
+        isDisabled={formIsDisabled}
+      />
       <DutyLocationInput
         name="newDutyLocation"
         label={isRetirementOrSeparation ? 'HOR, HOS or PLEAD' : 'New duty location'}
         displayAddress={false}
         placeholder={isRetirementOrSeparation ? 'Enter a city or ZIP' : 'Start typing a duty location...'}
+        isDisabled={formIsDisabled}
       />
-      <DatePickerInput name="issueDate" label="Date issued" />
-      <DatePickerInput name="reportByDate" label={reportDateRowLabel} />
+      <DatePickerInput name="issueDate" label="Date issued" disabled={formIsDisabled} />
+      <DatePickerInput name="reportByDate" label={reportDateRowLabel} disabled={formIsDisabled} />
       {showDepartmentIndicator && (
-        <DropdownInput name="departmentIndicator" label="Department indicator" options={deptIndicatorOptions} />
+        <DropdownInput
+          name="departmentIndicator"
+          label="Department indicator"
+          options={deptIndicatorOptions}
+          isDisabled={formIsDisabled}
+        />
       )}
-      {showOrdersNumber && <TextField name="ordersNumber" label="Orders number" id="ordersNumberInput" />}
+      {showOrdersNumber && (
+        <TextField name="ordersNumber" label="Orders number" id="ordersNumberInput" isDisabled={formIsDisabled} />
+      )}
       <DropdownInput
         name="ordersType"
         label="Orders type"
@@ -55,9 +69,15 @@ const OrdersDetailForm = ({
           setFormOrdersType(e.target.value);
           setFieldValue('ordersType', e.target.value);
         }}
+        isDisabled={formIsDisabled}
       />
       {showOrdersTypeDetail && (
-        <DropdownInput name="ordersTypeDetail" label="Orders type detail" options={ordersTypeDetailOptions} />
+        <DropdownInput
+          name="ordersTypeDetail"
+          label="Orders type detail"
+          options={ordersTypeDetailOptions}
+          isDisabled={formIsDisabled}
+        />
       )}
 
       {showHHGTac && showHHGSac && <h3>HHG accounting codes</h3>}
@@ -70,9 +90,19 @@ const OrdersDetailForm = ({
           inputTestId="hhgTacInput"
           warning={hhgTacWarning}
           validate={validateHHGTac}
+          isDisabled={formIsDisabled}
         />
       )}
-      {showHHGSac && <TextField name="sac" label="SAC" id="hhgSacInput" data-testid="hhgSacInput" optional />}
+      {showHHGSac && (
+        <TextField
+          name="sac"
+          label="SAC"
+          id="hhgSacInput"
+          data-testid="hhgSacInput"
+          isDisabled={formIsDisabled}
+          optional
+        />
+      )}
 
       {showNTSTac && showNTSSac && <h3>NTS accounting codes</h3>}
       {showNTSTac && (
@@ -84,10 +114,20 @@ const OrdersDetailForm = ({
           inputTestId="ntsTacInput"
           warning={ntsTacWarning}
           validate={validateNTSTac}
+          isDisabled={formIsDisabled}
           optional
         />
       )}
-      {showNTSSac && <TextField name="ntsSac" label="SAC" id="ntsSacInput" data-testid="ntsSacInput" optional />}
+      {showNTSSac && (
+        <TextField
+          name="ntsSac"
+          label="SAC"
+          id="ntsSacInput"
+          isDisabled={formIsDisabled}
+          data-testid="ntsSacInput"
+          optional
+        />
+      )}
 
       {showOrdersAcknowledgement && (
         <div className={styles.wrappedCheckbox}>
@@ -95,6 +135,7 @@ const OrdersDetailForm = ({
             id="ordersAcknowledgementInput"
             name="ordersAcknowledgement"
             label="I have read the new orders"
+            isDisabled={formIsDisabled}
           />
         </div>
       )}
@@ -120,6 +161,7 @@ OrdersDetailForm.propTypes = {
   showOrdersAcknowledgement: bool,
   ordersType: string.isRequired,
   setFieldValue: func.isRequired,
+  formIsDisabled: bool,
 };
 
 OrdersDetailForm.defaultProps = {
@@ -137,6 +179,7 @@ OrdersDetailForm.defaultProps = {
   showNTSTac: true,
   showNTSSac: true,
   showOrdersAcknowledgement: false,
+  formIsDisabled: false,
 };
 
 export default OrdersDetailForm;
