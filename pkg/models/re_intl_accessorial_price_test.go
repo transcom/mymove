@@ -1,15 +1,13 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestReIntlAccessorialPriceValidation() {
-	suite.T().Run("test valid ReIntlAccessorialPrice", func(t *testing.T) {
+	suite.Run("test valid ReIntlAccessorialPrice", func() {
 		validReIntlAccessorialPrice := models.ReIntlAccessorialPrice{
 			ContractID:   uuid.Must(uuid.NewV4()),
 			ServiceID:    uuid.Must(uuid.NewV4()),
@@ -20,7 +18,7 @@ func (suite *ModelSuite) TestReIntlAccessorialPriceValidation() {
 		suite.verifyValidationErrors(&validReIntlAccessorialPrice, expErrors)
 	})
 
-	suite.T().Run("test invalid ReIntlAccessorialPrice", func(t *testing.T) {
+	suite.Run("test invalid ReIntlAccessorialPrice", func() {
 		invalidReIntlAccessorialPrice := models.ReIntlAccessorialPrice{}
 		expErrors := map[string][]string{
 			"contract_id":    {"ContractID can not be blank."},
@@ -31,7 +29,7 @@ func (suite *ModelSuite) TestReIntlAccessorialPriceValidation() {
 		suite.verifyValidationErrors(&invalidReIntlAccessorialPrice, expErrors)
 	})
 
-	suite.T().Run("test invalid market for ReIntlAccessorialPrice", func(t *testing.T) {
+	suite.Run("test invalid market for ReIntlAccessorialPrice", func() {
 		invalidReIntlAccessorialPrice := models.ReIntlAccessorialPrice{
 			ContractID:   uuid.Must(uuid.NewV4()),
 			ServiceID:    uuid.Must(uuid.NewV4()),
@@ -44,7 +42,7 @@ func (suite *ModelSuite) TestReIntlAccessorialPriceValidation() {
 		suite.verifyValidationErrors(&invalidReIntlAccessorialPrice, expErrors)
 	})
 
-	suite.T().Run("test per unit cents less than 1 for ReDomesticServiceArea", func(t *testing.T) {
+	suite.Run("test per unit cents less than 1 for ReDomesticServiceArea", func() {
 		invalidReIntlAccessorialPrice := models.ReIntlAccessorialPrice{
 			ContractID:   uuid.Must(uuid.NewV4()),
 			ServiceID:    uuid.Must(uuid.NewV4()),
