@@ -130,7 +130,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
         </>
       )}
       <h2 className={styles.sectionHeader}>Remarks</h2>
-      <Label htmlFor="counselorRemarks">Counselor Remarks</Label>
+      <Label htmlFor="counselorRemarksInput">Counselor Remarks</Label>
       <Field id="counselorRemarksInput" name="counselorRemarks" as={Textarea} className={`${formStyles.remarks}`} />
     </SectionWrapper>
   );
