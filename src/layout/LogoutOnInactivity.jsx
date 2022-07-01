@@ -1,111 +1,98 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import IdleTimer from 'react-idle-timer';
-import { withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
+import { useIdleTimer } from 'react-idle-timer';
+import { useSelector, useDispatch } from 'react-redux';
+import { push } from 'connected-react-router';
 
-import { logOut as logOutAction } from 'store/auth/actions';
+import { logOut } from 'store/auth/actions';
 import { selectIsLoggedIn } from 'store/auth/selectors';
 import Alert from 'shared/Alert';
 import { LogoutUser } from 'utils/api';
-import { HistoryShape } from 'types/customerShapes';
 
-const maxIdleTimeInSeconds = 15 * 60;
-const maxWarningTimeBeforeTimeoutInSeconds = 60;
-const maxIdleTimeInMilliseconds = maxIdleTimeInSeconds * 1000;
-const maxWarningTimeBeforeTimeoutInMilliseconds = maxWarningTimeBeforeTimeoutInSeconds * 1000;
-const timeToDisplayWarningInMilliseconds = maxIdleTimeInMilliseconds - maxWarningTimeBeforeTimeoutInMilliseconds;
+const defaultMaxIdleTimeInSeconds = 14 * 60;
+const defaultMaxWarningTimeInSeconds = 60;
 const keepAliveEndpoint = '/internal/users/logged_in';
 
-export class LogoutOnInactivity extends React.Component {
-  constructor(props) {
-    super(props);
+const LogoutOnInactivity = ({ maxIdleTimeInSeconds, maxWarningTimeInSeconds }) => {
+  const [isIdle, setIsIdle] = useState(false);
+  const [timeLeftInSeconds, setTimeLeftInSeconds] = useState(maxWarningTimeInSeconds);
+  const history = useHistory();
+  const isLoggedIn = useSelector(selectIsLoggedIn);
+  const dispatch = useDispatch();
 
-    this.onActive = this.onActive.bind(this);
-    this.onIdle = this.onIdle.bind(this);
-
-    this.state = {
-      isIdle: false,
-      timeLeftInSeconds: maxWarningTimeBeforeTimeoutInSeconds,
-      loggedIn: true,
-    };
-  }
-
-  onActive = () => {
-    clearInterval(this.timer);
-    this.setState({ isIdle: false });
-    this.setState({ timeLeftInSeconds: maxWarningTimeBeforeTimeoutInSeconds });
-    fetch(keepAliveEndpoint);
-  };
-
-  onIdle = () => {
-    this.setState({ isIdle: true });
-    clearInterval(this.timer);
-    this.timer = setInterval(this.countdown, 1000);
-  };
-
-  countdown = () => {
-    const { timeLeftInSeconds, loggedIn } = this.state;
-    const { history, logOut } = this.props;
-
-    if (timeLeftInSeconds === 0 && loggedIn) {
-      LogoutUser().then(() => {
-        this.setState({ loggedIn: false });
-        logOut();
-        history.push({
-          pathname: '/sign-in',
-          state: { timedout: true },
-        });
-      });
-    } else {
-      this.setState({ timeLeftInSeconds: timeLeftInSeconds - 1 });
+  const handleOnActive = () => {
+    setIsIdle(false);
+    setTimeLeftInSeconds(maxWarningTimeInSeconds);
+    if (isLoggedIn) {
+      fetch(keepAliveEndpoint);
     }
   };
 
-  render() {
-    const { isLoggedIn } = this.props;
+  const handleOnIdle = () => {
+    setIsIdle(true);
+  };
 
-    const { isIdle, timeLeftInSeconds } = this.state;
+  useIdleTimer({
+    element: document,
+    timeout: maxIdleTimeInSeconds * 1000,
+    onActive: handleOnActive,
+    onIdle: handleOnIdle,
+    events: ['blur', 'focus', 'mousedown', 'touchstart', 'MSPointerDown'],
+    startOnMount: true,
+  });
 
-    return (
-      isLoggedIn && (
-        <IdleTimer
-          element={document}
-          onActive={this.onActive}
-          onIdle={this.onIdle}
-          timeout={timeToDisplayWarningInMilliseconds}
-          events={['blur', 'focus', 'mousedown', 'touchstart', 'MSPointerDown']}
-        >
-          {isIdle && (
+  useEffect(() => {
+    let warningTimer;
+    if (isIdle && isLoggedIn) {
+      let timeLeft = maxWarningTimeInSeconds;
+      warningTimer = setInterval(() => {
+        setTimeLeftInSeconds((current) => current - 1);
+        if (timeLeft > 1) {
+          timeLeft -= 1;
+        } else {
+          dispatch(push(logOut));
+          LogoutUser().then((r) => {
+            const redirectURL = r.body;
+            if (redirectURL) {
+              window.location.href = redirectURL;
+            } else {
+              history.push({
+                pathname: '/sign-in',
+                state: { hasLoggedOut: true },
+              });
+            }
+          });
+        }
+      }, 1000);
+    }
+    return () => clearInterval(warningTimer);
+  }, [isIdle, isLoggedIn, history, maxWarningTimeInSeconds, dispatch]);
+
+  return (
+    isLoggedIn && (
+      <div data-testid="logoutOnInactivityWrapper">
+        {isIdle && (
+          <div data-testid="logoutAlert">
             <Alert type="warning" heading="Inactive user">
               You have been inactive and will be logged out in {timeLeftInSeconds} seconds unless you touch or click on
               the page.
             </Alert>
-          )}
-        </IdleTimer>
-      )
-    );
-  }
-}
-
-LogoutOnInactivity.propTypes = {
-  isLoggedIn: PropTypes.bool,
-  history: HistoryShape.isRequired,
-  logOut: PropTypes.func.isRequired,
+          </div>
+        )}
+      </div>
+    )
+  );
 };
 
 LogoutOnInactivity.defaultProps = {
-  isLoggedIn: false,
+  maxIdleTimeInSeconds: defaultMaxIdleTimeInSeconds,
+  maxWarningTimeInSeconds: defaultMaxWarningTimeInSeconds,
 };
 
-const mapStateToProps = (state) => {
-  return {
-    isLoggedIn: selectIsLoggedIn(state),
-  };
+LogoutOnInactivity.propTypes = {
+  maxIdleTimeInSeconds: PropTypes.number,
+  maxWarningTimeInSeconds: PropTypes.number,
 };
 
-const mapDispatchToProps = {
-  logOut: logOutAction,
-};
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LogoutOnInactivity));
+export default LogoutOnInactivity;
