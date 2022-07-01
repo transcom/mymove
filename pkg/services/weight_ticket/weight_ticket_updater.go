@@ -100,20 +100,15 @@ func FetchWeightTicketByIDExcludeDeletedUploads(appContext appcontext.AppContext
 }
 
 func FilterDeletedValued(userUploads models.UserUploads) models.UserUploads {
-	if userUploads != nil {
-		index := 0
-		for _, userUpload := range userUploads {
-			if userUpload.DeletedAt == nil {
-				userUploads[index] = userUpload
-				index++
-			}
-		}
+	if userUploads == nil {
+		return userUploads
+	}
 
-		if index >= 1 {
-			userUploads = userUploads[:index]
-		} else {
-			userUploads = nil
+	filteredUploads := models.UserUploads{}
+	for _, userUpload := range userUploads {
+		if userUpload.DeletedAt == nil {
+			filteredUploads = append(filteredUploads, userUpload)
 		}
 	}
-	return userUploads
+	return filteredUploads
 }
