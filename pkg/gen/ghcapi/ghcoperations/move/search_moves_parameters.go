@@ -32,7 +32,7 @@ type SearchMovesParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*
+	/*field that results should be sorted by
 	  In: body
 	*/
 	Body SearchMovesBody

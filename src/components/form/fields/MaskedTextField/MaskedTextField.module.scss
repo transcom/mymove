@@ -27,3 +27,7 @@
         padding-left: 25px;
     }
 }
+
+input:disabled {
+  background-color: $border-color;
+}

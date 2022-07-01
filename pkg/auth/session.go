@@ -113,7 +113,6 @@ type Session struct {
 	OfficeUserID    uuid.UUID
 	AdminUserID     uuid.UUID
 	AdminUserRole   string
-	DpsUserID       uuid.UUID
 	Roles           roles.Roles
 	Permissions     []string
 }
@@ -166,9 +165,4 @@ func (s *Session) IsSystemAdmin() bool {
 func (s *Session) IsProgramAdmin() bool {
 	role := "PROGRAM_ADMIN"
 	return s.IsAdminUser() && s.AdminUserRole == role
-}
-
-// IsDpsUser checks whether the authenticated user is a DpsUser
-func (s *Session) IsDpsUser() bool {
-	return s.DpsUserID != uuid.Nil
 }

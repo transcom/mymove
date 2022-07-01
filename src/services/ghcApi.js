@@ -44,6 +44,14 @@ export async function updateCustomerSupportRemarkForMove({ body, locator }) {
   return makeGHCRequest('customerSupportRemarks.updateCustomerSupportRemarkForMove', { body, locator });
 }
 
+export async function deleteCustomerSupportRemark({ customerSupportRemarkID }) {
+  return makeGHCRequest(
+    'customerSupportRemarks.deleteCustomerSupportRemark',
+    { customerSupportRemarkID },
+    { normalize: false },
+  );
+}
+
 export async function getMoveHistory(key, { moveCode, currentPage = 1, currentPageSize = 20 }) {
   return makeGHCRequest(
     'move.getMoveHistory',
@@ -83,10 +91,28 @@ export async function getCustomer(key, customerID) {
   return makeGHCRequest('customer.getCustomer', { customerID });
 }
 
-export async function searchMoves(key, locator, dodID, customerName) {
+export async function searchMoves(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  if (paramFilters.status) {
+    paramFilters.status = paramFilters.status.split(',');
+  }
+  if (paramFilters.shipmentsCount) {
+    paramFilters.shipmentsCount = Number(paramFilters.shipmentsCount);
+  }
   return makeGHCRequest(
     'move.searchMoves',
-    { body: { locator, dodID, customerName } },
+    {
+      body: {
+        sort,
+        order,
+        page: currentPage,
+        perPage: currentPageSize,
+        ...paramFilters,
+      },
+    },
     { schemaKey: 'searchMovesResult', normalize: false },
   );
 }

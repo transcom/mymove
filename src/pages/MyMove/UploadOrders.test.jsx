@@ -93,6 +93,7 @@ describe('Orders Upload page', () => {
       bytes: 100,
       url: 'test url',
       filename: 'Test Upload',
+      content_type: 'application/pdf',
     };
 
     it('renders the uploads table', async () => {

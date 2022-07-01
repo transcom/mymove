@@ -16,6 +16,7 @@ type CustomerSupportRemark struct {
 	MoveID       uuid.UUID  `db:"move_id"`
 	CreatedAt    time.Time  `db:"created_at"`
 	UpdatedAt    time.Time  `db:"updated_at"`
+	DeletedAt    *time.Time `db:"deleted_at"`
 }
 
 type CustomerSupportRemarks []CustomerSupportRemark

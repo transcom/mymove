@@ -19,7 +19,6 @@ export const TIOOfficeUserType = 'TIO office';
 export const QAECSROfficeUserType = 'QAE/CSR office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
 export const PrimeSimulatorUserType = 'Prime Simulator';
-export const dpsUserType = 'dps';
 
 // User Types to Base URLs
 /* eslint-disable security/detect-object-injection */
@@ -30,5 +29,4 @@ userTypeToBaseURL[TOOOfficeUserType] = officeBaseURL;
 userTypeToBaseURL[TIOOfficeUserType] = officeBaseURL;
 userTypeToBaseURL[QAECSROfficeUserType] = officeBaseURL;
 userTypeToBaseURL[ServicesCounselorOfficeUserType] = officeBaseURL;
-userTypeToBaseURL[dpsUserType] = milmoveBaseURL;
 /* eslint-enable security/detect-object-injection */

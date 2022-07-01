@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { Field, useField } from 'formik';
 import { Checkbox } from '@trussworks/react-uswds';
 
+import './CheckboxField.module.scss';
+
 /**
  * This component renders a checkbox
  *
@@ -13,17 +15,24 @@ import { Checkbox } from '@trussworks/react-uswds';
  * ReactUSWDS components directly.
  */
 
-export const CheckboxField = ({ name, id, label, ...inputProps }) => {
+export const CheckboxField = ({ name, id, label, isDisabled, ...inputProps }) => {
   const [fieldProps] = useField({ name, type: 'checkbox' });
 
-  /* eslint-disable-next-line react/jsx-props-no-spreading */
-  return <Field id={id} as={Checkbox} name={name} label={label} {...fieldProps} {...inputProps} />;
+  return (
+    /* eslint-disable-next-line react/jsx-props-no-spreading */
+    <Field id={id} as={Checkbox} name={name} label={label} disabled={isDisabled} {...fieldProps} {...inputProps} />
+  );
 };
 
 CheckboxField.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   label: PropTypes.node.isRequired,
+  isDisabled: PropTypes.bool,
+};
+
+CheckboxField.defaultProps = {
+  isDisabled: false,
 };
 
 export default CheckboxField;
