@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 )
 
 type mtoShipmentFetcher struct {
@@ -44,6 +45,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"DestinationAddress",
 			"SecondaryDeliveryAddress",
 			"MTOServiceItems.Dimensions",
+			"PPMShipment.WeightTickets.EmptyDocument.UserUploads.Upload",
 			// Can't EagerPreload "Reweigh" due to a Pop bug (see below)
 			// "Reweigh",
 			"SITExtensions",
@@ -68,9 +70,23 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 		}
 
 		if shipments[i].ShipmentType == models.MTOShipmentTypePPM {
-			loadErr := appCtx.DB().Load(&shipments[i], "PPMShipment")
-			if loadErr != nil {
-				return nil, apperror.NewQueryError("PPMShipment", err, "")
+			for j := range shipments[i].PPMShipment.WeightTickets {
+				// variable for convience still modifies original shipments object
+				weightTicket := &shipments[i].PPMShipment.WeightTickets[j]
+
+				weightTicket.EmptyDocument.UserUploads = weightticket.FilterDeletedValued(weightTicket.EmptyDocument.UserUploads)
+
+				loadErr := appCtx.DB().Load(weightTicket, "FullDocument.UserUploads.Upload")
+				if loadErr != nil {
+					return nil, loadErr
+				}
+				weightTicket.FullDocument.UserUploads = weightticket.FilterDeletedValued(weightTicket.FullDocument.UserUploads)
+
+				loadErr = appCtx.DB().Load(weightTicket, "ProofOfTrailerOwnershipDocument.UserUploads.Upload")
+				if loadErr != nil {
+					return nil, loadErr
+				}
+				weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightticket.FilterDeletedValued(weightTicket.ProofOfTrailerOwnershipDocument.UserUploads)
 			}
 		}
 	}
