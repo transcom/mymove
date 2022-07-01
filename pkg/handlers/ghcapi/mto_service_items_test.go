@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
 		handler := ListMTOServiceItemsHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			listFetcher,
 			fetcher,
 		}
@@ -94,7 +94,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOServiceItemsHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -133,7 +133,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOServiceItemsHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			&mockListFetcher,
 			&mockFetcher,
 		}
@@ -189,7 +189,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		).Return(errors.New("Not found error")).Once()
 
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:         suite.HandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
@@ -215,7 +215,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		).Return(&models.MTOServiceItem{ID: serviceItemID}, nil).Once()
 
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:         suite.HandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
@@ -241,7 +241,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		).Return(nil, apperror.NewPreconditionFailedError(serviceItemID, errors.New("oh no"))).Once()
 
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:         suite.HandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
@@ -267,7 +267,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		).Return(nil, errors.New("oh no")).Once()
 
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:         suite.HandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
@@ -286,7 +286,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		).Return(nil).Once()
 
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:         suite.HandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
 		}
@@ -319,7 +319,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
 
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:         suite.HandlerConfig(),
 			MTOServiceItemUpdater: mtoServiceItemStatusUpdater,
 			Fetcher:               fetcher,
 		}
@@ -361,7 +361,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
 
 		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:         suite.HandlerConfig(),
 			MTOServiceItemUpdater: mtoServiceItemStatusUpdater,
 			Fetcher:               fetcher,
 		}

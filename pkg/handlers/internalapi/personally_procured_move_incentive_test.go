@@ -153,7 +153,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 		OrdersID:              strfmt.UUID(ordersID.String()),
 	}
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -189,7 +189,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 		OrdersID:              strfmt.UUID(ordersID.String()),
 	}
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -232,7 +232,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 		OrdersID:              strfmt.UUID(ordersID.String()),
 	}
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),

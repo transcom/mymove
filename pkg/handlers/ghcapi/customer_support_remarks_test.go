@@ -47,7 +47,7 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     remark.Move.Locator,
 		}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := ListCustomerSupportRemarksHandler{
 			HandlerConfig:                 handlerConfig,
 			CustomerSupportRemarksFetcher: fetcher,
@@ -66,7 +66,7 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     "ZZZZZZZZ",
 		}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := ListCustomerSupportRemarksHandler{
 			HandlerConfig:                 handlerConfig,
 			CustomerSupportRemarksFetcher: fetcher,
@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	suite.Run("Successful POST", func() {
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 
 		creator := &mocks.CustomerSupportRemarksCreator{}
 		handler := CreateCustomerSupportRemarksHandler{handlerConfig, creator}
@@ -118,7 +118,7 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 	})
 
 	suite.Run("unsuccessful POST", func() {
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 
 		creator := &mocks.CustomerSupportRemarksCreator{}
 		handler := CreateCustomerSupportRemarksHandler{handlerConfig, creator}
@@ -179,7 +179,7 @@ func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
 			CustomerSupportRemarkID: strfmt.UUID(ogRemark.ID.String()),
 		}
 
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := UpdateCustomerSupportRemarkHandler{handlerConfig, updater}
 
 		updater.On("UpdateCustomerSupportRemark",
@@ -201,7 +201,7 @@ func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
 			Content: &updatedRemark.Content,
 		}
 
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := UpdateCustomerSupportRemarkHandler{handlerConfig, updater}
 
 		params := customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams{
@@ -225,7 +225,7 @@ func (suite *HandlerSuite) TestDeleteCustomerSupportRemarksHandler() {
 		remarkID := uuid.Must(uuid.NewV4())
 
 		deleter := &mocks.CustomerSupportRemarkDeleter{}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := DeleteCustomerSupportRemarkHandler{handlerConfig, deleter}
 
 		request := httptest.NewRequest("DELETE", fmt.Sprintf("/customer-support-remarks/%s/", remarkID.String()), nil)
@@ -249,7 +249,7 @@ func (suite *HandlerSuite) TestDeleteCustomerSupportRemarksHandler() {
 		remarkID := uuid.Must(uuid.NewV4())
 
 		deleter := &mocks.CustomerSupportRemarkDeleter{}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := DeleteCustomerSupportRemarkHandler{handlerConfig, deleter}
 
 		request := httptest.NewRequest("DELETE", fmt.Sprintf("/customer-support-remarks/%s/", remarkID.String()), nil)
