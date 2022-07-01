@@ -1,9 +1,6 @@
 package testdatagen
 
 import (
-	"fmt"
-	"runtime"
-
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
@@ -13,11 +10,6 @@ import (
 
 // MakeAddress creates a single Address and associated service member.
 func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
-	_, file, no, ok := runtime.Caller(1)
-	if ok {
-		fmt.Printf("called from %s#%d\n", file, no)
-	}
-
 	address := models.Address{
 		StreetAddress1: "123 Any Street",
 		StreetAddress2: swag.String("P.O. Box 12345"),
@@ -37,10 +29,6 @@ func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 
 // MakeAddress2 creates a different single Address and associated service member.
 func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
-	_, file, no, ok := runtime.Caller(1)
-	if ok {
-		fmt.Printf("called from %s#%d\n", file, no)
-	}
 	address := models.Address{
 		StreetAddress1: "987 Any Avenue",
 		StreetAddress2: swag.String("P.O. Box 9876"),
@@ -60,10 +48,6 @@ func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 
 // MakeAddress3 creates a different single Address and associated service member.
 func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
-	_, file, no, ok := runtime.Caller(1)
-	if ok {
-		fmt.Printf("called from %s#%d\n", file, no)
-	}
 	address := models.Address{
 		StreetAddress1: "987 Other Avenue",
 		StreetAddress2: swag.String("P.O. Box 1234"),
@@ -83,10 +67,6 @@ func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
 
 // MakeAddress4 creates a different single Address and associated service member.
 func MakeAddress4(db *pop.Connection, assertions Assertions) models.Address {
-	_, file, no, ok := runtime.Caller(1)
-	if ok {
-		fmt.Printf("called from %s#%d\n", file, no)
-	}
 	address := models.Address{
 		StreetAddress1: "987 Over There Avenue",
 		StreetAddress2: swag.String("P.O. Box 1234"),
@@ -108,10 +88,6 @@ func MakeAddress4(db *pop.Connection, assertions Assertions) models.Address {
 func MakeDefaultAddress(db *pop.Connection) models.Address {
 	// Make associated lookup table records.
 	FetchOrMakeDefaultTariff400ngZip3(db)
-	_, file, no, ok := runtime.Caller(1)
-	if ok {
-		fmt.Printf("called from %s#%d\n", file, no)
-	}
 	return MakeAddress(db, Assertions{})
 }
 

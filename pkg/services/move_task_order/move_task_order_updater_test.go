@@ -303,13 +303,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 		})
 
 		// Set show to false
-		show := false
-		updatedMove, err := updater.ShowHide(suite.AppContextForTest(), move.ID, &show)
+		updatedMove, err := updater.ShowHide(suite.AppContextForTest(), move.ID, swag.Bool(false))
 
 		suite.NotNil(updatedMove)
 		suite.NoError(err)
 		suite.Equal(updatedMove.ID, move.ID)
-		suite.Equal(*updatedMove.Show, show)
+		// Check that show is false
+		suite.Equal(*updatedMove.Show, false)
 	})
 
 	// Case: Move successfully activated
