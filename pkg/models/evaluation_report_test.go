@@ -6,10 +6,10 @@ import (
 )
 
 func (suite *ModelSuite) TestReport() {
-	suite.Run("blargh", func() {
+	suite.Run("Create and query a report successfully", func() {
 		reports := models.EvaluationReports{}
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
-		err := suite.DB().Q().All(&reports)
+		err := suite.DB().All(&reports)
 		suite.NoError(err)
 	})
 }
