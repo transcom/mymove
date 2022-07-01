@@ -2,42 +2,46 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/apperror"
-	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
-	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
-// Create weightTicketHandler
+// CreateWeightTicketHandler
 type CreateWeightTicketHandler struct {
 	handlers.HandlerConfig
 	weightTicketCreator services.WeightTicketCreator
 }
 
 // Handle creates a weight ticket
-// Depending on the SO, may need to change the doument params to weight ticket params
-func (h CreateWeightTicketHandler) Handle(params weightticketops.CreateWightTicketParams) middleware.Responder {
+// Depending on the SO, may need to change the document params to weight ticket params
+func (h CreateWeightTicketHandler) Handle(params weightticketops.CreateWeightTicketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			// Get payload
-			payload := params.Body
-			if payload == nil {
-				missingBodyErr := apperror.NotFoundError{}
-				appCtx.logger().Error(missingBodyErr.Error())
-				return weightticketops.NewCreateWightTicketBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "Wight Ticket body cannot be empty", h.GetTraceIDFromRequest(params.HTTPRequest))), missingBodyErr
-			}
-			weightTicket := payloads.WeightTicketModelFromCreate(payload)
-			var err error
 
-			weightTicket, err = h.weightTicketCreator.CreateWightTicket(appCtx, weightTicket)
+			// NO NEED FOR payload_to_model, will need for Update
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
+			if err != nil {
+				appCtx.Logger().Error("internalapi.CreateWeightTicketHandler", zap.Error(err))
+			}
+			// ADD AN ERROR CHECK HERE for ppmShipmentID
+			var weightTicket *models.WeightTicket
+			weightTicket, err = h.weightTicketCreator.CreateWeightTicket(appCtx, ppmShipmentID)
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.CreateWeightTicketHandler", zap.Error(err))
-				//TODO: maybe add a switch statement here?
+				// Can get a status error
+				// Can get an DB error - does the weight ticket, doc create?
+				// Can get an error for whether the PPM exist
+				// ADD SWITCH STATEMENT
 			}
-			returnPayload := payloads.WeightTicket(weightTicket)
+			returnPayload := payloads.CreateWeightTicket(weightTicket)
 			return weightticketops.NewCreateWeightTicketOK().WithPayload(returnPayload), nil
 		})
 }

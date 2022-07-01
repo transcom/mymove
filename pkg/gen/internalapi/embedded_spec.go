@@ -1633,6 +1633,54 @@ func init() {
         }
       }
     },
+    "/moves/{moveId}/weight_ticket/{ppmShipmentId}": {
+      "post": {
+        "description": "Created a weight ticket document with the given information",
+        "tags": [
+          "move_docs"
+        ],
+        "summary": "Creates a weight ticket document",
+        "operationId": "createWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the move",
+            "name": "moveId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the move",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns new weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/CreateWeightTicket"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "not authorized to modify this move"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/moves/{moveTaskOrderID}/mto_shipments": {
       "get": {
         "description": "Gets all MTO shipments for the specified Move Task Order.\n",
@@ -3805,6 +3853,112 @@ func init() {
           "title": "TAC",
           "x-nullable": true,
           "example": "F8J1"
+        }
+      }
+    },
+    "CreateWeightTicket": {
+      "type": "object",
+      "required": [
+        "ppm_shipment_id",
+        "ppm_shipment",
+        "created_at",
+        "updated_at",
+        "empty_document_id",
+        "empty_documnt",
+        "full_document",
+        "full_document_id",
+        "proof_of_trailer_ownership_document",
+        "proof_of_trailer_ownership_document_id"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deleted_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "empty_document_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Empty Document ID"
+        },
+        "empty_documnt": {
+          "title": "Empty Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "empty_weight": {
+          "type": "integer",
+          "title": "Empty Recorded Weight"
+        },
+        "full_document": {
+          "title": "Full Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "full_document_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Full Document ID",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "full_weight": {
+          "type": "integer",
+          "title": "full weight ticket recorded weight"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missing_empty_weight_ticket": {
+          "type": "boolean",
+          "title": "has empty weight ticket",
+          "enum": [
+            "Yes",
+            "No"
+          ]
+        },
+        "missing_full_weight_ticket": {
+          "type": "boolean",
+          "title": "has full weight ticket"
+        },
+        "owns_trailer": {
+          "type": "boolean",
+          "title": "Owns trailer",
+          "x-nullable": true
+        },
+        "ppm_shipment": {
+          "$ref": "#/definitions/PPMShipment"
+        },
+        "ppm_shipment_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proof_of_trailer_ownership_document": {
+          "title": "Proof of Trailer Ownership Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "proof_of_trailer_ownership_document_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Trailer Document ID",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "trailer_meets_criteria": {
+          "type": "boolean",
+          "title": "Trailer meets criteria",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "vehicle_description": {
+          "type": "string",
+          "title": "Vehicle description (ex. 'SUV')",
+          "x-nullable": true
         }
       }
     },
@@ -8434,6 +8588,54 @@ func init() {
         }
       }
     },
+    "/moves/{moveId}/weight_ticket/{ppmShipmentId}": {
+      "post": {
+        "description": "Created a weight ticket document with the given information",
+        "tags": [
+          "move_docs"
+        ],
+        "summary": "Creates a weight ticket document",
+        "operationId": "createWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the move",
+            "name": "moveId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the move",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns new weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/CreateWeightTicket"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "not authorized to modify this move"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/moves/{moveTaskOrderID}/mto_shipments": {
       "get": {
         "description": "Gets all MTO shipments for the specified Move Task Order.\n",
@@ -10674,6 +10876,114 @@ func init() {
           "title": "TAC",
           "x-nullable": true,
           "example": "F8J1"
+        }
+      }
+    },
+    "CreateWeightTicket": {
+      "type": "object",
+      "required": [
+        "ppm_shipment_id",
+        "ppm_shipment",
+        "created_at",
+        "updated_at",
+        "empty_document_id",
+        "empty_documnt",
+        "full_document",
+        "full_document_id",
+        "proof_of_trailer_ownership_document",
+        "proof_of_trailer_ownership_document_id"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deleted_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "empty_document_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Empty Document ID"
+        },
+        "empty_documnt": {
+          "title": "Empty Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "empty_weight": {
+          "type": "integer",
+          "title": "Empty Recorded Weight",
+          "minimum": 0
+        },
+        "full_document": {
+          "title": "Full Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "full_document_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Full Document ID",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "full_weight": {
+          "type": "integer",
+          "title": "full weight ticket recorded weight",
+          "minimum": 0
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missing_empty_weight_ticket": {
+          "type": "boolean",
+          "title": "has empty weight ticket",
+          "enum": [
+            "Yes",
+            "No"
+          ]
+        },
+        "missing_full_weight_ticket": {
+          "type": "boolean",
+          "title": "has full weight ticket"
+        },
+        "owns_trailer": {
+          "type": "boolean",
+          "title": "Owns trailer",
+          "x-nullable": true
+        },
+        "ppm_shipment": {
+          "$ref": "#/definitions/PPMShipment"
+        },
+        "ppm_shipment_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proof_of_trailer_ownership_document": {
+          "title": "Proof of Trailer Ownership Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "proof_of_trailer_ownership_document_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Trailer Document ID",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "trailer_meets_criteria": {
+          "type": "boolean",
+          "title": "Trailer meets criteria",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "vehicle_description": {
+          "type": "string",
+          "title": "Vehicle description (ex. 'SUV')",
+          "x-nullable": true
         }
       }
     },

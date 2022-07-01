@@ -12,6 +12,63 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// DocumentPayload to Document type conversion
+func CreateDocument(document models.Document) *internalmessages.DocumentPayload {
+	documentPayload := &internalmessages.DocumentPayload{
+		ID:              handlers.FmtUUID(document.ID),
+		ServiceMemberID: handlers.FmtUUID(document.ServiceMemberID),
+		//Uploads:         uploads,
+	}
+	return documentPayload
+}
+
+// // DocumentPayload to Document type conversion
+//func UpdateDocument(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
+//	uploads := make([]*internalmessages.UploadPayload, len(document.UserUploads))
+//	for i, userUpload := range document.UserUploads {
+//		if userUpload.Upload.ID == uuid.Nil {
+//			return nil, errors.New("No uploads for user")
+//		}
+//		url, err := storer.PresignedURL(userUpload.Upload.StorageKey, userUpload.Upload.ContentType)
+//		if err != nil {
+//			return nil, err
+//		}
+//
+//		uploadPayload := payloadForUploadModel(storer, userUpload.Upload, url)
+//		uploads[i] = uploadPayload
+//	}
+//
+//	documentPayload := &internalmessages.DocumentPayload{
+//		ID:              handlers.FmtUUID(document.ID),
+//		ServiceMemberID: handlers.FmtUUID(document.ServiceMemberID),
+//		Uploads:         uploads,
+//	}
+//	return documentPayload, nil
+//}
+
+//func payloadForUploadModel(
+//	storer storage.FileStorer,
+//	upload models.Upload,
+//	url string,
+//) *internalmessages.UploadPayload {
+//	uploadPayload := &internalmessages.UploadPayload{
+//		ID:          handlers.FmtUUID(upload.ID),
+//		Filename:    swag.String(upload.Filename),
+//		ContentType: swag.String(upload.ContentType),
+//		URL:         handlers.FmtURI(url),
+//		Bytes:       &upload.Bytes,
+//		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
+//		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+//	}
+//	tags, err := storer.Tags(upload.StorageKey)
+//	if err != nil || len(tags) == 0 {
+//		uploadPayload.Status = "PROCESSING"
+//	} else {
+//		uploadPayload.Status = tags["av-status"]
+//	}
+//	return uploadPayload
+//}
+
 // Address payload
 func Address(address *models.Address) *internalmessages.Address {
 	if address == nil {
@@ -192,6 +249,36 @@ func MTOShipments(mtoShipments *models.MTOShipments) *internalmessages.MTOShipme
 		payload[i] = MTOShipment(&copyOfMtoShipment)
 	}
 	return &payload
+}
+
+// CreateWeightTicket payload
+func CreateWeightTicket(weightTicket *models.WeightTicket) *internalmessages.CreateWeightTicket {
+	ppmShipment := strfmt.UUID(weightTicket.PPMShipmentID.String())
+	missingEmptyWeightTicket := weightTicket.MissingEmptyWeightTicket
+	missingFullWeightTicket := weightTicket.MissingFullWeightTicket
+	payload := &internalmessages.CreateWeightTicket{
+		ID:                                strfmt.UUID(weightTicket.ID.String()),
+		PpmShipmentID:                     &ppmShipment,
+		PpmShipment:                       PPMShipment(&weightTicket.PPMShipment),
+		CreatedAt:                         handlers.FmtDateTime(weightTicket.CreatedAt),
+		UpdatedAt:                         handlers.FmtDateTime(weightTicket.UpdatedAt),
+		DeletedAt:                         *handlers.FmtDateTime(*weightTicket.DeletedAt),
+		VehicleDescription:                weightTicket.VehicleDescription,
+		EmptyWeight:                       handlers.FmtPoundPtr(weightTicket.EmptyWeight),
+		MissingEmptyWeightTicket:          *missingEmptyWeightTicket,
+		EmptyDocumentID:                   handlers.FmtUUID(weightTicket.EmptyDocumentID),
+		EmptyDocumnt:                      CreateDocument(weightTicket.EmptyDocument),
+		FullWeight:                        handlers.FmtPoundPtr(weightTicket.FullWeight),
+		MissingFullWeightTicket:           *missingFullWeightTicket,
+		FullDocumentID:                    handlers.FmtUUID(weightTicket.FullDocumentID),
+		FullDocument:                      CreateDocument(weightTicket.FullDocument),
+		OwnsTrailer:                       weightTicket.OwnsTrailer,
+		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
+		ProofOfTrailerOwnershipDocumentID: handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
+		ProofOfTrailerOwnershipDocument:   CreateDocument(weightTicket.ProofOfTrailerOwnershipDocument),
+	}
+
+	return payload
 }
 
 // InternalServerError describes errors in a standard structure to be returned in the payload.

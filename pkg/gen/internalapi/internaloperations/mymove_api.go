@@ -110,6 +110,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		UploadsCreateUploadHandler: uploads.CreateUploadHandlerFunc(func(params uploads.CreateUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.CreateUpload has not yet been implemented")
 		}),
+		MoveDocsCreateWeightTicketHandler: move_docs.CreateWeightTicketHandlerFunc(func(params move_docs.CreateWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_docs.CreateWeightTicket has not yet been implemented")
+		}),
 		MoveDocsCreateWeightTicketDocumentHandler: move_docs.CreateWeightTicketDocumentHandlerFunc(func(params move_docs.CreateWeightTicketDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.CreateWeightTicketDocument has not yet been implemented")
 		}),
@@ -327,6 +330,8 @@ type MymoveAPI struct {
 	CertificationCreateSignedCertificationHandler certification.CreateSignedCertificationHandler
 	// UploadsCreateUploadHandler sets the operation handler for the create upload operation
 	UploadsCreateUploadHandler uploads.CreateUploadHandler
+	// MoveDocsCreateWeightTicketHandler sets the operation handler for the create weight ticket operation
+	MoveDocsCreateWeightTicketHandler move_docs.CreateWeightTicketHandler
 	// MoveDocsCreateWeightTicketDocumentHandler sets the operation handler for the create weight ticket document operation
 	MoveDocsCreateWeightTicketDocumentHandler move_docs.CreateWeightTicketDocumentHandler
 	// MoveDocsDeleteMoveDocumentHandler sets the operation handler for the delete move document operation
@@ -548,6 +553,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.UploadsCreateUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.CreateUploadHandler")
+	}
+	if o.MoveDocsCreateWeightTicketHandler == nil {
+		unregistered = append(unregistered, "move_docs.CreateWeightTicketHandler")
 	}
 	if o.MoveDocsCreateWeightTicketDocumentHandler == nil {
 		unregistered = append(unregistered, "move_docs.CreateWeightTicketDocumentHandler")
@@ -842,6 +850,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/uploads"] = uploads.NewCreateUpload(o.context, o.UploadsCreateUploadHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/moves/{moveId}/weight_ticket/{ppmShipmentId}"] = move_docs.NewCreateWeightTicket(o.context, o.MoveDocsCreateWeightTicketHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

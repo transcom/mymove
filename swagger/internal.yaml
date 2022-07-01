@@ -1001,6 +1001,91 @@ definitions:
       - full_weight_ticket_missing
       - empty_weight_ticket_missing
       - trailer_ownership_missing
+  CreateWeightTicket:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      ppm_shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      ppm_shipment:
+        $ref: '#/definitions/PPMShipment'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      deleted_at:
+        type: string
+        format: date-time
+      vehicle_description:
+        type: string
+        title: Vehicle description (ex. 'SUV')
+        x-nullable: true
+      empty_weight:
+        type: integer
+        title: Empty Recorded Weight
+        minimum: 0
+      missing_empty_weight_ticket:
+        type: boolean
+        title: has empty weight ticket
+        enum:
+          - 'Yes'
+          - 'No'
+      empty_document_id:
+        title: Empty Document ID
+        type: string
+        format: uuid
+      empty_documnt:
+        title: Empty Document
+        $ref: '#/definitions/DocumentPayload'
+      full_weight:
+        title: full weight ticket recorded weight
+        type: integer
+        minimum: 0
+      missing_full_weight_ticket:
+        title: has full weight ticket
+        type: boolean
+      full_document_id:
+        title: Full Document ID
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      full_document:
+        title: Full Document
+        $ref: '#/definitions/DocumentPayload'
+      owns_trailer:
+        title: Owns trailer
+        type: boolean
+        x-nullable: true
+      trailer_meets_criteria:
+        title: Trailer meets criteria
+        type: boolean
+        x-nullable: true
+      proof_of_trailer_ownership_document_id:
+        title: Trailer Document ID
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      proof_of_trailer_ownership_document:
+        title: Proof of Trailer Ownership Document
+        $ref: '#/definitions/DocumentPayload'
+    required:
+      - ppm_shipment_id
+      - ppm_shipment
+      - created_at
+      - updated_at
+      - empty_document_id
+      - empty_documnt
+      - full_document
+      - full_document_id
+      - proof_of_trailer_ownership_document
+      - proof_of_trailer_ownership_document_id
   OfficeUser:
     type: object
     properties:
@@ -4871,6 +4956,39 @@ paths:
           description: returns new weight ticket document object
           schema:
             $ref: '#/definitions/MoveDocumentPayload'
+        '400':
+          description: invalid request
+        '401':
+          description: must be authenticated to use this endpoint
+        '403':
+          description: not authorized to modify this move
+        '500':
+          description: server error
+  /moves/{moveId}/weight_ticket/{ppmShipmentId}:
+    post:
+      summary: Creates a weight ticket document
+      description: Created a weight ticket document with the given information
+      operationId: createWeightTicket
+      tags:
+        - move_docs
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - name: ppmShipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        '200':
+          description: returns new weight ticket object
+          schema:
+            $ref: '#/definitions/CreateWeightTicket'
         '400':
           description: invalid request
         '401':

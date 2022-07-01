@@ -139,6 +139,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation uploads.CreateUpload has not yet been implemented")
 		})
 	}
+	if api.MoveDocsCreateWeightTicketHandler == nil {
+		api.MoveDocsCreateWeightTicketHandler = move_docs.CreateWeightTicketHandlerFunc(func(params move_docs.CreateWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_docs.CreateWeightTicket has not yet been implemented")
+		})
+	}
 	if api.MoveDocsCreateWeightTicketDocumentHandler == nil {
 		api.MoveDocsCreateWeightTicketDocumentHandler = move_docs.CreateWeightTicketDocumentHandlerFunc(func(params move_docs.CreateWeightTicketDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.CreateWeightTicketDocument has not yet been implemented")
