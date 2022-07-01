@@ -68,7 +68,7 @@ describe('LogoutOnInactivity', () => {
       // alert is missing before the user is idle for the timeout duration
       expect(screen.queryByTestId('logoutAlert')).not.toBeInTheDocument();
       await act(async () => {
-        return sleep(idleTimeLimitSeconds - 1);
+        return sleep(idleTimeLimitSeconds);
       });
 
       const wrapper = screen.getByTestId('logoutOnInactivityWrapper');
