@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { useIdleTimer } from 'react-idle-timer';
 import { useSelector, useDispatch } from 'react-redux';
@@ -9,43 +10,32 @@ import { selectIsLoggedIn } from 'store/auth/selectors';
 import Alert from 'shared/Alert';
 import { LogoutUser } from 'utils/api';
 
-const maxIdleTimeInSeconds = 14 * 60;
-const maxWarningTimeBeforeTimeoutInSeconds = 60;
-const maxIdleTimeInMilliseconds = maxIdleTimeInSeconds * 1000;
+const defaultMaxIdleTimeInSeconds = 3;
+const defaultMaxWarningTimeInSeconds = 3;
 const keepAliveEndpoint = '/internal/users/logged_in';
 
-const LogoutOnInactivity = () => {
+const LogoutOnInactivity = ({ maxIdleTimeInSeconds, maxWarningTimeInSeconds }) => {
   const [isIdle, setIsIdle] = useState(false);
-  const [timeLeftInSeconds, setTimeLeftInSeconds] = useState(maxWarningTimeBeforeTimeoutInSeconds);
-  const timerRef = useRef(null);
+  const [timeLeftInSeconds, setTimeLeftInSeconds] = useState(maxWarningTimeInSeconds);
   const history = useHistory();
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const dispatch = useDispatch();
 
   const handleOnActive = () => {
+    setIsIdle(false);
+    setTimeLeftInSeconds(maxWarningTimeInSeconds);
     if (isLoggedIn) {
-      setIsIdle(false);
-      clearInterval(timerRef.current);
-      setTimeLeftInSeconds(maxWarningTimeBeforeTimeoutInSeconds);
       fetch(keepAliveEndpoint);
     }
   };
 
   const handleOnIdle = () => {
-    if (isLoggedIn) {
-      setIsIdle(true);
-      clearInterval(timerRef.current);
-      timerRef.current = setInterval(() => {
-        setTimeLeftInSeconds((current) => {
-          return current - 1;
-        });
-      }, 1000);
-    }
+    setIsIdle(true);
   };
 
   useIdleTimer({
     element: document,
-    timeout: maxIdleTimeInMilliseconds,
+    timeout: maxIdleTimeInSeconds * 1000,
     onActive: handleOnActive,
     onIdle: handleOnIdle,
     events: ['blur', 'focus', 'mousedown', 'touchstart', 'MSPointerDown'],
@@ -53,45 +43,56 @@ const LogoutOnInactivity = () => {
   });
 
   useEffect(() => {
-    if (isIdle) {
-      if (isLoggedIn && timeLeftInSeconds <= 0) {
-        clearInterval(timerRef.current);
-        dispatch(push(logOut));
-        LogoutUser().then((r) => {
-          const redirectURL = r.body;
-          if (redirectURL) {
-            window.location.href = redirectURL;
-          } else {
-            history.push({
-              pathname: '/sign-in',
-              state: { hasLoggedOut: true },
-            });
-          }
-        });
-      }
+    let warningTimer;
+    if (isIdle && isLoggedIn) {
+      let timeLeft = maxWarningTimeInSeconds;
+      warningTimer = setInterval(() => {
+        setTimeLeftInSeconds((current) => current - 1);
+        if (timeLeft > 1) {
+          timeLeft -= 1;
+        } else {
+          dispatch(push(logOut));
+          LogoutUser().then((r) => {
+            const redirectURL = r.body;
+            if (redirectURL) {
+              window.location.href = redirectURL;
+            } else {
+              history.push({
+                pathname: '/sign-in',
+                state: { hasLoggedOut: true },
+              });
+            }
+          });
+        }
+      }, 1000);
     }
-  }, [isIdle, isLoggedIn, timeLeftInSeconds, history, dispatch]);
+    return () => clearInterval(warningTimer);
+  }, [isIdle, isLoggedIn, history, maxWarningTimeInSeconds, dispatch]);
 
   return (
-    <div data-testid="logoutOnInactivityWrapper">
-      {isLoggedIn && (
-        <>
-          {/* testing - to remove */}
-          <h1>Time left in seconds: {timeLeftInSeconds}</h1>
-          <h1>Idle: {isIdle.toString()}</h1>
-          <h1>Logged in: {isLoggedIn.toString()}</h1>
-          {isIdle && (
-            <div data-testid="logoutAlert">
-              <Alert data-testid="logoutAlert" type="warning" heading="Inactive user">
-                You have been inactive and will be logged out in {timeLeftInSeconds} seconds unless you touch or click
-                on the page.
-              </Alert>
-            </div>
-          )}
-        </>
-      )}
-    </div>
+    isLoggedIn && (
+      <div data-testid="logoutOnInactivityWrapper">
+        {isIdle && (
+          <div data-testid="logoutAlert">
+            <Alert type="warning" heading="Inactive user">
+              You have been inactive and will be logged out in {timeLeftInSeconds} seconds unless you touch or click on
+              the page.
+            </Alert>
+          </div>
+        )}
+      </div>
+    )
   );
+};
+
+LogoutOnInactivity.defaultProps = {
+  maxIdleTimeInSeconds: defaultMaxIdleTimeInSeconds,
+  maxWarningTimeInSeconds: defaultMaxWarningTimeInSeconds,
+};
+
+LogoutOnInactivity.propTypes = {
+  maxIdleTimeInSeconds: PropTypes.number,
+  maxWarningTimeInSeconds: PropTypes.number,
 };
 
 export default LogoutOnInactivity;
