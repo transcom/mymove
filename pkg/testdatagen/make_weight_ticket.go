@@ -57,7 +57,7 @@ func MakeWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTi
 
 	fullAssertions := Assertions{
 		WeightTicket: models.WeightTicket{
-
+			VehicleDescription:       models.StringPointer("2022 Honda CR-V Hybrid"),
 			EmptyWeight:              &emptyWeight,
 			MissingEmptyWeightTicket: models.BoolPointer(false),
 			EmptyDocumentID:          emptyDocument.ID,
