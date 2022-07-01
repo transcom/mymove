@@ -635,7 +635,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	openIDSession, err := fetchToken(
 		appCtx.Logger(),
 		r.URL.Query().Get("code"),
-		provider.ClientKey,
+		provider.ClientKey(),
 		h.loginGovProvider)
 	if err != nil {
 		appCtx.Logger().Error("Reading openIDSession from login.gov", zap.Error(err))
