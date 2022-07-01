@@ -532,6 +532,60 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.True(verifyReweighHistoryFound, "AuditHistories contains an AuditHistory with a Reweigh creation")
 		suite.True(verifyReweighContext, "Reweigh creation AuditHistory contains a context with the appropriate shipment type")
 	})
+
+	suite.T().Run("has audit history records for service item dimensions", func(t *testing.T) {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+
+		dimension := models.MTOServiceItemDimension{
+			Type:      models.DimensionTypeItem,
+			Length:    12000,
+			Height:    12000,
+			Width:     12000,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+		reServiceDDFSIT := testdatagen.MakeDDFSITReService(suite.DB())
+
+		serviceItem := models.MTOServiceItem{
+			MoveTaskOrderID: move.ID,
+			MoveTaskOrder:   move,
+			ReService:       reServiceDDFSIT,
+			MTOShipmentID:   &shipment.ID,
+			MTOShipment:     shipment,
+			Dimensions:      models.MTOServiceItemDimensions{dimension},
+			Status:          models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(5)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		verifyServiceItemDimensionsHistoryFound := false
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "mto_service_item_dimensions" {
+				if h.ChangedData != nil {
+					changedData := removeEscapeJSONtoObject(h.ChangedData)
+					if changedData["type"] == "ITEM" {
+						verifyServiceItemDimensionsHistoryFound = true
+						break
+					}
+				}
+			}
+		}
+		suite.True(verifyServiceItemDimensionsHistoryFound, "AuditHistories contains an AuditHistory with a service item dimensions creation")
+	})
 }
 
 func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
