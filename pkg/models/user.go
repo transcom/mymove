@@ -137,8 +137,6 @@ type UserIdentity struct {
 	AdminUserFirstName     *string     `db:"au_fname"`
 	AdminUserLastName      *string     `db:"au_lname"`
 	AdminUserActive        *bool       `db:"au_active"`
-	DpsUserID              *uuid.UUID  `db:"du_id"`
-	DpsActive              *bool       `db:"du_active"`
 	Roles                  roles.Roles `many_to_many:"users_roles" primary_id:"user_id"`
 }
 
@@ -161,14 +159,11 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 				au.role AS au_role,
 				au.first_name AS au_fname,
 				au.last_name AS au_lname,
-				au.active AS au_active,
-				du.id AS du_id,
-				du.active AS du_active
+				au.active AS au_active
 			FROM users
 			LEFT OUTER JOIN service_members AS sm on sm.user_id = users.id
 			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id
 			LEFT OUTER JOIN admin_users AS au on au.user_id = users.id
-			LEFT OUTER JOIN dps_users AS du on du.login_gov_email = users.login_gov_email
 			WHERE users.login_gov_uuid  = $1`
 	err := db.RawQuery(query, loginGovID).All(&identities)
 	if err != nil {
@@ -222,12 +217,10 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 				sm.id AS sm_id,
 				sm.first_name AS sm_fname,
 				sm.last_name AS sm_lname,
-				sm.middle_name AS sm_middle,
-				du.id AS du_id
+				sm.middle_name AS sm_middle
 			FROM service_members as sm
 			JOIN users on sm.user_id = users.id
-			LEFT OUTER JOIN dps_users AS du on du.login_gov_email = users.login_gov_email
-            WHERE users.login_gov_email != 'first.last@login.gov.test'
+			WHERE users.login_gov_email != 'first.last@login.gov.test'
 			ORDER BY users.created_at LIMIT $1`
 	}
 

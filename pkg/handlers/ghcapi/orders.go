@@ -80,11 +80,6 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() ||
-				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO)) {
-				return handleError(apperror.NewForbiddenError("is not a TXO"))
-			}
-
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
 			updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsTOO(
 				appCtx,
@@ -188,11 +183,6 @@ func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) mid
 				default:
 					return orderop.NewUpdateAllowanceInternalServerError(), err
 				}
-			}
-
-			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-				return handleError(apperror.NewForbiddenError("is not a TOO"))
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())

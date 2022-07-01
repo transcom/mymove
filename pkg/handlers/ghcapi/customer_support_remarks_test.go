@@ -199,3 +199,53 @@ func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
 		suite.Assertions.IsType(&customersupportremarksop.UpdateCustomerSupportRemarkForMoveInternalServerError{}, response)
 	})
 }
+
+func (suite *HandlerSuite) TestDeleteCustomerSupportRemarksHandler() {
+	suite.Run("Successful DELETE", func() {
+		remarkID := uuid.Must(uuid.NewV4())
+
+		deleter := &mocks.CustomerSupportRemarkDeleter{}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := DeleteCustomerSupportRemarkHandler{handlerConfig, deleter}
+
+		request := httptest.NewRequest("DELETE", fmt.Sprintf("/customer-support-remarks/%s/", remarkID.String()), nil)
+
+		params := customersupportremarksop.DeleteCustomerSupportRemarkParams{
+			HTTPRequest:             request,
+			CustomerSupportRemarkID: *handlers.FmtUUID(remarkID),
+		}
+
+		deleter.On("DeleteCustomerSupportRemark",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(nil).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&customersupportremarksop.DeleteCustomerSupportRemarkNoContent{}, response)
+	})
+
+	suite.Run("unsuccessful DELETE", func() {
+		remarkID := uuid.Must(uuid.NewV4())
+
+		deleter := &mocks.CustomerSupportRemarkDeleter{}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := DeleteCustomerSupportRemarkHandler{handlerConfig, deleter}
+
+		request := httptest.NewRequest("DELETE", fmt.Sprintf("/customer-support-remarks/%s/", remarkID.String()), nil)
+
+		params := customersupportremarksop.DeleteCustomerSupportRemarkParams{
+			HTTPRequest:             request,
+			CustomerSupportRemarkID: *handlers.FmtUUID(remarkID),
+		}
+
+		deleter.On("DeleteCustomerSupportRemark",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(fmt.Errorf("error")).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&customersupportremarksop.DeleteCustomerSupportRemarkInternalServerError{}, response)
+	})
+}

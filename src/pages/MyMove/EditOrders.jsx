@@ -26,7 +26,7 @@ import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
 import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import { formatWeight, formatYesNoInputValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
-import { ExistingUploadsShape } from 'types';
+import { ExistingUploadsShape } from 'types/uploads';
 import { formatDateForSwagger } from 'shared/dates';
 
 export const EditOrders = ({

@@ -24,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
-	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/dps_auth"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
@@ -124,9 +123,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		UploadsDeleteUploadsHandler: uploads.DeleteUploadsHandlerFunc(func(params uploads.DeleteUploadsParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.DeleteUploads has not yet been implemented")
-		}),
-		DpsAuthGetCookieURLHandler: dps_auth.GetCookieURLHandlerFunc(func(params dps_auth.GetCookieURLParams) middleware.Responder {
-			return middleware.NotImplemented("operation dps_auth.GetCookieURL has not yet been implemented")
 		}),
 		EntitlementsIndexEntitlementsHandler: entitlements.IndexEntitlementsHandlerFunc(func(params entitlements.IndexEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation entitlements.IndexEntitlements has not yet been implemented")
@@ -337,8 +333,6 @@ type MymoveAPI struct {
 	UploadsDeleteUploadHandler uploads.DeleteUploadHandler
 	// UploadsDeleteUploadsHandler sets the operation handler for the delete uploads operation
 	UploadsDeleteUploadsHandler uploads.DeleteUploadsHandler
-	// DpsAuthGetCookieURLHandler sets the operation handler for the get cookie URL operation
-	DpsAuthGetCookieURLHandler dps_auth.GetCookieURLHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
 	EntitlementsIndexEntitlementsHandler entitlements.IndexEntitlementsHandler
 	// MoveDocsIndexMoveDocumentsHandler sets the operation handler for the index move documents operation
@@ -563,9 +557,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.UploadsDeleteUploadsHandler == nil {
 		unregistered = append(unregistered, "uploads.DeleteUploadsHandler")
-	}
-	if o.DpsAuthGetCookieURLHandler == nil {
-		unregistered = append(unregistered, "dps_auth.GetCookieURLHandler")
 	}
 	if o.EntitlementsIndexEntitlementsHandler == nil {
 		unregistered = append(unregistered, "entitlements.IndexEntitlementsHandler")
@@ -862,10 +853,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/uploads"] = uploads.NewDeleteUploads(o.context, o.UploadsDeleteUploadsHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/dps_auth/cookie_url"] = dps_auth.NewGetCookieURL(o.context, o.DpsAuthGetCookieURLHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

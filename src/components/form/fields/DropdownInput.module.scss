@@ -1,0 +1,8 @@
+@import 'shared/styles/colors';
+
+select:disabled {
+  background-color: $border-color;
+  opacity: 1.0;
+  pointer-events: none;
+}
+

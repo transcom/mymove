@@ -37,8 +37,8 @@ const FileUpload = forwardRef(
     },
     ref,
   ) => {
-    const handleOnChange = () => {
-      if (onChange) onChange();
+    const handleOnChange = (err, file) => {
+      if (onChange) onChange(err, file);
     };
 
     const processFile = (fieldName, file, metadata, load, error, progress, abort) => {
@@ -62,8 +62,8 @@ const FileUpload = forwardRef(
         .catch(error);
     };
 
-    const handleProcessFile = () => {
-      handleOnChange();
+    const handleProcessFile = (err, file) => {
+      handleOnChange(err, file);
     };
 
     const serverConfig = {

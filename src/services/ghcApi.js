@@ -47,6 +47,14 @@ export async function updateCustomerSupportRemarkForMove({ body, customerSupport
   });
 }
 
+export async function deleteCustomerSupportRemark({ customerSupportRemarkID }) {
+  return makeGHCRequest(
+    'customerSupportRemarks.deleteCustomerSupportRemark',
+    { customerSupportRemarkID },
+    { normalize: false },
+  );
+}
+
 export async function getMoveHistory(key, { moveCode, currentPage = 1, currentPageSize = 20 }) {
   return makeGHCRequest(
     'move.getMoveHistory',

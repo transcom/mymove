@@ -167,6 +167,40 @@ func init() {
       ]
     },
     "/customer-support-remarks/{customerSupportRemarkID}": {
+      "delete": {
+        "description": "Soft deletes a customer support remark by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Soft deletes a customer support remark by ID",
+        "operationId": "deleteCustomerSupportRemark",
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the shipment"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "patch": {
         "description": "Updates a customer support remark for a move",
         "consumes": [
@@ -1844,7 +1878,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.orders"
+        ]
       },
       "parameters": [
         {
@@ -7345,6 +7382,58 @@ func init() {
       ]
     },
     "/customer-support-remarks/{customerSupportRemarkID}": {
+      "delete": {
+        "description": "Soft deletes a customer support remark by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Soft deletes a customer support remark by ID",
+        "operationId": "deleteCustomerSupportRemark",
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the shipment"
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "patch": {
         "description": "Updates a customer support remark for a move",
         "consumes": [
@@ -9499,7 +9588,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.orders"
+        ]
       },
       "parameters": [
         {

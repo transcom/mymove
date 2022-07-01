@@ -66,8 +66,6 @@ services:
       - DEVLOCAL_AUTH=1
       - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
       - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-      - DPS_AUTH_COOKIE_SECRET_KEY
-      - DPS_COOKIE_EXPIRES_IN_MINUTES
       - EIA_KEY=db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
       - ENVIRONMENT=test
       - HERE_MAPS_APP_CODE
