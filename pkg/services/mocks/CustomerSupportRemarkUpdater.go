@@ -3,10 +3,9 @@
 package mocks
 
 import (
-	appcontext "github.com/transcom/mymove/pkg/appcontext"
-	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
-
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+	customer_support_remarks "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -18,13 +17,13 @@ type CustomerSupportRemarkUpdater struct {
 	mock.Mock
 }
 
-// UpdateCustomerSupportRemark provides a mock function with given fields: appCtx, payload
-func (_m *CustomerSupportRemarkUpdater) UpdateCustomerSupportRemark(appCtx appcontext.AppContext, payload ghcmessages.UpdateCustomerSupportRemarkPayload) (*models.CustomerSupportRemark, error) {
-	ret := _m.Called(appCtx, payload)
+// UpdateCustomerSupportRemark provides a mock function with given fields: appCtx, params
+func (_m *CustomerSupportRemarkUpdater) UpdateCustomerSupportRemark(appCtx appcontext.AppContext, params customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams) (*models.CustomerSupportRemark, error) {
+	ret := _m.Called(appCtx, params)
 
 	var r0 *models.CustomerSupportRemark
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, ghcmessages.UpdateCustomerSupportRemarkPayload) *models.CustomerSupportRemark); ok {
-		r0 = rf(appCtx, payload)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams) *models.CustomerSupportRemark); ok {
+		r0 = rf(appCtx, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.CustomerSupportRemark)
@@ -32,8 +31,8 @@ func (_m *CustomerSupportRemarkUpdater) UpdateCustomerSupportRemark(appCtx appco
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, ghcmessages.UpdateCustomerSupportRemarkPayload) error); ok {
-		r1 = rf(appCtx, payload)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams) error); ok {
+		r1 = rf(appCtx, params)
 	} else {
 		r1 = ret.Error(1)
 	}
