@@ -9,7 +9,7 @@ import (
 )
 
 type DBToolsServiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestDBToolsServiceSuite(t *testing.T) {

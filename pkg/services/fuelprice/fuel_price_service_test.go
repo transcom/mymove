@@ -11,7 +11,7 @@ import (
 )
 
 type FuelPriceServiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 	storer storage.FileStorer
 }
 

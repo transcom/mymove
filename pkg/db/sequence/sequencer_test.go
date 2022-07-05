@@ -9,7 +9,7 @@ import (
 )
 
 type SequenceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func (suite *SequenceSuite) SetupTest() {
