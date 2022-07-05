@@ -46,8 +46,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"SecondaryDeliveryAddress",
 			"MTOServiceItems.Dimensions",
 			"PPMShipment.WeightTickets.EmptyDocument.UserUploads.Upload",
-			// Can't EagerPreload "Reweigh" due to a Pop bug (see below)
-			// "Reweigh",
+			"Reweigh",
 			"SITExtensions",
 			"StorageFacility.Address",
 		). // Right now no use case for showing deleted shipments.
@@ -60,15 +59,9 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 		return nil, err
 	}
 
-	// Due to a Pop bug, we cannot EagerPreload "Reweigh" or "PPMShipment" likely because it is a pointer and
-	// a "has_one" field.  This seems similar to other EagerPreload issues we've found (and
-	// sometimes fixed): https://github.com/gobuffalo/pop/issues?q=author%3Areggieriser
+	// Need to iterate through shipments to fetch additional PPM weight ticket info
+	// EagerPreload causes duplicate records because there are multiple relationships to the same table
 	for i := range shipments {
-		loadErr := appCtx.DB().Load(&shipments[i], "Reweigh")
-		if loadErr != nil {
-			return nil, err
-		}
-
 		if shipments[i].ShipmentType == models.MTOShipmentTypePPM {
 			for j := range shipments[i].PPMShipment.WeightTickets {
 				// variable for convience still modifies original shipments object
