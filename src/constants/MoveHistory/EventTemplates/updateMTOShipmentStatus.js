@@ -9,10 +9,10 @@ export default {
   tableName: t.mto_shipments,
   detailsType: d.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
-  getDetailsLabeledDetails: (historyRecord) => {
+  getDetailsLabeledDetails: ({ changedValues, oldValues }) => {
     return {
-      shipment_type: historyRecord.oldValues.shipment_type,
-      ...historyRecord.changedValues,
+      shipment_type: oldValues.shipment_type,
+      ...changedValues,
     };
   },
 };
