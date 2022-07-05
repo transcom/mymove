@@ -42,10 +42,6 @@ const (
 	MilTestHost string = "mil.example.com"
 	// OrdersTestHost
 	OrdersTestHost string = "orders.example.com"
-	// DpsTestHost
-	DpsTestHost string = "dps.example.com"
-	// SddcTestHost
-	SddcTestHost string = "sddc.example.com"
 	// AdminTestHost
 	AdminTestHost string = "admin.example.com"
 )
@@ -64,8 +60,6 @@ func ApplicationTestServername() auth.ApplicationServername {
 		MilServername:    MilTestHost,
 		OfficeServername: OfficeTestHost,
 		OrdersServername: OrdersTestHost,
-		DpsServername:    DpsTestHost,
-		SddcServername:   SddcTestHost,
 		AdminServername:  AdminTestHost,
 	}
 	return appnames

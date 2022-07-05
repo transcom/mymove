@@ -70,7 +70,6 @@ function generate_client () {
 # For readability they have been sorted and spaces added
 generate_server swagger/admin.yaml    adminmessages    adminapi    adminoperations
 generate_server swagger/api.yaml      apimessages      restapi     apioperations
-generate_server swagger/dps.yaml      dpsmessages      dpsapi      dpsoperations
 generate_server swagger/ghc.yaml      ghcmessages      ghcapi      ghcoperations
 generate_server swagger/internal.yaml internalmessages internalapi internaloperations
 generate_server swagger/orders.yaml   ordersmessages   ordersapi   ordersoperations

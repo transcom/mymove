@@ -32,6 +32,7 @@ const testInitialValues = {
       bytes: 1024,
       url: '',
       filename: 'orders.pdf',
+      content_type: 'application/pdf',
     },
   ],
 };
@@ -62,6 +63,7 @@ const testProps = {
         bytes: 1024,
         url: '',
         filename: 'orders.pdf',
+        content_type: 'application/pdf',
       },
     ],
   },
