@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS evaluation_reports
 (
 	id                        uuid PRIMARY KEY,
 	office_user_id            uuid REFERENCES office_users NOT NULL,
+	move_id                   uuid REFERENCES moves        NOT NULL,
 	shipment_id               uuid REFERENCES mto_shipments,
 	inspection_date           date,
 	type                      evaluation_report_type,
@@ -30,6 +31,7 @@ CREATE TABLE IF NOT EXISTS evaluation_reports
 );
 
 CREATE INDEX evaluation_reports_office_user_id_idx ON evaluation_reports (office_user_id);
+CREATE INDEX evaluation_reports_move_id_idx ON evaluation_reports (move_id);
 CREATE INDEX evaluation_reports_shipment_id_idx ON evaluation_reports (shipment_id);
 CREATE INDEX evaluation_reports_submitted_at_idx ON evaluation_reports (submitted_at);
 

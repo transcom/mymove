@@ -29,6 +29,8 @@ type EvaluationReport struct {
 	ID                      uuid.UUID                     `json:"id" db:"id"`
 	OfficeUser              OfficeUser                    `belongs_to:"office_users" fk_id:"office_user_id"`
 	OfficeUserID            uuid.UUID                     `db:"office_user_id"`
+	Move                    Move                          `belongs_to:"moves" fk_id:"move_id"`
+	MoveID                  uuid.UUID                     `db:"move_id"`
 	Shipment                *MTOShipment                  `belongs_to:"mto_shipments" fk_id:"shipment_id"`
 	ShipmentID              *uuid.UUID                    `json:"shipment_id" db:"shipment_id"`
 	InspectionDate          *time.Time                    `json:"inspection_date" db:"inspection_date"`
