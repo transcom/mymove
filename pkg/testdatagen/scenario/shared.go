@@ -943,6 +943,66 @@ func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploa
 	}
 
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	baseDocumentAssertions := testdatagen.Assertions{
+		Document: models.Document{
+			ServiceMemberID: moveInfo.smID,
+		},
+	}
+
+	emptyDocument := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
+	fullDocument := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
+	proofOfOwnership := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
+
+	now := time.Now()
+	for i := 0; i < 2; i++ {
+		var deletedAt *time.Time
+		if i == 1 {
+			deletedAt = &now
+		}
+		testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
+			UserUpload: models.UserUpload{
+				UploaderID: moveInfo.userID,
+				DocumentID: &emptyDocument.ID,
+				Document:   emptyDocument,
+				DeletedAt:  deletedAt,
+			},
+		})
+	}
+
+	for i := 0; i < 2; i++ {
+		testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
+			UserUpload: models.UserUpload{
+				UploaderID: moveInfo.userID,
+				DocumentID: &fullDocument.ID,
+				Document:   fullDocument,
+			},
+		})
+	}
+
+	for i := 0; i < 2; i++ {
+		testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
+			UserUpload: models.UserUpload{
+				UploaderID: moveInfo.userID,
+				DocumentID: &proofOfOwnership.ID,
+				Document:   proofOfOwnership,
+			},
+		})
+	}
+
+	originalWeightTicket := models.WeightTicket{
+		EmptyDocumentID:                   emptyDocument.ID,
+		FullDocumentID:                    fullDocument.ID,
+		ProofOfTrailerOwnershipDocumentID: proofOfOwnership.ID,
+		PPMShipmentID:                     testdatagen.ConvertUUIDStringToUUID("b9ae4c25-1376-4b9b-8781-106b5ae7ecab"),
+	}
+
+	verrs, err := appCtx.DB().ValidateAndCreate(&originalWeightTicket)
+	if err != nil {
+		fmt.Println(err)
+	} else if verrs != nil && verrs.HasAny() {
+		fmt.Println(verrs)
+	}
 }
 
 func createApprovedMoveWithPPMEmptyAboutPage(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
