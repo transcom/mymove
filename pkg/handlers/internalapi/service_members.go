@@ -127,9 +127,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 			}
 			// And return
 			serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember)
-			responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
-			sessionManager := h.AppSessionManagers().SessionManager(appCtx.Session())
-			return handlers.NewCookieUpdateResponder(params.HTTPRequest, responder, sessionManager, appCtx.Session()), nil
+			return servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload), nil
 		})
 }
 

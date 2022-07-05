@@ -96,10 +96,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	handler := CreateServiceMemberHandler{suite.HandlerConfig()}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&handlers.CookieUpdateResponder{}, response)
-
-	unwrappedResponse := response.(*handlers.CookieUpdateResponder).Responder
-	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, unwrappedResponse)
+	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, response)
 
 	// Then: we expect a servicemember to have been created for the user
 	query := suite.DB().Where("user_id = ?", user.ID)
@@ -108,7 +105,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 
 	suite.Assertions.Len(serviceMembers, 1)
 
-	serviceMemberPayload := unwrappedResponse.(*servicememberop.CreateServiceMemberCreated).Payload
+	serviceMemberPayload := response.(*servicememberop.CreateServiceMemberCreated).Payload
 
 	suite.Assertions.NotEqual(*serviceMemberPayload.ID, uuid.Nil)
 	suite.Assertions.NotEqual(*serviceMemberPayload.UserID, uuid.Nil)
@@ -158,9 +155,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	handler := CreateServiceMemberHandler{suite.HandlerConfig()}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&handlers.CookieUpdateResponder{}, response)
-	unwrappedResponse := response.(*handlers.CookieUpdateResponder).Responder
-	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, unwrappedResponse)
+	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, response)
 
 	// Then: we expect a servicemember to have been created for the user
 	query := suite.DB().Where("user_id = ?", user.ID)
