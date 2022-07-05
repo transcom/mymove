@@ -38,7 +38,7 @@ CREATE INDEX evaluation_reports_submitted_at_idx ON evaluation_reports (submitte
 COMMENT ON TABLE evaluation_reports IS 'Contains QAE evaluation reports. There are two kinds of reports: shipment and counseling. You can tell them apart based on whether shipment_id is NULL.';
 COMMENT ON COLUMN evaluation_reports.move_id IS 'Move that the report is associated with';
 COMMENT ON COLUMN evaluation_reports.office_user_id IS 'The office_user who authored the evaluation report.';
-COMMENT ON COLUMN evaluation_reports.shipment_id IS 'NULL if this is not a shipment report. If present, indicates the shipment that this report is based on';
+COMMENT ON COLUMN evaluation_reports.shipment_id IS 'If present, indicates the shipment that this report is based on. NULL if this is not a shipment report.';
 COMMENT ON COLUMN evaluation_reports.inspection_date IS 'date of inspection';
 COMMENT ON COLUMN evaluation_reports.type IS 'Indicates the type of evaluation that is being described by this report. Either physical, virtual, or data review';
 COMMENT ON COLUMN evaluation_reports.travel_time_minutes IS 'Amount of time that the evaluator spent travelling to and from the site to perform a physical evaluation';
