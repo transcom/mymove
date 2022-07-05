@@ -26,6 +26,16 @@ func FmtDatePtrToPopPtr(date *strfmt.Date) *time.Time {
 	return &fmtDate
 }
 
+// FmtDatePtrToPopPtr converts go-swagger type to pop type
+func FmtDatePtrToPop(date *strfmt.Date) time.Time {
+	if date == nil {
+		return time.Time{}
+	}
+
+	fmtDate := time.Time(*date)
+	return fmtDate
+}
+
 // FmtDateTimePtrToPopPtr converts go-swagger type to pop type
 func FmtDateTimePtrToPopPtr(date *strfmt.DateTime) *time.Time {
 	if date == nil {
