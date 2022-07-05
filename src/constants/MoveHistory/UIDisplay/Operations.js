@@ -31,4 +31,5 @@ export default {
   updateReweigh: 'updateReweigh',
   updateServiceItemStatus: 'updateMTOServiceItemStatus',
   updateMTOReviewedBillableWeightsAt: 'UpdateMTOReviewedBillableWeightsAt',
+  updateMTOShipmentStatus: 'updateMTOShipmentStatus',
 };
