@@ -10,7 +10,7 @@ import (
 )
 
 type ValidatePostalCodeTestSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestValidatePostalCodeTestSuite(t *testing.T) {

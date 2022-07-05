@@ -26,7 +26,7 @@ const (
 )
 
 type GHCInvoiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 	icnSequencer sequence.Sequencer
 }
 

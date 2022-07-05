@@ -9,7 +9,7 @@ import (
 )
 
 type MTOAgentServiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestMTOAgentServiceSuite(t *testing.T) {

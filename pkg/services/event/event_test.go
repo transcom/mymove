@@ -19,7 +19,7 @@ import (
 )
 
 type EventServiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestEventServiceSuite(t *testing.T) {
