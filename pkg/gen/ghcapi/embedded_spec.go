@@ -5719,6 +5719,12 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "weightTickets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeightTicket"
+          }
         }
       },
       "x-nullable": true
@@ -7048,6 +7054,62 @@ func init() {
         }
       }
     },
+    "UploadPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "url",
+        "filename",
+        "content_type",
+        "bytes",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "bytes": {
+          "type": "integer"
+        },
+        "checksum": {
+          "type": "string",
+          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
+        },
+        "content_type": {
+          "type": "string",
+          "format": "mime-type",
+          "example": "application/pdf"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filename": {
+          "type": "string",
+          "example": "filename.pdf"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "ValidationError": {
       "required": [
         "invalid_fields"
@@ -7065,6 +7127,61 @@ func init() {
           "type": "object",
           "additionalProperties": {
             "type": "string"
+          }
+        }
+      }
+    },
+    "WeightTicket": {
+      "description": "Some description here",
+      "type": "object",
+      "properties": {
+        "emptyDocument": {
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "emptyWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "fullDocument": {
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "fullWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "definitions-DocumentPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "service_member_id",
+        "uploads"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UploadPayload"
           }
         }
       }
@@ -13692,6 +13809,12 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "weightTickets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeightTicket"
+          }
         }
       },
       "x-nullable": true
@@ -15028,6 +15151,62 @@ func init() {
         }
       }
     },
+    "UploadPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "url",
+        "filename",
+        "content_type",
+        "bytes",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "bytes": {
+          "type": "integer"
+        },
+        "checksum": {
+          "type": "string",
+          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
+        },
+        "content_type": {
+          "type": "string",
+          "format": "mime-type",
+          "example": "application/pdf"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filename": {
+          "type": "string",
+          "example": "filename.pdf"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "ValidationError": {
       "required": [
         "invalid_fields"
@@ -15051,6 +15230,61 @@ func init() {
     },
     "ValidationErrorAllOf1": {
       "type": "object"
+    },
+    "WeightTicket": {
+      "description": "Some description here",
+      "type": "object",
+      "properties": {
+        "emptyDocument": {
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "emptyWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "fullDocument": {
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "fullWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "definitions-DocumentPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "service_member_id",
+        "uploads"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UploadPayload"
+          }
+        }
+      }
     }
   },
   "parameters": {

@@ -175,6 +175,10 @@ properties:
     format: cents
     x-nullable: true
     x-omitempty: false
+  weightTickets:
+    items:
+      $ref: 'WeightTicket.yaml'
+    type: array
   eTag:
     description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
     type: string

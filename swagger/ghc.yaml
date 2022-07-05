@@ -4854,6 +4854,90 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_PAYMENT_APPROVAL
       - PAYMENT_APPROVED
+  UploadPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+      filename:
+        type: string
+        example: filename.pdf
+      content_type:
+        type: string
+        format: mime-type
+        example: application/pdf
+      checksum:
+        type: string
+        example: ImGQ2Ush0bDHsaQthV5BnQ==
+      bytes:
+        type: integer
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - url
+      - filename
+      - content_type
+      - bytes
+      - created_at
+      - updated_at
+  definitions-DocumentPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/UploadPayload'
+    required:
+      - id
+      - service_member_id
+      - uploads
+  WeightTicket:
+    description: Some description here
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      emptyWeight:
+        type: integer
+        example: 4200
+        x-nullable: true
+        x-omitempty: false
+      fullWeight:
+        type: integer
+        example: 4200
+        x-nullable: true
+        x-omitempty: false
+      emptyDocument:
+        $ref: '#/definitions/definitions-DocumentPayload'
+      fullDocument:
+        $ref: '#/definitions/definitions-DocumentPayload'
   PPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service members
@@ -5037,6 +5121,10 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      weightTickets:
+        items:
+          $ref: '#/definitions/WeightTicket'
+        type: array
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"

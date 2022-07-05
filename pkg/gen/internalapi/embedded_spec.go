@@ -5301,6 +5301,12 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "weightTickets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeightTicket"
+          }
         }
       },
       "x-nullable": true
@@ -6752,6 +6758,35 @@ func init() {
         "total_weight_self_plus_dependents": {
           "type": "integer",
           "example": 18000
+        }
+      }
+    },
+    "WeightTicket": {
+      "description": "Some description here",
+      "type": "object",
+      "properties": {
+        "emptyDocument": {
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "emptyWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "fullDocument": {
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "fullWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         }
       }
     },
@@ -12185,6 +12220,12 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "weightTickets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeightTicket"
+          }
         }
       },
       "x-nullable": true
@@ -13646,6 +13687,35 @@ func init() {
         "total_weight_self_plus_dependents": {
           "type": "integer",
           "example": 18000
+        }
+      }
+    },
+    "WeightTicket": {
+      "description": "Some description here",
+      "type": "object",
+      "properties": {
+        "emptyDocument": {
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "emptyWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "fullDocument": {
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "fullWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         }
       }
     },

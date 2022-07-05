@@ -1,0 +1,21 @@
+description: Some description here
+type: object
+properties:
+  id:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  emptyWeight:
+    type: integer
+    example: 4200
+    x-nullable: true
+    x-omitempty: false
+  fullWeight:
+    type: integer
+    example: 4200
+    x-nullable: true
+    x-omitempty: false
+  emptyDocument:
+    $ref: '../internal.yaml#/definitions/DocumentPayload'
+  fullDocument:
+    $ref: '../internal.yaml#/definitions/DocumentPayload'
