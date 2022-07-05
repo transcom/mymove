@@ -45,35 +45,50 @@ func checkRequiredFields() weightTicketValidator {
 		}
 
 		if newWeightTicket.VehicleDescription == nil || *newWeightTicket.VehicleDescription == "" {
-			verrs.Add("VehicleDescription", "VehicleDescription must exist")
+			verrs.Add("VehicleDescription", "Vehicle Description must exist")
 		}
 
 		if newWeightTicket.EmptyWeight == nil || *newWeightTicket.EmptyWeight <= 0 {
-			verrs.Add("EmptyWeight", "EmptyWeight must have a value of at least 0")
+			verrs.Add("EmptyWeight", "Empty Weight must have a value of at least 0")
 		}
 
 		if newWeightTicket.MissingEmptyWeightTicket == nil {
-			verrs.Add("MissingEmptyWeightTicket", "MissingEmptyWeightTicket is required")
-		} else if !*newWeightTicket.MissingEmptyWeightTicket && len(originalWeightTicket.EmptyDocument.UserUploads) < 1 {
-			verrs.Add("EmptyWeightDocument", "At least 1 empty weight file is required")
+			verrs.Add("MissingEmptyWeightTicket", "Missing Empty Weight Ticket is required")
 		}
 
 		if newWeightTicket.FullWeight == nil || *newWeightTicket.FullWeight < 1 {
-			verrs.Add("FullWeight", "FullWeight must have a value of at least 1")
+			verrs.Add("FullWeight", "Full Weight must have a value of at least 1")
+		}
+
+		if newWeightTicket.EmptyWeight != nil && newWeightTicket.FullWeight != nil && *newWeightTicket.FullWeight <= *newWeightTicket.EmptyWeight {
+			verrs.Add("FullWeight", "Full Weight must be greater than Empty Weight")
 		}
 
 		if newWeightTicket.MissingFullWeightTicket == nil {
-			verrs.Add("MissingFullWeightTicket", "MissingFullWeightTicket is required")
-		} else if !*newWeightTicket.MissingFullWeightTicket && len(originalWeightTicket.FullDocument.UserUploads) < 1 {
-			verrs.Add("FullWeightDocument", "At least 1 full weight file is required")
+			verrs.Add("MissingFullWeightTicket", "Missing Full Weight Ticket is required")
+		}
+
+		if newWeightTicket.MissingEmptyWeightTicket != nil && newWeightTicket.MissingFullWeightTicket != nil {
+			if *newWeightTicket.MissingEmptyWeightTicket && *newWeightTicket.MissingFullWeightTicket {
+				if len(originalWeightTicket.EmptyDocument.UserUploads) < 1 && len(originalWeightTicket.FullDocument.UserUploads) < 1 {
+					verrs.Add("WeightDocs", "At least 1 constructed weight file is required")
+				}
+			} else {
+				if len(originalWeightTicket.EmptyDocument.UserUploads) < 1 {
+					verrs.Add("EmptyWeightDocument", "At least 1 empty weight file is required")
+				}
+				if len(originalWeightTicket.FullDocument.UserUploads) < 1 {
+					verrs.Add("FullWeightDocument", "At least 1 full weight file is required")
+				}
+			}
 		}
 
 		if newWeightTicket.OwnsTrailer == nil {
-			verrs.Add("OwnsTrailer", "OwnsTrailer is required")
+			verrs.Add("OwnsTrailer", "Owns Trailer is required")
 		}
 
 		if newWeightTicket.TrailerMeetsCriteria == nil {
-			verrs.Add("TrailerMeetsCriteria", "TrailerMeetsCriteria is required")
+			verrs.Add("TrailerMeetsCriteria", "Trailer Meets Criteria is required")
 		}
 
 		if newWeightTicket.OwnsTrailer != nil && newWeightTicket.TrailerMeetsCriteria != nil {
