@@ -11,6 +11,7 @@ import (
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
@@ -21,7 +22,7 @@ func payloadForMovingExpenseDocumentModel(storer storage.FileStorer, movingExpen
 	moveDocumentType := internalmessages.MoveDocumentType(movingExpenseDocument.MoveDocument.MoveDocumentType)
 	status := internalmessages.MoveDocumentStatus(movingExpenseDocument.MoveDocument.Status)
 
-	documentPayload, err := payloadForDocumentModel(storer, movingExpenseDocument.MoveDocument.Document)
+	documentPayload, err := payloads.PayloadForDocumentModel(storer, movingExpenseDocument.MoveDocument.Document)
 	if err != nil {
 		return nil, err
 	}

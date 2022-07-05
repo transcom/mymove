@@ -18,6 +18,7 @@ import (
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
@@ -43,14 +44,14 @@ func payloadForUploadModelFromAmendedOrdersUpload(storer storage.FileStorer, upl
 }
 
 func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*internalmessages.Orders, error) {
-	orderPayload, err := payloadForDocumentModel(storer, order.UploadedOrders)
+	orderPayload, err := payloads.PayloadForDocumentModel(storer, order.UploadedOrders)
 	if err != nil {
 		return nil, err
 	}
 
 	var amendedOrderPayload *internalmessages.DocumentPayload
 	if order.UploadedAmendedOrders != nil {
-		amendedOrderPayload, err = payloadForDocumentModel(storer, *order.UploadedAmendedOrders)
+		amendedOrderPayload, err = payloads.PayloadForDocumentModel(storer, *order.UploadedAmendedOrders)
 		if err != nil {
 			return nil, err
 		}

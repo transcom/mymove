@@ -13,6 +13,7 @@ import (
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
@@ -20,7 +21,7 @@ import (
 
 func payloadForWeightTicketSetMoveDocumentModel(storer storage.FileStorer, weightTicketSet models.WeightTicketSetDocument) (*internalmessages.MoveDocumentPayload, error) {
 
-	documentPayload, err := payloadForDocumentModel(storer, weightTicketSet.MoveDocument.Document)
+	documentPayload, err := payloads.PayloadForDocumentModel(storer, weightTicketSet.MoveDocument.Document)
 	if err != nil {
 		return nil, err
 	}

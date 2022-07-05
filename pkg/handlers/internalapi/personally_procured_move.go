@@ -12,6 +12,7 @@ import (
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
@@ -19,7 +20,7 @@ import (
 
 func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models.PersonallyProcuredMove) (*internalmessages.PersonallyProcuredMovePayload, error) {
 
-	documentPayload, err := payloadForDocumentModel(storer, personallyProcuredMove.AdvanceWorksheet)
+	documentPayload, err := payloads.PayloadForDocumentModel(storer, personallyProcuredMove.AdvanceWorksheet)
 	var hasProGear *string
 	if personallyProcuredMove.HasProGear != nil {
 		hpg := string(*personallyProcuredMove.HasProGear)
