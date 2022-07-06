@@ -9,7 +9,7 @@ import (
 )
 
 type WeightTicketSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestWeightTicketServiceSuite(t *testing.T) {
