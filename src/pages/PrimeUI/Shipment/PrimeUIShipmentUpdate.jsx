@@ -200,9 +200,27 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         secondaryPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError),
         destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
         secondaryDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError),
-        // TODO: Figure out how to validate this but be optional.
-        // sitEstimatedEntryDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
-        // sitEstimatedDepartureDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+        sitExpected: Yup.boolean().required('Required'),
+        sitLocation: Yup.string().when('sitExpected', {
+          is: true,
+          then: (schema) => schema.required('Required'),
+        }),
+        sitEstimatedWeight: Yup.number().when('sitExpected', {
+          is: true,
+          then: (schema) => schema.required('Required'),
+        }),
+        // TODO: Figure out how to validate this but be optional.  Right now, when you first
+        //   go to the page with sitEnabled of false, the "Save" button remains disabled.
+        // sitEstimatedEntryDate: Yup.date().when('sitExpected', {
+        //   is: true,
+        //   then: (schema) =>
+        //     schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+        // }),
+        // sitEstimatedDepartureDate: Yup.date().when('sitExpected', {
+        //   is: true,
+        //   then: (schema) =>
+        //     schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+        // }),
       }),
     });
   } else {
