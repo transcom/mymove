@@ -52,7 +52,7 @@ describe('components/Office/ShipmentCustomerSIT', () => {
 
     await waitFor(() =>
       expect(onCalculateClick).toBeCalledWith({
-        location: 'destination',
+        location: 'DESTINATION',
         weight: '5725',
         start: '02 May 2022',
         end: '09 May 2022',

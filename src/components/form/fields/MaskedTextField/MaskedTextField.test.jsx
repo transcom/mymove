@@ -49,7 +49,6 @@ describe('MaskedTextField', () => {
       expect(textInputMinimal.prop('className')).toBe('sample-class');
     });
   });
-
   describe('with id prop', () => {
     const wrapper = shallow(
       <MaskedTextField className="sample-class" id="lastName" label="Last Name" type="text" name="lastName" />,

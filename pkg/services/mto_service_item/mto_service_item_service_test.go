@@ -9,7 +9,7 @@ import (
 )
 
 type MTOServiceItemServiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestMTOServiceItemServiceSuite(t *testing.T) {

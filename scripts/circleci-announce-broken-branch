@@ -45,10 +45,13 @@ echo
 curl -X POST --data-urlencode payload="$slack_payload" "$SLACK_WEBHOOK_URL"
 
 #####
+## Log failure to AWS. Failure logs can be found in the log group `aws/lambda/circleci-logging`
 ## Exit and do nothing else unless a deploy job
 #####
 if [[ $CIRCLE_JOB != *"deploy"* ]]; then
   exit 0
+else
+  aws events put-events --entries '[{ "Source": "circleci.logging", "DetailType": "CircleCI failure", "Detail": "{ \"message\": \"'"$message"'\" }"}]'
 fi
 
 #####

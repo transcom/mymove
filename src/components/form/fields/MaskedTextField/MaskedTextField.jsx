@@ -35,6 +35,7 @@ const MaskedTextField = ({
   error,
   suffix,
   prefix,
+  isDisabled,
   ...props
 }) => {
   const [field, metaProps, helpers] = useField({ id, name, validate, ...props });
@@ -79,6 +80,7 @@ const MaskedTextField = ({
               helpers.setTouched(true, false);
             }}
             onBlur={field.onBlur}
+            disabled={isDisabled}
             {...props}
           />
           {suffix && <div className="suffix">{suffix}</div>}
@@ -100,6 +102,7 @@ const MaskedTextField = ({
             helpers.setTouched(true, false);
           }}
           onBlur={field.onBlur}
+          disabled={isDisabled}
           {...props}
         />
       )}
@@ -133,6 +136,7 @@ MaskedTextField.propTypes = {
   optional: PropTypes.bool,
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
+  isDisabled: PropTypes.bool,
 };
 
 MaskedTextField.defaultProps = {
@@ -157,6 +161,7 @@ MaskedTextField.defaultProps = {
   optional: false,
   error: false,
   errorMessage: '',
+  isDisabled: false,
 };
 
 export default MaskedTextField;

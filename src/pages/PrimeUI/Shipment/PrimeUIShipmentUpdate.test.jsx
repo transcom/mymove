@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
+import { useParams } from 'react-router-dom';
 
 import PrimeUIShipmentUpdate from './PrimeUIShipmentUpdate';
 
@@ -11,6 +12,7 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { updatePrimeMTOShipment } from 'services/primeApi';
 
 const shipmentId = 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee';
+const ppmShipmentId = '1b695b60-c3ed-401b-b2e3-808d095eb8cc';
 const moveId = '9c7b255c-2981-4bf8-839f-61c7458e2b4d';
 
 const mockPush = jest.fn();
@@ -114,6 +116,83 @@ const approvedMoveTaskOrder = {
         status: 'APPROVED',
         updatedAt: '2021-10-18T18:24:41.377Z',
         mtoServiceItems: null,
+      },
+      {
+        actualPickupDate: null,
+        approvedDate: null,
+        counselorRemarks: 'These are counselor remarks for a PPM.',
+        createdAt: '2022-07-01T13:41:33.261Z',
+        destinationAddress: {
+          city: null,
+          postalCode: null,
+          state: null,
+          streetAddress1: null,
+        },
+        eTag: 'MjAyMi0wNy0wMVQxNDoyMzoxOS43MzgzODla',
+        firstAvailableDeliveryDate: null,
+        id: '1b695b60-c3ed-401b-b2e3-808d095eb8cc',
+        moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+        pickupAddress: {
+          city: null,
+          postalCode: null,
+          state: null,
+          streetAddress1: null,
+        },
+        ppmShipment: {
+          actualDestinationPostalCode: '30814',
+          actualMoveDate: '2022-07-13',
+          actualPickupPostalCode: '90212',
+          advanceAmountReceived: 598600,
+          advanceAmountRequested: 598700,
+          approvedAt: '2022-07-03T14:20:21.620Z',
+          createdAt: '2022-06-30T13:41:33.265Z',
+          destinationPostalCode: '30813',
+          eTag: 'MjAyMi0wNy0wMVQxNDoyMzoxOS43ODA1Mlo=',
+          estimatedIncentive: 1000000,
+          estimatedWeight: 4000,
+          expectedDepartureDate: '2020-03-15',
+          hasProGear: true,
+          hasReceivedAdvance: true,
+          hasRequestedAdvance: true,
+          id: 'd733fe2f-b08d-434a-ad8d-551f4d597b03',
+          netWeight: 3900,
+          pickupPostalCode: '90210',
+          proGearWeight: 1987,
+          reviewedAt: '2022-07-02T14:20:14.636Z',
+          secondaryDestinationPostalCode: '30814',
+          secondaryPickupPostalCode: '90211',
+          shipmentId: '1b695b60-c3ed-401b-b2e3-808d095eb8cc',
+          sitEstimatedCost: 123456,
+          sitEstimatedDepartureDate: '2022-07-13',
+          sitEstimatedEntryDate: '2022-07-05',
+          sitEstimatedWeight: 1100,
+          sitExpected: true,
+          sitLocation: 'DESTINATION',
+          spouseProGearWeight: 498,
+          status: 'SUBMITTED',
+          submittedAt: '2022-07-01T13:41:33.252Z',
+          updatedAt: '2022-07-01T14:23:19.780Z',
+        },
+        primeEstimatedWeightRecordedDate: null,
+        requestedPickupDate: null,
+        requiredDeliveryDate: null,
+        scheduledPickupDate: null,
+        secondaryDeliveryAddress: {
+          city: null,
+          postalCode: null,
+          state: null,
+          streetAddress1: null,
+        },
+        secondaryPickupAddress: {
+          city: null,
+          postalCode: null,
+          state: null,
+          streetAddress1: null,
+        },
+        shipmentType: 'PPM',
+        status: 'APPROVED',
+        updatedAt: '2022-07-01T14:23:19.738Z',
+        mtoServiceItems: [],
       },
     ],
     order: {
@@ -408,4 +487,36 @@ describe('successful submission of form', () => {
     });
   });
    */
+});
+
+const ppmUpdateShipmentURL = generatePath(primeSimulatorRoutes.UPDATE_SHIPMENT_PATH, {
+  moveCodeOrID: moveId,
+  shipmentId: ppmShipmentId,
+});
+
+const ppmMockedComponent = (
+  <MockProviders initialEntries={[ppmUpdateShipmentURL]}>
+    <PrimeUIShipmentUpdate setFlashMessage={jest.fn()} />
+  </MockProviders>
+);
+
+describe('Update Shipment Page for PPM', () => {
+  it('renders the page without errors', async () => {
+    useParams.mockReturnValue({
+      moveCode: 'LR4T8V',
+      moveCodeOrID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+      shipmentId: ppmShipmentId,
+    });
+
+    usePrimeSimulatorGetMove.mockReturnValue(readyReturnValue);
+
+    render(ppmMockedComponent);
+
+    expect(await screen.findByText('Dates')).toBeInTheDocument();
+    expect(await screen.findByText('Origin Info')).toBeInTheDocument();
+    expect(await screen.findByText('Destination Info')).toBeInTheDocument();
+    expect(await screen.findByText('Storage In Transit (SIT)')).toBeInTheDocument();
+    expect(await screen.findByText('Weights')).toBeInTheDocument();
+    expect(await screen.findByText('Remarks')).toBeInTheDocument();
+  });
 });

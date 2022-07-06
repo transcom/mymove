@@ -1657,12 +1657,6 @@ definitions:
       - bytes
       - created_at
       - updated_at
-  DPSAuthCookieURLPayload:
-    type: object
-    properties:
-      cookie_url:
-        type: string
-        format: uri
   TShirtSize:
     type: string
     x-nullable: true
@@ -2980,6 +2974,10 @@ definitions:
         type: string
         readOnly: true
       createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
         format: date-time
         type: string
         readOnly: true
@@ -4899,35 +4897,6 @@ paths:
           description: invalid request
         '401':
           description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '500':
-          description: internal server error
-  /dps_auth/cookie_url:
-    post:
-      summary: Returns the URL to redirect to that begins DPS auth
-      description: Returns the URL to redirect to that begins DPS auth
-      operationId: getCookieURL
-      tags:
-        - dps_auth
-      parameters:
-        - in: query
-          name: cookie_name
-          type: string
-          description: The name of the cookie to set, DPS by default
-          required: false
-        - in: query
-          name: dps_redirect_url
-          type: string
-          description: The DPS URL to redirec to
-          required: false
-      responses:
-        '200':
-          description: Success
-          schema:
-            $ref: '#/definitions/DPSAuthCookieURLPayload'
-        '400':
-          description: invalid request
         '403':
           description: user is not authorized
         '500':

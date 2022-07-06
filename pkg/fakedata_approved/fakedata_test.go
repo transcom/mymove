@@ -9,7 +9,7 @@ import (
 )
 
 type FakeDataSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestFakeDataSuite(t *testing.T) {

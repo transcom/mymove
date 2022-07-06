@@ -28,6 +28,7 @@ import {
   faFile,
   faFileImage,
   faFilePdf,
+  faFileExcel,
   faHandHoldingUsd,
   faLock,
   faMapMarkerAlt,
@@ -105,4 +106,5 @@ library.add(
   faHandHoldingUsd,
   faFilePdf,
   faFileImage,
+  faFileExcel,
 );

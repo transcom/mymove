@@ -30,28 +30,29 @@ func (f *weightTicketCreator) CreateWeightTicket(appCtx appcontext.AppContext, p
 	var weightTicket models.WeightTicket
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
-		emptyDocument, err := f.addNewDocument(txnCtx)
-		if err != nil {
-			return err
-		}
 
-		fullDocument, err := f.addNewDocument(txnCtx)
-		if err != nil {
-			return err
+		document := models.Document{
+			ServiceMemberID: appCtx.Session().ServiceMemberID,
 		}
+		allDocs := models.Documents{document, document, document}
+		verrs, err := appCtx.DB().ValidateAndCreate(allDocs)
 
-		proofOfOwnership, err := f.addNewDocument(txnCtx)
-		if err != nil {
-			return err
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the Document.")
+		} else if err != nil {
+			return apperror.NewQueryError("Document for WeightTicket", err, "")
 		}
 
 		weightTicket = models.WeightTicket{
-			EmptyDocumentID:                   emptyDocument.ID,
-			FullDocumentID:                    fullDocument.ID,
-			ProofOfTrailerOwnershipDocumentID: proofOfOwnership.ID,
+			EmptyDocument:                     allDocs[0],
+			EmptyDocumentID:                   allDocs[0].ID,
+			FullDocument:                      allDocs[1],
+			FullDocumentID:                    allDocs[1].ID,
+			ProofOfTrailerOwnershipDocument:   allDocs[2],
+			ProofOfTrailerOwnershipDocumentID: allDocs[2].ID,
 			PPMShipmentID:                     ppmShipmentID,
 		}
-		verrs, err := txnCtx.DB().ValidateAndCreate(&weightTicket)
+		verrs, err = txnCtx.DB().ValidateAndCreate(&weightTicket)
 
 		// Check validation errors.
 		if verrs != nil && verrs.HasAny() {
@@ -69,19 +70,4 @@ func (f *weightTicketCreator) CreateWeightTicket(appCtx appcontext.AppContext, p
 	}
 
 	return &weightTicket, nil
-}
-
-func (f *weightTicketCreator) addNewDocument(appCtx appcontext.AppContext) (*models.Document, error) {
-	document := &models.Document{
-		ServiceMemberID: appCtx.Session().ServiceMemberID,
-	}
-	verrs, err := appCtx.DB().ValidateAndCreate(document)
-
-	if verrs != nil && verrs.HasAny() {
-		return nil, apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the Document.")
-	} else if err != nil {
-		return nil, apperror.NewQueryError("Document for WeightTicket", err, "")
-	}
-
-	return document, nil
 }

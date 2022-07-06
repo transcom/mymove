@@ -1,8 +1,13 @@
 package weightticket
 
 import (
+	"database/sql"
+
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -22,7 +27,7 @@ func NewCustomerWeightTicketUpdater() services.WeightTicketUpdater {
 // UpdateWeightTicket updates a weightTicket
 func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, weightTicket models.WeightTicket, eTag string) (*models.WeightTicket, error) {
 	// get existing WeightTicket
-	originalWeightTicket, err := models.FetchWeightTicketByIDExcludeDeletedUploads(appCtx.DB(), weightTicket.ID)
+	originalWeightTicket, err := FetchWeightTicketByIDExcludeDeletedUploads(appCtx, weightTicket.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -65,4 +70,45 @@ func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, w
 	}
 
 	return &mergedWeightTicket, nil
+}
+
+func FetchWeightTicketByIDExcludeDeletedUploads(appContext appcontext.AppContext, weightTicketID uuid.UUID) (*models.WeightTicket, error) {
+	var weightTicket models.WeightTicket
+
+	err := appContext.DB().Scope(utilities.ExcludeDeletedScope()).
+		EagerPreload(
+			"EmptyDocument.UserUploads.Upload",
+			"FullDocument.UserUploads.Upload",
+			"ProofOfTrailerOwnershipDocument.UserUploads.Upload",
+		).
+		Find(&weightTicket, weightTicketID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(weightTicketID, "while looking for WeightTicket")
+		default:
+			return nil, apperror.NewQueryError("WeightTicket fetch original", err, "")
+		}
+	}
+
+	weightTicket.EmptyDocument.UserUploads = FilterDeletedValued(weightTicket.EmptyDocument.UserUploads)
+	weightTicket.FullDocument.UserUploads = FilterDeletedValued(weightTicket.FullDocument.UserUploads)
+	weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = FilterDeletedValued(weightTicket.ProofOfTrailerOwnershipDocument.UserUploads)
+
+	return &weightTicket, nil
+}
+
+func FilterDeletedValued(userUploads models.UserUploads) models.UserUploads {
+	if userUploads == nil {
+		return userUploads
+	}
+
+	filteredUploads := models.UserUploads{}
+	for _, userUpload := range userUploads {
+		if userUpload.DeletedAt == nil {
+			filteredUploads = append(filteredUploads, userUpload)
+		}
+	}
+	return filteredUploads
 }

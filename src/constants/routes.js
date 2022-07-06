@@ -27,6 +27,8 @@ export const customerRoutes = {
   SHIPMENT_PPM_ADVANCES_PATH: '/moves/:moveId/shipments/:mtoShipmentId/advances',
   SHIPMENT_PPM_ABOUT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/about',
   SHIPMENT_PPM_WEIGHT_TICKETS_PATH: '/moves/:moveId/shipments/:mtoShipmentId/weight-tickets',
+  SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/weight-tickets/:weightTicketId',
+  SHIPMENT_PPM_REVIEW_PATH: 'moves/:moveId/shipments/:mtoShipmentId/review',
   MOVE_REVIEW_PATH: '/moves/:moveId/review',
   MOVE_AGREEMENT_PATH: '/moves/:moveId/agreement',
   EDIT_PROFILE_PATH: '/moves/review/edit-profile',
@@ -46,6 +48,7 @@ export const servicesCounselingRoutes = {
   QUEUE_VIEW_PATH: '/counseling/queue',
   SHIPMENT_ADD_PATH: `${BASE_MOVE_PATH}/new-:shipmentType`,
   SHIPMENT_EDIT_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId`,
+  SHIPMENT_ADVANCE_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId/advance`,
   MOVE_HISTORY_PATH: `${BASE_MOVE_PATH}/history`,
   CUSTOMER_SUPPORT_REMARKS_PATH: `/counseling/moves/:moveCode/customer-support-remarks`,
 };

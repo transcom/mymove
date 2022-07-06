@@ -6,8 +6,6 @@ import (
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
 	auth "github.com/transcom/mymove/pkg/auth"
 
-	dpsauth "github.com/transcom/mymove/pkg/dpsauth"
-
 	handlers "github.com/transcom/mymove/pkg/handlers"
 
 	http "net/http"
@@ -95,20 +93,6 @@ func (_m *HandlerConfig) CookieSecret() string {
 		r0 = rf()
 	} else {
 		r0 = ret.Get(0).(string)
-	}
-
-	return r0
-}
-
-// DPSAuthParams provides a mock function with given fields:
-func (_m *HandlerConfig) DPSAuthParams() dpsauth.Params {
-	ret := _m.Called()
-
-	var r0 dpsauth.Params
-	if rf, ok := ret.Get(0).(func() dpsauth.Params); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(dpsauth.Params)
 	}
 
 	return r0
@@ -310,11 +294,6 @@ func (_m *HandlerConfig) SetAppNames(appNames auth.ApplicationServername) {
 // SetCookieSecret provides a mock function with given fields: secret
 func (_m *HandlerConfig) SetCookieSecret(secret string) {
 	_m.Called(secret)
-}
-
-// SetDPSAuthParams provides a mock function with given fields: params
-func (_m *HandlerConfig) SetDPSAuthParams(params dpsauth.Params) {
-	_m.Called(params)
 }
 
 // SetDtodPlanner provides a mock function with given fields: planner

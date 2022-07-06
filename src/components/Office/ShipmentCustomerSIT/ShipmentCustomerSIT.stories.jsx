@@ -1,6 +1,7 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 import ShipmentCustomerSIT from './ShipmentCustomerSIT';
 
@@ -8,6 +9,24 @@ import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTa
 import shipmentFormStyles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
+
+const validationSchema = Yup.object().shape({
+  sitExpected: Yup.boolean().required('Required'),
+  sitEstimatedWeight: Yup.number().when('sitExpected', {
+    is: true,
+    then: (schema) => schema.required('Required'),
+  }),
+  sitEstimatedEntryDate: Yup.date().when('sitExpected', {
+    is: true,
+    then: (schema) =>
+      schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+  }),
+  sitEstimatedDepartureDate: Yup.date().when('sitExpected', {
+    is: true,
+    then: (schema) =>
+      schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+  }),
+});
 
 export default {
   title: 'Office Components / Forms / ShipmentForm / StorageInTransit',
@@ -28,7 +47,7 @@ export default {
 };
 
 export const withoutSIT = () => (
-  <Formik initialValues={{ sitExpected: false }}>
+  <Formik validationSchema={validationSchema} initialValues={{ sitExpected: false }}>
     {() => {
       return (
         <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
@@ -41,6 +60,7 @@ export const withoutSIT = () => (
 
 export const withSIT = () => (
   <Formik
+    validationSchema={validationSchema}
     initialValues={{
       sitExpected: true,
     }}
@@ -58,12 +78,13 @@ withSIT.storyName = 'With SIT';
 
 export const withSITAndData = () => (
   <Formik
+    validationSchema={validationSchema}
     initialValues={{
       sitExpected: true,
-      sitLocation: 'destination',
-      estimatedSITWeight: '5725',
-      estimatedSITStart: '08/05/2022',
-      estimatedSITEnd: '09/07/2022',
+      sitLocation: 'DESTINATION',
+      sitEstimatedWeight: '5725',
+      sitEstimatedEntryDate: '2022-08-05',
+      sitEstimatedDepartureDate: '2022-09-07',
     }}
   >
     {() => {
