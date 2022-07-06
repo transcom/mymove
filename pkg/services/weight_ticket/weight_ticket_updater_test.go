@@ -202,4 +202,30 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(2, len(updatedWeightTicket.FullDocument.UserUploads))
 		suite.Equal(2, len(updatedWeightTicket.ProofOfTrailerOwnershipDocument.UserUploads))
 	})
+
+	suite.Run("Faills to updates when files are missing", func() {
+		appCtx := suite.AppContextForTest()
+
+		originalWeightTicket := setupForTest(appCtx, nil, false, false, false)
+
+		updater := NewCustomerWeightTicketUpdater()
+
+		desiredWeightTicket := &models.WeightTicket{
+			ID:                       originalWeightTicket.ID,
+			VehicleDescription:       models.StringPointer("2004 Toyota Prius"),
+			EmptyWeight:              models.PoundPointer(3000),
+			MissingEmptyWeightTicket: models.BoolPointer(false),
+			FullWeight:               models.PoundPointer(4200),
+			MissingFullWeightTicket:  models.BoolPointer(false),
+			OwnsTrailer:              models.BoolPointer(true),
+			TrailerMeetsCriteria:     models.BoolPointer(true),
+		}
+
+		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+		suite.Nil(updatedWeightTicket)
+		suite.NotNil(updateErr)
+		suite.IsType(apperror.InvalidInputError{}, updateErr)
+		suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
+	})
 }
