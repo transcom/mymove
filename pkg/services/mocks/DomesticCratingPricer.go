@@ -10,8 +10,6 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
-	testing "testing"
-
 	time "time"
 
 	unit "github.com/transcom/mymove/pkg/unit"
@@ -82,8 +80,13 @@ func (_m *DomesticCratingPricer) PriceUsingParams(appCtx appcontext.AppContext, 
 	return r0, r1, r2
 }
 
-// NewDomesticCratingPricer creates a new instance of DomesticCratingPricer. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewDomesticCratingPricer(t testing.TB) *DomesticCratingPricer {
+type mockConstructorTestingTNewDomesticCratingPricer interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewDomesticCratingPricer creates a new instance of DomesticCratingPricer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewDomesticCratingPricer(t mockConstructorTestingTNewDomesticCratingPricer) *DomesticCratingPricer {
 	mock := &DomesticCratingPricer{}
 	mock.Mock.Test(t)
 

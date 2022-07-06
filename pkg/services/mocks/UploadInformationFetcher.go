@@ -8,8 +8,6 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -39,8 +37,13 @@ func (_m *UploadInformationFetcher) FetchUploadInformation(appCtx appcontext.App
 	return r0, r1
 }
 
-// NewUploadInformationFetcher creates a new instance of UploadInformationFetcher. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewUploadInformationFetcher(t testing.TB) *UploadInformationFetcher {
+type mockConstructorTestingTNewUploadInformationFetcher interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewUploadInformationFetcher creates a new instance of UploadInformationFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewUploadInformationFetcher(t mockConstructorTestingTNewUploadInformationFetcher) *UploadInformationFetcher {
 	mock := &UploadInformationFetcher{}
 	mock.Mock.Test(t)
 
