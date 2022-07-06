@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -41,8 +39,13 @@ func (_m *SITExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext
 	return r0, r1
 }
 
-// NewSITExtensionApprover creates a new instance of SITExtensionApprover. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewSITExtensionApprover(t testing.TB) *SITExtensionApprover {
+type mockConstructorTestingTNewSITExtensionApprover interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewSITExtensionApprover creates a new instance of SITExtensionApprover. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewSITExtensionApprover(t mockConstructorTestingTNewSITExtensionApprover) *SITExtensionApprover {
 	mock := &SITExtensionApprover{}
 	mock.Mock.Test(t)
 

@@ -23,7 +23,7 @@ type ErrorsSuite struct {
 
 func TestErrorsSuite(t *testing.T) {
 	hs := &ErrorsSuite{
-		PopTestSuite: *testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()

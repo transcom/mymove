@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -62,8 +60,13 @@ func (_m *MTOShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mt
 	return r0, r1
 }
 
-// NewMTOShipmentUpdater creates a new instance of MTOShipmentUpdater. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMTOShipmentUpdater(t testing.TB) *MTOShipmentUpdater {
+type mockConstructorTestingTNewMTOShipmentUpdater interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewMTOShipmentUpdater creates a new instance of MTOShipmentUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewMTOShipmentUpdater(t mockConstructorTestingTNewMTOShipmentUpdater) *MTOShipmentUpdater {
 	mock := &MTOShipmentUpdater{}
 	mock.Mock.Test(t)
 
