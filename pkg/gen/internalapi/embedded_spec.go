@@ -1592,54 +1592,6 @@ func init() {
         }
       }
     },
-    "/moves/{moveId}/weight_ticket/{ppmShipmentId}": {
-      "post": {
-        "description": "Created a weight ticket document with the given information",
-        "tags": [
-          "move_docs"
-        ],
-        "summary": "Creates a weight ticket document",
-        "operationId": "createWeightTicket",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns new weight ticket object",
-            "schema": {
-              "$ref": "#/definitions/CreateWeightTicket"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "must be authenticated to use this endpoint"
-          },
-          "403": {
-            "description": "not authorized to modify this move"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/moves/{moveTaskOrderID}/mto_shipments": {
       "get": {
         "description": "Gets all MTO shipments for the specified Move Task Order.\n",
@@ -2959,6 +2911,118 @@ func init() {
           }
         }
       }
+    },
+    "/{ppmShipmentId}/weight_ticket": {
+      "post": {
+        "description": "Created a weight ticket document with the given information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a weight ticket document",
+        "operationId": "createWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns new weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/CreateWeightTicket"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "not authorized to modify this move"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/{ppmShipmentId}/weight_ticket/{weightTicketId}": {
+      "put": {
+        "description": "Updates a weight ticket document with the new information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a weight ticket document",
+        "operationId": "updateWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the weight ticket",
+            "name": "weightTicketId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "updateWeightTicketPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/CreateWeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -3823,7 +3887,7 @@ func init() {
         "created_at",
         "updated_at",
         "empty_document_id",
-        "empty_documnt",
+        "empty_document",
         "full_document",
         "full_document_id",
         "proof_of_trailer_ownership_document",
@@ -3838,14 +3902,14 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
+        "empty_document": {
+          "title": "Empty Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
         "empty_document_id": {
           "type": "string",
           "format": "uuid",
           "title": "Empty Document ID"
-        },
-        "empty_documnt": {
-          "title": "Empty Document",
-          "$ref": "#/definitions/DocumentPayload"
         },
         "empty_weight": {
           "type": "integer",
@@ -6756,6 +6820,46 @@ func init() {
         }
       }
     },
+    "UpdateWeightTicket": {
+      "type": "object",
+      "properties": {
+        "empty_weight": {
+          "type": "integer",
+          "title": "Empty Recorded Weight"
+        },
+        "full_weight": {
+          "type": "integer",
+          "title": "full weight ticket recorded weight"
+        },
+        "missing_empty_weight_ticket": {
+          "type": "boolean",
+          "title": "has empty weight ticket",
+          "enum": [
+            "Yes",
+            "No"
+          ]
+        },
+        "missing_full_weight_ticket": {
+          "type": "boolean",
+          "title": "has full weight ticket"
+        },
+        "owns_trailer": {
+          "type": "boolean",
+          "title": "Owns trailer",
+          "x-nullable": true
+        },
+        "trailer_meets_criteria": {
+          "type": "boolean",
+          "title": "Trailer meets criteria",
+          "x-nullable": true
+        },
+        "vehicle_description": {
+          "type": "string",
+          "title": "Vehicle description (ex. 'SUV')",
+          "x-nullable": true
+        }
+      }
+    },
     "UploadPayload": {
       "type": "object",
       "required": [
@@ -8502,54 +8606,6 @@ func init() {
         }
       }
     },
-    "/moves/{moveId}/weight_ticket/{ppmShipmentId}": {
-      "post": {
-        "description": "Created a weight ticket document with the given information",
-        "tags": [
-          "move_docs"
-        ],
-        "summary": "Creates a weight ticket document",
-        "operationId": "createWeightTicket",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns new weight ticket object",
-            "schema": {
-              "$ref": "#/definitions/CreateWeightTicket"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "must be authenticated to use this endpoint"
-          },
-          "403": {
-            "description": "not authorized to modify this move"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/moves/{moveTaskOrderID}/mto_shipments": {
       "get": {
         "description": "Gets all MTO shipments for the specified Move Task Order.\n",
@@ -9935,6 +9991,139 @@ func init() {
           }
         }
       }
+    },
+    "/{ppmShipmentId}/weight_ticket": {
+      "post": {
+        "description": "Created a weight ticket document with the given information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a weight ticket document",
+        "operationId": "createWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns new weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/CreateWeightTicket"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "not authorized to modify this move"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/{ppmShipmentId}/weight_ticket/{weightTicketId}": {
+      "put": {
+        "description": "Updates a weight ticket document with the new information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a weight ticket document",
+        "operationId": "updateWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the weight ticket",
+            "name": "weightTicketId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "updateWeightTicketPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/CreateWeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -10801,7 +10990,7 @@ func init() {
         "created_at",
         "updated_at",
         "empty_document_id",
-        "empty_documnt",
+        "empty_document",
         "full_document",
         "full_document_id",
         "proof_of_trailer_ownership_document",
@@ -10816,14 +11005,14 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
+        "empty_document": {
+          "title": "Empty Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
         "empty_document_id": {
           "type": "string",
           "format": "uuid",
           "title": "Empty Document ID"
-        },
-        "empty_documnt": {
-          "title": "Empty Document",
-          "$ref": "#/definitions/DocumentPayload"
         },
         "empty_weight": {
           "type": "integer",
@@ -13755,6 +13944,48 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
+        }
+      }
+    },
+    "UpdateWeightTicket": {
+      "type": "object",
+      "properties": {
+        "empty_weight": {
+          "type": "integer",
+          "title": "Empty Recorded Weight",
+          "minimum": 0
+        },
+        "full_weight": {
+          "type": "integer",
+          "title": "full weight ticket recorded weight",
+          "minimum": 0
+        },
+        "missing_empty_weight_ticket": {
+          "type": "boolean",
+          "title": "has empty weight ticket",
+          "enum": [
+            "Yes",
+            "No"
+          ]
+        },
+        "missing_full_weight_ticket": {
+          "type": "boolean",
+          "title": "has full weight ticket"
+        },
+        "owns_trailer": {
+          "type": "boolean",
+          "title": "Owns trailer",
+          "x-nullable": true
+        },
+        "trailer_meets_criteria": {
+          "type": "boolean",
+          "title": "Trailer meets criteria",
+          "x-nullable": true
+        },
+        "vehicle_description": {
+          "type": "string",
+          "title": "Vehicle description (ex. 'SUV')",
+          "x-nullable": true
         }
       }
     },

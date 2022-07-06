@@ -29,14 +29,14 @@ type CreateWeightTicket struct {
 	// Format: date-time
 	DeletedAt strfmt.DateTime `json:"deleted_at,omitempty"`
 
+	// Empty Document
+	// Required: true
+	EmptyDocument *DocumentPayload `json:"empty_document"`
+
 	// Empty Document ID
 	// Required: true
 	// Format: uuid
 	EmptyDocumentID *strfmt.UUID `json:"empty_document_id"`
-
-	// Empty Document
-	// Required: true
-	EmptyDocumnt *DocumentPayload `json:"empty_documnt"`
 
 	// Empty Recorded Weight
 	// Minimum: 0
@@ -115,11 +115,11 @@ func (m *CreateWeightTicket) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateEmptyDocumentID(formats); err != nil {
+	if err := m.validateEmptyDocument(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateEmptyDocumnt(formats); err != nil {
+	if err := m.validateEmptyDocumentID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -198,6 +198,26 @@ func (m *CreateWeightTicket) validateDeletedAt(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *CreateWeightTicket) validateEmptyDocument(formats strfmt.Registry) error {
+
+	if err := validate.Required("empty_document", "body", m.EmptyDocument); err != nil {
+		return err
+	}
+
+	if m.EmptyDocument != nil {
+		if err := m.EmptyDocument.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("empty_document")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("empty_document")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *CreateWeightTicket) validateEmptyDocumentID(formats strfmt.Registry) error {
 
 	if err := validate.Required("empty_document_id", "body", m.EmptyDocumentID); err != nil {
@@ -206,26 +226,6 @@ func (m *CreateWeightTicket) validateEmptyDocumentID(formats strfmt.Registry) er
 
 	if err := validate.FormatOf("empty_document_id", "body", "uuid", m.EmptyDocumentID.String(), formats); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (m *CreateWeightTicket) validateEmptyDocumnt(formats strfmt.Registry) error {
-
-	if err := validate.Required("empty_documnt", "body", m.EmptyDocumnt); err != nil {
-		return err
-	}
-
-	if m.EmptyDocumnt != nil {
-		if err := m.EmptyDocumnt.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("empty_documnt")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("empty_documnt")
-			}
-			return err
-		}
 	}
 
 	return nil
@@ -416,7 +416,7 @@ func (m *CreateWeightTicket) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *CreateWeightTicket) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateEmptyDocumnt(ctx, formats); err != nil {
+	if err := m.contextValidateEmptyDocument(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -438,14 +438,14 @@ func (m *CreateWeightTicket) ContextValidate(ctx context.Context, formats strfmt
 	return nil
 }
 
-func (m *CreateWeightTicket) contextValidateEmptyDocumnt(ctx context.Context, formats strfmt.Registry) error {
+func (m *CreateWeightTicket) contextValidateEmptyDocument(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.EmptyDocumnt != nil {
-		if err := m.EmptyDocumnt.ContextValidate(ctx, formats); err != nil {
+	if m.EmptyDocument != nil {
+		if err := m.EmptyDocument.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("empty_documnt")
+				return ve.ValidateName("empty_document")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("empty_documnt")
+				return ce.ValidateName("empty_document")
 			}
 			return err
 		}

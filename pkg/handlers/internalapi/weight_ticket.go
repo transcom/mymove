@@ -5,8 +5,10 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/transcom/mymove/pkg/appcontext"
-	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
+	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -28,9 +30,10 @@ func (h CreateWeightTicketHandler) Handle(params weightticketops.CreateWeightTic
 			// NO NEED FOR payload_to_model, will need for Update
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
 			if err != nil {
-				appCtx.Logger().Error("internalapi.CreateWeightTicketHandler", zap.Error(err))
+				appCtx.Logger().Error("missing PPM Shipment ID", zap.Error(err))
+				return weightticketops.NewCreateWeightTicketBadRequest(), nil
 			}
-			// ADD AN ERROR CHECK HERE for ppmShipmentID
+
 			var weightTicket *models.WeightTicket
 			weightTicket, err = h.weightTicketCreator.CreateWeightTicket(appCtx, ppmShipmentID)
 
@@ -39,9 +42,93 @@ func (h CreateWeightTicketHandler) Handle(params weightticketops.CreateWeightTic
 				// Can get a status error
 				// Can get an DB error - does the weight ticket, doc create?
 				// Can get an error for whether the PPM exist
-				// ADD SWITCH STATEMENT
+				switch err.(type) {
+				case apperror.ForbiddenError:
+					return weightticketops.NewCreateWeightTicketForbidden(), err
+				case apperror.UnprocessableEntityError:
+					return weightticketops.NewCreateWeightTicketUnauthorized(), err
+				default:
+					return weightticketops.NewCreateWeightTicketInternalServerError(), err
+				}
 			}
 			returnPayload := payloads.CreateWeightTicket(weightTicket)
 			return weightticketops.NewCreateWeightTicketOK().WithPayload(returnPayload), nil
+		})
+}
+
+// UpdateWeightTicketHandler
+type UpdateWeightTicketHandler struct {
+	handlers.HandlerConfig
+	weightTicketUpdater services.WeightTicketUpdater
+}
+
+func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTicketParams) middleware.Responder {
+	// track every request with middleware:
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			if appCtx.Session() == nil {
+				noSessionErr := apperror.NewSessionError("No user session")
+				return weightticketops.NewUpdateWeightTicketUnauthorized(), noSessionErr
+			}
+
+			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
+				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
+				return weightticketops.NewUpdateWeightTicketForbidden(), noServiceMemberIDErr
+			}
+
+			payload := params.UpdateWeightTicketPayload
+			if payload == nil {
+				noBodyErr := apperror.NewBadDataError("Invalid weight ticket: params UpdateWeightTicketPayload is nil")
+				appCtx.Logger().Error(noBodyErr.Error())
+				return weightticketops.NewUpdateWeightTicketBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+					"The Weight Ticket request payload cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest))), noBodyErr
+			}
+
+			weightTicket := payloads.WeightTicketModelFromUpdate(payload)
+			weightTicket.ID = uuid.FromStringOrNil(params.WeightTicketID.String())
+
+			updateWeightTicket, err := h.weightTicketUpdater.UpdateWeightTicket(appCtx, *weightTicket, params.IfMatch)
+
+			if err != nil {
+				appCtx.Logger().Error("internalapi.UpdateWeightTicketHandler", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.InvalidInputError:
+					return weightticketops.NewUpdateWeightTicketUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
+				case apperror.PreconditionFailedError:
+					return weightticketops.NewUpdateWeightTicketPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.QueryError:
+					if e.Unwrap() != nil {
+						// If you can unwrap, log the internal error (usually a pq error) for better debugging
+						appCtx.
+							Logger().
+							Error(
+								"internalapi.UpdateWeightTicketHandler error",
+								zap.Error(e.Unwrap()),
+							)
+					}
+					return weightticketops.
+						NewUpdateWeightTicketInternalServerError().
+						WithPayload(
+							payloads.InternalServerError(
+								nil,
+								h.GetTraceIDFromRequest(params.HTTPRequest),
+							),
+						), err
+				default:
+					return weightticketops.
+						NewUpdateWeightTicketInternalServerError().
+						WithPayload(
+							payloads.InternalServerError(
+								nil,
+								h.GetTraceIDFromRequest(params.HTTPRequest),
+							),
+						), err
+				}
+
+				// return new update for Weight Ticket w/ OK response
+			}
+			returnPayload := payloads.UpdateWeightTicket(*updateWeightTicket)
+			return weightticketops.NewUpdateWeightTicketOK().WithPayload(returnPayload), nil
 		})
 }

@@ -1040,7 +1040,7 @@ definitions:
         title: Empty Document ID
         type: string
         format: uuid
-      empty_documnt:
+      empty_document:
         title: Empty Document
         $ref: '#/definitions/DocumentPayload'
       full_weight:
@@ -1080,11 +1080,43 @@ definitions:
       - created_at
       - updated_at
       - empty_document_id
-      - empty_documnt
+      - empty_document
       - full_document
       - full_document_id
       - proof_of_trailer_ownership_document
       - proof_of_trailer_ownership_document_id
+  UpdateWeightTicket:
+    type: object
+    properties:
+      vehicle_description:
+        type: string
+        title: Vehicle description (ex. 'SUV')
+        x-nullable: true
+      empty_weight:
+        type: integer
+        title: Empty Recorded Weight
+        minimum: 0
+      missing_empty_weight_ticket:
+        type: boolean
+        title: has empty weight ticket
+        enum:
+          - 'Yes'
+          - 'No'
+      full_weight:
+        title: full weight ticket recorded weight
+        type: integer
+        minimum: 0
+      missing_full_weight_ticket:
+        title: has full weight ticket
+        type: boolean
+      owns_trailer:
+        title: Owns trailer
+        type: boolean
+        x-nullable: true
+      trailer_meets_criteria:
+        title: Trailer meets criteria
+        type: boolean
+        x-nullable: true
   OfficeUser:
     type: object
     properties:
@@ -4417,26 +4449,20 @@ paths:
           description: not authorized to modify this move
         '500':
           description: server error
-  /moves/{moveId}/weight_ticket/{ppmShipmentId}:
+  /{ppmShipmentId}/weight_ticket:
     post:
       summary: Creates a weight ticket document
       description: Created a weight ticket document with the given information
       operationId: createWeightTicket
       tags:
-        - move_docs
+        - ppm
       parameters:
-        - name: moveId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
         - name: ppmShipmentId
           in: path
           type: string
           format: uuid
           required: true
-          description: UUID of the move
+          description: UUID of the ppm shipment
       responses:
         '200':
           description: returns new weight ticket object
@@ -4450,6 +4476,57 @@ paths:
           description: not authorized to modify this move
         '500':
           description: server error
+  /{ppmShipmentId}/weight_ticket/{weightTicketId}:
+    put:
+      summary: Updates a weight ticket document
+      description: Updates a weight ticket document with the new information
+      operationId: updateWeightTicket
+      tags:
+        - ppm
+      parameters:
+        - name: ppmShipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppm shipment
+        - name: weightTicketId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the weight ticket
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - in: body
+          name: updateWeightTicketPayload
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateWeightTicket'
+      responses:
+        '200':
+          description: returns an updated weight ticket object
+          schema:
+            $ref: '#/definitions/CreateWeightTicket'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /rate_engine_postal_codes/{postal_code}:
     get:
       summary: Validate if a zipcode is valid for origin or destination location for a move.

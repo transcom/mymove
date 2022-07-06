@@ -228,3 +228,20 @@ func MTOShipmentModel(mtoShipment *internalmessages.MTOShipment) *models.MTOShip
 
 	return model
 }
+
+// WeightTicketModelFromUpdate
+func WeightTicketModelFromUpdate(weightTicket *internalmessages.UpdateWeightTicket) *models.WeightTicket {
+	if weightTicket == nil {
+		return nil
+	}
+	model := &models.WeightTicket{
+		VehicleDescription:       weightTicket.VehicleDescription,
+		EmptyWeight:              handlers.PoundPtrFromInt64Ptr(weightTicket.EmptyWeight),
+		MissingEmptyWeightTicket: handlers.FmtBool(weightTicket.MissingEmptyWeightTicket),
+		FullWeight:               handlers.PoundPtrFromInt64Ptr(weightTicket.FullWeight),
+		MissingFullWeightTicket:  handlers.FmtBool(weightTicket.MissingFullWeightTicket),
+		OwnsTrailer:              weightTicket.OwnsTrailer,
+		TrailerMeetsCriteria:     weightTicket.TrailerMeetsCriteria,
+	}
+	return model
+}
