@@ -646,6 +646,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 				Essential: aws.Bool(true),
 				Command: aws.StringSlice([]string{
 					"--config=/etc/ecs/container-insights/otel-task-metrics-config.yaml",
+					"--set=service.telemetry.logs.level=ERROR",
 				}),
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),
