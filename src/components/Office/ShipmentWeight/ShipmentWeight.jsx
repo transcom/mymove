@@ -1,18 +1,16 @@
 import React from 'react';
 import { Fieldset, FormGroup, Radio, Grid, Label } from '@trussworks/react-uswds';
 import { useField } from 'formik';
-import PropTypes from 'prop-types';
 
 import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
-const ShipmentWeight = ({ authorizedWeight }) => {
+const ShipmentWeight = () => {
   const [proGearInput, , hasProGearHelper] = useField('hasProGear');
-  const [estimatedWeight, , estimatedWeightHelper] = useField('estimatedWeight');
+  const [, , estimatedWeightHelper] = useField('estimatedWeight');
 
-  const estimatedWeightValue = Number(estimatedWeight.value || '0');
   const hasProGear = proGearInput.value === true;
 
   const handleProGear = (event) => {
@@ -28,7 +26,7 @@ const ShipmentWeight = ({ authorizedWeight }) => {
         <h2 className={styles.SectionHeader}>Weight</h2>
 
         <Grid row gap>
-          <Grid col={12}>
+          <Grid col={6}>
             <MaskedTextField
               name="estimatedWeight"
               label="Estimated PPM weight"
@@ -40,14 +38,9 @@ const ShipmentWeight = ({ authorizedWeight }) => {
               lazy={false} // immediate masking evaluation
               suffix="lbs"
               onChange={handleEstimatedWeight}
-              warning={
-                estimatedWeightValue > authorizedWeight
-                  ? "Note: This weight exceeds the customer's weight allowance."
-                  : ''
-              }
             />
+            <Label className={styles.Label}>Pro-gear?</Label>
             <FormGroup>
-              <Label className={styles.Label}>Pro-gear?</Label>
               <Radio
                 id="hasProGearYes"
                 label="Yes"
@@ -103,11 +96,3 @@ const ShipmentWeight = ({ authorizedWeight }) => {
 };
 
 export default ShipmentWeight;
-
-ShipmentWeight.propTypes = {
-  authorizedWeight: PropTypes.string,
-};
-
-ShipmentWeight.defaultProps = {
-  authorizedWeight: '0',
-};

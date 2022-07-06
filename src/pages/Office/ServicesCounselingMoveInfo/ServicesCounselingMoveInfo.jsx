@@ -145,6 +145,15 @@ const ServicesCounselingMoveInfo = () => {
             render={(props) => <ServicesCounselingEditShipmentDetails {...props} onUpdate={onInfoSavedUpdate} />}
           />
 
+          <Route
+            path={servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH}
+            exact
+            render={(props) => (
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              <ServicesCounselingEditShipmentDetails {...props} onUpdate={onInfoSavedUpdate} isAdvancePage />
+            )}
+          />
+
           {/* TODO - clarify role/tab access */}
           <Redirect from={servicesCounselingRoutes.BASE_MOVE_PATH} to={servicesCounselingRoutes.MOVE_VIEW_PATH} />
         </Switch>
