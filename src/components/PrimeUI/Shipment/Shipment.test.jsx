@@ -4,7 +4,13 @@ import userEvent from '@testing-library/user-event';
 
 import Shipment from './Shipment';
 
-import { formatDateFromIso, formatPrimeAPIFullAddress } from 'utils/formatters';
+import {
+  formatCents,
+  formatDateFromIso,
+  formatPrimeAPIFullAddress,
+  formatYesNoInputValue,
+  toDollarString,
+} from 'utils/formatters';
 import { MockProviders } from 'testUtils';
 
 const shipmentId = 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee';
@@ -19,6 +25,7 @@ const approvedMoveTaskOrder = {
         actualPickupDate: '2020-03-17',
         agents: [],
         approvedDate: '2021-10-20',
+        counselorRemarks: 'These are counselor remarks for an HHG.',
         createdAt: '2021-10-21',
         customerRemarks: 'Please treat gently',
         destinationAddress: {
@@ -170,6 +177,10 @@ describe('Shipment details component', () => {
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toBe(shipment.approvedDate);
 
+    field = screen.getByText('Counselor Remarks:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.counselorRemarks);
+
     // This is an HHG, so make sure elements that are specific to PPMs are not visible.
     const deleteShipmentButton = screen.queryByText(/Delete Shipment/, { selector: 'button' });
     expect(deleteShipmentButton).not.toBeInTheDocument();
@@ -244,31 +255,81 @@ describe('Shipment has missing reweigh', () => {
 });
 
 const ppmShipment = {
-  approvedDate: '2022-05-24',
-  createdAt: '2022-05-24T21:06:35.888Z',
-  eTag: 'MjAyMi0wNS0yNFQyMTowNzoyMS4wNjc0MzJa',
-  id: '88ececed-eaf1-42e2-b060-cd90d11ad080',
-  moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+  actualPickupDate: null,
+  approvedDate: null,
+  counselorRemarks: 'These are counselor remarks for a PPM.',
+  createdAt: '2022-07-01T13:41:33.261Z',
+  destinationAddress: {
+    city: null,
+    postalCode: null,
+    state: null,
+    streetAddress1: null,
+  },
+  eTag: 'MjAyMi0wNy0wMVQxNDoyMzoxOS43MzgzODla',
+  firstAvailableDeliveryDate: null,
+  id: '1b695b60-c3ed-401b-b2e3-808d095eb8cc',
+  moveTaskOrderID: '7024c8c5-52ca-4639-bf69-dd8238308c98',
+  pickupAddress: {
+    city: null,
+    postalCode: null,
+    state: null,
+    streetAddress1: null,
+  },
   ppmShipment: {
-    advance: 598700,
-    advanceRequested: true,
-    createdAt: '2022-05-24T21:06:35.901Z',
+    actualDestinationPostalCode: '30814',
+    actualMoveDate: '2022-07-13',
+    actualPickupPostalCode: '90212',
+    advanceAmountReceived: 598600,
+    advanceAmountRequested: 598700,
+    approvedAt: '2022-07-03T14:20:21.620Z',
+    createdAt: '2022-06-30T13:41:33.265Z',
     destinationPostalCode: '30813',
-    eTag: 'MjAyMi0wNS0yNFQyMTowNjozNS45MDEwMjNa',
+    eTag: 'MjAyMi0wNy0wMVQxNDoyMzoxOS43ODA1Mlo=',
     estimatedIncentive: 1000000,
     estimatedWeight: 4000,
     expectedDepartureDate: '2020-03-15',
-    hasProGear: false,
-    id: '5b21b808-6933-43ea-8f6f-02fc0a639835',
+    hasProGear: true,
+    hasReceivedAdvance: true,
+    hasRequestedAdvance: true,
+    id: 'd733fe2f-b08d-434a-ad8d-551f4d597b03',
+    netWeight: 3900,
     pickupPostalCode: '90210',
-    shipmentId: '88ececed-eaf1-42e2-b060-cd90d11ad080',
+    proGearWeight: 1987,
+    reviewedAt: '2022-07-02T14:20:14.636Z',
+    secondaryDestinationPostalCode: '30814',
+    secondaryPickupPostalCode: '90211',
+    shipmentId: '1b695b60-c3ed-401b-b2e3-808d095eb8cc',
+    sitEstimatedCost: 123456,
+    sitEstimatedDepartureDate: '2022-07-13',
+    sitEstimatedEntryDate: '2022-07-05',
+    sitEstimatedWeight: 1100,
+    sitExpected: true,
+    sitLocation: 'DESTINATION',
+    spouseProGearWeight: 498,
     status: 'SUBMITTED',
-    submittedAt: '2022-05-24T21:06:35.890Z',
-    updatedAt: '2022-05-24T21:06:35.901Z',
+    submittedAt: '2022-07-01T13:41:33.252Z',
+    updatedAt: '2022-07-01T14:23:19.780Z',
+  },
+  primeEstimatedWeightRecordedDate: null,
+  requestedPickupDate: null,
+  requiredDeliveryDate: null,
+  scheduledPickupDate: null,
+  secondaryDeliveryAddress: {
+    city: null,
+    postalCode: null,
+    state: null,
+    streetAddress1: null,
+  },
+  secondaryPickupAddress: {
+    city: null,
+    postalCode: null,
+    state: null,
+    streetAddress1: null,
   },
   shipmentType: 'PPM',
   status: 'APPROVED',
-  updatedAt: '2022-05-24T21:07:21.067Z',
+  updatedAt: '2022-07-01T14:23:19.738Z',
+  mtoServiceItems: [],
 };
 
 const ppmShipmentWaitingOnCustomer = {
@@ -285,16 +346,62 @@ const ppmShipmentMissingObject = {
 };
 
 describe('PPM shipments are handled', () => {
-  it('renders the component when shipment is a PPM', () => {
+  it('PPM fields header is present', () => {
     render(
       <MockProviders>
         <Shipment shipment={ppmShipment} moveId={moveId} />
       </MockProviders>,
     );
 
-    const field = screen.getByText('PPM Status:');
-    expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.textContent).toBe(ppmShipment.ppmShipment.status);
+    const ppmFieldsHeader = screen.getByRole('heading', { name: 'PPM-specific fields', level: 4 });
+    expect(ppmFieldsHeader).toBeInTheDocument();
+  });
+
+  const ppmShipmentFields = ppmShipment.ppmShipment;
+
+  it.each([
+    ['PPM Status:', ppmShipmentFields.status],
+    ['PPM Shipment ID:', ppmShipmentFields.id],
+    ['PPM Shipment eTag:', ppmShipmentFields.eTag],
+    ['PPM Created at:', formatDateFromIso(ppmShipmentFields.createdAt, 'YYYY-MM-DD')],
+    ['PPM Updated at:', formatDateFromIso(ppmShipmentFields.updatedAt, 'YYYY-MM-DD')],
+    ['PPM Expected Departure Date:', formatDateFromIso(ppmShipmentFields.expectedDepartureDate, 'YYYY-MM-DD')],
+    ['PPM Actual Move Date:', formatDateFromIso(ppmShipmentFields.actualMoveDate, 'YYYY-MM-DD')],
+    ['PPM Submitted at:', formatDateFromIso(ppmShipmentFields.submittedAt, 'YYYY-MM-DD')],
+    ['PPM Reviewed at:', formatDateFromIso(ppmShipmentFields.reviewedAt, 'YYYY-MM-DD')],
+    ['PPM Approved at:', formatDateFromIso(ppmShipmentFields.approvedAt, 'YYYY-MM-DD')],
+    ['PPM Pickup Postal Code:', ppmShipmentFields.pickupPostalCode],
+    ['PPM Secondary Pickup Postal Code:', ppmShipmentFields.secondaryPickupPostalCode],
+    ['PPM Destination Postal Code:', ppmShipmentFields.destinationPostalCode],
+    ['PPM Secondary Destination Postal Code:', ppmShipmentFields.secondaryDestinationPostalCode],
+    ['PPM SIT Expected:', formatYesNoInputValue(ppmShipmentFields.sitExpected)],
+    ['PPM Estimated Weight:', ppmShipmentFields.estimatedWeight.toString()],
+    ['PPM Net Weight:', ppmShipmentFields.netWeight.toString()],
+    ['PPM Has Pro Gear:', formatYesNoInputValue(ppmShipmentFields.hasProGear)],
+    ['PPM Pro Gear Weight:', ppmShipmentFields.proGearWeight.toString()],
+    ['PPM Spouse Pro Gear Weight:', ppmShipmentFields.spouseProGearWeight.toString()],
+    ['PPM Estimated Incentive:', toDollarString(formatCents(ppmShipmentFields.estimatedIncentive))],
+    ['PPM SIT Location:', ppmShipmentFields.sitLocation],
+    ['PPM SIT Estimated Weight:', ppmShipmentFields.sitEstimatedWeight.toString()],
+    ['PPM SIT Estimated Entry Date:', formatDateFromIso(ppmShipmentFields.sitEstimatedEntryDate, 'YYYY-MM-DD')],
+    ['PPM SIT Estimated Departure Date:', formatDateFromIso(ppmShipmentFields.sitEstimatedDepartureDate, 'YYYY-MM-DD')],
+    ['PPM SIT Estimated Cost:', toDollarString(formatCents(ppmShipmentFields.sitEstimatedCost))],
+    ['PPM Actual Pickup Postal Code:', ppmShipmentFields.actualPickupPostalCode],
+    ['PPM Actual Destination Postal Code:', ppmShipmentFields.actualDestinationPostalCode],
+    ['PPM Has Requested Advance:', formatYesNoInputValue(ppmShipmentFields.hasRequestedAdvance)],
+    ['PPM Advance Amount Requested:', toDollarString(formatCents(ppmShipmentFields.advanceAmountRequested))],
+    ['PPM Has Received Advance:', formatYesNoInputValue(ppmShipmentFields.hasReceivedAdvance)],
+    ['PPM Advance Amount Received:', toDollarString(formatCents(ppmShipmentFields.advanceAmountReceived))],
+  ])('PPM shipment field %s with value %s is present', async (ppmShipmentField, ppmShipmentFieldValue) => {
+    render(
+      <MockProviders>
+        <Shipment shipment={ppmShipment} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    const field = screen.getByText(ppmShipmentField);
+    await expect(field).toBeInTheDocument();
+    await expect(field.nextElementSibling.textContent).toBe(ppmShipmentFieldValue);
   });
 
   it('PPM can be deleted', () => {
