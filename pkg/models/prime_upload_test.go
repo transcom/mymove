@@ -77,7 +77,7 @@ func (suite *ModelSuite) TestFetchPrimeUpload() {
 
 	verrs, err := suite.DB().ValidateAndSave(&upload)
 	if err != nil {
-		t.Fatalf("could not save PrimeUpload: %v", err)
+		t.Errorf("could not save PrimeUpload: %v", err)
 	}
 
 	if verrs.Count() != 0 {
@@ -91,7 +91,7 @@ func (suite *ModelSuite) TestFetchPrimeUpload() {
 
 	verrs, err = suite.DB().ValidateAndSave(&primeUpload)
 	if err != nil {
-		t.Fatalf("could not save PrimeUpload: %v", err)
+		t.Errorf("could not save PrimeUpload: %v", err)
 	}
 
 	if verrs.Count() != 0 {
@@ -120,7 +120,7 @@ func (suite *ModelSuite) TestFetchDeletedPrimeUpload() {
 
 	verrs, err := suite.DB().ValidateAndSave(&upload)
 	if err != nil {
-		t.Fatalf("could not save Upload: %v", err)
+		t.Errorf("could not save Upload: %v", err)
 	}
 
 	if verrs.Count() != 0 {
@@ -136,7 +136,7 @@ func (suite *ModelSuite) TestFetchDeletedPrimeUpload() {
 
 	verrs, err = suite.DB().ValidateAndSave(&primeUpload)
 	if err != nil {
-		t.Fatalf("could not save PrimeUpload: %v", err)
+		t.Errorf("could not save PrimeUpload: %v", err)
 	}
 
 	if verrs.Count() != 0 {

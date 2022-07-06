@@ -92,6 +92,7 @@ describe('EditOrders Page', () => {
         bytes: 1,
         url: 'url',
         filename: 'Test Upload',
+        content_type: 'application/pdf',
       },
     ],
     context: { flags: { allOrdersTypes: true } },

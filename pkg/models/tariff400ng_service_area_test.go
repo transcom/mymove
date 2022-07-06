@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	. "github.com/transcom/mymove/pkg/models"
@@ -10,7 +9,7 @@ import (
 )
 
 func (suite *ModelSuite) Test_Tariff400ngServiceAreaValidation() {
-	suite.T().Run("test valid Tariff400ngServiceArea", func(t *testing.T) {
+	suite.Run("test valid Tariff400ngServiceArea", func() {
 		now := time.Now()
 		validTariff400ngServiceArea := Tariff400ngServiceArea{
 			Name:               "Birmingham, AL",
@@ -28,7 +27,7 @@ func (suite *ModelSuite) Test_Tariff400ngServiceAreaValidation() {
 		suite.verifyValidationErrors(&validTariff400ngServiceArea, expErrors)
 	})
 
-	suite.T().Run("test invalid Tariff400ngServiceArea", func(t *testing.T) {
+	suite.Run("test invalid Tariff400ngServiceArea", func() {
 		invalidTariff400ngServiceArea := Tariff400ngServiceArea{}
 		expErrors := map[string][]string{
 			"name":                 {"Name can not be blank."},
@@ -43,7 +42,7 @@ func (suite *ModelSuite) Test_Tariff400ngServiceAreaValidation() {
 		suite.verifyValidationErrors(&invalidTariff400ngServiceArea, expErrors)
 	})
 
-	suite.T().Run("test other validations not exercised above for Tariff400ngServiceArea", func(t *testing.T) {
+	suite.Run("test other validations not exercised above for Tariff400ngServiceArea", func() {
 		now := time.Now()
 		invalidTariff400ngServiceArea := Tariff400ngServiceArea{
 			Name:               "Birmingham, AL",

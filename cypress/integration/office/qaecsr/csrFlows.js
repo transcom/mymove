@@ -19,9 +19,8 @@ describe('Customer Support User Flows', () => {
     const userId = 'b264abd6-52fc-4e42-9e0f-173f7d217bc5';
     cy.apiSignInAsUser(userId, QAECSROfficeUserType);
   });
-
   // This test performs a mutation so it can only succeed on a fresh DB.
-  it('is able to add and edit a remark', () => {
+  it('is able to add, edit, and delete a remark', () => {
     const moveLocator = 'TEST12';
     const testRemarkText = 'This is a test remark';
     const editString = '-edit';
@@ -61,6 +60,41 @@ describe('Customer Support User Flows', () => {
     cy.contains('No remarks yet').should('not.exist');
     cy.contains(testRemarkText).should('exist');
 
+    // Open delete modal
+    cy.get('[data-testid="modal"]').should('not.exist');
+    cy.get('[data-testid="delete-remark-button"]').click();
+    cy.get('[data-testid="modal"]').should('exist');
+    cy.contains('Are you sure you want to delete this remark').should('exist');
+    cy.contains('You cannot undo this action').should('exist');
+    cy.contains('Yes, Delete').should('exist');
+    cy.contains('No, keep it').should('exist');
+
+    // Exit modal with cancel button
+    cy.get('[data-testid=modalBackButton]').click();
+
+    // Open the delete modal again
+    cy.get('[data-testid="delete-remark-button"]').click();
+
+    // Exit modal with the X button
+    cy.get('[data-testid=modalCloseButton]').click();
+
+    // Delete the remark for real
+    cy.get('[data-testid="delete-remark-button"]').click();
+    cy.contains('Yes, Delete').click();
+
+    // Make sure success alert is shown
+    cy.contains('Your remark has been deleted').should('exist');
+
+    // Validate that the deleted remark is not on the page
+    cy.wait(['@getCustomerSupportRemarks']);
+    cy.contains(testRemarkText).should('not.exist');
+    cy.contains('No remarks yet').should('exist');
+
+    // Add a new remark
+    cy.get('[data-testid="textarea"]').type(testRemarkText);
+    cy.get('[data-testid=form] > [data-testid=button]').should('not.have.attr', 'disabled');
+    cy.get('[data-testid=form] > [data-testid=button]').click();
+
     // Open edit and cancel
     cy.get('[data-testid="edit-remark-button"]').click();
     cy.get('[data-testid="edit-remark-textarea"]').type(editString);
@@ -86,7 +120,7 @@ describe('Customer Support User Flows', () => {
     cy.contains('Sign out').click();
     cy.apiSignInAsUser('3b2cc1b0-31a2-4d1b-874f-0591f9127374', TIOOfficeUserType);
 
-    // Validate another user can not edit the remark
+    // Validate another user can not edit or delete the remark
     cy.contains(moveLocator).click();
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments']);
 
@@ -97,6 +131,6 @@ describe('Customer Support User Flows', () => {
     // Edited remark should exist but no edit/delete buttons as I am a different user
     cy.contains(testRemarkText + editString).should('exist');
     cy.get('[data-testid="edit-remark-button"]').should('not.exist');
-    cy.get('[data-testid="edit-remark-delete-button"]').should('not.exist');
+    cy.get('[data-testid="delete-remark-button"]').should('not.exist');
   });
 });

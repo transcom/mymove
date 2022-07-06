@@ -1,8 +1,6 @@
 package webhooksubscription
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -15,10 +13,9 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionFetcher() {
 	builder := query.NewQueryBuilder()
 	fetcher := NewWebhookSubscriptionFetcher(builder)
 
-	webhookSubscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
-	webhookSubscriptionID := webhookSubscription.ID
-
-	suite.T().Run("Get a webhook subscription successfully", func(t *testing.T) {
+	suite.Run("Get a webhook subscription successfully", func() {
+		webhookSubscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
+		webhookSubscriptionID := webhookSubscription.ID
 		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", webhookSubscription.ID.String())}
 
 		webhookSubscription, err := fetcher.FetchWebhookSubscription(suite.AppContextForTest(), filters)
@@ -27,7 +24,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionFetcher() {
 		suite.Equal(webhookSubscriptionID, webhookSubscription.ID)
 	})
 
-	suite.T().Run("Failure to fetch - return empty webhookSubscription and error", func(t *testing.T) {
+	suite.Run("Failure to fetch - return empty webhookSubscription and error", func() {
 		fakeID, err := uuid.NewV4()
 		suite.NoError(err)
 

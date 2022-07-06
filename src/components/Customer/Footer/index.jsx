@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import iconFacebook from 'uswds/src/img/usa-icons/facebook.svg';
+import iconTwitter from 'uswds/src/img/usa-icons/twitter.svg';
 
 import transcomEmblem from 'shared/images/transcom-emblem.svg';
 
@@ -59,22 +61,22 @@ function Footer() {
               <div className="usa-footer__social-links grid-row grid-gap-1">
                 <div className="grid-col-auto">
                   <a
-                    className="usa-social-link usa-social-link--twitter"
+                    className="usa-social-link"
                     href="https://twitter.com/us_transcom"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <span>Twitter</span>
+                    <img className="usa-social-link__icon" src={iconTwitter} alt="Twitter" />
                   </a>
                 </div>
                 <div className="grid-col-auto">
                   <a
-                    className="usa-social-link usa-social-link--facebook"
+                    className="usa-social-link"
                     href="https://www.facebook.com/USTRANSCOM/"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <span>Facebook</span>
+                    <img className="usa-social-link__icon" src={iconFacebook} alt="Facebook" />
                   </a>
                 </div>
               </div>

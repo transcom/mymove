@@ -7,9 +7,10 @@ import { Dropdown, FormGroup, Label } from '@trussworks/react-uswds';
 import { ErrorMessage } from 'components/form/ErrorMessage';
 // import { OptionalTag } from 'components/form/OptionalTag';
 import { DropdownArrayOf } from 'types/form';
+import './DropdownInput.module.scss';
 
 export const DropdownInput = (props) => {
-  const { id, name, label, options, showDropdownPlaceholderText, ...inputProps } = props;
+  const { id, name, label, options, showDropdownPlaceholderText, isDisabled, ...inputProps } = props;
   const [field, meta] = useField(props);
   const hasError = meta.touched && !!meta.error;
 
@@ -26,7 +27,7 @@ export const DropdownInput = (props) => {
       </div>
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-      <Dropdown id={inputId.current} {...field} {...inputProps}>
+      <Dropdown id={inputId.current} {...field} disabled={isDisabled} {...inputProps}>
         {showDropdownPlaceholderText && <option value="">- Select -</option>}
         {options &&
           options.map(({ key, value }) => (
@@ -49,11 +50,13 @@ DropdownInput.propTypes = {
   // ex: [ { key: 'key', value: 'value' } ]
   options: DropdownArrayOf.isRequired,
   showDropdownPlaceholderText: PropTypes.bool,
+  isDisabled: PropTypes.bool,
 };
 
 DropdownInput.defaultProps = {
   id: undefined,
   showDropdownPlaceholderText: true,
+  isDisabled: false,
 };
 
 export default DropdownInput;

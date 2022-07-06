@@ -19,7 +19,7 @@ import (
 )
 
 type PricingParserSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 	xlsxFilename string
 	xlsxFile     *xlsx.File
 }

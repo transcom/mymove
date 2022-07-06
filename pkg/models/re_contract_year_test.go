@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -10,7 +9,7 @@ import (
 )
 
 func (suite *ModelSuite) TestReContractYearValidations() {
-	suite.T().Run("test valid ReContractYear", func(t *testing.T) {
+	suite.Run("test valid ReContractYear", func() {
 		validReContractYear := models.ReContractYear{
 			ContractID:           uuid.Must(uuid.NewV4()),
 			Name:                 "Base Period Year 1",
@@ -23,7 +22,7 @@ func (suite *ModelSuite) TestReContractYearValidations() {
 		suite.verifyValidationErrors(&validReContractYear, expErrors)
 	})
 
-	suite.T().Run("test empty ReContractYear", func(t *testing.T) {
+	suite.Run("test empty ReContractYear", func() {
 		emptyReContractYear := models.ReContractYear{}
 		expErrors := map[string][]string{
 			"contract_id":           {"ContractID can not be blank."},
@@ -36,7 +35,7 @@ func (suite *ModelSuite) TestReContractYearValidations() {
 		suite.verifyValidationErrors(&emptyReContractYear, expErrors)
 	})
 
-	suite.T().Run("test end date after start date, negative escalation, negative escalation compounded for ReContractYear", func(t *testing.T) {
+	suite.Run("test end date after start date, negative escalation, negative escalation compounded for ReContractYear", func() {
 		badDatesReContractYear := models.ReContractYear{
 			ContractID:           uuid.Must(uuid.NewV4()),
 			Name:                 "Base Period Year 2",

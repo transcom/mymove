@@ -17,7 +17,7 @@ import (
 )
 
 type InvoiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 	Viper        *viper.Viper
 	icnSequencer sequence.Sequencer
 }

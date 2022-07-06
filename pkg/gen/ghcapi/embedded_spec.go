@@ -166,6 +166,52 @@ func init() {
         }
       ]
     },
+    "/customer-support-remarks/{customerSupportRemarkID}": {
+      "delete": {
+        "description": "Soft deletes a customer support remark by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Soft deletes a customer support remark by ID",
+        "operationId": "deleteCustomerSupportRemark",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the customer support remark to be deleted",
+            "name": "customerSupportRemarkID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the shipment"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -1335,14 +1381,23 @@ func init() {
         "operationId": "searchMoves",
         "parameters": [
           {
+            "description": "field that results should be sorted by",
             "name": "body",
             "in": "body",
             "schema": {
               "properties": {
+                "branch": {
+                  "type": "string",
+                  "x-nullable": true
+                },
                 "customerName": {
                   "description": "Customer Name",
                   "type": "string",
                   "minLength": 1,
+                  "x-nullable": true
+                },
+                "destinationPostalCode": {
+                  "type": "string",
                   "x-nullable": true
                 },
                 "dodID": {
@@ -1358,6 +1413,56 @@ func init() {
                   "maxLength": 6,
                   "minLength": 6,
                   "x-nullable": true
+                },
+                "order": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "x-nullable": true
+                },
+                "originPostalCode": {
+                  "type": "string",
+                  "x-nullable": true
+                },
+                "page": {
+                  "description": "requested page of results",
+                  "type": "integer"
+                },
+                "perPage": {
+                  "type": "integer"
+                },
+                "shipmentsCount": {
+                  "type": "integer",
+                  "x-nullable": true
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "customerName",
+                    "dodID",
+                    "branch",
+                    "locator",
+                    "status",
+                    "originPostalCode",
+                    "destinationPostalCode",
+                    "shipmentsCount"
+                  ],
+                  "x-nullable": true
+                },
+                "status": {
+                  "description": "Filtering for the status.",
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "SUBMITTED",
+                      "APPROVALS REQUESTED",
+                      "APPROVED"
+                    ]
+                  }
                 }
               }
             }
@@ -1772,7 +1877,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.orders"
+        ]
       },
       "parameters": [
         {
@@ -4992,9 +5100,7 @@ func init() {
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
           "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
+          "additionalProperties": true,
           "x-nullable": true
         },
         "clientQuery": {
@@ -5039,9 +5145,7 @@ func init() {
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
           "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
+          "additionalProperties": true,
           "x-nullable": true
         },
         "relId": {
@@ -6235,40 +6339,50 @@ func init() {
     "SearchMove": {
       "type": "object",
       "properties": {
-        "customer": {
-          "$ref": "#/definitions/Customer"
+        "branch": {
+          "type": "string"
         },
-        "departmentIndicator": {
-          "$ref": "#/definitions/DeptIndicator"
+        "destinationDutyLocationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
-        "destinationDutyLocation": {
-          "$ref": "#/definitions/DutyLocation"
+        "dodID": {
+          "type": "string",
+          "x-nullable": true,
+          "example": 1234567890
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
         },
         "id": {
           "type": "string",
           "format": "uuid"
         },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Doe"
+        },
         "locator": {
           "type": "string"
         },
-        "originDutyLocation": {
-          "$ref": "#/definitions/DutyLocation"
-        },
-        "requestedMoveDate": {
+        "originDutyLocationPostalCode": {
           "type": "string",
-          "format": "date",
-          "x-nullable": true
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "shipmentsCount": {
           "type": "integer"
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
-        },
-        "submittedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
         }
       }
     },
@@ -7271,6 +7385,70 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/customer-support-remarks/{customerSupportRemarkID}": {
+      "delete": {
+        "description": "Soft deletes a customer support remark by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Soft deletes a customer support remark by ID",
+        "operationId": "deleteCustomerSupportRemark",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the customer support remark to be deleted",
+            "name": "customerSupportRemarkID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the shipment"
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/customer/{customerID}": {
       "get": {
@@ -8801,14 +8979,23 @@ func init() {
         "operationId": "searchMoves",
         "parameters": [
           {
+            "description": "field that results should be sorted by",
             "name": "body",
             "in": "body",
             "schema": {
               "properties": {
+                "branch": {
+                  "type": "string",
+                  "x-nullable": true
+                },
                 "customerName": {
                   "description": "Customer Name",
                   "type": "string",
                   "minLength": 1,
+                  "x-nullable": true
+                },
+                "destinationPostalCode": {
+                  "type": "string",
                   "x-nullable": true
                 },
                 "dodID": {
@@ -8824,6 +9011,56 @@ func init() {
                   "maxLength": 6,
                   "minLength": 6,
                   "x-nullable": true
+                },
+                "order": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "x-nullable": true
+                },
+                "originPostalCode": {
+                  "type": "string",
+                  "x-nullable": true
+                },
+                "page": {
+                  "description": "requested page of results",
+                  "type": "integer"
+                },
+                "perPage": {
+                  "type": "integer"
+                },
+                "shipmentsCount": {
+                  "type": "integer",
+                  "x-nullable": true
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "customerName",
+                    "dodID",
+                    "branch",
+                    "locator",
+                    "status",
+                    "originPostalCode",
+                    "destinationPostalCode",
+                    "shipmentsCount"
+                  ],
+                  "x-nullable": true
+                },
+                "status": {
+                  "description": "Filtering for the status.",
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "SUBMITTED",
+                      "APPROVALS REQUESTED",
+                      "APPROVED"
+                    ]
+                  }
                 }
               }
             }
@@ -9355,7 +9592,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.orders"
+        ]
       },
       "parameters": [
         {
@@ -12901,9 +13141,7 @@ func init() {
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
           "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
+          "additionalProperties": true,
           "x-nullable": true
         },
         "clientQuery": {
@@ -12948,9 +13186,7 @@ func init() {
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
           "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
+          "additionalProperties": true,
           "x-nullable": true
         },
         "relId": {
@@ -14147,40 +14383,50 @@ func init() {
     "SearchMove": {
       "type": "object",
       "properties": {
-        "customer": {
-          "$ref": "#/definitions/Customer"
+        "branch": {
+          "type": "string"
         },
-        "departmentIndicator": {
-          "$ref": "#/definitions/DeptIndicator"
+        "destinationDutyLocationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
-        "destinationDutyLocation": {
-          "$ref": "#/definitions/DutyLocation"
+        "dodID": {
+          "type": "string",
+          "x-nullable": true,
+          "example": 1234567890
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
         },
         "id": {
           "type": "string",
           "format": "uuid"
         },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Doe"
+        },
         "locator": {
           "type": "string"
         },
-        "originDutyLocation": {
-          "$ref": "#/definitions/DutyLocation"
-        },
-        "requestedMoveDate": {
+        "originDutyLocationPostalCode": {
           "type": "string",
-          "format": "date",
-          "x-nullable": true
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "shipmentsCount": {
           "type": "integer"
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
-        },
-        "submittedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
         }
       }
     },

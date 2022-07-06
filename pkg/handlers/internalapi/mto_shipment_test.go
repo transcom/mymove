@@ -207,7 +207,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NotEmpty(createdShipment.Agents[0].ID)
 	})
 
-	suite.Run("Successful POST - Integration Test - PPM", func() {
+	suite.Run("Successful POST - Integration Test - PPM required fields", func() {
 		appCtx := suite.AppContextForTest()
 
 		subtestData := makeCreateSubtestData(appCtx)
@@ -238,10 +238,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(nil, nil).Once()
 
+		suite.Nil(params.Body.Validate(strfmt.Default))
+
 		response := subtestData.handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 
 		createdShipment := response.(*mtoshipmentops.CreateMTOShipmentOK).Payload
+		suite.NoError(createdShipment.Validate(strfmt.Default))
 
 		suite.NotEmpty(createdShipment.ID.String())
 
@@ -250,7 +253,63 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(*params.Body.MoveTaskOrderID, createdShipment.MoveTaskOrderID)
 		suite.Equal(*params.Body.PpmShipment.ExpectedDepartureDate, *createdShipment.PpmShipment.ExpectedDepartureDate)
 		suite.Equal(*params.Body.PpmShipment.PickupPostalCode, *createdShipment.PpmShipment.PickupPostalCode)
+		suite.Nil(createdShipment.PpmShipment.SecondaryPickupPostalCode)
 		suite.Equal(*params.Body.PpmShipment.DestinationPostalCode, *createdShipment.PpmShipment.DestinationPostalCode)
+		suite.Nil(createdShipment.PpmShipment.SecondaryDestinationPostalCode)
+		suite.Equal(*params.Body.PpmShipment.SitExpected, *createdShipment.PpmShipment.SitExpected)
+	})
+
+	suite.Run("Successful POST - Integration Test - PPM optional fields", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeCreateSubtestData(appCtx)
+
+		params := subtestData.params
+		ppmShipmentType := internalmessages.MTOShipmentTypePPM
+		// pointers
+		expectedDepartureDate := strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate)
+		pickupPostal := "11111"
+		destinationPostalCode := "41414"
+		sitExpected := false
+		// reset Body params to have PPM fields
+		params.Body = &internalmessages.CreateShipment{
+			MoveTaskOrderID: handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
+			PpmShipment: &internalmessages.CreatePPMShipment{
+				ExpectedDepartureDate:          &expectedDepartureDate,
+				PickupPostalCode:               &pickupPostal,
+				SecondaryPickupPostalCode:      nullable.NewString("11112"),
+				DestinationPostalCode:          &destinationPostalCode,
+				SecondaryDestinationPostalCode: nullable.NewString("41415"),
+				SitExpected:                    &sitExpected,
+			},
+			ShipmentType: &ppmShipmentType,
+		}
+
+		// When a customer first creates a move, there is not enough data to calculate an incentive yet.
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil).Once()
+
+		suite.Nil(params.Body.Validate(strfmt.Default))
+
+		response := subtestData.handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+
+		createdShipment := response.(*mtoshipmentops.CreateMTOShipmentOK).Payload
+		suite.NoError(createdShipment.Validate(strfmt.Default))
+
+		suite.NotEmpty(createdShipment.ID.String())
+
+		suite.Equal(internalmessages.MTOShipmentTypePPM, createdShipment.ShipmentType)
+		suite.Equal(models.MTOShipmentStatusDraft, models.MTOShipmentStatus(createdShipment.Status))
+		suite.Equal(*params.Body.MoveTaskOrderID, createdShipment.MoveTaskOrderID)
+		suite.Equal(*params.Body.PpmShipment.ExpectedDepartureDate, *createdShipment.PpmShipment.ExpectedDepartureDate)
+		suite.Equal(*params.Body.PpmShipment.PickupPostalCode, *createdShipment.PpmShipment.PickupPostalCode)
+		suite.Equal(*params.Body.PpmShipment.SecondaryPickupPostalCode.Value, *createdShipment.PpmShipment.SecondaryPickupPostalCode)
+		suite.Equal(*params.Body.PpmShipment.DestinationPostalCode, *createdShipment.PpmShipment.DestinationPostalCode)
+		suite.Equal(*params.Body.PpmShipment.SecondaryDestinationPostalCode.Value, *createdShipment.PpmShipment.SecondaryDestinationPostalCode)
 		suite.Equal(*params.Body.PpmShipment.SitExpected, *createdShipment.PpmShipment.SitExpected)
 	})
 

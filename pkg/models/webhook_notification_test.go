@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -20,7 +19,7 @@ func (suite *ModelSuite) TestWebhookNotification() {
 	paymentRequestID := paymentRequest.ID
 	mtoID := paymentRequest.MoveTaskOrderID
 
-	suite.T().Run("test full notification", func(t *testing.T) {
+	suite.Run("test full notification", func() {
 		// Normal notification with Object in payload
 		trace := uuid.Must(uuid.NewV4())
 		newNotification := models.WebhookNotification{
@@ -37,7 +36,7 @@ func (suite *ModelSuite) TestWebhookNotification() {
 		suite.verifyValidationErrors(&newNotification, expErrors)
 	})
 
-	suite.T().Run("test simple notification", func(t *testing.T) {
+	suite.Run("test simple notification", func() {
 		// Allowing for a simple message notification, with an eventkey and payload
 		newNotification := models.WebhookNotification{
 			EventKey: "PaymentRequest.Update",
@@ -50,7 +49,7 @@ func (suite *ModelSuite) TestWebhookNotification() {
 		suite.verifyValidationErrors(&newNotification, expErrors)
 	})
 
-	suite.T().Run("test notification with validation errors", func(t *testing.T) {
+	suite.Run("test notification with validation errors", func() {
 		trace := uuid.Must(uuid.NewV4())
 		newNotification := models.WebhookNotification{
 			EventKey: "",

@@ -9,7 +9,7 @@ import (
 )
 
 type PaginationServiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestPaginationSuite(t *testing.T) {

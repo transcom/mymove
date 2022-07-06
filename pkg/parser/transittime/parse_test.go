@@ -16,7 +16,7 @@ import (
 )
 
 type TransitTimeParserSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 	tableFromSliceCreator services.TableFromSliceCreator
 	xlsxFilename          string
 	xlsxFile              *xlsx.File
