@@ -3,6 +3,7 @@ export { default as approveShipment } from './approveShipment';
 export { default as approveShipmentDiversion } from './approveShipmentDiversion';
 export { default as createBasicServiceItem } from './createBasicServiceItem';
 export { default as createMTOServiceItem } from './createMTOServiceItem';
+export { default as createMTOServiceItemCustomerContacts } from './createMTOServiceItemCustomerContacts';
 export { default as createMTOServiceItemDimensions } from './createMTOServiceItemDimensions';
 export { default as createMTOShipment } from './createMTOShipment';
 export { default as createMTOShipmentAddresses } from './createMTOShipmentAddresses';

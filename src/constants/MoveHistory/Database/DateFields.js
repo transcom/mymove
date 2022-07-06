@@ -8,4 +8,5 @@ export default {
   requested_pickup_date: 'requested_pickup_date',
   sit_departure_date: 'sit_departure_date',
   sit_entry_date: 'sit_entry_date',
+  first_available_delivery_date: 'first_available_delivery_date',
 };

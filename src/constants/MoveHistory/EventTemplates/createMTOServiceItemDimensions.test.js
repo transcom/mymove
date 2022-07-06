@@ -4,7 +4,7 @@ import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import e from 'constants/MoveHistory/EventTemplates/createMTOServiceItemDimensions';
 
-describe('when given a Create basic service item history record', () => {
+describe('when given a Create basic service item dimensions history record', () => {
   const item = {
     action: a.INSERT,
     changedValues: {
