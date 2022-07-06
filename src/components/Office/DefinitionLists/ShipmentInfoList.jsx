@@ -10,7 +10,7 @@ import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
 
-const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, showWhenCollapsed }) => {
+const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, showWhenCollapsed, isExpanded }) => {
   const {
     requestedPickupDate,
     pickupAddress,
@@ -19,7 +19,7 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
     destinationType,
     displayDestinationType,
     secondaryDeliveryAddress,
-    agents,
+    mtoAgents,
     counselorRemarks,
     customerRemarks,
   } = shipment;
@@ -30,6 +30,10 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
     missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
   });
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
+
+  const showElement = (elementFlags) => {
+    return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
+  };
 
   const requestedPickupDateElementFlags = getDisplayFlags('requestedPickupDate');
   const requestedPickupDateElement = (
@@ -83,9 +87,9 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
     </div>
   );
 
-  const agentsElementFlags = getDisplayFlags('agents');
-  const agentsElement = agents
-    ? agents.map((agent) => (
+  const agentsElementFlags = getDisplayFlags('mtoAgents');
+  const agentsElement = mtoAgents
+    ? mtoAgents.map((agent) => (
         <div className={agentsElementFlags.classes} key={`${agent.agentType}-${agent.email}`}>
           <dt>{agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}</dt>
           <dd data-testid={agent.agentType}>{formatAgent(agent)}</dd>
@@ -122,11 +126,11 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
     >
       {requestedPickupDateElement}
       {pickupAddressElement}
-      {secondaryPickupAddress && secondaryPickupAddressElement}
+      {showElement(secondaryPickupAddressElementFlags) && secondaryPickupAddressElement}
       {destinationAddressElement}
-      {displayDestinationType && destinationTypeElement}
-      {secondaryDeliveryAddress && secondaryDeliveryAddressElement}
-      {agents && agentsElement}
+      {showElement(destinationTypeFlags) && displayDestinationType && destinationTypeElement}
+      {showElement(secondaryDeliveryAddressElementFlags) && secondaryDeliveryAddressElement}
+      {showElement(agentsElementFlags) && agentsElement}
       {counselorRemarksElement}
       {customerRemarksElement}
     </dl>
@@ -139,6 +143,7 @@ ShipmentInfoList.propTypes = {
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
+  isExpanded: PropTypes.bool,
 };
 
 ShipmentInfoList.defaultProps = {
@@ -146,6 +151,7 @@ ShipmentInfoList.defaultProps = {
   warnIfMissing: [],
   errorIfMissing: [],
   showWhenCollapsed: [],
+  isExpanded: false,
 };
 
 export default ShipmentInfoList;
