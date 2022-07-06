@@ -627,6 +627,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		sitEstimatedEntryDate := expectedDepartureDate.AddDate(0, 0, 5)
 		sitEstimatedDepartureDate := sitEstimatedEntryDate.AddDate(0, 0, 20)
 		estimatedWeight := unit.Pound(3000)
+		netWeight := unit.Pound(3500)
 		proGearWeight := unit.Pound(300)
 		spouseProGearWeight := unit.Pound(200)
 		estimatedIncentive := 654321
@@ -651,6 +652,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					SitEstimatedDepartureDate:      handlers.FmtDatePtr(&sitEstimatedDepartureDate),
 					SitLocation:                    &sitLocation,
 					EstimatedWeight:                handlers.FmtPoundPtr(&estimatedWeight),
+					NetWeight:                      handlers.FmtPoundPtr(&netWeight),
 					HasProGear:                     &hasProGear,
 					ProGearWeight:                  handlers.FmtPoundPtr(&proGearWeight),
 					SpouseProGearWeight:            handlers.FmtPoundPtr(&spouseProGearWeight),
@@ -683,6 +685,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(handlers.FmtDate(sitEstimatedEntryDate), updatedShipment.PpmShipment.SitEstimatedEntryDate)
 		suite.Equal(handlers.FmtDate(sitEstimatedDepartureDate), updatedShipment.PpmShipment.SitEstimatedDepartureDate)
 		suite.Equal(handlers.FmtPoundPtr(&estimatedWeight), updatedShipment.PpmShipment.EstimatedWeight)
+		suite.Equal(handlers.FmtPoundPtr(&netWeight), updatedShipment.PpmShipment.NetWeight)
 		suite.Equal(int64(estimatedIncentive), *updatedShipment.PpmShipment.EstimatedIncentive)
 		suite.Equal(handlers.FmtBool(hasProGear), updatedShipment.PpmShipment.HasProGear)
 		suite.Equal(handlers.FmtPoundPtr(&proGearWeight), updatedShipment.PpmShipment.ProGearWeight)

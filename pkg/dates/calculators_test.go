@@ -122,7 +122,7 @@ func (suite *DatesSuite) TestNextValidMoveDate() {
 }
 
 type DatesSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestDatesSuite(t *testing.T) {

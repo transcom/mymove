@@ -28,7 +28,7 @@ const (
 )
 
 type GHCTestSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestGHCTestSuite(t *testing.T) {

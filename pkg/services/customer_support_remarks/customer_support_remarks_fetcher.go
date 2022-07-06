@@ -4,6 +4,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -26,7 +27,7 @@ func (o customerSupportRemarksFetcher) ListCustomerSupportRemarks(appCtx appcont
 	}
 
 	customerSupportRemarks := models.CustomerSupportRemarks{}
-	err = appCtx.DB().Q().EagerPreload("OfficeUser").
+	err = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope()).EagerPreload("OfficeUser").
 		Where("move_id = ?", move.ID).Order("created_at desc").All(&customerSupportRemarks)
 
 	if err != nil {

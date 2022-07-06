@@ -7,15 +7,13 @@ import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import { calculateMaxAdvanceAndFormatAdvanceAndIncentive, getFormattedMaxAdvancePercentage } from 'utils/incentives';
+import { calculateMaxAdvanceAndFormatAdvanceAndIncentive } from 'utils/incentives';
 
 const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
-  const [advanceInput, , advanceHelper] = useField('hasRequestedAdvance');
-  const hasRequestedAdvance = !!advanceInput.value;
-  const [amountInput] = useField('advanceAmountRequested');
-  const advanceAmountRequested = Number(amountInput.value || '0');
+  const [advanceInput, , advanceHelper] = useField('advanceRequested');
+  const advanceRequested = !!advanceInput.value;
 
-  const { maxAdvance, formattedMaxAdvance, formattedIncentive } =
+  const { formattedMaxAdvance, formattedIncentive } =
     calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);
 
   const handleHasRequestedAdvanceChange = (event) => {
@@ -36,29 +34,29 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
               <Radio
                 id="hasRequestedAdvanceYes"
                 label="Yes"
-                name="hasRequestedAdvance"
+                name="advanceRequested"
                 value="Yes"
                 title="Yes"
-                checked={hasRequestedAdvance}
+                checked={advanceRequested}
                 onChange={handleHasRequestedAdvanceChange}
               />
               <Radio
                 id="hasRequestedAdvanceNo"
                 label="No"
-                name="hasRequestedAdvance"
+                name="advanceRequested"
                 value="No"
                 title="No"
-                checked={!hasRequestedAdvance}
+                checked={!advanceRequested}
                 onChange={handleHasRequestedAdvanceChange}
               />
             </FormGroup>
 
-            {hasRequestedAdvance && (
+            {advanceRequested && (
               <>
                 <FormGroup>
                   <MaskedTextField
                     defaultValue="0"
-                    name="advanceAmountRequested"
+                    name="advance"
                     label="Amount requested"
                     id="advanceAmountRequested"
                     mask={Number}
@@ -67,12 +65,6 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                     thousandsSeparator=","
                     lazy={false} // immediate masking evaluation
                     prefix="$"
-                    error={advanceAmountRequested > maxAdvance}
-                    errorMessage={
-                      advanceAmountRequested > maxAdvance
-                        ? `Enter an amount that is less than or equal to the maximum advance (${getFormattedMaxAdvancePercentage()} of estimated incentive)`
-                        : ''
-                    }
                   />
                 </FormGroup>
 

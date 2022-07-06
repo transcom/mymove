@@ -17,7 +17,7 @@ import (
 )
 
 type UtilitiesSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestUtilitiesSuite(t *testing.T) {

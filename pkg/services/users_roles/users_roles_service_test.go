@@ -9,7 +9,7 @@ import (
 )
 
 type UsersRolesServiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestUsersRolesServiceSuite(t *testing.T) {
