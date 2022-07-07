@@ -1,4 +1,9 @@
 CREATE TYPE evaluation_report_type AS enum (
+	'SHIPMENT',
+	'COUNSELING'
+	);
+
+CREATE TYPE inspection_type AS enum (
 	'DATA_REVIEW',
 	'PHYSICAL',
 	'VIRTUAL'
@@ -16,8 +21,9 @@ CREATE TABLE IF NOT EXISTS evaluation_reports
 	office_user_id            uuid REFERENCES office_users NOT NULL,
 	move_id                   uuid REFERENCES moves        NOT NULL,
 	shipment_id               uuid REFERENCES mto_shipments,
+	type                      evaluation_report_type       NOT NULL,
 	inspection_date           date,
-	type                      evaluation_report_type,
+	inspection_type           inspection_type,
 	travel_time_minutes       int,
 	location                  evaluation_location_type,
 	location_description      text,
@@ -41,8 +47,9 @@ COMMENT ON TABLE evaluation_reports IS 'Contains QAE evaluation reports. There a
 COMMENT ON COLUMN evaluation_reports.move_id IS 'Move that the report is associated with';
 COMMENT ON COLUMN evaluation_reports.office_user_id IS 'The office_user who authored the evaluation report.';
 COMMENT ON COLUMN evaluation_reports.shipment_id IS 'If present, indicates the shipment that this report is based on. NULL if this is not a shipment report.';
+COMMENT ON COLUMN evaluation_reports.type IS 'Indicates type of report. Either counseling or shipment';
 COMMENT ON COLUMN evaluation_reports.inspection_date IS 'date of inspection';
-COMMENT ON COLUMN evaluation_reports.type IS 'Indicates the type of evaluation that is being described by this report. Either physical, virtual, or data review';
+COMMENT ON COLUMN evaluation_reports.inspection_type IS 'Indicates the type of evaluation that is being described by this report. Either physical, virtual, or data review';
 COMMENT ON COLUMN evaluation_reports.travel_time_minutes IS 'Amount of time that the evaluator spent travelling to and from the site to perform a physical evaluation';
 COMMENT ON COLUMN evaluation_reports.location IS 'Indicates whether the inspection was performed at the origin or destination of the shipment. If OTHER is selected, location_description should contain a description of the alternative location';
 COMMENT ON COLUMN evaluation_reports.location_description IS 'If the inspection was performed at a location other than the origin or destination of the shipment, this field contains a description of the location';
@@ -52,10 +59,3 @@ COMMENT ON COLUMN evaluation_reports.violations_observed IS 'True if any PWS vio
 COMMENT ON COLUMN evaluation_reports.remarks IS 'Free text field for the evaluator''s notes about the inspection';
 COMMENT ON COLUMN evaluation_reports.submitted_at IS 'Time when the report was submitted. If NULL, then the report is still a draft';
 COMMENT ON COLUMN evaluation_reports.deleted_at IS 'Date and time the report was deleted. Only draft reports should be delete-able';
-
-
-
-
-
-
-
