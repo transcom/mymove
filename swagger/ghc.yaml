@@ -1749,6 +1749,8 @@ paths:
             $ref: '#/definitions/CustomerSupportRemark'
         '400':
           $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '422':
