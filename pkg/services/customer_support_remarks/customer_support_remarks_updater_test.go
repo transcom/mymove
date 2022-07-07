@@ -26,8 +26,7 @@ func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarksUpdater() {
 		}
 
 		params := customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams{
-			Body: &payload,
-			// IS there a better way to do this or is golang JUST like this :/
+			Body:                    &payload,
 			CustomerSupportRemarkID: strfmt.UUID(remarkID.String()),
 		}
 
