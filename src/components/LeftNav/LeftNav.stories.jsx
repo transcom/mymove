@@ -9,11 +9,6 @@ import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 export default {
   title: 'Components/Left Nav',
   component: LeftNav,
-  parameters: {
-    abstract: {
-      url: 'https://share.goabstract.com/6e8668b7-5562-4894-a661-648ab4883d8f?mode=design',
-    },
-  },
 };
 
 export const Basic = () => (
