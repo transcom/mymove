@@ -1985,6 +1985,10 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
       status:
         $ref: 'definitions/PPMShipmentStatus.yaml'
       expectedDepartureDate:
