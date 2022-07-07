@@ -151,6 +151,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move.GetMove has not yet been implemented")
 		})
 	}
+	if api.MoveGetMoveEvaluationReportsHandler == nil {
+		api.MoveGetMoveEvaluationReportsHandler = move.GetMoveEvaluationReportsHandlerFunc(func(params move.GetMoveEvaluationReportsParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.GetMoveEvaluationReports has not yet been implemented")
+		})
+	}
 	if api.MoveGetMoveHistoryHandler == nil {
 		api.MoveGetMoveHistoryHandler = move.GetMoveHistoryHandlerFunc(func(params move.GetMoveHistoryParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.GetMoveHistory has not yet been implemented")

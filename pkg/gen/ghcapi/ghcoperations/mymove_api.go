@@ -117,6 +117,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveGetMoveHandler: move.GetMoveHandlerFunc(func(params move.GetMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.GetMove has not yet been implemented")
 		}),
+		MoveGetMoveEvaluationReportsHandler: move.GetMoveEvaluationReportsHandlerFunc(func(params move.GetMoveEvaluationReportsParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.GetMoveEvaluationReports has not yet been implemented")
+		}),
 		MoveGetMoveHistoryHandler: move.GetMoveHistoryHandlerFunc(func(params move.GetMoveHistoryParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.GetMoveHistory has not yet been implemented")
 		}),
@@ -295,6 +298,8 @@ type MymoveAPI struct {
 	MtoServiceItemGetMTOServiceItemHandler mto_service_item.GetMTOServiceItemHandler
 	// MoveGetMoveHandler sets the operation handler for the get move operation
 	MoveGetMoveHandler move.GetMoveHandler
+	// MoveGetMoveEvaluationReportsHandler sets the operation handler for the get move evaluation reports operation
+	MoveGetMoveEvaluationReportsHandler move.GetMoveEvaluationReportsHandler
 	// MoveGetMoveHistoryHandler sets the operation handler for the get move history operation
 	MoveGetMoveHistoryHandler move.GetMoveHistoryHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
@@ -497,6 +502,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveGetMoveHandler == nil {
 		unregistered = append(unregistered, "move.GetMoveHandler")
+	}
+	if o.MoveGetMoveEvaluationReportsHandler == nil {
+		unregistered = append(unregistered, "move.GetMoveEvaluationReportsHandler")
 	}
 	if o.MoveGetMoveHistoryHandler == nil {
 		unregistered = append(unregistered, "move.GetMoveHistoryHandler")
@@ -765,6 +773,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move/{locator}"] = move.NewGetMove(o.context, o.MoveGetMoveHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move/{locator}/evaluation-reports"] = move.NewGetMoveEvaluationReports(o.context, o.MoveGetMoveEvaluationReportsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
