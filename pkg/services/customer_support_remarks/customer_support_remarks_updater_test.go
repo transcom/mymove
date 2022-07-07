@@ -4,6 +4,8 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
+
 	"github.com/transcom/mymove/pkg/apperror"
 	customersupportremarksop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -28,7 +30,11 @@ func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarksUpdater() {
 			// IS there a better way to do this or is golang JUST like this :/
 			CustomerSupportRemarkID: strfmt.UUID(remarkID.String()),
 		}
-		updatedCustomerSupportRemark, err := updater.UpdateCustomerSupportRemark(suite.AppContextForTest(), params)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: origRemark.OfficeUserID,
+		})
+		updatedCustomerSupportRemark, err := updater.UpdateCustomerSupportRemark(appCtx, params)
 
 		suite.Nil(err)
 		suite.NotNil(updatedCustomerSupportRemark)

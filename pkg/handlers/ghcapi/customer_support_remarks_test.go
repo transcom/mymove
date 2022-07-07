@@ -5,11 +5,14 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/go-openapi/strfmt"
+
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	customersupportremarksop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -141,9 +144,9 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 
 func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
 
-	setupTestData := func() (services.CustomerSupportRemarkUpdater, models.CustomerSupportRemark, ghcmessages.UpdateCustomerSupportRemarkPayload) {
+	setupTestData := func() (*mocks.CustomerSupportRemarkUpdater, models.CustomerSupportRemark, models.CustomerSupportRemark) {
 
-		updater := remarksservice.NewCustomerSupportRemarkUpdater()
+		updater := mocks.CustomerSupportRemarkUpdater{}
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		originalRemark := testdatagen.MakeCustomerSupportRemark(suite.DB(), testdatagen.Assertions{
@@ -152,27 +155,37 @@ func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
 				OfficeUserID: officeUser.ID,
 				MoveID:       move.ID,
 			},
+			Move: move,
 		})
-		originalRemark.Move = move
-		payload := ghcmessages.UpdateCustomerSupportRemarkPayload{
-			Content: &originalRemark.Content,
-		}
 
-		return updater, originalRemark, payload
+		updatedRemark := originalRemark
+		updatedRemark.Content = "Changed my mind"
+
+		return &updater, originalRemark, updatedRemark
+
 	}
 
 	suite.Run("Successful PATCH", func() {
-		updater, remark, payload := setupTestData()
+		updater, ogRemark, updatedRemark := setupTestData()
 
-		request := httptest.NewRequest("PATCH", fmt.Sprintf("/customer-support-remarks/%s", remark.ID), nil)
+		request := httptest.NewRequest("PATCH", fmt.Sprintf("/customer-support-remarks/%s", &ogRemark.ID), nil)
+		payload := ghcmessages.UpdateCustomerSupportRemarkPayload{
+			Content: &updatedRemark.Content,
+		}
 
 		params := customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams{
-			HTTPRequest: request,
-			Body:        &payload,
+			HTTPRequest:             request,
+			Body:                    &payload,
+			CustomerSupportRemarkID: strfmt.UUID(ogRemark.ID.String()),
 		}
 
 		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		handler := UpdateCustomerSupportRemarkHandler{handlerConfig, updater}
+
+		updater.On("UpdateCustomerSupportRemark",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams"),
+		).Return(&updatedRemark, nil)
 
 		response := handler.Handle(params)
 
@@ -180,19 +193,26 @@ func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
 	})
 
 	suite.Run("unsuccessful PATCH", func() {
-		updater, _, payload := setupTestData()
-
+		updater, _, updatedRemark := setupTestData()
 		badRemarkID := uuid.Must(uuid.NewV4())
+
+		request := httptest.NewRequest("PATCH", fmt.Sprintf("/customer-support-remarks/%s", badRemarkID), nil)
+		payload := ghcmessages.UpdateCustomerSupportRemarkPayload{
+			Content: &updatedRemark.Content,
+		}
 
 		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
 		handler := UpdateCustomerSupportRemarkHandler{handlerConfig, updater}
-
-		request := httptest.NewRequest("PATCH", fmt.Sprintf("/customer-support-remarks/%s", badRemarkID), nil)
 
 		params := customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams{
 			HTTPRequest: request,
 			Body:        &payload,
 		}
+
+		updater.On("UpdateCustomerSupportRemark",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams"),
+		).Return(nil, fmt.Errorf("error"))
 
 		response := handler.Handle(params)
 
