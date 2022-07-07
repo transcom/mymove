@@ -43,6 +43,7 @@ type EvaluationReport struct {
 	ViolationsObserved      *bool                         `json:"violations_observed" db:"violations_observed"`
 	Remarks                 *string                       `json:"remarks" db:"remarks"`
 	SubmittedAt             *time.Time                    `json:"submitted_at" db:"submitted_at"`
+	DeletedAt               *time.Time                    `db:"deleted_at"`
 	CreatedAt               time.Time                     `json:"created_at" db:"created_at"`
 	UpdatedAt               time.Time                     `json:"updated_at" db:"updated_at"`
 }

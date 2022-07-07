@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS evaluation_reports
 	violations_observed       bool,
 	remarks                   text,
 	submitted_at              timestamp WITH TIME ZONE,
+	deleted_at                timestamp WITH TIME ZONE,
 	created_at                timestamp WITH TIME ZONE     NOT NULL,
 	updated_at                timestamp WITH TIME ZONE     NOT NULL
 );
@@ -34,6 +35,7 @@ CREATE INDEX evaluation_reports_office_user_id_idx ON evaluation_reports (office
 CREATE INDEX evaluation_reports_move_id_idx ON evaluation_reports (move_id);
 CREATE INDEX evaluation_reports_shipment_id_idx ON evaluation_reports (shipment_id);
 CREATE INDEX evaluation_reports_submitted_at_idx ON evaluation_reports (submitted_at);
+CREATE INDEX evaluation_reports_deleted_at_idx ON evaluation_reports (deleted_at);
 
 COMMENT ON TABLE evaluation_reports IS 'Contains QAE evaluation reports. There are two kinds of reports: shipment and counseling. You can tell them apart based on whether shipment_id is NULL.';
 COMMENT ON COLUMN evaluation_reports.move_id IS 'Move that the report is associated with';
@@ -49,6 +51,7 @@ COMMENT ON COLUMN evaluation_reports.evaluation_length_minutes IS 'Length of tim
 COMMENT ON COLUMN evaluation_reports.violations_observed IS 'True if any PWS violations were observed during the inspection';
 COMMENT ON COLUMN evaluation_reports.remarks IS 'Free text field for the evaluator''s notes about the inspection';
 COMMENT ON COLUMN evaluation_reports.submitted_at IS 'Time when the report was submitted. If NULL, then the report is still a draft';
+COMMENT ON COLUMN evaluation_reports.deleted_at IS 'Date and time the report was deleted. Only draft reports should be delete-able';
 
 
 
