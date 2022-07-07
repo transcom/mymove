@@ -197,9 +197,9 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           .typeError('Invalid date. Must be in the format: DD MMM YYYY')
           .required('Required'),
         pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-        secondaryPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError),
+        secondaryPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).nullable(),
         destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-        secondaryDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError),
+        secondaryDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).nullable(),
         sitExpected: Yup.boolean().required('Required'),
         sitLocation: Yup.string().when('sitExpected', {
           is: true,
