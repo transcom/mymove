@@ -61,8 +61,8 @@ const labels = {
 };
 
 describe('Shipment Info List', () => {
-  it('renders all fields when provided', () => {
-    render(<ShipmentInfoList shipment={info} />);
+  it('renders all fields when provided and expanded', () => {
+    render(<ShipmentInfoList isExpanded shipment={info} />);
 
     const requestedPickupDate = screen.getByText(labels.requestedPickupDate);
     expect(within(requestedPickupDate.parentElement).getByText('26 Mar 2020')).toBeInTheDocument();
@@ -125,5 +125,38 @@ describe('Shipment Info List', () => {
     expect(screen.queryByText(labels.secondaryDeliveryAddress)).toBeNull();
     expect(screen.queryByText(labels.mtoAgents[0])).toBeNull();
     expect(screen.queryByText(labels.mtoAgents[1])).toBeNull();
+  });
+
+  it('renders appropriate fields when provided and collapsed', () => {
+    render(<ShipmentInfoList isExpanded={false} shipment={info} />);
+
+    const requestedPickupDate = screen.getByText(labels.requestedPickupDate);
+    expect(within(requestedPickupDate.parentElement).getByText('26 Mar 2020')).toBeInTheDocument();
+
+    const pickupAddress = screen.getByText(labels.pickupAddress);
+    expect(
+      within(pickupAddress.parentElement).getByText(info.pickupAddress.streetAddress1, { exact: false }),
+    ).toBeInTheDocument();
+
+    expect(screen.queryByText(labels.secondaryPickupAddress)).toBeNull();
+
+    const destinationAddress = screen.getByText(labels.destinationAddress);
+    expect(
+      within(destinationAddress.parentElement).getByText(info.destinationAddress.streetAddress1, {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
+
+    expect(screen.queryByText(labels.secondaryDeliveryAddress)).toBeNull();
+
+    expect(screen.queryByText(labels.mtoAgents[0])).toBeNull();
+
+    expect(screen.queryByText(labels.mtoAgents[1])).toBeNull();
+
+    const counselorRemarks = screen.getByText(labels.counselorRemarks);
+    expect(within(counselorRemarks.parentElement).getByText(info.counselorRemarks)).toBeInTheDocument();
+
+    const customerRemarks = screen.getByText(labels.customerRemarks);
+    expect(within(customerRemarks.parentElement).getByText(info.customerRemarks)).toBeInTheDocument();
   });
 });
