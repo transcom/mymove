@@ -18,15 +18,15 @@ const ShipmentCustomerSIT = ({ onCalculateClick }) => {
   };
 
   const [sitLocationInput, , sitLocationHelper] = useField('sitLocation');
-  const sitLocationValue = sitLocationInput.value || 'destination';
+  const sitLocationValue = sitLocationInput.value || 'DESTINATION';
 
-  const [weightInput] = useField('estimatedSITWeight');
+  const [weightInput] = useField('sitEstimatedWeight');
   const weightValue = weightInput.value;
 
-  const [startInput] = useField('estimatedSITStart');
+  const [startInput] = useField('sitEstimatedEntryDate');
   const startValue = startInput.value;
 
-  const [endInput] = useField('estimatedSITEnd');
+  const [endInput] = useField('sitEstimatedDepartureDate');
   const endValue = endInput.value;
 
   const handleSITLocation = (event) => {
@@ -81,26 +81,26 @@ const ShipmentCustomerSIT = ({ onCalculateClick }) => {
                     id="sitLocationOrigin"
                     label="Origin"
                     name="sitLocation"
-                    value="origin"
+                    value="ORIGIN"
                     title="Origin"
-                    checked={sitLocationValue === 'origin'}
+                    checked={sitLocationValue === 'ORIGIN'}
                     onChange={handleSITLocation}
                   />
                   <Radio
                     id="sitLocationDestination"
                     label="Destination"
                     name="sitLocation"
-                    value="destination"
+                    value="DESTINATION"
                     title="Destination"
-                    checked={sitLocationValue === 'destination'}
+                    checked={sitLocationValue === 'DESTINATION'}
                     onChange={handleSITLocation}
                   />
                 </FormGroup>
 
                 <MaskedTextField
-                  name="estimatedSITWeight"
+                  name="sitEstimatedWeight"
                   label="Estimated SIT weight"
-                  id="estimatedSITWeight"
+                  id="sitEstimatedWeight"
                   mask={Number}
                   scale={0} // digits after point, 0 for integers
                   signed={false} // disallow negative
@@ -109,9 +109,9 @@ const ShipmentCustomerSIT = ({ onCalculateClick }) => {
                   suffix="lbs"
                 />
 
-                <DatePickerInput name="estimatedSITStart" label="Estimated storage start" />
+                <DatePickerInput name="sitEstimatedEntryDate" label="Estimated storage start" />
 
-                <DatePickerInput name="estimatedSITEnd" label="Estimated storage end" />
+                <DatePickerInput name="sitEstimatedDepartureDate" label="Estimated storage end" />
 
                 <Button type="button" secondary disabled={!isCalculationEnabled} onClick={handleCalculateClick}>
                   Calculate SIT

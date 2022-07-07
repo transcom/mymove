@@ -17,7 +17,7 @@ import (
 )
 
 type PaperworkSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 	userUploader *uploader.UserUploader
 	filesToClose []afero.File
 }

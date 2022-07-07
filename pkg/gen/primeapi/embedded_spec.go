@@ -2679,6 +2679,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       },
       "x-nullable": true
@@ -3345,6 +3350,11 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "counselorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "counselor approved"
+        },
         "destinationAddress": {
           "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
           "allOf": [
@@ -3385,6 +3395,9 @@ func init() {
         "pointOfContact": {
           "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
+        },
+        "ppmShipment": {
+          "$ref": "#/definitions/UpdatePPMShipment"
         },
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
@@ -3443,6 +3456,103 @@ func init() {
           "enum": [
             "CANCELED"
           ]
+        }
+      }
+    },
+    "UpdatePPMShipment": {
+      "type": "object",
+      "properties": {
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "netWeight": {
+          "description": "The net weight of the shipment once it has been weighed\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4300
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "sitEstimatedDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "sitExpected": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
+        "spouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },
@@ -6643,6 +6753,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       },
       "x-nullable": true
@@ -7312,6 +7427,11 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "counselorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "counselor approved"
+        },
         "destinationAddress": {
           "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
           "allOf": [
@@ -7352,6 +7472,9 @@ func init() {
         "pointOfContact": {
           "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
+        },
+        "ppmShipment": {
+          "$ref": "#/definitions/UpdatePPMShipment"
         },
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
@@ -7410,6 +7533,103 @@ func init() {
           "enum": [
             "CANCELED"
           ]
+        }
+      }
+    },
+    "UpdatePPMShipment": {
+      "type": "object",
+      "properties": {
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "netWeight": {
+          "description": "The net weight of the shipment once it has been weighed\n",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4300
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "sitEstimatedDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "sitExpected": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
+        "spouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },

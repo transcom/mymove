@@ -9,7 +9,7 @@ import (
 )
 
 type TSPServiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestTSPServiceSuite(t *testing.T) {

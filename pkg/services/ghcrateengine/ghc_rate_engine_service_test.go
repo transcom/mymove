@@ -13,7 +13,7 @@ import (
 )
 
 type GHCRateEngineServiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestGHCRateEngineServiceSuite(t *testing.T) {

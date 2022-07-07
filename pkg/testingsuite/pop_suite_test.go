@@ -15,7 +15,7 @@ func (suite *PopTestSuite) SetupTest() {
 
 func TestPopTestSuite(t *testing.T) {
 	ps := NewPopTestSuite(CurrentPackage(), WithPerTestTransaction())
-	suite.Run(t, &ps)
+	suite.Run(t, ps)
 	ps.TearDown()
 }
 

@@ -33,7 +33,7 @@ import (
 
 // WebhookClientTestingSuite is a suite for testing the webhook client
 type WebhookClientTestingSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 	certPath string
 	keyPath  string
 }

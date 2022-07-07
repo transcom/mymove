@@ -39,3 +39,4 @@ export { default as updatePaymentRequestStatus } from './updatePaymentRequestSta
 export { default as updateServiceItemStatus } from './updateServiceItemStatus';
 export { default as updateMTOReviewedBillableWeightsAt } from './updateMTOReviewedBillableWeightsAt';
 export { default as uploadAmendedOrders } from './uploadAmendedOrders';
+export { default as updateMTOShipmentStatus } from './updateMTOShipmentStatus';

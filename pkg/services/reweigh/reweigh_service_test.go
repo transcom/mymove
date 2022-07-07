@@ -9,7 +9,7 @@ import (
 )
 
 type ReweighSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestReweighServiceSuite(t *testing.T) {

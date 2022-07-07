@@ -11,7 +11,7 @@ import (
 )
 
 type GHCDieselFuelPriceServiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestGHCDieselFuelPriceServiceSuite(t *testing.T) {

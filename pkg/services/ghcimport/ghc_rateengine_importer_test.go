@@ -37,7 +37,7 @@ var tablesToTruncate = []string{
 }
 
 type GHCRateEngineImportSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func (suite *GHCRateEngineImportSuite) SetupTest() {
