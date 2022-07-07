@@ -118,8 +118,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{handlerConfig}
 
-	internalAPI.DpsAuthGetCookieURLHandler = DPSAuthGetCookieURLHandler{handlerConfig}
-
 	internalAPI.MovesShowShipmentSummaryWorksheetHandler = ShowShipmentSummaryWorksheetHandler{handlerConfig}
 
 	internalAPI.RegisterProducer("application/pdf", PDFProducer())

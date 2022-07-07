@@ -9,7 +9,7 @@ import (
 )
 
 type NotificationSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestNotificationSuite(t *testing.T) {

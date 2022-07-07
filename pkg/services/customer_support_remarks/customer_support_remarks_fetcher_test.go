@@ -2,6 +2,7 @@ package customersupportremarks
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -77,4 +78,33 @@ func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarksListFetcher(
 		suite.Error(models.ErrFetchNotFound, err)
 	})
 
+	suite.Run("Soft deleted remarks should not be returned", func() {
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		remark := testdatagen.MakeCustomerSupportRemark(suite.DB(),
+			testdatagen.Assertions{
+				CustomerSupportRemark: models.CustomerSupportRemark{
+					Content:      "this is a remark",
+					OfficeUserID: officeUser.ID,
+					MoveID:       move.ID,
+				}})
+
+		deletedTime := time.Now()
+		testdatagen.MakeCustomerSupportRemark(suite.DB(),
+			testdatagen.Assertions{
+				CustomerSupportRemark: models.CustomerSupportRemark{
+					Content:      "this is a deleted remark",
+					OfficeUserID: officeUser.ID,
+					MoveID:       move.ID,
+					DeletedAt:    &deletedTime,
+				}})
+		customerSupportRemarks, err := fetcher.ListCustomerSupportRemarks(suite.AppContextForTest(), move.Locator)
+		suite.NoError(err)
+		suite.NotNil(customerSupportRemarks)
+
+		customerSupportRemarkValues := *customerSupportRemarks
+		suite.Len(customerSupportRemarkValues, 1)
+
+		suite.Equal(remark.Content, customerSupportRemarkValues[0].Content)
+	})
 }

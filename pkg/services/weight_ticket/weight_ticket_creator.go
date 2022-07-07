@@ -44,8 +44,11 @@ func (f *weightTicketCreator) CreateWeightTicket(appCtx appcontext.AppContext, p
 		}
 
 		weightTicket = models.WeightTicket{
+			EmptyDocument:                     allDocs[0],
 			EmptyDocumentID:                   allDocs[0].ID,
+			FullDocument:                      allDocs[1],
 			FullDocumentID:                    allDocs[1].ID,
+			ProofOfTrailerOwnershipDocument:   allDocs[2],
 			ProofOfTrailerOwnershipDocumentID: allDocs[2].ID,
 			PPMShipmentID:                     ppmShipmentID,
 		}

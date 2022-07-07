@@ -47,12 +47,20 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 		fullDocID := uuid.Must(uuid.NewV4())
 		proofOfOwnershipID := uuid.Must(uuid.NewV4())
 
+		userUploads := models.UserUploads{}
+		userUploads = append(userUploads, models.UserUpload{
+			DocumentID: &emptyDocID,
+		})
+
 		existingWeightTicket := &models.WeightTicket{
 			ID:                                weightTicketID,
 			PPMShipmentID:                     ppmShipmentID,
 			EmptyDocumentID:                   emptyDocID,
 			FullDocumentID:                    fullDocID,
 			ProofOfTrailerOwnershipDocumentID: proofOfOwnershipID,
+			EmptyDocument: models.Document{
+				UserUploads: userUploads,
+			},
 		}
 
 		suite.Run("Success", func() {
@@ -116,8 +124,7 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 				switch verr := err.(type) {
 				case *validate.Errors:
 					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 3)
-					suite.Contains(verr.Keys(), "EmptyWeightDocument")
+					suite.Equal(len(verr.Keys()), 2)
 					suite.Contains(verr.Keys(), "FullWeightDocument")
 					suite.Contains(verr.Keys(), "ProofOfTrailerOwnershipDocument")
 				default:

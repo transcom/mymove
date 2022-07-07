@@ -9,7 +9,7 @@ import (
 )
 
 type MoveTaskOrderServiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestMoveTaskOrderServiceSuite(t *testing.T) {

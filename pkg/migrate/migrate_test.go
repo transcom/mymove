@@ -9,7 +9,7 @@ import (
 )
 
 type MigrateSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 // This suite uses the high privileged role.

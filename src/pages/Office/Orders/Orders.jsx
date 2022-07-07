@@ -20,6 +20,8 @@ import { ORDERS } from 'constants/queryKeys';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { TAC_VALIDATION_ACTIONS, reducer, initialState } from 'reducers/tacValidation';
 import { LOA_TYPE } from 'shared/constants';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
@@ -191,29 +193,50 @@ const Orders = () => {
                   </div>
                 </div>
                 <div className={styles.body}>
-                  <OrdersDetailForm
-                    deptIndicatorOptions={deptIndicatorDropdownOptions}
-                    ordersTypeOptions={ordersTypeDropdownOptions}
-                    ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
-                    hhgTacWarning={hhgTacWarning}
-                    ntsTacWarning={ntsTacWarning}
-                    validateHHGTac={handleHHGTacValidation}
-                    validateNTSTac={handleNTSTacValidation}
-                    showOrdersAcknowledgement={hasAmendedOrders}
-                    ordersType={order.order_type}
-                    setFieldValue={formik.setFieldValue}
-                  />
+                  <Restricted
+                    to={permissionTypes.updateOrders}
+                    fallback={
+                      <OrdersDetailForm
+                        deptIndicatorOptions={deptIndicatorDropdownOptions}
+                        ordersTypeOptions={ordersTypeDropdownOptions}
+                        ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
+                        hhgTacWarning={hhgTacWarning}
+                        ntsTacWarning={ntsTacWarning}
+                        validateHHGTac={handleHHGTacValidation}
+                        validateNTSTac={handleNTSTacValidation}
+                        showOrdersAcknowledgement={hasAmendedOrders}
+                        ordersType={order.order_type}
+                        setFieldValue={formik.setFieldValue}
+                        formIsDisabled
+                      />
+                    }
+                  >
+                    <OrdersDetailForm
+                      deptIndicatorOptions={deptIndicatorDropdownOptions}
+                      ordersTypeOptions={ordersTypeDropdownOptions}
+                      ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
+                      hhgTacWarning={hhgTacWarning}
+                      ntsTacWarning={ntsTacWarning}
+                      validateHHGTac={handleHHGTacValidation}
+                      validateNTSTac={handleNTSTacValidation}
+                      showOrdersAcknowledgement={hasAmendedOrders}
+                      ordersType={order.order_type}
+                      setFieldValue={formik.setFieldValue}
+                    />
+                  </Restricted>
                 </div>
-                <div className={styles.bottom}>
-                  <div className={styles.buttonGroup}>
-                    <Button type="submit" disabled={formik.isSubmitting}>
-                      Save
-                    </Button>
-                    <Button type="button" secondary onClick={handleClose}>
-                      Cancel
-                    </Button>
+                <Restricted to={permissionTypes.updateOrders}>
+                  <div className={styles.bottom}>
+                    <div className={styles.buttonGroup}>
+                      <Button disabled={formik.isSubmitting} type="submit">
+                        Save
+                      </Button>
+                      <Button type="button" secondary onClick={handleClose}>
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                </Restricted>
               </div>
             </form>
           );

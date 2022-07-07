@@ -169,6 +169,11 @@ type PPMShipment struct {
 	// submitted at
 	// Format: date-time
 	SubmittedAt *strfmt.DateTime `json:"submittedAt"`
+
+	// updated at
+	// Read Only: true
+	// Format: date-time
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // Validate validates this p p m shipment
@@ -252,6 +257,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSubmittedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -514,6 +523,18 @@ func (m *PPMShipment) validateSubmittedAt(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *PPMShipment) validateUpdatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.UpdatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validate this p p m shipment based on the context it is used
 func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -539,6 +560,10 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -608,6 +633,15 @@ func (m *PPMShipment) contextValidateStatus(ctx context.Context, formats strfmt.
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("status")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 

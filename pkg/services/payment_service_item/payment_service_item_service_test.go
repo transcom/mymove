@@ -9,7 +9,7 @@ import (
 )
 
 type PaymentServiceItemSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestPaymentServiceItemServiceSuite(t *testing.T) {

@@ -113,20 +113,12 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 	}
 
 	model := &models.PPMShipment{
-		SITExpected: ppmShipment.SitExpected,
-	}
-
-	expectedDepartureDate := time.Time(*ppmShipment.ExpectedDepartureDate)
-	if !expectedDepartureDate.IsZero() {
-		model.ExpectedDepartureDate = expectedDepartureDate
-	}
-
-	if ppmShipment.PickupPostalCode != nil {
-		model.PickupPostalCode = *ppmShipment.PickupPostalCode
-	}
-
-	if ppmShipment.DestinationPostalCode != nil {
-		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
+		PickupPostalCode:               *ppmShipment.PickupPostalCode,
+		SecondaryPickupPostalCode:      handlers.FmtNullableStringToStringPtr(ppmShipment.SecondaryPickupPostalCode),
+		DestinationPostalCode:          *ppmShipment.DestinationPostalCode,
+		SecondaryDestinationPostalCode: handlers.FmtNullableStringToStringPtr(ppmShipment.SecondaryDestinationPostalCode),
+		SITExpected:                    ppmShipment.SitExpected,
+		ExpectedDepartureDate:          handlers.FmtDatePtrToPop(ppmShipment.ExpectedDepartureDate),
 	}
 
 	return model

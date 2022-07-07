@@ -368,10 +368,14 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	suite.MustSave(&newServiceMember)
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		ServiceMember: newServiceMember,
 		Order: models.Order{
-			ServiceMember:   newServiceMember,
-			ServiceMemberID: newServiceMember.ID,
+			ServiceMemberID:   newServiceMember.ID,
+			ServiceMember:     newServiceMember,
+			NewDutyLocationID: newDutyLocation.ID,
+			NewDutyLocation:   newDutyLocation,
 		},
+		OriginDutyLocation: origDutyLocation,
 	})
 
 	// The testdatagen sets these values, fails if you try to blank them out via Assertions,
@@ -451,7 +455,11 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	// Then: we expect addresses to have been created
 	addresses := []models.Address{}
 	suite.DB().All(&addresses)
-	suite.Equal(8, len(addresses))
+	suite.Equal(6, len(addresses))
+	// Why 6?
+	// Make duty locations +2 addresses each DL => 4
+	// Patch service member +2 addresses added to service member => 2
+	// Total => 6
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {

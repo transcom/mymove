@@ -39,7 +39,6 @@ repos:
             config/tls/devlocal-faux-navy-orders.key$|
             config/tls/devlocal-https.key$|
             config/tls/devlocal-mtls.key$|
-            config/tls/devlocal-not-dps.key$|
             pkg/server/testdata/localhost.key$|
             pkg/server/testdata/localhost-invalid.key$|
             pkg/server/testdata/officelocal.key$|

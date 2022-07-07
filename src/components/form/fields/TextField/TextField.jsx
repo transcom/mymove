@@ -31,6 +31,7 @@ const TextField = ({
   error,
   errorMessage,
   errorClassName,
+  isDisabled,
   ...inputProps
 }) => {
   const [fieldProps, metaProps] = useField({ name, validate, type });
@@ -58,7 +59,7 @@ const TextField = ({
 
       {showWarning && <Hint data-testid="textInputWarning">{warning}</Hint>}
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-      <TextInput id={id} name={name} {...fieldProps} {...inputProps} />
+      <TextInput id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />
     </FormGroup>
   );
 };
@@ -76,6 +77,7 @@ TextField.propTypes = {
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
   errorClassName: PropTypes.string,
+  isDisabled: PropTypes.bool,
 };
 
 TextField.defaultProps = {
@@ -88,6 +90,7 @@ TextField.defaultProps = {
   error: false,
   errorMessage: '',
   errorClassName: '',
+  isDisabled: false,
 };
 
 export default TextField;

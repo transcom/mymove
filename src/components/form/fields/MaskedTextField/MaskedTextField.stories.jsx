@@ -27,6 +27,22 @@ export const MaskedTextFieldDefaultState = () => (
     )}
   </Formik>
 );
+export const MaskedTextFieldDisabledState = () => (
+  <Formik initialValues={{}}>
+    {() => (
+      <Form>
+        <MaskedTextField
+          id="input-type-text"
+          label="Text input label"
+          hint={labelHint}
+          name="input-type-text"
+          type="text"
+          isDisabled
+        />
+      </Form>
+    )}
+  </Formik>
+);
 export const MaskedTextFieldWithWarning = () => (
   <Formik initialValues={{}}>
     {() => (

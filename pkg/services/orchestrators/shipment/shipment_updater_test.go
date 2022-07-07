@@ -16,7 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite ShipmentSuite) TestUpdateShipment() {
+func (suite *ShipmentSuite) TestUpdateShipment() {
 
 	// Setup in this area should only be for objects that can be created once for all the sub-tests. Any model data,
 	// mocks, or objects that can be modified in subtests should instead be set up in makeSubtestData.

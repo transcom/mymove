@@ -34,7 +34,7 @@ import (
 )
 
 type UploaderSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 	storer       storage.FileStorer
 	filesToClose []afero.File
 	fs           *afero.Afero
