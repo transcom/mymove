@@ -7,7 +7,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// TODO not really a real test, just wanted to have an insert/query
 func MakeEvaluationReport(db *pop.Connection, assertions Assertions) models.EvaluationReport {
 	officeUser := assertions.OfficeUser
 	if isZeroUUID(assertions.OfficeUser.ID) {
@@ -19,8 +18,15 @@ func MakeEvaluationReport(db *pop.Connection, assertions Assertions) models.Eval
 		move = MakeMove(db, assertions)
 	}
 
+	reportType := assertions.EvaluationReport.Type
+	if reportType == "" {
+		// If no report type is specified, default to Counseling
+		reportType = models.EvaluationReportTypeCounseling
+	}
+
 	evaluationReport := models.EvaluationReport{
 		ID:           uuid.Must(uuid.NewV4()),
+		Type:         reportType,
 		OfficeUserID: officeUser.ID,
 		OfficeUser:   officeUser,
 		MoveID:       move.ID,

@@ -12,8 +12,8 @@ import (
 type EvaluationReportType string
 
 const (
-	EvaluationReportTypeShipment   EvaluationReportInspectionType = "SHIPMENT"
-	EvaluationReportTypeCounseling EvaluationReportInspectionType = "COUNSELING"
+	EvaluationReportTypeShipment   EvaluationReportType = "SHIPMENT"
+	EvaluationReportTypeCounseling EvaluationReportType = "COUNSELING"
 )
 
 type EvaluationReportInspectionType string
