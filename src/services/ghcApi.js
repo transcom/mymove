@@ -40,8 +40,11 @@ export async function createCustomerSupportRemarkForMove({ body, locator }) {
   });
 }
 
-export async function updateCustomerSupportRemarkForMove({ body, locator }) {
-  return makeGHCRequest('customerSupportRemarks.updateCustomerSupportRemarkForMove', { body, locator });
+export async function updateCustomerSupportRemarkForMove({ body, customerSupportRemarkID }) {
+  return makeGHCRequest('customerSupportRemarks.updateCustomerSupportRemarkForMove', {
+    body,
+    customerSupportRemarkID,
+  });
 }
 
 export async function deleteCustomerSupportRemark({ customerSupportRemarkID }) {
