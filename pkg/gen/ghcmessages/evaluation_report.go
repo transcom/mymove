@@ -7,7 +7,6 @@ package ghcmessages
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -38,12 +37,10 @@ type EvaluationReport struct {
 	InspectionDate *strfmt.DateTime `json:"inspectionDate,omitempty"`
 
 	// inspection type
-	// Enum: [DATA_REVIEW PHYSICAL VIRTUAL]
-	InspectionType *string `json:"inspectionType,omitempty"`
+	InspectionType *EvaluationReportInspectionType `json:"inspectionType,omitempty"`
 
 	// location
-	// Enum: [ORIGIN DESTINATION OTHER]
-	Location *string `json:"location,omitempty"`
+	Location *EvaluationReportLocation `json:"location,omitempty"`
 
 	// location description
 	// Example: asdfasdfsd
@@ -75,8 +72,7 @@ type EvaluationReport struct {
 	TravelTimeMinutes *int64 `json:"travelTimeMinutes,omitempty"`
 
 	// type
-	// Enum: [SHIPMENT COUNSELING]
-	Type string `json:"type,omitempty"`
+	Type EvaluationReportType `json:"type,omitempty"`
 
 	// violations observed
 	ViolationsObserved *bool `json:"violationsObserved,omitempty"`
@@ -188,80 +184,22 @@ func (m *EvaluationReport) validateInspectionDate(formats strfmt.Registry) error
 	return nil
 }
 
-var evaluationReportTypeInspectionTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["DATA_REVIEW","PHYSICAL","VIRTUAL"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		evaluationReportTypeInspectionTypePropEnum = append(evaluationReportTypeInspectionTypePropEnum, v)
-	}
-}
-
-const (
-
-	// EvaluationReportInspectionTypeDATAREVIEW captures enum value "DATA_REVIEW"
-	EvaluationReportInspectionTypeDATAREVIEW string = "DATA_REVIEW"
-
-	// EvaluationReportInspectionTypePHYSICAL captures enum value "PHYSICAL"
-	EvaluationReportInspectionTypePHYSICAL string = "PHYSICAL"
-
-	// EvaluationReportInspectionTypeVIRTUAL captures enum value "VIRTUAL"
-	EvaluationReportInspectionTypeVIRTUAL string = "VIRTUAL"
-)
-
-// prop value enum
-func (m *EvaluationReport) validateInspectionTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, evaluationReportTypeInspectionTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (m *EvaluationReport) validateInspectionType(formats strfmt.Registry) error {
 	if swag.IsZero(m.InspectionType) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := m.validateInspectionTypeEnum("inspectionType", "body", *m.InspectionType); err != nil {
-		return err
+	if m.InspectionType != nil {
+		if err := m.InspectionType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("inspectionType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("inspectionType")
+			}
+			return err
+		}
 	}
 
-	return nil
-}
-
-var evaluationReportTypeLocationPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["ORIGIN","DESTINATION","OTHER"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		evaluationReportTypeLocationPropEnum = append(evaluationReportTypeLocationPropEnum, v)
-	}
-}
-
-const (
-
-	// EvaluationReportLocationORIGIN captures enum value "ORIGIN"
-	EvaluationReportLocationORIGIN string = "ORIGIN"
-
-	// EvaluationReportLocationDESTINATION captures enum value "DESTINATION"
-	EvaluationReportLocationDESTINATION string = "DESTINATION"
-
-	// EvaluationReportLocationOTHER captures enum value "OTHER"
-	EvaluationReportLocationOTHER string = "OTHER"
-)
-
-// prop value enum
-func (m *EvaluationReport) validateLocationEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, evaluationReportTypeLocationPropEnum, true); err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -270,9 +208,15 @@ func (m *EvaluationReport) validateLocation(formats strfmt.Registry) error {
 		return nil
 	}
 
-	// value enum
-	if err := m.validateLocationEnum("location", "body", *m.Location); err != nil {
-		return err
+	if m.Location != nil {
+		if err := m.Location.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("location")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("location")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -338,50 +282,88 @@ func (m *EvaluationReport) validateTravelTimeMinutes(formats strfmt.Registry) er
 	return nil
 }
 
-var evaluationReportTypeTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["SHIPMENT","COUNSELING"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		evaluationReportTypeTypePropEnum = append(evaluationReportTypeTypePropEnum, v)
-	}
-}
-
-const (
-
-	// EvaluationReportTypeSHIPMENT captures enum value "SHIPMENT"
-	EvaluationReportTypeSHIPMENT string = "SHIPMENT"
-
-	// EvaluationReportTypeCOUNSELING captures enum value "COUNSELING"
-	EvaluationReportTypeCOUNSELING string = "COUNSELING"
-)
-
-// prop value enum
-func (m *EvaluationReport) validateTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, evaluationReportTypeTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (m *EvaluationReport) validateType(formats strfmt.Registry) error {
 	if swag.IsZero(m.Type) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := m.validateTypeEnum("type", "body", m.Type); err != nil {
+	if err := m.Type.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("type")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("type")
+		}
 		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validates this evaluation report based on context it is used
+// ContextValidate validate this evaluation report based on the context it is used
 func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateInspectionType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateLocation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateInspectionType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.InspectionType != nil {
+		if err := m.InspectionType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("inspectionType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("inspectionType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateLocation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Location != nil {
+		if err := m.Location.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("location")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("location")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Type.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("type")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("type")
+		}
+		return err
+	}
+
 	return nil
 }
 

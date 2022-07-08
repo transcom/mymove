@@ -4399,22 +4399,12 @@ func init() {
           "x-nullable": true
         },
         "inspectionType": {
-          "type": "string",
-          "enum": [
-            "DATA_REVIEW",
-            "PHYSICAL",
-            "VIRTUAL"
-          ],
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportInspectionType"
         },
         "location": {
-          "type": "string",
-          "enum": [
-            "ORIGIN",
-            "DESTINATION",
-            "OTHER"
-          ],
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportLocation"
         },
         "locationDescription": {
           "type": "string",
@@ -4451,17 +4441,38 @@ func init() {
           "x-nullable": true
         },
         "type": {
-          "type": "string",
-          "enum": [
-            "SHIPMENT",
-            "COUNSELING"
-          ]
+          "$ref": "#/definitions/EvaluationReportType"
         },
         "violationsObserved": {
           "type": "boolean",
           "x-nullable": true
         }
       }
+    },
+    "EvaluationReportInspectionType": {
+      "type": "string",
+      "enum": [
+        "DATA_REVIEW",
+        "PHYSICAL",
+        "VIRTUAL"
+      ],
+      "x-nullable": true
+    },
+    "EvaluationReportLocation": {
+      "type": "string",
+      "enum": [
+        "ORIGIN",
+        "DESTINATION",
+        "OTHER"
+      ],
+      "x-nullable": true
+    },
+    "EvaluationReportType": {
+      "type": "string",
+      "enum": [
+        "SHIPMENT",
+        "COUNSELING"
+      ]
     },
     "EvaluationReports": {
       "type": "array",
@@ -12597,22 +12608,12 @@ func init() {
           "x-nullable": true
         },
         "inspectionType": {
-          "type": "string",
-          "enum": [
-            "DATA_REVIEW",
-            "PHYSICAL",
-            "VIRTUAL"
-          ],
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportInspectionType"
         },
         "location": {
-          "type": "string",
-          "enum": [
-            "ORIGIN",
-            "DESTINATION",
-            "OTHER"
-          ],
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportLocation"
         },
         "locationDescription": {
           "type": "string",
@@ -12650,17 +12651,38 @@ func init() {
           "x-nullable": true
         },
         "type": {
-          "type": "string",
-          "enum": [
-            "SHIPMENT",
-            "COUNSELING"
-          ]
+          "$ref": "#/definitions/EvaluationReportType"
         },
         "violationsObserved": {
           "type": "boolean",
           "x-nullable": true
         }
       }
+    },
+    "EvaluationReportInspectionType": {
+      "type": "string",
+      "enum": [
+        "DATA_REVIEW",
+        "PHYSICAL",
+        "VIRTUAL"
+      ],
+      "x-nullable": true
+    },
+    "EvaluationReportLocation": {
+      "type": "string",
+      "enum": [
+        "ORIGIN",
+        "DESTINATION",
+        "OTHER"
+      ],
+      "x-nullable": true
+    },
+    "EvaluationReportType": {
+      "type": "string",
+      "enum": [
+        "SHIPMENT",
+        "COUNSELING"
+      ]
     },
     "EvaluationReports": {
       "type": "array",

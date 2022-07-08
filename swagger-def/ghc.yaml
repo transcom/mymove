@@ -4133,6 +4133,25 @@ definitions:
       content:
         example: This is a remark about a move.
         type: string
+  EvaluationReportType:
+    type: string
+    enum:
+      - SHIPMENT
+      - COUNSELING
+  EvaluationReportInspectionType:
+    type: string
+    enum:
+      - DATA_REVIEW
+      - PHYSICAL
+      - VIRTUAL
+    x-nullable: true
+  EvaluationReportLocation:
+    type: string
+    enum:
+      - ORIGIN
+      - DESTINATION
+      - OTHER
+    x-nullable: true
   EvaluationReport:
     type: object
     description: An evaluation report
@@ -4151,16 +4170,9 @@ definitions:
         type: string
         x-nullable: true
       type:
-        type: string
-        enum:
-          - SHIPMENT
-          - COUNSELING
+        $ref: '#/definitions/EvaluationReportType'
       inspectionType:
-        type: string
-        enum:
-          - DATA_REVIEW
-          - PHYSICAL
-          - VIRTUAL
+        $ref: '#/definitions/EvaluationReportInspectionType'
         x-nullable: true
       inspectionDate:
         type: string
@@ -4171,11 +4183,7 @@ definitions:
         minimum: 0
         x-nullable: true
       location:
-        type: string
-        enum:
-          - ORIGIN
-          - DESTINATION
-          - OTHER
+        $ref: '#/definitions/EvaluationReportLocation'
         x-nullable: true
       locationDescription:
         type: string
