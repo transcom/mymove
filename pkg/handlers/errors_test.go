@@ -18,7 +18,7 @@ type fakeModel struct {
 }
 
 type ErrorsSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestErrorsSuite(t *testing.T) {

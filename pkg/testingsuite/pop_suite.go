@@ -151,7 +151,7 @@ func WithPerTestTransaction() PopTestSuiteOption {
 }
 
 // NewPopTestSuite returns a new PopTestSuite
-func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTestSuite {
+func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) *PopTestSuite {
 	// Create a standardized PopTestSuite object.
 	pts := &PopTestSuite{
 		PackageName: packageName,
@@ -220,7 +220,7 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTes
 		pts.lowPrivConnDetails = pts.highPrivConnDetails
 	}
 
-	return *pts
+	return pts
 }
 
 func (suite *PopTestSuite) getDbConnectionDetails() {

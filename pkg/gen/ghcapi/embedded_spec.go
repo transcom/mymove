@@ -5104,9 +5104,7 @@ func init() {
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
           "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
+          "additionalProperties": true,
           "x-nullable": true
         },
         "clientQuery": {
@@ -5151,9 +5149,7 @@ func init() {
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
           "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
+          "additionalProperties": true,
           "x-nullable": true
         },
         "relId": {
@@ -5772,6 +5768,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       },
       "x-nullable": true
@@ -13146,9 +13147,7 @@ func init() {
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
           "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
+          "additionalProperties": true,
           "x-nullable": true
         },
         "clientQuery": {
@@ -13193,9 +13192,7 @@ func init() {
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
           "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
+          "additionalProperties": true,
           "x-nullable": true
         },
         "relId": {
@@ -13814,6 +13811,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       },
       "x-nullable": true

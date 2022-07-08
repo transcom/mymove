@@ -17,6 +17,12 @@ def total_coverage_percent(filename):
         percent = line.split()[-1]
         return float(percent.rstrip('%'))
 
+def coverage_diff(filename1, filename2):
+  if not filename1 or not filename2:
+    return
+  os.system(f"git --no-pager diff --no-index -U0 '{filename1}' '{filename2}'")
+
+
 baseline_file = sys.argv[1]
 new_file = sys.argv[2]
 
@@ -33,5 +39,11 @@ print(f"Baseline test coverage: {baseline_percent}")
 print(f"New test coverage: {new_percent}")
 
 if new_percent < baseline_percent:
-  print("Test Coverage has decreased")
+  print("\n--- DIFF of the baseline test coverage compared to this PR ---")
+  print("    Note, not all changes will be meaningful, look for test coverage %% decreases\n")
+  coverage_diff(baseline_file, new_file)
+
+  print(f"\nBaseline test coverage: {baseline_percent}")
+  print(f"New test coverage: {new_percent}")
+  print("Test Coverage has decreased\n")
   sys.exit(1)

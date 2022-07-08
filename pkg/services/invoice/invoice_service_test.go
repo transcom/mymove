@@ -11,7 +11,7 @@ import (
 )
 
 type InvoiceServiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 	storer storage.FileStorer
 }
 

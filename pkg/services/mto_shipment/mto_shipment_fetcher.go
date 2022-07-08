@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 )
 
 type mtoShipmentFetcher struct {
@@ -44,8 +45,8 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"DestinationAddress",
 			"SecondaryDeliveryAddress",
 			"MTOServiceItems.Dimensions",
-			// Can't EagerPreload "Reweigh" due to a Pop bug (see below)
-			// "Reweigh",
+			"PPMShipment.WeightTickets.EmptyDocument.UserUploads.Upload",
+			"Reweigh",
 			"SITExtensions",
 			"StorageFacility.Address",
 		). // Right now no use case for showing deleted shipments.
@@ -58,19 +59,27 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 		return nil, err
 	}
 
-	// Due to a Pop bug, we cannot EagerPreload "Reweigh" or "PPMShipment" likely because it is a pointer and
-	// a "has_one" field.  This seems similar to other EagerPreload issues we've found (and
-	// sometimes fixed): https://github.com/gobuffalo/pop/issues?q=author%3Areggieriser
+	// Need to iterate through shipments to fetch additional PPM weight ticket info
+	// EagerPreload causes duplicate records because there are multiple relationships to the same table
 	for i := range shipments {
-		loadErr := appCtx.DB().Load(&shipments[i], "Reweigh")
-		if loadErr != nil {
-			return nil, err
-		}
-
 		if shipments[i].ShipmentType == models.MTOShipmentTypePPM {
-			loadErr := appCtx.DB().Load(&shipments[i], "PPMShipment")
-			if loadErr != nil {
-				return nil, apperror.NewQueryError("PPMShipment", err, "")
+			for j := range shipments[i].PPMShipment.WeightTickets {
+				// variable for convience still modifies original shipments object
+				weightTicket := &shipments[i].PPMShipment.WeightTickets[j]
+
+				weightTicket.EmptyDocument.UserUploads = weightticket.FilterDeletedValued(weightTicket.EmptyDocument.UserUploads)
+
+				loadErr := appCtx.DB().Load(weightTicket, "FullDocument.UserUploads.Upload")
+				if loadErr != nil {
+					return nil, loadErr
+				}
+				weightTicket.FullDocument.UserUploads = weightticket.FilterDeletedValued(weightTicket.FullDocument.UserUploads)
+
+				loadErr = appCtx.DB().Load(weightTicket, "ProofOfTrailerOwnershipDocument.UserUploads.Upload")
+				if loadErr != nil {
+					return nil, loadErr
+				}
+				weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightticket.FilterDeletedValued(weightTicket.ProofOfTrailerOwnershipDocument.UserUploads)
 			}
 		}
 	}

@@ -5,6 +5,8 @@ import (
 	"math"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gofrs/uuid"
@@ -102,9 +104,9 @@ func CustomerSupportRemarks(customerSupportRemarks models.CustomerSupportRemarks
 }
 
 // MoveHistory payload
-func MoveHistory(moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
+func MoveHistory(logger *zap.Logger, moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{
-		HistoryRecords: moveHistoryRecords(moveHistory.AuditHistories),
+		HistoryRecords: moveHistoryRecords(logger, moveHistory.AuditHistories),
 		ID:             strfmt.UUID(moveHistory.ID.String()),
 		Locator:        moveHistory.Locator,
 		ReferenceID:    moveHistory.ReferenceID,
@@ -114,15 +116,15 @@ func MoveHistory(moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 }
 
 // MoveAuditHistory payload
-func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHistory {
+func MoveAuditHistory(logger *zap.Logger, auditHistory models.AuditHistory) *ghcmessages.MoveAuditHistory {
 
 	payload := &ghcmessages.MoveAuditHistory{
 		Action:               auditHistory.Action,
 		ActionTstampClk:      strfmt.DateTime(auditHistory.ActionTstampClk),
 		ActionTstampStm:      strfmt.DateTime(auditHistory.ActionTstampStm),
 		ActionTstampTx:       strfmt.DateTime(auditHistory.ActionTstampTx),
-		ChangedValues:        removeEscapeJSONtoObject(auditHistory.ChangedData),
-		OldValues:            removeEscapeJSONtoObject(auditHistory.OldData),
+		ChangedValues:        removeEscapeJSONtoObject(logger, auditHistory.ChangedData),
+		OldValues:            removeEscapeJSONtoObject(logger, auditHistory.OldData),
 		ClientQuery:          auditHistory.ClientQuery,
 		EventName:            auditHistory.EventName,
 		ID:                   strfmt.UUID(auditHistory.ID.String()),
@@ -133,7 +135,7 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 		SessionUserLastName:  auditHistory.SessionUserLastName,
 		SessionUserEmail:     auditHistory.SessionUserEmail,
 		SessionUserTelephone: auditHistory.SessionUserTelephone,
-		Context:              removeEscapeJSONtoArray(auditHistory.Context),
+		Context:              removeEscapeJSONtoArray(logger, auditHistory.Context),
 		ContextID:            auditHistory.ContextID,
 		StatementOnly:        auditHistory.StatementOnly,
 		TableName:            auditHistory.TableName,
@@ -144,34 +146,44 @@ func MoveAuditHistory(auditHistory models.AuditHistory) *ghcmessages.MoveAuditHi
 	return payload
 }
 
-func removeEscapeJSONtoObject(data *string) map[string]string {
-	var result map[string]string
+func removeEscapeJSONtoObject(logger *zap.Logger, data *string) map[string]interface{} {
+	var result map[string]interface{}
 	if data == nil || *data == "" {
 		return result
 	}
 	var byteData = []byte(*data)
 
-	_ = json.Unmarshal(byteData, &result)
+	err := json.Unmarshal(byteData, &result)
+
+	if err != nil {
+		logger.Error("error unmarshalling the escaped json to object", zap.Error(err))
+	}
+
 	return result
 
 }
 
-func removeEscapeJSONtoArray(data *string) []map[string]string {
+func removeEscapeJSONtoArray(logger *zap.Logger, data *string) []map[string]string {
 	var result []map[string]string
 	if data == nil || *data == "" {
 		return result
 	}
 	var byteData = []byte(*data)
 
-	_ = json.Unmarshal(byteData, &result)
+	err := json.Unmarshal(byteData, &result)
+
+	if err != nil {
+		logger.Error("error unmarshalling the escaped json to array", zap.Error(err))
+	}
+
 	return result
 }
 
-func moveHistoryRecords(auditHistories models.AuditHistories) ghcmessages.MoveAuditHistories {
+func moveHistoryRecords(logger *zap.Logger, auditHistories models.AuditHistories) ghcmessages.MoveAuditHistories {
 	payload := make(ghcmessages.MoveAuditHistories, len(auditHistories))
 
 	for i, a := range auditHistories {
-		payload[i] = MoveAuditHistory(a)
+		payload[i] = MoveAuditHistory(logger, a)
 	}
 	return payload
 }
@@ -499,6 +511,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 		ID:                             *handlers.FmtUUID(ppmShipment.ID),
 		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
 		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
+		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
 		Status:                         ghcmessages.PPMShipmentStatus(ppmShipment.Status),
 		ExpectedDepartureDate:          handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
 		ActualMoveDate:                 handlers.FmtDatePtr(ppmShipment.ActualMoveDate),

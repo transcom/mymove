@@ -8,6 +8,7 @@ import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio } from '@trussworks
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 
 import styles from './ShipmentForm.module.scss';
+import ppmShipmentSchema from './ppmShipmentSchema';
 
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -15,9 +16,14 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';
+import DestinationZIPInfo from 'components/Office/DestinationZIPInfo/DestinationZIPInfo';
+import OriginZIPInfo from 'components/Office/OriginZIPInfo/OriginZIPInfo';
 import ShipmentAccountingCodes from 'components/Office/ShipmentAccountingCodes/ShipmentAccountingCodes';
+import ShipmentCustomerSIT from 'components/Office/ShipmentCustomerSIT/ShipmentCustomerSIT';
 import ShipmentFormRemarks from 'components/Office/ShipmentFormRemarks/ShipmentFormRemarks';
+import ShipmentIncentiveAdvance from 'components/Office/ShipmentIncentiveAdvance/ShipmentIncentiveAdvance';
 import ShipmentVendor from 'components/Office/ShipmentVendor/ShipmentVendor';
+import ShipmentWeight from 'components/Office/ShipmentWeight/ShipmentWeight';
 import ShipmentWeightInput from 'components/Office/ShipmentWeightInput/ShipmentWeightInput';
 import StorageFacilityAddress from 'components/Office/StorageFacilityAddress/StorageFacilityAddress';
 import StorageFacilityInfo from 'components/Office/StorageFacilityInfo/StorageFacilityInfo';
@@ -33,13 +39,19 @@ import { AccountingCodesShape } from 'types/accountingCodes';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { MatchShape } from 'types/officeShapes';
 import { ShipmentShape } from 'types/shipment';
-import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
+import {
+  formatMtoShipmentForAPI,
+  formatMtoShipmentForDisplay,
+  formatPpmShipmentForAPI,
+  formatPpmShipmentForDisplay,
+} from 'utils/formatMtoShipment';
 import { formatWeight, dropdownInputOptions } from 'utils/formatters';
-import { validateDate } from 'utils/validation';
+import { validateDate, validatePostalCode } from 'utils/validation';
 
 const ShipmentForm = ({
   match,
   history,
+  originDutyLocationAddress,
   newDutyLocationAddress,
   selectedMoveType,
   isCreatePage,
@@ -54,6 +66,7 @@ const ShipmentForm = ({
   SACs,
   userRole,
   displayDestinationType,
+  isAdvancePage,
 }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
@@ -98,7 +111,6 @@ const ShipmentForm = ({
   };
 
   const shipmentType = mtoShipment.shipmentType || selectedMoveType;
-  const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, userRole);
 
   const isHHG = shipmentType === SHIPMENT_OPTIONS.HHG;
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
@@ -113,11 +125,31 @@ const ShipmentForm = ({
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
   const shipmentNumber = isHHG ? getShipmentNumber() : null;
-  const initialValues = formatMtoShipmentForDisplay(
-    isCreatePage
-      ? { userRole, shipmentType }
-      : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
-  );
+  const initialValues = isPPM
+    ? formatPpmShipmentForDisplay(isCreatePage ? { userRole } : { userRole, ppmShipment: mtoShipment.ppmShipment })
+    : formatMtoShipmentForDisplay(
+        isCreatePage
+          ? { userRole, shipmentType }
+          : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
+      );
+
+  let showDeliveryFields;
+  let showPickupFields;
+  let schema;
+
+  if (isPPM) {
+    schema = ppmShipmentSchema({
+      estimatedIncentive: initialValues.estimatedIncentive || 0,
+      weightAllotment: serviceMember.weightAllotment,
+    });
+  } else {
+    const shipmentOptions = getShipmentOptions(shipmentType, userRole);
+
+    showDeliveryFields = shipmentOptions.showDeliveryFields;
+    showPickupFields = shipmentOptions.showPickupFields;
+    schema = shipmentOptions.schema;
+  }
+
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
   const { moveCode } = match.params;
 
@@ -127,25 +159,50 @@ const ShipmentForm = ({
   const editOrdersRoute = isTOO ? tooRoutes.ORDERS_EDIT_PATH : servicesCounselingRoutes.ORDERS_EDIT_PATH;
   const editOrdersPath = generatePath(editOrdersRoute, { moveCode });
 
-  const submitMTOShipment = ({
-    shipmentOption,
-    pickup,
-    hasDeliveryAddress,
-    delivery,
-    customerRemarks,
-    counselorRemarks,
-    ntsRecordedWeight,
-    tacType,
-    sacType,
-    serviceOrderNumber,
-    storageFacility,
-    usesExternalVendor,
-    destinationType,
-  }) => {
+  const submitMTOShipment = (formValues) => {
     if (isPPM) {
-      // todo
+      const ppmShipment = formatPpmShipmentForAPI(formValues);
+
+      if (isCreatePage) {
+        const body = { ...ppmShipment, moveTaskOrderID };
+        submitHandler({ body, normalize: false })
+          .then((newShipment) => {
+            const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
+              moveCode,
+              shipmentId: newShipment.id,
+            });
+
+            const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
+              moveCode,
+              shipmentId: newShipment.id,
+            });
+
+            history.replace(currentPath);
+            history.push(advancePath);
+          })
+          .catch(() => {
+            setErrorMessage(`A server error occurred adding the shipment`);
+          });
+      }
+
       return;
     }
+
+    const {
+      shipmentOption,
+      pickup,
+      hasDeliveryAddress,
+      delivery,
+      customerRemarks,
+      counselorRemarks,
+      ntsRecordedWeight,
+      tacType,
+      sacType,
+      serviceOrderNumber,
+      storageFacility,
+      usesExternalVendor,
+      destinationType,
+    } = formValues;
 
     const deliveryDetails = delivery;
     if (hasDeliveryAddress === 'no' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
@@ -446,12 +503,33 @@ const ShipmentForm = ({
                   </SectionWrapper>
                 )}
 
-                <ShipmentFormRemarks
-                  userRole={userRole}
-                  shipmentType={shipmentType}
-                  customerRemarks={mtoShipment.customerRemarks}
-                  counselorRemarks={mtoShipment.counselorRemarks}
-                />
+                {isPPM && !isAdvancePage && (
+                  <>
+                    <OriginZIPInfo
+                      postalCodeValidator={validatePostalCode}
+                      currentZip={originDutyLocationAddress.postalCode}
+                    />
+                    <DestinationZIPInfo
+                      postalCodeValidator={validatePostalCode}
+                      dutyZip={newDutyLocationAddress.postalCode}
+                    />
+                    <ShipmentCustomerSIT />
+                    <ShipmentWeight authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()} />
+                  </>
+                )}
+
+                {isPPM && isAdvancePage && (
+                  <ShipmentIncentiveAdvance estimatedIncentive={mtoShipment.ppmShipment?.estimatedIncentive} />
+                )}
+
+                {(!isPPM || (isPPM && isAdvancePage)) && (
+                  <ShipmentFormRemarks
+                    userRole={userRole}
+                    shipmentType={shipmentType}
+                    customerRemarks={mtoShipment.customerRemarks}
+                    counselorRemarks={mtoShipment.counselorRemarks}
+                  />
+                )}
 
                 {showAccountingCodes && (
                   <ShipmentAccountingCodes
@@ -511,6 +589,7 @@ ShipmentForm.propTypes = {
   isCreatePage: bool,
   isForServicesCounseling: bool,
   currentResidence: AddressShape.isRequired,
+  originDutyLocationAddress: SimpleAddressShape,
   newDutyLocationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
   mtoShipment: ShipmentShape,
@@ -525,6 +604,7 @@ ShipmentForm.propTypes = {
   SACs: AccountingCodesShape,
   userRole: oneOf(officeRoles).isRequired,
   displayDestinationType: bool,
+  isAdvancePage: bool,
 };
 
 ShipmentForm.defaultProps = {
@@ -532,6 +612,11 @@ ShipmentForm.defaultProps = {
   isForServicesCounseling: false,
   match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
   history: { push: () => {} },
+  originDutyLocationAddress: {
+    city: '',
+    state: '',
+    postalCode: '',
+  },
   newDutyLocationAddress: {
     city: '',
     state: '',
@@ -553,6 +638,7 @@ ShipmentForm.defaultProps = {
   TACs: {},
   SACs: {},
   displayDestinationType: false,
+  isAdvancePage: false,
 };
 
 export default ShipmentForm;
