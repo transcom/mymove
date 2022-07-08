@@ -50,6 +50,7 @@ func FetchEIAData(finalEIAAPIURL string) (EIAData, error) {
 		return eiaData, fmt.Errorf("unable to read response body from EIA Open Data API: %w", err)
 	}
 
+	fmt.Println(string(responseBody))
 	err = json.Unmarshal(responseBody, &eiaData)
 	if err != nil {
 		return eiaData, fmt.Errorf("unable to unmarshal JSON data from EIA Open Data API: %w", err)

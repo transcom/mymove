@@ -1,0 +1,29 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_variables';
+
+.PPMReview {
+  .aboutContainer {
+    @include u-display(flex);
+
+    dl {
+      @include u-flex(1);
+    }
+
+    .editContainer {
+      @include u-margin-top(2);
+      @include u-flex(auto);
+    }
+
+    .hiddenTerm {
+      @include u-display(none);
+    }
+
+    dt, dd {
+      @include u-display(inline);
+    }
+
+    dd {
+      @include u-margin-left(0);
+    }
+  }
+}

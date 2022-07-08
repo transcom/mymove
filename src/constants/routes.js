@@ -28,7 +28,7 @@ export const customerRoutes = {
   SHIPMENT_PPM_ABOUT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/about',
   SHIPMENT_PPM_WEIGHT_TICKETS_PATH: '/moves/:moveId/shipments/:mtoShipmentId/weight-tickets',
   SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/weight-tickets/:weightTicketId',
-  SHIPMENT_PPM_REVIEW_PATH: 'moves/:moveId/shipments/:mtoShipmentId/review',
+  SHIPMENT_PPM_REVIEW_PATH: '/moves/:moveId/shipments/:mtoShipmentId/review',
   MOVE_REVIEW_PATH: '/moves/:moveId/review',
   MOVE_AGREEMENT_PATH: '/moves/:moveId/agreement',
   EDIT_PROFILE_PATH: '/moves/review/edit-profile',
