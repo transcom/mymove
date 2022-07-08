@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { generatePath, useHistory, useParams, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import qs from 'query-string';
 import { v4 as uuidv4 } from 'uuid';
 
-import { selectMTOShipmentById } from 'store/entities/selectors';
+import { selectMTOShipmentById, selectWeightTicketById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createUploadForDocument, createWeightTicket, patchWeightTicket } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -15,30 +15,46 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm';
+import { updateMTOShipment } from 'sagas/entities';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState();
 
+  const dispatch = useDispatch();
   const history = useHistory();
   const { moveId, mtoShipmentId, weightTicketId } = useParams();
+  // console.log('weightTicketId', weightTicketId);
+
   const { search } = useLocation();
 
   const { tripNumber } = qs.parse(search);
 
   // TODO remove when replaced by Redux call
-  const [weightTicket, setWeightTicket] = useState();
+  // const [weightTicket, setWeightTicket] = useState();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
+  // console.log('outside mtoShipment', mtoShipment);
+  const currentWeightTicket = useSelector((state) => selectWeightTicketById(state, mtoShipmentId, weightTicketId));
+  // console.log('currentWeightTicket', currentWeightTicket);
+  // selector for weight Ticket => return weight ticket or null;
   // TODO add selector for selecting weight ticket from Redux store when data changes are solidified
 
   useEffect(() => {
     if (!weightTicketId) {
       createWeightTicket(mtoShipmentId)
         .then((resp) => {
-          // TODO save weight ticket response in Redux and then the selector will assign the weight ticket
-          setWeightTicket(resp);
+          // console.log('API CALL resp', resp);
+          // const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
+          if (mtoShipment?.ppmShipment?.weightTickets) {
+            mtoShipment?.ppmShipment?.weightTickets.push(resp);
+          } else {
+            mtoShipment.ppmShipment.weightTickets = [resp];
+          }
+          // console.log('inside mtoShipment', mtoShipment);
           // I think it's necessary to update the URL so the back button would work and not create
           // a new weight ticket on refresh either.
+          dispatch(updateMTOShipment(mtoShipment));
+          // console.log(`about to updated history`);
           history.replace(
             generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
               moveId,
@@ -48,22 +64,23 @@ const WeightTickets = () => {
           );
         })
         .catch(() => {
+          // console.error(e);
           setErrorMessage('Failed to create trip record');
         });
     }
-  }, [weightTicketId, moveId, mtoShipmentId, history]);
+  }, [weightTicketId, moveId, mtoShipmentId, history, dispatch, mtoShipment]);
 
   const handleCreateUpload = (fieldName, file) => {
     let documentId;
     switch (fieldName) {
       case 'emptyWeightTickets':
-        documentId = weightTicket.emptyWeightDocumentId;
+        documentId = currentWeightTicket.emptyWeightDocumentId;
         break;
       case 'fullWeightTickets':
-        documentId = weightTicket.fullWeightDocumentId;
+        documentId = currentWeightTicket.fullWeightDocumentId;
         break;
       case 'trailerOwnershipDocs':
-        documentId = weightTicket.trailerOwnershipDocumentId;
+        documentId = currentWeightTicket.trailerOwnershipDocumentId;
         break;
       default:
     }
@@ -120,7 +137,7 @@ const WeightTickets = () => {
       trailerMeetsCriteria,
     };
 
-    patchWeightTicket(mtoShipment.id, weightTicket.id, payload, weightTicket.eTag)
+    patchWeightTicket(mtoShipment.id, currentWeightTicket.id, payload, currentWeightTicket.eTag)
       .then(() => {
         setSubmitting(false);
         history.push(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
@@ -131,7 +148,7 @@ const WeightTickets = () => {
       });
   };
 
-  if (!mtoShipment || !weightTicket) {
+  if (!mtoShipment || !currentWeightTicket) {
     return <LoadingPlaceholder />;
   }
 
@@ -157,7 +174,7 @@ const WeightTickets = () => {
               <p>You must upload at least one set of weight tickets to get paid for your PPM.</p>
             </div>
             <WeightTicketForm
-              weightTicket={weightTicket}
+              weightTicket={currentWeightTicket}
               tripNumber={tripNumber}
               onCreateUpload={handleCreateUpload}
               onUploadComplete={handleUploadComplete}

@@ -161,6 +161,21 @@ export function selectMTOShipmentById(state, id) {
 }
 
 /** PPMs */
+export const selectWeightTicketById = (state, mtoShipmentId, weightTicketId) => {
+  if (weightTicketId == null) {
+    return null;
+  }
+
+  const mtoShipment = selectMTOShipmentById(state, mtoShipmentId);
+  const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
+  let weightTicket = null;
+  if (Array.isArray(weightTickets)) {
+    const index = weightTickets.findIndex((ele) => ele.id === weightTicketId);
+    weightTicket = weightTickets?.[index] || null;
+  }
+  return weightTicket;
+};
+
 export const selectPPMForMove = (state, moveId) => {
   const ppmForMove = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === moveId);
   if (['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'].indexOf(ppmForMove?.status) > -1) {
