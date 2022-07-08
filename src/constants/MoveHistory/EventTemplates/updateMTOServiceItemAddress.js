@@ -10,8 +10,8 @@ export default {
   tableName: t.addresses,
   detailsType: d.LABELED,
   getEventNameDisplay: () => 'Updated service item request',
-  getDetailsLabeledDetails: ({ changedValues, context }) => {
-    const address = formatMoveHistoryFullAddress(changedValues);
+  getDetailsLabeledDetails: ({ oldValues, changedValues, context }) => {
+    const address = formatMoveHistoryFullAddress({ ...oldValues, ...changedValues });
 
     const addressType = context.filter((contextObject) => contextObject.address_type)[0].address_type;
 
