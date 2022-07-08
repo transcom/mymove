@@ -1145,51 +1145,6 @@ func init() {
         }
       ]
     },
-    "/move/{locator}/evaluation-reports": {
-      "get": {
-        "description": "Returns the history for a given move for a unique alphanumeric locator string",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "move"
-        ],
-        "summary": "Returns the history of an identified move",
-        "operationId": "getMoveEvaluationReports",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved the move's evaluation reports",
-            "schema": {
-              "$ref": "#/definitions/EvaluationReports"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "Code used to identify a move in the system",
-          "name": "locator",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/move/{locator}/history": {
       "get": {
         "description": "Returns the history for a given move for a unique alphanumeric locator string",
@@ -1703,6 +1658,52 @@ func init() {
           "format": "string",
           "description": "move code to identify a move for payment requests",
           "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/evaluation-reports": {
+      "get": {
+        "description": "Returns the evaluation reports for the specified move that are visible to the current office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns the evaluation reports for the specified move that are visible to the current office user",
+        "operationId": "getMoveEvaluationReports",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the move's evaluation reports",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReports"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "Code used to identify a move in the system",
+          "name": "moveID",
           "in": "path",
           "required": true
         }
@@ -8829,66 +8830,6 @@ func init() {
         }
       ]
     },
-    "/move/{locator}/evaluation-reports": {
-      "get": {
-        "description": "Returns the history for a given move for a unique alphanumeric locator string",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "move"
-        ],
-        "summary": "Returns the history of an identified move",
-        "operationId": "getMoveEvaluationReports",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved the move's evaluation reports",
-            "schema": {
-              "$ref": "#/definitions/EvaluationReports"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "Code used to identify a move in the system",
-          "name": "locator",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/move/{locator}/history": {
       "get": {
         "description": "Returns the history for a given move for a unique alphanumeric locator string",
@@ -9510,6 +9451,67 @@ func init() {
           "format": "string",
           "description": "move code to identify a move for payment requests",
           "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/evaluation-reports": {
+      "get": {
+        "description": "Returns the evaluation reports for the specified move that are visible to the current office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns the evaluation reports for the specified move that are visible to the current office user",
+        "operationId": "getMoveEvaluationReports",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the move's evaluation reports",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReports"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "Code used to identify a move in the system",
+          "name": "moveID",
           "in": "path",
           "required": true
         }

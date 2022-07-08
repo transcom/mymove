@@ -179,13 +179,14 @@ paths:
         string
       summary: Returns the history of an identified move
       operationId: getMoveHistory
-  /move/{locator}/evaluation-reports:
+  /moves/{moveID}/evaluation-reports:
     parameters:
       - description: Code used to identify a move in the system
         in: path
-        name: locator
+        name: moveID
         required: true
         type: string
+        format: uuid
     get:
       produces:
         - application/json
@@ -207,9 +208,11 @@ paths:
       tags:
         - move
       description: >-
-        Returns the history for a given move for a unique alphanumeric locator
-        string
-      summary: Returns the history of an identified move
+        Returns the evaluation reports for the specified move that are visible
+        to the current office user
+      summary: >-
+        Returns the evaluation reports for the specified move that are visible
+        to the current office user
       operationId: getMoveEvaluationReports
   /counseling/orders/{orderID}:
     parameters:

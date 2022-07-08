@@ -29,11 +29,11 @@ func NewGetMoveEvaluationReports(ctx *middleware.Context, handler GetMoveEvaluat
 	return &GetMoveEvaluationReports{Context: ctx, Handler: handler}
 }
 
-/* GetMoveEvaluationReports swagger:route GET /move/{locator}/evaluation-reports move getMoveEvaluationReports
+/* GetMoveEvaluationReports swagger:route GET /moves/{moveID}/evaluation-reports move getMoveEvaluationReports
 
-Returns the history of an identified move
+Returns the evaluation reports for the specified move that are visible to the current office user
 
-Returns the history for a given move for a unique alphanumeric locator string
+Returns the evaluation reports for the specified move that are visible to the current office user
 
 */
 type GetMoveEvaluationReports struct {

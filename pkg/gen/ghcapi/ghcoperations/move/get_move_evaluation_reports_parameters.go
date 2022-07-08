@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/validate"
 )
 
 // NewGetMoveEvaluationReportsParams creates a new GetMoveEvaluationReportsParams object
@@ -34,7 +35,7 @@ type GetMoveEvaluationReportsParams struct {
 	  Required: true
 	  In: path
 	*/
-	Locator string
+	MoveID strfmt.UUID
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -46,8 +47,8 @@ func (o *GetMoveEvaluationReportsParams) BindRequest(r *http.Request, route *mid
 
 	o.HTTPRequest = r
 
-	rLocator, rhkLocator, _ := route.Params.GetOK("locator")
-	if err := o.bindLocator(rLocator, rhkLocator, route.Formats); err != nil {
+	rMoveID, rhkMoveID, _ := route.Params.GetOK("moveID")
+	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -56,8 +57,8 @@ func (o *GetMoveEvaluationReportsParams) BindRequest(r *http.Request, route *mid
 	return nil
 }
 
-// bindLocator binds and validates parameter Locator from path.
-func (o *GetMoveEvaluationReportsParams) bindLocator(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindMoveID binds and validates parameter MoveID from path.
+func (o *GetMoveEvaluationReportsParams) bindMoveID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -65,7 +66,26 @@ func (o *GetMoveEvaluationReportsParams) bindLocator(rawData []string, hasKey bo
 
 	// Required: true
 	// Parameter is provided by construction from the route
-	o.Locator = raw
 
+	// Format: uuid
+	value, err := formats.Parse("uuid", raw)
+	if err != nil {
+		return errors.InvalidType("moveID", "path", "strfmt.UUID", raw)
+	}
+	o.MoveID = *(value.(*strfmt.UUID))
+
+	if err := o.validateMoveID(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateMoveID carries on validations for parameter MoveID
+func (o *GetMoveEvaluationReportsParams) validateMoveID(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("moveID", "path", "uuid", o.MoveID.String(), formats); err != nil {
+		return err
+	}
 	return nil
 }

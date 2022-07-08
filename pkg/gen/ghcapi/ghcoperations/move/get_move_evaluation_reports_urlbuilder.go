@@ -10,11 +10,13 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 	"strings"
+
+	"github.com/go-openapi/strfmt"
 )
 
 // GetMoveEvaluationReportsURL generates an URL for the get move evaluation reports operation
 type GetMoveEvaluationReportsURL struct {
-	Locator string
+	MoveID strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -40,13 +42,13 @@ func (o *GetMoveEvaluationReportsURL) SetBasePath(bp string) {
 func (o *GetMoveEvaluationReportsURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/move/{locator}/evaluation-reports"
+	var _path = "/moves/{moveID}/evaluation-reports"
 
-	locator := o.Locator
-	if locator != "" {
-		_path = strings.Replace(_path, "{locator}", locator, -1)
+	moveID := o.MoveID.String()
+	if moveID != "" {
+		_path = strings.Replace(_path, "{moveID}", moveID, -1)
 	} else {
-		return nil, errors.New("locator is required on GetMoveEvaluationReportsURL")
+		return nil, errors.New("moveId is required on GetMoveEvaluationReportsURL")
 	}
 
 	_basePath := o._basePath
