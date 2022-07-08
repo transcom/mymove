@@ -112,9 +112,7 @@
     "build-storybook": "build-storybook",
     "happo": "happo",
     "happo-ci-github-actions": "happo-ci-github-actions",
-    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts",
-    "zeplin-connect": "zeplin connect",
-    "zeplin-connect-dev-mode": "zeplin connect --dev"
+    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts"
   },
   "version": "0.1.0",
   "devDependencies": {
@@ -139,9 +137,6 @@
     "@testing-library/react-hooks": "^8.0.0",
     "@testing-library/user-event": "^13.5.0",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.7",
-    "@zeplin/cli": "2.0.0",
-    "@zeplin/cli-connect-react-plugin": "1.1.1",
-    "@zeplin/cli-connect-storybook-plugin": "^0.5.4",
     "cypress": "8.5.0",
     "cypress-audit": "^1.1.0",
     "cypress-wait-until": "^1.7.2",
@@ -167,8 +162,7 @@
     "react-scripts": "5.0.1",
     "react-select-event": "^5.3.0",
     "react-test-renderer": "^17.0.1",
-    "source-map-explorer": "^2.5.2",
-    "storybook-addons-abstract": "^6.2.1"
+    "source-map-explorer": "^2.5.2"
   },
   "browserslist": [
     ">0.2%",

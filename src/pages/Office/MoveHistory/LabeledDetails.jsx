@@ -46,6 +46,11 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
     delete changedValuesToUse.shipment_type;
   }
 
+  if ('service_item_name' in changedValuesToUse) {
+    shipmentDisplay += `, ${changedValuesToUse.service_item_name}`;
+    delete changedValuesToUse.service_item_name;
+  }
+
   const dbFieldsToDisplay = Object.keys(fieldMappings).filter((dbField) => {
     return changedValuesToUse[dbField];
   });

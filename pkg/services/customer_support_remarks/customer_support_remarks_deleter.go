@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
@@ -31,6 +32,18 @@ func (o customerSupportRemarkDeleter) DeleteCustomerSupportRemark(appCtx appcont
 		default:
 			return apperror.NewQueryError("CustomerSupportRemark", err, "")
 		}
+	}
+
+	/*
+		https://dp3.atlassian.net/browse/MB-12730
+		MB-12730 udpdates to customer support remarks are restricted to the original remark creator
+	*/
+	sessionUserID := appCtx.Session().OfficeUserID
+
+	if remark.OfficeUserID != sessionUserID {
+		appCtx.Logger().Warn("Customer Support Remarks may only be edited by the user who created them.", zap.String("Customer Support RemarkID", customerSupportRemarkID.String()))
+
+		return apperror.NewForbiddenError("Action not allowed")
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
