@@ -112,9 +112,7 @@
     "build-storybook": "build-storybook",
     "happo": "happo",
     "happo-ci-github-actions": "happo-ci-github-actions",
-    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts",
-    "zeplin-connect": "zeplin connect",
-    "zeplin-connect-dev-mode": "zeplin connect --dev"
+    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts"
   },
   "version": "0.1.0",
   "devDependencies": {
