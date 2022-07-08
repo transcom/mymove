@@ -5,11 +5,6 @@ import TXOTabNav from './TXOTabNav';
 
 export default {
   title: 'Components/TXO Tab Navigation',
-  parameters: {
-    abstract: {
-      url: 'https://share.goabstract.com/d23132ee-a6ce-451e-95f9-0a4ef0882ace?mode=design',
-    },
-  },
   decorators: [
     (Story) => {
       return (
