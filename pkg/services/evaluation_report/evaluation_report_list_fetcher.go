@@ -3,10 +3,10 @@ package evaluationreport
 import (
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/services"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 type evaluationReportListFetcher struct{}
@@ -16,5 +16,20 @@ func NewEvaluationReportListFetcher() services.EvaluationReportListFetcher {
 }
 
 func (f *evaluationReportListFetcher) FetchEvaluationReports(appCtx appcontext.AppContext, moveID uuid.UUID, officeUserID uuid.UUID) (models.EvaluationReports, error) {
-	return nil, nil
+	reports := models.EvaluationReports{}
+	if moveID == uuid.Nil {
+		return nil, apperror.NewBadDataError("moveID must be provided")
+	}
+	if officeUserID == uuid.Nil {
+		return nil, apperror.NewBadDataError("officeUserID must be provided")
+	}
+
+	err := appCtx.DB().
+		Where("move_id = ?", moveID).
+		Where("submitted_at IS NOT NULL OR office_user_id = ?", officeUserID).
+		All(&reports)
+	if err != nil {
+		return nil, apperror.NewQueryError("EvaluationReport", err, "")
+	}
+	return reports, nil
 }
