@@ -26,6 +26,15 @@ type CreateWeightTicketHandler struct {
 func (h CreateWeightTicketHandler) Handle(params weightticketops.CreateWeightTicketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if appCtx.Session() == nil {
+				noSessionErr := apperror.NewSessionError("No user session")
+				return weightticketops.NewCreateWeightTicketUnauthorized(), noSessionErr
+			}
+
+			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
+				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
+				return weightticketops.NewCreateWeightTicketForbidden(), noServiceMemberIDErr
+			}
 
 			// NO NEED FOR payload_to_model, will need for Update
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
@@ -126,7 +135,6 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 						), err
 				}
 
-				// return new update for Weight Ticket w/ OK response
 			}
 			returnPayload := payloads.UpdateWeightTicket(*updateWeightTicket)
 			return weightticketops.NewUpdateWeightTicketOK().WithPayload(returnPayload), nil

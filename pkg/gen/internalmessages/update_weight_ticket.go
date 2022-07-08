@@ -7,7 +7,6 @@ package internalmessages
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -22,27 +21,26 @@ type UpdateWeightTicket struct {
 
 	// Empty Recorded Weight
 	// Minimum: 0
-	EmptyWeight *int64 `json:"empty_weight,omitempty"`
+	EmptyWeight *int64 `json:"emptyWeight,omitempty"`
 
 	// full weight ticket recorded weight
 	// Minimum: 0
-	FullWeight *int64 `json:"full_weight,omitempty"`
+	FullWeight *int64 `json:"fullWeight,omitempty"`
 
 	// has empty weight ticket
-	// Enum: [Yes No]
-	MissingEmptyWeightTicket bool `json:"missing_empty_weight_ticket,omitempty"`
+	MissingEmptyWeightTicket bool `json:"missingEmptyWeightTicket,omitempty"`
 
 	// has full weight ticket
-	MissingFullWeightTicket bool `json:"missing_full_weight_ticket,omitempty"`
+	MissingFullWeightTicket bool `json:"missingFullWeightTicket,omitempty"`
 
 	// Owns trailer
-	OwnsTrailer *bool `json:"owns_trailer,omitempty"`
+	OwnsTrailer bool `json:"ownsTrailer,omitempty"`
 
 	// Trailer meets criteria
-	TrailerMeetsCriteria *bool `json:"trailer_meets_criteria,omitempty"`
+	TrailerMeetsCriteria bool `json:"trailerMeetsCriteria,omitempty"`
 
 	// Vehicle description (ex. 'SUV')
-	VehicleDescription *string `json:"vehicle_description,omitempty"`
+	VehicleDescription string `json:"vehicleDescription,omitempty"`
 }
 
 // Validate validates this update weight ticket
@@ -57,10 +55,6 @@ func (m *UpdateWeightTicket) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateMissingEmptyWeightTicket(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -72,7 +66,7 @@ func (m *UpdateWeightTicket) validateEmptyWeight(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if err := validate.MinimumInt("empty_weight", "body", *m.EmptyWeight, 0, false); err != nil {
+	if err := validate.MinimumInt("emptyWeight", "body", *m.EmptyWeight, 0, false); err != nil {
 		return err
 	}
 
@@ -84,40 +78,7 @@ func (m *UpdateWeightTicket) validateFullWeight(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MinimumInt("full_weight", "body", *m.FullWeight, 0, false); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var updateWeightTicketTypeMissingEmptyWeightTicketPropEnum []interface{}
-
-func init() {
-	var res []bool
-	if err := json.Unmarshal([]byte(`["Yes","No"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		updateWeightTicketTypeMissingEmptyWeightTicketPropEnum = append(updateWeightTicketTypeMissingEmptyWeightTicketPropEnum, v)
-	}
-}
-
-// prop value enum
-func (m *UpdateWeightTicket) validateMissingEmptyWeightTicketEnum(path, location string, value bool) error {
-	if err := validate.EnumCase(path, location, value, updateWeightTicketTypeMissingEmptyWeightTicketPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *UpdateWeightTicket) validateMissingEmptyWeightTicket(formats strfmt.Registry) error {
-	if swag.IsZero(m.MissingEmptyWeightTicket) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateMissingEmptyWeightTicketEnum("missing_empty_weight_ticket", "body", m.MissingEmptyWeightTicket); err != nil {
+	if err := validate.MinimumInt("fullWeight", "body", *m.FullWeight, 0, false); err != nil {
 		return err
 	}
 

@@ -7,7 +7,6 @@ package internalmessages
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -22,85 +21,92 @@ type CreateWeightTicket struct {
 
 	// created at
 	// Required: true
+	// Read Only: true
 	// Format: date-time
-	CreatedAt *strfmt.DateTime `json:"created_at"`
+	CreatedAt strfmt.DateTime `json:"createdAt"`
 
 	// deleted at
+	// Read Only: true
 	// Format: date-time
-	DeletedAt strfmt.DateTime `json:"deleted_at,omitempty"`
+	DeletedAt strfmt.DateTime `json:"deletedAt,omitempty"`
 
 	// Empty Document
 	// Required: true
-	EmptyDocument *DocumentPayload `json:"empty_document"`
+	EmptyDocument *DocumentPayload `json:"emptyDocument"`
 
 	// Empty Document ID
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	EmptyDocumentID *strfmt.UUID `json:"empty_document_id"`
+	EmptyDocumentID strfmt.UUID `json:"emptyDocumentId"`
 
 	// Empty Recorded Weight
 	// Minimum: 0
-	EmptyWeight *int64 `json:"empty_weight,omitempty"`
+	EmptyWeight *int64 `json:"emptyWeight,omitempty"`
 
 	// Full Document
 	// Required: true
-	FullDocument *DocumentPayload `json:"full_document"`
+	FullDocument *DocumentPayload `json:"fullDocument"`
 
 	// Full Document ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	FullDocumentID *strfmt.UUID `json:"full_document_id"`
+	FullDocumentID strfmt.UUID `json:"fullDocumentId"`
 
 	// full weight ticket recorded weight
 	// Minimum: 0
-	FullWeight *int64 `json:"full_weight,omitempty"`
+	FullWeight *int64 `json:"fullWeight,omitempty"`
 
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// has empty weight ticket
-	// Enum: [Yes No]
-	MissingEmptyWeightTicket bool `json:"missing_empty_weight_ticket,omitempty"`
+	MissingEmptyWeightTicket bool `json:"missingEmptyWeightTicket,omitempty"`
 
 	// has full weight ticket
-	MissingFullWeightTicket bool `json:"missing_full_weight_ticket,omitempty"`
+	MissingFullWeightTicket bool `json:"missingFullWeightTicket,omitempty"`
 
 	// Owns trailer
-	OwnsTrailer *bool `json:"owns_trailer,omitempty"`
+	OwnsTrailer *bool `json:"ownsTrailer,omitempty"`
 
 	// ppm shipment
 	// Required: true
-	PpmShipment *PPMShipment `json:"ppm_shipment"`
+	PpmShipment *PPMShipment `json:"ppmShipment"`
 
-	// ppm shipment id
+	// ppm shipment Id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	PpmShipmentID *strfmt.UUID `json:"ppm_shipment_id"`
+	PpmShipmentID strfmt.UUID `json:"ppmShipmentId"`
 
 	// Proof of Trailer Ownership Document
 	// Required: true
-	ProofOfTrailerOwnershipDocument *DocumentPayload `json:"proof_of_trailer_ownership_document"`
+	ProofOfTrailerOwnershipDocument *DocumentPayload `json:"proofOfTrailerOwnershipDocument"`
 
 	// Trailer Document ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	ProofOfTrailerOwnershipDocumentID *strfmt.UUID `json:"proof_of_trailer_ownership_document_id"`
+	ProofOfTrailerOwnershipDocumentID strfmt.UUID `json:"proofOfTrailerOwnershipDocumentId"`
 
 	// Trailer meets criteria
-	TrailerMeetsCriteria *bool `json:"trailer_meets_criteria,omitempty"`
+	TrailerMeetsCriteria *bool `json:"trailerMeetsCriteria,omitempty"`
 
 	// updated at
 	// Required: true
+	// Read Only: true
 	// Format: date-time
-	UpdatedAt *strfmt.DateTime `json:"updated_at"`
+	UpdatedAt strfmt.DateTime `json:"updatedAt"`
 
 	// Vehicle description (ex. 'SUV')
-	VehicleDescription *string `json:"vehicle_description,omitempty"`
+	VehicleDescription *string `json:"vehicleDescription,omitempty"`
 }
 
 // Validate validates this create weight ticket
@@ -143,10 +149,6 @@ func (m *CreateWeightTicket) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateMissingEmptyWeightTicket(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validatePpmShipment(formats); err != nil {
 		res = append(res, err)
 	}
@@ -175,11 +177,11 @@ func (m *CreateWeightTicket) Validate(formats strfmt.Registry) error {
 
 func (m *CreateWeightTicket) validateCreatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("created_at", "body", m.CreatedAt); err != nil {
+	if err := validate.Required("createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("created_at", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -191,7 +193,7 @@ func (m *CreateWeightTicket) validateDeletedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("deleted_at", "body", "date-time", m.DeletedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("deletedAt", "body", "date-time", m.DeletedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -200,16 +202,16 @@ func (m *CreateWeightTicket) validateDeletedAt(formats strfmt.Registry) error {
 
 func (m *CreateWeightTicket) validateEmptyDocument(formats strfmt.Registry) error {
 
-	if err := validate.Required("empty_document", "body", m.EmptyDocument); err != nil {
+	if err := validate.Required("emptyDocument", "body", m.EmptyDocument); err != nil {
 		return err
 	}
 
 	if m.EmptyDocument != nil {
 		if err := m.EmptyDocument.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("empty_document")
+				return ve.ValidateName("emptyDocument")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("empty_document")
+				return ce.ValidateName("emptyDocument")
 			}
 			return err
 		}
@@ -220,11 +222,11 @@ func (m *CreateWeightTicket) validateEmptyDocument(formats strfmt.Registry) erro
 
 func (m *CreateWeightTicket) validateEmptyDocumentID(formats strfmt.Registry) error {
 
-	if err := validate.Required("empty_document_id", "body", m.EmptyDocumentID); err != nil {
+	if err := validate.Required("emptyDocumentId", "body", strfmt.UUID(m.EmptyDocumentID)); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("empty_document_id", "body", "uuid", m.EmptyDocumentID.String(), formats); err != nil {
+	if err := validate.FormatOf("emptyDocumentId", "body", "uuid", m.EmptyDocumentID.String(), formats); err != nil {
 		return err
 	}
 
@@ -236,7 +238,7 @@ func (m *CreateWeightTicket) validateEmptyWeight(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if err := validate.MinimumInt("empty_weight", "body", *m.EmptyWeight, 0, false); err != nil {
+	if err := validate.MinimumInt("emptyWeight", "body", *m.EmptyWeight, 0, false); err != nil {
 		return err
 	}
 
@@ -245,16 +247,16 @@ func (m *CreateWeightTicket) validateEmptyWeight(formats strfmt.Registry) error 
 
 func (m *CreateWeightTicket) validateFullDocument(formats strfmt.Registry) error {
 
-	if err := validate.Required("full_document", "body", m.FullDocument); err != nil {
+	if err := validate.Required("fullDocument", "body", m.FullDocument); err != nil {
 		return err
 	}
 
 	if m.FullDocument != nil {
 		if err := m.FullDocument.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("full_document")
+				return ve.ValidateName("fullDocument")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("full_document")
+				return ce.ValidateName("fullDocument")
 			}
 			return err
 		}
@@ -265,11 +267,11 @@ func (m *CreateWeightTicket) validateFullDocument(formats strfmt.Registry) error
 
 func (m *CreateWeightTicket) validateFullDocumentID(formats strfmt.Registry) error {
 
-	if err := validate.Required("full_document_id", "body", m.FullDocumentID); err != nil {
+	if err := validate.Required("fullDocumentId", "body", strfmt.UUID(m.FullDocumentID)); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("full_document_id", "body", "uuid", m.FullDocumentID.String(), formats); err != nil {
+	if err := validate.FormatOf("fullDocumentId", "body", "uuid", m.FullDocumentID.String(), formats); err != nil {
 		return err
 	}
 
@@ -281,7 +283,7 @@ func (m *CreateWeightTicket) validateFullWeight(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MinimumInt("full_weight", "body", *m.FullWeight, 0, false); err != nil {
+	if err := validate.MinimumInt("fullWeight", "body", *m.FullWeight, 0, false); err != nil {
 		return err
 	}
 
@@ -300,51 +302,18 @@ func (m *CreateWeightTicket) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-var createWeightTicketTypeMissingEmptyWeightTicketPropEnum []interface{}
-
-func init() {
-	var res []bool
-	if err := json.Unmarshal([]byte(`["Yes","No"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		createWeightTicketTypeMissingEmptyWeightTicketPropEnum = append(createWeightTicketTypeMissingEmptyWeightTicketPropEnum, v)
-	}
-}
-
-// prop value enum
-func (m *CreateWeightTicket) validateMissingEmptyWeightTicketEnum(path, location string, value bool) error {
-	if err := validate.EnumCase(path, location, value, createWeightTicketTypeMissingEmptyWeightTicketPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *CreateWeightTicket) validateMissingEmptyWeightTicket(formats strfmt.Registry) error {
-	if swag.IsZero(m.MissingEmptyWeightTicket) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateMissingEmptyWeightTicketEnum("missing_empty_weight_ticket", "body", m.MissingEmptyWeightTicket); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *CreateWeightTicket) validatePpmShipment(formats strfmt.Registry) error {
 
-	if err := validate.Required("ppm_shipment", "body", m.PpmShipment); err != nil {
+	if err := validate.Required("ppmShipment", "body", m.PpmShipment); err != nil {
 		return err
 	}
 
 	if m.PpmShipment != nil {
 		if err := m.PpmShipment.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("ppm_shipment")
+				return ve.ValidateName("ppmShipment")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("ppm_shipment")
+				return ce.ValidateName("ppmShipment")
 			}
 			return err
 		}
@@ -355,11 +324,11 @@ func (m *CreateWeightTicket) validatePpmShipment(formats strfmt.Registry) error 
 
 func (m *CreateWeightTicket) validatePpmShipmentID(formats strfmt.Registry) error {
 
-	if err := validate.Required("ppm_shipment_id", "body", m.PpmShipmentID); err != nil {
+	if err := validate.Required("ppmShipmentId", "body", strfmt.UUID(m.PpmShipmentID)); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("ppm_shipment_id", "body", "uuid", m.PpmShipmentID.String(), formats); err != nil {
+	if err := validate.FormatOf("ppmShipmentId", "body", "uuid", m.PpmShipmentID.String(), formats); err != nil {
 		return err
 	}
 
@@ -368,16 +337,16 @@ func (m *CreateWeightTicket) validatePpmShipmentID(formats strfmt.Registry) erro
 
 func (m *CreateWeightTicket) validateProofOfTrailerOwnershipDocument(formats strfmt.Registry) error {
 
-	if err := validate.Required("proof_of_trailer_ownership_document", "body", m.ProofOfTrailerOwnershipDocument); err != nil {
+	if err := validate.Required("proofOfTrailerOwnershipDocument", "body", m.ProofOfTrailerOwnershipDocument); err != nil {
 		return err
 	}
 
 	if m.ProofOfTrailerOwnershipDocument != nil {
 		if err := m.ProofOfTrailerOwnershipDocument.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("proof_of_trailer_ownership_document")
+				return ve.ValidateName("proofOfTrailerOwnershipDocument")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("proof_of_trailer_ownership_document")
+				return ce.ValidateName("proofOfTrailerOwnershipDocument")
 			}
 			return err
 		}
@@ -388,11 +357,11 @@ func (m *CreateWeightTicket) validateProofOfTrailerOwnershipDocument(formats str
 
 func (m *CreateWeightTicket) validateProofOfTrailerOwnershipDocumentID(formats strfmt.Registry) error {
 
-	if err := validate.Required("proof_of_trailer_ownership_document_id", "body", m.ProofOfTrailerOwnershipDocumentID); err != nil {
+	if err := validate.Required("proofOfTrailerOwnershipDocumentId", "body", strfmt.UUID(m.ProofOfTrailerOwnershipDocumentID)); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("proof_of_trailer_ownership_document_id", "body", "uuid", m.ProofOfTrailerOwnershipDocumentID.String(), formats); err != nil {
+	if err := validate.FormatOf("proofOfTrailerOwnershipDocumentId", "body", "uuid", m.ProofOfTrailerOwnershipDocumentID.String(), formats); err != nil {
 		return err
 	}
 
@@ -401,11 +370,11 @@ func (m *CreateWeightTicket) validateProofOfTrailerOwnershipDocumentID(formats s
 
 func (m *CreateWeightTicket) validateUpdatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("updated_at", "body", m.UpdatedAt); err != nil {
+	if err := validate.Required("updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("updated_at", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -416,7 +385,19 @@ func (m *CreateWeightTicket) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *CreateWeightTicket) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateDeletedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateEmptyDocument(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateEmptyDocumentID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -424,11 +405,31 @@ func (m *CreateWeightTicket) ContextValidate(ctx context.Context, formats strfmt
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateFullDocumentID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidatePpmShipment(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePpmShipmentID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateProofOfTrailerOwnershipDocument(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateProofOfTrailerOwnershipDocumentID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -438,17 +439,44 @@ func (m *CreateWeightTicket) ContextValidate(ctx context.Context, formats strfmt
 	return nil
 }
 
+func (m *CreateWeightTicket) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateWeightTicket) contextValidateDeletedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "deletedAt", "body", strfmt.DateTime(m.DeletedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *CreateWeightTicket) contextValidateEmptyDocument(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.EmptyDocument != nil {
 		if err := m.EmptyDocument.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("empty_document")
+				return ve.ValidateName("emptyDocument")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("empty_document")
+				return ce.ValidateName("emptyDocument")
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *CreateWeightTicket) contextValidateEmptyDocumentID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "emptyDocumentId", "body", strfmt.UUID(m.EmptyDocumentID)); err != nil {
+		return err
 	}
 
 	return nil
@@ -459,12 +487,30 @@ func (m *CreateWeightTicket) contextValidateFullDocument(ctx context.Context, fo
 	if m.FullDocument != nil {
 		if err := m.FullDocument.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("full_document")
+				return ve.ValidateName("fullDocument")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("full_document")
+				return ce.ValidateName("fullDocument")
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *CreateWeightTicket) contextValidateFullDocumentID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "fullDocumentId", "body", strfmt.UUID(m.FullDocumentID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateWeightTicket) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
 	}
 
 	return nil
@@ -475,12 +521,21 @@ func (m *CreateWeightTicket) contextValidatePpmShipment(ctx context.Context, for
 	if m.PpmShipment != nil {
 		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("ppm_shipment")
+				return ve.ValidateName("ppmShipment")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("ppm_shipment")
+				return ce.ValidateName("ppmShipment")
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *CreateWeightTicket) contextValidatePpmShipmentID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "ppmShipmentId", "body", strfmt.UUID(m.PpmShipmentID)); err != nil {
+		return err
 	}
 
 	return nil
@@ -491,12 +546,30 @@ func (m *CreateWeightTicket) contextValidateProofOfTrailerOwnershipDocument(ctx 
 	if m.ProofOfTrailerOwnershipDocument != nil {
 		if err := m.ProofOfTrailerOwnershipDocument.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("proof_of_trailer_ownership_document")
+				return ve.ValidateName("proofOfTrailerOwnershipDocument")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("proof_of_trailer_ownership_document")
+				return ce.ValidateName("proofOfTrailerOwnershipDocument")
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *CreateWeightTicket) contextValidateProofOfTrailerOwnershipDocumentID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "proofOfTrailerOwnershipDocumentId", "body", strfmt.UUID(m.ProofOfTrailerOwnershipDocumentID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateWeightTicket) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
+		return err
 	}
 
 	return nil

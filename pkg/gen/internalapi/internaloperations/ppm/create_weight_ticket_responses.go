@@ -60,11 +60,16 @@ func (o *CreateWeightTicketOK) WriteResponse(rw http.ResponseWriter, producer ru
 // CreateWeightTicketBadRequestCode is the HTTP code returned for type CreateWeightTicketBadRequest
 const CreateWeightTicketBadRequestCode int = 400
 
-/*CreateWeightTicketBadRequest invalid request
+/*CreateWeightTicketBadRequest The request payload is invalid.
 
 swagger:response createWeightTicketBadRequest
 */
 type CreateWeightTicketBadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateWeightTicketBadRequest creates CreateWeightTicketBadRequest with default headers values
@@ -73,22 +78,42 @@ func NewCreateWeightTicketBadRequest() *CreateWeightTicketBadRequest {
 	return &CreateWeightTicketBadRequest{}
 }
 
+// WithPayload adds the payload to the create weight ticket bad request response
+func (o *CreateWeightTicketBadRequest) WithPayload(payload *internalmessages.ClientError) *CreateWeightTicketBadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create weight ticket bad request response
+func (o *CreateWeightTicketBadRequest) SetPayload(payload *internalmessages.ClientError) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *CreateWeightTicketBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(400)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // CreateWeightTicketUnauthorizedCode is the HTTP code returned for type CreateWeightTicketUnauthorized
 const CreateWeightTicketUnauthorizedCode int = 401
 
-/*CreateWeightTicketUnauthorized must be authenticated to use this endpoint
+/*CreateWeightTicketUnauthorized The request was denied.
 
 swagger:response createWeightTicketUnauthorized
 */
 type CreateWeightTicketUnauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateWeightTicketUnauthorized creates CreateWeightTicketUnauthorized with default headers values
@@ -97,22 +122,42 @@ func NewCreateWeightTicketUnauthorized() *CreateWeightTicketUnauthorized {
 	return &CreateWeightTicketUnauthorized{}
 }
 
+// WithPayload adds the payload to the create weight ticket unauthorized response
+func (o *CreateWeightTicketUnauthorized) WithPayload(payload *internalmessages.ClientError) *CreateWeightTicketUnauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create weight ticket unauthorized response
+func (o *CreateWeightTicketUnauthorized) SetPayload(payload *internalmessages.ClientError) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *CreateWeightTicketUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // CreateWeightTicketForbiddenCode is the HTTP code returned for type CreateWeightTicketForbidden
 const CreateWeightTicketForbiddenCode int = 403
 
-/*CreateWeightTicketForbidden not authorized to modify this move
+/*CreateWeightTicketForbidden The request was denied.
 
 swagger:response createWeightTicketForbidden
 */
 type CreateWeightTicketForbidden struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateWeightTicketForbidden creates CreateWeightTicketForbidden with default headers values
@@ -121,22 +166,42 @@ func NewCreateWeightTicketForbidden() *CreateWeightTicketForbidden {
 	return &CreateWeightTicketForbidden{}
 }
 
+// WithPayload adds the payload to the create weight ticket forbidden response
+func (o *CreateWeightTicketForbidden) WithPayload(payload *internalmessages.ClientError) *CreateWeightTicketForbidden {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create weight ticket forbidden response
+func (o *CreateWeightTicketForbidden) SetPayload(payload *internalmessages.ClientError) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *CreateWeightTicketForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(403)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // CreateWeightTicketInternalServerErrorCode is the HTTP code returned for type CreateWeightTicketInternalServerError
 const CreateWeightTicketInternalServerErrorCode int = 500
 
-/*CreateWeightTicketInternalServerError server error
+/*CreateWeightTicketInternalServerError A server error occurred.
 
 swagger:response createWeightTicketInternalServerError
 */
 type CreateWeightTicketInternalServerError struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.Error `json:"body,omitempty"`
 }
 
 // NewCreateWeightTicketInternalServerError creates CreateWeightTicketInternalServerError with default headers values
@@ -145,10 +210,25 @@ func NewCreateWeightTicketInternalServerError() *CreateWeightTicketInternalServe
 	return &CreateWeightTicketInternalServerError{}
 }
 
+// WithPayload adds the payload to the create weight ticket internal server error response
+func (o *CreateWeightTicketInternalServerError) WithPayload(payload *internalmessages.Error) *CreateWeightTicketInternalServerError {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create weight ticket internal server error response
+func (o *CreateWeightTicketInternalServerError) SetPayload(payload *internalmessages.Error) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *CreateWeightTicketInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(500)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }

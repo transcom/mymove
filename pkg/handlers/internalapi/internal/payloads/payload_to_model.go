@@ -235,13 +235,13 @@ func WeightTicketModelFromUpdate(weightTicket *internalmessages.UpdateWeightTick
 		return nil
 	}
 	model := &models.WeightTicket{
-		VehicleDescription:       weightTicket.VehicleDescription,
+		VehicleDescription:       &weightTicket.VehicleDescription,
 		EmptyWeight:              handlers.PoundPtrFromInt64Ptr(weightTicket.EmptyWeight),
 		MissingEmptyWeightTicket: handlers.FmtBool(weightTicket.MissingEmptyWeightTicket),
 		FullWeight:               handlers.PoundPtrFromInt64Ptr(weightTicket.FullWeight),
 		MissingFullWeightTicket:  handlers.FmtBool(weightTicket.MissingFullWeightTicket),
-		OwnsTrailer:              weightTicket.OwnsTrailer,
-		TrailerMeetsCriteria:     weightTicket.TrailerMeetsCriteria,
+		OwnsTrailer:              &weightTicket.OwnsTrailer,
+		TrailerMeetsCriteria:     &weightTicket.TrailerMeetsCriteria,
 	}
 	return model
 }

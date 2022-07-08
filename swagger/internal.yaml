@@ -1008,116 +1008,115 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      ppm_shipment_id:
+        readOnly: true
+      ppmShipmentId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      ppm_shipment:
+        readOnly: true
+      ppmShipment:
         $ref: '#/definitions/PPMShipment'
-      created_at:
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+        readOnly: true
+      updatedAt:
         type: string
         format: date-time
-      deleted_at:
+        readOnly: true
+      deletedAt:
         type: string
         format: date-time
-      vehicle_description:
+        readOnly: true
+      vehicleDescription:
         type: string
         title: Vehicle description (ex. 'SUV')
         x-nullable: true
-      empty_weight:
+      emptyWeight:
         type: integer
         title: Empty Recorded Weight
         minimum: 0
-      missing_empty_weight_ticket:
+      missingEmptyWeightTicket:
         type: boolean
         title: has empty weight ticket
-        enum:
-          - 'Yes'
-          - 'No'
-      empty_document_id:
+      emptyDocumentId:
         title: Empty Document ID
         type: string
         format: uuid
-      empty_document:
+        readOnly: true
+      emptyDocument:
         title: Empty Document
         $ref: '#/definitions/DocumentPayload'
-      full_weight:
+      fullWeight:
         title: full weight ticket recorded weight
         type: integer
         minimum: 0
-      missing_full_weight_ticket:
+      missingFullWeightTicket:
         title: has full weight ticket
         type: boolean
-      full_document_id:
+      fullDocumentId:
         title: Full Document ID
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      full_document:
+        readOnly: true
+      fullDocument:
         title: Full Document
         $ref: '#/definitions/DocumentPayload'
-      owns_trailer:
+      ownsTrailer:
         title: Owns trailer
         type: boolean
         x-nullable: true
-      trailer_meets_criteria:
+      trailerMeetsCriteria:
         title: Trailer meets criteria
         type: boolean
         x-nullable: true
-      proof_of_trailer_ownership_document_id:
+      proofOfTrailerOwnershipDocumentId:
         title: Trailer Document ID
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      proof_of_trailer_ownership_document:
+        readOnly: true
+      proofOfTrailerOwnershipDocument:
         title: Proof of Trailer Ownership Document
         $ref: '#/definitions/DocumentPayload'
     required:
-      - ppm_shipment_id
-      - ppm_shipment
-      - created_at
-      - updated_at
-      - empty_document_id
-      - empty_document
-      - full_document
-      - full_document_id
-      - proof_of_trailer_ownership_document
-      - proof_of_trailer_ownership_document_id
+      - ppmShipmentId
+      - ppmShipment
+      - createdAt
+      - updatedAt
+      - emptyDocumentId
+      - emptyDocument
+      - fullDocument
+      - fullDocumentId
+      - proofOfTrailerOwnershipDocument
+      - proofOfTrailerOwnershipDocumentId
   UpdateWeightTicket:
     type: object
     properties:
-      vehicle_description:
+      vehicleDescription:
         type: string
-        title: Vehicle description (ex. 'SUV')
-        x-nullable: true
-      empty_weight:
+        description: Vehicle description (ex. 'SUV')
+      emptyWeight:
         type: integer
-        title: Empty Recorded Weight
+        description: Empty Recorded Weight
         minimum: 0
-      missing_empty_weight_ticket:
+      missingEmptyWeightTicket:
         type: boolean
-        title: has empty weight ticket
-        enum:
-          - 'Yes'
-          - 'No'
-      full_weight:
-        title: full weight ticket recorded weight
+        description: has empty weight ticket
+      fullWeight:
+        description: full weight ticket recorded weight
         type: integer
         minimum: 0
-      missing_full_weight_ticket:
-        title: has full weight ticket
+      missingFullWeightTicket:
+        description: has full weight ticket
         type: boolean
-      owns_trailer:
-        title: Owns trailer
+      ownsTrailer:
+        description: Owns trailer
         type: boolean
-        x-nullable: true
-      trailer_meets_criteria:
-        title: Trailer meets criteria
+      trailerMeetsCriteria:
+        description: Trailer meets criteria
         type: boolean
-        x-nullable: true
   OfficeUser:
     type: object
     properties:
@@ -4985,13 +4984,13 @@ paths:
           schema:
             $ref: '#/definitions/CreateWeightTicket'
         '400':
-          description: invalid request
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: must be authenticated to use this endpoint
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: not authorized to modify this move
+          $ref: '#/responses/PermissionDenied'
         '500':
-          description: server error
+          $ref: '#/responses/ServerError'
   /{ppmShipmentId}/weight_ticket/{weightTicketId}:
     put:
       summary: Updates a weight ticket document
