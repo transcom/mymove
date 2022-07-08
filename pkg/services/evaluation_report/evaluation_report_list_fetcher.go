@@ -3,6 +3,8 @@ package evaluationreport
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
@@ -25,9 +27,11 @@ func (f *evaluationReportListFetcher) FetchEvaluationReports(appCtx appcontext.A
 	}
 
 	err := appCtx.DB().
+		Scope(utilities.ExcludeDeletedScope()).
 		Where("move_id = ?", moveID).
-		Where("submitted_at IS NOT NULL OR office_user_id = ?", officeUserID).
+		Where("(submitted_at IS NOT NULL OR office_user_id = ?)", officeUserID).
 		All(&reports)
+
 	if err != nil {
 		return nil, apperror.NewQueryError("EvaluationReport", err, "")
 	}
