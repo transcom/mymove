@@ -52,8 +52,7 @@ func (suite *CustomerSupportRemarksSuite) TestCustomerSupportRemarksUpdater() {
 		payload := ghcmessages.UpdateCustomerSupportRemarkPayload{Content: &remarkEdit}
 
 		params := customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams{
-			Body: &payload,
-			// IS there a better way to do this or is golang JUST like this :/
+			Body:                    &payload,
 			CustomerSupportRemarkID: strfmt.UUID(badID.String()),
 		}
 
