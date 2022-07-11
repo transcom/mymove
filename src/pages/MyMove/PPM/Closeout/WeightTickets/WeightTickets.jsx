@@ -30,8 +30,6 @@ const WeightTickets = () => {
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const currentWeightTicket = useSelector((state) => selectWeightTicketById(state, mtoShipmentId, weightTicketId));
-  // selector for weight Ticket => return weight ticket or null;
-  // TODO add selector for selecting weight ticket from Redux store when data changes are solidified
 
   useEffect(() => {
     if (!weightTicketId) {
