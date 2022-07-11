@@ -1660,37 +1660,6 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
-  /customer-support-remarks/{customerSupportRemarkID}:
-    delete:
-      summary: Soft deletes a customer support remark by ID
-      description: Soft deletes a customer support remark by ID
-      operationId: deleteCustomerSupportRemark
-      tags:
-        - customerSupportRemarks
-      produces:
-        - application/json
-      parameters:
-        - description: ID of the customer support remark to be deleted
-          in: path
-          name: customerSupportRemarkID
-          required: true
-          format: uuid
-          type: string
-      responses:
-        '204':
-          description: Successfully soft deleted the shipment
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '409':
-          $ref: '#/responses/Conflict'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
   /moves/{locator}/customer-support-remarks:
     parameters:
       - description: move code to identify a move for customer support remarks
@@ -1749,19 +1718,28 @@ paths:
       description: Fetches customer support remarks for a move
       operationId: getCustomerSupportRemarksForMove
       summary: Fetches customer support remarks using the move code (locator).
+  /customer-support-remarks/{customerSupportRemarkID}:
+    parameters:
+      - in: path
+        description: the customer support remark ID to be modified
+        name: customerSupportRemarkID
+        required: true
+        type: string
+        format: uuid
     patch:
       tags:
         - customerSupportRemarks
       description: Updates a customer support remark for a move
       operationId: updateCustomerSupportRemarkForMove
       summary: Updates a customer support remark for a move
-      produces:
-        - application/json
       consumes:
+        - application/json
+      produces:
         - application/json
       parameters:
         - in: body
           name: body
+          required: true
           schema:
             $ref: '#/definitions/UpdateCustomerSupportRemarkPayload'
       responses:
@@ -1771,8 +1749,33 @@ paths:
             $ref: '#/definitions/CustomerSupportRemark'
         '400':
           $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a customer support remark by ID
+      description: Soft deletes a customer support remark by ID
+      operationId: deleteCustomerSupportRemark
+      tags:
+        - customerSupportRemarks
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: Successfully soft deleted the shipment
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -4227,15 +4230,11 @@ definitions:
   UpdateCustomerSupportRemarkPayload:
     type: object
     description: >-
-      A text remark written by an customer support user that is associated with
-      a specific move.
+      A text remark update to an existing remark created by the current active
+      user (the CSR).
     required:
-      - id
       - content
     properties:
-      id:
-        type: string
-        format: uuid
       content:
         example: This is a remark about a move.
         type: string

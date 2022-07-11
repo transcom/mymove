@@ -9,11 +9,6 @@ const filterGroup = (filter) => Object.keys(colors).filter((color) => color.inde
 
 export default {
   title: 'Global/Colors',
-  parameters: {
-    abstract: {
-      url: 'https://share.goabstract.com/1eff778f-1dc2-431a-8a07-8325aa250071?mode=design',
-    },
-  },
 };
 
 export const BrandColors = () => (

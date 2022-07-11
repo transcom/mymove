@@ -10,8 +10,6 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
-	testing "testing"
-
 	time "time"
 
 	unit "github.com/transcom/mymove/pkg/unit"
@@ -82,8 +80,13 @@ func (_m *FuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, pa
 	return r0, r1, r2
 }
 
-// NewFuelSurchargePricer creates a new instance of FuelSurchargePricer. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewFuelSurchargePricer(t testing.TB) *FuelSurchargePricer {
+type mockConstructorTestingTNewFuelSurchargePricer interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewFuelSurchargePricer creates a new instance of FuelSurchargePricer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewFuelSurchargePricer(t mockConstructorTestingTNewFuelSurchargePricer) *FuelSurchargePricer {
 	mock := &FuelSurchargePricer{}
 	mock.Mock.Test(t)
 

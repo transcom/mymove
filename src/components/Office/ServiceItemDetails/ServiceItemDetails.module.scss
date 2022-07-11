@@ -6,7 +6,7 @@
   @include u-font-size('body', '3xs');
 }
 
-// abstract called for thin semi bold which isn't a variant
+// design called for thin semi bold which isn't a variant
 .detailType {
   @include u-font-weight(600);
 }
