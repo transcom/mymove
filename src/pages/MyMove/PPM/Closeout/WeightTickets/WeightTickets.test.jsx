@@ -136,12 +136,14 @@ const reviewPath = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
 });
 
 describe('Weight Tickets page', () => {
-  it('loads the selected shipment from redux', () => {
+  it('loads the selected shipment from redux', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
-    expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
+    await waitFor(() => {
+      expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
+    });
   });
 
   it('does not make create weight ticket api request if id param exists', async () => {
@@ -153,6 +155,7 @@ describe('Weight Tickets page', () => {
     selectWeightTicketById.mockReturnValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
+
     await waitFor(() => {
       expect(createWeightTicket).not.toHaveBeenCalled();
     });
