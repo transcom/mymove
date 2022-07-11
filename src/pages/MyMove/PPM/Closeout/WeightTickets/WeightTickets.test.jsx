@@ -219,13 +219,13 @@ describe('Weight Tickets page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 2');
     });
-    await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
-    await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
-    await userEvent.type(screen.getByLabelText('Full weight'), '6999');
-    await userEvent.click(screen.getByLabelText('Yes'));
-    await userEvent.click(screen.getAllByLabelText('Yes')[1]);
+    userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
+    userEvent.type(screen.getByLabelText('Empty weight'), '4999');
+    userEvent.type(screen.getByLabelText('Full weight'), '6999');
+    userEvent.click(screen.getByLabelText('Yes'));
+    userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
       expect(patchWeightTicket).toHaveBeenCalledWith(
@@ -258,13 +258,13 @@ describe('Weight Tickets page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 2');
     });
-    await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
-    await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
-    await userEvent.type(screen.getByLabelText('Full weight'), '6999');
-    await userEvent.click(screen.getByLabelText('Yes'));
-    await userEvent.click(screen.getAllByLabelText('Yes')[1]);
+    userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
+    userEvent.type(screen.getByLabelText('Empty weight'), '4999');
+    userEvent.type(screen.getByLabelText('Full weight'), '6999');
+    userEvent.click(screen.getByLabelText('Yes'));
+    userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
       expect(screen.getByText('Failed to save updated trip record')).toBeInTheDocument();
@@ -282,7 +282,7 @@ describe('Weight Tickets page', () => {
       deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
       expect(deleteButtons).toHaveLength(2);
     });
-    await userEvent.click(deleteButtons[0]);
+    userEvent.click(deleteButtons[0]);
     await waitFor(() => {
       expect(screen.queryByText('empty_weight.jpg')).not.toBeInTheDocument();
     });
