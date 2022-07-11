@@ -15,7 +15,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm';
-import { updateMTOShipment } from 'sagas/entities';
+import { updateMTOShipment } from 'store/entities/actions';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState();
@@ -23,19 +23,13 @@ const WeightTickets = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { moveId, mtoShipmentId, weightTicketId } = useParams();
-  // console.log('weightTicketId', weightTicketId);
 
   const { search } = useLocation();
 
   const { tripNumber } = qs.parse(search);
 
-  // TODO remove when replaced by Redux call
-  // const [weightTicket, setWeightTicket] = useState();
-
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
-  // console.log('outside mtoShipment', mtoShipment);
   const currentWeightTicket = useSelector((state) => selectWeightTicketById(state, mtoShipmentId, weightTicketId));
-  // console.log('currentWeightTicket', currentWeightTicket);
   // selector for weight Ticket => return weight ticket or null;
   // TODO add selector for selecting weight ticket from Redux store when data changes are solidified
 
@@ -43,18 +37,13 @@ const WeightTickets = () => {
     if (!weightTicketId) {
       createWeightTicket(mtoShipmentId)
         .then((resp) => {
-          // console.log('API CALL resp', resp);
-          // const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
           if (mtoShipment?.ppmShipment?.weightTickets) {
             mtoShipment?.ppmShipment?.weightTickets.push(resp);
           } else {
             mtoShipment.ppmShipment.weightTickets = [resp];
           }
-          // console.log('inside mtoShipment', mtoShipment);
           // I think it's necessary to update the URL so the back button would work and not create
           // a new weight ticket on refresh either.
-          dispatch(updateMTOShipment(mtoShipment));
-          // console.log(`about to updated history`);
           history.replace(
             generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
               moveId,
@@ -62,9 +51,9 @@ const WeightTickets = () => {
               weightTicketId: resp.id,
             }),
           );
+          dispatch(updateMTOShipment(mtoShipment));
         })
         .catch(() => {
-          // console.error(e);
           setErrorMessage('Failed to create trip record');
         });
     }
