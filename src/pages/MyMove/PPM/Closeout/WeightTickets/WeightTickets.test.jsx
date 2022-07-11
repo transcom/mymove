@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { useParams, generatePath } from 'react-router-dom';
 import { v4 } from 'uuid';
 
-import { selectMTOShipmentById } from 'store/entities/selectors';
+import { selectMTOShipmentById, selectWeightTicketById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createWeightTicket, patchWeightTicket } from 'services/internalApi';
 import { MockProviders } from 'testUtils';
@@ -117,6 +117,7 @@ const mockWeightTicketWithUploads = {
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectMTOShipmentById: jest.fn(() => mockMTOShipment),
+  selectWeightTicketById: jest.fn(),
 }));
 
 beforeEach(() => {
@@ -135,24 +136,12 @@ const reviewPath = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
 });
 
 describe('Weight Tickets page', () => {
-  it('loads the selected shipment from redux', async () => {
+  it('loads the selected shipment from redux', () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
-    await waitFor(() => {
-      expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
-    });
-  });
-
-  it('displays an error if the createWeightTicket request fails', async () => {
-    createWeightTicket.mockRejectedValueOnce('an error occurred');
-
-    render(<WeightTickets />, { wrapper: MockProviders });
-
-    await waitFor(() => {
-      expect(screen.getByText('Failed to create trip record')).toBeInTheDocument();
-    });
+    expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
   });
 
   it('does not make create weight ticket api request if id param exists', async () => {
@@ -161,16 +150,15 @@ describe('Weight Tickets page', () => {
       mtoShipmentId: mockMTOShipmentId,
       weightTicketId: mockWeightTicketId,
     }));
+    selectWeightTicketById.mockReturnValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
-
-    await waitFor(() => {
-      expect(createWeightTicket).not.toHaveBeenCalled();
-    });
   });
 
   it('renders the page Content', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
+    selectWeightTicketById.mockReturnValueOnce(null);
+    selectWeightTicketById.mockReturnValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -195,6 +183,8 @@ describe('Weight Tickets page', () => {
 
   it('replaces the router history with newly created weight ticket id', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
+    selectWeightTicketById.mockReturnValueOnce(null);
+    selectWeightTicketById.mockReturnValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -205,6 +195,7 @@ describe('Weight Tickets page', () => {
 
   it('routes back to home when finish later is clicked', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
+    selectWeightTicketById.mockReturnValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -217,6 +208,7 @@ describe('Weight Tickets page', () => {
 
   it('calls patch weight ticket with the appropriate payload', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
+    selectWeightTicketById.mockReturnValue(mockWeightTicketWithUploads);
     patchWeightTicket.mockResolvedValue({});
 
     render(<WeightTickets />, { wrapper: MockProviders });
@@ -255,6 +247,7 @@ describe('Weight Tickets page', () => {
 
   it('displays an error if patchWeightTicket fails', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
+    selectWeightTicketById.mockReturnValue(mockWeightTicketWithUploads);
     patchWeightTicket.mockRejectedValueOnce('an error occurred');
 
     render(<WeightTickets />, { wrapper: MockProviders });
@@ -277,6 +270,7 @@ describe('Weight Tickets page', () => {
 
   it('calls the delete handler when removing an existing upload', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
+    selectWeightTicketById.mockReturnValue(mockWeightTicketWithUploads);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
