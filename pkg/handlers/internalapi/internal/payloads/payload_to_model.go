@@ -240,8 +240,8 @@ func WeightTicketModelFromUpdate(weightTicket *internalmessages.UpdateWeightTick
 		MissingEmptyWeightTicket: handlers.FmtBool(weightTicket.MissingEmptyWeightTicket),
 		FullWeight:               handlers.PoundPtrFromInt64Ptr(weightTicket.FullWeight),
 		MissingFullWeightTicket:  handlers.FmtBool(weightTicket.MissingFullWeightTicket),
-		OwnsTrailer:              &weightTicket.OwnsTrailer,
-		TrailerMeetsCriteria:     &weightTicket.TrailerMeetsCriteria,
+		OwnsTrailer:              handlers.FmtBool(weightTicket.OwnsTrailer),
+		TrailerMeetsCriteria:     handlers.FmtBool(weightTicket.TrailerMeetsCriteria),
 	}
 	return model
 }

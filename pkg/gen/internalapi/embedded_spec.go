@@ -3949,8 +3949,7 @@ func init() {
         },
         "ownsTrailer": {
           "type": "boolean",
-          "title": "Owns trailer",
-          "x-nullable": true
+          "title": "Owns trailer"
         },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
@@ -3974,8 +3973,7 @@ func init() {
         },
         "trailerMeetsCriteria": {
           "type": "boolean",
-          "title": "Trailer meets criteria",
-          "x-nullable": true
+          "title": "Trailer meets criteria"
         },
         "updatedAt": {
           "type": "string",
@@ -11063,8 +11061,7 @@ func init() {
         },
         "ownsTrailer": {
           "type": "boolean",
-          "title": "Owns trailer",
-          "x-nullable": true
+          "title": "Owns trailer"
         },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
@@ -11088,8 +11085,7 @@ func init() {
         },
         "trailerMeetsCriteria": {
           "type": "boolean",
-          "title": "Trailer meets criteria",
-          "x-nullable": true
+          "title": "Trailer meets criteria"
         },
         "updatedAt": {
           "type": "string",

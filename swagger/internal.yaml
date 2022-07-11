@@ -1066,11 +1066,9 @@ definitions:
       ownsTrailer:
         title: Owns trailer
         type: boolean
-        x-nullable: true
       trailerMeetsCriteria:
         title: Trailer meets criteria
         type: boolean
-        x-nullable: true
       proofOfTrailerOwnershipDocumentId:
         title: Trailer Document ID
         type: string

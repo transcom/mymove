@@ -72,7 +72,7 @@ type CreateWeightTicket struct {
 	MissingFullWeightTicket bool `json:"missingFullWeightTicket,omitempty"`
 
 	// Owns trailer
-	OwnsTrailer *bool `json:"ownsTrailer,omitempty"`
+	OwnsTrailer bool `json:"ownsTrailer,omitempty"`
 
 	// ppm shipment
 	// Required: true
@@ -97,7 +97,7 @@ type CreateWeightTicket struct {
 	ProofOfTrailerOwnershipDocumentID strfmt.UUID `json:"proofOfTrailerOwnershipDocumentId"`
 
 	// Trailer meets criteria
-	TrailerMeetsCriteria *bool `json:"trailerMeetsCriteria,omitempty"`
+	TrailerMeetsCriteria bool `json:"trailerMeetsCriteria,omitempty"`
 
 	// updated at
 	// Required: true

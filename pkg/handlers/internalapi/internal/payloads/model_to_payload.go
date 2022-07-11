@@ -258,8 +258,7 @@ func MTOShipments(mtoShipments *models.MTOShipments) *internalmessages.MTOShipme
 // CreateWeightTicket payload
 func CreateWeightTicket(weightTicket *models.WeightTicket) *internalmessages.CreateWeightTicket {
 	ppmShipment := strfmt.UUID(weightTicket.PPMShipmentID.String())
-	missingEmptyWeightTicket := weightTicket.MissingEmptyWeightTicket
-	missingFullWeightTicket := weightTicket.MissingFullWeightTicket
+
 	payload := &internalmessages.CreateWeightTicket{
 		ID:                                strfmt.UUID(weightTicket.ID.String()),
 		PpmShipmentID:                     ppmShipment,
@@ -269,15 +268,15 @@ func CreateWeightTicket(weightTicket *models.WeightTicket) *internalmessages.Cre
 		DeletedAt:                         *handlers.FmtDateTime(*weightTicket.DeletedAt),
 		VehicleDescription:                weightTicket.VehicleDescription,
 		EmptyWeight:                       handlers.FmtPoundPtr(weightTicket.EmptyWeight),
-		MissingEmptyWeightTicket:          *missingEmptyWeightTicket,
+		MissingEmptyWeightTicket:          *weightTicket.MissingEmptyWeightTicket,
 		EmptyDocumentID:                   *handlers.FmtUUID(weightTicket.EmptyDocumentID),
 		EmptyDocument:                     CreateDocument(weightTicket.EmptyDocument),
 		FullWeight:                        handlers.FmtPoundPtr(weightTicket.FullWeight),
-		MissingFullWeightTicket:           *missingFullWeightTicket,
+		MissingFullWeightTicket:           *weightTicket.MissingFullWeightTicket,
 		FullDocumentID:                    *handlers.FmtUUID(weightTicket.FullDocumentID),
 		FullDocument:                      CreateDocument(weightTicket.FullDocument),
-		OwnsTrailer:                       weightTicket.OwnsTrailer,
-		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
+		OwnsTrailer:                       *weightTicket.OwnsTrailer,
+		TrailerMeetsCriteria:              *weightTicket.TrailerMeetsCriteria,
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   CreateDocument(weightTicket.ProofOfTrailerOwnershipDocument),
 	}
@@ -288,8 +287,6 @@ func CreateWeightTicket(weightTicket *models.WeightTicket) *internalmessages.Cre
 // UpdateWeightTicket payload
 func UpdateWeightTicket(weightTicket models.WeightTicket) *internalmessages.CreateWeightTicket {
 	ppmShipment := strfmt.UUID(weightTicket.PPMShipmentID.String())
-	missingEmptyWeightTicket := weightTicket.MissingEmptyWeightTicket
-	missingFullWeightTicket := weightTicket.MissingFullWeightTicket
 	payload := &internalmessages.CreateWeightTicket{
 		ID:                                strfmt.UUID(weightTicket.ID.String()),
 		PpmShipmentID:                     ppmShipment,
@@ -299,15 +296,15 @@ func UpdateWeightTicket(weightTicket models.WeightTicket) *internalmessages.Crea
 		DeletedAt:                         *handlers.FmtDateTime(*weightTicket.DeletedAt),
 		VehicleDescription:                weightTicket.VehicleDescription,
 		EmptyWeight:                       handlers.FmtPoundPtr(weightTicket.EmptyWeight),
-		MissingEmptyWeightTicket:          *missingEmptyWeightTicket,
+		MissingEmptyWeightTicket:          *weightTicket.MissingEmptyWeightTicket,
 		EmptyDocumentID:                   *handlers.FmtUUID(weightTicket.EmptyDocumentID),
 		EmptyDocument:                     CreateDocument(weightTicket.EmptyDocument),
 		FullWeight:                        handlers.FmtPoundPtr(weightTicket.FullWeight),
-		MissingFullWeightTicket:           *missingFullWeightTicket,
+		MissingFullWeightTicket:           *weightTicket.MissingEmptyWeightTicket,
 		FullDocumentID:                    *handlers.FmtUUID(weightTicket.FullDocumentID),
 		FullDocument:                      CreateDocument(weightTicket.FullDocument),
-		OwnsTrailer:                       weightTicket.OwnsTrailer,
-		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
+		OwnsTrailer:                       *weightTicket.OwnsTrailer,
+		TrailerMeetsCriteria:              *weightTicket.TrailerMeetsCriteria,
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   CreateDocument(weightTicket.ProofOfTrailerOwnershipDocument),
 	}
