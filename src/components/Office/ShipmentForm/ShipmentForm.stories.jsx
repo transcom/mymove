@@ -18,6 +18,11 @@ const defaultProps = {
   },
   moveTaskOrderID: 'task123',
   history: { push: () => {} },
+  originDutyLocationAddress: {
+    city: 'Washington',
+    state: 'DC',
+    postalCode: '20001',
+  },
   newDutyLocationAddress: {
     city: 'Fort Benning',
     state: 'GA',
@@ -189,5 +194,17 @@ export const ExternalVendorShipment = () => {
 export const PPMShipment = () => {
   return (
     <ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.PPM} userRole={roleTypes.SERVICES_COUNSELOR} />
+  );
+};
+
+export const PPMShipmentAdvance = () => {
+  return (
+    <ShipmentForm
+      {...defaultProps}
+      selectedMoveType={SHIPMENT_OPTIONS.PPM}
+      userRole={roleTypes.SERVICES_COUNSELOR}
+      isAdvancePage
+      mtoShipment={{ ppmShipment: { estimatedIncentive: 1000000 } }}
+    />
   );
 };

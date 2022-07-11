@@ -59,10 +59,6 @@ const ntsReleaseShipmentTOOSchema = Yup.object().shape({
   storageFacility: StorageFacilityAddressSchema,
 });
 
-const ppmSchema = Yup.object().shape({
-  // todo
-});
-
 function getShipmentOptions(shipmentType, userRole) {
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
@@ -121,11 +117,6 @@ function getShipmentOptions(shipmentType, userRole) {
           throw new Error('unrecognized user role type');
         }
       }
-
-    case SHIPMENT_OPTIONS.PPM:
-      return {
-        schema: ppmSchema,
-      };
 
     default:
       throw new Error('unrecognized move type');

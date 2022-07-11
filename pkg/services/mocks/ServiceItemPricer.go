@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	unit "github.com/transcom/mymove/pkg/unit"
 )
 
@@ -48,8 +46,13 @@ func (_m *ServiceItemPricer) PriceServiceItem(appCtx appcontext.AppContext, item
 	return r0, r1, r2
 }
 
-// NewServiceItemPricer creates a new instance of ServiceItemPricer. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewServiceItemPricer(t testing.TB) *ServiceItemPricer {
+type mockConstructorTestingTNewServiceItemPricer interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewServiceItemPricer creates a new instance of ServiceItemPricer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewServiceItemPricer(t mockConstructorTestingTNewServiceItemPricer) *ServiceItemPricer {
 	mock := &ServiceItemPricer{}
 	mock.Mock.Test(t)
 

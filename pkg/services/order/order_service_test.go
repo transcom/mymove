@@ -9,7 +9,7 @@ import (
 )
 
 type OrderServiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestOrderServiceSuite(t *testing.T) {

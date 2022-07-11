@@ -5,7 +5,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite ShipmentSuite) TestValidateShipment() {
+func (suite *ShipmentSuite) TestValidateShipment() {
 	suite.Run("Returns InvalidInputError if a validator function returns an error", func() {
 		err := validateShipment(suite.AppContextForTest(), models.MTOShipment{}, basicShipmentChecks()...)
 

@@ -115,6 +115,7 @@ type Assertions struct {
 	UsersRoles                               models.UsersRoles
 	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
+	WeightTicket                             models.WeightTicket
 	Zip3Distance                             models.Zip3Distance
 }
 

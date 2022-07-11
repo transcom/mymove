@@ -30,6 +30,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
       mtoShipments.push(newMTOShipment);
       queryCache.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryCache.invalidateQueries([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID]);
+      return newMTOShipment;
     },
   });
 
@@ -64,6 +65,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   isCreatePage
                   ServicesCounselingShipmentForm
                   currentResidence={customer.current_address}
+                  originDutyLocationAddress={order.originDutyLocation?.address}
                   newDutyLocationAddress={order.destinationDutyLocation?.address}
                   selectedMoveType={selectedMoveType}
                   serviceMember={{ weightAllotment }}

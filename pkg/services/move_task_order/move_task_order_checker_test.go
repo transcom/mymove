@@ -14,17 +14,16 @@ import (
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
-	availableMTO := testdatagen.MakeAvailableMove(suite.DB())
-	notAvailableMTO := testdatagen.MakeDefaultMove(suite.DB())
 	mtoChecker := NewMoveTaskOrderChecker()
 
-	suite.RunWithPreloadedData("MTO is available and visible - success", func() {
+	suite.Run("MTO is available and visible - success", func() {
+		availableMTO := testdatagen.MakeAvailableMove(suite.DB())
 		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.AppContextForTest(), availableMTO.ID)
 		suite.Equal(availableToPrime, true)
 		suite.NoError(err)
 	})
 
-	suite.RunWithPreloadedData("MTO is available but hidden - failure", func() {
+	suite.Run("MTO is available but hidden - failure", func() {
 		now := time.Now()
 		hide := false
 		availableHiddenMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -41,14 +40,16 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 		suite.Equal(availableToPrime, false)
 	})
 
-	suite.RunWithPreloadedData("MTO is not available - no failure, but returns false", func() {
+	suite.Run("MTO is not available - no failure, but returns false", func() {
+		notAvailableMTO := testdatagen.MakeDefaultMove(suite.DB())
+
 		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.AppContextForTest(), notAvailableMTO.ID)
 		suite.Equal(availableToPrime, false)
 		suite.NoError(err)
 	})
 
-	suite.RunWithPreloadedData("MTO ID is not valid - failure", func() {
-		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
+	suite.Run("MTO ID is not valid - failure", func() {
+		badUUID, _ := uuid.NewV4()
 		availableToPrime, err := mtoChecker.MTOAvailableToPrime(suite.AppContextForTest(), badUUID)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)

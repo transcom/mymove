@@ -10,8 +10,6 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
-	testing "testing"
-
 	time "time"
 
 	unit "github.com/transcom/mymove/pkg/unit"
@@ -82,8 +80,13 @@ func (_m *DomesticOriginAdditionalDaysSITPricer) PriceUsingParams(appCtx appcont
 	return r0, r1, r2
 }
 
-// NewDomesticOriginAdditionalDaysSITPricer creates a new instance of DomesticOriginAdditionalDaysSITPricer. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewDomesticOriginAdditionalDaysSITPricer(t testing.TB) *DomesticOriginAdditionalDaysSITPricer {
+type mockConstructorTestingTNewDomesticOriginAdditionalDaysSITPricer interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewDomesticOriginAdditionalDaysSITPricer creates a new instance of DomesticOriginAdditionalDaysSITPricer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewDomesticOriginAdditionalDaysSITPricer(t mockConstructorTestingTNewDomesticOriginAdditionalDaysSITPricer) *DomesticOriginAdditionalDaysSITPricer {
 	mock := &DomesticOriginAdditionalDaysSITPricer{}
 	mock.Mock.Test(t)
 
