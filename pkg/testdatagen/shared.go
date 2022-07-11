@@ -44,6 +44,7 @@ type Assertions struct {
 	ElectronicOrder                          models.ElectronicOrder
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
 	Entitlement                              models.Entitlement
+	EvaluationReport                         models.EvaluationReport
 	FuelEIADieselPrice                       models.FuelEIADieselPrice
 	File                                     afero.File
 	GHCDieselFuelPrice                       models.GHCDieselFuelPrice
