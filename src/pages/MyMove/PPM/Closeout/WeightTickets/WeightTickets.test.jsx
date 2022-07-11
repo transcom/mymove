@@ -153,6 +153,9 @@ describe('Weight Tickets page', () => {
     selectWeightTicketById.mockReturnValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
+    await waitFor(() => {
+      expect(createWeightTicket).not.toHaveBeenCalled();
+    });
   });
 
   it('renders the page Content', async () => {
