@@ -18,24 +18,6 @@ import (
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 )
 
-//type weightTicketObjects struct {
-//	builder    *query.Builder
-//	fetcher    services.Fetcher
-//	moveRouter services.MoveRouter
-//}
-
-//func (suite *HandlerSuite) setUpWeightTicketObjects() *weightTicketObjects {
-//	builder := query.NewQueryBuilder()
-//	fetcher := fetch.NewFetcher(builder)
-//	moveRouter := moverouter.NewMoveRouter()
-//
-//	return &weightTicketObjects{
-//		builder:    builder,
-//		fetcher:    fetcher,
-//		moveRouter: moveRouter,
-//	}
-//}
-
 //
 // CREATE TEST
 //
