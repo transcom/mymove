@@ -110,7 +110,7 @@ describe('Shipment Info List', () => {
     expect(within(customerRemarks.parentElement).getByText(info.customerRemarks)).toBeInTheDocument();
   });
 
-  it('does not render secondary addresses or mtoAgents when not provided', () => {
+  it('does not render secondary addresses or mtoAgents when not provided', async () => {
     render(
       <ShipmentInfoList
         shipment={{
@@ -121,10 +121,10 @@ describe('Shipment Info List', () => {
       />,
     );
 
-    expect(screen.queryByText(labels.secondaryPickupAddress)).toBeNull();
-    expect(screen.queryByText(labels.secondaryDeliveryAddress)).toBeNull();
-    expect(screen.queryByText(labels.mtoAgents[0])).toBeNull();
-    expect(screen.queryByText(labels.mtoAgents[1])).toBeNull();
+    expect(await screen.queryByText(labels.secondaryPickupAddress)).not.toBeInTheDocument();
+    expect(await screen.queryByText(labels.secondaryDeliveryAddress)).not.toBeInTheDocument();
+    expect(await screen.queryByText(labels.mtoAgents[0])).not.toBeInTheDocument();
+    expect(await screen.queryByText(labels.mtoAgents[1])).not.toBeInTheDocument();
   });
 
   it('renders appropriate fields when provided and collapsed', () => {
