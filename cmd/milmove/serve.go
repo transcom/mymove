@@ -383,6 +383,29 @@ func initializeDB(v *viper.Viper, logger *zap.Logger,
 	return dbConnection
 }
 
+func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Config {
+	certificates, rootCAs, err := certs.InitDoDCertificates(v, appCtx.Logger())
+	if certificates == nil || rootCAs == nil || err != nil {
+		appCtx.Logger().Fatal("Failed to initialize DOD certificates", zap.Error(err))
+	}
+	appCtx.Logger().Debug("Server DOD Key Pair Loaded")
+	appCtx.Logger().Debug("Trusted Certificate Authorities", zap.Any("subjects", rootCAs.Subjects()))
+
+	useDevlocalAuthCA := stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview, cli.EnvironmentLoadtest}, v.GetString(cli.EnvironmentFlag))
+	if useDevlocalAuthCA {
+		appCtx.Logger().Info("Adding devlocal CA to root CAs")
+		devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
+		devlocalCa, readFileErr := ioutil.ReadFile(filepath.Clean(devlocalCAPath))
+		if readFileErr != nil {
+			appCtx.Logger().Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
+		} else {
+			rootCAs.AppendCertsFromPEM(devlocalCa)
+		}
+	}
+
+	return &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+}
+
 func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	routingConfig.MaxBodySize = v.GetInt64(cli.MaxBodySizeFlag)
 	routingConfig.ServeSwaggerUI = v.GetBool(cli.ServeSwaggerUIFlag)
@@ -420,7 +443,7 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	routingConfig.GitCommit = gitCommit
 }
 
-func buildRoutingConfig(v *viper.Viper, appCtx appcontext.AppContext, redisPool *redis.Pool, awsSession *awssession.Session, isDevOrTest bool, tlsConfig *tls.Config) *routing.Config {
+func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool *redis.Pool, awsSession *awssession.Session, isDevOrTest bool, tlsConfig *tls.Config) *routing.Config {
 	routingConfig := &routing.Config{}
 
 	// always use the OS Filesystem when serving for real
@@ -579,6 +602,8 @@ func buildRoutingConfig(v *viper.Viper, appCtx appcontext.AppContext, redisPool 
 
 func serveFunction(cmd *cobra.Command, args []string) error {
 
+	// variables that are initialized in this function and needed
+	// during cleanup after the function exits
 	var logger *zap.Logger
 	var loggerSync func()
 	var dbConnection *pop.Connection
@@ -586,6 +611,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	var redisPool *redis.Pool
 	redisClose := &sync.Once{}
 
+	// cleanup that runs when this function ends ensuring we close
+	// the database connection, the redis connection, and flush the
+	// logger if needed
 	defer func() {
 		if logger != nil {
 			if r := recover(); r != nil {
@@ -612,39 +640,52 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}()
 
+	// Prepare to parse command line options / environment variables
+	// using the viper library
 	v, err := initializeViper(cmd, args)
 	if err != nil {
 		return err
 	}
 
+	// set up the logger and a function to flush the logger as needed
 	logger, loggerSync = initializeLogger(v)
 	logger.Info("webserver starting up")
 
+	// ensure that the provided configuration options make sense
+	// before starting the server
 	err = checkServeConfig(v, logger)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
+
+	// Telemetry is used for reporting stats. Ensure the telemetry
+	// config makes sense before starting
 	telemetryConfig, err := cli.CheckTelemetry(v)
 	if err != nil {
 		logger.Fatal("invalid trace config", zap.Error(err))
 	}
 
+	// initialize the telemetry system and ensure it is shut down when
+	// the server finishes
 	telemetryShutdownFn := telemetry.Init(logger, telemetryConfig)
 	defer telemetryShutdownFn()
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
-
 	isDevOrTest := dbEnv == "development" || dbEnv == "test"
 	if isDevOrTest {
 		logger.Info(fmt.Sprintf("Starting in %s mode, which enables additional features", dbEnv))
 	}
 
+	// set up AWS (as needed)
 	session := initializeAwsSession(v, logger)
 
+	// connect to the db
 	dbConnection = initializeDB(v, logger, session)
 
+	// set up appcontext
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 
+	// now that we have the appcontext, register telemetry observers
 	telemetry.RegisterDBStatsObserver(appCtx, telemetryConfig)
 	telemetry.RegisterRuntimeObserver(appCtx, telemetryConfig)
 
@@ -654,33 +695,20 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Invalid Redis Configuration", zap.Error(errRedisConnection))
 	}
 
-	certificates, rootCAs, err := certs.InitDoDCertificates(v, appCtx.Logger())
-	if certificates == nil || rootCAs == nil || err != nil {
-		appCtx.Logger().Fatal("Failed to initialize DOD certificates", zap.Error(err))
-	}
-	appCtx.Logger().Debug("Server DOD Key Pair Loaded")
-	appCtx.Logger().Debug("Trusted Certificate Authorities", zap.Any("subjects", rootCAs.Subjects()))
+	// set up the tls configuration
+	tlsConfig := initializeTLSConfig(appCtx, v)
 
-	useDevlocalAuthCA := stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview, cli.EnvironmentLoadtest}, v.GetString(cli.EnvironmentFlag))
-	if useDevlocalAuthCA {
-		appCtx.Logger().Info("Adding devlocal CA to root CAs")
-		devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
-		devlocalCa, readFileErr := ioutil.ReadFile(filepath.Clean(devlocalCAPath))
-		if readFileErr != nil {
-			appCtx.Logger().Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
-		} else {
-			rootCAs.AppendCertsFromPEM(devlocalCa)
-		}
-	}
-	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
-	routingConfig := buildRoutingConfig(v, appCtx, redisPool, session,
+	// build the routing configuration
+	routingConfig := buildRoutingConfig(appCtx, v, redisPool, session,
 		isDevOrTest, tlsConfig)
 
+	// initialize the router
 	site, err := routing.InitRouting(appCtx, redisPool, routingConfig, telemetryConfig)
 	if err != nil {
 		return err
 	}
 
+	// set up telemetry options for the server
 	otelHTTPOptions := []otelhttp.Option{}
 	if telemetryConfig.ReadEvents {
 		otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.ReadEvents))
@@ -689,6 +717,22 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.WriteEvents))
 	}
 	listenInterface := v.GetString(cli.InterfaceFlag)
+
+	// start each server:
+	//
+	// * noTLSServer that is not listening on TLS. This server is
+	//   generally only run in local development environments
+	// * tlsServer that does listen using TLS. This server is run in
+	//   production and generally handles all non prime API requests
+	// * mutualTLSServer that requires mutual TLS authentication. This
+	//   server handles prime API requests
+	//
+	// However, you will note that for historical reasons, each server
+	// has the entire routing setup for all servers. It's thus the
+	// responsibility of routing config and middleware to prevent the
+	// server from responding to the wrong requests. The ideal would
+	// be for each server to have separate routing config to limit the
+	// options.
 
 	noTLSEnabled := v.GetBool(cli.NoTLSListenerFlag)
 	var noTLSServer *server.NamedServer
@@ -716,7 +760,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Logger:       logger,
 			HTTPHandler:  otelhttp.NewHandler(site, "server-tls", otelHTTPOptions...),
 			ClientAuth:   tls.NoClientCert,
-			Certificates: certificates,
+			Certificates: tlsConfig.Certificates,
 		})
 		if err != nil {
 			logger.Fatal("error creating tls server", zap.Error(err))
@@ -734,8 +778,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Logger:       logger,
 			HTTPHandler:  otelhttp.NewHandler(site, "server-mtls", otelHTTPOptions...),
 			ClientAuth:   tls.RequireAndVerifyClientCert,
-			Certificates: certificates,
-			ClientCAs:    rootCAs,
+			Certificates: tlsConfig.Certificates,
+			ClientCAs:    tlsConfig.RootCAs,
 		})
 		if err != nil {
 			logger.Fatal("error creating mutual-tls server", zap.Error(err))
