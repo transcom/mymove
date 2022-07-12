@@ -11,7 +11,6 @@ import (
 	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -43,8 +42,7 @@ func (h CreateWeightTicketHandler) Handle(params weightticketops.CreateWeightTic
 				return weightticketops.NewCreateWeightTicketBadRequest(), nil
 			}
 
-			var weightTicket *models.WeightTicket
-			weightTicket, err = h.weightTicketCreator.CreateWeightTicket(appCtx, ppmShipmentID)
+			weightTicket, err := h.weightTicketCreator.CreateWeightTicket(appCtx, ppmShipmentID)
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.CreateWeightTicketHandler", zap.Error(err))
