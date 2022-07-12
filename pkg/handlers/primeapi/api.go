@@ -130,9 +130,13 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		movetaskorder.NewMoveTaskOrderChecker(),
 	}
 
+	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(ppmEstimator)
+	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator)
+
 	primeAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		handlerConfig,
-		mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter),
+		shipmentCreator,
 		movetaskorder.NewMoveTaskOrderChecker(),
 	}
 
