@@ -380,21 +380,6 @@ describe('MoveDetails page', () => {
         expect(addressText).toContain(postalCode);
       }
 
-      const secondAddressTerms = screen.getAllByText('Second pickup address');
-
-      expect(secondAddressTerms.length).toBe(1);
-
-      for (let i = 0; i < 1; i += 1) {
-        const { streetAddress1, city, state, postalCode } = newMoveDetailsQuery.mtoShipments[i].secondaryPickupAddress;
-
-        const addressText = secondAddressTerms[0].nextElementSibling.textContent;
-
-        expect(addressText).toContain(streetAddress1);
-        expect(addressText).toContain(city);
-        expect(addressText).toContain(state);
-        expect(addressText).toContain(postalCode);
-      }
-
       const destinationAddressTerms = screen.getAllByText('Destination address');
 
       expect(destinationAddressTerms.length).toBe(2);
