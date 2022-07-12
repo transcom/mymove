@@ -136,9 +136,9 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	}
 
 	if routingConfig.ServeOrders {
-		officeServerName := routingConfig.HandlerConfig.AppNames().OfficeServername
-		ordersMux := site.Host(officeServerName).PathPrefix("/orders/v1/").Subrouter()
-		ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(appCtx.Logger(), officeServerName)
+		ordersServerName := routingConfig.HandlerConfig.AppNames().OrdersServername
+		ordersMux := site.Host(ordersServerName).PathPrefix("/orders/v1/").Subrouter()
+		ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(appCtx.Logger(), ordersServerName)
 		ordersMux.Use(ordersDetectionMiddleware)
 		ordersMux.Use(middleware.NoCache(appCtx.Logger()))
 		ordersMux.Use(clientCertMiddleware)
