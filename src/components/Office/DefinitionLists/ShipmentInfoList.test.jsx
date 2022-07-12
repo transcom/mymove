@@ -127,7 +127,7 @@ describe('Shipment Info List', () => {
     expect(await screen.queryByText(labels.mtoAgents[1])).not.toBeInTheDocument();
   });
 
-  it('renders appropriate fields when provided and collapsed', () => {
+  it('renders appropriate fields when provided and collapsed', async () => {
     render(<ShipmentInfoList isExpanded={false} shipment={info} />);
 
     const requestedPickupDate = screen.getByText(labels.requestedPickupDate);
@@ -149,9 +149,8 @@ describe('Shipment Info List', () => {
 
     expect(screen.queryByText(labels.secondaryDeliveryAddress)).toBeNull();
 
-    expect(screen.queryByText(labels.mtoAgents[0])).toBeNull();
-
-    expect(screen.queryByText(labels.mtoAgents[1])).toBeNull();
+    expect(await screen.queryByText(labels.mtoAgents[0])).not.toBeInTheDocument();
+    expect(await screen.queryByText(labels.mtoAgents[1])).not.toBeInTheDocument();
 
     const counselorRemarks = screen.getByText(labels.counselorRemarks);
     expect(within(counselorRemarks.parentElement).getByText(info.counselorRemarks)).toBeInTheDocument();
