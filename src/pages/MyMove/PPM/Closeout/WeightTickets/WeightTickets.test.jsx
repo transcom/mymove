@@ -146,6 +146,16 @@ describe('Weight Tickets page', () => {
     });
   });
 
+  it('displays an error if the createWeightTicket request fails', async () => {
+    createWeightTicket.mockRejectedValue('an error occurred');
+
+    render(<WeightTickets />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to create trip record')).toBeInTheDocument();
+    });
+  });
+
   it('does not make create weight ticket api request if id param exists', async () => {
     useParams.mockImplementationOnce(() => ({
       moveId: mockMoveId,

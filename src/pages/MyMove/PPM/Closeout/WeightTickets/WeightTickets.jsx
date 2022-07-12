@@ -135,8 +135,20 @@ const WeightTickets = () => {
       });
   };
 
+  const renderError = () => {
+    if (!errorMessage) {
+      return null;
+    }
+
+    return (
+      <Alert slim type="error">
+        {errorMessage}
+      </Alert>
+    );
+  };
+
   if (!mtoShipment || !currentWeightTicket) {
-    return <LoadingPlaceholder />;
+    return renderError() || <LoadingPlaceholder />;
   }
 
   return (
@@ -147,11 +159,7 @@ const WeightTickets = () => {
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Weight Tickets</h1>
-            {errorMessage && (
-              <Alert slim type="error">
-                {errorMessage}
-              </Alert>
-            )}
+            {renderError()}
             <div className={closingPageStyles['closing-section']}>
               <p>
                 Weight tickets should include both an empty or full weight ticket for each segment or trip. If you’re
