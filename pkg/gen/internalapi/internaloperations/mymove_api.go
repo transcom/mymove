@@ -852,7 +852,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/{ppmShipmentId}/weight_ticket"] = ppm.NewCreateWeightTicket(o.context, o.PpmCreateWeightTicketHandler)
+	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/weight-ticket"] = ppm.NewCreateWeightTicket(o.context, o.PpmCreateWeightTicketHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -1029,10 +1029,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/backup_contacts/{backupContactId}"] = backup_contacts.NewUpdateServiceMemberBackupContact(o.context, o.BackupContactsUpdateServiceMemberBackupContactHandler)
-	if o.handlers["PUT"] == nil {
-		o.handlers["PUT"] = make(map[string]http.Handler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PUT"]["/{ppmShipmentId}/weight_ticket/{weightTicketId}"] = ppm.NewUpdateWeightTicket(o.context, o.PpmUpdateWeightTicketHandler)
+	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}"] = ppm.NewUpdateWeightTicket(o.context, o.PpmUpdateWeightTicketHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

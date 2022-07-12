@@ -2308,6 +2308,118 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/weight-ticket": {
+      "post": {
+        "description": "Created a weight ticket document with the given information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a weight ticket document",
+        "operationId": "createWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns new weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/CreateWeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
+      "patch": {
+        "description": "Updates a weight ticket document with the new information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a weight ticket document",
+        "operationId": "updateWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the weight ticket",
+            "name": "weightTicketId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "updateWeightTicketPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/CreateWeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/{queueType}": {
       "get": {
         "description": "Show all moves in a queue",
@@ -2908,118 +3020,6 @@ func init() {
           },
           "500": {
             "description": "server error"
-          }
-        }
-      }
-    },
-    "/{ppmShipmentId}/weight_ticket": {
-      "post": {
-        "description": "Created a weight ticket document with the given information",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Creates a weight ticket document",
-        "operationId": "createWeightTicket",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppm shipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns new weight ticket object",
-            "schema": {
-              "$ref": "#/definitions/CreateWeightTicket"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
-    "/{ppmShipmentId}/weight_ticket/{weightTicketId}": {
-      "put": {
-        "description": "Updates a weight ticket document with the new information",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Updates a weight ticket document",
-        "operationId": "updateWeightTicket",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppm shipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the weight ticket",
-            "name": "weightTicketId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          },
-          {
-            "name": "updateWeightTicketPayload",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateWeightTicket"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns an updated weight ticket object",
-            "schema": {
-              "$ref": "#/definitions/CreateWeightTicket"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "412": {
-            "$ref": "#/responses/PreconditionFailed"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -9383,6 +9383,151 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/weight-ticket": {
+      "post": {
+        "description": "Created a weight ticket document with the given information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a weight ticket document",
+        "operationId": "createWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns new weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/CreateWeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
+      "patch": {
+        "description": "Updates a weight ticket document with the new information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a weight ticket document",
+        "operationId": "updateWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the weight ticket",
+            "name": "weightTicketId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "updateWeightTicketPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/CreateWeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/queues/{queueType}": {
       "get": {
         "description": "Show all moves in a queue",
@@ -9983,151 +10128,6 @@ func init() {
           },
           "500": {
             "description": "server error"
-          }
-        }
-      }
-    },
-    "/{ppmShipmentId}/weight_ticket": {
-      "post": {
-        "description": "Created a weight ticket document with the given information",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Creates a weight ticket document",
-        "operationId": "createWeightTicket",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppm shipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns new weight ticket object",
-            "schema": {
-              "$ref": "#/definitions/CreateWeightTicket"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "401": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "403": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/{ppmShipmentId}/weight_ticket/{weightTicketId}": {
-      "put": {
-        "description": "Updates a weight ticket document with the new information",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Updates a weight ticket document",
-        "operationId": "updateWeightTicket",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppm shipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the weight ticket",
-            "name": "weightTicketId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          },
-          {
-            "name": "updateWeightTicketPayload",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateWeightTicket"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns an updated weight ticket object",
-            "schema": {
-              "$ref": "#/definitions/CreateWeightTicket"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "401": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "403": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "412": {
-            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
           }
         }
       }

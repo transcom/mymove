@@ -4446,7 +4446,7 @@ paths:
           description: not authorized to modify this move
         '500':
           description: server error
-  /{ppmShipmentId}/weight_ticket:
+  /ppm-shipments/{ppmShipmentId}/weight-ticket:
     post:
       summary: Creates a weight ticket document
       description: Created a weight ticket document with the given information
@@ -4473,8 +4473,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
-  /{ppmShipmentId}/weight_ticket/{weightTicketId}:
-    put:
+  /ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}:
+    patch:
       summary: Updates a weight ticket document
       description: Updates a weight ticket document with the new information
       operationId: updateWeightTicket

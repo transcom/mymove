@@ -43,7 +43,7 @@ func (o *UpdateWeightTicketURL) SetBasePath(bp string) {
 func (o *UpdateWeightTicketURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/{ppmShipmentId}/weight_ticket/{weightTicketId}"
+	var _path = "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}"
 
 	ppmShipmentID := o.PpmShipmentID.String()
 	if ppmShipmentID != "" {

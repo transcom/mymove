@@ -29,7 +29,7 @@ func NewUpdateWeightTicket(ctx *middleware.Context, handler UpdateWeightTicketHa
 	return &UpdateWeightTicket{Context: ctx, Handler: handler}
 }
 
-/* UpdateWeightTicket swagger:route PUT /{ppmShipmentId}/weight_ticket/{weightTicketId} ppm updateWeightTicket
+/* UpdateWeightTicket swagger:route PATCH /ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId} ppm updateWeightTicket
 
 Updates a weight ticket document
 
