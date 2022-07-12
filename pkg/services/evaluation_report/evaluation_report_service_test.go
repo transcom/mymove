@@ -9,7 +9,7 @@ import (
 )
 
 type EvaluationReportSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestEvaluationReportServiceSuite(t *testing.T) {
