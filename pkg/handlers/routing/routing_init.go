@@ -34,32 +34,73 @@ type Config struct {
 
 	AuthContext authentication.Context
 
+	// Use the afero filesystem interface to allow for replacement
+	// during testing
 	FileSystem afero.Fs
 
 	// routing config
-	BuildRoot              string
-	LocalStorageRoot       string
-	LocalStorageWebRoot    string
-	MaxBodySize            int64
-	CSRFAuthKey            string
-	ServeSwaggerUI         bool
-	ServeOrders            bool
-	OrdersSwaggerPath      string
-	ServePrime             bool
-	PrimeSwaggerPath       string
-	ServeSupport           bool
-	SupportSwaggerPath     string
-	ServeDebugPProf        bool
-	ServeAPIInternal       bool
-	APIInternalSwaggerPath string
-	ServeAdmin             bool
-	AdminSwaggerPath       string
-	ServePrimeSimulator    bool
-	ServeGHC               bool
-	GHCSwaggerPath         string
-	ServeDevlocalAuth      bool
-	UseDevlocalAuthCA      bool
 
+	// BuildRoot is where the client build is located (e.g. "build")
+	BuildRoot string
+
+	// If running in local development mode, where should uploaded
+	// files be stored? LocalStorageRoot and LocalStorageWebRoot
+	// configure that
+	LocalStorageRoot    string
+	LocalStorageWebRoot string
+
+	// What is the maximum body size that should be accepted?
+	MaxBodySize int64
+
+	// To prevent CSRF, configure a authentication key
+	CSRFAuthKey string
+
+	// Should the swagger ui be served? Generally only enabled in development
+	ServeSwaggerUI bool
+
+	// Should the orders api be served? This is deprecated now
+	ServeOrders bool
+	// The path to the orders api swagger definition
+	OrdersSwaggerPath string
+
+	// Should the prime api be served?
+	ServePrime bool
+	// The path to the prime api swagger definition
+	PrimeSwaggerPath string
+
+	// Should the support api be served? Mostly only used in dev environments
+	ServeSupport bool
+	// The path to the support api swagger definition
+	SupportSwaggerPath string
+
+	// Should the API endpoint for profiling be enabled. Mostly only
+	// used in dev environments
+	ServeDebugPProf bool
+
+	// Should the internal api be served?
+	ServeAPIInternal bool
+	// The path to the internal api swagger definition
+	APIInternalSwaggerPath string
+
+	// Should the admin api be served?
+	ServeAdmin bool
+	// The path to the admin api swagger definition
+	AdminSwaggerPath string
+
+	// Should the prime simulator be enabled? Definitely never enabled
+	// in production
+	ServePrimeSimulator bool
+
+	// Should the ghc api be served?
+	ServeGHC bool
+	// The path to the ghc api swagger definition
+	GHCSwaggerPath string
+
+	// Should devlocal auth be enabled? Definitely never enabled in
+	// production
+	ServeDevlocalAuth bool
+
+	// The git branch and commit used when building this server
 	GitBranch string
 	GitCommit string
 }
