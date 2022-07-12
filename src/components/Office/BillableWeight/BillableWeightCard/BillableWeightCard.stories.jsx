@@ -2,6 +2,9 @@ import React from 'react';
 
 import BillableWeightCard from './BillableWeightCard';
 
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
+
 export default {
   title: 'Office Components/BillableWeightCard',
   component: BillableWeightCard,
@@ -10,7 +13,7 @@ export default {
   },
 };
 
-export const Card = (argTypes) => (
+const BasicCard = (argTypes) => (
   <div style={{ background: '#f9f9f9', width: '100%', minWidth: '1000px', height: '100%', paddingTop: 20 }}>
     <BillableWeightCard
       maxBillableWeight={13750}
@@ -39,3 +42,11 @@ export const Card = (argTypes) => (
     />
   </div>
 );
+
+export const Card = (argTypes) => (
+  <MockProviders permissions={[permissionTypes.updateMaxBillableWeight]}>
+    <BasicCard argTypes={argTypes} />
+  </MockProviders>
+);
+
+export const CardReadOnly = (argTypes) => <BasicCard argTypes={argTypes} />;

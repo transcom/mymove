@@ -88,7 +88,6 @@ func MakeAddress4(db *pop.Connection, assertions Assertions) models.Address {
 func MakeDefaultAddress(db *pop.Connection) models.Address {
 	// Make associated lookup table records.
 	FetchOrMakeDefaultTariff400ngZip3(db)
-
 	return MakeAddress(db, Assertions{})
 }
 

@@ -3,7 +3,6 @@ package models_test
 import (
 	"fmt"
 	"strings"
-	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -13,7 +12,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 	validServiceItemParamTypes := strings.Join(models.ValidServiceItemParamTypes, ", ")
 	validServiceItemParamOrigins := strings.Join(models.ValidServiceItemParamOrigins, ", ")
 
-	suite.T().Run("test valid ServiceItemParamKey", func(t *testing.T) {
+	suite.Run("test valid ServiceItemParamKey", func() {
 		validServiceItemParamKey := models.ServiceItemParamKey{
 			Key:         models.ServiceItemParamNameZipPickupAddress,
 			Description: "Description",
@@ -24,7 +23,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 		suite.verifyValidationErrors(&validServiceItemParamKey, expErrors)
 	})
 
-	suite.T().Run("test empty ServiceItemParamKey", func(t *testing.T) {
+	suite.Run("test empty ServiceItemParamKey", func() {
 		invalidServiceItemParamKey := models.ServiceItemParamKey{}
 
 		expErrors := map[string][]string{
@@ -37,7 +36,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 		suite.verifyValidationErrors(&invalidServiceItemParamKey, expErrors)
 	})
 
-	suite.T().Run("test invalid key name for ServiceItemParamKey", func(t *testing.T) {
+	suite.Run("test invalid key name for ServiceItemParamKey", func() {
 		invalidServiceItemParamKey := models.ServiceItemParamKey{
 			Key:         "foo",
 			Description: "Description",
@@ -50,7 +49,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 		suite.verifyValidationErrors(&invalidServiceItemParamKey, expErrors)
 	})
 
-	suite.T().Run("test invalid type for ServiceItemParamKey", func(t *testing.T) {
+	suite.Run("test invalid type for ServiceItemParamKey", func() {
 		invalidServiceItemParamKey := models.ServiceItemParamKey{
 			Key:         models.ServiceItemParamNameZipPickupAddress,
 			Description: "Description",
@@ -63,7 +62,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 		suite.verifyValidationErrors(&invalidServiceItemParamKey, expErrors)
 	})
 
-	suite.T().Run("test invalid origin for ServiceItemParamKey", func(t *testing.T) {
+	suite.Run("test invalid origin for ServiceItemParamKey", func() {
 		invalidServiceItemParamKey := models.ServiceItemParamKey{
 			Key:         models.ServiceItemParamNameZipPickupAddress,
 			Description: "Description",

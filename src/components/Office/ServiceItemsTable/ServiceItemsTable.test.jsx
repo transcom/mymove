@@ -5,6 +5,8 @@ import { mount } from 'enzyme';
 import ServiceItemsTable from './ServiceItemsTable';
 
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 describe('ServiceItemsTable', () => {
   const defaultProps = {
@@ -141,11 +143,13 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-      />,
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
     );
 
     wrapper.find('button[data-testid="acceptButton"]').simulate('click');
@@ -173,6 +177,36 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
+    );
+
+    wrapper.find('button[data-testid="rejectButton"]').simulate('click');
+
+    expect(defaultProps.handleShowRejectionDialog).toHaveBeenCalledWith('abc123', 'xyz789');
+  });
+
+  it('does not show accept or reject buttons when permissions are missing', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic Origin 1st Day SIT',
+        code: 'DOFSIT',
+        details: {
+          pickupPostalCode: '11111',
+          reason: 'This is the reason',
+        },
+      },
+    ];
+
+    const wrapper = mount(
       <ServiceItemsTable
         {...defaultProps}
         serviceItems={serviceItems}
@@ -180,8 +214,9 @@ describe('ServiceItemsTable', () => {
       />,
     );
 
-    wrapper.find('button[data-testid="rejectButton"]').simulate('click');
-
-    expect(defaultProps.handleShowRejectionDialog).toHaveBeenCalledWith('abc123', 'xyz789');
+    expect(wrapper.find('button[data-testid="acceptButton"]').length).toBeFalsy();
+    expect(wrapper.find('button[data-testid="rejectButton"]').length).toBeFalsy();
+    expect(wrapper.find('button[data-testid="approveTextButton"]').length).toBeFalsy();
+    expect(wrapper.find('button[data-testid="rejectTextButton"]').length).toBeFalsy();
   });
 });

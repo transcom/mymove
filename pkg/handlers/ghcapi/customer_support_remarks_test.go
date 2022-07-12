@@ -5,6 +5,10 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/go-openapi/strfmt"
+
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -135,5 +139,133 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&customersupportremarksop.CreateCustomerSupportRemarkForMoveInternalServerError{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestUpdateCustomerSupportRemarksHandler() {
+
+	setupTestData := func() (*mocks.CustomerSupportRemarkUpdater, models.CustomerSupportRemark, models.CustomerSupportRemark) {
+
+		updater := mocks.CustomerSupportRemarkUpdater{}
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		originalRemark := testdatagen.MakeCustomerSupportRemark(suite.DB(), testdatagen.Assertions{
+			CustomerSupportRemark: models.CustomerSupportRemark{
+				Content:      "This is a customer support remark.",
+				OfficeUserID: officeUser.ID,
+				MoveID:       move.ID,
+			},
+			Move: move,
+		})
+
+		updatedRemark := originalRemark
+		updatedRemark.Content = "Changed my mind"
+
+		return &updater, originalRemark, updatedRemark
+
+	}
+
+	suite.Run("Successful PATCH", func() {
+		updater, ogRemark, updatedRemark := setupTestData()
+
+		request := httptest.NewRequest("PATCH", fmt.Sprintf("/customer-support-remarks/%s", &ogRemark.ID), nil)
+		payload := ghcmessages.UpdateCustomerSupportRemarkPayload{
+			Content: &updatedRemark.Content,
+		}
+
+		params := customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams{
+			HTTPRequest:             request,
+			Body:                    &payload,
+			CustomerSupportRemarkID: strfmt.UUID(ogRemark.ID.String()),
+		}
+
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := UpdateCustomerSupportRemarkHandler{handlerConfig, updater}
+
+		updater.On("UpdateCustomerSupportRemark",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams"),
+		).Return(&updatedRemark, nil)
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&customersupportremarksop.UpdateCustomerSupportRemarkForMoveOK{}, response)
+	})
+
+	suite.Run("unsuccessful PATCH", func() {
+		updater, _, updatedRemark := setupTestData()
+		badRemarkID := uuid.Must(uuid.NewV4())
+
+		request := httptest.NewRequest("PATCH", fmt.Sprintf("/customer-support-remarks/%s", badRemarkID), nil)
+		payload := ghcmessages.UpdateCustomerSupportRemarkPayload{
+			Content: &updatedRemark.Content,
+		}
+
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := UpdateCustomerSupportRemarkHandler{handlerConfig, updater}
+
+		params := customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams{
+			HTTPRequest: request,
+			Body:        &payload,
+		}
+
+		updater.On("UpdateCustomerSupportRemark",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams"),
+		).Return(nil, fmt.Errorf("error"))
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&customersupportremarksop.UpdateCustomerSupportRemarkForMoveInternalServerError{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestDeleteCustomerSupportRemarksHandler() {
+	suite.Run("Successful DELETE", func() {
+		remarkID := uuid.Must(uuid.NewV4())
+
+		deleter := &mocks.CustomerSupportRemarkDeleter{}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := DeleteCustomerSupportRemarkHandler{handlerConfig, deleter}
+
+		request := httptest.NewRequest("DELETE", fmt.Sprintf("/customer-support-remarks/%s/", remarkID.String()), nil)
+
+		params := customersupportremarksop.DeleteCustomerSupportRemarkParams{
+			HTTPRequest:             request,
+			CustomerSupportRemarkID: *handlers.FmtUUID(remarkID),
+		}
+
+		deleter.On("DeleteCustomerSupportRemark",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(nil).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&customersupportremarksop.DeleteCustomerSupportRemarkNoContent{}, response)
+	})
+
+	suite.Run("unsuccessful DELETE", func() {
+		remarkID := uuid.Must(uuid.NewV4())
+
+		deleter := &mocks.CustomerSupportRemarkDeleter{}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := DeleteCustomerSupportRemarkHandler{handlerConfig, deleter}
+
+		request := httptest.NewRequest("DELETE", fmt.Sprintf("/customer-support-remarks/%s/", remarkID.String()), nil)
+
+		params := customersupportremarksop.DeleteCustomerSupportRemarkParams{
+			HTTPRequest:             request,
+			CustomerSupportRemarkID: *handlers.FmtUUID(remarkID),
+		}
+
+		deleter.On("DeleteCustomerSupportRemark",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(fmt.Errorf("error")).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&customersupportremarksop.DeleteCustomerSupportRemarkInternalServerError{}, response)
 	})
 }

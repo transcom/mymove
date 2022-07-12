@@ -1,4 +1,5 @@
 import { TOOOfficeUserType } from '../../../support/constants';
+import { navigateToMove } from './tooNavigateToMove';
 
 describe('TOO user', () => {
   before(() => {
@@ -350,7 +351,7 @@ describe('TOO user', () => {
   });
 
   it('TOO can submit service items on an NTS-only move handled by an external vendor', () => {
-    navigateToMove('EXTNTS');
+    navigateToMove('EXTNTR');
 
     cy.get('#approved-shipments').should('not.exist');
     cy.get('#requested-shipments');
@@ -398,7 +399,7 @@ describe('TOO user', () => {
     cy.wait(['@patchMTOStatus']);
 
     // Redirected to Move Task Order page
-    cy.url().should('include', `/moves/EXTNTS/mto`);
+    cy.url().should('include', `/moves/EXTNTR/mto`);
 
     cy.get('[role="main"]').contains('This move does not have any approved shipments yet.');
   });
@@ -430,14 +431,4 @@ function editTacSac() {
   cy.get('[data-testid="sacSDN"]').contains('4K988AS098F');
   cy.get('[data-testid="NTStac"]').contains('F123');
   cy.get('[data-testid="NTSsac"]').contains('3L988AS098F');
-}
-
-function navigateToMove(moveLocator) {
-  // TOO Moves queue
-  cy.wait(['@getSortedOrders']);
-  cy.contains(moveLocator).click();
-  cy.url().should('include', `/moves/${moveLocator}/details`);
-
-  // Move Details page
-  cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
 }

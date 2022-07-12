@@ -363,6 +363,50 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+    delete:
+      summary: deleteMTOShipment
+      description: >
+        ### Functionality
+
+        This endpoint deletes an individual shipment by ID.
+
+
+        ### Errors
+
+        * The mtoShipment should be associated with an MTO that is available to
+        prime.
+
+        * The mtoShipment must be a PPM shipment.
+
+        * Counseling should not have already been completed for the associated
+        MTO.
+      operationId: deleteMTOShipment
+      tags:
+        - mtoShipment
+      produces:
+        - application/json
+      parameters:
+        - description: UUID of the shipment to be deleted
+          in: path
+          name: mtoShipmentID
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully deleted the MTO shipment.
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/addresses/{addressID}:
     put:
       summary: updateMTOShipmentAddress
@@ -1051,20 +1095,6 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
 definitions:
-  ClientError:
-    type: object
-    properties:
-      title:
-        type: string
-      detail:
-        type: string
-      instance:
-        type: string
-        format: uuid
-    required:
-      - title
-      - detail
-      - instance
   CreateMTOShipment:
     type: object
     properties:
@@ -2485,6 +2515,90 @@ definitions:
           Email or ID of the person who will be contacted in the event of
           questions or concerns about this update. May be the person performing
           the update, or someone else working with the Prime contractor.
+      counselorRemarks:
+        type: string
+        example: counselor approved
+        x-nullable: true
+      ppmShipment:
+        $ref: '#/definitions/UpdatePPMShipment'
+  UpdatePPMShipment:
+    type: object
+    properties:
+      expectedDepartureDate:
+        description: |
+          Date the customer expects to move.
+        format: date
+        type: string
+        x-nullable: true
+      pickupPostalCode:
+        description: zip code
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      secondaryPickupPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      destinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      secondaryDestinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+      sitExpected:
+        type: boolean
+        x-nullable: true
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+      sitEstimatedWeight:
+        type: integer
+        example: 2000
+        x-nullable: true
+      sitEstimatedEntryDate:
+        format: date
+        type: string
+        x-nullable: true
+      sitEstimatedDepartureDate:
+        format: date
+        type: string
+        x-nullable: true
+      estimatedWeight:
+        type: integer
+        example: 4200
+        x-nullable: true
+      netWeight:
+        description: |
+          The net weight of the shipment once it has been weighed
+        type: integer
+        example: 4300
+        x-nullable: true
+      hasProGear:
+        description: |
+          Indicates whether PPM shipment has pro gear.
+        type: boolean
+        x-nullable: true
+      proGearWeight:
+        type: integer
+        x-nullable: true
+      spouseProGearWeight:
+        type: integer
+        x-nullable: true
   UpdateMTOShipmentStatus:
     description: >-
       Contains the statuses available to the Prime when updating the state of a
@@ -2517,6 +2631,20 @@ definitions:
         type: string
         x-nullable: true
         x-omitempty: false
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
   Address:
     description: A postal address
     type: object
@@ -2929,6 +3057,10 @@ definitions:
         type: string
         readOnly: true
       createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
         format: date-time
         type: string
         readOnly: true

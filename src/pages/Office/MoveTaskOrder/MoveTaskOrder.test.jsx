@@ -498,7 +498,7 @@ describe('MoveTaskOrder', () => {
   describe('approved mto with both submitted and approved shipments', () => {
     useMoveTaskOrderQueries.mockReturnValue(someShipmentsApprovedMTOQuery);
     const wrapper = mount(
-      <MockProviders>
+      <MockProviders permissions={[permissionTypes.createShipmentCancellation]}>
         <MoveTaskOrder
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}

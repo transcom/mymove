@@ -89,7 +89,6 @@ p+.cardContainer {
   :global(.usa-radio__input--tile + .usa-radio__label) {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0);
     @include u-padding-bottom('205');
-    text-indent: -40px;
     padding-left: 50px;
   }
 

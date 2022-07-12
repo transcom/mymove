@@ -1,0 +1,90 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+
+.WeightTicketForm {
+  @include at-media-max(tablet) {
+    .weightTicketSectionWrapper {
+      @include u-margin-bottom(1);
+    }
+  }
+
+  .weightTicketSectionWrapper {
+    :global(.usa-form-group:first-of-type .usa-label) {
+      @include u-margin-top(0);
+    }
+  }
+
+  h2 {
+    @include u-margin-bottom(4);
+  }
+
+  h3 {
+    @include u-margin-top(4);
+    @include u-margin-bottom(1.5)
+  }
+
+  li {
+    color: $base;
+  }
+
+  .uploadsTable {
+    @include u-margin-y(2);
+  }
+
+  .uploadTypeHint {
+    @include u-margin-bottom(1);
+  }
+
+  .constructedWeightLink {
+    @include u-margin-top(2);
+    width: fit-content;
+    @include u-text-decoration(no-underline);
+
+    &:hover, &:hover:visited {
+      color: $primary-dark;
+      @include u-text-decoration(no-underline);
+    }
+
+    &:visited {
+      color: $primary;
+    }
+  }
+
+  /* FilePond attempts to do some animating with inline styling but the label never transitions to visible in some
+   browser environments. This might explain past Happo errors where labels were blank in the mobile visual diffs.
+   Maybe we could make this a global fix for orders uploads too. I don't see another way to disable this animation. */
+  :global(.filepond--drop-label) {
+    transform: unset !important;
+    opacity: 100 !important;
+    visibility: visible !important;
+    pointer-events: all !important;
+  }
+
+  fieldset + fieldset {
+    @include u-margin-y(2);
+  }
+
+  .trailerOwnershipFieldset {
+    @include u-padding-bottom(0);
+    @include u-margin-top(3);
+    @include u-margin-bottom(2);
+
+    @include u-border-bottom(0);
+  }
+
+  .trailerClaimedFieldset {
+    @include u-margin-bottom(0);
+    @include u-padding-bottom(0);
+    @include u-border-bottom(0);
+
+    :global(.file-pond--root) {
+      @include u-margin-bottom(0);
+    }
+  }
+
+  .doNotClaimTrailerWeight {
+    @include u-font-weight(bold);
+    @include u-margin-bottom(0);
+  }
+}

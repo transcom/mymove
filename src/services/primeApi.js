@@ -46,6 +46,10 @@ export async function completeCounseling({ moveTaskOrderID, ifMatchETag }) {
   );
 }
 
+export async function deleteShipment({ mtoShipmentID }) {
+  return makePrimeSimulatorRequest('mtoShipment.deleteMTOShipment', { mtoShipmentID }, { normalize: false });
+}
+
 export async function createUpload({ paymentRequestID, file }) {
   return makePrimeSimulatorRequest('paymentRequest.createUpload', { paymentRequestID, file }, { normalize: false });
 }

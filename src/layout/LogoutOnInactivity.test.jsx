@@ -1,76 +1,89 @@
 import React from 'react';
-import { mount } from 'enzyme';
-import IdleTimer from 'react-idle-timer';
+import { createMocks } from 'react-idle-timer';
+import { act } from 'react-dom/test-utils';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
-import { LogoutOnInactivity } from './LogoutOnInactivity';
+import LogoutOnInactivity from './LogoutOnInactivity';
 
-const history = {
-  goBack: jest.fn(),
-  push: jest.fn(),
+import { MockProviders } from 'testUtils';
+
+const mockState = (loggedIn) => {
+  return {
+    auth: {
+      isLoggedIn: loggedIn,
+    },
+  };
 };
 
-const logOut = jest.fn();
+// These tests assume that the idle time limit >= 1 second
+const idleTimeLimitSeconds = 1;
+const warningTimeLimitSeconds = 1;
 
-function mountIdleTimer() {
-  return mount(<LogoutOnInactivity isLoggedIn history={history} logOut={logOut} />);
-}
+const renderComponent = ({ loggedIn }) => {
+  render(
+    <MockProviders initialState={mockState(loggedIn)}>
+      <LogoutOnInactivity
+        maxIdleTimeInSeconds={idleTimeLimitSeconds}
+        maxWarningTimeInSeconds={warningTimeLimitSeconds}
+      />
+    </MockProviders>,
+  );
+};
 
-function mountIdleTimerWithLoggedOutUser() {
-  return mount(<LogoutOnInactivity history={history} logOut={logOut} />);
-}
+const sleep = (seconds) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
 
 describe('LogoutOnInactivity', () => {
-  describe('component', () => {
-    let component;
-
-    beforeEach(() => {
-      jest.useFakeTimers();
-      component = mountIdleTimer();
+  describe('when user is logged in', () => {
+    beforeAll(() => {
+      createMocks();
+      global.fetch = jest.fn();
     });
 
-    it('renders without crashing or erroring', () => {
-      const timer = component.find('IdleTimer');
-
-      expect(timer).toBeDefined();
-      expect(component.find('SomethingWentWrong')).toHaveLength(0);
+    beforeEach(async () => {
+      await act(async () => renderComponent({ loggedIn: true }));
     });
 
-    it('becomes idle after 14 minutes', () => {
-      const idleTimer = component.find(IdleTimer);
-
-      expect(idleTimer.state().idle).toBe(false);
-
-      jest.advanceTimersByTime(14 * 60 * 1000);
-
-      expect(component.state().isIdle).toBe(true);
-      expect(idleTimer.state().idle).toBe(true);
+    it('renders without crashing or erroring', async () => {
+      const wrapper = screen.getByTestId('logoutOnInactivityWrapper');
+      expect(wrapper).toBeInTheDocument();
+      expect(screen.queryAllByText('Something')).toHaveLength(0);
     });
 
-    describe('when user is idle', () => {
-      it('renders the inactivity alert', () => {
-        component.setState({ isIdle: true });
-
-        expect(component.find('Alert').exists()).toBe(true);
+    it('becomes idle and triggers a warning', async () => {
+      // alert is missing before the user is idle for the timeout duration
+      expect(screen.queryByTestId('logoutAlert')).not.toBeInTheDocument();
+      await act(async () => {
+        return sleep(idleTimeLimitSeconds);
       });
+
+      expect(screen.queryByTestId('logoutAlert')).toBeInTheDocument();
     });
 
-    describe('when user is not idle', () => {
-      it('does not render the inactivity alert', () => {
-        component.setState({ isIdle: false });
-
-        expect(component.find('Alert').exists()).toBe(false);
+    it('removes the idle alert if a user performs a click', async () => {
+      // alert is missing before the user is idle for the timeout duration
+      expect(screen.queryByTestId('logoutAlert')).not.toBeInTheDocument();
+      await act(async () => {
+        return sleep(idleTimeLimitSeconds);
       });
+
+      const wrapper = screen.getByTestId('logoutOnInactivityWrapper');
+      userEvent.click(wrapper);
+
+      // alert is not present after the click
+      expect(screen.queryByTestId('logoutAlert')).not.toBeInTheDocument();
     });
   });
 
   describe('when user is not logged in', () => {
-    it('does not render the IdleTimer component', () => {
-      const component = mountIdleTimerWithLoggedOutUser();
-      const timer = component.find('IdleTimer');
-      const idleTimer = component.find(IdleTimer);
-
-      expect(timer.exists()).toBe(false);
-      expect(idleTimer.exists()).toBe(false);
+    it('does not render the LogoutOnInactivity component', async () => {
+      await act(async () => renderComponent({ loggedIn: false }));
+      const wrapper = screen.queryByTestId('logoutOnInactivityWrapper');
+      expect(wrapper).not.toBeInTheDocument();
     });
   });
 });

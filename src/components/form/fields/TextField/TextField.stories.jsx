@@ -21,6 +21,22 @@ export const TextFieldDefaultState = () => (
     )}
   </Formik>
 );
+export const TextFieldDisabledState = () => (
+  <Formik initialValues={{}}>
+    {() => (
+      <Form>
+        <TextField
+          id="input-type-text"
+          label="Text input label"
+          hint={labelHint}
+          name="input-type-text"
+          isDisabled
+          type="text"
+        />
+      </Form>
+    )}
+  </Formik>
+);
 export const TextFieldWithWarning = () => (
   <Formik initialValues={{}}>
     {() => (

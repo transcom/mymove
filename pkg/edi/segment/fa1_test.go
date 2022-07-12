@@ -1,20 +1,16 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateFA1() {
 	validFA1 := FA1{
 		AgencyQualifierCode: "DF",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validFA1)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure", func(t *testing.T) {
+	suite.Run("validate failure", func() {
 		fa1 := FA1{
 			AgencyQualifierCode: "XX", // oneof
 		}

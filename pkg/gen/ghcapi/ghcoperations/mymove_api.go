@@ -87,6 +87,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ShipmentCreateSITExtensionAsTOOHandler: shipment.CreateSITExtensionAsTOOHandlerFunc(func(params shipment.CreateSITExtensionAsTOOParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.CreateSITExtensionAsTOO has not yet been implemented")
 		}),
+		CustomerSupportRemarksDeleteCustomerSupportRemarkHandler: customer_support_remarks.DeleteCustomerSupportRemarkHandlerFunc(func(params customer_support_remarks.DeleteCustomerSupportRemarkParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer_support_remarks.DeleteCustomerSupportRemark has not yet been implemented")
+		}),
 		ShipmentDeleteShipmentHandler: shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
 		}),
@@ -176,6 +179,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		CustomerUpdateCustomerHandler: customer.UpdateCustomerHandlerFunc(func(params customer.UpdateCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.UpdateCustomer has not yet been implemented")
+		}),
+		CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler: customer_support_remarks.UpdateCustomerSupportRemarkForMoveHandlerFunc(func(params customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer_support_remarks.UpdateCustomerSupportRemarkForMove has not yet been implemented")
 		}),
 		MtoServiceItemUpdateMTOServiceItemHandler: mto_service_item.UpdateMTOServiceItemHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItem has not yet been implemented")
@@ -269,6 +275,8 @@ type MymoveAPI struct {
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// ShipmentCreateSITExtensionAsTOOHandler sets the operation handler for the create s i t extension as t o o operation
 	ShipmentCreateSITExtensionAsTOOHandler shipment.CreateSITExtensionAsTOOHandler
+	// CustomerSupportRemarksDeleteCustomerSupportRemarkHandler sets the operation handler for the delete customer support remark operation
+	CustomerSupportRemarksDeleteCustomerSupportRemarkHandler customer_support_remarks.DeleteCustomerSupportRemarkHandler
 	// ShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
 	ShipmentDeleteShipmentHandler shipment.DeleteShipmentHandler
 	// ShipmentDenySITExtensionHandler sets the operation handler for the deny s i t extension operation
@@ -329,6 +337,8 @@ type MymoveAPI struct {
 	OrderUpdateBillableWeightHandler order.UpdateBillableWeightHandler
 	// CustomerUpdateCustomerHandler sets the operation handler for the update customer operation
 	CustomerUpdateCustomerHandler customer.UpdateCustomerHandler
+	// CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler sets the operation handler for the update customer support remark for move operation
+	CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler customer_support_remarks.UpdateCustomerSupportRemarkForMoveHandler
 	// MtoServiceItemUpdateMTOServiceItemHandler sets the operation handler for the update m t o service item operation
 	MtoServiceItemUpdateMTOServiceItemHandler mto_service_item.UpdateMTOServiceItemHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
@@ -458,6 +468,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.ShipmentCreateSITExtensionAsTOOHandler == nil {
 		unregistered = append(unregistered, "shipment.CreateSITExtensionAsTOOHandler")
 	}
+	if o.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler == nil {
+		unregistered = append(unregistered, "customer_support_remarks.DeleteCustomerSupportRemarkHandler")
+	}
 	if o.ShipmentDeleteShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.DeleteShipmentHandler")
 	}
@@ -547,6 +560,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.CustomerUpdateCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.UpdateCustomerHandler")
+	}
+	if o.CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler == nil {
+		unregistered = append(unregistered, "customer_support_remarks.UpdateCustomerSupportRemarkForMoveHandler")
 	}
 	if o.MtoServiceItemUpdateMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemHandler")
@@ -712,6 +728,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
+	o.handlers["DELETE"]["/customer-support-remarks/{customerSupportRemarkID}"] = customer_support_remarks.NewDeleteCustomerSupportRemark(o.context, o.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
 	o.handlers["DELETE"]["/shipments/{shipmentID}"] = shipment.NewDeleteShipment(o.context, o.ShipmentDeleteShipmentHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
@@ -829,6 +849,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/customer/{customerID}"] = customer.NewUpdateCustomer(o.context, o.CustomerUpdateCustomerHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/customer-support-remarks/{customerSupportRemarkID}"] = customer_support_remarks.NewUpdateCustomerSupportRemarkForMove(o.context, o.CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

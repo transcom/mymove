@@ -19,53 +19,50 @@ import (
 // swagger:model SearchMove
 type SearchMove struct {
 
-	// customer
-	Customer *Customer `json:"customer,omitempty"`
+	// branch
+	Branch string `json:"branch,omitempty"`
 
-	// department indicator
-	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
+	// ZIP
+	// Example: 90210
+	// Pattern: ^(\d{5})$
+	DestinationDutyLocationPostalCode string `json:"destinationDutyLocationPostalCode,omitempty"`
 
-	// destination duty location
-	DestinationDutyLocation *DutyLocation `json:"destinationDutyLocation,omitempty"`
+	// dod ID
+	// Example: 1234567890
+	DodID *string `json:"dodID,omitempty"`
+
+	// first name
+	// Example: John
+	FirstName *string `json:"firstName,omitempty"`
 
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
+	// last name
+	// Example: Doe
+	LastName *string `json:"lastName,omitempty"`
+
 	// locator
 	Locator string `json:"locator,omitempty"`
 
-	// origin duty location
-	OriginDutyLocation *DutyLocation `json:"originDutyLocation,omitempty"`
-
-	// requested move date
-	// Format: date
-	RequestedMoveDate *strfmt.Date `json:"requestedMoveDate,omitempty"`
+	// ZIP
+	// Example: 90210
+	// Pattern: ^(\d{5})$
+	OriginDutyLocationPostalCode string `json:"originDutyLocationPostalCode,omitempty"`
 
 	// shipments count
 	ShipmentsCount int64 `json:"shipmentsCount,omitempty"`
 
 	// status
 	Status MoveStatus `json:"status,omitempty"`
-
-	// submitted at
-	// Format: date-time
-	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 }
 
 // Validate validates this search move
 func (m *SearchMove) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateCustomer(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateDepartmentIndicator(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateDestinationDutyLocation(formats); err != nil {
+	if err := m.validateDestinationDutyLocationPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -73,19 +70,11 @@ func (m *SearchMove) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateOriginDutyLocation(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRequestedMoveDate(formats); err != nil {
+	if err := m.validateOriginDutyLocationPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSubmittedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -95,58 +84,13 @@ func (m *SearchMove) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *SearchMove) validateCustomer(formats strfmt.Registry) error {
-	if swag.IsZero(m.Customer) { // not required
+func (m *SearchMove) validateDestinationDutyLocationPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationDutyLocationPostalCode) { // not required
 		return nil
 	}
 
-	if m.Customer != nil {
-		if err := m.Customer.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("customer")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("customer")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *SearchMove) validateDepartmentIndicator(formats strfmt.Registry) error {
-	if swag.IsZero(m.DepartmentIndicator) { // not required
-		return nil
-	}
-
-	if m.DepartmentIndicator != nil {
-		if err := m.DepartmentIndicator.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("departmentIndicator")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("departmentIndicator")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *SearchMove) validateDestinationDutyLocation(formats strfmt.Registry) error {
-	if swag.IsZero(m.DestinationDutyLocation) { // not required
-		return nil
-	}
-
-	if m.DestinationDutyLocation != nil {
-		if err := m.DestinationDutyLocation.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationDutyLocation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("destinationDutyLocation")
-			}
-			return err
-		}
+	if err := validate.Pattern("destinationDutyLocationPostalCode", "body", m.DestinationDutyLocationPostalCode, `^(\d{5})$`); err != nil {
+		return err
 	}
 
 	return nil
@@ -164,31 +108,12 @@ func (m *SearchMove) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *SearchMove) validateOriginDutyLocation(formats strfmt.Registry) error {
-	if swag.IsZero(m.OriginDutyLocation) { // not required
+func (m *SearchMove) validateOriginDutyLocationPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginDutyLocationPostalCode) { // not required
 		return nil
 	}
 
-	if m.OriginDutyLocation != nil {
-		if err := m.OriginDutyLocation.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("originDutyLocation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("originDutyLocation")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *SearchMove) validateRequestedMoveDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.RequestedMoveDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("requestedMoveDate", "body", "date", m.RequestedMoveDate.String(), formats); err != nil {
+	if err := validate.Pattern("originDutyLocationPostalCode", "body", m.OriginDutyLocationPostalCode, `^(\d{5})$`); err != nil {
 		return err
 	}
 
@@ -212,37 +137,9 @@ func (m *SearchMove) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *SearchMove) validateSubmittedAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.SubmittedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("submittedAt", "body", "date-time", m.SubmittedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // ContextValidate validate this search move based on the context it is used
 func (m *SearchMove) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.contextValidateCustomer(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateDepartmentIndicator(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateDestinationDutyLocation(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateOriginDutyLocation(ctx, formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
@@ -251,70 +148,6 @@ func (m *SearchMove) ContextValidate(ctx context.Context, formats strfmt.Registr
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *SearchMove) contextValidateCustomer(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.Customer != nil {
-		if err := m.Customer.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("customer")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("customer")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *SearchMove) contextValidateDepartmentIndicator(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.DepartmentIndicator != nil {
-		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("departmentIndicator")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("departmentIndicator")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *SearchMove) contextValidateDestinationDutyLocation(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.DestinationDutyLocation != nil {
-		if err := m.DestinationDutyLocation.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationDutyLocation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("destinationDutyLocation")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *SearchMove) contextValidateOriginDutyLocation(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.OriginDutyLocation != nil {
-		if err := m.OriginDutyLocation.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("originDutyLocation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("originDutyLocation")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 

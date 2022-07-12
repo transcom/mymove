@@ -25,7 +25,7 @@ type MoveFetcher interface {
 
 //go:generate mockery --name MoveSearcher --disable-version-string
 type MoveSearcher interface {
-	SearchMoves(appCtx appcontext.AppContext, locator *string, dodID *string) (models.Moves, error)
+	SearchMoves(appCtx appcontext.AppContext, params *SearchMovesParams) (models.Moves, int, error)
 }
 
 // MoveFetcherParams is  public struct that's used to pass filter arguments to
@@ -68,4 +68,19 @@ type MoveExcessWeightUploader interface {
 //go:generate mockery --name MoveFinancialReviewFlagSetter --disable-version-string
 type MoveFinancialReviewFlagSetter interface {
 	SetFinancialReviewFlag(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string, flagForReview bool, remarks *string) (*models.Move, error)
+}
+
+type SearchMovesParams struct {
+	Branch                *string
+	Locator               *string
+	DodID                 *string
+	CustomerName          *string
+	DestinationPostalCode *string
+	OriginPostalCode      *string
+	Status                []string
+	ShipmentsCount        *int64
+	Page                  int64
+	PerPage               int64
+	Sort                  *string
+	Order                 *string
 }

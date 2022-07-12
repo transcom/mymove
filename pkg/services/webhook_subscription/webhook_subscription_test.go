@@ -9,7 +9,7 @@ import (
 )
 
 type WebhookSubscriptionServiceSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestWebhookSubscriptionSuite(t *testing.T) {

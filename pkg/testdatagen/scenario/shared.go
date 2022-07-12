@@ -945,6 +945,38 @@ func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploa
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
+func createApprovedMoveWithPPMEmptyAboutPage(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("c28b2eb1-975f-49f7-b8a3-c7377c0da908"),
+		email:       "readyToFinish2@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("6456ffbb-d114-4ec5-a736-6cb63a65bfd7"),
+		firstName:   "Ready2",
+		lastName:    "Finish2",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("0e33adbc-20b4-4a93-9ce5-7ee4695a0307"),
+		moveLocator: "NEWNAN",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("ef256d30-a6e7-4be8-8a60-b4ffb7dc7a7f"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:         testdatagen.ConvertUUIDStringToUUID("1ce52409-009d-4d9c-a48c-b12013fa2d2b"),
+			ApprovedAt: &approvedAt,
+			Status:     models.PPMShipmentStatusWaitingOnCustomer,
+		},
+	}
+
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
+
 func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("88007896-6ae7-4600-866a-873d3bc67fd3"),
@@ -4820,11 +4852,10 @@ func createPrimeUser(appCtx appcontext.AppContext) models.User {
 func createDevClientCertForUser(appCtx appcontext.AppContext, user models.User) {
 	// Create dev client cert from 20191212230438_add_devlocal-mtls_client_cert.up.sql
 	devClientCert := models.ClientCert{
-		ID:              uuid.Must(uuid.FromString("190b1e07-eef8-445a-9696-5a2b49ee488d")),
-		Sha256Digest:    "2c0c1fc67a294443292a9e71de0c71cc374fe310e8073f8cdc15510f6b0ef4db",
-		Subject:         "/C=US/ST=DC/L=Washington/O=Truss/OU=AppClientTLS/CN=devlocal",
-		AllowDpsAuthAPI: false,
-		UserID:          user.ID,
+		ID:           uuid.Must(uuid.FromString("190b1e07-eef8-445a-9696-5a2b49ee488d")),
+		Sha256Digest: "2c0c1fc67a294443292a9e71de0c71cc374fe310e8073f8cdc15510f6b0ef4db",
+		Subject:      "/C=US/ST=DC/L=Washington/O=Truss/OU=AppClientTLS/CN=devlocal",
+		UserID:       user.ID,
 	}
 	assertions := testdatagen.Assertions{
 		ClientCert: devClientCert,

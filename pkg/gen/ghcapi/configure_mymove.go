@@ -101,6 +101,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation shipment.CreateSITExtensionAsTOO has not yet been implemented")
 		})
 	}
+	if api.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler == nil {
+		api.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler = customer_support_remarks.DeleteCustomerSupportRemarkHandlerFunc(func(params customer_support_remarks.DeleteCustomerSupportRemarkParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer_support_remarks.DeleteCustomerSupportRemark has not yet been implemented")
+		})
+	}
 	if api.ShipmentDeleteShipmentHandler == nil {
 		api.ShipmentDeleteShipmentHandler = shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
@@ -249,6 +254,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.CustomerUpdateCustomerHandler == nil {
 		api.CustomerUpdateCustomerHandler = customer.UpdateCustomerHandlerFunc(func(params customer.UpdateCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.UpdateCustomer has not yet been implemented")
+		})
+	}
+	if api.CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler == nil {
+		api.CustomerSupportRemarksUpdateCustomerSupportRemarkForMoveHandler = customer_support_remarks.UpdateCustomerSupportRemarkForMoveHandlerFunc(func(params customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer_support_remarks.UpdateCustomerSupportRemarkForMove has not yet been implemented")
 		})
 	}
 	if api.MtoServiceItemUpdateMTOServiceItemHandler == nil {

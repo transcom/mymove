@@ -2,9 +2,11 @@ package ghcapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -22,6 +24,15 @@ type ListCustomerSupportRemarksHandler struct {
 type CreateCustomerSupportRemarksHandler struct {
 	handlers.HandlerConfig
 	services.CustomerSupportRemarksCreator
+}
+
+type UpdateCustomerSupportRemarkHandler struct {
+	handlers.HandlerConfig
+	services.CustomerSupportRemarkUpdater
+}
+type DeleteCustomerSupportRemarkHandler struct {
+	handlers.HandlerConfig
+	services.CustomerSupportRemarkDeleter
 }
 
 // Handle handles the handling for getting a list of customer support remarks for a move
@@ -60,5 +71,48 @@ func (h CreateCustomerSupportRemarksHandler) Handle(params customersupportremark
 			returnPayload := payloads.CustomerSupportRemark(customerSupportRemark)
 
 			return customersupportremarksop.NewCreateCustomerSupportRemarkForMoveOK().WithPayload(returnPayload), nil
+		})
+}
+
+func (h UpdateCustomerSupportRemarkHandler) Handle(params customersupportremarksop.UpdateCustomerSupportRemarkForMoveParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			customerSupportRemark, err := h.UpdateCustomerSupportRemark(appCtx, params)
+			if err != nil {
+				appCtx.Logger().Error("Error updating customer support remark: ", zap.Error(err))
+				return customersupportremarksop.NewUpdateCustomerSupportRemarkForMoveInternalServerError(), err
+			}
+
+			returnPayload := payloads.CustomerSupportRemark(customerSupportRemark)
+
+			return customersupportremarksop.NewUpdateCustomerSupportRemarkForMoveOK().WithPayload(returnPayload), nil
+		})
+}
+func (h DeleteCustomerSupportRemarkHandler) Handle(params customersupportremarksop.DeleteCustomerSupportRemarkParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			remarkID := uuid.FromStringOrNil(params.CustomerSupportRemarkID.String())
+			err := h.DeleteCustomerSupportRemark(appCtx, remarkID)
+
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.DeleteCustomerSupportRemarkHandler", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return customersupportremarksop.NewDeleteCustomerSupportRemarkNotFound(), err
+				case apperror.ConflictError:
+					return customersupportremarksop.NewDeleteCustomerSupportRemarkConflict(), err
+				case apperror.ForbiddenError:
+					return customersupportremarksop.NewDeleteCustomerSupportRemarkForbidden(), err
+				case apperror.UnprocessableEntityError:
+					return customersupportremarksop.NewDeleteCustomerSupportRemarkUnprocessableEntity(), err
+				default:
+					return customersupportremarksop.NewDeleteCustomerSupportRemarkInternalServerError(), err
+				}
+			}
+
+			return customersupportremarksop.NewDeleteCustomerSupportRemarkNoContent(), nil
 		})
 }

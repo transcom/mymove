@@ -6,8 +6,6 @@ import (
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
 	auth "github.com/transcom/mymove/pkg/auth"
 
-	dpsauth "github.com/transcom/mymove/pkg/dpsauth"
-
 	handlers "github.com/transcom/mymove/pkg/handlers"
 
 	http "net/http"
@@ -29,8 +27,6 @@ import (
 	services "github.com/transcom/mymove/pkg/services"
 
 	storage "github.com/transcom/mymove/pkg/storage"
-
-	testing "testing"
 
 	uuid "github.com/gofrs/uuid"
 )
@@ -95,20 +91,6 @@ func (_m *HandlerConfig) CookieSecret() string {
 		r0 = rf()
 	} else {
 		r0 = ret.Get(0).(string)
-	}
-
-	return r0
-}
-
-// DPSAuthParams provides a mock function with given fields:
-func (_m *HandlerConfig) DPSAuthParams() dpsauth.Params {
-	ret := _m.Called()
-
-	var r0 dpsauth.Params
-	if rf, ok := ret.Get(0).(func() dpsauth.Params); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(dpsauth.Params)
 	}
 
 	return r0
@@ -312,11 +294,6 @@ func (_m *HandlerConfig) SetCookieSecret(secret string) {
 	_m.Called(secret)
 }
 
-// SetDPSAuthParams provides a mock function with given fields: params
-func (_m *HandlerConfig) SetDPSAuthParams(params dpsauth.Params) {
-	_m.Called(params)
-}
-
 // SetDtodPlanner provides a mock function with given fields: planner
 func (_m *HandlerConfig) SetDtodPlanner(planner route.Planner) {
 	_m.Called(planner)
@@ -391,8 +368,13 @@ func (_m *HandlerConfig) UseSecureCookie() bool {
 	return r0
 }
 
-// NewHandlerConfig creates a new instance of HandlerConfig. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewHandlerConfig(t testing.TB) *HandlerConfig {
+type mockConstructorTestingTNewHandlerConfig interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewHandlerConfig creates a new instance of HandlerConfig. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewHandlerConfig(t mockConstructorTestingTNewHandlerConfig) *HandlerConfig {
 	mock := &HandlerConfig{}
 	mock.Mock.Test(t)
 

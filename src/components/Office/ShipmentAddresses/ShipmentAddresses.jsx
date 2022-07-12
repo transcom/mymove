@@ -14,6 +14,8 @@ import styles from './ShipmentAddresses.module.scss';
 import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentOptionsOneOf, ShipmentStatusesOneOf } from 'types/shipment';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const ShipmentAddresses = ({
   pickupAddress,
@@ -50,9 +52,11 @@ const ShipmentAddresses = ({
           'Authorized addresses',
           <div className={styles.rightAlignButtonWrapper}>
             {shipmentInfo.status !== shipmentStatuses.CANCELED && (
-              <Button type="button" onClick={() => handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag)} unstyled>
-                Request diversion
-              </Button>
+              <Restricted to={permissionTypes.createShipmentDiversionRequest}>
+                <Button type="button" onClick={() => handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag)} unstyled>
+                  Request diversion
+                </Button>
+              </Restricted>
             )}
           </div>,
         ]}

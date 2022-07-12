@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateGS() {
 	validGS := GS{
 		FunctionalIdentifierCode: "SI",
@@ -16,7 +12,7 @@ func (suite *SegmentSuite) TestValidateGS() {
 		Version:                  "004010",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(validGS)
 		suite.NoError(err)
 	})
@@ -32,12 +28,12 @@ func (suite *SegmentSuite) TestValidateGS() {
 		Version:                  "004010",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.Run("validate success", func() {
 		err := suite.validator.Struct(altValidGS)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		gs := GS{
 			FunctionalIdentifierCode: "XX",        // oneof
 			ApplicationSendersCode:   "XXXXX",     // oneof
@@ -61,7 +57,7 @@ func (suite *SegmentSuite) TestValidateGS() {
 		suite.ValidateErrorLen(err, 8)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		gs := validGS
 		gs.GroupControlNumber = 1000000000 // max
 

@@ -35,8 +35,8 @@ const CustomerSupportRemarkForm = ({ officeUser }) => {
   };
 
   const onSubmit = (values, { resetForm, validateForm }) => {
-    const body = { locator: moveCode, content: values.remark, officeUserID: officeUser?.id };
-    createRemarkMutation(body);
+    const body = { content: values.remark, officeUserID: officeUser?.id };
+    createRemarkMutation({ locator: moveCode, body });
     resetForm();
     validateForm();
   };

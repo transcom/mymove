@@ -571,7 +571,7 @@ func (suite *MoveDocumentServiceSuite) TestValueForEitherMakeOrModelFails() {
 	suite.NoVerrs(verrs)
 	suite.NoError(err)
 
-	suite.T().Run("weight ticket set has model but not make fails", func(t *testing.T) {
+	suite.Run("weight ticket set has model but not make fails", func() {
 		vehicleModel := "Wagon"
 		emptyWeight := (int64)(1000)
 		fullWeight := (int64)(2500)
@@ -600,7 +600,7 @@ func (suite *MoveDocumentServiceSuite) TestValueForEitherMakeOrModelFails() {
 		suite.NotEmpty(verrs)
 	})
 
-	suite.T().Run("weight ticket set has make but not model fails", func(t *testing.T) {
+	suite.Run("weight ticket set has make but not model fails", func() {
 		vehicleMake := "Radio Flyer"
 		emptyWeight := (int64)(1000)
 		fullWeight := (int64)(2500)

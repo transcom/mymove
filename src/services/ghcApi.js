@@ -33,12 +33,28 @@ export async function getCustomerSupportRemarksForMove(key, locator) {
   return makeGHCRequest('customerSupportRemarks.getCustomerSupportRemarksForMove', { locator }, { normalize: false });
 }
 
-export async function createCustomerSupportRemarkForMove(body) {
+export async function createCustomerSupportRemarkForMove({ body, locator }) {
   return makeGHCRequest('customerSupportRemarks.createCustomerSupportRemarkForMove', {
     body,
-    locator: body.locator,
+    locator,
   });
 }
+
+export async function updateCustomerSupportRemarkForMove({ body, customerSupportRemarkID }) {
+  return makeGHCRequest('customerSupportRemarks.updateCustomerSupportRemarkForMove', {
+    body,
+    customerSupportRemarkID,
+  });
+}
+
+export async function deleteCustomerSupportRemark({ customerSupportRemarkID }) {
+  return makeGHCRequest(
+    'customerSupportRemarks.deleteCustomerSupportRemark',
+    { customerSupportRemarkID },
+    { normalize: false },
+  );
+}
+
 export async function getMoveHistory(key, { moveCode, currentPage = 1, currentPageSize = 20 }) {
   return makeGHCRequest(
     'move.getMoveHistory',
@@ -78,10 +94,28 @@ export async function getCustomer(key, customerID) {
   return makeGHCRequest('customer.getCustomer', { customerID });
 }
 
-export async function searchMoves(key, locator, dodID) {
+export async function searchMoves(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  if (paramFilters.status) {
+    paramFilters.status = paramFilters.status.split(',');
+  }
+  if (paramFilters.shipmentsCount) {
+    paramFilters.shipmentsCount = Number(paramFilters.shipmentsCount);
+  }
   return makeGHCRequest(
     'move.searchMoves',
-    { body: { locator, dodID } },
+    {
+      body: {
+        sort,
+        order,
+        page: currentPage,
+        perPage: currentPageSize,
+        ...paramFilters,
+      },
+    },
     { schemaKey: 'searchMovesResult', normalize: false },
   );
 }

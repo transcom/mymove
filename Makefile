@@ -393,9 +393,7 @@ ifndef TEST_ACC_ENV
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
 	TEST_ACC_CWD=$(PWD) \
 	SERVE_ADMIN=true \
-	SERVE_SDDC=true \
 	SERVE_ORDERS=true \
-	SERVE_DPS=true \
 	SERVE_API_INTERNAL=true \
 	SERVE_API_GHC=true \
 	MUTUAL_TLS_ENABLED=true \
@@ -520,7 +518,6 @@ endif
 db_dev_start: ## Start Dev DB
 ifndef CIRCLECI
 	brew services stop postgresql 2> /dev/null || true
-endif
 	@echo "Starting the ${DB_DOCKER_CONTAINER_DEV} docker database container..."
 	# If running do nothing, if not running try to start, if can't start then run
 	docker start $(DB_DOCKER_CONTAINER_DEV) || \
@@ -528,11 +525,20 @@ endif
 			-e POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-p $(DB_PORT_DEV):$(DB_PORT_DOCKER)\
 			$(DB_DOCKER_CONTAINER_IMAGE)
+else
+	@echo "Relying on CircleCI's database setup to start the DB."
+endif
 
 .PHONY: db_dev_create
 db_dev_create: ## Create Dev DB
+ifndef CIRCLECI
 	@echo "Create the ${DB_NAME_DEV} database..."
 	DB_NAME=postgres scripts/wait-for-db && DB_NAME=postgres psql-wrapper "CREATE DATABASE $(DB_NAME_DEV);" || true
+else
+	@echo "Relying on CircleCI's database setup to create the DB."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_DEV);'
+endif
+
 
 .PHONY: db_dev_run
 db_dev_run: db_dev_start db_dev_create ## Run Dev DB (start and create)

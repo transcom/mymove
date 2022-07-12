@@ -8,6 +8,7 @@ import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio } from '@trussworks
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 
 import styles from './ShipmentForm.module.scss';
+import ppmShipmentSchema from './ppmShipmentSchema';
 
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -50,7 +51,7 @@ import { validateDate, validatePostalCode } from 'utils/validation';
 const ShipmentForm = ({
   match,
   history,
-  oldDutyLocationAddress,
+  originDutyLocationAddress,
   newDutyLocationAddress,
   selectedMoveType,
   isCreatePage,
@@ -132,11 +133,22 @@ const ShipmentForm = ({
           : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
       );
 
-  const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(
-    shipmentType,
-    userRole,
-    initialValues.estimatedIncentive || 0,
-  );
+  let showDeliveryFields;
+  let showPickupFields;
+  let schema;
+
+  if (isPPM) {
+    schema = ppmShipmentSchema({
+      estimatedIncentive: initialValues.estimatedIncentive || 0,
+      weightAllotment: serviceMember.weightAllotment,
+    });
+  } else {
+    const shipmentOptions = getShipmentOptions(shipmentType, userRole);
+
+    showDeliveryFields = shipmentOptions.showDeliveryFields;
+    showPickupFields = shipmentOptions.showPickupFields;
+    schema = shipmentOptions.schema;
+  }
 
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
   const { moveCode } = match.params;
@@ -300,12 +312,12 @@ const ShipmentForm = ({
               onSubmit={handleDeleteShipment}
             />
             {errorMessage && (
-              <Alert type="error" heading="An error occurred">
+              <Alert type="error" headingLevel="h4" heading="An error occurred">
                 {errorMessage}
               </Alert>
             )}
             {isTOO && mtoShipment.usesExternalVendor && (
-              <Alert type="warning">
+              <Alert headingLevel="h4" type="warning">
                 The GHC prime contractor is not handling the shipment. Information will not be automatically shared with
                 the movers handling it.
               </Alert>
@@ -495,7 +507,7 @@ const ShipmentForm = ({
                   <>
                     <OriginZIPInfo
                       postalCodeValidator={validatePostalCode}
-                      currentZip={oldDutyLocationAddress.postalCode}
+                      currentZip={originDutyLocationAddress.postalCode}
                     />
                     <DestinationZIPInfo
                       postalCodeValidator={validatePostalCode}
@@ -577,7 +589,7 @@ ShipmentForm.propTypes = {
   isCreatePage: bool,
   isForServicesCounseling: bool,
   currentResidence: AddressShape.isRequired,
-  oldDutyLocationAddress: SimpleAddressShape,
+  originDutyLocationAddress: SimpleAddressShape,
   newDutyLocationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
   mtoShipment: ShipmentShape,
@@ -600,7 +612,7 @@ ShipmentForm.defaultProps = {
   isForServicesCounseling: false,
   match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
   history: { push: () => {} },
-  oldDutyLocationAddress: {
+  originDutyLocationAddress: {
     city: '',
     state: '',
     postalCode: '',

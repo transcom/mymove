@@ -1,9 +1,5 @@
 package edisegment
 
-import (
-	"testing"
-)
-
 func (suite *SegmentSuite) TestValidateNTE() {
 	validNTEDefault := NTE{
 		Description: "Something",
@@ -14,17 +10,17 @@ func (suite *SegmentSuite) TestValidateNTE() {
 		Description:       "Something Else",
 	}
 
-	suite.T().Run("validate success default", func(t *testing.T) {
+	suite.Run("validate success default", func() {
 		err := suite.validator.Struct(validNTEDefault)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate success all", func(t *testing.T) {
+	suite.Run("validate success all", func() {
 		err := suite.validator.Struct(validNTEAll)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	suite.Run("validate failure 1", func() {
 		nte := NTE{
 			NoteReferenceCode: "XX", // len
 			Description:       "",   // min
@@ -36,7 +32,7 @@ func (suite *SegmentSuite) TestValidateNTE() {
 		suite.ValidateErrorLen(err, 2)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.Run("validate failure 2", func() {
 		nte := validNTEAll
 		nte.Description = "123456789012345678901234567890123456789012345678901234567890123456789012345678901" // max
 

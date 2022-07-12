@@ -300,14 +300,14 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
           <Grid row className={scMoveDetailsStyles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
-                <Alert slim type={alertType}>
+                <Alert headingLevel="h4" slim type={alertType}>
                   {alertMessage}
                 </Alert>
               </Grid>
             )}
             {infoSavedAlert && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
-                <Alert slim type={infoSavedAlert.alertType}>
+                <Alert headingLevel="h4" slim type={infoSavedAlert.alertType}>
                   {infoSavedAlert.message}
                 </Alert>
               </Grid>

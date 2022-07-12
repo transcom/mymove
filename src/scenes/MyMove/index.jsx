@@ -6,7 +6,7 @@ import { push, goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { GovBanner } from '@trussworks/react-uswds';
 
-import '../../../node_modules/uswds/dist/css/uswds.css';
+import 'styles/full_uswds.scss';
 import 'styles/customer.scss';
 
 import BypassBlock from 'components/BypassBlock';
@@ -67,6 +67,7 @@ const EstimatedWeightsProGear = lazy(() =>
 const EstimatedIncentive = lazy(() => import('pages/MyMove/PPM/Booking/EstimatedIncentive/EstimatedIncentive'));
 const Advance = lazy(() => import('pages/MyMove/PPM/Booking/Advance/Advance'));
 const About = lazy(() => import('pages/MyMove/PPM/Closeout/About/About'));
+const WeightTickets = lazy(() => import('pages/MyMove/PPM/Closeout/WeightTickets/WeightTickets'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -184,6 +185,14 @@ export class CustomerApp extends Component {
                     component={EditContactInfo}
                   />
                   <CustomerPrivateRoute exact path={customerRoutes.SHIPMENT_PPM_ABOUT_PATH} component={About} />
+                  <CustomerPrivateRoute
+                    exact
+                    path={[
+                      customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH,
+                      customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH,
+                    ]}
+                    component={WeightTickets}
+                  />
                   <CustomerPrivateRoute path={customerRoutes.ORDERS_EDIT_PATH} component={EditOrders} />
                   <CustomerPrivateRoute path={customerRoutes.ORDERS_AMEND_PATH} component={AmendOrders} />
                   <CustomerPrivateRoute

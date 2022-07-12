@@ -1,7 +1,6 @@
 package mtoshipment
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -58,20 +57,18 @@ func checkStatus() validator {
 func checkAvailToPrime() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
 		var move models.Move
-		err := appCtx.DB().Q().
+		availToPrime, err := appCtx.DB().Q().
 			Join("mto_shipments", "moves.id = mto_shipments.move_id").
 			Where("available_to_prime_at IS NOT NULL").
 			Where("mto_shipments.id = ?", newer.ID).
 			Where("show = TRUE").
 			Where("uses_external_vendor = FALSE").
-			First(&move)
+			Exists(&move)
 		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				return apperror.NewNotFoundError(newer.ID, "for mtoShipment")
-			default:
-				return apperror.NewQueryError("Move", err, "Unexpected error")
-			}
+			return apperror.NewQueryError("Move", err, "Unexpected error")
+		}
+		if !availToPrime {
+			return apperror.NewNotFoundError(newer.ID, "for mtoShipment")
 		}
 		return nil
 	})
@@ -139,6 +136,22 @@ func checkDeleteAllowed() validator {
 			return apperror.NewForbiddenError("A shipment can only be deleted if the move is in Draft or NeedsServiceCounseling")
 		}
 
+		return nil
+	})
+}
+
+// Checks if a shipment can be deleted
+func checkPrimeDeleteAllowed() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
+		if older.MoveTaskOrder.AvailableToPrimeAt == nil {
+			return apperror.NewNotFoundError(older.ID, "for mtoShipment")
+		}
+		if older.ShipmentType != models.MTOShipmentTypePPM {
+			return apperror.NewForbiddenError("Prime can only delete PPM shipments")
+		}
+		if older.PPMShipment != nil && older.PPMShipment.Status == models.PPMShipmentStatusWaitingOnCustomer {
+			return apperror.NewForbiddenError(fmt.Sprintf("A PPM shipment with the status %v cannot be deleted", models.PPMShipmentStatusWaitingOnCustomer))
+		}
 		return nil
 	})
 }

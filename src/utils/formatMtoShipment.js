@@ -88,12 +88,12 @@ const emptyAddressShape = {
 export function formatPpmShipmentForDisplay({ ppmShipment = {} }) {
   const displayValues = {
     expectedDepartureDate: ppmShipment.expectedDepartureDate,
-    pickupPostalCode: ppmShipment.pickupPostalCode,
-    secondPickupPostalCode: ppmShipment.secondaryPickupPostalCode,
-    destinationPostalCode: ppmShipment.destinationPostalCode,
-    secondDestinationPostalCode: ppmShipment.secondaryDestinationPostalCode,
+    pickupPostalCode: ppmShipment.pickupPostalCode || '',
+    secondPickupPostalCode: ppmShipment.secondaryPickupPostalCode || '',
+    destinationPostalCode: ppmShipment.destinationPostalCode || '',
+    secondDestinationPostalCode: ppmShipment.secondaryDestinationPostalCode || '',
 
-    sitExpected: ppmShipment.sitExpected,
+    sitExpected: !!ppmShipment.sitExpected,
     sitLocation: ppmShipment.sitLocation,
     sitEstimatedWeight: (ppmShipment.sitEstimatedWeight || '').toString(),
     sitEstimatedEntryDate: ppmShipment.sitEstimatedEntryDate,
@@ -239,9 +239,9 @@ export function formatPpmShipmentForAPI(formValues) {
   let ppmShipmentValues = {
     expectedDepartureDate: formatDateForSwagger(formValues.expectedDepartureDate),
     pickupPostalCode: formValues.pickupPostalCode,
-    secondaryPickupPostalCode: formValues.secondPickupPostalCode,
+    secondaryPickupPostalCode: formValues.secondPickupPostalCode || undefined,
     destinationPostalCode: formValues.destinationPostalCode,
-    secondaryDestinationPostalCode: formValues.secondDestinationPostalCode,
+    secondaryDestinationPostalCode: formValues.secondDestinationPostalCode || undefined,
     sitExpected: !!formValues.sitExpected,
     estimatedWeight: Number(formValues.estimatedWeight || '0'),
     hasProGear: !!formValues.hasProGear,

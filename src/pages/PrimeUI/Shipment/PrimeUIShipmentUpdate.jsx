@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { useHistory, useParams, withRouter } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import { useMutation } from 'react-query';
-import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
+import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
@@ -19,11 +19,13 @@ import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInf
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { addressSchema } from 'utils/validation';
-import { isValidWeight, isEmpty } from 'shared/utils';
-import { fromPrimeAPIAddressFormat, formatAddressForPrimeAPI, formatSwaggerDate } from 'utils/formatters';
+import { addressSchema, InvalidZIPTypeError, ZIP5_CODE_REGEX } from 'utils/validation';
+import { isEmpty, isValidWeight } from 'shared/utils';
+import { formatAddressForPrimeAPI, formatSwaggerDate, fromPrimeAPIAddressFormat } from 'utils/formatters';
 import PrimeUIShipmentUpdateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdateForm';
+import PrimeUIShipmentUpdatePPMForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdatePPMForm';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
@@ -81,6 +83,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const isPPM = shipment.shipmentType === SHIPMENT_OPTIONS.PPM;
+
   const emptyAddress = {
     streetAddress1: '',
     streetAddress2: '',
@@ -98,50 +102,147 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   const editableDestinationAddress = isEmpty(reformatPrimeApiDestinationAddress);
 
   const onSubmit = (values, { setSubmitting }) => {
-    const {
-      estimatedWeight,
-      actualWeight,
-      actualPickupDate,
-      scheduledPickupDate,
-      pickupAddress,
-      destinationAddress,
-      destinationType,
-      diversion,
-    } = values;
+    let body;
+    if (isPPM) {
+      const {
+        ppmShipment: {
+          expectedDepartureDate,
+          pickupPostalCode,
+          secondaryPickupPostalCode,
+          destinationPostalCode,
+          secondaryDestinationPostalCode,
+          sitExpected,
+          sitLocation,
+          sitEstimatedWeight,
+          sitEstimatedEntryDate,
+          sitEstimatedDepartureDate,
+          estimatedWeight,
+          netWeight,
+          hasProGear,
+          proGearWeight,
+          spouseProGearWeight,
+        },
+        counselorRemarks,
+      } = values;
+      body = {
+        ppmShipment: {
+          expectedDepartureDate: expectedDepartureDate ? formatSwaggerDate(expectedDepartureDate) : null,
+          pickupPostalCode,
+          secondaryPickupPostalCode: secondaryPickupPostalCode || null,
+          destinationPostalCode,
+          secondaryDestinationPostalCode: secondaryDestinationPostalCode || null,
+          sitExpected,
+          ...(sitExpected && {
+            sitLocation: sitLocation || null,
+            sitEstimatedWeight: sitEstimatedWeight ? parseInt(sitEstimatedWeight, 10) : null,
+            sitEstimatedEntryDate: sitEstimatedEntryDate ? formatSwaggerDate(sitEstimatedEntryDate) : null,
+            sitEstimatedDepartureDate: sitEstimatedDepartureDate ? formatSwaggerDate(sitEstimatedDepartureDate) : null,
+          }),
+          estimatedWeight: estimatedWeight ? parseInt(estimatedWeight, 10) : null,
+          netWeight: netWeight ? parseInt(netWeight, 10) : null,
+          hasProGear,
+          ...(hasProGear && {
+            proGearWeight: proGearWeight ? parseInt(proGearWeight, 10) : null,
+            spouseProGearWeight: spouseProGearWeight ? parseInt(spouseProGearWeight, 10) : null,
+          }),
+        },
+        counselorRemarks: counselorRemarks || null,
+      };
+    } else {
+      const {
+        estimatedWeight,
+        actualWeight,
+        actualPickupDate,
+        scheduledPickupDate,
+        pickupAddress,
+        destinationAddress,
+        destinationType,
+        diversion,
+      } = values;
 
-    const body = {
-      primeEstimatedWeight: editableWeightEstimateField ? parseInt(estimatedWeight, 10) : null,
-      primeActualWeight: parseInt(actualWeight, 10),
-      scheduledPickupDate: scheduledPickupDate ? formatSwaggerDate(scheduledPickupDate) : null,
-      actualPickupDate: actualPickupDate ? formatSwaggerDate(actualPickupDate) : null,
-      pickupAddress: editablePickupAddress ? formatAddressForPrimeAPI(pickupAddress) : null,
-      destinationAddress: editableDestinationAddress ? formatAddressForPrimeAPI(destinationAddress) : null,
-      destinationType,
-      diversion,
-    };
+      body = {
+        primeEstimatedWeight: editableWeightEstimateField ? parseInt(estimatedWeight, 10) : null,
+        primeActualWeight: parseInt(actualWeight, 10),
+        scheduledPickupDate: scheduledPickupDate ? formatSwaggerDate(scheduledPickupDate) : null,
+        actualPickupDate: actualPickupDate ? formatSwaggerDate(actualPickupDate) : null,
+        pickupAddress: editablePickupAddress ? formatAddressForPrimeAPI(pickupAddress) : null,
+        destinationAddress: editableDestinationAddress ? formatAddressForPrimeAPI(destinationAddress) : null,
+        destinationType,
+        diversion,
+      };
+    }
+
     mutateMTOShipment({ mtoShipmentID: shipmentId, ifMatchETag: shipment.eTag, body }).then(() => {
       setSubmitting(false);
     });
   };
 
-  const initialValues = {
-    estimatedWeight: shipment.primeEstimatedWeight?.toLocaleString(),
-    actualWeight: shipment.primeActualWeight?.toLocaleString(),
-    requestedPickupDate: shipment.requestedPickupDate,
-    scheduledPickupDate: shipment.scheduledPickupDate,
-    actualPickupDate: shipment.actualPickupDate,
-    pickupAddress: editablePickupAddress ? emptyAddress : reformatPrimeApiPickupAddress,
-    destinationAddress: editableDestinationAddress ? emptyAddress : reformatPrimeApiDestinationAddress,
-    destinationType: shipment.destinationType,
-    diversion: shipment.diversion,
-  };
+  let initialValues;
+  let validationSchema;
+  if (isPPM) {
+    initialValues = {
+      ppmShipment: {
+        ...shipment.ppmShipment,
+        sitEstimatedWeight: shipment.ppmShipment.sitEstimatedWeight?.toLocaleString(),
+        estimatedWeight: shipment.ppmShipment.estimatedWeight?.toLocaleString(),
+        netWeight: shipment.ppmShipment.netWeight?.toLocaleString(),
+        proGearWeight: shipment.ppmShipment.proGearWeight?.toLocaleString(),
+        spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toLocaleString(),
+      },
+      counselorRemarks: shipment.counselorRemarks,
+    };
+    validationSchema = Yup.object().shape({
+      ppmShipment: Yup.object().shape({
+        expectedDepartureDate: Yup.date()
+          .typeError('Invalid date. Must be in the format: DD MMM YYYY')
+          .required('Required'),
+        pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+        secondaryPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).nullable(),
+        destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+        secondaryDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).nullable(),
+        sitExpected: Yup.boolean().required('Required'),
+        sitLocation: Yup.string().when('sitExpected', {
+          is: true,
+          then: (schema) => schema.required('Required'),
+        }),
+        sitEstimatedWeight: Yup.number().when('sitExpected', {
+          is: true,
+          then: (schema) => schema.required('Required'),
+        }),
+        // TODO: Figure out how to validate this but be optional.  Right now, when you first
+        //   go to the page with sitEnabled of false, the "Save" button remains disabled.
+        // sitEstimatedEntryDate: Yup.date().when('sitExpected', {
+        //   is: true,
+        //   then: (schema) =>
+        //     schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+        // }),
+        // sitEstimatedDepartureDate: Yup.date().when('sitExpected', {
+        //   is: true,
+        //   then: (schema) =>
+        //     schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+        // }),
+      }),
+    });
+  } else {
+    initialValues = {
+      estimatedWeight: shipment.primeEstimatedWeight?.toLocaleString(),
+      actualWeight: shipment.primeActualWeight?.toLocaleString(),
+      requestedPickupDate: shipment.requestedPickupDate,
+      scheduledPickupDate: shipment.scheduledPickupDate,
+      actualPickupDate: shipment.actualPickupDate,
+      pickupAddress: editablePickupAddress ? emptyAddress : reformatPrimeApiPickupAddress,
+      destinationAddress: editableDestinationAddress ? emptyAddress : reformatPrimeApiDestinationAddress,
+      destinationType: shipment.destinationType,
+      diversion: shipment.diversion,
+    };
 
-  const validationSchema = Yup.object().shape({
-    pickupAddress: addressSchema,
-    destinationAddress: addressSchema,
-    scheduledPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
-    actualPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
-  });
+    validationSchema = Yup.object().shape({
+      pickupAddress: addressSchema,
+      destinationAddress: addressSchema,
+      scheduledPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+      actualPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
+    });
+  }
 
   return (
     <div className={styles.tabContent}>
@@ -151,7 +252,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
             <Grid col desktop={{ col: 8, offset: 2 }}>
               {errorMessage?.detail && (
                 <div className={primeStyles.errorContainer}>
-                  <Alert type="error">
+                  <Alert headingLevel="h4" type="error">
                     <span className={primeStyles.errorTitle}>{errorMessage.title}</span>
                     <span className={primeStyles.errorDetail}>{errorMessage.detail}</span>
                   </Alert>
@@ -166,18 +267,22 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                 {({ isValid, isSubmitting, handleSubmit }) => {
                   return (
                     <Form className={formStyles.form}>
-                      <PrimeUIShipmentUpdateForm
-                        editableWeightEstimateField={editableWeightEstimateField}
-                        editableWeightActualField={editableWeightActualField}
-                        editablePickupAddress={editablePickupAddress}
-                        editableDestinationAddress={editableDestinationAddress}
-                        estimatedWeight={initialValues.estimatedWeight}
-                        actualWeight={initialValues.actualWeight}
-                        requestedPickupDate={initialValues.requestedPickupDate}
-                        pickupAddress={initialValues.pickupAddress}
-                        destinationAddress={initialValues.destinationAddress}
-                        diversion={initialValues.diversion}
-                      />
+                      {isPPM ? (
+                        <PrimeUIShipmentUpdatePPMForm />
+                      ) : (
+                        <PrimeUIShipmentUpdateForm
+                          editableWeightEstimateField={editableWeightEstimateField}
+                          editableWeightActualField={editableWeightActualField}
+                          editablePickupAddress={editablePickupAddress}
+                          editableDestinationAddress={editableDestinationAddress}
+                          estimatedWeight={initialValues.estimatedWeight}
+                          actualWeight={initialValues.actualWeight}
+                          requestedPickupDate={initialValues.requestedPickupDate}
+                          pickupAddress={initialValues.pickupAddress}
+                          destinationAddress={initialValues.destinationAddress}
+                          diversion={initialValues.diversion}
+                        />
+                      )}
                       <div className={formStyles.formActions}>
                         <WizardNavigation
                           editMode

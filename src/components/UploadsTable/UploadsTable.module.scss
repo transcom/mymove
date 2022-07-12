@@ -50,6 +50,9 @@
 
 .fileInfo {
   @include u-padding-left(2);
+  word-break: normal;
+  overflow-wrap: anywhere;
+
   p {
     margin-top: 0;
   }

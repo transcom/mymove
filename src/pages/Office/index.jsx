@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import classnames from 'classnames';
 
 import styles from './Office.module.scss';
-import 'uswds/dist/css/uswds.css';
+import 'styles/full_uswds.scss';
 import 'scenes/Office/office.scss';
 
 // API / Redux actions
@@ -107,6 +107,7 @@ export class OfficeApp extends Component {
     const { hasError, error, info } = this.state;
     const {
       activeRole,
+      officeUserId,
       userIsLoggedIn,
       userPermissions,
       userRoles,
@@ -174,7 +175,7 @@ export class OfficeApp extends Component {
     });
 
     return (
-      <PermissionProvider permissions={userPermissions}>
+      <PermissionProvider permissions={userPermissions} currentUserId={officeUserId}>
         <div id="app-root">
           <div className={siteClasses}>
             <BypassBlock />
@@ -361,6 +362,7 @@ OfficeApp.propTypes = {
   loadPublicSchema: PropTypes.func.isRequired,
   loadUser: PropTypes.func.isRequired,
   location: LocationShape,
+  officeUserId: PropTypes.string,
   userIsLoggedIn: PropTypes.bool,
   userPermissions: PropTypes.arrayOf(PropTypes.string),
   userRoles: UserRolesShape,
@@ -376,6 +378,7 @@ OfficeApp.propTypes = {
 
 OfficeApp.defaultProps = {
   location: { pathname: '' },
+  officeUserId: null,
   userIsLoggedIn: false,
   userPermissions: [],
   userRoles: [],
@@ -390,6 +393,7 @@ const mapStateToProps = (state) => {
 
   return {
     swaggerError: state.swaggerInternal.hasErrored,
+    officeUserId: user?.office_user?.id,
     userIsLoggedIn: selectIsLoggedIn(state),
     userPermissions: user?.permissions || [],
     userRoles: user?.roles || [],

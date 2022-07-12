@@ -57,7 +57,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember, push }) => {
       {serverError && (
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
-            <Alert type="error" heading="An error occurred">
+            <Alert type="error" headingLevel="h4" heading="An error occurred">
               {serverError}
             </Alert>
           </Grid>

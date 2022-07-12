@@ -4,6 +4,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 
 	"github.com/go-openapi/swag"
@@ -144,9 +146,10 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		}
 		mockSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			&move.Locator,
-			(*string)(nil),
-		).Return(moves, nil)
+			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+				return *params.Locator == move.Locator
+			}),
+		).Return(moves, 1, nil)
 
 		params := moveops.SearchMovesParams{
 			HTTPRequest: req,
@@ -163,14 +166,14 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 		payloadMove := *(*payload).SearchMoves[0]
 		suite.Equal(move.ID.String(), payloadMove.ID.String())
-		suite.Equal(*move.Orders.ServiceMember.Edipi, payloadMove.Customer.DodID)
-		suite.Equal(move.Orders.NewDutyLocation.Address.PostalCode, *payloadMove.DestinationDutyLocation.Address.PostalCode)
-		suite.Equal(move.Orders.OriginDutyLocation.Address.PostalCode, *payloadMove.OriginDutyLocation.Address.PostalCode)
+		suite.Equal(*move.Orders.ServiceMember.Edipi, *payloadMove.DodID)
+		suite.Equal(move.Orders.NewDutyLocation.Address.PostalCode, payloadMove.DestinationDutyLocationPostalCode)
+		suite.Equal(move.Orders.OriginDutyLocation.Address.PostalCode, payloadMove.OriginDutyLocationPostalCode)
 		suite.Equal(ghcmessages.MoveStatusDRAFT, payloadMove.Status)
-		suite.Equal("ARMY", payloadMove.Customer.Agency)
+		suite.Equal("ARMY", payloadMove.Branch)
 		suite.Equal(int64(0), payloadMove.ShipmentsCount)
-		suite.NotEmpty(payloadMove.Customer.FirstName)
-		suite.NotEmpty(payloadMove.Customer.LastName)
+		suite.NotEmpty(payloadMove.FirstName)
+		suite.NotEmpty(payloadMove.LastName)
 	})
 
 	suite.Run("Successful move search by DoD ID", func() {
@@ -185,9 +188,12 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		}
 		mockSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			(*string)(nil),
-			move.Orders.ServiceMember.Edipi,
-		).Return(moves, nil)
+			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+				return *params.DodID == *move.Orders.ServiceMember.Edipi &&
+					params.Locator == nil &&
+					params.CustomerName == nil
+			}),
+		).Return(moves, 1, nil)
 
 		params := moveops.SearchMovesParams{
 			HTTPRequest: req,

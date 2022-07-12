@@ -3,7 +3,6 @@ package fetch
 import (
 	"errors"
 	"reflect"
-	"testing"
 
 	"github.com/gofrs/uuid"
 
@@ -23,7 +22,7 @@ func (t *testFetcherQueryBuilder) FetchOne(appCtx appcontext.AppContext, model i
 }
 
 func (suite *FetchServiceSuite) TestFetchRecord() {
-	suite.T().Run("if the user is fetched, it should be returned", func(t *testing.T) {
+	suite.Run("if the user is fetched, it should be returned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
 		fakeFetch := func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
@@ -47,7 +46,7 @@ func (suite *FetchServiceSuite) TestFetchRecord() {
 		suite.Equal(id, officeUser.ID)
 	})
 
-	suite.T().Run("if there is an error, we get it with no office user", func(t *testing.T) {
+	suite.Run("if there is an error, we get it with no office user", func() {
 		fakeFetch := func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
 			return errors.New("Fetch error")
 		}
@@ -65,7 +64,7 @@ func (suite *FetchServiceSuite) TestFetchRecord() {
 		suite.Equal(models.OfficeUser{}, *officeUser)
 	})
 
-	suite.T().Run("reflection error", func(t *testing.T) {
+	suite.Run("reflection error", func() {
 		fakeFetch := func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
 			return errors.New("Fetch error")
 		}

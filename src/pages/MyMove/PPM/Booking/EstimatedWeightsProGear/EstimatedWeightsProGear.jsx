@@ -73,7 +73,7 @@ const EstimatedWeightsProGear = () => {
             <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
             <h1>Estimated weight</h1>
             {errorMessage && (
-              <Alert slim type="error">
+              <Alert headingLevel="h4" slim type="error">
                 {errorMessage}
               </Alert>
             )}

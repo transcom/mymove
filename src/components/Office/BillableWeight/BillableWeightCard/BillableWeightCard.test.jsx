@@ -6,6 +6,7 @@ import BillableWeightCard from './BillableWeightCard';
 
 import { formatWeight } from 'utils/formatters';
 import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 describe('BillableWeightCard', () => {
   const defaultProps = {
@@ -15,6 +16,14 @@ describe('BillableWeightCard', () => {
     weightAllowance: 8000,
     onReviewWeights: jest.fn(),
     secondaryReviewWeightsBtn: false,
+  };
+
+  const renderWithPermission = (props) => {
+    render(
+      <MockProviders permissions={[permissionTypes.updateMaxBillableWeight]}>
+        <BillableWeightCard {...defaultProps} {...props} />
+      </MockProviders>,
+    );
   };
 
   it('renders maximum billable weight, total billable weight, weight requested and weight allowance', () => {
@@ -45,7 +54,7 @@ describe('BillableWeightCard', () => {
       },
     ];
 
-    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
+    renderWithPermission({ shipments });
 
     // labels
     expect(screen.getByText('Maximum billable weight')).toBeInTheDocument();
@@ -76,7 +85,7 @@ describe('BillableWeightCard', () => {
         reweigh: { id: '1234', weight: 40 },
       },
     ];
-    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
+    renderWithPermission({ shipments });
 
     const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
 
@@ -98,7 +107,7 @@ describe('BillableWeightCard', () => {
         reweigh: { id: '1234', weight: 40 },
       },
     ];
-    render(<BillableWeightCard {...defaultProps} shipments={shipments} secondaryReviewWeightsBtn />);
+    renderWithPermission({ shipments, secondaryReviewWeightsBtn: true });
 
     const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
     expect(reviewWeights).toHaveClass('usa-button--secondary');
@@ -114,7 +123,7 @@ describe('BillableWeightCard', () => {
         reweigh: { id: '1234', weight: 40 },
       },
     ];
-    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
+    renderWithPermission({ shipments });
 
     const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
     expect(reviewWeights).not.toHaveClass('usa-button--secondary');
@@ -130,7 +139,11 @@ describe('BillableWeightCard', () => {
         reweigh: { id: '1234' },
       },
     ];
-    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
+    render(
+      <MockProviders permissions={[permissionTypes.updateMaxBillableWeight]}>
+        <BillableWeightCard {...defaultProps} shipments={shipments} />
+      </MockProviders>,
+    );
 
     const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
     expect(reviewWeights).not.toHaveClass('usa-button--secondary');
@@ -146,7 +159,7 @@ describe('BillableWeightCard', () => {
         reweigh: { id: '1234', weight: 2344 },
       },
     ];
-    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
+    renderWithPermission({ shipments });
 
     const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
     expect(reviewWeights).not.toHaveClass('usa-button--secondary');
@@ -171,7 +184,7 @@ describe('BillableWeightCard', () => {
         reweigh: { id: '1234', weight: 2344 },
       },
     ];
-    render(<BillableWeightCard {...props} shipments={shipments} />);
+    renderWithPermission({ ...props, shipments });
 
     const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
     expect(reviewWeights).not.toHaveClass('usa-button--secondary');
@@ -204,11 +217,7 @@ describe('BillableWeightCard', () => {
         reweigh: { id: '1234', weight: 500 },
       },
     ];
-    render(
-      <MockProviders>
-        <BillableWeightCard {...defaultProps} shipments={shipments} />
-      </MockProviders>,
-    );
+    renderWithPermission({ shipments });
 
     expect(screen.getByText('1 other shipment:')).toBeInTheDocument();
     expect(screen.getByText('1,234 lbs')).toBeInTheDocument();
@@ -241,13 +250,26 @@ describe('BillableWeightCard', () => {
         reweigh: { id: '1234', weight: 500 },
       },
     ];
-    render(
-      <MockProviders>
-        <BillableWeightCard {...defaultProps} shipments={shipments} />
-      </MockProviders>,
-    );
+    renderWithPermission({ shipments });
 
     expect(screen.getByText('2 other shipments:')).toBeInTheDocument();
     expect(screen.getByText('4,500 lbs')).toBeInTheDocument();
+  });
+
+  it('does not show the review weights button with no permission', () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 6161,
+        estimatedWeight: 5600,
+        primeEstimatedWeight: 100,
+        reweigh: { id: '1234', weight: 40 },
+      },
+    ];
+    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
+
+    const reviewWeights = screen.queryByRole('button', { name: 'Review weights' });
+    expect(reviewWeights).not.toBeInTheDocument();
   });
 });

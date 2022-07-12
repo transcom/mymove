@@ -3,6 +3,10 @@ package primeapi
 import (
 	"log"
 
+	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
+	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
+
 	"github.com/transcom/mymove/pkg/services/upload"
 
 	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
@@ -78,17 +82,28 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter),
 	}
 
+	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(
+		builder,
+		fetcher,
+		handlerConfig.Planner(),
+		moveRouter,
+		moveWeights,
+		handlerConfig.NotificationSender(),
+		paymentRequestShipmentRecalculator,
+	)
+
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DtodPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator)
+	shipmentUpdater := shipment.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
+
 	primeAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		handlerConfig,
-		mtoshipment.NewPrimeMTOShipmentUpdater(
-			builder,
-			fetcher,
-			handlerConfig.Planner(),
-			moveRouter,
-			moveWeights,
-			handlerConfig.NotificationSender(),
-			paymentRequestShipmentRecalculator,
-		),
+		shipmentUpdater,
+	}
+
+	primeAPI.MtoShipmentDeleteMTOShipmentHandler = DeleteMTOShipmentHandler{
+		handlerConfig,
+		mtoshipment.NewPrimeShipmentDeleter(),
 	}
 
 	primeAPI.PaymentRequestCreatePaymentRequestHandler = CreatePaymentRequestHandler{

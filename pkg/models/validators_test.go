@@ -43,7 +43,7 @@ func TestStringInList_IsValid(t *testing.T) {
 			validator.IsValid(errs)
 
 			if errs.Count() != 0 {
-				t.Fatalf("wrong number of errors; expected %d, got %d", 0, errs.Count())
+				t.Errorf("wrong number of errors; expected %d, got %d", 0, errs.Count())
 			}
 		})
 	}
@@ -64,10 +64,10 @@ func TestStringInList_IsValid(t *testing.T) {
 			fieldErrors := errs.Get("field_name")
 
 			if len(fieldErrors) != 1 {
-				t.Fatalf("wrong number of errors; expected %d, got %d", 1, len(fieldErrors))
+				t.Errorf("wrong number of errors; expected %d, got %d", 1, len(fieldErrors))
 			}
 			if fieldErrors[0] != expected {
-				t.Fatalf("wrong validation message; expected %s, got %s", expected, fieldErrors[0])
+				t.Errorf("wrong validation message; expected %s, got %s", expected, fieldErrors[0])
 			}
 		})
 	}
@@ -210,7 +210,7 @@ func TestOptionalStringInclusion_IsValid(t *testing.T) {
 
 		expected := fmt.Sprintf("%s is not in the list [%s].", fieldName, strings.Join(targetStrings, ", "))
 		if testErrors[0] != expected {
-			t.Fatalf("wrong validation message; expected %s, got %s", expected, testErrors[0])
+			t.Errorf("wrong validation message; expected %s, got %s", expected, testErrors[0])
 		}
 	})
 
@@ -251,7 +251,7 @@ func TestFloat64IsPresent_IsValid(t *testing.T) {
 		testErrors := errs.Get(fieldName)
 		expected := fmt.Sprintf("%s can not be blank.", validator.Name)
 		if testErrors[0] != expected {
-			t.Fatalf("wrong validation message; expected %s, got %s", expected, testErrors[0])
+			t.Errorf("wrong validation message; expected %s, got %s", expected, testErrors[0])
 		}
 	})
 
@@ -267,7 +267,7 @@ func TestFloat64IsPresent_IsValid(t *testing.T) {
 
 		testErrors := errs.Get(fieldName)
 		if testErrors[0] != customMessage {
-			t.Fatalf("wrong validation message; expected %s, got %s", customMessage, testErrors[0])
+			t.Errorf("wrong validation message; expected %s, got %s", customMessage, testErrors[0])
 		}
 	})
 }
@@ -297,7 +297,7 @@ func TestFloat64IsGreaterThan_IsValid(t *testing.T) {
 		testErrors := errs.Get(fieldName)
 		expected := fmt.Sprintf("%f is not greater than %f.", validator.Field, validator.Compared)
 		if testErrors[0] != expected {
-			t.Fatalf("wrong validation message; expected %s, got %s", expected, testErrors[0])
+			t.Errorf("wrong validation message; expected %s, got %s", expected, testErrors[0])
 		}
 	})
 
@@ -313,7 +313,7 @@ func TestFloat64IsGreaterThan_IsValid(t *testing.T) {
 
 		testErrors := errs.Get(fieldName)
 		if testErrors[0] != customMessage {
-			t.Fatalf("wrong validation message; expected %s, got %s", customMessage, testErrors[0])
+			t.Errorf("wrong validation message; expected %s, got %s", customMessage, testErrors[0])
 		}
 	})
 }
@@ -332,14 +332,14 @@ func Test_OptionalUUIDIsPresent(t *testing.T) {
 	errors := validate.NewErrors()
 	v.IsValid(errors)
 	if errors.Count() > 0 {
-		t.Fatalf("got errors when should be valid: %v", errors)
+		t.Errorf("got errors when should be valid: %v", errors)
 	}
 	// test with nil pointer
 	v = models.OptionalUUIDIsPresent{Name: "Name", Field: nil}
 	errors = validate.NewErrors()
 	v.IsValid(errors)
 	if errors.Count() > 0 {
-		t.Fatalf("got errors when should be valid: %v", errors)
+		t.Errorf("got errors when should be valid: %v", errors)
 	}
 
 	// negative test
@@ -350,10 +350,10 @@ func Test_OptionalUUIDIsPresent(t *testing.T) {
 	errors = validate.NewErrors()
 	v.IsValid(errors)
 	if errors.Count() != 1 {
-		t.Fatalf("got wrong number of errors: %v", errors)
+		t.Errorf("got wrong number of errors: %v", errors)
 	}
 	if errors.Get("name")[0] != "Name can not be blank." {
-		t.Fatalf("wrong error; expected %s, got %s", "Name can not be blank.", errors.Get("name")[0])
+		t.Errorf("wrong error; expected %s, got %s", "Name can not be blank.", errors.Get("name")[0])
 	}
 }
 
@@ -371,7 +371,7 @@ func Test_OptionalPoundIsNonNegative_isValid(t *testing.T) {
 		errs := validate.NewErrors()
 		v.IsValid(errs)
 		if errs.Count() != 0 {
-			t.Fatalf("got errors when should be valid: %v", errs)
+			t.Errorf("got errors when should be valid: %v", errs)
 		}
 	})
 
@@ -381,7 +381,7 @@ func Test_OptionalPoundIsNonNegative_isValid(t *testing.T) {
 		errs := validate.NewErrors()
 		v.IsValid(errs)
 		if errs.Count() > 0 {
-			t.Fatalf("got errors when should be valid: %v", errs)
+			t.Errorf("got errors when should be valid: %v", errs)
 		}
 	})
 
@@ -393,7 +393,7 @@ func Test_OptionalPoundIsNonNegative_isValid(t *testing.T) {
 		errs := validate.NewErrors()
 		v.IsValid(errs)
 		if errs.Count() > 0 {
-			t.Fatalf("got errors when should be valid: %v", errs)
+			t.Errorf("got errors when should be valid: %v", errs)
 		}
 	})
 
@@ -412,7 +412,7 @@ func Test_OptionalPoundIsNonNegative_isValid(t *testing.T) {
 		testErrors := errs.Get(name)
 		expected := fmt.Sprintf("%d is less than zero.", *v.Field)
 		if testErrors[0] != expected {
-			t.Fatalf("wrong validation message; expected %s, got %s", expected, testErrors[0])
+			t.Errorf("wrong validation message; expected %s, got %s", expected, testErrors[0])
 		}
 	})
 }
@@ -431,7 +431,7 @@ func Test_OptionalPoundIsPositive_isValid(t *testing.T) {
 		errs := validate.NewErrors()
 		v.IsValid(errs)
 		if errs.Count() != 0 {
-			t.Fatalf("got errors when should be valid: %v", errs)
+			t.Errorf("got errors when should be valid: %v", errs)
 		}
 	})
 
@@ -441,7 +441,7 @@ func Test_OptionalPoundIsPositive_isValid(t *testing.T) {
 		errs := validate.NewErrors()
 		v.IsValid(errs)
 		if errs.Count() > 0 {
-			t.Fatalf("got errors when should be valid: %v", errs)
+			t.Errorf("got errors when should be valid: %v", errs)
 		}
 	})
 
@@ -460,7 +460,7 @@ func Test_OptionalPoundIsPositive_isValid(t *testing.T) {
 		testErrors := errs.Get(name)
 		expected := fmt.Sprintf("%d is less than or equal to zero", *v.Field)
 		if testErrors[0] != expected {
-			t.Fatalf("wrong validation message; expected %s, got %s", expected, testErrors[0])
+			t.Errorf("wrong validation message; expected %s, got %s", expected, testErrors[0])
 		}
 	})
 
@@ -478,7 +478,7 @@ func Test_OptionalPoundIsPositive_isValid(t *testing.T) {
 		testErrors := errs.Get(name)
 		expected := fmt.Sprintf("%d is less than or equal to zero", *v.Field)
 		if testErrors[0] != expected {
-			t.Fatalf("wrong validation message; expected %s, got %s", expected, testErrors[0])
+			t.Errorf("wrong validation message; expected %s, got %s", expected, testErrors[0])
 		}
 	})
 }
@@ -498,7 +498,7 @@ func Test_MustBeBothNilOrBothNotNil_IsValid(t *testing.T) {
 		errs := validate.NewErrors()
 		v.IsValid(errs)
 		if errs.Count() != 0 {
-			t.Fatalf("got errors when should be valid: %v", errs)
+			t.Errorf("got errors when should be valid: %v", errs)
 		}
 	})
 
@@ -512,7 +512,7 @@ func Test_MustBeBothNilOrBothNotNil_IsValid(t *testing.T) {
 		errs := validate.NewErrors()
 		v.IsValid(errs)
 		if errs.Count() != 0 {
-			t.Fatalf("got errors when should be valid: %v", errs)
+			t.Errorf("got errors when should be valid: %v", errs)
 		}
 	})
 
@@ -527,7 +527,7 @@ func Test_MustBeBothNilOrBothNotNil_IsValid(t *testing.T) {
 		errs := validate.NewErrors()
 		v.IsValid(errs)
 		if errs.Count() == 0 {
-			t.Fatalf("should throw an error if %v is empty and %v is filled: %v", v.FieldName1, v.FieldName2, errs)
+			t.Errorf("should throw an error if %v is empty and %v is filled: %v", v.FieldName1, v.FieldName2, errs)
 		}
 	})
 
@@ -542,7 +542,7 @@ func Test_MustBeBothNilOrBothNotNil_IsValid(t *testing.T) {
 		errs := validate.NewErrors()
 		v.IsValid(errs)
 		if errs.Count() == 0 {
-			t.Fatalf("should throw an error if %v is filled and %v is empty: %v", v.FieldName1, v.FieldName2, errs)
+			t.Errorf("should throw an error if %v is filled and %v is empty: %v", v.FieldName1, v.FieldName2, errs)
 		}
 	})
 }
@@ -574,7 +574,7 @@ func Test_ItemCanFitInsideCrate_IsValid(t *testing.T) {
 		errs := validate.NewErrors()
 		v.IsValid(errs)
 		if errs.Count() != 0 {
-			t.Fatalf("got errors when should be valid: %v", errs)
+			t.Errorf("got errors when should be valid: %v", errs)
 		}
 	})
 
@@ -588,7 +588,7 @@ func Test_ItemCanFitInsideCrate_IsValid(t *testing.T) {
 		errs := validate.NewErrors()
 		v.IsValid(errs)
 		if errs.Count() == 0 {
-			t.Fatalf("got no errors when should be invalid")
+			t.Errorf("got no errors when should be invalid")
 		}
 	})
 
@@ -602,7 +602,7 @@ func Test_ItemCanFitInsideCrate_IsValid(t *testing.T) {
 		errs := validate.NewErrors()
 		v.IsValid(errs)
 		if errs.Count() == 0 {
-			t.Fatalf("got no errors when should be invalid")
+			t.Errorf("got no errors when should be invalid")
 		}
 	})
 
@@ -624,7 +624,7 @@ func Test_ItemCanFitInsideCrate_IsValid(t *testing.T) {
 		errs := validate.NewErrors()
 		v.IsValid(errs)
 		if errs.Count() == 0 {
-			t.Fatalf("got no errors when should be invalid")
+			t.Errorf("got no errors when should be invalid")
 		}
 	})
 }

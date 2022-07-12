@@ -395,7 +395,7 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 }
 
 type RateEngineSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestRateEngineSuite(t *testing.T) {

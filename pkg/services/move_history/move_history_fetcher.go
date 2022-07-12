@@ -122,6 +122,42 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			JOIN service_items ON service_items.id = audit_history.object_id
 				AND audit_history. "table_name" = 'mto_service_items'
 	),
+	service_item_customer_contacts AS (
+		SELECT
+			mto_service_item_customer_contacts.*
+		FROM
+			mto_service_item_customer_contacts
+		JOIN mto_service_items on mto_service_items.id = mto_service_item_customer_contacts.mto_service_item_id
+		JOIN moves ON moves.id = mto_service_items.move_id
+	),
+	service_item_customer_contacts_logs AS (
+		SELECT
+			audit_history.*,
+			NULL AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN service_item_customer_contacts ON service_item_customer_contacts.id = audit_history.object_id
+			AND audit_history."table_name" = 'mto_service_item_customer_contacts'
+	),
+	service_item_dimensions AS (
+		SELECT
+			mto_service_item_dimensions.*
+		FROM
+			mto_service_item_dimensions
+		JOIN mto_service_items on mto_service_items.id = mto_service_item_dimensions.mto_service_item_id
+		JOIN moves ON moves.id = mto_service_items.move_id
+	),
+	service_item_dimensions_logs AS  (
+		SELECT
+			audit_history.*,
+			NULL AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN service_item_dimensions ON service_item_dimensions.id = audit_history.object_id
+			AND audit_history."table_name" = 'mto_service_item_dimensions'
+	),
 	pickup_address_logs AS (
 		SELECT
 			audit_history.*,
@@ -302,6 +338,16 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		SELECT
 			*
 		FROM
+			service_item_customer_contacts_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
+			service_item_dimensions_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
 			shipment_logs
 		UNION ALL
 		SELECT
@@ -354,10 +400,11 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 				OR roles.role_type = 'ppm_office_users'
 				OR role_type = 'services_counselor'
 				OR role_type = 'contracting_officer'
-				OR role_type = 'qae_csr')
+				OR role_type = 'qae_csr'
+				OR role_type = 'prime_simulator')
 		LEFT JOIN (
 			SELECT 'Prime' AS prime_user_first_name
-			) prime_users ON roles.role_type LIKE 'prime%'
+			) prime_users ON roles.role_type = 'prime'
 	ORDER BY
 		action_tstamp_tx DESC`
 

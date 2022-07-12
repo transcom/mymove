@@ -3,7 +3,6 @@ package adminuser
 import (
 	"errors"
 	"reflect"
-	"testing"
 
 	"github.com/stretchr/testify/mock"
 
@@ -35,41 +34,46 @@ func setUpMockNotificationSender() notifications.NotificationSender {
 }
 
 func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
-	appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 	queryBuilder := query.NewQueryBuilder()
 
-	loginGovUUID := uuid.Must(uuid.NewV4())
-	existingUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-		User: models.User{
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: "spaceman+existing@leo.org",
-			Active:        true,
-		},
-	})
+	setupTestData := func() (models.User, models.AdminUser) {
 
-	organization := testdatagen.MakeDefaultOrganization(suite.DB())
-	userInfo := models.AdminUser{
-		LastName:       "Spaceman",
-		FirstName:      "Leo",
-		Email:          "spaceman@leo.org",
-		OrganizationID: &organization.ID,
-		Organization:   organization,
-		Role:           models.SystemAdminRole,
+		loginGovUUID := uuid.Must(uuid.NewV4())
+		existingUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+			User: models.User{
+				LoginGovUUID:  &loginGovUUID,
+				LoginGovEmail: "spaceman+existing@leo.org",
+				Active:        true,
+			},
+		})
+
+		organization := testdatagen.MakeDefaultOrganization(suite.DB())
+		userInfo := models.AdminUser{
+			LastName:       "Spaceman",
+			FirstName:      "Leo",
+			Email:          "spaceman@leo.org",
+			OrganizationID: &organization.ID,
+			Organization:   organization,
+			Role:           models.SystemAdminRole,
+		}
+		return existingUser, userInfo
 	}
 
 	// Happy path - creates a new User as well
-	suite.T().Run("If the user is created successfully it should be returned", func(t *testing.T) {
+	suite.Run("If the user is created successfully it should be returned", func() {
+		_, userInfo := setupTestData()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 		fakeFetchOne := func(appConfig appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.Organization:
-				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(userInfo.Organization.ID))
 			case *models.User:
 				return errors.New("User Not Found")
 			}
 			return nil
 		}
 
-		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", organization.ID)}
+		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", userInfo.Organization.ID)}
 
 		builder := &testAdminUserQueryBuilder{
 			fakeFetchOne:  fakeFetchOne,
@@ -84,24 +88,26 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 		suite.NotNil(adminUser.User)
 		suite.Equal(adminUser.User.ID, *adminUser.UserID)
 		suite.Equal(userInfo.Email, adminUser.User.LoginGovEmail)
-		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 1)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 	})
 
 	// Reuses existing user if it's already been created for an office or service member
-	suite.T().Run("Finds existing user by email and associates with admin user", func(t *testing.T) {
+	suite.Run("Finds existing user by email and associates with admin user", func() {
+		existingUser, userInfo := setupTestData()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 		existingUserInfo := models.AdminUser{
 			LastName:       "Spaceman",
 			FirstName:      "Leo",
 			Email:          existingUser.LoginGovEmail,
-			OrganizationID: &organization.ID,
-			Organization:   organization,
+			OrganizationID: &userInfo.Organization.ID,
+			Organization:   userInfo.Organization,
 			Role:           models.SystemAdminRole,
 		}
 
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.Organization:
-				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(userInfo.Organization.ID))
 			case *models.User:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(existingUser.ID))
 				reflect.ValueOf(model).Elem().FieldByName("LoginGovUUID").Set(reflect.ValueOf(existingUser.LoginGovUUID))
@@ -110,7 +116,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			return nil
 		}
 
-		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", organization.ID)}
+		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", userInfo.Organization.ID)}
 
 		builder := &testAdminUserQueryBuilder{
 			fakeFetchOne:  fakeFetchOne,
@@ -124,11 +130,13 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 		suite.Nil(verrs)
 		suite.NotNil(adminUser.User)
 		suite.Equal(adminUser.User.ID, *adminUser.UserID)
-		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(t, "SendNotification", 0)
+		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 0)
 	})
 
 	// Bad organization ID
-	suite.T().Run("If we are provided a organization that doesn't exist, the create should fail", func(t *testing.T) {
+	suite.Run("If we are provided a organization that doesn't exist, the create should fail", func() {
+		_, userInfo := setupTestData()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			return models.ErrFetchNotFound
 		}
@@ -144,11 +152,13 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 	})
 
 	// Transaction rollback on createOne validation failure
-	suite.T().Run("CreateOne validation error should rollback transaction", func(t *testing.T) {
+	suite.Run("CreateOne validation error should rollback transaction", func() {
+		_, userInfo := setupTestData()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.Organization:
-				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(userInfo.Organization.ID))
 			case *models.User:
 				return errors.New("User Not Found")
 			}
@@ -169,7 +179,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 				}
 			}
 		}
-		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", organization.ID)}
+		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", userInfo.Organization.ID)}
 
 		builder := &testAdminUserQueryBuilder{
 			fakeFetchOne:  fakeFetchOne,
@@ -183,11 +193,13 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 	})
 
 	// Transaction rollback on createOne error failure
-	suite.T().Run("CreateOne error should rollback transaction", func(t *testing.T) {
+	suite.Run("CreateOne error should rollback transaction", func() {
+		_, userInfo := setupTestData()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.Organization:
-				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(userInfo.Organization.ID))
 			case *models.User:
 				return errors.New("User Not Found")
 			}
@@ -203,7 +215,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			}
 		}
 
-		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", organization.ID)}
+		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", userInfo.Organization.ID)}
 
 		builder := &testAdminUserQueryBuilder{
 			fakeFetchOne:  fakeFetchOne,

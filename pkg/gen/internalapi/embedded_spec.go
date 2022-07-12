@@ -288,47 +288,6 @@ func init() {
         }
       }
     },
-    "/dps_auth/cookie_url": {
-      "post": {
-        "description": "Returns the URL to redirect to that begins DPS auth",
-        "tags": [
-          "dps_auth"
-        ],
-        "summary": "Returns the URL to redirect to that begins DPS auth",
-        "operationId": "getCookieURL",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "The name of the cookie to set, DPS by default",
-            "name": "cookie_name",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "The DPS URL to redirec to",
-            "name": "dps_redirect_url",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/DPSAuthCookieURLPayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/duty_locations": {
       "get": {
         "description": "Returns the duty locations matching the search query",
@@ -3878,15 +3837,6 @@ func init() {
         }
       }
     },
-    "DPSAuthCookieURLPayload": {
-      "type": "object",
-      "properties": {
-        "cookie_url": {
-          "type": "string",
-          "format": "uri"
-        }
-      }
-    },
     "DeptIndicator": {
       "type": "string",
       "title": "Dept. indicator",
@@ -5301,6 +5251,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       },
       "x-nullable": true
@@ -7085,47 +7040,6 @@ func init() {
           },
           "500": {
             "description": "server error"
-          }
-        }
-      }
-    },
-    "/dps_auth/cookie_url": {
-      "post": {
-        "description": "Returns the URL to redirect to that begins DPS auth",
-        "tags": [
-          "dps_auth"
-        ],
-        "summary": "Returns the URL to redirect to that begins DPS auth",
-        "operationId": "getCookieURL",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "The name of the cookie to set, DPS by default",
-            "name": "cookie_name",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "The DPS URL to redirec to",
-            "name": "dps_redirect_url",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/DPSAuthCookieURLPayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
           }
         }
       }
@@ -10749,15 +10663,6 @@ func init() {
         }
       }
     },
-    "DPSAuthCookieURLPayload": {
-      "type": "object",
-      "properties": {
-        "cookie_url": {
-          "type": "string",
-          "format": "uri"
-        }
-      }
-    },
     "DeptIndicator": {
       "type": "string",
       "title": "Dept. indicator",
@@ -12185,6 +12090,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       },
       "x-nullable": true

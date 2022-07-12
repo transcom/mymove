@@ -2,7 +2,6 @@ package officeuser
 
 import (
 	"database/sql"
-	"testing"
 
 	"github.com/go-openapi/strfmt"
 
@@ -18,17 +17,22 @@ import (
 func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	queryBuilder := query.NewQueryBuilder()
 	updater := NewOfficeUserUpdater(queryBuilder)
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			TransportationOffice: models.TransportationOffice{
-				Name: "Random Office",
+	setupTestData := func() models.OfficeUser {
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+			OfficeUser: models.OfficeUser{
+				TransportationOffice: models.TransportationOffice{
+					Name: "Random Office",
+				},
 			},
-		},
-	})
-	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		})
+		return officeUser
+	}
 
 	// Happy path
-	suite.T().Run("If the user is updated successfully it should be returned", func(t *testing.T) {
+	suite.Run("If the user is updated successfully it should be returned", func() {
+		officeUser := setupTestData()
+		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+
 		firstName := "Lea"
 		payload := &adminmessages.OfficeUserUpdatePayload{
 			FirstName:              &firstName,
@@ -45,7 +49,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	})
 
 	// Bad office user ID
-	suite.T().Run("If we are provided an office user that doesn't exist, the create should fail", func(t *testing.T) {
+	suite.Run("If we are provided an office user that doesn't exist, the create should fail", func() {
 		payload := &adminmessages.OfficeUserUpdatePayload{}
 
 		_, _, err := updater.UpdateOfficeUser(suite.AppContextForTest(), uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"), payload)
@@ -54,7 +58,8 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	})
 
 	// Bad transportation office ID
-	suite.T().Run("If we are provided a transportation office that doesn't exist, the create should fail", func(t *testing.T) {
+	suite.Run("If we are provided a transportation office that doesn't exist, the create should fail", func() {
+		officeUser := setupTestData()
 		payload := &adminmessages.OfficeUserUpdatePayload{
 			TransportationOfficeID: strfmt.UUID("00000000-0000-0000-0000-000000000001"),
 		}

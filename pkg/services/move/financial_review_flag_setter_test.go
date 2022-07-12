@@ -2,7 +2,6 @@ package move
 
 import (
 	"errors"
-	"testing"
 
 	"github.com/go-openapi/swag"
 
@@ -19,7 +18,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagSetter() {
 	flagCreator := NewFinancialReviewFlagSetter()
 	defaultFlagReason := "destination address is far from duty location"
 
-	suite.T().Run("flag can be set", func(t *testing.T) {
+	suite.Run("flag can be set", func() {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
@@ -35,7 +34,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagSetter() {
 		suite.Require().Equal(defaultFlagReason, *move.FinancialReviewRemarks)
 	})
 
-	suite.T().Run("Wrong moveID should result in error", func(t *testing.T) {
+	suite.Run("Wrong moveID should result in error", func() {
 		wrongUUID := uuid.Must(uuid.NewV4())
 
 		_, err := flagCreator.SetFinancialReviewFlag(suite.AppContextForTest(), wrongUUID, "", true, &defaultFlagReason)
@@ -43,7 +42,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagSetter() {
 		suite.Require().True(errors.As(err, &apperror.NotFoundError{}))
 	})
 
-	suite.T().Run("Empty remarks param should result in error", func(t *testing.T) {
+	suite.Run("Empty remarks param should result in error", func() {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 
@@ -52,7 +51,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagSetter() {
 		suite.Require().True(errors.As(err, &apperror.InvalidInputError{}))
 	})
 
-	suite.T().Run("setting flag after it has already been set should have no effect", func(t *testing.T) {
+	suite.Run("setting flag after it has already been set should have no effect", func() {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		// Make sure move starts out as we expect it to
@@ -70,7 +69,7 @@ func (suite *MoveServiceSuite) TestFinancialReviewFlagSetter() {
 
 	})
 	// If we set the flag to false, the timestamp and remarks fields should be nilled out
-	suite.T().Run("when flag is set to false we nil out FinancialReviewFlagSetAt and FinancialReviewRemarks", func(t *testing.T) {
+	suite.Run("when flag is set to false we nil out FinancialReviewFlagSetAt and FinancialReviewRemarks", func() {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 

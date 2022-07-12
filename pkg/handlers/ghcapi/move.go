@@ -61,18 +61,32 @@ type SearchMovesHandler struct {
 func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			moves, err := h.MoveSearcher.SearchMoves(appCtx, params.Body.Locator, params.Body.DodID)
+			searchMovesParams := services.SearchMovesParams{
+				Branch:                params.Body.Branch,
+				Locator:               params.Body.Locator,
+				DodID:                 params.Body.DodID,
+				CustomerName:          params.Body.CustomerName,
+				DestinationPostalCode: params.Body.DestinationPostalCode,
+				OriginPostalCode:      params.Body.OriginPostalCode,
+				Status:                params.Body.Status,
+				ShipmentsCount:        params.Body.ShipmentsCount,
+				Page:                  params.Body.Page,
+				PerPage:               params.Body.PerPage,
+				Sort:                  params.Body.Sort,
+				Order:                 params.Body.Order,
+			}
+			moves, totalCount, err := h.MoveSearcher.SearchMoves(appCtx, &searchMovesParams)
 
 			if err != nil {
-				appCtx.Logger().Error("Error retrieving move by locator", zap.Error(err))
+				appCtx.Logger().Error("Error searching for move", zap.Error(err))
 				return moveop.NewSearchMovesInternalServerError(), err
 			}
 
 			searchMoves := payloads.SearchMoves(moves)
 			payload := &ghcmessages.SearchMovesResult{
-				Page:        1,
-				PerPage:     100,
-				TotalCount:  1,
+				Page:        searchMovesParams.Page,
+				PerPage:     searchMovesParams.PerPage,
+				TotalCount:  int64(totalCount),
 				SearchMoves: *searchMoves,
 			}
 			return moveop.NewSearchMovesOK().WithPayload(payload), nil

@@ -67,7 +67,7 @@ const ServicesCounselingEditShipmentDetails = ({ match, onUpdate, isAdvancePage 
                 isCreatePage={false}
                 isForServicesCounseling
                 currentResidence={customer.current_address}
-                oldDutyLocationAddress={order.originDutyLocation?.address}
+                originDutyLocationAddress={order.originDutyLocation?.address}
                 newDutyLocationAddress={order.destinationDutyLocation?.address}
                 selectedMoveType={matchingShipment.shipmentType}
                 mtoShipment={matchingShipment}

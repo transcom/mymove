@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -39,8 +37,13 @@ func (_m *OfficeUserFetcherPop) FetchOfficeUserByID(appCtx appcontext.AppContext
 	return r0, r1
 }
 
-// NewOfficeUserFetcherPop creates a new instance of OfficeUserFetcherPop. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewOfficeUserFetcherPop(t testing.TB) *OfficeUserFetcherPop {
+type mockConstructorTestingTNewOfficeUserFetcherPop interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewOfficeUserFetcherPop creates a new instance of OfficeUserFetcherPop. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewOfficeUserFetcherPop(t mockConstructorTestingTNewOfficeUserFetcherPop) *OfficeUserFetcherPop {
 	mock := &OfficeUserFetcherPop{}
 	mock.Mock.Test(t)
 

@@ -30,7 +30,7 @@ import WebhookSubscriptionCreate from 'pages/Admin/WebhookSubscriptions/WebhookS
 import WebhookSubscriptionEdit from '../../pages/Admin/WebhookSubscriptions/WebhookSubscriptionEdit';
 
 import styles from './Home.module.scss';
-import * as Cookies from 'js-cookie';
+import Cookies from 'js-cookie';
 import customRoutes from './CustomRoutes';
 import NotificationList from './Notifications/NotificationList';
 

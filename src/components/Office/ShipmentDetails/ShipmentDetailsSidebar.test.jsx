@@ -1,12 +1,14 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { mount } from 'enzyme';
 
 import ShipmentDetailsSidebar from './ShipmentDetailsSidebar';
 
 import { MockProviders } from 'testUtils';
 import { LOA_TYPE } from 'shared/constants';
 import { formatAccountingCode } from 'utils/shipmentDisplay';
+import { permissionTypes } from 'constants/permissions';
 
 const mockPush = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -130,7 +132,7 @@ describe('Shipment Details Sidebar', () => {
 
   it('shows edit facility info modal on edit button click', () => {
     render(
-      <MockProviders>
+      <MockProviders permissions={[permissionTypes.updateShipment]}>
         <ShipmentDetailsSidebar
           shipment={shipment}
           ordersLOA={ordersLOA}
@@ -150,7 +152,7 @@ describe('Shipment Details Sidebar', () => {
 
   it('shows edit service order number modal on edit button click', () => {
     render(
-      <MockProviders>
+      <MockProviders permissions={[permissionTypes.updateShipment]}>
         <ShipmentDetailsSidebar
           shipment={shipment}
           ordersLOA={ordersLOA}
@@ -170,7 +172,7 @@ describe('Shipment Details Sidebar', () => {
 
   it('shows accounting codes modal on edit button click', () => {
     render(
-      <MockProviders>
+      <MockProviders permissions={[permissionTypes.updateShipment]}>
         <ShipmentDetailsSidebar
           shipment={shipment}
           ordersLOA={ordersLOA}
@@ -186,5 +188,22 @@ describe('Shipment Details Sidebar', () => {
 
     // This text is in the accounting codes modal
     expect(screen.getByRole('heading', { name: 'Edit accounting codes' })).toBeInTheDocument();
+  });
+
+  it('hides edit buttons when permissions are missing', () => {
+    const wrapper = mount(
+      <MockProviders>
+        <ShipmentDetailsSidebar
+          shipment={shipment}
+          ordersLOA={ordersLOA}
+          handleEditFacilityInfo={() => {}}
+          handleEditAccountingCodes={() => {}}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('button[data-testid="service-order-number-modal-open"]').length).toBeFalsy();
+    expect(wrapper.find('button[data-testid="edit-facility-info-modal-open"]').length).toBeFalsy();
+    expect(wrapper.find('button[data-testid="edit-accounting-codes-modal-open"]').length).toBeFalsy();
   });
 });

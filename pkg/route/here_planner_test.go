@@ -51,7 +51,7 @@ type HereFullSuite struct {
 
 // Tests that don't hit the HERE API
 type HereTestSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 }
 
 type testClient struct {

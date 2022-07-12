@@ -111,7 +111,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 // UpdateMTOShipmentHandler is the handler to update MTO shipments
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerConfig
-	mtoShipmentUpdater services.MTOShipmentUpdater
+	services.ShipmentUpdater
 }
 
 // Handle handler that updates a mto shipment
@@ -127,7 +127,8 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				"SecondaryPickupAddress",
 				"SecondaryDeliveryAddress",
 				"MTOAgents",
-				"StorageFacility").
+				"StorageFacility",
+				"PPMShipment").
 				Where("uses_external_vendor = FALSE").
 				Find(&dbShipment, params.MtoShipmentID)
 
@@ -138,6 +139,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 			// Validate further prime restrictions on model
 			mtoShipment, validationErrs := h.checkPrimeValidationsOnModel(appCtx, mtoShipment, &dbShipment)
+			mtoShipment.ShipmentType = dbShipment.ShipmentType
 			if validationErrs != nil && validationErrs.HasAny() {
 				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(validationErrs))
 
@@ -148,7 +150,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			}
 
 			appCtx.Logger().Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-			mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipment(appCtx, mtoShipment, params.IfMatch)
+			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch)
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 				switch e := err.(type) {
@@ -168,6 +170,42 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			}
 			mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
 			return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload), nil
+		})
+}
+
+// DeleteMTOShipmentHandler is the handler to soft delete MTO shipments
+type DeleteMTOShipmentHandler struct {
+	handlers.HandlerConfig
+	services.ShipmentDeleter
+}
+
+// Handle handler that updates a mto shipment
+func (h DeleteMTOShipmentHandler) Handle(params mtoshipmentops.DeleteMTOShipmentParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+			_, err := h.DeleteShipment(appCtx, shipmentID)
+			if err != nil {
+				appCtx.Logger().Error("primeapi.DeleteMTOShipmentHandler", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return mtoshipmentops.NewDeleteMTOShipmentNotFound().WithPayload(
+						payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.ConflictError:
+					return mtoshipmentops.NewDeleteMTOShipmentConflict(), err
+				case apperror.ForbiddenError:
+					return mtoshipmentops.NewDeleteMTOShipmentForbidden().WithPayload(
+						payloads.ClientError(handlers.ForbiddenErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.UnprocessableEntityError:
+					return mtoshipmentops.NewDeleteMTOShipmentUnprocessableEntity(), err
+				default:
+					return mtoshipmentops.NewDeleteMTOShipmentInternalServerError().WithPayload(
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				}
+			}
+
+			return mtoshipmentops.NewDeleteMTOShipmentNoContent(), nil
 		})
 }
 
