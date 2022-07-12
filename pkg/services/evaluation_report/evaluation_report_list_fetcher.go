@@ -30,6 +30,7 @@ func (f *evaluationReportListFetcher) FetchEvaluationReports(appCtx appcontext.A
 		Scope(utilities.ExcludeDeletedScope()).
 		Where("move_id = ?", moveID).
 		Where("(submitted_at IS NOT NULL OR office_user_id = ?)", officeUserID).
+		Order("submitted_at ASC, created_at ASC").
 		All(&reports)
 
 	if err != nil {
