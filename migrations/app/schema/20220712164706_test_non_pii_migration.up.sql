@@ -1,0 +1,1 @@
+ALTER TABLE client_certs ADD COLUMN non_pii_column VARCHAR;

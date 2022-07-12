@@ -742,3 +742,4 @@
 20220623201702_add_support_remarks_deleted_at.up.sql
 20220628163327_remove_dps.up.sql
 20220630194456_create_evaluation_report_table.up.sql
+20220712164706_test_non_pii_migration.up.sql
