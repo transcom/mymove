@@ -125,9 +125,12 @@ const WeightTickets = () => {
     };
 
     patchWeightTicket(mtoShipment.id, currentWeightTicket.id, payload, currentWeightTicket.eTag)
-      .then(() => {
+      .then((resp) => {
         setSubmitting(false);
+        const currentIndex = mtoShipment.ppmShipment.weightTickets.findIndex((ticket) => ticket.id === resp.id);
+        mtoShipment.ppmShipment.weightTickets[currentIndex] = resp;
         history.push(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
+        dispatch(updateMTOShipment(mtoShipment));
       })
       .catch(() => {
         setSubmitting(false);
