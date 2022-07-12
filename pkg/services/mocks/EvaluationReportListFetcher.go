@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -41,8 +39,13 @@ func (_m *EvaluationReportListFetcher) FetchEvaluationReports(appCtx appcontext.
 	return r0, r1
 }
 
-// NewEvaluationReportListFetcher creates a new instance of EvaluationReportListFetcher. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewEvaluationReportListFetcher(t testing.TB) *EvaluationReportListFetcher {
+type mockConstructorTestingTNewEvaluationReportListFetcher interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewEvaluationReportListFetcher creates a new instance of EvaluationReportListFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewEvaluationReportListFetcher(t mockConstructorTestingTNewEvaluationReportListFetcher) *EvaluationReportListFetcher {
 	mock := &EvaluationReportListFetcher{}
 	mock.Mock.Test(t)
 
