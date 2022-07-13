@@ -15,7 +15,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 		fetcher := NewEvaluationReportListFetcher()
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
-		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), move.ID, officeUser.ID)
+		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, move.ID, officeUser.ID)
 		suite.NoError(err)
 		suite.Empty(reports)
 	})
@@ -25,7 +25,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 		fetcher := NewEvaluationReportListFetcher()
 		badMoveID := uuid.Must(uuid.NewV4())
 		badOfficeUserID := uuid.Must(uuid.NewV4())
-		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), badMoveID, badOfficeUserID)
+		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, badMoveID, badOfficeUserID)
 		suite.NoError(err)
 		suite.Empty(reports)
 	})
@@ -46,7 +46,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 				SubmittedAt:  swag.Time(time.Now()),
 			},
 		})
-		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), move.ID, officeUser.ID)
+		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, move.ID, officeUser.ID)
 		suite.NoError(err)
 		suite.Len(reports, 2)
 	})
@@ -62,7 +62,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 				SubmittedAt:  swag.Time(time.Now()),
 			},
 		})
-		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), move.ID, officeUser.ID)
+		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, move.ID, officeUser.ID)
 		suite.NoError(err)
 		suite.Len(reports, 1)
 		suite.Equal(report.ID, reports[0].ID)
@@ -79,7 +79,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 				SubmittedAt:  nil,
 			},
 		})
-		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), move.ID, officeUser.ID)
+		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, move.ID, officeUser.ID)
 		suite.NoError(err)
 		suite.Empty(reports)
 	})
@@ -102,8 +102,60 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 				DeletedAt:    swag.Time(time.Now()),
 			},
 		})
-		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), move.ID, officeUser.ID)
+		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, move.ID, officeUser.ID)
 		suite.NoError(err)
 		suite.Empty(reports)
+	})
+	suite.Run("fetch counseling reports should only return counseling reports", func() {
+		fetcher := NewEvaluationReportListFetcher()
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		otherOfficeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		counselingReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
+			EvaluationReport: models.EvaluationReport{
+				MoveID:       move.ID,
+				OfficeUserID: otherOfficeUser.ID,
+				SubmittedAt:  swag.Time(time.Now()),
+			},
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{Move: move})
+		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
+			EvaluationReport: models.EvaluationReport{
+				MoveID:       move.ID,
+				OfficeUserID: otherOfficeUser.ID,
+				SubmittedAt:  swag.Time(time.Now()),
+			},
+			MTOShipment: shipment,
+		})
+		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, move.ID, officeUser.ID)
+		suite.NoError(err)
+		suite.Len(reports, 1)
+		suite.Equal(counselingReport.ID, reports[0].ID)
+	})
+	suite.Run("fetch shipment reports should only return shipment reports", func() {
+		fetcher := NewEvaluationReportListFetcher()
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		otherOfficeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
+			EvaluationReport: models.EvaluationReport{
+				MoveID:       move.ID,
+				OfficeUserID: otherOfficeUser.ID,
+				SubmittedAt:  swag.Time(time.Now()),
+			},
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{Move: move})
+		shipmentReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
+			EvaluationReport: models.EvaluationReport{
+				MoveID:       move.ID,
+				OfficeUserID: otherOfficeUser.ID,
+				SubmittedAt:  swag.Time(time.Now()),
+			},
+			MTOShipment: shipment,
+		})
+		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeShipment, move.ID, officeUser.ID)
+		suite.NoError(err)
+		suite.Len(reports, 1)
+		suite.Equal(shipmentReport.ID, reports[0].ID)
 	})
 }

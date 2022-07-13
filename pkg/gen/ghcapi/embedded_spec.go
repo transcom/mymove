@@ -1663,17 +1663,17 @@ func init() {
         }
       ]
     },
-    "/moves/{moveID}/evaluation-reports": {
+    "/moves/{moveID}/counseling-evaluation-reports-list": {
       "get": {
-        "description": "Returns the evaluation reports for the specified move that are visible to the current office user",
+        "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
         "produces": [
           "application/json"
         ],
         "tags": [
           "move"
         ],
-        "summary": "Returns the evaluation reports for the specified move that are visible to the current office user",
-        "operationId": "getMoveEvaluationReports",
+        "summary": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
+        "operationId": "getMoveCounselingEvaluationReportsList",
         "responses": {
           "200": {
             "description": "Successfully retrieved the move's evaluation reports",
@@ -1784,6 +1784,52 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "ID of move to flag",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/shipment-evaluation-reports-list": {
+      "get": {
+        "description": "Returns shipment evaluation reports for the specified move that are visible to the current office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns shipment evaluation reports for the specified move that are visible to the current office user",
+        "operationId": "getMoveShipmentEvaluationReportsList",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the move's evaluation reports",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReports"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "Code used to identify a move in the system",
           "name": "moveID",
           "in": "path",
           "required": true
@@ -9467,17 +9513,17 @@ func init() {
         }
       ]
     },
-    "/moves/{moveID}/evaluation-reports": {
+    "/moves/{moveID}/counseling-evaluation-reports-list": {
       "get": {
-        "description": "Returns the evaluation reports for the specified move that are visible to the current office user",
+        "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
         "produces": [
           "application/json"
         ],
         "tags": [
           "move"
         ],
-        "summary": "Returns the evaluation reports for the specified move that are visible to the current office user",
-        "operationId": "getMoveEvaluationReports",
+        "summary": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
+        "operationId": "getMoveCounselingEvaluationReportsList",
         "responses": {
           "200": {
             "description": "Successfully retrieved the move's evaluation reports",
@@ -9618,6 +9664,67 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "ID of move to flag",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/shipment-evaluation-reports-list": {
+      "get": {
+        "description": "Returns shipment evaluation reports for the specified move that are visible to the current office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns shipment evaluation reports for the specified move that are visible to the current office user",
+        "operationId": "getMoveShipmentEvaluationReportsList",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the move's evaluation reports",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReports"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "Code used to identify a move in the system",
           "name": "moveID",
           "in": "path",
           "required": true

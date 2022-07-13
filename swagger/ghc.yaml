@@ -179,7 +179,7 @@ paths:
         string
       summary: Returns the history of an identified move
       operationId: getMoveHistory
-  /moves/{moveID}/evaluation-reports:
+  /moves/{moveID}/shipment-evaluation-reports-list:
     parameters:
       - description: Code used to identify a move in the system
         in: path
@@ -208,12 +208,47 @@ paths:
       tags:
         - move
       description: >-
-        Returns the evaluation reports for the specified move that are visible
-        to the current office user
+        Returns shipment evaluation reports for the specified move that are
+        visible to the current office user
       summary: >-
-        Returns the evaluation reports for the specified move that are visible
-        to the current office user
-      operationId: getMoveEvaluationReports
+        Returns shipment evaluation reports for the specified move that are
+        visible to the current office user
+      operationId: getMoveShipmentEvaluationReportsList
+  /moves/{moveID}/counseling-evaluation-reports-list:
+    parameters:
+      - description: Code used to identify a move in the system
+        in: path
+        name: moveID
+        required: true
+        type: string
+        format: uuid
+    get:
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully retrieved the move's evaluation reports
+          schema:
+            $ref: '#/definitions/EvaluationReports'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: >-
+        Returns counseling evaluation reports for the specified move that are
+        visible to the current office user
+      summary: >-
+        Returns counseling evaluation reports for the specified move that are
+        visible to the current office user
+      operationId: getMoveCounselingEvaluationReportsList
   /counseling/orders/{orderID}:
     parameters:
       - description: ID of order to update

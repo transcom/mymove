@@ -17,7 +17,7 @@ func NewEvaluationReportListFetcher() services.EvaluationReportListFetcher {
 	return &evaluationReportListFetcher{}
 }
 
-func (f *evaluationReportListFetcher) FetchEvaluationReports(appCtx appcontext.AppContext, moveID uuid.UUID, officeUserID uuid.UUID) (models.EvaluationReports, error) {
+func (f *evaluationReportListFetcher) FetchEvaluationReports(appCtx appcontext.AppContext, reportType models.EvaluationReportType, moveID uuid.UUID, officeUserID uuid.UUID) (models.EvaluationReports, error) {
 	reports := models.EvaluationReports{}
 	if moveID == uuid.Nil {
 		return nil, apperror.NewBadDataError("moveID must be provided")
@@ -29,6 +29,7 @@ func (f *evaluationReportListFetcher) FetchEvaluationReports(appCtx appcontext.A
 	err := appCtx.DB().
 		Scope(utilities.ExcludeDeletedScope()).
 		Where("move_id = ?", moveID).
+		Where("type = ?", reportType).
 		Where("(submitted_at IS NOT NULL OR office_user_id = ?)", officeUserID).
 		Order("submitted_at ASC, created_at ASC").
 		All(&reports)

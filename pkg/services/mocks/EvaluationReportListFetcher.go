@@ -16,13 +16,13 @@ type EvaluationReportListFetcher struct {
 	mock.Mock
 }
 
-// FetchEvaluationReports provides a mock function with given fields: appCtx, moveID, officeUserID
-func (_m *EvaluationReportListFetcher) FetchEvaluationReports(appCtx appcontext.AppContext, moveID uuid.UUID, officeUserID uuid.UUID) (models.EvaluationReports, error) {
-	ret := _m.Called(appCtx, moveID, officeUserID)
+// FetchEvaluationReports provides a mock function with given fields: appCtx, reportType, moveID, officeUserID
+func (_m *EvaluationReportListFetcher) FetchEvaluationReports(appCtx appcontext.AppContext, reportType models.EvaluationReportType, moveID uuid.UUID, officeUserID uuid.UUID) (models.EvaluationReports, error) {
+	ret := _m.Called(appCtx, reportType, moveID, officeUserID)
 
 	var r0 models.EvaluationReports
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) models.EvaluationReports); ok {
-		r0 = rf(appCtx, moveID, officeUserID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.EvaluationReportType, uuid.UUID, uuid.UUID) models.EvaluationReports); ok {
+		r0 = rf(appCtx, reportType, moveID, officeUserID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.EvaluationReports)
@@ -30,8 +30,8 @@ func (_m *EvaluationReportListFetcher) FetchEvaluationReports(appCtx appcontext.
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) error); ok {
-		r1 = rf(appCtx, moveID, officeUserID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.EvaluationReportType, uuid.UUID, uuid.UUID) error); ok {
+		r1 = rf(appCtx, reportType, moveID, officeUserID)
 	} else {
 		r1 = ret.Error(1)
 	}

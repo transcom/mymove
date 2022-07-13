@@ -3,6 +3,8 @@ package ghcapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -12,29 +14,56 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// GetEvaluationReportsHandler gets a move by locator
-type GetEvaluationReportsHandler struct {
+// GetShipmentEvaluationReportsHandler gets a list of shipment evaluation reports for a given move
+type GetShipmentEvaluationReportsHandler struct {
 	handlers.HandlerConfig
 	services.EvaluationReportListFetcher
 }
 
-// Handle handles the getEvaluationReports by locator request
-func (h GetEvaluationReportsHandler) Handle(params moveop.GetMoveEvaluationReportsParams) middleware.Responder {
+// Handle handles getShipmentEvaluationReports by move request
+func (h GetShipmentEvaluationReportsHandler) Handle(params moveop.GetMoveShipmentEvaluationReportsListParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() {
 				err := apperror.NewForbiddenError("not an office user")
 				appCtx.Logger().Error(err.Error())
-				return moveop.NewGetMoveEvaluationReportsForbidden(), err
+				return moveop.NewGetMoveShipmentEvaluationReportsListForbidden(), err
 			}
 
-			reports, err := h.FetchEvaluationReports(appCtx, handlers.FmtUUIDToPop(params.MoveID), appCtx.Session().OfficeUserID)
+			reports, err := h.FetchEvaluationReports(appCtx, models.EvaluationReportTypeShipment, handlers.FmtUUIDToPop(params.MoveID), appCtx.Session().OfficeUserID)
 			if err != nil {
-				return moveop.NewGetMoveEvaluationReportsInternalServerError(), err
+				return moveop.NewGetMoveShipmentEvaluationReportsListInternalServerError(), err
 			}
 
 			payload := payloads.EvaluationReports(reports)
-			return moveop.NewGetMoveEvaluationReportsOK().WithPayload(payload), nil
+			return moveop.NewGetMoveShipmentEvaluationReportsListOK().WithPayload(payload), nil
+		},
+	)
+}
+
+// GetCounselingEvaluationReportsHandler gets a list of shipment evaluation reports for a given move
+type GetCounselingEvaluationReportsHandler struct {
+	handlers.HandlerConfig
+	services.EvaluationReportListFetcher
+}
+
+// Handle handles getCounselingEvaluationReports by move request
+func (h GetCounselingEvaluationReportsHandler) Handle(params moveop.GetMoveCounselingEvaluationReportsListParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() {
+				err := apperror.NewForbiddenError("not an office user")
+				appCtx.Logger().Error(err.Error())
+				return moveop.NewGetMoveCounselingEvaluationReportsListForbidden(), err
+			}
+
+			reports, err := h.FetchEvaluationReports(appCtx, models.EvaluationReportTypeCounseling, handlers.FmtUUIDToPop(params.MoveID), appCtx.Session().OfficeUserID)
+			if err != nil {
+				return moveop.NewGetMoveCounselingEvaluationReportsListInternalServerError(), err
+			}
+
+			payload := payloads.EvaluationReports(reports)
+			return moveop.NewGetMoveCounselingEvaluationReportsListOK().WithPayload(payload), nil
 		},
 	)
 }

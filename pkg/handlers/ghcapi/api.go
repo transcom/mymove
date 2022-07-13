@@ -80,7 +80,12 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		CustomerSupportRemarkDeleter: customerserviceremarks.NewCustomerSupportRemarkDeleter(),
 	}
 
-	ghcAPI.MoveGetMoveEvaluationReportsHandler = GetEvaluationReportsHandler{
+	ghcAPI.MoveGetMoveCounselingEvaluationReportsListHandler = GetCounselingEvaluationReportsHandler{
+		HandlerConfig:               handlerConfig,
+		EvaluationReportListFetcher: evaluationreport.NewEvaluationReportListFetcher(),
+	}
+
+	ghcAPI.MoveGetMoveShipmentEvaluationReportsListHandler = GetShipmentEvaluationReportsHandler{
 		HandlerConfig:               handlerConfig,
 		EvaluationReportListFetcher: evaluationreport.NewEvaluationReportListFetcher(),
 	}
