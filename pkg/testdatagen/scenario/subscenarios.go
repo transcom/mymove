@@ -228,6 +228,26 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			MoveTaskOrderID: move.ID,
 			Status:          models.MTOShipmentStatusSubmitted,
 		}})
+		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
+
+		storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
+			StorageFacility: models.StorageFacility{
+				FacilityName: "Storage R Us",
+			},
+		})
+
+		testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				StorageFacility: &storageFacility,
+			},
+		})
+		testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				StorageFacility: &storageFacility,
+			},
+		})
 
 		officeUser := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
 		submittedTime := time.Now()
