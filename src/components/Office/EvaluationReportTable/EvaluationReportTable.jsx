@@ -2,6 +2,8 @@ import React from 'react';
 import { Tag } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
 
+import { EvaluationReportShape } from 'types/evaluationReport';
+
 const EvaluationReportTable = ({ reports }) => {
   const row = (report) => {
     return (
@@ -42,7 +44,7 @@ const EvaluationReportTable = ({ reports }) => {
 };
 
 EvaluationReportTable.propTypes = {
-  reports: PropTypes.arrayOf(PropTypes.object),
+  reports: PropTypes.arrayOf(EvaluationReportShape),
 };
 
 EvaluationReportTable.defaultProps = {
