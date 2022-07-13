@@ -233,6 +233,50 @@ func (o *CreateWeightTicketNotFound) WriteResponse(rw http.ResponseWriter, produ
 	}
 }
 
+// CreateWeightTicketUnprocessableEntityCode is the HTTP code returned for type CreateWeightTicketUnprocessableEntity
+const CreateWeightTicketUnprocessableEntityCode int = 422
+
+/*CreateWeightTicketUnprocessableEntity The payload was unprocessable.
+
+swagger:response createWeightTicketUnprocessableEntity
+*/
+type CreateWeightTicketUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewCreateWeightTicketUnprocessableEntity creates CreateWeightTicketUnprocessableEntity with default headers values
+func NewCreateWeightTicketUnprocessableEntity() *CreateWeightTicketUnprocessableEntity {
+
+	return &CreateWeightTicketUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the create weight ticket unprocessable entity response
+func (o *CreateWeightTicketUnprocessableEntity) WithPayload(payload *internalmessages.ValidationError) *CreateWeightTicketUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create weight ticket unprocessable entity response
+func (o *CreateWeightTicketUnprocessableEntity) SetPayload(payload *internalmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateWeightTicketUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // CreateWeightTicketInternalServerErrorCode is the HTTP code returned for type CreateWeightTicketInternalServerError
 const CreateWeightTicketInternalServerErrorCode int = 500
 

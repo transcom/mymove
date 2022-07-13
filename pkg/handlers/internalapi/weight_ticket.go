@@ -51,7 +51,7 @@ func (h CreateWeightTicketHandler) Handle(params weightticketops.CreateWeightTic
 				// Can get an error for whether the PPM exist
 				switch err.(type) {
 				case apperror.InvalidInputError:
-					return weightticketops.NewCreateWeightTicketUnauthorized(), err
+					return weightticketops.NewCreateWeightTicketUnprocessableEntity(), err
 				case apperror.ForbiddenError:
 					return weightticketops.NewCreateWeightTicketForbidden(), err
 				case apperror.NotFoundError:
