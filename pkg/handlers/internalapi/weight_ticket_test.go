@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 		db := appCtx.DB()
 
 		subtestData.ppmShipment = testdatagen.MakePPMShipment(db, testdatagen.Assertions{})
-		endpoint := fmt.Sprintf("%s/weight_ticket", subtestData.ppmShipment.ID.String())
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/weight_ticket", subtestData.ppmShipment.ID.String())
 		req := httptest.NewRequest("POST", endpoint, nil)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 		if authenticateRequest {
@@ -58,8 +58,6 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 		appCtx := suite.AppContextForTest()
 
 		subtestData := makeCreateSubtestData(appCtx, true)
-
-		//params := subtestData.params
 
 		response := subtestData.handler.Handle(subtestData.params)
 
