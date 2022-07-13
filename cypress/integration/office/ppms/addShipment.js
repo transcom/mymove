@@ -64,6 +64,7 @@ describe('Services counselor user', () => {
     cy.get('input[name="spouseProGearWeight"]').type(500).blur();
 
     cy.get('button[data-testid="submitForm"]:enabled').click();
+    cy.wait(5000);
 
     // Fill out page two
     cy.get('input[name="advance"]').clear().type('2100').blur();
