@@ -16,3 +16,4 @@ export const PRIME_SIMULATOR_AVAILABLE_MOVES = 'listMoves';
 export const PRIME_SIMULATOR_MOVE = 'primeMove';
 export const CUSTOMER_SUPPORT_REMARKS = 'customerSupportRemarks';
 export const QAE_CSR_MOVE_SEARCH = 'qaeCSRMoveSearch';
+export const EVALUATION_REPORTS = 'evaluationReports';
