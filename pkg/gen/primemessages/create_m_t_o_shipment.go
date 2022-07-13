@@ -27,6 +27,10 @@ type CreateMTOShipment struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
+	// counselor remarks
+	// Example: counselor approved
+	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
+
 	// The customer can use the customer remarks field to inform the services counselor and the movers about any
 	// special circumstances for this shipment. Typical examples:
 	//   * bulky or fragile items,
@@ -97,6 +101,8 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	var data struct {
 		Agents MTOAgents `json:"agents,omitempty"`
 
+		CounselorRemarks *string `json:"counselorRemarks,omitempty"`
+
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 		DestinationAddress struct {
@@ -145,6 +151,9 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	// agents
 	result.Agents = data.Agents
 
+	// counselorRemarks
+	result.CounselorRemarks = data.CounselorRemarks
+
 	// customerRemarks
 	result.CustomerRemarks = data.CustomerRemarks
 
@@ -190,6 +199,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 		Agents MTOAgents `json:"agents,omitempty"`
 
+		CounselorRemarks *string `json:"counselorRemarks,omitempty"`
+
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 		DestinationAddress struct {
@@ -216,6 +227,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 	}{
 
 		Agents: m.Agents,
+
+		CounselorRemarks: m.CounselorRemarks,
 
 		CustomerRemarks: m.CustomerRemarks,
 

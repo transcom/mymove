@@ -129,9 +129,10 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 	}
 
 	model := &models.MTOShipment{
-		MoveTaskOrderID: uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
-		CustomerRemarks: mtoShipment.CustomerRemarks,
-		Diversion:       bool(mtoShipment.Diversion),
+		MoveTaskOrderID:  uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
+		CustomerRemarks:  mtoShipment.CustomerRemarks,
+		Diversion:        mtoShipment.Diversion,
+		CounselorRemarks: mtoShipment.CounselorRemarks,
 	}
 
 	if mtoShipment.ShipmentType != nil {

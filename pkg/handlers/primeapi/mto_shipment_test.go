@@ -132,6 +132,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler, move := setupTestData()
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
+		counselorRemarks := "Some counselor remarks"
 		expectedDepartureDate := time.Now().AddDate(0, 0, 10)
 		pickupPostalCode := "30907"
 		secondaryPickupPostalCode := "30809"
@@ -151,8 +152,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreateMTOShipment{
-				MoveTaskOrderID: handlers.FmtUUID(move.ID),
-				ShipmentType:    primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypePPM),
+				MoveTaskOrderID:  handlers.FmtUUID(move.ID),
+				ShipmentType:     primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypePPM),
+				CounselorRemarks: &counselorRemarks,
 				PpmShipment: &primemessages.CreatePPMShipment{
 					ExpectedDepartureDate:          handlers.FmtDate(expectedDepartureDate),
 					PickupPostalCode:               &pickupPostalCode,
@@ -191,6 +193,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(move.ID.String(), createdShipment.MoveTaskOrderID.String())
 		suite.Equal(primemessages.MTOShipmentTypePPM, createdShipment.ShipmentType)
 		suite.Equal(primemessages.MTOShipmentStatusSUBMITTED, createdShipment.Status)
+		suite.Equal(&counselorRemarks, createdShipment.CounselorRemarks)
 
 		suite.Equal(createdShipment.ID.String(), createdPPM.ShipmentID.String())
 		suite.Equal(primemessages.PPMShipmentStatusSUBMITTED, createdPPM.Status)
