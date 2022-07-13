@@ -66,6 +66,7 @@ export const tooRoutes = {
 
 export const qaeCSRRoutes = {
   MOVE_SEARCH_PATH: '/qaecsr/search',
+  EVALUATION_REPORTS_PATH: '/moves/:moveCode/evaluation-reports',
 };
 
 // README: Prime API endpoints accept either a Move code or ID.
