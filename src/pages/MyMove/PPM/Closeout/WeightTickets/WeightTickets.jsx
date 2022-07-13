@@ -36,7 +36,7 @@ const WeightTickets = () => {
       createWeightTicket(mtoShipmentId)
         .then((resp) => {
           if (mtoShipment?.ppmShipment?.weightTickets) {
-            mtoShipment?.ppmShipment?.weightTickets.push(resp);
+            mtoShipment.ppmShipment.weightTickets.push(resp);
           } else {
             mtoShipment.ppmShipment.weightTickets = [resp];
           }
