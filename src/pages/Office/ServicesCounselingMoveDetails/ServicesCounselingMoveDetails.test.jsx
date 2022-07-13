@@ -395,19 +395,6 @@ describe('MoveDetails page', () => {
         expect(addressText).toContain(postalCode);
       }
 
-      const secondDestinationAddressTerms = screen.getAllByText('Second destination address');
-
-      // This is not a required field, and only one of our shipments has it filled out:
-      expect(secondDestinationAddressTerms.length).toBe(1);
-
-      const { streetAddress1, city, state, postalCode } = newMoveDetailsQuery.mtoShipments[0].secondaryDeliveryAddress;
-      const addressText = secondDestinationAddressTerms[0].nextElementSibling.textContent;
-
-      expect(addressText).toContain(streetAddress1);
-      expect(addressText).toContain(city);
-      expect(addressText).toContain(state);
-      expect(addressText).toContain(postalCode);
-
       const counselorRemarksTerms = screen.getAllByText('Counselor remarks');
 
       expect(counselorRemarksTerms.length).toBe(2);
