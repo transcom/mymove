@@ -16,6 +16,7 @@ import {
   getCustomer,
   getShipmentsPaymentSITBalance,
   getCustomerSupportRemarksForMove,
+  getEvaluationReports,
   searchMoves,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
@@ -40,6 +41,7 @@ import {
   PRIME_SIMULATOR_MOVE,
   CUSTOMER_SUPPORT_REMARKS,
   QAE_CSR_MOVE_SEARCH,
+  EVALUATION_REPORTS,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -363,6 +365,31 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
   };
 };
 
+export const useEvaluationReportsQueries = (moveCode) => {
+  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const moveId = move?.id;
+
+  const { data: shipments, ...shipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
+    enabled: !!moveId,
+  });
+  const { data: evaluationReports, ...evaluationReportsQuery } = useQuery(
+    [EVALUATION_REPORTS, moveId],
+    getEvaluationReports,
+    {
+      enabled: !!moveId,
+    },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, shipmentQuery, evaluationReportsQuery]);
+  return {
+    move,
+    shipments,
+    evaluationReports,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
 export const useMoveDetailsQueries = (moveCode) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
   const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
