@@ -50,10 +50,12 @@ func (h CreateWeightTicketHandler) Handle(params weightticketops.CreateWeightTic
 				// Can get an DB error - does the weight ticket, doc create?
 				// Can get an error for whether the PPM exist
 				switch err.(type) {
+				case apperror.InvalidInputError:
+					return weightticketops.NewCreateWeightTicketUnauthorized(), err
 				case apperror.ForbiddenError:
 					return weightticketops.NewCreateWeightTicketForbidden(), err
-				case apperror.UnprocessableEntityError:
-					return weightticketops.NewCreateWeightTicketUnauthorized(), err
+				case apperror.NotFoundError:
+					return weightticketops.NewCreateWeightTicketNotFound(), err
 				default:
 					return weightticketops.NewCreateWeightTicketInternalServerError(), err
 				}

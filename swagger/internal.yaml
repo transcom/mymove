@@ -4987,6 +4987,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '403':
           $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}:

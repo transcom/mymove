@@ -189,6 +189,50 @@ func (o *CreateWeightTicketForbidden) WriteResponse(rw http.ResponseWriter, prod
 	}
 }
 
+// CreateWeightTicketNotFoundCode is the HTTP code returned for type CreateWeightTicketNotFound
+const CreateWeightTicketNotFoundCode int = 404
+
+/*CreateWeightTicketNotFound The requested resource wasn't found.
+
+swagger:response createWeightTicketNotFound
+*/
+type CreateWeightTicketNotFound struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ClientError `json:"body,omitempty"`
+}
+
+// NewCreateWeightTicketNotFound creates CreateWeightTicketNotFound with default headers values
+func NewCreateWeightTicketNotFound() *CreateWeightTicketNotFound {
+
+	return &CreateWeightTicketNotFound{}
+}
+
+// WithPayload adds the payload to the create weight ticket not found response
+func (o *CreateWeightTicketNotFound) WithPayload(payload *internalmessages.ClientError) *CreateWeightTicketNotFound {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create weight ticket not found response
+func (o *CreateWeightTicketNotFound) SetPayload(payload *internalmessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateWeightTicketNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(404)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // CreateWeightTicketInternalServerErrorCode is the HTTP code returned for type CreateWeightTicketInternalServerError
 const CreateWeightTicketInternalServerErrorCode int = 500
 
