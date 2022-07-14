@@ -10,7 +10,8 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const EvaluationReports = () => {
   const { moveCode } = useParams();
-  const { evaluationReports, shipments, isLoading, isError } = useEvaluationReportsQueries(moveCode);
+  const { shipmentEvaluationReports, counselingEvaluationReports, shipments, isLoading, isError } =
+    useEvaluationReportsQueries(moveCode);
 
   if (isLoading) {
     return <LoadingPlaceholder />;
@@ -26,10 +27,10 @@ const EvaluationReports = () => {
       </Grid>
       <Grid row>
         <h2>Counseling QAE reports (?)</h2>
-        <EvaluationReportTable reports={evaluationReports.filter((r) => r.type === 'COUNSELING')} />
+        <EvaluationReportTable reports={counselingEvaluationReports} />
       </Grid>
       <Grid row>
-        <ShipmentEvaluationReports reports={evaluationReports} shipments={shipments} />
+        <ShipmentEvaluationReports reports={shipmentEvaluationReports} shipments={shipments} />
       </Grid>
     </GridContainer>
   );
