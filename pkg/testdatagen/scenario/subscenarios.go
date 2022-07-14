@@ -236,7 +236,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			},
 		})
 
-		testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
+		ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
 				StorageFacility: &storageFacility,
@@ -251,14 +251,21 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 
 		officeUser := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
 		submittedTime := time.Now()
+		dataReviewInspection := models.EvaluationReportInspectionTypeDataReview
+		physicalInspection := models.EvaluationReportInspectionTypePhysical
+		virtualInspection := models.EvaluationReportInspectionTypeVirtual
+
 		remark := "this is a submitted counseling report"
 		location := models.EvaluationReportLocationTypeOrigin
 		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
-				SubmittedAt:        &submittedTime,
-				Location:           &location,
-				ViolationsObserved: swag.Bool(false),
-				Remarks:            &remark,
+				SubmittedAt:             &submittedTime,
+				InspectionDate:          &submittedTime,
+				InspectionType:          &dataReviewInspection,
+				Location:                &location,
+				EvaluationLengthMinutes: swag.Int(45),
+				ViolationsObserved:      swag.Bool(false),
+				Remarks:                 &remark,
 			},
 			Move:       move,
 			OfficeUser: officeUser,
@@ -275,10 +282,13 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		remark2 := "this is a submitted shipment report"
 		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
-				SubmittedAt:        &submittedTime,
-				Location:           &location,
-				ViolationsObserved: swag.Bool(true),
-				Remarks:            &remark2,
+				SubmittedAt:             &submittedTime,
+				InspectionDate:          &submittedTime,
+				InspectionType:          &virtualInspection,
+				EvaluationLengthMinutes: swag.Int(45),
+				Location:                &location,
+				ViolationsObserved:      swag.Bool(true),
+				Remarks:                 &remark2,
 			},
 			Move:        move,
 			OfficeUser:  officeUser,
@@ -292,6 +302,26 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			Move:        move,
 			OfficeUser:  officeUser,
 			MTOShipment: shipment,
+		})
+
+		location = models.EvaluationReportLocationTypeOther
+		locationDescription := "Route 66 at crash inspection site 3"
+		remark = "this is a submitted NTS shipment report"
+		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
+			EvaluationReport: models.EvaluationReport{
+				SubmittedAt:             &submittedTime,
+				InspectionDate:          &submittedTime,
+				InspectionType:          &physicalInspection,
+				TravelTimeMinutes:       swag.Int(60),
+				EvaluationLengthMinutes: swag.Int(45),
+				Location:                &location,
+				LocationDescription:     &locationDescription,
+				ViolationsObserved:      swag.Bool(true),
+				Remarks:                 &remark,
+			},
+			Move:        move,
+			OfficeUser:  officeUser,
+			MTOShipment: ntsShipment,
 		})
 	}
 }
