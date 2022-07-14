@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Grid, GridContainer } from '@trussworks/react-uswds';
+import { Button, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import { useEvaluationReportsQueries } from 'hooks/queries';
 import ShipmentEvaluationReports from 'components/Office/EvaluationReportTable/ShipmentEvaluationReports';
@@ -27,6 +27,7 @@ const EvaluationReports = () => {
       </Grid>
       <Grid row>
         <h2>Counseling QAE reports ({counselingEvaluationReports.length})</h2>
+        <Button>Create report</Button>
         <EvaluationReportTable reports={counselingEvaluationReports} />
       </Grid>
       <Grid row>
