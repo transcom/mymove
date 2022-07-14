@@ -18,7 +18,7 @@
     .addButtonContainer {
       @include u-flex(auto);
 
-      button {
+      a {
         @include u-margin-bottom(0);
         @include u-margin-right(0);
       }
@@ -26,13 +26,12 @@
   }
 
   .contentsContainer {
-    @include u-display(flex);
-
     .subheadingWrapper {
       @include u-margin-top(2);
       @include u-padding(3);
-      border: 1px solid $border-color;
-      border-radius: 3px;
+      @include u-border(1px, solid);
+      @include u-radius(3px);
+      border-color: $border-color;
 
       h1, h2, h3, h4, h5, h6, dl {
         @include u-margin-top(0);
@@ -56,12 +55,16 @@
       @include u-margin-top(2);
       @include u-flex(auto);
 
+      a {
+        @include u-font-size('body', 'xs');
+      }
+
       button {
         @include u-padding-x(0);
         @include u-display(inline);
       }
 
-      .actionSeparater{
+      .actionSeparator{
         @include u-margin-x(1);
       }
     }
@@ -81,5 +84,17 @@
     dt {
       @include u-margin-right('05');
     }
+  }
+
+  :global(.usa-button--secondary:visited) {
+    color: $primary;
+  }
+
+  :global(.usa-button--secondary:hover) {
+    color: $primary-dark;
+  }
+
+  :global(.usa-button--secondary:hover) {
+    text-decoration: none;
   }
 }

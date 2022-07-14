@@ -1,9 +1,9 @@
 import React from 'react';
-import { Button, GridContainer, Grid } from '@trussworks/react-uswds';
-import { Link, useParams } from 'react-router-dom';
+import { GridContainer, Grid } from '@trussworks/react-uswds';
+import { Link, useParams, generatePath } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { generatePath } from 'react-router';
 import classnames from 'classnames';
+import { v4 as uuidv4 } from 'uuid';
 
 import styles from './Review.module.scss';
 
@@ -13,69 +13,125 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { customerRoutes } from 'constants/routes';
-import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import ReviewItems from 'components/Customer/PPM/Closeout/ReviewItems/ReviewItems';
+import {
+  formatAboutYourPPMItem,
+  formatExpenseItems,
+  formatProGearItems,
+  formatWeightTicketItems,
+} from 'utils/closeout';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { formatCents, formatWeight } from 'utils/formatters';
 
 const Review = () => {
   const { moveId, mtoShipmentId } = useParams();
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
-  const {
-    actualMoveDate,
-    actualPickupPostalCode,
-    actualDestinationPostalCode,
-    hasReceivedAdvance,
-    advanceAmountRequested,
-  } = mtoShipment?.ppmShipment || {};
-
-  const aboutEditPath = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, { moveId, mtoShipmentId });
-
-  const handleAdd = () => {};
-
-  const handleDelete = () => {};
-
-  const aboutYourPPM = [
-    {
-      rows: [
-        { id: 'departureDate', label: 'Departure date:', value: formatCustomerDate(actualMoveDate), hideLabel: true },
-        { id: 'startingZIP', label: 'Starting ZIP:', value: actualPickupPostalCode },
-        { id: 'endingZIP', label: 'Ending ZIP:', value: actualDestinationPostalCode },
-        {
-          id: 'advance',
-          label: 'Advance:',
-          value: hasReceivedAdvance ? `Yes, $${formatCentsTruncateWhole(advanceAmountRequested)}` : 'No',
-        },
-      ],
-      renderEditLink: () => (
-        <Link to={aboutEditPath} className="font-body-xs">
-          Edit
-        </Link>
-      ),
-    },
-  ];
-
   const weightTickets = [
     {
-      subheading: <h4 className="text-bold">Trip 1</h4>,
-      rows: [
-        { id: 'vehicleDescription-1', label: 'Vehicle description:', value: 'DMC Delorean', hideLabel: true },
-        { id: 'emptyWeight-1', label: 'Empty:', value: formatWeight(500) },
-        { id: 'fullWeight-1', label: 'Full:', value: formatWeight(1500) },
-        {
-          id: 'tripWeight-1',
-          label: 'Trip Weight:',
-          value: formatWeight(1000),
-        },
-      ],
-      onDelete: handleDelete,
-      renderEditLink: () => (
-        <Link to={aboutEditPath} className="font-body-xs">
-          Edit
-        </Link>
-      ),
+      id: uuidv4(),
+      vehicleDescription: 'DMC Delorean',
+      emptyWeight: 2500,
+      fullWeight: 3500,
+    },
+    {
+      id: uuidv4(),
+      vehicleDescription: 'PT Cruiser',
+      emptyWeight: 2725,
+      fullWeight: 3250,
     },
   ];
+
+  const proGear = [
+    {
+      id: uuidv4(),
+      selfProGear: true,
+      description: 'Radio equipment',
+      hasWeightTickets: true,
+      emptyWeight: 740,
+      fullWeight: 1643,
+    },
+    {
+      id: uuidv4(),
+      selfProGear: false,
+      description: 'Training manuals',
+      hasWeightTickets: false,
+      constructedWeight: 328,
+    },
+  ];
+
+  const expenses = [
+    {
+      id: uuidv4(),
+      type: 'Packing materials',
+      description: 'Packing peanuts',
+      amount: 78954,
+    },
+    {
+      id: uuidv4(),
+      type: 'Storage',
+      description: 'Single unit 100ft²',
+      amount: 147892,
+      startDate: '2022-07-04',
+      endDate: '2022-07-11',
+    },
+  ];
+
+  if (!mtoShipment) {
+    return <LoadingPlaceholder />;
+  }
+
+  const aboutEditPath = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, { moveId, mtoShipmentId });
+  const weightTicketCreatePath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
+    moveId,
+    mtoShipmentId,
+  });
+  const proGearCreatePath = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH, { moveId, mtoShipmentId });
+  const expensesCreatePath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_PATH, { moveId, mtoShipmentId });
+  const handleDelete = () => {};
+
+  const aboutYourPPM = formatAboutYourPPMItem(
+    mtoShipment?.ppmShipment,
+    <Link to={aboutEditPath} className="font-body-xs">
+      Edit
+    </Link>,
+  );
+
+  const weightTicketContents = formatWeightTicketItems(
+    weightTickets,
+    customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH,
+    { moveId, mtoShipmentId },
+    handleDelete,
+  );
+
+  const weightTicketsTotal = weightTickets?.reduce((prev, curr) => prev + (curr.fullWeight - curr.emptyWeight), 0);
+
+  const proGearContents = formatProGearItems(
+    proGear,
+    customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH,
+    { moveId, mtoShipmentId },
+    handleDelete,
+  );
+
+  const proGearTotal = proGear?.reduce((prev, curr) => {
+    if (curr.constructedWeight) {
+      return prev + curr.constructedWeight;
+    }
+    return prev + (curr.fullWeight - curr.emptyWeight);
+  }, 0);
+
+  const expenseContents = formatExpenseItems(
+    expenses,
+    customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH,
+    {
+      moveId,
+      mtoShipmentId,
+    },
+    handleDelete,
+  );
+
+  const expensesTotal = expenses?.reduce((prev, curr) => prev + curr.amount, 0);
 
   return (
     <div className={classnames(ppmPageStyles.ppmPageStyle, styles.PPMReview)}>
@@ -94,14 +150,42 @@ const Review = () => {
                 heading={
                   <>
                     <h3>Weight moved</h3>
-                    <span>(1,000 lbs)</span>
+                    <span>({formatWeight(weightTicketsTotal)})</span>
                   </>
                 }
-                contents={weightTickets}
+                contents={weightTicketContents}
                 renderAddButton={() => (
-                  <Button type="button" secondary onClick={handleAdd}>
+                  <Link className="usa-button usa-button--secondary" to={weightTicketCreatePath}>
                     Add More Weight
-                  </Button>
+                  </Link>
+                )}
+              />
+              <ReviewItems
+                heading={
+                  <>
+                    <h3>Pro-gear</h3>
+                    <span>({formatWeight(proGearTotal)})</span>
+                  </>
+                }
+                contents={proGearContents}
+                renderAddButton={() => (
+                  <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
+                    Add Pro-gear Weight
+                  </Link>
+                )}
+              />
+              <ReviewItems
+                heading={
+                  <>
+                    <h3>Expenses</h3>
+                    <span>(${formatCents(expensesTotal)})</span>
+                  </>
+                }
+                contents={expenseContents}
+                renderAddButton={() => (
+                  <Link className="usa-button usa-button--secondary" to={expensesCreatePath}>
+                    Add Expenses
+                  </Link>
                 )}
               />
             </SectionWrapper>

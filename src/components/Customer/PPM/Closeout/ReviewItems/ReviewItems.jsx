@@ -5,7 +5,7 @@ import classnames from 'classnames';
 
 import styles from './ReviewItems.module.scss';
 
-const ReviewItems = ({ heading, renderAddButton, contents }) => {
+const ReviewItems = ({ heading, renderAddButton, contents, emptyMessage }) => {
   return (
     <div className={styles.ReviewItems}>
       <div className={styles.headingContainer}>
@@ -13,13 +13,21 @@ const ReviewItems = ({ heading, renderAddButton, contents }) => {
         {renderAddButton && <div className={styles.addButtonContainer}>{renderAddButton()}</div>}
       </div>
       <div className={styles.contentsContainer}>
-        {contents.map(({ subheading, rows, onDelete, renderEditLink }) => {
+        {(!contents || contents.length === 0) && (
+          <div className={classnames({ [styles.subheadingWrapper]: !!renderAddButton }, 'display-flex', 'width-full')}>
+            {emptyMessage}
+          </div>
+        )}
+        {contents?.map(({ id, subheading, rows, onDelete, renderEditLink }) => {
           return (
-            <div className={classnames({ [styles.subheadingWrapper]: !!subheading }, 'display-flex', 'width-full')}>
+            <div
+              className={classnames({ [styles.subheadingWrapper]: !!renderAddButton }, 'display-flex', 'width-full')}
+              key={id}
+            >
               {subheading && <div className={styles.subheading}>{subheading}</div>}
               <dl>
-                {rows.map(({ id, hideLabel, label, value }) => (
-                  <div key={id}>
+                {rows.map(({ id: rowId, hideLabel, label, value }) => (
+                  <div key={`${rowId}-${id}`}>
                     <dt className={classnames({ [styles.hiddenTerm]: hideLabel })}>{label}</dt>
                     <dd>{value}</dd>
                   </div>
@@ -31,7 +39,7 @@ const ReviewItems = ({ heading, renderAddButton, contents }) => {
                     <Button type="button" unstyled onClick={onDelete}>
                       Delete
                     </Button>
-                    <span className={styles.actionSeparater}>|</span>
+                    <span className={styles.actionSeparator}>|</span>
                   </>
                 )}
                 {renderEditLink()}
@@ -49,6 +57,7 @@ ReviewItems.propTypes = {
   renderAddButton: func,
   contents: arrayOf(
     shape({
+      id: string.isRequired,
       subheading: element,
       rows: arrayOf(
         shape({
@@ -61,11 +70,14 @@ ReviewItems.propTypes = {
       onDelete: func,
       renderEditLink: func.isRequired,
     }),
-  ).isRequired,
+  ),
+  emptyMessage: string,
 };
 
 ReviewItems.defaultProps = {
   renderAddButton: undefined,
+  contents: undefined,
+  emptyMessage: 'No items to display',
 };
 
 export default ReviewItems;
