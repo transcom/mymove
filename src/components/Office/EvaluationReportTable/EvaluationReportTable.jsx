@@ -12,7 +12,7 @@ const EvaluationReportTable = ({ reports }) => {
         <td>
           {formatQAReportID(report.id)} {report.submittedAt ? null : <Tag>DRAFT</Tag>}
         </td>
-        <td>{formatCustomerDate(report.submittedAt)}</td>
+        <td>{report.submittedAt && formatCustomerDate(report.submittedAt)}</td>
         <td>{formatEvaluationReportLocation(report.location)}</td>
         <td>{report.violations ? 'Yes' : 'No'}</td>
         <td>No</td>
