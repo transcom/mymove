@@ -4,6 +4,8 @@ import os.path
 import sys
 import xml.etree.ElementTree as ET
 
+HELP_URL = "https://transcom.github.io/mymove-docs/docs/frontend/testing/how-to-run-frontend-test-coverage-reports"
+
 if len(sys.argv) != 3:
   print(f"Usage: {sys.argv[0]} baseline_coverage.xml new_coverage.xml")
   sys.exit(1)
@@ -33,4 +35,5 @@ print(f"New test coverage: {new_percent}")
 
 if new_percent < baseline_percent:
   print("Test Coverage has decreased")
+  print(f"Refer to the following to learn how resolve this: {HELP_URL}")
   sys.exit(1)

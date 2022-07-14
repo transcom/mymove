@@ -51,7 +51,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			Stub: true,
 		})
 
-		createdShipment, err := creator.CreateMTOShipment(appCtx, &mtoShipment, nil)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, &mtoShipment)
 
 		suite.Nil(createdShipment)
 		suite.Error(err)
@@ -91,7 +91,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 			mtoShipmentClear.ShipmentType = testCase.shipmentType
 			mtoShipmentClear.RequestedPickupDate = testCase.input
-			_, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, nil)
+			_, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear)
 
 			if testCase.shouldError {
 				if suite.Errorf(err, "should have errored for a %s shipment with requested pickup date set to %s", testCase.shipmentType, testCase.input) {
@@ -116,9 +116,9 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		})
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
-		serviceItemsList := models.MTOServiceItems{}
+		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
 
-		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, serviceItemsList)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear)
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
@@ -139,9 +139,9 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		})
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
-		serviceItemsList := models.MTOServiceItems{}
+		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
 
-		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, serviceItemsList)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear)
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
@@ -165,9 +165,9 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		})
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
-		serviceItemsList := models.MTOServiceItems{}
+		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
 
-		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, serviceItemsList)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear)
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
@@ -195,7 +195,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 
-		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, nil)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear)
 		suite.NoError(err)
 		suite.NotNil(createdShipment.StorageFacility)
 		suite.Equal(storageFacility.Address.StreetAddress1, createdShipment.StorageFacility.Address.StreetAddress1)
@@ -221,7 +221,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 
-		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, nil)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear)
 		if suite.NoError(err) {
 			if suite.NotNil(createdShipment.NTSRecordedWeight) {
 				suite.Equal(ntsRecordedWeight, *createdShipment.NTSRecordedWeight)
@@ -248,7 +248,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 
-		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, nil)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear)
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
@@ -272,7 +272,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		ntsrShipmentNoIDs.RequestedPickupDate = swag.Time(time.Now())
 
 		// We don't need the shipment because it only returns data that wasn't saved.
-		_, err := creator.CreateMTOShipment(appCtx, ntsrShipmentNoIDs, nil)
+		_, err := creator.CreateMTOShipment(appCtx, ntsrShipmentNoIDs)
 
 		if suite.Errorf(err, "should have errored for a %s shipment with ntsRecordedWeight set", ntsrShipmentNoIDs.ShipmentType) {
 			suite.IsType(apperror.InvalidInputError{}, err)
@@ -332,7 +332,9 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		})
 
 		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
-		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear, serviceItemsList)
+		mtoShipmentClear.MTOServiceItems = serviceItemsList
+
+		createdShipment, err := creator.CreateMTOShipment(appCtx, mtoShipmentClear)
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
@@ -375,8 +377,9 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			Stub: true,
 		})
 
-		serviceItemsList := models.MTOServiceItems{}
-		createdShipment, err := creator.CreateMTOShipment(appCtx, &shipment, serviceItemsList)
+		shipment.MTOServiceItems = models.MTOServiceItems{}
+
+		createdShipment, err := creator.CreateMTOShipment(appCtx, &shipment)
 
 		suite.Nil(createdShipment)
 		suite.Error(err)
@@ -403,9 +406,9 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			Stub: true,
 		})
 		cleanShipment := clearShipmentIDFields(&shipment)
-		serviceItemsList := models.MTOServiceItems{}
+		cleanShipment.MTOServiceItems = models.MTOServiceItems{}
 
-		createdShipment, err := creator.CreateMTOShipment(appCtx, cleanShipment, serviceItemsList)
+		createdShipment, err := creator.CreateMTOShipment(appCtx, cleanShipment)
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
@@ -455,7 +458,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 				clearedShipment := clearShipmentIDFields(&mtoShipment)
 
-				createdShipment, err := creator.CreateMTOShipment(appCtx, clearedShipment, nil)
+				createdShipment, err := creator.CreateMTOShipment(appCtx, clearedShipment)
 
 				suite.NoError(err)
 
