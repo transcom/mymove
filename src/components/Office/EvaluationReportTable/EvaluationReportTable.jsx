@@ -2,7 +2,7 @@ import React from 'react';
 import { Tag } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
 
-import { formatQAReportID } from 'utils/formatters';
+import { formatCustomerDate, formatQAReportID } from 'utils/formatters';
 import { EvaluationReportShape } from 'types/evaluationReport';
 
 const EvaluationReportTable = ({ reports }) => {
@@ -10,9 +10,9 @@ const EvaluationReportTable = ({ reports }) => {
     return (
       <tr key={report.id}>
         <td>
-          {formatQAReportID(report.id)} {report.submitted_at ? null : <Tag>DRAFT</Tag>}
+          {formatQAReportID(report.id)} {report.submittedAt ? null : <Tag>DRAFT</Tag>}
         </td>
-        <td>{report.submitted_at}</td>
+        <td>{formatCustomerDate(report.submittedAt)}</td>
         <td>{report.location}</td>
         <td>{report.violations ? 'Yes' : 'No'}</td>
         <td>No</td>
