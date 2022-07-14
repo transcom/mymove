@@ -252,10 +252,13 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		officeUser := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
 		submittedTime := time.Now()
 		remark := "this is a submitted counseling report"
+		location := models.EvaluationReportLocationTypeOrigin
 		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
-				SubmittedAt: &submittedTime,
-				Remarks:     &remark,
+				SubmittedAt:        &submittedTime,
+				Location:           &location,
+				ViolationsObserved: swag.Bool(false),
+				Remarks:            &remark,
 			},
 			Move:       move,
 			OfficeUser: officeUser,
@@ -268,11 +271,14 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			Move:       move,
 			OfficeUser: officeUser,
 		})
+		location = models.EvaluationReportLocationTypeDestination
 		remark2 := "this is a submitted shipment report"
 		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
-				SubmittedAt: &submittedTime,
-				Remarks:     &remark2,
+				SubmittedAt:        &submittedTime,
+				Location:           &location,
+				ViolationsObserved: swag.Bool(true),
+				Remarks:            &remark2,
 			},
 			Move:        move,
 			OfficeUser:  officeUser,
