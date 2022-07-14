@@ -27,7 +27,7 @@ const EvaluationReportTable = ({ reports }) => {
   };
   let tableRows = (
     <tr>
-      <td colSpan={5}>No QAE reports have been submitted for this shipment</td>
+      <td colSpan={7}>No QAE reports have been submitted for this shipment</td>
     </tr>
   );
   if (reports.length > 0) {
@@ -43,8 +43,8 @@ const EvaluationReportTable = ({ reports }) => {
           <th>Location</th>
           <th>Violations</th>
           <th>Serious Incident</th>
-          <th>View Report</th>
-          <th>Download</th>
+          <th aria-label="View report" />
+          <th aria-label="Download" />
         </tr>
       </thead>
       <tbody>{tableRows}</tbody>
