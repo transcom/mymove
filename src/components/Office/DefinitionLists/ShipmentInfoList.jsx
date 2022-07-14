@@ -92,7 +92,7 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
     ? mtoAgents.map((agent) => (
         <div className={agentsElementFlags.classes} key={`${agent.agentType}-${agent.email}`}>
           <dt>{agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}</dt>
-          <dd data-testid={agent.agentType}>{formatAgent(agent)}</dd>
+          <dd data-testid={agent.agentType}>{agent ? formatAgent(agent) : '-'}</dd>
         </div>
       ))
     : null;
