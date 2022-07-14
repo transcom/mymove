@@ -32,9 +32,8 @@ type GHCTestSuite struct {
 }
 
 func TestGHCTestSuite(t *testing.T) {
-	popTs := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction())
 	ts := &GHCTestSuite{
-		PopTestSuite: popTs,
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 	}
 
 	suite.Run(t, ts)

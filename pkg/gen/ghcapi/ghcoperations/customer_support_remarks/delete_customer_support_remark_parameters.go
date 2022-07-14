@@ -31,7 +31,7 @@ type DeleteCustomerSupportRemarkParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*ID of the customer support remark to be deleted
+	/*the customer support remark ID to be modified
 	  Required: true
 	  In: path
 	*/

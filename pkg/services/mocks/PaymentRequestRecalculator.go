@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -41,8 +39,13 @@ func (_m *PaymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontex
 	return r0, r1
 }
 
-// NewPaymentRequestRecalculator creates a new instance of PaymentRequestRecalculator. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPaymentRequestRecalculator(t testing.TB) *PaymentRequestRecalculator {
+type mockConstructorTestingTNewPaymentRequestRecalculator interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewPaymentRequestRecalculator creates a new instance of PaymentRequestRecalculator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewPaymentRequestRecalculator(t mockConstructorTestingTNewPaymentRequestRecalculator) *PaymentRequestRecalculator {
 	mock := &PaymentRequestRecalculator{}
 	mock.Mock.Test(t)
 
