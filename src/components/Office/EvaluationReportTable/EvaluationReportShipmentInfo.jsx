@@ -1,11 +1,13 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button } from '@trussworks/react-uswds';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatPrimeAPIFullAddress } from 'utils/formatters';
+import { formatEvaluationReportShipmentAddress } from 'utils/formatters';
 import { ShipmentShape } from 'types/shipment';
 
-const EvaluationReportShipmentInfo = ({ shipment }) => {
+const EvaluationReportShipmentInfo = ({ shipment, shipmentNumber }) => {
   let heading = '????';
   let pickupAddress = '????';
   let destinationAddress = '????';
@@ -16,18 +18,18 @@ const EvaluationReportShipmentInfo = ({ shipment }) => {
     case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
     case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
       heading = 'HHG';
-      pickupAddress = formatPrimeAPIFullAddress(shipment.pickupAddress);
-      destinationAddress = formatPrimeAPIFullAddress(shipment.destinationAddress);
+      pickupAddress = formatEvaluationReportShipmentAddress(shipment.pickupAddress);
+      destinationAddress = formatEvaluationReportShipmentAddress(shipment.destinationAddress);
       break;
     case SHIPMENT_OPTIONS.NTS:
       heading = 'NTS';
-      pickupAddress = formatPrimeAPIFullAddress(shipment.pickupAddress);
+      pickupAddress = formatEvaluationReportShipmentAddress(shipment.pickupAddress);
       destinationAddress = shipment.storageFacility.facilityName;
       break;
     case SHIPMENT_OPTIONS.NTSR:
       heading = 'NTS-Release';
       pickupAddress = shipment.storageFacility.facilityName;
-      destinationAddress = formatPrimeAPIFullAddress(shipment.destinationAddress);
+      destinationAddress = formatEvaluationReportShipmentAddress(shipment.destinationAddress);
       break;
     case SHIPMENT_OPTIONS.PPM:
       heading = 'PPM';
@@ -43,20 +45,18 @@ const EvaluationReportShipmentInfo = ({ shipment }) => {
     <>
       <div />
       <h4>
-        {heading} Shipment ID #{shipment.id}
+        {heading} Shipment ID #{shipmentNumber}
       </h4>
       <small>
         {pickupAddress} <FontAwesomeIcon icon="arrow-right" /> {destinationAddress}
       </small>
+      <Button>Create report</Button>
     </>
   );
 };
 EvaluationReportShipmentInfo.propTypes = {
-  shipment: ShipmentShape,
-};
-
-EvaluationReportShipmentInfo.defaultProps = {
-  shipment: {},
+  shipment: ShipmentShape.isRequired,
+  shipmentNumber: PropTypes.number.isRequired,
 };
 
 export default EvaluationReportShipmentInfo;

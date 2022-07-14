@@ -172,6 +172,11 @@ export const formatPrimeAPIFullAddress = (address) => {
   return `${streetAddress1}, ${streetAddress2}, ${city}, ${state} ${postalCode}`;
 };
 
+export const formatEvaluationReportShipmentAddress = (address) => {
+  const { streetAddress1, city, state, postalCode } = address;
+  return `${streetAddress1}, ${city}, ${state} ${postalCode}`;
+};
+
 export const formatMoveHistoryFullAddress = (address) => {
   let formattedAddress = '';
   if (address.street_address_1) {
