@@ -1663,6 +1663,52 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/counseling-evaluation-reports-list": {
+      "get": {
+        "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
+        "operationId": "getMoveCounselingEvaluationReportsList",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the move's evaluation reports",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReports"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "Code used to identify a move in the system",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/financial-review-flag": {
       "post": {
         "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.",
@@ -1738,6 +1784,52 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "ID of move to flag",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/shipment-evaluation-reports-list": {
+      "get": {
+        "description": "Returns shipment evaluation reports for the specified move that are visible to the current office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns shipment evaluation reports for the specified move that are visible to the current office user",
+        "operationId": "getMoveShipmentEvaluationReportsList",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the move's evaluation reports",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReports"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "Code used to identify a move in the system",
           "name": "moveID",
           "in": "path",
           "required": true
@@ -4328,6 +4420,110 @@ func init() {
         "message": {
           "type": "string"
         }
+      }
+    },
+    "EvaluationReport": {
+      "description": "An evaluation report",
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evaluationLengthMinutes": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "inspectionDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "inspectionType": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportInspectionType"
+        },
+        "location": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportLocation"
+        },
+        "locationDescription": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "asdfasdfsd"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "observedDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "remarks": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "travelTimeMinutes": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "type": {
+          "$ref": "#/definitions/EvaluationReportType"
+        },
+        "violationsObserved": {
+          "type": "boolean",
+          "x-nullable": true
+        }
+      }
+    },
+    "EvaluationReportInspectionType": {
+      "type": "string",
+      "enum": [
+        "DATA_REVIEW",
+        "PHYSICAL",
+        "VIRTUAL"
+      ],
+      "x-nullable": true
+    },
+    "EvaluationReportLocation": {
+      "type": "string",
+      "enum": [
+        "ORIGIN",
+        "DESTINATION",
+        "OTHER"
+      ],
+      "x-nullable": true
+    },
+    "EvaluationReportType": {
+      "type": "string",
+      "enum": [
+        "SHIPMENT",
+        "COUNSELING"
+      ]
+    },
+    "EvaluationReports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EvaluationReport"
       }
     },
     "GBLOC": {
@@ -9317,6 +9513,67 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/counseling-evaluation-reports-list": {
+      "get": {
+        "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
+        "operationId": "getMoveCounselingEvaluationReportsList",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the move's evaluation reports",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReports"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "Code used to identify a move in the system",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/financial-review-flag": {
       "post": {
         "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.",
@@ -9407,6 +9664,67 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "ID of move to flag",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/shipment-evaluation-reports-list": {
+      "get": {
+        "description": "Returns shipment evaluation reports for the specified move that are visible to the current office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns shipment evaluation reports for the specified move that are visible to the current office user",
+        "operationId": "getMoveShipmentEvaluationReportsList",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the move's evaluation reports",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReports"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "Code used to identify a move in the system",
           "name": "moveID",
           "in": "path",
           "required": true
@@ -12371,6 +12689,112 @@ func init() {
         "message": {
           "type": "string"
         }
+      }
+    },
+    "EvaluationReport": {
+      "description": "An evaluation report",
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evaluationLengthMinutes": {
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "inspectionDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "inspectionType": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportInspectionType"
+        },
+        "location": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportLocation"
+        },
+        "locationDescription": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "asdfasdfsd"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "observedDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "remarks": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "travelTimeMinutes": {
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true
+        },
+        "type": {
+          "$ref": "#/definitions/EvaluationReportType"
+        },
+        "violationsObserved": {
+          "type": "boolean",
+          "x-nullable": true
+        }
+      }
+    },
+    "EvaluationReportInspectionType": {
+      "type": "string",
+      "enum": [
+        "DATA_REVIEW",
+        "PHYSICAL",
+        "VIRTUAL"
+      ],
+      "x-nullable": true
+    },
+    "EvaluationReportLocation": {
+      "type": "string",
+      "enum": [
+        "ORIGIN",
+        "DESTINATION",
+        "OTHER"
+      ],
+      "x-nullable": true
+    },
+    "EvaluationReportType": {
+      "type": "string",
+      "enum": [
+        "SHIPMENT",
+        "COUNSELING"
+      ]
+    },
+    "EvaluationReports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EvaluationReport"
       }
     },
     "GBLOC": {

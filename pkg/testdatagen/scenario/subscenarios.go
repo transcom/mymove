@@ -213,6 +213,89 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 	}
 }
 
+func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
+	return func() {
+		// Move with a few evaluation reports
+		move := testdatagen.MakeMove(appCtx.DB(),
+			testdatagen.Assertions{
+				Move: models.Move{
+					Locator: "EVLRPT",
+					Status:  models.MoveStatusSUBMITTED,
+				},
+			},
+		)
+		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{
+			MoveTaskOrderID: move.ID,
+			Status:          models.MTOShipmentStatusSubmitted,
+		}})
+		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
+
+		storageFacility := testdatagen.MakeStorageFacility(appCtx.DB(), testdatagen.Assertions{
+			StorageFacility: models.StorageFacility{
+				FacilityName: "Storage R Us",
+			},
+		})
+
+		testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				StorageFacility: &storageFacility,
+			},
+		})
+		testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				StorageFacility: &storageFacility,
+			},
+		})
+
+		officeUser := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
+		submittedTime := time.Now()
+		remark := "this is a submitted counseling report"
+		location := models.EvaluationReportLocationTypeOrigin
+		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
+			EvaluationReport: models.EvaluationReport{
+				SubmittedAt:        &submittedTime,
+				Location:           &location,
+				ViolationsObserved: swag.Bool(false),
+				Remarks:            &remark,
+			},
+			Move:       move,
+			OfficeUser: officeUser,
+		})
+		remark1 := "this is a draft counseling report"
+		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
+			EvaluationReport: models.EvaluationReport{
+				Remarks: &remark1,
+			},
+			Move:       move,
+			OfficeUser: officeUser,
+		})
+		location = models.EvaluationReportLocationTypeDestination
+		remark2 := "this is a submitted shipment report"
+		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
+			EvaluationReport: models.EvaluationReport{
+				SubmittedAt:        &submittedTime,
+				Location:           &location,
+				ViolationsObserved: swag.Bool(true),
+				Remarks:            &remark2,
+			},
+			Move:        move,
+			OfficeUser:  officeUser,
+			MTOShipment: shipment,
+		})
+		remark3 := "this is a draft shipment report"
+		testdatagen.MakeEvaluationReport(appCtx.DB(), testdatagen.Assertions{
+			EvaluationReport: models.EvaluationReport{
+				Remarks: &remark3,
+			},
+			Move:        move,
+			OfficeUser:  officeUser,
+			MTOShipment: shipment,
+		})
+	}
+}
+
 func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		createTOO(appCtx)
