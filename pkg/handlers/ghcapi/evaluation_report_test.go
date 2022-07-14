@@ -26,9 +26,13 @@ func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 	}
 	suite.Run("Successful list fetch", func() {
 		officeUser, move, handlerConfig := setupTestData()
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			OfficeUser: officeUser,
-			Move:       move,
+			OfficeUser:  officeUser,
+			Move:        move,
+			MTOShipment: shipment,
 		})
 
 		fetcher := evaluationreportservice.NewEvaluationReportListFetcher()
@@ -36,7 +40,7 @@ func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 			HandlerConfig:               handlerConfig,
 			EvaluationReportListFetcher: fetcher,
 		}
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/evaluation-reports/", move.ID), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/shipment-evaluation-reports-list", move.ID), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := moveop.GetMoveShipmentEvaluationReportsListParams{
 			HTTPRequest: request,
