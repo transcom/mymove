@@ -31,7 +31,7 @@ const reports = [
     location: null,
     locationDescription: 'Route 66 at crash inspection site 3',
     moveID: 'bd1bbbdc-1710-4831-aa41-e35ebedff5cd',
-    remarks: 'this is a submitted NTS shipment report',
+    remarks: 'this is a draft NTS shipment report',
     shipmentID: 'd46825dd-cf90-442b-96de-c5075ea2f1bf',
     submittedAt: null,
     travelTimeMinutes: 60,
