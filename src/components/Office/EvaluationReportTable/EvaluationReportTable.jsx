@@ -15,6 +15,12 @@ const EvaluationReportTable = ({ reports }) => {
         <td>{report.location}</td>
         <td>{report.violations ? 'Yes' : 'No'}</td>
         <td>No</td>
+        <td>
+          <a href={`/moves/${report.moveID}/evaluation-reports/${report.id}`}>View report</a>
+        </td>
+        <td>
+          <a href={`/moves/${report.moveID}/evaluation-reports/${report.id}/download`}>Download</a>
+        </td>
       </tr>
     );
   };
@@ -36,6 +42,8 @@ const EvaluationReportTable = ({ reports }) => {
           <th>Location</th>
           <th>Violations</th>
           <th>Serious Incident</th>
+          <th>View Report</th>
+          <th>Download</th>
         </tr>
       </thead>
       <tbody>{tableRows}</tbody>
