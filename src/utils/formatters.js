@@ -391,3 +391,9 @@ export function formatCentsTruncateWhole(cents) {
     maximumFractionDigits: 0,
   });
 }
+
+// Converts a uuid into a shortened ID that's suitable for displaying to users
+export function formatQAReportID(uuid) {
+  const firstFive = uuid.substring(0, 5).toUpperCase();
+  return `#QA-${firstFive}`;
+}
