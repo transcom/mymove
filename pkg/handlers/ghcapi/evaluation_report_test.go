@@ -95,7 +95,7 @@ func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 			HandlerConfig:               handlerConfig,
 			EvaluationReportListFetcher: fetcher,
 		}
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/evaluation-reports/", move.ID), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/counseling-evaluation-reports-list", move.ID), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := moveop.GetMoveCounselingEvaluationReportsListParams{
 			HTTPRequest: request,
@@ -120,7 +120,7 @@ func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 			officeUser.ID,
 		).Return(nil, apperror.QueryError{})
 
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/shipment-evaluation-reports-list", move.ID), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/counseling-evaluation-reports-list", move.ID), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := moveop.GetMoveCounselingEvaluationReportsListParams{
 			HTTPRequest: request,
