@@ -29,7 +29,9 @@ const WeightTickets = () => {
   const { tripNumber } = qs.parse(search);
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
-  const currentWeightTicket = useSelector((state) => selectWeightTicketById(state, mtoShipmentId, weightTicketId));
+  const { weightTicket: currentWeightTicket, index: currentIndex } = useSelector((state) =>
+    selectWeightTicketById(state, mtoShipmentId, weightTicketId),
+  );
 
   useEffect(() => {
     if (!weightTicketId) {
@@ -57,23 +59,29 @@ const WeightTickets = () => {
     }
   }, [weightTicketId, moveId, mtoShipmentId, history, dispatch, mtoShipment]);
 
-  const handleCreateUpload = (fieldName, file) => {
+  const handleCreateUpload = async (fieldName, file) => {
     let documentId;
+    let documentField;
     switch (fieldName) {
       case 'emptyWeightTickets':
         documentId = currentWeightTicket.emptyWeightDocumentId;
+        documentField = 'emptyDocument';
         break;
       case 'fullWeightTickets':
         documentId = currentWeightTicket.fullWeightDocumentId;
+        documentField = 'fullDocument';
         break;
       case 'trailerOwnershipDocs':
         documentId = currentWeightTicket.trailerOwnershipDocumentId;
+        documentField = 'proofOfTrailerOwnershipDocument';
         break;
       default:
     }
 
     createUploadForDocument(file, documentId)
       .then((upload) => {
+        mtoShipment.ppmShipment.weightTickets[currentIndex][documentField].push(upload);
+        dispatch(updateMTOShipment(mtoShipment));
         return upload;
       })
       .catch(() => {
@@ -100,9 +108,27 @@ const WeightTickets = () => {
   };
 
   const handleUploadDelete = (uploadId, fieldName, values, setFieldTouched, setFieldValue) => {
-    const remainingUploads = values[`${fieldName}`]?.filter((upload) => upload.id !== uploadId);
+    let documentField;
+    switch (fieldName) {
+      case 'emptyWeightTickets':
+        documentField = 'emptyDocument';
+        break;
+      case 'fullWeightTickets':
+        documentField = 'fullDocument';
+        break;
+      case 'trailerOwnershipDocs':
+        documentField = 'proofOfTrailerOwnershipDocument';
+        break;
+      default:
+    }
+    const filterdDocuments = mtoShipment.ppmShipment.weightTickets[currentIndex][documentField].filter(
+      (upload) => upload.id !== uploadId,
+    );
+    mtoShipment.ppmShipment.weightTickets[currentIndex][documentField] = filterdDocuments;
+    const remainingUploads = values[fieldName]?.filter((upload) => upload.id !== uploadId);
     setFieldTouched(fieldName, true, true);
     setFieldValue(fieldName, remainingUploads, true);
+    dispatch(updateMTOShipment(mtoShipment));
   };
 
   const handleBack = () => {
@@ -127,7 +153,6 @@ const WeightTickets = () => {
     patchWeightTicket(mtoShipment.id, currentWeightTicket.id, payload, currentWeightTicket.eTag)
       .then((resp) => {
         setSubmitting(false);
-        const currentIndex = mtoShipment.ppmShipment.weightTickets.findIndex((ticket) => ticket.id === resp.id);
         mtoShipment.ppmShipment.weightTickets[currentIndex] = resp;
         history.push(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
         dispatch(updateMTOShipment(mtoShipment));

@@ -162,18 +162,19 @@ export function selectMTOShipmentById(state, id) {
 
 /** PPMs */
 export const selectWeightTicketById = (state, mtoShipmentId, weightTicketId) => {
+  let weightTicket = null;
+  let index = -1;
   if (weightTicketId == null) {
-    return null;
+    return { weightTicket, index };
   }
 
   const mtoShipment = selectMTOShipmentById(state, mtoShipmentId);
   const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
-  let weightTicket = null;
   if (Array.isArray(weightTickets)) {
-    const index = weightTickets.findIndex((ele) => ele.id === weightTicketId);
+    index = weightTickets.findIndex((ele) => ele.id === weightTicketId);
     weightTicket = weightTickets?.[index] || null;
   }
-  return weightTicket;
+  return { weightTicket, index };
 };
 
 export const selectPPMForMove = (state, moveId) => {
