@@ -42,8 +42,8 @@ const WeightTickets = () => {
           } else {
             mtoShipment.ppmShipment.weightTickets = [resp];
           }
-          // I think it's necessary to update the URL so the back button would work and not create
-          // a new weight ticket on refresh either.
+          // Update the URL so the back button would work and not create a new weight ticket or on
+          // refresh either.
           history.replace(
             generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
               moveId,
