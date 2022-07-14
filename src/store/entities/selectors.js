@@ -161,7 +161,7 @@ export function selectMTOShipmentById(state, id) {
 }
 
 /** PPMs */
-export const selectWeightTicketById = (state, mtoShipmentId, weightTicketId) => {
+export const selectWeightTicketAndIndexById = (state, mtoShipmentId, weightTicketId) => {
   let weightTicket = null;
   let index = -1;
   if (weightTicketId == null) {

@@ -16,7 +16,7 @@ import {
   selectPPMSitEstimate,
   selectReimbursementById,
   selectEntitlementsForLoggedInUser,
-  selectWeightTicketById,
+  selectWeightTicketAndIndexById,
 } from './selectors';
 
 import { profileStates } from 'constants/customerStates';
@@ -1324,7 +1324,7 @@ describe('selectPPMForMove', () => {
   });
 });
 
-describe('selectWeightTicketById', () => {
+describe('selectWeightTicketAndIndexById', () => {
   it('return the correct weight ticket and index', () => {
     const weightTicketId = '71422b71-a40b-41a7-b2ff-4da922a9c7f2';
     const testState = {
@@ -1392,7 +1392,7 @@ describe('selectWeightTicketById', () => {
     };
     const mtoShipmentID = Object.keys(testState.entities.mtoShipments)[0];
 
-    expect(selectWeightTicketById(testState, mtoShipmentID, weightTicketId)).toEqual({
+    expect(selectWeightTicketAndIndexById(testState, mtoShipmentID, weightTicketId)).toEqual({
       weightTicket: testState.entities.mtoShipments[mtoShipmentID].ppmShipment.weightTickets[1],
       index: 1,
     });

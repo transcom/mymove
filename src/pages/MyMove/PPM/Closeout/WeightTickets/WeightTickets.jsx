@@ -5,7 +5,7 @@ import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import qs from 'query-string';
 import { v4 as uuidv4 } from 'uuid';
 
-import { selectMTOShipmentById, selectWeightTicketById } from 'store/entities/selectors';
+import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createUploadForDocument, createWeightTicket, patchWeightTicket } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -30,7 +30,7 @@ const WeightTickets = () => {
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const { weightTicket: currentWeightTicket, index: currentIndex } = useSelector((state) =>
-    selectWeightTicketById(state, mtoShipmentId, weightTicketId),
+    selectWeightTicketAndIndexById(state, mtoShipmentId, weightTicketId),
   );
 
   useEffect(() => {

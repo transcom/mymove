@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { useParams, generatePath } from 'react-router-dom';
 import { v4 } from 'uuid';
 
-import { selectMTOShipmentById, selectWeightTicketById } from 'store/entities/selectors';
+import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createWeightTicket, patchWeightTicket } from 'services/internalApi';
 import { MockProviders } from 'testUtils';
@@ -117,7 +117,7 @@ const mockWeightTicketWithUploads = {
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectMTOShipmentById: jest.fn(() => mockMTOShipment),
-  selectWeightTicketById: jest.fn(),
+  selectWeightTicketAndIndexById: jest.fn(),
 }));
 
 beforeEach(() => {
@@ -162,7 +162,7 @@ describe('Weight Tickets page', () => {
       mtoShipmentId: mockMTOShipmentId,
       weightTicketId: mockWeightTicketId,
     }));
-    selectWeightTicketById.mockReturnValue(mockWeightTicket);
+    selectWeightTicketAndIndexById.mockReturnValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -173,8 +173,8 @@ describe('Weight Tickets page', () => {
 
   it('renders the page Content', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
-    selectWeightTicketById.mockReturnValueOnce(null);
-    selectWeightTicketById.mockReturnValue(mockWeightTicket);
+    selectWeightTicketAndIndexById.mockReturnValueOnce(null);
+    selectWeightTicketAndIndexById.mockReturnValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -199,8 +199,8 @@ describe('Weight Tickets page', () => {
 
   it('replaces the router history with newly created weight ticket id', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
-    selectWeightTicketById.mockReturnValueOnce(null);
-    selectWeightTicketById.mockReturnValue(mockWeightTicket);
+    selectWeightTicketAndIndexById.mockReturnValueOnce(null);
+    selectWeightTicketAndIndexById.mockReturnValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -211,7 +211,7 @@ describe('Weight Tickets page', () => {
 
   it('routes back to home when finish later is clicked', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
-    selectWeightTicketById.mockReturnValue(mockWeightTicket);
+    selectWeightTicketAndIndexById.mockReturnValue(mockWeightTicket);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -224,7 +224,7 @@ describe('Weight Tickets page', () => {
 
   it('calls patch weight ticket with the appropriate payload', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
-    selectWeightTicketById.mockReturnValue(mockWeightTicketWithUploads);
+    selectWeightTicketAndIndexById.mockReturnValue(mockWeightTicketWithUploads);
     patchWeightTicket.mockResolvedValue({});
 
     render(<WeightTickets />, { wrapper: MockProviders });
@@ -263,7 +263,7 @@ describe('Weight Tickets page', () => {
 
   it('displays an error if patchWeightTicket fails', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
-    selectWeightTicketById.mockReturnValue(mockWeightTicketWithUploads);
+    selectWeightTicketAndIndexById.mockReturnValue(mockWeightTicketWithUploads);
     patchWeightTicket.mockRejectedValueOnce('an error occurred');
 
     render(<WeightTickets />, { wrapper: MockProviders });
@@ -286,7 +286,7 @@ describe('Weight Tickets page', () => {
 
   it('calls the delete handler when removing an existing upload', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
-    selectWeightTicketById.mockReturnValue(mockWeightTicketWithUploads);
+    selectWeightTicketAndIndexById.mockReturnValue(mockWeightTicketWithUploads);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
