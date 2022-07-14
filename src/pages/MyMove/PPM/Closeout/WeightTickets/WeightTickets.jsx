@@ -61,26 +61,22 @@ const WeightTickets = () => {
 
   const handleCreateUpload = async (fieldName, file) => {
     let documentId;
-    let documentField;
     switch (fieldName) {
       case 'emptyWeightTickets':
         documentId = currentWeightTicket.emptyWeightDocumentId;
-        documentField = 'emptyDocument';
         break;
       case 'fullWeightTickets':
         documentId = currentWeightTicket.fullWeightDocumentId;
-        documentField = 'fullDocument';
         break;
       case 'trailerOwnershipDocs':
         documentId = currentWeightTicket.trailerOwnershipDocumentId;
-        documentField = 'proofOfTrailerOwnershipDocument';
         break;
       default:
     }
 
     createUploadForDocument(file, documentId)
       .then((upload) => {
-        mtoShipment.ppmShipment.weightTickets[currentIndex][documentField].push(upload);
+        mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].push(upload);
         dispatch(updateMTOShipment(mtoShipment));
         return upload;
       })
@@ -108,23 +104,10 @@ const WeightTickets = () => {
   };
 
   const handleUploadDelete = (uploadId, fieldName, values, setFieldTouched, setFieldValue) => {
-    let documentField;
-    switch (fieldName) {
-      case 'emptyWeightTickets':
-        documentField = 'emptyDocument';
-        break;
-      case 'fullWeightTickets':
-        documentField = 'fullDocument';
-        break;
-      case 'trailerOwnershipDocs':
-        documentField = 'proofOfTrailerOwnershipDocument';
-        break;
-      default:
-    }
-    const filterdDocuments = mtoShipment.ppmShipment.weightTickets[currentIndex][documentField].filter(
+    const filterdDocuments = mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].filter(
       (upload) => upload.id !== uploadId,
     );
-    mtoShipment.ppmShipment.weightTickets[currentIndex][documentField] = filterdDocuments;
+    mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName] = filterdDocuments;
     const remainingUploads = values[fieldName]?.filter((upload) => upload.id !== uploadId);
     setFieldTouched(fieldName, true, true);
     setFieldValue(fieldName, remainingUploads, true);
