@@ -67,6 +67,8 @@ describe('Services counselor user', () => {
     cy.wait(['@createShipment', '@getMTOShipments', '@getMoves', '@getOrders']);
 
     // Fill out page two
+    cy.wait(5000);
+    cy.contains('Incentive & advance');
     cy.get('input[name="advance"]').clear().type('2100').blur();
     cy.get('textarea[data-testid="counselor-remarks"]')
       .clear()
