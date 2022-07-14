@@ -173,26 +173,26 @@ const WeightTicketForm = ({
     vehicleDescription,
     missingEmptyWeightTicket,
     emptyWeight,
-    emptyWeightTickets,
+    emptyDocument,
     fullWeight,
     missingFullWeightTicket,
-    fullWeightTickets,
+    fullDocument,
     hasOwnTrailer,
     trailerMeetsCriteria,
-    trailerOwnershipDocs,
+    proofOfTrailerOwnershipDocument,
   } = weightTicket || {};
 
   const initialValues = {
     vehicleDescription: vehicleDescription || '',
     missingEmptyWeightTicket: !!missingEmptyWeightTicket,
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
-    emptyWeightTickets: emptyWeightTickets || [],
+    emptyWeightTickets: emptyDocument || [],
     fullWeight: fullWeight ? `${fullWeight}` : '',
     missingFullWeightTicket: !!missingFullWeightTicket,
-    fullWeightTickets: fullWeightTickets || [],
+    fullWeightTickets: fullDocument || [],
     hasOwnTrailer: hasOwnTrailer ? 'true' : 'false',
     trailerMeetsCriteria: trailerMeetsCriteria ? 'true' : 'false',
-    trailerOwnershipDocs: trailerOwnershipDocs || [],
+    trailerOwnershipDocs: proofOfTrailerOwnershipDocument || [],
   };
 
   const emptyWeightTicketsRef = createRef();
