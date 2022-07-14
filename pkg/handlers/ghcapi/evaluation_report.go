@@ -20,7 +20,7 @@ type GetShipmentEvaluationReportsHandler struct {
 	services.EvaluationReportListFetcher
 }
 
-// Handle handles getShipmentEvaluationReports by move request
+// Handle handles GetShipmentEvaluationReports by move request
 func (h GetShipmentEvaluationReportsHandler) Handle(params moveop.GetMoveShipmentEvaluationReportsListParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -41,13 +41,13 @@ func (h GetShipmentEvaluationReportsHandler) Handle(params moveop.GetMoveShipmen
 	)
 }
 
-// GetCounselingEvaluationReportsHandler gets a list of shipment evaluation reports for a given move
+// GetCounselingEvaluationReportsHandler gets a list of counseling evaluation reports for a given move
 type GetCounselingEvaluationReportsHandler struct {
 	handlers.HandlerConfig
 	services.EvaluationReportListFetcher
 }
 
-// Handle handles getCounselingEvaluationReports by move request
+// Handle handles GetCounselingEvaluationReports by move request
 func (h GetCounselingEvaluationReportsHandler) Handle(params moveop.GetMoveCounselingEvaluationReportsListParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
