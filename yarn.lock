@@ -10361,10 +10361,10 @@ filelist@^1.0.1:
   dependencies:
     minimatch "^5.0.1"
 
-filepond-plugin-file-validate-size@^2.2.5:
-  version "2.2.5"
-  resolved "https://registry.yarnpkg.com/filepond-plugin-file-validate-size/-/filepond-plugin-file-validate-size-2.2.5.tgz#985c83f0e0a9c09918310a231c5f014fb642c92b"
-  integrity sha512-x+fYZl317R17w3dExKab1oYZa10Wl2HcXKD6dzIgRKyngEHtjBF99geGaiDPk9IfozV8Zjzx69D7urcthF2CYQ==
+filepond-plugin-file-validate-size@^2.2.7:
+  version "2.2.7"
+  resolved "https://registry.yarnpkg.com/filepond-plugin-file-validate-size/-/filepond-plugin-file-validate-size-2.2.7.tgz#28a0c226b396feb7cfa594d3366f04756a13c08f"
+  integrity sha512-I3yWDgzu8J3cfxeeUXT4O9zVqq7GcpQ5BAl4//E1p8DB0DV441HVtg0/kPrAvIwmO9bSTeiuQDr+n+Q4rg9yZA==
 
 filepond-plugin-file-validate-type@^1.2.8:
   version "1.2.8"
