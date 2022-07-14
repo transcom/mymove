@@ -26,7 +26,7 @@ const EvaluationReports = () => {
         <h1>Quality assurance reports</h1>
       </Grid>
       <Grid row>
-        <h2>Counseling QAE reports (?)</h2>
+        <h2>Counseling QAE reports ({counselingEvaluationReports.length})</h2>
         <EvaluationReportTable reports={counselingEvaluationReports} />
       </Grid>
       <Grid row>
