@@ -397,3 +397,16 @@ export function formatQAReportID(uuid) {
   const firstFive = uuid.substring(0, 5).toUpperCase();
   return `#QA-${firstFive}`;
 }
+
+export function formatEvaluationReportLocation(location) {
+  switch (location) {
+    case 'ORIGIN':
+      return 'Origin';
+    case 'DESTINATION':
+      return 'Destination';
+    case 'OTHER':
+      return 'Other';
+    default:
+      return undefined;
+  }
+}
