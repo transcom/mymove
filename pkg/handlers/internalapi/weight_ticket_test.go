@@ -73,6 +73,20 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 		suite.NotNil(createdWeightTicket.ProofOfTrailerOwnershipDocumentID.String())
 	})
 
+	suite.Run("POST failure - 400- bad request", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeCreateSubtestData(appCtx, true)
+		// Missing PPM Shipment ID
+		params := subtestData.params
+
+		params.PpmShipmentID = ""
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&weightticketops.CreateWeightTicketBadRequest{}, response)
+	})
+
 	suite.Run("POST failure -401 - Unauthorized - unauthenticated user", func() {
 		appCtx := suite.AppContextForTest()
 
@@ -100,18 +114,27 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 		suite.IsType(&weightticketops.CreateWeightTicketForbidden{}, response)
 	})
 
-	suite.Run("POST failure - 400- bad request", func() {
+	suite.Run("Post failure - 500 - Server Error", func() {
+		mockCreator := mocks.WeightTicketCreator{}
 		appCtx := suite.AppContextForTest()
 
 		subtestData := makeCreateSubtestData(appCtx, true)
-		// Missing PPM Shipment ID
 		params := subtestData.params
+		serverErr := errors.New("ServerError")
 
-		params.PpmShipmentID = ""
+		mockCreator.On("CreateWeightTicket",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(nil, serverErr)
 
-		response := subtestData.handler.Handle(params)
+		handler := CreateWeightTicketHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			&mockCreator,
+		}
 
-		suite.IsType(&weightticketops.CreateWeightTicketBadRequest{}, response)
+		response := handler.Handle(params)
+
+		suite.IsType(&weightticketops.CreateWeightTicketInternalServerError{}, response)
 	})
 }
 

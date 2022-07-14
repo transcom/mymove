@@ -8,6 +8,7 @@ import (
 )
 
 // WeightTicketCreator creates a WeightTicket that is associated with a PPMShipment
+//go:generate mockery --name WeightTicketCreator --disable-version-string
 type WeightTicketCreator interface {
 	CreateWeightTicket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.WeightTicket, error)
 }
