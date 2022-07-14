@@ -99,6 +99,20 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 
 		suite.IsType(&weightticketops.CreateWeightTicketForbidden{}, response)
 	})
+
+	suite.Run("POST failure - 400- bad request", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeCreateSubtestData(appCtx, true)
+		// Missing PPM Shipment ID
+		params := subtestData.params
+
+		params.PpmShipmentID = ""
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&weightticketops.CreateWeightTicketBadRequest{}, response)
+	})
 }
 
 //
