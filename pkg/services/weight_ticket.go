@@ -13,6 +13,7 @@ type WeightTicketCreator interface {
 }
 
 // WeightTicketUpdater updates a WeightTicket
+//go:generate mockery --name WeightTicketUpdater --disable-version-string
 type WeightTicketUpdater interface {
 	UpdateWeightTicket(appCtx appcontext.AppContext, weightTicket models.WeightTicket, eTag string) (*models.WeightTicket, error)
 }

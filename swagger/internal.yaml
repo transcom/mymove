@@ -1024,10 +1024,6 @@ definitions:
         type: string
         format: date-time
         readOnly: true
-      deletedAt:
-        type: string
-        format: date-time
-        readOnly: true
       vehicleDescription:
         type: string
         title: Vehicle description (ex. 'SUV')
@@ -1039,6 +1035,8 @@ definitions:
       missingEmptyWeightTicket:
         type: boolean
         title: has empty weight ticket
+        x-nullable: true
+        x-omitempty: false
       emptyDocumentId:
         title: Empty Document ID
         type: string
@@ -1054,6 +1052,8 @@ definitions:
       missingFullWeightTicket:
         title: has full weight ticket
         type: boolean
+        x-nullable: true
+        x-omitempty: false
       fullDocumentId:
         title: Full Document ID
         type: string
@@ -1066,9 +1066,13 @@ definitions:
       ownsTrailer:
         title: Owns trailer
         type: boolean
+        x-nullable: true
+        x-omitempty: false
       trailerMeetsCriteria:
         title: Trailer meets criteria
         type: boolean
+        x-nullable: true
+        x-omitempty: false
       proofOfTrailerOwnershipDocumentId:
         title: Trailer Document ID
         type: string

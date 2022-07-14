@@ -3905,11 +3905,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
         "emptyDocument": {
           "title": "Empty Document",
           "$ref": "#/definitions/DocumentPayload"
@@ -3947,15 +3942,21 @@ func init() {
         },
         "missingEmptyWeightTicket": {
           "type": "boolean",
-          "title": "has empty weight ticket"
+          "title": "has empty weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "missingFullWeightTicket": {
           "type": "boolean",
-          "title": "has full weight ticket"
+          "title": "has full weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "ownsTrailer": {
           "type": "boolean",
-          "title": "Owns trailer"
+          "title": "Owns trailer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
@@ -3979,7 +3980,9 @@ func init() {
         },
         "trailerMeetsCriteria": {
           "type": "boolean",
-          "title": "Trailer meets criteria"
+          "title": "Trailer meets criteria",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "updatedAt": {
           "type": "string",
@@ -11027,11 +11030,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
         "emptyDocument": {
           "title": "Empty Document",
           "$ref": "#/definitions/DocumentPayload"
@@ -11071,15 +11069,21 @@ func init() {
         },
         "missingEmptyWeightTicket": {
           "type": "boolean",
-          "title": "has empty weight ticket"
+          "title": "has empty weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "missingFullWeightTicket": {
           "type": "boolean",
-          "title": "has full weight ticket"
+          "title": "has full weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "ownsTrailer": {
           "type": "boolean",
-          "title": "Owns trailer"
+          "title": "Owns trailer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
@@ -11103,7 +11107,9 @@ func init() {
         },
         "trailerMeetsCriteria": {
           "type": "boolean",
-          "title": "Trailer meets criteria"
+          "title": "Trailer meets criteria",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "updatedAt": {
           "type": "string",

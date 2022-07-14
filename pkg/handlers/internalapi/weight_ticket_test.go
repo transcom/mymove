@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http/httptest"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -95,7 +97,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 
 		response := subtestData.handler.Handle(unauthorizedParams)
 
-		suite.IsType(&weightticketops.CreateWeightTicketUnauthorized{}, response)
+		suite.IsType(&weightticketops.CreateWeightTicketForbidden{}, response)
 	})
 }
 
@@ -116,18 +118,22 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	makeUpdateSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData weightTicketUpdateSubtestData) {
 		db := appCtx.DB()
 
-		subtestData.ppmShipment = testdatagen.MakePPMShipment(db, testdatagen.Assertions{})
-		endpoint := fmt.Sprintf("%s/weight_ticket/%s", subtestData.ppmShipment.ID.String(), subtestData.weightTicket.ID.String())
-		req := httptest.NewRequest("POST", endpoint, nil)
+		// Use fake data:
+		subtestData.weightTicket = testdatagen.MakeWeightTicket(db, testdatagen.Assertions{})
+		subtestData.ppmShipment = subtestData.weightTicket.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/weight-ticket/%s", subtestData.ppmShipment.ID.String(), subtestData.weightTicket.ID.String())
+		req := httptest.NewRequest("PATCH", endpoint, nil)
 		if authenticateRequest {
 			req = suite.AuthenticateRequest(req, serviceMember)
 		}
-		eTag := etag.GenerateEtag(models.WeightTicket{}.UpdatedAt)
+		eTag := etag.GenerateEtag(subtestData.weightTicket.UpdatedAt)
 		subtestData.params = weightticketops.UpdateWeightTicketParams{
-			HTTPRequest:   req,
-			PpmShipmentID: *handlers.FmtUUID(subtestData.ppmShipment.ID),
-			IfMatch:       eTag,
+			HTTPRequest:    req,
+			PpmShipmentID:  *handlers.FmtUUID(subtestData.ppmShipment.ID),
+			WeightTicketID: *handlers.FmtUUID(subtestData.weightTicket.ID),
+			IfMatch:        eTag,
 		}
 
 		subtestData.handler = UpdateWeightTicketHandler{
@@ -145,50 +151,67 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 
 		params := subtestData.params
 
-		response := subtestData.handler.Handle(params)
 		// Add vehicleDescription
-		// Add emptyWeight
-		// Add missingEmptyWeightTicket
-		// Add fullWeight
-		// Add missingFullWeightTicket
-		// Add ownsTrailer
-		// Add trailerMeetsCriteria
+		params.UpdateWeightTicketPayload = &internalmessages.UpdateWeightTicket{
+			VehicleDescription:       "Subaru",
+			EmptyWeight:              handlers.FmtInt64(1),
+			MissingEmptyWeightTicket: false,
+			FullWeight:               handlers.FmtInt64(4000),
+			MissingFullWeightTicket:  false,
+			OwnsTrailer:              true,
+			TrailerMeetsCriteria:     true,
+		}
+
+		response := subtestData.handler.Handle(params)
+
 		suite.IsType(&weightticketops.UpdateWeightTicketOK{}, response)
 
 		updatedWeightTicket := response.(*weightticketops.UpdateWeightTicketOK).Payload
 		suite.Equal(subtestData.weightTicket.ID.String(), updatedWeightTicket.ID.String())
-		suite.Equal(subtestData.weightTicket.VehicleDescription, updatedWeightTicket.VehicleDescription)
+		suite.Equal(params.UpdateWeightTicketPayload.VehicleDescription, *updatedWeightTicket.VehicleDescription)
 	})
 	// TODO: for failures pick any field, except the bools, and pass in an empty string for the udpate to trigger failure
 	suite.Run("PATCH failure -400 - nil body", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeUpdateSubtestData(appCtx, false)
+		subtestData := makeUpdateSubtestData(appCtx, true)
 		subtestData.params.UpdateWeightTicketPayload = nil
 		response := subtestData.handler.Handle(subtestData.params)
 
 		suite.IsType(&weightticketops.UpdateWeightTicketBadRequest{}, response)
 	})
 
-	suite.Run("PATCH failure -400 - Invalid Input", func() {
+	suite.Run("PATCH failure -422 - Invalid Input", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeUpdateSubtestData(appCtx, false)
-		subtestData.params.UpdateWeightTicketPayload.VehicleDescription = ""
-		response := subtestData.handler.Handle(subtestData.params)
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateWeightTicketPayload = &internalmessages.UpdateWeightTicket{
+			VehicleDescription:       "Subaru",
+			EmptyWeight:              handlers.FmtInt64(0),
+			MissingEmptyWeightTicket: false,
+			FullWeight:               handlers.FmtInt64(4000),
+			MissingFullWeightTicket:  false,
+			OwnsTrailer:              true,
+			TrailerMeetsCriteria:     true,
+		}
 
-		suite.IsType(&weightticketops.UpdateWeightTicketBadRequest{}, response)
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&weightticketops.UpdateWeightTicketUnprocessableEntity{}, response)
 	})
 
-	suite.Run("PATCH failure - 403- not found", func() {
+	suite.Run("PATCH failure - 404- not found", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeUpdateSubtestData(appCtx, false)
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateWeightTicketPayload = &internalmessages.UpdateWeightTicket{}
 		// This test should fail because of the wrong ID
 		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("f20d9c9b-2de5-4860-ad31-fd5c10e739f6"))
-		subtestData.params.WeightTicketID = *uuidString
+		params.WeightTicketID = *uuidString
 
-		response := subtestData.handler.Handle(subtestData.params)
+		response := subtestData.handler.Handle(params)
 
 		suite.IsType(&weightticketops.UpdateWeightTicketNotFound{}, response)
 	})
@@ -196,29 +219,46 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeUpdateSubtestData(appCtx, false)
-		subtestData.params.IfMatch = "intentionally-bad-if-match-header-value"
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateWeightTicketPayload = &internalmessages.UpdateWeightTicket{}
+		params.IfMatch = "intentionally-bad-if-match-header-value"
 
-		response := subtestData.handler.Handle(subtestData.params)
+		response := subtestData.handler.Handle(params)
 
 		suite.IsType(&weightticketops.UpdateWeightTicketPreconditionFailed{}, response)
 	})
 
 	suite.Run("PATCH failure - 500", func() {
-		mockUpdater := mocks.ShipmentUpdater{}
+		mockUpdater := mocks.WeightTicketUpdater{}
 		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateWeightTicketPayload = &internalmessages.UpdateWeightTicket{
+			VehicleDescription:       "Subaru",
+			EmptyWeight:              handlers.FmtInt64(1),
+			MissingEmptyWeightTicket: false,
+			FullWeight:               handlers.FmtInt64(4000),
+			MissingFullWeightTicket:  false,
+			OwnsTrailer:              true,
+			TrailerMeetsCriteria:     true,
+		}
 
 		err := errors.New("ServerError")
 
 		mockUpdater.On("UpdateWeightTicket",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("*models.WeightTicket"),
+			mock.AnythingOfType("models.WeightTicket"),
 			mock.AnythingOfType("string"),
 		).Return(nil, err)
 
-		subtestData := makeUpdateSubtestData(appCtx, false)
+		handler := UpdateWeightTicketHandler{
+			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			&mockUpdater,
+		}
 
-		response := subtestData.handler.Handle(subtestData.params)
+		response := handler.Handle(params)
 
 		suite.IsType(&weightticketops.UpdateWeightTicketInternalServerError{}, response)
 		errResponse := response.(*weightticketops.UpdateWeightTicketInternalServerError)

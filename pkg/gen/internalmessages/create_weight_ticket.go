@@ -25,11 +25,6 @@ type CreateWeightTicket struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt"`
 
-	// deleted at
-	// Read Only: true
-	// Format: date-time
-	DeletedAt strfmt.DateTime `json:"deletedAt,omitempty"`
-
 	// Empty Document
 	// Required: true
 	EmptyDocument *DocumentPayload `json:"emptyDocument"`
@@ -66,13 +61,13 @@ type CreateWeightTicket struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// has empty weight ticket
-	MissingEmptyWeightTicket bool `json:"missingEmptyWeightTicket,omitempty"`
+	MissingEmptyWeightTicket *bool `json:"missingEmptyWeightTicket"`
 
 	// has full weight ticket
-	MissingFullWeightTicket bool `json:"missingFullWeightTicket,omitempty"`
+	MissingFullWeightTicket *bool `json:"missingFullWeightTicket"`
 
 	// Owns trailer
-	OwnsTrailer bool `json:"ownsTrailer,omitempty"`
+	OwnsTrailer *bool `json:"ownsTrailer"`
 
 	// ppm shipment
 	// Required: true
@@ -97,7 +92,7 @@ type CreateWeightTicket struct {
 	ProofOfTrailerOwnershipDocumentID strfmt.UUID `json:"proofOfTrailerOwnershipDocumentId"`
 
 	// Trailer meets criteria
-	TrailerMeetsCriteria bool `json:"trailerMeetsCriteria,omitempty"`
+	TrailerMeetsCriteria *bool `json:"trailerMeetsCriteria"`
 
 	// updated at
 	// Required: true
@@ -114,10 +109,6 @@ func (m *CreateWeightTicket) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateDeletedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -182,18 +173,6 @@ func (m *CreateWeightTicket) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreateWeightTicket) validateDeletedAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.DeletedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("deletedAt", "body", "date-time", m.DeletedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -389,10 +368,6 @@ func (m *CreateWeightTicket) ContextValidate(ctx context.Context, formats strfmt
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateDeletedAt(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateEmptyDocument(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -442,15 +417,6 @@ func (m *CreateWeightTicket) ContextValidate(ctx context.Context, formats strfmt
 func (m *CreateWeightTicket) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreateWeightTicket) contextValidateDeletedAt(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "deletedAt", "body", strfmt.DateTime(m.DeletedAt)); err != nil {
 		return err
 	}
 

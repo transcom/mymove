@@ -106,6 +106,8 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 					return weightticketops.NewUpdateWeightTicketUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
 				case apperror.PreconditionFailedError:
 					return weightticketops.NewUpdateWeightTicketPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.NotFoundError:
+					return weightticketops.NewUpdateWeightTicketNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.QueryError:
 					if e.Unwrap() != nil {
 						// If you can unwrap, log the internal error (usually a pq error) for better debugging
