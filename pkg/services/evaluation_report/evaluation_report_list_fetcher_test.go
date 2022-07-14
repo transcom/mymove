@@ -110,11 +110,10 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 		fetcher := NewEvaluationReportListFetcher()
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
-		otherOfficeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
 		counselingReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
 				MoveID:       move.ID,
-				OfficeUserID: otherOfficeUser.ID,
+				OfficeUserID: officeUser.ID,
 				SubmittedAt:  swag.Time(time.Now()),
 			},
 		})
@@ -122,7 +121,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
 				MoveID:       move.ID,
-				OfficeUserID: otherOfficeUser.ID,
+				OfficeUserID: officeUser.ID,
 				SubmittedAt:  swag.Time(time.Now()),
 			},
 			MTOShipment: shipment,
@@ -136,11 +135,10 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 		fetcher := NewEvaluationReportListFetcher()
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
-		otherOfficeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
 		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
 				MoveID:       move.ID,
-				OfficeUserID: otherOfficeUser.ID,
+				OfficeUserID: officeUser.ID,
 				SubmittedAt:  swag.Time(time.Now()),
 			},
 		})
@@ -148,7 +146,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 		shipmentReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
 			EvaluationReport: models.EvaluationReport{
 				MoveID:       move.ID,
-				OfficeUserID: otherOfficeUser.ID,
+				OfficeUserID: officeUser.ID,
 				SubmittedAt:  swag.Time(time.Now()),
 			},
 			MTOShipment: shipment,
