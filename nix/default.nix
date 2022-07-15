@@ -46,7 +46,7 @@ buildEnv {
         name = "go-1.18.4";
         url = "https://github.com/NixOS/nixpkgs/";
         ref = "refs/heads/nixpkgs-unstable";
-        rev = "e4f3664e623e8d2a2e1adf0e28fbaf6f2e281999";
+        rev = "4bc1c1bd2f5b1101443fe775bb737a812fc8b925";
       }) {}).go_1_18
 
     (import
