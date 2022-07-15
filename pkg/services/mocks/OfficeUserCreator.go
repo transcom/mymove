@@ -10,8 +10,6 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
-	testing "testing"
-
 	validate "github.com/gobuffalo/validate/v3"
 )
 
@@ -52,8 +50,13 @@ func (_m *OfficeUserCreator) CreateOfficeUser(appCtx appcontext.AppContext, user
 	return r0, r1, r2
 }
 
-// NewOfficeUserCreator creates a new instance of OfficeUserCreator. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewOfficeUserCreator(t testing.TB) *OfficeUserCreator {
+type mockConstructorTestingTNewOfficeUserCreator interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewOfficeUserCreator creates a new instance of OfficeUserCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewOfficeUserCreator(t mockConstructorTestingTNewOfficeUserCreator) *OfficeUserCreator {
 	mock := &OfficeUserCreator{}
 	mock.Mock.Test(t)
 

@@ -101,6 +101,50 @@ func (o *UpdateCustomerSupportRemarkForMoveBadRequest) WriteResponse(rw http.Res
 	}
 }
 
+// UpdateCustomerSupportRemarkForMoveForbiddenCode is the HTTP code returned for type UpdateCustomerSupportRemarkForMoveForbidden
+const UpdateCustomerSupportRemarkForMoveForbiddenCode int = 403
+
+/*UpdateCustomerSupportRemarkForMoveForbidden The request was denied
+
+swagger:response updateCustomerSupportRemarkForMoveForbidden
+*/
+type UpdateCustomerSupportRemarkForMoveForbidden struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewUpdateCustomerSupportRemarkForMoveForbidden creates UpdateCustomerSupportRemarkForMoveForbidden with default headers values
+func NewUpdateCustomerSupportRemarkForMoveForbidden() *UpdateCustomerSupportRemarkForMoveForbidden {
+
+	return &UpdateCustomerSupportRemarkForMoveForbidden{}
+}
+
+// WithPayload adds the payload to the update customer support remark for move forbidden response
+func (o *UpdateCustomerSupportRemarkForMoveForbidden) WithPayload(payload *ghcmessages.Error) *UpdateCustomerSupportRemarkForMoveForbidden {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update customer support remark for move forbidden response
+func (o *UpdateCustomerSupportRemarkForMoveForbidden) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateCustomerSupportRemarkForMoveForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(403)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdateCustomerSupportRemarkForMoveNotFoundCode is the HTTP code returned for type UpdateCustomerSupportRemarkForMoveNotFound
 const UpdateCustomerSupportRemarkForMoveNotFoundCode int = 404
 

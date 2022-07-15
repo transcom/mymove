@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	unit "github.com/transcom/mymove/pkg/unit"
 )
 
@@ -41,8 +39,13 @@ func (_m *PPMEstimator) EstimateIncentiveWithDefaultChecks(appCtx appcontext.App
 	return r0, r1
 }
 
-// NewPPMEstimator creates a new instance of PPMEstimator. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPPMEstimator(t testing.TB) *PPMEstimator {
+type mockConstructorTestingTNewPPMEstimator interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewPPMEstimator creates a new instance of PPMEstimator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewPPMEstimator(t mockConstructorTestingTNewPPMEstimator) *PPMEstimator {
 	mock := &PPMEstimator{}
 	mock.Mock.Test(t)
 

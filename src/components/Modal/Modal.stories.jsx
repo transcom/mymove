@@ -11,11 +11,6 @@ import TextField from 'components/form/fields/TextField/TextField';
 
 export default {
   title: 'Components/Modals',
-  parameters: {
-    abstract: {
-      url: 'https://share.goabstract.com/e6db2b1a-4d3e-40e7-89a8-39a25ab28b9a?mode=design',
-    },
-  },
 };
 
 export const withContent = () => (

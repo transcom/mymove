@@ -11,8 +11,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -44,8 +42,13 @@ func (_m *PaymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext
 	return r0, r1
 }
 
-// NewPaymentRequestUploadCreator creates a new instance of PaymentRequestUploadCreator. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPaymentRequestUploadCreator(t testing.TB) *PaymentRequestUploadCreator {
+type mockConstructorTestingTNewPaymentRequestUploadCreator interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewPaymentRequestUploadCreator creates a new instance of PaymentRequestUploadCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewPaymentRequestUploadCreator(t mockConstructorTestingTNewPaymentRequestUploadCreator) *PaymentRequestUploadCreator {
 	mock := &PaymentRequestUploadCreator{}
 	mock.Mock.Test(t)
 
