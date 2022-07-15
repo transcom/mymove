@@ -36,10 +36,11 @@ func NewMTOShipmentCreator(builder createMTOShipmentQueryBuilder, fetcher servic
 }
 
 // CreateMTOShipment creates the mto shipment
-func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, serviceItems models.MTOServiceItems) (*models.MTOShipment, error) {
+func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment) (*models.MTOShipment, error) {
 	var verrs *validate.Errors
 	var err error
 
+	serviceItems := shipment.MTOServiceItems
 	err = checkShipmentIDFields(shipment, serviceItems)
 
 	if err != nil {
