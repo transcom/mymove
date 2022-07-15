@@ -2330,7 +2330,7 @@ func init() {
           "200": {
             "description": "returns new weight ticket object",
             "schema": {
-              "$ref": "#/definitions/CreateWeightTicket"
+              "$ref": "#/definitions/WeightTicket"
             }
           },
           "400": {
@@ -2399,7 +2399,7 @@ func init() {
           "200": {
             "description": "returns an updated weight ticket object",
             "schema": {
-              "$ref": "#/definitions/CreateWeightTicket"
+              "$ref": "#/definitions/WeightTicket"
             }
           },
           "400": {
@@ -3882,117 +3882,6 @@ func init() {
           "title": "TAC",
           "x-nullable": true,
           "example": "F8J1"
-        }
-      }
-    },
-    "CreateWeightTicket": {
-      "type": "object",
-      "required": [
-        "ppmShipmentId",
-        "ppmShipment",
-        "createdAt",
-        "updatedAt",
-        "emptyDocumentId",
-        "emptyDocument",
-        "fullDocument",
-        "fullDocumentId",
-        "proofOfTrailerOwnershipDocument",
-        "proofOfTrailerOwnershipDocumentId"
-      ],
-      "properties": {
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "emptyDocument": {
-          "title": "Empty Document",
-          "$ref": "#/definitions/DocumentPayload"
-        },
-        "emptyDocumentId": {
-          "type": "string",
-          "format": "uuid",
-          "title": "Empty Document ID",
-          "readOnly": true
-        },
-        "emptyWeight": {
-          "type": "integer",
-          "title": "Empty Recorded Weight"
-        },
-        "fullDocument": {
-          "title": "Full Document",
-          "$ref": "#/definitions/DocumentPayload"
-        },
-        "fullDocumentId": {
-          "type": "string",
-          "format": "uuid",
-          "title": "Full Document ID",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "fullWeight": {
-          "type": "integer",
-          "title": "full weight ticket recorded weight"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "missingEmptyWeightTicket": {
-          "type": "boolean",
-          "title": "has empty weight ticket",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "missingFullWeightTicket": {
-          "type": "boolean",
-          "title": "has full weight ticket",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "ownsTrailer": {
-          "type": "boolean",
-          "title": "Owns trailer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "ppmShipment": {
-          "$ref": "#/definitions/PPMShipment"
-        },
-        "ppmShipmentId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "proofOfTrailerOwnershipDocument": {
-          "title": "Proof of Trailer Ownership Document",
-          "$ref": "#/definitions/DocumentPayload"
-        },
-        "proofOfTrailerOwnershipDocumentId": {
-          "type": "string",
-          "format": "uuid",
-          "title": "Trailer Document ID",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "trailerMeetsCriteria": {
-          "type": "boolean",
-          "title": "Trailer meets criteria",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "vehicleDescription": {
-          "type": "string",
-          "title": "Vehicle description (ex. 'SUV')",
-          "x-nullable": true
         }
       }
     },
@@ -6972,6 +6861,117 @@ func init() {
         }
       }
     },
+    "WeightTicket": {
+      "type": "object",
+      "required": [
+        "ppmShipmentId",
+        "ppmShipment",
+        "createdAt",
+        "updatedAt",
+        "emptyDocumentId",
+        "emptyDocument",
+        "fullDocument",
+        "fullDocumentId",
+        "proofOfTrailerOwnershipDocument",
+        "proofOfTrailerOwnershipDocumentId"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "emptyDocument": {
+          "title": "Empty Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "emptyDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Empty Document ID",
+          "readOnly": true
+        },
+        "emptyWeight": {
+          "type": "integer",
+          "title": "Empty Recorded Weight"
+        },
+        "fullDocument": {
+          "title": "Full Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "fullDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Full Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "fullWeight": {
+          "type": "integer",
+          "title": "full weight ticket recorded weight"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missingEmptyWeightTicket": {
+          "type": "boolean",
+          "title": "has empty weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "missingFullWeightTicket": {
+          "type": "boolean",
+          "title": "has full weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ownsTrailer": {
+          "type": "boolean",
+          "title": "Owns trailer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ppmShipment": {
+          "$ref": "#/definitions/PPMShipment"
+        },
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfTrailerOwnershipDocument": {
+          "title": "Proof of Trailer Ownership Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "proofOfTrailerOwnershipDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Trailer Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "trailerMeetsCriteria": {
+          "type": "boolean",
+          "title": "Trailer meets criteria",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "vehicleDescription": {
+          "type": "string",
+          "title": "Vehicle description (ex. 'SUV')",
+          "x-nullable": true
+        }
+      }
+    },
     "WeightTicketSetType": {
       "type": "string",
       "title": "Select weight ticket type",
@@ -9414,7 +9414,7 @@ func init() {
           "200": {
             "description": "returns new weight ticket object",
             "schema": {
-              "$ref": "#/definitions/CreateWeightTicket"
+              "$ref": "#/definitions/WeightTicket"
             }
           },
           "400": {
@@ -9501,7 +9501,7 @@ func init() {
           "200": {
             "description": "returns an updated weight ticket object",
             "schema": {
-              "$ref": "#/definitions/CreateWeightTicket"
+              "$ref": "#/definitions/WeightTicket"
             }
           },
           "400": {
@@ -11007,119 +11007,6 @@ func init() {
           "title": "TAC",
           "x-nullable": true,
           "example": "F8J1"
-        }
-      }
-    },
-    "CreateWeightTicket": {
-      "type": "object",
-      "required": [
-        "ppmShipmentId",
-        "ppmShipment",
-        "createdAt",
-        "updatedAt",
-        "emptyDocumentId",
-        "emptyDocument",
-        "fullDocument",
-        "fullDocumentId",
-        "proofOfTrailerOwnershipDocument",
-        "proofOfTrailerOwnershipDocumentId"
-      ],
-      "properties": {
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "emptyDocument": {
-          "title": "Empty Document",
-          "$ref": "#/definitions/DocumentPayload"
-        },
-        "emptyDocumentId": {
-          "type": "string",
-          "format": "uuid",
-          "title": "Empty Document ID",
-          "readOnly": true
-        },
-        "emptyWeight": {
-          "type": "integer",
-          "title": "Empty Recorded Weight",
-          "minimum": 0
-        },
-        "fullDocument": {
-          "title": "Full Document",
-          "$ref": "#/definitions/DocumentPayload"
-        },
-        "fullDocumentId": {
-          "type": "string",
-          "format": "uuid",
-          "title": "Full Document ID",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "fullWeight": {
-          "type": "integer",
-          "title": "full weight ticket recorded weight",
-          "minimum": 0
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "missingEmptyWeightTicket": {
-          "type": "boolean",
-          "title": "has empty weight ticket",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "missingFullWeightTicket": {
-          "type": "boolean",
-          "title": "has full weight ticket",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "ownsTrailer": {
-          "type": "boolean",
-          "title": "Owns trailer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "ppmShipment": {
-          "$ref": "#/definitions/PPMShipment"
-        },
-        "ppmShipmentId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "proofOfTrailerOwnershipDocument": {
-          "title": "Proof of Trailer Ownership Document",
-          "$ref": "#/definitions/DocumentPayload"
-        },
-        "proofOfTrailerOwnershipDocumentId": {
-          "type": "string",
-          "format": "uuid",
-          "title": "Trailer Document ID",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "trailerMeetsCriteria": {
-          "type": "boolean",
-          "title": "Trailer meets criteria",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "vehicleDescription": {
-          "type": "string",
-          "title": "Vehicle description (ex. 'SUV')",
-          "x-nullable": true
         }
       }
     },
@@ -14123,6 +14010,119 @@ func init() {
         "total_weight_self_plus_dependents": {
           "type": "integer",
           "example": 18000
+        }
+      }
+    },
+    "WeightTicket": {
+      "type": "object",
+      "required": [
+        "ppmShipmentId",
+        "ppmShipment",
+        "createdAt",
+        "updatedAt",
+        "emptyDocumentId",
+        "emptyDocument",
+        "fullDocument",
+        "fullDocumentId",
+        "proofOfTrailerOwnershipDocument",
+        "proofOfTrailerOwnershipDocumentId"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "emptyDocument": {
+          "title": "Empty Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "emptyDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Empty Document ID",
+          "readOnly": true
+        },
+        "emptyWeight": {
+          "type": "integer",
+          "title": "Empty Recorded Weight",
+          "minimum": 0
+        },
+        "fullDocument": {
+          "title": "Full Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "fullDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Full Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "fullWeight": {
+          "type": "integer",
+          "title": "full weight ticket recorded weight",
+          "minimum": 0
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missingEmptyWeightTicket": {
+          "type": "boolean",
+          "title": "has empty weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "missingFullWeightTicket": {
+          "type": "boolean",
+          "title": "has full weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ownsTrailer": {
+          "type": "boolean",
+          "title": "Owns trailer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ppmShipment": {
+          "$ref": "#/definitions/PPMShipment"
+        },
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfTrailerOwnershipDocument": {
+          "title": "Proof of Trailer Ownership Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "proofOfTrailerOwnershipDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Trailer Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "trailerMeetsCriteria": {
+          "type": "boolean",
+          "title": "Trailer meets criteria",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "vehicleDescription": {
+          "type": "string",
+          "title": "Vehicle description (ex. 'SUV')",
+          "x-nullable": true
         }
       }
     },

@@ -25,7 +25,7 @@ type CreateWeightTicketOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.CreateWeightTicket `json:"body,omitempty"`
+	Payload *internalmessages.WeightTicket `json:"body,omitempty"`
 }
 
 // NewCreateWeightTicketOK creates CreateWeightTicketOK with default headers values
@@ -35,13 +35,13 @@ func NewCreateWeightTicketOK() *CreateWeightTicketOK {
 }
 
 // WithPayload adds the payload to the create weight ticket o k response
-func (o *CreateWeightTicketOK) WithPayload(payload *internalmessages.CreateWeightTicket) *CreateWeightTicketOK {
+func (o *CreateWeightTicketOK) WithPayload(payload *internalmessages.WeightTicket) *CreateWeightTicketOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create weight ticket o k response
-func (o *CreateWeightTicketOK) SetPayload(payload *internalmessages.CreateWeightTicket) {
+func (o *CreateWeightTicketOK) SetPayload(payload *internalmessages.WeightTicket) {
 	o.Payload = payload
 }
 

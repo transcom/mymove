@@ -1000,7 +1000,7 @@ definitions:
       - full_weight_ticket_missing
       - empty_weight_ticket_missing
       - trailer_ownership_missing
-  CreateWeightTicket:
+  WeightTicket:
     type: object
     properties:
       id:
@@ -4468,7 +4468,7 @@ paths:
         '200':
           description: returns new weight ticket object
           schema:
-            $ref: '#/definitions/CreateWeightTicket'
+            $ref: '#/definitions/WeightTicket'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -4517,7 +4517,7 @@ paths:
         '200':
           description: returns an updated weight ticket object
           schema:
-            $ref: '#/definitions/CreateWeightTicket'
+            $ref: '#/definitions/WeightTicket'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':

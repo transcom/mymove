@@ -256,10 +256,10 @@ func MTOShipments(mtoShipments *models.MTOShipments) *internalmessages.MTOShipme
 }
 
 // CreateWeightTicket payload
-func CreateWeightTicket(weightTicket *models.WeightTicket) *internalmessages.CreateWeightTicket {
+func CreateWeightTicket(weightTicket *models.WeightTicket) *internalmessages.WeightTicket {
 	ppmShipment := strfmt.UUID(weightTicket.PPMShipmentID.String())
 
-	payload := &internalmessages.CreateWeightTicket{
+	payload := &internalmessages.WeightTicket{
 		ID:                                strfmt.UUID(weightTicket.ID.String()),
 		PpmShipmentID:                     ppmShipment,
 		PpmShipment:                       PPMShipment(&weightTicket.PPMShipment),
@@ -284,9 +284,9 @@ func CreateWeightTicket(weightTicket *models.WeightTicket) *internalmessages.Cre
 }
 
 // UpdateWeightTicket payload
-func UpdateWeightTicket(weightTicket models.WeightTicket) *internalmessages.CreateWeightTicket {
+func UpdateWeightTicket(weightTicket models.WeightTicket) *internalmessages.WeightTicket {
 	ppmShipment := strfmt.UUID(weightTicket.PPMShipmentID.String())
-	payload := &internalmessages.CreateWeightTicket{
+	payload := &internalmessages.WeightTicket{
 		ID:                                strfmt.UUID(weightTicket.ID.String()),
 		PpmShipmentID:                     ppmShipment,
 		PpmShipment:                       PPMShipment(&weightTicket.PPMShipment),
