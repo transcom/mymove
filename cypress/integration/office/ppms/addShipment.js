@@ -1,5 +1,6 @@
 import { ServicesCounselorOfficeUserType } from '../../../support/constants';
 import { navigateToShipmentDetails } from '../../../support/ppmOfficeShared';
+import { ppmShipmentFixture } from '../../../support/ppmShipmentFixture';
 
 describe('Services counselor user', () => {
   before(() => {
@@ -19,7 +20,7 @@ describe('Services counselor user', () => {
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
 
-    cy.intercept('POST', '**/ghc/v1/mto-shipments').as('createShipment');
+    cy.intercept('POST', '**/ghc/v1/mto-shipments', ppmShipmentFixture).as('createShipment');
     cy.intercept('DELETE', '**/ghc/v1/shipments/**').as('deleteShipment');
 
     const userId = 'a6c8663f-998f-4626-a978-ad60da2476ec';
@@ -68,11 +69,11 @@ describe('Services counselor user', () => {
 
     // Fill out page two
     cy.contains('Incentive & advance');
-    cy.get('input[name="advance"]').clear().type('2100').blur();
-    cy.get('textarea[data-testid="counselor-remarks"]')
-      .clear()
-      .type('The requested advance amount has been added.')
-      .blur();
+    // cy.get('input[name="advance"]').clear().type('2100').blur();
+    // cy.get('textarea[data-testid="counselor-remarks"]')
+    //   .clear()
+    //   .type('The requested advance amount has been added.')
+    //   .blur();
 
     // cy.get('button[data-testid="submitForm"]').click();
 
