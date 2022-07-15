@@ -5,9 +5,9 @@ import classnames from 'classnames';
 
 import styles from './ReviewItems.module.scss';
 
-const ReviewItems = ({ heading, renderAddButton, contents, emptyMessage }) => {
+const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessage }) => {
   return (
-    <div className={styles.ReviewItems}>
+    <div className={classnames(styles.ReviewItems, className)}>
       <div className={styles.headingContainer}>
         <div className={styles.headingContent}>{heading}</div>
         {renderAddButton && <div className={styles.addButtonContainer}>{renderAddButton()}</div>}
@@ -15,7 +15,7 @@ const ReviewItems = ({ heading, renderAddButton, contents, emptyMessage }) => {
       <div className={styles.contentsContainer}>
         {(!contents || contents.length === 0) && (
           <div className={classnames({ [styles.subheadingWrapper]: !!renderAddButton }, 'display-flex', 'width-full')}>
-            {emptyMessage}
+            <span className={styles.emptyMessage}>{emptyMessage}</span>
           </div>
         )}
         {contents?.map(({ id, subheading, rows, onDelete, renderEditLink }) => {
@@ -53,6 +53,7 @@ const ReviewItems = ({ heading, renderAddButton, contents, emptyMessage }) => {
 };
 
 ReviewItems.propTypes = {
+  className: string,
   heading: element.isRequired,
   renderAddButton: func,
   contents: arrayOf(
@@ -75,6 +76,7 @@ ReviewItems.propTypes = {
 };
 
 ReviewItems.defaultProps = {
+  className: '',
   renderAddButton: undefined,
   contents: undefined,
   emptyMessage: 'No items to display',

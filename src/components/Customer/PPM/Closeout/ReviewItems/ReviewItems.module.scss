@@ -40,6 +40,11 @@
       .actionContainer {
         @include u-margin-top(0);
       }
+
+      .emptyMessage {
+        @include u-font-size('body', '3xs');
+        color: $base;
+      }
     }
 
     .subheading {

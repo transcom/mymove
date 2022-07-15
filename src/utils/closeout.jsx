@@ -49,7 +49,7 @@ export const formatWeightTicketItems = (weightTickets, editPath, editParams, han
         value: formatWeight(weightTicket.fullWeight - weightTicket.emptyWeight),
       },
     ],
-    onDelete: () => handleDelete(weightTicket.id),
+    onDelete: () => handleDelete('weightTicket', weightTicket.id, weightTicket.eTag),
     renderEditLink: () => (
       <Link to={generatePath(editPath, { ...editParams, weightTicketId: weightTicket.id })}>Edit</Link>
     ),
@@ -75,7 +75,7 @@ export const formatProGearItems = (proGears, editPath, editParams, handleDelete)
         weightValues,
       ],
       renderEditLink: () => <Link to={generatePath(editPath, { ...editParams, proGearId: proGear.id })}>Edit</Link>,
-      onDelete: () => handleDelete(proGear.id),
+      onDelete: () => handleDelete('proGear', proGear.id, proGear.eTag),
     };
   });
 };
@@ -96,7 +96,7 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
         { id: 'amount', label: 'Amount:', value: `$${formatCents(expense.amount)}` },
       ],
       renderEditLink: () => <Link to={generatePath(editPath, { ...editParams, expenseId: expense.id })}>Edit</Link>,
-      onDelete: () => handleDelete(expense.id),
+      onDelete: () => handleDelete('expense', expense.id, expense.eTag),
     };
 
     if (expense.type === 'Storage') {

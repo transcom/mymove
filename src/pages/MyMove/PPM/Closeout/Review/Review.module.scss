@@ -1,5 +1,6 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/_variables';
+@import 'shared/styles/colors';
 
 .PPMReview {
   .aboutContainer {
@@ -25,5 +26,28 @@
     dd {
       @include u-margin-left(0);
     }
+  }
+
+  .reviewItems:first-of-type {
+    @include u-margin-top(2);
+  }
+
+  .reviewItems {
+    @include u-margin-top(3);
+  }
+
+  :global(.usa-button.usa-button--secondary) {
+    &:visited {
+      color: $primary;
+    }
+
+    &:hover {
+      color: $primary-dark;
+    }
+  }
+
+  :global(.usa-button--disabled) {
+    pointer-events: none;
+    background-color: $disabled;
   }
 }
