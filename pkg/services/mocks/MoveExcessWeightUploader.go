@@ -11,8 +11,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -44,8 +42,13 @@ func (_m *MoveExcessWeightUploader) CreateExcessWeightUpload(appCtx appcontext.A
 	return r0, r1
 }
 
-// NewMoveExcessWeightUploader creates a new instance of MoveExcessWeightUploader. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveExcessWeightUploader(t testing.TB) *MoveExcessWeightUploader {
+type mockConstructorTestingTNewMoveExcessWeightUploader interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewMoveExcessWeightUploader creates a new instance of MoveExcessWeightUploader. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewMoveExcessWeightUploader(t mockConstructorTestingTNewMoveExcessWeightUploader) *MoveExcessWeightUploader {
 	mock := &MoveExcessWeightUploader{}
 	mock.Mock.Test(t)
 

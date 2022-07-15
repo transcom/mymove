@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -41,8 +39,13 @@ func (_m *MoveFinancialReviewFlagSetter) SetFinancialReviewFlag(appCtx appcontex
 	return r0, r1
 }
 
-// NewMoveFinancialReviewFlagSetter creates a new instance of MoveFinancialReviewFlagSetter. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveFinancialReviewFlagSetter(t testing.TB) *MoveFinancialReviewFlagSetter {
+type mockConstructorTestingTNewMoveFinancialReviewFlagSetter interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewMoveFinancialReviewFlagSetter creates a new instance of MoveFinancialReviewFlagSetter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewMoveFinancialReviewFlagSetter(t mockConstructorTestingTNewMoveFinancialReviewFlagSetter) *MoveFinancialReviewFlagSetter {
 	mock := &MoveFinancialReviewFlagSetter{}
 	mock.Mock.Test(t)
 

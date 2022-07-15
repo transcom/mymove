@@ -6,8 +6,6 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -30,8 +28,13 @@ func (_m *CustomerSupportRemarkDeleter) DeleteCustomerSupportRemark(appCtx appco
 	return r0
 }
 
-// NewCustomerSupportRemarkDeleter creates a new instance of CustomerSupportRemarkDeleter. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewCustomerSupportRemarkDeleter(t testing.TB) *CustomerSupportRemarkDeleter {
+type mockConstructorTestingTNewCustomerSupportRemarkDeleter interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewCustomerSupportRemarkDeleter creates a new instance of CustomerSupportRemarkDeleter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewCustomerSupportRemarkDeleter(t mockConstructorTestingTNewCustomerSupportRemarkDeleter) *CustomerSupportRemarkDeleter {
 	mock := &CustomerSupportRemarkDeleter{}
 	mock.Mock.Test(t)
 

@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -41,8 +39,13 @@ func (_m *ShipmentCancellationRequester) RequestShipmentCancellation(appCtx appc
 	return r0, r1
 }
 
-// NewShipmentCancellationRequester creates a new instance of ShipmentCancellationRequester. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentCancellationRequester(t testing.TB) *ShipmentCancellationRequester {
+type mockConstructorTestingTNewShipmentCancellationRequester interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewShipmentCancellationRequester creates a new instance of ShipmentCancellationRequester. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewShipmentCancellationRequester(t mockConstructorTestingTNewShipmentCancellationRequester) *ShipmentCancellationRequester {
 	mock := &ShipmentCancellationRequester{}
 	mock.Mock.Test(t)
 

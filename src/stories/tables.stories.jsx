@@ -25,11 +25,6 @@ const DataTableBody = (
 
 export default {
   title: 'Components/Tables',
-  parameters: {
-    abstract: {
-      url: 'https://share.goabstract.com/0a7c55ae-8268-4298-be70-4cf0117c6034?mode=design',
-    },
-  },
 };
 
 export const TableElements = () => (

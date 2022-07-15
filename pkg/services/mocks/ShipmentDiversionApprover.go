@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -41,8 +39,13 @@ func (_m *ShipmentDiversionApprover) ApproveShipmentDiversion(appCtx appcontext.
 	return r0, r1
 }
 
-// NewShipmentDiversionApprover creates a new instance of ShipmentDiversionApprover. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentDiversionApprover(t testing.TB) *ShipmentDiversionApprover {
+type mockConstructorTestingTNewShipmentDiversionApprover interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewShipmentDiversionApprover creates a new instance of ShipmentDiversionApprover. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewShipmentDiversionApprover(t mockConstructorTestingTNewShipmentDiversionApprover) *ShipmentDiversionApprover {
 	mock := &ShipmentDiversionApprover{}
 	mock.Mock.Test(t)
 

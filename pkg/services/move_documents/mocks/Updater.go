@@ -10,8 +10,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	validate "github.com/gobuffalo/validate/v3"
 )
 
@@ -52,8 +50,13 @@ func (_m *Updater) Update(appCtx appcontext.AppContext, moveDocumentPayload *int
 	return r0, r1, r2
 }
 
-// NewUpdater creates a new instance of Updater. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewUpdater(t testing.TB) *Updater {
+type mockConstructorTestingTNewUpdater interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewUpdater creates a new instance of Updater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewUpdater(t mockConstructorTestingTNewUpdater) *Updater {
 	mock := &Updater{}
 	mock.Mock.Test(t)
 

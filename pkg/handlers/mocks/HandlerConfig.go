@@ -28,8 +28,6 @@ import (
 
 	storage "github.com/transcom/mymove/pkg/storage"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -370,8 +368,13 @@ func (_m *HandlerConfig) UseSecureCookie() bool {
 	return r0
 }
 
-// NewHandlerConfig creates a new instance of HandlerConfig. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewHandlerConfig(t testing.TB) *HandlerConfig {
+type mockConstructorTestingTNewHandlerConfig interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewHandlerConfig creates a new instance of HandlerConfig. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewHandlerConfig(t mockConstructorTestingTNewHandlerConfig) *HandlerConfig {
 	mock := &HandlerConfig{}
 	mock.Mock.Test(t)
 

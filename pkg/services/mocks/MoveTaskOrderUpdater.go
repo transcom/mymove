@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -156,8 +154,13 @@ func (_m *MoveTaskOrderUpdater) UpdateTIORemarks(appCtx appcontext.AppContext, m
 	return r0, r1
 }
 
-// NewMoveTaskOrderUpdater creates a new instance of MoveTaskOrderUpdater. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveTaskOrderUpdater(t testing.TB) *MoveTaskOrderUpdater {
+type mockConstructorTestingTNewMoveTaskOrderUpdater interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewMoveTaskOrderUpdater creates a new instance of MoveTaskOrderUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewMoveTaskOrderUpdater(t mockConstructorTestingTNewMoveTaskOrderUpdater) *MoveTaskOrderUpdater {
 	mock := &MoveTaskOrderUpdater{}
 	mock.Mock.Test(t)
 

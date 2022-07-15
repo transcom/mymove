@@ -53,11 +53,6 @@ ButtonGroup.propTypes = {
 
 export default {
   title: 'Components/Button',
-  parameters: {
-    abstract: {
-      url: 'https://share.goabstract.com/cb93b349-6a47-4823-b4eb-28deb04381a1?mode=design',
-    },
-  },
 };
 
 export const Default = () => <ButtonGroup />;
