@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -41,8 +39,13 @@ func (_m *WeightTicketCreator) CreateWeightTicket(appCtx appcontext.AppContext, 
 	return r0, r1
 }
 
-// NewWeightTicketCreator creates a new instance of WeightTicketCreator. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewWeightTicketCreator(t testing.TB) *WeightTicketCreator {
+type mockConstructorTestingTNewWeightTicketCreator interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewWeightTicketCreator creates a new instance of WeightTicketCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewWeightTicketCreator(t mockConstructorTestingTNewWeightTicketCreator) *WeightTicketCreator {
 	mock := &WeightTicketCreator{}
 	mock.Mock.Test(t)
 
