@@ -255,8 +255,8 @@ func MTOShipments(mtoShipments *models.MTOShipments) *internalmessages.MTOShipme
 	return &payload
 }
 
-// CreateWeightTicket payload
-func CreateWeightTicket(weightTicket *models.WeightTicket) *internalmessages.WeightTicket {
+// WeightTicket payload
+func WeightTicket(weightTicket *models.WeightTicket) *internalmessages.WeightTicket {
 	ppmShipment := strfmt.UUID(weightTicket.PPMShipmentID.String())
 
 	payload := &internalmessages.WeightTicket{
@@ -272,33 +272,6 @@ func CreateWeightTicket(weightTicket *models.WeightTicket) *internalmessages.Wei
 		EmptyDocument:                     CreateDocument(weightTicket.EmptyDocument),
 		FullWeight:                        handlers.FmtPoundPtr(weightTicket.FullWeight),
 		MissingFullWeightTicket:           weightTicket.MissingFullWeightTicket,
-		FullDocumentID:                    *handlers.FmtUUID(weightTicket.FullDocumentID),
-		FullDocument:                      CreateDocument(weightTicket.FullDocument),
-		OwnsTrailer:                       weightTicket.OwnsTrailer,
-		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
-		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
-		ProofOfTrailerOwnershipDocument:   CreateDocument(weightTicket.ProofOfTrailerOwnershipDocument),
-	}
-
-	return payload
-}
-
-// UpdateWeightTicket payload
-func UpdateWeightTicket(weightTicket models.WeightTicket) *internalmessages.WeightTicket {
-	ppmShipment := strfmt.UUID(weightTicket.PPMShipmentID.String())
-	payload := &internalmessages.WeightTicket{
-		ID:                                strfmt.UUID(weightTicket.ID.String()),
-		PpmShipmentID:                     ppmShipment,
-		PpmShipment:                       PPMShipment(&weightTicket.PPMShipment),
-		CreatedAt:                         *handlers.FmtDateTime(weightTicket.CreatedAt),
-		UpdatedAt:                         *handlers.FmtDateTime(weightTicket.UpdatedAt),
-		VehicleDescription:                weightTicket.VehicleDescription,
-		EmptyWeight:                       handlers.FmtPoundPtr(weightTicket.EmptyWeight),
-		MissingEmptyWeightTicket:          weightTicket.MissingEmptyWeightTicket,
-		EmptyDocumentID:                   *handlers.FmtUUID(weightTicket.EmptyDocumentID),
-		EmptyDocument:                     CreateDocument(weightTicket.EmptyDocument),
-		FullWeight:                        handlers.FmtPoundPtr(weightTicket.FullWeight),
-		MissingFullWeightTicket:           weightTicket.MissingEmptyWeightTicket,
 		FullDocumentID:                    *handlers.FmtUUID(weightTicket.FullDocumentID),
 		FullDocument:                      CreateDocument(weightTicket.FullDocument),
 		OwnsTrailer:                       weightTicket.OwnsTrailer,
