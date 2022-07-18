@@ -86,7 +86,7 @@ ExistingWeightTickets.args = {
     vehicleDescription: 'DMC Delorean',
     missingEmptyWeightTicket: false,
     emptyWeight: 3456,
-    emptyWeightTickets: [
+    emptyDocument: [
       {
         id: 'db4713ae-6087-4330-8b0d-926b3d65c454',
         created_at: '2022-06-10T12:59:30.000Z',
@@ -98,7 +98,7 @@ ExistingWeightTickets.args = {
     ],
     fullWeight: 6789,
     missingFullWeightTicket: false,
-    fullWeightTickets: [
+    fullDocument: [
       {
         id: '28e6e387-7b2d-441b-b96f-f9ba7ed6e794',
         created_at: '2022-06-09T06:30:59.000Z',
@@ -141,7 +141,7 @@ MissingWeightTickets.args = {
     vehicleDescription: 'DMC Delorean',
     missingEmptyWeightTicket: true,
     emptyWeight: 3456,
-    emptyWeightTickets: [
+    emptyDocument: [
       {
         id: 'db4713ae-6087-4330-8b0d-926b3d65c454',
         created_at: '2022-06-10T12:59:30.000Z',
@@ -153,7 +153,7 @@ MissingWeightTickets.args = {
     ],
     fullWeight: 6789,
     missingFullWeightTicket: true,
-    fullWeightTickets: [
+    fullDocument: [
       {
         id: '28e6e387-7b2d-441b-b96f-f9ba7ed6e794',
         created_at: '2022-06-09T06:30:59.000Z',
@@ -186,7 +186,7 @@ TrailerOwnership.args = {
     vehicleDescription: 'DMC Delorean',
     missingEmptyWeightTicket: false,
     emptyWeight: 3456,
-    emptyWeightTickets: [
+    emptyDocument: [
       {
         id: 'db4713ae-6087-4330-8b0d-926b3d65c454',
         created_at: '2022-06-10T12:59:30.000Z',
@@ -198,7 +198,7 @@ TrailerOwnership.args = {
     ],
     fullWeight: 6789,
     missingFullWeightTicket: false,
-    fullWeightTickets: [
+    fullDocument: [
       {
         id: '28e6e387-7b2d-441b-b96f-f9ba7ed6e794',
         created_at: '2022-06-09T06:30:59.000Z',
@@ -218,7 +218,7 @@ TrailerOwnership.args = {
     ],
     hasOwnTrailer: true,
     trailerMeetsCriteria: true,
-    trailerOwnershipDocs: [
+    proofOfTrailerOwnershipDocument: [
       {
         id: '8477cc1f-29da-4e3c-a1ce-34db433cf926',
         created_at: '2022-06-11T12:59:30.000Z',
