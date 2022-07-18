@@ -3,37 +3,32 @@
 @import 'shared/styles/colors';
 
 .PPMReview {
-  .aboutContainer {
-    @include u-display(flex);
-
-    dl {
-      @include u-flex(1);
-    }
-
-    .editContainer {
-      @include u-margin-top(2);
-      @include u-flex(auto);
-    }
-
-    .hiddenTerm {
-      @include u-display(none);
-    }
-
-    dt, dd {
-      @include u-display(inline);
-    }
-
-    dd {
-      @include u-margin-left(0);
+  @media(max-width: $mobile) {
+    .aboutSection {
+      @include u-padding-bottom(4);
+      @include u-margin-bottom(4);
+      @include u-border-bottom(1px, solid);
+      border-color: $base-lighter;
     }
   }
-
   .reviewItems:first-of-type {
     @include u-margin-top(2);
   }
 
-  .reviewItems {
-    @include u-margin-top(3);
+  @media(min-width: $mobile) {
+    .reviewItems {
+      @include u-margin-top(3);
+    }
+  }
+
+  @media(max-width: $mobile) {
+    .reviewItems {
+      @include u-margin-top(4);
+    }
+
+    .navigationButtons {
+      @include u-margin-top(4);
+    }
   }
 
   :global(.usa-button.usa-button--secondary) {

@@ -3,24 +3,54 @@
 @import 'shared/styles/colors';
 
 .ReviewItems {
-  .headingContainer {
-    @include u-display(flex);
-    @include u-align-items(align-end);
+  @media(max-width: $mobile) {
+    .headingContainer {
+      @include u-display(block);
 
-    .headingContent {
-      @include u-flex(1);
-      h1,h2,h3,h4,h5,h6 {
-        @include u-display(inline);
-        @include u-margin-right(1);
+      .headingContent {
+        @include u-display(block);
+
+        h1,h2,h3,h4,h5,h6 {
+          @include u-display(inline);
+          @include u-margin-right(1);
+        }
+      }
+
+      .addButtonContainer {
+        @include u-display(block);
+        @include u-padding-top(2);
+        @include u-padding-bottom(1);
+
+        a {
+          @include u-display(inline);
+          @include u-margin-bottom(0);
+          @include u-margin-right(0);
+        }
       }
     }
+  }
 
-    .addButtonContainer {
-      @include u-flex(auto);
+  @media(min-width: $mobile) {
+    .headingContainer {
+      @include u-display(flex);
+      @include u-align-items(align-end);
 
-      a {
-        @include u-margin-bottom(0);
-        @include u-margin-right(0);
+      .headingContent {
+        @include u-flex(1);
+
+        h1, h2, h3, h4, h5, h6 {
+          @include u-display(inline);
+          @include u-margin-right(1);
+        }
+      }
+
+      .addButtonContainer {
+        @include u-flex(auto);
+
+        a {
+          @include u-margin-bottom(0);
+          @include u-margin-right(0);
+        }
       }
     }
   }
@@ -39,6 +69,12 @@
 
       .actionContainer {
         @include u-margin-top(0);
+
+        @media(max-width: $mobile) {
+          button {
+            @include u-width(auto);
+          }
+        }
       }
 
       .emptyMessage {

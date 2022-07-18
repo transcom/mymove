@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, element, func, arrayOf, bool, shape } from 'prop-types';
+import { string, element, func, arrayOf, bool, shape, oneOfType, number } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
@@ -65,7 +65,7 @@ ReviewItems.propTypes = {
           id: string.isRequired,
           hideLabel: bool,
           label: string,
-          value: string.isRequired,
+          value: oneOfType([string, number]).isRequired,
         }),
       ).isRequired,
       onDelete: func,

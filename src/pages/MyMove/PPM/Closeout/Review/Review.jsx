@@ -204,7 +204,7 @@ const Review = () => {
             )}
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Review</h1>
-            <SectionWrapper>
+            <SectionWrapper className={styles.aboutSection}>
               <ReviewItems heading={<h2>About Your PPM</h2>} contents={aboutYourPPM} />
             </SectionWrapper>
             <SectionWrapper>
@@ -258,7 +258,7 @@ const Review = () => {
                 emptyMessage="No receipts uploaded."
               />
             </SectionWrapper>
-            <div className={ppmStyles.buttonContainer}>
+            <div className={classnames(ppmStyles.buttonContainer, styles.navigationButtons)}>
               <Link
                 className={classnames(ppmStyles.backButton, 'usa-button', 'usa-button--secondary')}
                 to={generalRoutes.HOME_PATH}
