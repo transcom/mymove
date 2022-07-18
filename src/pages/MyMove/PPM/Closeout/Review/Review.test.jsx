@@ -10,6 +10,7 @@ import { selectMTOShipmentById } from 'store/entities/selectors';
 import Review from 'pages/MyMove/PPM/Closeout/Review/Review';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { customerRoutes } from 'constants/routes';
+import { deleteWeightTicket } from 'services/internalApi';
 
 const mockMoveId = v4();
 const mockMTOShipmentId = v4();
@@ -55,8 +56,7 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
-  patchMTOShipment: jest.fn(),
-  getResponseError: jest.fn(),
+  deleteWeightTicket: jest.fn(() => {}),
 }));
 
 jest.mock('store/entities/selectors', () => ({
@@ -193,5 +193,23 @@ describe('About page', () => {
     userEvent.click(screen.getByRole('button', { name: 'No, Keep It' }));
 
     expect(screen.queryByRole('heading', { level: 3, name: 'Delete this?' })).not.toBeInTheDocument();
+  });
+
+  it('calls the delete weight ticket api when confirm is clicked', async () => {
+    const mockDeleteWeightTicket = jest.fn().mockResolvedValue({});
+    deleteWeightTicket.mockImplementationOnce(mockDeleteWeightTicket);
+    render(<Review />, { wrapper: MockProviders });
+
+    userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
+    });
+
+    userEvent.click(screen.getByRole('button', { name: 'Yes, Delete' }));
+
+    await waitFor(() => {
+      expect(mockDeleteWeightTicket).toHaveBeenCalledWith('dd7dea73-d711-420f-bad6-8b2ebf959584', 'eTag value');
+    });
   });
 });

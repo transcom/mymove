@@ -67,6 +67,7 @@ const Review = () => {
       vehicleDescription: 'DMC Delorean',
       emptyWeight: 2500,
       fullWeight: 3500,
+      eTag: 'eTag value',
     },
     {
       id: uuidv4(),
