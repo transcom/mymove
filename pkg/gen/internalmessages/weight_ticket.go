@@ -69,10 +69,6 @@ type WeightTicket struct {
 	// Owns trailer
 	OwnsTrailer *bool `json:"ownsTrailer"`
 
-	// ppm shipment
-	// Required: true
-	PpmShipment *PPMShipment `json:"ppmShipment"`
-
 	// ppm shipment Id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
@@ -137,10 +133,6 @@ func (m *WeightTicket) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePpmShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -281,26 +273,6 @@ func (m *WeightTicket) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *WeightTicket) validatePpmShipment(formats strfmt.Registry) error {
-
-	if err := validate.Required("ppmShipment", "body", m.PpmShipment); err != nil {
-		return err
-	}
-
-	if m.PpmShipment != nil {
-		if err := m.PpmShipment.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("ppmShipment")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("ppmShipment")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *WeightTicket) validatePpmShipmentID(formats strfmt.Registry) error {
 
 	if err := validate.Required("ppmShipmentId", "body", strfmt.UUID(m.PpmShipmentID)); err != nil {
@@ -385,10 +357,6 @@ func (m *WeightTicket) ContextValidate(ctx context.Context, formats strfmt.Regis
 	}
 
 	if err := m.contextValidateID(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidatePpmShipment(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -477,22 +445,6 @@ func (m *WeightTicket) contextValidateID(ctx context.Context, formats strfmt.Reg
 
 	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (m *WeightTicket) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.PpmShipment != nil {
-		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("ppmShipment")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("ppmShipment")
-			}
-			return err
-		}
 	}
 
 	return nil

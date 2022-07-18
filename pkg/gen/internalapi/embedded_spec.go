@@ -6865,7 +6865,6 @@ func init() {
       "type": "object",
       "required": [
         "ppmShipmentId",
-        "ppmShipment",
         "createdAt",
         "updatedAt",
         "emptyDocumentId",
@@ -6933,9 +6932,6 @@ func init() {
           "title": "Owns trailer",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "ppmShipment": {
-          "$ref": "#/definitions/PPMShipment"
         },
         "ppmShipmentId": {
           "type": "string",
@@ -14017,7 +14013,6 @@ func init() {
       "type": "object",
       "required": [
         "ppmShipmentId",
-        "ppmShipment",
         "createdAt",
         "updatedAt",
         "emptyDocumentId",
@@ -14087,9 +14082,6 @@ func init() {
           "title": "Owns trailer",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "ppmShipment": {
-          "$ref": "#/definitions/PPMShipment"
         },
         "ppmShipmentId": {
           "type": "string",
