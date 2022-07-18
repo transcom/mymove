@@ -66,6 +66,32 @@ export function navigateFromAboutPageToWeightTicketPage() {
   });
 }
 
+export function signInAndNavigateToWeightTicketPage(userId) {
+  signInAndNavigateToAboutPage(userId, true);
+  fillOutAboutPage(true);
+  navigateFromAboutPageToWeightTicketPage();
+}
+
+export function fillOutWeightTicketPage() {
+  cy.get('input[name="vehicleDescription"]').clear().type('Kia Forte').blur();
+  cy.get('input[name="emptyWeight"]').clear().type('1000').blur();
+  // TODO: add weight ticket image to /fixtures
+  cy.upload_file('.emptyWeightTicketsRef', 'weighTicket.pdf');
+  cy.get('input[name="fullWeight"]').clear().type('3000');
+  // TODO: add file upload for full weight ticket
+  cy.upload_file('.fullWeightTicketsRef', 'weighTicket.pdf');
+  // add check for trailer being no
+  cy.get('button').contains('Save & Continue').should('be.enabled');
+  navigateFromWeightTicketPage();
+}
+
+export function navigateFromWeightTicketPage() {
+  cy.get('button').contains('Save & Continue').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+  });
+}
+
 export function signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage(userId) {
   cy.apiSignInAsUser(userId);
 
