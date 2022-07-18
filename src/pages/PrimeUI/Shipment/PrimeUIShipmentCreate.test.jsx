@@ -45,10 +45,6 @@ describe('Create Shipment Page', () => {
     render(mockedComponent);
 
     expect(await screen.findByText('Shipment Type')).toBeInTheDocument();
-    expect(await screen.findByText('Shipment Dates')).toBeInTheDocument();
-    expect(await screen.findByRole('heading', { name: 'Diversion' })).toBeInTheDocument();
-    expect(await screen.findByText('Shipment Weights')).toBeInTheDocument();
-    expect(await screen.findByText('Shipment Addresses')).toBeInTheDocument();
   });
 
   it('navigates the user to the home page when the cancel button is clicked', async () => {

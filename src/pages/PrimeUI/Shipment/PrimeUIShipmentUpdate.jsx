@@ -183,19 +183,19 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     initialValues = {
       ppmShipment: {
         ...shipment.ppmShipment,
-        sitEstimatedWeight: shipment.ppmShipment.sitEstimatedWeight?.toLocaleString(),
-        estimatedWeight: shipment.ppmShipment.estimatedWeight?.toLocaleString(),
-        netWeight: shipment.ppmShipment.netWeight?.toLocaleString(),
-        proGearWeight: shipment.ppmShipment.proGearWeight?.toLocaleString(),
-        spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toLocaleString(),
+        sitEstimatedWeight: shipment.ppmShipment.sitEstimatedWeight?.toString(),
+        estimatedWeight: shipment.ppmShipment.estimatedWeight?.toString(),
+        netWeight: shipment.ppmShipment.netWeight?.toString(),
+        proGearWeight: shipment.ppmShipment.proGearWeight?.toString(),
+        spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toString(),
       },
       counselorRemarks: shipment.counselorRemarks,
     };
     validationSchema = Yup.object().shape({
       ppmShipment: Yup.object().shape({
         expectedDepartureDate: Yup.date()
-          .typeError('Invalid date. Must be in the format: DD MMM YYYY')
-          .required('Required'),
+          .required('Required')
+          .typeError('Invalid date. Must be in the format: DD MMM YYYY'),
         pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
         secondaryPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).nullable(),
         destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
@@ -221,7 +221,19 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         //   then: (schema) =>
         //     schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
         // }),
+        estimatedWeight: Yup.number().required('Required'),
+        netWeight: Yup.number(),
+        hasProGear: Yup.boolean().required('Required'),
+        proGearWeight: Yup.number().when(['hasProGear', 'spouseProGearWeight'], {
+          is: (hasProGear, spouseProGearWeight) => hasProGear && !spouseProGearWeight,
+          then: (schema) =>
+            schema.required(
+              `Enter a weight into at least one pro-gear field. If you won't have pro-gear, uncheck above.`,
+            ),
+        }),
+        spouseProGearWeight: Yup.number(),
       }),
+      // counselorRemarks is an optional string
     });
   } else {
     initialValues = {
