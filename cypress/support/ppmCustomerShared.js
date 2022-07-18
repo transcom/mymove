@@ -86,11 +86,9 @@ export function fillOutWeightTicketPage(options) {
     cy.upload_file('.fullWeightTicketsRef', 'constructedWeight.xls');
   } else {
     cy.get('input[name="emptyWeight"]').clear().type('1000').blur();
-    // TODO: add weight ticket image to /fixtures
-    cy.upload_file('.emptyWeightTicketsRef', 'weighTicket.pdf');
+    cy.upload_file('.emptyWeightTicketsRef', 'sampleWeightTicket.jpg');
     cy.get('input[name="fullWeight"]').clear().type('3000');
-    // TODO: add file upload for full weight ticket
-    cy.upload_file('.fullWeightTicketsRef', 'weighTicket.pdf');
+    cy.upload_file('.fullWeightTicketsRef', 'sampleWeightTicket.jpg');
   }
 
   cy.get('.tripWeightTotal').contains('Trip weight: 2,000 lbs');
