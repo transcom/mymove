@@ -1,4 +1,8 @@
-import { deleteShipment, setMobileViewport, signInAndNavigateToAboutPage } from '../../../support/ppmCustomerShared';
+import {
+  setMobileViewport,
+  signInAndNavigateToAboutPage,
+  signInAndNavigateToWeightTicketPage,
+} from '../../../support/ppmCustomerShared';
 
 // TODOS
 // - Create another user for desktop
@@ -24,7 +28,7 @@ describe('Weight Tickets', function () {
         setMobileViewport();
       }
 
-      signInAndNavigateToWeightTicketPage(userId, true);
+      signInAndNavigateToWeightTicketPage(userId);
     });
   });
 
@@ -34,7 +38,7 @@ describe('Weight Tickets', function () {
       if (isMobile) {
         setMobileViewport();
       }
-      signInAndNavigateToAboutPage(userId, false);
+      signInAndNavigateToWeightTicketPage(userId, { useConstructedWeight: true });
     });
   });
 
@@ -44,7 +48,7 @@ describe('Weight Tickets', function () {
       if (isMobile) {
         setMobileViewport();
       }
-      signInAndNavigateToAboutPage(userId, false);
+      signInAndNavigateToWeightTicketPage(userId, { hasTrailer: true, ownTrailer: true });
     });
   });
 
@@ -54,7 +58,7 @@ describe('Weight Tickets', function () {
       if (isMobile) {
         setMobileViewport();
       }
-      signInAndNavigateToAboutPage(userId, false);
+      signInAndNavigateToWeightTicketPage(userId, { hasTrailer: true, ownTrailer: false });
     });
   });
 });

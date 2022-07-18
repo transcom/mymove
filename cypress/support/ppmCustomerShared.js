@@ -66,21 +66,48 @@ export function navigateFromAboutPageToWeightTicketPage() {
   });
 }
 
-export function signInAndNavigateToWeightTicketPage(userId) {
+export function signInAndNavigateToWeightTicketPage(userId, options) {
   signInAndNavigateToAboutPage(userId, true);
   fillOutAboutPage(true);
   navigateFromAboutPageToWeightTicketPage();
+  fillOutWeightTicketPage(options);
 }
 
-export function fillOutWeightTicketPage() {
+export function fillOutWeightTicketPage(options) {
+  const { useConstructedWeight, hasTrailer, ownTrailer } = options;
   cy.get('input[name="vehicleDescription"]').clear().type('Kia Forte').blur();
-  cy.get('input[name="emptyWeight"]').clear().type('1000').blur();
-  // TODO: add weight ticket image to /fixtures
-  cy.upload_file('.emptyWeightTicketsRef', 'weighTicket.pdf');
-  cy.get('input[name="fullWeight"]').clear().type('3000');
-  // TODO: add file upload for full weight ticket
-  cy.upload_file('.fullWeightTicketsRef', 'weighTicket.pdf');
-  // add check for trailer being no
+
+  if (useConstructedWeight) {
+    cy.get('input[name="emptyWeight"]').clear().type('1000').blur();
+    cy.get('input[name="missingEmptyWeightTicket"]').check({ force: true });
+    cy.upload_file('.emptyWeightTicketsRef', 'constructedWeight.xls');
+    cy.get('input[name="fullWeight"]').clear().type('3000');
+    cy.get('input[name="missingFullWeightTicket"]').check({ force: true });
+    cy.upload_file('.fullWeightTicketsRef', 'constructedWeight.xls');
+  } else {
+    cy.get('input[name="emptyWeight"]').clear().type('1000').blur();
+    // TODO: add weight ticket image to /fixtures
+    cy.upload_file('.emptyWeightTicketsRef', 'weighTicket.pdf');
+    cy.get('input[name="fullWeight"]').clear().type('3000');
+    // TODO: add file upload for full weight ticket
+    cy.upload_file('.fullWeightTicketsRef', 'weighTicket.pdf');
+  }
+
+  cy.get('.tripWeightTotal').contains('Trip weight: 2,000 lbs');
+
+  if (hasTrailer) {
+    cy.get('input[name="hasOwnTrailer"][value="true"]').check({ force: true });
+    if (ownTrailer) {
+      cy.get('input[name="trailerMeetsCriteria"][value="true"]').check({ force: true });
+      cy.upload_file('.trailerOwnershipDocsRef', 'trailerOwnership.pdf');
+    } else {
+      cy.get('input[name="trailerMeetsCriteria"][value="false"]').check({ force: true });
+      cy.get('.doNotClaimTrailerWeight').contains('Do not claim the weight of this trailer for this trip.');
+    }
+  } else {
+    cy.get('input[name="hasOwnTrailer"][value="false"]').check({ force: true });
+  }
+
   cy.get('button').contains('Save & Continue').should('be.enabled');
   navigateFromWeightTicketPage();
 }
@@ -88,6 +115,7 @@ export function fillOutWeightTicketPage() {
 export function navigateFromWeightTicketPage() {
   cy.get('button').contains('Save & Continue').click();
   cy.location().should((loc) => {
+    // TODO: use correct path for subsequent page
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
   });
 }
