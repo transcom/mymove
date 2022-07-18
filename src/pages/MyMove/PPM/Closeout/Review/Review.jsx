@@ -63,7 +63,7 @@ const Review = () => {
 
   const weightTickets = [
     {
-      id: uuidv4(),
+      id: 'dd7dea73-d711-420f-bad6-8b2ebf959584',
       vehicleDescription: 'DMC Delorean',
       emptyWeight: 2500,
       fullWeight: 3500,
