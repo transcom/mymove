@@ -271,9 +271,11 @@ const WeightTicketForm = ({
                   />
                 </div>
                 {values.fullWeight > 0 && values.emptyWeight > 0 ? (
-                  <h3>{`Trip weight: ${formatWeight(values.fullWeight - values.emptyWeight)}`}</h3>
+                  <h3 className="tripWeightTotal">{`Trip weight: ${formatWeight(
+                    values.fullWeight - values.emptyWeight,
+                  )}`}</h3>
                 ) : (
-                  <h3>Trip weight:</h3>
+                  <h3 className="tripWeightTotal">Trip weight:</h3>
                 )}
                 <h3>Trailer</h3>
                 <FormGroup>
