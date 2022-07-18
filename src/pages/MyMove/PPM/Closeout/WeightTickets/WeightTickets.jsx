@@ -35,7 +35,7 @@ const WeightTickets = () => {
 
   useEffect(() => {
     if (!weightTicketId) {
-      createWeightTicket(mtoShipmentId)
+      createWeightTicket(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
           if (mtoShipment?.ppmShipment?.weightTickets) {
             mtoShipment.ppmShipment.weightTickets.push(resp);
