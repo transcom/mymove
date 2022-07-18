@@ -1,6 +1,6 @@
 import {
   setMobileViewport,
-  signInAndNavigateToAboutPage,
+  submitWeightTicketPage,
   signInAndNavigateToWeightTicketPage,
 } from '../../../support/ppmCustomerShared';
 
@@ -27,7 +27,7 @@ describe('Weight Tickets', function () {
       if (isMobile) {
         setMobileViewport();
       }
-
+      signInAndNavigateToWeightTicketPage(userId);
       invalidInputs();
     });
   });
@@ -40,36 +40,40 @@ describe('Weight Tickets', function () {
       }
 
       signInAndNavigateToWeightTicketPage(userId);
+      submitWeightTicketPage();
     });
   });
 
   viewportType.forEach(({ viewport, isMobile, userId }) => {
     it(`proceed without weight tickets (constructed weight) - ${viewport}`, () => {
-      userId = '88007896-6ae7-4600-866a-873d3bc67fd3'; // actualPPMDateZIPAdvanceDone@ppm.approved
+      userId = '22dba194-3d9a-49c6-8328-718dd945292f'; // actualPPMDateZIPAdvanceDone2@ppm.approved
       if (isMobile) {
         setMobileViewport();
       }
-      signInAndNavigateToWeightTicketPage(userId, { useConstructedWeight: true });
+      signInAndNavigateToWeightTicketPage(userId);
+      submitWeightTicketPage({ useConstructedWeight: true });
     });
   });
 
   viewportType.forEach(({ viewport, isMobile, userId }) => {
     it(`proceed with claiming trailer - ${viewport}`, () => {
-      userId = '88007896-6ae7-4600-866a-873d3bc67fd3'; // actualPPMDateZIPAdvanceDone@ppm.approved
+      userId = '9ec731d8-f347-4d34-8b54-4ce9e6ea3282'; // actualPPMDateZIPAdvanceDone3@ppm.approved
       if (isMobile) {
         setMobileViewport();
       }
-      signInAndNavigateToWeightTicketPage(userId, { hasTrailer: true, ownTrailer: true });
+      signInAndNavigateToWeightTicketPage(userId);
+      submitWeightTicketPage({ hasTrailer: true, ownTrailer: true });
     });
   });
 
   viewportType.forEach(({ viewport, isMobile, userId }) => {
     it(`proceed without claiming trailer - ${viewport}`, () => {
-      userId = '88007896-6ae7-4600-866a-873d3bc67fd3'; // actualPPMDateZIPAdvanceDone@ppm.approved
+      userId = '2a0146c4-ec9a-4efc-a94c-6c2849c3e167'; // actualPPMDateZIPAdvanceDone4@ppm.approved
       if (isMobile) {
         setMobileViewport();
       }
-      signInAndNavigateToWeightTicketPage(userId, { hasTrailer: true, ownTrailer: false });
+      signInAndNavigateToWeightTicketPage(userId);
+      submitWeightTicketPage({ hasTrailer: true, ownTrailer: false });
     });
   });
 });
