@@ -4,8 +4,6 @@ import {
   signInAndNavigateToWeightTicketPage,
 } from '../../../support/ppmCustomerShared';
 
-// TODOS
-// - Create another user for desktop
 describe('Weight Tickets', function () {
   before(() => {
     cy.prepareCustomerApp();
