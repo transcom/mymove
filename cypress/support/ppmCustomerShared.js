@@ -66,11 +66,19 @@ export function navigateFromAboutPageToWeightTicketPage() {
   });
 }
 
-export function signInAndNavigateToWeightTicketPage(userId, options) {
-  signInAndNavigateToAboutPage(userId, true);
-  fillOutAboutPage(true);
+export function signInAndNavigateToWeightTicketPage(userId) {
+  cy.apiSignInAsUser(userId);
+
+  cy.wait('@getShipment');
+  cy.screenshot();
+  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
+
   navigateFromAboutPageToWeightTicketPage();
+}
+
+export function submitWeightTicketPage(options) {
   fillOutWeightTicketPage(options);
+  navigateFromWeightTicketPage();
 }
 
 export function fillOutWeightTicketPage(options) {
@@ -107,7 +115,6 @@ export function fillOutWeightTicketPage(options) {
   }
 
   cy.get('button').contains('Save & Continue').should('be.enabled');
-  navigateFromWeightTicketPage();
 }
 
 export function navigateFromWeightTicketPage() {
