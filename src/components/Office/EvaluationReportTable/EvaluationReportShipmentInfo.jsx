@@ -8,11 +8,10 @@ import { formatEvaluationReportShipmentAddress } from 'utils/formatters';
 import { ShipmentShape } from 'types/shipment';
 
 const EvaluationReportShipmentInfo = ({ shipment, shipmentNumber }) => {
-  let heading = '????';
-  let pickupAddress = '????';
-  let destinationAddress = '????';
+  let heading;
+  let pickupAddress;
+  let destinationAddress;
 
-  // TODO
   switch (shipment.shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
     case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
@@ -37,7 +36,6 @@ const EvaluationReportShipmentInfo = ({ shipment, shipmentNumber }) => {
       destinationAddress = shipment.ppmShipment.destinationPostalCode;
       break;
     default:
-      heading = '????!!!';
       break;
   }
 
