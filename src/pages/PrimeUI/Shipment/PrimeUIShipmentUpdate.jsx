@@ -182,14 +182,23 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   if (isPPM) {
     initialValues = {
       ppmShipment: {
-        ...shipment.ppmShipment,
+        expectedDepartureDate: shipment.ppmShipment.expectedDepartureDate,
+        pickupPostalCode: shipment.ppmShipment.pickupPostalCode || '',
+        secondaryPickupPostalCode: shipment.ppmShipment.secondaryPickupPostalCode || '',
+        destinationPostalCode: shipment.ppmShipment.destinationPostalCode || '',
+        secondaryDestinationPostalCode: shipment.ppmShipment.secondaryDestinationPostalCode || '',
+        sitExpected: shipment.ppmShipment.sitExpected,
+        sitLocation: shipment.ppmShipment.sitLocation,
         sitEstimatedWeight: shipment.ppmShipment.sitEstimatedWeight?.toString(),
+        sitEstimatedEntryDate: shipment.ppmShipment.sitEstimatedEntryDate,
+        sitEstimatedDepartureDate: shipment.ppmShipment.sitEstimatedDepartureDate,
         estimatedWeight: shipment.ppmShipment.estimatedWeight?.toString(),
         netWeight: shipment.ppmShipment.netWeight?.toString(),
+        hasProGear: shipment.ppmShipment.hasProGear,
         proGearWeight: shipment.ppmShipment.proGearWeight?.toString(),
         spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toString(),
       },
-      counselorRemarks: shipment.counselorRemarks,
+      counselorRemarks: shipment.counselorRemarks || '',
     };
     validationSchema = Yup.object().shape({
       ppmShipment: Yup.object().shape({
