@@ -114,13 +114,13 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 
 	var inspectionType *ghcmessages.EvaluationReportInspectionType
 	if evaluationReport.InspectionType != nil {
-		foo := ghcmessages.EvaluationReportInspectionType(*evaluationReport.InspectionType)
-		inspectionType = &foo // :(
+		tempInspectionType := ghcmessages.EvaluationReportInspectionType(*evaluationReport.InspectionType)
+		inspectionType = &tempInspectionType
 	}
 	var location *ghcmessages.EvaluationReportLocation
 	if evaluationReport.Location != nil {
-		foo := ghcmessages.EvaluationReportLocation(*evaluationReport.Location)
-		location = &foo // :(
+		tempLocation := ghcmessages.EvaluationReportLocation(*evaluationReport.Location)
+		location = &tempLocation
 	}
 	reportType := ghcmessages.EvaluationReportType(evaluationReport.Type)
 
