@@ -1,0 +1,37 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.tabContent {
+  h1,
+  h2,
+  h3 {
+    color: $mm-blue;
+  }
+  h1 {
+    @include u-margin-bottom(3);
+  }
+  h2 {
+    @include u-margin-top(0.5);
+    @include u-margin-bottom(2);
+  }
+  h3 {
+    font-size: 17px;
+    line-height: 20px;
+
+    @include u-margin-top(4);
+    @include u-margin-bottom(1.5);
+  }
+
+  @include u-padding-top(8);
+}
+
+.cardContainer {
+  @include u-padding-bottom(40px);
+  @include u-bg('white');
+  @include u-radius('05');
+  @include u-border('base-lighter');
+  @include u-border('1px');
+  @include u-padding(5);
+  @include u-margin-bottom(4);
+}
