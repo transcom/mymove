@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 
 	validate "github.com/gobuffalo/validate/v3"
@@ -75,8 +73,13 @@ func (_m *MoveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uu
 	return r0, r1, r2
 }
 
-// NewMoveWeights creates a new instance of MoveWeights. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewMoveWeights(t testing.TB) *MoveWeights {
+type mockConstructorTestingTNewMoveWeights interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewMoveWeights creates a new instance of MoveWeights. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewMoveWeights(t mockConstructorTestingTNewMoveWeights) *MoveWeights {
 	mock := &MoveWeights{}
 	mock.Mock.Test(t)
 

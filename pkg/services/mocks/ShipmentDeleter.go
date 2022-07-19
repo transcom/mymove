@@ -6,8 +6,6 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -39,8 +37,13 @@ func (_m *ShipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipment
 	return r0, r1
 }
 
-// NewShipmentDeleter creates a new instance of ShipmentDeleter. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentDeleter(t testing.TB) *ShipmentDeleter {
+type mockConstructorTestingTNewShipmentDeleter interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewShipmentDeleter creates a new instance of ShipmentDeleter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewShipmentDeleter(t mockConstructorTestingTNewShipmentDeleter) *ShipmentDeleter {
 	mock := &ShipmentDeleter{}
 	mock.Mock.Test(t)
 

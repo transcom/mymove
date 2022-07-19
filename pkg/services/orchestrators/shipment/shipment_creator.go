@@ -42,7 +42,7 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 	var mtoShipment *models.MTOShipment
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
-		mtoShipment, err = s.mtoShipmentCreator.CreateMTOShipment(txnAppCtx, shipment, nil)
+		mtoShipment, err = s.mtoShipmentCreator.CreateMTOShipment(txnAppCtx, shipment)
 
 		if err != nil {
 			return err

@@ -188,7 +188,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 						appCtx.
 							Logger().
 							Error(
-								"internalapi.UpdateMTOServiceItemHandler error",
+								"internalapi.UpdateMTOShipmentHandler error",
 								zap.Error(e.Unwrap()),
 							)
 					}

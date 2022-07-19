@@ -12,8 +12,6 @@ import (
 
 	scs "github.com/alexedwards/scs/v2"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 
 	validate "github.com/gobuffalo/validate/v3"
@@ -56,8 +54,13 @@ func (_m *UserSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext,
 	return r0, r1, r2
 }
 
-// NewUserSessionRevocation creates a new instance of UserSessionRevocation. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewUserSessionRevocation(t testing.TB) *UserSessionRevocation {
+type mockConstructorTestingTNewUserSessionRevocation interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewUserSessionRevocation creates a new instance of UserSessionRevocation. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewUserSessionRevocation(t mockConstructorTestingTNewUserSessionRevocation) *UserSessionRevocation {
 	mock := &UserSessionRevocation{}
 	mock.Mock.Test(t)
 

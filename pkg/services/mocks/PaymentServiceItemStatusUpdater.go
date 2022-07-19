@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 
 	validate "github.com/gobuffalo/validate/v3"
@@ -50,8 +48,13 @@ func (_m *PaymentServiceItemStatusUpdater) UpdatePaymentServiceItemStatus(appCtx
 	return r0, r1, r2
 }
 
-// NewPaymentServiceItemStatusUpdater creates a new instance of PaymentServiceItemStatusUpdater. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPaymentServiceItemStatusUpdater(t testing.TB) *PaymentServiceItemStatusUpdater {
+type mockConstructorTestingTNewPaymentServiceItemStatusUpdater interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewPaymentServiceItemStatusUpdater creates a new instance of PaymentServiceItemStatusUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewPaymentServiceItemStatusUpdater(t mockConstructorTestingTNewPaymentServiceItemStatusUpdater) *PaymentServiceItemStatusUpdater {
 	mock := &PaymentServiceItemStatusUpdater{}
 	mock.Mock.Test(t)
 
