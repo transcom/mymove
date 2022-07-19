@@ -30,7 +30,7 @@ const validationSchema = Yup.object().shape({
   vehicleDescription: Yup.string().required('Required'),
   emptyWeight: Yup.number().min(0, 'Enter a weight 0 lbs or greater').required('Required'),
   missingEmptyWeightTicket: Yup.boolean(),
-  emptyWeightTickets: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
+  emptyDocument: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
   fullWeight: Yup.number()
     .min(0, 'Enter a weight 0 lbs or greater')
     .required('Required')
@@ -40,10 +40,10 @@ const validationSchema = Yup.object().shape({
         : schema;
     }),
   missingFullWeightTicket: Yup.boolean(),
-  fullWeightTickets: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
+  fullDocument: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
   hasOwnTrailer: Yup.boolean().required('Required'),
   trailerMeetsCriteria: Yup.boolean(),
-  trailerOwnershipDocs: Yup.array()
+  proofOfTrailerOwnershipDocument: Yup.array()
     .of(uploadShape)
     .when('trailerMeetsCriteria', (trailerMeetsCriteria, schema) => {
       return trailerMeetsCriteria ? schema.min(1, 'At least one upload is required') : schema;
@@ -88,7 +88,7 @@ const WeightTicketUpload = ({
   formikProps: { touched, errors, setFieldTouched, setFieldValue },
 }) => {
   const weightTicketUploadLabel = (name, showConstructedWeight) => {
-    if (name === 'emptyWeightTickets') {
+    if (name === 'emptyDocument') {
       return showConstructedWeight ? 'Upload constructed weight spreadsheet' : 'Upload empty weight ticket';
     }
 
@@ -173,31 +173,31 @@ const WeightTicketForm = ({
     vehicleDescription,
     missingEmptyWeightTicket,
     emptyWeight,
-    emptyWeightTickets,
+    emptyDocument,
     fullWeight,
     missingFullWeightTicket,
-    fullWeightTickets,
+    fullDocument,
     hasOwnTrailer,
     trailerMeetsCriteria,
-    trailerOwnershipDocs,
+    proofOfTrailerOwnershipDocument,
   } = weightTicket || {};
 
   const initialValues = {
     vehicleDescription: vehicleDescription || '',
     missingEmptyWeightTicket: !!missingEmptyWeightTicket,
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
-    emptyWeightTickets: emptyWeightTickets || [],
+    emptyDocument: emptyDocument || [],
     fullWeight: fullWeight ? `${fullWeight}` : '',
     missingFullWeightTicket: !!missingFullWeightTicket,
-    fullWeightTickets: fullWeightTickets || [],
+    fullDocument: fullDocument || [],
     hasOwnTrailer: hasOwnTrailer ? 'true' : 'false',
     trailerMeetsCriteria: trailerMeetsCriteria ? 'true' : 'false',
-    trailerOwnershipDocs: trailerOwnershipDocs || [],
+    proofOfTrailerOwnershipDocument: proofOfTrailerOwnershipDocument || [],
   };
 
-  const emptyWeightTicketsRef = createRef();
-  const fullWeightTicketsRef = createRef();
-  const trailerOwnershipDocsRef = createRef();
+  const emptyDocumentRef = createRef();
+  const fullDocumentRef = createRef();
+  const proofOfTrailerOwnershipDocumentRef = createRef();
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -230,12 +230,12 @@ const WeightTicketForm = ({
                 />
                 <div>
                   <WeightTicketUpload
-                    fieldName="emptyWeightTickets"
+                    fieldName="emptyDocument"
                     missingWeightTicket={values.missingEmptyWeightTicket}
                     onCreateUpload={onCreateUpload}
                     onUploadComplete={onUploadComplete}
                     onUploadDelete={onUploadDelete}
-                    fileUploadRef={emptyWeightTicketsRef}
+                    fileUploadRef={emptyDocumentRef}
                     values={values}
                     formikProps={formikProps}
                   />
@@ -260,12 +260,12 @@ const WeightTicketForm = ({
                 />
                 <div>
                   <WeightTicketUpload
-                    fieldName="fullWeightTickets"
+                    fieldName="fullDocument"
                     missingWeightTicket={values.missingFullWeightTicket}
                     onCreateUpload={onCreateUpload}
                     onUploadComplete={onUploadComplete}
                     onUploadDelete={onUploadDelete}
-                    fileUploadRef={fullWeightTicketsRef}
+                    fileUploadRef={fullDocumentRef}
                     values={values}
                     formikProps={formikProps}
                   />
@@ -331,11 +331,11 @@ const WeightTicketForm = ({
                           <div>
                             <UploadsTable
                               className={styles.uploadsTable}
-                              uploads={values.trailerOwnershipDocs}
+                              uploads={values.proofOfTrailerOwnershipDocument}
                               onDelete={(uploadId) =>
                                 onUploadDelete(
                                   uploadId,
-                                  'trailerOwnershipDocs',
+                                  'proofOfTrailerOwnershipDocument',
                                   values,
                                   formikProps.setFieldTouched,
                                   formikProps.setFieldValue,
@@ -344,23 +344,24 @@ const WeightTicketForm = ({
                             />
                             <FormGroup
                               error={
-                                formikProps.touched?.trailerOwnershipDocs && formikProps.errors?.trailerOwnershipDocs
+                                formikProps.touched?.proofOfTrailerOwnershipDocument &&
+                                formikProps.errors?.proofOfTrailerOwnershipDocument
                               }
                             >
                               <div className="labelWrapper">
                                 <Label
                                   error={
-                                    formikProps.touched?.trailerOwnershipDocs &&
-                                    formikProps.errors?.trailerOwnershipDocs
+                                    formikProps.touched?.proofOfTrailerOwnershipDocument &&
+                                    formikProps.errors?.proofOfTrailerOwnershipDocument
                                   }
-                                  htmlFor="trailerOwnershipDocs"
+                                  htmlFor="proofOfTrailerOwnershipDocument"
                                 >
                                   Upload proof of ownership
                                 </Label>
                               </div>
-                              {formikProps.touched?.trailerOwnershipDocs &&
-                                formikProps.errors?.trailerOwnershipDocs && (
-                                  <ErrorMessage>{formikProps.errors?.trailerOwnershipDocs}</ErrorMessage>
+                              {formikProps.touched?.proofOfTrailerOwnershipDocument &&
+                                formikProps.errors?.proofOfTrailerOwnershipDocument && (
+                                  <ErrorMessage>{formikProps.errors?.proofOfTrailerOwnershipDocument}</ErrorMessage>
                                 )}
                               <Hint>
                                 <p>Examples include a registration or bill of sale.</p>
@@ -371,23 +372,23 @@ const WeightTicketForm = ({
                                 <p className={styles.uploadTypeHint}>{DocumentAndImageUploadInstructions}</p>
                               </Hint>
                               <FileUpload
-                                name="trailerOwnershipDocs"
-                                createUpload={(file) => onCreateUpload('trailerOwnershipDocs', file)}
+                                name="proofOfTrailerOwnershipDocument"
+                                createUpload={(file) => onCreateUpload('proofOfTrailerOwnershipDocument', file)}
                                 labelIdle={UploadDropZoneLabel}
                                 labelIdleMobile={UploadDropZoneLabelMobile}
                                 onChange={(err, upload) => {
-                                  formikProps.setFieldTouched('trailerOwnershipDocs', true);
+                                  formikProps.setFieldTouched('proofOfTrailerOwnershipDocument', true);
                                   onUploadComplete(
                                     upload,
                                     err,
-                                    'trailerOwnershipDocs',
+                                    'proofOfTrailerOwnershipDocument',
                                     values,
                                     formikProps.setFieldValue,
                                   );
-                                  trailerOwnershipDocsRef.current.removeFile(upload.id);
+                                  proofOfTrailerOwnershipDocumentRef.current.removeFile(upload.id);
                                 }}
                                 acceptedFileTypes={acceptableFileTypes}
-                                ref={trailerOwnershipDocsRef}
+                                ref={proofOfTrailerOwnershipDocumentRef}
                               />
                             </FormGroup>
                           </div>

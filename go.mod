@@ -24,10 +24,10 @@ require (
 	github.com/go-openapi/validate v0.22.0
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/gobuffalo/envy v1.10.1
-	github.com/gobuffalo/fizz v1.14.0
+	github.com/gobuffalo/fizz v1.14.2
 	github.com/gobuffalo/flect v0.2.5
 	github.com/gobuffalo/pop/v6 v6.0.4
-	github.com/gobuffalo/validate/v3 v3.3.1
+	github.com/gobuffalo/validate/v3 v3.3.2
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/golang-jwt/jwt/v4 v4.4.2
@@ -61,13 +61,13 @@ require (
 	github.com/tealeg/xlsx/v3 v3.2.4
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/trussworks/otelhttp v0.0.0-20220428162739-458ecc428855
-	github.com/vektra/mockery/v2 v2.13.1
+	github.com/vektra/mockery/v2 v2.14.0
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.7.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.32.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.32.0
 	go.opentelemetry.io/contrib/propagators/aws v1.7.0
-	go.opentelemetry.io/otel v1.7.0
+	go.opentelemetry.io/otel v1.8.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.30.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.30.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.7.0
@@ -75,9 +75,9 @@ require (
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.30.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.7.0
 	go.opentelemetry.io/otel/metric v0.30.0
-	go.opentelemetry.io/otel/sdk v1.7.0
+	go.opentelemetry.io/otel/sdk v1.8.0
 	go.opentelemetry.io/otel/sdk/metric v0.30.0
-	go.opentelemetry.io/otel/trace v1.7.0
+	go.opentelemetry.io/otel/trace v1.8.0
 	go.uber.org/zap v1.21.0
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2
@@ -117,12 +117,12 @@ require (
 	github.com/gobuffalo/attrs v1.0.1 // indirect
 	github.com/gobuffalo/genny/v2 v2.0.9 // indirect
 	github.com/gobuffalo/github_flavored_markdown v1.1.1 // indirect
-	github.com/gobuffalo/helpers v0.6.4 // indirect
+	github.com/gobuffalo/helpers v0.6.5 // indirect
 	github.com/gobuffalo/logger v1.0.6 // indirect
 	github.com/gobuffalo/nulls v0.4.1 // indirect
 	github.com/gobuffalo/packd v1.0.1 // indirect
-	github.com/gobuffalo/plush/v4 v4.1.11 // indirect
-	github.com/gobuffalo/tags/v3 v3.1.2 // indirect
+	github.com/gobuffalo/plush/v4 v4.1.13 // indirect
+	github.com/gobuffalo/tags/v3 v3.1.3 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/btree v1.0.0 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
@@ -192,7 +192,7 @@ require (
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
+	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect
 	golang.org/x/sys v0.0.0-20220610221304-9f5ed59c137d // indirect
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
