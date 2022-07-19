@@ -203,22 +203,6 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         //   then: (schema) =>
         //     schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
         // }),
-        sitEstimatedEntryDate: Yup.string().when('sitExpected', {
-          is: true,
-          then: (schema) =>
-            schema
-              .date()
-              .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-              .required('Required'),
-        }),
-        sitEstimatedDepartureDate: Yup.string().when('sitExpected', {
-          is: true,
-          then: (schema) =>
-            schema
-              .date()
-              .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-              .required('Required'),
-        }),
         estimatedWeight: Yup.number().required('Required'),
         hasProGear: Yup.boolean().required('Required'),
         proGearWeight: Yup.number().when(['hasProGear', 'spouseProGearWeight'], {
