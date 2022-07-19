@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { useParams, generatePath } from 'react-router-dom';
 import { v4 } from 'uuid';
 
-import { selectMTOShipmentById } from 'store/entities/selectors';
+import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createWeightTicket, patchWeightTicket } from 'services/internalApi';
 import { MockProviders } from 'testUtils';
@@ -79,7 +79,7 @@ const mockWeightTicketWithUploads = {
   id: mockWeightTicketId,
   ppmShipmentId: mockPPMShipmentId,
   emptyWeightDocumentId: mockEmptyWeightDocumentId,
-  emptyWeightTickets: [
+  emptyDocument: [
     {
       id: '299e2fb4-432d-4261-bbed-d8280c6090af',
       created_at: '2022-06-22T23:25:50.490Z',
@@ -90,7 +90,7 @@ const mockWeightTicketWithUploads = {
     },
   ],
   fullWeightDocumentId: mockFullWeightDocumentId,
-  fullWeightTickets: [
+  fullDocument: [
     {
       id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
       created_at: '2022-06-23T23:25:50.490Z',
@@ -101,7 +101,7 @@ const mockWeightTicketWithUploads = {
     },
   ],
   trailerOwnershipDocumentId: mockTrailerOwnershipWeightDocumentId,
-  trailerOwnershipDocs: [
+  proofOfTrailerOwnershipDocument: [
     {
       id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',
       created_at: '2022-06-24T23:25:50.490Z',
@@ -114,9 +114,15 @@ const mockWeightTicketWithUploads = {
   eTag: mockWeightTicketETag,
 };
 
+const mockEmptyWeightTicketAndIndex = {
+  weightTicket: null,
+  index: -1,
+};
+
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectMTOShipmentById: jest.fn(() => mockMTOShipment),
+  selectWeightTicketAndIndexById: jest.fn(() => mockEmptyWeightTicketAndIndex),
 }));
 
 beforeEach(() => {
@@ -146,7 +152,7 @@ describe('Weight Tickets page', () => {
   });
 
   it('displays an error if the createWeightTicket request fails', async () => {
-    createWeightTicket.mockRejectedValueOnce('an error occurred');
+    createWeightTicket.mockRejectedValue('an error occurred');
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -161,6 +167,7 @@ describe('Weight Tickets page', () => {
       mtoShipmentId: mockMTOShipmentId,
       weightTicketId: mockWeightTicketId,
     }));
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -171,6 +178,8 @@ describe('Weight Tickets page', () => {
 
   it('renders the page Content', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
+    selectWeightTicketAndIndexById.mockReturnValueOnce({ weightTicket: null, index: -1 });
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -195,6 +204,8 @@ describe('Weight Tickets page', () => {
 
   it('replaces the router history with newly created weight ticket id', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
+    selectWeightTicketAndIndexById.mockReturnValueOnce({ weightTicket: null, index: -1 });
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -205,6 +216,7 @@ describe('Weight Tickets page', () => {
 
   it('routes back to home when finish later is clicked', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -217,6 +229,7 @@ describe('Weight Tickets page', () => {
 
   it('calls patch weight ticket with the appropriate payload', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 0 });
     patchWeightTicket.mockResolvedValue({});
 
     render(<WeightTickets />, { wrapper: MockProviders });
@@ -224,13 +237,13 @@ describe('Weight Tickets page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 2');
     });
-    await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
-    await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
-    await userEvent.type(screen.getByLabelText('Full weight'), '6999');
-    await userEvent.click(screen.getByLabelText('Yes'));
-    await userEvent.click(screen.getAllByLabelText('Yes')[1]);
+    userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
+    userEvent.type(screen.getByLabelText('Empty weight'), '4999');
+    userEvent.type(screen.getByLabelText('Full weight'), '6999');
+    userEvent.click(screen.getByLabelText('Yes'));
+    userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
       expect(patchWeightTicket).toHaveBeenCalledWith(
@@ -255,6 +268,7 @@ describe('Weight Tickets page', () => {
 
   it('displays an error if patchWeightTicket fails', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 0 });
     patchWeightTicket.mockRejectedValueOnce('an error occurred');
 
     render(<WeightTickets />, { wrapper: MockProviders });
@@ -262,13 +276,13 @@ describe('Weight Tickets page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 2');
     });
-    await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
-    await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
-    await userEvent.type(screen.getByLabelText('Full weight'), '6999');
-    await userEvent.click(screen.getByLabelText('Yes'));
-    await userEvent.click(screen.getAllByLabelText('Yes')[1]);
+    userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
+    userEvent.type(screen.getByLabelText('Empty weight'), '4999');
+    userEvent.type(screen.getByLabelText('Full weight'), '6999');
+    userEvent.click(screen.getByLabelText('Yes'));
+    userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
       expect(screen.getByText('Failed to save updated trip record')).toBeInTheDocument();
@@ -277,6 +291,14 @@ describe('Weight Tickets page', () => {
 
   it('calls the delete handler when removing an existing upload', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
+    selectMTOShipmentById.mockReturnValue({
+      ...mockMTOShipment,
+      ppmShipment: {
+        ...mockMTOShipment.ppmShipment,
+        weightTickets: [mockWeightTicketWithUploads],
+      },
+    });
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 0 });
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -285,7 +307,7 @@ describe('Weight Tickets page', () => {
       deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
       expect(deleteButtons).toHaveLength(2);
     });
-    await userEvent.click(deleteButtons[0]);
+    userEvent.click(deleteButtons[0]);
     await waitFor(() => {
       expect(screen.queryByText('empty_weight.jpg')).not.toBeInTheDocument();
     });
