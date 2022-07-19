@@ -35,7 +35,7 @@ func (h GetShipmentEvaluationReportsHandler) Handle(params moveop.GetMoveShipmen
 				return moveop.NewGetMoveShipmentEvaluationReportsListInternalServerError(), err
 			}
 
-			payload := payloads.EvaluationReports(reports)
+			payload := payloads.EvaluationReportList(reports)
 			return moveop.NewGetMoveShipmentEvaluationReportsListOK().WithPayload(payload), nil
 		},
 	)
@@ -62,7 +62,7 @@ func (h GetCounselingEvaluationReportsHandler) Handle(params moveop.GetMoveCouns
 				return moveop.NewGetMoveCounselingEvaluationReportsListInternalServerError(), err
 			}
 
-			payload := payloads.EvaluationReports(reports)
+			payload := payloads.EvaluationReportList(reports)
 			return moveop.NewGetMoveCounselingEvaluationReportsListOK().WithPayload(payload), nil
 		},
 	)

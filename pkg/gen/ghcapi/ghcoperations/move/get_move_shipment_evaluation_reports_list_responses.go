@@ -25,7 +25,7 @@ type GetMoveShipmentEvaluationReportsListOK struct {
 	/*
 	  In: Body
 	*/
-	Payload ghcmessages.EvaluationReports `json:"body,omitempty"`
+	Payload ghcmessages.EvaluationReportList `json:"body,omitempty"`
 }
 
 // NewGetMoveShipmentEvaluationReportsListOK creates GetMoveShipmentEvaluationReportsListOK with default headers values
@@ -35,13 +35,13 @@ func NewGetMoveShipmentEvaluationReportsListOK() *GetMoveShipmentEvaluationRepor
 }
 
 // WithPayload adds the payload to the get move shipment evaluation reports list o k response
-func (o *GetMoveShipmentEvaluationReportsListOK) WithPayload(payload ghcmessages.EvaluationReports) *GetMoveShipmentEvaluationReportsListOK {
+func (o *GetMoveShipmentEvaluationReportsListOK) WithPayload(payload ghcmessages.EvaluationReportList) *GetMoveShipmentEvaluationReportsListOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move shipment evaluation reports list o k response
-func (o *GetMoveShipmentEvaluationReportsListOK) SetPayload(payload ghcmessages.EvaluationReports) {
+func (o *GetMoveShipmentEvaluationReportsListOK) SetPayload(payload ghcmessages.EvaluationReportList) {
 	o.Payload = payload
 }
 
@@ -52,7 +52,7 @@ func (o *GetMoveShipmentEvaluationReportsListOK) WriteResponse(rw http.ResponseW
 	payload := o.Payload
 	if payload == nil {
 		// return empty array
-		payload = ghcmessages.EvaluationReports{}
+		payload = ghcmessages.EvaluationReportList{}
 	}
 
 	if err := producer.Produce(rw, payload); err != nil {
