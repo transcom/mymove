@@ -7,6 +7,7 @@ package customer_support_remarks
 
 import (
 	"context"
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -36,14 +37,15 @@ type UpdateCustomerSupportRemarkForMoveParams struct {
 	HTTPRequest *http.Request `json:"-"`
 
 	/*
+	  Required: true
 	  In: body
 	*/
 	Body *ghcmessages.UpdateCustomerSupportRemarkPayload
-	/*move code to identify a move for customer support remarks
+	/*the customer support remark ID to be modified
 	  Required: true
 	  In: path
 	*/
-	Locator string
+	CustomerSupportRemarkID strfmt.UUID
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -59,7 +61,11 @@ func (o *UpdateCustomerSupportRemarkForMoveParams) BindRequest(r *http.Request, 
 		defer r.Body.Close()
 		var body ghcmessages.UpdateCustomerSupportRemarkPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			res = append(res, errors.NewParseError("body", "body", "", err))
+			if err == io.EOF {
+				res = append(res, errors.Required("body", "body", ""))
+			} else {
+				res = append(res, errors.NewParseError("body", "body", "", err))
+			}
 		} else {
 			// validate body object
 			if err := body.Validate(route.Formats); err != nil {
@@ -75,10 +81,12 @@ func (o *UpdateCustomerSupportRemarkForMoveParams) BindRequest(r *http.Request, 
 				o.Body = &body
 			}
 		}
+	} else {
+		res = append(res, errors.Required("body", "body", ""))
 	}
 
-	rLocator, rhkLocator, _ := route.Params.GetOK("locator")
-	if err := o.bindLocator(rLocator, rhkLocator, route.Formats); err != nil {
+	rCustomerSupportRemarkID, rhkCustomerSupportRemarkID, _ := route.Params.GetOK("customerSupportRemarkID")
+	if err := o.bindCustomerSupportRemarkID(rCustomerSupportRemarkID, rhkCustomerSupportRemarkID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -87,8 +95,8 @@ func (o *UpdateCustomerSupportRemarkForMoveParams) BindRequest(r *http.Request, 
 	return nil
 }
 
-// bindLocator binds and validates parameter Locator from path.
-func (o *UpdateCustomerSupportRemarkForMoveParams) bindLocator(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindCustomerSupportRemarkID binds and validates parameter CustomerSupportRemarkID from path.
+func (o *UpdateCustomerSupportRemarkForMoveParams) bindCustomerSupportRemarkID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -96,7 +104,26 @@ func (o *UpdateCustomerSupportRemarkForMoveParams) bindLocator(rawData []string,
 
 	// Required: true
 	// Parameter is provided by construction from the route
-	o.Locator = raw
 
+	// Format: uuid
+	value, err := formats.Parse("uuid", raw)
+	if err != nil {
+		return errors.InvalidType("customerSupportRemarkID", "path", "strfmt.UUID", raw)
+	}
+	o.CustomerSupportRemarkID = *(value.(*strfmt.UUID))
+
+	if err := o.validateCustomerSupportRemarkID(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateCustomerSupportRemarkID carries on validations for parameter CustomerSupportRemarkID
+func (o *UpdateCustomerSupportRemarkForMoveParams) validateCustomerSupportRemarkID(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("customerSupportRemarkID", "path", "uuid", o.CustomerSupportRemarkID.String(), formats); err != nil {
+		return err
+	}
 	return nil
 }

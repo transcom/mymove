@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// UpdateCustomerSupportRemarkPayload A text remark written by an customer support user that is associated with a specific move.
+// UpdateCustomerSupportRemarkPayload A text remark update to an existing remark created by the current active user (the CSR).
 //
 // swagger:model UpdateCustomerSupportRemarkPayload
 type UpdateCustomerSupportRemarkPayload struct {
@@ -23,11 +23,6 @@ type UpdateCustomerSupportRemarkPayload struct {
 	// Example: This is a remark about a move.
 	// Required: true
 	Content *string `json:"content"`
-
-	// id
-	// Required: true
-	// Format: uuid
-	ID *strfmt.UUID `json:"id"`
 }
 
 // Validate validates this update customer support remark payload
@@ -35,10 +30,6 @@ func (m *UpdateCustomerSupportRemarkPayload) Validate(formats strfmt.Registry) e
 	var res []error
 
 	if err := m.validateContent(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -51,19 +42,6 @@ func (m *UpdateCustomerSupportRemarkPayload) Validate(formats strfmt.Registry) e
 func (m *UpdateCustomerSupportRemarkPayload) validateContent(formats strfmt.Registry) error {
 
 	if err := validate.Required("content", "body", m.Content); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateCustomerSupportRemarkPayload) validateID(formats strfmt.Registry) error {
-
-	if err := validate.Required("id", "body", m.ID); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
 	}
 

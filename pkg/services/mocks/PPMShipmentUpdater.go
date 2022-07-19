@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -41,8 +39,13 @@ func (_m *PPMShipmentUpdater) UpdatePPMShipmentWithDefaultCheck(appCtx appcontex
 	return r0, r1
 }
 
-// NewPPMShipmentUpdater creates a new instance of PPMShipmentUpdater. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewPPMShipmentUpdater(t testing.TB) *PPMShipmentUpdater {
+type mockConstructorTestingTNewPPMShipmentUpdater interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewPPMShipmentUpdater creates a new instance of PPMShipmentUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewPPMShipmentUpdater(t mockConstructorTestingTNewPPMShipmentUpdater) *PPMShipmentUpdater {
 	mock := &PPMShipmentUpdater{}
 	mock.Mock.Test(t)
 

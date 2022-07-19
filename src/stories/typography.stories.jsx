@@ -2,11 +2,6 @@ import React from 'react';
 
 export default {
   title: 'Global/Typography',
-  parameters: {
-    abstract: {
-      url: 'https://share.goabstract.com/248c0513-02f0-42c5-ae04-ff0fb7cd6572?mode=design',
-    },
-  },
 };
 
 // Typography
