@@ -21,6 +21,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ghc_documents"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
@@ -80,6 +81,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler: customer_support_remarks.CreateCustomerSupportRemarkForMoveHandlerFunc(func(params customer_support_remarks.CreateCustomerSupportRemarkForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.CreateCustomerSupportRemarkForMove has not yet been implemented")
+		}),
+		EvaluationReportsCreateEvaluationReportForShipmentHandler: evaluation_reports.CreateEvaluationReportForShipmentHandlerFunc(func(params evaluation_reports.CreateEvaluationReportForShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReportForShipment has not yet been implemented")
 		}),
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
@@ -277,6 +281,8 @@ type MymoveAPI struct {
 	OrderCounselingUpdateOrderHandler order.CounselingUpdateOrderHandler
 	// CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler sets the operation handler for the create customer support remark for move operation
 	CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler
+	// EvaluationReportsCreateEvaluationReportForShipmentHandler sets the operation handler for the create evaluation report for shipment operation
+	EvaluationReportsCreateEvaluationReportForShipmentHandler evaluation_reports.CreateEvaluationReportForShipmentHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// ShipmentCreateSITExtensionAsTOOHandler sets the operation handler for the create s i t extension as t o o operation
@@ -471,6 +477,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler")
+	}
+	if o.EvaluationReportsCreateEvaluationReportForShipmentHandler == nil {
+		unregistered = append(unregistered, "evaluation_reports.CreateEvaluationReportForShipmentHandler")
 	}
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
@@ -733,6 +742,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{locator}/customer-support-remarks"] = customer_support_remarks.NewCreateCustomerSupportRemarkForMove(o.context, o.CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/moves/shipment-evaluation-reports"] = evaluation_reports.NewCreateEvaluationReportForShipment(o.context, o.EvaluationReportsCreateEvaluationReportForShipmentHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
