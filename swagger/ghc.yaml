@@ -2,15 +2,11 @@ swagger: '2.0'
 info:
   contact:
     email: dp3@truss.works
-  description: >
-    The GHC API is a RESTful API that enables the Office application for
-    MilMove.
-
-
-    All endpoints are located under `/ghc/v1`.
+  description:
+    $ref: info/ghc_description.md
   license:
     name: MIT
-    url: https://opensource.org/licenses/MIT
+    url: 'https://opensource.org/licenses/MIT'
   title: MilMove GHC API
   version: 0.0.1
 basePath: /ghc/v1
@@ -19,15 +15,7 @@ schemes:
 tags:
   - name: queues
   - name: move
-  - name: order
-    description: >
-      Move Orders - Commonly called “Orders,” especially in customer-facing
-      language. Orders are plural because they're a bundle of related orders
-      issued bya Service (e.g. Army, Air Force, Navy) to a customer that
-      authorize (and order) that customer to move from one location to another.
-
-      Orders are backed by $$ in the bank to support that move, which is
-      identified by a Line of Account (LOA) code on the orders document.
+  - $ref: 'tags/order.yaml'
   - name: moveTaskOrder
   - name: customer
   - name: mtoServiceItem
@@ -36,7 +24,7 @@ tags:
   - name: paymentServiceItem
   - name: tac
 paths:
-  /customer/{customerID}:
+  '/customer/{customerID}':
     parameters:
       - description: ID of customer to use
         in: path
@@ -107,7 +95,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /move/{locator}:
+  '/move/{locator}':
     parameters:
       - description: Code used to identify a move in the system
         in: path
@@ -138,7 +126,7 @@ paths:
       description: Returns a given move for a unique alphanumeric locator string
       summary: Returns a given move
       operationId: getMove
-  /move/{locator}/history:
+  '/move/{locator}/history':
     parameters:
       - description: Code used to identify a move in the system
         in: path
@@ -174,12 +162,10 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - move
-      description: >-
-        Returns the history for a given move for a unique alphanumeric locator
-        string
+      description: Returns the history for a given move for a unique alphanumeric locator string
       summary: Returns the history of an identified move
       operationId: getMoveHistory
-  /moves/{moveID}/shipment-evaluation-reports-list:
+  '/moves/{moveID}/shipment-evaluation-reports-list':
     parameters:
       - description: Code used to identify a move in the system
         in: path
@@ -207,14 +193,10 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - move
-      description: >-
-        Returns shipment evaluation reports for the specified move that are
-        visible to the current office user
-      summary: >-
-        Returns shipment evaluation reports for the specified move that are
-        visible to the current office user
+      description: Returns shipment evaluation reports for the specified move that are visible to the current office user
+      summary: Returns shipment evaluation reports for the specified move that are visible to the current office user
       operationId: getMoveShipmentEvaluationReportsList
-  /moves/{moveID}/counseling-evaluation-reports-list:
+  '/moves/{moveID}/counseling-evaluation-reports-list':
     parameters:
       - description: Code used to identify a move in the system
         in: path
@@ -242,14 +224,10 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - move
-      description: >-
-        Returns counseling evaluation reports for the specified move that are
-        visible to the current office user
-      summary: >-
-        Returns counseling evaluation reports for the specified move that are
-        visible to the current office user
+      description: Returns counseling evaluation reports for the specified move that are visible to the current office user
+      summary: Returns counseling evaluation reports for the specified move that are visible to the current office user
       operationId: getMoveCounselingEvaluationReportsList
-  /counseling/orders/{orderID}:
+  '/counseling/orders/{orderID}':
     parameters:
       - description: ID of order to update
         in: path
@@ -292,7 +270,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /orders/{orderID}:
+  '/orders/{orderID}':
     parameters:
       - description: ID of order to use
         in: path
@@ -365,7 +343,7 @@ paths:
       description: Gets an order
       operationId: getOrder
       summary: Gets an order by ID
-  /orders/{orderID}/allowances:
+  '/orders/{orderID}/allowances':
     parameters:
       - description: ID of order to use
         in: path
@@ -410,7 +388,7 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.allowances
-  /orders/{orderID}/acknowledge-excess-weight-risk:
+  '/orders/{orderID}/acknowledge-excess-weight-risk':
     parameters:
       - description: ID of order to use
         in: path
@@ -419,12 +397,8 @@ paths:
         type: string
         format: uuid
     post:
-      summary: >-
-        Saves the date and time a TOO acknowledged the excess weight risk by
-        dismissing the alert
-      description: >-
-        Saves the date and time a TOO acknowledged the excess weight risk by
-        dismissing the alert
+      summary: Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert
+      description: Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert
       operationId: acknowledgeExcessWeightRisk
       tags:
         - order
@@ -452,7 +426,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /orders/{orderID}/update-billable-weight:
+  '/orders/{orderID}/update-billable-weight':
     parameters:
       - description: ID of order to use
         in: path
@@ -497,7 +471,7 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.billableWeight
-  /orders/{orderID}/update-max-billable-weight/tio:
+  '/orders/{orderID}/update-max-billable-weight/tio':
     parameters:
       - description: ID of order to use
         in: path
@@ -507,9 +481,7 @@ paths:
         format: uuid
     patch:
       summary: Updates the max billable weight with TIO remarks
-      description: >-
-        Updates the DBAuthorizedWeight attribute for the Order Entitlements and
-        move TIO remarks
+      description: Updates the DBAuthorizedWeight attribute for the Order Entitlements and move TIO remarks
       operationId: updateMaxBillableWeightAsTIO
       tags:
         - order
@@ -523,7 +495,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/UpdateMaxBillableWeightAsTIOPayload'
-        - $ref: '#/parameters/ifMatch'
+        - $ref: 'parameters/ifMatch.yaml'
       responses:
         '200':
           description: updated Order
@@ -541,7 +513,7 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.maxBillableWeight
-  /counseling/orders/{orderID}/allowances:
+  '/counseling/orders/{orderID}/allowances':
     parameters:
       - description: ID of order to use
         in: path
@@ -584,7 +556,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /move-task-orders/{moveTaskOrderID}:
+  '/move-task-orders/{moveTaskOrderID}':
     parameters:
       - description: ID of move to use
         in: path
@@ -654,7 +626,7 @@ paths:
       description: Updates a move by ID
       operationId: updateMoveTaskOrder
       summary: Updates a move by ID
-  /move_task_orders/{moveTaskOrderID}/mto_service_items:
+  '/move_task_orders/{moveTaskOrderID}/mto_service_items':
     parameters:
       - description: ID of move for mto service item to use
         in: path
@@ -670,7 +642,7 @@ paths:
         '200':
           description: Successfully retrieved all line items for a move task order
           schema:
-            $ref: '#/definitions/MTOServiceItems'
+            $ref: 'definitions/MTOServiceItems.yaml'
         '404':
           $ref: '#/responses/NotFound'
         '422':
@@ -682,7 +654,7 @@ paths:
       description: Gets all line items for a move
       operationId: listMTOServiceItems
       summary: Gets all line items for a move
-  /mto-shipments:
+  '/mto-shipments':
     post:
       summary: createMTOShipment
       description: |
@@ -714,7 +686,7 @@ paths:
         '200':
           description: Successfully created a MTO shipment.
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '404':
@@ -723,7 +695,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /move_task_orders/{moveTaskOrderID}/mto_shipments:
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments':
     parameters:
       - description: ID of move task order for mto shipment to use
         in: path
@@ -753,7 +725,7 @@ paths:
       description: Gets all shipments for a move task order
       operationId: listMTOShipments
       summary: Gets all shipments for a move task order
-  /shipments/{shipmentID}:
+  '/shipments/{shipmentID}':
     delete:
       summary: Soft deletes a shipment by ID
       description: Soft deletes a shipment by ID
@@ -784,7 +756,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}:
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}':
     patch:
       summary: updateMTOShipment
       description: |
@@ -828,10 +800,8 @@ paths:
           type: string
           required: true
           description: >
-            Optimistic locking is implemented via the `If-Match` header. If the
-            ETag header does not match the value of the resource on the server,
-            the server rejects the change with a `412 Precondition Failed`
-            error.
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
         - in: body
           name: body
           schema:
@@ -840,7 +810,7 @@ paths:
         '200':
           description: Successfully updated the specified MTO shipment.
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -855,7 +825,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /shipments/{shipmentID}/approve:
+  '/shipments/{shipmentID}/approve':
     parameters:
       - description: ID of the shipment
         in: path
@@ -877,7 +847,7 @@ paths:
         '200':
           description: Successfully approved the shipment
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -897,7 +867,7 @@ paths:
       summary: Approves a shipment
       x-permissions:
         - update.shipment
-  /shipments/{shipmentID}/request-diversion:
+  '/shipments/{shipmentID}/request-diversion':
     parameters:
       - description: ID of the shipment
         in: path
@@ -919,7 +889,7 @@ paths:
         '200':
           description: Successfully requested the shipment diversion
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -939,7 +909,7 @@ paths:
       summary: Requests a shipment diversion
       x-permissions:
         - create.shipmentDiversionRequest
-  /shipments/{shipmentID}/approve-diversion:
+  '/shipments/{shipmentID}/approve-diversion':
     parameters:
       - description: ID of the shipment
         in: path
@@ -961,7 +931,7 @@ paths:
         '200':
           description: Successfully approved the shipment diversion
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -981,7 +951,7 @@ paths:
       description: Approves a shipment diversion
       operationId: approveShipmentDiversion
       summary: Approves a shipment diversion
-  /shipments/{shipmentID}/reject:
+  '/shipments/{shipmentID}/reject':
     parameters:
       - description: ID of the shipment
         in: path
@@ -1008,7 +978,7 @@ paths:
         '200':
           description: Successfully rejected the shipment
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -1026,7 +996,7 @@ paths:
       description: rejects a shipment
       operationId: rejectShipment
       summary: rejects a shipment
-  /shipments/{shipmentID}/request-cancellation:
+  '/shipments/{shipmentID}/request-cancellation':
     parameters:
       - description: ID of the shipment
         in: path
@@ -1048,7 +1018,7 @@ paths:
         '200':
           description: Successfully requested the shipment cancellation
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -1068,7 +1038,7 @@ paths:
       summary: Requests a shipment cancellation
       x-permissions:
         - create.shipmentCancellation
-  /shipments/{shipmentID}/request-reweigh:
+  '/shipments/{shipmentID}/request-reweigh':
     parameters:
       - description: ID of the shipment
         in: path
@@ -1085,7 +1055,7 @@ paths:
         '200':
           description: Successfully requested a reweigh of the shipment
           schema:
-            $ref: '#/definitions/Reweigh'
+            $ref: 'definitions/Reweigh.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -1106,12 +1076,10 @@ paths:
       summary: Requests a shipment reweigh
       x-permissions:
         - create.reweighRequest
-  /shipments/{shipmentID}/sit-extensions/:
+  '/shipments/{shipmentID}/sit-extensions/':
     post:
       summary: Create an approved SIT extension
-      description: >-
-        TOO can creates an already-approved SIT extension on behalf of a
-        customer
+      description: TOO can creates an already-approved SIT extension on behalf of a customer
       consumes:
         - application/json
       produces:
@@ -1133,9 +1101,7 @@ paths:
             $ref: '#/definitions/CreateSITExtensionAsTOO'
           required: true
         - in: header
-          description: >-
-            We want the shipment's eTag rather than the SIT extension eTag as
-            the SIT extension is always associated with a shipment
+          description: We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment
           name: If-Match
           type: string
           required: true
@@ -1143,7 +1109,7 @@ paths:
         '200':
           description: Successfully created a SIT Extension.
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -1156,7 +1122,7 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - create.SITExtension
-  /shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve:
+  '/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve':
     parameters:
       - description: ID of the shipment
         in: path
@@ -1182,9 +1148,7 @@ paths:
           schema:
             $ref: '#/definitions/ApproveSITExtension'
         - in: header
-          description: >-
-            We want the shipment's eTag rather than the SIT extension eTag as
-            the SIT extension is always associated with a shipment
+          description: We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment
           name: If-Match
           type: string
           required: true
@@ -1192,7 +1156,7 @@ paths:
         '200':
           description: Successfully approved a SIT extension
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -1213,7 +1177,7 @@ paths:
       summary: Approves a SIT extension
       x-permissions:
         - update.SITExtension
-  /shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny:
+  '/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny':
     parameters:
       - description: ID of the shipment
         in: path
@@ -1246,7 +1210,7 @@ paths:
         '200':
           description: Successfully denied a SIT extension
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/MTOShipment.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -1267,7 +1231,7 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
-  /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents:
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
         in: path
@@ -1289,7 +1253,7 @@ paths:
         '200':
           description: Successfully retrieved all agents for a move task order
           schema:
-            $ref: '#/definitions/MTOAgents'
+            $ref: 'definitions/MTOAgents.yaml'
         '404':
           $ref: '#/responses/NotFound'
         '422':
@@ -1301,7 +1265,7 @@ paths:
       description: Fetches a list of agents associated with a move task order.
       operationId: fetchMTOAgentList
       summary: Fetch move task order agents.
-  /move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}:
+  '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
     parameters:
       - description: ID of move to use
         in: path
@@ -1321,7 +1285,7 @@ paths:
         '200':
           description: Successfully retrieved a line item for a move task order by ID
           schema:
-            $ref: '#/definitions/MTOServiceItem'
+            $ref: 'definitions/MTOServiceItem.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -1347,7 +1311,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/MTOServiceItem'
+            $ref: 'definitions/MTOServiceItem.yaml'
         - in: header
           name: If-Match
           type: string
@@ -1376,7 +1340,7 @@ paths:
       summary: Updates a service item by ID for a move by ID
       x-permissions:
         - update.MTOServiceItem
-  /move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status:
+  '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status':
     parameters:
       - description: ID of move to use
         in: path
@@ -1409,7 +1373,7 @@ paths:
             Successfully updated status for a line item for a move task order by
             ID
           schema:
-            $ref: '#/definitions/MTOServiceItem'
+            $ref: 'definitions/MTOServiceItem.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -1429,7 +1393,7 @@ paths:
       description: Changes the status of a line item for a move by ID
       operationId: updateMTOServiceItemStatus
       summary: Change the status of a line item for a move by ID
-  /move-task-orders/{moveTaskOrderID}/status:
+  '/move-task-orders/{moveTaskOrderID}/status':
     patch:
       consumes:
         - application/json
@@ -1479,7 +1443,7 @@ paths:
       x-permissions:
         - update.move
         - create.serviceItem
-  /move-task-orders/{moveTaskOrderID}/status/service-counseling-completed:
+  '/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed':
     patch:
       consumes:
         - application/json
@@ -1521,7 +1485,7 @@ paths:
       description: Changes move (move task order) status to service counseling completed
       operationId: updateMTOStatusServiceCounselingCompleted
       summary: Changes move (move task order) status to service counseling completed
-  /move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status:
+  '/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status':
     parameters:
       - description: ID of move to use
         in: path
@@ -1576,7 +1540,7 @@ paths:
       summary: Change the status of a payment service item for a move by ID
       x-permissions:
         - update.paymentServiceItemStatus
-  /move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at:
+  '/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at':
     patch:
       consumes:
         - application/json
@@ -1615,11 +1579,9 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: >-
-        Changes move (move task order) billableWeightsReviewedAt field to a
-        timestamp
+      description: Changes move (move task order) billableWeightsReviewedAt field to a timestamp
       operationId: UpdateMTOReviewedBillableWeightsAt
-  /move-task-orders/{moveTaskOrderID}/tio-remarks:
+  '/move-task-orders/{moveTaskOrderID}/tio-remarks':
     patch:
       consumes:
         - application/json
@@ -1663,11 +1625,9 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: >-
-        Changes move (move task order) billableWeightsReviewedAt field to a
-        timestamp
+      description: Changes move (move task order) billableWeightsReviewedAt field to a timestamp
       operationId: updateMoveTIORemarks
-  /move-task-orders/{moveTaskOrderID}/entitlements:
+  '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
       - description: ID of move to use
         in: path
@@ -1698,7 +1658,7 @@ paths:
       description: Gets entitlements
       operationId: getEntitlements
       summary: Gets entitlements for a move by ID
-  /payment-requests/{paymentRequestID}:
+  '/payment-requests/{paymentRequestID}':
     parameters:
       - description: UUID of payment request
         format: uuid
@@ -1730,7 +1690,7 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
-  /moves/{locator}/customer-support-remarks:
+  '/moves/{locator}/customer-support-remarks':
     parameters:
       - description: move code to identify a move for customer support remarks
         format: string
@@ -1752,7 +1712,7 @@ paths:
         '200':
           description: Successfully created customer support remark
           schema:
-            $ref: '#/definitions/CustomerSupportRemark'
+            $ref: 'definitions/CustomerSupportRemark.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '404':
@@ -1774,7 +1734,7 @@ paths:
         '200':
           description: Successfully retrieved all line items for a move task order
           schema:
-            $ref: '#/definitions/CustomerSupportRemarks'
+            $ref: 'definitions/CustomerSupportRemarks.yaml'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -1788,7 +1748,7 @@ paths:
       description: Fetches customer support remarks for a move
       operationId: getCustomerSupportRemarksForMove
       summary: Fetches customer support remarks using the move code (locator).
-  /customer-support-remarks/{customerSupportRemarkID}:
+  '/customer-support-remarks/{customerSupportRemarkID}':
     parameters:
       - in: path
         description: the customer support remark ID to be modified
@@ -1816,7 +1776,7 @@ paths:
         '200':
           description: Successfully updated customer support remark
           schema:
-            $ref: '#/definitions/CustomerSupportRemark'
+            $ref: 'definitions/CustomerSupportRemark.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -1850,7 +1810,36 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /moves/{locator}/payment-requests:
+  '/moves/shipment-evaluation-reports':
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateShipmentEvaluationReport'
+      responses:
+        '200':
+          description: Successfully created shipment evaluation report
+          schema:
+            $ref: '#/definitions/EvaluationReport'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - evaluationReports
+      description: Creates a shipment evaluation report
+      operationId: createEvaluationReportForShipment
+      summary: Creates a shipment evaluation report
+  '/moves/{locator}/payment-requests':
     parameters:
       - description: move code to identify a move for payment requests
         format: string
@@ -1882,7 +1871,7 @@ paths:
       summary: Fetches payment requests using the move code (locator).
       x-permissions:
         - read.paymentRequest
-  /moves/{moveID}/financial-review-flag:
+  '/moves/{moveID}/financial-review-flag':
     parameters:
       - description: ID of move to flag
         in: path
@@ -1892,11 +1881,7 @@ paths:
         format: uuid
     post:
       summary: Flags a move for financial office review
-      description: >-
-        This sets a flag which indicates that the move should be reviewed by a
-        fincancial office. For example, if the origin or destination address of
-        a shipment is far from the duty location and may incur excess costs to
-        the customer.
+      description: This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.
       operationId: setFinancialReviewFlag
       tags:
         - move
@@ -1915,16 +1900,12 @@ paths:
               - flagForReview
             properties:
               remarks:
-                description: >-
-                  explanation of why the move is being flagged for financial
-                  review
+                description: explanation of why the move is being flagged for financial review
                 example: this address is way too far away
                 type: string
                 x-nullable: true
               flagForReview:
-                description: >-
-                  boolean value representing whether we should flag a move for
-                  financial review
+                description: boolean value representing whether we should flag a move for financial review
                 example: false
                 type: boolean
       responses:
@@ -1944,11 +1925,9 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.financialReviewFlag
-  /payment-requests/{paymentRequestID}/shipments-payment-sit-balance:
+  '/payment-requests/{paymentRequestID}/shipments-payment-sit-balance':
     parameters:
-      - description: >-
-          payment request ID of the payment request with SIT service items being
-          reviewed
+      - description: payment request ID of the payment request with SIT service items being reviewed
         name: paymentRequestID
         type: string
         format: uuid
@@ -1960,9 +1939,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: >-
-            Successfully retrieved shipments and their SIT days balance from all
-            payment requests on the move
+          description: Successfully retrieved shipments and their SIT days balance from all payment requests on the move
           schema:
             $ref: '#/definitions/ShipmentsPaymentSITBalance'
         '403':
@@ -1975,14 +1952,10 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
-      description: >-
-        Returns all shipment payment request SIT usage to support partial SIT
-        invoicing
+      description: Returns all shipment payment request SIT usage to support partial SIT invoicing
       operationId: getShipmentsPaymentSITBalance
-      summary: >-
-        Returns all shipment payment request SIT usage to support partial SIT
-        invoicing
-  /payment-requests/{paymentRequestID}/status:
+      summary: Returns all shipment payment request SIT usage to support partial SIT invoicing
+  '/payment-requests/{paymentRequestID}/status':
     patch:
       consumes:
         - application/json
@@ -2065,15 +2038,9 @@ paths:
     get:
       produces:
         - application/json
-      summary: >-
-        Gets queued list of all customer moves needing services counseling by
-        GBLOC origin
+      summary: Gets queued list of all customer moves needing services counseling by GBLOC origin
       description: >
-        An office services counselor user will be assigned a transportation
-        office that will determine which moves are displayed in their queue
-        based on the origin duty location.  GHC moves will show up here onced
-        they have reached the NEEDS SERVICE COUNSELING status after submission
-        from a customer or created on a customer's behalf.
+        An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.
       operationId: getServicesCounselingQueue
       tags:
         - queues
@@ -2090,22 +2057,12 @@ paths:
           name: sort
           type: string
           enum:
-            - lastName
-            - dodID
-            - branch
-            - locator
-            - status
-            - requestedMoveDate
-            - submittedAt
-            - originGBLOC
-            - originDutyLocation
+            [lastName, dodID, branch, locator, status, requestedMoveDate, submittedAt, originGBLOC, originDutyLocation]
           description: field that results should be sorted by
         - in: query
           name: order
           type: string
-          enum:
-            - asc
-            - desc
+          enum: [asc, desc]
           description: direction of sort order if applied
         - in: query
           name: branch
@@ -2131,9 +2088,7 @@ paths:
           name: submittedAt
           type: string
           format: date-time
-          description: >-
-            Start of the submitted at date in the user's local time zone
-            converted to UTC
+          description: Start of the submitted at date in the user's local time zone converted to UTC
         - in: query
           name: originGBLOC
           type: string
@@ -2167,11 +2122,7 @@ paths:
         - application/json
       summary: Gets queued list of all customer moves by GBLOC origin
       description: >
-        An office TOO user will be assigned a transportation office that will
-        determine which moves are displayed in their queue based on the origin
-        duty location.  GHC moves will show up here onced they have reached the
-        submitted status sent by the customer and have move task orders,
-        shipments, and service items to approve.
+        An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.
       operationId: getMovesQueue
       tags:
         - queues
@@ -2187,21 +2138,12 @@ paths:
         - in: query
           name: sort
           type: string
-          enum:
-            - lastName
-            - dodID
-            - branch
-            - locator
-            - status
-            - originDutyLocation
-            - destinationDutyLocation
+          enum: [lastName, dodID, branch, locator, status, originDutyLocation, destinationDutyLocation]
           description: field that results should be sorted by
         - in: query
           name: order
           type: string
-          enum:
-            - asc
-            - desc
+          enum: [asc, desc]
           description: direction of sort order if applied
         - in: query
           name: branch
@@ -2250,9 +2192,7 @@ paths:
         - application/json
       summary: Gets queued list of all payment requests by GBLOC origin
       description: >
-        An office TIO user will be assigned a transportation office that will
-        determine which payment requests are displayed in their queue based on
-        the origin duty location.
+        An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty location.
       operationId: getPaymentRequestsQueue
       tags:
         - queues
@@ -2260,22 +2200,12 @@ paths:
         - in: query
           name: sort
           type: string
-          enum:
-            - lastName
-            - locator
-            - submittedAt
-            - branch
-            - status
-            - dodID
-            - age
-            - originDutyLocation
+          enum: [lastName, locator, submittedAt, branch, status, dodID, age, originDutyLocation]
           description: field that results should be sorted by
         - in: query
           name: order
           type: string
-          enum:
-            - asc
-            - desc
+          enum: [asc, desc]
           description: direction of sort order if applied
         - in: query
           name: page
@@ -2289,9 +2219,7 @@ paths:
           name: submittedAt
           type: string
           format: date-time
-          description: >-
-            Start of the submitted at date in the user's local time zone
-            converted to UTC
+          description: Start of the submitted at date in the user's local time zone converted to UTC
         - in: query
           name: branch
           type: string
@@ -2339,8 +2267,7 @@ paths:
         - application/json
       summary: Search moves by locator, DOD ID, or customer name
       description: >
-        Search moves by locator, DOD ID, or customer name. Used by QAE and CSR
-        users.
+        Search moves by locator, DOD ID, or customer name. Used by QAE and CSR users.
       operationId: searchMoves
       tags:
         - move
@@ -2397,20 +2324,20 @@ paths:
                 type: string
                 x-nullable: true
                 enum:
-                  - customerName
-                  - dodID
-                  - branch
-                  - locator
-                  - status
-                  - originPostalCode
-                  - destinationPostalCode
-                  - shipmentsCount
+                  [
+                    customerName,
+                    dodID,
+                    branch,
+                    locator,
+                    status,
+                    originPostalCode,
+                    destinationPostalCode,
+                    shipmentsCount,
+                  ]
               order:
                 type: string
                 x-nullable: true
-                enum:
-                  - asc
-                  - desc
+                enum: [asc, desc]
           description: field that results should be sorted by
       responses:
         '200':
@@ -2421,7 +2348,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
-  /tac/valid:
+
+  '/tac/valid':
     get:
       summary: Validation of a TAC value
       description: Returns a boolean based on whether a tac value is valid or not
@@ -2484,11 +2412,11 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
       phone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
     required:
       - name
       - email
@@ -2519,12 +2447,12 @@ definitions:
       phone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         x-nullable: true
       email:
         type: string
         format: x-email
-        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         x-nullable: true
       suffix:
         type: string
@@ -2535,7 +2463,7 @@ definitions:
         example: David
         x-nullable: true
       current_address:
-        $ref: '#/definitions/Address'
+        $ref: 'definitions/Address.yaml'
       backup_contact:
         $ref: '#/definitions/BackupContact'
       id:
@@ -2562,12 +2490,12 @@ definitions:
       phone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         x-nullable: true
       email:
         type: string
         format: x-email
-        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         x-nullable: true
       suffix:
         type: string
@@ -2578,7 +2506,7 @@ definitions:
         example: David
         x-nullable: true
       current_address:
-        $ref: '#/definitions/Address'
+        $ref: 'definitions/Address.yaml'
       backup_contact:
         $ref: '#/definitions/BackupContact'
   Entitlements:
@@ -2730,7 +2658,7 @@ definitions:
         $ref: '#/definitions/Contractor'
       locator:
         type: string
-        example: 1K43AR
+        example: '1K43AR'
       ordersId:
         type: string
         format: uuid
@@ -2746,16 +2674,12 @@ definitions:
       excess_weight_qualified_at:
         type: string
         format: date-time
-        description: >-
-          Timestamp of when the estimated shipment weights of the move reached
-          90% of the weight allowance
+        description: Timestamp of when the estimated shipment weights of the move reached 90% of the weight allowance
         x-nullable: true
       excess_weight_acknowledged_at:
         type: string
         format: date-time
-        description: >-
-          Timestamp of when the TOO acknowledged the excess weight risk by
-          either dismissing the alert or updating the max billable weight
+        description: Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight
         x-nullable: true
       tioRemarks:
         type: string
@@ -2764,9 +2688,7 @@ definitions:
       financialReviewFlag:
         type: boolean
         example: false
-        description: >-
-          This flag is set by office users if a move should be reviewed by a
-          Financial Office
+        description: This flag is set by office users if a move should be reviewed by a Financial Office
         x-nullable: false
         readOnly: true
       financialReviewRemarks:
@@ -2799,7 +2721,7 @@ definitions:
       locator:
         description: move locator
         type: string
-        example: 1K43AR
+        example: '1K43AR'
       referenceId:
         description: move referenceID
         example: 1001-3456
@@ -2825,7 +2747,7 @@ definitions:
       locator:
         description: move locator
         type: string
-        example: 1K43AR
+        example: '1K43AR'
       referenceId:
         description: move referenceID
         example: 1001-3456
@@ -2877,7 +2799,7 @@ definitions:
       sessionUserTelephone:
         format: telephone
         type: string
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         x-nullable: true
       context:
         type: array
@@ -2908,9 +2830,7 @@ definitions:
         type: string
         format: date-time
       transactionId:
-        description: >-
-          Identifier of transaction that made the change. May wrap, but unique
-          paired with action_tstamp_tx.
+        description: Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx.
         type: integer
         x-nullable: true
       clientQuery:
@@ -2921,23 +2841,17 @@ definitions:
         description: Action type; I = insert, D = delete, U = update, T = truncate
         type: string
       oldValues:
-        description: >-
-          A list of (old/previous) MoveAuditHistoryItem's for a record before
-          the change.
+        description: A list of (old/previous) MoveAuditHistoryItem's for a record before the change.
         type: object
         additionalProperties: true
         x-nullable: true
       changedValues:
-        description: >-
-          A list of (changed/updated) MoveAuditHistoryItem's for a record after
-          the change.
+        description: A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.
         type: object
         additionalProperties: true
         x-nullable: true
       statementOnly:
-        description: >-
-          true if audit event is from an FOR EACH STATEMENT trigger, false for
-          FOR EACH ROW'
+        description: true if audit event is from an FOR EACH STATEMENT trigger, false for FOR EACH ROW'
         type: boolean
         example: false
   MoveAuditHistoryItems:
@@ -3019,7 +2933,7 @@ definitions:
         $ref: '#/definitions/Customer'
       moveCode:
         type: string
-        example: H2XFJF
+        example: 'H2XFJF'
       first_name:
         type: string
         example: John
@@ -3031,13 +2945,13 @@ definitions:
       grade:
         $ref: '#/definitions/Grade'
       agency:
-        $ref: '#/definitions/Affiliation'
+        $ref: 'definitions/Affiliation.yaml'
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyLocation:
-        $ref: '#/definitions/DutyLocation'
+        $ref: 'definitions/DutyLocation.yaml'
       originDutyLocation:
-        $ref: '#/definitions/DutyLocation'
+        $ref: 'definitions/DutyLocation.yaml'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -3058,7 +2972,7 @@ definitions:
       order_number:
         type: string
         x-nullable: true
-        example: 030-00362
+        example: '030-00362'
       order_type:
         $ref: '#/definitions/OrdersType'
       order_type_detail:
@@ -3078,22 +2992,22 @@ definitions:
       tac:
         type: string
         title: TAC
-        example: F8J1
+        example: 'F8J1'
         x-nullable: true
       sac:
         type: string
         title: SAC
-        example: N002214CSW32Y9
+        example: 'N002214CSW32Y9'
         x-nullable: true
       ntsTac:
         type: string
         title: NTS TAC
-        example: F8J1
+        example: 'F8J1'
         x-nullable: true
       ntsSac:
         type: string
         title: NTS SAC
-        example: N002214CSW32Y9
+        example: 'N002214CSW32Y9'
         x-nullable: true
       has_dependents:
         type: boolean
@@ -3102,9 +3016,7 @@ definitions:
       spouse_has_pro_gear:
         type: boolean
         example: false
-        title: >-
-          Do you have a spouse who will need to move items related to their
-          occupation (also known as spouse pro-gear)?
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       eTag:
         type: string
     type: object
@@ -3131,7 +3043,7 @@ definitions:
         type: string
         title: Orders Number
         x-nullable: true
-        example: 030-00362
+        example: '030-00362'
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
         x-nullable: true
@@ -3148,22 +3060,22 @@ definitions:
         title: HHG TAC
         minLength: 4
         maxLength: 4
-        example: F8J1
+        example: 'F8J1'
         x-nullable: true
       sac:
         title: HHG SAC
-        example: N002214CSW32Y9
-        $ref: '#/definitions/NullableString'
+        example: 'N002214CSW32Y9'
+        $ref: definitions/NullableString.yaml
       ntsTac:
         title: NTS TAC
         minLength: 4
         maxLength: 4
-        example: F8J1
-        $ref: '#/definitions/NullableString'
+        example: 'F8J1'
+        $ref: definitions/NullableString.yaml
       ntsSac:
         title: NTS SAC
-        example: N002214CSW32Y9
-        $ref: '#/definitions/NullableString'
+        example: 'N002214CSW32Y9'
+        $ref: definitions/NullableString.yaml
     required:
       - issueDate
       - reportByDate
@@ -3201,35 +3113,33 @@ definitions:
         type: string
         title: Orders Number
         x-nullable: true
-        example: 030-00362
+        example: '030-00362'
       tac:
         type: string
         title: HHG TAC
         minLength: 4
         maxLength: 4
-        example: F8J1
+        example: 'F8J1'
         x-nullable: true
       sac:
         title: HHG SAC
-        example: N002214CSW32Y9
-        $ref: '#/definitions/NullableString'
+        example: 'N002214CSW32Y9'
+        $ref: definitions/NullableString.yaml
       ntsTac:
         title: NTS TAC
         minLength: 4
         maxLength: 4
-        example: F8J1
-        $ref: '#/definitions/NullableString'
+        example: 'F8J1'
+        $ref: definitions/NullableString.yaml
       ntsSac:
         title: NTS SAC
-        example: N002214CSW32Y9
-        $ref: '#/definitions/NullableString'
+        example: 'N002214CSW32Y9'
+        $ref: definitions/NullableString.yaml
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
         x-nullable: true
       ordersAcknowledgement:
-        description: >-
-          Confirmation that the new amended orders were reviewed after
-          previously approving the original orders
+        description: Confirmation that the new amended orders were reviewed after previously approving the original orders
         type: boolean
         x-nullable: true
     required:
@@ -3254,7 +3164,7 @@ definitions:
         type: boolean
         x-nullable: true
       agency:
-        $ref: '#/definitions/Affiliation'
+        $ref: 'definitions/Affiliation.yaml'
       proGearWeight:
         description: unit is in lbs
         example: 2000
@@ -3282,9 +3192,7 @@ definitions:
         type: boolean
         x-nullable: true
       storageInTransit:
-        description: >-
-          the number of storage in transit days that the customer is entitled to
-          for a given shipment on their move
+        description: the number of storage in transit days that the customer is entitled to for a given shipment on their move
         type: integer
         minimum: 0
   UpdateBillableWeightPayload:
@@ -3325,7 +3233,7 @@ definitions:
         type: boolean
         x-nullable: true
       agency:
-        $ref: '#/definitions/Affiliation'
+        $ref: 'definitions/Affiliation.yaml'
       proGearWeight:
         minimum: 0
         maximum: 2000
@@ -3353,9 +3261,7 @@ definitions:
         type: boolean
         x-nullable: true
       storageInTransit:
-        description: >-
-          the number of storage in transit days that the customer is entitled to
-          for a given shipment on their move
+        description: the number of storage in transit days that the customer is entitled to for a given shipment on their move
         type: integer
         minimum: 0
   MoveTaskOrder:
@@ -3374,7 +3280,7 @@ definitions:
         type: string
       locator:
         type: string
-        example: 1K43AR
+        example: '1K43AR'
       referenceId:
         example: 1001-3456
         type: string
@@ -3390,9 +3296,9 @@ definitions:
         format: date-time
         type: string
       destinationAddress:
-        $ref: '#/definitions/Address'
+        $ref: 'definitions/Address.yaml'
       pickupAddress:
-        $ref: '#/definitions/Address'
+        $ref: 'definitions/Address.yaml'
       destinationDutyLocation:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
@@ -3496,7 +3402,7 @@ definitions:
         example: Move management
         type: string
       mtoShipmentType:
-        $ref: '#/definitions/MTOShipmentType'
+        $ref: 'definitions/MTOShipmentType.yaml'
       mtoShipmentID:
         type: string
         format: uuid
@@ -3544,14 +3450,14 @@ definitions:
         format: uuid
         type: string
       key:
-        $ref: '#/definitions/ServiceItemParamName'
+        $ref: 'definitions/ServiceItemParamName.yaml'
       value:
         example: 3025
         type: string
       type:
-        $ref: '#/definitions/ServiceItemParamType'
+        $ref: 'definitions/ServiceItemParamType.yaml'
       origin:
-        $ref: '#/definitions/ServiceItemParamOrigin'
+        $ref: 'definitions/ServiceItemParamOrigin.yaml'
       eTag:
         type: string
     type: object
@@ -3619,7 +3525,7 @@ definitions:
     type: object
     properties:
       shipmentType:
-        $ref: '#/definitions/MTOShipmentType'
+        $ref: 'definitions/MTOShipmentType.yaml'
       requestedPickupDate:
         format: date
         type: string
@@ -3648,20 +3554,20 @@ definitions:
         x-nullable: true
       pickupAddress:
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: 'definitions/Address.yaml'
         x-nullable: true
       destinationType:
-        $ref: '#/definitions/DestinationType'
+        $ref: 'definitions/DestinationType.yaml'
       agents:
-        $ref: '#/definitions/MTOAgents'
+        $ref: 'definitions/MTOAgents.yaml'
         x-nullable: true
       tacType:
-        $ref: '#/definitions/LOATypeNullable'
+        $ref: 'definitions/LOATypeNullable.yaml'
       sacType:
-        $ref: '#/definitions/LOATypeNullable'
+        $ref: 'definitions/LOATypeNullable.yaml'
       usesExternalVendor:
         type: boolean
         example: false
@@ -3670,24 +3576,21 @@ definitions:
         type: string
         x-nullable: true
       ntsRecordedWeight:
-        description: >-
-          The previously recorded weight for the NTS Shipment. Used for NTS
-          Release to know what the previous primeActualWeight or billable weight
-          was.
+        description: The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
         example: 2000
         type: integer
         x-formatting: weight
         x-nullable: true
       storageFacility:
         x-nullable: true
-        $ref: '#/definitions/StorageFacility'
+        $ref: 'definitions/StorageFacility.yaml'
       ppmShipment:
         $ref: '#/definitions/UpdatePPMShipment'
   UpdatePPMShipment:
     type: object
     properties:
       expectedDepartureDate:
-        description: |
+        description: >
           Date the customer expects to move.
         format: date
         type: string
@@ -3730,7 +3633,7 @@ definitions:
         x-nullable: true
       sitLocation:
         allOf:
-          - $ref: '#/definitions/SITLocationType'
+          - $ref: 'definitions/SITLocationType.yaml'
           - x-nullable: true
       sitEstimatedWeight:
         type: integer
@@ -3749,13 +3652,13 @@ definitions:
         example: 4200
         x-nullable: true
       netWeight:
-        description: |
+        description: >
           The net weight of the shipment once it has been weighed
         type: integer
         example: 4300
         x-nullable: true
       hasProGear:
-        description: |
+        description: >
           Indicates whether PPM shipment has pro gear.
         type: boolean
         x-nullable: true
@@ -3766,19 +3669,19 @@ definitions:
         type: integer
         x-nullable: true
       hasRequestedAdvance:
-        description: |
+        description: >
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
       advanceAmountRequested:
-        description: |
+        description: >
           The amount request for an advance, or null if no advance is requested
         type: integer
         format: cents
         x-nullable: true
   MTOShipments:
     items:
-      $ref: '#/definitions/MTOShipment'
+      $ref: 'definitions/MTOShipment.yaml'
     type: array
   CreateMTOShipment:
     type: object
@@ -3790,23 +3693,20 @@ definitions:
         type: string
       requestedPickupDate:
         description: >
-          The customer's preferred pickup date. Other dates, such as required
-          delivery date and (outside MilMove) the pack date, are derived from
-          this date.
+          The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the
+          pack date, are derived from this date.
         format: date
         type: string
         x-nullable: true
       requestedDeliveryDate:
-        description: |
+        description: >
           The customer's preferred delivery date.
         format: date
         type: string
         x-nullable: true
       customerRemarks:
-        description: >
-          The customer can use the customer remarks field to inform the services
-          counselor and the movers about any
-
+        description: |
+          The customer can use the customer remarks field to inform the services counselor and the movers about any
           special circumstances for this shipment. Typical examples:
             * bulky or fragile items,
             * weapons,
@@ -3816,42 +3716,39 @@ definitions:
         example: handle with care
         x-nullable: true
       counselorRemarks:
-        description: >
-          The counselor can use the counselor remarks field to inform the movers
-          about any
-
+        description: |
+          The counselor can use the counselor remarks field to inform the movers about any
           special circumstances for this shipment. Typical examples:
             * bulky or fragile items,
             * weapons,
             * access info for their address.
-          Counselors enters this information when creating or editing an MTO
-          Shipment. Optional field.
+          Counselors enters this information when creating or editing an MTO Shipment. Optional field.
         type: string
         example: handle with care
         x-nullable: true
       agents:
-        $ref: '#/definitions/MTOAgents'
+        $ref: 'definitions/MTOAgents.yaml'
       mtoServiceItems:
-        $ref: '#/definitions/MTOServiceItems'
+        $ref: 'definitions/MTOServiceItems.yaml'
       pickupAddress:
         description: The address where the movers should pick up this shipment.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         description: Where the movers should deliver this shipment.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: 'definitions/Address.yaml'
       destinationType:
-        $ref: '#/definitions/DestinationType'
+        $ref: 'definitions/DestinationType.yaml'
       shipmentType:
-        $ref: '#/definitions/MTOShipmentType'
+        $ref: 'definitions/MTOShipmentType.yaml'
       tacType:
         allOf:
-          - $ref: '#/definitions/LOAType'
+          - $ref: 'definitions/LOAType.yaml'
           - x-nullable: true
       sacType:
         allOf:
-          - $ref: '#/definitions/LOAType'
+          - $ref: 'definitions/LOAType.yaml'
           - x-nullable: true
       usesExternalVendor:
         type: boolean
@@ -3861,29 +3758,24 @@ definitions:
         type: string
         x-nullable: true
       ntsRecordedWeight:
-        description: >-
-          The previously recorded weight for the NTS Shipment. Used for NTS
-          Release to know what the previous primeActualWeight or billable weight
-          was.
+        description: The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
         example: 2000
         type: integer
         x-nullable: true
         x-formatting: weight
       storageFacility:
         x-nullable: true
-        $ref: '#/definitions/StorageFacility'
+        $ref: 'definitions/StorageFacility.yaml'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
     required:
       - moveTaskOrderID
       - shipmentType
   CreatePPMShipment:
-    description: >-
-      A personally procured move is a type of shipment that a service members
-      moves themselves.
+    description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
       expectedDepartureDate:
-        description: |
+        description: >
           Date the customer expects to move.
         format: date
         type: string
@@ -3918,7 +3810,7 @@ definitions:
         type: boolean
       sitLocation:
         allOf:
-          - $ref: '#/definitions/SITLocationType'
+          - $ref: 'definitions/SITLocationType.yaml'
           - x-nullable: true
       sitEstimatedWeight:
         type: integer
@@ -3936,7 +3828,7 @@ definitions:
         type: integer
         example: 4200
       hasProGear:
-        description: |
+        description: >
           Indicates whether PPM shipment has pro gear.
         type: boolean
       proGearWeight:
@@ -3984,7 +3876,7 @@ definitions:
     properties:
       requestReason:
         description: Reason from service counselor-provided picklist for SIT extension
-        example: AWAITING_COMPLETION_OF_RESIDENCE
+        example: 'AWAITING_COMPLETION_OF_RESIDENCE'
         type: string
         enum:
           - SERIOUS_ILLNESS_MEMBER
@@ -3995,18 +3887,14 @@ definitions:
           - AWAITING_COMPLETION_OF_RESIDENCE
           - OTHER
       approvedDays:
-        description: >-
-          Number of days approved for SIT extension. This will match requested
-          days saved to the SIT extension model.
+        description: Number of days approved for SIT extension. This will match requested days saved to the SIT extension model.
         type: integer
         example: 21
         minimum: 1
       officeRemarks:
         description: Remarks from TOO about SIT extension creation
         type: string
-        example: >-
-          Customer needs additional storage time as their new place of residence
-          is not yet ready
+        example: Customer needs additional storage time as their new place of residence is not yet ready
         x-nullable: true
     required:
       - requestReason
@@ -4095,7 +3983,7 @@ definitions:
         format: date-time
         type: string
       url:
-        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
         format: uri
         type: string
       status:
@@ -4142,9 +4030,9 @@ definitions:
       shipmentsCount:
         type: integer
       originDutyLocation:
-        $ref: '#/definitions/DutyLocation'
+        $ref: 'definitions/DutyLocation.yaml'
       destinationDutyLocation:
-        $ref: '#/definitions/DutyLocation'
+        $ref: 'definitions/DutyLocation.yaml'
       originGBLOC:
         $ref: '#/definitions/GBLOC'
   QueueMovesResult:
@@ -4174,9 +4062,7 @@ definitions:
       age:
         type: number
         format: double
-        description: >-
-          Days since the payment request has been requested.  Decimal
-          representation will allow more accurate sorting.
+        description: Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.
       submittedAt:
         type: string
         format: date-time
@@ -4187,7 +4073,7 @@ definitions:
       originGBLOC:
         $ref: '#/definitions/GBLOC'
       originDutyLocation:
-        $ref: '#/definitions/DutyLocation'
+        $ref: 'definitions/DutyLocation.yaml'
   QueuePaymentRequests:
     type: array
     items:
@@ -4284,8 +4170,8 @@ definitions:
   CreateCustomerSupportRemark:
     type: object
     description: >-
-      A text remark written by an customer support user that is associated with
-      a specific move.
+      A text remark written by an customer support user that is associated with a specific
+      move.
     required:
       - content
       - officeUserID
@@ -4300,8 +4186,7 @@ definitions:
   UpdateCustomerSupportRemarkPayload:
     type: object
     description: >-
-      A text remark update to an existing remark created by the current active
-      user (the CSR).
+      A text remark update to an existing remark created by the current active user (the CSR).
     required:
       - content
     properties:
@@ -4363,1153 +4248,23 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/EvaluationReportListItem'
-  Address:
-    description: A postal address
+  CreateShipmentEvaluationReport:
     type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      streetAddress1:
-        type: string
-        example: 123 Main Ave
-        title: Street address 1
-      streetAddress2:
-        type: string
-        example: Apartment 9000
-        x-nullable: true
-        title: Street address 2
-      streetAddress3:
-        type: string
-        example: Montmârtre
-        x-nullable: true
-        title: Address Line 3
-      city:
-        type: string
-        example: Anytown
-        title: City
-      eTag:
-        type: string
-        readOnly: true
-      state:
-        title: State
-        type: string
-        x-display-value:
-          AL: AL
-          AK: AK
-          AR: AR
-          AZ: AZ
-          CA: CA
-          CO: CO
-          CT: CT
-          DC: DC
-          DE: DE
-          FL: FL
-          GA: GA
-          HI: HI
-          IA: IA
-          ID: ID
-          IL: IL
-          IN: IN
-          KS: KS
-          KY: KY
-          LA: LA
-          MA: MA
-          MD: MD
-          ME: ME
-          MI: MI
-          MN: MN
-          MO: MO
-          MS: MS
-          MT: MT
-          NC: NC
-          ND: ND
-          NE: NE
-          NH: NH
-          NJ: NJ
-          NM: NM
-          NV: NV
-          NY: NY
-          OH: OH
-          OK: OK
-          OR: OR
-          PA: PA
-          RI: RI
-          SC: SC
-          SD: SD
-          TN: TN
-          TX: TX
-          UT: UT
-          VA: VA
-          VT: VT
-          WA: WA
-          WI: WI
-          WV: WV
-          WY: WY
-        enum:
-          - AL
-          - AK
-          - AR
-          - AZ
-          - CA
-          - CO
-          - CT
-          - DC
-          - DE
-          - FL
-          - GA
-          - HI
-          - IA
-          - ID
-          - IL
-          - IN
-          - KS
-          - KY
-          - LA
-          - MA
-          - MD
-          - ME
-          - MI
-          - MN
-          - MO
-          - MS
-          - MT
-          - NC
-          - ND
-          - NE
-          - NH
-          - NJ
-          - NM
-          - NV
-          - NY
-          - OH
-          - OK
-          - OR
-          - PA
-          - RI
-          - SC
-          - SD
-          - TN
-          - TX
-          - UT
-          - VA
-          - VT
-          - WA
-          - WI
-          - WV
-          - WY
-      postalCode:
-        type: string
-        format: zip
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-      country:
-        type: string
-        title: Country
-        x-nullable: true
-        example: USA
-        default: USA
-    required:
-      - streetAddress1
-      - city
-      - state
-      - postalCode
-  Affiliation:
-    type: string
-    x-nullable: true
-    title: Branch of service
-    description: Military branch of service
-    enum:
-      - ARMY
-      - NAVY
-      - MARINES
-      - AIR_FORCE
-      - COAST_GUARD
-      - OTHER
-    x-display-value:
-      ARMY: Army
-      NAVY: Navy
-      MARINES: Marine Corps
-      AIR_FORCE: Air Force
-      COAST_GUARD: Coast Guard
-      OTHER: OTHER
-  DutyLocation:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        example: Fort Bragg North Station
-      address_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      address:
-        $ref: '#/definitions/Address'
-      eTag:
-        type: string
-  NullableString:
-    type: string
-    x-go-type:
-      import:
-        package: github.com/transcom/mymove/pkg/swagger/nullable
-      type: String
-  CustomerContactType:
     description: >-
-      Describes a customer contact type for a MTOServiceItem of type domestic
-      destination SIT.
-    type: string
-    enum:
-      - FIRST
-      - SECOND
-  MTOServiceItemCustomerContact:
-    description: Customer contact information for a destination SIT service item
-    type: object
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      type:
-        $ref: '#/definitions/CustomerContactType'
-      timeMilitary:
-        type: string
-        example: 0400Z
-        description: Time of delivery corresponding to `firstAvailableDeliveryDate`.
-      firstAvailableDeliveryDate:
-        format: date
-        type: string
-        example: '2020-12-31'
-        description: First available date that Prime can deliver SIT service item.
-  MTOServiceItemCustomerContacts:
-    type: array
-    items:
-      $ref: '#/definitions/MTOServiceItemCustomerContact'
-  DimensionType:
-    description: Describes a dimension type for a MTOServiceItemDimension.
-    type: string
-    enum:
-      - ITEM
-      - CRATE
-  MTOServiceItemDimension:
-    description: Describes a dimension object for the MTOServiceItem.
-    type: object
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      type:
-        $ref: '#/definitions/DimensionType'
-      length:
-        description: Length in thousandth inches. 1000 thou = 1 inch.
-        example: 1000
-        type: integer
-        format: int32
-      width:
-        description: Width in thousandth inches. 1000 thou = 1 inch.
-        example: 1000
-        type: integer
-        format: int32
-      height:
-        description: Height in thousandth inches. 1000 thou = 1 inch.
-        example: 1000
-        type: integer
-        format: int32
-  MTOServiceItemDimensions:
-    type: array
-    items:
-      $ref: '#/definitions/MTOServiceItemDimension'
-  MTOServiceItemStatus:
-    description: Describes all statuses for a MTOServiceItem
-    type: string
-    enum:
-      - SUBMITTED
-      - APPROVED
-      - REJECTED
-  MTOServiceItem:
-    type: object
+      todo: add description
     required:
-      - id
-      - moveTaskOrderID
-      - reServiceID
-      - reServiceCode
-      - reServiceName
+      - shipmentID
+      # - moveID
     properties:
-      moveTaskOrderID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoShipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        x-nullable: true
-      reServiceID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      reServiceCode:
-        type: string
-      reServiceName:
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      customerContacts:
-        $ref: '#/definitions/MTOServiceItemCustomerContacts'
-      deletedAt:
-        format: date
-        type: string
-      description:
-        type: string
-        x-nullable: true
-      dimensions:
-        $ref: '#/definitions/MTOServiceItemDimensions'
-      reason:
-        type: string
-        x-nullable: true
-      rejectionReason:
-        type: string
-        x-nullable: true
-      pickupPostalCode:
-        type: string
-        x-nullable: true
-      SITPostalCode:
-        type: string
-        readOnly: true
-        x-nullable: true
-      sitEntryDate:
-        type: string
-        format: date-time
-        x-nullable: true
-      sitDepartureDate:
-        type: string
-        format: date-time
-        x-nullable: true
-      feeType:
-        enum:
-          - COUNSELING
-          - CRATING
-          - TRUCKING
-          - SHUTTLE
-        type: string
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      quantity:
-        type: integer
-      rate:
-        type: integer
-      status:
-        $ref: '#/definitions/MTOServiceItemStatus'
-      submittedAt:
-        format: date
-        type: string
-      total:
-        format: cents
-        type: integer
-      estimatedWeight:
-        type: integer
-        description: estimated weight of the shuttle service item provided by the prime
-        example: 2500
-        x-formatting: weight
-        x-nullable: true
-      updatedAt:
-        format: date-time
-        type: string
-      approvedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-      rejectedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-      eTag:
-        type: string
-  MTOServiceItems:
-    description: A list of service items connected to this shipment.
-    type: array
-    items:
-      $ref: '#/definitions/MTOServiceItem'
-  MTOAgent:
-    type: object
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoShipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      updatedAt:
-        format: date-time
-        type: string
-      firstName:
-        type: string
-        x-nullable: true
-      lastName:
-        type: string
-        x-nullable: true
-      email:
-        type: string
-        format: x-email
-        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-        x-nullable: true
-      phone:
-        type: string
-        format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-        x-nullable: true
-      agentType:
-        type: string
-        enum:
-          - RELEASING_AGENT
-          - RECEIVING_AGENT
-      eTag:
-        type: string
-  MTOAgents:
-    items:
-      $ref: '#/definitions/MTOAgent'
-    type: array
-  DestinationType:
-    type: string
-    title: Destination Type
-    example: OTHER_THAN_AUTHORIZED
-    x-nullable: true
-    enum:
-      - HOME_OF_RECORD
-      - HOME_OF_SELECTION
-      - PLACE_ENTERED_ACTIVE_DUTY
-      - OTHER_THAN_AUTHORIZED
-  MTOShipmentType:
-    type: string
-    title: Shipment Type
-    example: HHG
-    enum:
-      - HHG
-      - HHG_LONGHAUL_DOMESTIC
-      - HHG_SHORTHAUL_DOMESTIC
-      - HHG_INTO_NTS_DOMESTIC
-      - HHG_OUTOF_NTS_DOMESTIC
-      - INTERNATIONAL_HHG
-      - INTERNATIONAL_UB
-      - PPM
-    x-display-value:
-      HHG: HHG
-      INTERNATIONAL_HHG: International HHG
-      INTERNATIONAL_UB: International UB
-      HHG_INTO_NTS_DOMESTIC: NTS
-      HHG_OUTOF_NTS_DOMESTIC: NTS Release
-      PPM: PPM
-  LOAType:
-    description: The Line of accounting (TAC/SAC) type that will be used for the shipment
-    type: string
-    example: HHG
-    enum:
-      - HHG
-      - NTS
-  StorageFacility:
-    description: The Storage Facility information for the shipment
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      facilityName:
-        type: string
-      address:
-        $ref: '#/definitions/Address'
-      lotNumber:
-        type: string
-        x-nullable: true
-      phone:
-        type: string
-        format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-        x-nullable: true
-      email:
-        type: string
-        format: x-email
-        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-        x-nullable: true
-      eTag:
-        type: string
-        readOnly: true
-  SITLocationType:
-    description: The list of SIT location types.
-    type: string
-    enum:
-      - ORIGIN
-      - DESTINATION
-  MTOShipmentStatus:
-    type: string
-    title: Shipment Status
-    example: SUBMITTED
-    enum:
-      - SUBMITTED
-      - REJECTED
-      - APPROVED
-      - CANCELLATION_REQUESTED
-      - CANCELED
-      - DIVERSION_REQUESTED
-  ReweighRequester:
-    type: string
-    enum:
-      - CUSTOMER
-      - PRIME
-      - SYSTEM
-      - TOO
-  Reweigh:
-    description: >-
-      A reweigh  is when a shipment is weighed for a second time due to the
-      request of a customer, the contractor, system or TOO.
-    type: object
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      requestedAt:
-        format: date-time
-        type: string
-      requestedBy:
-        $ref: '#/definitions/ReweighRequester'
       shipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        description: The shipment ID of the shipment to be evaluated in the report
+        example: 01b9671e-b268-4906-967b-ba661a1d3933
         format: uuid
         type: string
-      verificationProvidedAt:
-        x-nullable: true
-        x-omitempty: false
-        format: date-time
-        type: string
-      verificationReason:
-        example: >-
-          The reweigh was not performed due to some justification provided by
-          the counselor
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      weight:
-        example: 2000
-        type: integer
-        x-formatting: weight
-        x-nullable: true
-        x-omitempty: false
-  SITExtension:
-    type: object
-    description: >-
-      A storage in transit (SIT) Extension is a request for an increase in the
-      billable number of days a shipment is allowed to be in SIT.
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoShipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      requestReason:
-        type: string
-        enum:
-          - SERIOUS_ILLNESS_MEMBER
-          - SERIOUS_ILLNESS_DEPENDENT
-          - IMPENDING_ASSIGNEMENT
-          - DIRECTED_TEMPORARY_DUTY
-          - NONAVAILABILITY_OF_CIVILIAN_HOUSING
-          - AWAITING_COMPLETION_OF_RESIDENCE
-          - OTHER
-      contractorRemarks:
-        example: We need SIT additional days. The customer has not found a house yet.
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      requestedDays:
-        type: integer
-        example: 30
-      status:
-        enum:
-          - PENDING
-          - APPROVED
-          - DENIED
-      approvedDays:
-        type: integer
-        example: 30
-        x-nullable: true
-        x-omitempty: false
-      decisionDate:
-        format: date-time
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      officeRemarks:
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      createdAt:
-        format: date-time
-        type: string
-        readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
-      eTag:
-        type: string
-        readOnly: true
-  SITExtensions:
-    type: array
-    items:
-      $ref: '#/definitions/SITExtension'
-  SITStatus:
-    properties:
-      location:
-        enum:
-          - ORIGIN
-          - DESTINATION
-      totalSITDaysUsed:
-        type: integer
-        minimum: 0
-      totalDaysRemaining:
-        type: integer
-        minimum: 0
-      daysInSIT:
-        type: integer
-        minimum: 0
-      sitEntryDate:
-        type: string
-        format: date-time
-      sitDepartureDate:
-        type: string
-        format: date-time
-        x-nullable: true
-      pastSITServiceItems:
-        $ref: '#/definitions/MTOServiceItems'
-  PPMShipmentStatus:
-    type: string
-    readOnly: true
-    enum:
-      - DRAFT
-      - SUBMITTED
-      - WAITING_ON_CUSTOMER
-      - NEEDS_ADVANCE_APPROVAL
-      - NEEDS_PAYMENT_APPROVAL
-      - PAYMENT_APPROVED
-  PPMShipment:
-    description: >-
-      A personally procured move is a type of shipment that a service members
-      moves themselves.
-    x-nullable: true
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
-      shipmentId:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
-      createdAt:
-        format: date-time
-        type: string
-        readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
-      status:
-        $ref: '#/definitions/PPMShipmentStatus'
-      expectedDepartureDate:
-        description: |
-          Date the customer expects to move.
-        format: date
-        type: string
-      actualMoveDate:
-        format: date
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      submittedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      reviewedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      approvedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled
-          once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once
-          the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
-      sitExpected:
-        type: boolean
-      estimatedWeight:
-        type: integer
-        example: 4200
-        x-nullable: true
-        x-omitempty: false
-      netWeight:
-        description: |
-          The net weight of the shipment once it has been weight
-        type: integer
-        example: 4300
-        x-nullable: true
-        x-omitempty: false
-      hasProGear:
-        description: |
-          Indicates whether PPM shipment has pro gear.
-        type: boolean
-        x-nullable: true
-        x-omitempty: false
-      proGearWeight:
-        type: integer
-        x-nullable: true
-        x-omitempty: false
-      spouseProGearWeight:
-        type: integer
-        x-nullable: true
-        x-omitempty: false
-      estimatedIncentive:
-        type: integer
-        format: cents
-        x-nullable: true
-        x-omitempty: false
-      hasRequestedAdvance:
-        description: |
-          Indicates whether an advance has been requested for the PPM shipment.
-        type: boolean
-        x-nullable: true
-        x-omitempty: false
-      advanceAmountRequested:
-        description: >
-          The amount requested for an advance, or null if no advance is
-          requested
-        type: integer
-        format: cents
-        x-nullable: true
-        x-omitempty: false
-      hasReceivedAdvance:
-        description: |
-          Indicates whether an advance was received for the PPM shipment.
-        type: boolean
-        x-nullable: true
-        x-omitempty: false
-      advanceAmountReceived:
-        description: |
-          The amount received for an advance, or null if no advance is received.
-        type: integer
-        format: cents
-        x-nullable: true
-        x-omitempty: false
-      sitLocation:
-        allOf:
-          - $ref: '#/definitions/SITLocationType'
-          - x-nullable: true
-          - x-omitempty: false
-      sitEstimatedWeight:
-        type: integer
-        example: 2000
-        x-nullable: true
-        x-omitempty: false
-      sitEstimatedEntryDate:
-        format: date
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      sitEstimatedDepartureDate:
-        format: date
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      sitEstimatedCost:
-        type: integer
-        format: cents
-        x-nullable: true
-        x-omitempty: false
-      eTag:
-        description: >-
-          A hash unique to this shipment that should be used as the "If-Match"
-          header for any updates.
-        type: string
-        readOnly: true
-    required:
-      - id
-      - shipmentId
-      - createdAt
-      - status
-      - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
-      - sitExpected
-      - eTag
-  MTOShipment:
-    properties:
-      moveTaskOrderID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      updatedAt:
-        format: date-time
-        type: string
-      deletedAt:
-        x-nullable: true
-        format: date-time
-        type: string
-      primeEstimatedWeight:
-        x-nullable: true
-        example: 2000
-        type: integer
-      primeActualWeight:
-        x-nullable: true
-        example: 2000
-        type: integer
-      calculatedBillableWeight:
-        x-nullable: true
-        example: 2000
-        type: integer
-        readOnly: true
-      ntsRecordedWeight:
-        description: >-
-          The previously recorded weight for the NTS Shipment. Used for NTS
-          Release to know what the previous primeActualWeight or billable weight
-          was.
-        example: 2000
-        type: integer
-        x-nullable: true
-        x-formatting: weight
-      scheduledPickupDate:
-        format: date
-        type: string
-        x-nullable: true
-      requestedPickupDate:
-        format: date
-        type: string
-      actualPickupDate:
-        x-nullable: true
-        format: date
-        type: string
-      requestedDeliveryDate:
-        format: date
-        type: string
-      requiredDeliveryDate:
-        x-nullable: true
-        format: date
-        type: string
-      approvedDate:
-        format: date-time
-        type: string
-        x-nullable: true
-      diversion:
-        type: boolean
-        example: true
-      pickupAddress:
-        x-nullable: true
-        $ref: '#/definitions/Address'
-      destinationAddress:
-        x-nullable: true
-        $ref: '#/definitions/Address'
-      destinationType:
-        $ref: '#/definitions/DestinationType'
-      secondaryPickupAddress:
-        x-nullable: true
-        $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
-        x-nullable: true
-        $ref: '#/definitions/Address'
-      customerRemarks:
-        type: string
-        example: handle with care
-        x-nullable: true
-      counselorRemarks:
-        description: >
-          The counselor can use the counselor remarks field to inform the movers
-          about any
-
-          special circumstances for this shipment. Typical examples:
-            * bulky or fragile items,
-            * weapons,
-            * access info for their address.
-          Counselors enters this information when creating or editing an MTO
-          Shipment. Optional field.
-        type: string
-        example: handle with care
-        x-nullable: true
-      shipmentType:
-        $ref: '#/definitions/MTOShipmentType'
-      status:
-        $ref: '#/definitions/MTOShipmentStatus'
-      rejectionReason:
-        type: string
-        example: MTO Shipment not good enough
-        x-nullable: true
-      reweigh:
-        x-nullable: true
-        x-omitempty: true
-        $ref: '#/definitions/Reweigh'
-      mtoAgents:
-        $ref: '#/definitions/MTOAgents'
-      mtoServiceItems:
-        $ref: '#/definitions/MTOServiceItems'
-      sitDaysAllowance:
-        type: integer
-        x-nullable: true
-      sitExtensions:
-        $ref: '#/definitions/SITExtensions'
-      sitStatus:
-        $ref: '#/definitions/SITStatus'
-      eTag:
-        type: string
-      billableWeightCap:
-        type: integer
-        description: TIO override billable weight to be used for calculations
-        example: 2500
-        x-formatting: weight
-        x-nullable: true
-      billableWeightJustification:
-        type: string
-        example: more weight than expected
-        x-nullable: true
-      tacType:
-        allOf:
-          - $ref: '#/definitions/LOAType'
-          - x-nullable: true
-      sacType:
-        allOf:
-          - $ref: '#/definitions/LOAType'
-          - x-nullable: true
-      usesExternalVendor:
-        type: boolean
-        example: false
-      serviceOrderNumber:
-        type: string
-        x-nullable: true
-      storageFacility:
-        x-nullable: true
-        $ref: '#/definitions/StorageFacility'
-      ppmShipment:
-        $ref: '#/definitions/PPMShipment'
-  LOATypeNullable:
-    description: The Line of accounting (TAC/SAC) type that will be used for the shipment
-    type: string
-    x-go-type:
-      import:
-        package: github.com/transcom/mymove/pkg/swagger/nullable
-      type: String
-    example: HHG
-    enum:
-      - HHG
-      - NTS
-  ServiceItemParamName:
-    type: string
-    enum:
-      - ActualPickupDate
-      - ContractCode
-      - ContractYearName
-      - CubicFeetBilled
-      - CubicFeetCrating
-      - DimensionHeight
-      - DimensionLength
-      - DimensionWidth
-      - DistanceZip
-      - DistanceZipSITDest
-      - DistanceZipSITOrigin
-      - EIAFuelPrice
-      - EscalationCompounded
-      - FSCMultiplier
-      - FSCPriceDifferenceInCents
-      - FSCWeightBasedDistanceMultiplier
-      - IsPeak
-      - MarketDest
-      - MarketOrigin
-      - MTOAvailableToPrimeAt
-      - NTSPackingFactor
-      - NumberDaysSIT
-      - PriceAreaDest
-      - PriceAreaIntlDest
-      - PriceAreaIntlOrigin
-      - PriceAreaOrigin
-      - PriceRateOrFactor
-      - PSI_LinehaulDom
-      - PSI_LinehaulDomPrice
-      - PSI_LinehaulShort
-      - PSI_LinehaulShortPrice
-      - PSI_PriceDomDest
-      - PSI_PriceDomDestPrice
-      - PSI_PriceDomOrigin
-      - PSI_PriceDomOriginPrice
-      - PSI_ShippingLinehaulIntlCO
-      - PSI_ShippingLinehaulIntlCOPrice
-      - PSI_ShippingLinehaulIntlOC
-      - PSI_ShippingLinehaulIntlOCPrice
-      - PSI_ShippingLinehaulIntlOO
-      - PSI_ShippingLinehaulIntlOOPrice
-      - RateAreaNonStdDest
-      - RateAreaNonStdOrigin
-      - ReferenceDate
-      - RequestedPickupDate
-      - ServiceAreaDest
-      - ServiceAreaOrigin
-      - ServicesScheduleDest
-      - ServicesScheduleOrigin
-      - SITPaymentRequestEnd
-      - SITPaymentRequestStart
-      - SITScheduleDest
-      - SITScheduleOrigin
-      - WeightAdjusted
-      - WeightBilled
-      - WeightEstimated
-      - WeightOriginal
-      - WeightReweigh
-      - ZipDestAddress
-      - ZipPickupAddress
-      - ZipSITDestHHGFinalAddress
-      - ZipSITOriginHHGActualAddress
-      - ZipSITOriginHHGOriginalAddress
-  ServiceItemParamType:
-    type: string
-    enum:
-      - STRING
-      - DATE
-      - INTEGER
-      - DECIMAL
-      - TIMESTAMP
-      - PaymentServiceItemUUID
-      - BOOLEAN
-  ServiceItemParamOrigin:
-    type: string
-    enum:
-      - PRIME
-      - SYSTEM
-      - PRICER
-      - PAYMENT_REQUEST
-  CustomerSupportRemark:
-    type: object
-    description: >-
-      A text remark written by an office user that is associated with a specific
-      move.
-    required:
-      - id
-      - moveID
-      - officeUserID
-      - content
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      createdAt:
-        type: string
-        format: date-time
-        readOnly: true
-      updatedAt:
-        type: string
-        format: date-time
-        readOnly: true
-      officeUserID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      moveID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      content:
-        example: This is a remark about a move.
-        type: string
-      officeUserFirstName:
-        example: Grace
-        type: string
-        readOnly: true
-      officeUserLastName:
-        example: Griffin
-        type: string
-        readOnly: true
-      officeUserEmail:
-        type: string
-        format: x-email
-        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-        readOnly: true
-  CustomerSupportRemarks:
-    type: array
-    items:
-      $ref: '#/definitions/CustomerSupportRemark'
+      # moveID:
+      #   example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+      #   format: uuid
+      #   type: string
 responses:
   InvalidRequest:
     description: The request payload is invalid
@@ -5539,13 +4294,3 @@ responses:
     description: The payload was unprocessable.
     schema:
       $ref: '#/definitions/ValidationError'
-parameters:
-  ifMatch:
-    in: header
-    name: If-Match
-    type: string
-    required: true
-    description: >
-      Optimistic locking is implemented via the `If-Match` header. If the ETag
-      header does not match the value of the resource on the server, the server
-      rejects the change with a `412 Precondition Failed` error.

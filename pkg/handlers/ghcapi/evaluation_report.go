@@ -1,13 +1,18 @@
 package ghcapi
 
 import (
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/apperror"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	evaluationReportop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	moveop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
@@ -18,6 +23,11 @@ import (
 type GetShipmentEvaluationReportsHandler struct {
 	handlers.HandlerConfig
 	services.EvaluationReportListFetcher
+}
+
+type CreateEvaluationReportHandler struct {
+	handlers.HandlerConfig
+	services.EvaluationReportCreator
 }
 
 // Handle handles GetShipmentEvaluationReports by move request
@@ -66,4 +76,31 @@ func (h GetCounselingEvaluationReportsHandler) Handle(params moveop.GetMoveCouns
 			return moveop.NewGetMoveCounselingEvaluationReportsListOK().WithPayload(payload), nil
 		},
 	)
+}
+
+func (h CreateEvaluationReportHandler) Handle(params evaluationReportop.CreateEvaluationReportForShipmentParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			payload := params.Body
+			shipmentID := uuid.FromStringOrNil(payload.ShipmentID.String())
+			report := &models.EvaluationReport{
+				ShipmentID:   &shipmentID,
+				OfficeUserID: appCtx.Session().OfficeUserID,
+				Type:         models.EvaluationReportTypeShipment,
+				CreatedAt:    time.Now(),
+				UpdatedAt:    time.Now(),
+				ID:           uuid.Must(uuid.NewV4()),
+			}
+
+			evaluationReport, err := h.CreateEvaluationReport(appCtx, report)
+			if err != nil {
+				appCtx.Logger().Error("Error creating evaluation report: ", zap.Error(err))
+				return evaluationReportop.NewCreateEvaluationReportForShipmentInternalServerError(), err
+			}
+
+			returnPayload := payloads.EvaluationReport(evaluationReport)
+
+			return evaluationReportop.NewCreateEvaluationReportForShipmentOK().WithPayload(returnPayload), nil
+		})
 }
