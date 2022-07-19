@@ -88,15 +88,15 @@ export function fillOutWeightTicketPage(options) {
   if (useConstructedWeight) {
     cy.get('input[name="emptyWeight"]').clear().type('1000').blur();
     cy.get('input[name="missingEmptyWeightTicket"]').check({ force: true });
-    cy.upload_file('.emptyWeightTicketsRef', 'constructedWeight.xls');
+    cy.upload_file('input[name="emptyWeightTickets"]', 'constructedWeight.xls');
     cy.get('input[name="fullWeight"]').clear().type('3000');
     cy.get('input[name="missingFullWeightTicket"]').check({ force: true });
-    cy.upload_file('.fullWeightTicketsRef', 'constructedWeight.xls');
+    cy.upload_file('input[name="fullWeightTickets"]', 'constructedWeight.xls');
   } else {
     cy.get('input[name="emptyWeight"]').clear().type('1000').blur();
-    cy.upload_file('.emptyWeightTicketsRef', 'sampleWeightTicket.jpg');
+    cy.upload_file('input[name="emptyWeightTickets"]', 'sampleWeightTicket.jpg');
     cy.get('input[name="fullWeight"]').clear().type('3000');
-    cy.upload_file('.fullWeightTicketsRef', 'sampleWeightTicket.jpg');
+    cy.upload_file('input[name="fullWeightTickets"]', 'sampleWeightTicket.jpg');
   }
 
   cy.get('.tripWeightTotal').contains('Trip weight: 2,000 lbs');
@@ -105,7 +105,7 @@ export function fillOutWeightTicketPage(options) {
     cy.get('input[name="hasOwnTrailer"][value="true"]').check({ force: true });
     if (ownTrailer) {
       cy.get('input[name="trailerMeetsCriteria"][value="true"]').check({ force: true });
-      cy.upload_file('.trailerOwnershipDocsRef', 'trailerOwnership.pdf');
+      cy.upload_file('input[name="trailerOwnershipDocs"]', 'trailerOwnership.pdf');
     } else {
       cy.get('input[name="trailerMeetsCriteria"][value="false"]').check({ force: true });
       cy.get('.doNotClaimTrailerWeight').contains('Do not claim the weight of this trailer for this trip.');
