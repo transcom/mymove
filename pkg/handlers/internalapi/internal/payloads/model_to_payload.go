@@ -17,7 +17,7 @@ func CreateDocument(document models.Document) *internalmessages.DocumentPayload 
 	documentPayload := &internalmessages.DocumentPayload{
 		ID:              handlers.FmtUUID(document.ID),
 		ServiceMemberID: handlers.FmtUUID(document.ServiceMemberID),
-		//Uploads:         uploads,
+		Uploads:         []*internalmessages.UploadPayload{},
 	}
 	return documentPayload
 }
@@ -111,7 +111,8 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
-		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
+		// WeightTickets: WeightTickets()
+		ETag: etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
 	return payloadPPMShipment

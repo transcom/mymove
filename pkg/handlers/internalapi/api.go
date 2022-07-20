@@ -94,6 +94,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.MoveDocsCreateWeightTicketDocumentHandler = CreateWeightTicketSetDocumentHandler{handlerConfig}
 
 	internalAPI.PpmCreateWeightTicketHandler = CreateWeightTicketHandler{handlerConfig, weightticket.NewCustomerWeightTicketCreator()}
+	internalAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{handlerConfig, weightticket.NewCustomerWeightTicketUpdater()}
 
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler{handlerConfig}
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler{handlerConfig}
