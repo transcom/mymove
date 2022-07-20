@@ -27,6 +27,10 @@ type CreateMTOShipment struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
+	// counselor remarks
+	// Example: counselor approved
+	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
+
 	// The customer can use the customer remarks field to inform the services counselor and the movers about any
 	// special circumstances for this shipment. Typical examples:
 	//   * bulky or fragile items,
@@ -39,10 +43,9 @@ type CreateMTOShipment struct {
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 	// Where the movers should deliver this shipment.
-	// Required: true
 	DestinationAddress struct {
 		Address
-	} `json:"destinationAddress"`
+	} `json:"destinationAddress,omitempty"`
 
 	// This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.
 	//
@@ -57,14 +60,16 @@ type CreateMTOShipment struct {
 	mtoServiceItemsField []MTOServiceItem
 
 	// The address where the movers should pick up this shipment.
-	// Required: true
 	PickupAddress struct {
 		Address
-	} `json:"pickupAddress"`
+	} `json:"pickupAddress,omitempty"`
 
 	// Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.
 	//
 	PointOfContact string `json:"pointOfContact,omitempty"`
+
+	// ppm shipment
+	PpmShipment *CreatePPMShipment `json:"ppmShipment,omitempty"`
 
 	// The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.
 	//
@@ -73,9 +78,8 @@ type CreateMTOShipment struct {
 
 	// The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.
 	//
-	// Required: true
 	// Format: date
-	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
+	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 	// shipment type
 	// Required: true
@@ -97,11 +101,13 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	var data struct {
 		Agents MTOAgents `json:"agents,omitempty"`
 
+		CounselorRemarks *string `json:"counselorRemarks,omitempty"`
+
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 		DestinationAddress struct {
 			Address
-		} `json:"destinationAddress"`
+		} `json:"destinationAddress,omitempty"`
 
 		Diversion bool `json:"diversion,omitempty"`
 
@@ -111,13 +117,15 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 
 		PickupAddress struct {
 			Address
-		} `json:"pickupAddress"`
+		} `json:"pickupAddress,omitempty"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
+		PpmShipment *CreatePPMShipment `json:"ppmShipment,omitempty"`
+
 		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
-		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
+		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 		ShipmentType *MTOShipmentType `json:"shipmentType"`
 	}
@@ -143,6 +151,9 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	// agents
 	result.Agents = data.Agents
 
+	// counselorRemarks
+	result.CounselorRemarks = data.CounselorRemarks
+
 	// customerRemarks
 	result.CustomerRemarks = data.CustomerRemarks
 
@@ -163,6 +174,9 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 
 	// pointOfContact
 	result.PointOfContact = data.PointOfContact
+
+	// ppmShipment
+	result.PpmShipment = data.PpmShipment
 
 	// primeEstimatedWeight
 	result.PrimeEstimatedWeight = data.PrimeEstimatedWeight
@@ -185,11 +199,13 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 		Agents MTOAgents `json:"agents,omitempty"`
 
+		CounselorRemarks *string `json:"counselorRemarks,omitempty"`
+
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 		DestinationAddress struct {
 			Address
-		} `json:"destinationAddress"`
+		} `json:"destinationAddress,omitempty"`
 
 		Diversion bool `json:"diversion,omitempty"`
 
@@ -197,18 +213,22 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 
 		PickupAddress struct {
 			Address
-		} `json:"pickupAddress"`
+		} `json:"pickupAddress,omitempty"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
+		PpmShipment *CreatePPMShipment `json:"ppmShipment,omitempty"`
+
 		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
-		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
+		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 		ShipmentType *MTOShipmentType `json:"shipmentType"`
 	}{
 
 		Agents: m.Agents,
+
+		CounselorRemarks: m.CounselorRemarks,
 
 		CustomerRemarks: m.CustomerRemarks,
 
@@ -221,6 +241,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 		PickupAddress: m.PickupAddress,
 
 		PointOfContact: m.PointOfContact,
+
+		PpmShipment: m.PpmShipment,
 
 		PrimeEstimatedWeight: m.PrimeEstimatedWeight,
 
@@ -268,6 +290,10 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validatePpmShipment(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateRequestedPickupDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -300,6 +326,9 @@ func (m *CreateMTOShipment) validateAgents(formats strfmt.Registry) error {
 }
 
 func (m *CreateMTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationAddress) { // not required
+		return nil
+	}
 
 	return nil
 }
@@ -339,14 +368,35 @@ func (m *CreateMTOShipment) validateMtoServiceItems(formats strfmt.Registry) err
 }
 
 func (m *CreateMTOShipment) validatePickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.PickupAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validatePpmShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.PpmShipment) { // not required
+		return nil
+	}
+
+	if m.PpmShipment != nil {
+		if err := m.PpmShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppmShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppmShipment")
+			}
+			return err
+		}
+	}
 
 	return nil
 }
 
 func (m *CreateMTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error {
-
-	if err := validate.Required("requestedPickupDate", "body", m.RequestedPickupDate); err != nil {
-		return err
+	if swag.IsZero(m.RequestedPickupDate) { // not required
+		return nil
 	}
 
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
@@ -400,6 +450,10 @@ func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePpmShipment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateShipmentType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -448,6 +502,22 @@ func (m *CreateMTOShipment) contextValidateMtoServiceItems(ctx context.Context, 
 }
 
 func (m *CreateMTOShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PpmShipment != nil {
+		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppmShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppmShipment")
+			}
+			return err
+		}
+	}
 
 	return nil
 }

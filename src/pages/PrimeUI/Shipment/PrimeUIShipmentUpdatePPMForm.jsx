@@ -22,48 +22,48 @@ const PrimeUIShipmentUpdatePPMForm = () => {
       <h2 className={styles.sectionHeader}>Dates</h2>
       <DatePickerInput
         label="Expected Departure Date"
-        id="expectedDepartureDateInput"
+        id="ppmShipment.expectedDepartureDateInput"
         name="ppmShipment.expectedDepartureDate"
       />
       <h2 className={styles.sectionHeader}>Origin Info</h2>
       <TextField
         label="Pickup Postal Code"
-        id="pickupPostalCodeInput"
+        id="ppmShipment.pickupPostalCodeInput"
         name="ppmShipment.pickupPostalCode"
         maxLength={10}
       />
       <TextField
         label="Secondary Pickup Postal Code"
-        id="secondaryPickupPostalCodeInput"
+        id="ppmShipment.secondaryPickupPostalCodeInput"
         name="ppmShipment.secondaryPickupPostalCode"
         maxLength={10}
       />
       <h2 className={styles.sectionHeader}>Destination Info</h2>
       <TextField
         label="Destination Postal Code"
-        id="destinationPostalCodeInput"
+        id="ppmShipment.destinationPostalCodeInput"
         name="ppmShipment.destinationPostalCode"
         maxLength={10}
       />
       <TextField
         label="Secondary Destination Postal Code"
-        id="secondaryDestinationPostalCodeInput"
+        id="ppmShipment.secondaryDestinationPostalCodeInput"
         name="ppmShipment.secondaryDestinationPostalCode"
         maxLength={10}
       />
       <h2 className={styles.sectionHeader}>Storage In Transit (SIT)</h2>
-      <CheckboxField label="SIT Expected" id="sitExpectedInput" name="ppmShipment.sitExpected" />
+      <CheckboxField label="SIT Expected" id="ppmShipment.sitExpectedInput" name="ppmShipment.sitExpected" />
       {sitExpected && (
         <>
           <DropdownInput
             label="SIT Location"
-            id="sitLocationInput"
+            id="ppmShipment.sitLocationInput"
             name="ppmShipment.sitLocation"
             options={sitLocationOptions}
           />
           <MaskedTextField
             label="SIT Estimated Weight (lbs)"
-            id="sitEstimatedWeightInput"
+            id="ppmShipment.sitEstimatedWeightInput"
             name="ppmShipment.sitEstimatedWeight"
             mask={Number}
             scale={0} // digits after point, 0 for integers
@@ -73,12 +73,12 @@ const PrimeUIShipmentUpdatePPMForm = () => {
           />
           <DatePickerInput
             label="SIT Estimated Entry Date"
-            id="sitEstimatedEntryDateInput"
+            id="ppmShipment.sitEstimatedEntryDateInput"
             name="ppmShipment.sitEstimatedEntryDate"
           />
           <DatePickerInput
             label="SIT Estimated Departure Date"
-            id="sitEstimatedDepartureDateInput"
+            id="ppmShipment.sitEstimatedDepartureDateInput"
             name="ppmShipment.sitEstimatedDepartureDate"
           />
         </>
@@ -86,7 +86,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
       <h2 className={styles.sectionHeader}>Weights</h2>
       <MaskedTextField
         label="Estimated Weight (lbs)"
-        id="estimatedWeightInput"
+        id="ppmShipment.estimatedWeightInput"
         name="ppmShipment.estimatedWeight"
         mask={Number}
         scale={0} // digits after point, 0 for integers
@@ -96,7 +96,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
       />
       <MaskedTextField
         label="Net Weight (lbs)"
-        id="netWeightInput"
+        id="ppmShipment.netWeightInput"
         name="ppmShipment.netWeight"
         mask={Number}
         scale={0} // digits after point, 0 for integers
@@ -104,12 +104,12 @@ const PrimeUIShipmentUpdatePPMForm = () => {
         thousandsSeparator=","
         lazy={false} // immediate masking evaluation
       />
-      <CheckboxField label="Has Pro Gear" id="hasProGearInput" name="ppmShipment.hasProGear" />
+      <CheckboxField label="Has Pro Gear" id="ppmShipment.hasProGearInput" name="ppmShipment.hasProGear" />
       {hasProGear && (
         <>
           <MaskedTextField
             label="Pro Gear Weight (lbs)"
-            id="proGearWeightInput"
+            id="ppmShipment.proGearWeightInput"
             name="ppmShipment.proGearWeight"
             mask={Number}
             scale={0} // digits after point, 0 for integers
@@ -119,7 +119,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
           />
           <MaskedTextField
             label="Spouse Pro Gear Weight (lbs)"
-            id="spouseProGearWeightInput"
+            id="ppmShipment.spouseProGearWeightInput"
             name="ppmShipment.spouseProGearWeight"
             mask={Number}
             scale={0} // digits after point, 0 for integers
