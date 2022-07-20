@@ -1014,7 +1014,7 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx appcontext
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
-func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createMultipleApprovedMovesWithPPMs(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("22dba194-3d9a-49c6-8328-718dd945292f"),
 		email:       "actualPPMDateZIPAdvanceDone2@ppm.approved",
@@ -1025,104 +1025,105 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo2(appCtx appcontex
 		moveLocator: "ABTPPM",
 	}
 
-	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-
-	assertions := testdatagen.Assertions{
-		UserUploader: userUploader,
-		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
-		},
-		MTOShipment: models.MTOShipment{
-			ID:     testdatagen.ConvertUUIDStringToUUID("2baecd8a-b6cf-4bc9-bab7-7a6c2239b289"),
-			Status: models.MTOShipmentStatusApproved,
-		},
-		PPMShipment: models.PPMShipment{
-			ID:                          testdatagen.ConvertUUIDStringToUUID("ceb6a314-8360-4844-b0e4-fcc22982bdeb"),
-			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42444"),
-			ActualDestinationPostalCode: models.StringPointer("30813"),
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-		},
-	}
-
-	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
-}
-
-func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	moveInfo := moveCreatorInfo{
+	moveInfo2 := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("9ec731d8-f347-4d34-8b54-4ce9e6ea3282"),
 		email:       "actualPPMDateZIPAdvanceDone3@ppm.approved",
 		smID:        testdatagen.ConvertUUIDStringToUUID("5329c0c2-15f9-433e-9f99-7501eb68c6c1"),
 		firstName:   "ActualPPM",
 		lastName:    "DateZIPAdvanceDone",
 		moveID:      testdatagen.ConvertUUIDStringToUUID("a8dae89d-305a-49ae-996d-843dd7508aff"),
-		moveLocator: "ABTPPM",
+		moveLocator: "AB2PPM",
 	}
 
-	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-
-	assertions := testdatagen.Assertions{
-		UserUploader: userUploader,
-		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
-		},
-		MTOShipment: models.MTOShipment{
-			ID:     testdatagen.ConvertUUIDStringToUUID("5446bab6-5bfb-4689-9e2b-012344ca7343"),
-			Status: models.MTOShipmentStatusApproved,
-		},
-		PPMShipment: models.PPMShipment{
-			ID:                          testdatagen.ConvertUUIDStringToUUID("d80af62f-2442-435d-8add-43521ca8ab9c"),
-			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42444"),
-			ActualDestinationPostalCode: models.StringPointer("30813"),
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-		},
-	}
-
-	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
-}
-
-func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo4(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
-	moveInfo := moveCreatorInfo{
+	moveInfo3 := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("2a0146c4-ec9a-4efc-a94c-6c2849c3e167"),
 		email:       "actualPPMDateZIPAdvanceDone4@ppm.approved",
 		smID:        testdatagen.ConvertUUIDStringToUUID("98d28256-60e1-4792-86f1-c4e35cdef104"),
 		firstName:   "ActualPPM",
 		lastName:    "DateZIPAdvanceDone",
 		moveID:      testdatagen.ConvertUUIDStringToUUID("3bb2341a-9133-4d8e-abdf-0c0b18827756"),
-		moveLocator: "ABTPPM",
+		moveLocator: "AB3PPM",
 	}
+	moveInfo4 := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("bab42ae8-fe0d-4165-87be-dc1317ae0099"),
+		email:       "actualPPMDateZIPAdvanceDone5@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("71086cbf-89ee-4ca2-b063-739f3f33dab4"),
+		firstName:   "ActualPPM",
+		lastName:    "DateZIPAdvanceDone",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("5e2916b2-dbba-4ca4-b558-d56842631757"),
+		moveLocator: "AB4PPM",
+	}
+
+	moveInformation := []moveCreatorInfo{moveInfo, moveInfo2, moveInfo3, moveInfo4}
+
+	assertions := testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("ef049132-204a-417a-a2c5-bfe2ac86e7a0"),
+		},
+		PPMShipment: models.PPMShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("38f0b15a-efb9-411e-bd3d-c90514607fce"),
+		},
+	}
+	assertions1 := testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("9cb9e177-c95c-49bf-80be-7f1b2ce41fe3"),
+		},
+		PPMShipment: models.PPMShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("03d46a0d-6151-48dc-a8de-7abebd22916b"),
+		},
+	}
+	assertions2 := testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("4bbff9d2-2250-4d72-9802-54b6e2e2c0fb"),
+		},
+		PPMShipment: models.PPMShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("7a9d9041-ed98-49b0-9c8d-96e406cca79e"),
+		},
+	}
+	assertions3 := testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("b97b1852-aa00-4530-9ff3-a8bbcb35d928"),
+		},
+		PPMShipment: models.PPMShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("379fb8f9-b210-4374-8f14-b8763be800ef"),
+		},
+	}
+	assertions4 := testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("91e9f99b-5923-47d3-bb80-211919ec27ce"),
+		},
+		PPMShipment: models.PPMShipment{
+			ID: testdatagen.ConvertUUIDStringToUUID("c2fd7a80-afbe-425f-b7a9-bd26bd8cc965"),
+		},
+	}
+
+	idAssertions := []testdatagen.Assertions{assertions, assertions1, assertions2, assertions3, assertions4}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 
-	assertions := testdatagen.Assertions{
-		UserUploader: userUploader,
-		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
-		},
-		MTOShipment: models.MTOShipment{
-			ID:     testdatagen.ConvertUUIDStringToUUID("9b2d49a1-3ff3-408f-baf4-38e98c0cf3d8"),
-			Status: models.MTOShipmentStatusApproved,
-		},
-		PPMShipment: models.PPMShipment{
-			ID:                          testdatagen.ConvertUUIDStringToUUID("3b19d3ba-1013-4826-b7e5-40b5f2e32f79"),
-			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
-			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
-			ActualPickupPostalCode:      models.StringPointer("42444"),
-			ActualDestinationPostalCode: models.StringPointer("30813"),
-			HasReceivedAdvance:          models.BoolPointer(true),
-			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
-		},
+	for i, move := range moveInformation {
+		assertions := testdatagen.Assertions{
+			UserUploader: userUploader,
+			Move: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
+			MTOShipment: models.MTOShipment{
+				ID:     idAssertions[i].MTOShipment.ID,
+				Status: models.MTOShipmentStatusApproved,
+			},
+			PPMShipment: models.PPMShipment{
+				ID:                          idAssertions[i].PPMShipment.ID,
+				ApprovedAt:                  &approvedAt,
+				Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+				ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+				ActualPickupPostalCode:      models.StringPointer("42444"),
+				ActualDestinationPostalCode: models.StringPointer("30813"),
+				HasReceivedAdvance:          models.BoolPointer(true),
+				AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			},
+		}
+		createGenericMoveWithPPMShipment(appCtx, move, false, assertions)
 	}
-
-	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
 func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {

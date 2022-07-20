@@ -112,9 +112,7 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		// Post-onboarding
 		createApprovedMoveWithPPM(appCtx, userUploader)
 		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx, userUploader)
-		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo2(appCtx, userUploader)
-		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo3(appCtx, userUploader)
-		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo4(appCtx, userUploader)
+		createMultipleApprovedMovesWithPPMs(appCtx, userUploader)
 		createApprovedMoveWithPPMEmptyAboutPage(appCtx, userUploader)
 	}
 }
