@@ -19,9 +19,9 @@ const (
 type EvaluationReportInspectionType string
 
 const (
-	EvaluationReportInspectionTypeDataReview  EvaluationReportInspectionType = "DATA_REVIEW"
-	EvaluationReportInspectionTypePhysical    EvaluationReportInspectionType = "PHYSICAL"
-	EvaluationReportInspectionTypeDataVirtual EvaluationReportInspectionType = "VIRTUAL"
+	EvaluationReportInspectionTypeDataReview EvaluationReportInspectionType = "DATA_REVIEW"
+	EvaluationReportInspectionTypePhysical   EvaluationReportInspectionType = "PHYSICAL"
+	EvaluationReportInspectionTypeVirtual    EvaluationReportInspectionType = "VIRTUAL"
 )
 
 type EvaluationReportLocationType string

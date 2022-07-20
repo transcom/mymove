@@ -36,6 +36,7 @@ func MakeEvaluationReport(db *pop.Connection, assertions Assertions) models.Eval
 	if !isZeroUUID(assertions.MTOShipment.ID) {
 		evaluationReport.ShipmentID = &assertions.MTOShipment.ID
 		evaluationReport.Shipment = &assertions.MTOShipment
+		evaluationReport.Type = models.EvaluationReportTypeShipment
 	}
 	mergeModels(&evaluationReport, assertions.EvaluationReport)
 	mustCreate(db, &evaluationReport, assertions.Stub)

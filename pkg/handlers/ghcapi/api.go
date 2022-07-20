@@ -18,6 +18,7 @@ import (
 	customerserviceremarks "github.com/transcom/mymove/pkg/services/customer_support_remarks"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
+	evaluationreport "github.com/transcom/mymove/pkg/services/evaluation_report"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	paymentserviceitem "github.com/transcom/mymove/pkg/services/payment_service_item"
 
@@ -77,6 +78,16 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler = DeleteCustomerSupportRemarkHandler{
 		HandlerConfig:                handlerConfig,
 		CustomerSupportRemarkDeleter: customerserviceremarks.NewCustomerSupportRemarkDeleter(),
+	}
+
+	ghcAPI.MoveGetMoveCounselingEvaluationReportsListHandler = GetCounselingEvaluationReportsHandler{
+		HandlerConfig:               handlerConfig,
+		EvaluationReportListFetcher: evaluationreport.NewEvaluationReportListFetcher(),
+	}
+
+	ghcAPI.MoveGetMoveShipmentEvaluationReportsListHandler = GetShipmentEvaluationReportsHandler{
+		HandlerConfig:               handlerConfig,
+		EvaluationReportListFetcher: evaluationreport.NewEvaluationReportListFetcher(),
 	}
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
