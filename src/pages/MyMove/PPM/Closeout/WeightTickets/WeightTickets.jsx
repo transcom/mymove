@@ -59,19 +59,7 @@ const WeightTickets = () => {
   }, [weightTicketId, moveId, mtoShipmentId, history, dispatch, mtoShipment]);
 
   const handleCreateUpload = async (fieldName, file) => {
-    let documentId;
-    switch (fieldName) {
-      case 'emptyWeightTickets':
-        documentId = currentWeightTicket.emptyWeightDocumentId;
-        break;
-      case 'fullWeightTickets':
-        documentId = currentWeightTicket.fullWeightDocumentId;
-        break;
-      case 'trailerOwnershipDocs':
-        documentId = currentWeightTicket.trailerOwnershipDocumentId;
-        break;
-      default:
-    }
+    const documentId = currentWeightTicket[`${fieldName}Id`];
 
     createUploadForDocument(file, documentId)
       .then((upload) => {
