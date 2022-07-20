@@ -125,6 +125,29 @@
     dt {
       @include u-margin-right('05');
     }
+
+    @media(max-width: $mobile) {
+      .subheadingWrapper {
+        .subheading {
+          @include u-margin-right(0);
+          flex-basis: 50%;
+          flex-shrink: 0;
+          order: 1;
+        }
+
+        dl {
+          order: 3;
+        }
+
+        .actionContainer {
+          text-align: right;
+          align-content: flex-end;
+          flex-basis: 50%;
+          flex-shrink: 0;
+          order: 2;
+        }
+      }
+    }
   }
 
   :global(.usa-button--secondary:visited) {
