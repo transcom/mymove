@@ -21,12 +21,7 @@ const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessa
         {contents?.map(({ id, subheading, rows, onDelete, renderEditLink }) => {
           return (
             <div
-              className={classnames(
-                { [styles.subheadingWrapper]: !!renderAddButton },
-                'display-flex',
-                'width-full',
-                'flex-wrap',
-              )}
+              className={classnames({ [styles.subheadingWrapper]: !!renderAddButton }, 'display-flex', 'width-full')}
               key={id}
             >
               {subheading && <div className={styles.subheading}>{subheading}</div>}

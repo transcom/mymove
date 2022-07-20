@@ -22,7 +22,6 @@
         @include u-padding-bottom(1);
 
         a {
-          @include u-display(inline);
           @include u-margin-bottom(0);
           @include u-margin-right(0);
         }
@@ -128,6 +127,8 @@
 
     @media(max-width: $mobile) {
       .subheadingWrapper {
+        flex-wrap: wrap;
+
         .subheading {
           @include u-margin-right(0);
           flex-basis: 50%;
