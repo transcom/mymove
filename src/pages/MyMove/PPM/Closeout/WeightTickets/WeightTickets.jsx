@@ -3,11 +3,10 @@ import { generatePath, useHistory, useParams, useLocation } from 'react-router-d
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import qs from 'query-string';
-import { v4 as uuidv4 } from 'uuid';
 
 import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
-import { createUploadForDocument, createWeightTicket, patchWeightTicket } from 'services/internalApi';
+import { createUploadForDocument, createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ScrollToTop from 'components/ScrollToTop';
@@ -76,7 +75,7 @@ const WeightTickets = () => {
 
     createUploadForDocument(file, documentId)
       .then((upload) => {
-        mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].push(upload);
+        mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
         return upload;
       })
@@ -85,33 +84,27 @@ const WeightTickets = () => {
       });
   };
 
-  const handleUploadComplete = (upload, err, fieldName, values, setFieldValue) => {
+  const handleUploadComplete = (err) => {
     if (err) {
       setErrorMessage('Encountered error when completing file upload');
-      return;
     }
-
-    const newValue = {
-      id: uuidv4(),
-      created_at: '2022-06-22T23:25:50.490Z',
-      bytes: upload.file.size,
-      url: 'a/fake/path',
-      filename: upload.file.name,
-      content_type: upload.file.type,
-    };
-
-    setFieldValue(fieldName, [...values[`${fieldName}`], newValue]);
   };
 
-  const handleUploadDelete = (uploadId, fieldName, values, setFieldTouched, setFieldValue) => {
-    const filterdDocuments = mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].filter(
-      (upload) => upload.id !== uploadId,
-    );
-    mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName] = filterdDocuments;
-    const remainingUploads = values[fieldName]?.filter((upload) => upload.id !== uploadId);
-    setFieldTouched(fieldName, true, true);
-    setFieldValue(fieldName, remainingUploads, true);
-    dispatch(updateMTOShipment(mtoShipment));
+  const handleUploadDelete = (uploadId, fieldName, setFieldTouched, setFieldValue) => {
+    deleteUpload(uploadId)
+      .then(() => {
+        const filteredUploads = mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].uploads.filter(
+          (upload) => upload.id !== uploadId,
+        );
+        mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].uploads = filteredUploads;
+
+        setFieldValue(fieldName, filteredUploads, true);
+        setFieldTouched(fieldName, true, true);
+        dispatch(updateMTOShipment(mtoShipment));
+      })
+      .catch(() => {
+        setErrorMessage('Failed to delete the file upload');
+      });
   };
 
   const handleBack = () => {
@@ -133,7 +126,7 @@ const WeightTickets = () => {
       trailerMeetsCriteria,
     };
 
-    patchWeightTicket(mtoShipment.id, currentWeightTicket.id, payload, currentWeightTicket.eTag)
+    patchWeightTicket(mtoShipment?.ppmShipment?.id, currentWeightTicket.id, payload, currentWeightTicket.eTag)
       .then((resp) => {
         setSubmitting(false);
         mtoShipment.ppmShipment.weightTickets[currentIndex] = resp;

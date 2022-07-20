@@ -107,7 +107,7 @@ const WeightTicketUpload = ({
       <UploadsTable
         className={styles.uploadsTable}
         uploads={values[`${fieldName}`]}
-        onDelete={(uploadId) => onUploadDelete(uploadId, fieldName, values, setFieldTouched, setFieldValue)}
+        onDelete={(uploadId) => onUploadDelete(uploadId, fieldName, setFieldTouched, setFieldValue)}
       />
       <FormGroup error={showError}>
         <div className="labelWrapper">
@@ -124,7 +124,7 @@ const WeightTicketUpload = ({
           createUpload={(file) => onCreateUpload(fieldName, file)}
           onChange={(err, upload) => {
             setFieldTouched(fieldName, true);
-            onUploadComplete(upload, err, fieldName, values, setFieldValue);
+            onUploadComplete(err);
             fileUploadRef.current.removeFile(upload.id);
           }}
           acceptedFileTypes={acceptableFileTypes}
@@ -186,13 +186,13 @@ const WeightTicketForm = ({
     vehicleDescription: vehicleDescription || '',
     missingEmptyWeightTicket: !!missingEmptyWeightTicket,
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
-    emptyDocument: emptyDocument || [],
+    emptyDocument: emptyDocument?.uploads || [],
     fullWeight: fullWeight ? `${fullWeight}` : '',
     missingFullWeightTicket: !!missingFullWeightTicket,
-    fullDocument: fullDocument || [],
+    fullDocument: fullDocument?.uploads || [],
     hasOwnTrailer: hasOwnTrailer ? 'true' : 'false',
     trailerMeetsCriteria: trailerMeetsCriteria ? 'true' : 'false',
-    proofOfTrailerOwnershipDocument: proofOfTrailerOwnershipDocument || [],
+    proofOfTrailerOwnershipDocument: proofOfTrailerOwnershipDocument?.uploads || [],
   };
 
   const emptyDocumentRef = createRef();
@@ -336,7 +336,6 @@ const WeightTicketForm = ({
                                 onUploadDelete(
                                   uploadId,
                                   'proofOfTrailerOwnershipDocument',
-                                  values,
                                   formikProps.setFieldTouched,
                                   formikProps.setFieldValue,
                                 )
@@ -378,13 +377,7 @@ const WeightTicketForm = ({
                                 labelIdleMobile={UploadDropZoneLabelMobile}
                                 onChange={(err, upload) => {
                                   formikProps.setFieldTouched('proofOfTrailerOwnershipDocument', true);
-                                  onUploadComplete(
-                                    upload,
-                                    err,
-                                    'proofOfTrailerOwnershipDocument',
-                                    values,
-                                    formikProps.setFieldValue,
-                                  );
+                                  onUploadComplete(err);
                                   proofOfTrailerOwnershipDocumentRef.current.removeFile(upload.id);
                                 }}
                                 acceptedFileTypes={acceptableFileTypes}
