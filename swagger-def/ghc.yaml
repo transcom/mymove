@@ -4279,6 +4279,64 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/EvaluationReportListItem'
+  EvaluationReport:
+    type: object
+    description: An evaluation report
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      shipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        x-nullable: true
+      type:
+        $ref: '#/definitions/EvaluationReportType'
+      inspectionType:
+        $ref: '#/definitions/EvaluationReportInspectionType'
+        x-nullable: true
+      inspectionDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      travelTimeMinutes:
+        type: integer
+        minimum: 0
+        x-nullable: true
+      location:
+        $ref: '#/definitions/EvaluationReportLocation'
+        x-nullable: true
+      locationDescription:
+        type: string
+        example: asdfasdfsd
+        x-nullable: true
+      observedDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      evaluationLengthMinutes:
+        type: integer
+        minimum: 0
+        x-nullable: true
+      violationsObserved:
+        type: boolean
+        x-nullable: true
+      remarks:
+        type: string
+        x-nullable: true
+      submittedAt:
+        type: string
+        format: date-time
+        x-nullable: true
+      createdAt:
+        type: string
+        format: date-time
   CreateShipmentEvaluationReport:
     type: object
     description: >-

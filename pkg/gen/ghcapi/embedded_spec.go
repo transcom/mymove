@@ -413,6 +413,52 @@ func init() {
         }
       }
     },
+    "/evaluation-reports/{reportID}": {
+      "delete": {
+        "description": "Soft deletes an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Soft deletes an evaluation report by ID",
+        "operationId": "deleteEvaluationReport",
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the report"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "Gets a move",
@@ -1524,6 +1570,51 @@ func init() {
           },
           "403": {
             "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/moves/shipment-evaluation-reports": {
+      "post": {
+        "description": "Creates a shipment evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Creates a shipment evaluation report",
+        "operationId": "createEvaluationReportForShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipmentEvaluationReport"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created shipment evaluation report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -4114,6 +4205,21 @@ func init() {
         }
       }
     },
+    "CreateShipmentEvaluationReport": {
+      "description": "todo: add description",
+      "type": "object",
+      "required": [
+        "shipmentID"
+      ],
+      "properties": {
+        "shipmentID": {
+          "description": "The shipment ID of the shipment to be evaluated in the report",
+          "type": "string",
+          "format": "uuid",
+          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -4419,6 +4525,79 @@ func init() {
       "properties": {
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "EvaluationReport": {
+      "description": "An evaluation report",
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evaluationLengthMinutes": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "inspectionDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "inspectionType": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportInspectionType"
+        },
+        "location": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportLocation"
+        },
+        "locationDescription": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "asdfasdfsd"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "observedDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "remarks": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "travelTimeMinutes": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "type": {
+          "$ref": "#/definitions/EvaluationReportType"
+        },
+        "violationsObserved": {
+          "type": "boolean",
+          "x-nullable": true
         }
       }
     },
@@ -7887,6 +8066,70 @@ func init() {
         }
       }
     },
+    "/evaluation-reports/{reportID}": {
+      "delete": {
+        "description": "Soft deletes an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Soft deletes an evaluation report by ID",
+        "operationId": "deleteEvaluationReport",
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the report"
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "Gets a move",
@@ -9303,6 +9546,63 @@ func init() {
             "description": "The request was denied",
             "schema": {
               "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/moves/shipment-evaluation-reports": {
+      "post": {
+        "description": "Creates a shipment evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Creates a shipment evaluation report",
+        "operationId": "createEvaluationReportForShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipmentEvaluationReport"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created shipment evaluation report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -12352,6 +12652,21 @@ func init() {
         }
       }
     },
+    "CreateShipmentEvaluationReport": {
+      "description": "todo: add description",
+      "type": "object",
+      "required": [
+        "shipmentID"
+      ],
+      "properties": {
+        "shipmentID": {
+          "description": "The shipment ID of the shipment to be evaluated in the report",
+          "type": "string",
+          "format": "uuid",
+          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -12657,6 +12972,81 @@ func init() {
       "properties": {
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "EvaluationReport": {
+      "description": "An evaluation report",
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evaluationLengthMinutes": {
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "inspectionDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "inspectionType": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportInspectionType"
+        },
+        "location": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportLocation"
+        },
+        "locationDescription": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "asdfasdfsd"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "observedDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "remarks": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "travelTimeMinutes": {
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true
+        },
+        "type": {
+          "$ref": "#/definitions/EvaluationReportType"
+        },
+        "violationsObserved": {
+          "type": "boolean",
+          "x-nullable": true
         }
       }
     },
