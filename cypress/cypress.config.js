@@ -1,15 +1,19 @@
 const { defineConfig } = require('cypress');
+const mochaConfig = require('mocha-reporter-config.json');
+const setupNodeEvents = require('./cypress/plugins/index.js');
 // NOTE: THIS FILE IS A WORK IN PROGRESS
 module.exports = defineConfig({
   // setupNodeEvents can be defined in either
   // the e2e or component configuration
   e2e: {
-    setupNodeEvents(on, config) {
-      // bind to the event we care about
-      on('<event>', (arg1, arg2) => {
-        // plugin stuff here
-      });
-    },
+    setupNodeEvents,
     baseUrl: 'http://milmovelocal:4000',
+  },
+  component: {
+    devServer: {
+      framework: 'react', // or vue
+      bundler: 'mocha',
+      mochaConfig,
+    },
   },
 });
