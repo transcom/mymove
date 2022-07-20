@@ -413,6 +413,52 @@ func init() {
         }
       }
     },
+    "/evaluation-reports/{reportID}": {
+      "delete": {
+        "description": "Soft deletes an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Soft deletes an evaluation report by ID",
+        "operationId": "deleteEvaluationReport",
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the report"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "Gets a move",
@@ -7977,6 +8023,70 @@ func init() {
           }
         }
       }
+    },
+    "/evaluation-reports/{reportID}": {
+      "delete": {
+        "description": "Soft deletes an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Soft deletes an evaluation report by ID",
+        "operationId": "deleteEvaluationReport",
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the report"
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {

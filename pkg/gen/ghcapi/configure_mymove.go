@@ -112,6 +112,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation customer_support_remarks.DeleteCustomerSupportRemark has not yet been implemented")
 		})
 	}
+	if api.EvaluationReportsDeleteEvaluationReportHandler == nil {
+		api.EvaluationReportsDeleteEvaluationReportHandler = evaluation_reports.DeleteEvaluationReportHandlerFunc(func(params evaluation_reports.DeleteEvaluationReportParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.DeleteEvaluationReport has not yet been implemented")
+		})
+	}
 	if api.ShipmentDeleteShipmentHandler == nil {
 		api.ShipmentDeleteShipmentHandler = shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
