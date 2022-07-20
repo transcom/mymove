@@ -1,0 +1,7 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.alert {
+  @include u-margin-top(1.5em);
+}
