@@ -15,16 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-// CreateDocument to Document type conversion
-func CreateDocument(document models.Document) *internalmessages.DocumentPayload {
-	documentPayload := &internalmessages.DocumentPayload{
-		ID:              handlers.FmtUUID(document.ID),
-		ServiceMemberID: handlers.FmtUUID(document.ServiceMemberID),
-		Uploads:         []*internalmessages.UploadPayload{},
-	}
-	return documentPayload
-}
-
 // Address payload
 func Address(address *models.Address) *internalmessages.Address {
 	if address == nil {
@@ -114,8 +104,8 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
-		WeightTickets:                  WeightTickets(storer, ppmShipment.WeightTickets),
-		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
+		// WeightTickets:                  WeightTickets(storer, ppmShipment.WeightTickets),
+		ETag: etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
 	return payloadPPMShipment
@@ -209,34 +199,6 @@ func MTOShipments(storer storage.FileStorer, mtoShipments *models.MTOShipments) 
 	return &payload
 }
 
-// WeightTicket payload
-func WeightTicket(weightTicket *models.WeightTicket) *internalmessages.WeightTicket {
-	ppmShipment := strfmt.UUID(weightTicket.PPMShipmentID.String())
-
-	payload := &internalmessages.WeightTicket{
-		ID:                                strfmt.UUID(weightTicket.ID.String()),
-		PpmShipmentID:                     ppmShipment,
-		CreatedAt:                         *handlers.FmtDateTime(weightTicket.CreatedAt),
-		UpdatedAt:                         *handlers.FmtDateTime(weightTicket.UpdatedAt),
-		VehicleDescription:                weightTicket.VehicleDescription,
-		EmptyWeight:                       handlers.FmtPoundPtr(weightTicket.EmptyWeight),
-		MissingEmptyWeightTicket:          weightTicket.MissingEmptyWeightTicket,
-		EmptyDocumentID:                   *handlers.FmtUUID(weightTicket.EmptyDocumentID),
-		EmptyDocument:                     CreateDocument(weightTicket.EmptyDocument),
-		FullWeight:                        handlers.FmtPoundPtr(weightTicket.FullWeight),
-		MissingFullWeightTicket:           weightTicket.MissingFullWeightTicket,
-		FullDocumentID:                    *handlers.FmtUUID(weightTicket.FullDocumentID),
-		FullDocument:                      CreateDocument(weightTicket.FullDocument),
-		OwnsTrailer:                       weightTicket.OwnsTrailer,
-		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
-		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
-		ProofOfTrailerOwnershipDocument:   CreateDocument(weightTicket.ProofOfTrailerOwnershipDocument),
-		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
-	}
-
-	return payload
-}
-
 // InternalServerError describes errors in a standard structure to be returned in the payload.
 // If detail is nil, string defaults to "An internal server error has occurred."
 func InternalServerError(detail *string, traceID uuid.UUID) *internalmessages.Error {
@@ -327,7 +289,10 @@ func WeightTickets(storer storage.FileStorer, weightTickets models.WeightTickets
 	return payload
 }
 
+// WeightTicket payload
 func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) *internalmessages.WeightTicket {
+	ppmShipment := strfmt.UUID(weightTicket.PPMShipmentID.String())
+
 	emptyDocument, err := PayloadForDocumentModel(storer, weightTicket.EmptyDocument)
 	if err != nil {
 		return nil
@@ -338,12 +303,31 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		return nil
 	}
 
-	payload := &internalmessages.WeightTicket{
-		ID:            strfmt.UUID(weightTicket.ID.String()),
-		EmptyWeight:   handlers.FmtPoundPtr(weightTicket.EmptyWeight),
-		FullWeight:    handlers.FmtPoundPtr(weightTicket.FullWeight),
-		EmptyDocument: emptyDocument,
-		FullDocument:  fullDocument,
+	proofOfTrailerOwnershipDocument, err := PayloadForDocumentModel(storer, weightTicket.ProofOfTrailerOwnershipDocument)
+	if err != nil {
+		return nil
 	}
+
+	payload := &internalmessages.WeightTicket{
+		ID:                                strfmt.UUID(weightTicket.ID.String()),
+		PpmShipmentID:                     ppmShipment,
+		CreatedAt:                         *handlers.FmtDateTime(weightTicket.CreatedAt),
+		UpdatedAt:                         *handlers.FmtDateTime(weightTicket.UpdatedAt),
+		VehicleDescription:                weightTicket.VehicleDescription,
+		EmptyWeight:                       handlers.FmtPoundPtr(weightTicket.EmptyWeight),
+		MissingEmptyWeightTicket:          weightTicket.MissingEmptyWeightTicket,
+		EmptyDocumentID:                   *handlers.FmtUUID(weightTicket.EmptyDocumentID),
+		EmptyDocument:                     emptyDocument,
+		FullWeight:                        handlers.FmtPoundPtr(weightTicket.FullWeight),
+		MissingFullWeightTicket:           weightTicket.MissingFullWeightTicket,
+		FullDocumentID:                    *handlers.FmtUUID(weightTicket.FullDocumentID),
+		FullDocument:                      fullDocument,
+		OwnsTrailer:                       weightTicket.OwnsTrailer,
+		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
+		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
+		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
+		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
+	}
+
 	return payload
 }

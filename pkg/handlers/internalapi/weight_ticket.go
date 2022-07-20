@@ -60,7 +60,7 @@ func (h CreateWeightTicketHandler) Handle(params weightticketops.CreateWeightTic
 					return weightticketops.NewCreateWeightTicketInternalServerError(), err
 				}
 			}
-			returnPayload := payloads.WeightTicket(weightTicket)
+			returnPayload := payloads.WeightTicket(h.FileStorer(), weightTicket)
 			return weightticketops.NewCreateWeightTicketOK().WithPayload(returnPayload), nil
 		})
 }
@@ -138,7 +138,7 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 				}
 
 			}
-			returnPayload := payloads.WeightTicket(updateWeightTicket)
+			returnPayload := payloads.WeightTicket(h.FileStorer(), updateWeightTicket)
 			return weightticketops.NewUpdateWeightTicketOK().WithPayload(returnPayload), nil
 		})
 }
