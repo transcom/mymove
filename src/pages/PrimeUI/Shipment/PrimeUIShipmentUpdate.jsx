@@ -182,20 +182,29 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   if (isPPM) {
     initialValues = {
       ppmShipment: {
-        ...shipment.ppmShipment,
-        sitEstimatedWeight: shipment.ppmShipment.sitEstimatedWeight?.toLocaleString(),
-        estimatedWeight: shipment.ppmShipment.estimatedWeight?.toLocaleString(),
-        netWeight: shipment.ppmShipment.netWeight?.toLocaleString(),
-        proGearWeight: shipment.ppmShipment.proGearWeight?.toLocaleString(),
-        spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toLocaleString(),
+        expectedDepartureDate: shipment.ppmShipment.expectedDepartureDate,
+        pickupPostalCode: shipment.ppmShipment.pickupPostalCode || '',
+        secondaryPickupPostalCode: shipment.ppmShipment.secondaryPickupPostalCode || '',
+        destinationPostalCode: shipment.ppmShipment.destinationPostalCode || '',
+        secondaryDestinationPostalCode: shipment.ppmShipment.secondaryDestinationPostalCode || '',
+        sitExpected: shipment.ppmShipment.sitExpected,
+        sitLocation: shipment.ppmShipment.sitLocation,
+        sitEstimatedWeight: shipment.ppmShipment.sitEstimatedWeight?.toString(),
+        sitEstimatedEntryDate: shipment.ppmShipment.sitEstimatedEntryDate,
+        sitEstimatedDepartureDate: shipment.ppmShipment.sitEstimatedDepartureDate,
+        estimatedWeight: shipment.ppmShipment.estimatedWeight?.toString(),
+        netWeight: shipment.ppmShipment.netWeight?.toString(),
+        hasProGear: shipment.ppmShipment.hasProGear,
+        proGearWeight: shipment.ppmShipment.proGearWeight?.toString(),
+        spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toString(),
       },
-      counselorRemarks: shipment.counselorRemarks,
+      counselorRemarks: shipment.counselorRemarks || '',
     };
     validationSchema = Yup.object().shape({
       ppmShipment: Yup.object().shape({
         expectedDepartureDate: Yup.date()
-          .typeError('Invalid date. Must be in the format: DD MMM YYYY')
-          .required('Required'),
+          .required('Required')
+          .typeError('Invalid date. Must be in the format: DD MMM YYYY'),
         pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
         secondaryPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).nullable(),
         destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
@@ -221,7 +230,19 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         //   then: (schema) =>
         //     schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
         // }),
+        estimatedWeight: Yup.number().required('Required'),
+        netWeight: Yup.number(),
+        hasProGear: Yup.boolean().required('Required'),
+        proGearWeight: Yup.number().when(['hasProGear', 'spouseProGearWeight'], {
+          is: (hasProGear, spouseProGearWeight) => hasProGear && !spouseProGearWeight,
+          then: (schema) =>
+            schema.required(
+              `Enter a weight into at least one pro-gear field. If you won't have pro-gear, uncheck above.`,
+            ),
+        }),
+        spouseProGearWeight: Yup.number(),
       }),
+      // counselorRemarks is an optional string
     });
   } else {
     initialValues = {
