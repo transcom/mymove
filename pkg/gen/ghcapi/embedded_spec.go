@@ -1678,7 +1678,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved the move's evaluation reports",
             "schema": {
-              "$ref": "#/definitions/EvaluationReports"
+              "$ref": "#/definitions/EvaluationReportList"
             }
           },
           "400": {
@@ -1805,7 +1805,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved the move's evaluation reports",
             "schema": {
-              "$ref": "#/definitions/EvaluationReports"
+              "$ref": "#/definitions/EvaluationReportList"
             }
           },
           "400": {
@@ -4422,53 +4422,41 @@ func init() {
         }
       }
     },
-    "EvaluationReport": {
+    "EvaluationReportInspectionType": {
+      "type": "string",
+      "enum": [
+        "DATA_REVIEW",
+        "PHYSICAL",
+        "VIRTUAL"
+      ],
+      "x-nullable": true
+    },
+    "EvaluationReportList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EvaluationReportListItem"
+      }
+    },
+    "EvaluationReportListItem": {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "evaluationLengthMinutes": {
-          "type": "integer",
-          "x-nullable": true
-        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "inspectionDate": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
-        "inspectionType": {
-          "x-nullable": true,
-          "$ref": "#/definitions/EvaluationReportInspectionType"
-        },
         "location": {
           "x-nullable": true,
           "$ref": "#/definitions/EvaluationReportLocation"
-        },
-        "locationDescription": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "asdfasdfsd"
         },
         "moveID": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "observedDate": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
-        "remarks": {
-          "type": "string",
+        "seriousIncident": {
+          "type": "boolean",
           "x-nullable": true
         },
         "shipmentID": {
@@ -4482,10 +4470,6 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
-        "travelTimeMinutes": {
-          "type": "integer",
-          "x-nullable": true
-        },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
         },
@@ -4494,15 +4478,6 @@ func init() {
           "x-nullable": true
         }
       }
-    },
-    "EvaluationReportInspectionType": {
-      "type": "string",
-      "enum": [
-        "DATA_REVIEW",
-        "PHYSICAL",
-        "VIRTUAL"
-      ],
-      "x-nullable": true
     },
     "EvaluationReportLocation": {
       "type": "string",
@@ -4519,12 +4494,6 @@ func init() {
         "SHIPMENT",
         "COUNSELING"
       ]
-    },
-    "EvaluationReports": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/EvaluationReport"
-      }
     },
     "GBLOC": {
       "type": "string",
@@ -9528,7 +9497,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved the move's evaluation reports",
             "schema": {
-              "$ref": "#/definitions/EvaluationReports"
+              "$ref": "#/definitions/EvaluationReportList"
             }
           },
           "400": {
@@ -9685,7 +9654,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved the move's evaluation reports",
             "schema": {
-              "$ref": "#/definitions/EvaluationReports"
+              "$ref": "#/definitions/EvaluationReportList"
             }
           },
           "400": {
@@ -12691,54 +12660,41 @@ func init() {
         }
       }
     },
-    "EvaluationReport": {
+    "EvaluationReportInspectionType": {
+      "type": "string",
+      "enum": [
+        "DATA_REVIEW",
+        "PHYSICAL",
+        "VIRTUAL"
+      ],
+      "x-nullable": true
+    },
+    "EvaluationReportList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EvaluationReportListItem"
+      }
+    },
+    "EvaluationReportListItem": {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "evaluationLengthMinutes": {
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true
-        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "inspectionDate": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
-        "inspectionType": {
-          "x-nullable": true,
-          "$ref": "#/definitions/EvaluationReportInspectionType"
-        },
         "location": {
           "x-nullable": true,
           "$ref": "#/definitions/EvaluationReportLocation"
-        },
-        "locationDescription": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "asdfasdfsd"
         },
         "moveID": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "observedDate": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
-        "remarks": {
-          "type": "string",
+        "seriousIncident": {
+          "type": "boolean",
           "x-nullable": true
         },
         "shipmentID": {
@@ -12752,11 +12708,6 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
-        "travelTimeMinutes": {
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true
-        },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
         },
@@ -12765,15 +12716,6 @@ func init() {
           "x-nullable": true
         }
       }
-    },
-    "EvaluationReportInspectionType": {
-      "type": "string",
-      "enum": [
-        "DATA_REVIEW",
-        "PHYSICAL",
-        "VIRTUAL"
-      ],
-      "x-nullable": true
     },
     "EvaluationReportLocation": {
       "type": "string",
@@ -12790,12 +12732,6 @@ func init() {
         "SHIPMENT",
         "COUNSELING"
       ]
-    },
-    "EvaluationReports": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/EvaluationReport"
-      }
     },
     "GBLOC": {
       "type": "string",

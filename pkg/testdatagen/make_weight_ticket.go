@@ -118,6 +118,9 @@ func ensureServiceMemberIsSetUpInAssertions(db *pop.Connection, assertions Asser
 // getOrCreateDocument checks if a document exists. If it does, it returns it, otherwise, it creates it
 func getOrCreateDocument(db *pop.Connection, document models.Document, assertions Assertions) models.Document {
 	if assertions.Stub && document.CreatedAt.IsZero() || document.ID.IsNil() {
+		// Ensure our doc is associated with the expected ServiceMember
+		document.ServiceMemberID = assertions.ServiceMember.ID
+		document.ServiceMember = assertions.ServiceMember
 		// Set generic Document to have the specific assertions that were passed in
 		assertions.Document = document
 

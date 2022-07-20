@@ -19,7 +19,7 @@ if [[ -n "${LOCAL_SWAGGER+x}" ]]; then
   done
 else
   # Locally we need to download the docker image to get the binary
-  image=milmove/circleci-docker:milmove-app-f678d1c6a5e2085f733f5408b7affd628f9f3576
+  image=milmove/circleci-docker:milmove-app-9ea16004ab38c5e43e715e09241515ec220b6067
   docker pull -q "${image}"
   for filename in "$@"; do
     docker run --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" swagger validate "${filename}"

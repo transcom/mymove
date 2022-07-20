@@ -1247,14 +1247,16 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "requestedPickupDate",
-        "pickupAddress",
-        "destinationAddress",
         "shipmentType"
       ],
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
+        },
+        "counselorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "counselor approved"
         },
         "customerRemarks": {
           "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
@@ -1299,6 +1301,9 @@ func init() {
           "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
         },
+        "ppmShipment": {
+          "$ref": "#/definitions/CreatePPMShipment"
+        },
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
@@ -1307,10 +1312,104 @@ func init() {
         "requestedPickupDate": {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
+    "CreatePPMShipment": {
+      "type": "object",
+      "required": [
+        "expectedDepartureDate",
+        "pickupPostalCode",
+        "destinationPostalCode",
+        "sitExpected",
+        "estimatedWeight",
+        "hasProGear"
+      ],
+      "properties": {
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date"
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean"
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "sitEstimatedDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "sitExpected": {
+          "type": "boolean"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
+        "spouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },
@@ -5321,14 +5420,16 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "requestedPickupDate",
-        "pickupAddress",
-        "destinationAddress",
         "shipmentType"
       ],
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
+        },
+        "counselorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "counselor approved"
         },
         "customerRemarks": {
           "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
@@ -5373,6 +5474,9 @@ func init() {
           "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
         },
+        "ppmShipment": {
+          "$ref": "#/definitions/CreatePPMShipment"
+        },
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
@@ -5381,10 +5485,104 @@ func init() {
         "requestedPickupDate": {
           "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
+    "CreatePPMShipment": {
+      "type": "object",
+      "required": [
+        "expectedDepartureDate",
+        "pickupPostalCode",
+        "destinationPostalCode",
+        "sitExpected",
+        "estimatedWeight",
+        "hasProGear"
+      ],
+      "properties": {
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "estimatedWeight": {
+          "type": "integer",
+          "example": 4200
+        },
+        "expectedDepartureDate": {
+          "description": "Date the customer expects to move.\n",
+          "type": "string",
+          "format": "date"
+        },
+        "hasProGear": {
+          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean"
+        },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "secondaryDestinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "secondaryPickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "sitEstimatedDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "sitExpected": {
+          "type": "boolean"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
+        },
+        "spouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },

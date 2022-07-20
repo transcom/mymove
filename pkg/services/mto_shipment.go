@@ -88,7 +88,7 @@ type MTOShipmentStatusUpdater interface {
 // MTOShipmentCreator is the exported interface for creating a shipment
 //go:generate mockery --name MTOShipmentCreator --disable-version-string
 type MTOShipmentCreator interface {
-	CreateMTOShipment(appCtx appcontext.AppContext, MTOShipment *models.MTOShipment, MTOServiceItems models.MTOServiceItems) (*models.MTOShipment, error)
+	CreateMTOShipment(appCtx appcontext.AppContext, MTOShipment *models.MTOShipment) (*models.MTOShipment, error)
 }
 
 // MTOShipmentAddressUpdater is the exported interface for updating an address on an MTO Shipment

@@ -20,8 +20,8 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 		suite.Empty(reports)
 	})
 	suite.Run("fetch for nonexistent move or office user should not error", func() {
-		// if we want to detect this error, it will take another query to the moves table
-		// would that be worth it?
+		// Since we're just checking if IDs in the evaluation reports match the provided IDs, and not
+		// touching the moves or office users, we should get an empty response instead of an error.
 		fetcher := NewEvaluationReportListFetcher()
 		badMoveID := uuid.Must(uuid.NewV4())
 		badOfficeUserID := uuid.Must(uuid.NewV4())

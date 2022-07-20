@@ -194,7 +194,7 @@ paths:
         '200':
           description: Successfully retrieved the move's evaluation reports
           schema:
-            $ref: '#/definitions/EvaluationReports'
+            $ref: '#/definitions/EvaluationReportList'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -229,7 +229,7 @@ paths:
         '200':
           description: Successfully retrieved the move's evaluation reports
           schema:
-            $ref: '#/definitions/EvaluationReports'
+            $ref: '#/definitions/EvaluationReportList'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -4327,7 +4327,7 @@ definitions:
       - DESTINATION
       - OTHER
     x-nullable: true
-  EvaluationReport:
+  EvaluationReportListItem:
     type: object
     description: An evaluation report
     properties:
@@ -4346,49 +4346,23 @@ definitions:
         x-nullable: true
       type:
         $ref: '#/definitions/EvaluationReportType'
-      inspectionType:
-        $ref: '#/definitions/EvaluationReportInspectionType'
-        x-nullable: true
-      inspectionDate:
-        type: string
-        format: date-time
-        x-nullable: true
-      travelTimeMinutes:
-        type: integer
-        minimum: 0
-        x-nullable: true
       location:
         $ref: '#/definitions/EvaluationReportLocation'
-        x-nullable: true
-      locationDescription:
-        type: string
-        example: asdfasdfsd
-        x-nullable: true
-      observedDate:
-        type: string
-        format: date-time
-        x-nullable: true
-      evaluationLengthMinutes:
-        type: integer
-        minimum: 0
         x-nullable: true
       violationsObserved:
         type: boolean
         x-nullable: true
-      remarks:
-        type: string
+      seriousIncident:
+        type: boolean
         x-nullable: true
       submittedAt:
         type: string
         format: date-time
         x-nullable: true
-      createdAt:
-        type: string
-        format: date-time
-  EvaluationReports:
+  EvaluationReportList:
     type: array
     items:
-      $ref: '#/definitions/EvaluationReport'
+      $ref: '#/definitions/EvaluationReportListItem'
   Address:
     description: A postal address
     type: object
