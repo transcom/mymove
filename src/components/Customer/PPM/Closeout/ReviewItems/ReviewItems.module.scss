@@ -93,7 +93,6 @@
 
     .actionContainer {
       @include u-margin-top(2);
-      @include u-flex(auto);
 
       a {
         @include u-font-size('body', 'xs');
@@ -142,7 +141,6 @@
 
         .actionContainer {
           text-align: right;
-          align-content: flex-end;
           flex-basis: 50%;
           flex-shrink: 0;
           order: 2;

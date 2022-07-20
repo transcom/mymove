@@ -123,7 +123,10 @@ const Review = () => {
     handleDelete,
   );
 
-  const weightTicketsTotal = weightTickets?.reduce((prev, curr) => prev + (curr.fullWeight - curr.emptyWeight), 0);
+  const weightTicketsTotal = weightTickets?.reduce((prev, curr) => {
+    const weight = Number(curr.emptyWeight) && Number(curr.fullWeight) ? curr.fullWeight - curr.emptyWeight : 0;
+    return prev + weight;
+  }, 0);
 
   const canAdvance = hasCompleteWeightTickets(weightTickets);
 
@@ -138,7 +141,8 @@ const Review = () => {
     if (curr.constructedWeight) {
       return prev + curr.constructedWeight;
     }
-    return prev + (curr.fullWeight - curr.emptyWeight);
+    const weight = Number(curr.emptyWeight) && Number(curr.fullWeight) ? curr.fullWeight - curr.emptyWeight : 0;
+    return prev + weight;
   }, 0);
 
   const expenseContents = formatExpenseItems(
@@ -151,7 +155,10 @@ const Review = () => {
     handleDelete,
   );
 
-  const expensesTotal = expenses?.reduce((prev, curr) => prev + curr.amount, 0);
+  const expensesTotal = expenses?.reduce(
+    (prev, curr) => prev + (Number.isNaN(Number(curr.amount)) ? 0 : curr.amount),
+    0,
+  );
 
   return (
     <div className={classnames(ppmPageStyles.ppmPageStyle, styles.PPMReview)}>
@@ -210,7 +217,7 @@ const Review = () => {
                 heading={
                   <>
                     <h3>Expenses</h3>
-                    <span>(${formatCents(expensesTotal)})</span>
+                    <span>(${expensesTotal ? formatCents(expensesTotal) : 0})</span>
                   </>
                 }
                 contents={expenseContents}
