@@ -14,7 +14,7 @@ const EvaluationReportTable = ({ reports }) => {
         </td>
         <td>{report.submittedAt && formatCustomerDate(report.submittedAt)}</td>
         <td>{formatEvaluationReportLocation(report.location)}</td>
-        <td>{report.violations ? 'Yes' : 'No'}</td>
+        <td>{report.violationsObserved ? 'Yes' : 'No'}</td>
         <td>No</td>
         <td>
           <a href={`/moves/${report.moveID}/evaluation-reports/${report.id}`}>View report</a>
