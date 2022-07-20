@@ -67,7 +67,7 @@ ReviewItems.propTypes = {
           id: string.isRequired,
           hideLabel: bool,
           label: string,
-          value: oneOfType([string, number]).isRequired,
+          value: oneOfType([string, number]),
         }),
       ).isRequired,
       onDelete: func,

@@ -4,7 +4,7 @@ import moment from 'moment';
 
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 
-export const formatAboutYourPPMItem = (ppmShipment, edit) => {
+export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
   return [
     {
       id: 'about-your-ppm',
@@ -25,13 +25,13 @@ export const formatAboutYourPPMItem = (ppmShipment, edit) => {
             : 'No',
         },
       ],
-      renderEditLink: () => edit,
+      renderEditLink: () => <Link to={generatePath(editPath, editParams)}>Edit</Link>,
     },
   ];
 };
 
 export const formatWeightTicketItems = (weightTickets, editPath, editParams, handleDelete) => {
-  return weightTickets.map((weightTicket, i) => ({
+  return weightTickets?.map((weightTicket, i) => ({
     id: weightTicket.id,
     subheading: <h4 className="text-bold">Trip {i + 1}</h4>,
     rows: [
@@ -57,7 +57,7 @@ export const formatWeightTicketItems = (weightTickets, editPath, editParams, han
 };
 
 export const formatProGearItems = (proGears, editPath, editParams, handleDelete) => {
-  return proGears.map((proGear, i) => {
+  return proGears?.map((proGear, i) => {
     const weightValues = proGear.hasWeightTickets
       ? { id: 'weight', label: 'Weight:', value: formatWeight(proGear.fullWeight - proGear.emptyWeight) }
       : { id: 'constructedWeight', label: 'Constructed weight:', value: formatWeight(proGear.constructedWeight) };
@@ -81,7 +81,7 @@ export const formatProGearItems = (proGears, editPath, editParams, handleDelete)
 };
 
 export const formatExpenseItems = (expenses, editPath, editParams, handleDelete) => {
-  return expenses.map((expense, i) => {
+  return expenses?.map((expense, i) => {
     const contents = {
       id: expense.id,
       subheading: <h4 className="text-bold">Receipt {i + 1}</h4>,

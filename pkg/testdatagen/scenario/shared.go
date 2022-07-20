@@ -1018,7 +1018,7 @@ func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUpl
 		email:       "weightTicketPPM@ppm.approved",
 		smID:        testdatagen.ConvertUUIDStringToUUID("a30fd609-6dcf-4dd0-a7e6-2892a31ae641"),
 		firstName:   "ActualPPM",
-		lastName:    "DateZIPAdvanceDone",
+		lastName:    "WeightTicketComplete",
 		moveID:      testdatagen.ConvertUUIDStringToUUID("2fdb02a5-dd80-4ec4-a9f0-f4eefb434568"),
 		moveLocator: "W3TT1K",
 	}

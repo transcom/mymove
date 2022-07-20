@@ -3,7 +3,6 @@ import { GridContainer, Grid, Button } from '@trussworks/react-uswds';
 import { Link, useParams, generatePath } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import classnames from 'classnames';
-import { v4 as uuidv4 } from 'uuid';
 
 import styles from './Review.module.scss';
 
@@ -20,13 +19,14 @@ import {
   formatExpenseItems,
   formatProGearItems,
   formatWeightTicketItems,
-} from 'utils/closeout';
+} from 'utils/ppmCloseout';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCents, formatWeight } from 'utils/formatters';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { deleteWeightTicket } from 'services/internalApi';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
+import { hasCompleteWeightTickets } from 'utils/shipments';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => (
   <div>
@@ -61,62 +61,14 @@ const Review = () => {
   const { moveId, mtoShipmentId } = useParams();
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
-  const weightTickets = [
-    {
-      id: 'dd7dea73-d711-420f-bad6-8b2ebf959584',
-      vehicleDescription: 'DMC Delorean',
-      emptyWeight: 2500,
-      fullWeight: 3500,
-      eTag: 'eTag value',
-    },
-    {
-      id: uuidv4(),
-      vehicleDescription: 'PT Cruiser',
-      emptyWeight: 2725,
-      fullWeight: 3250,
-    },
-  ];
-
-  const proGear = [
-    {
-      id: uuidv4(),
-      selfProGear: true,
-      description: 'Radio equipment',
-      hasWeightTickets: true,
-      emptyWeight: 740,
-      fullWeight: 1643,
-    },
-    {
-      id: uuidv4(),
-      selfProGear: false,
-      description: 'Training manuals',
-      hasWeightTickets: false,
-      constructedWeight: 328,
-    },
-  ];
-
-  const expenses = [
-    {
-      id: uuidv4(),
-      type: 'Packing materials',
-      description: 'Packing peanuts',
-      amount: 78954,
-    },
-    {
-      id: uuidv4(),
-      type: 'Storage',
-      description: 'Single unit 100ft²',
-      amount: 147892,
-      startDate: '2022-07-04',
-      endDate: '2022-07-11',
-    },
-  ];
+  const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
+  const proGear = mtoShipment?.ppmShipment?.proGear;
+  const expenses = mtoShipment?.ppmShipment?.expenses;
 
   if (!mtoShipment) {
     return <LoadingPlaceholder />;
   }
 
-  const aboutEditPath = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, { moveId, mtoShipmentId });
   const weightTicketCreatePath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
     moveId,
     mtoShipmentId,
@@ -144,12 +96,10 @@ const Review = () => {
     }
   };
 
-  const aboutYourPPM = formatAboutYourPPMItem(
-    mtoShipment?.ppmShipment,
-    <Link to={aboutEditPath} className="font-body-xs">
-      Edit
-    </Link>,
-  );
+  const aboutYourPPM = formatAboutYourPPMItem(mtoShipment?.ppmShipment, customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
+    moveId,
+    mtoShipmentId,
+  });
 
   const weightTicketContents = formatWeightTicketItems(
     weightTickets,
@@ -160,9 +110,7 @@ const Review = () => {
 
   const weightTicketsTotal = weightTickets?.reduce((prev, curr) => prev + (curr.fullWeight - curr.emptyWeight), 0);
 
-  const hasCompleteWeightTicket = weightTickets?.some((weightTicket) => {
-    return weightTicket.vehicleDescription && weightTicket.emptyWeight && weightTicket.fullWeight;
-  });
+  const canAdvance = hasCompleteWeightTickets(weightTickets);
 
   const proGearContents = formatProGearItems(
     proGear,
@@ -268,9 +216,9 @@ const Review = () => {
               </Link>
               <Link
                 className={classnames(ppmStyles.saveButton, 'usa-button', {
-                  'usa-button--disabled': !hasCompleteWeightTicket,
+                  'usa-button--disabled': !canAdvance,
                 })}
-                aria-disabled={!hasCompleteWeightTicket}
+                aria-disabled={!canAdvance}
                 to={completePath}
               >
                 Save & Continue

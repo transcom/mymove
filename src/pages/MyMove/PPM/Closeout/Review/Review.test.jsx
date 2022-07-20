@@ -15,7 +15,7 @@ import { deleteWeightTicket } from 'services/internalApi';
 const mockMoveId = v4();
 const mockMTOShipmentId = v4();
 const mockPPMShipmentId = v4();
-const mockWeightTicketId = 'dd7dea73-d711-420f-bad6-8b2ebf959584';
+const mockWeightTicketId = v4();
 
 const mockMTOShipment = {
   id: mockMTOShipmentId,
@@ -38,6 +38,71 @@ const mockMTOShipment = {
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
+  },
+  eTag: 'dGVzdGluZzIzNDQzMjQ',
+};
+
+const mockMTOShipmentWithWeightTicket = {
+  id: mockMTOShipmentId,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
+  ppmShipment: {
+    id: mockPPMShipmentId,
+    actualMoveDate: '2022-05-01',
+    actualPickupPostalCode: '10003',
+    actualDestinationPostalCode: '10004',
+    advanceReceived: true,
+    advanceAmountReceived: '6000000',
+    pickupPostalCode: '10001',
+    destinationPostalCode: '10002',
+    expectedDepartureDate: '2022-04-30',
+    advanceRequested: true,
+    advanceAmountRequested: 598700,
+    estimatedWeight: 4000,
+    estimatedIncentive: 1000000,
+    sitExpected: false,
+    hasProGear: false,
+    proGearWeight: null,
+    spouseProGearWeight: null,
+    weightTickets: [
+      {
+        id: mockWeightTicketId,
+        vehicleDescription: 'DMC Delorean',
+        emptyWeight: 2500,
+        fullWeight: 3500,
+        eTag: 'eTag value',
+      },
+    ],
+  },
+  eTag: 'dGVzdGluZzIzNDQzMjQ',
+};
+
+const mockMTOShipmentWithIncompleteWeightTicket = {
+  id: mockMTOShipmentId,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
+  ppmShipment: {
+    id: mockPPMShipmentId,
+    actualMoveDate: '2022-05-01',
+    actualPickupPostalCode: '10003',
+    actualDestinationPostalCode: '10004',
+    advanceReceived: true,
+    advanceAmountReceived: '6000000',
+    pickupPostalCode: '10001',
+    destinationPostalCode: '10002',
+    expectedDepartureDate: '2022-04-30',
+    advanceRequested: true,
+    advanceAmountRequested: 598700,
+    estimatedWeight: 4000,
+    estimatedIncentive: 1000000,
+    sitExpected: false,
+    hasProGear: false,
+    proGearWeight: null,
+    spouseProGearWeight: null,
+    weightTickets: [
+      {
+        id: mockWeightTicketId,
+        eTag: 'eTag value',
+      },
+    ],
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -87,6 +152,14 @@ describe('About page', () => {
     expect(screen.getAllByRole('heading', { level: 3 })[2]).toHaveTextContent('Expenses');
   });
 
+  it('renders the empty message when there are not weight tickets', () => {
+    render(<Review />, { wrapper: MockProviders });
+
+    expect(
+      screen.getByText('No weight tickets uploaded. Add at least one set of weight tickets to request payment.'),
+    ).toBeInTheDocument();
+  });
+
   it('routes to the edit about your ppm page when the edit link is clicked', async () => {
     const editAboutYourPPM = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
       moveId: mockMoveId,
@@ -120,6 +193,7 @@ describe('About page', () => {
   });
 
   it('routes to the edit weight ticket page when the edit link is clicked', async () => {
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithWeightTicket);
     const editWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
@@ -149,6 +223,7 @@ describe('About page', () => {
   });
 
   it('routes to the complete page when the save and continue link is clicked', async () => {
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithWeightTicket);
     const completePath = generatePath(customerRoutes.SHIPMENT_PPM_COMPLETE_PATH, {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
@@ -170,18 +245,22 @@ describe('About page', () => {
     const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    // TODO update page component with weight ticket selector to mock
+    expect(screen.getByText('Save & Continue')).toHaveClass('usa-button--disabled');
+    expect(screen.getByText('Save & Continue')).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('disables the save and continue link when there is an incomplete weight ticket', async () => {
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithIncompleteWeightTicket);
     const memoryHistory = createMemoryHistory();
     const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    // TODO update page component with weight ticket selector to mock
+    expect(screen.getByText('Save & Continue')).toHaveClass('usa-button--disabled');
+    expect(screen.getByText('Save & Continue')).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('displays the delete confirmation modal when the delete button is clicked', async () => {
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithWeightTicket);
     render(<Review />, { wrapper: MockProviders });
 
     userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
@@ -196,6 +275,7 @@ describe('About page', () => {
   });
 
   it('calls the delete weight ticket api when confirm is clicked', async () => {
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithWeightTicket);
     const mockDeleteWeightTicket = jest.fn().mockResolvedValue({});
     deleteWeightTicket.mockImplementationOnce(mockDeleteWeightTicket);
     render(<Review />, { wrapper: MockProviders });
@@ -209,7 +289,7 @@ describe('About page', () => {
     userEvent.click(screen.getByRole('button', { name: 'Yes, Delete' }));
 
     await waitFor(() => {
-      expect(mockDeleteWeightTicket).toHaveBeenCalledWith('dd7dea73-d711-420f-bad6-8b2ebf959584', 'eTag value');
+      expect(mockDeleteWeightTicket).toHaveBeenCalledWith(mockWeightTicketId, 'eTag value');
     });
   });
 });

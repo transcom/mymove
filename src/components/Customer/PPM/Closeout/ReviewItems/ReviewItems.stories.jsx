@@ -217,7 +217,7 @@ ProGear.args = {
       subheading: <h4 className="text-bold">Set 2</h4>,
       rows: [
         { id: 'proGearType', label: 'Pro-gear Type:', value: 'Spouse pro-gear', hideLabel: true },
-        { id: 'description', label: 'Description:', value: 'Training manuals' },
+        { id: 'description', label: 'Description:', value: 'Training manuals', hideLabel: true },
         { id: 'constructedWeight:', label: 'Constructed weight:', value: formatWeight(499) },
       ],
       renderEditLink: () => (
