@@ -25,6 +25,10 @@ type WeightTicket struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt"`
 
+	// e tag
+	// Read Only: true
+	ETag string `json:"eTag,omitempty"`
+
 	// Empty Document
 	// Required: true
 	EmptyDocument *DocumentPayload `json:"emptyDocument"`
@@ -340,6 +344,10 @@ func (m *WeightTicket) ContextValidate(ctx context.Context, formats strfmt.Regis
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateEmptyDocument(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -385,6 +393,15 @@ func (m *WeightTicket) ContextValidate(ctx context.Context, formats strfmt.Regis
 func (m *WeightTicket) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WeightTicket) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
 		return err
 	}
 

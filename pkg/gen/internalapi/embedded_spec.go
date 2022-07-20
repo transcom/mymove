@@ -6880,6 +6880,10 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
         "emptyDocument": {
           "title": "Empty Document",
           "$ref": "#/definitions/DocumentPayload"
@@ -14026,6 +14030,10 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
           "readOnly": true
         },
         "emptyDocument": {

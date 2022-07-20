@@ -1080,6 +1080,9 @@ definitions:
       proofOfTrailerOwnershipDocument:
         title: Proof of Trailer Ownership Document
         $ref: '#/definitions/DocumentPayload'
+      eTag:
+        type: string
+        readOnly: true
     required:
       - ppmShipmentId
       - createdAt

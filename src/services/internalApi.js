@@ -300,8 +300,19 @@ export async function createWeightTicket(ppmShipmentId) {
   );
 }
 
-export async function patchWeightTicket() {
-  return {};
+export async function patchWeightTicket(ppmShipmentId, weightTicketId, payload, eTag) {
+  return makeInternalRequest(
+    'ppm.updateWeightTicket',
+    {
+      ppmShipmentId,
+      weightTicketId,
+      'If-Match': eTag,
+      updateWeightTicketPayload: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
 }
 
 /** PPMS */

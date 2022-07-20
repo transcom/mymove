@@ -111,8 +111,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
-		// WeightTickets: WeightTickets()
-		ETag: etag.GenerateEtag(ppmShipment.UpdatedAt),
+		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
 	return payloadPPMShipment
@@ -228,6 +227,7 @@ func WeightTicket(weightTicket *models.WeightTicket) *internalmessages.WeightTic
 		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   CreateDocument(weightTicket.ProofOfTrailerOwnershipDocument),
+		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
 	}
 
 	return payload
