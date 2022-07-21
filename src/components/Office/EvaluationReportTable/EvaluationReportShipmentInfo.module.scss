@@ -1,0 +1,45 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.shipmentInfoContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+
+  button {
+    @include u-margin-top(0);
+  }
+}
+h2 {
+  @include u-margin-bottom(3);
+}
+h4 {
+  @include u-margin-top(0);
+  @include u-margin-bottom(0);
+  @include u-font-weight('bold');
+}
+small {
+  color: $base-dark;
+}
+.shipmentInfo {
+  @include u-margin-bottom(3);
+}
+.shipmentAccent {
+  @include u-margin-bottom(1);
+  width: 24px;
+  height: 6px;
+}
+.hhgShipmentType {
+  background-color: $accent-hhg;
+}
+.ppmShipmentType {
+  background-color: $accent-ppm;
+}
+.ntsShipmentType {
+  background-color: $accent-nts;
+}
+.ntsrShipmentType {
+  background-color: $accent-ntsr;
+}
