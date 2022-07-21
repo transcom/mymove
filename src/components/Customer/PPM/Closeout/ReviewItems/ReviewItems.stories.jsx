@@ -150,7 +150,7 @@ WeightTickets.args = {
         { id: 'fullWeight-2', label: 'Full:', value: formatWeight(3250) },
         {
           id: 'tripWeight-2',
-          label: 'Trip Weight:',
+          label: 'Trip weight:',
           value: formatWeight(525),
         },
       ],

@@ -45,7 +45,7 @@ export const formatWeightTicketItems = (weightTickets, editPath, editParams, han
       { id: `fullWeight-${i}`, label: 'Full:', value: formatWeight(weightTicket.fullWeight) },
       {
         id: `tripWeight-${i}`,
-        label: 'Trip Weight:',
+        label: 'Trip weight:',
         value: formatWeight(weightTicket.fullWeight - weightTicket.emptyWeight),
       },
     ],
