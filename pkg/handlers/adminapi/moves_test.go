@@ -7,7 +7,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
-	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
@@ -90,7 +89,7 @@ func (suite *HandlerSuite) TestIndexMovesHandlerHelpers() {
 func (suite *HandlerSuite) TestUpdateMoveHandler() {
 	setupHandler := func() UpdateMoveHandler {
 		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := move.NewMoveRouter()
 		return UpdateMoveHandler{
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderUpdater(

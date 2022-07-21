@@ -4,7 +4,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -15,7 +14,7 @@ func (suite *ModelSuite) TestCreateMoveWithPPMShow() {
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: orders,
-		Move: models.Move{
+		Move: Move{
 			ID:   uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
 			Show: swag.Bool(true),
 		},
@@ -23,7 +22,7 @@ func (suite *ModelSuite) TestCreateMoveWithPPMShow() {
 
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		ServiceMember: move.Orders.ServiceMember,
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
+		PersonallyProcuredMove: PersonallyProcuredMove{
 			Move:   move,
 			MoveID: move.ID,
 		},
@@ -40,7 +39,7 @@ func (suite *ModelSuite) TestCreateMoveWithPPMNoShow() {
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: orders,
-		Move: models.Move{
+		Move: Move{
 			ID:   uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
 			Show: swag.Bool(false),
 		},
@@ -48,7 +47,7 @@ func (suite *ModelSuite) TestCreateMoveWithPPMNoShow() {
 
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		ServiceMember: move.Orders.ServiceMember,
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
+		PersonallyProcuredMove: PersonallyProcuredMove{
 			Move:   move,
 			MoveID: move.ID,
 		},
@@ -78,16 +77,16 @@ func (suite *ModelSuite) TestCreateNewMoveWithNoPPMShow() {
 
 func (suite *ModelSuite) TestShowPPMQueue() {
 	all := map[string]bool{
-		string(models.PPMStatusAPPROVED):         true,
-		string(models.PPMStatusPAYMENTREQUESTED): true,
-		string(models.PPMStatusCOMPLETED):        true,
-		string(models.PPMStatusSUBMITTED):        true,
-		string(models.PPMStatusDRAFT):            true,
+		string(PPMStatusAPPROVED):         true,
+		string(PPMStatusPAYMENTREQUESTED): true,
+		string(PPMStatusCOMPLETED):        true,
+		string(PPMStatusSUBMITTED):        true,
+		string(PPMStatusDRAFT):            true,
 	}
 
 	new := map[string]bool{
-		string(models.PPMStatusSUBMITTED): true,
-		string(models.PPMStatusDRAFT):     true,
+		string(PPMStatusSUBMITTED): true,
+		string(PPMStatusDRAFT):     true,
 	}
 
 	tests := []struct {
@@ -96,39 +95,39 @@ func (suite *ModelSuite) TestShowPPMQueue() {
 		want       map[string]bool
 	}{
 		{input: "new", movesCount: 2, want: new},
-		{input: "ppm_payment_requested", movesCount: 1, want: map[string]bool{string(models.PPMStatusPAYMENTREQUESTED): true}},
-		{input: "ppm_completed", movesCount: 1, want: map[string]bool{string(models.PPMStatusCOMPLETED): true}},
-		{input: "ppm_approved", movesCount: 1, want: map[string]bool{string(models.PPMStatusAPPROVED): true}},
+		{input: "ppm_payment_requested", movesCount: 1, want: map[string]bool{string(PPMStatusPAYMENTREQUESTED): true}},
+		{input: "ppm_completed", movesCount: 1, want: map[string]bool{string(PPMStatusCOMPLETED): true}},
+		{input: "ppm_approved", movesCount: 1, want: map[string]bool{string(PPMStatusAPPROVED): true}},
 		{input: "all", movesCount: 5, want: all},
 	}
 
 	// Make PPMs with different statuses
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Status: models.PPMStatusAPPROVED,
+		PersonallyProcuredMove: PersonallyProcuredMove{
+			Status: PPMStatusAPPROVED,
 		},
 	})
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Status: models.PPMStatusPAYMENTREQUESTED,
+		PersonallyProcuredMove: PersonallyProcuredMove{
+			Status: PPMStatusPAYMENTREQUESTED,
 		},
 	})
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Status: models.PPMStatusCOMPLETED,
+		PersonallyProcuredMove: PersonallyProcuredMove{
+			Status: PPMStatusCOMPLETED,
 		},
 	})
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusSUBMITTED,
+		Move: Move{
+			Status: MoveStatusSUBMITTED,
 		},
 	})
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
+		Move: Move{
+			Status: MoveStatusAPPROVED,
 		},
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Status: models.PPMStatusSUBMITTED,
+		PersonallyProcuredMove: PersonallyProcuredMove{
+			Status: PPMStatusSUBMITTED,
 		},
 	})
 

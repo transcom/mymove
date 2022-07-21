@@ -21,8 +21,7 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 
-	// Anonymously import lib/pq driver so it's available to Pop
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // Anonymously import lib/pq driver so it's available to Pop
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyz" +

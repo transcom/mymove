@@ -11,7 +11,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
@@ -50,7 +49,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	builder := query.NewQueryBuilder()
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 	fetcher := fetch.NewFetcher(builder)
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 	ppmEstimator := mocks.PPMEstimator{}
@@ -483,7 +482,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -1174,7 +1173,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -1354,7 +1353,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	// Create a handler object to use in the tests
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -1886,7 +1885,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())

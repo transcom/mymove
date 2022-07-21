@@ -13,7 +13,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
@@ -481,7 +480,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter()
 		approver := mtoshipment.NewShipmentApprover(
 			mtoshipment.NewShipmentRouter(),
 			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
@@ -1579,7 +1578,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter()
 		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 		// Get shipment payment request recalculator service
@@ -1631,7 +1630,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter()
 		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 		// Get shipment payment request recalculator service
@@ -1674,7 +1673,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter()
 		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 		// Get shipment payment request recalculator service
@@ -1718,7 +1717,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter()
 		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 		// Get shipment payment request recalculator service
@@ -1763,7 +1762,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter()
 		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 		// Get shipment payment request recalculator service
@@ -1807,7 +1806,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter()
 		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 		// Get shipment payment request recalculator service
@@ -1874,7 +1873,7 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 		})
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter()
 		sitExtensionApprover := mtoshipment.NewSITExtensionApprover(moveRouter)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/approve", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1923,7 +1922,7 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 		})
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter()
 		sitExtensionDenier := mtoshipment.NewSITExtensionDenier(moveRouter)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-extension/%s/deny", mtoShipment.ID.String(), sitExtension.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -2105,7 +2104,7 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 }
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 
 	suite.Run("Successful POST - Integration Test", func() {
 		handlerConfig := suite.HandlerConfig()
@@ -2297,7 +2296,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		handlerConfig := suite.HandlerConfig()
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moverouter.NewMoveRouter())
+		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveservices.NewMoveRouter())
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator)
@@ -2407,7 +2406,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		handlerConfig := suite.HandlerConfig()
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moverouter.NewMoveRouter())
+		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveservices.NewMoveRouter())
 		ppmEstimator := mocks.PPMEstimator{}
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator))
 		handler := CreateMTOShipmentHandler{
@@ -2558,7 +2557,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 	// Get shipment payment request recalculator service
