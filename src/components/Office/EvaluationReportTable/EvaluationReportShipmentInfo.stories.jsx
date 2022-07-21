@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { SHIPMENT_OPTIONS } from '../../../shared/constants';
-
 import EvaluationReportShipmentInfo from './EvaluationReportShipmentInfo';
+
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default {
   title: 'Office Components/EvaluationReportShipmentInfo',
