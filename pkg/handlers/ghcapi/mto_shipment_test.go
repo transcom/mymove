@@ -5,44 +5,35 @@ import (
 	"net/http/httptest"
 	"time"
 
-	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
-	"github.com/transcom/mymove/pkg/services/ppmshipment"
-	"github.com/transcom/mymove/pkg/unit"
-
-	"github.com/transcom/mymove/pkg/swagger/nullable"
-
-	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	moveservices "github.com/transcom/mymove/pkg/services/move"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-	"github.com/transcom/mymove/pkg/trace"
-
-	"github.com/transcom/mymove/pkg/models/roles"
-
 	"github.com/go-openapi/strfmt"
-
-	"github.com/gofrs/uuid"
-
-	routemocks "github.com/transcom/mymove/pkg/route/mocks"
-
 	"github.com/gobuffalo/validate/v3"
-
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	shipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	moveservices "github.com/transcom/mymove/pkg/services/move"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-
+	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/swagger/nullable"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/trace"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type listMTOShipmentsSubtestData struct {

@@ -6,13 +6,11 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	customersupportremarksop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"

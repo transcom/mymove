@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/XSAM/otelsql"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/rds"
 	pop "github.com/gobuffalo/pop/v6"
@@ -18,8 +19,6 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-
-	"github.com/XSAM/otelsql"
 
 	iampg "github.com/transcom/mymove/pkg/iampostgres"
 )

@@ -1,17 +1,15 @@
 package sitextension
 
 import (
-	"github.com/gobuffalo/validate/v3"
-
-	"github.com/transcom/mymove/pkg/apperror"
-
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-
 	"fmt"
 
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // checkShipmentID checks that a shipmentID is not nil and returns a verification error if it is

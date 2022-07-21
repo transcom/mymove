@@ -1,15 +1,12 @@
 package authentication
 
 import (
+	"github.com/gofrs/uuid"
 	"github.com/spf13/cast"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-
 	"github.com/transcom/mymove/pkg/auth"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 

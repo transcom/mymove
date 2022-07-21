@@ -9,9 +9,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
-
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
+	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"

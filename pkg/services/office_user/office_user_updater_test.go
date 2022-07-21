@@ -4,14 +4,12 @@ import (
 	"database/sql"
 
 	"github.com/go-openapi/strfmt"
-
-	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {

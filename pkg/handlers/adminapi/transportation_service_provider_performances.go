@@ -3,16 +3,15 @@ package adminapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/services/query"
-
 	"github.com/go-openapi/runtime/middleware"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	tsppop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 func payloadForTSPPModel(o models.TransportationServiceProviderPerformance) *adminmessages.TransportationServiceProviderPerformance {

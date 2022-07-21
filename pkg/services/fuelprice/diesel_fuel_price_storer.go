@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-
-	"go.uber.org/zap"
-
 	"math"
 	"net/http"
 	"net/url"
@@ -17,6 +14,7 @@ import (
 	"github.com/benbjohnson/clock"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/dates"

@@ -8,12 +8,10 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
-
-	"github.com/stretchr/testify/suite"
-
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 

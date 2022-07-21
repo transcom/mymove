@@ -1,11 +1,11 @@
 package services
 
 import (
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-
-	"github.com/gofrs/uuid"
 )
 
 // UserRoleAssociator is the service object interface for UpdateUserRoles

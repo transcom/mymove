@@ -3,14 +3,13 @@ package primeapi
 import (
 	"testing"
 
-	"github.com/transcom/mymove/pkg/testingsuite"
-
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 // HandlerSuite is an abstraction of our original suite

@@ -3,17 +3,15 @@ package supportapi
 import (
 	"net/http/httptest"
 
-	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/services/event"
-	"github.com/transcom/mymove/pkg/trace"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 
 	webhookops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
 	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/services/event"
+	"github.com/transcom/mymove/pkg/trace"
 )
 
 func (suite *HandlerSuite) TestCreateWebhookNotification() {

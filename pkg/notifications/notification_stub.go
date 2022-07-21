@@ -2,10 +2,9 @@ package notifications
 
 import (
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-
-	"go.uber.org/zap"
 )
 
 // StubNotificationSender mocks an SES client for local usage

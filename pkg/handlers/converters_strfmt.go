@@ -3,13 +3,11 @@ package handlers
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/swagger/nullable"
-
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
-	"github.com/go-openapi/strfmt"
-
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/swagger/nullable"
 	"github.com/transcom/mymove/pkg/unit"
 )
 

@@ -7,9 +7,8 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (gre *GHCRateEngineImporter) importREInternationalPrices(appCtx appcontext.AppContext) error {

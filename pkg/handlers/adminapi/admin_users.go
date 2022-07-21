@@ -3,21 +3,19 @@ package adminapi
 import (
 	"fmt"
 
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/services/query"
-
-	"github.com/go-openapi/runtime/middleware"
-
 	adminuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 func payloadForAdminUserModel(o models.AdminUser) *adminmessages.AdminUser {

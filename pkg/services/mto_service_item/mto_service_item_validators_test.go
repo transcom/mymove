@@ -5,15 +5,13 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-
-	"github.com/gobuffalo/validate/v3"
-
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 

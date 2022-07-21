@@ -6,25 +6,21 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/trace"
-
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-
-	"github.com/transcom/mymove/pkg/testdatagen"
-
-	"github.com/gofrs/uuid"
-
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/trace"
 )
 
 func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {

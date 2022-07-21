@@ -8,12 +8,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/cmd/webhook-client/utils"
 	"github.com/transcom/mymove/cmd/webhook-client/webhook"
 	"github.com/transcom/mymove/pkg/appcontext"
-
-	"go.uber.org/zap"
 )
 
 const (

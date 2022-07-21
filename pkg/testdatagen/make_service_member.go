@@ -4,13 +4,12 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/transcom/mymove/pkg/random"
-
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/random"
 )
 
 // RandomEdipi creates a random Edipi for a service member

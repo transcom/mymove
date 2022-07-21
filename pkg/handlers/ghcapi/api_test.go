@@ -3,14 +3,12 @@ package ghcapi
 import (
 	"testing"
 
-	storageTest "github.com/transcom/mymove/pkg/storage/test"
-
-	"github.com/transcom/mymove/pkg/testingsuite"
-
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/notifications"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 // HandlerSuite is an abstraction of our original suite

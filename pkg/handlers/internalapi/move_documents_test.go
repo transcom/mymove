@@ -4,22 +4,19 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/gobuffalo/validate/v3"
-	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/services/mocks"
-
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {

@@ -6,12 +6,11 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/gen/supportmessages"
-	"github.com/transcom/mymove/pkg/services/event"
-
 	webhookops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/services/event"
 )
 
 // ReceiveWebhookNotificationHandler passes through a message

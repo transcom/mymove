@@ -3,10 +3,9 @@ package internalapi
 import (
 	"time"
 
-	"go.uber.org/zap"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"

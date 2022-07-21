@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/gobuffalo/pop/v6"
-
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/db/utilities"

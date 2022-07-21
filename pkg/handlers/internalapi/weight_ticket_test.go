@@ -5,19 +5,17 @@ import (
 	"fmt"
 	"net/http/httptest"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
-
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
+	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
-
-	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 //

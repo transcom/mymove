@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
-
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 

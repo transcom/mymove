@@ -3,8 +3,6 @@ package models
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/db/utilities"
-
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
@@ -12,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 

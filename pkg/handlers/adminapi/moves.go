@@ -3,24 +3,20 @@ package adminapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/services/audit"
-
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
-
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/query"
-
-	"github.com/go-openapi/runtime/middleware"
-
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	moveop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/move"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
+	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/audit"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 // IndexMovesHandler returns a list of moves/MTOs via GET /moves

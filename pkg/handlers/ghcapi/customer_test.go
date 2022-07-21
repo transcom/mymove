@@ -3,18 +3,15 @@ package ghcapi
 import (
 	"net/http/httptest"
 
-	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/models/roles"
-	customerservice "github.com/transcom/mymove/pkg/services/office_user/customer"
-
-	customerops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-
 	"github.com/go-openapi/strfmt"
 
-	"github.com/transcom/mymove/pkg/testdatagen"
-
+	"github.com/transcom/mymove/pkg/etag"
+	customerops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models/roles"
+	customerservice "github.com/transcom/mymove/pkg/services/office_user/customer"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {

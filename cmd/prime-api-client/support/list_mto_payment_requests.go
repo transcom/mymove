@@ -13,7 +13,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
-
 	paymentrequestclient "github.com/transcom/mymove/pkg/gen/supportclient/payment_request"
 )
 

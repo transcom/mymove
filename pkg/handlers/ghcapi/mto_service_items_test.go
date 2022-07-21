@@ -6,24 +6,22 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/transcom/mymove/pkg/apperror"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-	"github.com/transcom/mymove/pkg/trace"
-
-	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/trace"
 )
 
 func (suite *HandlerSuite) TestListMTOServiceItemHandler() {

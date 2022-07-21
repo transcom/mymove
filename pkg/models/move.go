@@ -5,10 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/db/utilities"
-
-	"github.com/transcom/mymove/pkg/random"
-
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
@@ -19,6 +15,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/dberr"
+	"github.com/transcom/mymove/pkg/db/utilities"
+	"github.com/transcom/mymove/pkg/random"
 	"github.com/transcom/mymove/pkg/unit"
 )
 

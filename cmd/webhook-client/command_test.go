@@ -4,14 +4,12 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/testingsuite"
-
-	"github.com/spf13/cobra"
-
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 // WebhookClientTestingSuite is a suite for testing the webhook client

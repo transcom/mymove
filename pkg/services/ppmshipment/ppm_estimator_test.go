@@ -3,15 +3,12 @@ package ppmshipment
 import (
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	prhelpermocks "github.com/transcom/mymove/pkg/payment_request/mocks"
-
-	"github.com/transcom/mymove/pkg/route/mocks"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
+	prhelpermocks "github.com/transcom/mymove/pkg/payment_request/mocks"
+	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )

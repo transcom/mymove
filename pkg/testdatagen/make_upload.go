@@ -5,17 +5,14 @@ import (
 	"log"
 	"time"
 
+	"github.com/gobuffalo/pop/v6"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
-
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/uploader"
-
-	"github.com/gobuffalo/pop/v6"
-	"github.com/gobuffalo/validate/v3"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // MakeUpload creates a single Upload.

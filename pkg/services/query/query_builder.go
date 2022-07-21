@@ -7,15 +7,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/etag"
-
 	"github.com/gobuffalo/flect"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/lib/pq"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/services"
 )
 

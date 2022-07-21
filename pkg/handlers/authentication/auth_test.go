@@ -11,25 +11,20 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gorilla/mux"
-
-	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/ghcapi"
-
-	"github.com/transcom/mymove/pkg/notifications/mocks"
-
-	"github.com/transcom/mymove/pkg/notifications"
-
 	"github.com/alexedwards/scs/v2"
 	"github.com/gofrs/uuid"
+	"github.com/gorilla/mux"
 	"github.com/markbates/goth"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/ghcapi"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
