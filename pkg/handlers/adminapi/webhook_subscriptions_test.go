@@ -21,7 +21,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	webhooksubscription "github.com/transcom/mymove/pkg/services/webhook_subscription"
-	webhooksubscriptionservice "github.com/transcom/mymove/pkg/services/webhook_subscription"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -107,7 +106,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetWebhookSubscriptionHandler{
 			suite.HandlerConfig(),
-			webhooksubscriptionservice.NewWebhookSubscriptionFetcher(queryBuilder),
+			webhooksubscription.NewWebhookSubscriptionFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
 
@@ -237,7 +236,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
 			suite.HandlerConfig(),
-			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
+			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}
 
@@ -274,7 +273,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
 			suite.HandlerConfig(),
-			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
+			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}
 
@@ -318,7 +317,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
 			suite.HandlerConfig(),
-			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
+			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}
 
@@ -345,7 +344,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
 			suite.HandlerConfig(),
-			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
+			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}
 

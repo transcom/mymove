@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -13,7 +12,7 @@ import (
 )
 
 func (suite *ModelSuite) TestBasicMoveDocumentInstantiation() {
-	moveDoc := &models.MoveDocument{}
+	moveDoc := &MoveDocument{}
 
 	expErrors := map[string][]string{
 		"document_id":        {"DocumentID can not be blank."},
@@ -32,14 +31,14 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 	sm := ppm.Move.Orders.ServiceMember
 
 	assertions := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
+		MoveDocument: MoveDocument{
 			MoveID:                   ppm.Move.ID,
 			Move:                     ppm.Move,
 			PersonallyProcuredMoveID: &ppm.ID,
 			Status:                   "OK",
 			MoveDocumentType:         "EXPENSE",
 		},
-		Document: models.Document{
+		Document: Document{
 			ServiceMemberID: sm.ID,
 			ServiceMember:   sm,
 		},
@@ -50,7 +49,7 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 
 	deletedAt := time.Date(2019, 8, 7, 0, 0, 0, 0, time.UTC)
 	deleteAssertions := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
+		MoveDocument: MoveDocument{
 			MoveID:                   ppm.Move.ID,
 			Move:                     ppm.Move,
 			PersonallyProcuredMoveID: &ppm.ID,
@@ -58,7 +57,7 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 			MoveDocumentType:         "EXPENSE",
 			DeletedAt:                &deletedAt,
 		},
-		Document: models.Document{
+		Document: Document{
 			ServiceMemberID: sm.ID,
 			ServiceMember:   sm,
 			DeletedAt:       &deletedAt,
@@ -120,15 +119,15 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocumentsStorageExpense() {
 	start := time.Date(2016, 01, 01, 0, 0, 0, 0, time.UTC)
 	end := time.Date(2016, 01, 16, 0, 0, 0, 0, time.UTC)
 	storageExpense := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
+		MoveDocument: MoveDocument{
 			MoveID:                   ppm.Move.ID,
 			Move:                     ppm.Move,
 			PersonallyProcuredMoveID: &ppm.ID,
 			Status:                   "OK",
 			MoveDocumentType:         "EXPENSE",
 		},
-		MovingExpenseDocument: models.MovingExpenseDocument{
-			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
+		MovingExpenseDocument: MovingExpenseDocument{
+			MovingExpenseType:    MovingExpenseTypeSTORAGE,
 			RequestedAmountCents: 100,
 			PaymentMethod:        "GTCC",
 			ReceiptMissing:       false,
@@ -160,28 +159,28 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocuments() {
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	sm := ppm.Move.Orders.ServiceMember
 	awaitingReview := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
+		MoveDocument: MoveDocument{
 			MoveID:                   ppm.Move.ID,
 			Move:                     ppm.Move,
 			PersonallyProcuredMoveID: &ppm.ID,
 			Status:                   MoveDocumentStatusAWAITINGREVIEW,
 			MoveDocumentType:         "EXPENSE",
 		},
-		Document: models.Document{
+		Document: Document{
 			ServiceMemberID: sm.ID,
 			ServiceMember:   sm,
 		},
 	}
 	status := MoveDocumentStatusOK
 	ok := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
+		MoveDocument: MoveDocument{
 			MoveID:                   ppm.Move.ID,
 			Move:                     ppm.Move,
 			PersonallyProcuredMoveID: &ppm.ID,
 			Status:                   status,
 			MoveDocumentType:         "EXPENSE",
 		},
-		Document: models.Document{
+		Document: Document{
 			ServiceMemberID: sm.ID,
 			ServiceMember:   sm,
 		},
@@ -248,11 +247,11 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 	sm := move.Orders.ServiceMember
 
 	moveDocument := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
+		MoveDocument: MoveDocument{
 			MoveID: move.ID,
 			Move:   move,
 		},
-		Document: models.Document{
+		Document: Document{
 			ServiceMemberID: sm.ID,
 			ServiceMember:   sm,
 		},
@@ -296,11 +295,11 @@ func (suite *ModelSuite) TestMoveDocumentStatuses() {
 	sm := move.Orders.ServiceMember
 
 	moveDocument := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
+		MoveDocument: MoveDocument{
 			MoveID: move.ID,
 			Move:   move,
 		},
-		Document: models.Document{
+		Document: Document{
 			ServiceMemberID: sm.ID,
 			ServiceMember:   sm,
 		},
@@ -346,14 +345,14 @@ func (suite *ModelSuite) TestDeleteMoveDocument() {
 	sm := ppm.Move.Orders.ServiceMember
 
 	assertions := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
+		MoveDocument: MoveDocument{
 			MoveID:                   ppm.Move.ID,
 			Move:                     ppm.Move,
 			PersonallyProcuredMoveID: &ppm.ID,
 			Status:                   "OK",
 			MoveDocumentType:         "EXPENSE",
 		},
-		Document: models.Document{
+		Document: Document{
 			ServiceMemberID: sm.ID,
 			ServiceMember:   sm,
 		},
