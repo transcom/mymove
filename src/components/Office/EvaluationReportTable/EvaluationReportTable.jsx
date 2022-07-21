@@ -2,6 +2,8 @@ import React from 'react';
 import { Tag } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
 
+import styles from './EvaluationReportTable.module.scss';
+
 import { formatCustomerDate, formatEvaluationReportLocation, formatQAReportID } from 'utils/formatters';
 import { EvaluationReportShape } from 'types/evaluationReport';
 
@@ -9,25 +11,27 @@ const EvaluationReportTable = ({ reports }) => {
   const row = (report) => {
     return (
       <tr key={report.id}>
-        <td>
+        <td className={styles.reportIDColumn}>
           {formatQAReportID(report.id)} {report.submittedAt ? null : <Tag>DRAFT</Tag>}
         </td>
-        <td>{report.submittedAt && formatCustomerDate(report.submittedAt)}</td>
-        <td>{formatEvaluationReportLocation(report.location)}</td>
-        <td>{report.violationsObserved ? 'Yes' : 'No'}</td>
-        <td>No</td>
-        <td>
+        <td className={styles.dateSubmittedColumn}>{report.submittedAt && formatCustomerDate(report.submittedAt)}</td>
+        <td className={styles.locationColumn}>{formatEvaluationReportLocation(report.location)}</td>
+        <td className={styles.violationsColumn}>{report.violationsObserved ? 'Yes' : 'No'}</td>
+        <td className={styles.seriousIncidentColumn}>No</td>
+        <td className={styles.viewReportColumn}>
           <a href={`/moves/${report.moveID}/evaluation-reports/${report.id}`}>View report</a>
         </td>
-        <td>
+        <td className={styles.downloadColumn}>
           <a href={`/moves/${report.moveID}/evaluation-reports/${report.id}/download`}>Download</a>
         </td>
       </tr>
     );
   };
   let tableRows = (
-    <tr>
-      <td colSpan={7}>No QAE reports have been submitted for this shipment</td>
+    <tr className={styles.emptyTableRow}>
+      <td className={styles.emptyTableRow} colSpan={7}>
+        No QAE reports have been submitted for this shipment
+      </td>
     </tr>
   );
   if (reports.length > 0) {
@@ -35,16 +39,16 @@ const EvaluationReportTable = ({ reports }) => {
   }
 
   return (
-    <table>
+    <table className={styles.evaluationReportTable}>
       <thead>
         <tr>
-          <th>Report ID</th>
-          <th>Date submitted</th>
-          <th>Location</th>
-          <th>Violations</th>
-          <th>Serious Incident</th>
-          <th aria-label="View report" />
-          <th aria-label="Download" />
+          <th className={styles.reportIDColumn}>Report ID</th>
+          <th className={styles.dateSubmittedColumn}>Date submitted</th>
+          <th className={styles.locationColumn}>Location</th>
+          <th className={styles.violationsColumn}>Violations</th>
+          <th className={styles.seriousIncidentColumn}>Serious Incident</th>
+          <th className={styles.viewReportColumn} aria-label="View report" />
+          <th className={styles.downloadColumn} aria-label="Download" />
         </tr>
       </thead>
       <tbody>{tableRows}</tbody>

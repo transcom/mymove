@@ -4,6 +4,7 @@ import moment from 'moment';
 
 import EvaluationReportTable from './EvaluationReportTable';
 import EvaluationReportShipmentInfo from './EvaluationReportShipmentInfo';
+import styles from './ShipmentEvaluationReports.module.scss';
 
 const ShipmentEvaluationReports = ({ shipments, reports }) => {
   const sortedShipments = shipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
@@ -18,7 +19,7 @@ const ShipmentEvaluationReports = ({ shipments, reports }) => {
     }
     const shipmentNumber = shipmentNumbersByType[shipmentType];
     return (
-      <div key={shipment.id}>
+      <div key={shipment.id} className={styles.shipmentRow}>
         <EvaluationReportShipmentInfo shipment={shipment} shipmentNumber={shipmentNumber} />
         <EvaluationReportTable reports={reports.filter((r) => r.shipmentID === shipment.id)} />
       </div>
@@ -28,7 +29,7 @@ const ShipmentEvaluationReports = ({ shipments, reports }) => {
   return (
     <>
       <h2>Shipment QAE reports ({reports.length})</h2>
-      {shipmentRows}
+      <div className={styles.gridContainer}>{shipmentRows}</div>
     </>
   );
 };

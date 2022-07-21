@@ -1,0 +1,45 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.evaluationReportTable {
+  th {
+    min-width: 0px;
+    @include u-font('body', '3xs');
+    @include u-font-weight('bold');
+    @include u-line-height('body', 2);
+    @include u-padding(1);
+    color: $base-darker;
+  }
+  td {
+    min-width: 0px;
+    color: $base-dark;
+    @include u-line-height('body', 1);
+  }
+
+  .emptyTableRow {
+    border-bottom-width: 0px;
+  }
+  // TODO might be a better way to do this
+  .reportIDColumn {
+    width: 168px;
+  }
+  .dateSubmittedColumn {
+    width: 150px;
+  }
+  .locationColumn {
+    width: 165px;
+  }
+  .violationsColumn {
+    width: 100px;
+  }
+  .seriousIncidentColumn {
+  width: 117px;
+  }
+  .viewReportColumn {
+    width: 103px;
+  }
+  .downloadColumn {
+    width: 103px;
+  }
+}
