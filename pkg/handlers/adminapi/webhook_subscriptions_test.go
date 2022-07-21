@@ -191,6 +191,7 @@ func (suite *HandlerSuite) TestCreateWebhookSubscriptionHandler() {
 
 		subscriptionCreated := response.(*webhooksubscriptionop.CreateWebhookSubscriptionCreated)
 		suite.NotEqual(subscriptionCreated.Payload.ID.String(), "00000000-0000-0000-0000-000000000000")
+		suite.Equal(expectedMove.ID.String(), newMove.ID.String())
 	})
 
 	suite.Run("400 - Invalid Request", func() {
