@@ -3,7 +3,7 @@
 @import 'shared/styles/colors';
 
 .ReviewItems {
-  @media(max-width: $mobile) {
+  @include at-media-max(mobile-lg) {
     .headingContainer {
       @include u-display(block);
 
@@ -29,7 +29,7 @@
     }
   }
 
-  @media(min-width: $mobile) {
+  @include at-media(mobile-lg) {
     .headingContainer {
       @include u-display(flex);
       @include u-align-items(align-end);
@@ -124,7 +124,7 @@
       @include u-margin-right('05');
     }
 
-    @media(max-width: $mobile) {
+    @include at-media-max(mobile-lg) {
       .subheadingWrapper {
         flex-wrap: wrap;
 
@@ -144,6 +144,10 @@
           flex-basis: 50%;
           flex-shrink: 0;
           order: 2;
+
+          button {
+            @include u-width(auto);
+          }
         }
       }
     }
