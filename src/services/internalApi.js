@@ -315,6 +315,10 @@ export async function patchWeightTicket(ppmShipmentId, weightTicketId, payload, 
   );
 }
 
+export async function deleteWeightTicket() {
+  return Promise.resolve();
+}
+
 /** PPMS */
 export async function getPPMsForMove(moveId) {
   return makeInternalRequest(

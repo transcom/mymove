@@ -103,6 +103,44 @@ func CustomerSupportRemarks(customerSupportRemarks models.CustomerSupportRemarks
 	return payload
 }
 
+// EvaluationReportListItem payload
+func EvaluationReportListItem(evaluationReport *models.EvaluationReport) *ghcmessages.EvaluationReportListItem {
+	if evaluationReport == nil {
+		return nil
+	}
+	id := *handlers.FmtUUID(evaluationReport.ID)
+	moveID := *handlers.FmtUUID(evaluationReport.MoveID)
+	shipmentID := handlers.FmtUUIDPtr(evaluationReport.ShipmentID)
+
+	var location *ghcmessages.EvaluationReportLocation
+	if evaluationReport.Location != nil {
+		tempLocation := ghcmessages.EvaluationReportLocation(*evaluationReport.Location)
+		location = &tempLocation
+	}
+	reportType := ghcmessages.EvaluationReportType(evaluationReport.Type)
+
+	payload := &ghcmessages.EvaluationReportListItem{
+		ID:                 id,
+		Location:           location,
+		MoveID:             moveID,
+		ShipmentID:         shipmentID,
+		SubmittedAt:        handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
+		Type:               reportType,
+		ViolationsObserved: evaluationReport.ViolationsObserved,
+	}
+	return payload
+}
+
+// EvaluationReportList payload
+func EvaluationReportList(evaluationReports models.EvaluationReports) ghcmessages.EvaluationReportList {
+	payload := make(ghcmessages.EvaluationReportList, len(evaluationReports))
+	for i, v := range evaluationReports {
+		evaluationReport := v
+		payload[i] = EvaluationReportListItem(&evaluationReport)
+	}
+	return payload
+}
+
 // MoveHistory payload
 func MoveHistory(logger *zap.Logger, moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{

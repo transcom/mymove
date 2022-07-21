@@ -655,10 +655,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 	moveHistoryFetcher := NewMoveHistoryFetcher()
 
-	// MOVE DB SETUP TO A FUNCTION
-	setupTestData := func(userID *uuid.UUID, userFirstName string, roleTypes []roles.RoleType) string {
-		// Prepare the database with testdatagen and suite.DB() calls
-
+	setupTestData := func(userID *uuid.UUID, userFirstName string, roleTypes []roles.RoleType, isOfficeUser bool) string {
 		assertions := testdatagen.Assertions{
 			OfficeUser: models.OfficeUser{
 				FirstName: userFirstName,
@@ -667,10 +664,17 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 				ID: *userID,
 			},
 		}
-		officeUser := testdatagen.MakeOfficeUserWithRoleTypes(suite.DB(), roleTypes, assertions)
+
+		var user models.User
+		if isOfficeUser {
+			officeUser := testdatagen.MakeOfficeUserWithRoleTypes(suite.DB(), roleTypes, assertions)
+			user = officeUser.User
+		} else {
+			user = testdatagen.MakeUserWithRoleTypes(suite.DB(), roleTypes, assertions)
+		}
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		auditHistory := testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
-			User: officeUser.User,
+			User: user,
 			Move: models.Move{
 				ID: approvedMove.ID,
 			},
@@ -682,7 +686,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 	suite.Run("Test with TOO user", func() {
 		userID, _ := uuid.NewV4()
 		userName := "TOO_user"
-		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO})
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO}, true)
 		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
 		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Nil(err)
@@ -694,7 +698,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 	suite.Run("Test with Prime user", func() {
 		userID, _ := uuid.NewV4()
 		userName := "Prime_user"
-		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypePrime})
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypePrime}, false)
 		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
 		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Nil(err)
@@ -706,7 +710,19 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 	suite.Run("Test with TOO and Prime Simulator user", func() {
 		userID, _ := uuid.NewV4()
 		userName := "TOO_and_prime_simulator_user"
-		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypePrimeSimulator})
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypePrimeSimulator}, true)
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.Nil(err)
+		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
+		suite.Equal(1, len(auditHistoriesForUser))
+		suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+	})
+
+	suite.Run("Test with TOO and Customer user", func() {
+		userID, _ := uuid.NewV4()
+		userName := "TOO_and_customer_user"
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeCustomer}, true)
 		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
 		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Nil(err)
