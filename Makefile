@@ -680,7 +680,7 @@ db_test_create: ## Create Test DB
 ifndef CIRCLECI
 	@echo "Create the ${DB_NAME_TEST} database..."
 	DB_NAME=postgres DB_PORT=$(DB_PORT_TEST) scripts/wait-for-db && \
-		createdb -p $(DB_PORT_TEST) -h localhost -U postgres $(DB_NAME_TEST) || true
+		createdb -p $(DB_PORT_TEST) -h localhost -U postgres $(DB_NAME_TEST) || bash './scripts/make-messages/fail-db_test_create.sh'
 else
 	@echo "Relying on CircleCI's database setup to create the DB."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'

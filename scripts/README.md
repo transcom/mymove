@@ -242,3 +242,13 @@ These scripts are primarily for working with the pricing and rate engine
 | Script Name      | Description                                                   |
 | ---------------- | ------------------------------------------------------------- |
 | `pricing-import` | Creates secure migration to move pricing data into production |
+
+### Make Messages Debugging Scripts
+
+These scripts are used by the Makefile to show better debugging messages for
+failed runs of targets.
+
+| Script Name                            | Description                                                                 |
+| -------------------------------------- | --------------------------------------------------------------------------- |
+| `make-messages/`                       | Directory containing the Makefile debugging messages                        |
+| `make-messages/fail-db_test_create.sh` | Displays debugging information for a failure of the `db_test_create` target |
