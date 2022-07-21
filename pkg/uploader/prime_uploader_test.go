@@ -2,7 +2,6 @@ package uploader_test
 
 import (
 	"github.com/transcom/mymove/pkg/storage/test"
-
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )

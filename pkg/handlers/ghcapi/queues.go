@@ -1,23 +1,20 @@
 package ghcapi
 
 import (
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
-
 	"github.com/gobuffalo/pop/v6"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-
-	"github.com/go-openapi/runtime/middleware"
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // GetMovesQueueHandler returns the moves for the TOO queue user via GET /queues/moves

@@ -3,30 +3,26 @@ package primeapi
 import (
 	"log"
 
-	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
-	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
-	"github.com/transcom/mymove/pkg/services/ppmshipment"
-
-	"github.com/transcom/mymove/pkg/services/upload"
-
-	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
-
 	"github.com/go-openapi/loads"
-
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	"github.com/transcom/mymove/pkg/services/move"
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-	"github.com/transcom/mymove/pkg/services/reweigh"
-	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	"github.com/transcom/mymove/pkg/services/move"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/services/reweigh"
+	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
+	"github.com/transcom/mymove/pkg/services/upload"
 )
 
 // NewPrimeAPI returns the Prime API

@@ -4,12 +4,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *PPMShipmentSuite) TestValidationRules() {

@@ -4,32 +4,26 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/transcom/mymove/pkg/apperror"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
-	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
-
-	"github.com/transcom/mymove/pkg/services/mocks"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-
-	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
-
-	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/query"
-	supportMocks "github.com/transcom/mymove/pkg/services/support/mocks"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/gen/supportmessages"
-
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/services/query"
+	supportMocks "github.com/transcom/mymove/pkg/services/support/mocks"
+	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 

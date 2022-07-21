@@ -4,24 +4,22 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	"github.com/transcom/mymove/pkg/services/invoice"
-	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
-
 	"github.com/benbjohnson/clock"
 	"github.com/go-openapi/loads"
-
-	"github.com/transcom/mymove/pkg/services/fetch"
-	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/transcom/mymove/pkg/gen/supportapi"
 	supportops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	"github.com/transcom/mymove/pkg/services/invoice"
 	move "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	"github.com/transcom/mymove/pkg/services/query"
+	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
 )
 
 // NewSupportAPIHandler returns a handler for the Prime API

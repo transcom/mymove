@@ -5,18 +5,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/transcom/mymove/pkg/services"
-
-	"github.com/transcom/mymove/pkg/services/upload"
-
-	"github.com/stretchr/testify/mock"
-
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	uploadop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/services/upload"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 

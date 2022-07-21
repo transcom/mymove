@@ -6,23 +6,18 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
-
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-
-	"github.com/transcom/mymove/pkg/services/pagination"
-
-	"github.com/transcom/mymove/pkg/services"
-
 	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/services/mocks"
 
 	moveop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/move"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/move"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )

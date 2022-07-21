@@ -6,9 +6,8 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
-	"go.uber.org/zap/zapcore"
-
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap/zapcore"
 )
 
 // EDIProcessing represents an email sent to a service member

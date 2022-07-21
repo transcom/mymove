@@ -3,10 +3,9 @@ package webhooksubscription
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/etag"
-
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
