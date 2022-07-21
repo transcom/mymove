@@ -97,6 +97,8 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 
 				if move.MTOShipments[i].PPMShipment != nil {
 					move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+					now := time.Now()
+					move.MTOShipments[i].PPMShipment.ApprovedAt = &now
 
 					verrs, err = appCtx.DB().ValidateAndSave(move.MTOShipments[i].PPMShipment)
 					if verrs != nil && verrs.HasAny() {
@@ -339,6 +341,7 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppCon
 		for i := range moveTaskOrder.MTOShipments {
 			if moveTaskOrder.MTOShipments[i].PPMShipment != nil {
 				moveTaskOrder.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+				moveTaskOrder.MTOShipments[i].PPMShipment.ApprovedAt = &now
 
 				verrs, err = appCtx.DB().ValidateAndSave(moveTaskOrder.MTOShipments[i].PPMShipment)
 				if verrs != nil && verrs.HasAny() {
