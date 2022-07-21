@@ -5374,6 +5374,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightTickets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeightTicket"
+          }
         }
       },
       "x-nullable": true
@@ -12514,6 +12520,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightTickets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeightTicket"
+          }
         }
       },
       "x-nullable": true
