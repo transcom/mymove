@@ -395,13 +395,6 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		LEFT JOIN users_roles ON session_userid = users_roles.user_id
 		LEFT JOIN roles ON users_roles.role_id = roles.id
 		LEFT JOIN office_users ON office_users.user_id = session_userid
-			AND(roles.role_type = 'transportation_ordering_officer'
-				OR roles.role_type = 'transportation_invoicing_officer'
-				OR roles.role_type = 'ppm_office_users'
-				OR role_type = 'services_counselor'
-				OR role_type = 'contracting_officer'
-				OR role_type = 'qae_csr'
-				OR role_type = 'prime_simulator')
 		LEFT JOIN (
 			SELECT 'Prime' AS prime_user_first_name
 			) prime_users ON roles.role_type = 'prime'
