@@ -8,7 +8,7 @@ repos:
         types: [go]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.2.0
+    rev: v4.3.0
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -50,7 +50,9 @@ repos:
         exclude: ^public/swagger-ui/
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v1.46.2
+    # This is a revision after 1.48.0 that includes a patched revive. Will update to a tag when new release is cut.
+    # See: https://github.com/golangci/golangci-lint/issues/2997
+    rev: 7d2648ca3f942beef43a3fd15efcdbc89968e1b4
     hooks:
       - id: golangci-lint
         entry: bash -c 'exec golangci-lint run ${GOLANGCI_LINT_VERBOSE} -j=${GOLANGCI_LINT_CONCURRENCY:-1}' # custom bash so we can override concurrency for faster dev runs
@@ -74,7 +76,7 @@ repos:
         language: script
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.31.1
+    rev: v0.32.1
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md

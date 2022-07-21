@@ -124,7 +124,6 @@ func NewRBSPersonLookup(host string, dodCACertPackage string, certString string,
 		RootCAs:      caCertPool,
 		MinVersion:   tls.VersionTLS12,
 	}
-	tlsConfig.BuildNameToCertificate()
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
 
 	return &RBSPersonLookup{
