@@ -95,6 +95,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		EvaluationReportListFetcher: evaluationreport.NewEvaluationReportListFetcher(),
 	}
 
+	ghcAPI.EvaluationReportsDeleteEvaluationReportHandler = DeleteEvaluationReportHandler{
+		HandlerConfig:           handlerConfig,
+		EvaluationReportDeleter: evaluationreport.NewEvaluationReportDeleter(),
+	}
+
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
 		HandlerConfig:         handlerConfig,
 		MTOServiceItemUpdater: mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),

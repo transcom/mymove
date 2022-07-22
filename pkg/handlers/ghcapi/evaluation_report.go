@@ -30,6 +30,11 @@ type CreateEvaluationReportHandler struct {
 	services.EvaluationReportCreator
 }
 
+type DeleteEvaluationReportHandler struct {
+	handlers.HandlerConfig
+	services.EvaluationReportDeleter
+}
+
 // Handle handles GetShipmentEvaluationReports by move request
 func (h GetShipmentEvaluationReportsHandler) Handle(params moveop.GetMoveShipmentEvaluationReportsListParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
@@ -102,5 +107,20 @@ func (h CreateEvaluationReportHandler) Handle(params evaluationReportop.CreateEv
 			returnPayload := payloads.EvaluationReport(evaluationReport)
 
 			return evaluationReportop.NewCreateEvaluationReportForShipmentOK().WithPayload(returnPayload), nil
+		})
+}
+
+func (h DeleteEvaluationReportHandler) Handle(params evaluationReportop.DeleteEvaluationReportParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			reportID := uuid.FromStringOrNil(string(params.ReportID.String()))
+			err := h.DeleteEvaluationReport(appCtx, reportID)
+			if err != nil {
+				appCtx.Logger().Error("Error deleting evaluation report: ", zap.Error(err))
+				return evaluationReportop.NewDeleteEvaluationReportInternalServerError(), err
+			}
+
+			return evaluationReportop.NewDeleteEvaluationReportNoContent(), nil
 		})
 }
