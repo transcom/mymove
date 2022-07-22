@@ -135,7 +135,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 	suite.Run("Successfully updates", func() {
 		appCtx := suite.AppContextForTest()
 
-		originalWeightTicket := setupForTest(appCtx, nil, true, false, false)
+		originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
 
 		updater := NewCustomerWeightTicketUpdater()
 

@@ -47,9 +47,14 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 		fullDocID := uuid.Must(uuid.NewV4())
 		proofOfOwnershipID := uuid.Must(uuid.NewV4())
 
-		userUploads := models.UserUploads{}
-		userUploads = append(userUploads, models.UserUpload{
+		emptyUploads := models.UserUploads{}
+		emptyUploads = append(emptyUploads, models.UserUpload{
 			DocumentID: &emptyDocID,
+		})
+
+		fullUploads := models.UserUploads{}
+		fullUploads = append(fullUploads, models.UserUpload{
+			DocumentID: &fullDocID,
 		})
 
 		existingWeightTicket := &models.WeightTicket{
@@ -59,7 +64,10 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 			FullDocumentID:                    fullDocID,
 			ProofOfTrailerOwnershipDocumentID: proofOfOwnershipID,
 			EmptyDocument: models.Document{
-				UserUploads: userUploads,
+				UserUploads: emptyUploads,
+			},
+			FullDocument: models.Document{
+				UserUploads: fullUploads,
 			},
 		}
 
@@ -125,8 +133,7 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 				switch verr := err.(type) {
 				case *validate.Errors:
 					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 2)
-					suite.Contains(verr.Keys(), "FullWeightDocument")
+					suite.Equal(len(verr.Keys()), 1)
 					suite.Contains(verr.Keys(), "ProofOfTrailerOwnershipDocument")
 				default:
 					suite.Failf("expected *validate.Errors", "%t - %v", err, err)

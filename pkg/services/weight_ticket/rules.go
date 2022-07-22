@@ -68,19 +68,12 @@ func checkRequiredFields() weightTicketValidator {
 			verrs.Add("MissingFullWeightTicket", "Missing Full Weight Ticket is required")
 		}
 
-		if newWeightTicket.MissingEmptyWeightTicket != nil && newWeightTicket.MissingFullWeightTicket != nil {
-			if *newWeightTicket.MissingEmptyWeightTicket && *newWeightTicket.MissingFullWeightTicket {
-				if len(originalWeightTicket.EmptyDocument.UserUploads) < 1 && len(originalWeightTicket.FullDocument.UserUploads) < 1 {
-					verrs.Add("WeightDocs", "At least 1 constructed weight file is required")
-				}
-			} else {
-				if len(originalWeightTicket.EmptyDocument.UserUploads) < 1 {
-					verrs.Add("EmptyWeightDocument", "At least 1 empty weight file is required")
-				}
-				if len(originalWeightTicket.FullDocument.UserUploads) < 1 {
-					verrs.Add("FullWeightDocument", "At least 1 full weight file is required")
-				}
-			}
+		if len(originalWeightTicket.EmptyDocument.UserUploads) < 1 {
+			verrs.Add("EmptyWeightDocument", "At least 1 empty weight file is required")
+		}
+
+		if len(originalWeightTicket.FullDocument.UserUploads) < 1 {
+			verrs.Add("FullWeightDocument", "At least 1 full weight file is required")
 		}
 
 		if newWeightTicket.OwnsTrailer == nil {
