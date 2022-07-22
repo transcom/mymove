@@ -1,6 +1,7 @@
 import moment from 'moment';
 
 import * as formatters from './formatters';
+import { formatQAReportID } from './formatters';
 
 import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
 
@@ -260,6 +261,13 @@ describe('formatters', () => {
       formattedTime = formatters.formatTimeAgo(time);
 
       expect(formattedTime).toEqual('1 min ago');
+    });
+  });
+
+  describe('formatQAReportID', () => {
+    it('should work', () => {
+      const uuid = '7e37ec98-ffae-4c4a-9208-ac80002ac298';
+      expect(formatQAReportID(uuid)).toEqual('#QA-7E37E');
     });
   });
 });

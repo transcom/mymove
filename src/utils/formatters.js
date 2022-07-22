@@ -172,6 +172,11 @@ export const formatPrimeAPIFullAddress = (address) => {
   return `${streetAddress1}, ${streetAddress2}, ${city}, ${state} ${postalCode}`;
 };
 
+export const formatEvaluationReportShipmentAddress = (address) => {
+  const { streetAddress1, city, state, postalCode } = address;
+  return `${streetAddress1}, ${city}, ${state} ${postalCode}`;
+};
+
 export const formatMoveHistoryFullAddress = (address) => {
   let formattedAddress = '';
   if (address.street_address_1) {
@@ -390,4 +395,23 @@ export function formatCentsTruncateWhole(cents) {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   });
+}
+
+// Converts a uuid into a shortened ID that's suitable for displaying to users
+export function formatQAReportID(uuid) {
+  const firstFive = uuid.substring(0, 5).toUpperCase();
+  return `#QA-${firstFive}`;
+}
+
+export function formatEvaluationReportLocation(location) {
+  switch (location) {
+    case 'ORIGIN':
+      return 'Origin';
+    case 'DESTINATION':
+      return 'Destination';
+    case 'OTHER':
+      return 'Other';
+    default:
+      return undefined;
+  }
 }

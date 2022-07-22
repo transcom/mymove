@@ -1,7 +1,6 @@
 import React from 'react';
-import { Fieldset, FormGroup, Radio, Grid, Label, Button } from '@trussworks/react-uswds';
+import { Fieldset, FormGroup, Radio, Grid, Label } from '@trussworks/react-uswds';
 import { useField } from 'formik';
-import PropTypes from 'prop-types';
 
 import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
@@ -9,7 +8,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { DatePickerInput } from 'components/form/fields';
 
-const ShipmentCustomerSIT = ({ onCalculateClick }) => {
+const ShipmentCustomerSIT = () => {
   const [sitExpectedInput, , sitExpectedHelper] = useField('sitExpected');
   const sitExpected = sitExpectedInput.value === true;
 
@@ -20,28 +19,8 @@ const ShipmentCustomerSIT = ({ onCalculateClick }) => {
   const [sitLocationInput, , sitLocationHelper] = useField('sitLocation');
   const sitLocationValue = sitLocationInput.value || 'DESTINATION';
 
-  const [weightInput] = useField('sitEstimatedWeight');
-  const weightValue = weightInput.value;
-
-  const [startInput] = useField('sitEstimatedEntryDate');
-  const startValue = startInput.value;
-
-  const [endInput] = useField('sitEstimatedDepartureDate');
-  const endValue = endInput.value;
-
   const handleSITLocation = (event) => {
     sitLocationHelper.setValue(event.target.value);
-  };
-
-  const isCalculationEnabled =
-    !!startValue && startValue !== 'Invalid date' && !!endValue && endValue !== 'Invalid date' && !!weightValue;
-
-  const handleCalculateClick = async () => {
-    /*
-       The SIT calcuation work is being left for a later sprint.
-       We'll want to do _something_ with the results of this function.
-     */
-    onCalculateClick({ location: sitLocationValue, start: startValue, end: endValue, weight: weightValue });
   };
 
   return (
@@ -112,10 +91,6 @@ const ShipmentCustomerSIT = ({ onCalculateClick }) => {
                 <DatePickerInput name="sitEstimatedEntryDate" label="Estimated storage start" />
 
                 <DatePickerInput name="sitEstimatedDepartureDate" label="Estimated storage end" />
-
-                <Button type="button" secondary disabled={!isCalculationEnabled} onClick={handleCalculateClick}>
-                  Calculate SIT
-                </Button>
               </>
             )}
           </Grid>
@@ -126,11 +101,3 @@ const ShipmentCustomerSIT = ({ onCalculateClick }) => {
 };
 
 export default ShipmentCustomerSIT;
-
-ShipmentCustomerSIT.propTypes = {
-  onCalculateClick: PropTypes.func,
-};
-
-ShipmentCustomerSIT.defaultProps = {
-  onCalculateClick: () => {},
-};

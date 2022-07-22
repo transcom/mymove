@@ -1,7 +1,7 @@
 export const generalRoutes = {
   HOME_PATH: '/',
   SIGN_IN_PATH: '/sign-in',
-  PRIVACY_SECURITY_POLICY_PATH: '/privacy-security',
+  PRIVACY_SECURITY_POLICY_PATH: '/privacy-and-security-policy',
   ACCESSIBILITY_PATH: '/accessibility',
 };
 
@@ -71,6 +71,7 @@ export const tooRoutes = {
 
 export const qaeCSRRoutes = {
   MOVE_SEARCH_PATH: '/qaecsr/search',
+  EVALUATION_REPORTS_PATH: '/moves/:moveCode/evaluation-reports',
 };
 
 // README: Prime API endpoints accept either a Move code or ID.
