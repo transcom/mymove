@@ -48,7 +48,7 @@ func checkRequiredFields() weightTicketValidator {
 			verrs.Add("VehicleDescription", "Vehicle Description must exist")
 		}
 
-		if newWeightTicket.EmptyWeight == nil || *newWeightTicket.EmptyWeight <= 0 {
+		if newWeightTicket.EmptyWeight == nil || *newWeightTicket.EmptyWeight < 0 {
 			verrs.Add("EmptyWeight", "Empty Weight must have a value of at least 0")
 		}
 
