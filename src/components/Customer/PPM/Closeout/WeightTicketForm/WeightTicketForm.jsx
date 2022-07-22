@@ -41,7 +41,7 @@ const validationSchema = Yup.object().shape({
     }),
   missingFullWeightTicket: Yup.boolean(),
   fullDocument: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
-  hasOwnTrailer: Yup.boolean().required('Required'),
+  ownsTrailer: Yup.boolean().required('Required'),
   trailerMeetsCriteria: Yup.boolean(),
   proofOfTrailerOwnershipDocument: Yup.array()
     .of(uploadShape)
@@ -177,7 +177,7 @@ const WeightTicketForm = ({
     fullWeight,
     missingFullWeightTicket,
     fullDocument,
-    hasOwnTrailer,
+    ownsTrailer,
     trailerMeetsCriteria,
     proofOfTrailerOwnershipDocument,
   } = weightTicket || {};
@@ -190,7 +190,7 @@ const WeightTicketForm = ({
     fullWeight: fullWeight ? `${fullWeight}` : '',
     missingFullWeightTicket: !!missingFullWeightTicket,
     fullDocument: fullDocument?.uploads || [],
-    hasOwnTrailer: hasOwnTrailer ? 'true' : 'false',
+    ownsTrailer: ownsTrailer ? 'true' : 'false',
     trailerMeetsCriteria: trailerMeetsCriteria ? 'true' : 'false',
     proofOfTrailerOwnershipDocument: proofOfTrailerOwnershipDocument?.uploads || [],
   };
@@ -281,22 +281,22 @@ const WeightTicketForm = ({
                     <legend className="usa-label">On this trip, were you using a trailer that you own?</legend>
                     <Field
                       as={Radio}
-                      id="yesHasOwnTrailer"
+                      id="yesOwnsTrailer"
                       label="Yes"
-                      name="hasOwnTrailer"
+                      name="ownsTrailer"
                       value="true"
-                      checked={values.hasOwnTrailer === 'true'}
+                      checked={values.ownsTrailer === 'true'}
                     />
                     <Field
                       as={Radio}
-                      id="noHasOwnTrailer"
+                      id="noOwnsTrailer"
                       label="No"
-                      name="hasOwnTrailer"
+                      name="ownsTrailer"
                       value="false"
-                      checked={values.hasOwnTrailer === 'false'}
+                      checked={values.ownsTrailer === 'false'}
                     />
                   </Fieldset>
-                  {values.hasOwnTrailer === 'true' && (
+                  {values.ownsTrailer === 'true' && (
                     <Fieldset className={styles.trailerClaimedFieldset}>
                       <legend className="usa-label">Does your trailer meet all of these criteria?</legend>
                       <ul>
