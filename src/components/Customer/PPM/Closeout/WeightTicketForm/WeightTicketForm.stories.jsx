@@ -120,7 +120,7 @@ ExistingWeightTickets.args = {
         },
       ],
     },
-    hasOwnTrailer: false,
+    ownsTrailer: false,
     trailerMeetsCriteria: false,
   },
   onCreateUpload: mockCreateUploadSuccess,
@@ -171,7 +171,7 @@ MissingWeightTickets.args = {
         },
       ],
     },
-    hasOwnTrailer: false,
+    ownsTrailer: false,
     trailerMeetsCriteria: false,
   },
   onCreateUpload: mockCreateUploadSuccess,
@@ -228,7 +228,7 @@ TrailerOwnership.args = {
         },
       ],
     },
-    hasOwnTrailer: true,
+    ownsTrailer: true,
     trailerMeetsCriteria: true,
     proofOfTrailerOwnershipDocument: {
       uploads: [
