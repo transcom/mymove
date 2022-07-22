@@ -18,7 +18,6 @@ import (
 
 	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
-	storageTest "github.com/transcom/mymove/pkg/storage/test"
 )
 
 //
@@ -174,11 +173,8 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 			IfMatch:        eTag,
 		}
 
-		handlerConfig := handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger())
-		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig.SetFileStorer(fakeS3)
 		subtestData.handler = UpdateWeightTicketHandler{
-			handlerConfig,
+			suite.createHandlerConfig(),
 			weightTicketUpdater,
 		}
 
