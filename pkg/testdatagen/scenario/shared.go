@@ -659,7 +659,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	}
 }
 
-func createGenericMoveWithPPMShipment(appCtx appcontext.AppContext, moveInfo moveCreatorInfo, useMinimalPPMShipment bool, assertions testdatagen.Assertions) models.Move {
+func createGenericMoveWithPPMShipment(appCtx appcontext.AppContext, moveInfo moveCreatorInfo, useMinimalPPMShipment bool, assertions testdatagen.Assertions) (models.Move, models.PPMShipment) {
 	if assertions.PPMShipment.ID.IsNil() {
 		log.Panic("PPMShipment ID cannot be nil.")
 	}
@@ -673,12 +673,10 @@ func createGenericMoveWithPPMShipment(appCtx appcontext.AppContext, moveInfo mov
 	testdatagen.MergeModels(&fullAssertions, assertions)
 
 	if useMinimalPPMShipment {
-		testdatagen.MakeMinimalPPMShipment(appCtx.DB(), fullAssertions)
-	} else {
-		testdatagen.MakePPMShipment(appCtx.DB(), fullAssertions)
+		return move, testdatagen.MakeMinimalPPMShipment(appCtx.DB(), fullAssertions)
 	}
 
-	return move
+	return move, testdatagen.MakePPMShipment(appCtx.DB(), fullAssertions)
 }
 
 func createUnSubmittedMoveWithMinimumPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1014,6 +1012,50 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx appcontext
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
+func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("33f39cca-3908-4cf5-b7d9-839741f51911"),
+		email:       "weightTicketPPM@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("a30fd609-6dcf-4dd0-a7e6-2892a31ae641"),
+		firstName:   "ActualPPM",
+		lastName:    "WeightTicketComplete",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("2fdb02a5-dd80-4ec4-a9f0-f4eefb434568"),
+		moveLocator: "W3TT1K",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("3e0c9457-9010-473a-a274-fc1620d5ee16"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          testdatagen.ConvertUUIDStringToUUID("7a5e932d-f1f6-435e-9518-3ee33f74bc88"),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+		},
+	}
+
+	move, shipment := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	weightTicketAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+	}
+
+	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+}
+
 func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	/*
 	 * A service member with orders and a full PPM Shipment.
@@ -1039,7 +1081,7 @@ func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUpload
 		},
 	}
 
-	move := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	move, _ := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
 	err := moveRouter.Submit(appCtx, &move)
 
@@ -1140,7 +1182,7 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx appcontext
 		},
 	}
 
-	move := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	move, _ := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
 	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
@@ -1169,7 +1211,7 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx appcontext
 		},
 	}
 
-	move := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	move, _ := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
 	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 		Move: move,
@@ -1264,7 +1306,7 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 		},
 	}
 
-	move := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+	move, _ := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
 	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {

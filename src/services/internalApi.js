@@ -299,6 +299,10 @@ export async function createWeightTicket() {
   });
 }
 
+export async function deleteWeightTicket() {
+  return Promise.resolve();
+}
+
 export async function patchWeightTicket() {
   return {};
 }

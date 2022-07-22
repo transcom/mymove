@@ -27,7 +27,7 @@ describe('ConnectedCustomerApp tests', () => {
     });
 
     it('renders the Privacy & Security policy route', () => {
-      const { queryByText } = renderRoute('/privacy-security');
+      const { queryByText } = renderRoute('/privacy-and-security-policy');
       expect(queryByText('Privacy & Security Policy')).toBeInTheDocument();
     });
 

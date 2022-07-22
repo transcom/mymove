@@ -1,4 +1,4 @@
-import { isPPMShipmentComplete } from './shipments';
+import { isPPMShipmentComplete, hasCompleteWeightTickets } from './shipments';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -78,6 +78,30 @@ describe('shipments utils', () => {
         },
       };
       expect(isPPMShipmentComplete(incompletePPMShipment)).toBe(false);
+    });
+  });
+  describe('hasCompleteWeightTickets', () => {
+    it('returns false when there are no weight tickets', () => {
+      expect(hasCompleteWeightTickets()).toBe(false);
+      expect(hasCompleteWeightTickets([])).toBe(false);
+    });
+    it('returns false when there is at least one incomplete weight ticket', () => {
+      expect(hasCompleteWeightTickets([{ id: '1' }])).toBe(false);
+      expect(
+        hasCompleteWeightTickets([
+          { vehicleDescription: 'Ford Pinto', emptyWeight: 2000, fullWeight: 3000 },
+          { id: '1' },
+        ]),
+      ).toBe(false);
+    });
+    it('returns true when all weight tickets are complete', () => {
+      expect(hasCompleteWeightTickets([{ id: '1' }])).toBe(false);
+      expect(
+        hasCompleteWeightTickets([
+          { vehicleDescription: 'Ford Pinto', emptyWeight: 2000, fullWeight: 3000 },
+          { vehicleDescription: 'PT Cruiser', emptyWeight: 1500, fullWeight: 1750 },
+        ]),
+      ).toBe(true);
     });
   });
 });
