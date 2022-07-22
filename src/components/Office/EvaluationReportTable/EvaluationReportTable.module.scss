@@ -8,13 +8,17 @@
     @include u-font('body', '3xs');
     @include u-font-weight('bold');
     @include u-line-height('body', 2);
-    @include u-padding(1);
+    @include u-padding-x(1);
     color: $base-darker;
+    height: 32px;
   }
   td {
     min-width: 0px;
     color: $base-dark;
     @include u-line-height('body', 1);
+    @include u-padding-x(1);
+    padding-top: 12px;
+    padding-bottom: 12px;
   }
 
   .emptyTableRow {
@@ -28,16 +32,16 @@
     width: 150px;
   }
   .locationColumn {
-    width: 165px;
+    width: 163px;
   }
   .violationsColumn {
     width: 100px;
   }
   .seriousIncidentColumn {
-  width: 117px;
+  width: 118px;
   }
   .viewReportColumn {
-    width: 103px;
+    width: 105px;
   }
   .downloadColumn {
     width: 103px;
