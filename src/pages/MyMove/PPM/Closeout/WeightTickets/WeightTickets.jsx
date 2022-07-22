@@ -102,7 +102,7 @@ const WeightTickets = () => {
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
     const ownsTrailer = values.ownsTrailer === 'true';
-    const trailerMeetsCriteria = ownsTrailer ? !!values.trailerMeetsCriteria : false;
+    const trailerMeetsCriteria = ownsTrailer ? values.trailerMeetsCriteria === 'true' : false;
     const payload = {
       ppmShipmentId: mtoShipment.ppmShipment.id,
       vehicleDescription: values.vehicleDescription,
