@@ -263,7 +263,7 @@ describe('Weight Tickets page', () => {
           missingEmptyWeightTicket: false,
           fullWeight: 6999,
           missingFullWeightTicket: false,
-          hasOwnTrailer: true,
+          ownsTrailer: true,
           trailerMeetsCriteria: true,
         },
         mockWeightTicketETag,

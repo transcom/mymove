@@ -58,7 +58,7 @@ const weightTicketRequiredProps = {
         },
       ],
     },
-    hasOwnTrailer: false,
+    ownsTrailer: false,
     trailerOwnershipDocumentId: '5bf3ed20-08dd-4d8e-92ad-7603bb6377a5',
   },
 };
@@ -131,7 +131,7 @@ const constructedWeightTrailerProps = {
         },
       ],
     },
-    hasOwnTrailer: true,
+    ownsTrailer: true,
     trailerMeetsCriteria: true,
     trailerOwnershipDocumentId: '5bf3ed20-08dd-4d8e-92ad-7603bb6377a5',
     proofOfTrailerOwnershipDocument: {
@@ -359,7 +359,7 @@ describe('WeightTicketForm component', () => {
                 content_type: 'application/pdf',
               },
             ],
-            hasOwnTrailer: 'false',
+            ownsTrailer: 'false',
             trailerMeetsCriteria: 'false',
             proofOfTrailerOwnershipDocument: [],
           },
@@ -400,7 +400,7 @@ describe('WeightTicketForm component', () => {
                 content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
               },
             ],
-            hasOwnTrailer: 'true',
+            ownsTrailer: 'true',
             trailerMeetsCriteria: 'true',
             proofOfTrailerOwnershipDocument: [
               {
