@@ -79,6 +79,22 @@ export async function getMTOShipments(key, moveTaskOrderID, normalize = true) {
   return makeGHCRequest('mtoShipment.listMTOShipments', { moveTaskOrderID }, { schemaKey: 'mtoShipments', normalize });
 }
 
+export async function getShipmentEvaluationReports(key, moveID) {
+  return makeGHCRequest(
+    'move.getMoveShipmentEvaluationReportsList',
+    { moveID },
+    { schemaKey: 'evaluationReports', normalize: false },
+  );
+}
+
+export async function getCounselingEvaluationReports(key, moveID) {
+  return makeGHCRequest(
+    'move.getMoveCounselingEvaluationReportsList',
+    { moveID },
+    { schemaKey: 'evaluationReports', normalize: false },
+  );
+}
+
 export async function getMTOServiceItems(key, moveTaskOrderID, normalize = true) {
   return makeGHCRequest(
     'mtoServiceItem.listMTOServiceItems',
