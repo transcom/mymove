@@ -30,8 +30,8 @@ CREATE TABLE moving_expenses
 	amount int,
 	missing_receipt bool,
 	status moving_expense_status,
-	sit_start_date timestamptz,
-	sit_end_date timestamptz,
+	sit_start_date date,
+	sit_end_date date,
 	created_at timestamp NOT NULL,
 	updated_at timestamp NOT NULL,
 	deleted_at timestamptz
