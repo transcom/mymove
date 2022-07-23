@@ -48,6 +48,7 @@ type MovingExpense struct {
 	Amount            *unit.Cents               `json:"amount" db:"amount"`
 	MissingReceipt    *bool                     `json:"missing_receipt" db:"missing_receipt"`
 	Status            *PPMDocumentStatus        `json:"status" db:"status"`
+	Reason            *string                   `json:"reason" db:"reason"`
 	SITStartDate      *time.Time                `json:"sit_start_date" db:"sit_start_date"`
 	SITEndDate        *time.Time                `json:"sit_end_date" db:"sit_end_date"`
 }
@@ -90,6 +91,7 @@ func (m *MovingExpense) Validate(_ *pop.Connection) (*validate.Errors, error) {
 			string(PPMDocumentStatusExcluded),
 			string(PPMDocumentStatusRejected),
 		}},
+		&StringIsNilOrNotBlank{Name: "Reason", Field: m.Reason},
 		&OptionalTimeIsPresent{Name: "SITStartDate", Field: m.SITStartDate},
 		&OptionalTimeIsPresent{Name: "SITEndDate", Field: m.SITEndDate},
 	), nil
