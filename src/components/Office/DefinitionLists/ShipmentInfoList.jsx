@@ -13,6 +13,7 @@ import { setFlagStyles, setDisplayFlags, getDisplayFlags, getMissingOrDash } fro
 const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, showWhenCollapsed, isExpanded }) => {
   const {
     requestedPickupDate,
+    requestedDeliveryDate,
     pickupAddress,
     secondaryPickupAddress,
     destinationAddress,
@@ -68,6 +69,16 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
     <div className={requestedPickupDateElementFlags.classes}>
       <dt>Requested pickup date</dt>
       <dd data-testid="requestedPickupDate">{requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')}</dd>
+    </div>
+  );
+
+  const requestedDeliveryDateElementFlags = getDisplayFlags('requestedDeliveryDate');
+  const requestedDeliveryDateElement = (
+    <div className={requestedDeliveryDateElementFlags.classes}>
+      <dt>Requested delivery date</dt>
+      <dd data-testid="requestedDeliveryDate">
+        {requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')}
+      </dd>
     </div>
   );
 
@@ -146,6 +157,7 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
       {pickupAddressElement}
       {showElement(secondaryPickupAddressElementFlags) && secondaryPickupAddressElement}
       {showElement(agentsElementFlags) && releasingAgentElement}
+      {showElement(requestedDeliveryDateElementFlags) && requestedDeliveryDateElement}
       {destinationAddressElement}
       {showElement(destinationTypeFlags) && displayDestinationType && destinationTypeElement}
       {showElement(secondaryDeliveryAddressElementFlags) && secondaryDeliveryAddressElement}
