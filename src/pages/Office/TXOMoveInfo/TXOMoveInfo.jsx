@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
 
-import { tioRoutes } from 'constants/routes';
+import { qaeCSRRoutes, tioRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import CustomerHeader from 'components/CustomerHeader';
@@ -18,6 +18,7 @@ const MoveTaskOrder = lazy(() => import('pages/Office/MoveTaskOrder/MoveTaskOrde
 const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestReview/PaymentRequestReview'));
 const ReviewBillableWeight = lazy(() => import('pages/Office/ReviewBillableWeight/ReviewBillableWeight'));
 const CustomerSupportRemarks = lazy(() => import('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks'));
+const EvaluationReports = lazy(() => import('pages/Office/EvaluationReports/EvaluationReports'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 
@@ -120,6 +121,10 @@ const TXOMoveInfo = () => {
 
           <Route path="/moves/:moveCode/customer-support-remarks" exact>
             <CustomerSupportRemarks />
+          </Route>
+
+          <Route path={qaeCSRRoutes.EVALUATION_REPORTS_PATH} exact>
+            <EvaluationReports />
           </Route>
 
           <Route path="/moves/:moveCode/history" exact>
