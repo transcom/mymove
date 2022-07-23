@@ -9,7 +9,7 @@ CREATE TYPE moving_expense_type AS enum (
 	'OTHER'
 	);
 
-CREATE TYPE moving_expense_status AS enum (
+CREATE TYPE ppm_document_status AS enum (
 	'APPROVED',
 	'EXCLUDED',
 	'REJECTED'
@@ -29,7 +29,7 @@ CREATE TABLE moving_expenses
 	paid_with_gtcc bool,
 	amount int,
 	missing_receipt bool,
-	status moving_expense_status,
+	status ppm_document_status,
 	sit_start_date date,
 	sit_end_date date,
 	created_at timestamp NOT NULL,

@@ -33,18 +33,6 @@ const (
 	MovingExpenseReceiptTypeOther MovingExpenseReceiptType = "OTHER"
 )
 
-// MovingExpenseStatus represents the status of an order record's lifecycle
-type MovingExpenseStatus string
-
-const (
-	// MovingExpenseStatusApproved captures enum value "APPROVED"
-	MovingExpenseStatusApproved MovingExpenseStatus = "APPROVED"
-	// MovingExpenseStatusExcluded captures enum value "EXCLUDED"
-	MovingExpenseStatusExcluded MovingExpenseStatus = "EXCLUDED"
-	// MovingExpenseStatusRejected captures enum value "REJECTED"
-	MovingExpenseStatusRejected MovingExpenseStatus = "REJECTED"
-)
-
 type MovingExpense struct {
 	ID                uuid.UUID                 `json:"id" db:"id"`
 	PPMShipmentID     uuid.UUID                 `json:"ppm_shipment_id" db:"ppm_shipment_id"`
@@ -59,7 +47,7 @@ type MovingExpense struct {
 	PaidWithGTCC      *bool                     `json:"paid_with_gtcc" db:"paid_with_gtcc"`
 	Amount            *unit.Cents               `json:"amount" db:"amount"`
 	MissingReceipt    *bool                     `json:"missing_receipt" db:"missing_receipt"`
-	Status            *MovingExpenseStatus      `json:"status" db:"status"`
+	Status            *PPMDocumentStatus        `json:"status" db:"status"`
 	SITStartDate      *time.Time                `json:"sit_start_date" db:"sit_start_date"`
 	SITEndDate        *time.Time                `json:"sit_end_date" db:"sit_end_date"`
 }
@@ -98,9 +86,9 @@ func (m *MovingExpense) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		}},
 		&StringIsNilOrNotBlank{Name: "Description", Field: m.Description},
 		&OptionalStringInclusion{Name: "Status", Field: status, List: []string{
-			string(MovingExpenseStatusApproved),
-			string(MovingExpenseStatusExcluded),
-			string(MovingExpenseStatusRejected),
+			string(PPMDocumentStatusApproved),
+			string(PPMDocumentStatusExcluded),
+			string(PPMDocumentStatusRejected),
 		}},
 		&OptionalTimeIsPresent{Name: "SITStartDate", Field: m.SITStartDate},
 		&OptionalTimeIsPresent{Name: "SITEndDate", Field: m.SITEndDate},
