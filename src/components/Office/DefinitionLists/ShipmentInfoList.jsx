@@ -35,6 +35,34 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
   };
 
+  const releasingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RELEASING_AGENT') : false;
+  const receivingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RECEIVING_AGENT') : false;
+
+  const agentsElementFlags = getDisplayFlags('mtoAgents');
+  const releasingAgentElement = !releasingAgent ? (
+    <div className={agentsElementFlags.classes}>
+      <dt>Releasing agent</dt>
+      <dd data-testid="RELEASING_AGENT">—</dd>
+    </div>
+  ) : (
+    <div className={agentsElementFlags.classes} key={`${releasingAgent.agentType}-${releasingAgent.email}`}>
+      <dt>Releasing agent</dt>
+      <dd data-testid={releasingAgent.agentType}>{formatAgent(releasingAgent)}</dd>
+    </div>
+  );
+
+  const receivingAgentElement = !receivingAgent ? (
+    <div className={agentsElementFlags.classes}>
+      <dt>Receiving agent</dt>
+      <dd data-testid="RECEIVING_AGENT">—</dd>
+    </div>
+  ) : (
+    <div className={agentsElementFlags.classes} key={`${receivingAgent.agentType}-${receivingAgent.email}`}>
+      <dt>Receiving agent</dt>
+      <dd data-testid={receivingAgent.agentType}>{formatAgent(receivingAgent)}</dd>
+    </div>
+  );
+
   const requestedPickupDateElementFlags = getDisplayFlags('requestedPickupDate');
   const requestedPickupDateElement = (
     <div className={requestedPickupDateElementFlags.classes}>
@@ -87,16 +115,6 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
     </div>
   );
 
-  const agentsElementFlags = getDisplayFlags('mtoAgents');
-  const agentsElement = mtoAgents
-    ? mtoAgents.map((agent) => (
-        <div className={agentsElementFlags.classes} key={`${agent.agentType}-${agent.email}`}>
-          <dt>{agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}</dt>
-          <dd data-testid={agent.agentType}>{agent ? formatAgent(agent) : '-'}</dd>
-        </div>
-      ))
-    : null;
-
   const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
     <div className={counselorRemarksElementFlags.classes}>
@@ -127,10 +145,11 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
       {requestedPickupDateElement}
       {pickupAddressElement}
       {showElement(secondaryPickupAddressElementFlags) && secondaryPickupAddressElement}
+      {showElement(agentsElementFlags) && releasingAgentElement}
       {destinationAddressElement}
       {showElement(destinationTypeFlags) && displayDestinationType && destinationTypeElement}
       {showElement(secondaryDeliveryAddressElementFlags) && secondaryDeliveryAddressElement}
-      {showElement(agentsElementFlags) && agentsElement}
+      {showElement(agentsElementFlags) && receivingAgentElement}
       {counselorRemarksElement}
       {customerRemarksElement}
     </dl>
