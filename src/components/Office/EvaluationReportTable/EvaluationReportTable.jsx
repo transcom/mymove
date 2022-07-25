@@ -12,7 +12,7 @@ const EvaluationReportTable = ({ reports, emptyText }) => {
     return (
       <tr key={report.id}>
         <td className={styles.reportIDColumn}>
-          {formatQAReportID(report.id)} {report.submittedAt ? null : <Tag>DRAFT</Tag>}
+          {formatQAReportID(report.id)} {report.submittedAt ? null : <Tag className={styles.draftTag}>DRAFT</Tag>}
         </td>
         <td className={styles.dateSubmittedColumn}>{report.submittedAt && formatCustomerDate(report.submittedAt)}</td>
         <td className={styles.locationColumn}>{formatEvaluationReportLocation(report.location)}</td>
