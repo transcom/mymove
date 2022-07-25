@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
@@ -7,10 +6,10 @@ import classnames from 'classnames';
 import styles from './EvaluationReportShipmentInfo.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatEvaluationReportShipmentAddress } from 'utils/formatters';
+import { formatEvaluationReportShipmentAddress, formatShortShipmentID } from 'utils/formatters';
 import { ShipmentShape } from 'types/shipment';
 
-const EvaluationReportShipmentInfo = ({ shipment, shipmentNumber }) => {
+const EvaluationReportShipmentInfo = ({ shipment }) => {
   let heading;
   let pickupAddress;
   let destinationAddress;
@@ -53,7 +52,7 @@ const EvaluationReportShipmentInfo = ({ shipment, shipmentNumber }) => {
       <div className={styles.shipmentInfoContainer}>
         <div className={styles.shipmentInfo}>
           <h4>
-            {heading} Shipment ID #{shipmentNumber}
+            {heading} Shipment ID {formatShortShipmentID(shipment.id)}
           </h4>
           <small>
             {pickupAddress} <FontAwesomeIcon icon="arrow-right" /> {destinationAddress}
@@ -66,7 +65,6 @@ const EvaluationReportShipmentInfo = ({ shipment, shipmentNumber }) => {
 };
 EvaluationReportShipmentInfo.propTypes = {
   shipment: ShipmentShape.isRequired,
-  shipmentNumber: PropTypes.number.isRequired,
 };
 
 export default EvaluationReportShipmentInfo;
