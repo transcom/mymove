@@ -11,69 +11,69 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *PopTestSuite) SetupTest() {
+// func (suite *PopTestSuite) SetupTest() {
 
-}
+// }
 
-func TestPopTestSuite(t *testing.T) {
-	ps := NewPopTestSuite(CurrentPackage(), WithPerTestTransaction())
-	suite.Run(t, ps)
-	ps.TearDown()
-}
+// func TestPopTestSuite(t *testing.T) {
+// 	ps := NewPopTestSuite(CurrentPackage(), WithPerTestTransaction())
+// 	suite.Run(t, ps)
+// 	ps.TearDown()
+// }
 
-func (suite *PopTestSuite) TestRunWithPreloadedData() {
-	address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+// func (suite *PopTestSuite) TestRunWithPreloadedData() {
+// 	address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 
-	suite.RunWithPreloadedData("Main test records available in subtest", func() {
-		var foundAddress models.Address
-		err := suite.DB().Find(&foundAddress, address.ID)
-		suite.NoError(err)
-		suite.Equal(address.ID, foundAddress.ID)
+// 	suite.RunWithPreloadedData("Main test records available in subtest", func() {
+// 		var foundAddress models.Address
+// 		err := suite.DB().Find(&foundAddress, address.ID)
+// 		suite.NoError(err)
+// 		suite.Equal(address.ID, foundAddress.ID)
 
-	})
+// 	})
 
-	var address2 models.Address
-	suite.RunWithPreloadedData("Subtest record creation", func() {
-		// Create address to search for in the next test
-		address2 = testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
-	})
+// 	var address2 models.Address
+// 	suite.RunWithPreloadedData("Subtest record creation", func() {
+// 		// Create address to search for in the next test
+// 		address2 = testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+// 	})
 
-	suite.RunWithPreloadedData("Subtest record not found", func() {
-		// Check that address2 cannot be found
-		var foundAddress models.Address
-		err := suite.DB().Find(&foundAddress, address2.ID)
-		suite.Error(err)
-		suite.NotEqual(address2.ID, foundAddress.ID)
-	})
+// 	suite.RunWithPreloadedData("Subtest record not found", func() {
+// 		// Check that address2 cannot be found
+// 		var foundAddress models.Address
+// 		err := suite.DB().Find(&foundAddress, address2.ID)
+// 		suite.Error(err)
+// 		suite.NotEqual(address2.ID, foundAddress.ID)
+// 	})
 
-}
+// }
 
-func (suite *PopTestSuite) TestRun() {
-	address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+// func (suite *PopTestSuite) TestRun() {
+// 	address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 
-	suite.Run("Main test records not available in subtest", func() {
-		var foundAddress models.Address
-		err := suite.DB().Find(&foundAddress, address.ID)
-		suite.Error(err)
-		suite.Contains(err.Error(), "no rows in result set")
+// 	suite.Run("Main test records not available in subtest", func() {
+// 		var foundAddress models.Address
+// 		err := suite.DB().Find(&foundAddress, address.ID)
+// 		suite.Error(err)
+// 		suite.Contains(err.Error(), "no rows in result set")
 
-	})
+// 	})
 
-	var address2 models.Address
-	suite.Run("Subtest record creation", func() {
-		// Create address to search for in the next test
-		address2 = testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
-	})
+// 	var address2 models.Address
+// 	suite.Run("Subtest record creation", func() {
+// 		// Create address to search for in the next test
+// 		address2 = testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+// 	})
 
-	suite.Run("Subtest record not found", func() {
-		// Check that address2 cannot be found
-		var foundAddress models.Address
-		err := suite.DB().Find(&foundAddress, address2.ID)
-		suite.Error(err)
-		suite.NotEqual(address2.ID, foundAddress.ID)
-	})
+// 	suite.Run("Subtest record not found", func() {
+// 		// Check that address2 cannot be found
+// 		var foundAddress models.Address
+// 		err := suite.DB().Find(&foundAddress, address2.ID)
+// 		suite.Error(err)
+// 		suite.NotEqual(address2.ID, foundAddress.ID)
+// 	})
 
-}
+// }
 
 // Below functions setup a test suite with additional data loading
 
@@ -83,10 +83,12 @@ type AltPopSuite struct {
 }
 
 func (suite *AltPopSuite) SetupTest() {
+	fmt.Println("💥Adding ", suite.ReServices[2].Code, suite.ReServices[2].ID, "in SetupTest")
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: suite.ReServices[2],
 	})
 
+	fmt.Println("💥Adding ", suite.ReServices[3].Code, suite.ReServices[3].ID, "in SetupTest")
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: suite.ReServices[3],
 	})
@@ -94,12 +96,14 @@ func (suite *AltPopSuite) SetupTest() {
 
 func (suite *AltPopSuite) SetupSuite() {
 	// Loads some data into database
-	fmt.Println("💥💥Adding ", suite.ReServices[0].Code, suite.ReServices[0].ID)
+	// ReServiceCodeCS
+	fmt.Println("💥Adding ", suite.ReServices[0].Code, suite.ReServices[0].ID, "in SetupSuite")
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: suite.ReServices[0],
 	})
 
-	fmt.Println("💥💥💥Adding ", models.ReServiceCodeMS, "9dc919da-9b66-407b-9f17-05c0f03fcb50")
+	// ReServiceCodeMS
+	fmt.Println("💥Adding ", suite.ReServices[1].Code, suite.ReServices[1].ID, "in SetupSuite")
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: suite.ReServices[1],
 	})
@@ -140,20 +144,17 @@ func TestAltPopSuite(t *testing.T) {
 func (suite *AltPopSuite) TestRunAlt() {
 	address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 
-	suite.RunWithPreloadedData("Main test records not available in subtest", func() {
+	suite.RunWithPreloadedData("Run a test to check if preloads are there", func() {
 		var foundAddress models.Address
 		err := suite.DB().Find(&foundAddress, address.ID)
 		suite.NoError(err)
 
 		var foundReService models.ReService
-		// err = suite.DB().Find(&foundAddress, suite.ReServices[0].ID)
-		// foundReService.Code = models.ReServiceCodeMS
-		// suite.DB().Save(&foundReService)
-
 		for _, reservice := range suite.ReServices {
 			err = suite.DB().Find(&foundReService, reservice.ID)
 			fmt.Println(reservice.Code)
-			suite.NoError(err)
+			suite.NoError(err, "Reservice %s not found", reservice.Code)
+
 		}
 
 	})
@@ -161,20 +162,16 @@ func (suite *AltPopSuite) TestRunAlt() {
 func (suite *AltPopSuite) TestRunAltAgain() {
 	address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 
-	suite.RunWithPreloadedData("Main test records not available in subtest", func() {
+	suite.RunWithPreloadedData("Run it again", func() {
 		var foundAddress models.Address
 		err := suite.DB().Find(&foundAddress, address.ID)
 		suite.NoError(err)
 
 		var foundReService models.ReService
-		// err = suite.DB().Find(&foundAddress, suite.ReServices[0].ID)
-		// foundReService.Code = models.ReServiceCodeMS
-		// suite.DB().Save(&foundReService)
-
 		for _, reservice := range suite.ReServices {
 			err = suite.DB().Find(&foundReService, reservice.ID)
 			fmt.Println(reservice.Code)
-			suite.NoError(err)
+			suite.NoError(err, "Reservice %s not found", reservice.Code)
 		}
 
 	})
