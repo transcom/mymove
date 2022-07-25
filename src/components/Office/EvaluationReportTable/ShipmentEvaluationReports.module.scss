@@ -2,12 +2,13 @@
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
 
-.gridContainer {
-  display: flex;
-  flex-direction: column;
-  row-gap: 63px;
-}
-
-h2 {
-  @include u-margin-top(0);
+.shipmentEvaluationReportsContainer {
+  h2 {
+    @include u-margin-top(0);
+  }
+  .shipmentReportRows {
+    display: flex;
+    flex-direction: column;
+    row-gap: 63px;
+  }
 }
