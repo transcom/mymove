@@ -159,13 +159,20 @@ const ShipmentForm = ({
   const editOrdersRoute = isTOO ? tooRoutes.ORDERS_EDIT_PATH : servicesCounselingRoutes.ORDERS_EDIT_PATH;
   const editOrdersPath = generatePath(editOrdersRoute, { moveCode });
 
+  let updateMTOShipmentPayload = {
+    moveTaskOrderID,
+    shipmentID: mtoShipment.id,
+    ifMatchETag: mtoShipment.eTag,
+    normalize: false,
+  };
+
   const submitMTOShipment = (formValues) => {
     if (isPPM) {
       const ppmShipment = formatPpmShipmentForAPI(formValues);
 
-      if (isCreatePage) {
-        const body = { ...ppmShipment, moveTaskOrderID };
-        submitHandler({ body, normalize: false })
+      if (!isAdvancePage) {
+        updateMTOShipmentPayload.body = { ...ppmShipment };
+        submitHandler(updateMTOShipmentPayload)
           .then((newShipment) => {
             const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
               moveCode,
@@ -232,7 +239,7 @@ const ShipmentForm = ({
       destinationType,
     });
 
-    const updateMTOShipmentPayload = {
+    updateMTOShipmentPayload = {
       moveTaskOrderID,
       shipmentID: mtoShipment.id,
       ifMatchETag: mtoShipment.eTag,
@@ -240,7 +247,7 @@ const ShipmentForm = ({
       body: pendingMtoShipment,
     };
 
-    if (isCreatePage) {
+    if (isCreatePage && shipmentType !== SHIPMENT_OPTIONS.PPM) {
       const body = { ...pendingMtoShipment, moveTaskOrderID };
       submitHandler({ body, normalize: false })
         .then(() => {
