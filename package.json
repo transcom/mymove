@@ -69,7 +69,7 @@
     "redux-thunk": "^2.4.1",
     "regenerator-runtime": "^0.13.9",
     "reselect": "^4.1.5",
-    "sass": "^1.49.9",
+    "sass": "^1.54.0",
     "swagger-client": "^3.18.5",
     "swagger-ui-dist": "^4.12.0",
     "uswds": "2.13.1",
