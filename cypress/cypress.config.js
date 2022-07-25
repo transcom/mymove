@@ -1,6 +1,6 @@
 const { defineConfig } = require('cypress');
-const mochaConfig = require('mocha-reporter-config.json');
-const setupNodeEvents = require('./cypress/plugins/index.js');
+const mochaConfig = require('./mocha-reporter-config.json');
+const setupNodeEvents = require('./plugins');
 // NOTE: THIS FILE IS A WORK IN PROGRESS
 module.exports = defineConfig({
   // setupNodeEvents can be defined in either
