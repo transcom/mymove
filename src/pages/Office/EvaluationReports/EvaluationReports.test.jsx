@@ -98,7 +98,11 @@ describe('EvaluationReports', () => {
         showDeleteSuccess: true,
       });
 
-      render(<EvaluationReports />);
+      render(
+        <MockProviders>
+          <EvaluationReports />
+        </MockProviders>,
+      );
 
       const alert = await screen.getByText(/Your report has been canceled/);
       expect(alert).toBeInTheDocument();
