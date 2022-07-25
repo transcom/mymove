@@ -22,6 +22,9 @@ h4 {
 }
 small {
   color: $base-dark;
+  svg {
+    @include u-margin-x(1);
+  }
 }
 .shipmentInfo {
   @include u-margin-bottom(3);
