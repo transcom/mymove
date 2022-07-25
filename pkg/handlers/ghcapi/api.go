@@ -86,13 +86,18 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.MoveGetMoveCounselingEvaluationReportsListHandler = GetCounselingEvaluationReportsHandler{
-		HandlerConfig:               handlerConfig,
-		EvaluationReportListFetcher: evaluationreport.NewEvaluationReportListFetcher(),
+		HandlerConfig:           handlerConfig,
+		EvaluationReportFetcher: evaluationreport.NewEvaluationReportFetcher(),
 	}
 
 	ghcAPI.MoveGetMoveShipmentEvaluationReportsListHandler = GetShipmentEvaluationReportsHandler{
-		HandlerConfig:               handlerConfig,
-		EvaluationReportListFetcher: evaluationreport.NewEvaluationReportListFetcher(),
+		HandlerConfig:           handlerConfig,
+		EvaluationReportFetcher: evaluationreport.NewEvaluationReportFetcher(),
+	}
+
+	ghcAPI.EvaluationReportsGetEvaluationReportHandler = GetEvaluationReportHandler{
+		HandlerConfig:           handlerConfig,
+		EvaluationReportFetcher: evaluationreport.NewEvaluationReportFetcher(),
 	}
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
@@ -216,6 +221,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		mtoshipment.NewMTOShipmentFetcher(),
 		shipmentSITStatus,
+	}
+
+	ghcAPI.MtoShipmentGetShipmentHandler = GetMTOShipmentHandler{
+		HandlerConfig:      handlerConfig,
+		mtoShipmentFetcher: mtoshipment.NewMTOShipmentFetcher(),
 	}
 
 	ghcAPI.ShipmentDeleteShipmentHandler = DeleteShipmentHandler{

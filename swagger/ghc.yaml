@@ -754,6 +754,36 @@ paths:
       operationId: listMTOShipments
       summary: Gets all shipments for a move task order
   /shipments/{shipmentID}:
+    get:
+      summary: fetches a shipment by ID
+      description: fetches a shipment by ID
+      operationId: getShipment
+      tags:
+        - mtoShipment
+      produces:
+        - application/json
+      parameters:
+        - description: ID of the shipment to be fetched
+          in: path
+          name: shipmentID
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: Successfully fetched the shipment
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
     delete:
       summary: Soft deletes a shipment by ID
       description: Soft deletes a shipment by ID
@@ -1887,6 +1917,27 @@ paths:
         required: true
         type: string
         format: uuid
+    get:
+      summary: Gets an evaluation report by ID
+      description: Gets an evaluation report by ID
+      operationId: getEvaluationReport
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully got the report
+          schema:
+            $ref: '#/definitions/EvaluationReport'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
     delete:
       summary: Soft deletes an evaluation report by ID
       description: Soft deletes an evaluation report by ID
@@ -4474,6 +4525,10 @@ definitions:
       remarks:
         type: string
         x-nullable: true
+      moveReferenceID:
+        type: string
+        x-nullable: true
+        readOnly: true
       submittedAt:
         type: string
         format: date-time

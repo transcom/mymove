@@ -51,6 +51,10 @@ type EvaluationReport struct {
 	// Format: uuid
 	MoveID strfmt.UUID `json:"moveID,omitempty"`
 
+	// move reference ID
+	// Read Only: true
+	MoveReferenceID *string `json:"moveReferenceID,omitempty"`
+
 	// observed date
 	// Format: date-time
 	ObservedDate *strfmt.DateTime `json:"observedDate,omitempty"`
@@ -311,6 +315,10 @@ func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.R
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateMoveReferenceID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -348,6 +356,15 @@ func (m *EvaluationReport) contextValidateLocation(ctx context.Context, formats 
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateMoveReferenceID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "moveReferenceID", "body", m.MoveReferenceID); err != nil {
+		return err
 	}
 
 	return nil

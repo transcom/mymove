@@ -414,6 +414,37 @@ func init() {
       }
     },
     "/evaluation-reports/{reportID}": {
+      "get": {
+        "description": "Gets an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Gets an evaluation report by ID",
+        "operationId": "getEvaluationReport",
+        "responses": {
+          "200": {
+            "description": "Successfully got the report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "delete": {
         "description": "Soft deletes an evaluation report by ID",
         "produces": [
@@ -2863,6 +2894,50 @@ func init() {
       }
     },
     "/shipments/{shipmentID}": {
+      "get": {
+        "description": "fetches a shipment by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "fetches a shipment by ID",
+        "operationId": "getShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment to be fetched",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched the shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "delete": {
         "description": "Soft deletes a shipment by ID",
         "produces": [
@@ -4567,6 +4642,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveReferenceID": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "observedDate": {
           "type": "string",
@@ -8067,6 +8147,49 @@ func init() {
       }
     },
     "/evaluation-reports/{reportID}": {
+      "get": {
+        "description": "Gets an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Gets an evaluation report by ID",
+        "operationId": "getEvaluationReport",
+        "responses": {
+          "200": {
+            "description": "Successfully got the report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Soft deletes an evaluation report by ID",
         "produces": [
@@ -11114,6 +11237,65 @@ func init() {
       }
     },
     "/shipments/{shipmentID}": {
+      "get": {
+        "description": "fetches a shipment by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "fetches a shipment by ID",
+        "operationId": "getShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment to be fetched",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched the shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Soft deletes a shipment by ID",
         "produces": [
@@ -13015,6 +13197,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveReferenceID": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "observedDate": {
           "type": "string",

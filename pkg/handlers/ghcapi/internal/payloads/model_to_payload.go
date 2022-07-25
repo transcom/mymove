@@ -178,6 +178,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		TravelTimeMinutes:       handlers.FmtIntPtrToInt64(evaluationReport.TravelTimeMinutes),
 		Type:                    reportType,
 		ViolationsObserved:      evaluationReport.ViolationsObserved,
+		MoveReferenceID:         evaluationReport.Move.ReferenceID,
 	}
 	return payload
 }
