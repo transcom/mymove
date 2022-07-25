@@ -18,11 +18,11 @@ module.exports = defineConfig({
       pwa: 50,
     },
   },
-  component: {
-    devServer: {
-      framework: 'react', // or vue
-      bundler: 'mocha',
-      mochaConfig,
-    },
+  reporter: 'cypress-multi-reporters',
+  reporterOptions: {
+    configFile: 'mocha-reporter-config.json',
   },
+  viewportWidth: 1440,
+  viewportHeight: 900,
+  videoUploadOnPasses: false,
 });
