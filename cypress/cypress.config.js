@@ -9,6 +9,15 @@ module.exports = defineConfig({
     setupNodeEvents,
     baseUrl: 'http://milmovelocal:4000',
   },
+  lighthouse: {
+    thresholds: {
+      performance: 85,
+      accessibility: 50,
+      'best-practices': 85,
+      seo: 85,
+      pwa: 50,
+    },
+  },
   component: {
     devServer: {
       framework: 'react', // or vue
