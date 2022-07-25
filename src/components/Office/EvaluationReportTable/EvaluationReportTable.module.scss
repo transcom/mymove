@@ -25,6 +25,10 @@
     border-bottom-width: 0px;
   }
 
+  .draftTag {
+    background-color: $base-lighter;
+  }
+
   // The table will be displayed multiple times on the same
   // page, and we want all of the columns to line up, so we're
   // giving each of them a fixed width.
