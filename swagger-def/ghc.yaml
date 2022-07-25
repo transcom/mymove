@@ -1810,6 +1810,66 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/moves/shipment-evaluation-reports':
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateShipmentEvaluationReport'
+      responses:
+        '200':
+          description: Successfully created shipment evaluation report
+          schema:
+            $ref: '#/definitions/EvaluationReport'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - evaluationReports
+      description: Creates a shipment evaluation report
+      operationId: createEvaluationReportForShipment
+      summary: Creates a shipment evaluation report
+  '/evaluation-reports/{reportID}':
+    parameters:
+      - in: path
+        description: the evaluation report ID to be modified
+        name: reportID
+        required: true
+        type: string
+        format: uuid
+    delete:
+      summary: Soft deletes an evaluation report by ID
+      description: Soft deletes an evaluation report by ID
+      operationId: deleteEvaluationReport
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: Successfully soft deleted the report
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/moves/{locator}/payment-requests':
     parameters:
       - description: move code to identify a move for payment requests
@@ -2319,7 +2379,6 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
-
   '/tac/valid':
     get:
       summary: Validation of a TAC value
@@ -4219,6 +4278,75 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/EvaluationReportListItem'
+  EvaluationReport:
+    type: object
+    description: An evaluation report
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      shipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        x-nullable: true
+      type:
+        $ref: '#/definitions/EvaluationReportType'
+      inspectionType:
+        $ref: '#/definitions/EvaluationReportInspectionType'
+        x-nullable: true
+      inspectionDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      travelTimeMinutes:
+        type: integer
+        minimum: 0
+        x-nullable: true
+      location:
+        $ref: '#/definitions/EvaluationReportLocation'
+        x-nullable: true
+      locationDescription:
+        type: string
+        example: asdfasdfsd
+        x-nullable: true
+      observedDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      evaluationLengthMinutes:
+        type: integer
+        minimum: 0
+        x-nullable: true
+      violationsObserved:
+        type: boolean
+        x-nullable: true
+      remarks:
+        type: string
+        x-nullable: true
+      submittedAt:
+        type: string
+        format: date-time
+        x-nullable: true
+      createdAt:
+        type: string
+        format: date-time
+  CreateShipmentEvaluationReport:
+    type: object
+    description: 'todo: add description'
+    required:
+      - shipmentID
+    properties:
+      shipmentID:
+        description: The shipment ID of the shipment to be evaluated in the report
+        example: 01b9671e-b268-4906-967b-ba661a1d3933
+        format: uuid
+        type: string
 responses:
   InvalidRequest:
     description: The request payload is invalid
