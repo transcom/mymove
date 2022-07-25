@@ -79,8 +79,8 @@ github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef/go.mod h1:W
 github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d h1:Byv0BzEl3/e6D5CLfI0j/7hiIEtvGVFPCZ7Ei2oq8iQ=
 github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d/go.mod h1:WaHUgvxTVq04UNunO+XhnAqY/wQc+bxr74GqbsZ/Jqw=
 github.com/atomicgo/cursor v0.0.1/go.mod h1:cBON2QmmrysudxNBFthvMtN32r3jxVRIvzkUiF/RuIk=
-github.com/aws/aws-sdk-go v1.44.36 h1:zeHQau9fGEIE0CsBnQFCqqYWc98m2bk7BQKtkdEqzF4=
-github.com/aws/aws-sdk-go v1.44.36/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
+github.com/aws/aws-sdk-go v1.44.60 h1:KTTogelVR+4dWiIPl7eyxoxaJkziChON6/Y/hVfTipk=
+github.com/aws/aws-sdk-go v1.44.60/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
 github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuPk=
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
@@ -798,8 +798,8 @@ go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.32
 go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.32.0/go.mod h1:bocgccAIT/xbRn5l+86i+om91IMTTjBBzA1+vRXW3DY=
 go.opentelemetry.io/contrib/instrumentation/runtime v0.32.0 h1:eMQf85EgNd2YWEikRJwEy4ADOiwlIum4rcHcssB4Qzk=
 go.opentelemetry.io/contrib/instrumentation/runtime v0.32.0/go.mod h1:qtaLlIO4HC4DfedkYTOrvS2u7nA3N/v8w9mehrBD4O8=
-go.opentelemetry.io/contrib/propagators/aws v1.7.0 h1:hzLtX+K4YhsrBabA35uBYxCENb5rS/9Z9X8MToTlA3k=
-go.opentelemetry.io/contrib/propagators/aws v1.7.0/go.mod h1:h/ql5T6e1XLRFplWNNdzLHp8eb0dkBu+xYOCYxerh0Q=
+go.opentelemetry.io/contrib/propagators/aws v1.8.0 h1:Ky4pY6IKdGPPSEv/ffkA1/LRBIpz4ohhuOhrk545YQk=
+go.opentelemetry.io/contrib/propagators/aws v1.8.0/go.mod h1:0ptHDgrpjxekjXayHNG0fTUdFnehgJVQlDk4P7hfDKM=
 go.opentelemetry.io/otel v1.6.0/go.mod h1:bfJD2DZVw0LBxghOTlgnlI0CV3hLDu9XF/QKOUXMTQQ=
 go.opentelemetry.io/otel v1.6.2/go.mod h1:MUBZHaB2cm6CahEBHQPq9Anos7IXynP/noVpjsxQTSc=
 go.opentelemetry.io/otel v1.7.0/go.mod h1:5BdUoMIz5WEs0vt0CUEMtSSaTSHBBVwrhnz7+nrD5xk=
