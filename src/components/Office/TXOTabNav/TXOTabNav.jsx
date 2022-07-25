@@ -60,8 +60,8 @@ const TXOTabNav = ({
             <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/customer-support-remarks`}>
               <span className="tab-title">Customer support remarks</span>
             </NavLink>,
-            <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/evaluation-reports`}>
-              <span className="tab-title">Quality assurance</span>
+            <NavLink activeClassName="usa-current" to={`/moves/${moveCode}/evaluation-reports`}>
+              <span className="tab-title">Quality assurance report</span>
             </NavLink>,
             <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/history`}>
               <span className="tab-title">Move history</span>
