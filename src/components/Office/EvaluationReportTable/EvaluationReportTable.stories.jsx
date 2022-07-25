@@ -2,9 +2,12 @@ import React from 'react';
 
 import EvaluationReportTable from './EvaluationReportTable';
 
+import { MockProviders } from 'testUtils';
+
 export default {
   title: 'Office Components/EvaluationReportTable',
   component: EvaluationReportTable,
+  decorators: [(Story) => <MockProviders>{Story()}</MockProviders>],
 };
 
 const reports = [

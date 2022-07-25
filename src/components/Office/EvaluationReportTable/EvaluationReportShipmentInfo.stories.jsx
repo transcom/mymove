@@ -3,10 +3,12 @@ import React from 'react';
 import EvaluationReportShipmentInfo from './EvaluationReportShipmentInfo';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { MockProviders } from 'testUtils';
 
 export default {
   title: 'Office Components/EvaluationReportShipmentInfo',
   component: EvaluationReportShipmentInfo,
+  decorators: [(Story) => <MockProviders>{Story()}</MockProviders>],
 };
 
 const hhgShipment = {
