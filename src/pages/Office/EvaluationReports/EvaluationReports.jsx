@@ -36,12 +36,19 @@ const EvaluationReports = () => {
             <Button>Create report</Button>
           </Grid>
           <Grid row>
-            <EvaluationReportTable reports={counselingEvaluationReports} />
+            <EvaluationReportTable
+              reports={counselingEvaluationReports}
+              emptyText="No QAE reports have been submitted for counseling."
+            />
           </Grid>
         </GridContainer>
         <GridContainer className={evaluationReportsStyles.evaluationReportSection}>
           <Grid row>
-            <ShipmentEvaluationReports reports={shipmentEvaluationReports} shipments={shipments} />
+            <ShipmentEvaluationReports
+              reports={shipmentEvaluationReports}
+              shipments={shipments}
+              emptyText="No QAE reports have been submitted for this shipment"
+            />
           </Grid>
         </GridContainer>
       </GridContainer>

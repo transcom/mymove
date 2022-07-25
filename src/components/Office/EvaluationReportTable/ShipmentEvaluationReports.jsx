@@ -13,7 +13,10 @@ const ShipmentEvaluationReports = ({ shipments, reports }) => {
     return (
       <div key={shipment.id} className={styles.shipmentRow}>
         <EvaluationReportShipmentInfo shipment={shipment} />
-        <EvaluationReportTable reports={reports.filter((r) => r.shipmentID === shipment.id)} />
+        <EvaluationReportTable
+          reports={reports.filter((r) => r.shipmentID === shipment.id)}
+          emptyText="No QAE reports have been submitted for this shipment."
+        />
       </div>
     );
   });

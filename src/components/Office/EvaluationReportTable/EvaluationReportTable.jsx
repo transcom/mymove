@@ -7,7 +7,7 @@ import styles from './EvaluationReportTable.module.scss';
 import { formatCustomerDate, formatEvaluationReportLocation, formatQAReportID } from 'utils/formatters';
 import { EvaluationReportShape } from 'types/evaluationReport';
 
-const EvaluationReportTable = ({ reports }) => {
+const EvaluationReportTable = ({ reports, emptyText }) => {
   const row = (report) => {
     return (
       <tr key={report.id}>
@@ -30,7 +30,7 @@ const EvaluationReportTable = ({ reports }) => {
   let tableRows = (
     <tr className={styles.emptyTableRow}>
       <td className={styles.emptyTableRow} colSpan={7}>
-        No QAE reports have been submitted for this shipment
+        {emptyText}
       </td>
     </tr>
   );
@@ -58,6 +58,7 @@ const EvaluationReportTable = ({ reports }) => {
 
 EvaluationReportTable.propTypes = {
   reports: PropTypes.arrayOf(EvaluationReportShape),
+  emptyText: PropTypes.string.isRequired,
 };
 
 EvaluationReportTable.defaultProps = {
