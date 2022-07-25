@@ -54,6 +54,12 @@ const (
 	PPMDocumentStatusRejected PPMDocumentStatus = "REJECTED"
 )
 
+var AllowedPPMDocumentStatuses = []string{
+	string(PPMDocumentStatusApproved),
+	string(PPMDocumentStatusExcluded),
+	string(PPMDocumentStatusRejected),
+}
+
 // PPMShipment is the portion of a move that a service member performs themselves
 type PPMShipment struct {
 	ID                             uuid.UUID         `json:"id" db:"id"`

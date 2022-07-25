@@ -14,22 +14,10 @@ import (
 func (suite *ModelSuite) TestMovingExpenseValidation() {
 	blankExpenseType := models.MovingExpenseReceiptType("")
 	blankStatusType := models.PPMDocumentStatus("")
-	validExpenseTypes := strings.Join([]string{
-		string(models.MovingExpenseReceiptTypeContractedExpense),
-		string(models.MovingExpenseReceiptTypeOil),
-		string(models.MovingExpenseReceiptTypePackingMaterials),
-		string(models.MovingExpenseReceiptTypeRentalEquipment),
-		string(models.MovingExpenseReceiptTypeStorage),
-		string(models.MovingExpenseReceiptTypeTolls),
-		string(models.MovingExpenseReceiptTypeWeighingFees),
-		string(models.MovingExpenseReceiptTypeOther),
-	}, ", ")
 
-	validStatuses := strings.Join([]string{
-		string(models.PPMDocumentStatusApproved),
-		string(models.PPMDocumentStatusExcluded),
-		string(models.PPMDocumentStatusRejected),
-	}, ", ")
+	validExpenseTypes := strings.Join(models.AllowedExpenseTypes, ", ")
+
+	validStatuses := strings.Join(models.AllowedPPMDocumentStatuses, ", ")
 
 	testCases := map[string]struct {
 		movingExpense models.MovingExpense

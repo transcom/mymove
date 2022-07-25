@@ -33,6 +33,17 @@ const (
 	MovingExpenseReceiptTypeOther MovingExpenseReceiptType = "OTHER"
 )
 
+var AllowedExpenseTypes = []string{
+	string(MovingExpenseReceiptTypeContractedExpense),
+	string(MovingExpenseReceiptTypeOil),
+	string(MovingExpenseReceiptTypePackingMaterials),
+	string(MovingExpenseReceiptTypeRentalEquipment),
+	string(MovingExpenseReceiptTypeStorage),
+	string(MovingExpenseReceiptTypeTolls),
+	string(MovingExpenseReceiptTypeWeighingFees),
+	string(MovingExpenseReceiptTypeOther),
+}
+
 type MovingExpense struct {
 	ID                uuid.UUID                 `json:"id" db:"id"`
 	PPMShipmentID     uuid.UUID                 `json:"ppm_shipment_id" db:"ppm_shipment_id"`
@@ -59,38 +70,13 @@ type MovingExpenses []MovingExpense
 // pop.ValidateAndUpdate) method. This should contain validation that is for data integrity. Business validation should
 // occur in service objects.
 func (m *MovingExpense) Validate(_ *pop.Connection) (*validate.Errors, error) {
-	var movingExpenseType *string
-
-	if m.MovingExpenseType != nil {
-		movingExpenseType = StringPointer(string(*m.MovingExpenseType))
-	}
-
-	var status *string
-
-	if m.Status != nil {
-		status = StringPointer(string(*m.Status))
-	}
-
 	return validate.Validate(
 		&validators.UUIDIsPresent{Name: "PPMShipmentID", Field: m.PPMShipmentID},
 		&validators.UUIDIsPresent{Name: "DocumentID", Field: m.DocumentID},
 		&OptionalTimeIsPresent{Name: "DeletedAt", Field: m.DeletedAt},
-		&OptionalStringInclusion{Name: "MovingExpenseType", Field: movingExpenseType, List: []string{
-			string(MovingExpenseReceiptTypeContractedExpense),
-			string(MovingExpenseReceiptTypeOil),
-			string(MovingExpenseReceiptTypePackingMaterials),
-			string(MovingExpenseReceiptTypeRentalEquipment),
-			string(MovingExpenseReceiptTypeStorage),
-			string(MovingExpenseReceiptTypeTolls),
-			string(MovingExpenseReceiptTypeWeighingFees),
-			string(MovingExpenseReceiptTypeOther),
-		}},
+		&OptionalStringInclusion{Name: "MovingExpenseType", Field: (*string)(m.MovingExpenseType), List: AllowedExpenseTypes},
 		&StringIsNilOrNotBlank{Name: "Description", Field: m.Description},
-		&OptionalStringInclusion{Name: "Status", Field: status, List: []string{
-			string(PPMDocumentStatusApproved),
-			string(PPMDocumentStatusExcluded),
-			string(PPMDocumentStatusRejected),
-		}},
+		&OptionalStringInclusion{Name: "Status", Field: (*string)(m.Status), List: AllowedPPMDocumentStatuses},
 		&StringIsNilOrNotBlank{Name: "Reason", Field: m.Reason},
 		&OptionalTimeIsPresent{Name: "SITStartDate", Field: m.SITStartDate},
 		&OptionalTimeIsPresent{Name: "SITEndDate", Field: m.SITEndDate},
