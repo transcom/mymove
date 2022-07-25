@@ -22,10 +22,10 @@ const ShipmentEvaluationReports = ({ shipments, reports }) => {
   });
 
   return (
-    <>
+    <div className={styles.shipmentEvaluationReportsContainer}>
       <h2>Shipment QAE reports ({reports.length})</h2>
-      <div className={styles.gridContainer}>{shipmentRows}</div>
-    </>
+      <div className={styles.shipmentReportRows}>{shipmentRows}</div>
+    </div>
   );
 };
 
