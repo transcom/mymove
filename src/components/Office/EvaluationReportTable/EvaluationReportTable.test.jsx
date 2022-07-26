@@ -28,7 +28,7 @@ describe('EvaluationReportTable', () => {
   it('renders empty table', () => {
     render(
       <MockProviders>
-        <EvaluationReportTable reports={[]} />
+        <EvaluationReportTable reports={[]} emptyText="no reports for this" />
       </MockProviders>,
     );
     expect(screen.getByText('Report ID')).toBeInTheDocument();
@@ -36,12 +36,12 @@ describe('EvaluationReportTable', () => {
     expect(screen.getByText('Location')).toBeInTheDocument();
     expect(screen.getByText('Violations')).toBeInTheDocument();
     expect(screen.getByText('Serious Incident')).toBeInTheDocument();
-    expect(screen.getByText('No QAE reports have been submitted for this shipment')).toBeInTheDocument();
+    expect(screen.getByText('no reports for this')).toBeInTheDocument();
   });
   it('renders table with a draft report', () => {
     render(
       <MockProviders>
-        <EvaluationReportTable reports={[draftReport]} />
+        <EvaluationReportTable reports={[draftReport]} emptyText="no reports for this" />
       </MockProviders>,
     );
     expect(screen.getByText('Report ID')).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe('EvaluationReportTable', () => {
     expect(screen.getByText('Location')).toBeInTheDocument();
     expect(screen.getByText('Violations')).toBeInTheDocument();
     expect(screen.getByText('Serious Incident')).toBeInTheDocument();
-    expect(screen.queryByText('No QAE reports have been submitted for this shipment')).not.toBeInTheDocument();
+    expect(screen.queryByText('no reports for this')).not.toBeInTheDocument();
 
     expect(screen.getByTestId('tag')).toHaveTextContent('DRAFT');
 
@@ -60,7 +60,7 @@ describe('EvaluationReportTable', () => {
   it('renders table with a submitted report', () => {
     render(
       <MockProviders>
-        <EvaluationReportTable reports={[submittedReport]} />
+        <EvaluationReportTable reports={[submittedReport]} emptyText="no reports for this" />
       </MockProviders>,
     );
     expect(screen.getByText('Report ID')).toBeInTheDocument();
@@ -69,7 +69,7 @@ describe('EvaluationReportTable', () => {
     expect(screen.getByText('Violations')).toBeInTheDocument();
     expect(screen.getByText('Serious Incident')).toBeInTheDocument();
 
-    expect(screen.queryByText('No QAE reports have been submitted for this shipment')).not.toBeInTheDocument();
+    expect(screen.queryByText('no reports for this')).not.toBeInTheDocument();
     expect(screen.queryByTestId('tag')).not.toBeInTheDocument();
 
     expect(screen.getByText('#QA-A7FDB')).toBeInTheDocument();

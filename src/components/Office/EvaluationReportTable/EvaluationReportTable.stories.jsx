@@ -45,12 +45,12 @@ const reports = [
 
 export const empty = () => (
   <div className="officeApp">
-    <EvaluationReportTable reports={[]} />
+    <EvaluationReportTable reports={[]} emptyText="No QAE reports have been submitted for this shipment." />
   </div>
 );
 
 export const single = () => (
   <div className="officeApp">
-    <EvaluationReportTable reports={reports} />
+    <EvaluationReportTable reports={reports} emptyText="No QAE reports have been submitted for this shipment." />
   </div>
 );
