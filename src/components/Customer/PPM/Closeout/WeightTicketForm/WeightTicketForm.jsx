@@ -45,8 +45,8 @@ const validationSchema = Yup.object().shape({
   trailerMeetsCriteria: Yup.boolean(),
   proofOfTrailerOwnershipDocument: Yup.array()
     .of(uploadShape)
-    .when('trailerMeetsCriteria', (trailerMeetsCriteria, schema) => {
-      return trailerMeetsCriteria ? schema.min(1, 'At least one upload is required') : schema;
+    .when(['ownsTrailer', 'trailerMeetsCriteria'], (ownsTrailer, trailerMeetsCriteria, schema) => {
+      return ownsTrailer && trailerMeetsCriteria ? schema.min(1, 'At least one upload is required') : schema;
     }),
 });
 
