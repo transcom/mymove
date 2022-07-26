@@ -28,6 +28,7 @@ describe('DeleteEvaluationReportConfirmationModal', () => {
     userEvent.click(closeButton);
 
     expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it('closes the modal when the keep button is clicked', async () => {
@@ -38,6 +39,7 @@ describe('DeleteEvaluationReportConfirmationModal', () => {
     userEvent.click(keepButton);
 
     expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it('calls the submit function when delete button is clicked', async () => {
@@ -48,5 +50,6 @@ describe('DeleteEvaluationReportConfirmationModal', () => {
     userEvent.click(deleteButton);
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onClose).not.toHaveBeenCalled();
   });
 });
