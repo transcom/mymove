@@ -7,9 +7,6 @@ import ConnectedDeleteEvaluationReportConfirmationModal, {
 export default {
   title: 'Components/DeleteEvaluationReportConfirmationModal',
   component: DeleteEvaluationReportConfirmationModal,
-  // args: {
-  //   customerSupportRemarkID: '111',
-  // },
   argTypes: {
     closeModal: { action: 'close button clicked' },
     submitModal: { action: 'submit button clicked' },
