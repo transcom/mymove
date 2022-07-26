@@ -4206,7 +4206,7 @@ func init() {
       }
     },
     "CreateShipmentEvaluationReport": {
-      "description": "todo: add description",
+      "description": "Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.",
       "type": "object",
       "required": [
         "shipmentID"
@@ -4561,7 +4561,7 @@ func init() {
         "locationDescription": {
           "type": "string",
           "x-nullable": true,
-          "example": "asdfasdfsd"
+          "example": "Route 66 at crash inspection site 3"
         },
         "moveID": {
           "type": "string",
@@ -12653,7 +12653,7 @@ func init() {
       }
     },
     "CreateShipmentEvaluationReport": {
-      "description": "todo: add description",
+      "description": "Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.",
       "type": "object",
       "required": [
         "shipmentID"
@@ -13009,7 +13009,7 @@ func init() {
         "locationDescription": {
           "type": "string",
           "x-nullable": true,
-          "example": "asdfasdfsd"
+          "example": "Route 66 at crash inspection site 3"
         },
         "moveID": {
           "type": "string",

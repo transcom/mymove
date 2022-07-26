@@ -43,7 +43,7 @@ type EvaluationReport struct {
 	Location *EvaluationReportLocation `json:"location,omitempty"`
 
 	// location description
-	// Example: asdfasdfsd
+	// Example: Route 66 at crash inspection site 3
 	LocationDescription *string `json:"locationDescription,omitempty"`
 
 	// move ID

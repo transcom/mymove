@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// CreateShipmentEvaluationReport todo: add description
+// CreateShipmentEvaluationReport Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.
 //
 // swagger:model CreateShipmentEvaluationReport
 type CreateShipmentEvaluationReport struct {
