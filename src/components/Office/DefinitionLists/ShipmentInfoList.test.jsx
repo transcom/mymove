@@ -29,7 +29,7 @@ const info = {
     state: 'WA',
     postalCode: '98421',
   },
-  agents: [
+  mtoAgents: [
     {
       agentType: 'RELEASING_AGENT',
       firstName: 'Quinn',
@@ -55,14 +55,14 @@ const labels = {
   secondaryPickupAddress: 'Second pickup address',
   destinationAddress: 'Destination address',
   secondaryDeliveryAddress: 'Second destination address',
-  agents: ['Releasing agent', 'Receiving agent'],
+  mtoAgents: ['Releasing agent', 'Receiving agent'],
   counselorRemarks: 'Counselor remarks',
   customerRemarks: 'Customer remarks',
 };
 
 describe('Shipment Info List', () => {
-  it('renders all fields when provided', () => {
-    render(<ShipmentInfoList shipment={info} />);
+  it('renders all fields when provided and expanded', () => {
+    render(<ShipmentInfoList isExpanded shipment={info} />);
 
     const requestedPickupDate = screen.getByText(labels.requestedPickupDate);
     expect(within(requestedPickupDate.parentElement).getByText('26 Mar 2020')).toBeInTheDocument();
@@ -93,11 +93,15 @@ describe('Shipment Info List', () => {
       }),
     ).toBeInTheDocument();
 
-    const releasingAgent = screen.getByText(labels.agents[0]);
-    expect(within(releasingAgent.parentElement).getByText(info.agents[0].email, { exact: false })).toBeInTheDocument();
+    const releasingAgent = screen.getByText(labels.mtoAgents[0]);
+    expect(
+      within(releasingAgent.parentElement).getByText(info.mtoAgents[0].email, { exact: false }),
+    ).toBeInTheDocument();
 
-    const receivingAgent = screen.getByText(labels.agents[1]);
-    expect(within(receivingAgent.parentElement).getByText(info.agents[1].email, { exact: false })).toBeInTheDocument();
+    const receivingAgent = screen.getByText(labels.mtoAgents[1]);
+    expect(
+      within(receivingAgent.parentElement).getByText(info.mtoAgents[1].email, { exact: false }),
+    ).toBeInTheDocument();
 
     const counselorRemarks = screen.getByText(labels.counselorRemarks);
     expect(within(counselorRemarks.parentElement).getByText(info.counselorRemarks)).toBeInTheDocument();
@@ -106,7 +110,7 @@ describe('Shipment Info List', () => {
     expect(within(customerRemarks.parentElement).getByText(info.customerRemarks)).toBeInTheDocument();
   });
 
-  it('does not render secondary addresses or agents when not provided', () => {
+  it('does not render secondary addresses or mtoAgents when not provided', async () => {
     render(
       <ShipmentInfoList
         shipment={{
@@ -117,9 +121,41 @@ describe('Shipment Info List', () => {
       />,
     );
 
+    expect(await screen.queryByText(labels.secondaryPickupAddress)).not.toBeInTheDocument();
+    expect(await screen.queryByText(labels.secondaryDeliveryAddress)).not.toBeInTheDocument();
+    expect(await screen.queryByText(labels.mtoAgents[0])).not.toBeInTheDocument();
+    expect(await screen.queryByText(labels.mtoAgents[1])).not.toBeInTheDocument();
+  });
+
+  it('renders appropriate fields when provided and collapsed', async () => {
+    render(<ShipmentInfoList isExpanded={false} shipment={info} />);
+
+    const requestedPickupDate = screen.getByText(labels.requestedPickupDate);
+    expect(within(requestedPickupDate.parentElement).getByText('26 Mar 2020')).toBeInTheDocument();
+
+    const pickupAddress = screen.getByText(labels.pickupAddress);
+    expect(
+      within(pickupAddress.parentElement).getByText(info.pickupAddress.streetAddress1, { exact: false }),
+    ).toBeInTheDocument();
+
     expect(screen.queryByText(labels.secondaryPickupAddress)).toBeNull();
+
+    const destinationAddress = screen.getByText(labels.destinationAddress);
+    expect(
+      within(destinationAddress.parentElement).getByText(info.destinationAddress.streetAddress1, {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
+
     expect(screen.queryByText(labels.secondaryDeliveryAddress)).toBeNull();
-    expect(screen.queryByText(labels.agents[0])).toBeNull();
-    expect(screen.queryByText(labels.agents[1])).toBeNull();
+
+    expect(await screen.queryByText(labels.mtoAgents[0])).not.toBeInTheDocument();
+    expect(await screen.queryByText(labels.mtoAgents[1])).not.toBeInTheDocument();
+
+    const counselorRemarks = screen.getByText(labels.counselorRemarks);
+    expect(within(counselorRemarks.parentElement).getByText(info.counselorRemarks)).toBeInTheDocument();
+
+    const customerRemarks = screen.getByText(labels.customerRemarks);
+    expect(within(customerRemarks.parentElement).getByText(info.customerRemarks)).toBeInTheDocument();
   });
 });
