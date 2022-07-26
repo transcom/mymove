@@ -36,9 +36,11 @@ const ShipmentInfoListSelector = ({
         <ShipmentInfoList
           className={className}
           shipment={shipment}
+          isExpanded={isExpanded}
           warnIfMissing={warnIfMissing}
           errorIfMissing={errorIfMissing}
           shipmentType={shipmentType}
+          showWhenCollapsed={showWhenCollapsed}
         />
       );
     case SHIPMENT_OPTIONS.NTSR:
