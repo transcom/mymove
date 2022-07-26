@@ -36,7 +36,7 @@ func (o evaluationReportDeleter) DeleteEvaluationReport(appCtx appcontext.AppCon
 	sessionUserID := appCtx.Session().OfficeUserID
 
 	if report.OfficeUserID != sessionUserID {
-		appCtx.Logger().Warn("Evaluation reports may only be edited by the user who created them.", zap.String("Evaluation Report ReportID", reportID.String()))
+		appCtx.Logger().Info("Evaluation reports may only be edited by the user who created them.", zap.String("Evaluation Report ReportID", reportID.String()))
 
 		return apperror.NewForbiddenError("Action not allowed")
 	}
