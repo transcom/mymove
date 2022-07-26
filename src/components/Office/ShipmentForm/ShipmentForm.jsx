@@ -128,7 +128,9 @@ const ShipmentForm = (props) => {
 
   const shipmentNumber = isHHG ? getShipmentNumber() : null;
   const initialValues = isPPM
-    ? formatPpmShipmentForDisplay(isCreatePage ? { userRole } : { userRole, ppmShipment: mtoShipment.ppmShipment })
+    ? formatPpmShipmentForDisplay(
+        isCreatePage ? {} : { counselorRemarks: mtoShipment.counselorRemarks, ppmShipment: mtoShipment.ppmShipment },
+      )
     : formatMtoShipmentForDisplay(
         isCreatePage
           ? { userRole, shipmentType }
