@@ -26,6 +26,11 @@
   @include u-padding-top(8);
 }
 
+.qaeAndCustomerInfo {
+  @include u-margin-left(36px);
+  @include u-margin-top(68px);
+}
+
 .cardContainer {
   @include u-padding-bottom(40px);
   @include u-bg('white');

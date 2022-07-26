@@ -12,12 +12,52 @@ import shipmentEvaluationReportStyles from './ShipmentEvaluationReport.module.sc
 import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
 import { deleteEvaluationReport } from 'services/ghcApi';
 import { SHIPMENT_EVALUATION_REPORTS } from 'constants/queryKeys';
+import { useShipmentEvaluationReportQueries } from 'hooks/queries';
+import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
+import { shipmentTypeLabels } from 'content/shipments';
+import DataTable from 'components/DataTable';
+import { CustomerShape } from 'types';
+import { OrdersShape } from 'types/customerShapes';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 
-const mtoRefId = 'TODO'; // move?.referenceId
-
-const ShipmentEvaluationReport = () => {
+const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
   const { moveCode, reportId } = useParams();
+  const { evaluationReport, mtoShipment } = useShipmentEvaluationReportQueries(reportId);
+  const mtoRefId = evaluationReport.moveReferenceID;
+
   const history = useHistory();
+
+  const customerInfoTableBody = (
+    <>
+      {customerInfo.last_name}, {customerInfo.first_name}
+      <br />
+      {customerInfo.phone}
+      <br />
+      {ORDERS_RANK_OPTIONS[orders.grade]}
+      <br />
+      {ORDERS_BRANCH_OPTIONS[customerInfo.agency] ? ORDERS_BRANCH_OPTIONS[customerInfo.agency] : customerInfo.agency}
+    </>
+  );
+
+  const officeUserInfoTableBody = (
+    <>
+      {customerInfo.last_name}, {customerInfo.first_name}
+      <br />
+      {customerInfo.phone}
+      <br />
+      {customerInfo.email}
+    </>
+  );
+
+  const shipmentDisplayInfo = (shipment) => {
+    return {
+      ...shipment,
+      heading: shipmentTypeLabels[shipment.shipmentType],
+      isDiversion: shipment.diversion,
+      shipmentStatus: shipment.status,
+      destinationAddress: shipment.destinationAddress || '-',
+    };
+  };
 
   const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport, {
     onSuccess: async () => {
@@ -50,22 +90,31 @@ const ShipmentEvaluationReport = () => {
       />
       <div className={classnames(styles.tabContent, shipmentEvaluationReportStyles.tabContent)}>
         <GridContainer>
-          <Grid row>
-            <Grid col desktop={{ col: 8, offset: 2 }}>
-              {/* {showDeletionSuccess && <Alert type="success">Your remark has been deleted.</Alert>} */}
-              <h1>Shipment report</h1>
-              <div className={styles.pageHeaderDetails}>
-                <h6>REPORT ID #{reportId}</h6>
-                <h6>MOVE CODE {moveCode}</h6>
-                <h6>MTO REFERENCE ID {mtoRefId}</h6>
-              </div>
-            </Grid>
-          </Grid>
+          <div className={styles.pageHeader}>
+            <h1>Evaluation report</h1>
+            <div className={styles.pageHeaderDetails}>
+              <h6>REPORT ID #{reportId}</h6>
+              <h6>MOVE CODE {moveCode}</h6>
+              <h6>MTO REFERENCE ID #{mtoRefId}</h6>
+            </div>
+          </div>
         </GridContainer>
         <GridContainer className={shipmentEvaluationReportStyles.cardContainer}>
           <Grid row>
-            <Grid col desktop={{ col: 8, offset: 2 }}>
+            <Grid col desktop={{ col: 8 }}>
               <h2>Shipment information</h2>
+              {mtoShipment.id && (
+                <ShipmentDisplay
+                  isSubmitted
+                  shipmentId={mtoShipment.id}
+                  displayInfo={shipmentDisplayInfo(mtoShipment)}
+                  shipmentType={mtoShipment.type}
+                />
+              )}
+            </Grid>
+            <Grid className={shipmentEvaluationReportStyles.qaeAndCustomerInfo} col desktop={{ col: 2 }}>
+              <DataTable columnHeaders={['Customer information']} dataRow={[customerInfoTableBody]} />
+              <DataTable columnHeaders={['QAE']} dataRow={[officeUserInfoTableBody]} />
             </Grid>
           </Grid>
         </GridContainer>
@@ -87,6 +136,11 @@ const ShipmentEvaluationReport = () => {
       </div>
     </>
   );
+};
+
+ShipmentEvaluationReport.propTypes = {
+  customerInfo: CustomerShape.isRequired,
+  orders: OrdersShape.isRequired,
 };
 
 export default ShipmentEvaluationReport;

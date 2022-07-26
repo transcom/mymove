@@ -4327,6 +4327,27 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+  EvaluationReportOfficeUser:
+    type: object
+    readOnly: true
+    description: The authoring office user for an evaluation report
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
   EvaluationReportList:
     type: array
     items:
@@ -4361,6 +4382,8 @@ definitions:
         type: integer
         minimum: 0
         x-nullable: true
+      officeUser:
+        $ref: '#/definitions/EvaluationReportOfficeUser'
       location:
         $ref: '#/definitions/EvaluationReportLocation'
         x-nullable: true

@@ -4653,6 +4653,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
+        },
         "remarks": {
           "type": "string",
           "x-nullable": true
@@ -4746,6 +4749,34 @@ func init() {
         "OTHER"
       ],
       "x-nullable": true
+    },
+    "EvaluationReportOfficeUser": {
+      "description": "The authoring office user for an evaluation report",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        }
+      },
+      "readOnly": true
     },
     "EvaluationReportType": {
       "type": "string",
@@ -13208,6 +13239,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
+        },
         "remarks": {
           "type": "string",
           "x-nullable": true
@@ -13302,6 +13336,34 @@ func init() {
         "OTHER"
       ],
       "x-nullable": true
+    },
+    "EvaluationReportOfficeUser": {
+      "description": "The authoring office user for an evaluation report",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        }
+      },
+      "readOnly": true
     },
     "EvaluationReportType": {
       "type": "string",

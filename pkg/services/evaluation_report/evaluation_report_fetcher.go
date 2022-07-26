@@ -45,7 +45,7 @@ func (f *evaluationReportFetcher) FetchEvaluationReports(appCtx appcontext.AppCo
 func (f *evaluationReportFetcher) FetchEvaluationReportByID(appCtx appcontext.AppContext, reportID uuid.UUID, officeUserID uuid.UUID) (*models.EvaluationReport, error) {
 	var report models.EvaluationReport
 	// Get the report by its ID, but don't return it if it's been soft-deleted.
-	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).EagerPreload("Move").Find(&report, reportID)
+	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).EagerPreload("Move", "OfficeUser").Find(&report, reportID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

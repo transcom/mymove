@@ -95,6 +95,10 @@ export async function getShipmentEvaluationReports(key, moveID) {
   );
 }
 
+export async function getEvaluationReportByID(key, reportID) {
+  return makeGHCRequest('evaluationReports.getEvaluationReport', { reportID }, { normalize: false });
+}
+
 export async function getCounselingEvaluationReports(key, moveID) {
   return makeGHCRequest(
     'move.getMoveCounselingEvaluationReportsList',
@@ -302,6 +306,10 @@ export function updateMTOShipmentRequestReweigh({
 export function createMTOShipment({ body, normalize = true, schemaKey = 'mtoShipment' }) {
   const operationPath = 'mtoShipment.createMTOShipment';
   return makeGHCRequest(operationPath, { body }, { schemaKey, normalize });
+}
+
+export async function getMTOShipmentByID(key, shipmentID) {
+  return makeGHCRequest('mtoShipment.getShipment', { shipmentID }, { schemaKey: 'mtoShipment', normalize: false });
 }
 
 export function updateMTOShipment({
