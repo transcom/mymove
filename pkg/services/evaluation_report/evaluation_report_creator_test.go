@@ -14,9 +14,7 @@ func (suite *EvaluationReportSuite) TestEvaluationReportCreator() {
 	suite.Run("Can create customer support report successfully", func() {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID: move.ID,
-			},
+			Move: move,
 		})
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		report := &models.EvaluationReport{ShipmentID: &shipment.ID, Type: models.EvaluationReportTypeShipment, OfficeUserID: officeUser.ID}

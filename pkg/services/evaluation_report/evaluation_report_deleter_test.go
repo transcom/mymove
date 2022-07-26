@@ -16,16 +16,13 @@ func (suite *EvaluationReportSuite) TestEvaluationReportDeleter() {
 		deleter := NewEvaluationReportDeleter()
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID: move.ID,
-			},
+			Move: move,
 		})
 		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
 		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				ShipmentID: &shipment.ID,
-				Type:       models.EvaluationReportTypeShipment, OfficeUserID: officeUser.ID,
-			},
+			OfficeUser:  officeUser,
+			MTOShipment: shipment,
+			Move:        move,
 		})
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: officeUser.ID,
