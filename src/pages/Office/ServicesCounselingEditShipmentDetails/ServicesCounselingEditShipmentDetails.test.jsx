@@ -1,12 +1,13 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingEditShipmentDetails from './ServicesCounselingEditShipmentDetails';
 
 import { updateMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries } from 'hooks/queries';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 
 const mockPush = jest.fn();
 
@@ -129,7 +130,7 @@ const useEditShipmentQueriesReturnValue = {
       scheduledPickupDate: '2018-03-16',
       requestedDeliveryDate: '2018-04-15',
       scheduledDeliveryDate: '2014-04-16',
-      shipmentType: 'HHG',
+      shipmentType: SHIPMENT_OPTIONS.HHG,
       status: 'SUBMITTED',
       updatedAt: '2020-06-10T15:58:02.404031Z',
     },
@@ -137,6 +138,25 @@ const useEditShipmentQueriesReturnValue = {
   isLoading: false,
   isError: false,
   isSuccess: true,
+};
+
+const ppmShipment = {
+  id: 'shipment123',
+  shipmentType: SHIPMENT_OPTIONS.PPM,
+  status: MOVE_STATUSES.SUBMITTED,
+  updatedAt: '2020-09-02T21:08:38.392Z',
+  ppmShipment: {
+    expectedDepartureDate: '2022-06-28',
+    actualMoveDate: '2022-05-11',
+    pickupPostalCode: '90210',
+    secondaryPickupPostalCode: '90002',
+    destinationPostalCode: '10108',
+    secondaryDestinationPostalCode: '79329',
+    sitExpected: false,
+    estimatedWeight: 1111,
+    netWeight: 3333,
+    hasProGear: false,
+  },
 };
 
 const loadingReturnValue = {
@@ -245,6 +265,133 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
+    });
+  });
+
+  describe('editing PPMs', () => {
+    const ppmUseEditShipmentQueriesReturnValue = {
+      ...useEditShipmentQueriesReturnValue,
+      mtoShipments: [{ ...ppmShipment }],
+    };
+
+    it('renders the first page of the edit ppm Shipment Form with prefilled values', async () => {
+      useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
+      render(<ServicesCounselingEditShipmentDetails {...props} />);
+
+      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+      expect(await screen.getByRole('textbox', { name: 'Planned departure date' })).toHaveValue('28 Jun 2022');
+      expect(await screen.findByRole('textbox', { name: 'Origin ZIP' })).toHaveValue(
+        ppmShipment.ppmShipment.pickupPostalCode,
+      );
+      expect(await screen.findByRole('textbox', { name: 'Second origin ZIP' })).toHaveValue(
+        ppmShipment.ppmShipment.secondaryPickupPostalCode,
+      );
+      expect(await screen.findByRole('textbox', { name: 'Destination ZIP' })).toHaveValue(
+        ppmShipment.ppmShipment.destinationPostalCode,
+      );
+      expect(await screen.findByRole('textbox', { name: 'Second destination ZIP' })).toHaveValue(
+        ppmShipment.ppmShipment.secondaryDestinationPostalCode,
+      );
+      expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).not.toBeInTheDocument();
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).not.toBeInTheDocument();
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage end' })).not.toBeInTheDocument();
+      expect(await screen.findByRole('textbox', { name: 'Estimated PPM weight' })).toHaveValue('1,111');
+      expect(await screen.queryByRole('textbox', { name: 'Estimated pro-gear weight' })).not.toBeInTheDocument();
+      expect(await screen.queryByRole('textbox', { name: 'Estimated spouse pro-gear weight' })).not.toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Save and Continue' })).toBeInTheDocument();
+    });
+
+    it('Enables Save and Continue button when sit required fields are filled in', async () => {
+      useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
+      render(<ServicesCounselingEditShipmentDetails {...props} />);
+
+      const sitExpected = document.getElementById('sitExpectedYes').parentElement;
+      const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
+      await userEvent.click(sitExpectedYes);
+      await userEvent.type(screen.getByLabelText('Estimated SIT weight'), '1234');
+      await userEvent.type(screen.getByLabelText('Estimated storage start'), '15 Jun 2022');
+      await userEvent.type(screen.getByLabelText('Estimated storage end'), '25 Jun 2022');
+      await userEvent.tab();
+
+      await waitFor(() => {
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+      });
+    });
+
+    it('marks SIT Estimated SIT weight as required when conditionally displayed', async () => {
+      useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
+      render(<ServicesCounselingEditShipmentDetails {...props} />);
+
+      const sitExpected = document.getElementById('sitExpectedYes').parentElement;
+      const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
+      await userEvent.click(sitExpectedYes);
+      await userEvent.click(screen.getByLabelText('Estimated SIT weight'));
+      await userEvent.type(screen.getByLabelText('Estimated storage start'), '15 Jun 2022');
+      await userEvent.type(screen.getByLabelText('Estimated storage end'), '25 Jun 2022');
+      await userEvent.tab();
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent('Required');
+      });
+    });
+
+    it('marks SIT Estimated storage start as required when conditionally displayed', async () => {
+      useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
+      render(<ServicesCounselingEditShipmentDetails {...props} />);
+
+      const sitExpected = document.getElementById('sitExpectedYes').parentElement;
+      const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
+      await userEvent.click(sitExpectedYes);
+      await userEvent.type(screen.getByLabelText('Estimated SIT weight'), '1234');
+      await userEvent.type(screen.getByLabelText('Estimated storage start'), '15');
+      await userEvent.type(screen.getByLabelText('Estimated storage end'), '25 Jun 2022');
+      await userEvent.tab();
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          'Enter a complete date in DD MMM YYYY format (day, month, year).',
+        );
+      });
+    });
+
+    it('marks SIT Estimated storage end as required when conditionally displayed', async () => {
+      useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
+      render(<ServicesCounselingEditShipmentDetails {...props} />);
+
+      const sitExpected = document.getElementById('sitExpectedYes').parentElement;
+      const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
+      await userEvent.click(sitExpectedYes);
+      await userEvent.type(screen.getByLabelText('Estimated SIT weight'), '2022');
+      await userEvent.type(screen.getByLabelText('Estimated storage start'), '15 Jun 2022');
+      await userEvent.type(screen.getByLabelText('Estimated storage end'), '25');
+      await userEvent.tab();
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          'Enter a complete date in DD MMM YYYY format (day, month, year).',
+        );
+      });
+    });
+
+    it('calls props.onUpdate with success and routes to Advance page when the save button is clicked and the shipment update is successful', async () => {
+      useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
+      updateMTOShipment.mockImplementation(() => Promise.resolve({}));
+      const onUpdateMock = jest.fn();
+
+      render(<ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />);
+
+      const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
+
+      expect(saveButton).not.toBeDisabled();
+
+      userEvent.click(saveButton);
+      await waitFor(() => {
+        expect(onUpdateMock).toHaveBeenCalled();
+        // expect(mockPush).toHaveBeenCalled()
+        // expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/shipments/shipment123/advance');
+        // expect(onUpdateMock).toHaveBeenCalledWith('success');
+      });
     });
   });
 });
