@@ -69,28 +69,26 @@ describe('Services counselor user', () => {
 
     // Fill out page two
     cy.contains('Incentive & advance');
-    // cy.get('input[name="advance"]').clear().type('2100').blur();
-    // cy.get('textarea[data-testid="counselor-remarks"]')
-    //   .clear()
-    //   .type('The requested advance amount has been added.')
-    //   .blur();
+    cy.get('input[name="advance"]').clear().type('2100').blur();
+    cy.get('textarea[data-testid="counselor-remarks"]')
+      .clear()
+      .type('The requested advance amount has been added.')
+      .blur();
 
-    // cy.get('button[data-testid="submitForm"]').click();
+    cy.get('button[data-testid="submitForm"]').click();
 
-    // TODO User should be automatically redirected to the Move Details page. This needs to be updated when that work is completed
-    // cy.get('a[data-testid="MoveDetails-Tab"]').click();
-    // cy.url().should('include', `/counseling/moves/${moveLocator}/details`);
-    // cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.get('a[data-testid="MoveDetails-Tab"]').click();
+    cy.url().should('include', `/counseling/moves/${moveLocator}/details`);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
     // TODO Confirm new shipment is visible
-    // cy.get('[data-testid="expectedDepartureDate"]').contains('09 Jun 2022');
-    // cy.get('[data-testid="originZIP"]').contains('90210');
-    // cy.get('[data-testid="destinationZIP"]').contains('76127');
-    // cy.get('[data-testid="sitPlanned"]').contains('no');
-    // cy.get('[data-testid="estimatedWeight"]').contains('4,000 lbs');
+    cy.get('[data-testid="expectedDepartureDate"]').contains('09 Jun 2022');
+    cy.get('[data-testid="originZIP"]').contains('90210');
+    cy.get('[data-testid="destinationZIP"]').contains('76127');
+    cy.get('[data-testid="sitPlanned"]').contains('no');
+    cy.get('[data-testid="estimatedWeight"]').contains('4,000 lbs');
 
-    // TODO uncomment these assertions after display bug has been fixed
-    // cy.get('[data-testid="hasRequestedAdvance"]').contains('Yes, $5,987');
-    // cy.get('[data-testid="counselorRemarks"]').contains('The requested advance amount has been added.');
+    cy.get('[data-testid="hasRequestedAdvance"]').contains('Yes, $5,987');
+    cy.get('[data-testid="counselorRemarks"]').contains('The requested advance amount has been added.');
   });
 });
