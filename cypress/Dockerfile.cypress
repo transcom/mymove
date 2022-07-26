@@ -4,12 +4,12 @@ FROM milmove/circleci-docker:milmove-cypress-fcd147c8b7ccddc93df93f4f5a2817686b4
 # hadolint ignore=DL3045
 COPY . ./cypress
 # hadolint ignore=DL3045
-COPY cypress.json ./cypress.json
+COPY cypress.config.js ./cypress.config.js
 # hadolint ignore=DL3045
 COPY mocha-reporter-config.json ./mocha-reporter-config.json
 
 USER root
-RUN chown -R circleci:circleci ./cypress cypress.json mocha-reporter-config.json
+RUN chown -R circleci:circleci ./cypress cypress.config.js mocha-reporter-config.json
 USER circleci
 
 ENTRYPOINT ["./node_modules/.bin/cypress"]
