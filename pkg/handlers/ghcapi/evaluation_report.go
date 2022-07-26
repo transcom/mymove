@@ -1,8 +1,6 @@
 package ghcapi
 
 import (
-	"time"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -92,8 +90,6 @@ func (h CreateEvaluationReportHandler) Handle(params evaluationReportop.CreateEv
 			report := &models.EvaluationReport{
 				ShipmentID: &shipmentID,
 				Type:       models.EvaluationReportTypeShipment,
-				CreatedAt:  time.Now(),
-				UpdatedAt:  time.Now(),
 				ID:         uuid.Must(uuid.NewV4()),
 			}
 
