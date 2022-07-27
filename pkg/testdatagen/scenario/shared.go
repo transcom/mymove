@@ -1056,6 +1056,49 @@ func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUpl
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
 }
 
+// createApprovedMoveWithPPMMovingExpense implicitly creates a weight ticket as well
+func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("146c2665-5b8a-4653-8434-9a4460de30b5"),
+		email:       "movingExpensePPM@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("e7d5e90b-572d-4891-bedf-ac2ffbcd7fee"),
+		firstName:   "Expense",
+		lastName:    "Complete",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("4da09e7a-a9f0-42bf-8ad4-5872b8ec41de"),
+		moveLocator: "EXP3NS",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("22b6f84b-a09f-447d-9bad-875c2ea008ce"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          testdatagen.ConvertUUIDStringToUUID("625d4341-5705-475a-94ae-f6490a268726"),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+		},
+	}
+
+	move, shipment := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+	})
+}
+
 func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	/*
 	 * A service member with orders and a full PPM Shipment.

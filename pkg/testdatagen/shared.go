@@ -116,6 +116,7 @@ type Assertions struct {
 	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
 	WeightTicket                             models.WeightTicket
+	MovingExpense                            models.MovingExpense
 	Zip3Distance                             models.Zip3Distance
 }
 
@@ -303,4 +304,80 @@ func CurrentDateWithoutTime() *time.Time {
 	currentDate := time.Date(year, month, day, 0, 0, 0, 0, currentTime.Location())
 
 	return &currentDate
+}
+
+// GetOrCreateDocument checks if a document exists. If it does, it returns it, otherwise, it creates it
+func GetOrCreateDocument(db *pop.Connection, document models.Document, assertions Assertions) models.Document {
+	if assertions.Stub && document.CreatedAt.IsZero() || document.ID.IsNil() {
+		// Ensure our doc is associated with the expected ServiceMember
+		document.ServiceMemberID = assertions.ServiceMember.ID
+		document.ServiceMember = assertions.ServiceMember
+		// Set generic Document to have the specific assertions that were passed in
+		assertions.Document = document
+
+		return MakeDocument(db, assertions)
+	}
+
+	return document
+}
+
+// getOrCreateUpload checks if an upload exists. If it does, it returns it, otherwise, it creates it.
+func getOrCreateUpload(db *pop.Connection, upload models.UserUpload, assertions Assertions) models.UserUpload {
+	if assertions.Stub && upload.CreatedAt.IsZero() || upload.ID.IsNil() {
+		// Set generic UserUpload to have the specific assertions that were passed in
+		assertions.UserUpload = upload
+
+		return MakeUserUpload(db, assertions)
+	}
+
+	return upload
+}
+
+// GetOrCreateDocumentWithUploads checks if a document exists. If it doesn't, it creates it. Then checks if the document
+// has any uploads. If not, creates an upload associated with the document. Returns the document at the end. This
+// function expects to get a specific document assertion since we're dealing with multiple documents in this overall
+// file.
+//
+// Usage example:
+//
+//     emptyDocument := GetOrCreateDocumentWithUploads(db, assertions.WeightTicket.EmptyDocument, assertions)
+//
+func GetOrCreateDocumentWithUploads(db *pop.Connection, document models.Document, assertions Assertions) models.Document {
+	// hang on to UserUploads, if any, for later
+	userUploads := document.UserUploads
+
+	// Ensure our doc is associated with the expected ServiceMember
+	document.ServiceMemberID = assertions.ServiceMember.ID
+	document.ServiceMember = assertions.ServiceMember
+
+	doc := GetOrCreateDocument(db, document, assertions)
+
+	// Clear out doc.UserUploads because we'll be looping over the assertions that were passed in and potentially
+	// creating data from those. It's easier to start with a clean slate than to track which ones were already created
+	// vs which ones are newly created.
+	doc.UserUploads = nil
+
+	// Try getting or creating any uploads that were passed in via specific assertions
+	for _, userUpload := range userUploads {
+		// In case these weren't already set, set them so that they point at the correct document.
+		userUpload.DocumentID = &doc.ID
+		userUpload.Document = doc
+
+		upload := getOrCreateUpload(db, userUpload, assertions)
+
+		doc.UserUploads = append(doc.UserUploads, upload)
+	}
+
+	// If at the end we still don't have an upload, we'll just create the default one.
+	if len(doc.UserUploads) == 0 {
+		// This will be overriding the assertions locally only because we have a copy rather than a pointer
+		assertions.UserUpload.DocumentID = &doc.ID
+		assertions.UserUpload.Document = doc
+
+		upload := MakeUserUpload(db, assertions)
+
+		doc.UserUploads = append(doc.UserUploads, upload)
+	}
+
+	return doc
 }
