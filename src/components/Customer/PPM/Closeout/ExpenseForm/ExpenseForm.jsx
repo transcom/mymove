@@ -41,10 +41,28 @@ const validationSchema = Yup.object().shape({
     }),
 });
 
-const ExpenseForm = ({ mtoShipment, onBack, onSubmit }) => {
-  const {} = mtoShipment?.ppmShipment || {};
+const ExpenseForm = ({ expense, onBack, onSubmit }) => {
+  const {
+    receiptType,
+    description,
+    paidWithGTCC,
+    amount,
+    noReceipt,
+    receiptDocument,
+    startDate,
+    endDate
+  } = expense || {};
 
-  const initialValues = {};
+  const initialValues = {
+    receiptType: receiptType || '',
+    description: description || '',
+    paidWithGTCC: paidWithGTCC ? 'true' : 'false',
+    amount: amount ? amount.toString() : '',
+    noReceipt: noReceipt ? 'true' : 'false',
+    receiptDocument: receiptDocument || [],
+    startDate: startDate || '',
+    endDate: endDate || '',
+  };
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
