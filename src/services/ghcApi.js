@@ -95,6 +95,14 @@ export async function getCounselingEvaluationReports(key, moveID) {
   );
 }
 
+export async function createEvaluationReportForShipment({ body }) {
+  return makeGHCRequest('evaluationReports.createEvaluationReportForShipment', { body }, { normalize: false });
+}
+
+export async function deleteEvaluationReport(reportID) {
+  return makeGHCRequest('evaluationReports.deleteEvaluationReport', { reportID }, { normalize: false });
+}
+
 export async function getMTOServiceItems(key, moveTaskOrderID, normalize = true) {
   return makeGHCRequest(
     'mtoServiceItem.listMTOServiceItems',

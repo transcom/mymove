@@ -1,6 +1,8 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
+import { useMutation, queryCache } from 'react-query';
+import { useLocation, useHistory, useParams } from 'react-router-dom';
 import classnames from 'classnames';
 
 import styles from './EvaluationReportShipmentInfo.module.scss';
@@ -8,8 +10,32 @@ import styles from './EvaluationReportShipmentInfo.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatEvaluationReportShipmentAddress, formatShortShipmentID } from 'utils/formatters';
 import { ShipmentShape } from 'types/shipment';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { createEvaluationReportForShipment } from 'services/ghcApi';
+import { SHIPMENT_EVALUATION_REPORTS } from 'constants/queryKeys';
 
 const EvaluationReportShipmentInfo = ({ shipment }) => {
+  const { moveCode } = useParams();
+  const location = useLocation();
+  const history = useHistory();
+
+  const [createReportMutation] = useMutation(createEvaluationReportForShipment, {
+    onSuccess: () => {
+      queryCache.invalidateQueries([SHIPMENT_EVALUATION_REPORTS, moveCode]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const handleCreateClick = async (shipmentID) => {
+    const report = await createReportMutation({ body: { shipmentID } });
+    const reportId = report?.id;
+
+    history.push(`${location.pathname}/${reportId}`);
+  };
+
   let heading;
   let pickupAddress;
   let destinationAddress;
@@ -58,7 +84,7 @@ const EvaluationReportShipmentInfo = ({ shipment }) => {
             {pickupAddress} <FontAwesomeIcon icon="arrow-right" /> {destinationAddress}
           </small>
         </div>
-        <Button>Create report</Button>
+        <Button onClick={() => handleCreateClick(shipment.id)}>Create report</Button>
       </div>
     </>
   );

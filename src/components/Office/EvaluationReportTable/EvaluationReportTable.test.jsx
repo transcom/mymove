@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 
 import EvaluationReportTable from './EvaluationReportTable';
 
+import { MockProviders } from 'testUtils';
+
 const submittedReport = {
   id: 'a7fdb0b3-f876-4686-b94f-ad20a2c9a63d',
   location: 'DESTINATION',
@@ -24,7 +26,11 @@ const draftReport = {
 
 describe('EvaluationReportTable', () => {
   it('renders empty table', () => {
-    render(<EvaluationReportTable reports={[]} emptyText="no reports for this" />);
+    render(
+      <MockProviders>
+        <EvaluationReportTable reports={[]} emptyText="no reports for this" />
+      </MockProviders>,
+    );
     expect(screen.getByText('Report ID')).toBeInTheDocument();
     expect(screen.getByText('Date submitted')).toBeInTheDocument();
     expect(screen.getByText('Location')).toBeInTheDocument();
@@ -33,7 +39,11 @@ describe('EvaluationReportTable', () => {
     expect(screen.getByText('no reports for this')).toBeInTheDocument();
   });
   it('renders table with a draft report', () => {
-    render(<EvaluationReportTable reports={[draftReport]} emptyText="no reports for this" />);
+    render(
+      <MockProviders>
+        <EvaluationReportTable reports={[draftReport]} emptyText="no reports for this" />
+      </MockProviders>,
+    );
     expect(screen.getByText('Report ID')).toBeInTheDocument();
     expect(screen.getByText('Date submitted')).toBeInTheDocument();
     expect(screen.getByText('Location')).toBeInTheDocument();
@@ -48,7 +58,11 @@ describe('EvaluationReportTable', () => {
     expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
   });
   it('renders table with a submitted report', () => {
-    render(<EvaluationReportTable reports={[submittedReport]} emptyText="no reports for this" />);
+    render(
+      <MockProviders>
+        <EvaluationReportTable reports={[submittedReport]} emptyText="no reports for this" />
+      </MockProviders>,
+    );
     expect(screen.getByText('Report ID')).toBeInTheDocument();
     expect(screen.getByText('Date submitted')).toBeInTheDocument();
     expect(screen.getByText('Location')).toBeInTheDocument();
