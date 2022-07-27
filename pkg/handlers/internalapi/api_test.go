@@ -3,6 +3,8 @@ package internalapi
 import (
 	"testing"
 
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
+
 	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/stretchr/testify/suite"
@@ -29,6 +31,14 @@ func (suite *HandlerSuite) AfterTest() {
 		// nolint:errcheck
 		file.Data.Close()
 	}
+}
+
+func (suite *HandlerSuite) createHandlerConfig() handlers.HandlerConfig {
+	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	handlerConfig.SetFileStorer(fakeS3)
+
+	return handlerConfig
 }
 
 // TestHandlerSuite creates our test suite

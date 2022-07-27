@@ -5140,6 +5140,160 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_PAYMENT_APPROVAL
       - PAYMENT_APPROVED
+  UploadPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+      filename:
+        type: string
+        example: filename.pdf
+      content_type:
+        type: string
+        format: mime-type
+        example: application/pdf
+      checksum:
+        type: string
+        example: ImGQ2Ush0bDHsaQthV5BnQ==
+      bytes:
+        type: integer
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - url
+      - filename
+      - content_type
+      - bytes
+      - created_at
+      - updated_at
+  definitions-DocumentPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/UploadPayload'
+    required:
+      - id
+      - service_member_id
+      - uploads
+  WeightTicket:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      ppmShipmentId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      vehicleDescription:
+        type: string
+        title: Vehicle description (ex. 'SUV')
+        x-nullable: true
+      emptyWeight:
+        type: integer
+        title: Empty Recorded Weight
+        minimum: 0
+      missingEmptyWeightTicket:
+        type: boolean
+        title: has empty weight ticket
+        x-nullable: true
+        x-omitempty: false
+      emptyDocumentId:
+        title: Empty Document ID
+        type: string
+        format: uuid
+        readOnly: true
+      emptyDocument:
+        title: Empty Document
+        $ref: '#/definitions/definitions-DocumentPayload'
+      fullWeight:
+        title: full weight ticket recorded weight
+        type: integer
+        minimum: 0
+      missingFullWeightTicket:
+        title: has full weight ticket
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      fullDocumentId:
+        title: Full Document ID
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      fullDocument:
+        title: Full Document
+        $ref: '#/definitions/definitions-DocumentPayload'
+      ownsTrailer:
+        title: Owns trailer
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      trailerMeetsCriteria:
+        title: Trailer meets criteria
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      proofOfTrailerOwnershipDocumentId:
+        title: Trailer Document ID
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      proofOfTrailerOwnershipDocument:
+        title: Proof of Trailer Ownership Document
+        $ref: '#/definitions/definitions-DocumentPayload'
+      eTag:
+        type: string
+        readOnly: true
+    required:
+      - ppmShipmentId
+      - createdAt
+      - updatedAt
+      - emptyDocumentId
+      - emptyDocument
+      - fullDocument
+      - fullDocumentId
+      - proofOfTrailerOwnershipDocument
+      - proofOfTrailerOwnershipDocumentId
   PPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service members
@@ -5327,6 +5481,10 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      weightTickets:
+        items:
+          $ref: '#/definitions/WeightTicket'
+        type: array
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"

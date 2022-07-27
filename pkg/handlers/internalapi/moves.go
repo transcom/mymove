@@ -46,7 +46,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	var hhgPayloads internalmessages.MTOShipments
 	for _, hhg := range move.MTOShipments {
 		copyOfHhg := hhg // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload := payloads.MTOShipment(&copyOfHhg)
+		payload := payloads.MTOShipment(storer, &copyOfHhg)
 		hhgPayloads = append(hhgPayloads, payload)
 	}
 

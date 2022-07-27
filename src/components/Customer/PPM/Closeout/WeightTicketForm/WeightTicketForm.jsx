@@ -35,18 +35,18 @@ const validationSchema = Yup.object().shape({
     .min(0, 'Enter a weight 0 lbs or greater')
     .required('Required')
     .when('emptyWeight', (emptyWeight, schema) => {
-      return emptyWeight
+      return emptyWeight != null
         ? schema.min(emptyWeight + 1, 'The full weight must be greater than the empty weight')
         : schema;
     }),
   missingFullWeightTicket: Yup.boolean(),
   fullDocument: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
-  hasOwnTrailer: Yup.boolean().required('Required'),
+  ownsTrailer: Yup.boolean().required('Required'),
   trailerMeetsCriteria: Yup.boolean(),
   proofOfTrailerOwnershipDocument: Yup.array()
     .of(uploadShape)
-    .when('trailerMeetsCriteria', (trailerMeetsCriteria, schema) => {
-      return trailerMeetsCriteria ? schema.min(1, 'At least one upload is required') : schema;
+    .when(['ownsTrailer', 'trailerMeetsCriteria'], (ownsTrailer, trailerMeetsCriteria, schema) => {
+      return ownsTrailer && trailerMeetsCriteria ? schema.min(1, 'At least one upload is required') : schema;
     }),
 });
 
@@ -107,7 +107,7 @@ const WeightTicketUpload = ({
       <UploadsTable
         className={styles.uploadsTable}
         uploads={values[`${fieldName}`]}
-        onDelete={(uploadId) => onUploadDelete(uploadId, fieldName, values, setFieldTouched, setFieldValue)}
+        onDelete={(uploadId) => onUploadDelete(uploadId, fieldName, setFieldTouched, setFieldValue)}
       />
       <FormGroup error={showError}>
         <div className="labelWrapper">
@@ -124,7 +124,7 @@ const WeightTicketUpload = ({
           createUpload={(file) => onCreateUpload(fieldName, file)}
           onChange={(err, upload) => {
             setFieldTouched(fieldName, true);
-            onUploadComplete(upload, err, fieldName, values, setFieldValue);
+            onUploadComplete(err);
             fileUploadRef.current.removeFile(upload.id);
           }}
           acceptedFileTypes={acceptableFileTypes}
@@ -177,7 +177,7 @@ const WeightTicketForm = ({
     fullWeight,
     missingFullWeightTicket,
     fullDocument,
-    hasOwnTrailer,
+    ownsTrailer,
     trailerMeetsCriteria,
     proofOfTrailerOwnershipDocument,
   } = weightTicket || {};
@@ -186,13 +186,13 @@ const WeightTicketForm = ({
     vehicleDescription: vehicleDescription || '',
     missingEmptyWeightTicket: !!missingEmptyWeightTicket,
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
-    emptyDocument: emptyDocument || [],
+    emptyDocument: emptyDocument?.uploads || [],
     fullWeight: fullWeight ? `${fullWeight}` : '',
     missingFullWeightTicket: !!missingFullWeightTicket,
-    fullDocument: fullDocument || [],
-    hasOwnTrailer: hasOwnTrailer ? 'true' : 'false',
+    fullDocument: fullDocument?.uploads || [],
+    ownsTrailer: ownsTrailer ? 'true' : 'false',
     trailerMeetsCriteria: trailerMeetsCriteria ? 'true' : 'false',
-    proofOfTrailerOwnershipDocument: proofOfTrailerOwnershipDocument || [],
+    proofOfTrailerOwnershipDocument: proofOfTrailerOwnershipDocument?.uploads || [],
   };
 
   const emptyDocumentRef = createRef();
@@ -281,22 +281,22 @@ const WeightTicketForm = ({
                     <legend className="usa-label">On this trip, were you using a trailer that you own?</legend>
                     <Field
                       as={Radio}
-                      id="yesHasOwnTrailer"
+                      id="yesOwnsTrailer"
                       label="Yes"
-                      name="hasOwnTrailer"
+                      name="ownsTrailer"
                       value="true"
-                      checked={values.hasOwnTrailer === 'true'}
+                      checked={values.ownsTrailer === 'true'}
                     />
                     <Field
                       as={Radio}
-                      id="noHasOwnTrailer"
+                      id="noOwnsTrailer"
                       label="No"
-                      name="hasOwnTrailer"
+                      name="ownsTrailer"
                       value="false"
-                      checked={values.hasOwnTrailer === 'false'}
+                      checked={values.ownsTrailer === 'false'}
                     />
                   </Fieldset>
-                  {values.hasOwnTrailer === 'true' && (
+                  {values.ownsTrailer === 'true' && (
                     <Fieldset className={styles.trailerClaimedFieldset}>
                       <legend className="usa-label">Does your trailer meet all of these criteria?</legend>
                       <ul>
@@ -336,7 +336,6 @@ const WeightTicketForm = ({
                                 onUploadDelete(
                                   uploadId,
                                   'proofOfTrailerOwnershipDocument',
-                                  values,
                                   formikProps.setFieldTouched,
                                   formikProps.setFieldValue,
                                 )
@@ -378,13 +377,7 @@ const WeightTicketForm = ({
                                 labelIdleMobile={UploadDropZoneLabelMobile}
                                 onChange={(err, upload) => {
                                   formikProps.setFieldTouched('proofOfTrailerOwnershipDocument', true);
-                                  onUploadComplete(
-                                    upload,
-                                    err,
-                                    'proofOfTrailerOwnershipDocument',
-                                    values,
-                                    formikProps.setFieldValue,
-                                  );
+                                  onUploadComplete(err);
                                   proofOfTrailerOwnershipDocumentRef.current.removeFile(upload.id);
                                 }}
                                 acceptedFileTypes={acceptableFileTypes}

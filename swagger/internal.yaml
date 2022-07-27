@@ -1014,8 +1014,6 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      ppmShipment:
-        $ref: '#/definitions/PPMShipment'
       createdAt:
         type: string
         format: date-time
@@ -1082,9 +1080,11 @@ definitions:
       proofOfTrailerOwnershipDocument:
         title: Proof of Trailer Ownership Document
         $ref: '#/definitions/DocumentPayload'
+      eTag:
+        type: string
+        readOnly: true
     required:
       - ppmShipmentId
-      - ppmShipment
       - createdAt
       - updatedAt
       - emptyDocumentId
@@ -3177,6 +3177,10 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      weightTickets:
+        items:
+          $ref: '#/definitions/WeightTicket'
+        type: array
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"
