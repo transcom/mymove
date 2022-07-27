@@ -87,7 +87,7 @@ const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
       <div className={classnames(styles.tabContent, shipmentEvaluationReportStyles.tabContent)}>
         <GridContainer>
           <div className={styles.pageHeader}>
-            <h1>Evaluation report</h1>
+            <h1>Shipment report</h1>
             <div className={styles.pageHeaderDetails}>
               <h6>REPORT ID #{reportId}</h6>
               <h6>MOVE CODE {moveCode}</h6>
