@@ -42,12 +42,15 @@ func (suite *MakerSuite) TestUserMaker() {
 	userFactory := NewUserMaker(models.User{}, nil)
 	// Call create to create the object
 
-	err := userFactory.Make(suite.DB(), Customization{
-		Model: models.User{
-			LoginGovEmail: "shimonatests@onetwothree.com",
-		},
-		Name:   "User",
-		Create: false,
+	err := userFactory.Make(suite.DB(), []Customization{
+		{
+			Model: models.User{
+				LoginGovEmail: "shimonatests@onetwothree.com",
+			},
+			Type:   CustomUser,
+			Create: false,
+		}}, []Trait{
+		getTraitArmy,
 	})
 	suite.NoError(err)
 	fmt.Println(userFactory.Model.LoginGovEmail)
