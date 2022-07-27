@@ -15,82 +15,27 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-func UserFactory(db *pop.Connection, variants Variants) models.User {
-	loginGovUUID := uuid.Must(uuid.NewV4())
-	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "first.last@login.gov.test",
-		Active:        false,
-	}
-
-	// Overwrite values with those from assertions
-	mergeModels(&user, variants.User)
-
-	mustCreate(db, &user, variants.Stub)
-
-	return user
-}
-
-func ServiceMemberFactory(db *pop.Connection, variants Variants) models.ServiceMember {
-	// aServiceMember := variants.ServiceMember
-	// currentAddressID := aServiceMember.ResidentialAddressID
-	// currentAddress := aServiceMember.ResidentialAddress
-	// Check that no nested values in sm
-
-	// ID is required because it must be populated for Eager saving to work.
-	user := variants.User
-	if isZeroUUID(variants.User.ID) {
-		user = UserFactory(db, variants)
-	}
-
-	// currentAddress := variants.Addresses.ServiceMember__CurrentAddress
-	// if isZeroUUID(currentAddress.ID) {}
-	// 	currentAddress := AddressFactory(db, variants)
-	// }
-
-	army := models.AffiliationARMY
-	randomEdipi := RandomEdipi()
-	rank := models.ServiceMemberRankE1
-	email := "leo_spaceman_sm@example.com"
-
-	serviceMember := models.ServiceMember{
-		UserID:        user.ID,
-		User:          user,
-		Edipi:         swag.String(randomEdipi),
-		Affiliation:   &army,
-		FirstName:     swag.String("Leo"),
-		LastName:      swag.String("Spacemen"),
-		Telephone:     swag.String("212-123-4567"),
-		PersonalEmail: &email,
-		Rank:          &rank,
-	}
-
-	// Overwrite values with those from assertions
-	mergeModels(&serviceMember, variants.ServiceMember)
-
-	mustCreate(db, &serviceMember, variants.Stub)
-
-	return serviceMember
-}
-
 // this is the class - note type struct and member vairbal
-type ServiceMemberFac struct {
+type ServiceMemberFactory struct {
 	Model     *models.ServiceMember
 	ForceUUID *uuid.UUID
 }
 
 // this is the constructor
-func NewServiceMemberFac(serviceMember models.ServiceMember, forceUUID *uuid.UUID) ServiceMemberFac {
-	return ServiceMemberFac{&serviceMember, forceUUID}
+func NewServiceMemberFactory(serviceMember models.ServiceMember, forceUUID *uuid.UUID) ServiceMemberFactory {
+	return ServiceMemberFactory{&serviceMember, forceUUID}
 }
-func (sf ServiceMemberFac) Create(db *pop.Connection, variants Variants) error {
+func (sf ServiceMemberFactory) Create(db *pop.Connection, variants Variants) error {
 	sm := sf.Model
 
 	user := variants.User
 	if isZeroUUID(variants.User.ID) {
 
-		userFactory := NewUserFac(models.User{}, nil)
-		userFactory.Create(db, variants)
+		userFactory := NewUserFactory(models.User{}, nil)
+		err := userFactory.Create(db, variants)
+		if err != nil {
+			return err
+		}
 		user = *userFactory.Model
 	}
 
@@ -117,19 +62,19 @@ func (sf ServiceMemberFac) Create(db *pop.Connection, variants Variants) error {
 	return nil
 }
 
-// this is the class - note type struct and member vairbal
-type UserFac struct {
+// this is the class - note type struct and member variable
+type UserFactory struct {
 	Model     *models.User
 	ForceUUID *uuid.UUID
 }
 
 // this is the constructor
-func NewUserFac(user models.User, forceUUID *uuid.UUID) UserFac {
-	return UserFac{&user, forceUUID}
+func NewUserFactory(user models.User, forceUUID *uuid.UUID) UserFactory {
+	return UserFactory{&user, forceUUID}
 }
 
 // this is a method
-func (uf UserFac) Create(db *pop.Connection, variants Variants) error {
+func (uf UserFactory) Create(db *pop.Connection, variants Variants) error {
 	user := uf.Model
 
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -160,16 +105,16 @@ func CheckNestedStruct(edges interface{}) {
 	}
 }
 
-func makeUserX(db *pop.Connection, variants Variants) models.User {
-	userFactory := NewUserFac(models.User{}, nil)
+func makeUserNew(db *pop.Connection, variants Variants) models.User {
+	userFactory := NewUserFactory(models.User{}, nil)
 	err := userFactory.Create(db, variants)
 	if err != nil {
 		log.Panic(fmt.Errorf("Errors encountered creating: %v", err))
 	}
 	return *userFactory.Model
 }
-func makeSMX(db *pop.Connection, variants Variants) models.ServiceMember {
-	smFactory := NewServiceMemberFac(models.ServiceMember{}, nil)
+func makeServiceMemberNew(db *pop.Connection, variants Variants) models.ServiceMember {
+	smFactory := NewServiceMemberFactory(models.ServiceMember{}, nil)
 	err := smFactory.Create(db, variants)
 	if err != nil {
 		log.Panic(fmt.Errorf("Errors encountered creating: %v", err))

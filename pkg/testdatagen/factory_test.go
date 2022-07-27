@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
-	"unsafe"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
@@ -26,24 +25,8 @@ func TestFactorySuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-func (suite *FactorySuite) TestServiceMemberFactory() {
-	sm := ServiceMemberFactory(suite.DB(), Variants{
-		ServiceMemberCurrentAddress: models.Address{
-			StreetAddress1: "This is my street",
-		},
-
-		User: models.User{
-			LoginGovEmail: "shimonatests@onetwothree.com",
-		},
-	})
-	fmt.Println(unsafe.Sizeof(sm))
-	fmt.Println(unsafe.Sizeof(Variants{}))
-	fmt.Println(*sm.FirstName)
-	fmt.Println(sm.User.LoginGovEmail)
-}
-
 func (suite *FactorySuite) TestServiceMemberFactoryS() {
-	sm := makeSMX(suite.DB(), Variants{
+	sm := makeServiceMemberNew(suite.DB(), Variants{
 		ServiceMemberCurrentAddress: models.Address{
 			StreetAddress1: "This is my street",
 		},
@@ -57,12 +40,13 @@ func (suite *FactorySuite) TestServiceMemberFactoryS() {
 }
 
 func (suite *FactorySuite) TestUserFactory() {
-	userFactory := NewUserFac(models.User{}, nil)
-	userFactory.Create(suite.DB(), Variants{
+	userFactory := NewUserFactory(models.User{}, nil)
+	err := userFactory.Create(suite.DB(), Variants{
 		User: models.User{
 			LoginGovEmail: "shimonatests@onetwothree.com",
 		},
 	})
+	suite.NoError(err)
 	fmt.Println(userFactory.Model.LoginGovEmail)
 
 }
@@ -127,8 +111,6 @@ func showDetails(i interface{}) {
 	}
 }
 
-type SpecialString string
-type Square struct{ dim int }
 type Varry struct {
 	Address     models.Address
 	MTOShipment models.MTOShipment
@@ -136,7 +118,7 @@ type Varry struct {
 }
 
 func (suite *FactorySuite) TestUserFactoryX() {
-	user := makeUserX(suite.DB(), Variants{
+	user := makeUserNew(suite.DB(), Variants{
 		User: models.User{
 			LoginGovEmail: "shimonatests@onetwothree.com",
 		},
