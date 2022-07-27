@@ -3,18 +3,19 @@ package ghcapi
 import (
 	"fmt"
 	"net/http/httptest"
-
-	"github.com/gofrs/uuid"
+	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 
-	reportop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
+	evaluationReportop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	moveop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	evaluationreportservice "github.com/transcom/mymove/pkg/services/evaluation_report"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -156,12 +157,12 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s",
 			evaluationReport.ID.String()), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
-		params := reportop.GetEvaluationReportParams{
+		params := evaluationReportop.GetEvaluationReportParams{
 			HTTPRequest: request,
 			ReportID:    strfmt.UUID(evaluationReport.ID.String()),
 		}
 		response := handler.Handle(params)
-		suite.IsType(&reportop.GetEvaluationReportOK{}, response)
+		suite.IsType(&evaluationReportop.GetEvaluationReportOK{}, response)
 	})
 
 	// 404 response
@@ -173,7 +174,7 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s", uuidForReport.String()), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 
-		params := reportop.GetEvaluationReportParams{
+		params := evaluationReportop.GetEvaluationReportParams{
 			HTTPRequest: request,
 			ReportID:    strfmt.UUID(uuidForReport.String()),
 		}
@@ -189,7 +190,7 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&reportop.GetEvaluationReportNotFound{}, response)
+		suite.IsType(&evaluationReportop.GetEvaluationReportNotFound{}, response)
 	})
 
 	// 403 response
@@ -201,7 +202,7 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s", uuidForReport.String()), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 
-		params := reportop.GetEvaluationReportParams{
+		params := evaluationReportop.GetEvaluationReportParams{
 			HTTPRequest: request,
 			ReportID:    strfmt.UUID(uuidForReport.String()),
 		}
@@ -217,6 +218,112 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&reportop.GetEvaluationReportForbidden{}, response)
+		suite.IsType(&evaluationReportop.GetEvaluationReportForbidden{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	suite.Run("Successful POST", func() {
+
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+
+		creator := &mocks.EvaluationReportCreator{}
+		handler := CreateEvaluationReportHandler{handlerConfig, creator}
+
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				MoveTaskOrderID: move.ID,
+			},
+		})
+		body := ghcmessages.CreateShipmentEvaluationReport{ShipmentID: handlers.FmtUUID(shipment.ID)}
+		request := httptest.NewRequest("POST", "/moves/shipment-evaluation-reports/", nil)
+
+		params := evaluationReportop.CreateEvaluationReportForShipmentParams{
+			HTTPRequest: request,
+			Body:        &body,
+		}
+
+		returnReport := models.EvaluationReport{
+			ID:           uuid.Must(uuid.NewV4()),
+			MoveID:       move.ID,
+			Move:         move,
+			ShipmentID:   &shipment.ID,
+			Shipment:     &shipment,
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
+			Type:         models.EvaluationReportTypeShipment,
+			OfficeUser:   officeUser,
+			OfficeUserID: officeUser.ID,
+		}
+
+		creator.On("CreateEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.EvaluationReport"),
+		).Return(&returnReport, nil).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&evaluationReportop.CreateEvaluationReportForShipmentOK{}, response)
+	})
+
+	suite.Run("Unsuccessful POST", func() {
+
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+
+		creator := &mocks.EvaluationReportCreator{}
+		handler := CreateEvaluationReportHandler{handlerConfig, creator}
+
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				MoveTaskOrderID: move.ID,
+			},
+		})
+		body := ghcmessages.CreateShipmentEvaluationReport{ShipmentID: handlers.FmtUUID(shipment.ID)}
+		request := httptest.NewRequest("POST", "/moves/shipment-evaluation-reports/", nil)
+
+		params := evaluationReportop.CreateEvaluationReportForShipmentParams{
+			HTTPRequest: request,
+			Body:        &body,
+		}
+
+		creator.On("CreateEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.EvaluationReport"),
+		).Return(nil, fmt.Errorf("error")).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&evaluationReportop.CreateEvaluationReportForShipmentInternalServerError{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestDeleteEvaluationReportHandler() {
+
+	suite.Run("Successful DELETE", func() {
+		reportID := uuid.Must(uuid.NewV4())
+
+		deleter := &mocks.EvaluationReportDeleter{}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := DeleteEvaluationReportHandler{handlerConfig, deleter}
+
+		request := httptest.NewRequest("DELETE", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
+
+		params := evaluationReportop.DeleteEvaluationReportParams{
+			HTTPRequest: request,
+			ReportID:    *handlers.FmtUUID(reportID),
+		}
+
+		deleter.On("DeleteEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(nil).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&evaluationReportop.DeleteEvaluationReportNoContent{}, response)
 	})
 }

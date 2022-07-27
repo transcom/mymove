@@ -3,7 +3,7 @@ import 'styles/office.scss';
 import { GridContainer, Grid, Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { useParams, useHistory } from 'react-router';
-import { queryCache, useMutation } from 'react-query';
+import { useMutation } from 'react-query';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
@@ -11,21 +11,34 @@ import shipmentEvaluationReportStyles from './ShipmentEvaluationReport.module.sc
 
 import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
 import { deleteEvaluationReport } from 'services/ghcApi';
-import { SHIPMENT_EVALUATION_REPORTS } from 'constants/queryKeys';
 import { useShipmentEvaluationReportQueries } from 'hooks/queries';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
-import { shipmentTypeLabels } from 'content/shipments';
 import DataTable from 'components/DataTable';
 import { CustomerShape } from 'types';
 import { OrdersShape } from 'types/customerShapes';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { shipmentTypeLabels } from 'content/shipments';
 
 const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
   const { moveCode, reportId } = useParams();
+  const history = useHistory();
+
+  const [isDeleteModelOpen, setIsDeleteModelOpen] = useState(false);
+
+  const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport);
+
   const { evaluationReport, mtoShipment } = useShipmentEvaluationReportQueries(reportId);
   const mtoRefId = evaluationReport.moveReferenceID;
 
-  const history = useHistory();
+  const shipmentDisplayInfo = (shipment) => {
+    return {
+      ...shipment,
+      heading: shipmentTypeLabels[shipment.shipmentType],
+      isDiversion: shipment.diversion,
+      shipmentStatus: shipment.status,
+      destinationAddress: shipment.destinationAddress || '-',
+    };
+  };
 
   const customerInfoTableBody = (
     <>
@@ -49,24 +62,6 @@ const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
     </>
   );
 
-  const shipmentDisplayInfo = (shipment) => {
-    return {
-      ...shipment,
-      heading: shipmentTypeLabels[shipment.shipmentType],
-      isDiversion: shipment.diversion,
-      shipmentStatus: shipment.status,
-      destinationAddress: shipment.destinationAddress || '-',
-    };
-  };
-
-  const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport, {
-    onSuccess: async () => {
-      await queryCache.invalidateQueries([SHIPMENT_EVALUATION_REPORTS, moveCode]);
-    },
-  });
-
-  const [isDeleteModelOpen, setIsDeleteModelOpen] = useState(false);
-
   const toggleCancelModel = () => {
     setIsDeleteModelOpen(!isDeleteModelOpen);
   };
@@ -81,6 +76,7 @@ const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
     // Reroute back to eval report page, include flag to know to show alert
     history.push(`/moves/${moveCode}/evaluation-reports`, { showDeleteSuccess: true });
   };
+
   return (
     <>
       <ConnectedDeleteEvaluationReportConfirmationModal
@@ -118,7 +114,6 @@ const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
             </Grid>
           </Grid>
         </GridContainer>
-
         <GridContainer className={shipmentEvaluationReportStyles.cardContainer}>
           <Grid row>
             <Grid col desktop={{ col: 8, offset: 2 }}>
@@ -126,7 +121,7 @@ const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
             </Grid>
           </Grid>
         </GridContainer>
-        <div style={{ display: 'flex', float: 'right' }}>
+        <div className={shipmentEvaluationReportStyles.buttonRow}>
           <Button className="usa-button--unstyled" onClick={toggleCancelModel}>
             Cancel
           </Button>

@@ -101,7 +101,8 @@ describe('TXO Move Info Container', () => {
       expect(wrapper.find('span.tab-title').at(1).text()).toContain('Move task order');
       expect(wrapper.find('span.tab-title').at(2).text()).toContain('Payment requests');
       expect(wrapper.find('span.tab-title').at(3).text()).toContain('Customer support remarks');
-      expect(wrapper.find('span.tab-title').at(4).text()).toContain('Evaluation reports');
+
+      expect(wrapper.find('span.tab-title').at(4).text()).toContain('Quality assurance');
       expect(wrapper.find('span.tab-title').at(5).text()).toContain('Move history');
 
       expect(wrapper.find('li.tabItem a').at(0).prop('href')).toEqual(`/moves/${testMoveCode}/details`);
@@ -110,6 +111,8 @@ describe('TXO Move Info Container', () => {
       expect(wrapper.find('li.tabItem a').at(3).prop('href')).toEqual(
         `/moves/${testMoveCode}/customer-support-remarks`,
       );
+
+      expect(wrapper.find('li.tabItem a').at(4).prop('href')).toEqual(`/moves/${testMoveCode}/evaluation-reports`);
       expect(wrapper.find('li.tabItem a').at(5).prop('href')).toEqual(`/moves/${testMoveCode}/history`);
     });
     it('should render the system error when there is an error', () => {

@@ -1,7 +1,7 @@
 export const generalRoutes = {
   HOME_PATH: '/',
   SIGN_IN_PATH: '/sign-in',
-  PRIVACY_SECURITY_POLICY_PATH: '/privacy-security',
+  PRIVACY_SECURITY_POLICY_PATH: '/privacy-and-security-policy',
   ACCESSIBILITY_PATH: '/accessibility',
 };
 
@@ -28,7 +28,12 @@ export const customerRoutes = {
   SHIPMENT_PPM_ABOUT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/about',
   SHIPMENT_PPM_WEIGHT_TICKETS_PATH: '/moves/:moveId/shipments/:mtoShipmentId/weight-tickets',
   SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/weight-tickets/:weightTicketId',
-  SHIPMENT_PPM_REVIEW_PATH: 'moves/:moveId/shipments/:mtoShipmentId/review',
+  SHIPMENT_PPM_REVIEW_PATH: '/moves/:moveId/shipments/:mtoShipmentId/review',
+  SHIPMENT_PPM_PRO_GEAR_PATH: '/moves/:moveId/shipments/:mtoShipmentId/pro-gear',
+  SHIPMENT_PPM_PRO_GEAR_EDIT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/pro-gear/:proGearId',
+  SHIPMENT_PPM_EXPENSES_PATH: '/moves/:moveId/shipments/:mtoShipmentId/expenses',
+  SHIPMENT_PPM_EXPENSES_EDIT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/expenses/:expenseId',
+  SHIPMENT_PPM_COMPLETE_PATH: '/moves/:moveId/shipments/:mtoShipmentId/complete',
   MOVE_REVIEW_PATH: '/moves/:moveId/review',
   MOVE_AGREEMENT_PATH: '/moves/:moveId/agreement',
   EDIT_PROFILE_PATH: '/moves/review/edit-profile',
@@ -67,6 +72,7 @@ export const tooRoutes = {
 export const qaeCSRRoutes = {
   MOVE_SEARCH_PATH: '/qaecsr/search',
   EVALUATION_REPORTS_PATH: '/moves/:moveCode/evaluation-reports',
+  SHIPMENT_EVALUATION_REPORT_PATH: '/moves/:moveCode/evaluation-reports/:reportId',
 };
 
 // README: Prime API endpoints accept either a Move code or ID.

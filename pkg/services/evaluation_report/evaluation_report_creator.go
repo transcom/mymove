@@ -16,7 +16,7 @@ func NewEvaluationReportCreator() services.EvaluationReportCreator {
 }
 
 func (o evaluationReportCreator) CreateEvaluationReport(appCtx appcontext.AppContext, report *models.EvaluationReport) (*models.EvaluationReport, error) {
-
+	// Note: this assumes we are creating a shipment report. When adding counceling eval reports this will need tweaked.
 	// Need to get the Shipment for some report fields
 	var shipment models.MTOShipment
 	err := appCtx.DB().Q().Where("id = ?", report.ShipmentID).First(&shipment)

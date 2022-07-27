@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
 
-import { tioRoutes } from 'constants/routes';
+import { qaeCSRRoutes, tioRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import CustomerHeader from 'components/CustomerHeader';
@@ -125,11 +125,11 @@ const TXOMoveInfo = () => {
             <CustomerSupportRemarks />
           </Route>
 
-          <Route path="/moves/:moveCode/evaluation-reports" exact>
+          <Route path={qaeCSRRoutes.EVALUATION_REPORTS_PATH} exact>
             <EvaluationReports />
           </Route>
 
-          <Route path="/moves/:moveCode/evaluation-reports/:reportId" exact>
+          <Route path={qaeCSRRoutes.SHIPMENT_EVALUATION_REPORT_PATH} exact>
             <ShipmentEvaluationReport customerInfo={customerData} orders={order} />
           </Route>
 

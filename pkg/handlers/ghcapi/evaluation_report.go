@@ -1,8 +1,6 @@
 package ghcapi
 
 import (
-	"time"
-
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -81,7 +79,7 @@ type CreateEvaluationReportHandler struct {
 	services.EvaluationReportCreator
 }
 
-// Handle is the handler for creating an evaluation report
+//Handle is the handler for creating an evaluation report
 func (h CreateEvaluationReportHandler) Handle(params evaluationReportop.CreateEvaluationReportForShipmentParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -89,12 +87,13 @@ func (h CreateEvaluationReportHandler) Handle(params evaluationReportop.CreateEv
 			payload := params.Body
 			shipmentID := uuid.FromStringOrNil(payload.ShipmentID.String())
 			report := &models.EvaluationReport{
-				ShipmentID:   &shipmentID,
-				OfficeUserID: appCtx.Session().OfficeUserID,
-				Type:         models.EvaluationReportTypeShipment,
-				CreatedAt:    time.Now(),
-				UpdatedAt:    time.Now(),
-				ID:           uuid.Must(uuid.NewV4()),
+				ShipmentID: &shipmentID,
+				Type:       models.EvaluationReportTypeShipment,
+				ID:         uuid.Must(uuid.NewV4()),
+			}
+
+			if appCtx.Session() != nil {
+				report.OfficeUserID = appCtx.Session().OfficeUserID
 			}
 
 			evaluationReport, err := h.CreateEvaluationReport(appCtx, report)
@@ -141,5 +140,27 @@ func (h GetEvaluationReportHandler) Handle(params evaluationReportop.GetEvaluati
 			}
 			payload := payloads.EvaluationReport(evaluationReport)
 			return evaluationReportop.NewGetEvaluationReportOK().WithPayload(payload), nil
+		})
+}
+
+// DeleteEvaluationReportHandler is the struct for soft deleting evaluation reports
+type DeleteEvaluationReportHandler struct {
+	handlers.HandlerConfig
+	services.EvaluationReportDeleter
+}
+
+// Handle is the handler function for soft deleting an evaluation report
+func (h DeleteEvaluationReportHandler) Handle(params evaluationReportop.DeleteEvaluationReportParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			reportID := uuid.FromStringOrNil(string(params.ReportID.String()))
+			err := h.DeleteEvaluationReport(appCtx, reportID)
+			if err != nil {
+				appCtx.Logger().Error("Error deleting evaluation report: ", zap.Error(err))
+				return evaluationReportop.NewDeleteEvaluationReportInternalServerError(), err
+			}
+
+			return evaluationReportop.NewDeleteEvaluationReportNoContent(), nil
 		})
 }

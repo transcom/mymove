@@ -1,5 +1,5 @@
 import React from 'react';
-import { MemoryRouter, Route } from 'react-router';
+import { Route } from 'react-router';
 
 import { SITStatusOrigin } from '../ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
@@ -11,15 +11,6 @@ import { MockProviders } from 'testUtils';
 
 export default {
   title: 'Office Components/Shipment Details',
-  decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={['/moves/HGNTSR/mto']}>
-        <Route path="/moves/:moveCode/mto">
-          <Story />
-        </Route>
-      </MemoryRouter>
-    ),
-  ],
 };
 
 const shipment = {
@@ -140,8 +131,30 @@ export const Default = () => {
 
   return (
     <div className="officeApp">
-      <MockProviders permissions={[permissionTypes.updateShipment]}>
-        <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
+      <MockProviders initialEntries={['/moves/HGNTSR/mto']} permissions={[permissionTypes.updateShipment]}>
+        <Route path="/moves/:moveCode/mto">
+          <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
+        </Route>
+      </MockProviders>
+    </div>
+  );
+};
+
+export const WithoutPermissions = () => {
+  const [modifiedShipment, setModifiedShipment] = React.useState(shipment);
+  const handleEditSon = (values) => {
+    setModifiedShipment({
+      ...shipment,
+      serviceOrderNumber: values.serviceOrderNumber,
+    });
+  };
+
+  return (
+    <div className="officeApp">
+      <MockProviders initialEntries={['/moves/HGNTSR/mto']}>
+        <Route path="/moves/:moveCode/mto">
+          <ShipmentDetails shipment={modifiedShipment} order={order} handleEditServiceOrderNumber={handleEditSon} />
+        </Route>
       </MockProviders>
     </div>
   );

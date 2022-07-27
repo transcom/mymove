@@ -398,9 +398,16 @@ export function formatCentsTruncateWhole(cents) {
 }
 
 // Converts a uuid into a shortened ID that's suitable for displaying to users
+function getUUIDFirstFive(uuid) {
+  return uuid.substring(0, 5).toUpperCase();
+}
+
 export function formatQAReportID(uuid) {
-  const firstFive = uuid.substring(0, 5).toUpperCase();
-  return `#QA-${firstFive}`;
+  return `#QA-${getUUIDFirstFive(uuid)}`;
+}
+
+export function formatShortShipmentID(uuid) {
+  return `#${getUUIDFirstFive(uuid)}`;
 }
 
 export function formatEvaluationReportLocation(location) {

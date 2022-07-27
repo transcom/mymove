@@ -40,3 +40,8 @@
   @include u-padding(5);
   @include u-margin-bottom(4);
 }
+
+.buttonRow {
+  @include u-display('flex');
+  @include u-float('right');
+}

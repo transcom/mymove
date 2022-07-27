@@ -4532,7 +4532,7 @@ definitions:
         x-nullable: true
       locationDescription:
         type: string
-        example: asdfasdfsd
+        example: Route 66 at crash inspection site 3
         x-nullable: true
       observedDate:
         type: string
@@ -4561,7 +4561,9 @@ definitions:
         format: date-time
   CreateShipmentEvaluationReport:
     type: object
-    description: 'todo: add description'
+    description: >-
+      Minimal set of info needed to create a shipment evaluation report, which
+      is just a shipment ID.
     required:
       - shipmentID
     properties:
