@@ -97,6 +97,14 @@ func main() {
 	}
 	root.AddCommand(completionCommand)
 
+	exportDBDataCommand := &cobra.Command{
+		Use:   "export-db-data",
+		Short: "Exports database data to Advana",
+		Long:  "Exports database data to Advana",
+		RunE:  exportDBData,
+	}
+	root.AddCommand(exportDBDataCommand)
+
 	if err := root.Execute(); err != nil {
 		panic(err)
 	}

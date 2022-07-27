@@ -35,6 +35,7 @@ require (
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.1
 	github.com/gorilla/mux v1.8.0
+	github.com/habx/pg-commands v0.3.0
 	github.com/imdario/mergo v0.3.13
 	github.com/jackc/pgerrcode v0.0.0-20201024163028-a0d42d470451
 	github.com/jessevdk/go-flags v1.5.0
