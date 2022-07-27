@@ -862,7 +862,7 @@ jobs:
       - attach_workspace:
           at: .
       - e2e_tests_cypress:
-          spec_glob: cypress/integration/admin/**/*.js
+          spec_glob: cypress/e2e/admin/**/*.js
       - store_artifacts:
           path: cypress/reports
           destination: reports
@@ -884,7 +884,7 @@ jobs:
       - attach_workspace:
           at: .
       - e2e_tests_cypress:
-          spec_glob: cypress/integration/office/**/*.js
+          spec_glob: cypress/e2e/office/**/*.js
       - store_artifacts:
           path: cypress/reports
           destination: reports
@@ -904,7 +904,7 @@ jobs:
       - attach_workspace:
           at: .
       - e2e_tests_cypress:
-          spec_glob: cypress/integration/api/**/*.js
+          spec_glob: cypress/e2e/api/**/*.js
       - store_artifacts:
           path: cypress/reports
           destination: reports
@@ -927,7 +927,7 @@ jobs:
       - attach_workspace:
           at: .
       - e2e_tests_cypress:
-          spec_glob: cypress/integration/mymove/**/*.js
+          spec_glob: cypress/e2e/mymove/**/*.js
       - store_artifacts:
           path: cypress/reports
           destination: reports
@@ -949,7 +949,7 @@ jobs:
       - attach_workspace:
           at: .
       - e2e_tests_cypress:
-          spec_glob: cypress/integration/milmove/**/*.js
+          spec_glob: cypress/e2e/milmove/**/*.js
       - store_artifacts:
           path: cypress/reports
           destination: reports
