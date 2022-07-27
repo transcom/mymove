@@ -75,6 +75,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		HandlerConfig:                handlerConfig,
 		CustomerSupportRemarkUpdater: customerserviceremarks.NewCustomerSupportRemarkUpdater(),
 	}
+
 	ghcAPI.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler = DeleteCustomerSupportRemarkHandler{
 		HandlerConfig:                handlerConfig,
 		CustomerSupportRemarkDeleter: customerserviceremarks.NewCustomerSupportRemarkDeleter(),
@@ -88,6 +89,16 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MoveGetMoveShipmentEvaluationReportsListHandler = GetShipmentEvaluationReportsHandler{
 		HandlerConfig:               handlerConfig,
 		EvaluationReportListFetcher: evaluationreport.NewEvaluationReportListFetcher(),
+	}
+
+	ghcAPI.EvaluationReportsCreateEvaluationReportForShipmentHandler = CreateEvaluationReportHandler{
+		HandlerConfig:           handlerConfig,
+		EvaluationReportCreator: evaluationreport.NewEvaluationReportCreator(),
+	}
+
+	ghcAPI.EvaluationReportsDeleteEvaluationReportHandler = DeleteEvaluationReportHandler{
+		HandlerConfig:           handlerConfig,
+		EvaluationReportDeleter: evaluationreport.NewEvaluationReportDeleter(),
 	}
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{

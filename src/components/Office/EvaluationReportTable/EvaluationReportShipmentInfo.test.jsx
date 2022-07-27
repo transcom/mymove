@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import EvaluationReportShipmentInfo from './EvaluationReportShipmentInfo';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { MockProviders } from 'testUtils';
 
 const pickupAddress = {
   city: 'Beverly Hills',
@@ -66,29 +67,49 @@ const ppmShipment = {
 };
 describe('EvaluationReportShipmentInfo', () => {
   it('renders HHG shipment', () => {
-    render(<EvaluationReportShipmentInfo shipment={hhgShipment} shipmentNumber={1} />);
+    render(
+      <MockProviders>
+        <EvaluationReportShipmentInfo shipment={hhgShipment} shipmentNumber={1} />
+      </MockProviders>,
+    );
     expect(screen.getByRole('heading', { level: 4, name: /HHG Shipment ID #C3C64/ })).toBeInTheDocument();
+
     expect(screen.getByText(/123 Any Street/)).toBeInTheDocument();
     expect(screen.getByText(/987 Any Avenue/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Create report' })).toBeInTheDocument();
   });
   it('renders NTS shipment', () => {
-    render(<EvaluationReportShipmentInfo shipment={ntsShipment} shipmentNumber={1} />);
+    render(
+      <MockProviders>
+        <EvaluationReportShipmentInfo shipment={ntsShipment} shipmentNumber={1} />
+      </MockProviders>,
+    );
     expect(screen.getByRole('heading', { level: 4, name: /NTS Shipment ID #C3C64/ })).toBeInTheDocument();
+
     expect(screen.getByText(/123 Any Street/)).toBeInTheDocument();
     expect(screen.getByText(/Storage Facility/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Create report' })).toBeInTheDocument();
   });
   it('renders NTS-R shipment', () => {
-    render(<EvaluationReportShipmentInfo shipment={ntsReleaseShipment} shipmentNumber={1} />);
+    render(
+      <MockProviders>
+        <EvaluationReportShipmentInfo shipment={ntsReleaseShipment} shipmentNumber={1} />
+      </MockProviders>,
+    );
     expect(screen.getByRole('heading', { level: 4, name: /NTS-Release Shipment ID #C3C64/ })).toBeInTheDocument();
+
     expect(screen.getByText(/Storage Facility/)).toBeInTheDocument();
     expect(screen.getByText(/987 Any Avenue/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Create report' })).toBeInTheDocument();
   });
   it('renders PPM shipment', () => {
-    render(<EvaluationReportShipmentInfo shipment={ppmShipment} shipmentNumber={1} />);
+    render(
+      <MockProviders>
+        <EvaluationReportShipmentInfo shipment={ppmShipment} shipmentNumber={1} />
+      </MockProviders>,
+    );
     expect(screen.getByRole('heading', { level: 4, name: /PPM Shipment ID #C3C64/ })).toBeInTheDocument();
+
     expect(screen.getByText(/90210/)).toBeInTheDocument();
     expect(screen.getByText(/94535/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Create report' })).toBeInTheDocument();
