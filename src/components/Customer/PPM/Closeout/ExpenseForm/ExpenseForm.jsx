@@ -42,16 +42,8 @@ const validationSchema = Yup.object().shape({
 });
 
 const ExpenseForm = ({ expense, onBack, onSubmit }) => {
-  const {
-    receiptType,
-    description,
-    paidWithGTCC,
-    amount,
-    noReceipt,
-    receiptDocument,
-    startDate,
-    endDate
-  } = expense || {};
+  const { receiptType, description, paidWithGTCC, amount, noReceipt, receiptDocument, startDate, endDate } =
+    expense || {};
 
   const initialValues = {
     receiptType: receiptType || '',
