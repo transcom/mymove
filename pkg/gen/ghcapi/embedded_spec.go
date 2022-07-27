@@ -414,6 +414,52 @@ func init() {
       }
     },
     "/evaluation-reports/{reportID}": {
+      "put": {
+        "description": "Saves an evaluation report as a draft",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Saves an evaluation report as a draft",
+        "operationId": "saveEvaluationReport",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully saved the report"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "delete": {
         "description": "Soft deletes an evaluation report by ID",
         "produces": [
@@ -4534,7 +4580,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "evaluationLengthMinutes": {
           "type": "integer",
@@ -4543,6 +4590,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "inspectionDate": {
@@ -4566,6 +4614,7 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "observedDate": {
@@ -4581,6 +4630,7 @@ func init() {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "submittedAt": {
@@ -8266,6 +8316,70 @@ func init() {
       }
     },
     "/evaluation-reports/{reportID}": {
+      "put": {
+        "description": "Saves an evaluation report as a draft",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Saves an evaluation report as a draft",
+        "operationId": "saveEvaluationReport",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully saved the report"
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Soft deletes an evaluation report by ID",
         "produces": [
@@ -13180,7 +13294,8 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "evaluationLengthMinutes": {
           "type": "integer",
@@ -13190,6 +13305,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "inspectionDate": {
@@ -13213,6 +13329,7 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "observedDate": {
@@ -13228,6 +13345,7 @@ func init() {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "submittedAt": {

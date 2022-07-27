@@ -1870,6 +1870,36 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+    put:
+      summary: Saves an evaluation report as a draft
+      description: Saves an evaluation report as a draft
+      operationId: saveEvaluationReport
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/EvaluationReport'
+      responses:
+        '204':
+          description: Successfully saved the report
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/moves/{locator}/payment-requests':
     parameters:
       - description: move code to identify a move for payment requests
@@ -4286,15 +4316,18 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       moveID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       shipmentID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
         x-nullable: true
+        readOnly: true
       type:
         $ref: '#/definitions/EvaluationReportType'
       inspectionType:
@@ -4336,6 +4369,7 @@ definitions:
       createdAt:
         type: string
         format: date-time
+        readOnly: true
   CreateShipmentEvaluationReport:
     type: object
     description: Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.
