@@ -4,32 +4,28 @@ import moment from 'moment';
 
 import EvaluationReportTable from './EvaluationReportTable';
 import EvaluationReportShipmentInfo from './EvaluationReportShipmentInfo';
+import styles from './ShipmentEvaluationReports.module.scss';
 
 const ShipmentEvaluationReports = ({ shipments, reports }) => {
   const sortedShipments = shipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
-  const shipmentNumbersByType = {};
 
   const shipmentRows = sortedShipments.map((shipment) => {
-    const { shipmentType } = shipment;
-    if (shipmentNumbersByType[shipmentType]) {
-      shipmentNumbersByType[shipmentType] += 1;
-    } else {
-      shipmentNumbersByType[shipmentType] = 1;
-    }
-    const shipmentNumber = shipmentNumbersByType[shipmentType];
     return (
-      <div key={shipment.id}>
-        <EvaluationReportShipmentInfo shipment={shipment} shipmentNumber={shipmentNumber} />
-        <EvaluationReportTable reports={reports.filter((r) => r.shipmentID === shipment.id)} />
+      <div key={shipment.id} className={styles.shipmentRow}>
+        <EvaluationReportShipmentInfo shipment={shipment} />
+        <EvaluationReportTable
+          reports={reports.filter((r) => r.shipmentID === shipment.id)}
+          emptyText="No QAE reports have been submitted for this shipment."
+        />
       </div>
     );
   });
 
   return (
-    <>
+    <div className={styles.shipmentEvaluationReportsContainer}>
       <h2>Shipment QAE reports ({reports.length})</h2>
-      {shipmentRows}
-    </>
+      <div className={styles.shipmentReportRows}>{shipmentRows}</div>
+    </div>
   );
 };
 

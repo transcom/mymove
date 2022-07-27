@@ -1,0 +1,26 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.evaluationReportSection {
+  @include u-bg('white');
+  @include u-radius(4px);
+  @include u-border('base-lighter');
+  @include u-border('1px');
+  @include u-padding-x(3);
+  @include u-padding-top(36px);
+  @include u-padding-bottom(36px);
+  @include u-margin-bottom(28px);
+}
+
+.counselingHeadingContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  h2 {
+    @include u-margin-top(0);
+  }
+  button {
+    @include u-margin(0);
+  }
+}
