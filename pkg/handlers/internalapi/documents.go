@@ -3,40 +3,15 @@ package internalapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/storage"
 )
-
-func payloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
-	uploads := make([]*internalmessages.UploadPayload, len(document.UserUploads))
-	for i, userUpload := range document.UserUploads {
-		if userUpload.Upload.ID == uuid.Nil {
-			return nil, errors.New("No uploads for user")
-		}
-		url, err := storer.PresignedURL(userUpload.Upload.StorageKey, userUpload.Upload.ContentType)
-		if err != nil {
-			return nil, err
-		}
-
-		uploadPayload := payloadForUploadModel(storer, userUpload.Upload, url)
-		uploads[i] = uploadPayload
-	}
-
-	documentPayload := &internalmessages.DocumentPayload{
-		ID:              handlers.FmtUUID(document.ID),
-		ServiceMemberID: handlers.FmtUUID(document.ServiceMemberID),
-		Uploads:         uploads,
-	}
-	return documentPayload, nil
-}
 
 // CreateDocumentHandler creates a new document via POST /documents/
 type CreateDocumentHandler struct {
@@ -75,7 +50,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 			}
 
 			appCtx.Logger().Info("created a document with id", zap.Any("new_document_id", newDocument.ID))
-			documentPayload, err := payloadForDocumentModel(h.FileStorer(), newDocument)
+			documentPayload, err := payloads.PayloadForDocumentModel(h.FileStorer(), newDocument)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
@@ -103,7 +78,7 @@ func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middle
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			documentPayload, err := payloadForDocumentModel(h.FileStorer(), document)
+			documentPayload, err := payloads.PayloadForDocumentModel(h.FileStorer(), document)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}

@@ -61,22 +61,7 @@ const Review = () => {
   const { moveId, mtoShipmentId } = useParams();
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
 
-  // TODO remove when swagger payload includes weight tickets
-  const weightTickets = mtoShipment?.ppmShipment?.weightTickets || [
-    {
-      id: 'dd7dea73-d711-420f-bad6-8b2ebf959584',
-      vehicleDescription: 'DMC Delorean',
-      emptyWeight: 2500,
-      fullWeight: 3500,
-      eTag: 'eTag value',
-    },
-    {
-      id: '91bf7e4b-9620-4886-bb7b-f2259525caf8',
-      vehicleDescription: 'PT Cruiser',
-      emptyWeight: 2725,
-      fullWeight: 3250,
-    },
-  ];
+  const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
   const proGear = mtoShipment?.ppmShipment?.proGear;
   const expenses = mtoShipment?.ppmShipment?.expenses;
 

@@ -9,13 +9,14 @@ import (
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
 func payloadForGenericMoveDocumentModel(storer storage.FileStorer, moveDocument models.MoveDocument) (*internalmessages.MoveDocumentPayload, error) {
 
-	documentPayload, err := payloadForDocumentModel(storer, moveDocument.Document)
+	documentPayload, err := payloads.PayloadForDocumentModel(storer, moveDocument.Document)
 	if err != nil {
 		return nil, err
 	}

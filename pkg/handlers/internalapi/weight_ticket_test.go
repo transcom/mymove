@@ -174,7 +174,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		}
 
 		subtestData.handler = UpdateWeightTicketHandler{
-			handlers.NewHandlerConfig(appCtx.DB(), appCtx.Logger()),
+			suite.createHandlerConfig(),
 			weightTicketUpdater,
 		}
 
@@ -227,7 +227,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 			VehicleDescription:       "Subaru",
 			EmptyWeight:              handlers.FmtInt64(0),
 			MissingEmptyWeightTicket: false,
-			FullWeight:               handlers.FmtInt64(4000),
+			FullWeight:               handlers.FmtInt64(0),
 			MissingFullWeightTicket:  false,
 			OwnsTrailer:              true,
 			TrailerMeetsCriteria:     true,
