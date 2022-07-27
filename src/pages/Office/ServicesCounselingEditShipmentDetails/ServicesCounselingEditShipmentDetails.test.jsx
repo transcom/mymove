@@ -301,6 +301,47 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('button', { name: 'Save and Continue' })).toBeInTheDocument();
     });
 
+    describe('Check SIT field validations', () => {
+      it.each([
+        [
+          'sitEstimatedWeight',
+          { sitEstimatedWeight: '', sitEstimatedEntryDate: '15 Jun 2022', sitEstimatedDepartureDate: '25 Jul 2022' },
+          'Required',
+        ],
+        [
+          'sitEstimatedEntryDate',
+          { sitEstimatedWeight: '1234', sitEstimatedEntryDate: 'asdf', sitEstimatedDepartureDate: '25 Jul 2022' },
+          'Enter a complete date in DD MMM YYYY format (day, month, year).',
+        ],
+        [
+          'sitEstimatedDepartureDate',
+          { sitEstimatedWeight: '1234', sitEstimatedEntryDate: '15 Jun 2022', sitEstimatedDepartureDate: 'asdf' },
+          'Enter a complete date in DD MMM YYYY format (day, month, year).',
+        ],
+      ])('Verify invalid %s field shows validation error', async (field, data, expectedError) => {
+        useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
+        render(<ServicesCounselingEditShipmentDetails {...props} />);
+
+        const sitExpected = document.getElementById('sitExpectedYes').parentElement;
+        const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
+        await userEvent.click(sitExpectedYes);
+
+        await userEvent.type(screen.getByLabelText('Estimated SIT weight'), data.sitEstimatedWeight);
+        await userEvent.type(screen.getByLabelText('Estimated storage start'), data.sitEstimatedEntryDate);
+        await userEvent.type(screen.getByLabelText('Estimated storage end'), data.sitEstimatedDepartureDate);
+        await userEvent.tab();
+
+        await waitFor(() => {
+          const alerts = screen.getAllByRole('alert');
+          expect(alerts).toHaveLength(1);
+          expect(alerts[0]).toHaveTextContent(expectedError);
+        });
+
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+        expect(screen.getByRole('alert').nextElementSibling.firstElementChild).toHaveAttribute('name', field);
+      });
+    });
+
     it('Enables Save and Continue button when sit required fields are filled in', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
       render(<ServicesCounselingEditShipmentDetails {...props} />);
@@ -316,61 +357,6 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       await waitFor(() => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
-      });
-    });
-
-    it('marks SIT Estimated SIT weight as required when conditionally displayed', async () => {
-      useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
-      render(<ServicesCounselingEditShipmentDetails {...props} />);
-
-      const sitExpected = document.getElementById('sitExpectedYes').parentElement;
-      const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
-      await userEvent.click(sitExpectedYes);
-      await userEvent.click(screen.getByLabelText('Estimated SIT weight'));
-      await userEvent.type(screen.getByLabelText('Estimated storage start'), '15 Jun 2022');
-      await userEvent.type(screen.getByLabelText('Estimated storage end'), '25 Jun 2022');
-      await userEvent.tab();
-
-      await waitFor(() => {
-        expect(screen.getByRole('alert')).toHaveTextContent('Required');
-      });
-    });
-
-    it('marks SIT Estimated storage start as required when conditionally displayed', async () => {
-      useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
-      render(<ServicesCounselingEditShipmentDetails {...props} />);
-
-      const sitExpected = document.getElementById('sitExpectedYes').parentElement;
-      const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
-      await userEvent.click(sitExpectedYes);
-      await userEvent.type(screen.getByLabelText('Estimated SIT weight'), '1234');
-      await userEvent.type(screen.getByLabelText('Estimated storage start'), '15');
-      await userEvent.type(screen.getByLabelText('Estimated storage end'), '25 Jun 2022');
-      await userEvent.tab();
-
-      await waitFor(() => {
-        expect(screen.getByRole('alert')).toHaveTextContent(
-          'Enter a complete date in DD MMM YYYY format (day, month, year).',
-        );
-      });
-    });
-
-    it('marks SIT Estimated storage end as required when conditionally displayed', async () => {
-      useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
-      render(<ServicesCounselingEditShipmentDetails {...props} />);
-
-      const sitExpected = document.getElementById('sitExpectedYes').parentElement;
-      const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
-      await userEvent.click(sitExpectedYes);
-      await userEvent.type(screen.getByLabelText('Estimated SIT weight'), '2022');
-      await userEvent.type(screen.getByLabelText('Estimated storage start'), '15 Jun 2022');
-      await userEvent.type(screen.getByLabelText('Estimated storage end'), '25');
-      await userEvent.tab();
-
-      await waitFor(() => {
-        expect(screen.getByRole('alert')).toHaveTextContent(
-          'Enter a complete date in DD MMM YYYY format (day, month, year).',
-        );
       });
     });
 
