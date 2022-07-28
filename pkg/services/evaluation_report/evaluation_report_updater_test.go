@@ -64,7 +64,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		// Attempt to update the report
 		err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, otherOfficeUserID, etag.GenerateEtag(report.UpdatedAt))
 
-		// Our bogus report ID should cause an error
+		// Our bogus office user ID should cause an error
 		suite.Error(err)
 		// TODO check that we're getting the correct error
 	})
