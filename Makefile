@@ -934,6 +934,30 @@ tasks_post_file_to_gex: tasks_build_linux_docker ## Run post-file-to-gex from in
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
 		milmove-tasks post-file-to-gex
+
+tasks_export_db_data: tasks_build_linux_docker ## Run export-db-data from inside docker container
+	@echo "exporting db data with docker command..."
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
+	docker run \
+		-t \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		-e PGHOST \
+		-e PGPORT \
+		-e PGDB \
+		-e PGUSER \
+		-e PGPASSWORD \
+		-e BUCKET_NAME \
+		-e AWS_ACCESS_KEY_ID \
+		-e AWS_SECRET_ACCESS_KEY \
+		-e AWS_REGION \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		--rm \
+		$(TASKS_DOCKER_CONTAINER):latest \
+		milmove-tasks export-db-data
 #
 # ----- END SCHEDULED TASK TARGETS -----
 #
