@@ -29,16 +29,21 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 	submittedAt := availableToPrimeAt.Add(-1 * time.Hour)
 
 	ordersID := uuid.Must(uuid.NewV4())
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status:             models.MoveStatusAPPROVED,
-			AvailableToPrimeAt: &availableToPrimeAt,
-			SubmittedAt:        &submittedAt,
-			Orders:             models.Order{ID: ordersID},
-		},
+	var move models.Move
+	var requestUser models.User
+	suite.PreloadData(func() {
+		move = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: &availableToPrimeAt,
+				SubmittedAt:        &submittedAt,
+				Orders:             models.Order{ID: ordersID},
+			},
+		})
+
+		requestUser = testdatagen.MakeStubbedUser(suite.DB())
 	})
 
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 	params := moveops.GetMoveParams{
@@ -130,7 +135,10 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 
 func (suite *HandlerSuite) TestSearchMovesHandler() {
 
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	var requestUser models.User
+	suite.PreloadData(func() {
+		requestUser = testdatagen.MakeStubbedUser(suite.DB())
+	})
 	req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -212,9 +220,12 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 }
 
 func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
-
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	var move models.Move
+	var requestUser models.User
+	suite.PreloadData(func() {
+		move = testdatagen.MakeDefaultMove(suite.DB())
+		requestUser = testdatagen.MakeStubbedUser(suite.DB())
+	})
 	req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 	defaultRemarks := "destination address is on the moon"

@@ -230,11 +230,15 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	paymentRequestID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
 	officeUserUUID, _ := uuid.NewV4()
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true, OfficeUser: models.OfficeUser{ID: officeUserUUID}})
-	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-		RoleType: roles.RoleTypeTIO,
-	})
+	var officeUser models.OfficeUser
 
+	suite.PreloadData(func() {
+		officeUser = testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true, OfficeUser: models.OfficeUser{ID: officeUserUUID}})
+		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+			RoleType: roles.RoleTypeTIO,
+		})
+
+	})
 	paymentRequest := models.PaymentRequest{
 		ID:        paymentRequestID,
 		IsFinal:   false,
@@ -540,7 +544,11 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 }
 
 func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
-	officeUserTIO := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	var officeUserTIO models.OfficeUser
+
+	suite.PreloadData(func() {
+		officeUserTIO = testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	})
 
 	suite.Run("successful response of the shipments SIT Balance handler", func() {
 		now := time.Now()

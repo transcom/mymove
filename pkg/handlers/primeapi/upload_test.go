@@ -19,7 +19,10 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateUploadHandler() {
-	primeUser := testdatagen.MakeStubbedUser(suite.DB())
+	var primeUser models.User
+	suite.PreloadData(func() {
+		primeUser = testdatagen.MakeStubbedUser(suite.DB())
+	})
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	setupTestData := func() (CreateUploadHandler, models.PaymentRequest) {

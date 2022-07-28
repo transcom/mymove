@@ -5,13 +5,17 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"regexp"
 	"runtime"
 	"strings"
-	"testing"
+	"sync"
 	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
+
+	"github.com/DATA-DOG/go-txdb"
+	"github.com/jmoiron/sqlx"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
@@ -77,6 +81,13 @@ type PopTestSuite struct {
 
 	// Enable this flag to use per test transactions
 	usePerTestTransaction bool
+	// the preloadedTxnDb is used when PreloadData is invoked
+	preloadedTxnDb *sqlx.DB
+	// a mutex to make sure transactional tests aren't stepping on each other
+	txnMutex sync.Mutex
+	// tracking the *testing.T that are active to ensure multiple
+	// databases are not open at the same time
+	txnTestDb map[string]*pop.Connection
 }
 
 func dropDB(conn *pop.Connection, destination string) error {
@@ -143,7 +154,25 @@ func WithHighPrivPSQLRole() PopTestSuiteOption {
 // WithPerTestTransaction is a functional option that can be passed
 // into the NewPopTestSuite function to create a PopTestSuite that
 // runs each test inside a transaction and rolls back at the end of
-// the test. See also PopTestSuite#Run
+// the test. See also PopTestSuite#PreloadData for how to share data
+// between subtests. For implementation details see PopTestSuite#DB
+//
+// When WithPerTestTransaction is enabled, it means each subtest has a
+// database that is isolated from other tests.
+
+// If per test transaction is enabled and PreloadData has not been
+// called, each subtest gets a new connection. This means subtests are
+// really just like main tests, but subtests are a helpful way to
+// group tests together, which can be useful.
+//
+// When using per test transactions, it works both with
+//
+// suite.Run("name", func( { ... })
+//
+// and
+//
+// suite.T().Run("name", func(t *testing.T) { ... })
+
 func WithPerTestTransaction() PopTestSuiteOption {
 	return func(pts *PopTestSuite) {
 		pts.usePerTestTransaction = true
@@ -219,6 +248,8 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) *PopTe
 		pts.lowPrivConn = pts.highPrivConn
 		pts.lowPrivConnDetails = pts.highPrivConnDetails
 	}
+
+	pts.txnTestDb = make(map[string]*pop.Connection)
 
 	return pts
 }
@@ -380,25 +411,172 @@ func (suite *PopTestSuite) findOrCreatePerTestTransactionDb() {
 	}
 }
 
-// DB returns a db connection
+// openTxnDb sets up the sqlx.DB for this test that will rollback
+// all changes when the db is closed
+func (suite *PopTestSuite) openTxnDb(name string) *sqlx.DB {
+	packageName := suite.PackageName.String()
+
+	s := "postgres://%s:%s@%s:%s/%s?%s"
+	dataSourceName := fmt.Sprintf(s, suite.lowPrivConnDetails.User,
+		suite.lowPrivConnDetails.Password,
+		suite.lowPrivConnDetails.Host,
+		suite.lowPrivConnDetails.Port,
+		suite.lowPrivConnDetails.Database,
+		suite.lowPrivConnDetails.OptionsString(""))
+
+	// See https://github.com/DATA-DOG/go-txdb for more information
+	// about how txdb works and why we need to register a fake driver
+	// and then connect to a fake database name
+	if !containsString(sql.Drivers(), fakePopSqlxDriverName) {
+		txdb.Register(fakePopSqlxDriverName, "postgres", dataSourceName)
+	}
+
+	dbSanitizer := regexp.MustCompile("[^a-zA-Z0-9_]")
+	fakeDbName := dbSanitizer.ReplaceAllString(packageName+"_"+name, "_")
+
+	suite.lowPrivConnDetails.Driver = fakePopSqlxDriverName
+	suite.lowPrivConnDetails.Options["application_name"] = fakeDbName
+	suite.lowPrivConnDetails.Database = fakeDbName
+	return sqlx.MustOpen(fakePopSqlxDriverName, fakeDbName)
+}
+
+// txnPopConnection wraps the sqlx.DB in a *pop.Connection
+func (suite *PopTestSuite) txnPopConnection(db *sqlx.DB) *pop.Connection {
+	popConn, err := pop.NewConnection(suite.lowPrivConnDetails)
+	if err != nil {
+		log.Panic(err)
+	}
+	suiteStore := &PopSuiteTxnStore{
+		db,
+		popConn,
+	}
+	popConn.Store = suiteStore
+	return popConn
+}
+
+// PreloadData sets up the data used by all subtests. It can only be
+// called once. Once it is called, all subtests will use the same
+// database, but will run inside a savepoint that are rolled back.
+// This way each subtest can reuse the preloaded data, but each
+// subtest cannot modify the data used by another test.
+//
+// Note that calling PreloadData automatically changes how suite.Run
+// works
+func (suite *PopTestSuite) PreloadData(f func()) {
+	if !suite.usePerTestTransaction {
+		log.Panic("Cannot use PreloadData without per test transaction")
+	}
+	if suite.preloadedTxnDb != nil {
+		log.Panic("Cannot call PreloadData multiple times in the same test")
+	}
+	// establish a database connection for the suite that will
+	// rollback when closed
+	suite.preloadedTxnDb = suite.openTxnDb("preload_data")
+	// set lowPrivConn so suite.DB() will return the pop connection
+	suite.lowPrivConn = suite.txnPopConnection(suite.preloadedTxnDb)
+	defer func() {
+		// ensure we unset the connection so that after preloading
+		// data a new pop connection will be established
+		suite.lowPrivConn = nil
+	}()
+	suite.T().Cleanup(func() {
+		err := suite.preloadedTxnDb.Close()
+		if err != nil {
+			log.Panic(err)
+		}
+		suite.preloadedTxnDb = nil
+	})
+	f()
+}
+
+// DB returns a db connection. It has logic to handle per test
+// transactions, both when PreloadData is called and when it is not
 func (suite *PopTestSuite) DB() *pop.Connection {
+	if !suite.usePerTestTransaction {
+		return suite.lowPrivConn
+	}
+
 	// Create the db connection on demand for per test transactions.
 	// This is necessary so that we know the current test name and can
 	// create a new txdb db connection per test
-	if suite.usePerTestTransaction {
+	suite.txnMutex.Lock()
+	defer suite.txnMutex.Unlock()
+	// set up the pop connection for PreloadData that will
+	// rollback at the end of the test
+	if suite.preloadedTxnDb != nil {
+		// At this point, PreloadData has been called, so we want to
+		// start a savepoint. This is what go-txdb does for us. See
+		// https://github.com/DATA-DOG/go-txdb/blob/master/db.go#L195
 		if suite.lowPrivConn == nil {
-			suite.lowPrivConn = suite.openTxnPopConnection()
+			tx, err := suite.preloadedTxnDb.Beginx()
+			if err != nil {
+				log.Panic(err)
+			}
+			suite.lowPrivConn = suite.txnPopConnection(suite.preloadedTxnDb)
+			// ensure the savepoint is rolled back when this test
+			// context (suite.T()) is finished
+			suite.T().Cleanup(func() {
+				suite.lowPrivConn = nil
+				err = tx.Rollback()
+				if err != nil {
+					log.Panic(err)
+				}
+			})
 		}
+		return suite.lowPrivConn
 	}
-	return suite.lowPrivConn
-}
 
-// setDB overrides the connection for per test transactions
-func (suite *PopTestSuite) setDB(conn *pop.Connection) {
-	if !suite.usePerTestTransaction {
-		log.Panic("Cannot use setDB wihout per test transaction")
+	// At this point, we know this is a transactional test that is not
+	// using PreloadData, so we can establish a new connection using
+	// go-txdb.
+	testingName := suite.T().Name()
+	popConn, ok := suite.txnTestDb[testingName]
+	if ok {
+		return popConn
 	}
-	suite.lowPrivConn = conn
+	// create a brand new database for this test so it is
+	// completely isolated
+	db := suite.openTxnDb(testingName)
+	popConn = suite.txnPopConnection(db)
+	suite.txnTestDb[testingName] = popConn
+
+	// To prevent accidental dependencies between tests, check and
+	// make sure that this test is only connecting to a single
+	// database at a time.
+	// This prevents situations like
+	//
+	// func (suite *MySuite) TopTest() {
+	//   move = makeMove(suite.DB())
+	//   suite.Run("subtest 1", func() {
+	//     suite.NoError(doSomething(&move))
+	//   })
+	//
+	//   modifyMove(&move)
+	//   suite.Run("subtest 2", func( {
+	//     suite.NoError(doSomethingElseWithModifiedMove(&move))
+	//   })
+	// }
+	if len(suite.txnTestDb) > 1 {
+		names := ""
+		i := 0
+		for k := range suite.txnTestDb {
+			if i == 0 {
+				names = k
+			} else {
+				names = names + "," + k
+			}
+			i++
+		}
+		log.Panic("Multiple test databases active simultaneously, use PreloadData: " + names)
+	}
+	suite.T().Cleanup(func() {
+		delete(suite.txnTestDb, testingName)
+		err := popConn.Close()
+		if err != nil {
+			log.Panic(err)
+		}
+	})
+	return popConn
 }
 
 // Logger returns the logger for the test suite
@@ -496,94 +674,6 @@ func (suite *PopTestSuite) NilOrNoVerrs(err error) {
 	default:
 		suite.Nil(err)
 	}
-}
-
-// Run, with WithPerTestTransaction enabled, means each subtest
-// gets a new connection and is isolated from both any database
-// changes made in the main test, and in sibling subtests.
-//
-// It would be nice if subtests could start a new transaction inside
-// the current connection so they could reuse db setup between
-// subtests. Unfortunately, because database/sql and pop do not
-// support nested transactions, this gets complicated and hairy
-// quickly. When testing that approach, connections wouldn't get
-// closed and cause other tests to hang or subtests would report
-// incorrect errors about transactions already being closed.
-//
-// And so, if per test transaction is enabled, each subtest gets a new
-// connection. This means subtests are really just like main tests,
-// but subtests are a helpful way to group tests together, which can
-// be useful. Setup has to be moved to a function that can be run once
-// per subtest. In testing, that was still faster with per test
-// transactions than the old way of cloning a db per package.
-//
-// If the code under test starts its own transaction, this is the
-// approach that should be used. If it does not use transactions, you
-// can probably get away with using RunWithPreloadedData (see below).
-//
-// When using per test transactions, watch out for subtests that do
-// not use testify.suite as they won't use this code and thus won't
-// get a per subtest connection. Tests that use the native testing
-// subtests look like
-//
-// suite.T().Run("name", func(t *testing.T) { ... })
-//
-// instead of
-//
-// suite.Run("name", func() { ... })
-//
-func (suite *PopTestSuite) Run(name string, subtest func()) bool {
-	oldDB := suite.lowPrivConn
-	oldT := suite.T()
-	defer suite.SetT(oldT)
-	return oldT.Run(name, func(t *testing.T) {
-		suite.SetT(t)
-		suite.logger = zaptest.NewLogger(t)
-		if suite.usePerTestTransaction {
-			subtestDb := suite.openTxnPopConnection()
-			suite.setDB(subtestDb)
-			defer func() {
-				err := subtestDb.Close()
-				if err != nil {
-					log.Fatalf("Closing Subtest DB Failed!: %v", err)
-				}
-				suite.setDB(oldDB)
-			}()
-			subtest()
-		} else {
-			subtest()
-		}
-	})
-}
-
-// RunWithPreloadedData, with WithPerTestTransaction enabled, means
-// each subtest will have access to preloaded data from the main test
-// but the subtest changes will get rolled back.
-//
-// This means each subtest is isolated from sibling tests but NOT
-// isolated from any db changes made in the main test.
-//
-// Each subtest will run in a transaction that rolls back when the
-// subtest returns.
-func (suite *PopTestSuite) RunWithPreloadedData(name string, subtest func()) bool {
-	if !suite.usePerTestTransaction {
-		log.Fatal("Cannot use RunWithPreloadedData without per test transaction")
-	}
-	// call suite.DB to ensure a connection is established outside the subtest
-	oldDB := suite.DB()
-	oldT := suite.T()
-	defer suite.SetT(oldT)
-	return oldT.Run(name, func(t *testing.T) {
-		suite.SetT(t)
-		err := oldDB.Rollback(func(tx *pop.Connection) {
-			suite.setDB(tx)
-			defer suite.setDB(oldDB)
-			subtest()
-		})
-		if err != nil {
-			log.Fatalf("Rollback of subtest %s failed: %v", name, err)
-		}
-	})
 }
 
 // TearDownTest runs the teardown per test. It will only do something

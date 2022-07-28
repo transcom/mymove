@@ -166,7 +166,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
 		moveTaskOrderID, serviceItemID), nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	var requestUser models.User
+	suite.PreloadData(func() {
+		requestUser = testdatagen.MakeStubbedUser(suite.DB())
+	})
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{

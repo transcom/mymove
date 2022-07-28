@@ -18,9 +18,13 @@ import (
 )
 
 func (suite *HandlerSuite) TestListMTOAgentsHandler() {
-	testMTOAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+	var requestUser models.User
+	var testMTOAgent models.MTOAgent
+	suite.PreloadData(func() {
+		requestUser = testdatagen.MakeStubbedUser(suite.DB())
+		testMTOAgent = testdatagen.MakeDefaultMTOAgent(suite.DB())
+	})
 
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/mto-agents", testMTOAgent.ID.String()), nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 

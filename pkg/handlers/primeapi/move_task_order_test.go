@@ -395,7 +395,10 @@ func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 
 func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	var requestUser models.User
+	suite.PreloadData(func() {
+		requestUser = testdatagen.MakeStubbedUser(suite.DB())
+	})
 
 	suite.Run("Successful patch - Integration Test", func() {
 		mto := testdatagen.MakeAvailableMove(suite.DB())
