@@ -726,6 +726,36 @@ paths:
       operationId: listMTOShipments
       summary: Gets all shipments for a move task order
   '/shipments/{shipmentID}':
+    get:
+      summary: fetches a shipment by ID
+      description: fetches a shipment by ID
+      operationId: getShipment
+      tags:
+        - mtoShipment
+      produces:
+        - application/json
+      parameters:
+        - description: ID of the shipment to be fetched
+          in: path
+          name: shipmentID
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: Successfully fetched the shipment
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
     delete:
       summary: Soft deletes a shipment by ID
       description: Soft deletes a shipment by ID
@@ -1847,6 +1877,28 @@ paths:
         required: true
         type: string
         format: uuid
+    get:
+      summary:
+       Gets an evaluation report by ID
+      description: Gets an evaluation report by ID
+      operationId: getEvaluationReport
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully got the report
+          schema:
+            $ref: '#/definitions/EvaluationReport'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
     delete:
       summary: Soft deletes an evaluation report by ID
       description: Soft deletes an evaluation report by ID
@@ -4274,6 +4326,27 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+  EvaluationReportOfficeUser:
+    type: object
+    readOnly: true
+    description: The authoring office user for an evaluation report
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
   EvaluationReportList:
     type: array
     items:
@@ -4308,6 +4381,8 @@ definitions:
         type: integer
         minimum: 0
         x-nullable: true
+      officeUser:
+        $ref: '#/definitions/EvaluationReportOfficeUser'
       location:
         $ref: '#/definitions/EvaluationReportLocation'
         x-nullable: true
@@ -4329,6 +4404,10 @@ definitions:
       remarks:
         type: string
         x-nullable: true
+      moveReferenceID:
+        type: string
+        x-nullable: true
+        readOnly: true
       submittedAt:
         type: string
         format: date-time

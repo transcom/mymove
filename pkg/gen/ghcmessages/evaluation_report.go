@@ -51,9 +51,16 @@ type EvaluationReport struct {
 	// Format: uuid
 	MoveID strfmt.UUID `json:"moveID,omitempty"`
 
+	// move reference ID
+	// Read Only: true
+	MoveReferenceID *string `json:"moveReferenceID,omitempty"`
+
 	// observed date
 	// Format: date-time
 	ObservedDate *strfmt.DateTime `json:"observedDate,omitempty"`
+
+	// office user
+	OfficeUser *EvaluationReportOfficeUser `json:"officeUser,omitempty"`
 
 	// remarks
 	Remarks *string `json:"remarks,omitempty"`
@@ -111,6 +118,10 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateObservedDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOfficeUser(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -246,6 +257,25 @@ func (m *EvaluationReport) validateObservedDate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *EvaluationReport) validateOfficeUser(formats strfmt.Registry) error {
+	if swag.IsZero(m.OfficeUser) { // not required
+		return nil
+	}
+
+	if m.OfficeUser != nil {
+		if err := m.OfficeUser.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("officeUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("officeUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *EvaluationReport) validateShipmentID(formats strfmt.Registry) error {
 	if swag.IsZero(m.ShipmentID) { // not required
 		return nil
@@ -311,6 +341,14 @@ func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.R
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateMoveReferenceID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOfficeUser(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -345,6 +383,31 @@ func (m *EvaluationReport) contextValidateLocation(ctx context.Context, formats 
 				return ve.ValidateName("location")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("location")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateMoveReferenceID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "moveReferenceID", "body", m.MoveReferenceID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateOfficeUser(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OfficeUser != nil {
+		if err := m.OfficeUser.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("officeUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("officeUser")
 			}
 			return err
 		}

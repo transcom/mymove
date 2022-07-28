@@ -130,7 +130,7 @@ const TXOMoveInfo = () => {
           </Route>
 
           <Route path={qaeCSRRoutes.SHIPMENT_EVALUATION_REPORT_PATH} exact>
-            <ShipmentEvaluationReport />
+            <ShipmentEvaluationReport customerInfo={customerData} orders={order} />
           </Route>
 
           <Route path="/moves/:moveCode/history" exact>
