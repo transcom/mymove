@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import ServicesCounselingEditShipmentDetails from './ServicesCounselingEditShipmentDetails';
 
 import { updateMTOShipment } from 'services/ghcApi';
+import { validatePostalCode } from 'utils/validation';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -29,6 +30,11 @@ jest.mock('services/ghcApi', () => ({
 
 jest.mock('hooks/queries', () => ({
   useEditShipmentQueries: jest.fn(),
+}));
+
+jest.mock('utils/validation', () => ({
+  ...jest.requireActual('utils/validation'),
+  validatePostalCode: jest.fn(),
 }));
 
 const useEditShipmentQueriesReturnValue = {
@@ -363,12 +369,16 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     it('calls props.onUpdate with success and routes to Advance page when the save button is clicked and the shipment update is successful', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
       updateMTOShipment.mockImplementation(() => Promise.resolve({}));
+      validatePostalCode.mockImplementation(() => Promise.resolve(false));
       const onUpdateMock = jest.fn();
 
       render(<ServicesCounselingEditShipmentDetails {...props} onUpdate={onUpdateMock} />);
 
-      const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
+      await waitFor(() => {
+        expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('1,111');
+      });
 
+      const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
       expect(saveButton).not.toBeDisabled();
 
       userEvent.click(saveButton);
