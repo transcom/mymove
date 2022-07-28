@@ -119,6 +119,7 @@ const WeightTicketUpload = ({
         <Hint className={styles.uploadTypeHint}>{weightTicketUploadHint(missingWeightTicket)}</Hint>
         <FileUpload
           name={fieldName}
+          className={fieldName}
           labelIdle={UploadDropZoneLabel}
           labelIdleMobile={UploadDropZoneLabelMobile}
           createUpload={(file) => onCreateUpload(fieldName, file)}
@@ -374,6 +375,7 @@ const WeightTicketForm = ({
                               </Hint>
                               <FileUpload
                                 name="proofOfTrailerOwnershipDocument"
+                                fieldName="proofOfTrailerOwnershipDocument"
                                 createUpload={(file) => onCreateUpload('proofOfTrailerOwnershipDocument', file)}
                                 labelIdle={UploadDropZoneLabel}
                                 labelIdleMobile={UploadDropZoneLabelMobile}

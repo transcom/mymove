@@ -2,6 +2,7 @@ import {
   setMobileViewport,
   submitWeightTicketPage,
   signInAndNavigateToWeightTicketPage,
+  signInAndNavigateToAboutPage,
 } from '../../../support/ppmCustomerShared';
 
 describe('Weight Tickets', function () {
@@ -14,31 +15,31 @@ describe('Weight Tickets', function () {
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
   });
 
-  const viewportType = [
-    { viewport: 'desktop', isMobile: false, userId: '88007896-6ae7-4600-866a-873d3bc67fd3' }, // actualPPMDateZIPAdvanceDone@ppm.approved
-    { viewport: 'mobile', isMobile: true, userId: '88007896-6ae7-4600-866a-873d3bc67fd3' }, // actualPPMDateZIPAdvanceDone@ppm.approved
-  ];
+  // const viewportType = [
+  //   { viewport: 'desktop', isMobile: false, userId: '88007896-6ae7-4600-866a-873d3bc67fd3' }, // actualPPMDateZIPAdvanceDone@ppm.approved
+  //   { viewport: 'mobile', isMobile: true, userId: '88007896-6ae7-4600-866a-873d3bc67fd3' }, // actualPPMDateZIPAdvanceDone@ppm.approved
+  // ];
 
-  viewportType.forEach(({ viewport, isMobile, userId }) => {
-    it(`validation errors - ${viewport}`, () => {
-      if (isMobile) {
-        setMobileViewport();
-      }
-      signInAndNavigateToWeightTicketPage(userId);
-      invalidInputs();
-    });
-  });
+  // viewportType.forEach(({ viewport, isMobile, userId }) => {
+  //   it(`validation errors - ${viewport}`, () => {
+  //     if (isMobile) {
+  //       setMobileViewport();
+  //     }
+  //     signInAndNavigateToWeightTicketPage(userId);
+  //     invalidInputs();
+  //   });
+  // });
 
-  viewportType.forEach(({ viewport, isMobile, userId }) => {
-    it(`proceed with weight ticket documents - ${viewport}`, () => {
-      if (isMobile) {
-        setMobileViewport();
-      }
+  // viewportType.forEach(({ viewport, isMobile, userId }) => {
+  //   it(`proceed with weight ticket documents - ${viewport}`, () => {
+  //     if (isMobile) {
+  //       setMobileViewport();
+  //     }
 
-      signInAndNavigateToWeightTicketPage(userId);
-      submitWeightTicketPage();
-    });
-  });
+  //     signInAndNavigateToWeightTicketPage(userId);
+  //     submitWeightTicketPage();
+  //   });
+  // });
 
   const viewportType2 = [
     { viewport: 'desktop', isMobile: false, userId: '22dba194-3d9a-49c6-8328-718dd945292f' }, // actualPPMDateZIPAdvanceDone2@ppm.approved
@@ -50,7 +51,7 @@ describe('Weight Tickets', function () {
       if (isMobile) {
         setMobileViewport();
       }
-      signInAndNavigateToWeightTicketPage(userId);
+      signInAndNavigateToAboutPage(userId);
       submitWeightTicketPage({ useConstructedWeight: true });
     });
   });
@@ -65,7 +66,7 @@ describe('Weight Tickets', function () {
       if (isMobile) {
         setMobileViewport();
       }
-      signInAndNavigateToWeightTicketPage(userId);
+      signInAndNavigateToAboutPage(userId);
       submitWeightTicketPage({ hasTrailer: true, ownTrailer: true });
     });
   });
@@ -80,7 +81,7 @@ describe('Weight Tickets', function () {
       if (isMobile) {
         setMobileViewport();
       }
-      signInAndNavigateToWeightTicketPage(userId);
+      signInAndNavigateToAboutPage(userId);
       submitWeightTicketPage({ hasTrailer: true, ownTrailer: false });
     });
   });

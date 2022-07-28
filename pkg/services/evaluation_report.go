@@ -12,3 +12,13 @@ import (
 type EvaluationReportListFetcher interface {
 	FetchEvaluationReports(appCtx appcontext.AppContext, reportType models.EvaluationReportType, moveID uuid.UUID, officeUserID uuid.UUID) (models.EvaluationReports, error)
 }
+
+//go:generate mockery --name EvaluationReportCreator --disable-version-string
+type EvaluationReportCreator interface {
+	CreateEvaluationReport(appCtx appcontext.AppContext, evaluationReport *models.EvaluationReport) (*models.EvaluationReport, error)
+}
+
+//go:generate mockery --name EvaluationReportDeleter --disable-version-string
+type EvaluationReportDeleter interface {
+	DeleteEvaluationReport(appCtx appcontext.AppContext, reportID uuid.UUID) error
+}

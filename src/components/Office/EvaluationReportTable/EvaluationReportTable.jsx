@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tag } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
+import { useLocation } from 'react-router';
 
 import styles from './EvaluationReportTable.module.scss';
 
@@ -8,6 +9,8 @@ import { formatCustomerDate, formatEvaluationReportLocation, formatQAReportID } 
 import { EvaluationReportShape } from 'types/evaluationReport';
 
 const EvaluationReportTable = ({ reports, emptyText }) => {
+  const { pathname } = useLocation();
+
   const row = (report) => {
     return (
       <tr key={report.id}>
@@ -19,10 +22,10 @@ const EvaluationReportTable = ({ reports, emptyText }) => {
         <td className={styles.violationsColumn}>{report.violationsObserved ? 'Yes' : 'No'}</td>
         <td className={styles.seriousIncidentColumn}>No</td>
         <td className={styles.viewReportColumn}>
-          <a href={`/moves/${report.moveID}/evaluation-reports/${report.id}`}>View report</a>
+          <a href={`${pathname}/${report.id}`}>View report</a>
         </td>
         <td className={styles.downloadColumn}>
-          <a href={`/moves/${report.moveID}/evaluation-reports/${report.id}/download`}>Download</a>
+          <a href={`${pathname}/evaluation-reports/${report.id}/download`}>Download</a>
         </td>
       </tr>
     );

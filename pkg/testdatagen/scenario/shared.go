@@ -1012,6 +1012,50 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx appcontext
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
+func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("33f39cca-3908-4cf5-b7d9-839741f51911"),
+		email:       "weightTicketPPM@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("a30fd609-6dcf-4dd0-a7e6-2892a31ae641"),
+		firstName:   "ActualPPM",
+		lastName:    "WeightTicketComplete",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("2fdb02a5-dd80-4ec4-a9f0-f4eefb434568"),
+		moveLocator: "W3TT1K",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("3e0c9457-9010-473a-a274-fc1620d5ee16"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          testdatagen.ConvertUUIDStringToUUID("7a5e932d-f1f6-435e-9518-3ee33f74bc88"),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+		},
+	}
+
+	move, shipment := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+
+	weightTicketAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+	}
+
+	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
+}
+
 func createMultipleApprovedMovesWithPPMs(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("22dba194-3d9a-49c6-8328-718dd945292f"),
@@ -1020,7 +1064,7 @@ func createMultipleApprovedMovesWithPPMs(appCtx appcontext.AppContext, userUploa
 		firstName:   "ActualPPM",
 		lastName:    "DateZIPAdvanceDone",
 		moveID:      testdatagen.ConvertUUIDStringToUUID("c20a62cb-ad19-405c-b230-dfadbd9a6eba"),
-		moveLocator: "ABTPPM",
+		moveLocator: "AB1PPM",
 	}
 
 	moveInfo2 := moveCreatorInfo{

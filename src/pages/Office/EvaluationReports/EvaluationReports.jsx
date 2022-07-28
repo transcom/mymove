@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { Button, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
@@ -11,9 +11,12 @@ import ShipmentEvaluationReports from 'components/Office/EvaluationReportTable/S
 import EvaluationReportTable from 'components/Office/EvaluationReportTable/EvaluationReportTable';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import Alert from 'shared/Alert';
 
 const EvaluationReports = () => {
   const { moveCode } = useParams();
+  const location = useLocation();
+
   const { shipmentEvaluationReports, counselingEvaluationReports, shipments, isLoading, isError } =
     useEvaluationReportsQueries(moveCode);
 
@@ -27,6 +30,11 @@ const EvaluationReports = () => {
   return (
     <div className={styles.tabContent}>
       <GridContainer>
+        {location.state?.showDeleteSuccess && (
+          <div className={evaluationReportsStyles.alert}>
+            <Alert type="success">Your report has been canceled</Alert>
+          </div>
+        )}
         <Grid row>
           <h1>Quality assurance reports</h1>
         </Grid>
