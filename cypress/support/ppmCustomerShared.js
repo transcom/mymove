@@ -1,4 +1,4 @@
-import { signAgreement } from '../integration/mymove/utilities/customer';
+import { signAgreement } from '../e2e/mymove/utilities/customer';
 
 export function setMobileViewport() {
   cy.viewport(479, 875);
