@@ -8,6 +8,7 @@
 # Code from - https://github.com/bellkev/circle-lock-test
 ########################################################################################
 
+set -x
 
 # sets $branch, $job_name, $tag, $rest
 parse_args() {

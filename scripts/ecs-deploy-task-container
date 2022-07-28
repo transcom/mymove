@@ -3,6 +3,7 @@
 #   Updates the named task with the given name, image, and environment.
 #
 set -eo pipefail
+set -x
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly DIR
