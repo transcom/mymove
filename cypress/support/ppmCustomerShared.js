@@ -71,7 +71,7 @@ export function signInAndNavigateToWeightTicketPage(userId) {
   cy.apiSignInAsUser(userId);
   cy.wait('@getShipment');
 
-  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
+  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').scrollIntoView().click();
   fillOutAboutPage(true);
 }
 
@@ -118,8 +118,6 @@ export function fillOutWeightTicketPage(options) {
       cy.get('input[name="trailerMeetsCriteria"][value="false"]').check({ force: true });
     }
   }
-
-  // cy.get('button').contains('Save & Continue').should('be.enabled');
 }
 
 export function navigateFromWeightTicketPage() {
