@@ -100,8 +100,10 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		suite.Error(err)
 	})
 
-	// I've got to copy these to variables because Go won't let you get a pointer to
-	// a constant
+	// I'm going to need pointers to all of these things later on, and so I'm copying
+	// them to variables that will be easy to turn into pointers with the address of operator (&) later.
+	// Go won't directly give you a pointer to a constant or the return value of a function.
+	// I also can't use swag.* functions on the constants here because they are a custom type.
 	physical := models.EvaluationReportInspectionTypePhysical
 	virtual := models.EvaluationReportInspectionTypeVirtual
 	dataReview := models.EvaluationReportInspectionTypeDataReview
