@@ -100,8 +100,8 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		suite.Error(err)
 	})
 
-	// I've got to declare these separately because you can't directly take the address
-	// of con
+	// I've got to copy these to variables because Go won't let you get a pointer to
+	// a constant
 	physical := models.EvaluationReportInspectionTypePhysical
 	virtual := models.EvaluationReportInspectionTypeVirtual
 	dataReview := models.EvaluationReportInspectionTypeDataReview
