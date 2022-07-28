@@ -48,6 +48,9 @@ func (u evaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppCon
 		return apperror.NewConflictError(evaluationReport.ID, "reports that have already been submitted cannot be updated")
 	}
 
+	evaluationReport.MoveID = originalReport.MoveID
+	evaluationReport.ShipmentID = originalReport.ShipmentID
+
 	verrs, err := appCtx.DB().ValidateAndUpdate(evaluationReport)
 	if verrs.HasAny() || err != nil {
 		return err

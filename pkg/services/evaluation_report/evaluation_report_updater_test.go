@@ -42,6 +42,40 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		suite.Equal(report.Remarks, updatedReport.Remarks)
 		suite.Nil(updatedReport.SubmittedAt)
 	})
+	suite.Run("saving report does not overwrite readonly fields", func() {
+		// Create a report and save it to the database
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		originalReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
+			Move:        move,
+			MTOShipment: shipment,
+		})
+
+		// Copy report to new object
+		reportPayload := originalReport
+
+		wrongUUID := uuid.Must(uuid.NewV4())
+		reportPayload.Remarks = swag.String("spectacular packing job!!")
+		reportPayload.MoveID = wrongUUID
+		reportPayload.ShipmentID = &wrongUUID
+
+		// Attempt to update the reportPayload
+		err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &reportPayload, reportPayload.OfficeUserID, etag.GenerateEtag(reportPayload.UpdatedAt))
+		suite.NoError(err)
+
+		// Fetch the reportPayload from the database and make sure that it got updated
+		var updatedReport models.EvaluationReport
+		err = suite.DB().Find(&updatedReport, originalReport.ID)
+		suite.NoError(err)
+
+		suite.Equal(reportPayload.Remarks, updatedReport.Remarks)
+		suite.Equal(originalReport.MoveID, updatedReport.MoveID)
+		suite.Equal(*originalReport.ShipmentID, *updatedReport.ShipmentID)
+
+		swaggerTimeFormat := "2006-01-02T15:04:05.99Z07:00"
+		suite.Equal(originalReport.CreatedAt.Format(swaggerTimeFormat), time.Time(updatedReport.CreatedAt).Format(swaggerTimeFormat))
+		suite.Equal(originalReport.UpdatedAt.Format(swaggerTimeFormat), time.Time(updatedReport.UpdatedAt).Format(swaggerTimeFormat))
+	})
 
 	suite.Run("saving evaluation report with bad report id should fail", func() {
 		// Create a report
