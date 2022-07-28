@@ -61,6 +61,7 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 		"nts_and_ntsr":                 subScenarioNTSandNTSR(appCtx, userUploader, moveRouter),
 		"sit_extensions":               subScenarioSITExtensions(appCtx, userUploader, primeUploader),
 		"customer_support_remarks":     subScenarioCustomerSupportRemarks(appCtx),
+		"evaluation_reports":           subScenarioEvaluationReport(appCtx),
 	}
 }
 

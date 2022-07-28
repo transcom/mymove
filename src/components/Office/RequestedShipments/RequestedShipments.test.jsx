@@ -177,13 +177,6 @@ describe('RequestedShipments', () => {
       );
     });
 
-    it('renders the secondary address info if provided', () => {
-      render(requestedShipmentsComponent);
-      // There are three shipments on the screen, but only two have secondary address info
-      expect(screen.getAllByText('Second pickup address')).toHaveLength(2);
-      expect(screen.getAllByText('Second destination address')).toHaveLength(2);
-    });
-
     it('enables the Approve selected button when a shipment and service item are checked', async () => {
       const wrapper = mount(requestedShipmentsComponentWithPermission);
 

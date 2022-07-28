@@ -103,6 +103,100 @@ func CustomerSupportRemarks(customerSupportRemarks models.CustomerSupportRemarks
 	return payload
 }
 
+// EvaluationReportListItem payload
+func EvaluationReportListItem(evaluationReport *models.EvaluationReport) *ghcmessages.EvaluationReportListItem {
+	if evaluationReport == nil {
+		return nil
+	}
+	id := *handlers.FmtUUID(evaluationReport.ID)
+	moveID := *handlers.FmtUUID(evaluationReport.MoveID)
+	shipmentID := handlers.FmtUUIDPtr(evaluationReport.ShipmentID)
+
+	var location *ghcmessages.EvaluationReportLocation
+	if evaluationReport.Location != nil {
+		tempLocation := ghcmessages.EvaluationReportLocation(*evaluationReport.Location)
+		location = &tempLocation
+	}
+	reportType := ghcmessages.EvaluationReportType(evaluationReport.Type)
+
+	payload := &ghcmessages.EvaluationReportListItem{
+		ID:                 id,
+		Location:           location,
+		MoveID:             moveID,
+		ShipmentID:         shipmentID,
+		SubmittedAt:        handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
+		Type:               reportType,
+		ViolationsObserved: evaluationReport.ViolationsObserved,
+	}
+	return payload
+}
+
+// EvaluationReportList payload
+func EvaluationReportList(evaluationReports models.EvaluationReports) ghcmessages.EvaluationReportList {
+	payload := make(ghcmessages.EvaluationReportList, len(evaluationReports))
+	for i, v := range evaluationReports {
+		evaluationReport := v
+		payload[i] = EvaluationReportListItem(&evaluationReport)
+	}
+	return payload
+}
+
+func EvaluationReportOfficeUser(officeUser models.OfficeUser) ghcmessages.EvaluationReportOfficeUser {
+	payload := ghcmessages.EvaluationReportOfficeUser{
+		Email:     officeUser.Email,
+		FirstName: officeUser.FirstName,
+		ID:        strfmt.UUID(officeUser.ID.String()),
+		LastName:  officeUser.LastName,
+		Phone:     officeUser.Telephone,
+	}
+	return payload
+}
+
+// EvaluationReport payload
+func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.EvaluationReport {
+	if evaluationReport == nil {
+		return nil
+	}
+	id := *handlers.FmtUUID(evaluationReport.ID)
+	moveID := *handlers.FmtUUID(evaluationReport.MoveID)
+	shipmentID := handlers.FmtUUIDPtr(evaluationReport.ShipmentID)
+
+	var inspectionType *ghcmessages.EvaluationReportInspectionType
+	if evaluationReport.InspectionType != nil {
+		tempInspectionType := ghcmessages.EvaluationReportInspectionType(*evaluationReport.InspectionType)
+		inspectionType = &tempInspectionType
+	}
+	var location *ghcmessages.EvaluationReportLocation
+	if evaluationReport.Location != nil {
+		tempLocation := ghcmessages.EvaluationReportLocation(*evaluationReport.Location)
+		location = &tempLocation
+	}
+	reportType := ghcmessages.EvaluationReportType(evaluationReport.Type)
+
+	evaluationReportOfficeUserPayload := EvaluationReportOfficeUser(evaluationReport.OfficeUser)
+
+	payload := &ghcmessages.EvaluationReport{
+		CreatedAt:               strfmt.DateTime(evaluationReport.CreatedAt),
+		EvaluationLengthMinutes: handlers.FmtIntPtrToInt64(evaluationReport.EvaluationLengthMinutes),
+		ID:                      id,
+		InspectionDate:          handlers.FmtDateTimePtr(evaluationReport.InspectionDate),
+		InspectionType:          inspectionType,
+		Location:                location,
+		LocationDescription:     evaluationReport.LocationDescription,
+		MoveID:                  moveID,
+		ObservedDate:            handlers.FmtDateTimePtr(evaluationReport.ObservedDate),
+		Remarks:                 evaluationReport.Remarks,
+		ShipmentID:              shipmentID,
+		SubmittedAt:             handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
+		TravelTimeMinutes:       handlers.FmtIntPtrToInt64(evaluationReport.TravelTimeMinutes),
+		Type:                    reportType,
+		ViolationsObserved:      evaluationReport.ViolationsObserved,
+		MoveReferenceID:         evaluationReport.Move.ReferenceID,
+		OfficeUser:              &evaluationReportOfficeUserPayload,
+	}
+	return payload
+}
+
 // MoveHistory payload
 func MoveHistory(logger *zap.Logger, moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{

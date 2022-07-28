@@ -172,3 +172,27 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		suite.Equal(ppmShipment.ShipmentID.String(), mtoShipments[0].ID.String())
 	})
 }
+
+func (suite *MTOShipmentServiceSuite) TestGetMTOShipment() {
+	mtoShipmentFetcher := NewMTOShipmentFetcher()
+
+	// Test successful fetch
+	suite.Run("Returns a shipment successfully with correct ID", func() {
+		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+
+		fetchedShipment, err := mtoShipmentFetcher.GetShipment(suite.AppContextForTest(), shipment.ID)
+		suite.NoError(err)
+		suite.Equal(shipment.ID, fetchedShipment.ID)
+	})
+
+	// Test 404 fetch
+	suite.Run("Returns not found error when shipment id doesn't exist", func() {
+		shipmentID := uuid.Must(uuid.NewV4())
+		expectedError := apperror.NewNotFoundError(shipmentID, "while looking for shipment")
+
+		mtoShipment, err := mtoShipmentFetcher.GetShipment(suite.AppContextForTest(), shipmentID)
+
+		suite.Nil(mtoShipment)
+		suite.Equalf(err, expectedError, "while looking for shipment")
+	})
+}

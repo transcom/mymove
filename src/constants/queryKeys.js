@@ -1,6 +1,7 @@
 export const PAYMENT_REQUESTS = 'paymentRequests';
 export const SHIPMENTS_PAYMENT_SIT_BALANCE = 'shipmentsPaymentSITBalance';
 export const MTO_SHIPMENTS = 'mtoShipments';
+export const MTO_SHIPMENT = 'mtoShipment';
 export const MTO_SERVICE_ITEMS = 'mtoServiceItems';
 export const ORDERS = 'orders';
 export const MOVE_PAYMENT_REQUESTS = 'movePaymentRequests';
@@ -16,3 +17,6 @@ export const PRIME_SIMULATOR_AVAILABLE_MOVES = 'listMoves';
 export const PRIME_SIMULATOR_MOVE = 'primeMove';
 export const CUSTOMER_SUPPORT_REMARKS = 'customerSupportRemarks';
 export const QAE_CSR_MOVE_SEARCH = 'qaeCSRMoveSearch';
+export const SHIPMENT_EVALUATION_REPORTS = 'shipmentEvaluationReports';
+export const COUNSELING_EVALUATION_REPORTS = 'counselingEvaluationReports';
+export const EVALUATION_REPORT = 'evaluationReport';

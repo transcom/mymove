@@ -21,6 +21,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ghc_documents"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
@@ -81,6 +82,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler: customer_support_remarks.CreateCustomerSupportRemarkForMoveHandlerFunc(func(params customer_support_remarks.CreateCustomerSupportRemarkForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.CreateCustomerSupportRemarkForMove has not yet been implemented")
 		}),
+		EvaluationReportsCreateEvaluationReportForShipmentHandler: evaluation_reports.CreateEvaluationReportForShipmentHandlerFunc(func(params evaluation_reports.CreateEvaluationReportForShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReportForShipment has not yet been implemented")
+		}),
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		}),
@@ -89,6 +93,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		CustomerSupportRemarksDeleteCustomerSupportRemarkHandler: customer_support_remarks.DeleteCustomerSupportRemarkHandlerFunc(func(params customer_support_remarks.DeleteCustomerSupportRemarkParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.DeleteCustomerSupportRemark has not yet been implemented")
+		}),
+		EvaluationReportsDeleteEvaluationReportHandler: evaluation_reports.DeleteEvaluationReportHandlerFunc(func(params evaluation_reports.DeleteEvaluationReportParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.DeleteEvaluationReport has not yet been implemented")
 		}),
 		ShipmentDeleteShipmentHandler: shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
@@ -111,14 +118,23 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderGetEntitlementsHandler: move_task_order.GetEntitlementsHandlerFunc(func(params move_task_order.GetEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetEntitlements has not yet been implemented")
 		}),
+		EvaluationReportsGetEvaluationReportHandler: evaluation_reports.GetEvaluationReportHandlerFunc(func(params evaluation_reports.GetEvaluationReportParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.GetEvaluationReport has not yet been implemented")
+		}),
 		MtoServiceItemGetMTOServiceItemHandler: mto_service_item.GetMTOServiceItemHandlerFunc(func(params mto_service_item.GetMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.GetMTOServiceItem has not yet been implemented")
 		}),
 		MoveGetMoveHandler: move.GetMoveHandlerFunc(func(params move.GetMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.GetMove has not yet been implemented")
 		}),
+		MoveGetMoveCounselingEvaluationReportsListHandler: move.GetMoveCounselingEvaluationReportsListHandlerFunc(func(params move.GetMoveCounselingEvaluationReportsListParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.GetMoveCounselingEvaluationReportsList has not yet been implemented")
+		}),
 		MoveGetMoveHistoryHandler: move.GetMoveHistoryHandlerFunc(func(params move.GetMoveHistoryParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.GetMoveHistory has not yet been implemented")
+		}),
+		MoveGetMoveShipmentEvaluationReportsListHandler: move.GetMoveShipmentEvaluationReportsListHandlerFunc(func(params move.GetMoveShipmentEvaluationReportsListParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.GetMoveShipmentEvaluationReportsList has not yet been implemented")
 		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
@@ -140,6 +156,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		QueuesGetServicesCounselingQueueHandler: queues.GetServicesCounselingQueueHandlerFunc(func(params queues.GetServicesCounselingQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetServicesCounselingQueue has not yet been implemented")
+		}),
+		MtoShipmentGetShipmentHandler: mto_shipment.GetShipmentHandlerFunc(func(params mto_shipment.GetShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.GetShipment has not yet been implemented")
 		}),
 		PaymentRequestsGetShipmentsPaymentSITBalanceHandler: payment_requests.GetShipmentsPaymentSITBalanceHandlerFunc(func(params payment_requests.GetShipmentsPaymentSITBalanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.GetShipmentsPaymentSITBalance has not yet been implemented")
@@ -271,12 +290,16 @@ type MymoveAPI struct {
 	OrderCounselingUpdateOrderHandler order.CounselingUpdateOrderHandler
 	// CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler sets the operation handler for the create customer support remark for move operation
 	CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler
+	// EvaluationReportsCreateEvaluationReportForShipmentHandler sets the operation handler for the create evaluation report for shipment operation
+	EvaluationReportsCreateEvaluationReportForShipmentHandler evaluation_reports.CreateEvaluationReportForShipmentHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// ShipmentCreateSITExtensionAsTOOHandler sets the operation handler for the create s i t extension as t o o operation
 	ShipmentCreateSITExtensionAsTOOHandler shipment.CreateSITExtensionAsTOOHandler
 	// CustomerSupportRemarksDeleteCustomerSupportRemarkHandler sets the operation handler for the delete customer support remark operation
 	CustomerSupportRemarksDeleteCustomerSupportRemarkHandler customer_support_remarks.DeleteCustomerSupportRemarkHandler
+	// EvaluationReportsDeleteEvaluationReportHandler sets the operation handler for the delete evaluation report operation
+	EvaluationReportsDeleteEvaluationReportHandler evaluation_reports.DeleteEvaluationReportHandler
 	// ShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
 	ShipmentDeleteShipmentHandler shipment.DeleteShipmentHandler
 	// ShipmentDenySITExtensionHandler sets the operation handler for the deny s i t extension operation
@@ -291,12 +314,18 @@ type MymoveAPI struct {
 	GhcDocumentsGetDocumentHandler ghc_documents.GetDocumentHandler
 	// MoveTaskOrderGetEntitlementsHandler sets the operation handler for the get entitlements operation
 	MoveTaskOrderGetEntitlementsHandler move_task_order.GetEntitlementsHandler
+	// EvaluationReportsGetEvaluationReportHandler sets the operation handler for the get evaluation report operation
+	EvaluationReportsGetEvaluationReportHandler evaluation_reports.GetEvaluationReportHandler
 	// MtoServiceItemGetMTOServiceItemHandler sets the operation handler for the get m t o service item operation
 	MtoServiceItemGetMTOServiceItemHandler mto_service_item.GetMTOServiceItemHandler
 	// MoveGetMoveHandler sets the operation handler for the get move operation
 	MoveGetMoveHandler move.GetMoveHandler
+	// MoveGetMoveCounselingEvaluationReportsListHandler sets the operation handler for the get move counseling evaluation reports list operation
+	MoveGetMoveCounselingEvaluationReportsListHandler move.GetMoveCounselingEvaluationReportsListHandler
 	// MoveGetMoveHistoryHandler sets the operation handler for the get move history operation
 	MoveGetMoveHistoryHandler move.GetMoveHistoryHandler
+	// MoveGetMoveShipmentEvaluationReportsListHandler sets the operation handler for the get move shipment evaluation reports list operation
+	MoveGetMoveShipmentEvaluationReportsListHandler move.GetMoveShipmentEvaluationReportsListHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// QueuesGetMovesQueueHandler sets the operation handler for the get moves queue operation
@@ -311,6 +340,8 @@ type MymoveAPI struct {
 	QueuesGetPaymentRequestsQueueHandler queues.GetPaymentRequestsQueueHandler
 	// QueuesGetServicesCounselingQueueHandler sets the operation handler for the get services counseling queue operation
 	QueuesGetServicesCounselingQueueHandler queues.GetServicesCounselingQueueHandler
+	// MtoShipmentGetShipmentHandler sets the operation handler for the get shipment operation
+	MtoShipmentGetShipmentHandler mto_shipment.GetShipmentHandler
 	// PaymentRequestsGetShipmentsPaymentSITBalanceHandler sets the operation handler for the get shipments payment s i t balance operation
 	PaymentRequestsGetShipmentsPaymentSITBalanceHandler payment_requests.GetShipmentsPaymentSITBalanceHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
@@ -462,6 +493,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler")
 	}
+	if o.EvaluationReportsCreateEvaluationReportForShipmentHandler == nil {
+		unregistered = append(unregistered, "evaluation_reports.CreateEvaluationReportForShipmentHandler")
+	}
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
 	}
@@ -470,6 +504,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.DeleteCustomerSupportRemarkHandler")
+	}
+	if o.EvaluationReportsDeleteEvaluationReportHandler == nil {
+		unregistered = append(unregistered, "evaluation_reports.DeleteEvaluationReportHandler")
 	}
 	if o.ShipmentDeleteShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.DeleteShipmentHandler")
@@ -492,14 +529,23 @@ func (o *MymoveAPI) Validate() error {
 	if o.MoveTaskOrderGetEntitlementsHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetEntitlementsHandler")
 	}
+	if o.EvaluationReportsGetEvaluationReportHandler == nil {
+		unregistered = append(unregistered, "evaluation_reports.GetEvaluationReportHandler")
+	}
 	if o.MtoServiceItemGetMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.GetMTOServiceItemHandler")
 	}
 	if o.MoveGetMoveHandler == nil {
 		unregistered = append(unregistered, "move.GetMoveHandler")
 	}
+	if o.MoveGetMoveCounselingEvaluationReportsListHandler == nil {
+		unregistered = append(unregistered, "move.GetMoveCounselingEvaluationReportsListHandler")
+	}
 	if o.MoveGetMoveHistoryHandler == nil {
 		unregistered = append(unregistered, "move.GetMoveHistoryHandler")
+	}
+	if o.MoveGetMoveShipmentEvaluationReportsListHandler == nil {
+		unregistered = append(unregistered, "move.GetMoveShipmentEvaluationReportsListHandler")
 	}
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
@@ -521,6 +567,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.QueuesGetServicesCounselingQueueHandler == nil {
 		unregistered = append(unregistered, "queues.GetServicesCounselingQueueHandler")
+	}
+	if o.MtoShipmentGetShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.GetShipmentHandler")
 	}
 	if o.PaymentRequestsGetShipmentsPaymentSITBalanceHandler == nil {
 		unregistered = append(unregistered, "payment_requests.GetShipmentsPaymentSITBalanceHandler")
@@ -720,6 +769,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/moves/shipment-evaluation-reports"] = evaluation_reports.NewCreateEvaluationReportForShipment(o.context, o.EvaluationReportsCreateEvaluationReportForShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -729,6 +782,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/customer-support-remarks/{customerSupportRemarkID}"] = customer_support_remarks.NewDeleteCustomerSupportRemark(o.context, o.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/evaluation-reports/{reportID}"] = evaluation_reports.NewDeleteEvaluationReport(o.context, o.EvaluationReportsDeleteEvaluationReportHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
@@ -760,6 +817,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/evaluation-reports/{reportID}"] = evaluation_reports.NewGetEvaluationReport(o.context, o.EvaluationReportsGetEvaluationReportHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}"] = mto_service_item.NewGetMTOServiceItem(o.context, o.MtoServiceItemGetMTOServiceItemHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -768,7 +829,15 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/moves/{moveID}/counseling-evaluation-reports-list"] = move.NewGetMoveCounselingEvaluationReportsList(o.context, o.MoveGetMoveCounselingEvaluationReportsListHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/move/{locator}/history"] = move.NewGetMoveHistory(o.context, o.MoveGetMoveHistoryHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/moves/{moveID}/shipment-evaluation-reports-list"] = move.NewGetMoveShipmentEvaluationReportsList(o.context, o.MoveGetMoveShipmentEvaluationReportsListHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -797,6 +866,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/queues/counseling"] = queues.NewGetServicesCounselingQueue(o.context, o.QueuesGetServicesCounselingQueueHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/shipments/{shipmentID}"] = mto_shipment.NewGetShipment(o.context, o.MtoShipmentGetShipmentHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

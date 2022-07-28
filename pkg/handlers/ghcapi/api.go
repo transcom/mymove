@@ -18,6 +18,7 @@ import (
 	customerserviceremarks "github.com/transcom/mymove/pkg/services/customer_support_remarks"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
+	evaluationreport "github.com/transcom/mymove/pkg/services/evaluation_report"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	paymentserviceitem "github.com/transcom/mymove/pkg/services/payment_service_item"
 
@@ -74,9 +75,35 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		HandlerConfig:                handlerConfig,
 		CustomerSupportRemarkUpdater: customerserviceremarks.NewCustomerSupportRemarkUpdater(),
 	}
+
 	ghcAPI.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler = DeleteCustomerSupportRemarkHandler{
 		HandlerConfig:                handlerConfig,
 		CustomerSupportRemarkDeleter: customerserviceremarks.NewCustomerSupportRemarkDeleter(),
+	}
+
+	ghcAPI.EvaluationReportsCreateEvaluationReportForShipmentHandler = CreateEvaluationReportHandler{
+		HandlerConfig:           handlerConfig,
+		EvaluationReportCreator: evaluationreport.NewEvaluationReportCreator(),
+	}
+
+	ghcAPI.MoveGetMoveCounselingEvaluationReportsListHandler = GetCounselingEvaluationReportsHandler{
+		HandlerConfig:           handlerConfig,
+		EvaluationReportFetcher: evaluationreport.NewEvaluationReportFetcher(),
+	}
+
+	ghcAPI.MoveGetMoveShipmentEvaluationReportsListHandler = GetShipmentEvaluationReportsHandler{
+		HandlerConfig:           handlerConfig,
+		EvaluationReportFetcher: evaluationreport.NewEvaluationReportFetcher(),
+	}
+
+	ghcAPI.EvaluationReportsGetEvaluationReportHandler = GetEvaluationReportHandler{
+		HandlerConfig:           handlerConfig,
+		EvaluationReportFetcher: evaluationreport.NewEvaluationReportFetcher(),
+	}
+
+	ghcAPI.EvaluationReportsDeleteEvaluationReportHandler = DeleteEvaluationReportHandler{
+		HandlerConfig:           handlerConfig,
+		EvaluationReportDeleter: evaluationreport.NewEvaluationReportDeleter(),
 	}
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
@@ -200,6 +227,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		mtoshipment.NewMTOShipmentFetcher(),
 		shipmentSITStatus,
+	}
+
+	ghcAPI.MtoShipmentGetShipmentHandler = GetMTOShipmentHandler{
+		HandlerConfig:      handlerConfig,
+		mtoShipmentFetcher: mtoshipment.NewMTOShipmentFetcher(),
 	}
 
 	ghcAPI.ShipmentDeleteShipmentHandler = DeleteShipmentHandler{

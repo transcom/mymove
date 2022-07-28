@@ -5374,6 +5374,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightTickets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeightTicket"
+          }
         }
       },
       "x-nullable": true
@@ -6865,7 +6871,6 @@ func init() {
       "type": "object",
       "required": [
         "ppmShipmentId",
-        "ppmShipment",
         "createdAt",
         "updatedAt",
         "emptyDocumentId",
@@ -6879,6 +6884,10 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
           "readOnly": true
         },
         "emptyDocument": {
@@ -6933,9 +6942,6 @@ func init() {
           "title": "Owns trailer",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "ppmShipment": {
-          "$ref": "#/definitions/PPMShipment"
         },
         "ppmShipmentId": {
           "type": "string",
@@ -12514,6 +12520,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightTickets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeightTicket"
+          }
         }
       },
       "x-nullable": true
@@ -14017,7 +14029,6 @@ func init() {
       "type": "object",
       "required": [
         "ppmShipmentId",
-        "ppmShipment",
         "createdAt",
         "updatedAt",
         "emptyDocumentId",
@@ -14031,6 +14042,10 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
           "readOnly": true
         },
         "emptyDocument": {
@@ -14087,9 +14102,6 @@ func init() {
           "title": "Owns trailer",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "ppmShipment": {
-          "$ref": "#/definitions/PPMShipment"
         },
         "ppmShipmentId": {
           "type": "string",
