@@ -9,12 +9,18 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *NotificationSuite) TestUserAccountModified() {
-	modifiedUser := testdatagen.MakeStubbedUser(suite.DB())
-	responsibleUser := testdatagen.MakeStubbedUser(suite.DB())
+	var modifiedUser models.User
+	var responsibleUser models.User
+
+	suite.PreloadData(func() {
+		modifiedUser = testdatagen.MakeStubbedUser(suite.DB())
+		responsibleUser = testdatagen.MakeStubbedUser(suite.DB())
+	})
 	session := auth.Session{
 		UserID:   responsibleUser.ID,
 		Hostname: "adminlocal",

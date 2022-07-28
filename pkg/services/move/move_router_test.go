@@ -15,7 +15,10 @@ import (
 )
 
 func (suite *MoveServiceSuite) TestMoveApproval() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+	var move models.Move
+	suite.PreloadData(func() {
+		move = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+	})
 	moveRouter := NewMoveRouter()
 
 	suite.Run("from valid statuses", func() {
@@ -260,6 +263,7 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 
 	suite.Run("defaults to nil reason if empty string provided", func() {
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+
 		err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
 
 		suite.NoError(err)
@@ -304,8 +308,6 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 	})
 
 	suite.Run("from valid statuses", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
-
 		validStatuses := []struct {
 			desc   string
 			status models.MoveStatus
@@ -319,6 +321,8 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 		}
 		for _, tt := range validStatuses {
 			suite.Run(tt.desc, func() {
+				move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+
 				move.Status = tt.status
 				move.Orders.Status = models.OrderStatusSUBMITTED
 
@@ -331,8 +335,6 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 	})
 
 	suite.Run("from invalid statuses", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
-
 		invalidStatuses := []struct {
 			desc   string
 			status models.MoveStatus
@@ -341,6 +343,8 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 		}
 		for _, tt := range invalidStatuses {
 			suite.Run(tt.desc, func() {
+				move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+
 				move.Status = tt.status
 
 				err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
@@ -353,7 +357,10 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 }
 
 func (suite *MoveServiceSuite) TestSendToOfficeUser() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+	var move models.Move
+	suite.PreloadData(func() {
+		move = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+	})
 	moveRouter := NewMoveRouter()
 
 	suite.Run("from valid statuses", func() {

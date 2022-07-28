@@ -19,10 +19,13 @@ func TestPopTestSuite(t *testing.T) {
 	ps.TearDown()
 }
 
-func (suite *PopTestSuite) TestRunWithPreloadedData() {
-	address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+func (suite *PopTestSuite) TestRunWithPreloadData() {
+	var address models.Address
+	suite.PreloadData(func() {
+		address = testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+	})
 
-	suite.RunWithPreloadedData("Main test records available in subtest", func() {
+	suite.Run("PreloadData test records available in subtest", func() {
 		var foundAddress models.Address
 		err := suite.DB().Find(&foundAddress, address.ID)
 		suite.NoError(err)
@@ -31,12 +34,12 @@ func (suite *PopTestSuite) TestRunWithPreloadedData() {
 	})
 
 	var address2 models.Address
-	suite.RunWithPreloadedData("Subtest record creation", func() {
+	suite.Run("Subtest record creation", func() {
 		// Create address to search for in the next test
 		address2 = testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
 	})
 
-	suite.RunWithPreloadedData("Subtest record not found", func() {
+	suite.Run("Subtest record not found", func() {
 		// Check that address2 cannot be found
 		var foundAddress models.Address
 		err := suite.DB().Find(&foundAddress, address2.ID)
@@ -44,19 +47,38 @@ func (suite *PopTestSuite) TestRunWithPreloadedData() {
 		suite.NotEqual(address2.ID, foundAddress.ID)
 	})
 
+	suite.T().Run("non testify subtest", func(t *testing.T) {
+		var foundAddress models.Address
+		err := suite.DB().Find(&foundAddress, address.ID)
+		suite.NoError(err)
+		suite.Equal(address.ID, foundAddress.ID)
+	})
+
 }
 
-func (suite *PopTestSuite) TestRun() {
+func (suite *PopTestSuite) TestMultipleDBPanic() {
 	address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 
-	suite.Run("Main test records not available in subtest", func() {
+	suite.Run("Trying to use db in main and subtest panics", func() {
+		defer func() {
+			if r := recover(); r == nil {
+				suite.FailNow("Did not panic")
+			}
+			// manually clean up after recovering from panic in
+			// this test.
+			for k := range suite.txnTestDb {
+				popConn := suite.txnTestDb[k]
+				suite.NoError(popConn.Close())
+				delete(suite.txnTestDb, k)
+			}
+		}()
 		var foundAddress models.Address
 		err := suite.DB().Find(&foundAddress, address.ID)
 		suite.Error(err)
-		suite.Contains(err.Error(), "no rows in result set")
-
 	})
+}
 
+func (suite *PopTestSuite) TestRun() {
 	var address2 models.Address
 	suite.Run("Subtest record creation", func() {
 		// Create address to search for in the next test

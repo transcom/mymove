@@ -115,7 +115,11 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestSubmit() {
-	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+	var shipment models.MTOShipment
+
+	suite.PreloadData(func() {
+		shipment = testdatagen.MakeStubbedShipment(suite.DB())
+	})
 	shipmentRouter := NewShipmentRouter()
 
 	validStatuses := []struct {
@@ -161,7 +165,11 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestCancel() {
-	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+	var shipment models.MTOShipment
+
+	suite.PreloadData(func() {
+		shipment = testdatagen.MakeStubbedShipment(suite.DB())
+	})
 	shipmentRouter := NewShipmentRouter()
 
 	validStatuses := []struct {
@@ -207,7 +215,11 @@ func (suite *MTOShipmentServiceSuite) TestCancel() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestReject() {
-	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+	var shipment models.MTOShipment
+
+	suite.PreloadData(func() {
+		shipment = testdatagen.MakeStubbedShipment(suite.DB())
+	})
 	shipmentRouter := NewShipmentRouter()
 	rejectionReason := "reason"
 
@@ -255,7 +267,11 @@ func (suite *MTOShipmentServiceSuite) TestReject() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
-	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+	var shipment models.MTOShipment
+
+	suite.PreloadData(func() {
+		shipment = testdatagen.MakeStubbedShipment(suite.DB())
+	})
 	shipmentRouter := NewShipmentRouter()
 
 	validStatuses := []struct {
@@ -301,7 +317,11 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
-	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+	var shipment models.MTOShipment
+
+	suite.PreloadData(func() {
+		shipment = testdatagen.MakeStubbedShipment(suite.DB())
+	})
 	shipmentRouter := NewShipmentRouter()
 
 	suite.Run("fails when the Diversion field is false", func() {
@@ -357,10 +377,14 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveDiversionUsesExternal() {
-	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+	var shipment models.MTOShipment
+
+	suite.PreloadData(func() {
+		shipment = testdatagen.MakeStubbedShipment(suite.DB())
+		shipment.UsesExternalVendor = true
+		shipment.Diversion = true
+	})
 	shipmentRouter := NewShipmentRouter()
-	shipment.UsesExternalVendor = true
-	shipment.Diversion = true
 
 	suite.Run("fails when the UsesExternal field is true", func() {
 		err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
@@ -372,7 +396,11 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversionUsesExternal() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
-	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+	var shipment models.MTOShipment
+
+	suite.PreloadData(func() {
+		shipment = testdatagen.MakeStubbedShipment(suite.DB())
+	})
 	shipmentRouter := NewShipmentRouter()
 
 	validStatuses := []struct {

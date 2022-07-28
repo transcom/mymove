@@ -9,17 +9,24 @@ func (suite *ServiceParamValueLookupsSuite) TestZipAddressLookup() {
 	pickupKey := models.ServiceItemParamNameZipPickupAddress
 	destKey := models.ServiceItemParamNameZipDestAddress
 
-	mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+	var mtoServiceItem models.MTOServiceItem
+	var paymentRequest models.PaymentRequest
+	var paramLookup *ServiceItemParamKeyData
 
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-			},
-		})
+	suite.PreloadData(func() {
+		mtoServiceItem = testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
-	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-	suite.FatalNoError(err)
+		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				PaymentRequest: models.PaymentRequest{
+					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
+				},
+			})
+
+		var err error
+		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+	})
 
 	suite.Run("zip code for the pickup address is present on MTO Shipment", func() {
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), pickupKey)
