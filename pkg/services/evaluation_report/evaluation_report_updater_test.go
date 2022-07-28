@@ -3,6 +3,8 @@ package evaluationreport
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
+
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
@@ -66,7 +68,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 
 		// Our bogus office user ID should cause an error
 		suite.Error(err)
-		// TODO check that we're getting the correct error
+		suite.IsType(apperror.ForbiddenError{}, err)
 	})
 
 	suite.Run("updating a non-draft report should fail", func() {
@@ -84,6 +86,22 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, etag.GenerateEtag(report.UpdatedAt))
 		suite.Error(err)
 	})
+	suite.Run("updating a deleted report should fail", func() {
+		// Create a report
+		originalReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
+			EvaluationReport: models.EvaluationReport{
+				DeletedAt: swag.Time(time.Now()),
+			},
+		})
+
+		report := originalReport
+		report.Remarks = swag.String("spectacular packing job!!")
+
+		// Attempt to update the report
+		err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, etag.GenerateEtag(report.UpdatedAt))
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
 	suite.Run("updating a report with a bad ETag should fail", func() {
 		// Create a report
 		originalReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
@@ -98,6 +116,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		// Attempt to update the report
 		err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, "not a real etag")
 		suite.Error(err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	// I'm going to need pointers to all of these things later on, and so I'm copying
