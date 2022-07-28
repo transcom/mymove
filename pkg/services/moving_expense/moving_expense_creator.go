@@ -1,8 +1,6 @@
 package movingexpense
 
 import (
-	"fmt"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -39,7 +37,6 @@ func (f *movingExpenseCreator) CreateMovingExpense(appCtx appcontext.AppContext,
 		verrs, err := txnCtx.DB().Eager().ValidateAndCreate(newMovingExpense)
 
 		if verrs != nil && verrs.HasAny() {
-			fmt.Println(verrs.Error())
 			return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "")
 		} else if err != nil {
 			return apperror.NewQueryError("Moving Expense", err, "")

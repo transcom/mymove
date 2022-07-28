@@ -29,6 +29,21 @@ type UserUpload struct {
 // UserUploads is not required by pop and may be deleted
 type UserUploads []UserUpload
 
+func (u UserUploads) FilterDeleted() UserUploads {
+	if len(u) == 0 {
+		return u
+	}
+
+	nonDeletedUploads := UserUploads{}
+	for _, upload := range u {
+		if upload.DeletedAt == nil {
+			nonDeletedUploads = append(nonDeletedUploads, upload)
+		}
+	}
+
+	return nonDeletedUploads
+}
+
 // UploadsFromUserUploads returns a slice of Uploads given a slice of UserUploads
 func UploadsFromUserUploads(db *pop.Connection, userUploads UserUploads) (Uploads, error) {
 	var uploads Uploads

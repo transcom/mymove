@@ -74,6 +74,10 @@ func checkUpdateRequiredFields() movingExpenseValidator {
 			verrs.Add("MissingReceipt", "MissingReceipt is required")
 		}
 
+		if len(originalMovingExpense.Document.UserUploads) < 1 {
+			verrs.Add("Document", "At least 1 receipt file is required")
+		}
+
 		return verrs
 	})
 }
