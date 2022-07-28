@@ -16,6 +16,36 @@ type MTOShipmentFetcher struct {
 	mock.Mock
 }
 
+// GetShipment provides a mock function with given fields: appCtx, shipmentID, eagerAssociations
+func (_m *MTOShipmentFetcher) GetShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssociations ...string) (*models.MTOShipment, error) {
+	_va := make([]interface{}, len(eagerAssociations))
+	for _i := range eagerAssociations {
+		_va[_i] = eagerAssociations[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, appCtx, shipmentID)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *models.MTOShipment
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ...string) *models.MTOShipment); ok {
+		r0 = rf(appCtx, shipmentID, eagerAssociations...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.MTOShipment)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, ...string) error); ok {
+		r1 = rf(appCtx, shipmentID, eagerAssociations...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListMTOShipments provides a mock function with given fields: appCtx, moveID
 func (_m *MTOShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveID uuid.UUID) ([]models.MTOShipment, error) {
 	ret := _m.Called(appCtx, moveID)

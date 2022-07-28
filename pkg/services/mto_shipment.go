@@ -14,6 +14,7 @@ import (
 //go:generate mockery --name MTOShipmentFetcher --disable-version-string
 type MTOShipmentFetcher interface {
 	ListMTOShipments(appCtx appcontext.AppContext, moveID uuid.UUID) ([]models.MTOShipment, error)
+	GetShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssociations ...string) (*models.MTOShipment, error)
 }
 
 //MTOShipmentUpdater is the service object interface for UpdateMTOShipment

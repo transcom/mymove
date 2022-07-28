@@ -19,6 +19,8 @@ import {
   getShipmentEvaluationReports,
   getCounselingEvaluationReports,
   searchMoves,
+  getEvaluationReportByID,
+  getMTOShipmentByID,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorAvailableMoves, getPrimeSimulatorMove } from 'services/primeApi';
@@ -44,6 +46,8 @@ import {
   QAE_CSR_MOVE_SEARCH,
   SHIPMENT_EVALUATION_REPORTS,
   COUNSELING_EVALUATION_REPORTS,
+  EVALUATION_REPORT,
+  MTO_SHIPMENT,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -364,6 +368,28 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
     isError,
     isSuccess,
     move,
+  };
+};
+
+export const useShipmentEvaluationReportQueries = (reportID) => {
+  const { data: evaluationReport = {}, ...shipmentEvaluationReportQuery } = useQuery(
+    [EVALUATION_REPORT, reportID],
+    getEvaluationReportByID,
+  );
+
+  const shipmentID = evaluationReport?.shipmentID;
+
+  const { data: mtoShipment = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentID], getMTOShipmentByID, {
+    enabled: !!shipmentID,
+  });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([shipmentEvaluationReportQuery, mtoShipmentQuery]);
+  return {
+    evaluationReport,
+    mtoShipment,
+    isLoading,
+    isError,
+    isSuccess,
   };
 };
 
