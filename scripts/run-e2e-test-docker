@@ -59,7 +59,7 @@ docker run \
 
 docker build -t cypress:local -f cypress/Dockerfile.cypress cypress
 
-default_specs=$(find cypress/integration -type f -name '*.js' | paste -s -d, -)
+default_specs=$(find cypress/e2e -type f -name '*.js' | paste -s -d, -)
 # assign SPECS if it is not set
 : "${SPECS:=${default_specs}}"
 docker run \
