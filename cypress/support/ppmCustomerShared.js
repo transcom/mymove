@@ -1,7 +1,5 @@
 import { signAgreement } from '../integration/mymove/utilities/customer';
-// import { fileUploadTimeout } from '../../support/constants';
-
-export const fileUploadTimeout = 10000;
+import { fileUploadTimeout } from './constants';
 
 export function setMobileViewport() {
   cy.viewport(479, 875);
@@ -84,7 +82,6 @@ export function submitWeightTicketPage(options) {
 }
 
 export function fillOutWeightTicketPage(options) {
-  // const { useConstructedWeight, hasTrailer, ownTrailer } = options;
   cy.get('input[name="vehicleDescription"]').clear().type('Kia Forte').blur();
 
   if (options.useConstructedWeight) {
@@ -120,8 +117,6 @@ export function fillOutWeightTicketPage(options) {
       cy.get('input[name="trailerMeetsCriteria"][value="false"]').check({ force: true });
       cy.get('.doNotClaimTrailerWeight').contains('Do not claim the weight of this trailer for this trip.');
     }
-  } else {
-    cy.get('input[name="hasOwnTrailer"][value="false"]').check({ force: true });
   }
 
   cy.get('button').contains('Save & Continue').should('be.enabled');
