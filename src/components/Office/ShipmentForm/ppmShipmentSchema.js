@@ -23,18 +23,20 @@ const ppmShipmentSchema = ({ estimatedIncentive = 0, weightAllotment = {} }) => 
       is: true,
       then: (schema) => schema.required('Required'),
     }),
-    sitEstimatedEntryDate: Yup.date().when('sitExpected', {
-      is: true,
-      then: (schema) =>
-        schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
-      otherwise: (schema) => schema.nullable(),
-    }),
-    sitEstimatedDepartureDate: Yup.date().when('sitExpected', {
-      is: true,
-      then: (schema) =>
-        schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
-      otherwise: (schema) => schema.nullable(),
-    }),
+    sitEstimatedEntryDate: Yup.date()
+      .when('sitExpected', {
+        is: true,
+        then: (schema) =>
+          schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+      })
+      .nullable(),
+    sitEstimatedDepartureDate: Yup.date()
+      .when('sitExpected', {
+        is: true,
+        then: (schema) =>
+          schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+      })
+      .nullable(),
 
     estimatedWeight: Yup.number()
       .min(1, 'Enter a weight greater than 0 lbs')
@@ -59,10 +61,15 @@ const ppmShipmentSchema = ({ estimatedIncentive = 0, weightAllotment = {} }) => 
       .min(0, 'Enter a weight 0 lbs or greater')
       .max(proGearSpouseWeightLimit, `Enter a weight ${proGearSpouseWeightLimit.toLocaleString()} lbs or less`),
 
-    advance: Yup.number().max(
-      (estimatedIncentive * 0.6) / 100,
-      `Enter an amount that is less than or equal to the maximum advance (${getFormattedMaxAdvancePercentage()} of estimated incentive)`,
-    ),
+    advance: Yup.number()
+      .max(
+        (estimatedIncentive * 0.6) / 100,
+        `Enter an amount that is less than or equal to the maximum advance (${getFormattedMaxAdvancePercentage()} of estimated incentive)`,
+      )
+      .when('advanceRequested', {
+        is: true,
+        then: (schema) => schema.required('Required'),
+      }),
   });
 
   return formSchema;
