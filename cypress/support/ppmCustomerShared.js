@@ -56,7 +56,6 @@ export function fillOutAboutPage(selectAdvance) {
   } else {
     cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: true });
   }
-  // cy.get('button').contains('Save & Continue').should('be.enabled');
   navigateFromAboutPageToWeightTicketPage();
 }
 
@@ -69,7 +68,6 @@ export function navigateFromAboutPageToWeightTicketPage() {
 
 export function signInAndNavigateToWeightTicketPage(userId) {
   cy.apiSignInAsUser(userId);
-  cy.wait('@getShipment');
 
   cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
   fillOutAboutPage(true);
