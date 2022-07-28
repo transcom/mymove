@@ -78,6 +78,12 @@ func checkUpdateRequiredFields() movingExpenseValidator {
 			verrs.Add("Document", "At least 1 receipt file is required")
 		}
 
+		if newMovingExpense.Status != nil {
+			if *newMovingExpense.Status == models.PPMDocumentStatusExcluded || *newMovingExpense.Status == models.PPMDocumentStatusRejected && (newMovingExpense.Reason == nil || *newMovingExpense.Reason == "") {
+				verrs.Add("Reason", "A reason must be provided when the status is EXCLUDED or REJECTED")
+			}
+		}
+
 		return verrs
 	})
 }

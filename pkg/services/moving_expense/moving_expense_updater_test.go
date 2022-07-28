@@ -291,4 +291,31 @@ func (suite MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.IsType(apperror.InvalidInputError{}, updateErr)
 		suite.ErrorContains(updateErr, "At least 1 receipt file is required")
 	})
+
+	suite.Run("Fails to update when a reason isn't provided for non-approved status", func() {
+		appCtx := suite.AppContextForTest()
+
+		originalMovingExpense := setupForTest(appCtx, nil, true)
+
+		updater := NewMovingExpenseUpdater()
+		oilExpenseType := models.MovingExpenseReceiptTypeOil
+
+		excludedStatus := models.PPMDocumentStatusExcluded
+		expectedMovingExpense := &models.MovingExpense{
+			ID:                originalMovingExpense.ID,
+			MovingExpenseType: &oilExpenseType,
+			Description:       models.StringPointer("Fuel"),
+			PaidWithGTCC:      models.BoolPointer(false),
+			MissingReceipt:    models.BoolPointer(false),
+			Amount:            models.CentPointer(unit.Cents(67899)),
+			Status:            &excludedStatus,
+		}
+
+		updatedMovingExpense, updateErr := updater.UpdateMovingExpense(appCtx, *expectedMovingExpense, etag.GenerateEtag(originalMovingExpense.UpdatedAt))
+
+		suite.Nil(updatedMovingExpense)
+		suite.NotNil(updateErr)
+		suite.IsType(apperror.InvalidInputError{}, updateErr)
+		suite.ErrorContains(updateErr, "A reason must be provided when the status is EXCLUDED or REJECTED")
+	})
 }
