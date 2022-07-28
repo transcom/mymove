@@ -20,7 +20,7 @@ type EvaluationReportCreator interface {
 
 //go:generate mockery --name EvaluationReportUpdater --disable-version-string
 type EvaluationReportUpdater interface {
-	UpdateEvaluationReport(appCtx appcontext.AppContext, evaluationReport *models.EvaluationReport) error
+	UpdateEvaluationReport(appCtx appcontext.AppContext, evaluationReport *models.EvaluationReport, officeUserID uuid.UUID, eTag string) error
 }
 
 //go:generate mockery --name EvaluationReportDeleter --disable-version-string
