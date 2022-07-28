@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -39,10 +40,8 @@ func TestMakerSuite(t *testing.T) {
 
 func (suite *MakerSuite) TestUserMaker() {
 	// Create a factory with the end object
-	userFactory := NewUserMaker(models.User{}, nil)
-	// Call create to create the object
 
-	err := userFactory.Make(suite.DB(), []Customization{
+	user, err := userMaker(suite.DB(), []Customization{
 		{
 			Model: models.User{
 				LoginGovEmail: "shimonatests@onetwothree.com",
@@ -50,37 +49,43 @@ func (suite *MakerSuite) TestUserMaker() {
 			Type:   CustomUser,
 			Create: false,
 		}}, []Trait{
-		getTraitArmy,
+		getTraitActiveUser,
 	})
 	suite.NoError(err)
-	fmt.Println(userFactory.Model.LoginGovEmail)
+	fmt.Println(user.LoginGovEmail, user.Active)
 
 }
 
-// func (suite *FactorySuite) TestUserMaker() {
-// 	user := makeUserNew(suite.DB(), Variants{
-// 		User: models.User{
-// 			LoginGovEmail: "shimonatests@onetwothree.com",
-// 		},
-// 		MTOShipment: models.MTOShipment{
-// 			MoveTaskOrderID: uuid.Must(uuid.NewV4()),
-// 			MoveTaskOrder: models.Move{
-// 				Locator: "12024",
-// 			},
-// 		},
-// 	})
-// 	// showDetails(models.User{})
-// 	showDetails(Varry{
-// 		User: models.User{
-// 			LoginGovEmail: "shimonatests@onetwothree.com",
-// 		},
-// 		MTOShipment: models.MTOShipment{
-// 			MoveTaskOrderID: uuid.Must(uuid.NewV4()),
-// 			MoveTaskOrder: models.Move{
-// 				Locator: "12024",
-// 			},
-// 		},
-// 	})
+func (suite *MakerSuite) TestMergeCustomization() {
+	uuidval := uuid.Must(uuid.NewV4())
+	result := mergeCustomization(
+		[]Trait{
+			getTraitArmy,
+		},
+		[]Customization{
+			{
+				Model: models.User{
+					LoginGovUUID:  &uuidval,
+					LoginGovEmail: "custom@army.mil",
+				},
+				Type:   CustomUser,
+				Create: false,
+			},
+		})
+	fmt.Println("User")
+	userModel := result[0].Model.(models.User)
+	fmt.Println(userModel)
+}
 
-// 	fmt.Println(user.LoginGovEmail)
-// }
+func (suite *MakerSuite) TestMergeInterfaces() {
+	user1 := models.User{
+		LoginGovEmail: "user1@email.com",
+	}
+	uuidNew := uuid.Must(uuid.NewV4())
+	user2 := models.User{
+		LoginGovUUID: &uuidNew,
+	}
+	result := mergeInterfaces(user1, user2)
+	user := result.(models.User)
+	fmt.Println(user.LoginGovEmail, user.LoginGovUUID)
+}

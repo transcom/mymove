@@ -1,22 +1,14 @@
 package testdatagen
 
 import (
+	"fmt"
+	"reflect"
+
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
-
-// this is the class - note type struct and member vairbal
-type ServiceMemberMaker struct {
-	Model     *models.ServiceMember
-	ForceUUID *uuid.UUID
-}
-
-// this is the constructor
-func NewServiceMemberMaker(serviceMember models.ServiceMember, forceUUID *uuid.UUID) ServiceMemberMaker {
-	return ServiceMemberMaker{&serviceMember, forceUUID}
-}
 
 // func (sf ServiceMemberMaker) Create(db *pop.Connection, custom Customization) error {
 // 	sm := sf.Model
@@ -62,45 +54,106 @@ func NewServiceMemberMaker(serviceMember models.ServiceMember, forceUUID *uuid.U
 // 	return nil
 // }
 
-// this is the class - note type struct and member variable
-type UserMaker struct {
-	Model     *models.User
-	ForceUUID *uuid.UUID
-}
-
-// this is the constructor
-func NewUserMaker(user models.User, forceUUID *uuid.UUID) UserMaker {
-	return UserMaker{&user, forceUUID}
-}
-
-func findCustom(customs []Customization, customType CustomType) *Customization {
-	for _, custom := range customs {
+func findCustomWithIdx(customs []Customization, customType CustomType) (int, *Customization) {
+	for i, custom := range customs {
 		if custom.Type == customType {
-			return &custom
+			return i, &custom
 		}
 	}
-	return nil
+	return -1, nil
+}
+func findCustom(customs []Customization, customType CustomType) *Customization {
+	_, custom := findCustomWithIdx(customs, customType)
+	return custom
 }
 
-// this is a method
+// This function takes an interface wrapping a struct and
+// returns an interface wrapping a pointer to the struct
+// For e.g. interface{}(models.User) → interface{}(*models.User)
+func toStructPtr(obj interface{}) interface{} {
+	vp := reflect.New(reflect.TypeOf(obj))
+	vp.Elem().Set(reflect.ValueOf(obj))
+	return vp.Interface()
+}
 
-func (uf UserMaker) Make(db *pop.Connection, customs []Customization, traits []Trait) error {
-	user := uf.Model
+// This function takes an interface wrapping a pointer to a struct and
+// returns an interface wrapping the struct
+// For e.g. interface{}(*models.User) → interface{}(models.User)
+func toInterfacePtr(obj interface{}) interface{} {
+	rv := reflect.ValueOf(obj).Elem()
+	return rv.Interface()
+}
+
+// This function transforms the interfaces to match what mergeModels expects
+func mergeInterfaces(model1 interface{}, model2 interface{}) interface{} {
+	modelPtr := toStructPtr(model1)
+	mergeModels(modelPtr, model2)
+	model := toInterfacePtr(modelPtr)
+	return model
+}
+
+// This function take the original set of customizations
+// and merges with the traits.
+// The order of application is
+// - Earlier traits override later traits in the trait list
+// - Customizations override the traits
+// So if you have [trait1, trait2] customization
+// and all three contain the same object:
+// - trait 1 will override trait 2 (so start with the highest priority)
+// - customization will override trait 2
+func mergeCustomization(traits []Trait, customs []Customization) []Customization {
+	// Get a list of traits, each could return a list of customizations
+	fmt.Println("We have", len(traits), "traits")
+	for _, trait := range traits {
+		traitCustomizations := trait()
+		fmt.Println("this trait has", len(traitCustomizations))
+		// for each customization, merge of replace the one in user supplied customizations
+		for _, traitCustom := range traitCustomizations {
+			fmt.Println("Found trait", traitCustom.Type)
+			j, callerCustom := findCustomWithIdx(customs, traitCustom.Type)
+			if callerCustom != nil {
+				result := mergeInterfaces(callerCustom.Model, traitCustom.Model)
+				callerCustom.Model = result
+				customs[j] = *callerCustom
+			} else {
+				fmt.Println("No custom", traitCustom.Type)
+				customs = append(customs, traitCustom)
+			}
+		}
+	}
+	return customs
+}
+
+func userMaker(db *pop.Connection, customs []Customization, traits []Trait) (models.User, error) {
+
+	// Combine all traits into the customization list,
+	// then clear traits so this is not repeated downstream
+	if len(traits) != 0 {
+		// This function take the original set of customizations
+		// and merges with the traits.
+		// The order of application is that the customizations override the trai
+		customs = mergeCustomization(traits, customs)
+		// traits = nil
+	}
 
 	// Find user assertion and convert to models user
+	fmt.Print(traits)
 	customUser := findCustom(customs, CustomUser).Model.(models.User)
 
+	// create user
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	user.LoginGovUUID = &loginGovUUID
-	user.LoginGovEmail = "first.last@login.gov.test"
-	user.Active = false
+	user := models.User{
+		LoginGovUUID:  &loginGovUUID,
+		LoginGovEmail: "first.last@login.gov.test",
+		Active:        false,
+	}
 
 	// Overwrite values with those from assertions
-	mergeModels(user, customUser)
+	mergeModels(&user, customUser)
 
-	mustCreate(db, user, false)
+	mustCreate(db, &user, false)
 
-	return nil
+	return user, nil
 }
 
 type CustomType string
@@ -124,12 +177,23 @@ var Addresses = AddressesCustomType{
 
 type Trait func() []Customization
 
+func getTraitActiveUser() []Customization {
+	return []Customization{
+		{
+			Model: models.User{
+				Active: true,
+			},
+			Type: CustomUser,
+		},
+	}
+}
+
 func getTraitArmy() []Customization {
-	var army = models.AffiliationARMY
+	army := models.AffiliationARMY
 	var VariantUserArmy = []Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: "testing@army.mil",
+				LoginGovEmail: "trait@army.mil",
 			},
 			Type: CustomUser,
 		},
@@ -137,16 +201,17 @@ func getTraitArmy() []Customization {
 			Model: models.ServiceMember{
 				Affiliation: &army,
 			},
-			Type: CustomUser,
+			Type: CustomServiceMember,
 		},
 	}
 	return VariantUserArmy
 }
 
 type Customization struct {
-	Model  interface{}
-	Type   CustomType
-	Create bool
+	Model       interface{}
+	Type        CustomType
+	Create      bool
+	ReflectType reflect.Type
 }
 type Maker interface {
 	Make(db *pop.Connection, customs []Customization, traits []Trait) error
