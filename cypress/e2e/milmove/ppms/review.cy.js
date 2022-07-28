@@ -12,7 +12,7 @@ import {
   signInAndNavigateFromHomePageToReviewPage,
 } from '../../../support/ppmCustomerShared';
 
-import { submitMove } from '../../mymove/utilities/customer';
+import { submitMove } from '../../../utilities/customer';
 
 const fullPPMShipmentFields = [
   ['Expected departure', '15 Mar 2020'],

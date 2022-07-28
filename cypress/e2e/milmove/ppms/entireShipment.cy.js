@@ -10,7 +10,7 @@ import {
   submitsEstimatedWeightsAndProGear,
 } from '../../../support/ppmCustomerShared';
 
-import { submitMove } from '../../mymove/utilities/customer';
+import { submitMove } from '../../../utilities/customer';
 
 describe('Entire PPM onboarding flow', function () {
   before(() => {
