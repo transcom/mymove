@@ -375,7 +375,7 @@ const WeightTicketForm = ({
                               </Hint>
                               <FileUpload
                                 name="proofOfTrailerOwnershipDocument"
-                                fieldName="proofOfTrailerOwnershipDocument"
+                                className="proofOfTrailerOwnershipDocument"
                                 createUpload={(file) => onCreateUpload('proofOfTrailerOwnershipDocument', file)}
                                 labelIdle={UploadDropZoneLabel}
                                 labelIdleMobile={UploadDropZoneLabelMobile}
