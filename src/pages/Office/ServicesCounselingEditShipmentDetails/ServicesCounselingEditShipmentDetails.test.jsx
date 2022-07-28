@@ -383,10 +383,8 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
       userEvent.click(saveButton);
       await waitFor(() => {
-        expect(onUpdateMock).toHaveBeenCalled();
-        // expect(mockPush).toHaveBeenCalled()
-        // expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/shipments/shipment123/advance');
-        // expect(onUpdateMock).toHaveBeenCalledWith('success');
+        expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/shipments/shipment123/advance');
+        expect(onUpdateMock).toHaveBeenCalledWith('success');
       });
     });
   });
