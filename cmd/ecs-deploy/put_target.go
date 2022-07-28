@@ -32,6 +32,7 @@ var names = []string{
 	"save-ghc-fuel-price-data",
 	"send-payment-reminder",
 	"send-post-move-survey",
+	"export-db-data",
 }
 
 type errInvalidName struct {
