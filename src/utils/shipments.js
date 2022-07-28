@@ -8,4 +8,14 @@ export function isPPMShipmentComplete(mtoShipment) {
   return false;
 }
 
+export function hasCompleteWeightTickets(weightTickets) {
+  if (!weightTickets?.length) {
+    return false;
+  }
+
+  return !!weightTickets?.every((weightTicket) => {
+    return weightTicket.vehicleDescription && weightTicket.emptyWeight && weightTicket.fullWeight;
+  });
+}
+
 export default isPPMShipmentComplete;

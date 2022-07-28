@@ -33,17 +33,16 @@ const (
 	MovingExpenseReceiptTypeOther MovingExpenseReceiptType = "OTHER"
 )
 
-// MovingExpenseStatus represents the status of an order record's lifecycle
-type MovingExpenseStatus string
-
-const (
-	// MovingExpenseStatusApproved captures enum value "APPROVED"
-	MovingExpenseStatusApproved MovingExpenseStatus = "APPROVED"
-	// MovingExpenseStatusExcluded captures enum value "EXCLUDED"
-	MovingExpenseStatusExcluded MovingExpenseStatus = "EXCLUDED"
-	// MovingExpenseStatusRejected captures enum value "REJECTED"
-	MovingExpenseStatusRejected MovingExpenseStatus = "REJECTED"
-)
+var AllowedExpenseTypes = []string{
+	string(MovingExpenseReceiptTypeContractedExpense),
+	string(MovingExpenseReceiptTypeOil),
+	string(MovingExpenseReceiptTypePackingMaterials),
+	string(MovingExpenseReceiptTypeRentalEquipment),
+	string(MovingExpenseReceiptTypeStorage),
+	string(MovingExpenseReceiptTypeTolls),
+	string(MovingExpenseReceiptTypeWeighingFees),
+	string(MovingExpenseReceiptTypeOther),
+}
 
 type MovingExpense struct {
 	ID                uuid.UUID                 `json:"id" db:"id"`
@@ -59,7 +58,8 @@ type MovingExpense struct {
 	PaidWithGTCC      *bool                     `json:"paid_with_gtcc" db:"paid_with_gtcc"`
 	Amount            *unit.Cents               `json:"amount" db:"amount"`
 	MissingReceipt    *bool                     `json:"missing_receipt" db:"missing_receipt"`
-	Status            *MovingExpenseStatus      `json:"status" db:"status"`
+	Status            *PPMDocumentStatus        `json:"status" db:"status"`
+	Reason            *string                   `json:"reason" db:"reason"`
 	SITStartDate      *time.Time                `json:"sit_start_date" db:"sit_start_date"`
 	SITEndDate        *time.Time                `json:"sit_end_date" db:"sit_end_date"`
 }
@@ -70,37 +70,13 @@ type MovingExpenses []MovingExpense
 // pop.ValidateAndUpdate) method. This should contain validation that is for data integrity. Business validation should
 // occur in service objects.
 func (m *MovingExpense) Validate(_ *pop.Connection) (*validate.Errors, error) {
-	var movingExpenseType *string
-
-	if m.MovingExpenseType != nil {
-		movingExpenseType = StringPointer(string(*m.MovingExpenseType))
-	}
-
-	var status *string
-
-	if m.Status != nil {
-		status = StringPointer(string(*m.Status))
-	}
-
 	return validate.Validate(
 		&validators.UUIDIsPresent{Name: "PPMShipmentID", Field: m.PPMShipmentID},
 		&OptionalTimeIsPresent{Name: "DeletedAt", Field: m.DeletedAt},
-		&OptionalStringInclusion{Name: "MovingExpenseType", Field: movingExpenseType, List: []string{
-			string(MovingExpenseReceiptTypeContractedExpense),
-			string(MovingExpenseReceiptTypeOil),
-			string(MovingExpenseReceiptTypePackingMaterials),
-			string(MovingExpenseReceiptTypeRentalEquipment),
-			string(MovingExpenseReceiptTypeStorage),
-			string(MovingExpenseReceiptTypeTolls),
-			string(MovingExpenseReceiptTypeWeighingFees),
-			string(MovingExpenseReceiptTypeOther),
-		}},
+		&OptionalStringInclusion{Name: "MovingExpenseType", Field: (*string)(m.MovingExpenseType), List: AllowedExpenseTypes},
 		&StringIsNilOrNotBlank{Name: "Description", Field: m.Description},
-		&OptionalStringInclusion{Name: "Status", Field: status, List: []string{
-			string(MovingExpenseStatusApproved),
-			string(MovingExpenseStatusExcluded),
-			string(MovingExpenseStatusRejected),
-		}},
+		&OptionalStringInclusion{Name: "Status", Field: (*string)(m.Status), List: AllowedPPMDocumentStatuses},
+		&StringIsNilOrNotBlank{Name: "Reason", Field: m.Reason},
 		&OptionalTimeIsPresent{Name: "SITStartDate", Field: m.SITStartDate},
 		&OptionalTimeIsPresent{Name: "SITEndDate", Field: m.SITEndDate},
 	), nil

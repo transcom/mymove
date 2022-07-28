@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
 
-import { tioRoutes } from 'constants/routes';
+import { qaeCSRRoutes, tioRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import CustomerHeader from 'components/CustomerHeader';
@@ -18,6 +18,8 @@ const MoveTaskOrder = lazy(() => import('pages/Office/MoveTaskOrder/MoveTaskOrde
 const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestReview/PaymentRequestReview'));
 const ReviewBillableWeight = lazy(() => import('pages/Office/ReviewBillableWeight/ReviewBillableWeight'));
 const CustomerSupportRemarks = lazy(() => import('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks'));
+const EvaluationReports = lazy(() => import('pages/Office/EvaluationReports/EvaluationReports'));
+const ShipmentEvaluationReport = lazy(() => import('pages/Office/ShipmentEvaluationReport/ShipmentEvaluationReport'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 
@@ -29,7 +31,7 @@ const TXOMoveInfo = () => {
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
 
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
-  const { moveCode } = useParams();
+  const { moveCode, reportId } = useParams();
   const { pathname } = useLocation();
   const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
 
@@ -74,6 +76,7 @@ const TXOMoveInfo = () => {
           pendingPaymentRequestCount={pendingPaymentRequestCount}
           unapprovedSITExtensionCount={unapprovedSITExtensionCount}
           moveCode={moveCode}
+          reportId={reportId}
           order={order}
         />
       )}
@@ -120,6 +123,14 @@ const TXOMoveInfo = () => {
 
           <Route path="/moves/:moveCode/customer-support-remarks" exact>
             <CustomerSupportRemarks />
+          </Route>
+
+          <Route path={qaeCSRRoutes.EVALUATION_REPORTS_PATH} exact>
+            <EvaluationReports />
+          </Route>
+
+          <Route path={qaeCSRRoutes.SHIPMENT_EVALUATION_REPORT_PATH} exact>
+            <ShipmentEvaluationReport />
           </Route>
 
           <Route path="/moves/:moveCode/history" exact>

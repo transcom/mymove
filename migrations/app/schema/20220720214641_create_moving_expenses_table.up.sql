@@ -9,7 +9,7 @@ CREATE TYPE moving_expense_type AS enum (
 	'OTHER'
 	);
 
-CREATE TYPE moving_expense_status AS enum (
+CREATE TYPE ppm_document_status AS enum (
 	'APPROVED',
 	'EXCLUDED',
 	'REJECTED'
@@ -29,9 +29,10 @@ CREATE TABLE moving_expenses
 	paid_with_gtcc bool,
 	amount int,
 	missing_receipt bool,
-	status moving_expense_status,
-	sit_start_date timestamptz,
-	sit_end_date timestamptz,
+	status ppm_document_status,
+	reason varchar,
+	sit_start_date date,
+	sit_end_date date,
 	created_at timestamp NOT NULL,
 	updated_at timestamp NOT NULL,
 	deleted_at timestamptz
@@ -40,8 +41,8 @@ CREATE TABLE moving_expenses
 CREATE INDEX moving_expenses_ppm_shipment_id_idx ON moving_expenses USING hash (ppm_shipment_id);
 CREATE INDEX moving_expenses_deleted_at_idx ON moving_expenses USING btree (deleted_at);
 
-COMMENT on TABLE moving_expenses IS 'Stores weight ticket docs associated with a trip for a PPM shipment.';
-COMMENT on COLUMN moving_expenses.ppm_shipment_id IS 'The ID of the PPM shipment that this set of weight tickets is for.';
+COMMENT on TABLE moving_expenses IS 'Stores expense doc and information associated with a trip for a PPM shipment.';
+COMMENT on COLUMN moving_expenses.ppm_shipment_id IS 'The ID of the PPM shipment that this expense is for.';
 COMMENT on COLUMN moving_expenses.document_id IS 'The ID of the document that is associated with the user uploads containing the moving expense receipt.';
 COMMENT on COLUMN moving_expenses.moving_expense_type IS 'Identifies the type of expense this is.';
 COMMENT on COLUMN moving_expenses.description IS 'Stores a description of the expense.';
@@ -49,5 +50,6 @@ COMMENT on COLUMN moving_expenses.paid_with_gtcc IS 'Indicates if the customer p
 COMMENT on COLUMN moving_expenses.amount IS 'Stores the cost of the expense.';
 COMMENT on COLUMN moving_expenses.missing_receipt IS 'Indicates if the customer is missing the receipt for their expense.';
 COMMENT on COLUMN moving_expenses.status IS 'Status of the expense, e.g. APPROVED.';
+COMMENT on COLUMN moving_expenses.reason IS 'Contains the reason an expense is excluded or rejected; otherwise null.';
 COMMENT on COLUMN moving_expenses.sit_start_date IS 'If this is a STORAGE expense, this indicates the date storage began.';
 COMMENT on COLUMN moving_expenses.sit_end_date IS 'If this is a STORAGE expense, this indicates the date storage ended.';

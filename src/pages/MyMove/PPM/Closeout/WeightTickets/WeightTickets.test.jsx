@@ -6,7 +6,7 @@ import { v4 } from 'uuid';
 
 import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
-import { createWeightTicket, patchWeightTicket } from 'services/internalApi';
+import { createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
 import { MockProviders } from 'testUtils';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import WeightTickets from 'pages/MyMove/PPM/Closeout/WeightTickets/WeightTickets';
@@ -38,6 +38,7 @@ jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   createWeightTicket: jest.fn(),
   createUploadForDocument: jest.fn(),
+  deleteUpload: jest.fn(),
   patchWeightTicket: jest.fn(),
   getResponseError: jest.fn(),
 }));
@@ -79,38 +80,44 @@ const mockWeightTicketWithUploads = {
   id: mockWeightTicketId,
   ppmShipmentId: mockPPMShipmentId,
   emptyWeightDocumentId: mockEmptyWeightDocumentId,
-  emptyDocument: [
-    {
-      id: '299e2fb4-432d-4261-bbed-d8280c6090af',
-      created_at: '2022-06-22T23:25:50.490Z',
-      bytes: 819200,
-      url: 'a/fake/path',
-      filename: 'empty_weight.jpg',
-      content_type: 'image/jpg',
-    },
-  ],
+  emptyDocument: {
+    uploads: [
+      {
+        id: '299e2fb4-432d-4261-bbed-d8280c6090af',
+        created_at: '2022-06-22T23:25:50.490Z',
+        bytes: 819200,
+        url: 'a/fake/path',
+        filename: 'empty_weight.jpg',
+        content_type: 'image/jpg',
+      },
+    ],
+  },
   fullWeightDocumentId: mockFullWeightDocumentId,
-  fullDocument: [
-    {
-      id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
-      created_at: '2022-06-23T23:25:50.490Z',
-      bytes: 409600,
-      url: 'a/fake/path',
-      filename: 'full_weight.pdf',
-      content_type: 'application/pdf',
-    },
-  ],
+  fullDocument: {
+    uploads: [
+      {
+        id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
+        created_at: '2022-06-23T23:25:50.490Z',
+        bytes: 409600,
+        url: 'a/fake/path',
+        filename: 'full_weight.pdf',
+        content_type: 'application/pdf',
+      },
+    ],
+  },
   trailerOwnershipDocumentId: mockTrailerOwnershipWeightDocumentId,
-  proofOfTrailerOwnershipDocument: [
-    {
-      id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',
-      created_at: '2022-06-24T23:25:50.490Z',
-      bytes: 204800,
-      url: 'a/fake/path',
-      filename: 'trailer_title.pdf',
-      content_type: 'application/pdf',
-    },
-  ],
+  proofOfTrailerOwnershipDocument: {
+    uploads: [
+      {
+        id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',
+        created_at: '2022-06-24T23:25:50.490Z',
+        bytes: 204800,
+        url: 'a/fake/path',
+        filename: 'trailer_title.pdf',
+        content_type: 'application/pdf',
+      },
+    ],
+  },
   eTag: mockWeightTicketETag,
 };
 
@@ -247,7 +254,7 @@ describe('Weight Tickets page', () => {
 
     await waitFor(() => {
       expect(patchWeightTicket).toHaveBeenCalledWith(
-        mockMTOShipmentId,
+        mockPPMShipmentId,
         mockWeightTicketId,
         {
           ppmShipmentId: mockWeightTicketWithUploads.ppmShipmentId,
@@ -256,7 +263,7 @@ describe('Weight Tickets page', () => {
           missingEmptyWeightTicket: false,
           fullWeight: 6999,
           missingFullWeightTicket: false,
-          hasOwnTrailer: true,
+          ownsTrailer: true,
           trailerMeetsCriteria: true,
         },
         mockWeightTicketETag,
@@ -290,7 +297,13 @@ describe('Weight Tickets page', () => {
   });
 
   it('calls the delete handler when removing an existing upload', async () => {
-    createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
+    useParams.mockImplementation(() => ({
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+      weightTicketId: mockWeightTicketId,
+    }));
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 0 });
+
     selectMTOShipmentById.mockReturnValue({
       ...mockMTOShipment,
       ppmShipment: {
@@ -298,8 +311,7 @@ describe('Weight Tickets page', () => {
         weightTickets: [mockWeightTicketWithUploads],
       },
     });
-    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 0 });
-
+    deleteUpload.mockResolvedValue({});
     render(<WeightTickets />, { wrapper: MockProviders });
 
     let deleteButtons;

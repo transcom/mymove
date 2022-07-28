@@ -7,6 +7,7 @@ package ghcmessages
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -174,6 +175,9 @@ type PPMShipment struct {
 	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+
+	// weight tickets
+	WeightTickets []*WeightTicket `json:"weightTickets"`
 }
 
 // Validate validates this p p m shipment
@@ -261,6 +265,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateWeightTickets(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -535,6 +543,32 @@ func (m *PPMShipment) validateUpdatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *PPMShipment) validateWeightTickets(formats strfmt.Registry) error {
+	if swag.IsZero(m.WeightTickets) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.WeightTickets); i++ {
+		if swag.IsZero(m.WeightTickets[i]) { // not required
+			continue
+		}
+
+		if m.WeightTickets[i] != nil {
+			if err := m.WeightTickets[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("weightTickets" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("weightTickets" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // ContextValidate validate this p p m shipment based on the context it is used
 func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -564,6 +598,10 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateWeightTickets(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -643,6 +681,26 @@ func (m *PPMShipment) contextValidateUpdatedAt(ctx context.Context, formats strf
 
 	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateWeightTickets(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.WeightTickets); i++ {
+
+		if m.WeightTickets[i] != nil {
+			if err := m.WeightTickets[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("weightTickets" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("weightTickets" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

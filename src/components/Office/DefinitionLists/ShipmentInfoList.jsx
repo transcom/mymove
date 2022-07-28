@@ -10,16 +10,17 @@ import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
 
-const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, showWhenCollapsed }) => {
+const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, showWhenCollapsed, isExpanded }) => {
   const {
     requestedPickupDate,
+    requestedDeliveryDate,
     pickupAddress,
     secondaryPickupAddress,
     destinationAddress,
     destinationType,
     displayDestinationType,
     secondaryDeliveryAddress,
-    agents,
+    mtoAgents,
     counselorRemarks,
     customerRemarks,
   } = shipment;
@@ -31,11 +32,53 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
   });
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
 
+  const showElement = (elementFlags) => {
+    return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
+  };
+
+  const releasingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RELEASING_AGENT') : false;
+  const receivingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RECEIVING_AGENT') : false;
+
+  const agentsElementFlags = getDisplayFlags('mtoAgents');
+  const releasingAgentElement = !releasingAgent ? (
+    <div className={agentsElementFlags.classes}>
+      <dt>Releasing agent</dt>
+      <dd data-testid="RELEASING_AGENT">—</dd>
+    </div>
+  ) : (
+    <div className={agentsElementFlags.classes} key={`${releasingAgent.agentType}-${releasingAgent.email}`}>
+      <dt>Releasing agent</dt>
+      <dd data-testid={releasingAgent.agentType}>{formatAgent(releasingAgent)}</dd>
+    </div>
+  );
+
+  const receivingAgentElement = !receivingAgent ? (
+    <div className={agentsElementFlags.classes}>
+      <dt>Receiving agent</dt>
+      <dd data-testid="RECEIVING_AGENT">—</dd>
+    </div>
+  ) : (
+    <div className={agentsElementFlags.classes} key={`${receivingAgent.agentType}-${receivingAgent.email}`}>
+      <dt>Receiving agent</dt>
+      <dd data-testid={receivingAgent.agentType}>{formatAgent(receivingAgent)}</dd>
+    </div>
+  );
+
   const requestedPickupDateElementFlags = getDisplayFlags('requestedPickupDate');
   const requestedPickupDateElement = (
     <div className={requestedPickupDateElementFlags.classes}>
       <dt>Requested pickup date</dt>
       <dd data-testid="requestedPickupDate">{requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')}</dd>
+    </div>
+  );
+
+  const requestedDeliveryDateElementFlags = getDisplayFlags('requestedDeliveryDate');
+  const requestedDeliveryDateElement = (
+    <div className={requestedDeliveryDateElementFlags.classes}>
+      <dt>Requested delivery date</dt>
+      <dd data-testid="requestedDeliveryDate">
+        {requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')}
+      </dd>
     </div>
   );
 
@@ -83,16 +126,6 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
     </div>
   );
 
-  const agentsElementFlags = getDisplayFlags('agents');
-  const agentsElement = agents
-    ? agents.map((agent) => (
-        <div className={agentsElementFlags.classes} key={`${agent.agentType}-${agent.email}`}>
-          <dt>{agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}</dt>
-          <dd data-testid={agent.agentType}>{formatAgent(agent)}</dd>
-        </div>
-      ))
-    : null;
-
   const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
     <div className={counselorRemarksElementFlags.classes}>
@@ -122,11 +155,13 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
     >
       {requestedPickupDateElement}
       {pickupAddressElement}
-      {secondaryPickupAddress && secondaryPickupAddressElement}
+      {showElement(secondaryPickupAddressElementFlags) && secondaryPickupAddressElement}
+      {showElement(agentsElementFlags) && releasingAgentElement}
+      {showElement(requestedDeliveryDateElementFlags) && requestedDeliveryDateElement}
       {destinationAddressElement}
-      {displayDestinationType && destinationTypeElement}
-      {secondaryDeliveryAddress && secondaryDeliveryAddressElement}
-      {agents && agentsElement}
+      {showElement(destinationTypeFlags) && displayDestinationType && destinationTypeElement}
+      {showElement(secondaryDeliveryAddressElementFlags) && secondaryDeliveryAddressElement}
+      {showElement(agentsElementFlags) && receivingAgentElement}
       {counselorRemarksElement}
       {customerRemarksElement}
     </dl>
@@ -139,6 +174,7 @@ ShipmentInfoList.propTypes = {
   warnIfMissing: PropTypes.arrayOf(PropTypes.string),
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
+  isExpanded: PropTypes.bool,
 };
 
 ShipmentInfoList.defaultProps = {
@@ -146,6 +182,7 @@ ShipmentInfoList.defaultProps = {
   warnIfMissing: [],
   errorIfMissing: [],
   showWhenCollapsed: [],
+  isExpanded: false,
 };
 
 export default ShipmentInfoList;

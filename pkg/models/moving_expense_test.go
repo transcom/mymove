@@ -13,23 +13,11 @@ import (
 
 func (suite *ModelSuite) TestMovingExpenseValidation() {
 	blankExpenseType := models.MovingExpenseReceiptType("")
-	blankStatusType := models.MovingExpenseStatus("")
-	validExpenseTypes := strings.Join([]string{
-		string(models.MovingExpenseReceiptTypeContractedExpense),
-		string(models.MovingExpenseReceiptTypeOil),
-		string(models.MovingExpenseReceiptTypePackingMaterials),
-		string(models.MovingExpenseReceiptTypeRentalEquipment),
-		string(models.MovingExpenseReceiptTypeStorage),
-		string(models.MovingExpenseReceiptTypeTolls),
-		string(models.MovingExpenseReceiptTypeWeighingFees),
-		string(models.MovingExpenseReceiptTypeOther),
-	}, ", ")
+	blankStatusType := models.PPMDocumentStatus("")
 
-	validStatuses := strings.Join([]string{
-		string(models.MovingExpenseStatusApproved),
-		string(models.MovingExpenseStatusExcluded),
-		string(models.MovingExpenseStatusRejected),
-	}, ", ")
+	validExpenseTypes := strings.Join(models.AllowedExpenseTypes, ", ")
+
+	validStatuses := strings.Join(models.AllowedPPMDocumentStatuses, ", ")
 
 	testCases := map[string]struct {
 		movingExpense models.MovingExpense
@@ -57,6 +45,7 @@ func (suite *ModelSuite) TestMovingExpenseValidation() {
 				MovingExpenseType: &blankExpenseType,
 				Description:       models.StringPointer(""),
 				Status:            &blankStatusType,
+				Reason:            models.StringPointer(""),
 				SITStartDate:      models.TimePointer(time.Time{}),
 				SITEndDate:        models.TimePointer(time.Time{}),
 			},
@@ -65,6 +54,7 @@ func (suite *ModelSuite) TestMovingExpenseValidation() {
 				"moving_expense_type": {fmt.Sprintf("MovingExpenseType is not in the list [%s].", validExpenseTypes)},
 				"description":         {"Description can not be blank."},
 				"status":              {fmt.Sprintf("Status is not in the list [%s].", validStatuses)},
+				"reason":              {"Reason can not be blank."},
 				"sitstart_date":       {"SITStartDate can not be blank."},
 				"sitend_date":         {"SITEndDate can not be blank."},
 			},
