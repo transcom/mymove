@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -238,5 +240,38 @@ func (suite *HandlerSuite) TestDeleteEvaluationReportHandler() {
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&evaluationReportop.DeleteEvaluationReportNoContent{}, response)
+	})
+}
+func (suite *HandlerSuite) TestUpdateEvaluationReportHandler() {
+
+	suite.Run("Successful update", func() {
+		reportID := uuid.Must(uuid.NewV4())
+
+		updater := &mocks.EvaluationReportUpdater{}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := UpdateEvaluationReportHandler{handlerConfig, updater}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+
+		params := evaluationReportop.SaveEvaluationReportParams{
+			HTTPRequest: request,
+			Body: &ghcmessages.EvaluationReport{
+				Remarks: swag.String("new remarks"),
+			},
+			ReportID: *handlers.FmtUUID(reportID),
+		}
+
+		updater.On("UpdateEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.EvaluationReport"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("string"),
+		).Return(nil).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportNoContent{}, response)
 	})
 }
