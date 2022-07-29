@@ -5,8 +5,8 @@ import { InvalidZIPTypeError, ZIP5_CODE_REGEX } from 'utils/validation';
 
 const ppmShipmentSchema = ({ estimatedIncentive = 0, weightAllotment = {} }) => {
   const estimatedWeightLimit = weightAllotment.totalWeightSelf || 0;
-  const proGearWeightLimit = weightAllotment.proGearWeight || 0;
-  const proGearSpouseWeightLimit = weightAllotment.proGearWeightSpouse || 0;
+  const proGearWeightLimit = weightAllotment.proGearWeight || 2000;
+  const proGearSpouseWeightLimit = weightAllotment.proGearWeightSpouse || 500;
 
   const formSchema = Yup.object().shape({
     pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
