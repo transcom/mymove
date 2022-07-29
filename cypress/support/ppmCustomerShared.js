@@ -71,7 +71,7 @@ export function signInAndNavigateToWeightTicketPage(userId) {
   cy.apiSignInAsUser(userId);
   cy.wait('@getShipment');
   cy.screenshot();
-  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').scrollIntoView().click();
+  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
   fillOutAboutPage(true);
 }
 
