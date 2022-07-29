@@ -70,6 +70,7 @@ export function navigateFromAboutPageToWeightTicketPage() {
 
 export function signInAndNavigateToWeightTicketPage(userId) {
   cy.apiSignInAsUser(userId);
+  cy.screenshot();
   cy.wait('@getShipment');
 
   cy.get('button[data-testid="button"]').contains('Upload PPM Documents').should('be.enabled').click();
