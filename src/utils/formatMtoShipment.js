@@ -253,8 +253,8 @@ export function formatPpmShipmentForAPI(formValues) {
   if (formValues.hasProGear) {
     ppmShipmentValues = {
       ...ppmShipmentValues,
-      proGearWeight: formValues.proGearWeight ? Number(formValues.proGearWeight) : undefined,
-      spouseProGearWeight: formValues.spouseProGearWeight ? Number(formValues.spouseProGearWeight) : undefined,
+      proGearWeight: Number(formValues.proGearWeight || '0'),
+      spouseProGearWeight: Number(formValues.spouseProGearWeight || '0'),
     };
   }
 
