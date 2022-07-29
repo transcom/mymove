@@ -70,9 +70,10 @@ export function navigateFromAboutPageToWeightTicketPage() {
 
 export function signInAndNavigateToWeightTicketPage(userId) {
   cy.apiSignInAsUser(userId);
-  cy.wait('@getShipment');
   cy.screenshot();
-  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
+  cy.wait('@getShipment');
+
+  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').should('be.enabled').click();
   fillOutAboutPage(true);
 }
 
@@ -87,18 +88,26 @@ export function fillOutWeightTicketPage(options) {
   if (options?.useConstructedWeight) {
     cy.get('input[name="emptyWeight"]').clear().type('1000').blur();
     cy.get('input[name="missingEmptyWeightTicket"]').check({ force: true });
+    cy.intercept('/internal/uploads**').as('uploadFile');
     cy.upload_file('.emptyDocument.filepond--root', 'constructedWeight.xls');
+    cy.wait('@uploadFile');
     cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
     cy.get('input[name="fullWeight"]').clear().type('3000');
     cy.get('input[name="missingFullWeightTicket"]').check({ force: true });
+    cy.intercept('/internal/uploads**').as('uploadFile');
     cy.upload_file('.fullDocument.filepond--root', 'constructedWeight.xls');
+    cy.wait('@uploadFile');
     cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
   } else {
     cy.get('input[name="emptyWeight"]').clear().type('1000').blur();
+    cy.intercept('/internal/uploads**').as('uploadFile');
     cy.upload_file('.emptyDocument.filepond--root', 'sampleWeightTicket.jpg');
+    cy.wait('@uploadFile');
     cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
     cy.get('input[name="fullWeight"]').clear().type('3000');
+    cy.intercept('/internal/uploads**').as('uploadFile');
     cy.upload_file('.fullDocument.filepond--root', 'sampleWeightTicket.jpg');
+    cy.wait('@uploadFile');
     cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
   }
 
@@ -108,7 +117,9 @@ export function fillOutWeightTicketPage(options) {
     cy.get('input[name="ownsTrailer"][value="true"]').check({ force: true });
     if (options?.ownTrailer) {
       cy.get('input[name="trailerMeetsCriteria"][value="true"]').check({ force: true });
+      cy.intercept('/internal/uploads**').as('uploadFile');
       cy.upload_file('.proofOfTrailerOwnershipDocument.filepond--root', 'trailerOwnership.pdf');
+      cy.wait('@uploadFile');
       cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should(
         'have.length',
         1,
