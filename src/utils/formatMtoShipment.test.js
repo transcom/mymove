@@ -466,7 +466,7 @@ describe('formatPpmShipmentForAPI', () => {
     expect(ppmShipment.secondaryPickupPostalCode).toEqual('80014');
     expect(ppmShipment.estimatedWeight).toEqual(7500);
     expect(ppmShipment.proGearWeight).toEqual(1000);
-    expect(ppmShipment.spouseProGearWeight).toEqual(undefined);
+    expect(ppmShipment.spouseProGearWeight).toEqual(0);
 
     expect(ppmShipment.hasRequestedAdvance).toEqual(true);
     expect(ppmShipment.advanceAmountRequested).toEqual(200000);
@@ -491,6 +491,6 @@ describe('formatPpmShipmentForAPI', () => {
     expect(ppmShipment.estimatedWeight).toEqual(7500);
 
     expect(ppmShipment.sitLocation).toEqual(undefined);
-    expect(ppmShipment.proGearWeight).toEqual(undefined);
+    expect(ppmShipment.proGearWeight).toEqual(0);
   });
 });
