@@ -1,4 +1,5 @@
 import { QAECSROfficeUserType, TIOOfficeUserType } from '../../../support/constants';
+import { navigateToMove } from '../navigateToMove';
 
 describe('Customer Support User Flows', () => {
   before(() => {
@@ -25,13 +26,7 @@ describe('Customer Support User Flows', () => {
     const testRemarkText = 'This is a test remark';
     const editString = '-edit';
 
-    // Moves queue (eventually will come via QAE/CSR move search)
-    cy.wait(['@getSortedOrders']);
-    cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveLocator}/details`);
-
-    // Move Details page
-    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    navigateToMove(moveLocator);
 
     // Go to Customer support remarks
     cy.contains('Customer support remarks').click();

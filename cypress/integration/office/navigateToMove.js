@@ -1,5 +1,5 @@
 export function navigateToMove(moveLocator) {
-  // TOO Moves queue
+  // Office Moves queue
   cy.wait(['@getSortedOrders']);
   cy.get('input[name="locator"]').as('moveCodeFilterInput');
 

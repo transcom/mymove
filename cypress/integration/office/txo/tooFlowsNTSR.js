@@ -1,5 +1,5 @@
 import { TOOOfficeUserType } from '../../../support/constants';
-import { navigateToMove } from './tooNavigateToMove';
+import { navigateToMove } from '../navigateToMove';
 
 describe('TOO user', () => {
   before(() => {
