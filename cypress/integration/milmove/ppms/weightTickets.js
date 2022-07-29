@@ -12,6 +12,7 @@ describe('Weight Tickets', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.intercept('PATCH', '**/internal/ppm-shipments/**/weight-ticket').as('patchWeightTicket');
   });
 
   const viewportType = [
