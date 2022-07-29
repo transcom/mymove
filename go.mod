@@ -63,7 +63,7 @@ require (
 	github.com/trussworks/otelhttp v0.0.0-20220428162739-458ecc428855
 	github.com/vektra/mockery/v2 v2.14.0
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
-	go.opentelemetry.io/contrib/detectors/aws/ecs v1.7.0
+	go.opentelemetry.io/contrib/detectors/aws/ecs v1.8.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.32.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.32.0
 	go.opentelemetry.io/contrib/propagators/aws v1.8.0
