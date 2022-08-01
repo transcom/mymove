@@ -350,7 +350,7 @@ func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, 
 }
 
 const (
-	controlledUnclassifiedInformationText = "Controlled Unclassified Information"
+	controlledUnclassifiedInformationText = "CONTROLLED UNCLASSIFIED INFORMATION"
 )
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
