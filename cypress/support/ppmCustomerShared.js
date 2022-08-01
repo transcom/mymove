@@ -1,4 +1,3 @@
-// import { signAgreement } from '../utilities/customer';
 import { signAgreement } from '../utilities/customer';
 
 export function setMobileViewport() {
