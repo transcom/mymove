@@ -7,7 +7,7 @@ const cx = classNames.bind(styles);
 
 const CUIHeader = () => (
   <div className={cx('cui-header')}>
-    <div className={cx('cui-header--text')}>Unclassified // For official use only</div>
+    <div className={cx('cui-header--text')}>Controlled Unclassified Information</div>
   </div>
 );
 
