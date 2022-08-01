@@ -53,6 +53,7 @@
 
 .form {
   @include u-margin-top(0);
+  max-width: 100%;
 
   :global {
     .usa-label {
