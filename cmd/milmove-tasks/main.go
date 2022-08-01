@@ -103,6 +103,7 @@ func main() {
 		Long:  "Exports database data to Advana",
 		RunE:  exportDBData,
 	}
+	initExportDBDataFlags(exportDBDataCommand.Flags())
 	root.AddCommand(exportDBDataCommand)
 
 	if err := root.Execute(); err != nil {
