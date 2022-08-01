@@ -85,7 +85,7 @@ const emptyAddressShape = {
   postalCode: '',
 };
 
-export function formatPpmShipmentForDisplay({ ppmShipment = {} }) {
+export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment = {} }) {
   const displayValues = {
     expectedDepartureDate: ppmShipment.expectedDepartureDate,
     pickupPostalCode: ppmShipment.pickupPostalCode || '',
@@ -105,8 +105,10 @@ export function formatPpmShipmentForDisplay({ ppmShipment = {} }) {
     spouseProGearWeight: (ppmShipment.spouseProGearWeight || '').toString(),
 
     estimatedIncentive: ppmShipment.estimatedIncentive,
-    advanceRequested: ppmShipment.advanceRequested ? 'Yes' : 'No',
-    advance: (ppmShipment.advance || '').toString(),
+    advanceRequested: !!ppmShipment.hasRequestedAdvance,
+    advance: (ppmShipment.advanceAmountRequested / 100 || '').toString(),
+
+    counselorRemarks,
   };
 
   return displayValues;
@@ -245,6 +247,7 @@ export function formatPpmShipmentForAPI(formValues) {
     sitExpected: !!formValues.sitExpected,
     estimatedWeight: Number(formValues.estimatedWeight || '0'),
     hasProGear: !!formValues.hasProGear,
+    hasRequestedAdvance: !!formValues.advanceRequested,
   };
 
   if (formValues.hasProGear) {
@@ -269,8 +272,16 @@ export function formatPpmShipmentForAPI(formValues) {
     };
   }
 
+  if (formValues.advanceRequested) {
+    ppmShipmentValues = {
+      ...ppmShipmentValues,
+      advanceAmountRequested: formValues.advance ? Number(formValues.advance || '0') * 100 : undefined,
+    };
+  }
+
   return {
     shipmentType: 'PPM',
+    counselorRemarks: formValues.counselorRemarks === undefined ? undefined : formValues.counselorRemarks,
     ppmShipment: ppmShipmentValues,
   };
 }

@@ -48,26 +48,28 @@ import {
 import { formatWeight, dropdownInputOptions } from 'utils/formatters';
 import { validateDate, validatePostalCode } from 'utils/validation';
 
-const ShipmentForm = ({
-  match,
-  history,
-  originDutyLocationAddress,
-  newDutyLocationAddress,
-  selectedMoveType,
-  isCreatePage,
-  isForServicesCounseling,
-  mtoShipment,
-  submitHandler,
-  mtoShipments,
-  serviceMember,
-  currentResidence,
-  moveTaskOrderID,
-  TACs,
-  SACs,
-  userRole,
-  displayDestinationType,
-  isAdvancePage,
-}) => {
+const ShipmentForm = (props) => {
+  const {
+    match,
+    history,
+    originDutyLocationAddress,
+    newDutyLocationAddress,
+    selectedMoveType,
+    isCreatePage,
+    isForServicesCounseling,
+    mtoShipment,
+    submitHandler,
+    mtoShipments,
+    serviceMember,
+    currentResidence,
+    moveTaskOrderID,
+    TACs,
+    SACs,
+    userRole,
+    displayDestinationType,
+    isAdvancePage,
+  } = props;
+
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
 
@@ -126,7 +128,9 @@ const ShipmentForm = ({
 
   const shipmentNumber = isHHG ? getShipmentNumber() : null;
   const initialValues = isPPM
-    ? formatPpmShipmentForDisplay(isCreatePage ? { userRole } : { userRole, ppmShipment: mtoShipment.ppmShipment })
+    ? formatPpmShipmentForDisplay(
+        isCreatePage ? {} : { counselorRemarks: mtoShipment.counselorRemarks, ppmShipment: mtoShipment.ppmShipment },
+      )
     : formatMtoShipmentForDisplay(
         isCreatePage
           ? { userRole, shipmentType }
@@ -184,6 +188,25 @@ const ShipmentForm = ({
             setErrorMessage(`A server error occurred adding the shipment`);
           });
       }
+
+      const updatePPMPayload = {
+        moveTaskOrderID,
+        shipmentID: mtoShipment.id,
+        ifMatchETag: mtoShipment.eTag,
+        normalize: false,
+        body: ppmShipment,
+      };
+
+      submitHandler(updatePPMPayload).then(() => {
+        if (!isAdvancePage) {
+          const advancePath = generatePath(servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH, {
+            moveCode,
+            shipmentId: mtoShipment.id,
+          });
+
+          history.push(advancePath);
+        }
+      });
 
       return;
     }
