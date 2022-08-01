@@ -242,14 +242,14 @@ func (suite *HandlerSuite) TestDeleteEvaluationReportHandler() {
 		suite.Assertions.IsType(&evaluationReportop.DeleteEvaluationReportNoContent{}, response)
 	})
 }
-func (suite *HandlerSuite) TestUpdateEvaluationReportHandler() {
+func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 
-	suite.Run("Successful update", func() {
+	suite.Run("Successful save", func() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		updater := &mocks.EvaluationReportUpdater{}
 		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
-		handler := UpdateEvaluationReportHandler{handlerConfig, updater}
+		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)

@@ -101,7 +101,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		EvaluationReportDeleter: evaluationreport.NewEvaluationReportDeleter(),
 	}
 
-	ghcAPI.EvaluationReportsSaveEvaluationReportHandler = UpdateEvaluationReportHandler{
+	ghcAPI.EvaluationReportsSaveEvaluationReportHandler = SaveEvaluationReportHandler{
 		HandlerConfig:           handlerConfig,
 		EvaluationReportUpdater: evaluationreport.NewEvaluationReportUpdater(),
 	}

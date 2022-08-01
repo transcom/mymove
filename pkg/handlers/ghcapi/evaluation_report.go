@@ -124,12 +124,12 @@ func (h DeleteEvaluationReportHandler) Handle(params evaluationReportop.DeleteEv
 		})
 }
 
-type UpdateEvaluationReportHandler struct {
+type SaveEvaluationReportHandler struct {
 	handlers.HandlerConfig
 	services.EvaluationReportUpdater
 }
 
-func (h UpdateEvaluationReportHandler) Handle(params evaluationReportop.SaveEvaluationReportParams) middleware.Responder {
+func (h SaveEvaluationReportHandler) Handle(params evaluationReportop.SaveEvaluationReportParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
