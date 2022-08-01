@@ -3,11 +3,10 @@ import { generatePath, useHistory, useParams, useLocation } from 'react-router-d
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import qs from 'query-string';
-import { v4 as uuidv4 } from 'uuid';
 
 import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
-import { createUploadForDocument, createWeightTicket, patchWeightTicket } from 'services/internalApi';
+import { createUploadForDocument, createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ScrollToTop from 'components/ScrollToTop';
@@ -35,7 +34,7 @@ const WeightTickets = () => {
 
   useEffect(() => {
     if (!weightTicketId) {
-      createWeightTicket(mtoShipmentId)
+      createWeightTicket(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
           if (mtoShipment?.ppmShipment?.weightTickets) {
             mtoShipment.ppmShipment.weightTickets.push(resp);
@@ -60,23 +59,11 @@ const WeightTickets = () => {
   }, [weightTicketId, moveId, mtoShipmentId, history, dispatch, mtoShipment]);
 
   const handleCreateUpload = async (fieldName, file) => {
-    let documentId;
-    switch (fieldName) {
-      case 'emptyWeightTickets':
-        documentId = currentWeightTicket.emptyWeightDocumentId;
-        break;
-      case 'fullWeightTickets':
-        documentId = currentWeightTicket.fullWeightDocumentId;
-        break;
-      case 'trailerOwnershipDocs':
-        documentId = currentWeightTicket.trailerOwnershipDocumentId;
-        break;
-      default:
-    }
+    const documentId = currentWeightTicket[`${fieldName}Id`];
 
     createUploadForDocument(file, documentId)
       .then((upload) => {
-        mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].push(upload);
+        mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
         return upload;
       })
@@ -85,33 +72,27 @@ const WeightTickets = () => {
       });
   };
 
-  const handleUploadComplete = (upload, err, fieldName, values, setFieldValue) => {
+  const handleUploadComplete = (err) => {
     if (err) {
       setErrorMessage('Encountered error when completing file upload');
-      return;
     }
-
-    const newValue = {
-      id: uuidv4(),
-      created_at: '2022-06-22T23:25:50.490Z',
-      bytes: upload.file.size,
-      url: 'a/fake/path',
-      filename: upload.file.name,
-      content_type: upload.file.type,
-    };
-
-    setFieldValue(fieldName, [...values[`${fieldName}`], newValue]);
   };
 
-  const handleUploadDelete = (uploadId, fieldName, values, setFieldTouched, setFieldValue) => {
-    const filterdDocuments = mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].filter(
-      (upload) => upload.id !== uploadId,
-    );
-    mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName] = filterdDocuments;
-    const remainingUploads = values[fieldName]?.filter((upload) => upload.id !== uploadId);
-    setFieldTouched(fieldName, true, true);
-    setFieldValue(fieldName, remainingUploads, true);
-    dispatch(updateMTOShipment(mtoShipment));
+  const handleUploadDelete = (uploadId, fieldName, setFieldTouched, setFieldValue) => {
+    deleteUpload(uploadId)
+      .then(() => {
+        const filteredUploads = mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].uploads.filter(
+          (upload) => upload.id !== uploadId,
+        );
+        mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].uploads = filteredUploads;
+
+        setFieldValue(fieldName, filteredUploads, true);
+        setFieldTouched(fieldName, true, true);
+        dispatch(updateMTOShipment(mtoShipment));
+      })
+      .catch(() => {
+        setErrorMessage('Failed to delete the file upload');
+      });
   };
 
   const handleBack = () => {
@@ -120,8 +101,8 @@ const WeightTickets = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
-    const hasOwnTrailer = values.hasOwnTrailer === 'true';
-    const trailerMeetsCriteria = hasOwnTrailer ? !!values.trailerMeetsCriteria : false;
+    const ownsTrailer = values.ownsTrailer === 'true';
+    const trailerMeetsCriteria = ownsTrailer ? values.trailerMeetsCriteria === 'true' : false;
     const payload = {
       ppmShipmentId: mtoShipment.ppmShipment.id,
       vehicleDescription: values.vehicleDescription,
@@ -129,11 +110,11 @@ const WeightTickets = () => {
       missingEmptyWeightTicket: values.missingEmptyWeightTicket,
       fullWeight: parseInt(values.fullWeight, 10),
       missingFullWeightTicket: values.missingFullWeightTicket,
-      hasOwnTrailer,
+      ownsTrailer,
       trailerMeetsCriteria,
     };
 
-    patchWeightTicket(mtoShipment.id, currentWeightTicket.id, payload, currentWeightTicket.eTag)
+    patchWeightTicket(mtoShipment?.ppmShipment?.id, currentWeightTicket.id, payload, currentWeightTicket.eTag)
       .then((resp) => {
         setSubmitting(false);
         mtoShipment.ppmShipment.weightTickets[currentIndex] = resp;

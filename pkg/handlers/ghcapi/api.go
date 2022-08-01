@@ -75,19 +75,35 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		HandlerConfig:                handlerConfig,
 		CustomerSupportRemarkUpdater: customerserviceremarks.NewCustomerSupportRemarkUpdater(),
 	}
+
 	ghcAPI.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler = DeleteCustomerSupportRemarkHandler{
 		HandlerConfig:                handlerConfig,
 		CustomerSupportRemarkDeleter: customerserviceremarks.NewCustomerSupportRemarkDeleter(),
 	}
 
+	ghcAPI.EvaluationReportsCreateEvaluationReportForShipmentHandler = CreateEvaluationReportHandler{
+		HandlerConfig:           handlerConfig,
+		EvaluationReportCreator: evaluationreport.NewEvaluationReportCreator(),
+	}
+
 	ghcAPI.MoveGetMoveCounselingEvaluationReportsListHandler = GetCounselingEvaluationReportsHandler{
-		HandlerConfig:               handlerConfig,
-		EvaluationReportListFetcher: evaluationreport.NewEvaluationReportListFetcher(),
+		HandlerConfig:           handlerConfig,
+		EvaluationReportFetcher: evaluationreport.NewEvaluationReportFetcher(),
 	}
 
 	ghcAPI.MoveGetMoveShipmentEvaluationReportsListHandler = GetShipmentEvaluationReportsHandler{
-		HandlerConfig:               handlerConfig,
-		EvaluationReportListFetcher: evaluationreport.NewEvaluationReportListFetcher(),
+		HandlerConfig:           handlerConfig,
+		EvaluationReportFetcher: evaluationreport.NewEvaluationReportFetcher(),
+	}
+
+	ghcAPI.EvaluationReportsGetEvaluationReportHandler = GetEvaluationReportHandler{
+		HandlerConfig:           handlerConfig,
+		EvaluationReportFetcher: evaluationreport.NewEvaluationReportFetcher(),
+	}
+
+	ghcAPI.EvaluationReportsDeleteEvaluationReportHandler = DeleteEvaluationReportHandler{
+		HandlerConfig:           handlerConfig,
+		EvaluationReportDeleter: evaluationreport.NewEvaluationReportDeleter(),
 	}
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
@@ -211,6 +227,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		mtoshipment.NewMTOShipmentFetcher(),
 		shipmentSITStatus,
+	}
+
+	ghcAPI.MtoShipmentGetShipmentHandler = GetMTOShipmentHandler{
+		HandlerConfig:      handlerConfig,
+		mtoShipmentFetcher: mtoshipment.NewMTOShipmentFetcher(),
 	}
 
 	ghcAPI.ShipmentDeleteShipmentHandler = DeleteShipmentHandler{

@@ -177,6 +177,11 @@ export const selectWeightTicketAndIndexById = (state, mtoShipmentId, weightTicke
   return { weightTicket, index };
 };
 
+export const selectWeightTicketsForShipment = (state, mtoShipmentId) => {
+  const mtoShipment = selectMTOShipmentById(state, mtoShipmentId);
+  return mtoShipment?.ppmShipment?.weightTickets;
+};
+
 export const selectPPMForMove = (state, moveId) => {
   const ppmForMove = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === moveId);
   if (['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'].indexOf(ppmForMove?.status) > -1) {

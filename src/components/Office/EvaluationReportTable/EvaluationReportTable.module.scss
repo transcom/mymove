@@ -1,0 +1,56 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.evaluationReportTable {
+  th {
+    min-width: 0px;
+    @include u-font('body', '3xs');
+    @include u-font-weight('bold');
+    @include u-line-height('body', 2);
+    @include u-padding-x(1);
+    color: $base-darker;
+    height: 32px;
+  }
+  td {
+    min-width: 0px;
+    color: $base-dark;
+    @include u-line-height('body', 1);
+    @include u-padding-x(1);
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .emptyTableRow {
+    border-bottom-width: 0px;
+  }
+
+  .draftTag {
+    background-color: $base-lighter;
+  }
+
+  // The table will be displayed multiple times on the same
+  // page, and we want all of the columns to line up, so we're
+  // giving each of them a fixed width.
+  .reportIDColumn {
+    width: 168px;
+  }
+  .dateSubmittedColumn {
+    width: 150px;
+  }
+  .locationColumn {
+    width: 163px;
+  }
+  .violationsColumn {
+    width: 100px;
+  }
+  .seriousIncidentColumn {
+  width: 118px;
+  }
+  .viewReportColumn {
+    width: 105px;
+  }
+  .downloadColumn {
+    width: 103px;
+  }
+}

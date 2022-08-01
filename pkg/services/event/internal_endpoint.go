@@ -175,6 +175,12 @@ const InternalShowAddressEndpointKey = "Internal.ShowAddress"
 // InternalCreateMTOShipmentEndpointKey is the key for the createMTOShipment endpoint in internal
 const InternalCreateMTOShipmentEndpointKey = "Internal.CreateMTOShipment"
 
+// InternalCreateWeightTicketEndpointKey is the key for the createWeightTicket endpoint in internal
+const InternalCreateWeightTicketEndpointKey = "Internal.CreateWeightTicket"
+
+// InternalUpdateWeightTicketEndpointKey is the key for the updateWeightTicket endpoint in internal
+const InternalUpdateWeightTicketEndpointKey = "Internal.UpdateWeightTicket"
+
 // -------------------- ENDPOINT MAP ENTRIES --------------------
 var internalEndpoints = EndpointMapType{
 	InternalShowPPMEstimateEndpointKey: {
@@ -388,6 +394,14 @@ var internalEndpoints = EndpointMapType{
 	InternalCreateWeightTicketDocumentEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "createWeightTicketDocument",
+	},
+	InternalCreateWeightTicketEndpointKey: {
+		APIName:     InternalAPIName,
+		OperationID: "createWeightTicket",
+	},
+	InternalUpdateWeightTicketEndpointKey: {
+		APIName:     InternalAPIName,
+		OperationID: "updateWeightTicket",
 	},
 	InternalValidatePostalCodeWithRateDataEndpointKey: {
 		APIName:     InternalAPIName,

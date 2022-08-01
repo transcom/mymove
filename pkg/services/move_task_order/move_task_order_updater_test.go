@@ -67,6 +67,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		for _, shipment := range actualMTO.MTOShipments {
 			suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
 			ppmShipment := *shipment.PPMShipment
+			suite.NotNil(ppmShipment.ApprovedAt)
 			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
 		}
 	})
@@ -245,6 +246,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 
 		suite.NotNil(actualMTO.PrimeCounselingCompletedAt)
 		suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, actualMTO.MTOShipments[0].PPMShipment.Status)
+		suite.NotNil(actualMTO.MTOShipments[0].PPMShipment.ApprovedAt)
 	})
 
 	suite.Run("Counseling isn't an approved service item", func() {

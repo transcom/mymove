@@ -5,41 +5,16 @@ import (
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/storage"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
-
-func payloadForUploadModel(
-	storer storage.FileStorer,
-	upload models.Upload,
-	url string,
-) *internalmessages.UploadPayload {
-	uploadPayload := &internalmessages.UploadPayload{
-		ID:          handlers.FmtUUID(upload.ID),
-		Filename:    swag.String(upload.Filename),
-		ContentType: swag.String(upload.ContentType),
-		URL:         handlers.FmtURI(url),
-		Bytes:       &upload.Bytes,
-		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
-		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
-	}
-	tags, err := storer.Tags(upload.StorageKey)
-	if err != nil || len(tags) == 0 {
-		uploadPayload.Status = "PROCESSING"
-	} else {
-		uploadPayload.Status = tags["av-status"]
-	}
-	return uploadPayload
-}
 
 // CreateUploadHandler creates a new upload via POST /documents/{documentID}/uploads
 type CreateUploadHandler struct {
@@ -107,7 +82,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 				}
 			}
 
-			uploadPayload := payloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
+			uploadPayload := payloads.PayloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
 			return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload), nil
 		})
 }
