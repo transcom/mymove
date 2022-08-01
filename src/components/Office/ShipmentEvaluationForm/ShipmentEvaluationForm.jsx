@@ -49,10 +49,7 @@ const ShipmentEvaluationForm = () => {
     history.push(`/moves/${moveCode}/evaluation-reports`, { showDeleteSuccess: true });
   };
 
-  const submitReport = async (values) => {
-    // eslint-disable-next-line no-console
-    console.log('In submitReport with values: ', values);
-  };
+  const submitReport = async () => {};
 
   const initialValues = {};
   const validationSchema = Yup.object().shape({});
