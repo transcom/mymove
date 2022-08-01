@@ -60,7 +60,7 @@ func (suite MovingExpenseSuite) TestValidateMovingExpense() {
 
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
-		suite.Contains(err.Error(), "Invalid input found while validating the moving expense.")
+		suite.Contains(err.Error(), "Invalid input received. fake error")
 	})
 
 	suite.Run("Runs validation and returns other errors", func() {

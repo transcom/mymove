@@ -30,11 +30,10 @@ func (suite *ModelSuite) TestMovingExpenseValidation() {
 			},
 			expectedErrs: nil,
 		},
-		"Missing UUIDs": {
+		"Missing UUID": {
 			movingExpense: models.MovingExpense{},
 			expectedErrs: map[string][]string{
 				"ppmshipment_id": {"PPMShipmentID can not be blank."},
-				"document_id":    {"DocumentID can not be blank."},
 			},
 		},
 		"Optional fields are valid": {
