@@ -25,7 +25,7 @@ export function signInAndNavigateToAboutPage(userId, selectAdvance) {
   cy.apiSignInAsUser(userId);
 
   cy.wait('@getShipment');
-  cy.screenshot();
+  cy.get('h3').should('contain', 'Your move is in progress.');
   cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/about/);
@@ -70,7 +70,7 @@ export function navigateFromAboutPageToWeightTicketPage() {
 
 export function signInAndNavigateToWeightTicketPage(userId) {
   cy.apiSignInAsUser(userId);
-  cy.screenshot();
+  cy.get('h3').should('contain', 'Your move is in progress.');
   cy.wait('@getShipment');
 
   cy.get('button[data-testid="button"]').contains('Upload PPM Documents').should('be.enabled').click();
