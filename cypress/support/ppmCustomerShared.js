@@ -25,7 +25,7 @@ export function signInAndNavigateToAboutPage(userId, selectAdvance) {
   cy.apiSignInAsUser(userId);
 
   cy.wait('@getShipment');
-  cy.screenshot();
+  cy.get('h3').should('contain', 'Your move is in progress.');
   cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/about/);
@@ -49,10 +49,10 @@ export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
 export function fillOutAboutPage(selectAdvance) {
   cy.get('input[name="actualMoveDate"]').clear().type('01 Feb 2022').blur();
   cy.get('input[name="actualPickupPostalCode"]').clear().type('90210').blur();
-  cy.get('input[name="actualDestinationPostalCode"]').clear().type('76127');
+  cy.get('input[name="actualDestinationPostalCode"]').clear().type('76127').blur();
   if (selectAdvance) {
     cy.get('input[name="hasReceivedAdvance"][value="true"]').check({ force: true });
-    cy.get('input[name="advanceAmountReceived"]').clear().type('5000');
+    cy.get('input[name="advanceAmountReceived"]').clear().clear().type('5000');
   } else {
     cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: true });
   }
@@ -70,8 +70,8 @@ export function navigateFromAboutPageToWeightTicketPage() {
 
 export function signInAndNavigateToWeightTicketPage(userId) {
   cy.apiSignInAsUser(userId);
-  cy.screenshot();
   cy.wait('@getShipment');
+  cy.get('h3').should('contain', 'Your move is in progress.');
 
   cy.get('button[data-testid="button"]').contains('Upload PPM Documents').should('be.enabled').click();
   fillOutAboutPage(true);
