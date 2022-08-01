@@ -26,7 +26,7 @@ require (
 	github.com/gobuffalo/envy v1.10.1
 	github.com/gobuffalo/fizz v1.14.2
 	github.com/gobuffalo/flect v0.2.5
-	github.com/gobuffalo/pop/v6 v6.0.4
+	github.com/gobuffalo/pop/v6 v6.0.6
 	github.com/gobuffalo/validate/v3 v3.3.2
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/uuid v4.2.0+incompatible
@@ -114,8 +114,8 @@ require (
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
-	github.com/gobuffalo/attrs v1.0.1 // indirect
-	github.com/gobuffalo/genny/v2 v2.0.9 // indirect
+	github.com/gobuffalo/attrs v1.0.2 // indirect
+	github.com/gobuffalo/genny/v2 v2.0.12 // indirect
 	github.com/gobuffalo/github_flavored_markdown v1.1.1 // indirect
 	github.com/gobuffalo/helpers v0.6.5 // indirect
 	github.com/gobuffalo/logger v1.0.6 // indirect
@@ -156,8 +156,6 @@ require (
 	github.com/lithammer/fuzzysearch v1.1.5 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/markbates/oncer v1.0.0 // indirect
-	github.com/markbates/safe v1.0.1 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
