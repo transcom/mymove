@@ -1,6 +1,8 @@
 package movingexpense
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -46,15 +48,19 @@ func checkUpdateRequiredFields() movingExpenseValidator {
 		// the model Validate should test for allowed values
 		if newMovingExpense.MovingExpenseType == nil || *newMovingExpense.MovingExpenseType == "" {
 			verrs.Add("MovingExpenseType", "MovingExpenseType must exist")
-		}
-
-		if *newMovingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage {
+		} else if *newMovingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage {
 			if newMovingExpense.SITStartDate == nil || newMovingExpense.SITStartDate.IsZero() {
 				verrs.Add("SITStartDate", "SITStartDate is required for storage expenses")
 			}
 
 			if newMovingExpense.SITEndDate == nil || newMovingExpense.SITEndDate.IsZero() {
 				verrs.Add("SITEndDate", "SITEndDate is required for storage expenses")
+			}
+
+			if newMovingExpense.SITStartDate != nil && newMovingExpense.SITEndDate != nil {
+				if newMovingExpense.SITEndDate.Before(*newMovingExpense.SITStartDate) {
+					verrs.Add("SITStartDate", "SITStartDate must be before SITEndDate")
+				}
 			}
 		}
 
@@ -79,7 +85,10 @@ func checkUpdateRequiredFields() movingExpenseValidator {
 		}
 
 		if newMovingExpense.Status != nil {
-			if *newMovingExpense.Status == models.PPMDocumentStatusExcluded || *newMovingExpense.Status == models.PPMDocumentStatusRejected && (newMovingExpense.Reason == nil || *newMovingExpense.Reason == "") {
+			if newMovingExpense.Reason != nil {
+				fmt.Printf("newMovingExpense reason %s\n", *newMovingExpense.Reason)
+			}
+			if (*newMovingExpense.Status == models.PPMDocumentStatusExcluded || *newMovingExpense.Status == models.PPMDocumentStatusRejected) && (newMovingExpense.Reason == nil || *newMovingExpense.Reason == "") {
 				verrs.Add("Reason", "A reason must be provided when the status is EXCLUDED or REJECTED")
 			}
 		}

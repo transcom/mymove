@@ -47,7 +47,7 @@ func (f *movingExpenseUpdater) UpdateMovingExpense(appCtx appcontext.AppContext,
 		verrs, err := txnCtx.DB().Eager().ValidateAndUpdate(&mergedMovingExpense)
 
 		if verrs != nil && verrs.HasAny() {
-			return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "")
+			return apperror.NewInvalidInputError(originalMovingExpense.ID, err, verrs, "")
 		} else if err != nil {
 			return apperror.NewQueryError("Moving Expense", err, "")
 		}
@@ -66,9 +66,7 @@ func FetchMovingExpenseByID(appContext appcontext.AppContext, movingExpenseID uu
 	var movingExpense models.MovingExpense
 
 	err := appContext.DB().Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload(
-			"Document.UserUploads.Upload").
-		Find(&movingExpense, movingExpenseID)
+		EagerPreload("Document.UserUploads.Upload").Find(&movingExpense, movingExpenseID)
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -80,11 +78,10 @@ func FetchMovingExpenseByID(appContext appcontext.AppContext, movingExpenseID uu
 		}
 	}
 
-	// we aren't actively deleting the document stub but it's possible someone cascaded delete
-	// starting with the document instead of the user uploads.
-	if movingExpense.Document.DeletedAt == nil {
-		movingExpense.Document.UserUploads = movingExpense.Document.UserUploads.FilterDeleted()
-	}
+	// Assuming the document itself will not be deleted because of the model not null requirements.
+	// We could not return nothing in the case it is soft deleted but that behavior is a bit
+	// undefined here.
+	movingExpense.Document.UserUploads = movingExpense.Document.UserUploads.FilterDeleted()
 
 	return &movingExpense, nil
 }
@@ -113,7 +110,6 @@ func mergeMovingExpense(updatedMovingExpense models.MovingExpense, originalMovin
 	}
 
 	movingExpenseStatus := services.SetOptionalStringField((*string)(updatedMovingExpense.Status), (*string)(mergedMovingExpense.Status))
-
 	if movingExpenseStatus != nil {
 		ppmDocumentStatus := models.PPMDocumentStatus(*movingExpenseStatus)
 		mergedMovingExpense.Status = &ppmDocumentStatus
