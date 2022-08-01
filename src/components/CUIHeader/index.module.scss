@@ -4,7 +4,7 @@
 @import '../../shared/styles/mixins';
 @import '../../shared/styles/colors';
 
-.fouo-header {
+.cui-header {
   @include u-bg('black');
   @include u-width(100%);
   &--text {

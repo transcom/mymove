@@ -4,7 +4,7 @@ import { Admin, AppBar, fetchUtils, Layout, Resource } from 'react-admin';
 import { createBrowserHistory } from 'history';
 import React from 'react';
 import Menu from './shared/Menu';
-import FOUOHeader from 'components/FOUOHeader';
+import CUIHeader from 'components/CUIHeader';
 import UploadShow from './Uploads/UploadShow';
 import OfficeUserList from 'pages/Admin/OfficeUsers/OfficeUserList';
 import OfficeUserShow from 'pages/Admin/OfficeUsers/OfficeUserShow';
@@ -48,15 +48,15 @@ const httpClient = (url, options = {}) => {
   return fetchUtils.fetchJson(url, options);
 };
 
-const FOUOWrapper = () => (
+const CUIWrapper = () => (
   <React.Fragment>
-    <FOUOHeader />
+    <CUIHeader />
     <AppBar />
   </React.Fragment>
 );
 
 const dataProvider = restProvider('/admin/v1', httpClient);
-const AdminLayout = (props) => <Layout {...props} menu={Menu} appBar={FOUOWrapper} />;
+const AdminLayout = (props) => <Layout {...props} menu={Menu} appBar={CUIWrapper} />;
 const history = createBrowserHistory({ basename: '/system' });
 
 const Home = () => (

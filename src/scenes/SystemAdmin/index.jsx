@@ -6,7 +6,7 @@ import SignIn from 'scenes/SystemAdmin/shared/SignIn';
 import { isDevelopment } from 'shared/constants';
 import { LoginButton } from 'scenes/SystemAdmin/shared/LoginButton';
 import { GetLoggedInUser } from 'utils/api';
-import FOUOHeader from 'components/FOUOHeader';
+import CUIHeader from 'components/CUIHeader';
 
 class AdminWrapper extends Component {
   constructor(props) {
@@ -29,7 +29,7 @@ class AdminWrapper extends Component {
       return (
         <>
           <div id="app-root">
-            <FOUOHeader />
+            <CUIHeader />
             <LoginButton
               showDevlocalButton={get(this.state, 'isDevelopment', isDevelopment)}
               isLoggedIn={this.state.isLoggedIn}
