@@ -343,9 +343,8 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 		// wind up using the desired driver under a wrapped otelsql connection
 		dbConnectionDetails.Driver = "postgres"
 		spanOptions := otelsql.SpanOptions{
-			Ping:      true,
-			AllowRoot: v.GetBool(DbDebugFlag),
-			RowsNext:  v.GetBool(DbDebugFlag),
+			Ping:     true,
+			RowsNext: v.GetBool(DbDebugFlag),
 		}
 		sql.Register(popInstrumentedDriverName,
 			otelsql.WrapDriver(currentDriver,
