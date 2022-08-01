@@ -1,0 +1,94 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.buttonContainer {
+  @include u-padding(0);
+  @include u-margin-bottom(115px);
+}
+
+.buttonRow {
+  @include u-display('flex');
+  @include u-float('right');
+
+  :global {
+    .usa-button--unstyled {
+      @include u-margin-top(1.5);
+    }
+  }
+}
+
+.cardContainer {
+  @include u-bg('white');
+  @include u-radius('05');
+  @include u-border('base-lighter');
+  @include u-border('1px');
+  @include u-padding(4);
+  @include u-margin-bottom(2);
+}
+
+.durationPickers {
+  @include u-display('flex');
+  @include u-margin-top(1);
+  @include u-margin-bottom(0.5);
+
+  :global {
+    .usa-label {
+      @include u-margin-top(0);
+    }
+  }
+}
+
+.evalInfoSection {
+  border-bottom: 1px solid #dcdee0;
+  @include u-margin-bottom(0.5);
+
+  :global {
+    .usa-form-group {
+      margin-top: 0px;
+      margin-bottom: 36px;
+    }
+  }
+}
+
+.form {
+  @include u-margin-top(0);
+
+  :global {
+    .usa-label {
+      @include u-margin-top(0);
+    }
+  }
+}
+
+.hourLabel {
+  @include u-margin-top(0 !important);
+}
+
+.hourPicker {
+  @include u-width(108px);
+  @include u-margin-right(1);
+}
+
+.minuteLabel {
+  @include u-margin-left(1);
+  @include u-margin-top(0 !important);
+}
+
+.minutePicker {
+  @include u-width(108px);
+  @include u-margin-left(1);
+}
+
+.radioGroup {
+  max-width: 150px;
+}
+
+.textArea {
+  width: 480px;
+}
+
+.violationsGroup {
+  @include u-padding-bottom(0.5);
+  @include u-margin-top(0);
+}
