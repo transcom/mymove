@@ -49,10 +49,10 @@ export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
 export function fillOutAboutPage(selectAdvance) {
   cy.get('input[name="actualMoveDate"]').clear().type('01 Feb 2022').blur();
   cy.get('input[name="actualPickupPostalCode"]').clear().type('90210').blur();
-  cy.get('input[name="actualDestinationPostalCode"]').clear().type('76127');
+  cy.get('input[name="actualDestinationPostalCode"]').clear().type('76127').blur();
   if (selectAdvance) {
     cy.get('input[name="hasReceivedAdvance"][value="true"]').check({ force: true });
-    cy.get('input[name="advanceAmountReceived"]').focus().clear().type('5000');
+    cy.get('input[name="advanceAmountReceived"]').clear().type('5000');
   } else {
     cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: true });
   }
