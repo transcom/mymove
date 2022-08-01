@@ -119,6 +119,7 @@ const WeightTicketUpload = ({
         <Hint className={styles.uploadTypeHint}>{weightTicketUploadHint(missingWeightTicket)}</Hint>
         <FileUpload
           name={fieldName}
+          className={fieldName}
           labelIdle={UploadDropZoneLabel}
           labelIdleMobile={UploadDropZoneLabelMobile}
           createUpload={(file) => onCreateUpload(fieldName, file)}
@@ -271,9 +272,11 @@ const WeightTicketForm = ({
                   />
                 </div>
                 {values.fullWeight > 0 && values.emptyWeight > 0 ? (
-                  <h3>{`Trip weight: ${formatWeight(values.fullWeight - values.emptyWeight)}`}</h3>
+                  <h3 className="tripWeightTotal">{`Trip weight: ${formatWeight(
+                    values.fullWeight - values.emptyWeight,
+                  )}`}</h3>
                 ) : (
-                  <h3>Trip weight:</h3>
+                  <h3 className="tripWeightTotal">Trip weight:</h3>
                 )}
                 <h3>Trailer</h3>
                 <FormGroup>
@@ -372,6 +375,7 @@ const WeightTicketForm = ({
                               </Hint>
                               <FileUpload
                                 name="proofOfTrailerOwnershipDocument"
+                                className="proofOfTrailerOwnershipDocument"
                                 createUpload={(file) => onCreateUpload('proofOfTrailerOwnershipDocument', file)}
                                 labelIdle={UploadDropZoneLabel}
                                 labelIdleMobile={UploadDropZoneLabelMobile}

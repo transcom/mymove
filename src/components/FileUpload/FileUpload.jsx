@@ -25,6 +25,7 @@ const FileUpload = forwardRef(
     {
       name,
       createUpload,
+      className,
       onChange,
       labelIdle,
       labelIdleMobile,
@@ -91,6 +92,7 @@ const FileUpload = forwardRef(
       <FilePond
         ref={ref}
         {...filePondProps}
+        className={className}
         allowMultiple={allowMultiple}
         maxParralelUploads={maxParralelUploads}
         acceptedFileTypes={acceptedFileTypes}
@@ -106,6 +108,7 @@ const FileUpload = forwardRef(
 
 FileUpload.propTypes = {
   name: string,
+  className: string,
   createUpload: func,
   onChange: func,
   onAddFile: func,
@@ -121,6 +124,7 @@ FileUpload.propTypes = {
 
 FileUpload.defaultProps = {
   name: 'file',
+  className: null,
   createUpload: createUploadApi,
   onChange: undefined,
   onAddFile: undefined,
