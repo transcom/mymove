@@ -65,8 +65,6 @@ type EvaluationReports []EvaluationReport
 // This method is not required and may be deleted.
 func (r *EvaluationReport) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
-	// shipmentID not nil, SHIPMENT
-	// {shipmentID: not nil, type: not SHIPMENT}
 	if r.ShipmentID != nil {
 		vs = append(vs, &validators.StringsMatch{Name: "Type", Field: string(r.Type), Field2: string(EvaluationReportTypeShipment)})
 	}
@@ -81,7 +79,6 @@ func (r *EvaluationReport) Validate(tx *pop.Connection) (*validate.Errors, error
 		vs = append(vs, &validators.StringsMatch{Field: string(*r.Location), Name: "Location", Field2: string(EvaluationReportLocationTypeOther)})
 	}
 	verrs := validate.Validate(vs...)
-	// {shipmentID: nil, type: SHIPMENT}
 	if r.Type == EvaluationReportTypeShipment && r.ShipmentID == nil {
 		verrs.Add(validators.GenerateKey("ShipmentID"), "If report type is SHIPMENT, ShipmentID must not be null")
 	}

@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"time"
+
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
@@ -24,6 +26,7 @@ func (suite *ModelSuite) TestReport() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	virtualInspection := models.EvaluationReportInspectionTypeVirtual
+	dataReviewInspection := models.EvaluationReportInspectionTypeDataReview
 
 	testCases := map[string]struct {
 		report         models.EvaluationReport
@@ -85,6 +88,36 @@ func (suite *ModelSuite) TestReport() {
 			},
 			expectedErrors: map[string][]string{
 				"inspection_type": {"VIRTUAL does not equal PHYSICAL."},
+			},
+		},
+		"ObservedDate cannot be set for virtual inspections": {
+			report: models.EvaluationReport{
+				ID:             uuid.Must(uuid.NewV4()),
+				OfficeUser:     officeUser,
+				OfficeUserID:   officeUser.ID,
+				Move:           move,
+				MoveID:         move.ID,
+				Type:           models.EvaluationReportTypeCounseling,
+				InspectionType: &virtualInspection,
+				ObservedDate:   swag.Time(time.Now()),
+			},
+			expectedErrors: map[string][]string{
+				"inspection_type": {"VIRTUAL does not equal PHYSICAL."},
+			},
+		},
+		"ObservedDate cannot be set for data review inspections": {
+			report: models.EvaluationReport{
+				ID:             uuid.Must(uuid.NewV4()),
+				OfficeUser:     officeUser,
+				OfficeUserID:   officeUser.ID,
+				Move:           move,
+				MoveID:         move.ID,
+				Type:           models.EvaluationReportTypeCounseling,
+				InspectionType: &dataReviewInspection,
+				ObservedDate:   swag.Time(time.Now()),
+			},
+			expectedErrors: map[string][]string{
+				"inspection_type": {"DATA_REVIEW does not equal PHYSICAL."},
 			},
 		},
 	}
