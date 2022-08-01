@@ -338,41 +338,12 @@ func MakeOfficeUserWithMultipleRoles(db *pop.Connection, assertions Assertions) 
 	return officeUser
 }
 
-// MakeOfficeUserWithRoles makes an OfficeUser with roles pulled from assertions.OfficeUser.User.Roles
-func MakeOfficeUserWithRoles(db *pop.Connection, assertions Assertions) models.OfficeUser {
-	roles := assertions.OfficeUser.User.Roles
-	multipleRoleUser := models.User{
-		Roles: roles,
-	}
-
-	assertions.OfficeUser.User = multipleRoleUser
-	officeUser := MakeOfficeUser(db, assertions)
-
-	// save roles to db
-	rolesList := officeUser.User.Roles
-	for _, role := range rolesList {
-		newRole, _ := LookupOrMakeRole(db, role.RoleType, role.RoleName)
-		MakeUsersRoles(db, Assertions{
-			UsersRoles: models.UsersRoles{
-				UserID: officeUser.User.ID,
-				RoleID: newRole.ID,
-			},
-			Stub: assertions.Stub,
-		})
-	}
-
-	return officeUser
-}
-
 // MakeOfficeUserWithRoleTypes creates or fetches Roles by roleTypes and creates an OfficeUser and User with those role types
 func MakeOfficeUserWithRoleTypes(db *pop.Connection, roleTypes []roles.RoleType, assertions Assertions) models.OfficeUser {
-	userRoles := []roles.Role{}
-	for _, roleType := range roleTypes {
-		role, _ := LookupOrMakeRoleByRoleType(db, roleType)
-		userRoles = append(userRoles, role)
-	}
-	assertions.OfficeUser.User.Roles = userRoles
-	return MakeOfficeUserWithRoles(db, assertions)
+	user := MakeUserWithRoleTypes(db, roleTypes, assertions)
+	mergeModels(&assertions.OfficeUser.User, user)
+	assertions.OfficeUser.UserID = &user.ID
+	return MakeOfficeUser(db, assertions)
 }
 
 // MakeStubbedOfficeUser returns a user without hitting the DB

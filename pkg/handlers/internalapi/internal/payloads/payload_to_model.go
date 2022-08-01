@@ -113,20 +113,12 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 	}
 
 	model := &models.PPMShipment{
-		SITExpected: ppmShipment.SitExpected,
-	}
-
-	expectedDepartureDate := time.Time(*ppmShipment.ExpectedDepartureDate)
-	if !expectedDepartureDate.IsZero() {
-		model.ExpectedDepartureDate = expectedDepartureDate
-	}
-
-	if ppmShipment.PickupPostalCode != nil {
-		model.PickupPostalCode = *ppmShipment.PickupPostalCode
-	}
-
-	if ppmShipment.DestinationPostalCode != nil {
-		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
+		PickupPostalCode:               *ppmShipment.PickupPostalCode,
+		SecondaryPickupPostalCode:      handlers.FmtNullableStringToStringPtr(ppmShipment.SecondaryPickupPostalCode),
+		DestinationPostalCode:          *ppmShipment.DestinationPostalCode,
+		SecondaryDestinationPostalCode: handlers.FmtNullableStringToStringPtr(ppmShipment.SecondaryDestinationPostalCode),
+		SITExpected:                    ppmShipment.SitExpected,
+		ExpectedDepartureDate:          handlers.FmtDatePtrToPop(ppmShipment.ExpectedDepartureDate),
 	}
 
 	return model
@@ -234,5 +226,22 @@ func MTOShipmentModel(mtoShipment *internalmessages.MTOShipment) *models.MTOShip
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
 
+	return model
+}
+
+// WeightTicketModelFromUpdate
+func WeightTicketModelFromUpdate(weightTicket *internalmessages.UpdateWeightTicket) *models.WeightTicket {
+	if weightTicket == nil {
+		return nil
+	}
+	model := &models.WeightTicket{
+		VehicleDescription:       &weightTicket.VehicleDescription,
+		EmptyWeight:              handlers.PoundPtrFromInt64Ptr(weightTicket.EmptyWeight),
+		MissingEmptyWeightTicket: handlers.FmtBool(weightTicket.MissingEmptyWeightTicket),
+		FullWeight:               handlers.PoundPtrFromInt64Ptr(weightTicket.FullWeight),
+		MissingFullWeightTicket:  handlers.FmtBool(weightTicket.MissingFullWeightTicket),
+		OwnsTrailer:              handlers.FmtBool(weightTicket.OwnsTrailer),
+		TrailerMeetsCriteria:     handlers.FmtBool(weightTicket.TrailerMeetsCriteria),
+	}
 	return model
 }

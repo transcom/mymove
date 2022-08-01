@@ -1,8 +1,6 @@
 package webhooksubscription
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -12,18 +10,18 @@ import (
 
 func (suite *WebhookSubscriptionServiceSuite) TestCreateWebhookSubscription() {
 	queryBuilder := query.NewQueryBuilder()
-	subscriber := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{})
-
-	webhookSubscriptionInfo := models.WebhookSubscription{
-		SubscriberID: subscriber.ID,
-		Status:       models.WebhookSubscriptionStatusActive,
-		EventKey:     "PaymentRequest.Update",
-		CallbackURL:  "/my/callback/url",
-	}
+	creator := NewWebhookSubscriptionCreator(queryBuilder)
 
 	// Happy path
-	suite.T().Run("If the subscription is created successfully it should be returned", func(t *testing.T) {
-		creator := NewWebhookSubscriptionCreator(queryBuilder)
+	suite.Run("If the subscription is created successfully it should be returned", func() {
+		subscriber := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{})
+		webhookSubscriptionInfo := models.WebhookSubscription{
+			SubscriberID: subscriber.ID,
+			Status:       models.WebhookSubscriptionStatusActive,
+			EventKey:     "PaymentRequest.Update",
+			CallbackURL:  "/my/callback/url",
+		}
+
 		webhookSubscription, verrs, err := creator.CreateWebhookSubscription(suite.AppContextForTest(), &webhookSubscriptionInfo)
 		suite.NoError(err)
 		suite.Nil(verrs)
@@ -33,8 +31,8 @@ func (suite *WebhookSubscriptionServiceSuite) TestCreateWebhookSubscription() {
 	})
 
 	// Bad subscriber ID
-	suite.T().Run("If we are provided an organization that doesn't exist, the create should fail", func(t *testing.T) {
-		creator := NewWebhookSubscriptionCreator(queryBuilder)
+	suite.Run("If we are provided an organization that doesn't exist, the create should fail", func() {
+
 		invalidSubscription := models.WebhookSubscription{
 			SubscriberID: uuid.Must(uuid.FromString("b9c41d03-c730-4580-bd37-9ccf4845af6c")),
 			Status:       models.WebhookSubscriptionStatusActive,

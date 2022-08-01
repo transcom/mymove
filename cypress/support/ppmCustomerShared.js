@@ -1,4 +1,5 @@
 import { signAgreement } from '../integration/mymove/utilities/customer';
+import { fileUploadTimeout } from './constants';
 
 export function setMobileViewport() {
   cy.viewport(479, 875);
@@ -55,14 +56,85 @@ export function fillOutAboutPage(selectAdvance) {
   } else {
     cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: true });
   }
-  cy.get('button').contains('Save & Continue').should('be.enabled');
   navigateFromAboutPageToWeightTicketPage();
 }
 
 export function navigateFromAboutPageToWeightTicketPage() {
   cy.get('button').contains('Save & Continue').click();
+  cy.wait('@patchShipment');
+
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+  });
+}
+
+export function signInAndNavigateToWeightTicketPage(userId) {
+  cy.apiSignInAsUser(userId);
+  cy.screenshot();
+  cy.wait('@getShipment');
+
+  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').should('be.enabled').click();
+  fillOutAboutPage(true);
+}
+
+export function submitWeightTicketPage(options) {
+  fillOutWeightTicketPage(options);
+  navigateFromWeightTicketPage();
+}
+
+export function fillOutWeightTicketPage(options) {
+  cy.get('input[name="vehicleDescription"]').clear().type('Kia Forte').blur();
+
+  if (options?.useConstructedWeight) {
+    cy.get('input[name="emptyWeight"]').clear().type('1000').blur();
+    cy.get('input[name="missingEmptyWeightTicket"]').check({ force: true });
+    cy.intercept('/internal/uploads**').as('uploadFile');
+    cy.upload_file('.emptyDocument.filepond--root', 'constructedWeight.xls');
+    cy.wait('@uploadFile');
+    cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
+    cy.get('input[name="fullWeight"]').clear().type('3000');
+    cy.get('input[name="missingFullWeightTicket"]').check({ force: true });
+    cy.intercept('/internal/uploads**').as('uploadFile');
+    cy.upload_file('.fullDocument.filepond--root', 'constructedWeight.xls');
+    cy.wait('@uploadFile');
+    cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
+  } else {
+    cy.get('input[name="emptyWeight"]').clear().type('1000').blur();
+    cy.intercept('/internal/uploads**').as('uploadFile');
+    cy.upload_file('.emptyDocument.filepond--root', 'sampleWeightTicket.jpg');
+    cy.wait('@uploadFile');
+    cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
+    cy.get('input[name="fullWeight"]').clear().type('3000');
+    cy.intercept('/internal/uploads**').as('uploadFile');
+    cy.upload_file('.fullDocument.filepond--root', 'sampleWeightTicket.jpg');
+    cy.wait('@uploadFile');
+    cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
+  }
+
+  cy.get('.tripWeightTotal').contains('Trip weight: 2,000 lbs');
+
+  if (options?.hasTrailer) {
+    cy.get('input[name="ownsTrailer"][value="true"]').check({ force: true });
+    if (options?.ownTrailer) {
+      cy.get('input[name="trailerMeetsCriteria"][value="true"]').check({ force: true });
+      cy.intercept('/internal/uploads**').as('uploadFile');
+      cy.upload_file('.proofOfTrailerOwnershipDocument.filepond--root', 'trailerOwnership.pdf');
+      cy.wait('@uploadFile');
+      cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should(
+        'have.length',
+        1,
+      );
+    } else {
+      cy.get('input[name="trailerMeetsCriteria"][value="false"]').check({ force: true });
+    }
+  }
+}
+
+export function navigateFromWeightTicketPage() {
+  cy.get('button').contains('Save & Continue').should('be.enabled').click();
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   });
 }
 

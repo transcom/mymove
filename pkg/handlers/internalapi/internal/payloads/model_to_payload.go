@@ -1,6 +1,8 @@
 package payloads
 
 import (
+	"errors"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
@@ -10,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
 // Address payload
@@ -68,7 +71,7 @@ func MTOAgents(mtoAgents *models.MTOAgents) *internalmessages.MTOAgents {
 }
 
 // PPMShipment payload
-func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment {
+func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *internalmessages.PPMShipment {
 	if ppmShipment == nil || ppmShipment.ID.IsNil() {
 		return nil
 	}
@@ -77,6 +80,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 		ID:                             *handlers.FmtUUID(ppmShipment.ID),
 		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
 		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
+		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
 		Status:                         internalmessages.PPMShipmentStatus(ppmShipment.Status),
 		ExpectedDepartureDate:          handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
 		ActualMoveDate:                 handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
@@ -100,6 +104,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
+		WeightTickets:                  WeightTickets(storer, ppmShipment.WeightTickets),
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -107,7 +112,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *internalmessages.PPMShipment 
 }
 
 // MTOShipment payload
-func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
+func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
 	payload := &internalmessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		Agents:                   *MTOAgents(&mtoShipment.MTOAgents),
@@ -121,7 +126,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		Status:                   internalmessages.MTOShipmentStatus(mtoShipment.Status),
-		PpmShipment:              PPMShipment(mtoShipment.PPMShipment),
+		PpmShipment:              PPMShipment(storer, mtoShipment.PPMShipment),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
@@ -184,12 +189,12 @@ func OfficeUser(officeUser *models.OfficeUser) *internalmessages.OfficeUser {
 }
 
 // MTOShipments payload
-func MTOShipments(mtoShipments *models.MTOShipments) *internalmessages.MTOShipments {
+func MTOShipments(storer storage.FileStorer, mtoShipments *models.MTOShipments) *internalmessages.MTOShipments {
 	payload := make(internalmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
 		copyOfMtoShipment := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = MTOShipment(&copyOfMtoShipment)
+		payload[i] = MTOShipment(storer, &copyOfMtoShipment)
 	}
 	return &payload
 }
@@ -226,4 +231,103 @@ func ClientError(title string, detail string, instance uuid.UUID) *internalmessa
 		Detail:   handlers.FmtString(detail),
 		Instance: handlers.FmtUUID(instance),
 	}
+}
+
+func PayloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
+	uploads := make([]*internalmessages.UploadPayload, len(document.UserUploads))
+	for i, userUpload := range document.UserUploads {
+		if userUpload.Upload.ID == uuid.Nil {
+			return nil, errors.New("no uploads for user")
+		}
+		url, err := storer.PresignedURL(userUpload.Upload.StorageKey, userUpload.Upload.ContentType)
+		if err != nil {
+			return nil, err
+		}
+
+		uploadPayload := PayloadForUploadModel(storer, userUpload.Upload, url)
+		uploads[i] = uploadPayload
+	}
+
+	documentPayload := &internalmessages.DocumentPayload{
+		ID:              handlers.FmtUUID(document.ID),
+		ServiceMemberID: handlers.FmtUUID(document.ServiceMemberID),
+		Uploads:         uploads,
+	}
+	return documentPayload, nil
+}
+
+func PayloadForUploadModel(
+	storer storage.FileStorer,
+	upload models.Upload,
+	url string,
+) *internalmessages.UploadPayload {
+	uploadPayload := &internalmessages.UploadPayload{
+		ID:          handlers.FmtUUID(upload.ID),
+		Filename:    swag.String(upload.Filename),
+		ContentType: swag.String(upload.ContentType),
+		URL:         handlers.FmtURI(url),
+		Bytes:       &upload.Bytes,
+		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
+		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+	}
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		uploadPayload.Status = "PROCESSING"
+	} else {
+		uploadPayload.Status = tags["av-status"]
+	}
+	return uploadPayload
+}
+
+func WeightTickets(storer storage.FileStorer, weightTickets models.WeightTickets) []*internalmessages.WeightTicket {
+	payload := make([]*internalmessages.WeightTicket, len(weightTickets))
+	for i, weightTicket := range weightTickets {
+		copyOfWeightTicket := weightTicket
+		weightTicketPayload := WeightTicket(storer, &copyOfWeightTicket)
+		payload[i] = weightTicketPayload
+	}
+	return payload
+}
+
+// WeightTicket payload
+func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) *internalmessages.WeightTicket {
+	ppmShipment := strfmt.UUID(weightTicket.PPMShipmentID.String())
+
+	emptyDocument, err := PayloadForDocumentModel(storer, weightTicket.EmptyDocument)
+	if err != nil {
+		return nil
+	}
+
+	fullDocument, err := PayloadForDocumentModel(storer, weightTicket.FullDocument)
+	if err != nil {
+		return nil
+	}
+
+	proofOfTrailerOwnershipDocument, err := PayloadForDocumentModel(storer, weightTicket.ProofOfTrailerOwnershipDocument)
+	if err != nil {
+		return nil
+	}
+
+	payload := &internalmessages.WeightTicket{
+		ID:                                strfmt.UUID(weightTicket.ID.String()),
+		PpmShipmentID:                     ppmShipment,
+		CreatedAt:                         *handlers.FmtDateTime(weightTicket.CreatedAt),
+		UpdatedAt:                         *handlers.FmtDateTime(weightTicket.UpdatedAt),
+		VehicleDescription:                weightTicket.VehicleDescription,
+		EmptyWeight:                       handlers.FmtPoundPtr(weightTicket.EmptyWeight),
+		MissingEmptyWeightTicket:          weightTicket.MissingEmptyWeightTicket,
+		EmptyDocumentID:                   *handlers.FmtUUID(weightTicket.EmptyDocumentID),
+		EmptyDocument:                     emptyDocument,
+		FullWeight:                        handlers.FmtPoundPtr(weightTicket.FullWeight),
+		MissingFullWeightTicket:           weightTicket.MissingFullWeightTicket,
+		FullDocumentID:                    *handlers.FmtUUID(weightTicket.FullDocumentID),
+		FullDocument:                      fullDocument,
+		OwnsTrailer:                       weightTicket.OwnsTrailer,
+		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
+		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
+		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
+		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
+	}
+
+	return payload
 }

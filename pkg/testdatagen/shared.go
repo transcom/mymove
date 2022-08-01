@@ -44,6 +44,7 @@ type Assertions struct {
 	ElectronicOrder                          models.ElectronicOrder
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
 	Entitlement                              models.Entitlement
+	EvaluationReport                         models.EvaluationReport
 	FuelEIADieselPrice                       models.FuelEIADieselPrice
 	File                                     afero.File
 	GHCDieselFuelPrice                       models.GHCDieselFuelPrice
@@ -114,6 +115,7 @@ type Assertions struct {
 	UsersRoles                               models.UsersRoles
 	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
+	WeightTicket                             models.WeightTicket
 	Zip3Distance                             models.Zip3Distance
 }
 

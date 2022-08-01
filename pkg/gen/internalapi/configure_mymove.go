@@ -16,7 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
-	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/dps_auth"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
@@ -139,6 +138,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation uploads.CreateUpload has not yet been implemented")
 		})
 	}
+	if api.PpmCreateWeightTicketHandler == nil {
+		api.PpmCreateWeightTicketHandler = ppm.CreateWeightTicketHandlerFunc(func(params ppm.CreateWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateWeightTicket has not yet been implemented")
+		})
+	}
 	if api.MoveDocsCreateWeightTicketDocumentHandler == nil {
 		api.MoveDocsCreateWeightTicketDocumentHandler = move_docs.CreateWeightTicketDocumentHandlerFunc(func(params move_docs.CreateWeightTicketDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.CreateWeightTicketDocument has not yet been implemented")
@@ -162,11 +166,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.UploadsDeleteUploadsHandler == nil {
 		api.UploadsDeleteUploadsHandler = uploads.DeleteUploadsHandlerFunc(func(params uploads.DeleteUploadsParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.DeleteUploads has not yet been implemented")
-		})
-	}
-	if api.DpsAuthGetCookieURLHandler == nil {
-		api.DpsAuthGetCookieURLHandler = dps_auth.GetCookieURLHandlerFunc(func(params dps_auth.GetCookieURLParams) middleware.Responder {
-			return middleware.NotImplemented("operation dps_auth.GetCookieURL has not yet been implemented")
 		})
 	}
 	if api.EntitlementsIndexEntitlementsHandler == nil {
@@ -362,6 +361,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.BackupContactsUpdateServiceMemberBackupContactHandler == nil {
 		api.BackupContactsUpdateServiceMemberBackupContactHandler = backup_contacts.UpdateServiceMemberBackupContactHandlerFunc(func(params backup_contacts.UpdateServiceMemberBackupContactParams) middleware.Responder {
 			return middleware.NotImplemented("operation backup_contacts.UpdateServiceMemberBackupContact has not yet been implemented")
+		})
+	}
+	if api.PpmUpdateWeightTicketHandler == nil {
+		api.PpmUpdateWeightTicketHandler = ppm.UpdateWeightTicketHandlerFunc(func(params ppm.UpdateWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateWeightTicket has not yet been implemented")
 		})
 	}
 	if api.OrdersUploadAmendedOrdersHandler == nil {

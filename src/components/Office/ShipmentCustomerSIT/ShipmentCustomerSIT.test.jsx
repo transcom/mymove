@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 
@@ -29,34 +29,5 @@ describe('components/Office/ShipmentCustomerSIT', () => {
     userEvent.click(screen.getByLabelText('Yes'));
 
     expect(await screen.findByLabelText('Destination')).toBeChecked();
-  });
-
-  it('disables Calculate SIT button until all fields filled out', async () => {
-    const onCalculateClick = jest.fn();
-    render(
-      <Formik initialValues={{}}>
-        <ShipmentCustomerSIT onCalculateClick={onCalculateClick} />
-      </Formik>,
-    );
-
-    userEvent.click(screen.getByLabelText('Yes'));
-    expect(await screen.findByRole('button', { name: 'Calculate SIT' })).toBeDisabled();
-
-    userEvent.type(screen.getByLabelText('Estimated SIT weight'), '5725');
-    userEvent.type(screen.getByLabelText('Estimated storage start'), '02 May 2022');
-    userEvent.type(screen.getByLabelText('Estimated storage end'), '09 May 2022');
-
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Calculate SIT' })).toBeEnabled());
-
-    userEvent.click(screen.getByRole('button', { name: 'Calculate SIT' }));
-
-    await waitFor(() =>
-      expect(onCalculateClick).toBeCalledWith({
-        location: 'destination',
-        weight: '5725',
-        start: '02 May 2022',
-        end: '09 May 2022',
-      }),
-    );
   });
 });

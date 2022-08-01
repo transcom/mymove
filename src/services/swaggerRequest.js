@@ -85,7 +85,6 @@ function successfulReturnType(routeDefinition, status) {
 
 export function normalizeResponse(data, schemaKey) {
   const responseSchema = schema[`${schemaKey}`];
-
   if (!responseSchema) {
     throw new Error(`Could not find a schema for ${schemaKey}`);
   }

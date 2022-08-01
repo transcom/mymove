@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	testing "testing"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -41,8 +39,13 @@ func (_m *ShipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipme
 	return r0, r1
 }
 
-// NewShipmentApprover creates a new instance of ShipmentApprover. It also registers the testing.TB interface on the mock and a cleanup function to assert the mocks expectations.
-func NewShipmentApprover(t testing.TB) *ShipmentApprover {
+type mockConstructorTestingTNewShipmentApprover interface {
+	mock.TestingT
+	Cleanup(func())
+}
+
+// NewShipmentApprover creates a new instance of ShipmentApprover. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+func NewShipmentApprover(t mockConstructorTestingTNewShipmentApprover) *ShipmentApprover {
 	mock := &ShipmentApprover{}
 	mock.Mock.Test(t)
 

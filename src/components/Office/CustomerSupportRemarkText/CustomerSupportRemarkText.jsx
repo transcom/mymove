@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import { Button, Textarea, ErrorMessage } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import { Field, Formik } from 'formik';
-import { useParams } from 'react-router-dom';
 import classnames from 'classnames';
 import * as Yup from 'yup';
 
@@ -16,9 +15,7 @@ import Restricted from 'components/Restricted/Restricted';
 import { updateCustomerSupportRemarkForMove } from 'services/ghcApi';
 import { CUSTOMER_SUPPORT_REMARKS } from 'constants/queryKeys';
 
-const CustomerSupportRemarkText = ({ customerSupportRemark }) => {
-  const { moveCode } = useParams();
-
+const CustomerSupportRemarkText = ({ customerSupportRemark, onDelete }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isEdit, setIsEdit] = useState(false);
 
@@ -44,7 +41,7 @@ const CustomerSupportRemarkText = ({ customerSupportRemark }) => {
 
   const [mutateCustomerSupportRemark] = useMutation(updateCustomerSupportRemarkForMove, {
     onSuccess: async () => {
-      await queryCache.invalidateQueries([CUSTOMER_SUPPORT_REMARKS, moveCode]);
+      await queryCache.invalidateQueries([CUSTOMER_SUPPORT_REMARKS]);
       setIsEdit(false);
     },
   });
@@ -52,10 +49,9 @@ const CustomerSupportRemarkText = ({ customerSupportRemark }) => {
   const handleSubmitEdit = (values) => {
     mutateCustomerSupportRemark({
       body: {
-        id: customerSupportRemark.id,
         content: values.remark,
       },
-      locator: moveCode,
+      customerSupportRemarkID: customerSupportRemark.id,
     });
   };
 
@@ -184,7 +180,9 @@ const CustomerSupportRemarkText = ({ customerSupportRemark }) => {
                 'usa-button--unstyled',
               )}
               type="delete"
-              onClick={() => {}}
+              onClick={() => {
+                onDelete(customerSupportRemark.id);
+              }}
               data-testid="delete-remark-button"
             >
               <small>Delete</small>

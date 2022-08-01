@@ -9,6 +9,12 @@
     }
   }
 
+  .weightTicketSectionWrapper {
+    :global(.usa-form-group:first-of-type .usa-label) {
+      @include u-margin-top(0);
+    }
+  }
+
   h2 {
     @include u-margin-bottom(4);
   }
@@ -43,6 +49,16 @@
     &:visited {
       color: $primary;
     }
+  }
+
+  /* FilePond attempts to do some animating with inline styling but the label never transitions to visible in some
+   browser environments. This might explain past Happo errors where labels were blank in the mobile visual diffs.
+   Maybe we could make this a global fix for orders uploads too. I don't see another way to disable this animation. */
+  :global(.filepond--drop-label) {
+    transform: unset !important;
+    opacity: 100 !important;
+    visibility: visible !important;
+    pointer-events: all !important;
   }
 
   fieldset + fieldset {

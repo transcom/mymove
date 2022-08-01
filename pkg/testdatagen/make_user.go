@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 // MakeUser creates a single User
@@ -35,6 +36,32 @@ func MakeDefaultUser(db *pop.Connection) models.User {
 			Active:       true,
 		},
 	})
+}
+
+// MakeUserWithRolesTypes creates or fetches Roles by roleTypes and creates a User with those role types
+func MakeUserWithRoleTypes(db *pop.Connection, roleTypes []roles.RoleType, assertions Assertions) models.User {
+	user := MakeUser(db, assertions)
+
+	// save roles to db
+	userRoles := []roles.Role{}
+	for _, roleType := range roleTypes {
+		role, _ := LookupOrMakeRoleByRoleType(db, roleType)
+		userRoles = append(userRoles, role)
+	}
+
+	rolesList := userRoles
+	for _, role := range rolesList {
+		newRole, _ := LookupOrMakeRole(db, role.RoleType, role.RoleName)
+		MakeUsersRoles(db, Assertions{
+			UsersRoles: models.UsersRoles{
+				UserID: user.ID,
+				RoleID: newRole.ID,
+			},
+			Stub: assertions.Stub,
+		})
+	}
+
+	return user
 }
 
 // MakeStubbedUser returns a user without hitting the DB

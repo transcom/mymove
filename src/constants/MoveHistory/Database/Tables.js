@@ -9,4 +9,6 @@ export default {
   reweighs: 'reweighs',
   addresses: 'addresses',
   proof_of_service_docs: 'proof_of_service_docs',
+  mto_service_item_dimensions: 'mto_service_item_dimensions',
+  mto_service_item_customer_contacts: 'mto_service_item_customer_contacts',
 };

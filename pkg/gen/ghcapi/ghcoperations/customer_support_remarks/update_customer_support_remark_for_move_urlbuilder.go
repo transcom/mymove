@@ -10,11 +10,13 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 	"strings"
+
+	"github.com/go-openapi/strfmt"
 )
 
 // UpdateCustomerSupportRemarkForMoveURL generates an URL for the update customer support remark for move operation
 type UpdateCustomerSupportRemarkForMoveURL struct {
-	Locator string
+	CustomerSupportRemarkID strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -40,13 +42,13 @@ func (o *UpdateCustomerSupportRemarkForMoveURL) SetBasePath(bp string) {
 func (o *UpdateCustomerSupportRemarkForMoveURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/moves/{locator}/customer-support-remarks"
+	var _path = "/customer-support-remarks/{customerSupportRemarkID}"
 
-	locator := o.Locator
-	if locator != "" {
-		_path = strings.Replace(_path, "{locator}", locator, -1)
+	customerSupportRemarkID := o.CustomerSupportRemarkID.String()
+	if customerSupportRemarkID != "" {
+		_path = strings.Replace(_path, "{customerSupportRemarkID}", customerSupportRemarkID, -1)
 	} else {
-		return nil, errors.New("locator is required on UpdateCustomerSupportRemarkForMoveURL")
+		return nil, errors.New("customerSupportRemarkId is required on UpdateCustomerSupportRemarkForMoveURL")
 	}
 
 	_basePath := o._basePath

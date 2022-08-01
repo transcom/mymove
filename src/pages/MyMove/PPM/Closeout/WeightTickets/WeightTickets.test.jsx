@@ -1,18 +1,18 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { generatePath } from 'react-router';
+import { useParams, generatePath } from 'react-router-dom';
 import { v4 } from 'uuid';
 
-import { selectMTOShipmentById } from 'store/entities/selectors';
+import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
-import { createWeightTicket, patchWeightTicket } from 'services/internalApi';
+import { createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
 import { MockProviders } from 'testUtils';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import WeightTickets from 'pages/MyMove/PPM/Closeout/WeightTickets/WeightTickets';
 
-const mockMoveId = v4();
-const mockMTOShipmentId = v4();
+const mockMoveId = 'cc03c553-d317-46af-8b2d-3c9f899f6451';
+const mockMTOShipmentId = '6b7a5769-4393-46fb-a4c4-d3f6ac7584c7';
 const mockPPMShipmentId = v4();
 const mockWeightTicketId = v4();
 const mockWeightTicketETag = window.btoa(new Date());
@@ -25,10 +25,10 @@ jest.mock('react-router-dom', () => ({
     push: mockPush,
     replace: mockReplace,
   }),
-  useParams: () => ({
-    moveId: mockMoveId,
-    mtoShipmentId: mockMTOShipmentId,
-  }),
+  useParams: jest.fn(() => ({
+    moveId: 'cc03c553-d317-46af-8b2d-3c9f899f6451',
+    mtoShipmentId: '6b7a5769-4393-46fb-a4c4-d3f6ac7584c7',
+  })),
   useLocation: () => ({
     search: 'tripNumber=2',
   }),
@@ -38,6 +38,7 @@ jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   createWeightTicket: jest.fn(),
   createUploadForDocument: jest.fn(),
+  deleteUpload: jest.fn(),
   patchWeightTicket: jest.fn(),
   getResponseError: jest.fn(),
 }));
@@ -79,44 +80,56 @@ const mockWeightTicketWithUploads = {
   id: mockWeightTicketId,
   ppmShipmentId: mockPPMShipmentId,
   emptyWeightDocumentId: mockEmptyWeightDocumentId,
-  emptyWeightTickets: [
-    {
-      id: '299e2fb4-432d-4261-bbed-d8280c6090af',
-      created_at: '2022-06-22T23:25:50.490Z',
-      bytes: 819200,
-      url: 'a/fake/path',
-      filename: 'empty_weight.jpg',
-      content_type: 'image/jpg',
-    },
-  ],
+  emptyDocument: {
+    uploads: [
+      {
+        id: '299e2fb4-432d-4261-bbed-d8280c6090af',
+        created_at: '2022-06-22T23:25:50.490Z',
+        bytes: 819200,
+        url: 'a/fake/path',
+        filename: 'empty_weight.jpg',
+        content_type: 'image/jpg',
+      },
+    ],
+  },
   fullWeightDocumentId: mockFullWeightDocumentId,
-  fullWeightTickets: [
-    {
-      id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
-      created_at: '2022-06-23T23:25:50.490Z',
-      bytes: 409600,
-      url: 'a/fake/path',
-      filename: 'full_weight.pdf',
-      content_type: 'application/pdf',
-    },
-  ],
+  fullDocument: {
+    uploads: [
+      {
+        id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
+        created_at: '2022-06-23T23:25:50.490Z',
+        bytes: 409600,
+        url: 'a/fake/path',
+        filename: 'full_weight.pdf',
+        content_type: 'application/pdf',
+      },
+    ],
+  },
   trailerOwnershipDocumentId: mockTrailerOwnershipWeightDocumentId,
-  trailerOwnershipDocs: [
-    {
-      id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',
-      created_at: '2022-06-24T23:25:50.490Z',
-      bytes: 204800,
-      url: 'a/fake/path',
-      filename: 'trailer_title.pdf',
-      content_type: 'application/pdf',
-    },
-  ],
+  proofOfTrailerOwnershipDocument: {
+    uploads: [
+      {
+        id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',
+        created_at: '2022-06-24T23:25:50.490Z',
+        bytes: 204800,
+        url: 'a/fake/path',
+        filename: 'trailer_title.pdf',
+        content_type: 'application/pdf',
+      },
+    ],
+  },
   eTag: mockWeightTicketETag,
+};
+
+const mockEmptyWeightTicketAndIndex = {
+  weightTicket: null,
+  index: -1,
 };
 
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectMTOShipmentById: jest.fn(() => mockMTOShipment),
+  selectWeightTicketAndIndexById: jest.fn(() => mockEmptyWeightTicketAndIndex),
 }));
 
 beforeEach(() => {
@@ -145,8 +158,35 @@ describe('Weight Tickets page', () => {
     });
   });
 
+  it('displays an error if the createWeightTicket request fails', async () => {
+    createWeightTicket.mockRejectedValue('an error occurred');
+
+    render(<WeightTickets />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to create trip record')).toBeInTheDocument();
+    });
+  });
+
+  it('does not make create weight ticket api request if id param exists', async () => {
+    useParams.mockImplementationOnce(() => ({
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+      weightTicketId: mockWeightTicketId,
+    }));
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
+
+    render(<WeightTickets />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(createWeightTicket).not.toHaveBeenCalled();
+    });
+  });
+
   it('renders the page Content', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
+    selectWeightTicketAndIndexById.mockReturnValueOnce({ weightTicket: null, index: -1 });
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -171,6 +211,8 @@ describe('Weight Tickets page', () => {
 
   it('replaces the router history with newly created weight ticket id', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
+    selectWeightTicketAndIndexById.mockReturnValueOnce({ weightTicket: null, index: -1 });
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -181,6 +223,7 @@ describe('Weight Tickets page', () => {
 
   it('routes back to home when finish later is clicked', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
@@ -193,6 +236,7 @@ describe('Weight Tickets page', () => {
 
   it('calls patch weight ticket with the appropriate payload', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 0 });
     patchWeightTicket.mockResolvedValue({});
 
     render(<WeightTickets />, { wrapper: MockProviders });
@@ -200,27 +244,27 @@ describe('Weight Tickets page', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 2');
     });
-    await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
-    await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
-    await userEvent.type(screen.getByLabelText('Full weight'), '6999');
-    await userEvent.click(screen.getByLabelText('Yes'));
-    await userEvent.click(screen.getAllByLabelText('Yes')[1]);
+    userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
+    userEvent.type(screen.getByLabelText('Empty weight'), '4999');
+    userEvent.type(screen.getByLabelText('Full weight'), '6999');
+    userEvent.click(screen.getByLabelText('Yes'));
+    userEvent.click(screen.getAllByLabelText('Yes')[1]);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
       expect(patchWeightTicket).toHaveBeenCalledWith(
-        mockMTOShipmentId,
+        mockPPMShipmentId,
         mockWeightTicketId,
         {
-          shipmentId: mockWeightTicketWithUploads.ppmShipmentId,
+          ppmShipmentId: mockWeightTicketWithUploads.ppmShipmentId,
           vehicleDescription: 'DMC Delorean',
           emptyWeight: 4999,
           missingEmptyWeightTicket: false,
           fullWeight: 6999,
           missingFullWeightTicket: false,
-          hasOwnTrailer: true,
-          hasClaimedTrailer: true,
+          ownsTrailer: true,
+          trailerMeetsCriteria: true,
         },
         mockWeightTicketETag,
       );
@@ -229,8 +273,60 @@ describe('Weight Tickets page', () => {
     expect(mockPush).toHaveBeenCalledWith(reviewPath);
   });
 
+  it('displays an error if patchWeightTicket fails', async () => {
+    createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 0 });
+    patchWeightTicket.mockRejectedValueOnce('an error occurred');
+
+    render(<WeightTickets />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 2');
+    });
+    userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
+    userEvent.type(screen.getByLabelText('Empty weight'), '4999');
+    userEvent.type(screen.getByLabelText('Full weight'), '6999');
+    userEvent.click(screen.getByLabelText('Yes'));
+    userEvent.click(screen.getAllByLabelText('Yes')[1]);
+
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to save updated trip record')).toBeInTheDocument();
+    });
+  });
+
+  it('calls the delete handler when removing an existing upload', async () => {
+    useParams.mockImplementation(() => ({
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+      weightTicketId: mockWeightTicketId,
+    }));
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 0 });
+
+    selectMTOShipmentById.mockReturnValue({
+      ...mockMTOShipment,
+      ppmShipment: {
+        ...mockMTOShipment.ppmShipment,
+        weightTickets: [mockWeightTicketWithUploads],
+      },
+    });
+    deleteUpload.mockResolvedValue({});
+    render(<WeightTickets />, { wrapper: MockProviders });
+
+    let deleteButtons;
+    await waitFor(() => {
+      deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
+      expect(deleteButtons).toHaveLength(2);
+    });
+    userEvent.click(deleteButtons[0]);
+    await waitFor(() => {
+      expect(screen.queryByText('empty_weight.jpg')).not.toBeInTheDocument();
+    });
+  });
+
   it('expect loadingPlaceholder when mtoShipment is falsy', async () => {
-    selectMTOShipmentById.mockReturnValue(null);
+    selectMTOShipmentById.mockReturnValueOnce(null);
 
     render(<WeightTickets />, { wrapper: MockProviders });
 

@@ -836,7 +836,6 @@ describe('MoveDetails page', () => {
       expect(wrapper.find('#orders h2').text()).toEqual('Orders');
       expect(wrapper.find('[data-testid="newDutyLocationLabel"]').text()).toEqual('HOR, HOS, or PLEAD');
       expect(wrapper.find('[data-testid="reportByDateLabel"]').text()).toEqual('Date of retirement');
-      expect(wrapper.find('[data-testid="destinationType"]').text()).toEqual('Home of record (HOR)');
     });
   });
 

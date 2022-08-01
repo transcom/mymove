@@ -34,8 +34,6 @@ const (
 	PrimeSimulatorOfficeUserType string = "Prime Simulator"
 	// QaeCsrOfficeUserType is a type of user for an Office user
 	QaeCsrOfficeUserType string = "QAE/CSR office"
-	// DpsUserType is the type of user for a DPS user
-	DpsUserType string = "dps"
 	// AdminUserType is the type of user for an admin user
 	AdminUserType string = "admin"
 )
@@ -92,7 +90,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ServicesCounselorOfficeUserType string
 		PrimeSimulatorOfficeUserType    string
 		QaeCsrOfficeUserType            string
-		DpsUserType                     string
 		IsAdminApp                      bool
 		AdminUserType                   string
 		CsrfToken                       string
@@ -112,7 +109,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ServicesCounselorOfficeUserType: ServicesCounselorOfficeUserType,
 		PrimeSimulatorOfficeUserType:    PrimeSimulatorOfficeUserType,
 		QaeCsrOfficeUserType:            QaeCsrOfficeUserType,
-		DpsUserType:                     DpsUserType,
 		IsAdminApp:                      auth.AdminApp == appCtx.Session().ApplicationName,
 		AdminUserType:                   AdminUserType,
 		// Build CSRF token instead of grabbing from middleware. Otherwise throws errors when accessed directly.
@@ -160,9 +156,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						{{if .AdminUserID}}
 						  ({{$.AdminUserType}})
 						  <input type="hidden" name="userType" value="{{$.AdminUserType}}">
-						{{else if .DpsUserID}}
-						  ({{$.DpsUserType}})
-						  <input type="hidden" name="userType" value="{{$.DpsUserType}}">
 						{{else if .OfficeUserID}}
 						  ({{$.PPMOfficeUserType}})
 						  <input type="hidden" name="userType" value="{{$.PPMOfficeUserType}}">
@@ -187,13 +180,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
 					  <input type="hidden" name="userType" value="{{.MilMoveUserType}}">
 					  <button type="submit" data-hook="new-user-login-{{.MilMoveUserType}}">Create a New {{.MilMoveUserType}} User</button>
-					</p>
-				  </form>
-				  <form method="post" action="/devlocal-auth/new">
-					<p>
-					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-					  <input type="hidden" name="userType" value="{{.DpsUserType}}">
-					  <button type="submit" data-hook="new-user-login-{{.DpsUserType}}">Create a New {{.DpsUserType}} User</button>
 					</p>
 				  </form>
 			  {{else if $.IsAdminApp }}
@@ -886,19 +872,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		if verrs.HasAny() {
 			appCtx.Logger().Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
-	case DpsUserType:
-		dpsUser := models.DpsUser{
-			LoginGovEmail: email,
-			Active:        true,
-		}
-
-		verrs, err := appCtx.DB().ValidateAndSave(&dpsUser)
-		if err != nil {
-			appCtx.Logger().Error("could not create dps user", zap.Error(err))
-		}
-		if verrs.HasAny() {
-			appCtx.Logger().Error("validation errors creating dps user", zap.Stringer("errors", verrs))
-		}
 	case AdminUserType:
 
 		adminUser := models.AdminUser{
@@ -980,10 +953,6 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 
 	if userIdentity.OfficeUserID != nil && (session.IsOfficeApp() || isOfficeUser(userType)) {
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
-	}
-
-	if userIdentity.DpsUserID != nil && (userIdentity.DpsActive != nil && *userIdentity.DpsActive) {
-		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 
 	session.FirstName = userIdentity.FirstName()

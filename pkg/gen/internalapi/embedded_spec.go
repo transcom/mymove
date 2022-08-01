@@ -288,47 +288,6 @@ func init() {
         }
       }
     },
-    "/dps_auth/cookie_url": {
-      "post": {
-        "description": "Returns the URL to redirect to that begins DPS auth",
-        "tags": [
-          "dps_auth"
-        ],
-        "summary": "Returns the URL to redirect to that begins DPS auth",
-        "operationId": "getCookieURL",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "The name of the cookie to set, DPS by default",
-            "name": "cookie_name",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "The DPS URL to redirec to",
-            "name": "dps_redirect_url",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/DPSAuthCookieURLPayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/duty_locations": {
       "get": {
         "description": "Returns the duty locations matching the search query",
@@ -2349,6 +2308,124 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/weight-ticket": {
+      "post": {
+        "description": "Created a weight ticket document with the given information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a weight ticket document",
+        "operationId": "createWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns new weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/WeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
+      "patch": {
+        "description": "Updates a weight ticket document with the new information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a weight ticket document",
+        "operationId": "updateWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the weight ticket",
+            "name": "weightTicketId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "updateWeightTicketPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/WeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/{queueType}": {
       "get": {
         "description": "Show all moves in a queue",
@@ -3878,15 +3955,6 @@ func init() {
         }
       }
     },
-    "DPSAuthCookieURLPayload": {
-      "type": "object",
-      "properties": {
-        "cookie_url": {
-          "type": "string",
-          "format": "uri"
-        }
-      }
-    },
     "DeptIndicator": {
       "type": "string",
       "title": "Dept. indicator",
@@ -5301,6 +5369,17 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "weightTickets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeightTicket"
+          }
         }
       },
       "x-nullable": true
@@ -6647,6 +6726,39 @@ func init() {
         }
       }
     },
+    "UpdateWeightTicket": {
+      "type": "object",
+      "properties": {
+        "emptyWeight": {
+          "description": "Empty Recorded Weight",
+          "type": "integer"
+        },
+        "fullWeight": {
+          "description": "full weight ticket recorded weight",
+          "type": "integer"
+        },
+        "missingEmptyWeightTicket": {
+          "description": "has empty weight ticket",
+          "type": "boolean"
+        },
+        "missingFullWeightTicket": {
+          "description": "has full weight ticket",
+          "type": "boolean"
+        },
+        "ownsTrailer": {
+          "description": "Owns trailer",
+          "type": "boolean"
+        },
+        "trailerMeetsCriteria": {
+          "description": "Trailer meets criteria",
+          "type": "boolean"
+        },
+        "vehicleDescription": {
+          "description": "Vehicle description (ex. 'SUV')",
+          "type": "string"
+        }
+      }
+    },
     "UploadPayload": {
       "type": "object",
       "required": [
@@ -6752,6 +6864,117 @@ func init() {
         "total_weight_self_plus_dependents": {
           "type": "integer",
           "example": 18000
+        }
+      }
+    },
+    "WeightTicket": {
+      "type": "object",
+      "required": [
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "emptyDocumentId",
+        "emptyDocument",
+        "fullDocument",
+        "fullDocumentId",
+        "proofOfTrailerOwnershipDocument",
+        "proofOfTrailerOwnershipDocumentId"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "emptyDocument": {
+          "title": "Empty Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "emptyDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Empty Document ID",
+          "readOnly": true
+        },
+        "emptyWeight": {
+          "type": "integer",
+          "title": "Empty Recorded Weight"
+        },
+        "fullDocument": {
+          "title": "Full Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "fullDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Full Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "fullWeight": {
+          "type": "integer",
+          "title": "full weight ticket recorded weight"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missingEmptyWeightTicket": {
+          "type": "boolean",
+          "title": "has empty weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "missingFullWeightTicket": {
+          "type": "boolean",
+          "title": "has full weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ownsTrailer": {
+          "type": "boolean",
+          "title": "Owns trailer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfTrailerOwnershipDocument": {
+          "title": "Proof of Trailer Ownership Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "proofOfTrailerOwnershipDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Trailer Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "trailerMeetsCriteria": {
+          "type": "boolean",
+          "title": "Trailer meets criteria",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "vehicleDescription": {
+          "type": "string",
+          "title": "Vehicle description (ex. 'SUV')",
+          "x-nullable": true
         }
       }
     },
@@ -7085,47 +7308,6 @@ func init() {
           },
           "500": {
             "description": "server error"
-          }
-        }
-      }
-    },
-    "/dps_auth/cookie_url": {
-      "post": {
-        "description": "Returns the URL to redirect to that begins DPS auth",
-        "tags": [
-          "dps_auth"
-        ],
-        "summary": "Returns the URL to redirect to that begins DPS auth",
-        "operationId": "getCookieURL",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "The name of the cookie to set, DPS by default",
-            "name": "cookie_name",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "The DPS URL to redirec to",
-            "name": "dps_redirect_url",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/DPSAuthCookieURLPayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
           }
         }
       }
@@ -9216,6 +9398,163 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/weight-ticket": {
+      "post": {
+        "description": "Created a weight ticket document with the given information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a weight ticket document",
+        "operationId": "createWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns new weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/WeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
+      "patch": {
+        "description": "Updates a weight ticket document with the new information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a weight ticket document",
+        "operationId": "updateWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the weight ticket",
+            "name": "weightTicketId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "updateWeightTicketPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/WeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/queues/{queueType}": {
       "get": {
         "description": "Show all moves in a queue",
@@ -10749,15 +11088,6 @@ func init() {
         }
       }
     },
-    "DPSAuthCookieURLPayload": {
-      "type": "object",
-      "properties": {
-        "cookie_url": {
-          "type": "string",
-          "format": "uri"
-        }
-      }
-    },
     "DeptIndicator": {
       "type": "string",
       "title": "Dept. indicator",
@@ -12185,6 +12515,17 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "weightTickets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeightTicket"
+          }
         }
       },
       "x-nullable": true
@@ -13538,6 +13879,41 @@ func init() {
         }
       }
     },
+    "UpdateWeightTicket": {
+      "type": "object",
+      "properties": {
+        "emptyWeight": {
+          "description": "Empty Recorded Weight",
+          "type": "integer",
+          "minimum": 0
+        },
+        "fullWeight": {
+          "description": "full weight ticket recorded weight",
+          "type": "integer",
+          "minimum": 0
+        },
+        "missingEmptyWeightTicket": {
+          "description": "has empty weight ticket",
+          "type": "boolean"
+        },
+        "missingFullWeightTicket": {
+          "description": "has full weight ticket",
+          "type": "boolean"
+        },
+        "ownsTrailer": {
+          "description": "Owns trailer",
+          "type": "boolean"
+        },
+        "trailerMeetsCriteria": {
+          "description": "Trailer meets criteria",
+          "type": "boolean"
+        },
+        "vehicleDescription": {
+          "description": "Vehicle description (ex. 'SUV')",
+          "type": "string"
+        }
+      }
+    },
     "UploadPayload": {
       "type": "object",
       "required": [
@@ -13646,6 +14022,119 @@ func init() {
         "total_weight_self_plus_dependents": {
           "type": "integer",
           "example": 18000
+        }
+      }
+    },
+    "WeightTicket": {
+      "type": "object",
+      "required": [
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "emptyDocumentId",
+        "emptyDocument",
+        "fullDocument",
+        "fullDocumentId",
+        "proofOfTrailerOwnershipDocument",
+        "proofOfTrailerOwnershipDocumentId"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "emptyDocument": {
+          "title": "Empty Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "emptyDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Empty Document ID",
+          "readOnly": true
+        },
+        "emptyWeight": {
+          "type": "integer",
+          "title": "Empty Recorded Weight",
+          "minimum": 0
+        },
+        "fullDocument": {
+          "title": "Full Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "fullDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Full Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "fullWeight": {
+          "type": "integer",
+          "title": "full weight ticket recorded weight",
+          "minimum": 0
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missingEmptyWeightTicket": {
+          "type": "boolean",
+          "title": "has empty weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "missingFullWeightTicket": {
+          "type": "boolean",
+          "title": "has full weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ownsTrailer": {
+          "type": "boolean",
+          "title": "Owns trailer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfTrailerOwnershipDocument": {
+          "title": "Proof of Trailer Ownership Document",
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "proofOfTrailerOwnershipDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Trailer Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "trailerMeetsCriteria": {
+          "type": "boolean",
+          "title": "Trailer meets criteria",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "vehicleDescription": {
+          "type": "string",
+          "title": "Vehicle description (ex. 'SUV')",
+          "x-nullable": true
         }
       }
     },

@@ -26,7 +26,7 @@ import (
 // CreateMTOShipmentHandler is the handler to create MTO shipments
 type CreateMTOShipmentHandler struct {
 	handlers.HandlerConfig
-	mtoShipmentCreator     services.MTOShipmentCreator
+	services.ShipmentCreator
 	mtoAvailabilityChecker services.MoveTaskOrderChecker
 }
 
@@ -34,9 +34,7 @@ type CreateMTOShipmentHandler struct {
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
 			payload := params.Body
-
 			if payload == nil {
 				err := apperror.NewBadDataError("the MTO Shipment request body cannot be empty")
 				appCtx.Logger().Error(err.Error())
@@ -70,11 +68,13 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 					"The MTO service item list is invalid.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), verrs
 			}
 
+			mtoShipment.MTOServiceItems = mtoServiceItemsList
+
 			moveTaskOrderID := uuid.FromStringOrNil(payload.MoveTaskOrderID.String())
 			mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(appCtx, moveTaskOrderID)
 
 			if mtoAvailableToPrime {
-				mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, mtoServiceItemsList)
+				mtoShipment, err = h.ShipmentCreator.CreateShipment(appCtx, mtoShipment)
 			} else if err == nil {
 				appCtx.Logger().Error("primeapi.CreateMTOShipmentHandler error - MTO is not available to Prime")
 				return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(
@@ -111,7 +111,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 // UpdateMTOShipmentHandler is the handler to update MTO shipments
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerConfig
-	mtoShipmentUpdater services.MTOShipmentUpdater
+	services.ShipmentUpdater
 }
 
 // Handle handler that updates a mto shipment
@@ -127,7 +127,8 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				"SecondaryPickupAddress",
 				"SecondaryDeliveryAddress",
 				"MTOAgents",
-				"StorageFacility").
+				"StorageFacility",
+				"PPMShipment").
 				Where("uses_external_vendor = FALSE").
 				Find(&dbShipment, params.MtoShipmentID)
 
@@ -138,6 +139,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 			// Validate further prime restrictions on model
 			mtoShipment, validationErrs := h.checkPrimeValidationsOnModel(appCtx, mtoShipment, &dbShipment)
+			mtoShipment.ShipmentType = dbShipment.ShipmentType
 			if validationErrs != nil && validationErrs.HasAny() {
 				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(validationErrs))
 
@@ -148,7 +150,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			}
 
 			appCtx.Logger().Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-			mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipment(appCtx, mtoShipment, params.IfMatch)
+			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch)
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 				switch e := err.(type) {

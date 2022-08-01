@@ -25,6 +25,7 @@ import (
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 )
 
 // NewInternalAPI returns the internal API
@@ -92,6 +93,9 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.MoveDocsCreateWeightTicketDocumentHandler = CreateWeightTicketSetDocumentHandler{handlerConfig}
 
+	internalAPI.PpmCreateWeightTicketHandler = CreateWeightTicketHandler{handlerConfig, weightticket.NewCustomerWeightTicketCreator()}
+	internalAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{handlerConfig, weightticket.NewCustomerWeightTicketUpdater()}
+
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler{handlerConfig}
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler{handlerConfig}
 	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler{handlerConfig}
@@ -117,8 +121,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.EntitlementsIndexEntitlementsHandler = IndexEntitlementsHandler{handlerConfig}
 
 	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{handlerConfig}
-
-	internalAPI.DpsAuthGetCookieURLHandler = DPSAuthGetCookieURLHandler{handlerConfig}
 
 	internalAPI.MovesShowShipmentSummaryWorksheetHandler = ShowShipmentSummaryWorksheetHandler{handlerConfig}
 

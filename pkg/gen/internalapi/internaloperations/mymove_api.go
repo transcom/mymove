@@ -24,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
-	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/dps_auth"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
@@ -110,6 +109,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		UploadsCreateUploadHandler: uploads.CreateUploadHandlerFunc(func(params uploads.CreateUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.CreateUpload has not yet been implemented")
 		}),
+		PpmCreateWeightTicketHandler: ppm.CreateWeightTicketHandlerFunc(func(params ppm.CreateWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateWeightTicket has not yet been implemented")
+		}),
 		MoveDocsCreateWeightTicketDocumentHandler: move_docs.CreateWeightTicketDocumentHandlerFunc(func(params move_docs.CreateWeightTicketDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.CreateWeightTicketDocument has not yet been implemented")
 		}),
@@ -124,9 +126,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		UploadsDeleteUploadsHandler: uploads.DeleteUploadsHandlerFunc(func(params uploads.DeleteUploadsParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.DeleteUploads has not yet been implemented")
-		}),
-		DpsAuthGetCookieURLHandler: dps_auth.GetCookieURLHandlerFunc(func(params dps_auth.GetCookieURLParams) middleware.Responder {
-			return middleware.NotImplemented("operation dps_auth.GetCookieURL has not yet been implemented")
 		}),
 		EntitlementsIndexEntitlementsHandler: entitlements.IndexEntitlementsHandlerFunc(func(params entitlements.IndexEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation entitlements.IndexEntitlements has not yet been implemented")
@@ -245,6 +244,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BackupContactsUpdateServiceMemberBackupContactHandler: backup_contacts.UpdateServiceMemberBackupContactHandlerFunc(func(params backup_contacts.UpdateServiceMemberBackupContactParams) middleware.Responder {
 			return middleware.NotImplemented("operation backup_contacts.UpdateServiceMemberBackupContact has not yet been implemented")
 		}),
+		PpmUpdateWeightTicketHandler: ppm.UpdateWeightTicketHandlerFunc(func(params ppm.UpdateWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateWeightTicket has not yet been implemented")
+		}),
 		OrdersUploadAmendedOrdersHandler: orders.UploadAmendedOrdersHandlerFunc(func(params orders.UploadAmendedOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UploadAmendedOrders has not yet been implemented")
 		}),
@@ -327,6 +329,8 @@ type MymoveAPI struct {
 	CertificationCreateSignedCertificationHandler certification.CreateSignedCertificationHandler
 	// UploadsCreateUploadHandler sets the operation handler for the create upload operation
 	UploadsCreateUploadHandler uploads.CreateUploadHandler
+	// PpmCreateWeightTicketHandler sets the operation handler for the create weight ticket operation
+	PpmCreateWeightTicketHandler ppm.CreateWeightTicketHandler
 	// MoveDocsCreateWeightTicketDocumentHandler sets the operation handler for the create weight ticket document operation
 	MoveDocsCreateWeightTicketDocumentHandler move_docs.CreateWeightTicketDocumentHandler
 	// MoveDocsDeleteMoveDocumentHandler sets the operation handler for the delete move document operation
@@ -337,8 +341,6 @@ type MymoveAPI struct {
 	UploadsDeleteUploadHandler uploads.DeleteUploadHandler
 	// UploadsDeleteUploadsHandler sets the operation handler for the delete uploads operation
 	UploadsDeleteUploadsHandler uploads.DeleteUploadsHandler
-	// DpsAuthGetCookieURLHandler sets the operation handler for the get cookie URL operation
-	DpsAuthGetCookieURLHandler dps_auth.GetCookieURLHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
 	EntitlementsIndexEntitlementsHandler entitlements.IndexEntitlementsHandler
 	// MoveDocsIndexMoveDocumentsHandler sets the operation handler for the index move documents operation
@@ -417,6 +419,8 @@ type MymoveAPI struct {
 	PpmUpdatePersonallyProcuredMoveHandler ppm.UpdatePersonallyProcuredMoveHandler
 	// BackupContactsUpdateServiceMemberBackupContactHandler sets the operation handler for the update service member backup contact operation
 	BackupContactsUpdateServiceMemberBackupContactHandler backup_contacts.UpdateServiceMemberBackupContactHandler
+	// PpmUpdateWeightTicketHandler sets the operation handler for the update weight ticket operation
+	PpmUpdateWeightTicketHandler ppm.UpdateWeightTicketHandler
 	// OrdersUploadAmendedOrdersHandler sets the operation handler for the upload amended orders operation
 	OrdersUploadAmendedOrdersHandler orders.UploadAmendedOrdersHandler
 	// PostalCodesValidatePostalCodeWithRateDataHandler sets the operation handler for the validate postal code with rate data operation
@@ -549,6 +553,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.UploadsCreateUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.CreateUploadHandler")
 	}
+	if o.PpmCreateWeightTicketHandler == nil {
+		unregistered = append(unregistered, "ppm.CreateWeightTicketHandler")
+	}
 	if o.MoveDocsCreateWeightTicketDocumentHandler == nil {
 		unregistered = append(unregistered, "move_docs.CreateWeightTicketDocumentHandler")
 	}
@@ -563,9 +570,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.UploadsDeleteUploadsHandler == nil {
 		unregistered = append(unregistered, "uploads.DeleteUploadsHandler")
-	}
-	if o.DpsAuthGetCookieURLHandler == nil {
-		unregistered = append(unregistered, "dps_auth.GetCookieURLHandler")
 	}
 	if o.EntitlementsIndexEntitlementsHandler == nil {
 		unregistered = append(unregistered, "entitlements.IndexEntitlementsHandler")
@@ -683,6 +687,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.BackupContactsUpdateServiceMemberBackupContactHandler == nil {
 		unregistered = append(unregistered, "backup_contacts.UpdateServiceMemberBackupContactHandler")
+	}
+	if o.PpmUpdateWeightTicketHandler == nil {
+		unregistered = append(unregistered, "ppm.UpdateWeightTicketHandler")
 	}
 	if o.OrdersUploadAmendedOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.UploadAmendedOrdersHandler")
@@ -845,6 +852,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/weight-ticket"] = ppm.NewCreateWeightTicket(o.context, o.PpmCreateWeightTicketHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/moves/{moveId}/weight_ticket"] = move_docs.NewCreateWeightTicketDocument(o.context, o.MoveDocsCreateWeightTicketDocumentHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
@@ -862,10 +873,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/uploads"] = uploads.NewDeleteUploads(o.context, o.UploadsDeleteUploadsHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/dps_auth/cookie_url"] = dps_auth.NewGetCookieURL(o.context, o.DpsAuthGetCookieURLHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -1022,6 +1029,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/backup_contacts/{backupContactId}"] = backup_contacts.NewUpdateServiceMemberBackupContact(o.context, o.BackupContactsUpdateServiceMemberBackupContactHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}"] = ppm.NewUpdateWeightTicket(o.context, o.PpmUpdateWeightTicketHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

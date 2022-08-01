@@ -393,9 +393,7 @@ ifndef TEST_ACC_ENV
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
 	TEST_ACC_CWD=$(PWD) \
 	SERVE_ADMIN=true \
-	SERVE_SDDC=true \
 	SERVE_ORDERS=true \
-	SERVE_DPS=true \
 	SERVE_API_INTERNAL=true \
 	SERVE_API_GHC=true \
 	MUTUAL_TLS_ENABLED=true \
@@ -1124,8 +1122,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-f678d1c6a5e2085f733f5408b7affd628f9f3576
-	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-f678d1c6a5e2085f733f5408b7affd628f9f3576 bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-9ea16004ab38c5e43e715e09241515ec220b6067 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

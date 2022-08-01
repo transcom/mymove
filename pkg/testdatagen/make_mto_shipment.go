@@ -42,6 +42,10 @@ func MakeBaseMTOShipment(db *pop.Connection, assertions Assertions) models.MTOSh
 }
 
 // MakeMTOShipment creates a single MTOShipment and associated set relationships
+// It will make a move record, if one is not provided.
+// It will make pickup addresses if the shipment type is not one of (HHGOutOfNTSDom, PPM)
+// It will make delivery addresses if the shipment type is not one of (HHGOutOfNTSDom, PPM)
+// It will make a storage facility if the shipment type is HHGOutOfNTSDom
 func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
 	shipmentType := models.MTOShipmentTypeHHG
 	shipmentStatus := models.MTOShipmentStatusDraft

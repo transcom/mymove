@@ -166,6 +166,99 @@ func init() {
         }
       ]
     },
+    "/customer-support-remarks/{customerSupportRemarkID}": {
+      "delete": {
+        "description": "Soft deletes a customer support remark by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Soft deletes a customer support remark by ID",
+        "operationId": "deleteCustomerSupportRemark",
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the shipment"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates a customer support remark for a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Updates a customer support remark for a move",
+        "operationId": "updateCustomerSupportRemarkForMove",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateCustomerSupportRemarkPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated customer support remark",
+            "schema": {
+              "$ref": "#/definitions/CustomerSupportRemark"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the customer support remark ID to be modified",
+          "name": "customerSupportRemarkID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -319,6 +412,83 @@ func init() {
           }
         }
       }
+    },
+    "/evaluation-reports/{reportID}": {
+      "get": {
+        "description": "Gets an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Gets an evaluation report by ID",
+        "operationId": "getEvaluationReport",
+        "responses": {
+          "200": {
+            "description": "Successfully got the report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Soft deletes an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Soft deletes an evaluation report by ID",
+        "operationId": "deleteEvaluationReport",
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the report"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
@@ -1335,14 +1505,23 @@ func init() {
         "operationId": "searchMoves",
         "parameters": [
           {
+            "description": "field that results should be sorted by",
             "name": "body",
             "in": "body",
             "schema": {
               "properties": {
+                "branch": {
+                  "type": "string",
+                  "x-nullable": true
+                },
                 "customerName": {
                   "description": "Customer Name",
                   "type": "string",
                   "minLength": 1,
+                  "x-nullable": true
+                },
+                "destinationPostalCode": {
+                  "type": "string",
                   "x-nullable": true
                 },
                 "dodID": {
@@ -1358,6 +1537,56 @@ func init() {
                   "maxLength": 6,
                   "minLength": 6,
                   "x-nullable": true
+                },
+                "order": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "x-nullable": true
+                },
+                "originPostalCode": {
+                  "type": "string",
+                  "x-nullable": true
+                },
+                "page": {
+                  "description": "requested page of results",
+                  "type": "integer"
+                },
+                "perPage": {
+                  "type": "integer"
+                },
+                "shipmentsCount": {
+                  "type": "integer",
+                  "x-nullable": true
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "customerName",
+                    "dodID",
+                    "branch",
+                    "locator",
+                    "status",
+                    "originPostalCode",
+                    "destinationPostalCode",
+                    "shipmentsCount"
+                  ],
+                  "x-nullable": true
+                },
+                "status": {
+                  "description": "Filtering for the status.",
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "SUBMITTED",
+                      "APPROVALS REQUESTED",
+                      "APPROVED"
+                    ]
+                  }
                 }
               }
             }
@@ -1372,6 +1601,51 @@ func init() {
           },
           "403": {
             "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/moves/shipment-evaluation-reports": {
+      "post": {
+        "description": "Creates a shipment evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Creates a shipment evaluation report",
+        "operationId": "createEvaluationReportForShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipmentEvaluationReport"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created shipment evaluation report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -1454,49 +1728,6 @@ func init() {
           }
         }
       },
-      "patch": {
-        "description": "Updates a customer support remark for a move",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "customerSupportRemarks"
-        ],
-        "summary": "Updates a customer support remark for a move",
-        "operationId": "updateCustomerSupportRemarkForMove",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/UpdateCustomerSupportRemarkPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated customer support remark",
-            "schema": {
-              "$ref": "#/definitions/CustomerSupportRemark"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
       "parameters": [
         {
           "type": "string",
@@ -1549,6 +1780,52 @@ func init() {
           "format": "string",
           "description": "move code to identify a move for payment requests",
           "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/counseling-evaluation-reports-list": {
+      "get": {
+        "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
+        "operationId": "getMoveCounselingEvaluationReportsList",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the move's evaluation reports",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReportList"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "Code used to identify a move in the system",
+          "name": "moveID",
           "in": "path",
           "required": true
         }
@@ -1629,6 +1906,52 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "ID of move to flag",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/shipment-evaluation-reports-list": {
+      "get": {
+        "description": "Returns shipment evaluation reports for the specified move that are visible to the current office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns shipment evaluation reports for the specified move that are visible to the current office user",
+        "operationId": "getMoveShipmentEvaluationReportsList",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the move's evaluation reports",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReportList"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "Code used to identify a move in the system",
           "name": "moveID",
           "in": "path",
           "required": true
@@ -1772,7 +2095,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.orders"
+        ]
       },
       "parameters": [
         {
@@ -2568,6 +2894,50 @@ func init() {
       }
     },
     "/shipments/{shipmentID}": {
+      "get": {
+        "description": "fetches a shipment by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "fetches a shipment by ID",
+        "operationId": "getShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment to be fetched",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched the shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "delete": {
         "description": "Soft deletes a shipment by ID",
         "produces": [
@@ -3910,6 +4280,21 @@ func init() {
         }
       }
     },
+    "CreateShipmentEvaluationReport": {
+      "description": "Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.",
+      "type": "object",
+      "required": [
+        "shipmentID"
+      ],
+      "properties": {
+        "shipmentID": {
+          "description": "The shipment ID of the shipment to be evaluated in the report",
+          "type": "string",
+          "format": "uuid",
+          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -4217,6 +4602,188 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "EvaluationReport": {
+      "description": "An evaluation report",
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evaluationLengthMinutes": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "inspectionDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "inspectionType": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportInspectionType"
+        },
+        "location": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportLocation"
+        },
+        "locationDescription": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Route 66 at crash inspection site 3"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveReferenceID": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "observedDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
+        },
+        "remarks": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "travelTimeMinutes": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "type": {
+          "$ref": "#/definitions/EvaluationReportType"
+        },
+        "violationsObserved": {
+          "type": "boolean",
+          "x-nullable": true
+        }
+      }
+    },
+    "EvaluationReportInspectionType": {
+      "type": "string",
+      "enum": [
+        "DATA_REVIEW",
+        "PHYSICAL",
+        "VIRTUAL"
+      ],
+      "x-nullable": true
+    },
+    "EvaluationReportList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EvaluationReportListItem"
+      }
+    },
+    "EvaluationReportListItem": {
+      "description": "An evaluation report",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "location": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportLocation"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "seriousIncident": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "type": {
+          "$ref": "#/definitions/EvaluationReportType"
+        },
+        "violationsObserved": {
+          "type": "boolean",
+          "x-nullable": true
+        }
+      }
+    },
+    "EvaluationReportLocation": {
+      "type": "string",
+      "enum": [
+        "ORIGIN",
+        "DESTINATION",
+        "OTHER"
+      ],
+      "x-nullable": true
+    },
+    "EvaluationReportOfficeUser": {
+      "description": "The authoring office user for an evaluation report",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        }
+      },
+      "readOnly": true
+    },
+    "EvaluationReportType": {
+      "type": "string",
+      "enum": [
+        "SHIPMENT",
+        "COUNSELING"
+      ]
     },
     "GBLOC": {
       "type": "string",
@@ -4992,9 +5559,7 @@ func init() {
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
           "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
+          "additionalProperties": true,
           "x-nullable": true
         },
         "clientQuery": {
@@ -5039,9 +5604,7 @@ func init() {
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
           "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
+          "additionalProperties": true,
           "x-nullable": true
         },
         "relId": {
@@ -5660,6 +6223,17 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "weightTickets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeightTicket"
+          }
         }
       },
       "x-nullable": true
@@ -6230,40 +6804,50 @@ func init() {
     "SearchMove": {
       "type": "object",
       "properties": {
-        "customer": {
-          "$ref": "#/definitions/Customer"
+        "branch": {
+          "type": "string"
         },
-        "departmentIndicator": {
-          "$ref": "#/definitions/DeptIndicator"
+        "destinationDutyLocationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
-        "destinationDutyLocation": {
-          "$ref": "#/definitions/DutyLocation"
+        "dodID": {
+          "type": "string",
+          "x-nullable": true,
+          "example": 1234567890
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
         },
         "id": {
           "type": "string",
           "format": "uuid"
         },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Doe"
+        },
         "locator": {
           "type": "string"
         },
-        "originDutyLocation": {
-          "$ref": "#/definitions/DutyLocation"
-        },
-        "requestedMoveDate": {
+        "originDutyLocationPostalCode": {
           "type": "string",
-          "format": "date",
-          "x-nullable": true
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "shipmentsCount": {
           "type": "integer"
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
-        },
-        "submittedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
         }
       }
     },
@@ -6584,20 +7168,15 @@ func init() {
       }
     },
     "UpdateCustomerSupportRemarkPayload": {
-      "description": "A text remark written by an customer support user that is associated with a specific move.",
+      "description": "A text remark update to an existing remark created by the current active user (the CSR).",
       "type": "object",
       "required": [
-        "id",
         "content"
       ],
       "properties": {
         "content": {
           "type": "string",
           "example": "This is a remark about a move."
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid"
         }
       }
     },
@@ -6979,6 +7558,62 @@ func init() {
         }
       }
     },
+    "UploadPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "url",
+        "filename",
+        "content_type",
+        "bytes",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "bytes": {
+          "type": "integer"
+        },
+        "checksum": {
+          "type": "string",
+          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
+        },
+        "content_type": {
+          "type": "string",
+          "format": "mime-type",
+          "example": "application/pdf"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filename": {
+          "type": "string",
+          "example": "filename.pdf"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "ValidationError": {
       "required": [
         "invalid_fields"
@@ -6996,6 +7631,143 @@ func init() {
           "type": "object",
           "additionalProperties": {
             "type": "string"
+          }
+        }
+      }
+    },
+    "WeightTicket": {
+      "type": "object",
+      "required": [
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "emptyDocumentId",
+        "emptyDocument",
+        "fullDocument",
+        "fullDocumentId",
+        "proofOfTrailerOwnershipDocument",
+        "proofOfTrailerOwnershipDocumentId"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "emptyDocument": {
+          "title": "Empty Document",
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "emptyDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Empty Document ID",
+          "readOnly": true
+        },
+        "emptyWeight": {
+          "type": "integer",
+          "title": "Empty Recorded Weight"
+        },
+        "fullDocument": {
+          "title": "Full Document",
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "fullDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Full Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "fullWeight": {
+          "type": "integer",
+          "title": "full weight ticket recorded weight"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missingEmptyWeightTicket": {
+          "type": "boolean",
+          "title": "has empty weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "missingFullWeightTicket": {
+          "type": "boolean",
+          "title": "has full weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ownsTrailer": {
+          "type": "boolean",
+          "title": "Owns trailer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfTrailerOwnershipDocument": {
+          "title": "Proof of Trailer Ownership Document",
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "proofOfTrailerOwnershipDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Trailer Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "trailerMeetsCriteria": {
+          "type": "boolean",
+          "title": "Trailer meets criteria",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "vehicleDescription": {
+          "type": "string",
+          "title": "Vehicle description (ex. 'SUV')",
+          "x-nullable": true
+        }
+      }
+    },
+    "definitions-DocumentPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "service_member_id",
+        "uploads"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UploadPayload"
           }
         }
       }
@@ -7267,6 +8039,132 @@ func init() {
         }
       ]
     },
+    "/customer-support-remarks/{customerSupportRemarkID}": {
+      "delete": {
+        "description": "Soft deletes a customer support remark by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Soft deletes a customer support remark by ID",
+        "operationId": "deleteCustomerSupportRemark",
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the shipment"
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates a customer support remark for a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customerSupportRemarks"
+        ],
+        "summary": "Updates a customer support remark for a move",
+        "operationId": "updateCustomerSupportRemarkForMove",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateCustomerSupportRemarkPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated customer support remark",
+            "schema": {
+              "$ref": "#/definitions/CustomerSupportRemark"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the customer support remark ID to be modified",
+          "name": "customerSupportRemarkID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -7477,6 +8375,113 @@ func init() {
           }
         }
       }
+    },
+    "/evaluation-reports/{reportID}": {
+      "get": {
+        "description": "Gets an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Gets an evaluation report by ID",
+        "operationId": "getEvaluationReport",
+        "responses": {
+          "200": {
+            "description": "Successfully got the report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Soft deletes an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Soft deletes an evaluation report by ID",
+        "operationId": "deleteEvaluationReport",
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the report"
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
@@ -8796,14 +9801,23 @@ func init() {
         "operationId": "searchMoves",
         "parameters": [
           {
+            "description": "field that results should be sorted by",
             "name": "body",
             "in": "body",
             "schema": {
               "properties": {
+                "branch": {
+                  "type": "string",
+                  "x-nullable": true
+                },
                 "customerName": {
                   "description": "Customer Name",
                   "type": "string",
                   "minLength": 1,
+                  "x-nullable": true
+                },
+                "destinationPostalCode": {
+                  "type": "string",
                   "x-nullable": true
                 },
                 "dodID": {
@@ -8819,6 +9833,56 @@ func init() {
                   "maxLength": 6,
                   "minLength": 6,
                   "x-nullable": true
+                },
+                "order": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "x-nullable": true
+                },
+                "originPostalCode": {
+                  "type": "string",
+                  "x-nullable": true
+                },
+                "page": {
+                  "description": "requested page of results",
+                  "type": "integer"
+                },
+                "perPage": {
+                  "type": "integer"
+                },
+                "shipmentsCount": {
+                  "type": "integer",
+                  "x-nullable": true
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "customerName",
+                    "dodID",
+                    "branch",
+                    "locator",
+                    "status",
+                    "originPostalCode",
+                    "destinationPostalCode",
+                    "shipmentsCount"
+                  ],
+                  "x-nullable": true
+                },
+                "status": {
+                  "description": "Filtering for the status.",
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "SUBMITTED",
+                      "APPROVALS REQUESTED",
+                      "APPROVED"
+                    ]
+                  }
                 }
               }
             }
@@ -8835,6 +9899,63 @@ func init() {
             "description": "The request was denied",
             "schema": {
               "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/moves/shipment-evaluation-reports": {
+      "post": {
+        "description": "Creates a shipment evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Creates a shipment evaluation report",
+        "operationId": "createEvaluationReportForShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipmentEvaluationReport"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created shipment evaluation report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -8945,61 +10066,6 @@ func init() {
           }
         }
       },
-      "patch": {
-        "description": "Updates a customer support remark for a move",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "customerSupportRemarks"
-        ],
-        "summary": "Updates a customer support remark for a move",
-        "operationId": "updateCustomerSupportRemarkForMove",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/UpdateCustomerSupportRemarkPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated customer support remark",
-            "schema": {
-              "$ref": "#/definitions/CustomerSupportRemark"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
       "parameters": [
         {
           "type": "string",
@@ -9064,6 +10130,67 @@ func init() {
           "format": "string",
           "description": "move code to identify a move for payment requests",
           "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/counseling-evaluation-reports-list": {
+      "get": {
+        "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
+        "operationId": "getMoveCounselingEvaluationReportsList",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the move's evaluation reports",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReportList"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "Code used to identify a move in the system",
+          "name": "moveID",
           "in": "path",
           "required": true
         }
@@ -9159,6 +10286,67 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "ID of move to flag",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/shipment-evaluation-reports-list": {
+      "get": {
+        "description": "Returns shipment evaluation reports for the specified move that are visible to the current office user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns shipment evaluation reports for the specified move that are visible to the current office user",
+        "operationId": "getMoveShipmentEvaluationReportsList",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the move's evaluation reports",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReportList"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "Code used to identify a move in the system",
           "name": "moveID",
           "in": "path",
           "required": true
@@ -9350,7 +10538,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.orders"
+        ]
       },
       "parameters": [
         {
@@ -10276,6 +11467,65 @@ func init() {
       }
     },
     "/shipments/{shipmentID}": {
+      "get": {
+        "description": "fetches a shipment by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "fetches a shipment by ID",
+        "operationId": "getShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment to be fetched",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched the shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Soft deletes a shipment by ID",
         "produces": [
@@ -11814,6 +13064,21 @@ func init() {
         }
       }
     },
+    "CreateShipmentEvaluationReport": {
+      "description": "Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.",
+      "type": "object",
+      "required": [
+        "shipmentID"
+      ],
+      "properties": {
+        "shipmentID": {
+          "description": "The shipment ID of the shipment to be evaluated in the report",
+          "type": "string",
+          "format": "uuid",
+          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -12121,6 +13386,190 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "EvaluationReport": {
+      "description": "An evaluation report",
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evaluationLengthMinutes": {
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "inspectionDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "inspectionType": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportInspectionType"
+        },
+        "location": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportLocation"
+        },
+        "locationDescription": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Route 66 at crash inspection site 3"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveReferenceID": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "observedDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
+        },
+        "remarks": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "travelTimeMinutes": {
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true
+        },
+        "type": {
+          "$ref": "#/definitions/EvaluationReportType"
+        },
+        "violationsObserved": {
+          "type": "boolean",
+          "x-nullable": true
+        }
+      }
+    },
+    "EvaluationReportInspectionType": {
+      "type": "string",
+      "enum": [
+        "DATA_REVIEW",
+        "PHYSICAL",
+        "VIRTUAL"
+      ],
+      "x-nullable": true
+    },
+    "EvaluationReportList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EvaluationReportListItem"
+      }
+    },
+    "EvaluationReportListItem": {
+      "description": "An evaluation report",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "location": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportLocation"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "seriousIncident": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "type": {
+          "$ref": "#/definitions/EvaluationReportType"
+        },
+        "violationsObserved": {
+          "type": "boolean",
+          "x-nullable": true
+        }
+      }
+    },
+    "EvaluationReportLocation": {
+      "type": "string",
+      "enum": [
+        "ORIGIN",
+        "DESTINATION",
+        "OTHER"
+      ],
+      "x-nullable": true
+    },
+    "EvaluationReportOfficeUser": {
+      "description": "The authoring office user for an evaluation report",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        }
+      },
+      "readOnly": true
+    },
+    "EvaluationReportType": {
+      "type": "string",
+      "enum": [
+        "SHIPMENT",
+        "COUNSELING"
+      ]
     },
     "GBLOC": {
       "type": "string",
@@ -12896,9 +14345,7 @@ func init() {
         "changedValues": {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
           "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
+          "additionalProperties": true,
           "x-nullable": true
         },
         "clientQuery": {
@@ -12943,9 +14390,7 @@ func init() {
         "oldValues": {
           "description": "A list of (old/previous) MoveAuditHistoryItem's for a record before the change.",
           "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
+          "additionalProperties": true,
           "x-nullable": true
         },
         "relId": {
@@ -13564,6 +15009,17 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "weightTickets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeightTicket"
+          }
         }
       },
       "x-nullable": true
@@ -14137,40 +15593,50 @@ func init() {
     "SearchMove": {
       "type": "object",
       "properties": {
-        "customer": {
-          "$ref": "#/definitions/Customer"
+        "branch": {
+          "type": "string"
         },
-        "departmentIndicator": {
-          "$ref": "#/definitions/DeptIndicator"
+        "destinationDutyLocationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
-        "destinationDutyLocation": {
-          "$ref": "#/definitions/DutyLocation"
+        "dodID": {
+          "type": "string",
+          "x-nullable": true,
+          "example": 1234567890
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
         },
         "id": {
           "type": "string",
           "format": "uuid"
         },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Doe"
+        },
         "locator": {
           "type": "string"
         },
-        "originDutyLocation": {
-          "$ref": "#/definitions/DutyLocation"
-        },
-        "requestedMoveDate": {
+        "originDutyLocationPostalCode": {
           "type": "string",
-          "format": "date",
-          "x-nullable": true
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "shipmentsCount": {
           "type": "integer"
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
-        },
-        "submittedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
         }
       }
     },
@@ -14495,20 +15961,15 @@ func init() {
       }
     },
     "UpdateCustomerSupportRemarkPayload": {
-      "description": "A text remark written by an customer support user that is associated with a specific move.",
+      "description": "A text remark update to an existing remark created by the current active user (the CSR).",
       "type": "object",
       "required": [
-        "id",
         "content"
       ],
       "properties": {
         "content": {
           "type": "string",
           "example": "This is a remark about a move."
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid"
         }
       }
     },
@@ -14890,6 +16351,62 @@ func init() {
         }
       }
     },
+    "UploadPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "url",
+        "filename",
+        "content_type",
+        "bytes",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "bytes": {
+          "type": "integer"
+        },
+        "checksum": {
+          "type": "string",
+          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
+        },
+        "content_type": {
+          "type": "string",
+          "format": "mime-type",
+          "example": "application/pdf"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filename": {
+          "type": "string",
+          "example": "filename.pdf"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "ValidationError": {
       "required": [
         "invalid_fields"
@@ -14913,6 +16430,145 @@ func init() {
     },
     "ValidationErrorAllOf1": {
       "type": "object"
+    },
+    "WeightTicket": {
+      "type": "object",
+      "required": [
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "emptyDocumentId",
+        "emptyDocument",
+        "fullDocument",
+        "fullDocumentId",
+        "proofOfTrailerOwnershipDocument",
+        "proofOfTrailerOwnershipDocumentId"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "emptyDocument": {
+          "title": "Empty Document",
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "emptyDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Empty Document ID",
+          "readOnly": true
+        },
+        "emptyWeight": {
+          "type": "integer",
+          "title": "Empty Recorded Weight",
+          "minimum": 0
+        },
+        "fullDocument": {
+          "title": "Full Document",
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "fullDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Full Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "fullWeight": {
+          "type": "integer",
+          "title": "full weight ticket recorded weight",
+          "minimum": 0
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missingEmptyWeightTicket": {
+          "type": "boolean",
+          "title": "has empty weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "missingFullWeightTicket": {
+          "type": "boolean",
+          "title": "has full weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ownsTrailer": {
+          "type": "boolean",
+          "title": "Owns trailer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfTrailerOwnershipDocument": {
+          "title": "Proof of Trailer Ownership Document",
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "proofOfTrailerOwnershipDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Trailer Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "trailerMeetsCriteria": {
+          "type": "boolean",
+          "title": "Trailer meets criteria",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "vehicleDescription": {
+          "type": "string",
+          "title": "Vehicle description (ex. 'SUV')",
+          "x-nullable": true
+        }
+      }
+    },
+    "definitions-DocumentPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "service_member_id",
+        "uploads"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UploadPayload"
+          }
+        }
+      }
     }
   },
   "parameters": {

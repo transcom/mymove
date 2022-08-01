@@ -110,22 +110,28 @@ export const ShipmentShape = shape({
   ppmShipment: PPMShipmentShape,
 });
 
+const DocumentShape = shape({
+  id: string,
+  serviceMemberId: string,
+  uploads: ExistingUploadsShape,
+});
+
 export const WeightTicketShape = shape({
   id: string,
-  shipmentId: string,
+  ppmShipmentId: string,
   vehicleDescription: string,
   missingEmptyWeightTicket: bool,
   emptyWeight: number,
   emptyWeightDocumentId: string,
-  emptyWeightTickets: ExistingUploadsShape,
+  emptyDocument: DocumentShape,
   fullWeight: number,
   missingFullWeightTicket: bool,
   fullWeightDocumentId: string,
-  fullWeightTickets: ExistingUploadsShape,
-  hasOwnTrailer: bool,
-  hasClaimedTrailer: bool,
+  fullDocument: DocumentShape,
+  ownsTrailer: bool,
+  trailerMeetsCriteria: bool,
   trailerOwnershipDocumentId: string,
-  trailerOwnershipDocs: ExistingUploadsShape,
+  proofOfTrailerOwnershipDocument: DocumentShape,
 });
 
 export const StorageFacilityShape = shape({

@@ -179,6 +179,76 @@ paths:
         string
       summary: Returns the history of an identified move
       operationId: getMoveHistory
+  /moves/{moveID}/shipment-evaluation-reports-list:
+    parameters:
+      - description: Code used to identify a move in the system
+        in: path
+        name: moveID
+        required: true
+        type: string
+        format: uuid
+    get:
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully retrieved the move's evaluation reports
+          schema:
+            $ref: '#/definitions/EvaluationReportList'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: >-
+        Returns shipment evaluation reports for the specified move that are
+        visible to the current office user
+      summary: >-
+        Returns shipment evaluation reports for the specified move that are
+        visible to the current office user
+      operationId: getMoveShipmentEvaluationReportsList
+  /moves/{moveID}/counseling-evaluation-reports-list:
+    parameters:
+      - description: Code used to identify a move in the system
+        in: path
+        name: moveID
+        required: true
+        type: string
+        format: uuid
+    get:
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully retrieved the move's evaluation reports
+          schema:
+            $ref: '#/definitions/EvaluationReportList'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: >-
+        Returns counseling evaluation reports for the specified move that are
+        visible to the current office user
+      summary: >-
+        Returns counseling evaluation reports for the specified move that are
+        visible to the current office user
+      operationId: getMoveCounselingEvaluationReportsList
   /counseling/orders/{orderID}:
     parameters:
       - description: ID of order to update
@@ -269,6 +339,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.orders
     get:
       produces:
         - application/json
@@ -682,6 +754,36 @@ paths:
       operationId: listMTOShipments
       summary: Gets all shipments for a move task order
   /shipments/{shipmentID}:
+    get:
+      summary: fetches a shipment by ID
+      description: fetches a shipment by ID
+      operationId: getShipment
+      tags:
+        - mtoShipment
+      produces:
+        - application/json
+      parameters:
+        - description: ID of the shipment to be fetched
+          in: path
+          name: shipmentID
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: Successfully fetched the shipment
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
     delete:
       summary: Soft deletes a shipment by ID
       description: Soft deletes a shipment by ID
@@ -1716,19 +1818,28 @@ paths:
       description: Fetches customer support remarks for a move
       operationId: getCustomerSupportRemarksForMove
       summary: Fetches customer support remarks using the move code (locator).
+  /customer-support-remarks/{customerSupportRemarkID}:
+    parameters:
+      - in: path
+        description: the customer support remark ID to be modified
+        name: customerSupportRemarkID
+        required: true
+        type: string
+        format: uuid
     patch:
       tags:
         - customerSupportRemarks
       description: Updates a customer support remark for a move
       operationId: updateCustomerSupportRemarkForMove
       summary: Updates a customer support remark for a move
-      produces:
-        - application/json
       consumes:
+        - application/json
+      produces:
         - application/json
       parameters:
         - in: body
           name: body
+          required: true
           schema:
             $ref: '#/definitions/UpdateCustomerSupportRemarkPayload'
       responses:
@@ -1738,8 +1849,114 @@ paths:
             $ref: '#/definitions/CustomerSupportRemark'
         '400':
           $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a customer support remark by ID
+      description: Soft deletes a customer support remark by ID
+      operationId: deleteCustomerSupportRemark
+      tags:
+        - customerSupportRemarks
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: Successfully soft deleted the shipment
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /moves/shipment-evaluation-reports:
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateShipmentEvaluationReport'
+      responses:
+        '200':
+          description: Successfully created shipment evaluation report
+          schema:
+            $ref: '#/definitions/EvaluationReport'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - evaluationReports
+      description: Creates a shipment evaluation report
+      operationId: createEvaluationReportForShipment
+      summary: Creates a shipment evaluation report
+  /evaluation-reports/{reportID}:
+    parameters:
+      - in: path
+        description: the evaluation report ID to be modified
+        name: reportID
+        required: true
+        type: string
+        format: uuid
+    get:
+      summary: Gets an evaluation report by ID
+      description: Gets an evaluation report by ID
+      operationId: getEvaluationReport
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully got the report
+          schema:
+            $ref: '#/definitions/EvaluationReport'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes an evaluation report by ID
+      description: Soft deletes an evaluation report by ID
+      operationId: deleteEvaluationReport
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: Successfully soft deleted the report
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -2243,6 +2460,11 @@ paths:
           name: body
           schema:
             properties:
+              page:
+                type: integer
+                description: requested page of results
+              perPage:
+                type: integer
               locator:
                 description: Move locator
                 type: string
@@ -2260,6 +2482,47 @@ paths:
                 type: string
                 minLength: 1
                 x-nullable: true
+              status:
+                type: array
+                description: Filtering for the status.
+                uniqueItems: true
+                items:
+                  type: string
+                  enum:
+                    - SUBMITTED
+                    - APPROVALS REQUESTED
+                    - APPROVED
+              originPostalCode:
+                type: string
+                x-nullable: true
+              destinationPostalCode:
+                type: string
+                x-nullable: true
+              branch:
+                type: string
+                x-nullable: true
+              shipmentsCount:
+                type: integer
+                x-nullable: true
+              sort:
+                type: string
+                x-nullable: true
+                enum:
+                  - customerName
+                  - dodID
+                  - branch
+                  - locator
+                  - status
+                  - originPostalCode
+                  - destinationPostalCode
+                  - shipmentsCount
+              order:
+                type: string
+                x-nullable: true
+                enum:
+                  - asc
+                  - desc
+          description: field that results should be sorted by
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -2773,16 +3036,14 @@ definitions:
           A list of (old/previous) MoveAuditHistoryItem's for a record before
           the change.
         type: object
-        additionalProperties:
-          type: string
+        additionalProperties: true
         x-nullable: true
       changedValues:
         description: >-
           A list of (changed/updated) MoveAuditHistoryItem's for a record after
           the change.
         type: object
-        additionalProperties:
-          type: string
+        additionalProperties: true
         x-nullable: true
       statementOnly:
         description: >-
@@ -4063,28 +4324,38 @@ definitions:
       id:
         type: string
         format: uuid
-      customer:
-        $ref: '#/definitions/Customer'
+      firstName:
+        type: string
+        example: John
+        x-nullable: true
+      lastName:
+        type: string
+        example: Doe
+        x-nullable: true
+      dodID:
+        type: string
+        example: 1234567890
+        x-nullable: true
       status:
         $ref: '#/definitions/MoveStatus'
       locator:
         type: string
-      submittedAt:
-        format: date-time
+      branch:
         type: string
-        x-nullable: true
-      requestedMoveDate:
-        format: date
-        type: string
-        x-nullable: true
-      departmentIndicator:
-        $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
         type: integer
-      originDutyLocation:
-        $ref: '#/definitions/DutyLocation'
-      destinationDutyLocation:
-        $ref: '#/definitions/DutyLocation'
+      originDutyLocationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+      destinationDutyLocationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
   SearchMovesResult:
     type: object
     properties:
@@ -4140,17 +4411,166 @@ definitions:
   UpdateCustomerSupportRemarkPayload:
     type: object
     description: >-
-      A text remark written by an customer support user that is associated with
-      a specific move.
+      A text remark update to an existing remark created by the current active
+      user (the CSR).
     required:
-      - id
       - content
     properties:
-      id:
-        type: string
-        format: uuid
       content:
         example: This is a remark about a move.
+        type: string
+  EvaluationReportType:
+    type: string
+    enum:
+      - SHIPMENT
+      - COUNSELING
+  EvaluationReportInspectionType:
+    type: string
+    enum:
+      - DATA_REVIEW
+      - PHYSICAL
+      - VIRTUAL
+    x-nullable: true
+  EvaluationReportLocation:
+    type: string
+    enum:
+      - ORIGIN
+      - DESTINATION
+      - OTHER
+    x-nullable: true
+  EvaluationReportListItem:
+    type: object
+    description: An evaluation report
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      shipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        x-nullable: true
+      type:
+        $ref: '#/definitions/EvaluationReportType'
+      location:
+        $ref: '#/definitions/EvaluationReportLocation'
+        x-nullable: true
+      violationsObserved:
+        type: boolean
+        x-nullable: true
+      seriousIncident:
+        type: boolean
+        x-nullable: true
+      submittedAt:
+        type: string
+        format: date-time
+        x-nullable: true
+  EvaluationReportOfficeUser:
+    type: object
+    readOnly: true
+    description: The authoring office user for an evaluation report
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      phone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+  EvaluationReportList:
+    type: array
+    items:
+      $ref: '#/definitions/EvaluationReportListItem'
+  EvaluationReport:
+    type: object
+    description: An evaluation report
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      shipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        x-nullable: true
+      type:
+        $ref: '#/definitions/EvaluationReportType'
+      inspectionType:
+        $ref: '#/definitions/EvaluationReportInspectionType'
+        x-nullable: true
+      inspectionDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      travelTimeMinutes:
+        type: integer
+        minimum: 0
+        x-nullable: true
+      officeUser:
+        $ref: '#/definitions/EvaluationReportOfficeUser'
+      location:
+        $ref: '#/definitions/EvaluationReportLocation'
+        x-nullable: true
+      locationDescription:
+        type: string
+        example: Route 66 at crash inspection site 3
+        x-nullable: true
+      observedDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      evaluationLengthMinutes:
+        type: integer
+        minimum: 0
+        x-nullable: true
+      violationsObserved:
+        type: boolean
+        x-nullable: true
+      remarks:
+        type: string
+        x-nullable: true
+      moveReferenceID:
+        type: string
+        x-nullable: true
+        readOnly: true
+      submittedAt:
+        type: string
+        format: date-time
+        x-nullable: true
+      createdAt:
+        type: string
+        format: date-time
+  CreateShipmentEvaluationReport:
+    type: object
+    description: >-
+      Minimal set of info needed to create a shipment evaluation report, which
+      is just a shipment ID.
+    required:
+      - shipmentID
+    properties:
+      shipmentID:
+        description: The shipment ID of the shipment to be evaluated in the report
+        example: 01b9671e-b268-4906-967b-ba661a1d3933
+        format: uuid
         type: string
   Address:
     description: A postal address
@@ -4798,6 +5218,160 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_PAYMENT_APPROVAL
       - PAYMENT_APPROVED
+  UploadPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+      filename:
+        type: string
+        example: filename.pdf
+      content_type:
+        type: string
+        format: mime-type
+        example: application/pdf
+      checksum:
+        type: string
+        example: ImGQ2Ush0bDHsaQthV5BnQ==
+      bytes:
+        type: integer
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - url
+      - filename
+      - content_type
+      - bytes
+      - created_at
+      - updated_at
+  definitions-DocumentPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/UploadPayload'
+    required:
+      - id
+      - service_member_id
+      - uploads
+  WeightTicket:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      ppmShipmentId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      vehicleDescription:
+        type: string
+        title: Vehicle description (ex. 'SUV')
+        x-nullable: true
+      emptyWeight:
+        type: integer
+        title: Empty Recorded Weight
+        minimum: 0
+      missingEmptyWeightTicket:
+        type: boolean
+        title: has empty weight ticket
+        x-nullable: true
+        x-omitempty: false
+      emptyDocumentId:
+        title: Empty Document ID
+        type: string
+        format: uuid
+        readOnly: true
+      emptyDocument:
+        title: Empty Document
+        $ref: '#/definitions/definitions-DocumentPayload'
+      fullWeight:
+        title: full weight ticket recorded weight
+        type: integer
+        minimum: 0
+      missingFullWeightTicket:
+        title: has full weight ticket
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      fullDocumentId:
+        title: Full Document ID
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      fullDocument:
+        title: Full Document
+        $ref: '#/definitions/definitions-DocumentPayload'
+      ownsTrailer:
+        title: Owns trailer
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      trailerMeetsCriteria:
+        title: Trailer meets criteria
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      proofOfTrailerOwnershipDocumentId:
+        title: Trailer Document ID
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      proofOfTrailerOwnershipDocument:
+        title: Proof of Trailer Ownership Document
+        $ref: '#/definitions/definitions-DocumentPayload'
+      eTag:
+        type: string
+        readOnly: true
+    required:
+      - ppmShipmentId
+      - createdAt
+      - updatedAt
+      - emptyDocumentId
+      - emptyDocument
+      - fullDocument
+      - fullDocumentId
+      - proofOfTrailerOwnershipDocument
+      - proofOfTrailerOwnershipDocumentId
   PPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service members
@@ -4815,6 +5389,10 @@ definitions:
         type: string
         readOnly: true
       createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
         format: date-time
         type: string
         readOnly: true
@@ -4981,6 +5559,10 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      weightTickets:
+        items:
+          $ref: '#/definitions/WeightTicket'
+        type: array
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"

@@ -56,7 +56,6 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
   * [Other Possible Setups](#other-possible-setups)
     * [Setup: Office Local client](#setup-office-local-client)
     * [Setup: Admin Local client](#setup-admin-local-client)
-    * [Setup: DPS user](#setup-dps-user)
     * [Setup: Orders Gateway](#setup-orders-gateway)
     * [Setup: Prime API](#setup-prime-api)
 * [Development](#development)
@@ -675,12 +674,6 @@ Run
 make admin_client_run
 ````
 
-#### Setup: DPS user
-
-1. Ensure that you have a login.gov test account
-2. Log into [MilMove Devlocal Auth](http://milmovelocal:3000/devlocal-auth/login) and create a new DPS user from the
-   interface.
-
 #### Setup: Orders Gateway
 
 Nothing to do.
@@ -948,7 +941,7 @@ To get Goland to play nicely with `nix`, there's a few things you can set up:
 
 * Update `GOROOT` to `/nix/var/nix/profiles/mymove/bin/go`
   * Note that once you add it, Goland will resolve it to the actual path (the one above is a link), so it’ll look
-    something like `/nix/store/rv16prybnsmav8w1sqdgr80jcwsja98q-go-1.18.1/bin/go`
+    something like `/nix/store/rv16prybnsmav8w1sqdgr80jcwsja98q-go-1.18.4/bin/go`
 * Update `GOPATH` to point to the `.gopath` dir in the `mymove` repo
   * You may need to create the `.gopath` dir yourself.
 * Update Node and NPM:

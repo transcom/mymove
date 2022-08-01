@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 )
 
-func (suite ShipmentSuite) TestCreateShipment() {
+func (suite *ShipmentSuite) TestCreateShipment() {
 
 	// Setup in this area should only be for objects that can be created once for all the sub-tests. Any model data,
 	// mocks, or objects that can be modified in subtests should instead be set up in makeSubtestData.
@@ -44,23 +44,21 @@ func (suite ShipmentSuite) TestCreateShipment() {
 				On(
 					createMTOShipmentMethodName,
 					mock.AnythingOfType("*appcontext.appContext"),
-					mock.AnythingOfType("*models.MTOShipment"),
-					mock.AnythingOfType("models.MTOServiceItems")).
+					mock.AnythingOfType("*models.MTOShipment")).
 				Return(nil, subtestData.fakeError)
 		} else {
 			subtestData.mockMTOShipmentCreator.
 				On(
 					createMTOShipmentMethodName,
 					mock.AnythingOfType("*appcontext.appContext"),
-					mock.AnythingOfType("*models.MTOShipment"),
-					mock.AnythingOfType("models.MTOServiceItems")).
+					mock.AnythingOfType("*models.MTOShipment")).
 				Return(
-					func(_ appcontext.AppContext, ship *models.MTOShipment, _ models.MTOServiceItems) *models.MTOShipment {
+					func(_ appcontext.AppContext, ship *models.MTOShipment) *models.MTOShipment {
 						ship.ID = uuid.Must(uuid.NewV4())
 
 						return ship
 					},
-					func(_ appcontext.AppContext, ship *models.MTOShipment, _ models.MTOServiceItems) error {
+					func(_ appcontext.AppContext, ship *models.MTOShipment) error {
 						return nil
 					},
 				)
@@ -218,7 +216,6 @@ func (suite ShipmentSuite) TestCreateShipment() {
 					createMTOShipmentMethodName,
 					txAppCtx,
 					&shipment,
-					mock.AnythingOfType("models.MTOServiceItems"),
 				)
 
 				if shipment.ShipmentType == models.MTOShipmentTypePPM {
@@ -321,7 +318,6 @@ func (suite ShipmentSuite) TestCreateShipment() {
 			createMTOShipmentMethodName,
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.MTOShipment"),
-			mock.AnythingOfType("models.MTOServiceItems"),
 		)
 
 		subtestData.mockPPMShipmentCreator.AssertNotCalled(

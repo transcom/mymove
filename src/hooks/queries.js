@@ -16,7 +16,11 @@ import {
   getCustomer,
   getShipmentsPaymentSITBalance,
   getCustomerSupportRemarksForMove,
+  getShipmentEvaluationReports,
+  getCounselingEvaluationReports,
   searchMoves,
+  getEvaluationReportByID,
+  getMTOShipmentByID,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorAvailableMoves, getPrimeSimulatorMove } from 'services/primeApi';
@@ -40,6 +44,10 @@ import {
   PRIME_SIMULATOR_MOVE,
   CUSTOMER_SUPPORT_REMARKS,
   QAE_CSR_MOVE_SEARCH,
+  SHIPMENT_EVALUATION_REPORTS,
+  COUNSELING_EVALUATION_REPORTS,
+  EVALUATION_REPORT,
+  MTO_SHIPMENT,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -363,6 +371,66 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
   };
 };
 
+export const useShipmentEvaluationReportQueries = (reportID) => {
+  const { data: evaluationReport = {}, ...shipmentEvaluationReportQuery } = useQuery(
+    [EVALUATION_REPORT, reportID],
+    getEvaluationReportByID,
+  );
+
+  const shipmentID = evaluationReport?.shipmentID;
+
+  const { data: mtoShipment = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentID], getMTOShipmentByID, {
+    enabled: !!shipmentID,
+  });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([shipmentEvaluationReportQuery, mtoShipmentQuery]);
+  return {
+    evaluationReport,
+    mtoShipment,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useEvaluationReportsQueries = (moveCode) => {
+  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const moveId = move?.id;
+
+  const { data: shipments, ...shipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
+    enabled: !!moveId,
+  });
+  const { data: shipmentEvaluationReports, ...shipmentEvaluationReportsQuery } = useQuery(
+    [SHIPMENT_EVALUATION_REPORTS, moveId],
+    getShipmentEvaluationReports,
+    {
+      enabled: !!moveId,
+    },
+  );
+  const { data: counselingEvaluationReports, ...counselingEvaluationReportsQuery } = useQuery(
+    [COUNSELING_EVALUATION_REPORTS, moveId],
+    getCounselingEvaluationReports,
+    {
+      enabled: !!moveId,
+    },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([
+    moveQuery,
+    shipmentQuery,
+    shipmentEvaluationReportsQuery,
+    counselingEvaluationReportsQuery,
+  ]);
+  return {
+    move,
+    shipments,
+    counselingEvaluationReports,
+    shipmentEvaluationReports,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
 export const useMoveDetailsQueries = (moveCode) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
   const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
@@ -466,10 +534,20 @@ export const useGHCGetMoveHistory = ({
   };
 };
 
-export const useQAECSRMoveSearchQueries = ({ moveCode, dodID, customerName }) => {
-  const queryResult = useQuery([QAE_CSR_MOVE_SEARCH, moveCode, dodID, customerName], searchMoves, {
-    enabled: !!moveCode || !!dodID || !!customerName,
-  });
+export const useQAECSRMoveSearchQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+}) => {
+  const queryResult = useQuery(
+    [QAE_CSR_MOVE_SEARCH, { sort, order, filters, currentPage, currentPageSize }],
+    searchMoves,
+    {
+      enabled: filters.length > 0,
+    },
+  );
   const { data = {}, ...moveSearchQuery } = queryResult;
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveSearchQuery]);
   const searchMovesResult = data.searchMoves;

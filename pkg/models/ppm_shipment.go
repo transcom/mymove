@@ -41,6 +41,25 @@ const (
 	SITLocationTypeDestination SITLocationType = "DESTINATION"
 )
 
+// PPMDocumentStatus represents the status of a PPMShipment's documents. Lives here since we have multiple PPM document
+// models.
+type PPMDocumentStatus string
+
+const (
+	// PPMDocumentStatusApproved captures enum value "APPROVED"
+	PPMDocumentStatusApproved PPMDocumentStatus = "APPROVED"
+	// PPMDocumentStatusExcluded captures enum value "EXCLUDED"
+	PPMDocumentStatusExcluded PPMDocumentStatus = "EXCLUDED"
+	// PPMDocumentStatusRejected captures enum value "REJECTED"
+	PPMDocumentStatusRejected PPMDocumentStatus = "REJECTED"
+)
+
+var AllowedPPMDocumentStatuses = []string{
+	string(PPMDocumentStatusApproved),
+	string(PPMDocumentStatusExcluded),
+	string(PPMDocumentStatusRejected),
+}
+
 // PPMShipment is the portion of a move that a service member performs themselves
 type PPMShipment struct {
 	ID                             uuid.UUID         `json:"id" db:"id"`
@@ -77,6 +96,8 @@ type PPMShipment struct {
 	SITEstimatedEntryDate          *time.Time        `json:"sit_estimated_entry_date" db:"sit_estimated_entry_date"`
 	SITEstimatedDepartureDate      *time.Time        `json:"sit_estimated_departure_date" db:"sit_estimated_departure_date"`
 	SITEstimatedCost               *unit.Cents       `json:"sit_estimated_cost" db:"sit_estimated_cost"`
+	WeightTickets                  WeightTickets     `has_many:"weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
+	MovingExpenses                 MovingExpenses    `has_many:"moving_expenses" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 }
 
 // PPMShipments is a list of PPMs

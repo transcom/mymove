@@ -112,7 +112,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 				if *h.ObjectID == approvedMove.Orders.ID {
 					if h.OldData != nil {
 						oldData := removeEscapeJSONtoObject(h.OldData)
-						if len(oldData["sac"]) == 0 {
+						if sac, ok := oldData["sac"]; !ok || sac == nil {
 							verifyOldSAC = true
 						}
 					}
@@ -133,14 +133,14 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 			} else if h.TableName == "entitlements" {
 				if h.ChangedData != nil {
 					oldData := removeEscapeJSONtoObject(h.OldData)
-					if len(oldData["authorized_weight"]) == 0 {
+					if authorizedWeight, ok := oldData["authorized_weight"]; !ok || authorizedWeight == nil {
 						verifyDBAuthorizedWeight = true
 					}
 				}
 			} else if h.TableName == "moves" {
 				if h.OldData != nil {
 					oldData := removeEscapeJSONtoObject(h.OldData)
-					if len(oldData["tio_remarks"]) == 0 {
+					if tioRemarks, ok := oldData["tio_remarks"]; !ok || tioRemarks == nil {
 						verifyOldTIORemarks = true
 					}
 				}
@@ -281,8 +281,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 
 }
 
-func removeEscapeJSONtoObject(data *string) map[string]string {
-	var result map[string]string
+func removeEscapeJSONtoObject(data *string) map[string]interface{} {
+	var result map[string]interface{}
 	if data == nil || *data == "" {
 		return result
 	}
@@ -532,15 +532,130 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.True(verifyReweighHistoryFound, "AuditHistories contains an AuditHistory with a Reweigh creation")
 		suite.True(verifyReweighContext, "Reweigh creation AuditHistory contains a context with the appropriate shipment type")
 	})
+
+	suite.T().Run("has audit history records for service item dimensions", func(t *testing.T) {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+
+		dimension := models.MTOServiceItemDimension{
+			Type:      models.DimensionTypeItem,
+			Length:    12000,
+			Height:    12000,
+			Width:     12000,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+		reServiceDDFSIT := testdatagen.MakeDDFSITReService(suite.DB())
+
+		serviceItem := models.MTOServiceItem{
+			MoveTaskOrderID: move.ID,
+			MoveTaskOrder:   move,
+			ReService:       reServiceDDFSIT,
+			MTOShipmentID:   &shipment.ID,
+			MTOShipment:     shipment,
+			Dimensions:      models.MTOServiceItemDimensions{dimension},
+			Status:          models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(5)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		verifyServiceItemDimensionsHistoryFound := false
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "mto_service_item_dimensions" {
+				if h.ChangedData != nil {
+					changedData := removeEscapeJSONtoObject(h.ChangedData)
+					if changedData["type"] == "ITEM" {
+						verifyServiceItemDimensionsHistoryFound = true
+						break
+					}
+				}
+			}
+		}
+		suite.True(verifyServiceItemDimensionsHistoryFound, "AuditHistories contains an AuditHistory with a service item dimensions creation")
+	})
+
+	suite.T().Run("has audit history records for service item customer contacts", func(t *testing.T) {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+
+		reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeMS,
+			},
+		})
+
+		sitEntryDate := time.Now()
+		contact1 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeFirst,
+			FirstAvailableDeliveryDate: sitEntryDate,
+			TimeMilitary:               "0815Z",
+		}
+		contact2 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeSecond,
+			FirstAvailableDeliveryDate: sitEntryDate,
+			TimeMilitary:               "0815Z",
+		}
+		var contacts models.MTOServiceItemCustomerContacts
+		contacts = append(contacts, contact1, contact2)
+
+		serviceItem := models.MTOServiceItem{
+			MoveTaskOrderID:  move.ID,
+			MoveTaskOrder:    move,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			CustomerContacts: contacts,
+			ReService:        reService,
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(5)}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.NotNil(moveHistoryData)
+		suite.NoError(err)
+
+		verifyServiceItemDimensionsHistoryFound := false
+
+		for _, h := range moveHistoryData.AuditHistories {
+			if h.TableName == "mto_service_item_customer_contacts" {
+				if h.ChangedData != nil {
+					changedData := removeEscapeJSONtoObject(h.ChangedData)
+					if changedData["time_military"] == "0815Z" {
+						verifyServiceItemDimensionsHistoryFound = true
+						break
+					}
+				}
+			}
+		}
+		suite.True(verifyServiceItemDimensionsHistoryFound, "AuditHistories contains an AuditHistory with a service item customer contacts creation")
+	})
 }
 
 func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 	moveHistoryFetcher := NewMoveHistoryFetcher()
 
-	// MOVE DB SETUP TO A FUNCTION
-	setupTestData := func(userID *uuid.UUID, userFirstName string, roleTypes []roles.RoleType) string {
-		// Prepare the database with testdatagen and suite.DB() calls
-
+	setupTestData := func(userID *uuid.UUID, userFirstName string, roleTypes []roles.RoleType, isOfficeUser bool) string {
 		assertions := testdatagen.Assertions{
 			OfficeUser: models.OfficeUser{
 				FirstName: userFirstName,
@@ -549,10 +664,17 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 				ID: *userID,
 			},
 		}
-		officeUser := testdatagen.MakeOfficeUserWithRoleTypes(suite.DB(), roleTypes, assertions)
+
+		var user models.User
+		if isOfficeUser {
+			officeUser := testdatagen.MakeOfficeUserWithRoleTypes(suite.DB(), roleTypes, assertions)
+			user = officeUser.User
+		} else {
+			user = testdatagen.MakeUserWithRoleTypes(suite.DB(), roleTypes, assertions)
+		}
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		auditHistory := testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
-			User: officeUser.User,
+			User: user,
 			Move: models.Move{
 				ID: approvedMove.ID,
 			},
@@ -564,7 +686,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 	suite.Run("Test with TOO user", func() {
 		userID, _ := uuid.NewV4()
 		userName := "TOO_user"
-		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO})
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO}, true)
 		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
 		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Nil(err)
@@ -576,7 +698,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 	suite.Run("Test with Prime user", func() {
 		userID, _ := uuid.NewV4()
 		userName := "Prime_user"
-		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypePrime})
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypePrime}, false)
 		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
 		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Nil(err)
@@ -588,7 +710,19 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 	suite.Run("Test with TOO and Prime Simulator user", func() {
 		userID, _ := uuid.NewV4()
 		userName := "TOO_and_prime_simulator_user"
-		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypePrimeSimulator})
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypePrimeSimulator}, true)
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.Nil(err)
+		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
+		suite.Equal(1, len(auditHistoriesForUser))
+		suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+	})
+
+	suite.Run("Test with TOO and Customer user", func() {
+		userID, _ := uuid.NewV4()
+		userName := "TOO_and_customer_user"
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeCustomer}, true)
 		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
 		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Nil(err)

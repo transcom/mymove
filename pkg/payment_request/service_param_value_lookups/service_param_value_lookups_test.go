@@ -31,7 +31,7 @@ import (
 const defaultZipDistance = 1234
 
 type ServiceParamValueLookupsSuite struct {
-	testingsuite.PopTestSuite
+	*testingsuite.PopTestSuite
 	planner route.Planner
 }
 

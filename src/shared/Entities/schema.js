@@ -183,6 +183,9 @@ export const queuePaymentRequestsResult = new schema.Entity('queuePaymentRequest
 export const customerSupportRemark = new schema.Entity('customerSupportRemark');
 export const customerSupportRemarks = new schema.Array(customerSupportRemark);
 
+export const evaluationReport = new schema.Entity('evaluationReport');
+export const evaluationReports = new schema.Array(evaluationReport);
+
 export const searchMove = new schema.Entity('searchMoves');
 export const searchMoves = new schema.Array(searchMove);
 export const searchMovesResult = new schema.Entity('searchMovesResult');

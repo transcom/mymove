@@ -13,7 +13,7 @@ if [ -n "${LOCAL_SWAGGER+x}" ]; then
   echo "Using local swagger"
 else
   # Locally we need to download the docker image to get the binary
-  image=milmove/circleci-docker:milmove-app-f678d1c6a5e2085f733f5408b7affd628f9f3576
+  image=milmove/circleci-docker:milmove-app-9ea16004ab38c5e43e715e09241515ec220b6067
   docker pull -q "${image}"
 fi
 
@@ -70,7 +70,6 @@ function generate_client () {
 # For readability they have been sorted and spaces added
 generate_server swagger/admin.yaml    adminmessages    adminapi    adminoperations
 generate_server swagger/api.yaml      apimessages      restapi     apioperations
-generate_server swagger/dps.yaml      dpsmessages      dpsapi      dpsoperations
 generate_server swagger/ghc.yaml      ghcmessages      ghcapi      ghcoperations
 generate_server swagger/internal.yaml internalmessages internalapi internaloperations
 generate_server swagger/orders.yaml   ordersmessages   ordersapi   ordersoperations

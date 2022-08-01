@@ -94,14 +94,16 @@ describe('TXO Move Info Container', () => {
       expect(wrapper.find('CustomerHeader').exists()).toBe(true);
       expect(wrapper.find('header.nav-header').exists()).toBe(true);
       expect(wrapper.find('nav.tabNav').exists()).toBe(true);
-      expect(wrapper.find('li.tabItem').length).toEqual(5);
+      expect(wrapper.find('li.tabItem').length).toEqual(6);
 
       expect(wrapper.find('span.tab-title').at(0).text()).toContain('Move details');
       expect(wrapper.find('span.tab-title + span').at(0).exists()).toBe(false);
       expect(wrapper.find('span.tab-title').at(1).text()).toContain('Move task order');
       expect(wrapper.find('span.tab-title').at(2).text()).toContain('Payment requests');
       expect(wrapper.find('span.tab-title').at(3).text()).toContain('Customer support remarks');
-      expect(wrapper.find('span.tab-title').at(4).text()).toContain('Move history');
+
+      expect(wrapper.find('span.tab-title').at(4).text()).toContain('Quality assurance');
+      expect(wrapper.find('span.tab-title').at(5).text()).toContain('Move history');
 
       expect(wrapper.find('li.tabItem a').at(0).prop('href')).toEqual(`/moves/${testMoveCode}/details`);
       expect(wrapper.find('li.tabItem a').at(1).prop('href')).toEqual(`/moves/${testMoveCode}/mto`);
@@ -109,7 +111,9 @@ describe('TXO Move Info Container', () => {
       expect(wrapper.find('li.tabItem a').at(3).prop('href')).toEqual(
         `/moves/${testMoveCode}/customer-support-remarks`,
       );
-      expect(wrapper.find('li.tabItem a').at(4).prop('href')).toEqual(`/moves/${testMoveCode}/history`);
+
+      expect(wrapper.find('li.tabItem a').at(4).prop('href')).toEqual(`/moves/${testMoveCode}/evaluation-reports`);
+      expect(wrapper.find('li.tabItem a').at(5).prop('href')).toEqual(`/moves/${testMoveCode}/history`);
     });
     it('should render the system error when there is an error', () => {
       useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
