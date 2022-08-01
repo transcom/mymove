@@ -158,17 +158,47 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		suite.Equal(reweigh.ID.String(), actualShipment.Reweigh.ID.String())
 	})
 	suite.Run("Loads PPM associations", func() {
-		//not reusing the test above because the fetcher only loads PPM associations if the shipment type is PPM
+		// not reusing the test above because the fetcher only loads PPM associations if the shipment type is PPM
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 		ppmShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
 
-		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
+		testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+			ServiceMember: move.Orders.ServiceMember,
+			PPMShipment:   ppmShipment,
+		})
 
+		userUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			Document: models.Document{
+				ServiceMemberID: move.Orders.ServiceMemberID,
+				ServiceMember:   move.Orders.ServiceMember,
+			},
+		})
+
+		movingExpense := &models.MovingExpense{
+			PPMShipmentID: ppmShipment.ID,
+			Document:      userUpload.Document,
+			DocumentID:    userUpload.Document.ID,
+		}
+
+		err := suite.DB().Create(movingExpense)
 		suite.NoError(err)
-		suite.NotNil(mtoShipments[0].PPMShipment)
-		suite.Equal(ppmShipment.ID.String(), mtoShipments[0].PPMShipment.ID.String())
+
+		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
+		suite.NoError(err)
+
+		actualPPMShipment := mtoShipments[0].PPMShipment
+
+		suite.NotNil(actualPPMShipment)
+		suite.Equal(ppmShipment.ID.String(), actualPPMShipment.ID.String())
 		suite.Equal(ppmShipment.ShipmentID.String(), mtoShipments[0].ID.String())
+
+		suite.Len(actualPPMShipment.WeightTickets, 1)
+		suite.Len(actualPPMShipment.WeightTickets[0].EmptyDocument.UserUploads, 1)
+		suite.Len(actualPPMShipment.WeightTickets[0].FullDocument.UserUploads, 1)
+
+		suite.Len(actualPPMShipment.MovingExpenses, 1)
+		suite.Len(actualPPMShipment.MovingExpenses[0].Document.UserUploads, 1)
 	})
 }

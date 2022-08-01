@@ -45,7 +45,8 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"DestinationAddress",
 			"SecondaryDeliveryAddress",
 			"MTOServiceItems.Dimensions",
-			"PPMShipment.WeightTickets.EmptyDocument.UserUploads.Upload",
+			"PPMShipment.WeightTickets",
+			"PPMShipment.MovingExpenses",
 			"Reweigh",
 			"SITExtensions",
 			"StorageFacility.Address",
@@ -64,12 +65,16 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 	for i := range shipments {
 		if shipments[i].ShipmentType == models.MTOShipmentTypePPM {
 			for j := range shipments[i].PPMShipment.WeightTickets {
-				// variable for convience still modifies original shipments object
+				// variable for convenience still modifies original shipments object
 				weightTicket := &shipments[i].PPMShipment.WeightTickets[j]
 
+				loadErr := appCtx.DB().Load(weightTicket, "EmptyDocument.UserUploads.Upload")
+				if loadErr != nil {
+					return nil, loadErr
+				}
 				weightTicket.EmptyDocument.UserUploads = weightticket.FilterDeletedValued(weightTicket.EmptyDocument.UserUploads)
 
-				loadErr := appCtx.DB().Load(weightTicket, "FullDocument.UserUploads.Upload")
+				loadErr = appCtx.DB().Load(weightTicket, "FullDocument.UserUploads.Upload")
 				if loadErr != nil {
 					return nil, loadErr
 				}
@@ -80,6 +85,16 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 					return nil, loadErr
 				}
 				weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightticket.FilterDeletedValued(weightTicket.ProofOfTrailerOwnershipDocument.UserUploads)
+			}
+
+			for j := range shipments[i].PPMShipment.MovingExpenses {
+				movingExpense := &shipments[i].PPMShipment.MovingExpenses[j]
+
+				loadErr := appCtx.DB().Load(movingExpense, "Document.UserUploads.Upload")
+				if loadErr != nil {
+					return nil, loadErr
+				}
+				movingExpense.Document.UserUploads = movingExpense.Document.UserUploads.FilterDeleted()
 			}
 		}
 	}
