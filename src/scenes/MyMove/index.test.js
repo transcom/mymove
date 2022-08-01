@@ -26,12 +26,6 @@ describe('ConnectedCustomerApp tests', () => {
       });
     });
 
-    it('renders the CUI header in the SignIn route', async () => {
-      renderRoute('/sign-in');
-
-      expect(await screen.findByText('Controlled Unclassified Information')).toBeInTheDocument();
-    });
-
     it('renders the Privacy & Security policy route', () => {
       const { queryByText } = renderRoute('/privacy-and-security-policy');
       expect(queryByText('Privacy & Security Policy')).toBeInTheDocument();
@@ -106,6 +100,16 @@ describe('CustomerApp tests', () => {
 
   beforeEach(() => {
     wrapper = shallow(<CustomerApp {...minProps} />);
+  });
+
+  it('renders the CUI header', async () => {
+    render(
+      <MockProviders initialEntries={['/']}>
+        <ConnectedCustomerApp />
+      </MockProviders>,
+    );
+
+    expect(await screen.findByText('Controlled Unclassified Information')).toBeInTheDocument();
   });
 
   it('renders without crashing or erroring', () => {
