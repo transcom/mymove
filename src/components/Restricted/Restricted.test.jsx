@@ -35,7 +35,7 @@ describe('Restricted', () => {
 
   it('does not render children when there are no permissions provided', () => {
     render(
-      <Restricted to={testPermission}>
+      <Restricted to={testPermission} permissions={[]}>
         <div>Child Component</div>
       </Restricted>,
     );
@@ -72,7 +72,7 @@ describe('Restricted', () => {
     const testUserId = 'testUserId';
 
     render(
-      <PermissionProvider currentUserId={testUserId}>
+      <PermissionProvider currentUserId={testUserId} permissions={[]}>
         <Restricted user={testUserId}>
           <div>Child Component</div>
         </Restricted>
@@ -87,7 +87,7 @@ describe('Restricted', () => {
     const userId2 = 'user2';
 
     render(
-      <PermissionProvider currentUserId={userId1}>
+      <PermissionProvider currentUserId={userId1} permissions={[]}>
         <Restricted user={userId2}>
           <div>Child Component</div>
         </Restricted>
