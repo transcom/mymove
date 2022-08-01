@@ -74,7 +74,6 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 
 		swaggerTimeFormat := "2006-01-02T15:04:05.99Z07:00"
 		suite.Equal(originalReport.CreatedAt.Format(swaggerTimeFormat), time.Time(updatedReport.CreatedAt).Format(swaggerTimeFormat))
-		suite.Equal(originalReport.UpdatedAt.Format(swaggerTimeFormat), time.Time(updatedReport.UpdatedAt).Format(swaggerTimeFormat))
 	})
 
 	suite.Run("saving evaluation report with bad report id should fail", func() {
@@ -169,64 +168,42 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 	// here's a blog with that explains some more about it: https://dave.cheney.net/2019/05/07/prefer-table-driven-tests
 	// I'm not super happy with this one and will probably end up refactoring it a lot.
 	testCases := map[string]struct {
-		assertions testdatagen.Assertions
+		inspectionType    *models.EvaluationReportInspectionType
+		travelTimeMinutes *int
+		observedDate      *time.Time
 		// TODO when we figure out what the errors are going to look like, we should
 		// TODO specify the expected errors in the test case.
 		expectedError bool
 	}{
 		"travel time set for physical report type should succeed": {
-			assertions: testdatagen.Assertions{
-				EvaluationReport: models.EvaluationReport{
-					InspectionType:    &physical,
-					TravelTimeMinutes: swag.Int(30),
-				},
-			},
-			expectedError: false,
+			inspectionType:    &physical,
+			travelTimeMinutes: swag.Int(30),
+			expectedError:     false,
 		},
 		"travel time set for virtual report type should fail": {
-			assertions: testdatagen.Assertions{
-				EvaluationReport: models.EvaluationReport{
-					InspectionType:    &virtual,
-					TravelTimeMinutes: swag.Int(30),
-				},
-			},
-			expectedError: true,
+			inspectionType:    &virtual,
+			travelTimeMinutes: swag.Int(30),
+			expectedError:     true,
 		},
 		"travel time set for data review report type should fail": {
-			assertions: testdatagen.Assertions{
-				EvaluationReport: models.EvaluationReport{
-					InspectionType:    &dataReview,
-					TravelTimeMinutes: swag.Int(30),
-				},
-			},
-			expectedError: true,
+			inspectionType:    &dataReview,
+			travelTimeMinutes: swag.Int(30),
+			expectedError:     true,
 		},
 		"observed date set for physical report type should succeed": {
-			assertions: testdatagen.Assertions{
-				EvaluationReport: models.EvaluationReport{
-					InspectionType: &physical,
-					ObservedDate:   &currentTime,
-				},
-			},
-			expectedError: false,
+			inspectionType: &physical,
+			observedDate:   &currentTime,
+			expectedError:  false,
 		},
 		"observed date set for virtual report type should fail": {
-			assertions: testdatagen.Assertions{
-				EvaluationReport: models.EvaluationReport{
-					InspectionType: &virtual,
-					ObservedDate:   &currentTime,
-				},
-			},
-			expectedError: true,
+			inspectionType: &virtual,
+			observedDate:   &currentTime,
+			expectedError:  true,
 		},
 		"observed date set for data review report type should fail": {
-			assertions: testdatagen.Assertions{
-				EvaluationReport: models.EvaluationReport{
-					InspectionType: &dataReview,
-					ObservedDate:   &currentTime,
-				},
-			},
-			expectedError: true,
+			inspectionType: &dataReview,
+			observedDate:   &currentTime,
+			expectedError:  true,
 		},
 	}
 
@@ -237,7 +214,12 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 
 		// Create a new test for each test case
 		suite.Run(name, func() {
-			report := testdatagen.MakeEvaluationReport(suite.DB(), tc.assertions)
+			// this doesnt really do exactly what i want
+			// i would like to create a base report, and then apply an update with the new stuff to it
+			report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+			report.InspectionType = tc.inspectionType
+			report.TravelTimeMinutes = tc.travelTimeMinutes
+			report.ObservedDate = tc.observedDate
 			err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, etag.GenerateEtag(report.UpdatedAt))
 			if tc.expectedError {
 				suite.Error(err)

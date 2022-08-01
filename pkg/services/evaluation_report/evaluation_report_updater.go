@@ -52,8 +52,11 @@ func (u evaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppCon
 	evaluationReport.ShipmentID = originalReport.ShipmentID
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(evaluationReport)
-	if verrs.HasAny() || err != nil {
+	if err != nil {
 		return err
+	}
+	if verrs.HasAny() {
+		return apperror.NewInvalidInputError(evaluationReport.ID, err, verrs, "")
 	}
 	return nil
 }
