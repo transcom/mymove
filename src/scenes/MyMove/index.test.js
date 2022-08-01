@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import ConnectedCustomerApp, { CustomerApp } from './index';
 
@@ -24,6 +24,12 @@ describe('ConnectedCustomerApp tests', () => {
       await waitFor(() => {
         expect(queryByText('Welcome to my.move.mil!')).toBeInTheDocument();
       });
+    });
+
+    it('renders the CUI header in the SignIn route', async () => {
+      renderRoute('/sign-in');
+
+      expect(await screen.findByText('Controlled Unclassified Information')).toBeInTheDocument();
     });
 
     it('renders the Privacy & Security policy route', () => {
