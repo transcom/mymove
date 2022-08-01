@@ -16,9 +16,6 @@
     @include u-margin-bottom(2);
   }
   h3 {
-    font-size: 17px;
-    line-height: 20px;
-
     @include u-margin-top(4);
     @include u-margin-bottom(1.5);
   }
@@ -39,9 +36,4 @@
   @include u-border('1px');
   @include u-padding(5);
   @include u-margin-bottom(4);
-}
-
-.buttonRow {
-  @include u-display('flex');
-  @include u-float('right');
 }
