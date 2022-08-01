@@ -213,6 +213,50 @@ func (o *SaveEvaluationReportConflict) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
+// SaveEvaluationReportPreconditionFailedCode is the HTTP code returned for type SaveEvaluationReportPreconditionFailed
+const SaveEvaluationReportPreconditionFailedCode int = 412
+
+/*SaveEvaluationReportPreconditionFailed Precondition failed
+
+swagger:response saveEvaluationReportPreconditionFailed
+*/
+type SaveEvaluationReportPreconditionFailed struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewSaveEvaluationReportPreconditionFailed creates SaveEvaluationReportPreconditionFailed with default headers values
+func NewSaveEvaluationReportPreconditionFailed() *SaveEvaluationReportPreconditionFailed {
+
+	return &SaveEvaluationReportPreconditionFailed{}
+}
+
+// WithPayload adds the payload to the save evaluation report precondition failed response
+func (o *SaveEvaluationReportPreconditionFailed) WithPayload(payload *ghcmessages.Error) *SaveEvaluationReportPreconditionFailed {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the save evaluation report precondition failed response
+func (o *SaveEvaluationReportPreconditionFailed) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *SaveEvaluationReportPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(412)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // SaveEvaluationReportUnprocessableEntityCode is the HTTP code returned for type SaveEvaluationReportUnprocessableEntity
 const SaveEvaluationReportUnprocessableEntityCode int = 422
 
