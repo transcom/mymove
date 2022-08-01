@@ -52,7 +52,7 @@ export function fillOutAboutPage(selectAdvance) {
   cy.get('input[name="actualDestinationPostalCode"]').clear().type('76127');
   if (selectAdvance) {
     cy.get('input[name="hasReceivedAdvance"][value="true"]').check({ force: true });
-    cy.get('input[name="advanceAmountReceived"]').clear().type('5000');
+    cy.get('input[name="advanceAmountReceived"]').focus().clear().type('5000');
   } else {
     cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: true });
   }
@@ -70,8 +70,8 @@ export function navigateFromAboutPageToWeightTicketPage() {
 
 export function signInAndNavigateToWeightTicketPage(userId) {
   cy.apiSignInAsUser(userId);
-  cy.get('h3').should('contain', 'Your move is in progress.');
   cy.wait('@getShipment');
+  cy.get('h3').should('contain', 'Your move is in progress.');
 
   cy.get('button[data-testid="button"]').contains('Upload PPM Documents').should('be.enabled').click();
   fillOutAboutPage(true);
