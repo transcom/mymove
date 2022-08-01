@@ -1,6 +1,6 @@
 import React from 'react';
 
-import CUIHeader from './index';
+import CUIHeader from './CUIHeader';
 
 export default {
   title: 'Components/Headers/CUI Header',

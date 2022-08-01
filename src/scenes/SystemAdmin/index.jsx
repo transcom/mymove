@@ -6,7 +6,7 @@ import SignIn from 'scenes/SystemAdmin/shared/SignIn';
 import { isDevelopment } from 'shared/constants';
 import { LoginButton } from 'scenes/SystemAdmin/shared/LoginButton';
 import { GetLoggedInUser } from 'utils/api';
-import CUIHeader from 'components/CUIHeader';
+import CUIHeader from 'components/CUIHeader/CUIHeader';
 
 class AdminWrapper extends Component {
   constructor(props) {

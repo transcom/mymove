@@ -21,7 +21,7 @@ import {
 import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
 import PrivateRoute from 'containers/PrivateRoute';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import CUIHeader from 'components/CUIHeader';
+import CUIHeader from 'components/CUIHeader/CUIHeader';
 import BypassBlock from 'components/BypassBlock';
 import SystemError from 'components/SystemError';
 import OfficeLoggedInHeader from 'containers/Headers/OfficeLoggedInHeader';
