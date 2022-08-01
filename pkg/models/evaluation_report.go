@@ -3,6 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/validate/v3/validators"
+
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 
@@ -62,7 +64,28 @@ type EvaluationReports []EvaluationReport
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (r *EvaluationReport) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.Validate(), nil
+	var vs []validate.Validator
+	// shipmentID not nil, SHIPMENT
+	// {shipmentID: not nil, type: not SHIPMENT}
+	if r.ShipmentID != nil {
+		vs = append(vs, &validators.StringsMatch{Name: "Type", Field: string(r.Type), Field2: string(EvaluationReportTypeShipment)})
+	}
+	if r.TravelTimeMinutes != nil {
+		vs = append(vs, &validators.StringsMatch{Field: string(*r.InspectionType), Name: "InspectionType", Field2: string(EvaluationReportInspectionTypePhysical)})
+	}
+	if r.ObservedDate != nil {
+		vs = append(vs, &validators.StringsMatch{Field: string(*r.InspectionType), Name: "InspectionType", Field2: string(EvaluationReportInspectionTypePhysical)})
+	}
+
+	if r.LocationDescription != nil {
+		vs = append(vs, &validators.StringsMatch{Field: string(*r.Location), Name: "Location", Field2: string(EvaluationReportLocationTypeOther)})
+	}
+	verrs := validate.Validate(vs...)
+	// {shipmentID: nil, type: SHIPMENT}
+	if r.Type == EvaluationReportTypeShipment && r.ShipmentID == nil {
+		verrs.Add(validators.GenerateKey("ShipmentID"), "If report type is SHIPMENT, ShipmentID must not be null")
+	}
+	return verrs, nil
 }
 
 func (r *EvaluationReport) TableName() string {
