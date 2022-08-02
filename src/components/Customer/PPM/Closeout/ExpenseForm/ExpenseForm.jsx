@@ -91,12 +91,12 @@ const ExpenseForm = ({
                 {values.receiptType && (
                   <>
                     <FormGroup>
-                      <h2>Description</h2>
+                      <h3>Description</h3>
                       <TextField label="What did you buy?" id="description" name="description" />
                       <Hint>Add a brief description of the expense.</Hint>
                       <Fieldset>
                         <legend className="usa-label">
-                          Did you pay with your GTCC? (Government Travel Charge Card)
+                          Did you pay with your GTCC (Government Travel Charge Card)?
                         </legend>
                         <Field
                           as={Radio}
@@ -117,10 +117,10 @@ const ExpenseForm = ({
                       </Fieldset>
                     </FormGroup>
                     <FormGroup>
-                      <h2>Amount</h2>
+                      <h3>Amount</h3>
                       <MaskedTextField
                         name="amount"
-                        label="Amount requested"
+                        label="Amount"
                         id="amount"
                         mask={Number}
                         scale={0} // digits after point, 0 for integers
@@ -179,7 +179,7 @@ const ExpenseForm = ({
                 )}
                 {values.receiptType === 'storage' && (
                   <FormGroup>
-                    <h2>Dates</h2>
+                    <h3>Dates</h3>
                     <DatePickerInput name="sitStartDate" label="Start date" />
                     <DatePickerInput name="sitEndDate" label="End date" />
                     <h3>Days in storage: {numOfDaysBetweenDates(values.sitStartDate, values.sitEndDate)}</h3>
