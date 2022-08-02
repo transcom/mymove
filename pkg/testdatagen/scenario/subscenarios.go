@@ -223,6 +223,7 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 
 func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 	return func() {
+		createQaeCsr(appCtx)
 		officeUser := models.OfficeUser{}
 		email := "qae_csr_role@office.mil"
 		err := appCtx.DB().Where("email = ?", email).First(&officeUser)
