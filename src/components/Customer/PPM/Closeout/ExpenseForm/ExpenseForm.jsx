@@ -5,7 +5,7 @@ import { Button, ErrorMessage, Form, FormGroup, Radio, Label } from '@trussworks
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 
-// import styles from './AboutForm.module.scss';
+import styles from './ExpenseForm.module.scss';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -73,7 +73,7 @@ const ExpenseForm = ({ expense, onBack, onSubmit, onCreateUpload, onUploadComple
       {({ isValid, isSubmitting, handleSubmit, values, ...formikProps }) => {
         return (
           <div className={classnames(ppmStyles.formContainer)}>
-            <Form className={classnames(formStyles.form, ppmStyles.form)}>
+            <Form className={classnames(formStyles.form, ppmStyles.form, styles.ExpenseForm)}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 {/* TODO: ADD WEIGHT TICKET NUMBER */}
                 <FormGroup>
@@ -84,7 +84,7 @@ const ExpenseForm = ({ expense, onBack, onSubmit, onCreateUpload, onUploadComple
                     <FormGroup>
                       <h2>Description</h2>
                       <TextField label="What did you buy?" id="description" name="description" />
-                      <Hint className={ppmStyles.hint}>Add a brief description of the expense.</Hint>
+                      <Hint>Add a brief description of the expense.</Hint>
                       <Fieldset>
                         <legend className="usa-label">
                           Did you pay with your GTCC? (Government Travel Charge Card)
@@ -127,22 +127,18 @@ const ExpenseForm = ({ expense, onBack, onSubmit, onCreateUpload, onUploadComple
                         your PPM moving expenses.
                       </Hint>
                       <CheckboxField id="missingReceipt" name="missingReceipt" label="I don't have this receipt" />
-                      <div className="labelWrapper">
+                      <div className={styles.labelWrapper}>
                         <Label
-                          error={
-                            formikProps.touched?.proofOfTrailerOwnershipDocument &&
-                            formikProps.errors?.proofOfTrailerOwnershipDocument
-                          }
+                          error={formikProps.touched?.receiptDocument && formikProps.errors?.receiptDocument}
                           htmlFor="receiptDocument"
                         >
                           Upload receipt
                         </Label>
                       </div>
-                      {formikProps.touched?.proofOfTrailerOwnershipDocument &&
-                        formikProps.errors?.proofOfTrailerOwnershipDocument && (
-                          <ErrorMessage>{formikProps.errors?.proofOfTrailerOwnershipDocument}</ErrorMessage>
-                        )}
-                      <Hint>
+                      {formikProps.touched?.receiptDocument && formikProps.errors?.receiptDocument && (
+                        <ErrorMessage>{formikProps.errors?.receiptDocument}</ErrorMessage>
+                      )}
+                      <Hint className={styles.uploadInstructions}>
                         <p>{DocumentAndImageUploadInstructions}</p>
                       </Hint>
                       <UploadsTable
