@@ -4509,10 +4509,10 @@
     react-visibility-sensor "^5.0.2"
     three "0.137.0"
 
-"@trussworks/react-uswds@3.0.2":
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-3.0.2.tgz#7887508d89eb1f219483a51f957aff944745867c"
-  integrity sha512-1vtawl+85YKl+CvOQqMBD29WVvy4MJLXcPJXNYiBLYd1XIZZWU0j3O3XDD08rPv6sz5jkungGyDn81/VgMeqTw==
+"@trussworks/react-uswds@3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-3.1.0.tgz#aa5c7de53dec34b2f92dc83f225d633e1f8031de"
+  integrity sha512-4krdLn8LGgr3EwOsizUF6cBLnwDS6x0WgJjjGk59kNBpgH4qiv8YGzic3HYaVr8xWBq36VpEEfGeQZnjYGMegw==
 
 "@trysound/sax@0.2.0":
   version "0.2.0"
