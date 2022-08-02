@@ -7,6 +7,7 @@ import * as Yup from 'yup';
 
 import styles from './ExpenseForm.module.scss';
 
+import numOfDaysBetweenDates from 'utils/dates';
 import { ExpenseShape } from 'types/shipment';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -181,7 +182,7 @@ const ExpenseForm = ({
                     <h2>Dates</h2>
                     <DatePickerInput name="sitStartDate" label="Start date" />
                     <DatePickerInput name="sitEndDate" label="End date" />
-                    <h3>Days in storage:</h3>
+                    <h3>Days in storage: {numOfDaysBetweenDates(values.sitStartDate, values.sitEndDate)}</h3>
                   </FormGroup>
                 )}
               </SectionWrapper>

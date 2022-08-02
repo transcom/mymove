@@ -127,7 +127,7 @@ SITExpenses.args = {
           created_at: '2022-06-10T12:59:30.000Z',
           bytes: 204800,
           url: 'some/path/to/',
-          filename: 'expenseReceipt.pdf',
+          filename: 'uhaulReceipt.pdf',
           content_type: 'application/pdf',
         },
       ],
