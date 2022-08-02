@@ -3,10 +3,12 @@ import React from 'react';
 import EvaluationReportShipmentInfo from './EvaluationReportShipmentInfo';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { MockProviders } from 'testUtils';
 
 export default {
   title: 'Office Components/EvaluationReportShipmentInfo',
   component: EvaluationReportShipmentInfo,
+  decorators: [(Story) => <MockProviders>{Story()}</MockProviders>],
 };
 
 const hhgShipment = {
@@ -63,22 +65,22 @@ const ntsrShipment = {
 
 export const hhg = () => (
   <div className="officeApp">
-    <EvaluationReportShipmentInfo shipment={hhgShipment} shipmentNumber={1} />
+    <EvaluationReportShipmentInfo shipment={hhgShipment} />
   </div>
 );
 
 export const nts = () => (
   <div className="officeApp">
-    <EvaluationReportShipmentInfo shipment={ntsShipment} shipmentNumber={2} />
+    <EvaluationReportShipmentInfo shipment={ntsShipment} />
   </div>
 );
 export const ntsr = () => (
   <div className="officeApp">
-    <EvaluationReportShipmentInfo shipment={ntsrShipment} shipmentNumber={3} />
+    <EvaluationReportShipmentInfo shipment={ntsrShipment} />
   </div>
 );
 export const ppm = () => (
   <div className="officeApp">
-    <EvaluationReportShipmentInfo shipment={ppmShipment} shipmentNumber={4} />
+    <EvaluationReportShipmentInfo shipment={ppmShipment} />
   </div>
 );

@@ -19,6 +19,7 @@ const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestRevie
 const ReviewBillableWeight = lazy(() => import('pages/Office/ReviewBillableWeight/ReviewBillableWeight'));
 const CustomerSupportRemarks = lazy(() => import('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks'));
 const EvaluationReports = lazy(() => import('pages/Office/EvaluationReports/EvaluationReports'));
+const ShipmentEvaluationReport = lazy(() => import('pages/Office/ShipmentEvaluationReport/ShipmentEvaluationReport'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 
@@ -30,7 +31,7 @@ const TXOMoveInfo = () => {
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
 
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
-  const { moveCode } = useParams();
+  const { moveCode, reportId } = useParams();
   const { pathname } = useLocation();
   const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
 
@@ -75,6 +76,7 @@ const TXOMoveInfo = () => {
           pendingPaymentRequestCount={pendingPaymentRequestCount}
           unapprovedSITExtensionCount={unapprovedSITExtensionCount}
           moveCode={moveCode}
+          reportId={reportId}
           order={order}
         />
       )}
@@ -125,6 +127,10 @@ const TXOMoveInfo = () => {
 
           <Route path={qaeCSRRoutes.EVALUATION_REPORTS_PATH} exact>
             <EvaluationReports />
+          </Route>
+
+          <Route path={qaeCSRRoutes.SHIPMENT_EVALUATION_REPORT_PATH} exact>
+            <ShipmentEvaluationReport customerInfo={customerData} orders={order} />
           </Route>
 
           <Route path="/moves/:moveCode/history" exact>

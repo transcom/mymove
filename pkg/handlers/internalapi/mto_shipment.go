@@ -94,7 +94,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				}
 			}
 
-			returnPayload := payloads.MTOShipment(mtoShipment)
+			returnPayload := payloads.MTOShipment(h.FileStorer(), mtoShipment)
 			return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload), nil
 		})
 }
@@ -212,7 +212,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				}
 			}
 
-			returnPayload := payloads.MTOShipment(updatedMTOShipment)
+			returnPayload := payloads.MTOShipment(h.FileStorer(), updatedMTOShipment)
 
 			return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload), nil
 		})
@@ -253,7 +253,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 				return mtoshipmentops.NewListMTOShipmentsInternalServerError(), err
 			}
 
-			payload := payloads.MTOShipments((*models.MTOShipments)(&shipments))
+			payload := payloads.MTOShipments(h.FileStorer(), (*models.MTOShipments)(&shipments))
 			return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload), nil
 		})
 }

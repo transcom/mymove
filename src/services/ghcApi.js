@@ -55,6 +55,14 @@ export async function deleteCustomerSupportRemark({ customerSupportRemarkID }) {
   );
 }
 
+export async function createEvaluationReportForShipment({ body }) {
+  return makeGHCRequest('evaluationReports.createEvaluationReportForShipment', { body }, { normalize: false });
+}
+
+export async function deleteEvaluationReport(reportID) {
+  return makeGHCRequest('evaluationReports.deleteEvaluationReport', { reportID }, { normalize: false });
+}
+
 export async function getMoveHistory(key, { moveCode, currentPage = 1, currentPageSize = 20 }) {
   return makeGHCRequest(
     'move.getMoveHistory',
@@ -85,6 +93,10 @@ export async function getShipmentEvaluationReports(key, moveID) {
     { moveID },
     { schemaKey: 'evaluationReports', normalize: false },
   );
+}
+
+export async function getEvaluationReportByID(key, reportID) {
+  return makeGHCRequest('evaluationReports.getEvaluationReport', { reportID }, { normalize: false });
 }
 
 export async function getCounselingEvaluationReports(key, moveID) {
@@ -294,6 +306,10 @@ export function updateMTOShipmentRequestReweigh({
 export function createMTOShipment({ body, normalize = true, schemaKey = 'mtoShipment' }) {
   const operationPath = 'mtoShipment.createMTOShipment';
   return makeGHCRequest(operationPath, { body }, { schemaKey, normalize });
+}
+
+export async function getMTOShipmentByID(key, shipmentID) {
+  return makeGHCRequest('mtoShipment.getShipment', { shipmentID }, { schemaKey: 'mtoShipment', normalize: false });
 }
 
 export function updateMTOShipment({

@@ -1,16 +1,45 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
+import { useMutation, queryCache } from 'react-query';
+import { useLocation, useHistory, useParams } from 'react-router-dom';
+import classnames from 'classnames';
+
+import styles from './EvaluationReportShipmentInfo.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatEvaluationReportShipmentAddress } from 'utils/formatters';
+import { formatEvaluationReportShipmentAddress, formatShortShipmentID } from 'utils/formatters';
 import { ShipmentShape } from 'types/shipment';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { createEvaluationReportForShipment } from 'services/ghcApi';
+import { SHIPMENT_EVALUATION_REPORTS } from 'constants/queryKeys';
 
-const EvaluationReportShipmentInfo = ({ shipment, shipmentNumber }) => {
+const EvaluationReportShipmentInfo = ({ shipment }) => {
+  const { moveCode } = useParams();
+  const location = useLocation();
+  const history = useHistory();
+
+  const [createReportMutation] = useMutation(createEvaluationReportForShipment, {
+    onSuccess: () => {
+      queryCache.invalidateQueries([SHIPMENT_EVALUATION_REPORTS, moveCode]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const handleCreateClick = async (shipmentID) => {
+    const report = await createReportMutation({ body: { shipmentID } });
+    const reportId = report?.id;
+
+    history.push(`${location.pathname}/${reportId}`);
+  };
+
   let heading;
   let pickupAddress;
   let destinationAddress;
+  let shipmentAccentStyle;
 
   switch (shipment.shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
@@ -19,21 +48,25 @@ const EvaluationReportShipmentInfo = ({ shipment, shipmentNumber }) => {
       heading = 'HHG';
       pickupAddress = formatEvaluationReportShipmentAddress(shipment.pickupAddress);
       destinationAddress = formatEvaluationReportShipmentAddress(shipment.destinationAddress);
+      shipmentAccentStyle = styles.hhgShipmentType;
       break;
     case SHIPMENT_OPTIONS.NTS:
       heading = 'NTS';
       pickupAddress = formatEvaluationReportShipmentAddress(shipment.pickupAddress);
       destinationAddress = shipment.storageFacility.facilityName;
+      shipmentAccentStyle = styles.ntsShipmentType;
       break;
     case SHIPMENT_OPTIONS.NTSR:
       heading = 'NTS-Release';
       pickupAddress = shipment.storageFacility.facilityName;
       destinationAddress = formatEvaluationReportShipmentAddress(shipment.destinationAddress);
+      shipmentAccentStyle = styles.ntsrShipmentType;
       break;
     case SHIPMENT_OPTIONS.PPM:
       heading = 'PPM';
       pickupAddress = shipment.ppmShipment.pickupPostalCode;
       destinationAddress = shipment.ppmShipment.destinationPostalCode;
+      shipmentAccentStyle = styles.ppmShipmentType;
       break;
     default:
       break;
@@ -41,20 +74,23 @@ const EvaluationReportShipmentInfo = ({ shipment, shipmentNumber }) => {
 
   return (
     <>
-      <div />
-      <h4>
-        {heading} Shipment ID #{shipmentNumber}
-      </h4>
-      <small>
-        {pickupAddress} <FontAwesomeIcon icon="arrow-right" /> {destinationAddress}
-      </small>
-      <Button>Create report</Button>
+      <div className={classnames(styles.shipmentAccent, shipmentAccentStyle)} />
+      <div className={styles.shipmentInfoContainer}>
+        <div className={styles.shipmentInfo}>
+          <h4>
+            {heading} Shipment ID {formatShortShipmentID(shipment.id)}
+          </h4>
+          <small>
+            {pickupAddress} <FontAwesomeIcon icon="arrow-right" /> {destinationAddress}
+          </small>
+        </div>
+        <Button onClick={() => handleCreateClick(shipment.id)}>Create report</Button>
+      </div>
     </>
   );
 };
 EvaluationReportShipmentInfo.propTypes = {
   shipment: ShipmentShape.isRequired,
-  shipmentNumber: PropTypes.number.isRequired,
 };
 
 export default EvaluationReportShipmentInfo;
