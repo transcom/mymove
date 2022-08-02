@@ -55,7 +55,8 @@ describe('TOO user', () => {
 
     // Edit shipments to enter missing info
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    cy.wait(['@getMTOShipments', '@getMoves']);
+    cy.wait('@getMTOShipments');
+    cy.wait('@getMoves');
 
     // Basic info
     cy.get('#ntsRecordedWeight').clear().type('3000').blur();
@@ -94,7 +95,8 @@ describe('TOO user', () => {
 
     // edit the NTS shipment to be handled by an external vendor
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    cy.wait(['@getMTOShipments', '@getMoves']);
+    cy.wait('@getMTOShipments');
+    cy.wait('@getMoves');
 
     cy.get('label[for="vendorExternal"]').click();
     cy.get('[data-testid="submitForm"]').click();
@@ -104,7 +106,8 @@ describe('TOO user', () => {
 
     // edit the NTS shipment back to being handled by the GHC Prime contractor
     cy.get('[data-testid="ShipmentContainer"] .usa-button').last().click();
-    cy.wait(['@getMTOShipments', '@getMoves']);
+    cy.wait('@getMTOShipments');
+    cy.wait('@getMoves');
 
     cy.get('[data-testid="alert"]').contains('The GHC prime contractor is not handling the shipment.');
 
@@ -188,7 +191,8 @@ describe('TOO user', () => {
   it('TOO can view and edit Domestic NTS Shipments handled by the Prime on the MTO page', () => {
     navigateToMove('PRINTR');
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
-    cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
+    cy.wait('@getMTOShipments');
+    cy.wait('@getMTOServiceItems');
 
     cy.get('[id="move-weights"] div').contains('1 shipment not moved by GHC prime.').should('not.exist');
 
@@ -425,7 +429,10 @@ function editTacSac() {
     cy.get('[data-testid="button"]').contains('Save').click();
   });
 
-  cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+  cy.wait('@getMoves');
+  cy.wait('@getOrders');
+  cy.wait('@getMTOShipments');
+  cy.wait('@getMTOServiceItems');
 
   cy.get('[data-testid="tacMDC"]').contains('E15A');
   cy.get('[data-testid="sacSDN"]').contains('4K988AS098F');
