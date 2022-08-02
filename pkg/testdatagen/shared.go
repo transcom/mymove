@@ -381,3 +381,14 @@ func GetOrCreateDocumentWithUploads(db *pop.Connection, document models.Document
 
 	return doc
 }
+
+// checkOrCreatePPMShipment checks PPMShipment in assertions, or creates one if none exists.
+func checkOrCreatePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	ppmShipment := assertions.PPMShipment
+
+	if !assertions.Stub && ppmShipment.CreatedAt.IsZero() || ppmShipment.ID.IsNil() {
+		ppmShipment = MakeApprovedPPMShipmentWithActualInfo(db, assertions)
+	}
+
+	return ppmShipment
+}

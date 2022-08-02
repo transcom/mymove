@@ -81,17 +81,6 @@ func MakeDefaultWeightTicket(db *pop.Connection) models.WeightTicket {
 	return MakeWeightTicket(db, Assertions{})
 }
 
-// checkOrCreatePPMShipment checks PPMShipment in assertions, or creates one if none exists.
-func checkOrCreatePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
-	ppmShipment := assertions.PPMShipment
-
-	if !assertions.Stub && ppmShipment.CreatedAt.IsZero() || ppmShipment.ID.IsNil() {
-		ppmShipment = MakeApprovedPPMShipmentWithActualInfo(db, assertions)
-	}
-
-	return ppmShipment
-}
-
 // ensureServiceMemberIsSetUpInAssertions checks for ServiceMember in assertions, or creates one if none exists. Several
 // of the downstream functions need a service member, but they don't always share assertions, look at the same
 // assertion, or create the service members in the same ways. We'll check now to see if we already have one created,

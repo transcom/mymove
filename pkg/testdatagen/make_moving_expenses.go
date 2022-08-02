@@ -8,13 +8,13 @@ import (
 )
 
 func MakeMinimalMovingExpense(db *pop.Connection, assertions Assertions) models.MovingExpense {
-	weightTicket := checkOrCreateWeightTicket(db, assertions)
+	ppmShipment := checkOrCreatePPMShipment(db, assertions)
 
 	document := GetOrCreateDocument(db, assertions.MovingExpense.Document, assertions)
 
 	newMovingExpense := models.MovingExpense{
-		PPMShipmentID: weightTicket.PPMShipmentID,
-		PPMShipment:   weightTicket.PPMShipment,
+		PPMShipmentID: ppmShipment.ID,
+		PPMShipment:   ppmShipment,
 		DocumentID:    document.ID,
 		Document:      document,
 	}
@@ -55,14 +55,4 @@ func MakeMovingExpense(db *pop.Connection, assertions Assertions) models.MovingE
 
 func MakeDefaultMovingExpense(db *pop.Connection) models.MovingExpense {
 	return MakeMovingExpense(db, Assertions{})
-}
-
-func checkOrCreateWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTicket {
-	weightTicket := assertions.WeightTicket
-
-	if !assertions.Stub && weightTicket.CreatedAt.IsZero() || weightTicket.ID.IsNil() {
-		weightTicket = MakeWeightTicket(db, assertions)
-	}
-
-	return weightTicket
 }
