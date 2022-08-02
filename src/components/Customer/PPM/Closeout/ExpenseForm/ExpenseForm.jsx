@@ -2,11 +2,12 @@ import React, { createRef } from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { Button, ErrorMessage, Form, FormGroup, Radio, Label } from '@trussworks/react-uswds';
-import { func } from 'prop-types';
+import { func, string } from 'prop-types';
 import * as Yup from 'yup';
 
 import styles from './ExpenseForm.module.scss';
 
+import { ExpenseShape } from 'types/shipment';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -15,7 +16,6 @@ import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
 import FileUpload from 'components/FileUpload/FileUpload';
 import formStyles from 'styles/form.module.scss';
-// import { ShipmentShape } from 'types/shipment';
 import { uploadShape } from 'types/uploads';
 import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/fields';
 import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZoneLabelMobile } from 'content/uploads';
@@ -26,7 +26,7 @@ const validationSchema = Yup.object().shape({
   description: Yup.string().required('Required'),
   paidWithGTCC: Yup.boolean().required('Required'),
   amount: Yup.number().required('Required'),
-  noReceipt: Yup.boolean().required('Required'),
+  missingReceipt: Yup.boolean().required('Required'),
   receiptDocument: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
   sitStartDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
@@ -42,17 +42,25 @@ const validationSchema = Yup.object().shape({
     }),
 });
 
-const ExpenseForm = ({ expense, onBack, onSubmit, onCreateUpload, onUploadComplete, onUploadDelete }) => {
-  const { receiptType, description, paidWithGTCC, amount, noReceipt, receiptDocument, sitStartDate, sitEndDate } =
+const ExpenseForm = ({
+  expense,
+  receiptNumber,
+  onBack,
+  onSubmit,
+  onCreateUpload,
+  onUploadComplete,
+  onUploadDelete,
+}) => {
+  const { receiptType, description, paidWithGTCC, amount, missingReceipt, receiptDocument, sitStartDate, sitEndDate } =
     expense || {};
 
   const initialValues = {
     receiptType: receiptType || '',
     description: description || '',
     paidWithGTCC: paidWithGTCC ? 'true' : 'false',
-    amount: amount ? amount.toString() : '',
-    noReceipt: noReceipt ? 'true' : 'false',
-    receiptDocument: receiptDocument || [],
+    amount: amount ? `${amount}` : '',
+    missingReceipt: !!missingReceipt,
+    receiptDocument: receiptDocument?.uploads || [],
     sitStartDate: sitStartDate || '',
     sitEndDate: sitEndDate || '',
   };
@@ -75,7 +83,7 @@ const ExpenseForm = ({ expense, onBack, onSubmit, onCreateUpload, onUploadComple
           <div className={classnames(ppmStyles.formContainer)}>
             <Form className={classnames(formStyles.form, ppmStyles.form, styles.ExpenseForm)}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                {/* TODO: ADD WEIGHT TICKET NUMBER */}
+                <h2>{`Receipt ${receiptNumber}`}</h2>
                 <FormGroup>
                   <DropdownInput label="Select type" name="receiptType" options={expenseOptions} id="receiptType" />
                 </FormGroup>
@@ -110,10 +118,9 @@ const ExpenseForm = ({ expense, onBack, onSubmit, onCreateUpload, onUploadComple
                     <FormGroup>
                       <h2>Amount</h2>
                       <MaskedTextField
-                        defaultValue="0"
-                        name="advanceAmountRequested"
+                        name="amount"
                         label="Amount requested"
-                        id="advanceAmountRequested"
+                        id="amount"
                         mask={Number}
                         scale={0} // digits after point, 0 for integers
                         signed={false} // disallow negative
@@ -200,12 +207,18 @@ const ExpenseForm = ({ expense, onBack, onSubmit, onCreateUpload, onUploadComple
 };
 
 ExpenseForm.propTypes = {
-  // mtoShipment: ShipmentShape.isRequired,
+  receiptNumber: string,
+  expense: ExpenseShape,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
   onCreateUpload: func.isRequired,
   onUploadComplete: func.isRequired,
   onUploadDelete: func.isRequired,
+};
+
+ExpenseForm.defaultProps = {
+  expense: undefined,
+  receiptNumber: '1',
 };
 
 export default ExpenseForm;

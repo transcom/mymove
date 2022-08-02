@@ -1,10 +1,38 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
-import { userEvent, within } from '@storybook/testing-library';
+import { v4 as uuidv4 } from 'uuid';
 
 import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
+
+const mockCreateUploadSuccess = (file) => {
+  return Promise.resolve({
+    id: uuidv4(),
+    created_at: '2022-06-22T23:25:50.490Z',
+    bytes: file.size,
+    url: 'a/fake/path',
+    filename: file.name,
+    content_type: file.type,
+  });
+};
+
+const mockUploadComplete = (upload, err, fieldName, values, setFieldValue) => {
+  const newValue = {
+    id: uuidv4(),
+    created_at: '2022-06-22T23:25:50.490Z',
+    bytes: upload.file.size,
+    url: 'a/fake/path',
+    filename: upload.file.name,
+    content_type: upload.file.type,
+  };
+  setFieldValue(fieldName, [...values[`${fieldName}`], newValue]);
+};
+
+const mockUploadDelete = (uploadId, fieldName, values, setFieldTouched, setFieldValue) => {
+  const remainingUploads = values[`${fieldName}`]?.filter((upload) => upload.id !== uploadId);
+  setFieldTouched(fieldName, true, true);
+  setFieldValue(fieldName, remainingUploads, true);
+};
 
 export default {
   title: 'Customer Components / PPM Closeout / Expenses PPM Form',
@@ -33,96 +61,41 @@ Blank.args = {
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {},
   },
-  postalCodeValidator: () => {},
 };
 
-// export const BlankWithDefaultZIPs = Template.bind({});
-// BlankWithDefaultZIPs.storyName = 'Blank With Default ZIPs';
-// BlankWithDefaultZIPs.args = {
-//   mtoShipment: {
-//     id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',
-//     moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
-//     shipmentType: SHIPMENT_OPTIONS.PPM,
-//     ppmShipment: {
-//       pickupPostalCode: '10001',
-//       destinationPostalCode: '10002',
-//     },
-//   },
-//   postalCodeValidator: () => {},
-// };
-
-// export const RequiredValues = Template.bind({});
-// RequiredValues.args = {
-//   mtoShipment: {
-//     id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',
-//     moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
-//     shipmentType: SHIPMENT_OPTIONS.PPM,
-//     ppmShipment: {
-//       actualMoveDate: '2022-05-19',
-//       actualPickupPostalCode: '10001',
-//       actualDestinationPostalCode: '60652',
-//       hasReceivedAdvance: false,
-//     },
-//   },
-//   postalCodeValidator: () => {},
-// };
-
-// export const OptionalValues = Template.bind({});
-// OptionalValues.args = {
-//   mtoShipment: {
-//     id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',
-//     moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
-//     shipmentType: SHIPMENT_OPTIONS.PPM,
-//     ppmShipment: {
-//       actualMoveDate: '2022-05-19',
-//       actualPickupPostalCode: '10001',
-//       actualDestinationPostalCode: '60652',
-//       hasReceivedAdvance: true,
-//       advanceAmountReceived: 456700,
-//     },
-//   },
-//   postalCodeValidator: () => {},
-// };
-
-// export const RequiredErrors = Template.bind({});
-// RequiredErrors.args = {
-//   mtoShipment: {
-//     id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',
-//     moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
-//     shipmentType: SHIPMENT_OPTIONS.PPM,
-//     ppmShipment: {
-//       hasReceivedAdvance: true,
-//     },
-//   },
-//   postalCodeValidator: () => {},
-// };
-
-// RequiredErrors.play = async ({ canvasElement }) => {
-//   // Starts querying the component from its root element
-//   const canvas = within(canvasElement);
-
-//   await userEvent.click(canvas.getByText('Save & Continue'));
-// };
-
-// export const InvalidZIPs = Template.bind({});
-// InvalidZIPs.storyName = 'Invalid ZIPs';
-// InvalidZIPs.args = {
-//   mtoShipment: {
-//     id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',
-//     moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
-//     shipmentType: SHIPMENT_OPTIONS.PPM,
-//     ppmShipment: {
-//       actualMoveDate: '2022-05-23',
-//       actualPickupPostalCode: '10000',
-//       actualDestinationPostalCode: '20000',
-//     },
-//   },
-//   postalCodeValidator: () => UnsupportedZipCodePPMErrorMsg,
-// };
-
-// InvalidZIPs.play = async ({ canvasElement }) => {
-//   // Starts querying the component from its root element
-//   const canvas = within(canvasElement);
-
-//   await userEvent.click(canvas.getByText('Save & Continue'));
-// };
+export const ExistingExpenses = Template.bind({});
+ExistingExpenses.args = {
+  mtoShipment: {
+    id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',
+    moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
+    shipmentType: SHIPMENT_OPTIONS.PPM,
+    ppmShipment: {
+      id: '343bb456-63af-4f76-89bd-7403094a5c4d',
+    },
+  },
+  expense: {
+    id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
+    ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
+    receiptType: 'packing_materials',
+    description: 'bubble wrap',
+    missingReceipt: false,
+    paidWithGTCC: false,
+    amount: 600,
+    receiptDocument: {
+      uploads: [
+        {
+          id: 'db4713ae-6087-4330-8b0d-926b3d65c454',
+          created_at: '2022-06-10T12:59:30.000Z',
+          bytes: 204800,
+          url: 'some/path/to/',
+          filename: 'expenseReceipt.pdf',
+          content_type: 'application/pdf',
+        },
+      ],
+    },
+  },
+  onCreateUpload: mockCreateUploadSuccess,
+  onUploadComplete: mockUploadComplete,
+  onUploadDelete: mockUploadDelete,
+  tripNumber: '1',
+};
