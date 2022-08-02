@@ -203,7 +203,7 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(2, len(updatedWeightTicket.ProofOfTrailerOwnershipDocument.UserUploads))
 	})
 
-	suite.Run("Faills to updates when files are missing", func() {
+	suite.Run("Fails to update when files are missing", func() {
 		appCtx := suite.AppContextForTest()
 
 		originalWeightTicket := setupForTest(appCtx, nil, false, false, false)
