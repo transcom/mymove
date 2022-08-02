@@ -60,6 +60,7 @@ export function fillOutAboutPage(selectAdvance) {
 }
 
 export function navigateFromAboutPageToWeightTicketPage() {
+  cy.screenshot();
   cy.get('button').contains('Save & Continue').click();
   cy.wait('@patchShipment');
 
@@ -70,6 +71,7 @@ export function navigateFromAboutPageToWeightTicketPage() {
 
 export function signInAndNavigateToWeightTicketPage(userId) {
   cy.apiSignInAsUser(userId);
+  cy.screenshot();
   cy.wait('@getShipment');
   cy.get('h3').should('contain', 'Your move is in progress.');
 
