@@ -7,7 +7,6 @@ import * as Yup from 'yup';
 
 // import styles from './AboutForm.module.scss';
 
-import { dropdownInputOptions } from 'utils/formatters';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -23,9 +22,7 @@ import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZone
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 
 const validationSchema = Yup.object().shape({
-  receiptType: Yup.string().oneOf([
-    'Contracted expense, Oil, Packing materials, Rental equipment, Storage, Tolls, Weighing fee, Other',
-  ]),
+  receiptType: Yup.string().required('Required'),
   description: Yup.string().required('Required'),
   paidWithGTCC: Yup.boolean().required('Required'),
   amount: Yup.number().required('Required'),
@@ -34,19 +31,19 @@ const validationSchema = Yup.object().shape({
   sitStartDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('receiptType', {
-      is: 'Storage',
+      is: 'storage',
       then: (schema) => schema.required('Required'),
     }),
   sitEndDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('receiptType', {
-      is: 'Storage',
+      is: 'storage',
       then: (schema) => schema.required('Required'),
     }),
 });
 
 const ExpenseForm = ({ expense, onBack, onSubmit, onCreateUpload, onUploadComplete, onUploadDelete }) => {
-  const { receiptType, description, paidWithGTCC, amount, noReceipt, receiptDocument, startDate, endDate } =
+  const { receiptType, description, paidWithGTCC, amount, noReceipt, receiptDocument, sitStartDate, sitEndDate } =
     expense || {};
 
   const initialValues = {
@@ -56,8 +53,8 @@ const ExpenseForm = ({ expense, onBack, onSubmit, onCreateUpload, onUploadComple
     amount: amount ? amount.toString() : '',
     noReceipt: noReceipt ? 'true' : 'false',
     receiptDocument: receiptDocument || [],
-    startDate: startDate || '',
-    endDate: endDate || '',
+    sitStartDate: sitStartDate || '',
+    sitEndDate: sitEndDate || '',
   };
 
   const receiptDocumentRef = createRef();
@@ -79,95 +76,103 @@ const ExpenseForm = ({ expense, onBack, onSubmit, onCreateUpload, onUploadComple
             <Form className={classnames(formStyles.form, ppmStyles.form)}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 {/* TODO: ADD WEIGHT TICKET NUMBER */}
-                <DropdownInput label="Select type" name="receiptType" options={expenseOptions} id="receiptType" />
-                <h2>Description</h2>
-                <TextField label="What did you buy?" id="description" name="description" />
-                <Hint className={ppmStyles.hint}>Add a brief description of the expense.</Hint>
                 <FormGroup>
-                  <Fieldset>
-                    <legend className="usa-label">Did you pay with your GTCC? (Government Travel Charge Card)</legend>
-                    <Field
-                      as={Radio}
-                      id="yes-used-gtcc"
-                      label="Yes"
-                      name="paidWithGTCC"
-                      value="true"
-                      checked={values.paidWithGTCC === 'true'}
-                    />
-                    <Field
-                      as={Radio}
-                      id="no-did-not-use-gtcc"
-                      label="No"
-                      name="paidWithGTCC"
-                      value="false"
-                      checked={values.paidWithGTCC === 'false'}
-                    />
-                  </Fieldset>
+                  <DropdownInput label="Select type" name="receiptType" options={expenseOptions} id="receiptType" />
                 </FormGroup>
-                <FormGroup>
-                  <h2>Amount</h2>
-                  <MaskedTextField
-                    defaultValue="0"
-                    name="advanceAmountRequested"
-                    label="Amount requested"
-                    id="advanceAmountRequested"
-                    mask={Number}
-                    scale={0} // digits after point, 0 for integers
-                    signed={false} // disallow negative
-                    thousandsSeparator=","
-                    lazy={false} // immediate masking evaluation
-                    prefix="$"
-                    hintClassName={ppmStyles.innerHint}
-                  />
-                  <Hint>
-                    Enter the total unit price for all items on the receipt that you&apos;re claiming as part of your
-                    PPM moving expenses.
-                  </Hint>
-                  <CheckboxField id="missingReceipt" name="missingReceipt" label="I don't have this receipt" />
-                  <div className="labelWrapper">
-                    <Label
-                      error={
-                        formikProps.touched?.proofOfTrailerOwnershipDocument &&
-                        formikProps.errors?.proofOfTrailerOwnershipDocument
-                      }
-                      htmlFor="receiptDocument"
-                    >
-                      Upload receipt
-                    </Label>
-                  </div>
-                  {formikProps.touched?.proofOfTrailerOwnershipDocument &&
-                    formikProps.errors?.proofOfTrailerOwnershipDocument && (
-                      <ErrorMessage>{formikProps.errors?.proofOfTrailerOwnershipDocument}</ErrorMessage>
-                    )}
-                  <Hint>
-                    <p>{DocumentAndImageUploadInstructions}</p>
-                  </Hint>
-                  <UploadsTable
-                    // className={styles.uploadsTable}
-                    uploads={values.receiptDocument}
-                    onDelete={(uploadId) =>
-                      onUploadDelete(
-                        uploadId,
-                        'receiptDocument',
-                        formikProps.setFieldTouched,
-                        formikProps.setFieldValue,
-                      )
-                    }
-                  />
-                  <FileUpload
-                    name="receiptDocument"
-                    className="receiptDocument"
-                    createUpload={(file) => onCreateUpload('receiptDocument', file)}
-                    labelIdle={UploadDropZoneLabel}
-                    labelIdleMobile={UploadDropZoneLabelMobile}
-                    onChange={(err, upload) => {
-                      formikProps.setFieldTouched('receiptDocument', true);
-                      onUploadComplete(err);
-                      receiptDocumentRef.current.removeFile(upload.id);
-                    }}
-                    ref={receiptDocumentRef}
-                  />
-                </FormGroup>
+                {values.receiptType && (
+                  <>
+                    <FormGroup>
+                      <h2>Description</h2>
+                      <TextField label="What did you buy?" id="description" name="description" />
+                      <Hint className={ppmStyles.hint}>Add a brief description of the expense.</Hint>
+                      <Fieldset>
+                        <legend className="usa-label">
+                          Did you pay with your GTCC? (Government Travel Charge Card)
+                        </legend>
+                        <Field
+                          as={Radio}
+                          id="yes-used-gtcc"
+                          label="Yes"
+                          name="paidWithGTCC"
+                          value="true"
+                          checked={values.paidWithGTCC === 'true'}
+                        />
+                        <Field
+                          as={Radio}
+                          id="no-did-not-use-gtcc"
+                          label="No"
+                          name="paidWithGTCC"
+                          value="false"
+                          checked={values.paidWithGTCC === 'false'}
+                        />
+                      </Fieldset>
+                    </FormGroup>
+                    <FormGroup>
+                      <h2>Amount</h2>
+                      <MaskedTextField
+                        defaultValue="0"
+                        name="advanceAmountRequested"
+                        label="Amount requested"
+                        id="advanceAmountRequested"
+                        mask={Number}
+                        scale={0} // digits after point, 0 for integers
+                        signed={false} // disallow negative
+                        thousandsSeparator=","
+                        lazy={false} // immediate masking evaluation
+                        prefix="$"
+                        hintClassName={ppmStyles.innerHint}
+                      />
+                      <Hint>
+                        Enter the total unit price for all items on the receipt that you&apos;re claiming as part of
+                        your PPM moving expenses.
+                      </Hint>
+                      <CheckboxField id="missingReceipt" name="missingReceipt" label="I don't have this receipt" />
+                      <div className="labelWrapper">
+                        <Label
+                          error={
+                            formikProps.touched?.proofOfTrailerOwnershipDocument &&
+                            formikProps.errors?.proofOfTrailerOwnershipDocument
+                          }
+                          htmlFor="receiptDocument"
+                        >
+                          Upload receipt
+                        </Label>
+                      </div>
+                      {formikProps.touched?.proofOfTrailerOwnershipDocument &&
+                        formikProps.errors?.proofOfTrailerOwnershipDocument && (
+                          <ErrorMessage>{formikProps.errors?.proofOfTrailerOwnershipDocument}</ErrorMessage>
+                        )}
+                      <Hint>
+                        <p>{DocumentAndImageUploadInstructions}</p>
+                      </Hint>
+                      <UploadsTable
+                        // className={styles.uploadsTable}
+                        uploads={values.receiptDocument}
+                        onDelete={(uploadId) =>
+                          onUploadDelete(
+                            uploadId,
+                            'receiptDocument',
+                            formikProps.setFieldTouched,
+                            formikProps.setFieldValue,
+                          )
+                        }
+                      />
+                      <FileUpload
+                        name="receiptDocument"
+                        className="receiptDocument"
+                        createUpload={(file) => onCreateUpload('receiptDocument', file)}
+                        labelIdle={UploadDropZoneLabel}
+                        labelIdleMobile={UploadDropZoneLabelMobile}
+                        onChange={(err, upload) => {
+                          formikProps.setFieldTouched('receiptDocument', true);
+                          onUploadComplete(err);
+                          receiptDocumentRef.current.removeFile(upload.id);
+                        }}
+                        ref={receiptDocumentRef}
+                      />
+                    </FormGroup>
+                  </>
+                )}
                 {values.receiptType === 'storage' && (
                   <FormGroup>
                     <h2>Dates</h2>
