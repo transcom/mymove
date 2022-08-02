@@ -182,7 +182,12 @@ const ExpenseForm = ({
                     <h3>Dates</h3>
                     <DatePickerInput name="sitStartDate" label="Start date" />
                     <DatePickerInput name="sitEndDate" label="End date" />
-                    <h3>Days in storage: {numOfDaysBetweenDates(values.sitStartDate, values.sitEndDate)}</h3>
+                    <h3>
+                      Days in storage:{' '}
+                      {values.sitStartDate && values.sitEndDate
+                        ? numOfDaysBetweenDates(values.sitStartDate, values.sitEndDate)
+                        : ''}
+                    </h3>
                   </FormGroup>
                 )}
               </SectionWrapper>
