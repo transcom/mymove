@@ -25,6 +25,7 @@ const NTSShipmentInfoList = ({
     pickupAddress,
     secondaryPickupAddress,
     agents,
+    mtoAgents,
     counselorRemarks,
     customerRemarks,
     requestedPickupDate,
@@ -51,7 +52,7 @@ const NTSShipmentInfoList = ({
   // and services counselor and show different things.
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, neverShow, shipment);
 
-  const releasingAgent = agents ? agents.find((agent) => agent.agentType === 'RELEASING_AGENT') : false;
+  const releasingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RELEASING_AGENT') : false;
 
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
@@ -88,6 +89,18 @@ const NTSShipmentInfoList = ({
         {storageFacility && storageFacility.facilityName
           ? storageFacility.facilityName
           : getMissingOrDash('storageFacility')}
+      </dd>
+    </div>
+  );
+
+  const storageFacilityContactInfoElementFlags = getDisplayFlags('storageFacilityContactInfo');
+  const storageFacilityContactInfoElement = (
+    <div className={storageFacilityContactInfoElementFlags.classes}>
+      <dt>Storage information</dt>
+      <dd data-testid="storageFacilityName">
+        {storageFacility && storageFacility.phone ? storageFacility.phone : '—'}
+        <br />
+        {storageFacility && storageFacility.email ? storageFacility.email : '—'}
       </dd>
     </div>
   );
@@ -181,15 +194,15 @@ const NTSShipmentInfoList = ({
     </div>
   );
 
-  const releasingAgentFlags = getDisplayFlags('recievingAgent');
+  const releasingAgentFlags = getDisplayFlags('releasingAgent');
   const releasingAgentElement = !releasingAgent ? (
     <div className={releasingAgentFlags.classes}>
-      <dt>Receiving agent</dt>
+      <dt>Releasing agent</dt>
       <dd data-testid="RELEASING_AGENT">—</dd>
     </div>
   ) : (
     <div className={releasingAgentFlags.classes} key={`${releasingAgent.agentType}-${releasingAgent.email}`}>
-      <dt>Receiving agent</dt>
+      <dt>Releasing agent</dt>
       <dd data-testid={releasingAgent.agentType}>{formatAgent(releasingAgent)}</dd>
     </div>
   );
@@ -295,7 +308,7 @@ const NTSShipmentInfoList = ({
             {isExpanded && scheduledDeliveryDateElement}
             {isExpanded && requiredDeliveryDateElement}
             {isExpanded && actualDeliveryDateElement}
-            {isExpanded && releasingAgentElement}
+            {isExpanded && storageFacilityContactInfoElement}
           </dl>
         </Grid>
       </Grid>

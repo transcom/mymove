@@ -27,6 +27,7 @@ const NTSRShipmentInfoList = ({
     displayDestinationType,
     secondaryDeliveryAddress,
     agents,
+    mtoAgents,
     counselorRemarks,
     customerRemarks,
     ntsRecordedWeight,
@@ -44,7 +45,7 @@ const NTSRShipmentInfoList = ({
     sac,
   } = shipment;
 
-  const receivingAgent = agents ? agents.find((agent) => agent.agentType === 'RECEIVING_AGENT') : false;
+  const receivingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RECEIVING_AGENT') : false;
 
   setFlagStyles({
     row: styles.row,
@@ -155,6 +156,18 @@ const NTSRShipmentInfoList = ({
       <dt>Actual pickup date</dt>
       <dd data-testid="actualPickupDate">
         {(actualPickupDate && formatDate(actualPickupDate, 'DD MMM YYYY')) || getMissingOrDash('actualPickupDate')}
+      </dd>
+    </div>
+  );
+
+  const storageFacilityContactInfoElementFlags = getDisplayFlags('storageFacilityContactInfo');
+  const storageFacilityContactInfoElement = (
+    <div className={storageFacilityContactInfoElementFlags.classes}>
+      <dt>Storage information</dt>
+      <dd data-testid="storageFacilityName">
+        {storageFacility && storageFacility.phone ? storageFacility.phone : '—'}
+        <br />
+        {storageFacility && storageFacility.email ? storageFacility.email : '—'}
       </dd>
     </div>
   );
@@ -281,6 +294,7 @@ const NTSRShipmentInfoList = ({
           >
             {isExpanded && scheduledPickupDateElement}
             {isExpanded && actualPickupDateElement}
+            {isExpanded && storageFacilityContactInfoElement}
           </dl>
         </Grid>
         <Grid col={6}>
