@@ -34,3 +34,27 @@
     }
   }
 }
+
+.evaluationReportDLContainer {
+  @include u-padding-left(12px);
+  @include u-padding-right(12px);
+}
+
+.evaluationReportDL {
+  @include u-margin-left(0 !important);
+  @include u-margin-right(0 !important);
+  dd {
+    @include u-width(106px);
+    font-size: 13px;
+  }
+  dt {
+    font-size: 13px;
+  }
+}
+
+.evaluationReportDLRight {
+  @include u-padding-left(16px);
+}
+
+
+

@@ -118,6 +118,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderGetEntitlementsHandler: move_task_order.GetEntitlementsHandlerFunc(func(params move_task_order.GetEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetEntitlements has not yet been implemented")
 		}),
+		EvaluationReportsGetEvaluationReportHandler: evaluation_reports.GetEvaluationReportHandlerFunc(func(params evaluation_reports.GetEvaluationReportParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.GetEvaluationReport has not yet been implemented")
+		}),
 		MtoServiceItemGetMTOServiceItemHandler: mto_service_item.GetMTOServiceItemHandlerFunc(func(params mto_service_item.GetMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.GetMTOServiceItem has not yet been implemented")
 		}),
@@ -154,6 +157,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		QueuesGetServicesCounselingQueueHandler: queues.GetServicesCounselingQueueHandlerFunc(func(params queues.GetServicesCounselingQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetServicesCounselingQueue has not yet been implemented")
 		}),
+		MtoShipmentGetShipmentHandler: mto_shipment.GetShipmentHandlerFunc(func(params mto_shipment.GetShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.GetShipment has not yet been implemented")
+		}),
 		PaymentRequestsGetShipmentsPaymentSITBalanceHandler: payment_requests.GetShipmentsPaymentSITBalanceHandlerFunc(func(params payment_requests.GetShipmentsPaymentSITBalanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.GetShipmentsPaymentSITBalance has not yet been implemented")
 		}),
@@ -174,6 +180,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ShipmentRequestShipmentReweighHandler: shipment.RequestShipmentReweighHandlerFunc(func(params shipment.RequestShipmentReweighParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RequestShipmentReweigh has not yet been implemented")
+		}),
+		EvaluationReportsSaveEvaluationReportHandler: evaluation_reports.SaveEvaluationReportHandlerFunc(func(params evaluation_reports.SaveEvaluationReportParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.SaveEvaluationReport has not yet been implemented")
 		}),
 		MoveSearchMovesHandler: move.SearchMovesHandlerFunc(func(params move.SearchMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.SearchMoves has not yet been implemented")
@@ -308,6 +317,8 @@ type MymoveAPI struct {
 	GhcDocumentsGetDocumentHandler ghc_documents.GetDocumentHandler
 	// MoveTaskOrderGetEntitlementsHandler sets the operation handler for the get entitlements operation
 	MoveTaskOrderGetEntitlementsHandler move_task_order.GetEntitlementsHandler
+	// EvaluationReportsGetEvaluationReportHandler sets the operation handler for the get evaluation report operation
+	EvaluationReportsGetEvaluationReportHandler evaluation_reports.GetEvaluationReportHandler
 	// MtoServiceItemGetMTOServiceItemHandler sets the operation handler for the get m t o service item operation
 	MtoServiceItemGetMTOServiceItemHandler mto_service_item.GetMTOServiceItemHandler
 	// MoveGetMoveHandler sets the operation handler for the get move operation
@@ -332,6 +343,8 @@ type MymoveAPI struct {
 	QueuesGetPaymentRequestsQueueHandler queues.GetPaymentRequestsQueueHandler
 	// QueuesGetServicesCounselingQueueHandler sets the operation handler for the get services counseling queue operation
 	QueuesGetServicesCounselingQueueHandler queues.GetServicesCounselingQueueHandler
+	// MtoShipmentGetShipmentHandler sets the operation handler for the get shipment operation
+	MtoShipmentGetShipmentHandler mto_shipment.GetShipmentHandler
 	// PaymentRequestsGetShipmentsPaymentSITBalanceHandler sets the operation handler for the get shipments payment s i t balance operation
 	PaymentRequestsGetShipmentsPaymentSITBalanceHandler payment_requests.GetShipmentsPaymentSITBalanceHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
@@ -346,6 +359,8 @@ type MymoveAPI struct {
 	ShipmentRequestShipmentDiversionHandler shipment.RequestShipmentDiversionHandler
 	// ShipmentRequestShipmentReweighHandler sets the operation handler for the request shipment reweigh operation
 	ShipmentRequestShipmentReweighHandler shipment.RequestShipmentReweighHandler
+	// EvaluationReportsSaveEvaluationReportHandler sets the operation handler for the save evaluation report operation
+	EvaluationReportsSaveEvaluationReportHandler evaluation_reports.SaveEvaluationReportHandler
 	// MoveSearchMovesHandler sets the operation handler for the search moves operation
 	MoveSearchMovesHandler move.SearchMovesHandler
 	// MoveSetFinancialReviewFlagHandler sets the operation handler for the set financial review flag operation
@@ -519,6 +534,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.MoveTaskOrderGetEntitlementsHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetEntitlementsHandler")
 	}
+	if o.EvaluationReportsGetEvaluationReportHandler == nil {
+		unregistered = append(unregistered, "evaluation_reports.GetEvaluationReportHandler")
+	}
 	if o.MtoServiceItemGetMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.GetMTOServiceItemHandler")
 	}
@@ -555,6 +573,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.QueuesGetServicesCounselingQueueHandler == nil {
 		unregistered = append(unregistered, "queues.GetServicesCounselingQueueHandler")
 	}
+	if o.MtoShipmentGetShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.GetShipmentHandler")
+	}
 	if o.PaymentRequestsGetShipmentsPaymentSITBalanceHandler == nil {
 		unregistered = append(unregistered, "payment_requests.GetShipmentsPaymentSITBalanceHandler")
 	}
@@ -575,6 +596,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ShipmentRequestShipmentReweighHandler == nil {
 		unregistered = append(unregistered, "shipment.RequestShipmentReweighHandler")
+	}
+	if o.EvaluationReportsSaveEvaluationReportHandler == nil {
+		unregistered = append(unregistered, "evaluation_reports.SaveEvaluationReportHandler")
 	}
 	if o.MoveSearchMovesHandler == nil {
 		unregistered = append(unregistered, "move.SearchMovesHandler")
@@ -801,6 +825,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/evaluation-reports/{reportID}"] = evaluation_reports.NewGetEvaluationReport(o.context, o.EvaluationReportsGetEvaluationReportHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}"] = mto_service_item.NewGetMTOServiceItem(o.context, o.MtoServiceItemGetMTOServiceItemHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -849,6 +877,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/shipments/{shipmentID}"] = mto_shipment.NewGetShipment(o.context, o.MtoShipmentGetShipmentHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/payment-requests/{paymentRequestID}/shipments-payment-sit-balance"] = payment_requests.NewGetShipmentsPaymentSITBalance(o.context, o.PaymentRequestsGetShipmentsPaymentSITBalanceHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -874,6 +906,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/shipments/{shipmentID}/request-reweigh"] = shipment.NewRequestShipmentReweigh(o.context, o.ShipmentRequestShipmentReweighHandler)
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/evaluation-reports/{reportID}"] = evaluation_reports.NewSaveEvaluationReport(o.context, o.EvaluationReportsSaveEvaluationReportHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

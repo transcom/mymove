@@ -414,6 +414,93 @@ func init() {
       }
     },
     "/evaluation-reports/{reportID}": {
+      "get": {
+        "description": "Gets an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Gets an evaluation report by ID",
+        "operationId": "getEvaluationReport",
+        "responses": {
+          "200": {
+            "description": "Successfully got the report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "put": {
+        "description": "Saves an evaluation report as a draft",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Saves an evaluation report as a draft",
+        "operationId": "saveEvaluationReport",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully saved the report"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "delete": {
         "description": "Soft deletes an evaluation report by ID",
         "produces": [
@@ -2863,6 +2950,50 @@ func init() {
       }
     },
     "/shipments/{shipmentID}": {
+      "get": {
+        "description": "fetches a shipment by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "fetches a shipment by ID",
+        "operationId": "getShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment to be fetched",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched the shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "delete": {
         "description": "Soft deletes a shipment by ID",
         "produces": [
@@ -4534,7 +4665,11 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string"
         },
         "evaluationLengthMinutes": {
           "type": "integer",
@@ -4543,6 +4678,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "inspectionDate": {
@@ -4566,12 +4702,21 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveReferenceID": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "observedDate": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
         },
         "remarks": {
           "type": "string",
@@ -4581,6 +4726,7 @@ func init() {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "submittedAt": {
@@ -4666,6 +4812,34 @@ func init() {
         "OTHER"
       ],
       "x-nullable": true
+    },
+    "EvaluationReportOfficeUser": {
+      "description": "The authoring office user for an evaluation report",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        }
+      },
+      "readOnly": true
     },
     "EvaluationReportType": {
       "type": "string",
@@ -8266,6 +8440,126 @@ func init() {
       }
     },
     "/evaluation-reports/{reportID}": {
+      "get": {
+        "description": "Gets an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Gets an evaluation report by ID",
+        "operationId": "getEvaluationReport",
+        "responses": {
+          "200": {
+            "description": "Successfully got the report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Saves an evaluation report as a draft",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Saves an evaluation report as a draft",
+        "operationId": "saveEvaluationReport",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully saved the report"
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Soft deletes an evaluation report by ID",
         "produces": [
@@ -11313,6 +11607,65 @@ func init() {
       }
     },
     "/shipments/{shipmentID}": {
+      "get": {
+        "description": "fetches a shipment by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "fetches a shipment by ID",
+        "operationId": "getShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment to be fetched",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched the shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Soft deletes a shipment by ID",
         "produces": [
@@ -13180,7 +13533,11 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string"
         },
         "evaluationLengthMinutes": {
           "type": "integer",
@@ -13190,6 +13547,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "inspectionDate": {
@@ -13213,12 +13571,21 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveReferenceID": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "observedDate": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
         },
         "remarks": {
           "type": "string",
@@ -13228,6 +13595,7 @@ func init() {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "submittedAt": {
@@ -13314,6 +13682,34 @@ func init() {
         "OTHER"
       ],
       "x-nullable": true
+    },
+    "EvaluationReportOfficeUser": {
+      "description": "The authoring office user for an evaluation report",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        }
+      },
+      "readOnly": true
     },
     "EvaluationReportType": {
       "type": "string",

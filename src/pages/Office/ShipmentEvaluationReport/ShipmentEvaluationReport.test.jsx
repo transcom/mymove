@@ -10,7 +10,15 @@ import { MockProviders } from 'testUtils';
 
 const mockMoveCode = 'LR4T8V';
 const mockReportId = v4();
-const mockMtoRefId = 'TODO';
+const mockCustomer = {
+  last_name: 'spaceman',
+  first_name: 'leo',
+  phone: '555-555-5555',
+};
+const mockOrders = {
+  grade: 'E_1',
+  agency: 'COAST_GUARD',
+};
 
 describe('ShipmentEvaluationReport', () => {
   it('renders the page components', async () => {
@@ -18,7 +26,7 @@ describe('ShipmentEvaluationReport', () => {
 
     render(
       <MockProviders initialEntries={[`/moves/LR4T8V/evaluation-reports/${mockReportId}`]}>
-        <ShipmentEvaluationReport />
+        <ShipmentEvaluationReport customerInfo={mockCustomer} orders={mockOrders} />
       </MockProviders>,
     );
 
@@ -27,7 +35,7 @@ describe('ShipmentEvaluationReport', () => {
 
     expect(await screen.getByText(`REPORT ID #${mockReportId}`)).toBeInTheDocument();
     expect(await screen.getByText(`MOVE CODE ${mockMoveCode}`)).toBeInTheDocument();
-    expect(await screen.getByText(`MTO REFERENCE ID ${mockMtoRefId}`)).toBeInTheDocument();
+    expect(await screen.getByText('MTO REFERENCE ID #')).toBeInTheDocument();
 
     // Page content sections
     expect(await screen.getByRole('heading', { name: 'Shipment information', level: 2 })).toBeInTheDocument();
@@ -44,7 +52,7 @@ describe('ShipmentEvaluationReport', () => {
 
     render(
       <MockProviders initialEntries={[`/moves/LR4T8V/evaluation-reports/${mockReportId}`]}>
-        <ShipmentEvaluationReport />
+        <ShipmentEvaluationReport customerInfo={mockCustomer} orders={mockOrders} />
       </MockProviders>,
     );
 

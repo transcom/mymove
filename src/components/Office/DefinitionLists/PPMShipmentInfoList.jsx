@@ -1,6 +1,7 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
 
@@ -10,7 +11,15 @@ import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags } from 'utils/displayFlags';
 
-const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, showWhenCollapsed, isExpanded }) => {
+const PPMShipmentInfoList = ({
+  className,
+  shipment,
+  warnIfMissing,
+  errorIfMissing,
+  showWhenCollapsed,
+  isExpanded,
+  isForEvaluationReport,
+}) => {
   const {
     hasRequestedAdvance,
     advanceAmountRequested,
@@ -138,7 +147,7 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
     </div>
   );
 
-  return (
+  const defaultDetails = (
     <dl
       className={classNames(
         shipmentDefinitionListsStyles.ShipmentDefinitionLists,
@@ -163,6 +172,45 @@ const PPMShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissin
       {counselorRemarksElement}
     </dl>
   );
+
+  const evaluationReportDetails = (
+    <GridContainer className={shipmentDefinitionListsStyles.evaluationReportDLContainer}>
+      <Grid row className={shipmentDefinitionListsStyles.evaluationReportRow}>
+        <Grid col={6}>
+          <dl
+            className={classNames(
+              shipmentDefinitionListsStyles.evaluationReportDL,
+              styles.descriptionList,
+              styles.tableDisplay,
+              styles.compact,
+              className,
+            )}
+            data-testid="shipment-info-list-left"
+          >
+            {isExpanded && originZIPElement}
+            {isExpanded && expectedDepartureDateElement}
+          </dl>
+        </Grid>
+        <Grid col={6}>
+          <dl
+            className={classNames(
+              shipmentDefinitionListsStyles.evaluationReportDL,
+              shipmentDefinitionListsStyles.evaluationReportDLRight,
+              styles.descriptionList,
+              styles.tableDisplay,
+              styles.compact,
+              className,
+            )}
+            data-testid="shipment-info-list-right"
+          >
+            {isExpanded && destinationZIPElement}
+          </dl>
+        </Grid>
+      </Grid>
+    </GridContainer>
+  );
+
+  return <div>{isForEvaluationReport ? evaluationReportDetails : defaultDetails}</div>;
 };
 
 PPMShipmentInfoList.propTypes = {
@@ -172,6 +220,7 @@ PPMShipmentInfoList.propTypes = {
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
   isExpanded: PropTypes.bool,
+  isForEvaluationReport: PropTypes.bool,
 };
 
 PPMShipmentInfoList.defaultProps = {
@@ -180,6 +229,7 @@ PPMShipmentInfoList.defaultProps = {
   errorIfMissing: [],
   showWhenCollapsed: [],
   isExpanded: false,
+  isForEvaluationReport: false,
 };
 
 export default PPMShipmentInfoList;

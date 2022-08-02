@@ -67,6 +67,21 @@ export const NTSBasic = () => (
   />
 );
 
+export const NTSBasicEvaluationReport = () => (
+  <NTSShipmentInfoList
+    shipment={{
+      counselorRemarks: info.counselorRemarks,
+      requestedPickupDate: info.requestedPickupDate,
+      storageFacility: info.storageFacility,
+      pickupAddress: info.pickupAddress,
+      tacType: info.tacType,
+      sacType: info.sacType,
+      serviceOrderNumber: info.serviceOrderNumber,
+    }}
+    isForEvaluationReport
+  />
+);
+
 export const NTSMissingInfo = () => (
   <NTSShipmentInfoList
     isExpanded

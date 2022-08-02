@@ -141,6 +141,17 @@ func EvaluationReportList(evaluationReports models.EvaluationReports) ghcmessage
 	return payload
 }
 
+func EvaluationReportOfficeUser(officeUser models.OfficeUser) ghcmessages.EvaluationReportOfficeUser {
+	payload := ghcmessages.EvaluationReportOfficeUser{
+		Email:     officeUser.Email,
+		FirstName: officeUser.FirstName,
+		ID:        strfmt.UUID(officeUser.ID.String()),
+		LastName:  officeUser.LastName,
+		Phone:     officeUser.Telephone,
+	}
+	return payload
+}
+
 // EvaluationReport payload
 func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.EvaluationReport {
 	if evaluationReport == nil {
@@ -162,6 +173,8 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 	}
 	reportType := ghcmessages.EvaluationReportType(evaluationReport.Type)
 
+	evaluationReportOfficeUserPayload := EvaluationReportOfficeUser(evaluationReport.OfficeUser)
+
 	payload := &ghcmessages.EvaluationReport{
 		CreatedAt:               strfmt.DateTime(evaluationReport.CreatedAt),
 		EvaluationLengthMinutes: handlers.FmtIntPtrToInt64(evaluationReport.EvaluationLengthMinutes),
@@ -178,6 +191,9 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		TravelTimeMinutes:       handlers.FmtIntPtrToInt64(evaluationReport.TravelTimeMinutes),
 		Type:                    reportType,
 		ViolationsObserved:      evaluationReport.ViolationsObserved,
+		MoveReferenceID:         evaluationReport.Move.ReferenceID,
+		OfficeUser:              &evaluationReportOfficeUserPayload,
+		ETag:                    etag.GenerateEtag(evaluationReport.UpdatedAt),
 	}
 	return payload
 }
