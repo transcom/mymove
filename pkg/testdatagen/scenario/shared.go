@@ -1056,7 +1056,6 @@ func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUpl
 	testdatagen.MakeWeightTicket(appCtx.DB(), weightTicketAssertions)
 }
 
-// createApprovedMoveWithPPMMovingExpense implicitly creates a weight ticket as well
 func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("146c2665-5b8a-4653-8434-9a4460de30b5"),
