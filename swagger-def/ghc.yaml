@@ -4450,6 +4450,8 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
+      eTag:
+        type: string
       submittedAt:
         type: string
         format: date-time
