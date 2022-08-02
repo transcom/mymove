@@ -1,0 +1,117 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.shipmentAddresses {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  @include u-padding-left(8px);
+  @include u-padding-right(8px);
+  width: 100%;
+}
+
+.headingShipmentID {
+  color: $base-dark;
+  font-size: 13px;
+  @include u-padding-right(17px);
+}
+
+.ntsHeaderText {
+  display: flex;
+  justify-content: space-evenly;
+  font-size: 15px;
+  @include u-padding-left(8px);
+  color: $base-dark;
+}
+
+.ntsHeaderTextField {
+  width: 50%;
+}
+
+.shipmentAddressArrow {
+  flex: 0;
+  @include u-padding-left(17px);
+  @include u-padding-right(17px);
+  @include u-padding-top(4px);
+  svg {
+    display: block;
+    margin: auto;
+  }
+}
+
+.shipmentAddressTextFields {
+    flex: 1;
+}
+
+.ShipmentCard {
+  .heading {
+    display: flex;
+    align-items: center;
+    justify-items: flex-start;
+    @include u-text('base-darkest');
+    @include u-margin(0);
+    @include u-padding(2);
+
+    h3 {
+      display: inline;
+      font-weight: normal;
+      @include u-margin(0);
+      @include u-margin-x(1);
+    }
+
+    :global(.usa-tag) {
+      @include u-font-size('body', 3xs);
+      background-color: $info-light;
+    }
+
+    :global(.usa-tag--red) {
+      @include u-font-size('body', 3xs);
+      background-color: $error-light;
+    }
+
+    .headingTagWrapper {
+      display: flex;
+      align-items: center;
+      flex-grow: 1;
+    }
+
+    :global(.usa-checkbox__label) {
+      @include u-margin(0);
+    }
+
+    :global(.usa-checkbox) + h3 {
+      @include u-margin-left(1);
+    }
+
+    svg + h3 {
+      @include u-margin-left(2);
+    }
+    .approved {
+      color: $success;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .container {
+    @include u-padding-left(0);
+    @include u-padding-right(0);
+    @include u-padding-bottom(2);
+  }
+
+  .shipmentDisplayInfo {
+    @include u-margin-x(6);
+    @include u-margin-y(0);
+  }
+
+  .noIcon .shipmentDisplayInfo {
+    @include u-margin-x(3);
+    @include u-padding-y(1.5);
+  }
+
+  .editButton {
+    @include u-margin-x(3);
+    @include u-margin-y(3);
+  }
+}

@@ -1,6 +1,7 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
 
@@ -10,10 +11,23 @@ import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags, getMissingOrDash } from 'utils/displayFlags';
 
-const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, showWhenCollapsed, isExpanded }) => {
+const ShipmentInfoList = ({
+  className,
+  shipment,
+  warnIfMissing,
+  errorIfMissing,
+  showWhenCollapsed,
+  isExpanded,
+  isForEvaluationReport,
+}) => {
   const {
+    actualPickupDate,
     requestedPickupDate,
+    requiredDeliveryDate,
+    scheduledDeliveryDate,
     requestedDeliveryDate,
+    scheduledPickupDate,
+    actualDeliveryDate,
     pickupAddress,
     secondaryPickupAddress,
     destinationAddress,
@@ -64,11 +78,27 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
     </div>
   );
 
-  const requestedPickupDateElementFlags = getDisplayFlags('requestedPickupDate');
+  const scheduledPickupDateElementFlags = getDisplayFlags('scheduledPickupDate');
+  const scheduledPickupDateElement = (
+    <div className={scheduledPickupDateElementFlags.classes}>
+      <dt>Scheduled pickup date</dt>
+      <dd data-testid="requestedPickupDate">{scheduledPickupDate && formatDate(scheduledPickupDate, 'DD MMM YYYY')}</dd>
+    </div>
+  );
+
+  const requestedPickupDateElementFlags = getDisplayFlags('scheduledPickupDate');
   const requestedPickupDateElement = (
     <div className={requestedPickupDateElementFlags.classes}>
       <dt>Requested pickup date</dt>
       <dd data-testid="requestedPickupDate">{requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')}</dd>
+    </div>
+  );
+
+  const actualPickupDateElementFlags = getDisplayFlags('actualPickupDate');
+  const actualPickupDateElement = (
+    <div className={requestedPickupDateElementFlags.classes}>
+      <dt>Actual pickup date</dt>
+      <dd data-testid="actualPickupDate">{actualPickupDate && formatDate(actualPickupDate, 'DD MMM YYYY')}</dd>
     </div>
   );
 
@@ -77,7 +107,39 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
     <div className={requestedDeliveryDateElementFlags.classes}>
       <dt>Requested delivery date</dt>
       <dd data-testid="requestedDeliveryDate">
-        {requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')}
+        {(requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')) ||
+          getMissingOrDash('requestedDeliveryDate')}
+      </dd>
+    </div>
+  );
+
+  const scheduledDeliveryDateElementFlags = getDisplayFlags('scheduledDeliveryDate');
+  const scheduledDeliveryDateElement = (
+    <div className={scheduledDeliveryDateElementFlags.classes}>
+      <dt>Scheduled delivery date</dt>
+      <dd data-testid="scheduledDeliveryDate">
+        {(scheduledDeliveryDate && formatDate(scheduledDeliveryDate, 'DD MMM YYYY')) ||
+          getMissingOrDash('scheduledDeliveryDate')}
+      </dd>
+    </div>
+  );
+
+  const requiredDeliveryDateElementFlags = getDisplayFlags('requiredDeliveryDate');
+  const requiredDeliveryDateElement = (
+    <div className={requiredDeliveryDateElementFlags.classes}>
+      <dt>Required delivery date</dt>
+      <dd data-testid="requiredDeliveryDate">
+        {(requiredDeliveryDate && formatDate(requiredDeliveryDate, 'DD MMM YYYY')) ||
+          getMissingOrDash('requiredDeliveryDate')}
+      </dd>
+    </div>
+  );
+  const actualDeliveryDateElementFlags = getDisplayFlags('actualDeliveryDate');
+  const actualDeliveryDateElement = (
+    <div className={actualDeliveryDateElementFlags.classes}>
+      <dt>Actual delivery date</dt>
+      <dd data-testid="actualDeliveryDate">
+        {(actualDeliveryDate && formatDate(actualDeliveryDate, 'DD MMM YYYY')) || getMissingOrDash('actualDeliverDate')}
       </dd>
     </div>
   );
@@ -142,7 +204,7 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
     </div>
   );
 
-  return (
+  const defaultDetails = (
     <dl
       className={classNames(
         shipmentDefinitionListsStyles.ShipmentDefinitionLists,
@@ -166,6 +228,50 @@ const ShipmentInfoList = ({ className, shipment, warnIfMissing, errorIfMissing, 
       {customerRemarksElement}
     </dl>
   );
+
+  const evaluationReportDetails = (
+    <GridContainer className={shipmentDefinitionListsStyles.evaluationReportDLContainer}>
+      <Grid row className={shipmentDefinitionListsStyles.evaluationReportRow}>
+        <Grid col={6}>
+          <dl
+            className={classNames(
+              shipmentDefinitionListsStyles.evaluationReportDL,
+              styles.descriptionList,
+              styles.tableDisplay,
+              styles.compact,
+              className,
+            )}
+            data-testid="shipment-info-list-left"
+          >
+            {showElement(scheduledPickupDateElement) && scheduledPickupDateElement}
+            {showElement(actualPickupDateElementFlags) && actualPickupDateElement}
+            {showElement(requestedDeliveryDateElementFlags) && requestedDeliveryDateElement}
+            {showElement(agentsElementFlags) && releasingAgentElement}
+          </dl>
+        </Grid>
+        <Grid col={6}>
+          <dl
+            className={classNames(
+              shipmentDefinitionListsStyles.evaluationReportDL,
+              shipmentDefinitionListsStyles.evaluationReportDLRight,
+              styles.descriptionList,
+              styles.tableDisplay,
+              styles.compact,
+              className,
+            )}
+            data-testid="shipment-info-list-right"
+          >
+            {showElement(scheduledDeliveryDateElementFlags) && scheduledDeliveryDateElement}
+            {showElement(requiredDeliveryDateElementFlags) && requiredDeliveryDateElement}
+            {showElement(actualDeliveryDateElementFlags) && actualDeliveryDateElement}
+            {showElement(agentsElementFlags) && receivingAgentElement}
+          </dl>
+        </Grid>
+      </Grid>
+    </GridContainer>
+  );
+
+  return <div>{isForEvaluationReport ? evaluationReportDetails : defaultDetails}</div>;
 };
 
 ShipmentInfoList.propTypes = {

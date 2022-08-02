@@ -12,12 +12,12 @@ import shipmentEvaluationReportStyles from './ShipmentEvaluationReport.module.sc
 import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
 import { deleteEvaluationReport } from 'services/ghcApi';
 import { useShipmentEvaluationReportQueries } from 'hooks/queries';
-import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import DataTable from 'components/DataTable';
 import { CustomerShape } from 'types';
 import { OrdersShape } from 'types/customerShapes';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { shipmentTypeLabels } from 'content/shipments';
+import EvaluationReportShipmentDisplay from 'components/Office/EvaluationReportShipmentDisplay/EvaluationReportShipmentDisplay';
 
 const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
   const { moveCode, reportId } = useParams();
@@ -36,7 +36,7 @@ const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
       heading: shipmentTypeLabels[shipment.shipmentType],
       isDiversion: shipment.diversion,
       shipmentStatus: shipment.status,
-      destinationAddress: shipment.destinationAddress || '-',
+      destinationAddress: shipment.destinationAddress,
     };
   };
 
@@ -100,11 +100,11 @@ const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
             <Grid col desktop={{ col: 8 }}>
               <h2>Shipment information</h2>
               {mtoShipment.id && (
-                <ShipmentDisplay
+                <EvaluationReportShipmentDisplay
                   isSubmitted
                   shipmentId={mtoShipment.id}
                   displayInfo={shipmentDisplayInfo(mtoShipment)}
-                  shipmentType={mtoShipment.type}
+                  shipmentType={mtoShipment.shipmentType}
                 />
               )}
             </Grid>
