@@ -401,6 +401,53 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 }
 
+func (suite *HandlerSuite) TestGetShipmentHandler() {
+	// Success integration test
+	suite.Run("Successful fetch (integration) test", func() {
+		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		fetcher := mtoshipment.NewMTOShipmentFetcher()
+		request := httptest.NewRequest("GET", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+		params := mtoshipmentops.GetShipmentParams{
+			HTTPRequest: request,
+			ShipmentID:  strfmt.UUID(shipment.ID.String()),
+		}
+
+		handler := GetMTOShipmentHandler{
+			HandlerConfig:      handlerConfig,
+			mtoShipmentFetcher: fetcher,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.GetShipmentOK{}, response)
+	})
+	// 404 response
+	suite.Run("404 response when the service returns not found", func() {
+		uuidForShipment, _ := uuid.NewV4()
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		fetcher := mtoshipment.NewMTOShipmentFetcher()
+		request := httptest.NewRequest("GET", fmt.Sprintf("/shipments/%s", uuidForShipment.String()), nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+		params := mtoshipmentops.GetShipmentParams{
+			HTTPRequest: request,
+			ShipmentID:  strfmt.UUID(uuidForShipment.String()),
+		}
+
+		handler := GetMTOShipmentHandler{
+			HandlerConfig:      handlerConfig,
+			mtoShipmentFetcher: fetcher,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.GetShipmentNotFound{}, response)
+	})
+}
+
 func (suite *HandlerSuite) TestApproveShipmentHandler() {
 	suite.Run("Returns 200 when all validations pass", func() {
 		move := testdatagen.MakeAvailableMove(suite.DB())
