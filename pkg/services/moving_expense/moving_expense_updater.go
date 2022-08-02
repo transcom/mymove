@@ -2,7 +2,6 @@ package movingexpense
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gofrs/uuid"
 
@@ -69,7 +68,6 @@ func FetchMovingExpenseByID(appContext appcontext.AppContext, movingExpenseID uu
 		EagerPreload("Document.UserUploads.Upload").Find(&movingExpense, movingExpenseID)
 
 	if err != nil {
-		fmt.Println(err.Error())
 		switch err {
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(movingExpenseID, "while looking for MovingExpense")

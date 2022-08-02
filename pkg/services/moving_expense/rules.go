@@ -1,8 +1,6 @@
 package movingexpense
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -85,9 +83,6 @@ func checkUpdateRequiredFields() movingExpenseValidator {
 		}
 
 		if newMovingExpense.Status != nil {
-			if newMovingExpense.Reason != nil {
-				fmt.Printf("newMovingExpense reason %s\n", *newMovingExpense.Reason)
-			}
 			if (*newMovingExpense.Status == models.PPMDocumentStatusExcluded || *newMovingExpense.Status == models.PPMDocumentStatusRejected) && (newMovingExpense.Reason == nil || *newMovingExpense.Reason == "") {
 				verrs.Add("Reason", "A reason must be provided when the status is EXCLUDED or REJECTED")
 			}
