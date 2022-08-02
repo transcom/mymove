@@ -76,7 +76,7 @@ ExistingExpenses.args = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    receiptType: 'packing_materials',
+    expenseType: 'packing_materials',
     description: 'bubble wrap',
     missingReceipt: false,
     paidWithGTCC: false,
@@ -113,7 +113,7 @@ SITExpenses.args = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    receiptType: 'storage',
+    expenseType: 'storage',
     description: '10x10 storage pod',
     missingReceipt: false,
     paidWithGTCC: false,

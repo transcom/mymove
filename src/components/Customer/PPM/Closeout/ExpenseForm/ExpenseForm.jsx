@@ -23,7 +23,7 @@ import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZone
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 
 const validationSchema = Yup.object().shape({
-  receiptType: Yup.string().required('Required'),
+  expenseType: Yup.string().required('Required'),
   description: Yup.string().required('Required'),
   paidWithGTCC: Yup.boolean().required('Required'),
   amount: Yup.number().required('Required'),
@@ -31,13 +31,13 @@ const validationSchema = Yup.object().shape({
   receiptDocument: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
   sitStartDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-    .when('receiptType', {
+    .when('expenseType', {
       is: 'storage',
       then: (schema) => schema.required('Required'),
     }),
   sitEndDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-    .when('receiptType', {
+    .when('expenseType', {
       is: 'storage',
       then: (schema) => schema.required('Required'),
     }),
@@ -52,11 +52,11 @@ const ExpenseForm = ({
   onUploadComplete,
   onUploadDelete,
 }) => {
-  const { receiptType, description, paidWithGTCC, amount, missingReceipt, receiptDocument, sitStartDate, sitEndDate } =
+  const { expenseType, description, paidWithGTCC, amount, missingReceipt, receiptDocument, sitStartDate, sitEndDate } =
     expense || {};
 
   const initialValues = {
-    receiptType: receiptType || '',
+    expenseType: expenseType || '',
     description: description || '',
     paidWithGTCC: paidWithGTCC ? 'true' : 'false',
     amount: amount ? `${amount}` : '',
@@ -86,9 +86,9 @@ const ExpenseForm = ({
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>{`Receipt ${receiptNumber}`}</h2>
                 <FormGroup>
-                  <DropdownInput label="Select type" name="receiptType" options={expenseOptions} id="receiptType" />
+                  <DropdownInput label="Select type" name="expenseType" options={expenseOptions} id="expenseType" />
                 </FormGroup>
-                {values.receiptType && (
+                {values.expenseType && (
                   <>
                     <FormGroup>
                       <h3>Description</h3>
@@ -177,7 +177,7 @@ const ExpenseForm = ({
                     </FormGroup>
                   </>
                 )}
-                {values.receiptType === 'storage' && (
+                {values.expenseType === 'storage' && (
                   <FormGroup>
                     <h3>Dates</h3>
                     <DatePickerInput name="sitStartDate" label="Start date" />
