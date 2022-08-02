@@ -361,4 +361,184 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportNoContent{}, response)
 	})
+	suite.Run("Not found error", func() {
+		reportID := uuid.Must(uuid.NewV4())
+
+		updater := &mocks.EvaluationReportUpdater{}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := SaveEvaluationReportHandler{handlerConfig, updater}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+
+		params := evaluationReportop.SaveEvaluationReportParams{
+			HTTPRequest: request,
+			Body: &ghcmessages.EvaluationReport{
+				Remarks: swag.String("new remarks"),
+			},
+			ReportID: *handlers.FmtUUID(reportID),
+		}
+
+		updater.On("UpdateEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.EvaluationReport"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("string"),
+		).Return(apperror.NewNotFoundError(reportID, "message")).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportNotFound{}, response)
+	})
+	suite.Run("Invalid input error", func() {
+		reportID := uuid.Must(uuid.NewV4())
+
+		updater := &mocks.EvaluationReportUpdater{}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := SaveEvaluationReportHandler{handlerConfig, updater}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+
+		params := evaluationReportop.SaveEvaluationReportParams{
+			HTTPRequest: request,
+			Body: &ghcmessages.EvaluationReport{
+				Remarks: swag.String("new remarks"),
+			},
+			ReportID: *handlers.FmtUUID(reportID),
+		}
+
+		updater.On("UpdateEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.EvaluationReport"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("string"),
+		).Return(apperror.NewInvalidInputError(reportID, nil, nil, "message")).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportUnprocessableEntity{}, response)
+	})
+	suite.Run("Precondition failed error", func() {
+		reportID := uuid.Must(uuid.NewV4())
+
+		updater := &mocks.EvaluationReportUpdater{}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := SaveEvaluationReportHandler{handlerConfig, updater}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+
+		params := evaluationReportop.SaveEvaluationReportParams{
+			HTTPRequest: request,
+			Body: &ghcmessages.EvaluationReport{
+				Remarks: swag.String("new remarks"),
+			},
+			ReportID: *handlers.FmtUUID(reportID),
+		}
+
+		updater.On("UpdateEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.EvaluationReport"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("string"),
+		).Return(apperror.NewPreconditionFailedError(reportID, nil)).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportPreconditionFailed{}, response)
+	})
+	suite.Run("Forbidden error", func() {
+		reportID := uuid.Must(uuid.NewV4())
+
+		updater := &mocks.EvaluationReportUpdater{}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := SaveEvaluationReportHandler{handlerConfig, updater}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+
+		params := evaluationReportop.SaveEvaluationReportParams{
+			HTTPRequest: request,
+			Body: &ghcmessages.EvaluationReport{
+				Remarks: swag.String("new remarks"),
+			},
+			ReportID: *handlers.FmtUUID(reportID),
+		}
+
+		updater.On("UpdateEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.EvaluationReport"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("string"),
+		).Return(apperror.NewForbiddenError("")).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportForbidden{}, response)
+	})
+	suite.Run("Conflict error", func() {
+		reportID := uuid.Must(uuid.NewV4())
+
+		updater := &mocks.EvaluationReportUpdater{}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := SaveEvaluationReportHandler{handlerConfig, updater}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+
+		params := evaluationReportop.SaveEvaluationReportParams{
+			HTTPRequest: request,
+			Body: &ghcmessages.EvaluationReport{
+				Remarks: swag.String("new remarks"),
+			},
+			ReportID: *handlers.FmtUUID(reportID),
+		}
+
+		updater.On("UpdateEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.EvaluationReport"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("string"),
+		).Return(apperror.NewConflictError(reportID, "")).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportConflict{}, response)
+	})
+	suite.Run("Unknown error", func() {
+		reportID := uuid.Must(uuid.NewV4())
+
+		updater := &mocks.EvaluationReportUpdater{}
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handler := SaveEvaluationReportHandler{handlerConfig, updater}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+
+		params := evaluationReportop.SaveEvaluationReportParams{
+			HTTPRequest: request,
+			Body: &ghcmessages.EvaluationReport{
+				Remarks: swag.String("new remarks"),
+			},
+			ReportID: *handlers.FmtUUID(reportID),
+		}
+
+		updater.On("UpdateEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.EvaluationReport"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("string"),
+		).Return(fmt.Errorf("this is some sort of error")).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportInternalServerError{}, response)
+	})
 }
