@@ -118,7 +118,7 @@ describe('TIO user', () => {
 
     // View Orders page
     cy.contains('View orders').click();
-    cy.screenshot();
+    cy.wait(1000);
     cy.wait(['@getMoves', '@getOrders', '@getDocuments']);
     cy.get('form').within(($form) => {
       cy.get('input[name="tac"]').click().clear().type('E15A');
@@ -235,7 +235,7 @@ describe('TIO user', () => {
     const paymentRequestId = 'ea945ab7-099a-4819-82de-6968efe131dc';
 
     // TIO Payment Requests queue
-    cy.screenshot();
+    cy.wait(1000);
     cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
     cy.get('[data-uuid="' + paymentRequestId + '"]').click();
 
@@ -281,7 +281,7 @@ describe('TIO user', () => {
     const paymentRequestId = 'ea945ab7-099a-4819-82de-6968efe131dc';
 
     // TIO Payment Requests queue
-    cy.screenshot();
+    cy.wait(1000);
     cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
     cy.get('#locator').type('TIOFLO');
     cy.get('th[data-testid="locator"]').first().click();
@@ -312,7 +312,7 @@ describe('TIO user', () => {
     const paymentRequestId = 'ea945ab7-099a-4819-82de-6968efe131dc';
 
     // TIO Payment Requests queue
-    cy.screenshot();
+    cy.wait(1000);
     cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
     cy.get('#locator').type('TIOFLO');
     cy.get('th[data-testid="locator"]').first().click();
@@ -548,7 +548,7 @@ describe('TIO user', () => {
 
   it('can add/edit TAC/SAC', () => {
     // TIO Payment Requests queue
-    cy.screenshot();
+    cy.wait(1000);
     cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
     cy.get('#locator').type('NTSTIO');
     cy.get('th[data-testid="locator"]').first().click();
@@ -583,7 +583,7 @@ describe('TIO user', () => {
 
   it('can view and approve service items', () => {
     // TIO Payment Requests queue
-    cy.screenshot();
+    cy.wait(1000);
     cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
     cy.get('#locator').type('NTSTIO');
     cy.get('th[data-testid="locator"]').first().click();
