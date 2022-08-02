@@ -62,7 +62,6 @@ type EvaluationReport struct {
 type EvaluationReports []EvaluationReport
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (r *EvaluationReport) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	if r.ShipmentID != nil {

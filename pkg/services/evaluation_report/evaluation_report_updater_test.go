@@ -14,8 +14,6 @@ import (
 )
 
 func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
-	// Since the service object doesn't hold any state, we can declare it up here and
-	// reuse it in all of our tests
 	updater := NewEvaluationReportUpdater()
 
 	suite.Run("successful save", func() {
@@ -25,9 +23,6 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		// Copy report to new object
 		report := originalReport
 
-		// swag.String and other swag.<Type> functions just give you a pointer to the thing
-		// you pass in. One might expect to be able to use the '&' operator, but Go won't
-		// let you use it on literal values.
 		report.Remarks = swag.String("spectacular packing job!!")
 
 		// Attempt to update the report
@@ -88,7 +83,7 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 
 		// Our bogus report ID should cause an error
 		suite.Error(err)
-		// TODO check that we're getting the correct error
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 	suite.Run("saving evaluation report created by another office user should fail", func() {
 		// Create a report
@@ -152,28 +147,16 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
-	// I'm going to need pointers to all of these things later on, and so I'm copying
-	// them to variables that will be easy to turn into pointers with the address of operator (&) later.
-	// Go won't directly give you a pointer to a constant or the return value of a function.
-	// I also can't use swag.* functions on the constants here because they are a custom type.
 	physical := models.EvaluationReportInspectionTypePhysical
 	virtual := models.EvaluationReportInspectionTypeVirtual
 	dataReview := models.EvaluationReportInspectionTypeDataReview
 	currentTime := time.Now()
 
-	// This is a "table driven test"
-	// which means that I'm setting up a data structure that holds stuff that will be used
-	// for multiple similar tests
-	// and then iterating over it to generate a test for each item.
-	// here's a blog with that explains some more about it: https://dave.cheney.net/2019/05/07/prefer-table-driven-tests
-	// I'm not super happy with this one and will probably end up refactoring it a lot.
 	testCases := map[string]struct {
 		inspectionType    *models.EvaluationReportInspectionType
 		travelTimeMinutes *int
 		observedDate      *time.Time
-		// TODO when we figure out what the errors are going to look like, we should
-		// TODO specify the expected errors in the test case.
-		expectedError bool
+		expectedError     bool
 	}{
 		"travel time set for physical report type should succeed": {
 			inspectionType:    &physical,
@@ -207,15 +190,11 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		},
 	}
 
-	// iterate over test cases
 	for name, tc := range testCases {
 		name := name
 		tc := tc
 
-		// Create a new test for each test case
 		suite.Run(name, func() {
-			// this doesnt really do exactly what i want
-			// i would like to create a base report, and then apply an update with the new stuff to it
 			report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
 			report.InspectionType = tc.inspectionType
 			report.TravelTimeMinutes = tc.travelTimeMinutes
@@ -228,5 +207,4 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 			}
 		})
 	}
-
 }

@@ -22,8 +22,6 @@ func NewEvaluationReportUpdater() services.EvaluationReportUpdater {
 	return &evaluationReportUpdater{}
 }
 
-// does this take an evaluation report ID separately or will we get it from the model?
-// I think we'll find out which works better once we get to the handler
 func (u evaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppContext, evaluationReport *models.EvaluationReport, officeUserID uuid.UUID, eTag string) error {
 	var originalReport models.EvaluationReport
 	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Find(&originalReport, evaluationReport.ID)
@@ -41,7 +39,7 @@ func (u evaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppCon
 	}
 
 	if officeUserID != originalReport.OfficeUserID {
-		return apperror.NewForbiddenError("A report may only be saved by the user that created it")
+		return apperror.NewForbiddenError("A report may only be saved by the office user that created it")
 	}
 
 	if originalReport.SubmittedAt != nil {
