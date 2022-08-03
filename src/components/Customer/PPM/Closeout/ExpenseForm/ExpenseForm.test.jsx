@@ -23,6 +23,22 @@ const defaultProps = {
   onSubmit: jest.fn(),
 };
 
+const missingReceiptProps = {
+  expense: {
+    id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
+    ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
+    expenseType: 'packing_materials',
+    description: 'bubble wrap',
+    missingReceipt: true,
+  },
+  receiptNumber: '1',
+  onCreateUpload: jest.fn(),
+  onUploadComplete: jest.fn(),
+  onUploadDelete: jest.fn(),
+  onBack: jest.fn(),
+  onSubmit: jest.fn(),
+};
+
 const expenseRequiredProps = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
@@ -127,6 +143,18 @@ describe('ExpenseForm component', () => {
 
       expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+    });
+
+    it('populates edit form when reciept is missing', async () => {
+      render(<ExpenseForm {...defaultProps} {...missingReceiptProps} />);
+      await waitFor(() => {
+        expect(screen.getByLabelText('What did you buy?')).toHaveDisplayValue('bubble wrap');
+      });
+      expect(
+        screen.getByText(
+          'If you can, get a replacement copy of your receipt and upload that. If that is not possible, write and sign a statement that explains why this receipt is missing. Include details about where and when you purchased this item. Upload that statement. Your reimbursement for this expense will be based on the information you provide.',
+        ),
+      ).toBeInTheDocument();
     });
 
     it('populates edit form with SIT values', async () => {
