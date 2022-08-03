@@ -1,10 +1,8 @@
+import moment from 'moment';
+
 export default function numOfDaysBetweenDates(date1, date2) {
-  const jsDate1 = new Date(date1);
-  const jsDate2 = new Date(date2);
+  const mDate1 = moment(date1);
+  const mDate2 = moment(date2);
 
-  // To calculate the time difference of two dates
-  const timeDiff = jsDate2.getTime() - jsDate1.getTime();
-
-  // To calculate the no. of days between two dates
-  return Math.round(timeDiff / (1000 * 3600 * 24));
+  return mDate2.diff(mDate1, 'days');
 }
