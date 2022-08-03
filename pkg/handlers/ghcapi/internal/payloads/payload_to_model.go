@@ -484,7 +484,7 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 		Shipment:                nil,
 		ShipmentID:              nil,
 		Type:                    models.EvaluationReportType(evaluationReport.Type),
-		InspectionDate:          handlers.FmtDateTimePtrToPopPtr(evaluationReport.InspectionDate),
+		InspectionDate:          (*time.Time)(evaluationReport.InspectionDate),
 		InspectionType:          inspectionType,
 		TravelTimeMinutes:       travelTimeMinutes,
 		Location:                location,

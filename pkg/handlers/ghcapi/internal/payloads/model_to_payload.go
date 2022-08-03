@@ -179,7 +179,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		CreatedAt:               strfmt.DateTime(evaluationReport.CreatedAt),
 		EvaluationLengthMinutes: handlers.FmtIntPtrToInt64(evaluationReport.EvaluationLengthMinutes),
 		ID:                      id,
-		InspectionDate:          handlers.FmtDateTimePtr(evaluationReport.InspectionDate),
+		InspectionDate:          handlers.FmtDatePtr(evaluationReport.InspectionDate),
 		InspectionType:          inspectionType,
 		Location:                location,
 		LocationDescription:     evaluationReport.LocationDescription,

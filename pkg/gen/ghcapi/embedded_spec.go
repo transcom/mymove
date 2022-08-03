@@ -4683,7 +4683,7 @@ func init() {
         },
         "inspectionDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "inspectionType": {
@@ -13552,7 +13552,7 @@ func init() {
         },
         "inspectionDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "inspectionType": {
