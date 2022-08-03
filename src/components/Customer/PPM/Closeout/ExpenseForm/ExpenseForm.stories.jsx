@@ -24,7 +24,13 @@ export default {
       </GridContainer>
     ),
   ],
-  argTypes: { onBack: { action: 'back button clicked' }, onSubmit: { action: 'submit button clicked' } },
+  argTypes: {
+    onBack: { action: 'back button clicked' },
+    onSubmit: { action: 'submit button clicked' },
+    onCreateUpload: { action: 'upload created' },
+    onUploadComplete: { action: 'upload completed' },
+    onUploadDelete: { action: 'upload deleted' },
+  },
 };
 
 const Template = (args) => <ExpenseForm {...args} />;
