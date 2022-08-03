@@ -400,7 +400,7 @@ describe('formatPpmShipmentForDisplay', () => {
 
     expect(display.estimatedWeight).toEqual('');
     expect(display.hasProGear).toEqual(false);
-    expect(display.advanceRequested).toEqual('No');
+    expect(display.advanceRequested).toEqual(false);
   });
 
   it('converts an existing shipment to formatted display values', () => {
@@ -423,16 +423,17 @@ describe('formatPpmShipmentForDisplay', () => {
 
       estimatedIncentive: 400000,
       advanceRequested: true,
-      advance: 200000,
+      advanceAmountRequested: 200000,
     };
 
-    const display = formatPpmShipmentForDisplay({ ppmShipment: api });
+    const display = formatPpmShipmentForDisplay({ ppmShipment: api, counselorRemarks: 'test remarks' });
 
     expect(display.secondPickupPostalCode).toEqual('80014');
     expect(display.sitEstimatedWeight).toEqual('2750');
     expect(display.estimatedWeight).toEqual('9000');
     expect(display.proGearWeight).toEqual('1000');
-    expect(display.advance).toEqual('200000');
+    expect(display.advance).toEqual('2000');
+    expect(display.counselorRemarks).toEqual('test remarks');
   });
 });
 
@@ -453,14 +454,24 @@ describe('formatPpmShipmentForAPI', () => {
       estimatedWeight: '7500',
       hasProGear: true,
       proGearWeight: '1000',
+
+      advanceRequested: true,
+      advance: '2000',
+
+      counselorRemarks: 'test remarks',
     };
 
-    const { ppmShipment } = formatPpmShipmentForAPI(formValues);
+    const { counselorRemarks, ppmShipment } = formatPpmShipmentForAPI(formValues);
 
     expect(ppmShipment.secondaryPickupPostalCode).toEqual('80014');
     expect(ppmShipment.estimatedWeight).toEqual(7500);
     expect(ppmShipment.proGearWeight).toEqual(1000);
     expect(ppmShipment.spouseProGearWeight).toEqual(undefined);
+
+    expect(ppmShipment.hasRequestedAdvance).toEqual(true);
+    expect(ppmShipment.advanceAmountRequested).toEqual(200000);
+
+    expect(counselorRemarks).toEqual('test remarks');
   });
 
   it('converts minimal formValues to api values', () => {

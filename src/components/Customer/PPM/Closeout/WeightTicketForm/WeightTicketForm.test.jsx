@@ -32,29 +32,33 @@ const weightTicketRequiredProps = {
     vehicleDescription: 'DMC Delorean',
     emptyWeight: 3999,
     emptyWeightDocumentId: '27d70a0d-7f20-42af-ab79-f74350412823',
-    emptyDocument: [
-      {
-        id: '299e2fb4-432d-4261-bbed-d8280c6090af',
-        created_at: '2022-06-22T23:25:50.490Z',
-        bytes: 819200,
-        url: 'a/fake/path',
-        filename: 'empty_weight.jpg',
-        content_type: 'image/jpg',
-      },
-    ],
+    emptyDocument: {
+      uploads: [
+        {
+          id: '299e2fb4-432d-4261-bbed-d8280c6090af',
+          created_at: '2022-06-22T23:25:50.490Z',
+          bytes: 819200,
+          url: 'a/fake/path',
+          filename: 'empty_weight.jpg',
+          content_type: 'image/jpg',
+        },
+      ],
+    },
     fullWeight: 7111,
     fullWeightDocumentId: '1ec00b40-447d-4c22-ac73-708b98b8bc20',
-    fullDocument: [
-      {
-        id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
-        created_at: '2022-06-23T23:25:50.490Z',
-        bytes: 409600,
-        url: 'a/fake/path',
-        filename: 'full_weight.pdf',
-        content_type: 'application/pdf',
-      },
-    ],
-    hasOwnTrailer: false,
+    fullDocument: {
+      uploads: [
+        {
+          id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
+          created_at: '2022-06-23T23:25:50.490Z',
+          bytes: 409600,
+          url: 'a/fake/path',
+          filename: 'full_weight.pdf',
+          content_type: 'application/pdf',
+        },
+      ],
+    },
+    ownsTrailer: false,
     trailerOwnershipDocumentId: '5bf3ed20-08dd-4d8e-92ad-7603bb6377a5',
   },
 };
@@ -64,27 +68,31 @@ const weightTicketUploadsOnlyProps = {
     id: '58350bae-8e87-4e83-bd75-74027fb4853f',
     shipmentId: '8be77cb9-e8af-4ff0-b0a2-ade17cf6653c',
     emptyWeightDocumentId: '27d70a0d-7f20-42af-ab79-f74350412823',
-    emptyDocument: [
-      {
-        id: '299e2fb4-432d-4261-bbed-d8280c6090af',
-        created_at: '2022-06-22T23:25:50.490Z',
-        bytes: 819200,
-        url: 'a/fake/path',
-        filename: 'empty_weight.jpg',
-        content_type: 'image/jpg',
-      },
-    ],
+    emptyDocument: {
+      uploads: [
+        {
+          id: '299e2fb4-432d-4261-bbed-d8280c6090af',
+          created_at: '2022-06-22T23:25:50.490Z',
+          bytes: 819200,
+          url: 'a/fake/path',
+          filename: 'empty_weight.jpg',
+          content_type: 'image/jpg',
+        },
+      ],
+    },
     fullWeightDocumentId: '1ec00b40-447d-4c22-ac73-708b98b8bc20',
-    fullDocument: [
-      {
-        id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
-        created_at: '2022-06-23T23:25:50.490Z',
-        bytes: 409600,
-        url: 'a/fake/path',
-        filename: 'full_weight.pdf',
-        content_type: 'application/pdf',
-      },
-    ],
+    fullDocument: {
+      uploads: [
+        {
+          id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
+          created_at: '2022-06-23T23:25:50.490Z',
+          bytes: 409600,
+          url: 'a/fake/path',
+          filename: 'full_weight.pdf',
+          content_type: 'application/pdf',
+        },
+      ],
+    },
   },
 };
 
@@ -96,42 +104,48 @@ const constructedWeightTrailerProps = {
     emptyWeight: 3999,
     missingEmptyWeightTicket: true,
     emptyWeightDocumentId: '27d70a0d-7f20-42af-ab79-f74350412823',
-    emptyDocument: [
-      {
-        id: '299e2fb4-432d-4261-bbed-d8280c6090af',
-        created_at: '2022-06-22T23:25:50.490Z',
-        bytes: 819200,
-        url: 'a/fake/path',
-        filename: 'weight estimator.xls',
-        content_type: 'application/vnd.ms-excel',
-      },
-    ],
+    emptyDocument: {
+      uploads: [
+        {
+          id: '299e2fb4-432d-4261-bbed-d8280c6090af',
+          created_at: '2022-06-22T23:25:50.490Z',
+          bytes: 819200,
+          url: 'a/fake/path',
+          filename: 'weight estimator.xls',
+          content_type: 'application/vnd.ms-excel',
+        },
+      ],
+    },
     fullWeight: 7111,
     missingFullWeightTicket: true,
     fullWeightDocumentId: '1ec00b40-447d-4c22-ac73-708b98b8bc20',
-    fullDocument: [
-      {
-        id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
-        created_at: '2022-06-23T23:25:50.490Z',
-        bytes: 409600,
-        url: 'a/fake/path',
-        filename: 'weight estimator.xlsx',
-        content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      },
-    ],
-    hasOwnTrailer: true,
+    fullDocument: {
+      uploads: [
+        {
+          id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
+          created_at: '2022-06-23T23:25:50.490Z',
+          bytes: 409600,
+          url: 'a/fake/path',
+          filename: 'weight estimator.xlsx',
+          content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        },
+      ],
+    },
+    ownsTrailer: true,
     trailerMeetsCriteria: true,
     trailerOwnershipDocumentId: '5bf3ed20-08dd-4d8e-92ad-7603bb6377a5',
-    proofOfTrailerOwnershipDocument: [
-      {
-        id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',
-        created_at: '2022-06-24T23:25:50.490Z',
-        bytes: 204800,
-        url: 'a/fake/path',
-        filename: 'trailer_title.pdf',
-        content_type: 'application/pdf',
-      },
-    ],
+    proofOfTrailerOwnershipDocument: {
+      uploads: [
+        {
+          id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',
+          created_at: '2022-06-24T23:25:50.490Z',
+          bytes: 204800,
+          url: 'a/fake/path',
+          filename: 'trailer_title.pdf',
+          content_type: 'application/pdf',
+        },
+      ],
+    },
   },
 };
 
@@ -345,7 +359,7 @@ describe('WeightTicketForm component', () => {
                 content_type: 'application/pdf',
               },
             ],
-            hasOwnTrailer: 'false',
+            ownsTrailer: 'false',
             trailerMeetsCriteria: 'false',
             proofOfTrailerOwnershipDocument: [],
           },
@@ -386,7 +400,7 @@ describe('WeightTicketForm component', () => {
                 content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
               },
             ],
-            hasOwnTrailer: 'true',
+            ownsTrailer: 'true',
             trailerMeetsCriteria: 'true',
             proofOfTrailerOwnershipDocument: [
               {

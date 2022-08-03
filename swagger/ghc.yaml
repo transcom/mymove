@@ -754,6 +754,36 @@ paths:
       operationId: listMTOShipments
       summary: Gets all shipments for a move task order
   /shipments/{shipmentID}:
+    get:
+      summary: fetches a shipment by ID
+      description: fetches a shipment by ID
+      operationId: getShipment
+      tags:
+        - mtoShipment
+      produces:
+        - application/json
+      parameters:
+        - description: ID of the shipment to be fetched
+          in: path
+          name: shipmentID
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: Successfully fetched the shipment
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
     delete:
       summary: Soft deletes a shipment by ID
       description: Soft deletes a shipment by ID
@@ -1846,6 +1876,128 @@ paths:
           $ref: '#/responses/NotFound'
         '409':
           $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /moves/shipment-evaluation-reports:
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateShipmentEvaluationReport'
+      responses:
+        '200':
+          description: Successfully created shipment evaluation report
+          schema:
+            $ref: '#/definitions/EvaluationReport'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - evaluationReports
+      description: Creates a shipment evaluation report
+      operationId: createEvaluationReportForShipment
+      summary: Creates a shipment evaluation report
+  /evaluation-reports/{reportID}:
+    parameters:
+      - in: path
+        description: the evaluation report ID to be modified
+        name: reportID
+        required: true
+        type: string
+        format: uuid
+    get:
+      summary: Gets an evaluation report by ID
+      description: Gets an evaluation report by ID
+      operationId: getEvaluationReport
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully got the report
+          schema:
+            $ref: '#/definitions/EvaluationReport'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes an evaluation report by ID
+      description: Soft deletes an evaluation report by ID
+      operationId: deleteEvaluationReport
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: Successfully soft deleted the report
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+    put:
+      summary: Saves an evaluation report as a draft
+      description: Saves an evaluation report as a draft
+      operationId: saveEvaluationReport
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/EvaluationReport'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the
+            ETag header does not match the value of the resource on the server,
+            the server rejects the change with a `412 Precondition Failed`
+            error.
+      responses:
+        '204':
+          description: Successfully saved the report
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -4359,10 +4511,114 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+  EvaluationReportOfficeUser:
+    type: object
+    readOnly: true
+    description: The authoring office user for an evaluation report
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      phone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
   EvaluationReportList:
     type: array
     items:
       $ref: '#/definitions/EvaluationReportListItem'
+  EvaluationReport:
+    type: object
+    description: An evaluation report
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      moveID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        x-nullable: true
+        readOnly: true
+      type:
+        $ref: '#/definitions/EvaluationReportType'
+      inspectionType:
+        $ref: '#/definitions/EvaluationReportInspectionType'
+        x-nullable: true
+      inspectionDate:
+        type: string
+        format: date
+        x-nullable: true
+      travelTimeMinutes:
+        type: integer
+        minimum: 0
+        x-nullable: true
+      officeUser:
+        $ref: '#/definitions/EvaluationReportOfficeUser'
+      location:
+        $ref: '#/definitions/EvaluationReportLocation'
+        x-nullable: true
+      locationDescription:
+        type: string
+        example: Route 66 at crash inspection site 3
+        x-nullable: true
+      observedDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      evaluationLengthMinutes:
+        type: integer
+        minimum: 0
+        x-nullable: true
+      violationsObserved:
+        type: boolean
+        x-nullable: true
+      remarks:
+        type: string
+        x-nullable: true
+      moveReferenceID:
+        type: string
+        x-nullable: true
+        readOnly: true
+      eTag:
+        type: string
+      submittedAt:
+        type: string
+        format: date-time
+        x-nullable: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+  CreateShipmentEvaluationReport:
+    type: object
+    description: >-
+      Minimal set of info needed to create a shipment evaluation report, which
+      is just a shipment ID.
+    required:
+      - shipmentID
+    properties:
+      shipmentID:
+        description: The shipment ID of the shipment to be evaluated in the report
+        example: 01b9671e-b268-4906-967b-ba661a1d3933
+        format: uuid
+        type: string
   Address:
     description: A postal address
     type: object
@@ -5009,6 +5265,160 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_PAYMENT_APPROVAL
       - PAYMENT_APPROVED
+  UploadPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+      filename:
+        type: string
+        example: filename.pdf
+      content_type:
+        type: string
+        format: mime-type
+        example: application/pdf
+      checksum:
+        type: string
+        example: ImGQ2Ush0bDHsaQthV5BnQ==
+      bytes:
+        type: integer
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - url
+      - filename
+      - content_type
+      - bytes
+      - created_at
+      - updated_at
+  definitions-DocumentPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/UploadPayload'
+    required:
+      - id
+      - service_member_id
+      - uploads
+  WeightTicket:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      ppmShipmentId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      vehicleDescription:
+        type: string
+        title: Vehicle description (ex. 'SUV')
+        x-nullable: true
+      emptyWeight:
+        type: integer
+        title: Empty Recorded Weight
+        minimum: 0
+      missingEmptyWeightTicket:
+        type: boolean
+        title: has empty weight ticket
+        x-nullable: true
+        x-omitempty: false
+      emptyDocumentId:
+        title: Empty Document ID
+        type: string
+        format: uuid
+        readOnly: true
+      emptyDocument:
+        title: Empty Document
+        $ref: '#/definitions/definitions-DocumentPayload'
+      fullWeight:
+        title: full weight ticket recorded weight
+        type: integer
+        minimum: 0
+      missingFullWeightTicket:
+        title: has full weight ticket
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      fullDocumentId:
+        title: Full Document ID
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      fullDocument:
+        title: Full Document
+        $ref: '#/definitions/definitions-DocumentPayload'
+      ownsTrailer:
+        title: Owns trailer
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      trailerMeetsCriteria:
+        title: Trailer meets criteria
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      proofOfTrailerOwnershipDocumentId:
+        title: Trailer Document ID
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      proofOfTrailerOwnershipDocument:
+        title: Proof of Trailer Ownership Document
+        $ref: '#/definitions/definitions-DocumentPayload'
+      eTag:
+        type: string
+        readOnly: true
+    required:
+      - ppmShipmentId
+      - createdAt
+      - updatedAt
+      - emptyDocumentId
+      - emptyDocument
+      - fullDocument
+      - fullDocumentId
+      - proofOfTrailerOwnershipDocument
+      - proofOfTrailerOwnershipDocumentId
   PPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service members
@@ -5196,6 +5606,10 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      weightTickets:
+        items:
+          $ref: '#/definitions/WeightTicket'
+        type: array
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"

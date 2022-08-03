@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -109,7 +110,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 				return ppmop.NewCreatePPMAttachmentsInternalServerError(), err
 			}
 
-			uploadPayload := payloadForUploadModel(h.FileStorer(), pdfUpload.Upload, url)
+			uploadPayload := payloads.PayloadForUploadModel(h.FileStorer(), pdfUpload.Upload, url)
 			return ppmop.NewCreatePPMAttachmentsOK().WithPayload(uploadPayload), nil
 		})
 }

@@ -45,7 +45,8 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"DestinationAddress",
 			"SecondaryDeliveryAddress",
 			"MTOServiceItems.Dimensions",
-			"PPMShipment.WeightTickets.EmptyDocument.UserUploads.Upload",
+			"PPMShipment.WeightTickets",
+			"PPMShipment.MovingExpenses",
 			"Reweigh",
 			"SITExtensions",
 			"StorageFacility.Address",
@@ -64,12 +65,16 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 	for i := range shipments {
 		if shipments[i].ShipmentType == models.MTOShipmentTypePPM {
 			for j := range shipments[i].PPMShipment.WeightTickets {
-				// variable for convience still modifies original shipments object
+				// variable for convenience still modifies original shipments object
 				weightTicket := &shipments[i].PPMShipment.WeightTickets[j]
 
+				loadErr := appCtx.DB().Load(weightTicket, "EmptyDocument.UserUploads.Upload")
+				if loadErr != nil {
+					return nil, loadErr
+				}
 				weightTicket.EmptyDocument.UserUploads = weightticket.FilterDeletedValued(weightTicket.EmptyDocument.UserUploads)
 
-				loadErr := appCtx.DB().Load(weightTicket, "FullDocument.UserUploads.Upload")
+				loadErr = appCtx.DB().Load(weightTicket, "FullDocument.UserUploads.Upload")
 				if loadErr != nil {
 					return nil, loadErr
 				}
@@ -81,6 +86,16 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 				}
 				weightTicket.ProofOfTrailerOwnershipDocument.UserUploads = weightticket.FilterDeletedValued(weightTicket.ProofOfTrailerOwnershipDocument.UserUploads)
 			}
+
+			for j := range shipments[i].PPMShipment.MovingExpenses {
+				movingExpense := &shipments[i].PPMShipment.MovingExpenses[j]
+
+				loadErr := appCtx.DB().Load(movingExpense, "Document.UserUploads.Upload")
+				if loadErr != nil {
+					return nil, loadErr
+				}
+				movingExpense.Document.UserUploads = movingExpense.Document.UserUploads.FilterDeleted()
+			}
 		}
 	}
 
@@ -88,6 +103,27 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 }
 
 func FindShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssociations ...string) (*models.MTOShipment, error) {
+	var shipment models.MTOShipment
+	findShipmentQuery := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope())
+
+	if len(eagerAssociations) > 0 {
+		findShipmentQuery.Eager(eagerAssociations...)
+	}
+
+	err := findShipmentQuery.Find(&shipment, shipmentID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
+	}
+
+	return &shipment, nil
+}
+func (f mtoShipmentFetcher) GetShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssociations ...string) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 	findShipmentQuery := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope())
 

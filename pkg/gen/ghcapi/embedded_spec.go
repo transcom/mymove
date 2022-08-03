@@ -413,6 +413,139 @@ func init() {
         }
       }
     },
+    "/evaluation-reports/{reportID}": {
+      "get": {
+        "description": "Gets an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Gets an evaluation report by ID",
+        "operationId": "getEvaluationReport",
+        "responses": {
+          "200": {
+            "description": "Successfully got the report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "put": {
+        "description": "Saves an evaluation report as a draft",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Saves an evaluation report as a draft",
+        "operationId": "saveEvaluationReport",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully saved the report"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Soft deletes an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Soft deletes an evaluation report by ID",
+        "operationId": "deleteEvaluationReport",
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the report"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "Gets a move",
@@ -1524,6 +1657,51 @@ func init() {
           },
           "403": {
             "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/moves/shipment-evaluation-reports": {
+      "post": {
+        "description": "Creates a shipment evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Creates a shipment evaluation report",
+        "operationId": "createEvaluationReportForShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipmentEvaluationReport"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created shipment evaluation report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -2772,6 +2950,50 @@ func init() {
       }
     },
     "/shipments/{shipmentID}": {
+      "get": {
+        "description": "fetches a shipment by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "fetches a shipment by ID",
+        "operationId": "getShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment to be fetched",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched the shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "delete": {
         "description": "Soft deletes a shipment by ID",
         "produces": [
@@ -4114,6 +4336,21 @@ func init() {
         }
       }
     },
+    "CreateShipmentEvaluationReport": {
+      "description": "Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.",
+      "type": "object",
+      "required": [
+        "shipmentID"
+      ],
+      "properties": {
+        "shipmentID": {
+          "description": "The shipment ID of the shipment to be evaluated in the report",
+          "type": "string",
+          "format": "uuid",
+          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -4422,6 +4659,94 @@ func init() {
         }
       }
     },
+    "EvaluationReport": {
+      "description": "An evaluation report",
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "evaluationLengthMinutes": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "inspectionDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "inspectionType": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportInspectionType"
+        },
+        "location": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportLocation"
+        },
+        "locationDescription": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Route 66 at crash inspection site 3"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveReferenceID": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "observedDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
+        },
+        "remarks": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "travelTimeMinutes": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "type": {
+          "$ref": "#/definitions/EvaluationReportType"
+        },
+        "violationsObserved": {
+          "type": "boolean",
+          "x-nullable": true
+        }
+      }
+    },
     "EvaluationReportInspectionType": {
       "type": "string",
       "enum": [
@@ -4487,6 +4812,34 @@ func init() {
         "OTHER"
       ],
       "x-nullable": true
+    },
+    "EvaluationReportOfficeUser": {
+      "description": "The authoring office user for an evaluation report",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        }
+      },
+      "readOnly": true
     },
     "EvaluationReportType": {
       "type": "string",
@@ -5938,6 +6291,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightTickets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeightTicket"
+          }
         }
       },
       "x-nullable": true
@@ -7262,6 +7621,62 @@ func init() {
         }
       }
     },
+    "UploadPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "url",
+        "filename",
+        "content_type",
+        "bytes",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "bytes": {
+          "type": "integer"
+        },
+        "checksum": {
+          "type": "string",
+          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
+        },
+        "content_type": {
+          "type": "string",
+          "format": "mime-type",
+          "example": "application/pdf"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filename": {
+          "type": "string",
+          "example": "filename.pdf"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "ValidationError": {
       "required": [
         "invalid_fields"
@@ -7279,6 +7694,143 @@ func init() {
           "type": "object",
           "additionalProperties": {
             "type": "string"
+          }
+        }
+      }
+    },
+    "WeightTicket": {
+      "type": "object",
+      "required": [
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "emptyDocumentId",
+        "emptyDocument",
+        "fullDocument",
+        "fullDocumentId",
+        "proofOfTrailerOwnershipDocument",
+        "proofOfTrailerOwnershipDocumentId"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "emptyDocument": {
+          "title": "Empty Document",
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "emptyDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Empty Document ID",
+          "readOnly": true
+        },
+        "emptyWeight": {
+          "type": "integer",
+          "title": "Empty Recorded Weight"
+        },
+        "fullDocument": {
+          "title": "Full Document",
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "fullDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Full Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "fullWeight": {
+          "type": "integer",
+          "title": "full weight ticket recorded weight"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missingEmptyWeightTicket": {
+          "type": "boolean",
+          "title": "has empty weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "missingFullWeightTicket": {
+          "type": "boolean",
+          "title": "has full weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ownsTrailer": {
+          "type": "boolean",
+          "title": "Owns trailer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfTrailerOwnershipDocument": {
+          "title": "Proof of Trailer Ownership Document",
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "proofOfTrailerOwnershipDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Trailer Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "trailerMeetsCriteria": {
+          "type": "boolean",
+          "title": "Trailer meets criteria",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "vehicleDescription": {
+          "type": "string",
+          "title": "Vehicle description (ex. 'SUV')",
+          "x-nullable": true
+        }
+      }
+    },
+    "definitions-DocumentPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "service_member_id",
+        "uploads"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UploadPayload"
           }
         }
       }
@@ -7886,6 +8438,190 @@ func init() {
           }
         }
       }
+    },
+    "/evaluation-reports/{reportID}": {
+      "get": {
+        "description": "Gets an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Gets an evaluation report by ID",
+        "operationId": "getEvaluationReport",
+        "responses": {
+          "200": {
+            "description": "Successfully got the report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Saves an evaluation report as a draft",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Saves an evaluation report as a draft",
+        "operationId": "saveEvaluationReport",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully saved the report"
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Soft deletes an evaluation report by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Soft deletes an evaluation report by ID",
+        "operationId": "deleteEvaluationReport",
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the report"
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
@@ -9303,6 +10039,63 @@ func init() {
             "description": "The request was denied",
             "schema": {
               "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/moves/shipment-evaluation-reports": {
+      "post": {
+        "description": "Creates a shipment evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Creates a shipment evaluation report",
+        "operationId": "createEvaluationReportForShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipmentEvaluationReport"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created shipment evaluation report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -10814,6 +11607,65 @@ func init() {
       }
     },
     "/shipments/{shipmentID}": {
+      "get": {
+        "description": "fetches a shipment by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "fetches a shipment by ID",
+        "operationId": "getShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment to be fetched",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched the shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Soft deletes a shipment by ID",
         "produces": [
@@ -12352,6 +13204,21 @@ func init() {
         }
       }
     },
+    "CreateShipmentEvaluationReport": {
+      "description": "Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.",
+      "type": "object",
+      "required": [
+        "shipmentID"
+      ],
+      "properties": {
+        "shipmentID": {
+          "description": "The shipment ID of the shipment to be evaluated in the report",
+          "type": "string",
+          "format": "uuid",
+          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -12660,6 +13527,96 @@ func init() {
         }
       }
     },
+    "EvaluationReport": {
+      "description": "An evaluation report",
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "evaluationLengthMinutes": {
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "inspectionDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "inspectionType": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportInspectionType"
+        },
+        "location": {
+          "x-nullable": true,
+          "$ref": "#/definitions/EvaluationReportLocation"
+        },
+        "locationDescription": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Route 66 at crash inspection site 3"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveReferenceID": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "observedDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
+        },
+        "remarks": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "travelTimeMinutes": {
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true
+        },
+        "type": {
+          "$ref": "#/definitions/EvaluationReportType"
+        },
+        "violationsObserved": {
+          "type": "boolean",
+          "x-nullable": true
+        }
+      }
+    },
     "EvaluationReportInspectionType": {
       "type": "string",
       "enum": [
@@ -12725,6 +13682,34 @@ func init() {
         "OTHER"
       ],
       "x-nullable": true
+    },
+    "EvaluationReportOfficeUser": {
+      "description": "The authoring office user for an evaluation report",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        }
+      },
+      "readOnly": true
     },
     "EvaluationReportType": {
       "type": "string",
@@ -14176,6 +15161,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightTickets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WeightTicket"
+          }
         }
       },
       "x-nullable": true
@@ -15507,6 +16498,62 @@ func init() {
         }
       }
     },
+    "UploadPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "url",
+        "filename",
+        "content_type",
+        "bytes",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "bytes": {
+          "type": "integer"
+        },
+        "checksum": {
+          "type": "string",
+          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
+        },
+        "content_type": {
+          "type": "string",
+          "format": "mime-type",
+          "example": "application/pdf"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filename": {
+          "type": "string",
+          "example": "filename.pdf"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "ValidationError": {
       "required": [
         "invalid_fields"
@@ -15530,6 +16577,145 @@ func init() {
     },
     "ValidationErrorAllOf1": {
       "type": "object"
+    },
+    "WeightTicket": {
+      "type": "object",
+      "required": [
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "emptyDocumentId",
+        "emptyDocument",
+        "fullDocument",
+        "fullDocumentId",
+        "proofOfTrailerOwnershipDocument",
+        "proofOfTrailerOwnershipDocumentId"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "emptyDocument": {
+          "title": "Empty Document",
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "emptyDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Empty Document ID",
+          "readOnly": true
+        },
+        "emptyWeight": {
+          "type": "integer",
+          "title": "Empty Recorded Weight",
+          "minimum": 0
+        },
+        "fullDocument": {
+          "title": "Full Document",
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "fullDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Full Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "fullWeight": {
+          "type": "integer",
+          "title": "full weight ticket recorded weight",
+          "minimum": 0
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missingEmptyWeightTicket": {
+          "type": "boolean",
+          "title": "has empty weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "missingFullWeightTicket": {
+          "type": "boolean",
+          "title": "has full weight ticket",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ownsTrailer": {
+          "type": "boolean",
+          "title": "Owns trailer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfTrailerOwnershipDocument": {
+          "title": "Proof of Trailer Ownership Document",
+          "$ref": "#/definitions/definitions-DocumentPayload"
+        },
+        "proofOfTrailerOwnershipDocumentId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Trailer Document ID",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "trailerMeetsCriteria": {
+          "type": "boolean",
+          "title": "Trailer meets criteria",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "vehicleDescription": {
+          "type": "string",
+          "title": "Vehicle description (ex. 'SUV')",
+          "x-nullable": true
+        }
+      }
+    },
+    "definitions-DocumentPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "service_member_id",
+        "uploads"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UploadPayload"
+          }
+        }
+      }
     }
   },
   "parameters": {

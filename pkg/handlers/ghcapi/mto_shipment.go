@@ -3,6 +3,8 @@ package ghcapi
 import (
 	"fmt"
 
+	"github.com/gobuffalo/validate/v3"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -10,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/validate/v3"
 	"go.uber.org/zap"
 
 	"github.com/gofrs/uuid"
@@ -52,14 +53,6 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() ||
-				(!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) &&
-					!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) &&
-					!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) &&
-					!appCtx.Session().Roles.HasRole(roles.RoleTypeQaeCsr)) {
-				return handleError(apperror.NewForbiddenError("user is not an office user or does not have a SC, TOO, or TIO role"))
-			}
-
 			moveID := uuid.FromStringOrNil(params.MoveTaskOrderID.String())
 
 			shipments, err := h.ListMTOShipments(appCtx, moveID)
@@ -73,6 +66,52 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			sitStatusPayload := payloads.SITStatuses(shipmentSITStatuses)
 			payload := payloads.MTOShipments(&mtoShipments, sitStatusPayload)
 			return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload), nil
+		})
+}
+
+// GetMTOShipmentHandler is the handler to fetch a single MTO shipment by ID
+type GetMTOShipmentHandler struct {
+	handlers.HandlerConfig
+	mtoShipmentFetcher services.MTOShipmentFetcher
+}
+
+// Handle handles the handling of fetching a single MTO shipment by ID.
+func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("GetShipment error", zap.Error(err))
+				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return mtoshipmentops.NewGetShipmentNotFound().WithPayload(payload), err
+				case apperror.ForbiddenError:
+					return mtoshipmentops.NewGetShipmentForbidden().WithPayload(payload), err
+				case apperror.QueryError:
+					return mtoshipmentops.NewGetShipmentInternalServerError(), err
+				default:
+					return mtoshipmentops.NewGetShipmentInternalServerError(), err
+				}
+			}
+
+			eagerAssociations := []string{"MoveTaskOrder",
+				"PickupAddress",
+				"DestinationAddress",
+				"SecondaryPickupAddress",
+				"SecondaryDeliveryAddress",
+				"MTOAgents",
+				"MTOServiceItems.CustomerContacts",
+				"StorageFacility.Address",
+				"PPMShipment"}
+
+			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+
+			mtoShipment, err := h.mtoShipmentFetcher.GetShipment(appCtx, shipmentID, eagerAssociations...)
+			if err != nil {
+				return handleError(err)
+			}
+			payload := payloads.MTOShipment(mtoShipment, nil)
+			return mtoshipmentops.NewGetShipmentOK().WithPayload(payload), nil
 		})
 }
 
