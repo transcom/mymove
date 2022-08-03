@@ -26,12 +26,12 @@ describe('ShipmentEvaluationForm', () => {
     // Headers
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Evaluation form');
-
       const h3s = screen.getAllByRole('heading', { level: 3 });
       expect(h3s).toHaveLength(3);
-      expect(h3s.at(0)).toHaveTextContent('Evaluation information');
-      expect(h3s.at(1)).toHaveTextContent('Violations');
-      expect(h3s.at(2)).toHaveTextContent('QAE remarks');
+
+      expect(screen.getByText('Evaluation information')).toBeInTheDocument();
+      expect(screen.getByText('Violations')).toBeInTheDocument();
+      expect(screen.getByText('QAE remarks')).toBeInTheDocument();
 
       // // Form components
       expect(screen.getByTestId('form')).toBeInTheDocument();
@@ -49,10 +49,9 @@ describe('ShipmentEvaluationForm', () => {
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
 
       // Form buttons
-      const buttons = screen.getAllByTestId('button');
-      expect(buttons.at(0)).toHaveTextContent('Cancel');
-      expect(buttons.at(1)).toHaveTextContent('Save draft');
-      expect(buttons.at(2)).toHaveTextContent('Review and submit');
+      expect(screen.getByText('Cancel')).toBeInTheDocument();
+      expect(screen.getByText('Save draft')).toBeInTheDocument();
+      expect(screen.getByText('Review and submit')).toBeInTheDocument();
     });
   });
 
