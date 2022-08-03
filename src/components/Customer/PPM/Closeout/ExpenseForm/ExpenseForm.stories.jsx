@@ -4,10 +4,6 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
-const mockCreateUploadSuccess = () => {};
-const mockUploadComplete = () => {};
-const mockUploadDelete = () => {};
-
 export default {
   title: 'Customer Components / PPM Closeout / Expenses PPM Form',
   component: ExpenseForm,
@@ -74,10 +70,7 @@ ExistingExpenses.args = {
       ],
     },
   },
-  onCreateUpload: mockCreateUploadSuccess,
-  onUploadComplete: mockUploadComplete,
-  onUploadDelete: mockUploadDelete,
-  tripNumber: '1',
+  receiptNumber: '1',
 };
 
 export const SITExpenses = Template.bind({});
@@ -113,8 +106,5 @@ SITExpenses.args = {
       ],
     },
   },
-  onCreateUpload: mockCreateUploadSuccess,
-  onUploadComplete: mockUploadComplete,
-  onUploadDelete: mockUploadDelete,
-  tripNumber: '1',
+  receiptNumber: '1',
 };

@@ -4,10 +4,6 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
-const mockCreateUploadSuccess = () => {};
-const mockUploadComplete = () => {};
-const mockUploadDelete = () => {};
-
 export default {
   title: 'Customer Components / PPM Closeout / Weight Ticket Form',
   component: WeightTicketForm,
@@ -41,9 +37,6 @@ Blank.args = {
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {},
   },
-  onCreateUpload: mockCreateUploadSuccess,
-  onUploadComplete: mockUploadComplete,
-  onUploadDelete: mockUploadDelete,
   tripNumber: '1',
 };
 
@@ -100,9 +93,6 @@ ExistingWeightTickets.args = {
     ownsTrailer: false,
     trailerMeetsCriteria: false,
   },
-  onCreateUpload: mockCreateUploadSuccess,
-  onUploadComplete: mockUploadComplete,
-  onUploadDelete: mockUploadDelete,
   tripNumber: '1',
 };
 
@@ -151,9 +141,6 @@ MissingWeightTickets.args = {
     ownsTrailer: false,
     trailerMeetsCriteria: false,
   },
-  onCreateUpload: mockCreateUploadSuccess,
-  onUploadComplete: mockUploadComplete,
-  onUploadDelete: mockUploadDelete,
   tripNumber: '1',
 };
 
@@ -220,8 +207,5 @@ TrailerOwnership.args = {
       ],
     },
   },
-  onCreateUpload: mockCreateUploadSuccess,
-  onUploadComplete: mockUploadComplete,
-  onUploadDelete: mockUploadDelete,
   tripNumber: '1',
 };
