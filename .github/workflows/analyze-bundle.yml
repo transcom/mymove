@@ -40,7 +40,7 @@ jobs:
         run: yarn build --stats
 
       - name: Upload stats.json
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: head-stats
           path: ./build/bundle-stats.json
@@ -68,7 +68,7 @@ jobs:
         run: yarn build --stats
 
       - name: Upload stats.json
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: base-stats
           path: ./build/bundle-stats.json
