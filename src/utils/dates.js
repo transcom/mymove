@@ -6,5 +6,5 @@ export default function numOfDaysBetweenDates(date1, date2) {
   const timeDiff = jsDate2.getTime() - jsDate1.getTime();
 
   // To calculate the no. of days between two dates
-  return timeDiff / (1000 * 3600 * 24);
+  return Math.round(timeDiff / (1000 * 3600 * 24));
 }
