@@ -48,8 +48,8 @@ func (u evaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppCon
 
 	evaluationReport.MoveID = originalReport.MoveID
 	evaluationReport.ShipmentID = originalReport.ShipmentID
-
-	verrs, err := appCtx.DB().ValidateAndUpdate(evaluationReport)
+	evaluationReport.Type = originalReport.Type
+	verrs, err := appCtx.DB().ValidateAndSave(evaluationReport)
 	if err != nil {
 		return err
 	}

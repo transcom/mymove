@@ -173,9 +173,9 @@ type SaveEvaluationReportHandler struct {
 func (h SaveEvaluationReportHandler) Handle(params evaluationReportop.SaveEvaluationReportParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
 			eTag := params.IfMatch
 			payload := params.Body
+			payload.ID = params.ReportID
 			report := payloads.EvaluationReportFromUpdate(payload)
 
 			if appCtx.Session() != nil {

@@ -84,7 +84,9 @@ const EvaluationReportShipmentInfo = ({ shipment }) => {
             {pickupAddress} <FontAwesomeIcon icon="arrow-right" /> {destinationAddress}
           </small>
         </div>
-        <Button onClick={() => handleCreateClick(shipment.id)}>Create report</Button>
+        <Button data-testid="shipmentEvaluationCreate" onClick={() => handleCreateClick(shipment.id)}>
+          Create report
+        </Button>
       </div>
     </>
   );
