@@ -121,6 +121,7 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo6(appCtx, userUploader)
 		createApprovedMoveWithPPMEmptyAboutPage(appCtx, userUploader)
 		createApprovedMoveWithPPMWeightTicket(appCtx, userUploader)
+		createApprovedMoveWithPPMMovingExpense(appCtx, userUploader)
 	}
 }
 
