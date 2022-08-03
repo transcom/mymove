@@ -11,27 +11,31 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-type CustomType string
-
+// Customization type is the building block for passing in customizations and traits
 type Customization struct {
 	Model     interface{}
 	Type      CustomType
 	ForceUUID bool
 }
-type AddressesCustomType struct {
-	PickupAddress            CustomType
-	DeliveryAddress          CustomType
-	SecondaryDeliveryAddress CustomType
-	ResidentialAddress       CustomType
-}
 
+// CustomType is a string that represents what kind of customization it is
+type CustomType string
+
+// Model customizations will each have a "type" here
 const (
 	Address       CustomType = "Address"
 	User          CustomType = "User"
 	ServiceMember CustomType = "ServiceMember"
 )
 
-type Trait func() []Customization
+// Instead of nesting structs, we create specific CustomTypes here to give devs
+// a code-completion friendly way to select the right type
+type AddressesCustomType struct {
+	PickupAddress            CustomType
+	DeliveryAddress          CustomType
+	SecondaryDeliveryAddress CustomType
+	ResidentialAddress       CustomType
+}
 
 var Addresses = AddressesCustomType{
 	PickupAddress:            "PickupAddress",
@@ -40,7 +44,12 @@ var Addresses = AddressesCustomType{
 	ResidentialAddress:       "ResidentialAddress",
 }
 
-func getTraitActiveUser() []Customization {
+// GetTraitFunc is a function that returns a set of customizations
+// Every GetTraitFunc should start with GetTrait for discoverability
+type GetTraitFunc func() []Customization
+
+// GetTraitActiveUser returns a customization to enable active on a user
+func GetTraitActiveUser() []Customization {
 	return []Customization{
 		{
 			Model: models.User{
@@ -51,7 +60,8 @@ func getTraitActiveUser() []Customization {
 	}
 }
 
-func getTraitArmy() []Customization {
+// GetTraitArmy is a sample GetTraitFunc
+func GetTraitArmy() []Customization {
 	army := models.AffiliationARMY
 	var VariantUserArmy = []Customization{
 		{
@@ -69,7 +79,9 @@ func getTraitArmy() []Customization {
 	}
 	return VariantUserArmy
 }
-func getTraitNavy() []Customization {
+
+// GetTraitNavy is a sample GetTraitFunc
+func GetTraitNavy() []Customization {
 	navy := models.AffiliationNAVY
 	return []Customization{
 		{
@@ -81,6 +93,7 @@ func getTraitNavy() []Customization {
 	}
 }
 
+// findCustomWithIdx is a helper function to find a customization of a specific type and its index
 func findCustomWithIdx(customs []Customization, customType CustomType) (int, *Customization) {
 	for i, custom := range customs {
 		if custom.Type == customType {
@@ -89,12 +102,14 @@ func findCustomWithIdx(customs []Customization, customType CustomType) (int, *Cu
 	}
 	return -1, nil
 }
+
+// findCustom is a helper function to return just the customization
 func findCustom(customs []Customization, customType CustomType) *Customization {
 	_, custom := findCustomWithIdx(customs, customType)
 	return custom
 }
 
-// This function takes an interface wrapping a struct and
+// toStructPtr takes an interface wrapping a struct and
 // returns an interface wrapping a pointer to the struct
 // For e.g. interface{}(models.User) → interface{}(*models.User)
 func toStructPtr(obj interface{}) interface{} {
@@ -103,7 +118,7 @@ func toStructPtr(obj interface{}) interface{} {
 	return vp.Interface()
 }
 
-// This function takes an interface wrapping a pointer to a struct and
+// toInterfacePtr takes an interface wrapping a pointer to a struct and
 // returns an interface wrapping the struct
 // For e.g. interface{}(*models.User) → interface{}(models.User)
 func toInterfacePtr(obj interface{}) interface{} {
@@ -111,7 +126,7 @@ func toInterfacePtr(obj interface{}) interface{} {
 	return rv.Interface()
 }
 
-// This function transforms the interfaces to match what mergeModels expects
+// mergeInterfaces transforms the interfaces to match what mergeModels expects
 func mergeInterfaces(model1 interface{}, model2 interface{}) interface{} {
 	modelPtr := toStructPtr(model1)
 	mergeModels(modelPtr, model2)
@@ -119,17 +134,19 @@ func mergeInterfaces(model1 interface{}, model2 interface{}) interface{} {
 	return model
 }
 
-// This function take the original set of customizations
+// mergeCustomization takes the original set of customizations
 // and merges with the traits.
 // The order of application is
-// - Earlier traits override later traits in the trait list
-// - Customizations override the traits
+//     - Earlier traits override later traits in the trait list
+//     - Customizations override the traits
+//
 // So if you have [trait1, trait2] customization
 // and all three contain the same object:
-// - trait 1 will override trait 2 (so start with the highest priority)
-// - customization will override trait 2
-// MYTODO if a customization has an id, it should not be merged, just hooked up
-func mergeCustomization(traits []Trait, customs []Customization) []Customization {
+//     - trait 1 will override trait 2 (so start with the highest priority)
+//     - customization will override trait 2
+// MYTODO if a customization has an id, it should not be merged with a trait
+// Because a customization with a populated ID is a pre-created object
+func mergeCustomization(traits []GetTraitFunc, customs []Customization) []Customization {
 	// Get a list of traits, each could return a list of customizations
 	fmt.Println("Found ", len(traits), "traits")
 	for i, trait := range traits {
@@ -152,10 +169,12 @@ func mergeCustomization(traits []Trait, customs []Customization) []Customization
 	return customs
 }
 
-func UserMaker(db *pop.Connection, customs []Customization, traits []Trait) (models.User, error) {
+// UserMaker is the base maker function to create a user
+// MYTODO Instead of error (not useful) can we return a list of the created objects?
+func UserMaker(db *pop.Connection, customs []Customization, traits []GetTraitFunc) (models.User, error) {
 
 	// Combine all traits into the customization list,
-	// do not pass on the traits in downstream function
+	// do not pass on the traits in downstream maker functions
 	// so this merge is not repeated downstream
 	// MYTODO validate the customizations for nested objects
 	if len(traits) != 0 {
@@ -181,7 +200,7 @@ func UserMaker(db *pop.Connection, customs []Customization, traits []Trait) (mod
 	// Overwrite values with those from assertions
 	mergeModels(&user, cUser)
 
-	// MYTODO: Add stub functionality
+	// MYTODO: Add back stub functionality
 	mustCreate(db, &user, false)
 
 	return user, nil
@@ -191,7 +210,7 @@ func UserMaker(db *pop.Connection, customs []Customization, traits []Trait) (mod
 // If not provided, it will also create an associated
 // - User
 // - ResidentialAddress
-func ServiceMemberMaker(db *pop.Connection, customs []Customization, traits []Trait) (models.ServiceMember, error) {
+func ServiceMemberMaker(db *pop.Connection, customs []Customization, traits []GetTraitFunc) (models.ServiceMember, error) {
 	// Apply traits
 	if len(traits) != 0 {
 		customs = mergeCustomization(traits, customs)
@@ -211,7 +230,7 @@ func ServiceMemberMaker(db *pop.Connection, customs []Customization, traits []Tr
 	if isZeroUUID(user.ID) {
 		user, _ = UserMaker(db, customs, nil)
 	}
-	// User is now either provided or created user
+	// At this point, user exists. It's either the provided or created user
 
 	// Find the customization for residential address
 	var resiAddress models.Address
@@ -229,8 +248,9 @@ func ServiceMemberMaker(db *pop.Connection, customs []Customization, traits []Tr
 		// This means we just need to use this object as-is
 		resiAddress = result.Model.(models.Address)
 	}
-	// resiAddress is now either provided or created residential address
+	// At this point, resiAddress exists. It's either the provided or created residential address
 
+	// MYTODO We can add randomization and control with a flag
 	randomEdipi := RandomEdipi()
 	rank := models.ServiceMemberRankE1
 	army := models.AffiliationARMY
@@ -259,7 +279,7 @@ func ServiceMemberMaker(db *pop.Connection, customs []Customization, traits []Tr
 	return serviceMember, nil
 }
 
-func AddressMaker(db *pop.Connection, customs []Customization, traits []Trait) (models.Address, error) {
+func AddressMaker(db *pop.Connection, customs []Customization, traits []GetTraitFunc) (models.Address, error) {
 	// Apply traits
 	if len(traits) != 0 {
 		customs = mergeCustomization(traits, customs)

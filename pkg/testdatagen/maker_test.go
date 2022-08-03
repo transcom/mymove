@@ -41,8 +41,8 @@ func (suite *MakerSuite) TestUserMaker() {
 					LoginGovEmail: customEmail,
 				},
 				Type: User,
-			}}, []Trait{
-			getTraitActiveUser,
+			}}, []GetTraitFunc{
+			GetTraitActiveUser,
 		})
 		suite.NoError(err)
 		suite.Equal(customEmail, user.LoginGovEmail)
@@ -52,8 +52,8 @@ func (suite *MakerSuite) TestUserMaker() {
 
 	suite.Run("Successful creation of user with trait", func() {
 		user, err := UserMaker(suite.DB(), nil,
-			[]Trait{
-				getTraitActiveUser,
+			[]GetTraitFunc{
+				GetTraitActiveUser,
 			})
 		suite.NoError(err)
 		suite.Equal(defaultEmail, user.LoginGovEmail)
@@ -66,8 +66,8 @@ func (suite *MakerSuite) TestUserMaker() {
 					LoginGovEmail: customEmail,
 				},
 				Type: User,
-			}}, []Trait{
-			getTraitActiveUser,
+			}}, []GetTraitFunc{
+			GetTraitActiveUser,
 		})
 		suite.NoError(err)
 		suite.Equal(customEmail, user.LoginGovEmail)
@@ -88,11 +88,14 @@ func (suite *MakerSuite) TestServiceMemberMaker() {
 		suite.NoError(err)
 		suite.NotEqual(uuid.Nil, serviceMember.UserID)
 		suite.Equal(defaultEmail, serviceMember.User.LoginGovEmail)
-		suite.True(serviceMember.User.Active)
+		suite.False(serviceMember.User.Active)
 
 	})
 
 	suite.Run("Successful creation of servicemember with premade user", func() {
+		// Under test:      ServiceMemberMaker
+		// Set up:          Create a service member with a passed in user
+		// Expected outcome:ServiceMember should not create a user, but link to the provided user
 		user, err := UserMaker(suite.DB(), nil, nil)
 		suite.NoError(err)
 		ServiceMember, err := ServiceMemberMaker(suite.DB(),
@@ -110,9 +113,9 @@ func (suite *MakerSuite) TestServiceMemberMaker() {
 
 	serviceMember, err := ServiceMemberMaker(suite.DB(),
 		nil,
-		[]Trait{
-			getTraitActiveUser,
-			getTraitNavy,
+		[]GetTraitFunc{
+			GetTraitActiveUser,
+			GetTraitNavy,
 		})
 	suite.NoError(err)
 	fmt.Println(serviceMember.Affiliation)
@@ -124,8 +127,8 @@ func (suite *MakerSuite) TestServiceMemberMaker() {
 func (suite *MakerSuite) TestMergeCustomization() {
 	uuidval := uuid.Must(uuid.NewV4())
 	result := mergeCustomization(
-		[]Trait{
-			getTraitArmy,
+		[]GetTraitFunc{
+			GetTraitArmy,
 		},
 		[]Customization{
 			{
