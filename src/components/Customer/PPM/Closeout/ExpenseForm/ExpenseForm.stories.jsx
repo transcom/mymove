@@ -5,9 +5,7 @@ import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseFor
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const mockCreateUploadSuccess = () => {};
-
 const mockUploadComplete = () => {};
-
 const mockUploadDelete = () => {};
 
 export default {
