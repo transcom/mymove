@@ -1,7 +1,7 @@
 import React, { createRef } from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
-import { Button, ErrorMessage, Form, FormGroup, Radio, Label } from '@trussworks/react-uswds';
+import { Button, ErrorMessage, Form, FormGroup, Radio, Label, Alert } from '@trussworks/react-uswds';
 import { func, string } from 'prop-types';
 import * as Yup from 'yup';
 
@@ -135,6 +135,14 @@ const ExpenseForm = ({
                         your PPM moving expenses.
                       </Hint>
                       <CheckboxField id="missingReceipt" name="missingReceipt" label="I don't have this receipt" />
+                      {values.missingReceipt && (
+                        <Alert type="info">
+                          If you can, get a replacement copy of your receipt and upload that. If that is not possible,
+                          write and sign a statement that explains why this receipt is missing. Include details about
+                          where and when you purchased this item. Upload that statement. Your reimbursement for this
+                          expense will be based on the information you provide.
+                        </Alert>
+                      )}
                       <div className={styles.labelWrapper}>
                         <Label
                           error={formikProps.touched?.receiptDocument && formikProps.errors?.receiptDocument}

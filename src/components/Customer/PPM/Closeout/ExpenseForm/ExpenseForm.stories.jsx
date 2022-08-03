@@ -1,38 +1,14 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
-import { v4 as uuidv4 } from 'uuid';
 
 import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
-const mockCreateUploadSuccess = (file) => {
-  return Promise.resolve({
-    id: uuidv4(),
-    created_at: '2022-06-22T23:25:50.490Z',
-    bytes: file.size,
-    url: 'a/fake/path',
-    filename: file.name,
-    content_type: file.type,
-  });
-};
+const mockCreateUploadSuccess = () => {};
 
-const mockUploadComplete = (upload, err, fieldName, values, setFieldValue) => {
-  const newValue = {
-    id: uuidv4(),
-    created_at: '2022-06-22T23:25:50.490Z',
-    bytes: upload.file.size,
-    url: 'a/fake/path',
-    filename: upload.file.name,
-    content_type: upload.file.type,
-  };
-  setFieldValue(fieldName, [...values[`${fieldName}`], newValue]);
-};
+const mockUploadComplete = () => {};
 
-const mockUploadDelete = (uploadId, fieldName, values, setFieldTouched, setFieldValue) => {
-  const remainingUploads = values[`${fieldName}`]?.filter((upload) => upload.id !== uploadId);
-  setFieldTouched(fieldName, true, true);
-  setFieldValue(fieldName, remainingUploads, true);
-};
+const mockUploadDelete = () => {};
 
 export default {
   title: 'Customer Components / PPM Closeout / Expenses PPM Form',
