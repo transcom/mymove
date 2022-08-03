@@ -79,7 +79,7 @@ jobs:
     needs: [build-head, build-base]
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
       - name: Diff between base & head
         uses: chronotruck/webpack-stats-diff-action@1.3.0
         with:
