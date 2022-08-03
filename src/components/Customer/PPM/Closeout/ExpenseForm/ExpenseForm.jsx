@@ -79,7 +79,7 @@ const ExpenseForm = ({
   ];
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, values, ...formikProps }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, errors, ...formikProps }) => {
         return (
           <div className={classnames(ppmStyles.formContainer)}>
             <Form className={classnames(formStyles.form, ppmStyles.form, styles.ExpenseForm)}>
@@ -192,7 +192,7 @@ const ExpenseForm = ({
                     <DatePickerInput name="sitEndDate" label="End date" />
                     <h3>
                       Days in storage:{' '}
-                      {values.sitStartDate && values.sitEndDate
+                      {values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate
                         ? numOfDaysBetweenDates(values.sitStartDate, values.sitEndDate)
                         : ''}
                     </h3>
