@@ -164,3 +164,44 @@ func (h DeleteEvaluationReportHandler) Handle(params evaluationReportop.DeleteEv
 			return evaluationReportop.NewDeleteEvaluationReportNoContent(), nil
 		})
 }
+
+type SaveEvaluationReportHandler struct {
+	handlers.HandlerConfig
+	services.EvaluationReportUpdater
+}
+
+func (h SaveEvaluationReportHandler) Handle(params evaluationReportop.SaveEvaluationReportParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			eTag := params.IfMatch
+			payload := params.Body
+			report := payloads.EvaluationReportFromUpdate(payload)
+
+			if appCtx.Session() != nil {
+				report.OfficeUserID = appCtx.Session().OfficeUserID
+			}
+
+			err := h.UpdateEvaluationReport(appCtx, report, appCtx.Session().OfficeUserID, eTag)
+			if err != nil {
+				appCtx.Logger().Error("Error saving evaluation report: ", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return evaluationReportop.NewSaveEvaluationReportNotFound(), err
+				case apperror.PreconditionFailedError:
+					return evaluationReportop.NewSaveEvaluationReportPreconditionFailed(), err
+				case apperror.ForbiddenError:
+					return evaluationReportop.NewSaveEvaluationReportForbidden(), err
+				case apperror.ConflictError:
+					return evaluationReportop.NewSaveEvaluationReportConflict(), err
+				case apperror.InvalidInputError:
+					return evaluationReportop.NewSaveEvaluationReportUnprocessableEntity(), err
+				default:
+					return evaluationReportop.NewSaveEvaluationReportInternalServerError(), err
+				}
+			}
+
+			return evaluationReportop.NewSaveEvaluationReportNoContent(), nil
+		})
+}

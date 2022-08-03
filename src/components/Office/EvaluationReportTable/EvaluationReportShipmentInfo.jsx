@@ -53,12 +53,12 @@ const EvaluationReportShipmentInfo = ({ shipment }) => {
     case SHIPMENT_OPTIONS.NTS:
       heading = 'NTS';
       pickupAddress = formatEvaluationReportShipmentAddress(shipment.pickupAddress);
-      destinationAddress = shipment.storageFacility.facilityName;
+      destinationAddress = shipment?.storageFacility ? shipment.storageFacility.facilityName : '';
       shipmentAccentStyle = styles.ntsShipmentType;
       break;
     case SHIPMENT_OPTIONS.NTSR:
       heading = 'NTS-Release';
-      pickupAddress = shipment.storageFacility.facilityName;
+      pickupAddress = shipment?.storageFacility ? shipment.storageFacility.facilityName : '';
       destinationAddress = formatEvaluationReportShipmentAddress(shipment.destinationAddress);
       shipmentAccentStyle = styles.ntsrShipmentType;
       break;
