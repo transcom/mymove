@@ -24,35 +24,100 @@ func TestMakerSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-// func (suite *FactorySuite) TestServiceMemberMaker() {
-// 	sm := makeServiceMemberNew(suite.DB(), Variants{
-// 		ServiceMemberCurrentAddress: models.Address{
-// 			StreetAddress1: "This is my street",
-// 		},
-
-// 		User: models.User{
-// 			LoginGovEmail: "shimonatests@onetwothree.com",
-// 		},
-// 	})
-// 	fmt.Println(*sm.FirstName)
-// 	fmt.Println(sm.User.LoginGovEmail)
-// }
-
 func (suite *MakerSuite) TestUserMaker() {
-	// Create a factory with the end object
-
-	user, err := userMaker(suite.DB(), []Customization{
-		{
-			Model: models.User{
-				LoginGovEmail: "shimonatests@onetwothree.com",
-			},
-			Type:   CustomUser,
-			Create: false,
-		}}, []Trait{
-		getTraitActiveUser,
+	defaultEmail := "first.last@login.gov.test"
+	customEmail := "leospaceman123@example.com"
+	suite.Run("Successful creation of default user", func() {
+		user, err := UserMaker(suite.DB(), nil, nil)
+		suite.NoError(err)
+		suite.Equal(defaultEmail, user.LoginGovEmail)
+		suite.Equal(false, user.Active)
 	})
+
+	suite.Run("Successful creation of user with customization", func() {
+		user, err := UserMaker(suite.DB(), []Customization{
+			{
+				Model: models.User{
+					LoginGovEmail: customEmail,
+				},
+				Type: User,
+			}}, []Trait{
+			getTraitActiveUser,
+		})
+		suite.NoError(err)
+		suite.Equal(customEmail, user.LoginGovEmail)
+		suite.Equal(true, user.Active)
+
+	})
+
+	suite.Run("Successful creation of user with trait", func() {
+		user, err := UserMaker(suite.DB(), nil,
+			[]Trait{
+				getTraitActiveUser,
+			})
+		suite.NoError(err)
+		suite.Equal(defaultEmail, user.LoginGovEmail)
+		suite.Equal(true, user.Active)
+	})
+	suite.Run("Successful creation of user with both", func() {
+		user, err := UserMaker(suite.DB(), []Customization{
+			{
+				Model: models.User{
+					LoginGovEmail: customEmail,
+				},
+				Type: User,
+			}}, []Trait{
+			getTraitActiveUser,
+		})
+		suite.NoError(err)
+		suite.Equal(customEmail, user.LoginGovEmail)
+		suite.Equal(true, user.Active)
+	})
+
+}
+
+func (suite *MakerSuite) TestServiceMemberMaker() {
+	defaultEmail := "first.last@login.gov.test"
+
+	suite.Run("Successful creation of servicemember", func() {
+		// Under test:      ServiceMemberMaker
+		// Mocked:          None
+		// Set up:          Create a service member with no customizations or traits
+		// Expected outcome:ServiceMember should be created with default values
+		serviceMember, err := ServiceMemberMaker(suite.DB(), nil, nil)
+		suite.NoError(err)
+		suite.NotEqual(uuid.Nil, serviceMember.UserID)
+		suite.Equal(defaultEmail, serviceMember.User.LoginGovEmail)
+		suite.True(serviceMember.User.Active)
+
+	})
+
+	suite.Run("Successful creation of servicemember with premade user", func() {
+		user, err := UserMaker(suite.DB(), nil, nil)
+		suite.NoError(err)
+		ServiceMember, err := ServiceMemberMaker(suite.DB(),
+			[]Customization{
+				{
+					Model: user,
+					Type:  User,
+				},
+			}, nil)
+
+		suite.NoError(err)
+		suite.Equal(user.ID, ServiceMember.UserID)
+
+	})
+
+	serviceMember, err := ServiceMemberMaker(suite.DB(),
+		nil,
+		[]Trait{
+			getTraitActiveUser,
+			getTraitNavy,
+		})
 	suite.NoError(err)
-	fmt.Println(user.LoginGovEmail, user.Active)
+	fmt.Println(serviceMember.Affiliation)
+	fmt.Println(serviceMember.User.LoginGovEmail, serviceMember.User.Active)
+	fmt.Println(serviceMember.User)
 
 }
 
@@ -68,8 +133,7 @@ func (suite *MakerSuite) TestMergeCustomization() {
 					LoginGovUUID:  &uuidval,
 					LoginGovEmail: "custom@army.mil",
 				},
-				Type:   CustomUser,
-				Create: false,
+				Type: User,
 			},
 		})
 	fmt.Println("User")

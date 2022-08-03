@@ -4,55 +4,82 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// func (sf ServiceMemberMaker) Create(db *pop.Connection, custom Customization) error {
-// 	sm := sf.Model
+type CustomType string
 
-// 	// Get servicemember customization
-// 	var customSM models.ServiceMember
-// 	if custom.Name == "ServiceMember" {
-// 		// If its a user, convert to model
-// 		customSM = custom.Model.(models.ServiceMember)
-// 	}
+type Customization struct {
+	Model     interface{}
+	Type      CustomType
+	ForceUUID bool
+}
+type AddressesCustomType struct {
+	PickupAddress            CustomType
+	DeliveryAddress          CustomType
+	SecondaryDeliveryAddress CustomType
+	ResidentialAddress       CustomType
+}
 
-// 	// You need a user, check if one was provided
-// 	var customUser models.User
-// 	if custom.Name == "User" {
-// 		customUser = custom.Model.(models.User)
-// 	}
-// 	if custom.Name == "User" && custom.Create == false {
-// 		userMaker := NewUserMaker(models.User{}, nil)
-// 		userMaker.Make(db, variants)
-// 		user = *userMaker.Model
-// 	}
+const (
+	Address       CustomType = "Address"
+	User          CustomType = "User"
+	ServiceMember CustomType = "ServiceMember"
+)
 
-// 	army := models.AffiliationARMY
-// 	randomEdipi := RandomEdipi()
-// 	rank := models.ServiceMemberRankE1
-// 	email := "leo_spaceman_sm@example.com"
+type Trait func() []Customization
 
-// 	sm.UserID = user.ID
-// 	sm.User = user
-// 	sm.Edipi = swag.String(randomEdipi)
-// 	sm.Affiliation = &army
-// 	sm.FirstName = swag.String("Leo")
-// 	sm.LastName = swag.String("Spacemen")
-// 	sm.Telephone = swag.String("212-123-4567")
-// 	sm.PersonalEmail = &email
-// 	sm.Rank = &rank
+var Addresses = AddressesCustomType{
+	PickupAddress:            "PickupAddress",
+	DeliveryAddress:          "DeliveryAddress",
+	SecondaryDeliveryAddress: "SecondaryDeliveryAddress",
+	ResidentialAddress:       "ResidentialAddress",
+}
 
-// 	// Overwrite values with those from assertions
-// 	mergeModels(sm, variants.ServiceMember)
+func getTraitActiveUser() []Customization {
+	return []Customization{
+		{
+			Model: models.User{
+				Active: true,
+			},
+			Type: User,
+		},
+	}
+}
 
-// 	mustCreate(db, sm, variants.Stub)
-
-// 	return nil
-// }
+func getTraitArmy() []Customization {
+	army := models.AffiliationARMY
+	var VariantUserArmy = []Customization{
+		{
+			Model: models.User{
+				LoginGovEmail: "trait@army.mil",
+			},
+			Type: User,
+		},
+		{
+			Model: models.ServiceMember{
+				Affiliation: &army,
+			},
+			Type: ServiceMember,
+		},
+	}
+	return VariantUserArmy
+}
+func getTraitNavy() []Customization {
+	navy := models.AffiliationNAVY
+	return []Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &navy,
+			},
+			Type: ServiceMember,
+		},
+	}
+}
 
 func findCustomWithIdx(customs []Customization, customType CustomType) (int, *Customization) {
 	for i, custom := range customs {
@@ -101,22 +128,23 @@ func mergeInterfaces(model1 interface{}, model2 interface{}) interface{} {
 // and all three contain the same object:
 // - trait 1 will override trait 2 (so start with the highest priority)
 // - customization will override trait 2
+// MYTODO if a customization has an id, it should not be merged, just hooked up
 func mergeCustomization(traits []Trait, customs []Customization) []Customization {
 	// Get a list of traits, each could return a list of customizations
-	fmt.Println("We have", len(traits), "traits")
-	for _, trait := range traits {
+	fmt.Println("Found ", len(traits), "traits")
+	for i, trait := range traits {
 		traitCustomizations := trait()
-		fmt.Println("this trait has", len(traitCustomizations))
+		fmt.Println(i, ": Trait with ", len(traitCustomizations), "customizations")
 		// for each customization, merge of replace the one in user supplied customizations
 		for _, traitCustom := range traitCustomizations {
-			fmt.Println("Found trait", traitCustom.Type)
 			j, callerCustom := findCustomWithIdx(customs, traitCustom.Type)
 			if callerCustom != nil {
+				fmt.Println("   ", traitCustom.Type, ": Found matching customization")
 				result := mergeInterfaces(callerCustom.Model, traitCustom.Model)
 				callerCustom.Model = result
 				customs[j] = *callerCustom
 			} else {
-				fmt.Println("No custom", traitCustom.Type)
+				fmt.Println("   ", traitCustom.Type, ": No matching customization")
 				customs = append(customs, traitCustom)
 			}
 		}
@@ -124,23 +152,25 @@ func mergeCustomization(traits []Trait, customs []Customization) []Customization
 	return customs
 }
 
-func userMaker(db *pop.Connection, customs []Customization, traits []Trait) (models.User, error) {
+func UserMaker(db *pop.Connection, customs []Customization, traits []Trait) (models.User, error) {
 
 	// Combine all traits into the customization list,
-	// then clear traits so this is not repeated downstream
+	// do not pass on the traits in downstream function
+	// so this merge is not repeated downstream
+	// MYTODO validate the customizations for nested objects
 	if len(traits) != 0 {
-		// This function take the original set of customizations
-		// and merges with the traits.
-		// The order of application is that the customizations override the trai
+		// The order of application is that the customizations override the traits
 		customs = mergeCustomization(traits, customs)
-		// traits = nil
 	}
 
 	// Find user assertion and convert to models user
-	fmt.Print(traits)
-	customUser := findCustom(customs, CustomUser).Model.(models.User)
+	var cUser models.User
+	if result := findCustom(customs, User); result != nil {
+		cUser = result.Model.(models.User)
+	}
 
 	// create user
+	// MYTODO: Add forceUUID functionality
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	user := models.User{
 		LoginGovUUID:  &loginGovUUID,
@@ -149,70 +179,111 @@ func userMaker(db *pop.Connection, customs []Customization, traits []Trait) (mod
 	}
 
 	// Overwrite values with those from assertions
-	mergeModels(&user, customUser)
+	mergeModels(&user, cUser)
 
+	// MYTODO: Add stub functionality
 	mustCreate(db, &user, false)
 
 	return user, nil
 }
 
-type CustomType string
-
-const (
-	CustomUser          CustomType = "User"
-	CustomServiceMember CustomType = "ServiceMember"
-)
-
-type AddressesCustomType struct {
-	PickupAddress            CustomType
-	DeliveryAddress          CustomType
-	SecondaryDeliveryAddress CustomType
-}
-
-var Addresses = AddressesCustomType{
-	PickupAddress:            "PickupAddress",
-	DeliveryAddress:          "DeliveryAddress",
-	SecondaryDeliveryAddress: "SecondaryDeliveryAddress",
-}
-
-type Trait func() []Customization
-
-func getTraitActiveUser() []Customization {
-	return []Customization{
-		{
-			Model: models.User{
-				Active: true,
-			},
-			Type: CustomUser,
-		},
+// MakeServiceMember creates a single ServiceMember
+// If not provided, it will also create an associated
+// - User
+// - ResidentialAddress
+func ServiceMemberMaker(db *pop.Connection, customs []Customization, traits []Trait) (models.ServiceMember, error) {
+	// Apply traits
+	if len(traits) != 0 {
+		customs = mergeCustomization(traits, customs)
 	}
-}
 
-func getTraitArmy() []Customization {
+	// Find the customization for service member
+	var cServiceMember models.ServiceMember
+	if result := findCustom(customs, ServiceMember); result != nil {
+		cServiceMember = result.Model.(models.ServiceMember)
+	}
+
+	// Find the customization for user
+	var user models.User
+	if result := findCustom(customs, User); result != nil {
+		user = result.Model.(models.User)
+	}
+	if isZeroUUID(user.ID) {
+		user, _ = UserMaker(db, customs, nil)
+	}
+	// User is now either provided or created user
+
+	// Find the customization for residential address
+	var resiAddress models.Address
+	result := findCustom(customs, Addresses.ResidentialAddress)
+	if result == nil {
+		// No customization
+		resiAddress, _ = AddressMaker(db, nil, nil)
+	} else if isZeroUUID(resiAddress.ID) {
+		// Customization exists but had no ID
+		result.Type = Address
+		resiAddress, _ = AddressMaker(db,
+			[]Customization{*result}, nil)
+	} else {
+		// Customization exists and had an ID
+		// This means we just need to use this object as-is
+		resiAddress = result.Model.(models.Address)
+	}
+	// resiAddress is now either provided or created residential address
+
+	randomEdipi := RandomEdipi()
+	rank := models.ServiceMemberRankE1
 	army := models.AffiliationARMY
-	var VariantUserArmy = []Customization{
-		{
-			Model: models.User{
-				LoginGovEmail: "trait@army.mil",
-			},
-			Type: CustomUser,
-		},
-		{
-			Model: models.ServiceMember{
-				Affiliation: &army,
-			},
-			Type: CustomServiceMember,
-		},
+	email := "leospaceman@gmail.com"
+
+	// Set default values, include any nested IDs
+	serviceMember := models.ServiceMember{
+		User:                 user,
+		UserID:               user.ID,
+		Edipi:                swag.String(randomEdipi),
+		Affiliation:          &army,
+		FirstName:            swag.String("Leo"),
+		LastName:             swag.String("Spacemen"),
+		Telephone:            swag.String("212-123-4567"),
+		ResidentialAddressID: &resiAddress.ID,
+		ResidentialAddress:   &resiAddress,
+		PersonalEmail:        &email,
+		Rank:                 &rank,
 	}
-	return VariantUserArmy
+
+	// Overwrite values with those from assertions
+	mergeModels(&serviceMember, cServiceMember)
+
+	mustCreate(db, &serviceMember, false)
+
+	return serviceMember, nil
 }
 
-type Customization struct {
-	Model       interface{}
-	Type        CustomType
-	Create      bool
-	ReflectType reflect.Type
-}
-type Maker interface {
-	Make(db *pop.Connection, customs []Customization, traits []Trait) error
+func AddressMaker(db *pop.Connection, customs []Customization, traits []Trait) (models.Address, error) {
+	// Apply traits
+	if len(traits) != 0 {
+		customs = mergeCustomization(traits, customs)
+	}
+
+	// Find the customization for service member
+	var cAddress models.Address
+	if result := findCustom(customs, Address); result != nil {
+		cAddress = result.Model.(models.Address)
+	}
+
+	address := models.Address{
+		StreetAddress1: "123 Any Street",
+		StreetAddress2: swag.String("P.O. Box 12345"),
+		StreetAddress3: swag.String("c/o Some Person"),
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "90210",
+		Country:        swag.String("US"),
+	}
+
+	mergeModels(&address, cAddress)
+
+	mustCreate(db, &address, false)
+
+	return address, nil
 }
