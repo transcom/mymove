@@ -1092,10 +1092,12 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, userUp
 
 	move, shipment := createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 
-	testdatagen.MakeMovingExpense(appCtx.DB(), testdatagen.Assertions{
+	ppmCloseoutAssertions := testdatagen.Assertions{
 		PPMShipment:   shipment,
 		ServiceMember: move.Orders.ServiceMember,
-	})
+	}
+	testdatagen.MakeWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
+	testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
 }
 
 func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
