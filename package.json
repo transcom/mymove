@@ -149,7 +149,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-ato": "file:./eslint-plugin-ato",
     "eslint-plugin-no-only-tests": "^2.6.0",
-    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-security": "^1.5.0",
     "eslint-plugin-storybook": "0.5.12",
     "eslint-plugin-you-dont-need-lodash-underscore": "^6.12.0",
