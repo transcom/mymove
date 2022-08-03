@@ -63,6 +63,14 @@ export async function deleteEvaluationReport(reportID) {
   return makeGHCRequest('evaluationReports.deleteEvaluationReport', { reportID }, { normalize: false });
 }
 
+export async function saveEvaluationReport({ reportID, ifMatchETag, body }) {
+  return makeGHCRequest(
+    'evaluationReports.saveEvaluationReport',
+    { reportID, 'If-Match': ifMatchETag, body },
+    { normalize: false },
+  );
+}
+
 export async function getMoveHistory(key, { moveCode, currentPage = 1, currentPageSize = 20 }) {
   return makeGHCRequest(
     'move.getMoveHistory',

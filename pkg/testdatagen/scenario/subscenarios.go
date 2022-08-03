@@ -1,6 +1,7 @@
 package scenario
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -120,6 +121,7 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo6(appCtx, userUploader)
 		createApprovedMoveWithPPMEmptyAboutPage(appCtx, userUploader)
 		createApprovedMoveWithPPMWeightTicket(appCtx, userUploader)
+		createApprovedMoveWithPPMMovingExpense(appCtx, userUploader)
 	}
 }
 
@@ -222,6 +224,13 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 
 func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 	return func() {
+		createQaeCsr(appCtx)
+		officeUser := models.OfficeUser{}
+		email := "qae_csr_role@office.mil"
+		err := appCtx.DB().Where("email = ?", email).First(&officeUser)
+		if err != nil {
+			appCtx.Logger().Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err).Error())
+		}
 		// Move with a few evaluation reports
 		move := testdatagen.MakeMove(appCtx.DB(),
 			testdatagen.Assertions{
@@ -256,7 +265,6 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			},
 		})
 
-		officeUser := testdatagen.MakeDefaultOfficeUser(appCtx.DB())
 		submittedTime := time.Now()
 		dataReviewInspection := models.EvaluationReportInspectionTypeDataReview
 		physicalInspection := models.EvaluationReportInspectionTypePhysical

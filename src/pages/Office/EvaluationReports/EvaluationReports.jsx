@@ -35,6 +35,11 @@ const EvaluationReports = () => {
             <Alert type="success">Your report has been canceled</Alert>
           </div>
         )}
+        {location.state?.showSaveDraftSuccess && (
+          <div className={evaluationReportsStyles.alert}>
+            <Alert type="success">Your draft report has been saved</Alert>
+          </div>
+        )}
         <Grid row>
           <h1>Quality assurance reports</h1>
         </Grid>
