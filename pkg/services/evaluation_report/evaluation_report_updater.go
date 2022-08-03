@@ -2,7 +2,6 @@ package evaluationreport
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gofrs/uuid"
 
@@ -50,8 +49,6 @@ func (u evaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppCon
 	evaluationReport.MoveID = originalReport.MoveID
 	evaluationReport.ShipmentID = originalReport.ShipmentID
 	evaluationReport.Type = originalReport.Type
-	fmt.Println("REMARKS LOL")
-	fmt.Println(evaluationReport.Remarks)
 	verrs, err := appCtx.DB().ValidateAndSave(evaluationReport)
 	if err != nil {
 		return err
