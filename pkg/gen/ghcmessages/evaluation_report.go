@@ -38,8 +38,8 @@ type EvaluationReport struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// inspection date
-	// Format: date-time
-	InspectionDate *strfmt.DateTime `json:"inspectionDate,omitempty"`
+	// Format: date
+	InspectionDate *strfmt.Date `json:"inspectionDate,omitempty"`
 
 	// inspection type
 	InspectionType *EvaluationReportInspectionType `json:"inspectionType,omitempty"`
@@ -195,7 +195,7 @@ func (m *EvaluationReport) validateInspectionDate(formats strfmt.Registry) error
 		return nil
 	}
 
-	if err := validate.FormatOf("inspectionDate", "body", "date-time", m.InspectionDate.String(), formats); err != nil {
+	if err := validate.FormatOf("inspectionDate", "body", "date", m.InspectionDate.String(), formats); err != nil {
 		return err
 	}
 

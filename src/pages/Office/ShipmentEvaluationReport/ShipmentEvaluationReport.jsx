@@ -86,7 +86,7 @@ const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
           </Grid>
         </Grid>
       </GridContainer>
-      <ShipmentEvaluationForm />
+      <ShipmentEvaluationForm evaluationReport={evaluationReport} />
     </GridContainer>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as PropTypes from 'prop-types';
 import 'styles/office.scss';
 import {
   GridContainer,
@@ -22,11 +23,13 @@ import styles from './ShipmentEvaluationForm.module.scss';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
-import { deleteEvaluationReport } from 'services/ghcApi';
+import { deleteEvaluationReport, saveEvaluationReport } from 'services/ghcApi';
 import { DatePickerInput } from 'components/form/fields';
 import Hint from 'components/Hint';
+import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
+import { formatDateForSwagger } from 'shared/dates';
 
-const ShipmentEvaluationForm = () => {
+const ShipmentEvaluationForm = ({ evaluationReport }) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
 
@@ -49,9 +52,102 @@ const ShipmentEvaluationForm = () => {
     history.push(`/moves/${moveCode}/evaluation-reports`, { showDeleteSuccess: true });
   };
 
-  const submitReport = async () => {};
+  const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
+    onSuccess: () => {
+      history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
 
-  const initialValues = {};
+  const convertToMinutes = (hours, minutes) => {
+    return Number(hours || 0) * 60 + Number(minutes || 0);
+  };
+
+  const convertToHoursAndMinutes = (totalMinutes) => {
+    // divide and round down to get hours
+    const hours = Math.floor(totalMinutes / 60);
+    // use modulus operator to get the remainder for minutes
+    const minutes = totalMinutes % 60;
+    return { hours, minutes };
+  };
+
+  const submitForm = async (values) => {
+    // format the inspection type if its there
+    const { evaluationType } = values;
+    let inspectionType;
+    if (evaluationType) {
+      if (evaluationType === 'dataReview') {
+        inspectionType = 'DATA_REVIEW';
+      } else {
+        inspectionType = values.evaluationType.toUpperCase();
+      }
+    }
+    // format the location if it's there
+    let { evaluationLocation } = values;
+    if (evaluationLocation) {
+      evaluationLocation = values.evaluationLocation.toUpperCase();
+    }
+    let evalMinutes;
+    // calculate the minutes for evaluation length
+    if (values.evalLengthHour || values.evalLengthMinute) {
+      // convert hours to minutes and add to minutes
+      evalMinutes = convertToMinutes(values.evalLengthHour, values.evalLengthMinute);
+    }
+
+    let travelMinutes;
+    if (values.minute || values.hour) {
+      travelMinutes = convertToMinutes(values.hour, values.minute);
+    }
+
+    const body = {
+      location: evaluationLocation,
+      locationDescription: values.otherEvaluationLocation,
+      inspectionType,
+      remarks: values.remarks,
+      // hard coded until violations work
+      violations: false,
+      inspectionDate: formatDateForSwagger(values.inspectionDate),
+      evaluationLengthMinutes: evalMinutes,
+      travelTimeMinutes: travelMinutes,
+    };
+    const { eTag } = evaluationReport;
+    mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
+  };
+
+  const initialValues = {
+    remarks: evaluationReport.remarks,
+    // hard coded until violations work
+    violations: false,
+    inspectionDate: evaluationReport.inspectionDate,
+  };
+  if (evaluationReport.location) {
+    initialValues.evaluationLocation = evaluationReport.location.toLowerCase();
+  }
+  if (evaluationReport.locationDescription) {
+    initialValues.otherEvaluationLocation = evaluationReport.locationDescription;
+  }
+  if (evaluationReport.inspectionType) {
+    if (evaluationReport.inspectionType === 'DATA_REVIEW') {
+      initialValues.evaluationType = 'dataReview';
+    } else {
+      initialValues.evaluationType = evaluationReport.inspectionType.toLowerCase();
+    }
+  }
+  if (evaluationReport.evaluationLengthMinutes) {
+    const { hours, minutes } = convertToHoursAndMinutes(evaluationReport.evaluationLengthMinutes);
+    initialValues.evalLengthMinute = minutes;
+    initialValues.evalLengthHour = hours;
+  }
+
+  if (evaluationReport.travelTimeMinutes) {
+    const { hours, minutes } = convertToHoursAndMinutes(evaluationReport.travelTimeMinutes);
+    initialValues.minute = minutes;
+    initialValues.hour = hours;
+  }
+
   const validationSchema = Yup.object().shape({});
 
   const hours = [...Array(13).keys()];
@@ -64,8 +160,14 @@ const ShipmentEvaluationForm = () => {
         closeModal={toggleCancelModel}
         submitModal={cancelReport}
       />
-      <Formik initialValues={initialValues} onSubmit={submitReport} validationSchema={validationSchema} validateOnMount>
-        {({ values }) => {
+      <Formik
+        initialValues={initialValues}
+        enableReinitialize
+        onSubmit={submitForm}
+        validationSchema={validationSchema}
+        validateOnMount
+      >
+        {({ values, setFieldValue }) => {
           return (
             <Form className={classnames(formStyles.form, styles.form)}>
               <GridContainer className={styles.cardContainer}>
@@ -73,7 +175,7 @@ const ShipmentEvaluationForm = () => {
                   <Grid col>
                     <h2>Evaluation form</h2>
                     <h3>Evaluation information</h3>
-                    <DatePickerInput label="Date of inspection" name="dateOfInspection" />
+                    <DatePickerInput label="Date of inspection" name="inspectionDate" />
                     <FormGroup>
                       <Fieldset className={styles.radioGroup}>
                         <legend className="usa-label">Evaluation type</legend>
@@ -118,9 +220,17 @@ const ShipmentEvaluationForm = () => {
                               <Hint htmlFor="hour" className={styles.hourLabel}>
                                 Hour
                               </Hint>
-                              <Dropdown id="hour" name="hour" label="Hour" className={styles.hourPicker}>
+                              <Dropdown
+                                id="hour"
+                                name="hour"
+                                label="Hour"
+                                className={styles.hourPicker}
+                                onChange={(e) => {
+                                  setFieldValue('hour', e.target.value);
+                                }}
+                              >
                                 {hours.map((option) => (
-                                  <option key={option} value={option}>
+                                  <option key={option} value={option} name={option}>
                                     {option}
                                   </option>
                                 ))}
@@ -130,7 +240,15 @@ const ShipmentEvaluationForm = () => {
                               <Hint htmlFor="minute" className={styles.minuteLabel}>
                                 Minute
                               </Hint>
-                              <Dropdown id="minute" name="minute" label="Minute" className={styles.minutePicker}>
+                              <Dropdown
+                                id="minute"
+                                name="minute"
+                                label="Minute"
+                                className={styles.minutePicker}
+                                onChange={(e) => {
+                                  setFieldValue('minute', e.target.value);
+                                }}
+                              >
                                 {minutes.map((option) => (
                                   <option key={option} value={option}>
                                     {option}
@@ -188,14 +306,14 @@ const ShipmentEvaluationForm = () => {
                     {values.evaluationType === 'physical' && values.evaluationLocation === 'destination' && (
                       <DatePickerInput
                         label="Observed delivery date"
-                        name="observedDeliveryDate"
+                        name="observedDate"
                         hint="Only enter a date here if the delivery you witnessed did not happen on the scheduled delivery date"
                       />
                     )}
                     {values.evaluationType === 'physical' && values.evaluationLocation === 'origin' && (
                       <DatePickerInput
                         label="Observed pickup date"
-                        name="observedPickupDate"
+                        name="observedDate"
                         hint="Only enter a date here if the pickup you witnessed did not happen on the scheduled pickup date"
                       />
                     )}
@@ -207,7 +325,15 @@ const ShipmentEvaluationForm = () => {
                             <Hint htmlFor="hour" className={styles.hourLabel}>
                               Hour
                             </Hint>
-                            <Dropdown id="hour" name="evalLengthHour" label="Hour" className={styles.hourPicker}>
+                            <Dropdown
+                              id="hour"
+                              name="evalLengthHour"
+                              label="Hour"
+                              className={styles.hourPicker}
+                              onChange={(e) => {
+                                setFieldValue('evalLengthHour', e.target.value);
+                              }}
+                            >
                               {hours.map((option) => (
                                 <option key={option} value={option}>
                                   {option}
@@ -224,6 +350,9 @@ const ShipmentEvaluationForm = () => {
                               name="evalLengthMinute"
                               label="Minute"
                               className={styles.minutePicker}
+                              onChange={(e) => {
+                                setFieldValue('evalLengthMinute', e.target.value);
+                              }}
                             >
                               {minutes.map((option) => (
                                 <option key={option} value={option}>
@@ -273,7 +402,7 @@ const ShipmentEvaluationForm = () => {
                     <Label htmlFor="evaluationRemarks">Evaluation remarks</Label>
                     <Field
                       as={Textarea}
-                      name="evaluationRemarks"
+                      name="remarks"
                       id="evaluationRemarks"
                       title="Evaluation remarks"
                       className={styles.textArea}
@@ -288,10 +417,10 @@ const ShipmentEvaluationForm = () => {
                       <Button className="usa-button--unstyled" onClick={toggleCancelModel} type="button">
                         Cancel
                       </Button>
-                      <Button className="usa-button--secondary">Save draft</Button>
-                      <Button type="submit" disabled>
-                        Review and submit
+                      <Button data-testid="saveDraft" type="submit" className="usa-button--secondary">
+                        Save draft
                       </Button>
+                      <Button disabled>Review and submit</Button>
                     </div>
                   </Grid>
                 </Grid>
@@ -302,6 +431,14 @@ const ShipmentEvaluationForm = () => {
       </Formik>
     </>
   );
+};
+
+ShipmentEvaluationForm.propTypes = {
+  evaluationReport: PropTypes.object,
+};
+
+ShipmentEvaluationForm.defaultProps = {
+  evaluationReport: {},
 };
 
 export default ShipmentEvaluationForm;
