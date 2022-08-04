@@ -72,7 +72,6 @@ type MovingExpenses []MovingExpense
 func (m *MovingExpense) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Name: "PPMShipmentID", Field: m.PPMShipmentID},
-		&validators.UUIDIsPresent{Name: "DocumentID", Field: m.DocumentID},
 		&OptionalTimeIsPresent{Name: "DeletedAt", Field: m.DeletedAt},
 		&OptionalStringInclusion{Name: "MovingExpenseType", Field: (*string)(m.MovingExpenseType), List: AllowedExpenseTypes},
 		&StringIsNilOrNotBlank{Name: "Description", Field: m.Description},

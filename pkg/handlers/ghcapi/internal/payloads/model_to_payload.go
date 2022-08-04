@@ -179,12 +179,12 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		CreatedAt:               strfmt.DateTime(evaluationReport.CreatedAt),
 		EvaluationLengthMinutes: handlers.FmtIntPtrToInt64(evaluationReport.EvaluationLengthMinutes),
 		ID:                      id,
-		InspectionDate:          handlers.FmtDateTimePtr(evaluationReport.InspectionDate),
+		InspectionDate:          handlers.FmtDatePtr(evaluationReport.InspectionDate),
 		InspectionType:          inspectionType,
 		Location:                location,
 		LocationDescription:     evaluationReport.LocationDescription,
 		MoveID:                  moveID,
-		ObservedDate:            handlers.FmtDateTimePtr(evaluationReport.ObservedDate),
+		ObservedDate:            handlers.FmtDatePtr(evaluationReport.ObservedDate),
 		Remarks:                 evaluationReport.Remarks,
 		ShipmentID:              shipmentID,
 		SubmittedAt:             handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
@@ -193,6 +193,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		ViolationsObserved:      evaluationReport.ViolationsObserved,
 		MoveReferenceID:         evaluationReport.Move.ReferenceID,
 		OfficeUser:              &evaluationReportOfficeUserPayload,
+		ETag:                    etag.GenerateEtag(evaluationReport.UpdatedAt),
 	}
 	return payload
 }
