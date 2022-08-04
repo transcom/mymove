@@ -62,8 +62,8 @@ type EvaluationReport struct {
 	MoveReferenceID *string `json:"moveReferenceID,omitempty"`
 
 	// observed date
-	// Format: date-time
-	ObservedDate *strfmt.DateTime `json:"observedDate,omitempty"`
+	// Format: date
+	ObservedDate *strfmt.Date `json:"observedDate,omitempty"`
 
 	// office user
 	OfficeUser *EvaluationReportOfficeUser `json:"officeUser,omitempty"`
@@ -257,7 +257,7 @@ func (m *EvaluationReport) validateObservedDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("observedDate", "body", "date-time", m.ObservedDate.String(), formats); err != nil {
+	if err := validate.FormatOf("observedDate", "body", "date", m.ObservedDate.String(), formats); err != nil {
 		return err
 	}
 
