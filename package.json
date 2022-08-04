@@ -151,7 +151,7 @@
     "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-security": "^1.5.0",
-    "eslint-plugin-storybook": "0.5.12",
+    "eslint-plugin-storybook": "0.6.3",
     "eslint-plugin-you-dont-need-lodash-underscore": "^6.12.0",
     "happo-plugin-storybook": "^2.11.2",
     "happo.io": "^7.2.1",
