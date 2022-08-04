@@ -50,7 +50,7 @@ describe('BackupContact page', () => {
 
     const backButton = screen.getByText('Back');
     expect(backButton).toBeInTheDocument();
-    userEvent.click(backButton);
+    await userEvent.click(backButton);
 
     await waitFor(() => {
       expect(testProps.push).toHaveBeenCalledWith('/service-member/backup-address');
@@ -68,7 +68,7 @@ describe('BackupContact page', () => {
 
       const submitButton = queryByText('Next');
       expect(submitButton).toBeInTheDocument();
-      userEvent.click(submitButton);
+      await userEvent.click(submitButton);
 
       await waitFor(() => {
         expect(patchBackupContact).toHaveBeenCalled();
@@ -99,7 +99,7 @@ describe('BackupContact page', () => {
 
       const submitButton = queryByText('Next');
       expect(submitButton).toBeInTheDocument();
-      userEvent.click(submitButton);
+      await userEvent.click(submitButton);
 
       await waitFor(() => {
         expect(patchBackupContact).toHaveBeenCalled();
@@ -122,10 +122,10 @@ describe('BackupContact page', () => {
 
       const submitButton = queryByText('Next');
       expect(submitButton).toBeInTheDocument();
-      userEvent.type(getByLabelText('Name'), 'Joe Schmoe');
-      userEvent.type(getByLabelText('Phone'), '555-555-5555');
-      userEvent.type(getByLabelText('Email'), 'test@sample.com');
-      userEvent.click(submitButton);
+      await userEvent.type(getByLabelText('Name'), 'Joe Schmoe');
+      await userEvent.type(getByLabelText('Phone'), '555-555-5555');
+      await userEvent.type(getByLabelText('Email'), 'test@sample.com');
+      await userEvent.click(submitButton);
 
       await waitFor(() => {
         expect(createBackupContactForServiceMember).toHaveBeenCalled();
@@ -156,10 +156,10 @@ describe('BackupContact page', () => {
 
       const submitButton = queryByText('Next');
       expect(submitButton).toBeInTheDocument();
-      userEvent.type(getByLabelText('Name'), 'Joe Schmitty');
-      userEvent.type(getByLabelText('Phone'), '555-555-5555');
-      userEvent.type(getByLabelText('Email'), 'test@sample.com');
-      userEvent.click(submitButton);
+      await userEvent.type(getByLabelText('Name'), 'Joe Schmitty');
+      await userEvent.type(getByLabelText('Phone'), '555-555-5555');
+      await userEvent.type(getByLabelText('Email'), 'test@sample.com');
+      await userEvent.click(submitButton);
 
       await waitFor(() => {
         expect(createBackupContactForServiceMember).toHaveBeenCalled();

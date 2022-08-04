@@ -371,8 +371,8 @@ describe('RequestedShipments', () => {
 
       expect(screen.getByTestId('shipmentApproveButton')).toBeDisabled();
 
-      await waitFor(() => {
-        userEvent.click(screen.getByLabelText('Move management'));
+      await waitFor(async () => {
+        await userEvent.click(screen.getByLabelText('Move management'));
       });
 
       expect(screen.getByLabelText('Move management').checked).toEqual(true);

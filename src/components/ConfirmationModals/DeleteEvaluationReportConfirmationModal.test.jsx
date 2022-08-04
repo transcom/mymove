@@ -25,7 +25,7 @@ describe('DeleteEvaluationReportConfirmationModal', () => {
 
     const closeButton = await screen.findByTestId('modalCloseButton');
 
-    userEvent.click(closeButton);
+    await userEvent.click(closeButton);
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(onSubmit).not.toHaveBeenCalled();
@@ -36,7 +36,7 @@ describe('DeleteEvaluationReportConfirmationModal', () => {
 
     const keepButton = await screen.findByRole('button', { name: 'No, keep it' });
 
-    userEvent.click(keepButton);
+    await userEvent.click(keepButton);
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(onSubmit).not.toHaveBeenCalled();
@@ -47,7 +47,7 @@ describe('DeleteEvaluationReportConfirmationModal', () => {
 
     const deleteButton = await screen.findByRole('button', { name: 'Yes, Cancel' });
 
-    userEvent.click(deleteButton);
+    await userEvent.click(deleteButton);
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(onClose).not.toHaveBeenCalled();

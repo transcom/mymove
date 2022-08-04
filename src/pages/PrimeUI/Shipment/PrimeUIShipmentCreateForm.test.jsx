@@ -59,7 +59,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(shipmentTypeInput).toBeInTheDocument();
 
     // Make it a PPM.
-    userEvent.selectOptions(shipmentTypeInput, ['PPM']);
+    await userEvent.selectOptions(shipmentTypeInput, ['PPM']);
 
     // Make sure than an HHG-specific field is not visible.
     expect(await screen.queryByLabelText('Requested pickup')).not.toBeInTheDocument();
@@ -98,7 +98,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(await screen.findByLabelText('Counselor Remarks')).toHaveValue(initialValues.counselorRemarks);
 
     // Turn on SIT.
-    userEvent.click(sitExpectedInput);
+    await userEvent.click(sitExpectedInput);
 
     expect(await screen.findByLabelText('SIT Location')).toHaveValue(initialValues.ppmShipment.sitLocation);
     expect(await screen.findByLabelText('SIT Estimated Weight (lbs)')).toHaveValue(
@@ -112,7 +112,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     );
 
     // Turn on pro gear.
-    userEvent.click(hasProGearInput);
+    await userEvent.click(hasProGearInput);
 
     expect(await screen.findByLabelText('Pro Gear Weight (lbs)')).toHaveValue(initialValues.ppmShipment.proGearWeight);
     expect(await screen.findByLabelText('Spouse Pro Gear Weight (lbs)')).toHaveValue(
@@ -127,7 +127,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(shipmentTypeInput).toBeInTheDocument();
 
     // Make it an HHG.
-    userEvent.selectOptions(shipmentTypeInput, ['HHG']);
+    await userEvent.selectOptions(shipmentTypeInput, ['HHG']);
 
     // Make sure than a PPM-specific field is not visible.
     expect(await screen.queryByLabelText('Expected Departure Date')).not.toBeInTheDocument();

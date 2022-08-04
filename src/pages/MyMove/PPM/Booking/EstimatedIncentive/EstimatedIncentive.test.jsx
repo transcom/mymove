@@ -65,7 +65,7 @@ describe('EstimatedIncentive component', () => {
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('$7,890 is your estimated incentive');
   });
 
-  it('renders the buttons and navigates to previous and next routes', () => {
+  it('renders the buttons and navigates to previous and next routes', async () => {
     render(
       <MockProviders>
         <EstimatedIncentive />
@@ -77,12 +77,12 @@ describe('EstimatedIncentive component', () => {
       mtoShipmentId: mockShipmentId,
     };
 
-    userEvent.click(screen.getByRole('button', { name: 'Back' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Back' }));
     expect(mockPush).toHaveBeenCalledWith(
       generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, shipmentInfo),
     );
 
-    userEvent.click(screen.getByRole('button', { name: 'Next' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Next' }));
     expect(mockPush).toHaveBeenCalledWith(generatePath(customerRoutes.SHIPMENT_PPM_ADVANCES_PATH, shipmentInfo));
   });
 });

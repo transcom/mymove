@@ -57,8 +57,8 @@ describe('ResidentialAddressForm component', () => {
 
     const postalCode = '99999';
 
-    userEvent.type(postalCodeInput, postalCode);
-    userEvent.tab();
+    await userEvent.type(postalCodeInput, postalCode);
+    await userEvent.tab();
 
     await waitFor(() => {
       expect(postalCodeValidator).toHaveBeenCalledWith(postalCode);
@@ -69,7 +69,7 @@ describe('ResidentialAddressForm component', () => {
     const { getByRole, findAllByRole } = render(<ResidentialAddressForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    userEvent.click(submitBtn);
+    await userEvent.click(submitBtn);
 
     const alerts = await findAllByRole('alert');
 
@@ -86,13 +86,13 @@ describe('ResidentialAddressForm component', () => {
     const { getByRole, getByLabelText } = render(<ResidentialAddressForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
-    userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    userEvent.type(getByLabelText('City'), fakeAddress.city);
-    userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
-    userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
+    await userEvent.type(getByLabelText('City'), fakeAddress.city);
+    await userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
+    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
 
-    userEvent.click(submitBtn);
+    await userEvent.click(submitBtn);
 
     const expectedParams = {
       [formFieldsName]: fakeAddress,
@@ -107,7 +107,7 @@ describe('ResidentialAddressForm component', () => {
     const { getByRole } = render(<ResidentialAddressForm {...testProps} />);
     const backBtn = getByRole('button', { name: 'Back' });
 
-    userEvent.click(backBtn);
+    await userEvent.click(backBtn);
 
     await waitFor(() => {
       expect(testProps.onBack).toHaveBeenCalled();

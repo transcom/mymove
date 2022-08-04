@@ -85,7 +85,7 @@ describe('ShipmentAddresses', () => {
     );
     const requestDiversionBtn = screen.getByRole('button', { name: 'Request diversion' });
 
-    userEvent.click(requestDiversionBtn);
+    await userEvent.click(requestDiversionBtn);
     await waitFor(() => {
       expect(testProps.handleDivertShipment).toHaveBeenCalled();
       expect(testProps.handleDivertShipment).toHaveBeenCalledWith(

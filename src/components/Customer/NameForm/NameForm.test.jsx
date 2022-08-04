@@ -37,7 +37,7 @@ describe('NameForm component', () => {
     );
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    userEvent.click(submitBtn);
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(getAllByText('Required').length).toBe(2);
@@ -56,10 +56,10 @@ describe('NameForm component', () => {
     );
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    userEvent.type(getByLabelText('First name'), 'Leo');
-    userEvent.type(getByLabelText('Last name'), 'Spaceman');
+    await userEvent.type(getByLabelText('First name'), 'Leo');
+    await userEvent.type(getByLabelText('Last name'), 'Spaceman');
 
-    userEvent.click(submitBtn);
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalled();
@@ -77,7 +77,7 @@ describe('NameForm component', () => {
     );
     const backBtn = getByRole('button', { name: 'Back' });
 
-    userEvent.click(backBtn);
+    await userEvent.click(backBtn);
 
     await waitFor(() => {
       expect(onBack).toHaveBeenCalled();

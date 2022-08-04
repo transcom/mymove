@@ -205,15 +205,15 @@ describe('Orders page', () => {
       );
 
       const hhgTacInput = screen.getByTestId('hhgTacInput');
-      userEvent.clear(hhgTacInput);
-      userEvent.type(hhgTacInput, '2222');
+      await userEvent.clear(hhgTacInput);
+      await userEvent.type(hhgTacInput, '2222');
 
       await waitFor(() => {
         expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument();
       });
 
-      userEvent.clear(hhgTacInput);
-      userEvent.type(hhgTacInput, '3333');
+      await userEvent.clear(hhgTacInput);
+      await userEvent.type(hhgTacInput, '3333');
 
       await waitFor(() => {
         expect(screen.getByText(/This TAC does not appear in TGET/)).toBeInTheDocument();

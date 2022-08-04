@@ -77,7 +77,7 @@ describe('Upload Payment Request Documents Page', () => {
     );
 
     const cancel = screen.getByRole('button', { name: 'Cancel' });
-    userEvent.click(cancel);
+    await userEvent.click(cancel);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/simulator/moves/LN4T89/details');

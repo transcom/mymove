@@ -55,7 +55,7 @@ describe('Create Shipment Page', () => {
     );
 
     const cancel = screen.getByRole('button', { name: 'Cancel' });
-    userEvent.click(cancel);
+    await userEvent.click(cancel);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(moveDetailsURL);
@@ -73,12 +73,12 @@ describe('successful submission of form', () => {
       </MockProviders>,
     );
 
-    userEvent.selectOptions(screen.getByLabelText('Shipment type'), 'HHG');
+    await userEvent.selectOptions(screen.getByLabelText('Shipment type'), 'HHG');
 
     const saveButton = await screen.getByRole('button', { name: 'Save' });
 
     expect(saveButton).not.toBeDisabled();
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(moveDetailsURL);

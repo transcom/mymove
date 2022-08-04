@@ -52,7 +52,7 @@ describe('ContactInfoFields component', () => {
       );
 
       expect(screen.getByLabelText('Phone')).toBeInTheDocument();
-      userEvent.type(screen.getByLabelText('Phone'), '5555555555');
+      await userEvent.type(screen.getByLabelText('Phone'), '5555555555');
       expect(await screen.findByLabelText('Phone')).toHaveValue('555-555-5555');
     });
   });

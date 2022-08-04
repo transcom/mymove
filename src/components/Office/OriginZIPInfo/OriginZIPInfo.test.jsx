@@ -44,7 +44,7 @@ describe('OriginZIPInfo component', () => {
     const useCurrentZip = screen.getByText('Use current ZIP');
     const originZip = screen.getByLabelText('Origin ZIP');
     expect(originZip.value).toBe('');
-    userEvent.click(useCurrentZip);
+    await userEvent.click(useCurrentZip);
     await waitFor(() => {
       expect(originZip.value).toBe('90210');
     });
@@ -68,7 +68,7 @@ describe('OriginZIPInfo component', () => {
 
       const wrapper = screen.getByTestId('originZIP');
 
-      userEvent.type(within(wrapper).getByTestId('textInput'), '88888');
+      await userEvent.type(within(wrapper).getByTestId('textInput'), '88888');
 
       within(wrapper).getByTestId('textInput').blur();
 

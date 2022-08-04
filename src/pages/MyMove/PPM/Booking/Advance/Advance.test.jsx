@@ -195,25 +195,25 @@ describe('Advance page', () => {
     render(<Advance />, { wrapper: MockProviders });
 
     const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
-    userEvent.click(hasRequestedAdvanceYesInput);
+    await userEvent.click(hasRequestedAdvanceYesInput);
 
     const advanceInput = await screen.findByLabelText('Amount requested');
     expect(advanceInput).toBeInstanceOf(HTMLInputElement);
 
     const hasRequestedAdvanceNoInput = screen.getByRole('radio', { name: /no/i });
-    userEvent.click(hasRequestedAdvanceNoInput);
+    await userEvent.click(hasRequestedAdvanceNoInput);
 
     await waitFor(() => {
       expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
     });
   });
 
-  it('routes back to the previous page when the back button is clicked', () => {
+  it('routes back to the previous page when the back button is clicked', async () => {
     render(<Advance />, { wrapper: MockProviders });
 
     const backButton = screen.getByRole('button', { name: /back/i });
 
-    userEvent.click(backButton);
+    await userEvent.click(backButton);
 
     expect(mockPush).toHaveBeenCalledWith(estimatedIncentivePath);
   });
@@ -228,14 +228,14 @@ describe('Advance page', () => {
     await userEvent.click(hasRequestedAdvanceYesInput);
 
     const advanceInput = screen.getByLabelText('Amount requested');
-    userEvent.type(advanceInput, String(advance));
+    await userEvent.type(advanceInput, String(advance));
 
     const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
-    userEvent.click(agreeToTerms);
+    await userEvent.click(agreeToTerms);
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
     expect(saveButton).not.toBeDisabled();
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     const expectedPayload = {
       shipmentType: mockMTOShipment.shipmentType,
@@ -267,7 +267,7 @@ describe('Advance page', () => {
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
     expect(saveButton).not.toBeDisabled();
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     const expectedPayload = {
       shipmentType: mockMTOShipment.shipmentType,
@@ -290,16 +290,16 @@ describe('Advance page', () => {
 
     const advance = 4000;
     const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
-    userEvent.click(hasRequestedAdvanceYesInput);
+    await userEvent.click(hasRequestedAdvanceYesInput);
 
     const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
-    userEvent.click(agreeToTerms);
+    await userEvent.click(agreeToTerms);
 
     const advanceInput = screen.getByLabelText('Amount requested');
-    userEvent.type(advanceInput, String(advance));
+    await userEvent.type(advanceInput, String(advance));
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     await waitFor(() => expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment(mockMTOShipment)));
   });
@@ -309,16 +309,16 @@ describe('Advance page', () => {
 
     render(<Advance />, { wrapper: MockProviders });
     const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
-    userEvent.click(hasRequestedAdvanceYesInput);
+    await userEvent.click(hasRequestedAdvanceYesInput);
 
     const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
-    userEvent.click(agreeToTerms);
+    await userEvent.click(agreeToTerms);
 
     const advanceInput = screen.getByLabelText('Amount requested');
-    userEvent.type(advanceInput, '4000');
+    await userEvent.type(advanceInput, '4000');
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     await waitFor(() => expect(mockPush).toHaveBeenCalledWith(reviewPath));
     expect(mockDispatch).toHaveBeenCalledWith(
@@ -339,14 +339,14 @@ describe('Advance page', () => {
 
     render(<Advance />, { wrapper: MockProviders });
     const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
-    userEvent.click(hasRequestedAdvanceYesInput);
+    await userEvent.click(hasRequestedAdvanceYesInput);
 
     const advanceInput = screen.getByLabelText('Amount requested');
-    userEvent.type(advanceInput, '4000');
+    await userEvent.type(advanceInput, '4000');
     const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
-    userEvent.click(agreeToTerms);
+    await userEvent.click(agreeToTerms);
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     expect(await screen.findByText(mockErrorMsg)).toBeInTheDocument();
   });
