@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-9ea16004ab38c5e43e715e09241515ec220b6067  as builder
+FROM milmove/circleci-docker:milmove-app-9ea16004ab38c5e43e715e09241515ec220b6067 as builder
 
 ENV CIRCLECI=true
 
@@ -15,6 +15,18 @@ RUN rm -f pkg/assets/assets.go && make pkg/assets/assets.go
 RUN make server_generate
 RUN rm -f bin/milmove-tasks && make bin/milmove-tasks
 
+
+###########
+# BUILDER-POSTGRES #
+###########
+
+FROM alpine:3.15.4 as builder-pg
+WORKDIR /tmp
+RUN apk update && apk fetch -R postgresql-client
+RUN mkdir /apkg
+RUN for apkFile in *.apk; do tar -zxvf "${apkFile}" -C "/apkg" || exit 10; done
+
+
 #########
 # FINAL #
 #########
@@ -25,5 +37,9 @@ FROM gcr.io/distroless/base:latest
 COPY --from=builder --chown=root:root /home/circleci/project/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
 COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY --from=builder --chown=root:root /home/circleci/project/bin/milmove-tasks /bin/milmove-tasks
+
+# Copy Postgresql and dependencies
+COPY --from=builder-pg --chown=root:root /apkg /
+ENV PATH="${PATH}:/usr/libexec/postgresql14"
 
 WORKDIR /bin
