@@ -10,6 +10,7 @@ import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOption
 import styles from './ShipmentForm.module.scss';
 import ppmShipmentSchema from './ppmShipmentSchema';
 
+import SITCostDetails from 'components/Office/SITCostDetails/SITCostDetails';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
@@ -539,6 +540,21 @@ const ShipmentForm = (props) => {
                     <ShipmentCustomerSIT />
                     <ShipmentWeight authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()} />
                   </>
+                )}
+
+                {isPPM && isAdvancePage && isServiceCounselor && mtoShipment.ppmShipment?.sitExpected && (
+                  <SITCostDetails
+                    cost={12300}
+                    weight={mtoShipment.ppmShipment?.sitEstimatedWeight}
+                    sitLocation={mtoShipment.ppmShipment?.sitLocation}
+                    location={
+                      mtoShipment.ppmShipment?.sitLocation === 'DESTINATION'
+                        ? mtoShipment.ppmShipment?.pickupPostalCode
+                        : mtoShipment.ppmShipment?.destinationPostalCode
+                    }
+                    departureDate={mtoShipment.ppmShipment?.sitEstimatedDepartureDate}
+                    entryDate={mtoShipment.ppmShipment?.sitEstimatedEntryDate}
+                  />
                 )}
 
                 {isPPM && isAdvancePage && (
