@@ -279,12 +279,12 @@ describe('Home component', () => {
       const hhgShipment = screen.getAllByTestId('shipment-list-item-container')[0];
       const editButton = within(hhgShipment).getByRole('button', { name: 'Edit' });
       expect(editButton).toBeInTheDocument();
-      userEvent.click(editButton);
+      await userEvent.click(editButton);
 
       expect(defaultProps.history.push).toHaveBeenCalledWith(`${editHHGShipmentPath}?shipmentNumber=1`);
     });
 
-    it('handles edit click to edit ppm shipment route', () => {
+    it('handles edit click to edit ppm shipment route', async () => {
       render(
         <MockProviders>
           <Home {...defaultProps} {...props} />
@@ -299,12 +299,12 @@ describe('Home component', () => {
       const ppmShipment = screen.getAllByTestId('shipment-list-item-container')[1];
       const editButton = within(ppmShipment).getByRole('button', { name: 'Edit' });
       expect(editButton).toBeInTheDocument();
-      userEvent.click(editButton);
+      await userEvent.click(editButton);
 
       expect(defaultProps.history.push).toHaveBeenCalledWith(`${editPPMShipmentPath}?shipmentNumber=1`);
     });
 
-    it('handles edit click to edit nts shipment route', () => {
+    it('handles edit click to edit nts shipment route', async () => {
       render(
         <MockProviders>
           <Home {...defaultProps} {...props} />
@@ -319,12 +319,12 @@ describe('Home component', () => {
       const ntsShipment = screen.getAllByTestId('shipment-list-item-container')[3];
       const editButton = within(ntsShipment).getByRole('button', { name: 'Edit' });
       expect(editButton).toBeInTheDocument();
-      userEvent.click(editButton);
+      await userEvent.click(editButton);
 
       expect(defaultProps.history.push).toHaveBeenCalledWith(editNTSShipmentPath);
     });
 
-    it('handles edit click to edit ntsr shipment route', () => {
+    it('handles edit click to edit ntsr shipment route', async () => {
       render(
         <MockProviders>
           <Home {...defaultProps} {...props} />
@@ -339,7 +339,7 @@ describe('Home component', () => {
       const ntsrShipment = screen.getAllByTestId('shipment-list-item-container')[4];
       const editButton = within(ntsrShipment).getByRole('button', { name: 'Edit' });
       expect(editButton).toBeInTheDocument();
-      userEvent.click(editButton);
+      await userEvent.click(editButton);
 
       expect(defaultProps.history.push).toHaveBeenCalledWith(editNTSRShipmentPath);
     });

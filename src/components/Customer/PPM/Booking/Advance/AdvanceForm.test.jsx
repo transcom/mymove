@@ -55,7 +55,7 @@ describe('AdvanceForm component', () => {
           "I acknowledge that any advance I'm given will be deducted from my final incentive payment. If my advance ends up being more than my incentive, I will need to repay the difference.",
         ),
       ).toBeNull();
-      userEvent.click(requestAdvance);
+      await userEvent.click(requestAdvance);
 
       await waitFor(() => {
         expect(screen.getByLabelText('Amount requested')).toBeInstanceOf(HTMLInputElement);

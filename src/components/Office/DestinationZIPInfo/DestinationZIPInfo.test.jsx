@@ -39,7 +39,7 @@ describe('DestinationZIPInfo component', () => {
     const useDutyZip = screen.getByText('Use ZIP for new duty location');
     const destinationZip = screen.getByLabelText('Destination ZIP');
     expect(destinationZip.value).toBe('');
-    userEvent.click(useDutyZip);
+    await userEvent.click(useDutyZip);
     await waitFor(() => {
       expect(destinationZip.value).toBe('90210');
     });
@@ -62,7 +62,7 @@ describe('DestinationZIPInfo component', () => {
 
       const wrapper = screen.getByTestId('destinationZIP');
 
-      userEvent.type(within(wrapper).getByTestId('textInput'), '88888');
+      await userEvent.type(within(wrapper).getByTestId('textInput'), '88888');
 
       within(wrapper).getByTestId('textInput').blur();
 

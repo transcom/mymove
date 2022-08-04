@@ -89,7 +89,7 @@ describe('BillableWeightCard', () => {
 
     const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
 
-    userEvent.click(reviewWeights);
+    await userEvent.click(reviewWeights);
 
     await waitFor(() => {
       expect(defaultProps.onReviewWeights).toHaveBeenCalled();

@@ -141,7 +141,7 @@ describe('CustomerInfo', () => {
       </MockProviders>,
     );
     const saveBtn = screen.getByRole('button', { name: 'Save' });
-    userEvent.click(saveBtn);
+    await userEvent.click(saveBtn);
 
     await waitFor(() => {
       expect(mockUpdate).toHaveBeenCalledWith('success');
@@ -165,7 +165,7 @@ describe('CustomerInfo', () => {
     );
 
     const saveBtn = screen.getByRole('button', { name: 'Save' });
-    userEvent.click(saveBtn);
+    await userEvent.click(saveBtn);
 
     await waitFor(async () => {
       await expect(mockUpdate).toHaveBeenCalledWith('error');

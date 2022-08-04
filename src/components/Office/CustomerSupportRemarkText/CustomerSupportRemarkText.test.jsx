@@ -98,7 +98,7 @@ describe('CustomerSupportRemarkText', () => {
     expect(screen.queryByTestId('edit-remark-textarea')).not.toBeInTheDocument();
 
     // Open editing of the remark
-    userEvent.click(screen.getByText('Edit'));
+    await userEvent.click(screen.getByText('Edit'));
 
     expect(screen.getByText('Save')).toBeInTheDocument();
     expect(screen.getByText('Cancel')).toBeInTheDocument();

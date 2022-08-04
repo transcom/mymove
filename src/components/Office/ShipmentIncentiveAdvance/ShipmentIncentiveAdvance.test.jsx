@@ -31,7 +31,7 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
       </Formik>,
     );
 
-    userEvent.click(screen.getByLabelText('Yes'));
+    await userEvent.click(screen.getByLabelText('Yes'));
 
     expect(await screen.findByLabelText('Amount requested')).toBeInTheDocument();
   });

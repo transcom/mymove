@@ -371,7 +371,7 @@ describe('Update Shipment Page', () => {
     );
 
     const cancel = screen.getByRole('button', { name: 'Cancel' });
-    userEvent.click(cancel);
+    await userEvent.click(cancel);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(moveDetailsURL);
@@ -448,15 +448,15 @@ describe('successful submission of form', () => {
     );
 
     const actualPickupDateInput = await screen.findByLabelText('Actual pickup');
-    userEvent.type(actualPickupDateInput, '2021-10-20');
+    await userEvent.type(actualPickupDateInput, '2021-10-20');
 
     const actualWeightInput = screen.getByLabelText(/Actual weight/);
-    userEvent.type(actualWeightInput, '10000');
+    await userEvent.type(actualWeightInput, '10000');
 
     const saveButton = await screen.getByRole('button', { name: 'Save' });
 
     expect(saveButton).not.toBeDisabled();
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(moveDetailsURL);
@@ -471,16 +471,16 @@ describe('successful submission of form', () => {
     render(<PrimeUIShipmentUpdate />);
 
     const actualPickupDateInput = await screen.findByLabelText('Actual pickup');
-    userEvent.type(actualPickupDateInput, '2021-10-20');
+    await userEvent.type(actualPickupDateInput, '2021-10-20');
 
     const actualWeightInput = screen.getByLabelText(/Actual weight/);
-    userEvent.type(actualWeightInput, "10000")
+    await userEvent.type(actualWeightInput, "10000")
 
     //const saveButton = await expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
     const saveButton = await screen.getByRole('button', { name: 'Save' });
 
     expect(saveButton).not.toBeDisabled();
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(moveDetailsURL);

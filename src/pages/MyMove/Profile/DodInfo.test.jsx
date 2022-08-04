@@ -39,7 +39,7 @@ describe('DodInfo page', () => {
       expect(backButton).toBeInTheDocument();
     });
 
-    userEvent.click(backButton);
+    await userEvent.click(backButton);
     expect(testProps.push).toHaveBeenCalledWith('/service-member/conus-oconus');
   });
 
@@ -58,7 +58,7 @@ describe('DodInfo page', () => {
 
     const submitButton = queryByText('Next');
     expect(submitButton).toBeInTheDocument();
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();
@@ -94,7 +94,7 @@ describe('DodInfo page', () => {
 
     const submitButton = queryByText('Next');
     expect(submitButton).toBeInTheDocument();
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();

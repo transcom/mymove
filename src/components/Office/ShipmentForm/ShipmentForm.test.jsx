@@ -180,9 +180,10 @@ describe('ShipmentForm component', () => {
     });
 
     it('uses the current residence address for pickup address when checked', async () => {
+      const user = userEvent.setup();
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
-      userEvent.click(screen.getByLabelText('Use current address'));
+      await user.click(screen.getByLabelText('Use current address'));
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveValue(
         defaultProps.currentResidence.streetAddress1,
@@ -197,7 +198,7 @@ describe('ShipmentForm component', () => {
     it('renders a second address fieldset when the user has a delivery address', async () => {
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
-      userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getByLabelText('Yes'));
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveAttribute(
         'name',
@@ -220,7 +221,7 @@ describe('ShipmentForm component', () => {
 
     it('renders a delivery address type for retirement orders type', async () => {
       render(<ShipmentForm {...defaultPropsRetirement} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
-      userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getByLabelText('Yes'));
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
@@ -228,7 +229,7 @@ describe('ShipmentForm component', () => {
 
     it('does not render delivery address type for PCS order type', async () => {
       render(<ShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
-      userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getByLabelText('Yes'));
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByLabelText('Destination type')).toBeNull();
@@ -236,7 +237,7 @@ describe('ShipmentForm component', () => {
 
     it('renders a delivery address type for separation orders type', async () => {
       render(<ShipmentForm {...defaultPropsSeparation} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
-      userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getByLabelText('Yes'));
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.getAllByLabelText('Destination type')[0]).toHaveAttribute('name', 'destinationType');
@@ -439,10 +440,10 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      userEvent.click(screen.getByTestId('clearSelection-sacType'));
+      await userEvent.click(screen.getByTestId('clearSelection-sacType'));
       const saveButton = screen.getByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(
@@ -466,12 +467,12 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2022');
-      userEvent.click(screen.getByTestId('useCurrentResidence'));
+      await userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2022');
+      await userEvent.click(screen.getByTestId('useCurrentResidence'));
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(
@@ -587,7 +588,7 @@ describe('ShipmentForm component', () => {
 
       expect(saveButton).not.toBeDisabled();
 
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalled();
@@ -663,15 +664,15 @@ describe('ShipmentForm component', () => {
 
       const counselorRemarks = await screen.findByLabelText('Counselor remarks');
 
-      userEvent.clear(counselorRemarks);
+      await userEvent.clear(counselorRemarks);
 
-      userEvent.type(counselorRemarks, newCounselorRemarks);
+      await userEvent.type(counselorRemarks, newCounselorRemarks);
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
 
       expect(saveButton).not.toBeDisabled();
 
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalledWith(expectedPayload);

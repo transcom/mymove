@@ -35,8 +35,8 @@ describe('ContactInfoForm Component', () => {
 
   it('validates the contact phone field', async () => {
     const { getByText, getByLabelText } = render(<ContactInfoForm {...testProps} />);
-    userEvent.type(getByLabelText('Best contact phone'), '12345');
-    userEvent.tab();
+    await userEvent.type(getByLabelText('Best contact phone'), '12345');
+    await userEvent.tab();
 
     await waitFor(() => {
       expect(getByText('Number must have 10 digits and a valid area code')).toBeInTheDocument();
@@ -45,8 +45,8 @@ describe('ContactInfoForm Component', () => {
 
   it('validates the alt phone field', async () => {
     const { getByText, getByLabelText } = render(<ContactInfoForm {...testProps} />);
-    userEvent.type(getByLabelText(/Alt. phone/), '543');
-    userEvent.tab();
+    await userEvent.type(getByLabelText(/Alt. phone/), '543');
+    await userEvent.tab();
 
     await waitFor(() => {
       expect(getByText('Number must have 10 digits and a valid area code')).toBeInTheDocument();
@@ -55,8 +55,8 @@ describe('ContactInfoForm Component', () => {
 
   it('validates the email field', async () => {
     const { getByText, getByLabelText } = render(<ContactInfoForm {...testProps} />);
-    userEvent.type(getByLabelText('Personal email'), 'sample@');
-    userEvent.tab();
+    await userEvent.type(getByLabelText('Personal email'), 'sample@');
+    await userEvent.tab();
 
     await waitFor(() => {
       expect(getByText('Must be a valid email address')).toBeInTheDocument();
@@ -67,7 +67,7 @@ describe('ContactInfoForm Component', () => {
     const { getAllByText, getByRole } = render(<ContactInfoForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    userEvent.click(submitBtn);
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(getAllByText('Required').length).toBe(2);
@@ -80,9 +80,9 @@ describe('ContactInfoForm Component', () => {
     const { getByRole, getByLabelText } = render(<ContactInfoForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    userEvent.type(getByLabelText('Best contact phone'), '555-555-5555');
-    userEvent.type(getByLabelText('Personal email'), 'test@sample.com');
-    userEvent.click(submitBtn);
+    await userEvent.type(getByLabelText('Best contact phone'), '555-555-5555');
+    await userEvent.type(getByLabelText('Personal email'), 'test@sample.com');
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(getByRole('button', { name: 'Next' })).toBeDisabled();
@@ -95,10 +95,10 @@ describe('ContactInfoForm Component', () => {
     const { getByRole, getByLabelText } = render(<ContactInfoForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    userEvent.type(getByLabelText('Best contact phone'), '555-555-5555');
-    userEvent.type(getByLabelText('Personal email'), 'test@sample.com');
-    userEvent.click(getByLabelText('Email'));
-    userEvent.click(submitBtn);
+    await userEvent.type(getByLabelText('Best contact phone'), '555-555-5555');
+    await userEvent.type(getByLabelText('Personal email'), 'test@sample.com');
+    await userEvent.click(getByLabelText('Email'));
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalled();
@@ -109,10 +109,10 @@ describe('ContactInfoForm Component', () => {
     const { getByRole, getByLabelText } = render(<ContactInfoForm {...testProps} />);
     const backBtn = getByRole('button', { name: 'Back' });
 
-    userEvent.type(getByLabelText('Best contact phone'), '555-555-1111');
-    userEvent.type(getByLabelText('Personal email'), 'test@sample.com');
-    userEvent.click(getByLabelText('Email'));
-    userEvent.click(backBtn);
+    await userEvent.type(getByLabelText('Best contact phone'), '555-555-1111');
+    await userEvent.type(getByLabelText('Personal email'), 'test@sample.com');
+    await userEvent.click(getByLabelText('Email'));
+    await userEvent.click(backBtn);
 
     await waitFor(() => {
       expect(testProps.onBack).toHaveBeenCalled();

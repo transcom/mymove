@@ -157,7 +157,7 @@ describe('About page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    userEvent.click(screen.getAllByText('Edit')[0]);
+    await userEvent.click(screen.getAllByText('Edit')[0]);
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual(editAboutYourPPM);
@@ -174,7 +174,7 @@ describe('About page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    userEvent.click(screen.getByText('Add More Weight'));
+    await userEvent.click(screen.getByText('Add More Weight'));
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual(newWeightTicket);
@@ -193,7 +193,7 @@ describe('About page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    userEvent.click(screen.getAllByText('Edit')[1]);
+    await userEvent.click(screen.getAllByText('Edit')[1]);
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual(editWeightTicket);
@@ -205,7 +205,7 @@ describe('About page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    userEvent.click(screen.getByText('Finish Later'));
+    await userEvent.click(screen.getByText('Finish Later'));
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual('/');
@@ -223,7 +223,7 @@ describe('About page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    userEvent.click(screen.getByText('Save & Continue'));
+    await userEvent.click(screen.getByText('Save & Continue'));
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual(completePath);
@@ -249,13 +249,13 @@ describe('About page', () => {
     selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithWeightTicket);
     render(<Review />, { wrapper: MockProviders });
 
-    userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
     });
 
-    userEvent.click(screen.getByRole('button', { name: 'No, Keep It' }));
+    await userEvent.click(screen.getByRole('button', { name: 'No, Keep It' }));
 
     expect(screen.queryByRole('heading', { level: 3, name: 'Delete this?' })).not.toBeInTheDocument();
   });
@@ -266,13 +266,13 @@ describe('About page', () => {
     deleteWeightTicket.mockImplementationOnce(mockDeleteWeightTicket);
     render(<Review />, { wrapper: MockProviders });
 
-    userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
     });
 
-    userEvent.click(screen.getByRole('button', { name: 'Yes, Delete' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Yes, Delete' }));
 
     const weightTicket = mockMTOShipmentWithWeightTicket.ppmShipment.weightTickets[0];
     await waitFor(() => {

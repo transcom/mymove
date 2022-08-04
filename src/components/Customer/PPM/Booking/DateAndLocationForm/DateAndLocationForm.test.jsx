@@ -68,7 +68,7 @@ describe('DateAndLocationForm component', () => {
       const useCurrentZip = await screen.getByText('Use my current ZIP (90210)');
       const originZip = screen.getAllByLabelText('ZIP')[0];
       expect(originZip.value).toBe('');
-      userEvent.click(useCurrentZip);
+      await userEvent.click(useCurrentZip);
       await waitFor(() => {
         expect(originZip.value).toBe(defaultProps.serviceMember.residential_address.postalCode);
       });
@@ -79,11 +79,11 @@ describe('DateAndLocationForm component', () => {
       const useCurrentZip = await screen.getByText('Use my current ZIP (90210)');
       const originZip = screen.getAllByLabelText('ZIP')[0];
       expect(originZip.value).toBe('');
-      userEvent.click(useCurrentZip);
+      await userEvent.click(useCurrentZip);
       await waitFor(() => {
         expect(originZip.value).toBe(defaultProps.serviceMember.residential_address.postalCode);
       });
-      userEvent.click(useCurrentZip);
+      await userEvent.click(useCurrentZip);
       await waitFor(() => {
         expect(originZip.value).toBe('');
       });
@@ -93,7 +93,7 @@ describe('DateAndLocationForm component', () => {
       render(<DateAndLocationForm {...defaultProps} />);
       const hasSecondaryPickupPostalCode = await screen.getAllByLabelText('Yes')[0];
       expect(screen.queryByLabelText('Second ZIP')).toBeNull();
-      userEvent.click(hasSecondaryPickupPostalCode);
+      await userEvent.click(hasSecondaryPickupPostalCode);
 
       await waitFor(() => {
         expect(screen.queryByLabelText('Second ZIP')).toBeInstanceOf(HTMLInputElement);
@@ -105,7 +105,7 @@ describe('DateAndLocationForm component', () => {
       const useDestinationZip = await screen.getByText('Use the ZIP for my new duty location (94611)');
       const destinationZip = screen.getAllByLabelText('ZIP')[1];
       expect(destinationZip.value).toBe('');
-      userEvent.click(useDestinationZip);
+      await userEvent.click(useDestinationZip);
       await waitFor(() => {
         expect(destinationZip.value).toBe(defaultProps.destinationDutyLocation?.address?.postalCode);
       });
@@ -116,12 +116,12 @@ describe('DateAndLocationForm component', () => {
       const useDestinationZip = await screen.getByText('Use the ZIP for my new duty location (94611)');
       const destinationZip = screen.getAllByLabelText('ZIP')[1];
       expect(destinationZip.value).toBe('');
-      userEvent.click(useDestinationZip);
+      await userEvent.click(useDestinationZip);
       await waitFor(() => {
         expect(destinationZip.value).toBe(defaultProps.destinationDutyLocation?.address?.postalCode);
       });
 
-      userEvent.click(useDestinationZip);
+      await userEvent.click(useDestinationZip);
       await waitFor(() => {
         expect(destinationZip.value).toBe('');
       });
@@ -131,7 +131,7 @@ describe('DateAndLocationForm component', () => {
       render(<DateAndLocationForm {...defaultProps} />);
       const hasSecondaryDestinationPostalCode = await screen.getAllByLabelText('Yes')[0];
       expect(screen.queryByLabelText('Second ZIP')).toBeNull();
-      userEvent.click(hasSecondaryDestinationPostalCode);
+      await userEvent.click(hasSecondaryDestinationPostalCode);
 
       await waitFor(() => {
         expect(screen.queryByLabelText('Second ZIP')).toBeInstanceOf(HTMLInputElement);
@@ -267,18 +267,18 @@ describe('DateAndLocationForm component', () => {
       render(<DateAndLocationForm {...validatorProps} />);
       const primaryZIPs = screen.getAllByLabelText('ZIP');
 
-      userEvent.type(primaryZIPs[0], '12345');
+      await userEvent.type(primaryZIPs[0], '12345');
 
-      userEvent.type(primaryZIPs[1], '67890');
+      await userEvent.type(primaryZIPs[1], '67890');
 
       const inputHasSecondaryZIP = screen.getAllByLabelText('Yes');
 
-      userEvent.click(inputHasSecondaryZIP[0]);
-      userEvent.click(inputHasSecondaryZIP[1]);
+      await userEvent.click(inputHasSecondaryZIP[0]);
+      await userEvent.click(inputHasSecondaryZIP[1]);
 
       const secondaryZIPs = screen.getAllByLabelText('Second ZIP');
-      userEvent.type(secondaryZIPs[0], '11111');
-      userEvent.type(secondaryZIPs[1], '22222');
+      await userEvent.type(secondaryZIPs[0], '11111');
+      await userEvent.type(secondaryZIPs[1], '22222');
 
       await waitFor(async () => {
         expect(validatorProps.postalCodeValidator).toHaveBeenCalledWith(
@@ -314,7 +314,7 @@ describe('DateAndLocationForm component', () => {
       render(<DateAndLocationForm {...postalCodeValidatorFailure} />);
 
       const primaryZIPs = screen.getAllByLabelText('ZIP');
-      userEvent.type(primaryZIPs[0], '99999');
+      await userEvent.type(primaryZIPs[0], '99999');
 
       await waitFor(() => {
         expect(postalCodeValidatorFailure.postalCodeValidator).toHaveBeenCalledWith(

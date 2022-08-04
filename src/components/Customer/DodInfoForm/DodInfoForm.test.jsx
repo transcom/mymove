@@ -29,8 +29,8 @@ describe('DodInfoForm component', () => {
   it('validates the DOD ID number on blur', async () => {
     const { getByLabelText, getByText } = render(<DodInfoForm {...testProps} />);
 
-    userEvent.type(getByLabelText('DOD ID number'), 'not a valid ID number');
-    userEvent.tab();
+    await userEvent.type(getByLabelText('DOD ID number'), 'not a valid ID number');
+    await userEvent.tab();
 
     await waitFor(() => {
       expect(getByLabelText('DOD ID number')).not.toBeValid();
@@ -42,7 +42,7 @@ describe('DodInfoForm component', () => {
     const { getByRole, getAllByText } = render(<DodInfoForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    userEvent.click(submitBtn);
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(getAllByText('Required').length).toBe(3);
@@ -54,11 +54,11 @@ describe('DodInfoForm component', () => {
     const { getByRole, getByLabelText } = render(<DodInfoForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    userEvent.selectOptions(getByLabelText('Branch of service'), ['NAVY']);
-    userEvent.type(getByLabelText('DOD ID number'), '1234567890');
-    userEvent.selectOptions(getByLabelText('Rank'), ['E_5']);
+    await userEvent.selectOptions(getByLabelText('Branch of service'), ['NAVY']);
+    await userEvent.type(getByLabelText('DOD ID number'), '1234567890');
+    await userEvent.selectOptions(getByLabelText('Rank'), ['E_5']);
 
-    userEvent.click(submitBtn);
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalledWith(
@@ -72,7 +72,7 @@ describe('DodInfoForm component', () => {
     const { getByRole } = render(<DodInfoForm {...testProps} />);
     const backBtn = getByRole('button', { name: 'Back' });
 
-    userEvent.click(backBtn);
+    await userEvent.click(backBtn);
 
     await waitFor(() => {
       expect(testProps.onBack).toHaveBeenCalled();
