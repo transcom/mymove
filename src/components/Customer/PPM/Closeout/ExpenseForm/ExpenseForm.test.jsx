@@ -193,10 +193,9 @@ describe('ExpenseForm component', () => {
         invalidAlerts = screen.getAllByRole('alert');
       });
 
-      expect(invalidAlerts).toHaveLength(3);
+      expect(invalidAlerts).toHaveLength(2);
       expect(invalidAlerts[0].nextSibling).toHaveAttribute('name', 'description');
       expect(within(invalidAlerts[1].previousSibling).getByText('Amount')).toBeInTheDocument();
-      expect(within(invalidAlerts[2].previousSibling).getByText('Upload receipt')).toBeInTheDocument();
     });
   });
 
