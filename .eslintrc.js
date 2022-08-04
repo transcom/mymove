@@ -75,7 +75,7 @@ module.exports = {
       },
     },
     {
-      files: ['*.test.jsx'],
+      files: ['*.test.jsx', 'testUtils.jsx'],
       rules: {
         'react/jsx-props-no-spreading': 'off',
       },
