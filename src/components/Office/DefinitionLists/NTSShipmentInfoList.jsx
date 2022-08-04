@@ -1,6 +1,7 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
 
@@ -18,16 +19,23 @@ const NTSShipmentInfoList = ({
   errorIfMissing,
   showWhenCollapsed,
   neverShow,
+  isForEvaluationReport,
 }) => {
   const {
     pickupAddress,
     secondaryPickupAddress,
     agents,
+    mtoAgents,
     counselorRemarks,
     customerRemarks,
     requestedPickupDate,
     storageFacility,
     serviceOrderNumber,
+    scheduledPickupDate,
+    actualPickupDate,
+    scheduledDeliveryDate,
+    requiredDeliveryDate,
+    actualDeliveryDate,
     tacType,
     sacType,
     tac,
@@ -43,6 +51,8 @@ const NTSShipmentInfoList = ({
   // Never show is an option since NTSShipmentInfoList is used by both the TOO
   // and services counselor and show different things.
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, neverShow, shipment);
+
+  const releasingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RELEASING_AGENT') : false;
 
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
@@ -83,6 +93,18 @@ const NTSShipmentInfoList = ({
     </div>
   );
 
+  const storageFacilityContactInfoElementFlags = getDisplayFlags('storageFacilityContactInfo');
+  const storageFacilityContactInfoElement = (
+    <div className={storageFacilityContactInfoElementFlags.classes}>
+      <dt>Storage information</dt>
+      <dd data-testid="storageFacilityName">
+        {storageFacility && storageFacility.phone ? storageFacility.phone : '—'}
+        <br />
+        {storageFacility && storageFacility.email ? storageFacility.email : '—'}
+      </dd>
+    </div>
+  );
+
   const serviceOrderNumberElementFlags = getDisplayFlags('serviceOrderNumber');
   const serviceOrderNumberElement = (
     <div className={serviceOrderNumberElementFlags.classes}>
@@ -116,6 +138,72 @@ const NTSShipmentInfoList = ({
       <dd data-testid="secondaryPickupAddress">
         {secondaryPickupAddress ? formatAddress(secondaryPickupAddress) : '—'}
       </dd>
+    </div>
+  );
+
+  const scheduledDeliveryDateElementFlags = getDisplayFlags('scheduledDeliveryDate');
+  const scheduledDeliveryDateElement = (
+    <div className={scheduledDeliveryDateElementFlags.classes}>
+      <dt>Scheduled delivery date</dt>
+      <dd data-testid="scheduledDeliveryDate">
+        {(scheduledDeliveryDate && formatDate(scheduledDeliveryDate, 'DD MMM YYYY')) ||
+          getMissingOrDash(scheduledDeliveryDate)}
+      </dd>
+    </div>
+  );
+
+  const requiredDeliveryDateElementFlags = getDisplayFlags('requiredDeliveryDate');
+  const requiredDeliveryDateElement = (
+    <div className={requiredDeliveryDateElementFlags.classes}>
+      <dt>Required delivery date</dt>
+      <dd data-testid="requiredDeliveryDate">
+        {(requiredDeliveryDate && formatDate(requiredDeliveryDate, 'DD MMM YYYY')) ||
+          getMissingOrDash(requiredDeliveryDate)}
+      </dd>
+    </div>
+  );
+
+  const actualDeliveryDateElementFlags = getDisplayFlags('actualDeliveryDate');
+  const actualDeliveryDateElement = (
+    <div className={actualDeliveryDateElementFlags.classes}>
+      <dt>Actual delivery date</dt>
+      <dd data-testid="actualDeliveryDate">
+        {(actualDeliveryDate && formatDate(actualDeliveryDate, 'DD MMM YYYY')) || getMissingOrDash(actualDeliveryDate)}
+      </dd>
+    </div>
+  );
+
+  const scheduledPickupDateElementFlags = getDisplayFlags('scheduledPickupDate');
+  const scheduledPickupDateElement = (
+    <div className={scheduledPickupDateElementFlags.classes}>
+      <dt>Scheduled pickup date</dt>
+      <dd data-testid="scheduledPickupDate">
+        {(scheduledPickupDate && formatDate(scheduledPickupDate, 'DD MMM YYYY')) ||
+          getMissingOrDash('scheduledPickupDate')}
+      </dd>
+    </div>
+  );
+
+  const actualPickupDateElementFlags = getDisplayFlags('actualPickupDate');
+  const actualPickupDateElement = (
+    <div className={actualPickupDateElementFlags.classes}>
+      <dt>Actual pickup date</dt>
+      <dd data-testid="actualPickupDate">
+        {(actualPickupDate && formatDate(actualPickupDate, 'DD MMM YYYY')) || getMissingOrDash('actualPickupDate')}
+      </dd>
+    </div>
+  );
+
+  const releasingAgentFlags = getDisplayFlags('releasingAgent');
+  const releasingAgentElement = !releasingAgent ? (
+    <div className={releasingAgentFlags.classes}>
+      <dt>Releasing agent</dt>
+      <dd data-testid="RELEASING_AGENT">—</dd>
+    </div>
+  ) : (
+    <div className={releasingAgentFlags.classes} key={`${releasingAgent.agentType}-${releasingAgent.email}`}>
+      <dt>Releasing agent</dt>
+      <dd data-testid={releasingAgent.agentType}>{formatAgent(releasingAgent)}</dd>
     </div>
   );
 
@@ -160,7 +248,8 @@ const NTSShipmentInfoList = ({
       <dd data-testid="customerRemarks">{customerRemarks || '—'}</dd>
     </div>
   );
-  return (
+
+  const defaultDetails = (
     <dl
       className={classNames(
         shipmentDefinitionListsStyles.ShipmentDefinitionLists,
@@ -185,6 +274,48 @@ const NTSShipmentInfoList = ({
       {showElement(sacElementFlags) && sacElement}
     </dl>
   );
+
+  const evaluationReportDetails = (
+    <GridContainer className={shipmentDefinitionListsStyles.evaluationReportDLContainer}>
+      <Grid row className={shipmentDefinitionListsStyles.evaluationReportRow}>
+        <Grid col={6}>
+          <dl
+            className={classNames(
+              shipmentDefinitionListsStyles.evaluationReportDL,
+              styles.descriptionList,
+              styles.tableDisplay,
+              styles.compact,
+              className,
+            )}
+            data-testid="shipment-info-list"
+          >
+            {isExpanded && scheduledPickupDateElement}
+            {isExpanded && actualPickupDateElement}
+            {isExpanded && releasingAgentElement}
+          </dl>
+        </Grid>
+        <Grid col={6}>
+          <dl
+            className={classNames(
+              shipmentDefinitionListsStyles.evaluationReportDL,
+              styles.descriptionList,
+              styles.tableDisplay,
+              styles.compact,
+              className,
+            )}
+            data-testid="shipment-info-list"
+          >
+            {isExpanded && scheduledDeliveryDateElement}
+            {isExpanded && requiredDeliveryDateElement}
+            {isExpanded && actualDeliveryDateElement}
+            {isExpanded && storageFacilityContactInfoElement}
+          </dl>
+        </Grid>
+      </Grid>
+    </GridContainer>
+  );
+
+  return <div>{isForEvaluationReport ? evaluationReportDetails : defaultDetails}</div>;
 };
 
 NTSShipmentInfoList.propTypes = {
@@ -195,6 +326,7 @@ NTSShipmentInfoList.propTypes = {
   errorIfMissing: PropTypes.arrayOf(PropTypes.string),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
   neverShow: PropTypes.arrayOf(PropTypes.string),
+  isForEvaluationReport: PropTypes.bool,
 };
 
 NTSShipmentInfoList.defaultProps = {
@@ -204,6 +336,7 @@ NTSShipmentInfoList.defaultProps = {
   errorIfMissing: [],
   showWhenCollapsed: [],
   neverShow: [],
+  isForEvaluationReport: false,
 };
 
 export default NTSShipmentInfoList;

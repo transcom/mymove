@@ -4,13 +4,16 @@ import { useField } from 'formik';
 import { FormGroup, Label } from '@trussworks/react-uswds';
 import { v4 as uuidv4 } from 'uuid';
 
+import styles from './DatePickerInput.module.scss';
+
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
 import { formatDate } from 'shared/dates';
+import Hint from 'components/Hint';
 
 export const DatePickerInput = (props) => {
   const dateFormat = 'DD MMM YYYY';
-  const { label, name, id, className, renderInput, disabled, required } = props;
+  const { label, name, id, className, renderInput, disabled, required, hint } = props;
   const [field, meta, helpers] = useField(props);
   const hasError = meta.touched && !!meta.error;
 
@@ -26,6 +29,7 @@ export const DatePickerInput = (props) => {
               {label}
             </Label>
           </div>
+          {hint && <Hint className={styles.hint}>{hint}</Hint>}
           <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
           <SingleDatePicker
             title={label}
@@ -55,6 +59,7 @@ DatePickerInput.propTypes = {
   className: PropTypes.string,
   renderInput: PropTypes.func,
   disabled: PropTypes.bool,
+  hint: PropTypes.string,
   required: PropTypes.bool,
 };
 
@@ -64,6 +69,7 @@ DatePickerInput.defaultProps = {
   className: undefined,
   disabled: false,
   required: false,
+  hint: undefined,
 };
 
 export default DatePickerInput;

@@ -447,3 +447,53 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 
 	return model
 }
+
+func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) *models.EvaluationReport {
+	if evaluationReport == nil {
+		return nil
+	}
+
+	var inspectionType *models.EvaluationReportInspectionType
+	if evaluationReport.InspectionType != nil {
+		tempInspectionType := models.EvaluationReportInspectionType(*evaluationReport.InspectionType)
+		inspectionType = &tempInspectionType
+	}
+
+	var travelTimeMinutes *int
+	if evaluationReport.TravelTimeMinutes != nil {
+		tempTravelTime := int(*evaluationReport.TravelTimeMinutes)
+		travelTimeMinutes = &tempTravelTime
+	}
+	var evaluationLengthMinutes *int
+	if evaluationReport.EvaluationLengthMinutes != nil {
+		tempEvaluationLength := int(*evaluationReport.EvaluationLengthMinutes)
+		evaluationLengthMinutes = &tempEvaluationLength
+	}
+	var location *models.EvaluationReportLocationType
+	if evaluationReport.Location != nil {
+		tempLocation := models.EvaluationReportLocationType(*evaluationReport.Location)
+		location = &tempLocation
+	}
+
+	model := models.EvaluationReport{
+		ID:                      uuid.FromStringOrNil(evaluationReport.ID.String()),
+		OfficeUser:              models.OfficeUser{},
+		OfficeUserID:            uuid.Nil,
+		Move:                    models.Move{},
+		MoveID:                  uuid.Nil,
+		Shipment:                nil,
+		ShipmentID:              nil,
+		Type:                    models.EvaluationReportType(evaluationReport.Type),
+		InspectionDate:          (*time.Time)(evaluationReport.InspectionDate),
+		InspectionType:          inspectionType,
+		TravelTimeMinutes:       travelTimeMinutes,
+		Location:                location,
+		LocationDescription:     evaluationReport.LocationDescription,
+		ObservedDate:            handlers.FmtDateTimePtrToPopPtr(evaluationReport.ObservedDate),
+		EvaluationLengthMinutes: evaluationLengthMinutes,
+		ViolationsObserved:      evaluationReport.ViolationsObserved,
+		Remarks:                 evaluationReport.Remarks,
+		SubmittedAt:             handlers.FmtDateTimePtrToPopPtr(evaluationReport.SubmittedAt),
+	}
+	return &model
+}

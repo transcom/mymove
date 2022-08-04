@@ -20,8 +20,12 @@ import (
 type EvaluationReport struct {
 
 	// created at
+	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+
+	// e tag
+	ETag string `json:"eTag,omitempty"`
 
 	// evaluation length minutes
 	// Minimum: 0
@@ -29,12 +33,13 @@ type EvaluationReport struct {
 
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// inspection date
-	// Format: date-time
-	InspectionDate *strfmt.DateTime `json:"inspectionDate,omitempty"`
+	// Format: date
+	InspectionDate *strfmt.Date `json:"inspectionDate,omitempty"`
 
 	// inspection type
 	InspectionType *EvaluationReportInspectionType `json:"inspectionType,omitempty"`
@@ -48,6 +53,7 @@ type EvaluationReport struct {
 
 	// move ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Read Only: true
 	// Format: uuid
 	MoveID strfmt.UUID `json:"moveID,omitempty"`
 
@@ -67,6 +73,7 @@ type EvaluationReport struct {
 
 	// shipment ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Read Only: true
 	// Format: uuid
 	ShipmentID *strfmt.UUID `json:"shipmentID,omitempty"`
 
@@ -188,7 +195,7 @@ func (m *EvaluationReport) validateInspectionDate(formats strfmt.Registry) error
 		return nil
 	}
 
-	if err := validate.FormatOf("inspectionDate", "body", "date-time", m.InspectionDate.String(), formats); err != nil {
+	if err := validate.FormatOf("inspectionDate", "body", "date", m.InspectionDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -333,11 +340,23 @@ func (m *EvaluationReport) validateType(formats strfmt.Registry) error {
 func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateInspectionType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateLocation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMoveID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -349,6 +368,10 @@ func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.R
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateShipmentID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -356,6 +379,24 @@ func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.R
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -391,6 +432,15 @@ func (m *EvaluationReport) contextValidateLocation(ctx context.Context, formats 
 	return nil
 }
 
+func (m *EvaluationReport) contextValidateMoveID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "moveID", "body", strfmt.UUID(m.MoveID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *EvaluationReport) contextValidateMoveReferenceID(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "moveReferenceID", "body", m.MoveReferenceID); err != nil {
@@ -411,6 +461,15 @@ func (m *EvaluationReport) contextValidateOfficeUser(ctx context.Context, format
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateShipmentID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "shipmentID", "body", m.ShipmentID); err != nil {
+		return err
 	}
 
 	return nil
