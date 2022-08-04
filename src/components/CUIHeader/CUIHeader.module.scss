@@ -3,6 +3,7 @@
 @import '../../shared/styles/basics';
 @import '../../shared/styles/mixins';
 @import '../../shared/styles/colors';
+@import '../../shared/styles/_variables';
 
 .cui-header {
   @include u-bg('black');
@@ -14,5 +15,11 @@
     @include u-text('uppercase');
     @include u-text('center');
     @include u-line-height('body', 3);
+  }
+
+  @media (max-width: $tablet) {
+    &--text {
+      @include u-font-size('body', '2xs');
+    }
   }
 }
