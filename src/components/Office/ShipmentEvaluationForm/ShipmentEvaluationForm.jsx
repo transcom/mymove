@@ -101,6 +101,7 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
       inspectionDate: formatDateForSwagger(values.inspectionDate),
       evaluationLengthMinutes: evalMinutes,
       travelTimeMinutes: travelMinutes,
+      observedDate: formatDateForSwagger(values.observedDate),
     };
     const { eTag } = evaluationReport;
     mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
@@ -111,10 +112,12 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
     // hard coded until violations work
     violations: false,
     inspectionDate: evaluationReport.inspectionDate,
+    observedDate: evaluationReport.observedDate,
   };
   if (evaluationReport.location) {
     initialValues.evaluationLocation = evaluationReport.location.toLowerCase();
   }
+
   if (evaluationReport.locationDescription) {
     initialValues.otherEvaluationLocation = evaluationReport.locationDescription;
   }
