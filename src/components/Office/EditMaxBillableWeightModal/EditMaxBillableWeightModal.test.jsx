@@ -46,7 +46,7 @@ describe('EditMaxBillableWeightModal', () => {
       />,
     );
 
-    userEvent.click(await screen.getByLabelText('Close'));
+    await userEvent.click(await screen.getByLabelText('Close'));
 
     await waitFor(() => {
       expect(onClose.mock.calls.length).toBe(1);
@@ -63,7 +63,7 @@ describe('EditMaxBillableWeightModal', () => {
       />,
     );
 
-    userEvent.click(await screen.getByRole('button', { name: 'Back' }));
+    await userEvent.click(await screen.getByRole('button', { name: 'Back' }));
 
     await waitFor(() => {
       expect(onClose.mock.calls.length).toBe(1);
@@ -80,7 +80,7 @@ describe('EditMaxBillableWeightModal', () => {
       />,
     );
 
-    userEvent.click(await screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(await screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalled();
@@ -97,7 +97,7 @@ describe('EditMaxBillableWeightModal', () => {
       />,
     );
 
-    userEvent.type(await screen.getByDisplayValue('8,000 lbs'), '{selectall}{del}');
+    await userEvent.type(await screen.getByDisplayValue('8,000 lbs'), '{selectall}{del}');
 
     expect(await screen.findByTestId('errorMessage')).toHaveTextContent('Required');
     expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
@@ -113,7 +113,7 @@ describe('EditMaxBillableWeightModal', () => {
       />,
     );
 
-    userEvent.type(await screen.getByDisplayValue('8,000 lbs'), '{selectall}{del}0');
+    await userEvent.type(await screen.getByDisplayValue('8,000 lbs'), '{selectall}{del}0');
 
     expect(await screen.findByTestId('errorMessage')).toHaveTextContent(
       'Max billable weight must be greater than or equal to 1',

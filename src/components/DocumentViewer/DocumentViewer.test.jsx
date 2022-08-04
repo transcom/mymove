@@ -73,7 +73,7 @@ describe('DocumentViewer component', () => {
 
     const openMenuButton = await screen.findByTestId('openMenu');
 
-    userEvent.click(openMenuButton);
+    await userEvent.click(openMenuButton);
 
     const docMenu = screen.getByTestId('DocViewerMenu');
 
@@ -88,7 +88,7 @@ describe('DocumentViewer component', () => {
     // defaults to closed so we need to open it first.
     const openMenuButton = await screen.findByTestId('openMenu');
 
-    userEvent.click(openMenuButton);
+    await userEvent.click(openMenuButton);
 
     const docMenu = screen.getByTestId('DocViewerMenu');
 
@@ -98,7 +98,7 @@ describe('DocumentViewer component', () => {
 
     const closeMenuButton = await screen.findByTestId('closeMenu');
 
-    userEvent.click(closeMenuButton);
+    await userEvent.click(closeMenuButton);
 
     await waitFor(() => expect(docMenu.className).toContain('collapsed'));
   });
@@ -113,7 +113,7 @@ describe('DocumentViewer component', () => {
     // defaults to closed so we need to open it first.
     const openMenuButton = await screen.findByTestId('openMenu');
 
-    userEvent.click(openMenuButton);
+    await userEvent.click(openMenuButton);
 
     const docMenu = screen.getByTestId('DocViewerMenu');
 
@@ -121,7 +121,7 @@ describe('DocumentViewer component', () => {
 
     const otherFile = await screen.findByRole('button', { name: buttonText });
 
-    userEvent.click(otherFile);
+    await userEvent.click(otherFile);
 
     expect(docMenu.className).toContain('collapsed');
 
@@ -140,7 +140,7 @@ describe('DocumentViewer component', () => {
     // defaults to closed so we need to open it first.
     const openMenuButton = await screen.findByTestId('openMenu');
 
-    userEvent.click(openMenuButton);
+    await userEvent.click(openMenuButton);
 
     const docMenu = screen.getByTestId('DocViewerMenu');
 

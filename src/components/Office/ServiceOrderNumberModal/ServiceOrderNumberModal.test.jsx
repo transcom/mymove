@@ -23,18 +23,18 @@ describe('components/Office/ServiceOrderNumberModal', () => {
     const textbox = screen.getByRole('textbox');
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
-    userEvent.type(textbox, '!');
-    userEvent.click(saveButton);
+    await userEvent.type(textbox, '!');
+    await userEvent.click(saveButton);
     await waitFor(() => expect(screen.getByText('Letters and numbers only')).toBeInTheDocument());
     expect(onSubmit).not.toHaveBeenCalled();
 
-    userEvent.clear(textbox);
-    userEvent.click(saveButton);
+    await userEvent.clear(textbox);
+    await userEvent.click(saveButton);
     await waitFor(() => expect(screen.getByText('Required')).toBeInTheDocument());
     expect(onSubmit).not.toHaveBeenCalled();
 
-    userEvent.type(textbox, 'ABC123');
-    userEvent.click(saveButton);
+    await userEvent.type(textbox, 'ABC123');
+    await userEvent.click(saveButton);
     await waitFor(() => expect(screen.queryByTestId('errorMessage')).not.toBeInTheDocument());
     expect(onSubmit).toHaveBeenCalledWith({ serviceOrderNumber: 'ABC123' });
   });

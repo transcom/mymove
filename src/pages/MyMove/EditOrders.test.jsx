@@ -115,7 +115,7 @@ describe('EditOrders Page', () => {
 
     expect(cancel).toBeInTheDocument();
 
-    userEvent.click(cancel);
+    await userEvent.click(cancel);
 
     await waitFor(() => {
       expect(mockGoBack).toHaveBeenCalled();
@@ -141,7 +141,7 @@ describe('EditOrders Page', () => {
     const submitButton = await screen.findByRole('button', { name: 'Save' });
     expect(submitButton).not.toBeDisabled();
 
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchOrders).toHaveBeenCalledTimes(1);
@@ -159,7 +159,7 @@ describe('EditOrders Page', () => {
     const submitButton = await screen.findByRole('button', { name: 'Save' });
     expect(submitButton).not.toBeDisabled();
 
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchOrders).toHaveBeenCalledTimes(1);
@@ -174,12 +174,12 @@ describe('EditOrders Page', () => {
     patchOrders.mockImplementation(() => Promise.resolve(testProps.currentOrders));
 
     const hasDependentsYes = await screen.findByLabelText('Yes');
-    userEvent.click(hasDependentsYes);
+    await userEvent.click(hasDependentsYes);
 
     const submitButton = await screen.findByRole('button', { name: 'Save' });
     expect(submitButton).not.toBeDisabled();
 
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchOrders).toHaveBeenCalledTimes(1);

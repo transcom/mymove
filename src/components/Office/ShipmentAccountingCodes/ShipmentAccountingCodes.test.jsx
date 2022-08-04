@@ -74,7 +74,7 @@ describe('components/Office/ShipmentAccountingCodes', () => {
   });
 
   describe('interactions', () => {
-    it('clicking the edit codes button fires an event prop', () => {
+    it('clicking the edit codes button fires an event prop', async () => {
       const onEditCodesClick = jest.fn();
       render(
         <Formik initialValues={{}}>
@@ -82,7 +82,7 @@ describe('components/Office/ShipmentAccountingCodes', () => {
         </Formik>,
       );
 
-      userEvent.click(screen.getByRole('button', { name: 'Add code' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Add code' }));
       expect(onEditCodesClick).toHaveBeenCalled();
     });
 
@@ -94,7 +94,7 @@ describe('components/Office/ShipmentAccountingCodes', () => {
       );
 
       expect(screen.getByLabelText('5678 (NTS)')).not.toBeChecked();
-      userEvent.click(screen.getByLabelText('5678 (NTS)'));
+      await userEvent.click(screen.getByLabelText('5678 (NTS)'));
       await waitFor(() => {
         expect(screen.getByLabelText('5678 (NTS)')).toBeChecked();
       });
@@ -108,12 +108,12 @@ describe('components/Office/ShipmentAccountingCodes', () => {
       );
 
       expect(screen.getByLabelText('5678 (NTS)')).not.toBeChecked();
-      userEvent.click(screen.getByLabelText('5678 (NTS)'));
+      await userEvent.click(screen.getByLabelText('5678 (NTS)'));
       await waitFor(() => {
         expect(screen.getByLabelText('5678 (NTS)')).toBeChecked();
       });
 
-      userEvent.click(screen.getByRole('button', { name: 'Clear selection' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Clear selection' }));
       await waitFor(() => {
         expect(screen.getByLabelText('5678 (NTS)')).not.toBeChecked();
       });
@@ -127,7 +127,7 @@ describe('components/Office/ShipmentAccountingCodes', () => {
       );
 
       expect(screen.getByLabelText('5678 (NTS)')).toBeChecked();
-      userEvent.click(screen.getByRole('button', { name: 'Clear selection' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Clear selection' }));
       await waitFor(() => {
         expect(screen.getByLabelText('5678 (NTS)')).not.toBeChecked();
       });

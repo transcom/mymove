@@ -193,18 +193,18 @@ describe('Orders page', () => {
 
       render(<Orders {...testProps} />);
 
-      await waitFor(() => {
-        userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+      await waitFor(async () => {
+        await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
       });
 
-      userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-      userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
-      userEvent.click(screen.getByLabelText('No'));
+      await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+      await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
+      await userEvent.click(screen.getByLabelText('No'));
 
       // Test Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
       const selectedOption = await screen.findByText(/Luke/);
-      userEvent.click(selectedOption);
+      await userEvent.click(selectedOption);
 
       await waitFor(() => {
         expect(screen.getByRole('form')).toHaveFormValues({
@@ -220,7 +220,7 @@ describe('Orders page', () => {
       expect(submitButton).toBeEnabled();
 
       expect(submitButton).toBeInTheDocument();
-      userEvent.click(submitButton);
+      await userEvent.click(submitButton);
 
       await waitFor(() => {
         expect(createOrders).toHaveBeenCalled();
@@ -307,10 +307,10 @@ describe('Orders page', () => {
       // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
       const { queryByRole } = render(<Orders {...testProps} currentOrders={testOrdersValues} />);
 
-      await waitFor(() => {
+      await waitFor(async () => {
         const submitButton = queryByRole('button', { name: 'Next' });
         expect(submitButton).toBeInTheDocument();
-        userEvent.click(submitButton);
+        await userEvent.click(submitButton);
       });
 
       await waitFor(() => {
@@ -334,7 +334,7 @@ describe('Orders page', () => {
       expect(backButton).toBeInTheDocument();
     });
 
-    userEvent.click(backButton);
+    await userEvent.click(backButton);
     expect(testProps.push).toHaveBeenCalledWith('/');
   });
 
@@ -383,10 +383,10 @@ describe('Orders page', () => {
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
     const { queryByText } = render(<Orders {...testProps} currentOrders={testOrdersValues} />);
 
-    await waitFor(() => {
+    await waitFor(async () => {
       const submitButton = queryByText('Next');
       expect(submitButton).toBeInTheDocument();
-      userEvent.click(submitButton);
+      await userEvent.click(submitButton);
     });
 
     await waitFor(() => {

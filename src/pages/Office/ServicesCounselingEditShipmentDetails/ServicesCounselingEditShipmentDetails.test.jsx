@@ -231,7 +231,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     expect(saveButton).not.toBeDisabled();
 
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
@@ -251,7 +251,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     expect(saveButton).not.toBeDisabled();
 
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
@@ -267,7 +267,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     expect(cancelButton).not.toBeDisabled();
 
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
@@ -381,7 +381,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
       expect(saveButton).not.toBeDisabled();
 
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/shipments/shipment123/advance');
         expect(onUpdateMock).toHaveBeenCalledWith('success');

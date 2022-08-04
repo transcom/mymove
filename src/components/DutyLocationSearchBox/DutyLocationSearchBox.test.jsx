@@ -217,7 +217,7 @@ describe('DutyLocationSearchBoxContainer', () => {
   describe('updating options based on text', () => {
     it('searches user input and renders options', async () => {
       render(<DutyLocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
-      userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
+      await userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
 
       const option = await screen.findByText('Luke');
       expect(option).toBeInTheDocument();
@@ -228,21 +228,21 @@ describe('DutyLocationSearchBoxContainer', () => {
 
     it('searches user input and renders a message if empty', async () => {
       render(<DutyLocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
-      userEvent.type(screen.getByLabelText('Test Component'), 'empty');
+      await userEvent.type(screen.getByLabelText('Test Component'), 'empty');
 
       expect(await screen.findByText('No Options')).toBeInTheDocument();
     });
 
     it("doesnt search if user input isn't 2+ characters in length", async () => {
       render(<DutyLocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
-      userEvent.type(screen.getByLabelText('Test Component'), '1');
+      await userEvent.type(screen.getByLabelText('Test Component'), '1');
 
       expect(await screen.findByText('No Options')).toBeInTheDocument();
     });
 
     it('handles server errors', async () => {
       render(<DutyLocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
-      userEvent.type(screen.getByLabelText('Test Component'), 'broken');
+      await userEvent.type(screen.getByLabelText('Test Component'), 'broken');
 
       expect(await screen.findByText('No Options')).toBeInTheDocument();
     });
@@ -258,8 +258,8 @@ describe('DutyLocationSearchBoxContainer', () => {
           name="test_component"
         />,
       );
-      userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
-      userEvent.click(await screen.findByText('Luke'));
+      await userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
+      await userEvent.click(await screen.findByText('Luke'));
 
       await waitFor(() =>
         expect(onChange).toHaveBeenCalledWith({

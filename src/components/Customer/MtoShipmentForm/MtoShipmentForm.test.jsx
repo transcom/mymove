@@ -174,7 +174,7 @@ describe('MtoShipmentForm component', () => {
         <MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
       );
 
-      userEvent.click(queryByLabelText('Use my current address'));
+      await userEvent.click(queryByLabelText('Use my current address'));
 
       await waitFor(() => {
         expect(queryAllByLabelText('Address 1')[0]).toHaveValue(defaultProps.currentResidence.streetAddress1);
@@ -188,7 +188,7 @@ describe('MtoShipmentForm component', () => {
     it('renders a second address fieldset when the user has a second pickup address', async () => {
       render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
-      userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
 
       const streetAddress1 = await screen.findAllByLabelText('Address 1');
       expect(streetAddress1[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress1');
@@ -209,7 +209,7 @@ describe('MtoShipmentForm component', () => {
     it('renders a second address fieldset when the user has a delivery address', async () => {
       render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
-      userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
+      await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
 
       const streetAddress1 = await screen.findAllByLabelText('Address 1');
       expect(streetAddress1[0]).toHaveAttribute('name', 'pickup.address.streetAddress1');
@@ -239,7 +239,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.queryByTitle('Yes, I have a second destination location')).not.toBeInTheDocument();
       expect(screen.queryByTitle('No, I do not have a second destination location')).not.toBeInTheDocument();
 
-      userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
+      await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
 
       expect(await screen.findByRole('heading', { level: 4, name: 'Second delivery location' })).toBeInTheDocument();
       expect(screen.getByTitle('Yes, I have a second destination location')).toBeInstanceOf(HTMLInputElement);
@@ -249,8 +249,8 @@ describe('MtoShipmentForm component', () => {
     it('renders another address fieldset when the user has a second destination address', async () => {
       render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
-      userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
-      userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+      await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
 
       const streetAddress1 = await screen.findAllByLabelText('Address 1');
       expect(streetAddress1.length).toBe(3);
@@ -277,7 +277,7 @@ describe('MtoShipmentForm component', () => {
       render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
       const backButton = await screen.findByRole('button', { name: 'Back' });
-      userEvent.click(backButton);
+      await userEvent.click(backButton);
 
       await waitFor(() => {
         expect(defaultProps.history.goBack).toHaveBeenCalled();
@@ -326,29 +326,29 @@ describe('MtoShipmentForm component', () => {
       render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
       const pickupDateInput = await screen.findByLabelText('Preferred pickup date');
-      userEvent.type(pickupDateInput, shipmentInfo.requestedPickupDate);
+      await userEvent.type(pickupDateInput, shipmentInfo.requestedPickupDate);
 
       const pickupAddress1Input = screen.getByLabelText('Address 1');
-      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
+      await userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
 
       const pickupAddress2Input = screen.getByLabelText(/Address 2/);
-      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
+      await userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
 
       const pickupCityInput = screen.getByLabelText('City');
-      userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
+      await userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
 
       const pickupStateInput = screen.getByLabelText('State');
-      userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
+      await userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
 
       const pickupPostalCodeInput = screen.getByLabelText('ZIP');
-      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
+      await userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
 
       const deliveryDateInput = await screen.findByLabelText('Preferred delivery date');
-      userEvent.type(deliveryDateInput, shipmentInfo.requestedDeliveryDate);
+      await userEvent.type(deliveryDateInput, shipmentInfo.requestedDeliveryDate);
 
       const nextButton = await screen.findByRole('button', { name: 'Next' });
       expect(nextButton).not.toBeDisabled();
-      userEvent.click(nextButton);
+      await userEvent.click(nextButton);
 
       await waitFor(() => {
         expect(createMTOShipment).toHaveBeenCalledWith(expectedPayload);
@@ -380,29 +380,29 @@ describe('MtoShipmentForm component', () => {
       render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
       const pickupDateInput = await screen.findByLabelText('Preferred pickup date');
-      userEvent.type(pickupDateInput, shipmentInfo.requestedPickupDate);
+      await userEvent.type(pickupDateInput, shipmentInfo.requestedPickupDate);
 
       const pickupAddress1Input = screen.getByLabelText('Address 1');
-      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
+      await userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
 
       const pickupAddress2Input = screen.getByLabelText(/Address 2/);
-      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
+      await userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
 
       const pickupCityInput = screen.getByLabelText('City');
-      userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
+      await userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
 
       const pickupStateInput = screen.getByLabelText('State');
-      userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
+      await userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
 
       const pickupPostalCodeInput = screen.getByLabelText('ZIP');
-      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
+      await userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
 
       const deliveryDateInput = await screen.findByLabelText('Preferred delivery date');
-      userEvent.type(deliveryDateInput, shipmentInfo.requestedDeliveryDate);
+      await userEvent.type(deliveryDateInput, shipmentInfo.requestedDeliveryDate);
 
       const nextButton = await screen.findByRole('button', { name: 'Next' });
       expect(nextButton).not.toBeDisabled();
-      userEvent.click(nextButton);
+      await userEvent.click(nextButton);
 
       await waitFor(() => {
         expect(createMTOShipment).toHaveBeenCalled();
@@ -556,29 +556,29 @@ describe('MtoShipmentForm component', () => {
         const saveButton = await screen.findByRole('button', { name: 'Save' });
         expect(saveButton).not.toBeDisabled();
 
-        userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
-        userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+        await userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
+        await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
 
         const address = await screen.findAllByLabelText(fieldName);
         // The second instance of a field is the secondary pickup
-        userEvent.type(address[1], text);
+        await userEvent.type(address[1], text);
         await waitFor(() => {
           expect(saveButton).toBeDisabled();
         });
 
         // Clear the field so that the secondary delivery address can be checked
-        userEvent.clear(address[1]);
+        await userEvent.clear(address[1]);
         await waitFor(() => {
           expect(saveButton).not.toBeDisabled();
         });
 
         // The fourth instance found is the secondary delivery
-        userEvent.type(address[3], text);
+        await userEvent.type(address[3], text);
         await waitFor(() => {
           expect(saveButton).toBeDisabled();
         });
 
-        userEvent.clear(address[3]);
+        await userEvent.clear(address[3]);
         await waitFor(() => {
           expect(saveButton).not.toBeDisabled();
         });
@@ -600,29 +600,29 @@ describe('MtoShipmentForm component', () => {
       const saveButton = await screen.findByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
 
-      userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
-      userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
 
       const state = await screen.findAllByLabelText('State');
       // The second instance of a field is the secondary pickup
-      userEvent.selectOptions(state[1], 'CA');
+      await userEvent.selectOptions(state[1], 'CA');
       await waitFor(() => {
         expect(saveButton).toBeDisabled();
       });
 
       // Change the selection to blank so that the secondary delivery address can be checked
-      userEvent.selectOptions(state[1], '');
+      await userEvent.selectOptions(state[1], '');
       await waitFor(() => {
         expect(saveButton).not.toBeDisabled();
       });
 
       // The fourth instance found is the secondary delivery
-      userEvent.selectOptions(state[3], 'CA');
+      await userEvent.selectOptions(state[3], 'CA');
       await waitFor(() => {
         expect(saveButton).toBeDisabled();
       });
 
-      userEvent.selectOptions(state[3], '');
+      await userEvent.selectOptions(state[3], '');
       await waitFor(() => {
         expect(saveButton).not.toBeDisabled();
       });
@@ -639,7 +639,7 @@ describe('MtoShipmentForm component', () => {
       );
 
       const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
-      userEvent.click(cancelButton);
+      await userEvent.click(cancelButton);
 
       await waitFor(() => {
         expect(defaultProps.history.goBack).toHaveBeenCalled();
@@ -693,27 +693,27 @@ describe('MtoShipmentForm component', () => {
       );
 
       const pickupAddress1Input = screen.getAllByLabelText('Address 1')[0];
-      userEvent.clear(pickupAddress1Input);
-      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
+      await userEvent.clear(pickupAddress1Input);
+      await userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
 
       const pickupAddress2Input = screen.getAllByLabelText(/Address 2/)[0];
-      userEvent.clear(pickupAddress2Input);
-      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
+      await userEvent.clear(pickupAddress2Input);
+      await userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
 
       const pickupCityInput = screen.getAllByLabelText('City')[0];
-      userEvent.clear(pickupCityInput);
-      userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
+      await userEvent.clear(pickupCityInput);
+      await userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
 
       const pickupStateInput = screen.getAllByLabelText('State')[0];
-      userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
+      await userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
 
       const pickupPostalCodeInput = screen.getAllByLabelText('ZIP')[0];
-      userEvent.clear(pickupPostalCodeInput);
-      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
+      await userEvent.clear(pickupPostalCodeInput);
+      await userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
 
       const saveButton = await screen.findByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(patchMTOShipment).toHaveBeenCalledWith(mockMtoShipment.id, expectedPayload, mockMtoShipment.eTag);
@@ -750,27 +750,27 @@ describe('MtoShipmentForm component', () => {
       );
 
       const pickupAddress1Input = screen.getAllByLabelText('Address 1')[0];
-      userEvent.clear(pickupAddress1Input);
-      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
+      await userEvent.clear(pickupAddress1Input);
+      await userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
 
       const pickupAddress2Input = screen.getAllByLabelText(/Address 2/)[0];
-      userEvent.clear(pickupAddress2Input);
-      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
+      await userEvent.clear(pickupAddress2Input);
+      await userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
 
       const pickupCityInput = screen.getAllByLabelText('City')[0];
-      userEvent.clear(pickupCityInput);
-      userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
+      await userEvent.clear(pickupCityInput);
+      await userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
 
       const pickupStateInput = screen.getAllByLabelText('State')[0];
-      userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
+      await userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
 
       const pickupPostalCodeInput = screen.getAllByLabelText('ZIP')[0];
-      userEvent.clear(pickupPostalCodeInput);
-      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
+      await userEvent.clear(pickupPostalCodeInput);
+      await userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
 
       const saveButton = await screen.findByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
-      userEvent.click(saveButton);
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(patchMTOShipment).toHaveBeenCalled();

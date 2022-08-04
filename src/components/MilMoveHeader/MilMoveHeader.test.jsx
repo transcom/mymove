@@ -28,7 +28,7 @@ describe('MilMoveHeader and User Infos', () => {
     const signInButton = screen.getByRole('button', { name: 'Sign In' });
     expect(signInButton).toBeInstanceOf(HTMLButtonElement);
 
-    userEvent.click(signInButton);
+    await userEvent.click(signInButton);
 
     await waitFor(() => {
       expect(signInHandler).toHaveBeenCalled();
@@ -46,7 +46,7 @@ describe('MilMoveHeader and User Infos', () => {
     const signOutButton = screen.getByRole('button', { name: 'Sign out' });
     expect(signOutButton).toBeInstanceOf(HTMLButtonElement);
 
-    userEvent.click(signOutButton);
+    await userEvent.click(signOutButton);
 
     await waitFor(() => {
       expect(signOutHandler).toHaveBeenCalled();
@@ -68,7 +68,7 @@ describe('MilMoveHeader and User Infos', () => {
     const signOutButton = screen.getByRole('button', { name: 'Sign out' });
     expect(signOutButton).toBeInstanceOf(HTMLButtonElement);
 
-    userEvent.click(signOutButton);
+    await userEvent.click(signOutButton);
 
     await waitFor(() => {
       expect(signOutHandler).toHaveBeenCalled();
@@ -94,7 +94,7 @@ describe('MilMoveHeader and User Infos', () => {
     const signOutButton = screen.getByRole('button', { name: 'Sign out' });
     expect(signOutButton).toBeInstanceOf(HTMLButtonElement);
 
-    userEvent.click(signOutButton);
+    await userEvent.click(signOutButton);
 
     await waitFor(() => {
       expect(testProps.handleLogout).toHaveBeenCalled();

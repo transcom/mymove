@@ -67,10 +67,10 @@ describe('Orders Upload page', () => {
   it('back button goes to the Orders Info page', async () => {
     const { queryByRole } = render(<UploadOrders {...testProps} />);
 
-    await waitFor(() => {
+    await waitFor(async () => {
       const backButton = queryByRole('button', { name: 'Back' });
       expect(backButton).toBeInTheDocument();
-      userEvent.click(backButton);
+      await userEvent.click(backButton);
     });
 
     expect(testProps.push).toHaveBeenCalledWith('/orders/info');
@@ -109,9 +109,9 @@ describe('Orders Upload page', () => {
 
       const { queryByRole } = render(<UploadOrders {...testProps} uploads={[testUpload]} />);
 
-      await waitFor(() => {
+      await waitFor(async () => {
         const deleteButton = queryByRole('button', { name: 'Delete' });
-        userEvent.click(deleteButton);
+        await userEvent.click(deleteButton);
       });
 
       expect(deleteUpload).toHaveBeenCalledWith(testUpload.id);
@@ -123,12 +123,12 @@ describe('Orders Upload page', () => {
     it('next button goes to the Home page if there are uploads', async () => {
       const { queryByRole } = render(<UploadOrders {...testProps} uploads={[testUpload]} />);
 
-      await waitFor(() => {
+      await waitFor(async () => {
         const nextButton = queryByRole('button', { name: 'Next' });
         expect(nextButton).toBeInTheDocument();
         expect(nextButton).not.toBeDisabled();
 
-        userEvent.click(nextButton);
+        await userEvent.click(nextButton);
       });
 
       expect(testProps.push).toHaveBeenCalledWith('/');

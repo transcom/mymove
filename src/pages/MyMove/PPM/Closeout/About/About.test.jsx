@@ -104,27 +104,27 @@ const weightTicketsPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKET
   mtoShipmentId: mockMTOShipmentId,
 });
 
-const fillOutBasicForm = () => {
+const fillOutBasicForm = async () => {
   const actualMoveDate = screen.getByLabelText('When did you leave your origin?');
-  userEvent.clear(actualMoveDate);
-  userEvent.type(actualMoveDate, '31 May 2022');
+  await userEvent.clear(actualMoveDate);
+  await userEvent.type(actualMoveDate, '31 May 2022');
 
   const actualStartingZip = screen.getByLabelText('Starting ZIP');
-  userEvent.clear(actualStartingZip);
-  userEvent.type(actualStartingZip, '10001');
+  await userEvent.clear(actualStartingZip);
+  await userEvent.type(actualStartingZip, '10001');
 
   const actualDestinationZip = screen.getByLabelText('Ending ZIP');
-  userEvent.clear(actualDestinationZip);
-  userEvent.type(actualDestinationZip, '10002');
+  await userEvent.clear(actualDestinationZip);
+  await userEvent.type(actualDestinationZip, '10002');
 };
 
-const fillOutAdvanceSections = () => {
+const fillOutAdvanceSections = async () => {
   const hasReceivedAdvance = screen.getByLabelText('Yes');
-  userEvent.click(hasReceivedAdvance);
+  await userEvent.click(hasReceivedAdvance);
 
   const advanceAmountReceived = screen.getByLabelText('How much did you receive?');
-  userEvent.clear(advanceAmountReceived);
-  userEvent.type(advanceAmountReceived, '7500');
+  await userEvent.clear(advanceAmountReceived);
+  await userEvent.type(advanceAmountReceived, '7500');
 };
 
 describe('About page', () => {
@@ -147,10 +147,10 @@ describe('About page', () => {
     expect(screen.getAllByRole('heading', { level: 2 })[2]).toHaveTextContent('Advance (AOA)');
   });
 
-  it('routes back to home when finish later is clicked', () => {
+  it('routes back to home when finish later is clicked', async () => {
     render(<About />, { wrapper: MockProviders });
 
-    userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
     expect(mockPush).toHaveBeenCalledWith(homePath);
   });
 
@@ -159,10 +159,10 @@ describe('About page', () => {
 
     render(<About />, { wrapper: MockProviders });
 
-    fillOutBasicForm();
-    fillOutAdvanceSections();
+    await fillOutBasicForm();
+    await fillOutAdvanceSections();
 
-    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
     await waitFor(() => {
       expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, mockPayload, mockMTOShipment.eTag);
     });
@@ -178,9 +178,9 @@ describe('About page', () => {
 
     render(<About />, { wrapper: MockProviders });
 
-    fillOutBasicForm();
+    await fillOutBasicForm();
 
-    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
     const payload = {
       ...mockPayload,
       ppmShipment: {

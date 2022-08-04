@@ -48,7 +48,7 @@ describe('EditServiceInfo page', () => {
       expect(cancelButton).toBeInTheDocument();
     });
 
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
     expect(mockPush).toHaveBeenCalledWith('/service-member/profile');
   });
 
@@ -94,7 +94,7 @@ describe('EditServiceInfo page', () => {
 
     const submitButton = await screen.findByText('Save');
     expect(submitButton).toBeInTheDocument();
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();
@@ -188,11 +188,11 @@ describe('EditServiceInfo page', () => {
     );
 
     const rankInput = await screen.findByLabelText('Rank');
-    userEvent.selectOptions(rankInput, ['E_2']);
+    await userEvent.selectOptions(rankInput, ['E_2']);
 
     const submitButton = await screen.findByText('Save');
     expect(submitButton).toBeInTheDocument();
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();
@@ -267,7 +267,7 @@ describe('EditServiceInfo page', () => {
 
     const submitButton = await screen.findByText('Save');
     expect(submitButton).toBeInTheDocument();
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();
