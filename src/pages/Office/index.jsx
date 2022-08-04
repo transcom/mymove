@@ -21,7 +21,7 @@ import {
 import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
 import PrivateRoute from 'containers/PrivateRoute';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import FOUOHeader from 'components/FOUOHeader';
+import CUIHeader from 'components/CUIHeader/CUIHeader';
 import BypassBlock from 'components/BypassBlock';
 import SystemError from 'components/SystemError';
 import OfficeLoggedInHeader from 'containers/Headers/OfficeLoggedInHeader';
@@ -179,7 +179,7 @@ export class OfficeApp extends Component {
         <div id="app-root">
           <div className={siteClasses}>
             <BypassBlock />
-            <FOUOHeader />
+            <CUIHeader />
             {selectedRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
             {displayChangeRole && <Link to="/select-application">Change user role</Link>}
             {!hideHeaderPPM && userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}
