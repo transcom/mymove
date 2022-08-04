@@ -1,11 +1,10 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { v4 } from 'uuid';
-import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router-dom';
 
-import { MockProviders } from 'testUtils';
+import { MockProviders, setUpProvidersWithHistory } from 'testUtils';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import Review from 'pages/MyMove/PPM/Closeout/Review/Review';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -166,8 +165,9 @@ describe('About page', () => {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
     });
-    const memoryHistory = createMemoryHistory();
-    const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
+
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
     render(<Review />, { wrapper: mockProviderWithHistory });
 
     userEvent.click(screen.getAllByText('Edit')[0]);
@@ -182,8 +182,9 @@ describe('About page', () => {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
     });
-    const memoryHistory = createMemoryHistory();
-    const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
+
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
     render(<Review />, { wrapper: mockProviderWithHistory });
 
     userEvent.click(screen.getByText('Add More Weight'));
@@ -200,8 +201,9 @@ describe('About page', () => {
       mtoShipmentId: mockMTOShipmentId,
       weightTicketId: mockWeightTicketId,
     });
-    const memoryHistory = createMemoryHistory();
-    const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
+
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
     render(<Review />, { wrapper: mockProviderWithHistory });
 
     userEvent.click(screen.getAllByText('Edit')[1]);
@@ -212,8 +214,8 @@ describe('About page', () => {
   });
 
   it('routes to the home page when the finish later link is clicked', async () => {
-    const memoryHistory = createMemoryHistory();
-    const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
     render(<Review />, { wrapper: mockProviderWithHistory });
 
     userEvent.click(screen.getByText('Finish Later'));
@@ -230,8 +232,8 @@ describe('About page', () => {
       mtoShipmentId: mockMTOShipmentId,
     });
 
-    const memoryHistory = createMemoryHistory();
-    const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
     render(<Review />, { wrapper: mockProviderWithHistory });
 
     userEvent.click(screen.getByText('Save & Continue'));
@@ -242,9 +244,7 @@ describe('About page', () => {
   });
 
   it('disables the save and continue link when there are no weight tickets', async () => {
-    const memoryHistory = createMemoryHistory();
-    const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
-    render(<Review />, { wrapper: mockProviderWithHistory });
+    render(<Review />, { wrapper: MockProviders });
 
     expect(screen.getByText('Save & Continue')).toHaveClass('usa-button--disabled');
     expect(screen.getByText('Save & Continue')).toHaveAttribute('aria-disabled', 'true');
@@ -252,9 +252,7 @@ describe('About page', () => {
 
   it('disables the save and continue link when there is an incomplete weight ticket', async () => {
     selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithIncompleteWeightTicket);
-    const memoryHistory = createMemoryHistory();
-    const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
-    render(<Review />, { wrapper: mockProviderWithHistory });
+    render(<Review />, { wrapper: MockProviders });
 
     expect(screen.getByText('Save & Continue')).toHaveClass('usa-button--disabled');
     expect(screen.getByText('Save & Continue')).toHaveAttribute('aria-disabled', 'true');
