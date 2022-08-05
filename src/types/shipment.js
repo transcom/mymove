@@ -134,6 +134,20 @@ export const WeightTicketShape = shape({
   proofOfTrailerOwnershipDocument: DocumentShape,
 });
 
+export const ExpenseShape = shape({
+  id: string,
+  ppmShipmentId: string,
+  description: string,
+  expenseType: string,
+  missingReceipt: bool,
+  receiptDocumentId: string,
+  receiptDocument: DocumentShape,
+  amount: number,
+  paidWithGTCC: bool,
+  sitStartDate: string,
+  sitEndDate: string,
+});
+
 export const StorageFacilityShape = shape({
   facilityName: string,
   phone: string,
