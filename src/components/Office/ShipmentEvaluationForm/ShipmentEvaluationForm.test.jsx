@@ -73,8 +73,8 @@ describe('ShipmentEvaluationForm', () => {
     });
 
     // Select Physical Evaluation type, should show Travel time to evaluation picker
+    await userEvent.click(screen.getByText('Physical'));
     await waitFor(() => {
-      userEvent.click(screen.getByText('Physical'));
       expect(screen.getByText('Travel time to evaluation')).toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
@@ -82,30 +82,30 @@ describe('ShipmentEvaluationForm', () => {
     });
 
     // Select Eval locations and validate correct fields are shown
+    await userEvent.click(screen.getByText('Origin'));
     await waitFor(() => {
-      userEvent.click(screen.getByText('Origin'));
       expect(screen.getByText('Observed pickup date')).toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
       expect(screen.getAllByTestId('textarea')).toHaveLength(1);
     });
 
+    await userEvent.click(screen.getByText('Destination'));
     await waitFor(() => {
-      userEvent.click(screen.getByText('Destination'));
       expect(screen.getByText('Observed delivery date')).toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
       expect(screen.getAllByTestId('textarea')).toHaveLength(1);
     });
 
+    await userEvent.click(screen.getByText('Other'));
     await waitFor(() => {
-      userEvent.click(screen.getByText('Other'));
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
       expect(screen.getAllByTestId('textarea')).toHaveLength(2);
     });
 
     // If not 'Physical' eval type, no conditional time fields should be shown
+    await userEvent.click(screen.getByText('Virtual'));
     await waitFor(() => {
-      userEvent.click(screen.getByText('Virtual'));
       expect(screen.queryByText('Travel time to evaluation')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed delivery date')).not.toBeInTheDocument();
       expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
