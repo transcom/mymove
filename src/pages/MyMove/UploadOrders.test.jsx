@@ -107,10 +107,10 @@ describe('Orders Upload page', () => {
     it('implements the delete upload handler', async () => {
       deleteUpload.mockImplementation(() => Promise.resolve(testOrdersValues));
 
-      const { queryByRole } = render(<UploadOrders {...testProps} uploads={[testUpload]} />);
+      const { getByRole } = render(<UploadOrders {...testProps} uploads={[testUpload]} />);
 
       await waitFor(async () => {
-        const deleteButton = queryByRole('button', { name: 'Delete' });
+        const deleteButton = getByRole('button', { name: 'Delete' });
         await userEvent.click(deleteButton);
       });
 
