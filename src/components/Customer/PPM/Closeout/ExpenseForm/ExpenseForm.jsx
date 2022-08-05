@@ -137,10 +137,7 @@ const ExpenseForm = ({
                       <CheckboxField id="missingReceipt" name="missingReceipt" label="I don't have this receipt" />
                       {values.missingReceipt && (
                         <Alert type="info">
-                          If you can, get a replacement copy of your receipt and upload that. If that is not possible,
-                          write and sign a statement that explains why this receipt is missing. Include details about
-                          where and when you purchased this item. Upload that statement. Your reimbursement for this
-                          expense will be based on the information you provide.
+                          {`If you can, get a replacement copy of your receipt and upload that. \nIf that is not possible, write and sign a statement that explains why this receipt is missing. Include details about where and when you purchased this item. Upload that statement. Your reimbursement for this expense will be based on the information you provide.`}
                         </Alert>
                       )}
                       <div className={styles.labelWrapper}>
