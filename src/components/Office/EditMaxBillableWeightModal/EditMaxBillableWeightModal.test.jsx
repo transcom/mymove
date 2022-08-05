@@ -97,7 +97,7 @@ describe('EditMaxBillableWeightModal', () => {
       />,
     );
 
-    await userEvent.type(await screen.getByDisplayValue('8,000 lbs'), '{selectall}{del}');
+    await userEvent.clear(await screen.getByDisplayValue('8,000 lbs'));
 
     expect(await screen.findByTestId('errorMessage')).toHaveTextContent('Required');
     expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
@@ -113,7 +113,9 @@ describe('EditMaxBillableWeightModal', () => {
       />,
     );
 
-    await userEvent.type(await screen.getByDisplayValue('8,000 lbs'), '{selectall}{del}0');
+    const weightField = await screen.getByDisplayValue('8,000 lbs');
+    await userEvent.clear(weightField);
+    await userEvent.type(weightField, '0');
 
     expect(await screen.findByTestId('errorMessage')).toHaveTextContent(
       'Max billable weight must be greater than or equal to 1',
