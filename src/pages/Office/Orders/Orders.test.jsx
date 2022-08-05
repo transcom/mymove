@@ -7,6 +7,7 @@ import Orders from './Orders';
 
 import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
+import { permissionTypes } from 'constants/permissions';
 
 const mockOriginDutyLocation = {
   address: {
@@ -171,7 +172,7 @@ describe('Orders page', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
       render(
-        <MockProviders initialEntries={['moves/FP24I2/orders']}>
+        <MockProviders initialEntries={['moves/FP24I2/orders']} permissions={[permissionTypes.updateOrders]}>
           <Orders />
         </MockProviders>,
       );
