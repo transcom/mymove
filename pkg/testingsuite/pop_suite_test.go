@@ -1,8 +1,10 @@
 package testingsuite
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -93,4 +95,101 @@ func (suite *PopTestSuite) TestRun() {
 		suite.NotEqual(address2.ID, foundAddress.ID)
 	})
 
+}
+
+type AltPopSuite struct {
+	*PopTestSuite
+	models.ReServices
+}
+
+func (suite *AltPopSuite) SetupTest() {
+
+}
+
+func (suite *AltPopSuite) SetupSuite() {
+
+	suite.PreloadData(func() {
+		// Loads some data into database
+		// ReServiceCodeCS
+		fmt.Println("💥Adding ", suite.ReServices[0].Code, suite.ReServices[0].ID, "in SetupSuite")
+		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: suite.ReServices[0],
+		})
+
+		// ReServiceCodeMS
+		fmt.Println("💥Adding ", suite.ReServices[1].Code, suite.ReServices[1].ID, "in SetupSuite")
+		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: suite.ReServices[1],
+		})
+		fmt.Println("💥Adding ", suite.ReServices[2].Code, suite.ReServices[2].ID, "in SetupTest")
+		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: suite.ReServices[2],
+		})
+
+		fmt.Println("💥Adding ", suite.ReServices[3].Code, suite.ReServices[3].ID, "in SetupTest")
+		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: suite.ReServices[3],
+		})
+	})
+
+}
+
+func (suite *AltPopSuite) TearDownSuite() {
+	suite.PopTestSuite.TearDown()
+}
+
+func TestAltPopSuite(t *testing.T) {
+	reservices := []models.ReService{
+		{
+			ID:   uuid.Must(uuid.NewV4()),
+			Code: models.ReServiceCodeCS,
+		},
+		{
+			ID:   uuid.Must(uuid.NewV4()),
+			Code: models.ReServiceCodeMS,
+		},
+		{
+			ID:   uuid.Must(uuid.NewV4()),
+			Code: models.ReServiceCodeDCRT,
+		},
+		{
+			ID:   uuid.Must(uuid.NewV4()),
+			Code: models.ReServiceCodeDUCRT,
+		},
+	}
+
+	hs := &AltPopSuite{
+		PopTestSuite: NewPopTestSuite(CurrentPackage(), WithPerTestTransaction()),
+		ReServices:   reservices,
+	}
+
+	suite.Run(t, hs)
+}
+
+func (suite *AltPopSuite) TestRunAlt() {
+
+	suite.Run("Run a test to check if preloads are there", func() {
+
+		var foundReService models.ReService
+		for _, reservice := range suite.ReServices {
+			err := suite.DB().Find(&foundReService, reservice.ID)
+			fmt.Println(reservice.Code)
+			suite.NoError(err, "Reservice %s not found", reservice.Code)
+
+		}
+	})
+}
+func (suite *AltPopSuite) TestRunAltAgain() {
+
+	suite.Run("Run a test to check if preloads are there", func() {
+
+		var foundReService models.ReService
+		for _, reservice := range suite.ReServices {
+			err := suite.DB().Find(&foundReService, reservice.ID)
+			fmt.Println(reservice.Code)
+			suite.NoError(err, "Reservice %s not found", reservice.Code)
+
+		}
+
+	})
 }
