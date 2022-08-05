@@ -7,7 +7,7 @@ var ShipmentSummaryPage1Layout = FormLayout{
 
 	// For now only lists a single shipment. Will need to update to accommodate multiple shipments
 	FieldsLayout: map[string]FieldPos{
-		"FOUOBanner":                      FormField(0, 1.5, 216, floatPtr(10), nil, stringPtr("CM")),
+		"CUIBanner":                       FormField(0, 1.5, 216, floatPtr(10), nil, stringPtr("CM")),
 		"PreparationDate":                 FormField(155.5, 23, 46, floatPtr(10), nil, nil),
 		"ServiceMemberName":               FormField(10, 43, 90, floatPtr(10), nil, nil),
 		"DODId":                           FormField(153.5, 43, 60, floatPtr(10), nil, nil),
@@ -56,7 +56,7 @@ var ShipmentSummaryPage2Layout = FormLayout{
 	TemplateImagePath: "pkg/paperwork/formtemplates/shipment_summary_worksheet_page2.png",
 
 	FieldsLayout: map[string]FieldPos{
-		"FOUOBanner":                  FormField(0, 2, 216, floatPtr(10), nil, stringPtr("CM")),
+		"CUIBanner":                   FormField(0, 2, 216, floatPtr(10), nil, stringPtr("CM")),
 		"PreparationDate":             FormField(155.5, 23, 46, floatPtr(10), nil, nil),
 		"SAC":                         FormField(10, 43, 45, floatPtr(10), nil, nil),
 		"TAC":                         FormField(10, 54, 45, floatPtr(10), nil, nil),
@@ -94,7 +94,7 @@ var ShipmentSummaryPage3Layout = FormLayout{
 	TemplateImagePath: "pkg/paperwork/formtemplates/shipment_summary_worksheet_page3.png",
 
 	FieldsLayout: map[string]FieldPos{
-		"FOUOBanner":             FormField(0, 2, 216, floatPtr(10), nil, stringPtr("CM")),
+		"CUIBanner":              FormField(0, 2, 216, floatPtr(10), nil, stringPtr("CM")),
 		"PreparationDate":        FormField(155.5, 23, 46, floatPtr(10), nil, nil),
 		"Descriptions":           FormField(10, 64, 135, floatPtr(10), nil, nil),
 		"AmountsPaid":            FormField(155.5, 64, 46, floatPtr(10), nil, stringPtr("RM")),
