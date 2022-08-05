@@ -98,6 +98,7 @@ type PPMShipment struct {
 	SITEstimatedCost               *unit.Cents       `json:"sit_estimated_cost" db:"sit_estimated_cost"`
 	WeightTickets                  WeightTickets     `has_many:"weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	MovingExpenses                 MovingExpenses    `has_many:"moving_expenses" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
+	ProgearExpenses                ProgearExpenses   `has_many:"progear_expenses" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 }
 
 // PPMShipments is a list of PPMs
