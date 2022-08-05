@@ -489,7 +489,7 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 		TravelTimeMinutes:       travelTimeMinutes,
 		Location:                location,
 		LocationDescription:     evaluationReport.LocationDescription,
-		ObservedDate:            handlers.FmtDateTimePtrToPopPtr(evaluationReport.ObservedDate),
+		ObservedDate:            (*time.Time)(evaluationReport.ObservedDate),
 		EvaluationLengthMinutes: evaluationLengthMinutes,
 		ViolationsObserved:      evaluationReport.ViolationsObserved,
 		Remarks:                 evaluationReport.Remarks,
