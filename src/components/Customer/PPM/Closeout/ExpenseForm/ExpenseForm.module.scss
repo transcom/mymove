@@ -1,0 +1,16 @@
+@import 'shared/styles/_basics';
+
+.ExpenseForm {
+    :global(.usa-select) {
+        width: 50%;
+    }
+
+    .labelWrapper {
+        @include u-margin-top(3);
+    }
+
+    .uploadInstructions {
+        @include u-margin-bottom(1);
+    }
+
+}
