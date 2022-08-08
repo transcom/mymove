@@ -5419,6 +5419,74 @@ definitions:
       - fullDocumentId
       - proofOfTrailerOwnershipDocument
       - proofOfTrailerOwnershipDocumentId
+  MovingExpenseType:
+    type: string
+    title: Moving Expense Type
+    enum:
+      - CONTRACTED_EXPENSE
+      - GAS
+      - OIL
+      - OTHER
+      - PACKING_MATERIALS
+      - RENTAL_EQUIPMENT
+      - STORAGE
+      - TOLLS
+      - WEIGHING_FEES
+    x-display-value:
+      CONTRACTED_EXPENSE: Contracted expense
+      GAS: Gas
+      OIL: Oil
+      OTHER: Other
+      PACKING_MATERIALS: Packing materials
+      STORAGE: Storage
+      RENTAL_EQUIPMENT: Rental equipment
+      TOLLS: Tolls
+      WEIGHING_FEES: Weighing fees
+  MovingExpense:
+    description: Expenses associated with moving
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      movingExpenseType:
+        $ref: '#/definitions/MovingExpenseType'
+      description:
+        type: integer
+        example: 4200
+      sit_start_date:
+        type: string
+        description: The date and time that storage starts
+        format: date
+        example: '2018-04-26'
+        title: Storage start date
+      sit_end_date:
+        type: string
+        description: The date and time that storage ends
+        format: date
+        example: '2018-04-26'
+        title: Storage end date
+      document_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      ppm_shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      used_gtcc:
+        type: boolean
+        title: Did you pay with your GTCC (Government Travel Charge Card)?
+      missing_receipt:
+        type: boolean
+        title: I don't have this receipt
+      amount:
+        description: |
+          The amount for this expense
+        type: integer
+        format: cents
+        x-nullable: true
   PPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service members
@@ -5609,6 +5677,10 @@ definitions:
       weightTickets:
         items:
           $ref: '#/definitions/WeightTicket'
+        type: array
+      movingExpense:
+        items:
+          $ref: '#/definitions/MovingExpense'
         type: array
       eTag:
         description: >-

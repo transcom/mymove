@@ -1,0 +1,44 @@
+description: Expenses associated with moving
+type: object
+properties:
+  id:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  movingExpenseType:
+    $ref: '../internal.yaml#/definitions/MovingExpenseType'
+  description:
+    type: integer
+    example: 4200
+  sit_start_date:
+    type: string
+    description: The date and time that storage starts
+    format: date
+    example: '2018-04-26'
+    title: Storage start date
+  sit_end_date:
+    type: string
+    description: The date and time that storage ends
+    format: date
+    example: '2018-04-26'
+    title: Storage end date
+  document_id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  ppm_shipment_id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  used_gtcc:
+    type: boolean
+    title: Did you pay with your GTCC (Government Travel Charge Card)?
+  missing_receipt:
+    type: boolean
+    title: I don't have this receipt
+  amount:
+    description: >
+      The amount for this expense
+    type: integer
+    format: cents
+    x-nullable: true
