@@ -145,6 +145,7 @@ const ShipmentForm = (props) => {
     schema = ppmShipmentSchema({
       estimatedIncentive: initialValues.estimatedIncentive || 0,
       weightAllotment: serviceMember.weightAllotment,
+      requestedAdvanceAmount: mtoShipment.ppmShipment.advanceAmountRequested,
     });
   } else {
     const shipmentOptions = getShipmentOptions(shipmentType, userRole);
@@ -551,6 +552,7 @@ const ShipmentForm = (props) => {
                     shipmentType={shipmentType}
                     customerRemarks={mtoShipment.customerRemarks}
                     counselorRemarks={mtoShipment.counselorRemarks}
+                    showHint={false}
                   />
                 )}
 

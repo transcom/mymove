@@ -72,7 +72,7 @@ const ppmShipmentSchema = ({ estimatedIncentive = 0, weightAllotment = {}, reque
       }),
 
     counselorRemarks: Yup.string().when('advance', {
-      is: (advance) => advance !== requestedAdvanceAmount,
+      is: (advance) => Number(advance) !== requestedAdvanceAmount / 100,
       then: (schema) => schema.required('Required'),
     }),
   });
