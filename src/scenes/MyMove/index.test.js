@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import ConnectedCustomerApp, { CustomerApp } from './index';
 
@@ -100,6 +100,16 @@ describe('CustomerApp tests', () => {
 
   beforeEach(() => {
     wrapper = shallow(<CustomerApp {...minProps} />);
+  });
+
+  it('renders the CUI header', async () => {
+    render(
+      <MockProviders initialEntries={['/']}>
+        <ConnectedCustomerApp />
+      </MockProviders>,
+    );
+
+    expect(await screen.findByText('Controlled Unclassified Information')).toBeInTheDocument();
   });
 
   it('renders without crashing or erroring', () => {

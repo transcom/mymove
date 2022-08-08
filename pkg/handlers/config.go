@@ -23,8 +23,8 @@ import (
 	"github.com/transcom/mymove/pkg/trace"
 )
 
-// HandlerConfig provides access to all the contextual references needed by individual handlers
-//go:generate mockery --name HandlerConfig --disable-version-string
+// HandlerConfig provides access to all the contextual references
+// needed by individual handlers
 type HandlerConfig interface {
 	AppContextFromRequest(r *http.Request) appcontext.AppContext
 	AuditableAppContextFromRequestWithErrors(
@@ -32,35 +32,25 @@ type HandlerConfig interface {
 		func(appCtx appcontext.AppContext) (middleware.Responder, error),
 	) middleware.Responder
 	FileStorer() storage.FileStorer
-	SetFileStorer(storer storage.FileStorer)
 	NotificationSender() notifications.NotificationSender
-	SetNotificationSender(sender notifications.NotificationSender)
 	Planner() route.Planner
-	SetPlanner(planner route.Planner)
 	HHGPlanner() route.Planner
-	SetHHGPlanner(planner route.Planner)
 	DtodPlanner() route.Planner
-	SetDtodPlanner(planner route.Planner)
 	CookieSecret() string
-	SetCookieSecret(secret string)
 	IWSPersonLookup() iws.PersonLookup
-	SetIWSPersonLookup(rbs iws.PersonLookup)
 	SendProductionInvoice() bool
-	SetSendProductionInvoice(sendProductionInvoice bool)
 	UseSecureCookie() bool
-	SetUseSecureCookie(useSecureCookie bool)
-	SetAppNames(appNames auth.ApplicationServername)
 	AppNames() auth.ApplicationServername
-	SetFeatureFlag(flags FeatureFlag)
 	GetFeatureFlag(name string) bool
 
 	GexSender() services.GexSender
-	SetGexSender(gexSender services.GexSender)
 	ICNSequencer() sequence.Sequencer
-	SetICNSequencer(sequencer sequence.Sequencer)
 	GetTraceIDFromRequest(r *http.Request) uuid.UUID
-	SetSessionManagers(sessionManagers [3]*scs.SessionManager)
 	SessionManager(session *auth.Session) *scs.SessionManager
+	GetSessionManagers() [3]*scs.SessionManager
+	GetMilSessionManager() *scs.SessionManager
+	GetAdminSessionManager() *scs.SessionManager
+	GetOfficeSessionManager() *scs.SessionManager
 }
 
 // FeatureFlag struct for feature flags
@@ -69,8 +59,9 @@ type FeatureFlag struct {
 	Active bool
 }
 
-// A single handlerConfig is passed to each handler
-type handlerConfig struct {
+// A single Config is passed to each handler. This should be
+// instantiated by NewHandlerConfig
+type Config struct {
 	db                    *pop.Connection
 	logger                *zap.Logger
 	cookieSecret          string
@@ -89,33 +80,68 @@ type handlerConfig struct {
 	sessionManagers       [3]*scs.SessionManager
 }
 
-// NewHandlerConfig returns a new handlerConfig with its required private fields set.
-func NewHandlerConfig(db *pop.Connection, logger *zap.Logger) HandlerConfig {
-	return &handlerConfig{
-		db:     db,
-		logger: logger,
+// NewHandlerConfig returns a new HandlerConfig interface with its
+// required private fields set.
+func NewHandlerConfig(
+	db *pop.Connection,
+	logger *zap.Logger,
+	cookieSecret string,
+	planner route.Planner,
+	hhgPlanner route.Planner,
+	dtodPlanner route.Planner,
+	storage storage.FileStorer,
+	notificationSender notifications.NotificationSender,
+	iwsPersonLookup iws.PersonLookup,
+	sendProductionInvoice bool,
+	senderToGex services.GexSender,
+	icnSequencer sequence.Sequencer,
+	useSecureCookie bool,
+	appNames auth.ApplicationServername,
+	featureFlags []FeatureFlag,
+	sessionManagers [3]*scs.SessionManager,
+) HandlerConfig {
+	featureFlagMap := make(map[string]bool)
+	for _, ff := range featureFlags {
+		featureFlagMap[ff.Name] = ff.Active
+	}
+	return &Config{
+		db:                    db,
+		logger:                logger,
+		cookieSecret:          cookieSecret,
+		planner:               planner,
+		hhgPlanner:            hhgPlanner,
+		storage:               storage,
+		notificationSender:    notificationSender,
+		iwsPersonLookup:       iwsPersonLookup,
+		sendProductionInvoice: sendProductionInvoice,
+		senderToGex:           senderToGex,
+		icnSequencer:          icnSequencer,
+		useSecureCookie:       useSecureCookie,
+		appNames:              appNames,
+		featureFlags:          featureFlagMap,
+		sessionManagers:       sessionManagers,
 	}
 }
 
 // AppContextFromRequest builds an AppContext from the http request
 // TODO: This should eventually go away and all handlers should use AuditableAppContextFromRequestWithErrors
-func (h *handlerConfig) AppContextFromRequest(r *http.Request) appcontext.AppContext {
+func (c *Config) AppContextFromRequest(r *http.Request) appcontext.AppContext {
 	// use LoggerFromRequest to get the most specific logger
 	return appcontext.NewAppContext(
-		h.dBFromContext(r.Context()),
-		h.loggerFromRequest(r),
-		h.sessionFromRequest(r))
+		c.dBFromContext(r.Context()),
+		c.loggerFromRequest(r),
+		c.sessionFromRequest(r))
 }
 
 // AuditableAppContextFromRequestWithErrors creates a transaction and sets local
 // variables for use by the auditable trigger and also allows handlers to return errors.
-func (h *handlerConfig) AuditableAppContextFromRequestWithErrors(
+func (c *Config) AuditableAppContextFromRequestWithErrors(
 	r *http.Request,
 	handler func(appCtx appcontext.AppContext) (middleware.Responder, error),
 ) middleware.Responder {
 	// use LoggerFromRequest to get the most specific logger
 	var resp middleware.Responder
-	appCtx := h.AppContextFromRequest(r)
+	appCtx := c.AppContextFromRequest(r)
 	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var userID uuid.UUID
 		if txnAppCtx.Session() != nil {
@@ -141,153 +167,143 @@ func (h *handlerConfig) AuditableAppContextFromRequestWithErrors(
 	return resp
 }
 
-func (h *handlerConfig) sessionFromRequest(r *http.Request) *auth.Session {
+func (c *Config) sessionFromRequest(r *http.Request) *auth.Session {
 	return auth.SessionFromContext(r.Context())
 }
 
-func (h *handlerConfig) loggerFromRequest(r *http.Request) *zap.Logger {
-	return h.loggerFromContext(r.Context())
+func (c *Config) loggerFromRequest(r *http.Request) *zap.Logger {
+	return c.loggerFromContext(r.Context())
 }
 
-// LoggerFromContext returns the logger from the context. If the
+// loggerFromContext returns the logger from the context. If the
 // context has no appCtx.Logger(), the handlerConfig logger is returned
-func (h *handlerConfig) loggerFromContext(ctx context.Context) *zap.Logger {
+func (c *Config) loggerFromContext(ctx context.Context) *zap.Logger {
 	logger := logging.FromContextWithoutDefault(ctx)
 	if logger != nil {
 		return logger
 	}
-	return h.logger
+	return c.logger
 }
 
 // dBFromContext returns a POP db connection for the context
-func (h *handlerConfig) dBFromContext(ctx context.Context) *pop.Connection {
-	return h.db.WithContext(ctx)
+func (c *Config) dBFromContext(ctx context.Context) *pop.Connection {
+	return c.db.WithContext(ctx)
 }
 
 // FileStorer returns the storage to use in the current context
-func (h *handlerConfig) FileStorer() storage.FileStorer {
-	return h.storage
+func (c *Config) FileStorer() storage.FileStorer {
+	return c.storage
 }
 
 // SetFileStorer is a simple setter for storage private field
-func (h *handlerConfig) SetFileStorer(storer storage.FileStorer) {
-	h.storage = storer
+func (c *Config) SetFileStorer(storer storage.FileStorer) {
+	c.storage = storer
 }
 
 // AppNames returns a struct of all the app names for the current environment
-func (h *handlerConfig) AppNames() auth.ApplicationServername {
-	return h.appNames
+func (c *Config) AppNames() auth.ApplicationServername {
+	return c.appNames
 }
 
 // SetAppNames is a simple setter for private field
-func (h *handlerConfig) SetAppNames(appNames auth.ApplicationServername) {
-	h.appNames = appNames
+func (c *Config) SetAppNames(appNames auth.ApplicationServername) {
+	c.appNames = appNames
 }
 
 // NotificationSender returns the sender to use in the current context
-func (h *handlerConfig) NotificationSender() notifications.NotificationSender {
-	return h.notificationSender
+func (c *Config) NotificationSender() notifications.NotificationSender {
+	return c.notificationSender
 }
 
 // SetNotificationSender is a simple setter for AWS SES private field
-func (h *handlerConfig) SetNotificationSender(sender notifications.NotificationSender) {
-	h.notificationSender = sender
+func (c *Config) SetNotificationSender(sender notifications.NotificationSender) {
+	c.notificationSender = sender
 }
 
 // Planner returns the planner for the current context
-func (h *handlerConfig) Planner() route.Planner {
-	return h.planner
+func (c *Config) Planner() route.Planner {
+	return c.planner
 }
 
 // SetPlanner is a simple setter for the route.Planner private field
-func (h *handlerConfig) SetPlanner(planner route.Planner) {
-	h.planner = planner
+func (c *Config) SetPlanner(planner route.Planner) {
+	c.planner = planner
 }
 
 // HHGPlanner returns the HHG planner for the current context
-func (h *handlerConfig) HHGPlanner() route.Planner {
-	return h.hhgPlanner
-}
-
-// SetHHGPlanner is a simple setter for the route.Planner private field
-func (h *handlerConfig) SetHHGPlanner(hhgPlanner route.Planner) {
-	h.hhgPlanner = hhgPlanner
+func (c *Config) HHGPlanner() route.Planner {
+	return c.hhgPlanner
 }
 
 // DtodPlanner returns the DTOD planner for the current context
-func (h *handlerConfig) DtodPlanner() route.Planner {
-	return h.dtodPlanner
-}
-
-// SetDtodPlanner is a simple setter for the route.Planner private field
-func (h *handlerConfig) SetDtodPlanner(dtodPlanner route.Planner) {
-	h.dtodPlanner = dtodPlanner
+func (c *Config) DtodPlanner() route.Planner {
+	return c.dtodPlanner
 }
 
 // CookieSecret returns the secret key to use when signing cookies
-func (h *handlerConfig) CookieSecret() string {
-	return h.cookieSecret
+func (c *Config) CookieSecret() string {
+	return c.cookieSecret
 }
 
 // SetCookieSecret is a simple setter for the cookieSeecret private Field
-func (h *handlerConfig) SetCookieSecret(cookieSecret string) {
-	h.cookieSecret = cookieSecret
+func (c *Config) SetCookieSecret(cookieSecret string) {
+	c.cookieSecret = cookieSecret
 }
 
-func (h *handlerConfig) IWSPersonLookup() iws.PersonLookup {
-	return h.iwsPersonLookup
+func (c *Config) IWSPersonLookup() iws.PersonLookup {
+	return c.iwsPersonLookup
 }
 
-func (h *handlerConfig) SetIWSPersonLookup(rbs iws.PersonLookup) {
-	h.iwsPersonLookup = rbs
+func (c *Config) SetIWSPersonLookup(rbs iws.PersonLookup) {
+	c.iwsPersonLookup = rbs
 }
 
 // SendProductionInvoice is a flag to notify EDI invoice generation whether it should be sent as a test or production transaction
-func (h *handlerConfig) SendProductionInvoice() bool {
-	return h.sendProductionInvoice
+func (c *Config) SendProductionInvoice() bool {
+	return c.sendProductionInvoice
 }
 
 // Set UsageIndicator flag for use in EDI invoicing (ediinvoice pkg)
-func (h *handlerConfig) SetSendProductionInvoice(sendProductionInvoice bool) {
-	h.sendProductionInvoice = sendProductionInvoice
+func (c *Config) SetSendProductionInvoice(sendProductionInvoice bool) {
+	c.sendProductionInvoice = sendProductionInvoice
 }
 
-func (h *handlerConfig) GexSender() services.GexSender {
-	return h.senderToGex
+func (c *Config) GexSender() services.GexSender {
+	return c.senderToGex
 }
 
-func (h *handlerConfig) SetGexSender(sendGexRequest services.GexSender) {
-	h.senderToGex = sendGexRequest
+func (c *Config) SetGexSender(sendGexRequest services.GexSender) {
+	c.senderToGex = sendGexRequest
 }
 
-func (h *handlerConfig) ICNSequencer() sequence.Sequencer {
-	return h.icnSequencer
+func (c *Config) ICNSequencer() sequence.Sequencer {
+	return c.icnSequencer
 }
 
-func (h *handlerConfig) SetICNSequencer(sequencer sequence.Sequencer) {
-	h.icnSequencer = sequencer
+func (c *Config) SetICNSequencer(sequencer sequence.Sequencer) {
+	c.icnSequencer = sequencer
 }
 
 // UseSecureCookie determines if the field "Secure" is set to true or false upon cookie creation
-func (h *handlerConfig) UseSecureCookie() bool {
-	return h.useSecureCookie
+func (c *Config) UseSecureCookie() bool {
+	return c.useSecureCookie
 }
 
 // Sets flag for using Secure cookie
-func (h *handlerConfig) SetUseSecureCookie(useSecureCookie bool) {
-	h.useSecureCookie = useSecureCookie
+func (c *Config) SetUseSecureCookie(useSecureCookie bool) {
+	c.useSecureCookie = useSecureCookie
 }
 
-func (h *handlerConfig) SetFeatureFlag(flag FeatureFlag) {
-	if h.featureFlags == nil {
-		h.featureFlags = make(map[string]bool)
+func (c *Config) SetFeatureFlag(flag FeatureFlag) {
+	if c.featureFlags == nil {
+		c.featureFlags = make(map[string]bool)
 	}
 
-	h.featureFlags[flag.Name] = flag.Active
+	c.featureFlags[flag.Name] = flag.Active
 }
 
-func (h *handlerConfig) GetFeatureFlag(flag string) bool {
-	if value, ok := h.featureFlags[flag]; ok {
+func (c *Config) GetFeatureFlag(flag string) bool {
+	if value, ok := c.featureFlags[flag]; ok {
 		return value
 	}
 	return false
@@ -295,24 +311,41 @@ func (h *handlerConfig) GetFeatureFlag(flag string) bool {
 
 // GetTraceIDFromRequest returns the request traceID. It
 // returns the Nil UUID if no traceid is found
-func (h *handlerConfig) GetTraceIDFromRequest(r *http.Request) uuid.UUID {
+func (c *Config) GetTraceIDFromRequest(r *http.Request) uuid.UUID {
 	return trace.FromContext(r.Context())
 }
 
-func (h *handlerConfig) SetSessionManagers(sessionManagers [3]*scs.SessionManager) {
-	h.sessionManagers = sessionManagers
+func (c *Config) SetSessionManagers(sessionManagers [3]*scs.SessionManager) {
+	c.sessionManagers = sessionManagers
+}
+
+func (c *Config) GetMilSessionManager() *scs.SessionManager {
+	return c.sessionManagers[0]
+}
+
+func (c *Config) GetAdminSessionManager() *scs.SessionManager {
+	return c.sessionManagers[1]
+}
+
+func (c *Config) GetOfficeSessionManager() *scs.SessionManager {
+	return c.sessionManagers[2]
 }
 
 // SessionManager returns the session manager corresponding to the current app.
 // A user can be signed in at the same time across multiple apps.
-func (h *handlerConfig) SessionManager(session *auth.Session) *scs.SessionManager {
+func (c *Config) SessionManager(session *auth.Session) *scs.SessionManager {
 	if session.IsMilApp() {
-		return h.sessionManagers[0]
+		return c.GetMilSessionManager()
 	} else if session.IsAdminApp() {
-		return h.sessionManagers[1]
+		return c.GetAdminSessionManager()
 	} else if session.IsOfficeApp() {
-		return h.sessionManagers[2]
+		return c.GetOfficeSessionManager()
 	}
 
 	return nil
+}
+
+// GetSessionManagers returns all session managers
+func (c *Config) GetSessionManagers() [3]*scs.SessionManager {
+	return c.sessionManagers
 }
