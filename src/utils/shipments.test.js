@@ -1,10 +1,14 @@
 import { v4 } from 'uuid';
 
-import { isPPMShipmentComplete, isWeightTicketComplete, hasCompleteWeightTickets } from './shipments';
+import { isPPMShipmentComplete, isWeightTicketComplete, hasCompletedAllWeightTickets } from './shipments';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import createDocumentWithoutUploads from 'utils/test/factories/document';
-import { createCompleteWeightTicket, createCompleteWeightTicketWithTrailer } from 'utils/test/factories/weightTicket';
+import {
+  createBaseWeightTicket,
+  createCompleteWeightTicket,
+  createCompleteWeightTicketWithTrailer,
+} from 'utils/test/factories/weightTicket';
 
 describe('shipments utils', () => {
   describe('isPPMShipmentComplete', () => {
@@ -117,28 +121,18 @@ describe('shipments utils', () => {
     });
   });
 
-  describe('hasCompleteWeightTickets', () => {
+  describe('hasCompletedAllWeightTickets', () => {
     it('returns false when there are no weight tickets', () => {
-      expect(hasCompleteWeightTickets()).toBe(false);
-      expect(hasCompleteWeightTickets([])).toBe(false);
+      expect(hasCompletedAllWeightTickets()).toBe(false);
+      expect(hasCompletedAllWeightTickets([])).toBe(false);
     });
     it('returns false when there is at least one incomplete weight ticket', () => {
-      expect(hasCompleteWeightTickets([{ id: '1' }])).toBe(false);
-      expect(
-        hasCompleteWeightTickets([
-          { vehicleDescription: 'Ford Pinto', emptyWeight: 2000, fullWeight: 3000 },
-          { id: '1' },
-        ]),
-      ).toBe(false);
+      expect(hasCompletedAllWeightTickets([createBaseWeightTicket()])).toBe(false);
+      expect(hasCompletedAllWeightTickets([createBaseWeightTicket(), createCompleteWeightTicket()])).toBe(false);
     });
     it('returns true when all weight tickets are complete', () => {
-      expect(hasCompleteWeightTickets([{ id: '1' }])).toBe(false);
-      expect(
-        hasCompleteWeightTickets([
-          { vehicleDescription: 'Ford Pinto', emptyWeight: 2000, fullWeight: 3000 },
-          { vehicleDescription: 'PT Cruiser', emptyWeight: 1500, fullWeight: 1750 },
-        ]),
-      ).toBe(true);
+      expect(hasCompletedAllWeightTickets([createBaseWeightTicket()])).toBe(false);
+      expect(hasCompletedAllWeightTickets([createCompleteWeightTicket(), createCompleteWeightTicket()])).toBe(true);
     });
   });
 });

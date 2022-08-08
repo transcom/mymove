@@ -10,11 +10,11 @@ import Review from 'pages/MyMove/PPM/Closeout/Review/Review';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { customerRoutes } from 'constants/routes';
 import { deleteWeightTicket } from 'services/internalApi';
+import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 
 const mockMoveId = v4();
 const mockMTOShipmentId = v4();
 const mockPPMShipmentId = v4();
-const mockWeightTicketId = v4();
 
 const mockMTOShipment = {
   id: mockMTOShipmentId,
@@ -63,15 +63,7 @@ const mockMTOShipmentWithWeightTicket = {
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
-    weightTickets: [
-      {
-        id: mockWeightTicketId,
-        vehicleDescription: 'DMC Delorean',
-        emptyWeight: 2500,
-        fullWeight: 3500,
-        eTag: 'eTag value',
-      },
-    ],
+    weightTickets: [createCompleteWeightTicket()],
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -97,12 +89,7 @@ const mockMTOShipmentWithIncompleteWeightTicket = {
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
-    weightTickets: [
-      {
-        id: mockWeightTicketId,
-        eTag: 'eTag value',
-      },
-    ],
+    weightTickets: [createBaseWeightTicket()],
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -199,7 +186,7 @@ describe('About page', () => {
     const editWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
-      weightTicketId: mockWeightTicketId,
+      weightTicketId: mockMTOShipmentWithWeightTicket.ppmShipment.weightTickets[0].id,
     });
 
     const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
@@ -287,8 +274,9 @@ describe('About page', () => {
 
     userEvent.click(screen.getByRole('button', { name: 'Yes, Delete' }));
 
+    const weightTicket = mockMTOShipmentWithWeightTicket.ppmShipment.weightTickets[0];
     await waitFor(() => {
-      expect(mockDeleteWeightTicket).toHaveBeenCalledWith(mockWeightTicketId, 'eTag value');
+      expect(mockDeleteWeightTicket).toHaveBeenCalledWith(weightTicket.id, weightTicket.eTag);
     });
   });
 });

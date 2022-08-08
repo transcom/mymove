@@ -28,14 +28,14 @@ export function isWeightTicketComplete(weightTicket) {
   );
 }
 
-export function hasCompleteWeightTickets(weightTickets) {
+// hasCompletedAllWeightTickets - checks if every weight ticket has been completed.
+// Returns false if there are no weight tickets, or if any of them are incomplete.
+export function hasCompletedAllWeightTickets(weightTickets) {
   if (!weightTickets?.length) {
     return false;
   }
 
-  return !!weightTickets?.every((weightTicket) => {
-    return weightTicket.vehicleDescription && weightTicket.emptyWeight && weightTicket.fullWeight;
-  });
+  return !!weightTickets?.every(isWeightTicketComplete);
 }
 
 export default isPPMShipmentComplete;
