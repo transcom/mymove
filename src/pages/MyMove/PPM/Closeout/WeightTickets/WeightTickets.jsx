@@ -58,13 +58,14 @@ const WeightTickets = () => {
     }
   }, [weightTicketId, moveId, mtoShipmentId, history, dispatch, mtoShipment]);
 
-  const handleCreateUpload = async (fieldName, file) => {
+  const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentWeightTicket[`${fieldName}Id`];
 
     createUploadForDocument(file, documentId)
       .then((upload) => {
         mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
+        setFieldTouched(fieldName, true);
         return upload;
       })
       .catch(() => {
