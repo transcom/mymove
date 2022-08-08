@@ -21,7 +21,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
@@ -63,7 +62,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		}
 
 		handler := GetPaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentrequest.NewPaymentRequestFetcher(),
 		}
 		response := handler.Handle(params)
@@ -105,7 +104,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		}
 
 		handler := GetPaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestFetcher,
 		}
 		response := handler.Handle(params)
@@ -129,7 +128,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		}
 
 		handler := GetPaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestFetcher,
 		}
 		response := handler.Handle(params)
@@ -179,7 +178,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     moveLocator,
 		}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := GetPaymentRequestForMoveHandler{
 			HandlerConfig:             handlerConfig,
 			PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(),
@@ -216,7 +215,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     "ABC123",
 		}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := GetPaymentRequestForMoveHandler{
 			HandlerConfig:             handlerConfig,
 			PaymentRequestListFetcher: paymentRequestListFetcher,
@@ -262,7 +261,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:               suite.HandlerConfig(),
 			PaymentRequestStatusUpdater: statusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -293,7 +292,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:               suite.HandlerConfig(),
 			PaymentRequestStatusUpdater: statusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -333,7 +332,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			}
 
 			handler := UpdatePaymentRequestStatusHandler{
-				HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+				HandlerConfig:               suite.HandlerConfig(),
 				PaymentRequestStatusUpdater: statusUpdater,
 				PaymentRequestFetcher:       paymentRequestFetcher,
 			}
@@ -367,7 +366,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:               suite.HandlerConfig(),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -407,7 +406,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:               suite.HandlerConfig(),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -437,7 +436,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:               suite.HandlerConfig(),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -467,7 +466,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:               suite.HandlerConfig(),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -497,7 +496,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:               suite.HandlerConfig(),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -527,7 +526,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:               suite.HandlerConfig(),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -692,7 +691,7 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 		}
 
 		handler := ShipmentsSITBalanceHandler{
-			HandlerConfig:              handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:              suite.HandlerConfig(),
 			ShipmentsPaymentSITBalance: paymentrequest.NewPaymentRequestShipmentsSITBalance(),
 		}
 
@@ -728,7 +727,7 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 		}
 
 		handler := ShipmentsSITBalanceHandler{
-			HandlerConfig:              handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:              suite.HandlerConfig(),
 			ShipmentsPaymentSITBalance: paymentrequest.NewPaymentRequestShipmentsSITBalance(),
 		}
 
@@ -749,7 +748,7 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 		}
 
 		handler := ShipmentsSITBalanceHandler{
-			HandlerConfig:              handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:              suite.HandlerConfig(),
 			ShipmentsPaymentSITBalance: paymentrequest.NewPaymentRequestShipmentsSITBalance(),
 		}
 
