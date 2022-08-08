@@ -39,7 +39,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 
 	params.HTTPRequest = req
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := CreateUploadHandler{handlerConfig}
 	response := handler.Handle(params)
@@ -181,7 +181,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	req = suite.AuthenticateRequest(req, uploadUser.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := DeleteUploadHandler{handlerConfig}
 	response := handler.Handle(params)
@@ -223,7 +223,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	req = suite.AuthenticateRequest(req, uploadUser1.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := DeleteUploadsHandler{handlerConfig}
 	response := handler.Handle(params)
@@ -255,7 +255,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerFailure() {
 
 	fakeS3Failure := storageTest.NewFakeS3Storage(false)
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3Failure)
 	handler := DeleteUploadHandler{handlerConfig}
 	response := handler.Handle(params)

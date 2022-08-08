@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -32,6 +33,14 @@ func (suite *HandlerSuite) assertPDFPageCount(count int, file afero.File, storer
 	suite.Equal(count, ctx.PageCount)
 }
 
+func (suite *HandlerSuite) createS3HandlerConfig() handlers.HandlerConfig {
+	handlerConfig := suite.HandlerConfig()
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	handlerConfig.SetFileStorer(fakeS3)
+
+	return handlerConfig
+}
+
 func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 	tests := []struct {
 		name          string
@@ -48,7 +57,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 		suite.Run(test.name, func() {
 			officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 			// Context gives us our file storer and filesystem
-			handlerConfig := suite.createHandlerConfig()
+			handlerConfig := suite.createS3HandlerConfig()
 
 			ppm := testdatagen.MakeDefaultPPM(suite.DB())
 			expDoc := testdatagen.MakeMovingExpenseDocument(suite.DB(), testdatagen.Assertions{

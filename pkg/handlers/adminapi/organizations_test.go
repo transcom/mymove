@@ -25,7 +25,7 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOrganizationsHandler{
-			HandlerConfig:           handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:           suite.HandlerConfig(),
 			NewQueryFilter:          query.NewQueryFilter,
 			OrganizationListFetcher: organization2.NewOrganizationListFetcher(queryBuilder),
 			NewPagination:           pagination.NewPagination,
@@ -58,7 +58,7 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 			mock.Anything,
 		).Return(0, expectedError).Once()
 		handler := IndexOrganizationsHandler{
-			HandlerConfig:           handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:           suite.HandlerConfig(),
 			NewQueryFilter:          newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 			OrganizationListFetcher: organizationListFetcher,
 			NewPagination:           pagination.NewPagination,
