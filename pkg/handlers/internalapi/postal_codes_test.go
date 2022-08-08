@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	postalcodesops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -32,7 +31,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Valid() {
 		PostalCodeType: postalCodeTypeString,
 	}
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	postalCodeValidator := &mocks.PostalCodeValidator{}
 	postalCodeValidator.On("ValidatePostalCode",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -71,7 +70,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Invalid() {
 		PostalCodeType: postalCodeTypeString,
 	}
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	postalCodeValidator := &mocks.PostalCodeValidator{}
 	postalCodeValidator.On("ValidatePostalCode",
 		mock.AnythingOfType("*appcontext.appContext"),

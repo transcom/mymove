@@ -10,6 +10,7 @@ import 'styles/full_uswds.scss';
 import 'styles/customer.scss';
 
 import BypassBlock from 'components/BypassBlock';
+import CUIHeader from 'components/CUIHeader/CUIHeader';
 import LoggedOutHeader from 'containers/Headers/LoggedOutHeader';
 import CustomerLoggedInHeader from 'containers/Headers/CustomerLoggedInHeader';
 import Alert from 'shared/Alert';
@@ -114,6 +115,7 @@ export class CustomerApp extends Component {
       <>
         <LastLocationProvider>
           <div className="my-move site" id="app-root">
+            <CUIHeader />
             <BypassBlock />
             <GovBanner />
 
