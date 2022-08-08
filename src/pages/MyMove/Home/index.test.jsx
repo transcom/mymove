@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mount } from 'enzyme';
 import moment from 'moment';
@@ -15,7 +15,9 @@ import { customerRoutes } from 'constants/routes';
 import { shipmentStatuses, ppmShipmentStatuses } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatCustomerDate } from 'utils/formatters';
-import { MockProviders } from 'testUtils';
+import { MockProviders, setUpProvidersWithHistory } from 'testUtils';
+import createUpload from 'utils/test/factories/upload';
+import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -72,18 +74,7 @@ const orders = {
   orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
 };
 
-const uploadId = v4();
-const uploadCreateDate = new Date();
-const ordersUpload = {
-  id: uploadId,
-  filename: 'testOrders1.pdf',
-  status: 'PROCESSING',
-  url: `/uploads/${uploadId}?contentType=application%2Fpdf`,
-  content_type: 'application/pdf',
-  bytes: 10596,
-  created_at: uploadCreateDate.toISOString(),
-  updated_at: uploadCreateDate.toISOString(),
-};
+const ordersUpload = createUpload({ fileName: 'testOrders1.pdf' });
 
 const uploadedOrderDocuments = [ordersUpload];
 
@@ -134,6 +125,66 @@ const submittedPPMShipment = {
   ppmShipment: {
     ...completeUnSubmittedPPM.ppmShipment,
     status: ppmShipmentStatuses.SUBMITTED,
+  },
+};
+
+const approvedDate = new Date();
+
+const approvedPPMShipment = {
+  ...submittedPPMShipment,
+  status: shipmentStatuses.APPROVED,
+  ppmShipment: {
+    ...submittedPPMShipment.ppmShipment,
+    status: ppmShipmentStatuses.WAITING_ON_CUSTOMER,
+    actualMoveDate: null,
+    actualPickupPostalCode: null,
+    actualDestinationPostalCode: null,
+    hasReceivedAdvance: null,
+    advanceAmountReceived: null,
+    weightTickets: [],
+    approvedAt: approvedDate.toISOString(),
+    updatedAt: approvedDate.toISOString(),
+    eTag: window.btoa(approvedDate.toISOString()),
+  },
+  updatedAt: approvedDate.toISOString(),
+  eTag: window.btoa(approvedDate.toISOString()),
+};
+
+const ppmShipmentWithActualShipmentInfo = {
+  ...approvedPPMShipment,
+  ppmShipment: {
+    ...approvedPPMShipment.ppmShipment,
+    actualMoveDate: approvedPPMShipment.ppmShipment.expectedDepartureDate,
+    actualPickupPostalCode: approvedPPMShipment.ppmShipment.pickupPostalCode,
+    actualDestinationPostalCode: approvedPPMShipment.ppmShipment.destinationPostalCode,
+    hasReceivedAdvance: approvedPPMShipment.ppmShipment.hasRequestedAdvance,
+    advanceAmountReceived: approvedPPMShipment.ppmShipment.advanceAmountRequested,
+  },
+};
+
+const ppmShipmentWithIncompleteWeightTicket = {
+  ...ppmShipmentWithActualShipmentInfo,
+  ppmShipment: {
+    ...ppmShipmentWithActualShipmentInfo.ppmShipment,
+    weightTickets: [
+      createBaseWeightTicket(
+        { serviceMemberId: defaultProps.serviceMember.id },
+        { ppmShipmentId: ppmShipmentWithActualShipmentInfo.id },
+      ),
+    ],
+  },
+};
+
+const ppmShipmentWithCompleteWeightTicket = {
+  ...ppmShipmentWithIncompleteWeightTicket,
+  ppmShipment: {
+    ...ppmShipmentWithIncompleteWeightTicket.ppmShipment,
+    weightTickets: [
+      createCompleteWeightTicket(
+        { serviceMemberId: defaultProps.serviceMember.id },
+        { ppmShipmentId: ppmShipmentWithActualShipmentInfo.id },
+      ),
+    ],
   },
 };
 
@@ -570,18 +621,10 @@ describe('Home component', () => {
       });
     });
 
-    const amendedOrdersUploadId = v4();
-    const amendedOrdersUploadCreateDateString = moment(ordersUpload.created_at).add(1, 'days').toISOString();
+    const amendedOrdersUploadCreateDate = moment(ordersUpload.created_at).add(1, 'days');
 
     const uploadedAmendedOrderDocuments = [
-      {
-        ...ordersUpload,
-        id: amendedOrdersUploadId,
-        filename: 'testOrder2.pdf',
-        url: `/uploads/${amendedOrdersUploadId}?contentType=application%2Fpdf`,
-        created_at: amendedOrdersUploadCreateDateString,
-        updated_at: amendedOrdersUploadCreateDateString,
-      },
+      createUpload({ fileName: 'testOrder2.pdf', createdAtDate: amendedOrdersUploadCreateDate }),
     ];
 
     describe('for unapproved amended orders', () => {
@@ -612,6 +655,110 @@ describe('Home component', () => {
 
       it('does not render the amended orders alert', () => {
         expect(wrapper.find('[data-testid="unapproved-amended-orders-alert"]').exists()).toBe(false);
+      });
+    });
+  });
+
+  describe('if the user has submitted a move with a ppm shipment that has been approved', () => {
+    const props = {
+      ...defaultProps,
+      move: { ...defaultProps.move, status: MOVE_STATUSES.SUBMITTED, submitted_at: new Date().toISOString() },
+      orders,
+      uploadedOrderDocuments,
+    };
+
+    describe('then when the Upload PPM Documents button is clicked', () => {
+      const ppmShipmentWithMultipleIncompleteWeightTickets = {
+        ...ppmShipmentWithIncompleteWeightTicket,
+        ppmShipment: {
+          ...ppmShipmentWithIncompleteWeightTicket.ppmShipment,
+          weightTickets: [
+            ...ppmShipmentWithIncompleteWeightTicket.ppmShipment.weightTickets,
+            createBaseWeightTicket(
+              { serviceMemberId: defaultProps.serviceMember.id },
+              { ppmShipmentId: ppmShipmentWithIncompleteWeightTicket.id },
+            ),
+          ],
+        },
+      };
+
+      const ppmShipmentWithMultipleWeightTickets = {
+        ...ppmShipmentWithCompleteWeightTicket,
+        ppmShipment: {
+          ...ppmShipmentWithCompleteWeightTicket.ppmShipment,
+          weightTickets: [
+            ...ppmShipmentWithCompleteWeightTicket.ppmShipment.weightTickets,
+            createBaseWeightTicket(
+              { serviceMemberId: defaultProps.serviceMember.id },
+              { ppmShipmentId: ppmShipmentWithActualShipmentInfo.id },
+            ),
+          ],
+        },
+      };
+
+      it.each([
+        [
+          'About Your PPM page if no actual shipment info has been input',
+          [approvedPPMShipment],
+          generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
+            moveId: props.move.id,
+            mtoShipmentId: approvedPPMShipment.id,
+          }),
+        ],
+        [
+          'Weight Ticket page if weight ticket info is missing',
+          [ppmShipmentWithActualShipmentInfo],
+          generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
+            moveId: props.move.id,
+            mtoShipmentId: ppmShipmentWithActualShipmentInfo.id,
+          }),
+        ],
+        [
+          'Weight Ticket page if weight ticket info is incomplete',
+          [ppmShipmentWithIncompleteWeightTicket],
+          generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
+            moveId: props.move.id,
+            mtoShipmentId: ppmShipmentWithIncompleteWeightTicket.id,
+            weightTicketId: ppmShipmentWithIncompleteWeightTicket.ppmShipment.weightTickets[0].id,
+          }),
+        ],
+        [
+          'Weight Ticket page for the first weight ticket if there are multiple but none are complete',
+          [ppmShipmentWithMultipleIncompleteWeightTickets],
+          generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
+            moveId: props.move.id,
+            mtoShipmentId: ppmShipmentWithMultipleIncompleteWeightTickets.id,
+            weightTicketId: ppmShipmentWithMultipleIncompleteWeightTickets.ppmShipment.weightTickets[0].id,
+          }),
+        ],
+        [
+          'Review page if weight ticket info is complete',
+          [ppmShipmentWithCompleteWeightTicket],
+          generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+            moveId: props.move.id,
+            mtoShipmentId: ppmShipmentWithCompleteWeightTicket.id,
+          }),
+        ],
+        [
+          'Review page if at least one weight ticket is completely filled out',
+          [ppmShipmentWithMultipleWeightTickets],
+          generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+            moveId: props.move.id,
+            mtoShipmentId: ppmShipmentWithMultipleWeightTickets.id,
+          }),
+        ],
+      ])('will route the user to the %s', async (scenarioDescription, mtoShipments, expectedRoute) => {
+        const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
+        render(<Home {...props} mtoShipments={mtoShipments} history={memoryHistory} />, {
+          wrapper: mockProviderWithHistory,
+        });
+
+        userEvent.click(screen.getByRole('button', { name: 'Upload PPM Documents' }));
+
+        await waitFor(() => {
+          expect(memoryHistory.location.pathname).toEqual(expectedRoute);
+        });
       });
     });
   });
