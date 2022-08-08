@@ -56,7 +56,7 @@ func (suite *HandlerSuite) TestListMovesHandlerReturnsUpdated() {
 	since := handlers.FmtDateTime(lastFetch)
 	request := httptest.NewRequest("GET", fmt.Sprintf("/moves?since=%s", since.String()), nil)
 	params := movetaskorderops.ListMovesParams{HTTPRequest: request, Since: since}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 
 	// make the request
 	handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
@@ -77,7 +77,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	suite.Run("Success with Prime-available move by ID", func() {
 		handler := GetMoveTaskOrderHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
 
@@ -100,7 +100,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	suite.Run("Success with Prime-available move by Locator", func() {
 		handler := GetMoveTaskOrderHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
 		successMove := testdatagen.MakeAvailableMove(suite.DB())
@@ -122,7 +122,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	suite.Run("Returns the destination address type for a shipment on a move if it exists", func() {
 		handler := GetMoveTaskOrderHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
 		successMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -162,7 +162,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	suite.Run("Success returns reweighs on shipments if they exist", func() {
 		handler := GetMoveTaskOrderHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
 		successMove := testdatagen.MakeAvailableMove(suite.DB())
@@ -191,7 +191,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	suite.Run("Success - returns sit extensions on shipments if they exist", func() {
 		handler := GetMoveTaskOrderHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
 		successMove := testdatagen.MakeAvailableMove(suite.DB())
@@ -221,7 +221,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	suite.Run("Success - filters shipments handled by an external vendor", func() {
 		handler := GetMoveTaskOrderHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
 		move := testdatagen.MakeAvailableMove(suite.DB())
@@ -261,7 +261,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	suite.Run("Success - returns shipment with attached PpmShipment", func() {
 		handler := GetMoveTaskOrderHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
 		move := testdatagen.MakeAvailableMove(suite.DB())
@@ -289,7 +289,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	suite.Run("Failure 'Not Found' for non-available move", func() {
 		handler := GetMoveTaskOrderHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
 		}
 		failureMove := testdatagen.MakeDefaultMove(suite.DB()) // default is not available to Prime
@@ -313,12 +313,13 @@ func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	suite.Run("Success - Created an excess weight record", func() {
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
 		handler := CreateExcessWeightRecordHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			handlerConfig,
 			// Must use the Prime service object in particular:
 			moverouter.NewPrimeMoveExcessWeightUploader(upload.NewUploadCreator(fakeS3)),
 		}
-		handler.HandlerConfig.SetFileStorer(fakeS3)
 
 		now := time.Now()
 		availableMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -347,12 +348,13 @@ func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 	})
 
 	suite.Run("Fail - Move not found - 404", func() {
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
 		handler := CreateExcessWeightRecordHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			handlerConfig,
 			// Must use the Prime service object in particular:
 			moverouter.NewPrimeMoveExcessWeightUploader(upload.NewUploadCreator(fakeS3)),
 		}
-		handler.HandlerConfig.SetFileStorer(fakeS3)
 
 		params := movetaskorderops.CreateExcessWeightRecordParams{
 			HTTPRequest:     request,
@@ -369,12 +371,13 @@ func (suite *HandlerSuite) TestCreateExcessWeightRecord() {
 	})
 
 	suite.Run("Fail - Move not Prime-available - 404", func() {
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
 		handler := CreateExcessWeightRecordHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			handlerConfig,
 			// Must use the Prime service object in particular:
 			moverouter.NewPrimeMoveExcessWeightUploader(upload.NewUploadCreator(fakeS3)),
 		}
-		handler.HandlerConfig.SetFileStorer(fakeS3)
 
 		unavailableMove := testdatagen.MakeDefaultMove(suite.DB()) // default move is not available to Prime
 		params := movetaskorderops.CreateExcessWeightRecordParams{
@@ -440,7 +443,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			fetcher,
 			updater,
 			mtoChecker,
@@ -484,7 +487,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter)
 		handler := UpdateMTOPostCounselingInformationHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			fetcher,
 			updater,
 			mtoChecker,
@@ -505,7 +508,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			&mockFetcher,
 			&mockUpdater,
 			mtoChecker,
@@ -539,7 +542,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			&mockFetcher,
 			&mockUpdater,
 			mtoChecker,
@@ -571,7 +574,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			&mockFetcher,
 			&mockUpdater,
 			mtoChecker,
@@ -602,7 +605,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			&mockFetcher,
 			&mockUpdater,
 			mtoChecker,

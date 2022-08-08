@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"net/http"
@@ -10,20 +10,28 @@ import (
 
 // This is straight from github.com/gorilla/mux
 
-// spahandler implements the http.Handler interface, so we can use it
+// SpaHandler implements the http.Handler interface, so we can use it
 // to respond to HTTP requests. The path to the static directory and
 // path to the index file within that static directory are used to
 // serve the SPA in the given static directory.
-type spaHandler struct {
+type SpaHandler struct {
 	staticPath string
 	indexPath  string
+}
+
+// NewSpaHandler returns a new handler for a Single Page App
+func NewSpaHandler(staticPath string, indexPath string) SpaHandler {
+	return SpaHandler{
+		staticPath: staticPath,
+		indexPath:  indexPath,
+	}
 }
 
 // ServeHTTP inspects the URL path to locate a file within the static dir
 // on the SPA handler. If a file is found, it will be served. If not, the
 // file located at the index path on the SPA handler will be served. This
 // is suitable behavior for serving an SPA (single page application).
-func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	logger := logging.FromContext(r.Context())
 	logger.Debug("Using SPA Handler for " + r.URL.Path)
 	// get the absolute path to prevent directory traversal
@@ -53,4 +61,11 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// otherwise, use http.FileServer to serve the static dir
 	http.FileServer(http.Dir(h.staticPath)).ServeHTTP(w, r)
+}
+
+// NewFileHandler serves up a single file
+func NewFileHandler(entrypoint string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, entrypoint)
+	}
 }

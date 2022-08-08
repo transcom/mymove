@@ -33,8 +33,8 @@ func (suite *HandlerSuite) AfterTest() {
 	}
 }
 
-func (suite *HandlerSuite) createHandlerConfig() handlers.HandlerConfig {
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+func (suite *HandlerSuite) createS3HandlerConfig() handlers.HandlerConfig {
+	handlerConfig := suite.HandlerConfig()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 
