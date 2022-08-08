@@ -45,7 +45,7 @@ RUN set -x \
   && make bin/generate-test-data
 
 # define migrations before client build since it doesn't need client
-FROM alpine:3.15.4 as migrate
+FROM alpine:3.15.5 as migrate
 
 COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY --from=server_builder /build/bin/milmove /bin/milmove
