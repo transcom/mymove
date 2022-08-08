@@ -8,6 +8,17 @@ export function isPPMShipmentComplete(mtoShipment) {
   return false;
 }
 
+// isPPMAboutInfoComplete - checks if all the "About your ppm" fields have data in them.
+export function isPPMAboutInfoComplete(ppmShipment) {
+  return [
+    'actualMoveDate',
+    'actualPickupPostalCode',
+    'actualDestinationPostalCode',
+    'hasReceivedAdvance',
+    'advanceAmountReceived',
+  ].every((fieldName) => ppmShipment[fieldName] !== null);
+}
+
 // isWeightTicketComplete - checks that the required fields for a weight ticket have valid data
 // to check if the weight ticket can be considered complete. For the purposes of this function,
 // any data is enough to consider some fields valid.

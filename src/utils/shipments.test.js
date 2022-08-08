@@ -1,7 +1,14 @@
+import moment from 'moment';
 import { v4 } from 'uuid';
 
-import { isPPMShipmentComplete, isWeightTicketComplete, hasCompletedAllWeightTickets } from './shipments';
+import {
+  isPPMAboutInfoComplete,
+  isPPMShipmentComplete,
+  isWeightTicketComplete,
+  hasCompletedAllWeightTickets,
+} from './shipments';
 
+import { ppmShipmentStatuses } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import createDocumentWithoutUploads from 'utils/test/factories/document';
 import {
@@ -86,6 +93,64 @@ describe('shipments utils', () => {
         },
       };
       expect(isPPMShipmentComplete(incompletePPMShipment)).toBe(false);
+    });
+  });
+
+  describe('isPPMAboutInfoComplete', () => {
+    const createdDate = new Date();
+    const firstUpdatedDate = moment(createdDate).add(1, 'day');
+    const approvedDate = moment(firstUpdatedDate).add(1, 'day');
+    const secondUpdatedDate = moment(approvedDate).add(1, 'day');
+
+    const approvedPPMShipment = {
+      id: v4(),
+      shipmentId: v4(),
+      status: ppmShipmentStatuses.WAITING_ON_CUSTOMER,
+      expectedDepartureDate: '2022-08-08',
+      pickupPostalCode: '90210',
+      destinationPostalCode: '30813',
+      sitExpected: false,
+      estimatedWeight: 4000,
+      hasProGear: false,
+      estimatedIncentive: 10000000,
+      hasRequestedAdvance: true,
+      advanceAmountRequested: 30000,
+      actualMoveDate: null,
+      actualPickupPostalCode: null,
+      actualDestinationPostalCode: null,
+      hasReceivedAdvance: null,
+      advanceAmountReceived: null,
+      approvedAt: approvedDate.toISOString(),
+      createdAt: createdDate.toISOString(),
+      updatedAt: firstUpdatedDate.toISOString(),
+      eTag: window.btoa(firstUpdatedDate.toISOString()),
+    };
+
+    const ppmShipmentWithAboutInfo = {
+      ...approvedPPMShipment,
+      actualMoveDate: approvedPPMShipment.expectedDepartureDate,
+      actualPickupPostalCode: approvedPPMShipment.pickupPostalCode,
+      actualDestinationPostalCode: approvedPPMShipment.destinationPostalCode,
+      hasReceivedAdvance: approvedPPMShipment.hasRequestedAdvance,
+      advanceAmountReceived: approvedPPMShipment.advanceAmountRequested,
+      updatedAt: secondUpdatedDate.toISOString(),
+      eTag: window.btoa(secondUpdatedDate.toISOString()),
+    };
+
+    it.each([
+      [false, 'all about your ppm info is null', approvedPPMShipment],
+      [false, 'actual move date is null', { ...ppmShipmentWithAboutInfo, actualMoveDate: null }],
+      [false, 'actual pickup postal code is null', { ...ppmShipmentWithAboutInfo, actualPickupPostalCode: null }],
+      [
+        false,
+        'actual destination postal code is null',
+        { ...ppmShipmentWithAboutInfo, actualDestinationPostalCode: null },
+      ],
+      [false, 'has received advance is null', { ...ppmShipmentWithAboutInfo, hasReceivedAdvance: null }],
+      [false, 'advance amount received is null', { ...ppmShipmentWithAboutInfo, advanceAmountReceived: null }],
+      [true, 'all about your ppm info is filled in', ppmShipmentWithAboutInfo],
+    ])('returns %s when %s', (expectedResult, scenarioDescription, ppmShipment) => {
+      expect(isPPMAboutInfoComplete(ppmShipment)).toBe(expectedResult);
     });
   });
 
