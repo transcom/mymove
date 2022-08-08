@@ -24,11 +24,6 @@ func initExportDBDataFlags(flag *pflag.FlagSet) {
 	cli.InitAWSFlags(flag)
 	cli.InitStorageFlags(flag)
 	cli.InitLoggingFlags(flag)
-	flag.String("pgdb", "dev_db", "Database Name")
-	flag.String("pghost", "localhost", "Database Hostname")
-	flag.Int("pgport", 5432, "Database Port")
-	flag.String("pguser", "postgres", "Database Username")
-	flag.String("pgpassword", "mysecretpassword", "Database Password")
 	flag.String("bucket-name", "mybucket", "Name of S3 bucket to store db dump")
 	flag.String("aws-access-key-id", "1234", "access key id of AWS user")
 	flag.String("aws-secret-access-key", "1234", "secret access key of AWS user")
@@ -113,10 +108,10 @@ func exportDBData(cmd *cobra.Command, args []string) error {
 
 func getPGConfig(v viper.Viper) pg.Postgres {
 	return pg.Postgres{
-		Host:     v.GetString("pghost"),
-		Port:     v.GetInt("pgport"),
-		DB:       v.GetString("pgdb"),
-		Username: v.GetString("pguser"),
-		Password: v.GetString("pgpassword"),
+		Host:     v.GetString(cli.DbHostFlag),
+		Port:     v.GetInt(cli.DbPortFlag),
+		DB:       v.GetString(cli.DbNameFlag),
+		Username: v.GetString(cli.DbUserFlag),
+		Password: v.GetString(cli.DbPasswordFlag),
 	}
 }
