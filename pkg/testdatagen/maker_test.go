@@ -159,15 +159,24 @@ func (suite *MakerSuite) TestMergeInterfaces() {
 	fmt.Println(user.LoginGovEmail, user.LoginGovUUID)
 }
 
-func (suite *MakerSuite) TestNestedCustomization() {
+func (suite *MakerSuite) TestNestedModelsCheck() {
 	suite.Run("Must not call with pointer", func() {
 		c := Customization{
 			Model: models.ServiceMember{},
 			Type:  ServiceMember,
 		}
-		err := checkForNestedModels(&c)
+		err := checkNestedModels(&c)
 		suite.Error(err)
 		suite.Contains(err.Error(), "received a pointer")
+	})
+
+	suite.Run("Must not have missing model", func() {
+		c := Customization{
+			Type: ServiceMember,
+		}
+		err := checkNestedModels(c)
+		suite.Error(err)
+		suite.Contains(err.Error(), "must contain a model")
 	})
 
 	suite.Run("Customization contains nested model", func() {
@@ -181,7 +190,7 @@ func (suite *MakerSuite) TestNestedCustomization() {
 			},
 			Type: ServiceMember,
 		}
-		err = checkForNestedModels(c)
+		err = checkNestedModels(c)
 		suite.Error(err)
 		suite.Contains(err.Error(), "no nested models")
 
@@ -198,7 +207,7 @@ func (suite *MakerSuite) TestNestedCustomization() {
 			},
 			Type: ServiceMember,
 		}
-		err := checkForNestedModels(c)
+		err := checkNestedModels(c)
 		suite.Error(err)
 		suite.Contains(err.Error(), "no nested models")
 
@@ -237,7 +246,7 @@ func (suite *MakerSuite) TestNestedCustomization() {
 			},
 			Type: ServiceMember,
 		}
-		err := checkForNestedModels(c)
+		err := checkNestedModels(c)
 		suite.NoError(err)
 
 	})

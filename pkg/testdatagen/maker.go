@@ -309,46 +309,25 @@ func AddressMaker(db *pop.Connection, customs []Customization, traits []GetTrait
 	return address, nil
 }
 
-func checkNestedVariant(rV reflect.Value) {
-	// this is a variant struct within the variants object.
-	// We want to instrospect and check that it does not contain a second level
+func checkNestedModels(c interface{}) error {
 
-	if rV.Kind() == reflect.Struct {
-		value := rV
-		numberOfFields := value.NumField()
-		fmt.Println("    >> struct with ", numberOfFields, "fields.")
-		for i := 0; i < numberOfFields; i++ {
-			field := value.Field(i)
-			fmt.Printf("    %s || %s \n",
-				field.Type(), field.Kind())
-			if field.Kind() == reflect.Pointer && !field.IsNil() {
-				fmt.Println("Second level nesting of", field.Type(), " no allowed")
-			}
-			if field.Kind() == reflect.Struct && !field.IsZero() {
-				fmt.Println("Second level nesting of", field.Type(), " no allowed")
-			}
-		}
-	}
-
-}
-
-func checkForNestedModels(c interface{}) error {
-
-	// c IS THE CUSTOMIZATION
+	// c IS THE CUSTOMIZATION, SHOULD NOT BE A POINTER
 	// c SHOULD NOT BE A POINTER
 	if reflect.ValueOf(c).Kind() == reflect.Pointer {
-		return fmt.Errorf("Function expects a struct, received a pointer.")
+		return fmt.Errorf("function expects a struct, received a pointer")
 	}
 
-	// m IS THE MODEL
-	cv := reflect.ValueOf(c)
-	m := cv.FieldByName("Model")
+	// mv IS THE MODEL VALUE, SHOULD NOT BE EMPTY
+	mv := reflect.ValueOf(c).FieldByName("Model") // get the interface
+	if mv.IsNil() {
+		return fmt.Errorf("customization must contain a model")
+	}
+	mv = mv.Elem() // get the model from the interface
 
-	// m SHOULD BE A STRUCT
-	if reflect.ValueOf(m).Kind() == reflect.Struct {
-		mt := reflect.TypeOf(m)
-		mv := reflect.ValueOf(m)
+	// mv SHOULD BE A STRUCT
+	if mv.Kind() == reflect.Struct {
 		numberOfFields := mv.NumField()
+		mt := mv.Type() // get the model type
 
 		// CHECK ALL FIELDS IN THE STRUCT
 		for i := 0; i < numberOfFields; i++ {
