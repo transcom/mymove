@@ -3,7 +3,9 @@ package testdatagen
 import (
 	"fmt"
 	"testing"
+	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
@@ -155,4 +157,89 @@ func (suite *MakerSuite) TestMergeInterfaces() {
 	result := mergeInterfaces(user1, user2)
 	user := result.(models.User)
 	fmt.Println(user.LoginGovEmail, user.LoginGovUUID)
+}
+
+func (suite *MakerSuite) TestNestedCustomization() {
+	suite.Run("Must not call with pointer", func() {
+		c := Customization{
+			Model: models.ServiceMember{},
+			Type:  ServiceMember,
+		}
+		err := checkForNestedModels(&c)
+		suite.Error(err)
+		suite.Contains(err.Error(), "received a pointer")
+	})
+
+	suite.Run("Customization contains nested model", func() {
+
+		// Expect nested user to cause error
+		user, err := UserMaker(suite.DB(), nil, nil)
+		suite.NoError(err)
+		c := Customization{
+			Model: models.ServiceMember{
+				User: user,
+			},
+			Type: ServiceMember,
+		}
+		err = checkForNestedModels(c)
+		suite.Error(err)
+		suite.Contains(err.Error(), "no nested models")
+
+	})
+	suite.Run("Customization contains ptr to nested model", func() {
+
+		// Expect nested user to cause error
+		resiAddress := models.Address{
+			StreetAddress1: "142 E Barrel Hoop Circle #4A",
+		}
+		c := Customization{
+			Model: models.ServiceMember{
+				ResidentialAddress: &resiAddress,
+			},
+			Type: ServiceMember,
+		}
+		err := checkForNestedModels(c)
+		suite.Error(err)
+		suite.Contains(err.Error(), "no nested models")
+
+	})
+	suite.Run("Customization allows all other fields", func() {
+
+		navy := models.AffiliationNAVY
+		testid := uuid.Must(uuid.NewV4())
+		edipi := RandomEdipi()
+		timestamp := time.Now()
+		rank := models.ServiceMemberRankE4
+		name := "Riley Baker"
+		phone := "555-777-9929"
+
+		c := Customization{
+			Model: models.ServiceMember{
+				ID:                     uuid.Must(uuid.NewV4()),
+				CreatedAt:              timestamp,
+				UpdatedAt:              timestamp,
+				UserID:                 testid,
+				Edipi:                  &edipi,
+				Affiliation:            &navy,
+				Rank:                   &rank,
+				FirstName:              &name,
+				MiddleName:             &name,
+				LastName:               &name,
+				Suffix:                 &name,
+				Telephone:              &phone,
+				SecondaryTelephone:     &phone,
+				PersonalEmail:          &name,
+				PhoneIsPreferred:       swag.Bool(true),
+				EmailIsPreferred:       swag.Bool(false),
+				ResidentialAddressID:   &testid,
+				BackupMailingAddressID: &testid,
+				DutyLocationID:         &testid,
+			},
+			Type: ServiceMember,
+		}
+		err := checkForNestedModels(c)
+		suite.NoError(err)
+
+	})
+
 }

@@ -3,6 +3,7 @@ package testdatagen
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v6"
@@ -306,4 +307,74 @@ func AddressMaker(db *pop.Connection, customs []Customization, traits []GetTrait
 	mustCreate(db, &address, false)
 
 	return address, nil
+}
+
+func checkNestedVariant(rV reflect.Value) {
+	// this is a variant struct within the variants object.
+	// We want to instrospect and check that it does not contain a second level
+
+	if rV.Kind() == reflect.Struct {
+		value := rV
+		numberOfFields := value.NumField()
+		fmt.Println("    >> struct with ", numberOfFields, "fields.")
+		for i := 0; i < numberOfFields; i++ {
+			field := value.Field(i)
+			fmt.Printf("    %s || %s \n",
+				field.Type(), field.Kind())
+			if field.Kind() == reflect.Pointer && !field.IsNil() {
+				fmt.Println("Second level nesting of", field.Type(), " no allowed")
+			}
+			if field.Kind() == reflect.Struct && !field.IsZero() {
+				fmt.Println("Second level nesting of", field.Type(), " no allowed")
+			}
+		}
+	}
+
+}
+
+func checkForNestedModels(c interface{}) error {
+
+	// c IS THE CUSTOMIZATION
+	// c SHOULD NOT BE A POINTER
+	if reflect.ValueOf(c).Kind() == reflect.Pointer {
+		return fmt.Errorf("Function expects a struct, received a pointer.")
+	}
+
+	// m IS THE MODEL
+	cv := reflect.ValueOf(c)
+	m := cv.FieldByName("Model")
+
+	// m SHOULD BE A STRUCT
+	if reflect.ValueOf(m).Kind() == reflect.Struct {
+		mt := reflect.TypeOf(m)
+		mv := reflect.ValueOf(m)
+		numberOfFields := mv.NumField()
+
+		// CHECK ALL FIELDS IN THE STRUCT
+		for i := 0; i < numberOfFields; i++ {
+			fieldName := mt.Field(i).Name
+			field := mv.Field(i)
+
+			// There are a couple conditions we want to check for
+			// - If a field is a struct that is a model, it should be empty
+			// - If a field is a pointer to struct, and that struct is a model it should be nil
+
+			// IF A FIELD IS A MODELS STRUCT - SHOULD BE EMPTY
+			ft := field.Type()
+			if field.Kind() == reflect.Struct && strings.HasPrefix(ft.String(), "models.") {
+				if !reflect.DeepEqual(field.Interface(), reflect.Zero(field.Type()).Interface()) {
+					return fmt.Errorf("%s cannot be populated, no nested models allowed", fieldName)
+				}
+			}
+
+			// IF A FIELD IS A POINTER TO A MODELS STRUCT - SHOULD ALSO BE EMPTY
+			if field.Kind() == reflect.Pointer {
+				nf := field.Elem()
+				if !field.IsNil() && nf.Kind() == reflect.Struct && strings.HasPrefix(nf.Type().String(), "models.") {
+					return fmt.Errorf("%s cannot be populated, no nested models allowed", fieldName)
+				}
+			}
+		}
+	}
+	return nil
 }
