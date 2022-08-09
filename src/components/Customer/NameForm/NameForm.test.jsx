@@ -26,18 +26,23 @@ describe('NameForm component', () => {
     });
   });
 
-  it('shows an error message if trying to submit an invalid form', async () => {
+  it('shows an error message and disables submit when fields are invalid', async () => {
     const onSubmit = jest.fn();
-    const { getByRole, getAllByText } = render(
+    const { getByRole, getAllByText, getByLabelText } = render(
       <NameForm
         onSubmit={onSubmit}
         onBack={jest.fn()}
         initialValues={{ first_name: '', middle_name: '', last_name: '', suffix: 'Mrs.' }}
       />,
     );
-    const submitBtn = getByRole('button', { name: 'Next' });
+    await userEvent.clear(getByLabelText('First name'));
+    await userEvent.clear(getByLabelText('Last name'));
+    await userEvent.tab();
 
-    await userEvent.click(submitBtn);
+    const submitBtn = getByRole('button', { name: 'Next' });
+    await waitFor(() => {
+      expect(submitBtn).not.toBeEnabled();
+    });
 
     await waitFor(() => {
       expect(getAllByText('Required').length).toBe(2);
