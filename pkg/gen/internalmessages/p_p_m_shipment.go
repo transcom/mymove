@@ -101,6 +101,9 @@ type PPMShipment struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
 
+	// moving expense
+	MovingExpense []*MovingExpense2 `json:"movingExpense"`
+
 	// The net weight of the shipment once it has been weight
 	//
 	// Example: 4300
@@ -217,6 +220,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMovingExpense(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -382,6 +389,32 @@ func (m *PPMShipment) validateID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateMovingExpense(formats strfmt.Registry) error {
+	if swag.IsZero(m.MovingExpense) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.MovingExpense); i++ {
+		if swag.IsZero(m.MovingExpense[i]) { // not required
+			continue
+		}
+
+		if m.MovingExpense[i] != nil {
+			if err := m.MovingExpense[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("movingExpense" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("movingExpense" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -585,6 +618,10 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateMovingExpense(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateShipmentID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -633,6 +670,26 @@ func (m *PPMShipment) contextValidateID(ctx context.Context, formats strfmt.Regi
 
 	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateMovingExpense(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.MovingExpense); i++ {
+
+		if m.MovingExpense[i] != nil {
+			if err := m.MovingExpense[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("movingExpense" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("movingExpense" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

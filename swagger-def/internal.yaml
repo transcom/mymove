@@ -4536,7 +4536,7 @@ paths:
       description: Created a moving expense document with the given information
       operationId: createMovingExpense
       tags:
-        - ppm_shipments
+        - ppm
       parameters:
         - name: ppmShipmentId
           in: path
@@ -4569,7 +4569,7 @@ paths:
       description: Any fields sent in this request will be set on the moving expense referenced
       operationId: updateMovingExpense
       tags:
-        - ppm_shipment
+        - ppm
       parameters:
         - in: path
           name: ppmShipmentId

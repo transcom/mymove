@@ -2308,6 +2308,106 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
+      "post": {
+        "description": "Created a moving expense document with the given information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates moving expense document",
+        "operationId": "createMovingExpense",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "createMovingExpense",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MovingExpense"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns new moving expense object",
+            "schema": {
+              "$ref": "#/definitions/MovingExpense"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "patch": {
+        "description": "Any fields sent in this request will be set on the moving expense referenced",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates the moving expense",
+        "operationId": "updateMovingExpense",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the move",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "updateMovingExpense",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMovingExpense"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "updated instance of move",
+            "schema": {
+              "$ref": "#/definitions/MovingExpense"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket": {
       "post": {
         "description": "Created a weight ticket document with the given information",
@@ -4847,6 +4947,141 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
+    "MovingExpense": {
+      "type": "object",
+      "required": [
+        "id",
+        "createdAt",
+        "updatedAt",
+        "ppmShipmentId",
+        "ppmShipment",
+        "documentId",
+        "document"
+      ],
+      "properties": {
+        "amount": {
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "type": "string"
+        },
+        "document": {
+          "type": "object"
+        },
+        "documentId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missingReceipt": {
+          "type": "boolean"
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "paidWithGtcc": {
+          "type": "boolean"
+        },
+        "ppmShipment": {
+          "$ref": "#/definitions/PPMShipment"
+        },
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "sitEndDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-05-26"
+        },
+        "sitStartDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2022-04-26"
+        },
+        "status": {
+          "$ref": "#/definitions/PPMStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "MovingExpense-2": {
+      "description": "Expenses associated with moving",
+      "type": "object",
+      "properties": {
+        "amount": {
+          "description": "The amount for this expense\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
+        "description": {
+          "type": "integer",
+          "example": 4200
+        },
+        "document_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "missing_receipt": {
+          "type": "boolean",
+          "title": "I don't have this receipt"
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "ppm_shipment_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sit_end_date": {
+          "description": "The date and time that storage ends",
+          "type": "string",
+          "format": "date",
+          "title": "Storage end date",
+          "example": "2018-04-26"
+        },
+        "sit_start_date": {
+          "description": "The date and time that storage starts",
+          "type": "string",
+          "format": "date",
+          "title": "Storage start date",
+          "example": "2018-04-26"
+        },
+        "used_gtcc": {
+          "type": "boolean",
+          "title": "Did you pay with your GTCC (Government Travel Charge Card)?"
+        }
+      }
+    },
     "MovingExpenseType": {
       "type": "string",
       "title": "Moving Expense Type",
@@ -5265,6 +5500,12 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "movingExpense": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MovingExpense-2"
+          }
         },
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
@@ -6419,6 +6660,36 @@ func init() {
         "updated_at": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "UpdateMovingExpense": {
+      "type": "object",
+      "properties": {
+        "deletedAt": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "sitEndDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-05-26"
+        },
+        "sitStartDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2022-04-26"
+        },
+        "status": {
+          "$ref": "#/definitions/PPMStatus"
         }
       }
     },
@@ -9398,6 +9669,136 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
+      "post": {
+        "description": "Created a moving expense document with the given information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates moving expense document",
+        "operationId": "createMovingExpense",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "createMovingExpense",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MovingExpense"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns new moving expense object",
+            "schema": {
+              "$ref": "#/definitions/MovingExpense"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "Any fields sent in this request will be set on the moving expense referenced",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates the moving expense",
+        "operationId": "updateMovingExpense",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the move",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "updateMovingExpense",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMovingExpense"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "updated instance of move",
+            "schema": {
+              "$ref": "#/definitions/MovingExpense"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket": {
       "post": {
         "description": "Created a weight ticket document with the given information",
@@ -11993,6 +12394,141 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
+    "MovingExpense": {
+      "type": "object",
+      "required": [
+        "id",
+        "createdAt",
+        "updatedAt",
+        "ppmShipmentId",
+        "ppmShipment",
+        "documentId",
+        "document"
+      ],
+      "properties": {
+        "amount": {
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "type": "string"
+        },
+        "document": {
+          "type": "object"
+        },
+        "documentId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missingReceipt": {
+          "type": "boolean"
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "paidWithGtcc": {
+          "type": "boolean"
+        },
+        "ppmShipment": {
+          "$ref": "#/definitions/PPMShipment"
+        },
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "sitEndDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-05-26"
+        },
+        "sitStartDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2022-04-26"
+        },
+        "status": {
+          "$ref": "#/definitions/PPMStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "MovingExpense-2": {
+      "description": "Expenses associated with moving",
+      "type": "object",
+      "properties": {
+        "amount": {
+          "description": "The amount for this expense\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
+        "description": {
+          "type": "integer",
+          "example": 4200
+        },
+        "document_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "missing_receipt": {
+          "type": "boolean",
+          "title": "I don't have this receipt"
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "ppm_shipment_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sit_end_date": {
+          "description": "The date and time that storage ends",
+          "type": "string",
+          "format": "date",
+          "title": "Storage end date",
+          "example": "2018-04-26"
+        },
+        "sit_start_date": {
+          "description": "The date and time that storage starts",
+          "type": "string",
+          "format": "date",
+          "title": "Storage start date",
+          "example": "2018-04-26"
+        },
+        "used_gtcc": {
+          "type": "boolean",
+          "title": "Did you pay with your GTCC (Government Travel Charge Card)?"
+        }
+      }
+    },
     "MovingExpenseType": {
       "type": "string",
       "title": "Moving Expense Type",
@@ -12411,6 +12947,12 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "movingExpense": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MovingExpense-2"
+          }
         },
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
@@ -13569,6 +14111,36 @@ func init() {
         "updated_at": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "UpdateMovingExpense": {
+      "type": "object",
+      "properties": {
+        "deletedAt": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "sitEndDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-05-26"
+        },
+        "sitStartDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2022-04-26"
+        },
+        "status": {
+          "$ref": "#/definitions/PPMStatus"
         }
       }
     },

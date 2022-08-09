@@ -5888,6 +5888,88 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "MovingExpense": {
+      "description": "Expenses associated with moving",
+      "type": "object",
+      "properties": {
+        "amount": {
+          "description": "The amount for this expense\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
+        "description": {
+          "type": "integer",
+          "example": 4200
+        },
+        "document_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "missing_receipt": {
+          "type": "boolean",
+          "title": "I don't have this receipt"
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "ppm_shipment_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sit_end_date": {
+          "description": "The date and time that storage ends",
+          "type": "string",
+          "format": "date",
+          "title": "Storage end date",
+          "example": "2018-04-26"
+        },
+        "sit_start_date": {
+          "description": "The date and time that storage starts",
+          "type": "string",
+          "format": "date",
+          "title": "Storage start date",
+          "example": "2018-04-26"
+        },
+        "used_gtcc": {
+          "type": "boolean",
+          "title": "Did you pay with your GTCC (Government Travel Charge Card)?"
+        }
+      }
+    },
+    "MovingExpenseType": {
+      "type": "string",
+      "title": "Moving Expense Type",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEES"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEES": "Weighing fees"
+      }
+    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -6182,6 +6264,12 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "movingExpense": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MovingExpense"
+          }
         },
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
@@ -14758,6 +14846,88 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "MovingExpense": {
+      "description": "Expenses associated with moving",
+      "type": "object",
+      "properties": {
+        "amount": {
+          "description": "The amount for this expense\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
+        "description": {
+          "type": "integer",
+          "example": 4200
+        },
+        "document_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "missing_receipt": {
+          "type": "boolean",
+          "title": "I don't have this receipt"
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "ppm_shipment_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sit_end_date": {
+          "description": "The date and time that storage ends",
+          "type": "string",
+          "format": "date",
+          "title": "Storage end date",
+          "example": "2018-04-26"
+        },
+        "sit_start_date": {
+          "description": "The date and time that storage starts",
+          "type": "string",
+          "format": "date",
+          "title": "Storage start date",
+          "example": "2018-04-26"
+        },
+        "used_gtcc": {
+          "type": "boolean",
+          "title": "Did you pay with your GTCC (Government Travel Charge Card)?"
+        }
+      }
+    },
+    "MovingExpenseType": {
+      "type": "string",
+      "title": "Moving Expense Type",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEES"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEES": "Weighing fees"
+      }
+    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -15052,6 +15222,12 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "movingExpense": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MovingExpense"
+          }
         },
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",

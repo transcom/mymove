@@ -98,6 +98,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		})
 	}
+	if api.PpmCreateMovingExpenseHandler == nil {
+		api.PpmCreateMovingExpenseHandler = ppm.CreateMovingExpenseHandlerFunc(func(params ppm.CreateMovingExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateMovingExpense has not yet been implemented")
+		})
+	}
 	if api.MoveDocsCreateMovingExpenseDocumentHandler == nil {
 		api.MoveDocsCreateMovingExpenseDocumentHandler = move_docs.CreateMovingExpenseDocumentHandlerFunc(func(params move_docs.CreateMovingExpenseDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.CreateMovingExpenseDocument has not yet been implemented")
@@ -346,6 +351,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.MoveDocsUpdateMoveDocumentHandler == nil {
 		api.MoveDocsUpdateMoveDocumentHandler = move_docs.UpdateMoveDocumentHandlerFunc(func(params move_docs.UpdateMoveDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.UpdateMoveDocument has not yet been implemented")
+		})
+	}
+	if api.PpmUpdateMovingExpenseHandler == nil {
+		api.PpmUpdateMovingExpenseHandler = ppm.UpdateMovingExpenseHandlerFunc(func(params ppm.UpdateMovingExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateMovingExpense has not yet been implemented")
 		})
 	}
 	if api.OrdersUpdateOrdersHandler == nil {
