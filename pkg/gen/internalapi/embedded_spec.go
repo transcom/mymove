@@ -5018,7 +5018,7 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "$ref": "#/definitions/PPMStatus"
+          "$ref": "#/definitions/PPMDocumentStatus"
         },
         "updatedAt": {
           "type": "string",
@@ -5348,6 +5348,20 @@ func init() {
         "PCS_TDY": "PCS with TDY Enroute"
       },
       "x-nullable": true
+    },
+    "PPMDocumentStatus": {
+      "type": "string",
+      "title": "PPM document status",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
+      }
     },
     "PPMEstimateRange": {
       "type": "object",
@@ -6689,7 +6703,7 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "$ref": "#/definitions/PPMStatus"
+          "$ref": "#/definitions/PPMDocumentStatus"
         }
       }
     },
@@ -12465,7 +12479,7 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "$ref": "#/definitions/PPMStatus"
+          "$ref": "#/definitions/PPMDocumentStatus"
         },
         "updatedAt": {
           "type": "string",
@@ -12795,6 +12809,20 @@ func init() {
         "PCS_TDY": "PCS with TDY Enroute"
       },
       "x-nullable": true
+    },
+    "PPMDocumentStatus": {
+      "type": "string",
+      "title": "PPM document status",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
+      }
     },
     "PPMEstimateRange": {
       "type": "object",
@@ -14140,7 +14168,7 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "$ref": "#/definitions/PPMStatus"
+          "$ref": "#/definitions/PPMDocumentStatus"
         }
       }
     },

@@ -279,6 +279,37 @@ func PayloadForUploadModel(
 	return uploadPayload
 }
 
+// MovingExpense payload
+func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpense) *internalmessages.MovingExpense {
+
+	document, err := PayloadForDocumentModel(storer, movingExpense.Document)
+	if err != nil {
+		return nil
+	}
+
+	payload := &internalmessages.MovingExpense{
+		ID:                handlers.FmtUUID(movingExpense.ID),
+		PpmShipmentID:     handlers.FmtUUID(movingExpense.PPMShipmentID),
+		PpmShipment:       &internalmessages.PPMShipment{},
+		DocumentID:        handlers.FmtUUID(movingExpense.DocumentID),
+		Document:          document,
+		CreatedAt:         handlers.FmtDateTime(movingExpense.CreatedAt),
+		UpdatedAt:         handlers.FmtDateTime(movingExpense.UpdatedAt),
+		DeletedAt:         *handlers.FmtDateTime(*movingExpense.DeletedAt),
+		MovingExpenseType: internalmessages.MovingExpenseType(*movingExpense.MovingExpenseType),
+		Description:       *movingExpense.Description,
+		PaidWithGtcc:      *movingExpense.PaidWithGTCC,
+		Amount:            *handlers.FmtCost(movingExpense.Amount),
+		MissingReceipt:    *movingExpense.MissingReceipt,
+		Status:            internalmessages.MovingExpense{}.Status,
+		Reason:            *movingExpense.Reason,
+		SitStartDate:      *handlers.FmtDate(*movingExpense.SITStartDate),
+		SitEndDate:        *handlers.FmtDate(*movingExpense.SITEndDate),
+	}
+
+	return payload
+}
+
 func WeightTickets(storer storage.FileStorer, weightTickets models.WeightTickets) []*internalmessages.WeightTicket {
 	payload := make([]*internalmessages.WeightTicket, len(weightTickets))
 	for i, weightTicket := range weightTickets {
