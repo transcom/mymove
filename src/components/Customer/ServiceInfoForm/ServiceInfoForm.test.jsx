@@ -211,8 +211,15 @@ describe('ServiceInfoForm', () => {
 
   it('shows an error message if trying to submit an invalid form', async () => {
     render(<ServiceInfoForm {...testProps} />);
-    const submitBtn = screen.getByRole('button', { name: 'Save' });
 
+    // Touch required fields to show validation errors
+    await userEvent.click(screen.getByLabelText('First name'));
+    await userEvent.click(screen.getByLabelText('Last name'));
+    await userEvent.click(screen.getByLabelText('Branch of service'));
+    await userEvent.click(screen.getByLabelText('DoD ID number'));
+    await userEvent.click(screen.getByLabelText('Rank'));
+
+    const submitBtn = screen.getByRole('button', { name: 'Save' });
     await userEvent.click(submitBtn);
 
     await waitFor(() => {

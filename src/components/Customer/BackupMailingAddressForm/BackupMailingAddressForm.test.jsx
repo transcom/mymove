@@ -47,13 +47,17 @@ describe('BackupMailingAddressForm component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, findAllByRole } = render(<BackupMailingAddressForm {...testProps} />);
-    const submitBtn = getByRole('button', { name: 'Next' });
+    const { getByRole, findAllByRole, getByLabelText } = render(<BackupMailingAddressForm {...testProps} />);
+    await userEvent.click(getByLabelText('Address 1'));
+    await userEvent.click(getByLabelText(/Address 2/));
+    await userEvent.click(getByLabelText('City'));
+    await userEvent.click(getByLabelText('ZIP'));
+    await userEvent.click(getByLabelText('State'));
 
+    const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
 
     const alerts = await findAllByRole('alert');
-
     expect(alerts.length).toBe(4);
 
     alerts.forEach((alert) => {

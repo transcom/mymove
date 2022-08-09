@@ -39,13 +39,17 @@ describe('DodInfoForm component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, getAllByText } = render(<DodInfoForm {...testProps} />);
-    const submitBtn = getByRole('button', { name: 'Next' });
+    const { getByRole, getAllByText, getByLabelText } = render(<DodInfoForm {...testProps} />);
+    await userEvent.click(getByLabelText('Branch of service'));
+    await userEvent.click(getByLabelText('Rank'));
+    await userEvent.click(getByLabelText('DOD ID number'));
 
+    const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(getAllByText('Required').length).toBe(3);
+      expect(submitBtn).toBeDisabled();
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });

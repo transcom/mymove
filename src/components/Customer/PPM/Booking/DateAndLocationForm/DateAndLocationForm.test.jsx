@@ -229,12 +229,23 @@ describe('DateAndLocationForm component', () => {
 
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '1 January 2022');
 
+      const zipInputs = screen.getAllByRole('textbox', { name: 'ZIP' });
+      expect(zipInputs.length).toBe(2);
+      await userEvent.click(zipInputs[0]);
+      await userEvent.click(zipInputs[1]);
+
+      const secondZipInputs = screen.getAllByRole('textbox', { name: 'Second ZIP' });
+      expect(secondZipInputs.length).toBe(2);
+      await userEvent.click(secondZipInputs[0]);
+      await userEvent.click(secondZipInputs[1]);
+
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
 
         const requiredAlerts = screen.getAllByRole('alert');
+        expect(requiredAlerts.length).toBe(5);
 
         // origin ZIP
         expect(requiredAlerts[0]).toHaveTextContent('Enter a 5-digit ZIP code');

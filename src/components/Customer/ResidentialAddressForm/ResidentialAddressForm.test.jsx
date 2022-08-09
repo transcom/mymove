@@ -66,9 +66,14 @@ describe('ResidentialAddressForm component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, findAllByRole } = render(<ResidentialAddressForm {...testProps} />);
-    const submitBtn = getByRole('button', { name: 'Next' });
+    const { getByRole, findAllByRole, getByLabelText } = render(<ResidentialAddressForm {...testProps} />);
+    await userEvent.click(getByLabelText('Address 1'));
+    await userEvent.click(getByLabelText(/Address 2/));
+    await userEvent.click(getByLabelText('City'));
+    await userEvent.click(getByLabelText('State'));
+    await userEvent.click(getByLabelText('ZIP'));
 
+    const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
 
     const alerts = await findAllByRole('alert');
@@ -92,6 +97,9 @@ describe('ResidentialAddressForm component', () => {
     await userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
     await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
 
+    await waitFor(() => {
+      expect(submitBtn).toBeEnabled();
+    });
     await userEvent.click(submitBtn);
 
     const expectedParams = {
