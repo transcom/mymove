@@ -31,7 +31,7 @@ get_findings() {
 
   # To exclude certain findings, add a select statement at the end, e.g.:
   # validFindings=$(echo "${findingsArray}" | jq 'del(.[] | select(.name == "CVE-####-#####"))')
-  # 
+  #
   validFindings=$(echo "${findingsArray}" | jq 'del(.[])')
 
   # Save the total number of findings.
