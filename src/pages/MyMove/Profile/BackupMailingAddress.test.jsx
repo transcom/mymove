@@ -70,6 +70,7 @@ describe('BackupMailingAddress page', () => {
     await userEvent.type(getByLabelText('City'), fakeAddress.city);
     await userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
     await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.tab();
 
     const submitButton = getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();

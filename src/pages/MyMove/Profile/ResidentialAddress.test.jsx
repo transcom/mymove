@@ -100,6 +100,7 @@ describe('ResidentialAddress page', () => {
     await userEvent.type(screen.getByLabelText('City'), fakeAddress.city);
     await userEvent.selectOptions(screen.getByLabelText('State'), [fakeAddress.state]);
     await userEvent.type(screen.getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.tab();
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
