@@ -31,14 +31,12 @@ get_findings() {
 
   # Exclude certain findings.
   #
-  # ID: CVE-2020-28928
-  # Ticket to remove this exclusion: https://dp3.atlassian.net/browse/MB-9408
+  # ID: CVE-2022-37434
+  # Ticket to remove this exclusion: https://dp3.atlassian.net/browse/MB-13464
   # Description:
-  # https://github.com/aws/containers-roadmap/issues/1388
-  # ECR reports falso positives for this vulnerability. This is a
-  # non-actionable finding outside of our control, so we are excluding it from
-  # our scans.
-  validFindings=$(echo "${findingsArray}" | jq 'del(.[] | select(.name == "CVE-2020-28928"))')
+  # https://github.com/docker-library/official-images/pull/12929
+  # awaiting successful merge of the above PR.
+  validFindings=$(echo "${findingsArray}" | jq 'del(.[] | select(.name == "CVE-2022-37434"))')
 
   # Save the total number of findings.
   totalNumberOfFindings=$(echo "${findingsArray}" | jq -r ". | length")
