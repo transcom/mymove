@@ -977,7 +977,7 @@ definitions:
       deletedAt:
         type: boolean
       status:
-        $ref: '#/definitions/PPMStatus'
+        $ref: '#/definitions/PPMDocumentStatus'
       reason:
         type: string
       sitStartDate:
