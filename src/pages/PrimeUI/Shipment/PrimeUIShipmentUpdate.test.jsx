@@ -448,14 +448,17 @@ describe('successful submission of form', () => {
     );
 
     const actualPickupDateInput = await screen.findByLabelText('Actual pickup');
-    await userEvent.type(actualPickupDateInput, '2021-10-20');
+    await userEvent.clear(actualPickupDateInput);
+    await userEvent.type(actualPickupDateInput, '20 Oct 2021');
 
     const actualWeightInput = screen.getByLabelText(/Actual weight/);
     await userEvent.type(actualWeightInput, '10000');
 
     const saveButton = await screen.getByRole('button', { name: 'Save' });
 
-    expect(saveButton).not.toBeDisabled();
+    await waitFor(() => {
+      expect(saveButton).toBeEnabled();
+    });
     await userEvent.click(saveButton);
 
     await waitFor(() => {

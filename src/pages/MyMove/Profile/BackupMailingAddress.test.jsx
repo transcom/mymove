@@ -73,6 +73,10 @@ describe('BackupMailingAddress page', () => {
 
     const submitButton = getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
+    await waitFor(() => {
+      expect(submitButton).toBeEnabled();
+    });
+
     await userEvent.click(submitButton);
 
     await waitFor(() => {

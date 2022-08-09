@@ -64,9 +64,12 @@ describe('ContactInfoForm Component', () => {
   });
 
   it('shows an error message when trying to submit an invalid form', async () => {
-    const { getAllByText, getByRole } = render(<ContactInfoForm {...testProps} />);
-    const submitBtn = getByRole('button', { name: 'Next' });
+    const { getAllByText, getByRole, getByLabelText } = render(<ContactInfoForm {...testProps} />);
+    // Touch required fields to show validation errors
+    await userEvent.click(getByLabelText('Best contact phone'));
+    await userEvent.click(getByLabelText('Personal email'));
 
+    const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
