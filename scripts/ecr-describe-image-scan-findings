@@ -29,14 +29,10 @@ get_findings() {
     findingsArray='[]'
   fi
 
-  # Exclude certain findings.
+  # To exclude certain findings, add a select statement at the end, e.g.:
+  # validFindings=$(echo "${findingsArray}" | jq 'del(.[] | select(.name == "CVE-####-#####"))')
   #
-  # ID: CVE-2022-37434
-  # Ticket to remove this exclusion: https://dp3.atlassian.net/browse/MB-13464
-  # Description:
-  # https://github.com/docker-library/official-images/pull/12929
-  # awaiting successful merge of the above PR.
-  validFindings=$(echo "${findingsArray}" | jq 'del(.[] | select(.name == "CVE-2022-37434"))')
+  validFindings=$(echo "${findingsArray}" | jq 'del(.[])')
 
   # Save the total number of findings.
   totalNumberOfFindings=$(echo "${findingsArray}" | jq -r ". | length")
