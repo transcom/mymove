@@ -105,7 +105,7 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     spouseProGearWeight: (ppmShipment.spouseProGearWeight || '').toString(),
 
     estimatedIncentive: ppmShipment.estimatedIncentive,
-    advanceRequested: !!ppmShipment.hasRequestedAdvance,
+    advanceRequested: ppmShipment?.hasRequestedAdvance?.toString() || 'false',
     advance: (ppmShipment.advanceAmountRequested / 100 || '').toString(),
 
     counselorRemarks,

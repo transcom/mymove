@@ -12,7 +12,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import Hint from 'components/Hint/index';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
-const ShipmentFormRemarks = ({ userRole, shipmentType, customerRemarks, counselorRemarks, required, showHint }) => {
+const ShipmentFormRemarks = ({ userRole, shipmentType, customerRemarks, counselorRemarks, error, showHint }) => {
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset>
@@ -52,6 +52,7 @@ const ShipmentFormRemarks = ({ userRole, shipmentType, customerRemarks, counselo
                 placeholder=""
                 id="counselorRemarks"
                 maxLength={500}
+                error={error}
               />
             </FormGroup>
           </>
@@ -74,14 +75,14 @@ ShipmentFormRemarks.propTypes = {
   customerRemarks: PropTypes.string,
   counselorRemarks: PropTypes.string,
   showHint: PropTypes.bool,
-  required: PropTypes.bool,
+  error: PropTypes.bool,
 };
 
 ShipmentFormRemarks.defaultProps = {
   customerRemarks: '—',
   counselorRemarks: '—',
   showHint: true,
-  required: false,
+  error: undefined,
 };
 
 export default ShipmentFormRemarks;

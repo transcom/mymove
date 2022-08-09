@@ -3,7 +3,12 @@ import * as Yup from 'yup';
 import { getFormattedMaxAdvancePercentage } from 'utils/incentives';
 import { InvalidZIPTypeError, ZIP5_CODE_REGEX } from 'utils/validation';
 
-const ppmShipmentSchema = ({ estimatedIncentive = 0, weightAllotment = {}, requestedAdvanceAmount = 0 }) => {
+const ppmShipmentSchema = ({
+  estimatedIncentive = 0,
+  weightAllotment = {},
+  requestedAdvanceAmount = 0,
+  isAdvanceRequested,
+}) => {
   const estimatedWeightLimit = weightAllotment.totalWeightSelf || 0;
   const proGearWeightLimit = weightAllotment.proGearWeight || 0;
   const proGearSpouseWeightLimit = weightAllotment.proGearWeightSpouse || 0;
@@ -71,8 +76,10 @@ const ppmShipmentSchema = ({ estimatedIncentive = 0, weightAllotment = {}, reque
         then: (schema) => schema.required('Required'),
       }),
 
-    counselorRemarks: Yup.string().when('advance', {
-      is: (advance) => Number(advance) !== requestedAdvanceAmount / 100,
+    counselorRemarks: Yup.string().when(['advance', 'advanceRequested'], {
+      is: (advance, advanceRequested) =>
+        Number(advance) !== requestedAdvanceAmount / 100 ||
+        advanceRequested?.toString() !== isAdvanceRequested?.toString(),
       then: (schema) => schema.required('Required'),
     }),
   });

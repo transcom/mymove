@@ -1,6 +1,6 @@
 import React from 'react';
 import { Fieldset, FormGroup, Radio, Grid, Label } from '@trussworks/react-uswds';
-import { useField } from 'formik';
+import { useField, Field } from 'formik';
 import PropTypes from 'prop-types';
 
 import formStyles from 'styles/form.module.scss';
@@ -9,17 +9,12 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive } from 'utils/incentives';
 
-const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
-  const [advanceInput, , advanceHelper] = useField('advanceRequested');
+const ShipmentIncentiveAdvance = ({ estimatedIncentive, values }) => {
+  const [advanceInput, , ,] = useField('advanceRequested');
   const advanceRequested = !!advanceInput.value;
 
   const { formattedMaxAdvance, formattedIncentive } =
     calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);
-
-  const handleHasRequestedAdvanceChange = (event) => {
-    const selected = event.target.value;
-    advanceHelper.setValue(selected === 'Yes');
-  };
 
   return (
     <SectionWrapper className={formStyles.formSection}>
@@ -31,23 +26,23 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
           <Grid col={12}>
             <FormGroup>
               <Label className={styles.Label}>Advance (AOA) requested?</Label>
-              <Radio
+              <Field
+                as={Radio}
                 id="hasRequestedAdvanceYes"
                 label="Yes"
                 name="advanceRequested"
-                value="Yes"
+                value="true"
                 title="Yes"
-                checked={advanceRequested}
-                onChange={handleHasRequestedAdvanceChange}
+                checked={values.advanceRequested === 'true'}
               />
-              <Radio
+              <Field
+                as={Radio}
                 id="hasRequestedAdvanceNo"
                 label="No"
                 name="advanceRequested"
-                value="No"
+                value="false"
                 title="No"
-                checked={!advanceRequested}
-                onChange={handleHasRequestedAdvanceChange}
+                checked={values.advanceRequested === 'false'}
               />
             </FormGroup>
 
