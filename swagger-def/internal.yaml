@@ -938,7 +938,7 @@ definitions:
       missingReceipt:
         type: boolean
       status:
-        $ref: '#/definitions/PPMStatus'
+        $ref: '#/definitions/PPMDocumentStatus'
       reason:
         type: string
       sitStartDate:
@@ -1934,6 +1934,17 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       CANCELED: Canceled
+  PPMDocumentStatus:
+    type: string
+    title: PPM document status
+    enum:
+      - APPROVED
+      - EXCLUDED
+      - REJECTED
+    x-display-value:
+      APPROVED: Approved
+      EXCLUDED: Excluded
+      REJECTED: Rejected
   PPMStatus:
     type: string
     title: PPM status
