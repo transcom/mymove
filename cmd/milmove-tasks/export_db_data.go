@@ -56,53 +56,20 @@ func exportDBData(cmd *cobra.Command, args []string) error {
 	}
 
 	pgConfig := getPGConfig(*v)
-	dump := pg.NewDump(&pgConfig)
-	dumpExec := dump.Exec(pg.ExecOptions{StreamPrint: false})
+	dumpExec := createDBDump(pgConfig)
 	if dumpExec.Error != nil {
+		logger.Error("error in pg_dump")
 		return dumpExec.Error.Err
 	}
+	logger.Info("dump success created file " + dumpExec.File)
 
-	logger.Info("Dump success created file " + dumpExec.File)
-
-	// export to S3 bucket
-	sess, err := session.NewSession()
-	if err != nil {
-		logger.Error("could not create AWS session")
-		return err
-	}
-	uploader := s3manager.NewUploader(sess)
-	wd, err := os.Getwd()
-	if err != nil {
-		logger.Error("could not get working directory")
-		return err
-	}
-	filePath := filepath.Join(wd, dumpExec.File)
-	file, err := os.Open(filePath)
-	if err != nil {
-		logger.Error("could not open file at path " + filePath)
-		return err
-	}
-	defer file.Close()
-
-	_, err = uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String(v.GetString("bucket-name")),
-
-		// Can also use the `filepath` standard library package to modify the
-		// filename as need for an S3 object key. Such as turning absolute path
-		// to a relative path.
-		Key: aws.String(dumpExec.File),
-
-		// The file to be uploaded. io.ReadSeeker is preferred as the Uploader
-		// will be able to optimize memory when uploading large content. io.Reader
-		// is supported, but will require buffering of the reader's bytes for
-		// each part.
-		Body: file,
-	})
+	wd, _ := os.Getwd()
+	err = exportToS3Bucket(dumpExec.File, wd, v.GetString("bucket-name"))
 	if err != nil {
 		logger.Error("error in upload to S3 bucket")
 		return err
 	}
-	fmt.Println("Upload to S3 bucket successful")
+	fmt.Println("upload to S3 bucket successful")
 	return nil
 }
 
@@ -114,4 +81,38 @@ func getPGConfig(v viper.Viper) pg.Postgres {
 		Username: v.GetString(cli.DbUserFlag),
 		Password: v.GetString(cli.DbPasswordFlag),
 	}
+}
+
+func createDBDump(pgConfig pg.Postgres) pg.Result {
+	dump := pg.NewDump(&pgConfig)
+	return dump.Exec(pg.ExecOptions{StreamPrint: false})
+}
+
+func exportToS3Bucket(fileName string, dir string, bucketName string) error {
+	sess, err := session.NewSession()
+	if err != nil {
+		return err
+	}
+	uploader := s3manager.NewUploader(sess)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Open(filepath.Join(dir, fileName))
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = uploader.Upload(&s3manager.UploadInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(fileName),
+
+		// The file to be uploaded. io.ReadSeeker is preferred as the Uploader
+		// will be able to optimize memory when uploading large content. io.Reader
+		// is supported, but will require buffering of the reader's bytes for
+		// each part.
+		Body: file,
+	})
+	return err
 }
