@@ -23,6 +23,9 @@ const (
 	DTODApiURLFlag string = "dtod-api-url"
 	// DTODApiWSDLFlag is the DTOD API WSDL Flag
 	DTODApiWSDLFlag string = "dtod-api-wsdl"
+
+	// DTODUseMock is the DTOD Use Mock Flag
+	DTODUseMock string = "dtod-use-mock"
 )
 
 // InitRouteFlags initializes Route command line flags
@@ -36,6 +39,8 @@ func InitRouteFlags(flag *pflag.FlagSet) {
 	flag.String(DTODApiPasswordFlag, "", "DTOD api auth password")
 	flag.String(DTODApiURLFlag, "", "URL for sending a SOAP request to DTOD")
 	flag.String(DTODApiWSDLFlag, "", "WSDL for sending a SOAP request to DTOD")
+
+	flag.Bool(DTODUseMock, false, "Whether to use a mocked version of DTOD")
 }
 
 // CheckRoute validates Route command line flags

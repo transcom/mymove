@@ -520,7 +520,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	}
 
 	// Create a secondary planner specifically for DTOD.
-	dtodRoutePlanner, err := route.InitDtodRoutePlanner(v, tlsConfig)
+	dtodRoutePlanner, err := route.InitDTODRoutePlanner(v, tlsConfig)
 	if err != nil {
 		appCtx.Logger().Fatal("Could not instantiate dtod route planner", zap.Error(err))
 	}
