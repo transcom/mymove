@@ -159,7 +159,7 @@ func initDTODPlannerMileage(v *viper.Viper, tlsConfig *tls.Config) (DTODPlannerM
 
 	var dtodPlannerMileage DTODPlannerMileage
 	if dtodUseMock {
-		dtodPlannerMileage = nil // TODO: mock this
+		dtodPlannerMileage = NewMockDTODZip5Distance()
 	} else {
 		tr := &http.Transport{TLSClientConfig: tlsConfig}
 		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
