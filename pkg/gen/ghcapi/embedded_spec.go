@@ -4712,7 +4712,7 @@ func init() {
         },
         "observedDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "officeUser": {
@@ -13669,7 +13669,7 @@ func init() {
         },
         "observedDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "officeUser": {

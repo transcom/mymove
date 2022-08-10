@@ -109,7 +109,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			})).Return(&returnedPaymentRequest, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -165,7 +165,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -215,7 +215,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -254,7 +254,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -278,7 +278,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, errors.New("creator failed")).Once()
 
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -311,7 +311,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -340,7 +340,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -382,7 +382,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -421,7 +421,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -459,7 +459,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -671,7 +671,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		)
 
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -738,7 +738,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		)
 
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestCreator,
 		}
 
@@ -795,7 +795,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		)
 
 		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			paymentRequestCreator,
 		}
 

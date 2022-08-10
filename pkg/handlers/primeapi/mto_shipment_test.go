@@ -62,7 +62,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			shipmentCreator,
 			mtoChecker,
 		}
@@ -504,11 +504,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			DistanceMilesUpper: 500,
 		}
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetPlanner(planner)
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			handlerConfig,
 			shipmentUpdater,
 		}
-		handler.HandlerConfig.SetPlanner(planner)
 
 		// Create an available shipment in DB
 		now := testdatagen.CurrentDateWithoutTime()
@@ -691,7 +692,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator)
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			shipmentUpdater,
 		}
 
@@ -1186,11 +1187,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 
 	setupTestData := func() (UpdateMTOShipmentHandler, models.MTOShipment) {
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetPlanner(planner)
 		handler := UpdateMTOShipmentHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			handlerConfig,
 			shipmentUpdater,
 		}
-		handler.HandlerConfig.SetPlanner(planner)
 		// Create a shipment in the DB that has no addresses populated:
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
@@ -1365,7 +1367,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 
 	setupTestData := func() (UpdateMTOShipmentHandler, models.Move) {
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetPlanner(planner)
 		handler := UpdateMTOShipmentHandler{
 			handlerConfig,
@@ -1894,13 +1896,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s/status", uuid.Nil.String()), nil)
 
 	setupTestData := func() (UpdateMTOShipmentStatusHandler, models.MTOShipment) {
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetPlanner(planner)
 		handler := UpdateMTOShipmentStatusHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			handlerConfig,
 			mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator),
 			mtoshipment.NewMTOShipmentStatusUpdater(builder,
 				mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter), planner),
 		}
-		handler.HandlerConfig.SetPlanner(planner)
 
 		// Set up Prime-available move
 		move := testdatagen.MakeAvailableMove(suite.DB())
@@ -2051,7 +2054,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	setupTestData := func() DeleteMTOShipmentHandler {
 		deleter := mtoshipment.NewPrimeShipmentDeleter()
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := DeleteMTOShipmentHandler{
 			handlerConfig,
 			deleter,
@@ -2122,7 +2125,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ConflictError{})
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := DeleteMTOShipmentHandler{
 			handlerConfig,
 			deleter,
@@ -2139,7 +2142,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.UnprocessableEntityError{})
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := DeleteMTOShipmentHandler{
 			handlerConfig,
 			deleter,
@@ -2156,7 +2159,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.EventError{})
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := DeleteMTOShipmentHandler{
 			handlerConfig,
 			deleter,

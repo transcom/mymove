@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 
 	params := movetaskorderops.ListMTOsParams{HTTPRequest: request}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 
 	handler := ListMTOsHandler{
 		HandlerConfig:        handlerConfig,
@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 	params := move_task_order.HideNonFakeMoveTaskOrdersParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 
 	suite.Run("successfully hide fake moves", func() {
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
@@ -170,7 +170,7 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 		MoveTaskOrderID: move.ID.String(),
 		IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
@@ -198,7 +198,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		MoveTaskOrderID: move.ID.String(),
 	}
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetMoveTaskOrderHandlerFunc{handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
@@ -277,7 +277,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 	setupHandler := func() CreateMoveTaskOrderHandler {
 		return CreateMoveTaskOrderHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			internalmovetaskorder.NewInternalMoveTaskOrderCreator(),
 		}
 	}
@@ -363,7 +363,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// Submit the request to approve the MTO
 		approvalHandler := MakeMoveTaskOrderAvailableHandlerFunc{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 		}
 		approvalResponse := approvalHandler.Handle(approvalParams)
@@ -576,7 +576,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 
 		handler := CreateMoveTaskOrderHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			internalmovetaskorder.NewInternalMoveTaskOrderCreator(),
 		}
 

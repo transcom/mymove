@@ -10,7 +10,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -40,7 +39,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 		).Return(nil).Once()
 
 		handler := ListMTOAgentsHandler{
-			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig: suite.HandlerConfig(),
 			ListFetcher:   listFetcher,
 		}
 
@@ -64,7 +63,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 		).Return(errors.New("an error happened")).Once()
 
 		handler := ListMTOAgentsHandler{
-			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig: suite.HandlerConfig(),
 			ListFetcher:   listFetcher,
 		}
 		response := handler.Handle(params)
@@ -88,7 +87,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 		).Return(models.ErrFetchNotFound).Once()
 
 		handler := ListMTOAgentsHandler{
-			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig: suite.HandlerConfig(),
 			ListFetcher:   listFetcher,
 		}
 		response := handler.Handle(params)

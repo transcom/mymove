@@ -1,17 +1,7 @@
 import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
 import 'styles/office.scss';
-import {
-  GridContainer,
-  Grid,
-  Button,
-  Radio,
-  FormGroup,
-  Fieldset,
-  Dropdown,
-  Label,
-  Textarea,
-} from '@trussworks/react-uswds';
+import { GridContainer, Grid, Button, Radio, FormGroup, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 import { useParams, useHistory } from 'react-router';
 import { useMutation } from 'react-query';
 import { Formik, Field } from 'formik';
@@ -24,8 +14,7 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
 import { deleteEvaluationReport, saveEvaluationReport } from 'services/ghcApi';
-import { DatePickerInput } from 'components/form/fields';
-import Hint from 'components/Hint';
+import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { formatDateForSwagger } from 'shared/dates';
 
@@ -112,6 +101,7 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
       inspectionDate: formatDateForSwagger(values.inspectionDate),
       evaluationLengthMinutes: evalMinutes,
       travelTimeMinutes: travelMinutes,
+      observedDate: formatDateForSwagger(values.observedDate),
     };
     const { eTag } = evaluationReport;
     mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
@@ -122,10 +112,12 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
     // hard coded until violations work
     violations: false,
     inspectionDate: evaluationReport.inspectionDate,
+    observedDate: evaluationReport.observedDate,
   };
   if (evaluationReport.location) {
     initialValues.evaluationLocation = evaluationReport.location.toLowerCase();
   }
+
   if (evaluationReport.locationDescription) {
     initialValues.otherEvaluationLocation = evaluationReport.locationDescription;
   }
@@ -150,8 +142,17 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
 
   const validationSchema = Yup.object().shape({});
 
-  const hours = [...Array(13).keys()];
-  const minutes = [0, 15, 30, 45];
+  const minutes = [
+    { key: '0', value: '0' },
+    { key: '15', value: '15' },
+    { key: '30', value: '30' },
+    { key: '45', value: '45' },
+  ];
+
+  const hours = [];
+  for (let i = 0; i < 13; i += 1) {
+    hours[i] = { key: String(i), value: String(i) };
+  }
 
   return (
     <>
@@ -217,10 +218,7 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                           <legend className="usa-label">Travel time to evaluation</legend>
                           <div className={styles.durationPickers}>
                             <div>
-                              <Hint htmlFor="hour" className={styles.hourLabel}>
-                                Hour
-                              </Hint>
-                              <Dropdown
+                              <DropdownInput
                                 id="hour"
                                 name="hour"
                                 label="Hour"
@@ -228,19 +226,11 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                                 onChange={(e) => {
                                   setFieldValue('hour', e.target.value);
                                 }}
-                              >
-                                {hours.map((option) => (
-                                  <option key={option} value={option} name={option}>
-                                    {option}
-                                  </option>
-                                ))}
-                              </Dropdown>
+                                options={hours}
+                              />
                             </div>
                             <div>
-                              <Hint htmlFor="minute" className={styles.minuteLabel}>
-                                Minute
-                              </Hint>
-                              <Dropdown
+                              <DropdownInput
                                 id="minute"
                                 name="minute"
                                 label="Minute"
@@ -248,13 +238,8 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                                 onChange={(e) => {
                                   setFieldValue('minute', e.target.value);
                                 }}
-                              >
-                                {minutes.map((option) => (
-                                  <option key={option} value={option}>
-                                    {option}
-                                  </option>
-                                ))}
-                              </Dropdown>
+                                options={minutes}
+                              />
                             </div>
                           </div>
                         </Fieldset>
@@ -322,10 +307,7 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                         <legend className="usa-label">Evaluation length</legend>
                         <div className={styles.durationPickers}>
                           <div>
-                            <Hint htmlFor="hour" className={styles.hourLabel}>
-                              Hour
-                            </Hint>
-                            <Dropdown
+                            <DropdownInput
                               id="hour"
                               name="evalLengthHour"
                               label="Hour"
@@ -333,19 +315,11 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                               onChange={(e) => {
                                 setFieldValue('evalLengthHour', e.target.value);
                               }}
-                            >
-                              {hours.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </Dropdown>
+                              options={hours}
+                            />
                           </div>
                           <div>
-                            <Hint htmlFor="minute" className={styles.minuteLabel}>
-                              Minute
-                            </Hint>
-                            <Dropdown
+                            <DropdownInput
                               id="minute"
                               name="evalLengthMinute"
                               label="Minute"
@@ -353,13 +327,8 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                               onChange={(e) => {
                                 setFieldValue('evalLengthMinute', e.target.value);
                               }}
-                            >
-                              {minutes.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </Dropdown>
+                              options={minutes}
+                            />
                           </div>
                         </div>
                       </Fieldset>

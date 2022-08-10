@@ -7,7 +7,6 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	calendarop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
-	"github.com/transcom/mymove/pkg/handlers"
 )
 
 func (suite *HandlerSuite) TestShowAvailableMoveDatesHandler() {
@@ -77,7 +76,7 @@ func (suite *HandlerSuite) TestShowAvailableMoveDatesHandler() {
 		strfmt.Date(time.Date(2018, 12, 26, 0, 0, 0, 0, time.UTC)),
 	}
 
-	showHandler := ShowAvailableMoveDatesHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
+	showHandler := ShowAvailableMoveDatesHandler{suite.HandlerConfig()}
 	response := showHandler.Handle(params)
 
 	suite.IsType(&calendarop.ShowAvailableMoveDatesOK{}, response)

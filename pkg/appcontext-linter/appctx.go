@@ -84,6 +84,9 @@ func checkIfFuncParamsIncludePopConnection(funcToCheck *ast.FuncDecl, packageNam
 		return false
 	}
 
+	if funcToCheck.Name.Name == "NewHandlerConfigForTest" && packageName == "handlers" {
+		return false
+	}
 	for _, param := range funcToCheck.Type.Params.List {
 		if checkForPopConnection(param) {
 			return true
@@ -102,7 +105,7 @@ func checkForPopConnectionUsesInDeclaration(declarationToCheck *ast.GenDecl, pac
 		}
 
 		// Special case because this is the one that sets up all handlers so it's allowed to use *pop.Connection
-		if typeSpec.Name.Name == "handlerConfig" && packageName == "handlers" {
+		if typeSpec.Name.Name == "Config" && packageName == "handlers" {
 			continue
 		}
 
