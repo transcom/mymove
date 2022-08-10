@@ -137,6 +137,14 @@ describe('shipments utils', () => {
       eTag: window.btoa(secondUpdatedDate.toISOString()),
     };
 
+    const ppmShipmentWithAboutInfoWithoutAdvance = {
+      ...ppmShipmentWithAboutInfo,
+      hasRequestedAdvance: false,
+      advanceAmountRequested: null,
+      hasReceivedAdvance: false,
+      advanceAmountReceived: null,
+    };
+
     it.each([
       [false, 'all about your ppm info is null', approvedPPMShipment],
       [false, 'actual move date is null', { ...ppmShipmentWithAboutInfo, actualMoveDate: null }],
@@ -147,8 +155,9 @@ describe('shipments utils', () => {
         { ...ppmShipmentWithAboutInfo, actualDestinationPostalCode: null },
       ],
       [false, 'has received advance is null', { ...ppmShipmentWithAboutInfo, hasReceivedAdvance: null }],
-      [false, 'advance amount received is null', { ...ppmShipmentWithAboutInfo, advanceAmountReceived: null }],
-      [true, 'all about your ppm info is filled in', ppmShipmentWithAboutInfo],
+      [false, 'advance amount received is too low', { ...ppmShipmentWithAboutInfo, advanceAmountReceived: 0 }],
+      [true, 'all about your ppm info is filled in (no advance)', ppmShipmentWithAboutInfoWithoutAdvance],
+      [true, 'all about your ppm info is filled in (with advance)', ppmShipmentWithAboutInfo],
     ])('returns %s when %s', (expectedResult, scenarioDescription, ppmShipment) => {
       expect(isPPMAboutInfoComplete(ppmShipment)).toBe(expectedResult);
     });
