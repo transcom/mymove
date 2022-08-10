@@ -155,7 +155,7 @@ func InitDTODRoutePlanner(v *viper.Viper, tlsConfig *tls.Config) (Planner, error
 }
 
 func initDTODPlannerMileage(v *viper.Viper, tlsConfig *tls.Config) (DTODPlannerMileage, error) {
-	dtodUseMock := v.GetBool(cli.DTODUseMock)
+	dtodUseMock := v.GetBool(cli.DTODUseMockFlag)
 
 	var dtodPlannerMileage DTODPlannerMileage
 	if dtodUseMock {
