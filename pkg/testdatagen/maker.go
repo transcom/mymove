@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"strings"
 
@@ -104,12 +105,6 @@ func findCustomWithIdx(customs []Customization, customType CustomType) (int, *Cu
 	return -1, nil
 }
 
-// findCustom is a helper function to return just the customization
-func findCustom(customs []Customization, customType CustomType) *Customization {
-	_, custom := findCustomWithIdx(customs, customType)
-	return custom
-}
-
 // toStructPtr takes an interface wrapping a struct and
 // returns an interface wrapping a pointer to the struct
 // For e.g. interface{}(models.User) → interface{}(*models.User)
@@ -135,6 +130,17 @@ func mergeInterfaces(model1 interface{}, model2 interface{}) interface{} {
 	return model
 }
 
+func hasID(model interface{}) bool {
+	mv := reflect.ValueOf(model)
+
+	// mv should be a model of type struct
+	if mv.Kind() != reflect.Struct || !strings.HasPrefix(mv.Type().String(), "models.") {
+		log.Panic("Expecting interface containing a model")
+	}
+
+	return !mv.FieldByName("ID").IsZero()
+}
+
 // mergeCustomization takes the original set of customizations
 // and merges with the traits.
 // The order of application is
@@ -147,20 +153,25 @@ func mergeInterfaces(model1 interface{}, model2 interface{}) interface{} {
 //     - customization will override trait 2
 // MYTODO if a customization has an id, it should not be merged with a trait
 // Because a customization with a populated ID is a pre-created object
-func mergeCustomization(traits []GetTraitFunc, customs []Customization) []Customization {
+func mergeCustomization(customs []Customization, traits []GetTraitFunc) []Customization {
 	// Get a list of traits, each could return a list of customizations
 	fmt.Println("Found ", len(traits), "traits")
 	for i, trait := range traits {
 		traitCustomizations := trait()
 		fmt.Println(i, ": Trait with ", len(traitCustomizations), "customizations")
-		// for each customization, merge of replace the one in user supplied customizations
+
+		// for each trait custom, merge or replace the one in user supplied customizations
 		for _, traitCustom := range traitCustomizations {
 			j, callerCustom := findCustomWithIdx(customs, traitCustom.Type)
 			if callerCustom != nil {
 				fmt.Println("   ", traitCustom.Type, ": Found matching customization")
-				result := mergeInterfaces(callerCustom.Model, traitCustom.Model)
-				callerCustom.Model = result
-				customs[j] = *callerCustom
+				if hasID(callerCustom.Model) {
+					fmt.Println("   ", "Cannot merge trait, custom has ID")
+				} else {
+					result := mergeInterfaces(callerCustom.Model, traitCustom.Model)
+					callerCustom.Model = result
+					customs[j] = *callerCustom
+				}
 			} else {
 				fmt.Println("   ", traitCustom.Type, ": No matching customization")
 				customs = append(customs, traitCustom)
@@ -177,15 +188,14 @@ func UserMaker(db *pop.Connection, customs []Customization, traits []GetTraitFun
 	// Combine all traits into the customization list,
 	// do not pass on the traits in downstream maker functions
 	// so this merge is not repeated downstream
-	// MYTODO validate the customizations for nested objects
 	if len(traits) != 0 {
 		// The order of application is that the customizations override the traits
-		customs = mergeCustomization(traits, customs)
+		customs = mergeCustomization(customs, traits)
 	}
 
 	// Find user assertion and convert to models user
 	var cUser models.User
-	if result := findCustom(customs, User); result != nil {
+	if result := findValidCustomization(customs, User); result != nil {
 		cUser = result.Model.(models.User)
 	}
 
@@ -214,18 +224,18 @@ func UserMaker(db *pop.Connection, customs []Customization, traits []GetTraitFun
 func ServiceMemberMaker(db *pop.Connection, customs []Customization, traits []GetTraitFunc) (models.ServiceMember, error) {
 	// Apply traits
 	if len(traits) != 0 {
-		customs = mergeCustomization(traits, customs)
+		customs = mergeCustomization(customs, traits)
 	}
 
 	// Find the customization for service member
 	var cServiceMember models.ServiceMember
-	if result := findCustom(customs, ServiceMember); result != nil {
+	if result := findValidCustomization(customs, ServiceMember); result != nil {
 		cServiceMember = result.Model.(models.ServiceMember)
 	}
 
 	// Find the customization for user
 	var user models.User
-	if result := findCustom(customs, User); result != nil {
+	if result := findValidCustomization(customs, User); result != nil {
 		user = result.Model.(models.User)
 	}
 	if isZeroUUID(user.ID) {
@@ -235,7 +245,7 @@ func ServiceMemberMaker(db *pop.Connection, customs []Customization, traits []Ge
 
 	// Find the customization for residential address
 	var resiAddress models.Address
-	result := findCustom(customs, Addresses.ResidentialAddress)
+	result := findValidCustomization(customs, Addresses.ResidentialAddress)
 	if result == nil {
 		// No customization
 		resiAddress, _ = AddressMaker(db, nil, nil)
@@ -280,15 +290,25 @@ func ServiceMemberMaker(db *pop.Connection, customs []Customization, traits []Ge
 	return serviceMember, nil
 }
 
-func AddressMaker(db *pop.Connection, customs []Customization, traits []GetTraitFunc) (models.Address, error) {
-	// Apply traits
-	if len(traits) != 0 {
-		customs = mergeCustomization(traits, customs)
+func findValidCustomization(customs []Customization, customType CustomType) *Customization {
+	_, custom := findCustomWithIdx(customs, customType)
+	if custom == nil {
+		return nil
 	}
+
+	// Else check that the customization is valid
+	if err := checkNestedModels(*custom); err != nil {
+		log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", custom.Type, err))
+	}
+	return custom
+}
+
+func AddressMaker(db *pop.Connection, customs []Customization, traits []GetTraitFunc) (models.Address, error) {
+	customs = mergeCustomization(customs, traits)
 
 	// Find the customization for service member
 	var cAddress models.Address
-	if result := findCustom(customs, Address); result != nil {
+	if result := findValidCustomization(customs, Address); result != nil {
 		cAddress = result.Model.(models.Address)
 	}
 

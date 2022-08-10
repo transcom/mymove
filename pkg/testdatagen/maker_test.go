@@ -129,9 +129,6 @@ func (suite *MakerSuite) TestServiceMemberMaker() {
 func (suite *MakerSuite) TestMergeCustomization() {
 	uuidval := uuid.Must(uuid.NewV4())
 	result := mergeCustomization(
-		[]GetTraitFunc{
-			GetTraitArmy,
-		},
 		[]Customization{
 			{
 				Model: models.User{
@@ -140,7 +137,11 @@ func (suite *MakerSuite) TestMergeCustomization() {
 				},
 				Type: User,
 			},
-		})
+		},
+		[]GetTraitFunc{
+			GetTraitArmy,
+		},
+	)
 	fmt.Println("User")
 	userModel := result[0].Model.(models.User)
 	fmt.Println(userModel)
@@ -157,6 +158,28 @@ func (suite *MakerSuite) TestMergeInterfaces() {
 	result := mergeInterfaces(user1, user2)
 	user := result.(models.User)
 	fmt.Println(user.LoginGovEmail, user.LoginGovUUID)
+}
+
+func (suite *MakerSuite) TestHasID() {
+	suite.Run("True if ID is provided", func() {
+		testid := uuid.Must(uuid.NewV4())
+		result := hasID(models.ServiceMember{
+			ID: testid,
+		})
+		suite.True(result)
+	})
+
+	suite.Run("False if no id", func() {
+		result := hasID(models.ServiceMember{})
+		suite.False(result)
+	})
+
+	suite.Run("False if nil id", func() {
+		result := hasID(models.ServiceMember{
+			ID: uuid.Nil,
+		})
+		suite.False(result)
+	})
 }
 
 func (suite *MakerSuite) TestNestedModelsCheck() {
