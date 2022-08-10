@@ -167,10 +167,16 @@ const ShipmentForm = (props) => {
 
   const submitMTOShipment = (formValues) => {
     if (isPPM) {
-      const ppmShipment = formatPpmShipmentForAPI(formValues);
-
+      const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
+      if (
+        formValues.counselorRemarks &&
+        (formValues.advance !== mtoShipment.ppmShipment.advanceAmountRequested / 100 ||
+          formValues.advanceRequested !== mtoShipment.ppmShipment.hasRequestedAdvance)
+      ) {
+        ppmShipmentBody.ppmShipment.hasOfficeAdjustedAdvance = true;
+      }
       if (isCreatePage) {
-        const body = { ...ppmShipment, moveTaskOrderID };
+        const body = { ...ppmShipmentBody, moveTaskOrderID };
         submitHandler({ body, normalize: false })
           .then((newShipment) => {
             const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
@@ -190,13 +196,12 @@ const ShipmentForm = (props) => {
             setErrorMessage(`A server error occurred adding the shipment`);
           });
       }
-
       const updatePPMPayload = {
         moveTaskOrderID,
         shipmentID: mtoShipment.id,
         ifMatchETag: mtoShipment.eTag,
         normalize: false,
-        body: ppmShipment,
+        body: ppmShipmentBody,
       };
 
       submitHandler(updatePPMPayload).then(() => {
