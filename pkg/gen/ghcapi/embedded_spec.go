@@ -6159,6 +6159,12 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "hasOfficeAdjustedAdvance": {
+          "description": "Indicates whether an advance has been adjusted or denied by the office.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -7380,6 +7386,11 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "hasOfficeAdjustedAdvance": {
+          "description": "Indicates whether an advance has been adjusted or denied by the office.\n",
+          "type": "boolean",
           "x-nullable": true
         },
         "hasProGear": {
@@ -15029,6 +15040,12 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "hasOfficeAdjustedAdvance": {
+          "description": "Indicates whether an advance has been adjusted or denied by the office.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -16257,6 +16274,11 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "hasOfficeAdjustedAdvance": {
+          "description": "Indicates whether an advance has been adjusted or denied by the office.\n",
+          "type": "boolean",
           "x-nullable": true
         },
         "hasProGear": {

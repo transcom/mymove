@@ -134,6 +134,12 @@ properties:
     type: boolean
     x-nullable: true
     x-omitempty: false
+  hasOfficeAdjustedAdvance:
+    description: >
+      Indicates whether an advance has been adjusted or denied by the office.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
   advanceAmountRequested:
     description: >
       The amount requested for an advance, or null if no advance is requested

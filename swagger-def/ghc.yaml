@@ -3783,6 +3783,11 @@ definitions:
           Indicates whether PPM shipment has pro gear.
         type: boolean
         x-nullable: true
+      hasOfficeAdjustedAdvance:
+        description: >
+          Indicates whether an advance has been adjusted or denied by the office.
+        type: boolean
+        x-nullable: true
       proGearWeight:
         type: integer
         x-nullable: true

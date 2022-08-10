@@ -84,6 +84,19 @@ const mockShipmentWithDestinationType = {
   destinationType: 'PLACE_ENTERED_ACTIVE_DUTY',
 };
 
+// const mockPPMShipment = {
+//   ...mockMtoShipment,
+//   ppmShipment: {
+//     id: 'ppmShipmentID',
+//     shipmentId: 'shipment123',
+//     status: 'APPROVED',
+//     expectedDepartureDate: '2022-05-05',
+//     actualDepartureDate: '2022-05-07',
+//     pickupPostalCode: '90210',
+//     actualPickupPostalCode: '90210',
+//   }
+// }
+
 const defaultPropsRetirement = {
   ...defaultProps,
   displayDestinationType: true,
@@ -706,6 +719,47 @@ describe('ShipmentForm component', () => {
       );
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+    });
+  });
+
+  describe('editing an already existing PPM shipment', () => {
+    it('renders the PPM shipment form with pre-filled values', async () => {
+      render(
+        <ShipmentForm
+          {...defaultPropsRetirement}
+          isCreatePage={false}
+          selectedMoveType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockShipmentWithDestinationType}
+          displayDestinationType
+        />,
+      );
+
+      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
+      expect(screen.getByLabelText('Use current address')).not.toBeChecked();
+      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
+      expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
+      expect(screen.getAllByLabelText('First name')[0]).toHaveValue('Jason');
+      expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
+      expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
+      expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
+      expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
+      expect(screen.getByLabelText('Yes')).toBeChecked();
+      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
+      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[1]).toHaveValue('Tacoma');
+      expect(screen.getAllByLabelText('State')[1]).toHaveValue('WA');
+      expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('98421');
+      expect(screen.getAllByLabelText('First name')[1]).toHaveValue('Riley');
+      expect(screen.getAllByLabelText('Last name')[1]).toHaveValue('Baker');
+      expect(screen.getAllByLabelText('Phone')[1]).toHaveValue('863-555-9664');
+      expect(screen.getAllByLabelText('Email')[1]).toHaveValue('rbaker@email.com');
+      expect(screen.getByText('Customer remarks')).toBeTruthy();
+      expect(screen.getByText('mock customer remarks')).toBeTruthy();
+      expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
+      expect(screen.getByLabelText('Destination type')).toHaveValue('PLACE_ENTERED_ACTIVE_DUTY');
     });
   });
 });

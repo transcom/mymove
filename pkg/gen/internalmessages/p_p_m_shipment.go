@@ -82,6 +82,10 @@ type PPMShipment struct {
 	// Format: date
 	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate"`
 
+	// Indicates whether an advance has been adjusted or denied by the office.
+	//
+	HasOfficeAdjustedAdvance *bool `json:"hasOfficeAdjustedAdvance"`
+
 	// Indicates whether PPM shipment has pro gear.
 	//
 	HasProGear *bool `json:"hasProGear"`

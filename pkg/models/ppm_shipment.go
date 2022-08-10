@@ -89,6 +89,7 @@ type PPMShipment struct {
 	HasRequestedAdvance            *bool             `json:"has_requested_advance" db:"has_requested_advance"`
 	AdvanceAmountRequested         *unit.Cents       `json:"advance_amount_requested" db:"advance_amount_requested"`
 	HasReceivedAdvance             *bool             `json:"has_received_advance" db:"has_received_advance"`
+	HasOfficeAdjustedAdvance       *bool             `json:"has_officed_adjusted_advance" db:"has_office_adjusted_advance"`
 	AdvanceAmountReceived          *unit.Cents       `json:"advance_amount_received" db:"advance_amount_received"`
 	SITExpected                    *bool             `json:"sit_expected" db:"sit_expected"`
 	SITLocation                    *SITLocationType  `json:"sit_location" db:"sit_location"`
