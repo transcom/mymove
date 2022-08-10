@@ -13,6 +13,7 @@ describe('Customer Support User Flows', () => {
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
     cy.intercept('**/ghc/v1/moves/**/customer-support-remarks').as('getCustomerSupportRemarks');
+    cy.intercept('**/ghc/v1/queues/payment-requests?sort=age&order=desc&page=1&perPage=20').as('getSortedTIOOrders');
 
     // This user has multiple roles, which is the kind of user we use to test in staging.
     // By using this type of user, we can catch bugs like the one fixed in PR 6706.
@@ -119,9 +120,9 @@ describe('Customer Support User Flows', () => {
     // Changer user
     cy.contains('Sign out').click();
     cy.apiSignInAsUser('3b2cc1b0-31a2-4d1b-874f-0591f9127374', TIOOfficeUserType);
+    cy.wait(['@getSortedTIOOrders']);
 
     // Validate another user can not edit or delete the remark
-    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click({ force: true });
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments']);
 
