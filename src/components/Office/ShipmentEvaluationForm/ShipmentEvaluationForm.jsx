@@ -368,6 +368,7 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                           title="No"
                           type="radio"
                           checked={values.violationsObserved === 'no'}
+                          data-testid="noViolationsRadioOption"
                         />
                         <Field
                           as={Radio}
@@ -378,6 +379,7 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                           title="Yes"
                           type="radio"
                           checked={values.violationsObserved === 'yes'}
+                          data-testid="yesViolationsRadioOption"
                         />
                       </Fieldset>
                     </FormGroup>
