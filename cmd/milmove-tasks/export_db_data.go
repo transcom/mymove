@@ -105,13 +105,7 @@ func exportDBData(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	pgConfig, err := getPGConfig(dbConnectionDetails, logger)
-	if err != nil {
-		logger.Error("Error building pg config from db connection details")
-		return err
-	}
-
-	dumpExec := createDBDump(pgConfig)
+	dumpExec := createDBDump(dbConnectionDetails, logger)
 	if dumpExec.Error != nil {
 		logger.Error("Error in pg_dump")
 		return dumpExec.Error.Err
@@ -142,7 +136,11 @@ func getPGConfig(dbConnectionDetails *pop.ConnectionDetails, logger *zap.Logger)
 	}, err
 }
 
-func createDBDump(pgConfig pg.Postgres) pg.Result {
+func createDBDump(dbConnectionDetails *pop.ConnectionDetails, logger *zap.Logger) pg.Result {
+	pgConfig, err := getPGConfig(dbConnectionDetails, logger)
+	if err != nil {
+		logger.Error("Error building pg config from db connection details")
+	}
 	dump := pg.NewDump(&pgConfig)
 	return dump.Exec(pg.ExecOptions{StreamPrint: false})
 }
