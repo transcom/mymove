@@ -119,7 +119,7 @@ describe('Customer Support User Flows', () => {
     // Changer user
     cy.contains('Sign out').click();
     cy.apiSignInAsUser('3b2cc1b0-31a2-4d1b-874f-0591f9127374', TIOOfficeUserType);
-    cy.wait(1000);
+    cy.wait(2000);
 
     // Validate another user can not edit or delete the remark
     cy.contains(moveLocator).click({ force: true });
