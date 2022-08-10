@@ -110,6 +110,7 @@ func NewHandlerConfig(
 		cookieSecret:          cookieSecret,
 		planner:               planner,
 		hhgPlanner:            hhgPlanner,
+		dtodPlanner:           dtodPlanner,
 		storage:               storage,
 		notificationSender:    notificationSender,
 		iwsPersonLookup:       iwsPersonLookup,
