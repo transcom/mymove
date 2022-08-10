@@ -14,61 +14,99 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MovingExpense Expenses associated with moving
+// MovingExpense moving expense
 //
 // swagger:model MovingExpense
 type MovingExpense struct {
 
-	// The amount for this expense
-	//
-	Amount *int64 `json:"amount,omitempty"`
+	// amount
+	Amount int64 `json:"amount,omitempty"`
+
+	// created at
+	// Required: true
+	// Format: date-time
+	CreatedAt *strfmt.DateTime `json:"createdAt"`
+
+	// deleted at
+	// Read Only: true
+	// Format: date-time
+	DeletedAt strfmt.DateTime `json:"deletedAt,omitempty"`
 
 	// description
-	// Example: 4200
-	Description int64 `json:"description,omitempty"`
+	Description string `json:"description,omitempty"`
 
-	// document id
+	// document
+	// Required: true
+	Document interface{} `json:"document"`
+
+	// document Id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Required: true
 	// Format: uuid
-	DocumentID strfmt.UUID `json:"document_id,omitempty"`
+	DocumentID *strfmt.UUID `json:"documentId"`
 
 	// id
-	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Required: true
 	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
+	ID *strfmt.UUID `json:"id"`
 
-	// I don't have this receipt
-	MissingReceipt bool `json:"missing_receipt,omitempty"`
+	// missing receipt
+	MissingReceipt bool `json:"missingReceipt,omitempty"`
 
 	// moving expense type
 	MovingExpenseType MovingExpenseType `json:"movingExpenseType,omitempty"`
 
-	// ppm shipment id
+	// paid with gtcc
+	PaidWithGtcc bool `json:"paidWithGtcc,omitempty"`
+
+	// ppm shipment
+	// Required: true
+	PpmShipment *PPMShipment `json:"ppmShipment"`
+
+	// ppm shipment Id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Required: true
 	// Format: uuid
-	PpmShipmentID strfmt.UUID `json:"ppm_shipment_id,omitempty"`
+	PpmShipmentID *strfmt.UUID `json:"ppmShipmentId"`
 
-	// Storage end date
-	//
-	// The date and time that storage ends
-	// Example: 2018-04-26
+	// reason
+	Reason string `json:"reason,omitempty"`
+
+	// sit end date
+	// Example: 2018-05-26
 	// Format: date
-	SitEndDate strfmt.Date `json:"sit_end_date,omitempty"`
+	SitEndDate strfmt.Date `json:"sitEndDate,omitempty"`
 
-	// Storage start date
-	//
-	// The date and time that storage starts
-	// Example: 2018-04-26
+	// sit start date
+	// Example: 2022-04-26
 	// Format: date
-	SitStartDate strfmt.Date `json:"sit_start_date,omitempty"`
+	SitStartDate strfmt.Date `json:"sitStartDate,omitempty"`
 
-	// Did you pay with your GTCC (Government Travel Charge Card)?
-	UsedGtcc bool `json:"used_gtcc,omitempty"`
+	// status
+	Status PPMDocumentStatus `json:"status,omitempty"`
+
+	// updated at
+	// Required: true
+	// Format: date-time
+	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
 }
 
 // Validate validates this moving expense
 func (m *MovingExpense) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDeletedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDocument(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateDocumentID(formats); err != nil {
 		res = append(res, err)
@@ -79,6 +117,10 @@ func (m *MovingExpense) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMovingExpenseType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePpmShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -94,18 +136,61 @@ func (m *MovingExpense) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-func (m *MovingExpense) validateDocumentID(formats strfmt.Registry) error {
-	if swag.IsZero(m.DocumentID) { // not required
+func (m *MovingExpense) validateCreatedAt(formats strfmt.Registry) error {
+
+	if err := validate.Required("createdAt", "body", m.CreatedAt); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) validateDeletedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.DeletedAt) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("document_id", "body", "uuid", m.DocumentID.String(), formats); err != nil {
+	if err := validate.FormatOf("deletedAt", "body", "date-time", m.DeletedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) validateDocument(formats strfmt.Registry) error {
+
+	if m.Document == nil {
+		return errors.Required("document", "body", nil)
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) validateDocumentID(formats strfmt.Registry) error {
+
+	if err := validate.Required("documentId", "body", m.DocumentID); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("documentId", "body", "uuid", m.DocumentID.String(), formats); err != nil {
 		return err
 	}
 
@@ -113,8 +198,9 @@ func (m *MovingExpense) validateDocumentID(formats strfmt.Registry) error {
 }
 
 func (m *MovingExpense) validateID(formats strfmt.Registry) error {
-	if swag.IsZero(m.ID) { // not required
-		return nil
+
+	if err := validate.Required("id", "body", m.ID); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
@@ -141,12 +227,33 @@ func (m *MovingExpense) validateMovingExpenseType(formats strfmt.Registry) error
 	return nil
 }
 
-func (m *MovingExpense) validatePpmShipmentID(formats strfmt.Registry) error {
-	if swag.IsZero(m.PpmShipmentID) { // not required
-		return nil
+func (m *MovingExpense) validatePpmShipment(formats strfmt.Registry) error {
+
+	if err := validate.Required("ppmShipment", "body", m.PpmShipment); err != nil {
+		return err
 	}
 
-	if err := validate.FormatOf("ppm_shipment_id", "body", "uuid", m.PpmShipmentID.String(), formats); err != nil {
+	if m.PpmShipment != nil {
+		if err := m.PpmShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppmShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppmShipment")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) validatePpmShipmentID(formats strfmt.Registry) error {
+
+	if err := validate.Required("ppmShipmentId", "body", m.PpmShipmentID); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("ppmShipmentId", "body", "uuid", m.PpmShipmentID.String(), formats); err != nil {
 		return err
 	}
 
@@ -158,7 +265,7 @@ func (m *MovingExpense) validateSitEndDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("sit_end_date", "body", "date", m.SitEndDate.String(), formats); err != nil {
+	if err := validate.FormatOf("sitEndDate", "body", "date", m.SitEndDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -170,7 +277,37 @@ func (m *MovingExpense) validateSitStartDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("sit_start_date", "body", "date", m.SitStartDate.String(), formats); err != nil {
+	if err := validate.FormatOf("sitStartDate", "body", "date", m.SitStartDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) validateUpdatedAt(formats strfmt.Registry) error {
+
+	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -181,13 +318,34 @@ func (m *MovingExpense) validateSitStartDate(formats strfmt.Registry) error {
 func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateDeletedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMovingExpenseType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePpmShipment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MovingExpense) contextValidateDeletedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "deletedAt", "body", strfmt.DateTime(m.DeletedAt)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -198,6 +356,36 @@ func (m *MovingExpense) contextValidateMovingExpenseType(ctx context.Context, fo
 			return ve.ValidateName("movingExpenseType")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("movingExpenseType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PpmShipment != nil {
+		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppmShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppmShipment")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("status")
 		}
 		return err
 	}

@@ -102,7 +102,7 @@ type PPMShipment struct {
 	ID strfmt.UUID `json:"id"`
 
 	// moving expense
-	MovingExpense []*MovingExpense2 `json:"movingExpense"`
+	MovingExpense []*MovingExpense `json:"movingExpense"`
 
 	// The net weight of the shipment once it has been weight
 	//

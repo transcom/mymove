@@ -5889,20 +5889,36 @@ func init() {
       }
     },
     "MovingExpense": {
-      "description": "Expenses associated with moving",
       "type": "object",
+      "required": [
+        "id",
+        "createdAt",
+        "updatedAt",
+        "ppmShipmentId",
+        "ppmShipment",
+        "documentId",
+        "document"
+      ],
       "properties": {
         "amount": {
-          "description": "The amount for this expense\n",
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "description": {
-          "type": "integer",
-          "example": 4200
+          "type": "string"
         },
-        "document_id": {
+        "document": {
+          "type": "object"
+        },
+        "documentId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -5910,37 +5926,44 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "missing_receipt": {
-          "type": "boolean",
-          "title": "I don't have this receipt"
+        "missingReceipt": {
+          "type": "boolean"
         },
         "movingExpenseType": {
           "$ref": "#/definitions/MovingExpenseType"
         },
-        "ppm_shipment_id": {
+        "paidWithGtcc": {
+          "type": "boolean"
+        },
+        "ppmShipment": {
+          "$ref": "#/definitions/PPMShipment"
+        },
+        "ppmShipmentId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "sit_end_date": {
-          "description": "The date and time that storage ends",
+        "reason": {
+          "type": "string"
+        },
+        "sitEndDate": {
           "type": "string",
           "format": "date",
-          "title": "Storage end date",
-          "example": "2018-04-26"
+          "example": "2018-05-26"
         },
-        "sit_start_date": {
-          "description": "The date and time that storage starts",
+        "sitStartDate": {
           "type": "string",
           "format": "date",
-          "title": "Storage start date",
-          "example": "2018-04-26"
+          "example": "2022-04-26"
         },
-        "used_gtcc": {
-          "type": "boolean",
-          "title": "Did you pay with your GTCC (Government Travel Charge Card)?"
+        "status": {
+          "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -6146,6 +6169,20 @@ func init() {
         "PCS_TDY": "PCS with TDY Enroute"
       },
       "x-nullable": true
+    },
+    "PPMDocumentStatus": {
+      "type": "string",
+      "title": "PPM document status",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
+      }
     },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
@@ -14847,20 +14884,36 @@ func init() {
       }
     },
     "MovingExpense": {
-      "description": "Expenses associated with moving",
       "type": "object",
+      "required": [
+        "id",
+        "createdAt",
+        "updatedAt",
+        "ppmShipmentId",
+        "ppmShipment",
+        "documentId",
+        "document"
+      ],
       "properties": {
         "amount": {
-          "description": "The amount for this expense\n",
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "description": {
-          "type": "integer",
-          "example": 4200
+          "type": "string"
         },
-        "document_id": {
+        "document": {
+          "type": "object"
+        },
+        "documentId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -14868,37 +14921,44 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "missing_receipt": {
-          "type": "boolean",
-          "title": "I don't have this receipt"
+        "missingReceipt": {
+          "type": "boolean"
         },
         "movingExpenseType": {
           "$ref": "#/definitions/MovingExpenseType"
         },
-        "ppm_shipment_id": {
+        "paidWithGtcc": {
+          "type": "boolean"
+        },
+        "ppmShipment": {
+          "$ref": "#/definitions/PPMShipment"
+        },
+        "ppmShipmentId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "sit_end_date": {
-          "description": "The date and time that storage ends",
+        "reason": {
+          "type": "string"
+        },
+        "sitEndDate": {
           "type": "string",
           "format": "date",
-          "title": "Storage end date",
-          "example": "2018-04-26"
+          "example": "2018-05-26"
         },
-        "sit_start_date": {
-          "description": "The date and time that storage starts",
+        "sitStartDate": {
           "type": "string",
           "format": "date",
-          "title": "Storage start date",
-          "example": "2018-04-26"
+          "example": "2022-04-26"
         },
-        "used_gtcc": {
-          "type": "boolean",
-          "title": "Did you pay with your GTCC (Government Travel Charge Card)?"
+        "status": {
+          "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -15104,6 +15164,20 @@ func init() {
         "PCS_TDY": "PCS with TDY Enroute"
       },
       "x-nullable": true
+    },
+    "PPMDocumentStatus": {
+      "type": "string",
+      "title": "PPM document status",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
+      }
     },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
