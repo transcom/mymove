@@ -572,11 +572,12 @@ describe('TIO user', () => {
     cy.url().should('include', `/payment-requests`);
     cy.get('button').contains('Edit').click();
 
+    cy.wait(1000);
     cy.get('input#tacType-NTS').click({ force: true });
     cy.get('input#sacType-NTS').click({ force: true });
     cy.get('button[type="submit"]').click();
     cy.wait(['@patchMtoShipment', '@getMtoShipments']);
-    // cy.wait(1000);
+
     cy.get('[data-testid="tac"]').contains('E19A (NTS)');
     cy.get('[data-testid="sac"]').contains('3L988AS098F (NTS)');
   });
