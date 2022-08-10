@@ -1,0 +1,58 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  ppmShipmentId:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  ppmShipment:
+    $ref: 'PPMShipment.yaml'
+  documentId:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  document:
+    type: object
+  movingExpenseType:
+    $ref: '../internal.yaml#/definitions/MovingExpenseType'
+  description:
+    type: string
+  paidWithGtcc:
+    type: boolean
+  amount:
+    type: integer
+  missingReceipt:
+    type: boolean
+  status:
+    $ref: '../internal.yaml#/definitions/PPMDocumentStatus'
+  reason:
+    type: string
+  sitStartDate:
+    type: string
+    example: '2022-04-26'
+    format: date
+  sitEndDate:
+    type: string
+    example: '2018-05-26'
+    format: date
+  createdAt:
+    type: string
+    format: date-time
+  updatedAt:
+    type: string
+    format: date-time
+  deletedAt:
+    type: string
+    format: date-time
+    readOnly: true
+required:
+  - id
+  - createdAt
+  - updatedAt
+  - ppmShipmentId
+  - ppmShipment
+  - documentId
+  - document

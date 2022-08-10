@@ -2324,14 +2324,6 @@ func init() {
             "name": "ppmShipmentId",
             "in": "path",
             "required": true
-          },
-          {
-            "name": "createMovingExpense",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MovingExpense"
-            }
           }
         ],
         "responses": {
@@ -2387,7 +2379,7 @@ func init() {
           "201": {
             "description": "updated instance of move",
             "schema": {
-              "$ref": "#/definitions/MovingExpense"
+              "$ref": "#/definitions/UpdateMovingExpense"
             }
           },
           "400": {
@@ -9643,14 +9635,6 @@ func init() {
             "name": "ppmShipmentId",
             "in": "path",
             "required": true
-          },
-          {
-            "name": "createMovingExpense",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MovingExpense"
-            }
           }
         ],
         "responses": {
@@ -9721,7 +9705,7 @@ func init() {
           "201": {
             "description": "updated instance of move",
             "schema": {
-              "$ref": "#/definitions/MovingExpense"
+              "$ref": "#/definitions/UpdateMovingExpense"
             }
           },
           "400": {

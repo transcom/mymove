@@ -25,7 +25,7 @@ type UpdateMovingExpenseCreated struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.MovingExpense `json:"body,omitempty"`
+	Payload *internalmessages.UpdateMovingExpense `json:"body,omitempty"`
 }
 
 // NewUpdateMovingExpenseCreated creates UpdateMovingExpenseCreated with default headers values
@@ -35,13 +35,13 @@ func NewUpdateMovingExpenseCreated() *UpdateMovingExpenseCreated {
 }
 
 // WithPayload adds the payload to the update moving expense created response
-func (o *UpdateMovingExpenseCreated) WithPayload(payload *internalmessages.MovingExpense) *UpdateMovingExpenseCreated {
+func (o *UpdateMovingExpenseCreated) WithPayload(payload *internalmessages.UpdateMovingExpense) *UpdateMovingExpenseCreated {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update moving expense created response
-func (o *UpdateMovingExpenseCreated) SetPayload(payload *internalmessages.MovingExpense) {
+func (o *UpdateMovingExpenseCreated) SetPayload(payload *internalmessages.UpdateMovingExpense) {
 	o.Payload = payload
 }
 

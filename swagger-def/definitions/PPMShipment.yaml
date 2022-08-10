@@ -185,7 +185,7 @@ properties:
     type: array
   movingExpense:
     items:
-      $ref: '../internal.yaml#/definitions/MovingExpense'
+      $ref: 'MovingExpense.yaml'
     type: array
   eTag:
     description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.

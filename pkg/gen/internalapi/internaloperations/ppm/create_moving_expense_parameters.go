@@ -6,17 +6,12 @@ package ppm
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"context"
-	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
-	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewCreateMovingExpenseParams creates a new CreateMovingExpenseParams object
@@ -36,11 +31,6 @@ type CreateMovingExpenseParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*
-	  Required: true
-	  In: body
-	*/
-	CreateMovingExpense *internalmessages.MovingExpense
 	/*UUID of the ppm
 	  Required: true
 	  In: path
@@ -56,34 +46,6 @@ func (o *CreateMovingExpenseParams) BindRequest(r *http.Request, route *middlewa
 	var res []error
 
 	o.HTTPRequest = r
-
-	if runtime.HasBody(r) {
-		defer r.Body.Close()
-		var body internalmessages.MovingExpense
-		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			if err == io.EOF {
-				res = append(res, errors.Required("createMovingExpense", "body", ""))
-			} else {
-				res = append(res, errors.NewParseError("createMovingExpense", "body", "", err))
-			}
-		} else {
-			// validate body object
-			if err := body.Validate(route.Formats); err != nil {
-				res = append(res, err)
-			}
-
-			ctx := validate.WithOperationRequest(context.Background())
-			if err := body.ContextValidate(ctx, route.Formats); err != nil {
-				res = append(res, err)
-			}
-
-			if len(res) == 0 {
-				o.CreateMovingExpense = &body
-			}
-		}
-	} else {
-		res = append(res, errors.Required("createMovingExpense", "body", ""))
-	}
 
 	rPpmShipmentID, rhkPpmShipmentID, _ := route.Params.GetOK("ppmShipmentId")
 	if err := o.bindPpmShipmentID(rPpmShipmentID, rhkPpmShipmentID, route.Formats); err != nil {
