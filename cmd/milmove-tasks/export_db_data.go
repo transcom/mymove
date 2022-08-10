@@ -5,19 +5,34 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
+	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/gobuffalo/pop/v6"
 	pg "github.com/habx/pg-commands"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 )
+
+func checkExportDBDataConfig(v *viper.Viper, logger *zap.Logger) error {
+	logger.Debug("checking config")
+	err := cli.CheckDatabase(v, logger)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func initExportDBDataFlags(flag *pflag.FlagSet) {
 	cli.InitDatabaseFlags(flag)
@@ -55,32 +70,76 @@ func exportDBData(cmd *cobra.Command, args []string) error {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 
-	pgConfig := getPGConfig(*v)
+	err = checkExportDBDataConfig(v, logger)
+	if err != nil {
+		logger.Fatal("invalid configuration", zap.Error(err))
+	}
+
+	var session *awssession.Session
+	if v.GetBool(cli.DbIamFlag) {
+		c := &aws.Config{
+			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
+		}
+		s, errorSession := awssession.NewSession(c)
+		if errorSession != nil {
+			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
+		}
+		session = s
+	}
+
+	var dbCreds *credentials.Credentials
+	if v.GetBool(cli.DbIamFlag) {
+		if session != nil {
+			// We want to get the credentials from the logged in AWS session rather than create directly,
+			// because the session conflates the environment, shared, and container metadata config
+			// within NewSession.  With stscreds, we use the Secure Token Service,
+			// to assume the given role (that has rds db connect permissions).
+			dbIamRole := v.GetString(cli.DbIamRoleFlag)
+			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
+			dbCreds = stscreds.NewCredentials(session, dbIamRole)
+		}
+	}
+	dbConnectionDetails, err := cli.BuildConnectionDetails(v, dbCreds, logger)
+	if err != nil {
+		logger.Error("Error building the db connection details")
+		return err
+	}
+
+	pgConfig, err := getPGConfig(dbConnectionDetails, logger)
+	if err != nil {
+		logger.Error("Error building pg config from db connection details")
+		return err
+	}
+
 	dumpExec := createDBDump(pgConfig)
 	if dumpExec.Error != nil {
-		logger.Error("error in pg_dump")
+		logger.Error("Error in pg_dump")
 		return dumpExec.Error.Err
 	}
-	logger.Info("dump success created file " + dumpExec.File)
+	logger.Info("Dump success created file " + dumpExec.File)
 
 	wd, _ := os.Getwd()
 	err = exportToS3Bucket(dumpExec.File, wd, v.GetString("bucket-name"))
 	if err != nil {
-		logger.Error("error in upload to S3 bucket")
+		logger.Error("Error in upload to S3 bucket")
 		return err
 	}
-	fmt.Println("upload to S3 bucket successful")
+	fmt.Println("Upload to S3 bucket successful")
 	return nil
 }
 
-func getPGConfig(v viper.Viper) pg.Postgres {
-	return pg.Postgres{
-		Host:     v.GetString(cli.DbHostFlag),
-		Port:     v.GetInt(cli.DbPortFlag),
-		DB:       v.GetString(cli.DbNameFlag),
-		Username: v.GetString(cli.DbUserFlag),
-		Password: v.GetString(cli.DbPasswordFlag),
+func getPGConfig(dbConnectionDetails *pop.ConnectionDetails, logger *zap.Logger) (pg.Postgres, error) {
+	port, err := strconv.Atoi(dbConnectionDetails.Port)
+	if err != nil {
+		logger.Error("Port must be a valid integer")
 	}
+	return pg.Postgres{
+		Host:     dbConnectionDetails.Host,
+		Port:     port,
+		DB:       dbConnectionDetails.Database,
+		Username: dbConnectionDetails.User,
+		Password: dbConnectionDetails.Password,
+	}, err
 }
 
 func createDBDump(pgConfig pg.Postgres) pg.Result {
@@ -89,7 +148,7 @@ func createDBDump(pgConfig pg.Postgres) pg.Result {
 }
 
 func exportToS3Bucket(fileName string, dir string, bucketName string) error {
-	sess, err := session.NewSession()
+	sess, err := awssession.NewSession()
 	if err != nil {
 		return err
 	}

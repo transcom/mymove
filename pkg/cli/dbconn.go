@@ -255,6 +255,37 @@ func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 // logger is the application logger.
 func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Logger) (*pop.Connection, error) {
 
+	dbConnectionDetails, err := BuildConnectionDetails(v, creds, logger)
+	if err != nil {
+		logger.Error("Failed to build DB connection details", zap.Error(err))
+	}
+
+	// Set up the connection
+	connection, err := pop.NewConnection(dbConnectionDetails)
+	if err != nil {
+		logger.Error("Failed create DB connection", zap.Error(err))
+		return nil, err
+	}
+
+	// Open the connection - required
+	err = connection.Open()
+	if err != nil {
+		logger.Error("Failed to open DB connection", zap.Error(err))
+		return nil, err
+	}
+
+	err = testConnection(dbConnectionDetails, v.GetBool(DbIamFlag), logger)
+	if err != nil {
+		logger.Error("Failed to ping database")
+		return connection, err
+	}
+
+	// Return the open connection
+	return connection, nil
+}
+
+// buildConnectionDetails assembles the details required to create a Pop connection from command line flags
+func BuildConnectionDetails(v *viper.Viper, creds *credentials.Credentials, logger *zap.Logger) (*pop.ConnectionDetails, error) {
 	dbEnv := v.GetString(DbEnvFlag)
 	dbName := v.GetString(DbNameFlag)
 	dbHost := v.GetString(DbHostFlag)
@@ -367,29 +398,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 		logger.Error("Failed to finalize DB connection details", zap.Error(err))
 		return nil, err
 	}
-
-	// Set up the connection
-	connection, err := pop.NewConnection(&dbConnectionDetails)
-	if err != nil {
-		logger.Error("Failed create DB connection", zap.Error(err))
-		return nil, err
-	}
-
-	// Open the connection - required
-	err = connection.Open()
-	if err != nil {
-		logger.Error("Failed to open DB connection", zap.Error(err))
-		return nil, err
-	}
-
-	err = testConnection(&dbConnectionDetails, v.GetBool(DbIamFlag), logger)
-	if err != nil {
-		logger.Error("Failed to ping database")
-		return connection, err
-	}
-
-	// Return the open connection
-	return connection, nil
+	return &dbConnectionDetails, err
 }
 
 //testConnection tests the connection to determine successful ping
