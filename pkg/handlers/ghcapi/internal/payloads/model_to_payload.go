@@ -184,7 +184,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		Location:                location,
 		LocationDescription:     evaluationReport.LocationDescription,
 		MoveID:                  moveID,
-		ObservedDate:            handlers.FmtDateTimePtr(evaluationReport.ObservedDate),
+		ObservedDate:            handlers.FmtDatePtr(evaluationReport.ObservedDate),
 		Remarks:                 evaluationReport.Remarks,
 		ShipmentID:              shipmentID,
 		SubmittedAt:             handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),

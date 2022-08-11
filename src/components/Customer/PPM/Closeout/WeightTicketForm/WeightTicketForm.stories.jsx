@@ -1,38 +1,8 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
-import { v4 as uuidv4 } from 'uuid';
 
 import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-
-const mockCreateUploadSuccess = (file) => {
-  return Promise.resolve({
-    id: uuidv4(),
-    created_at: '2022-06-22T23:25:50.490Z',
-    bytes: file.size,
-    url: 'a/fake/path',
-    filename: file.name,
-    content_type: file.type,
-  });
-};
-
-const mockUploadComplete = (upload, err, fieldName, values, setFieldValue) => {
-  const newValue = {
-    id: uuidv4(),
-    created_at: '2022-06-22T23:25:50.490Z',
-    bytes: upload.file.size,
-    url: 'a/fake/path',
-    filename: upload.file.name,
-    content_type: upload.file.type,
-  };
-  setFieldValue(fieldName, [...values[`${fieldName}`], newValue]);
-};
-
-const mockUploadDelete = (uploadId, fieldName, values, setFieldTouched, setFieldValue) => {
-  const remainingUploads = values[`${fieldName}`]?.filter((upload) => upload.id !== uploadId);
-  setFieldTouched(fieldName, true, true);
-  setFieldValue(fieldName, remainingUploads, true);
-};
 
 export default {
   title: 'Customer Components / PPM Closeout / Weight Ticket Form',
@@ -51,6 +21,9 @@ export default {
   argTypes: {
     onBack: { action: 'back button clicked' },
     onSubmit: { action: 'submit button clicked' },
+    onCreateUpload: { action: 'upload created' },
+    onUploadComplete: { action: 'upload completed' },
+    onUploadDelete: { action: 'upload deleted' },
   },
 };
 
@@ -64,9 +37,6 @@ Blank.args = {
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {},
   },
-  onCreateUpload: mockCreateUploadSuccess,
-  onUploadComplete: mockUploadComplete,
-  onUploadDelete: mockUploadDelete,
   tripNumber: '1',
 };
 
@@ -123,9 +93,6 @@ ExistingWeightTickets.args = {
     ownsTrailer: false,
     trailerMeetsCriteria: false,
   },
-  onCreateUpload: mockCreateUploadSuccess,
-  onUploadComplete: mockUploadComplete,
-  onUploadDelete: mockUploadDelete,
   tripNumber: '1',
 };
 
@@ -174,9 +141,6 @@ MissingWeightTickets.args = {
     ownsTrailer: false,
     trailerMeetsCriteria: false,
   },
-  onCreateUpload: mockCreateUploadSuccess,
-  onUploadComplete: mockUploadComplete,
-  onUploadDelete: mockUploadDelete,
   tripNumber: '1',
 };
 
@@ -243,8 +207,5 @@ TrailerOwnership.args = {
       ],
     },
   },
-  onCreateUpload: mockCreateUploadSuccess,
-  onUploadComplete: mockUploadComplete,
-  onUploadDelete: mockUploadDelete,
   tripNumber: '1',
 };

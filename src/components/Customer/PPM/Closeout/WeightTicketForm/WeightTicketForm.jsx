@@ -122,9 +122,8 @@ const WeightTicketUpload = ({
           className={fieldName}
           labelIdle={UploadDropZoneLabel}
           labelIdleMobile={UploadDropZoneLabelMobile}
-          createUpload={(file) => onCreateUpload(fieldName, file)}
+          createUpload={(file) => onCreateUpload(fieldName, file, setFieldTouched)}
           onChange={(err, upload) => {
-            setFieldTouched(fieldName, true);
             onUploadComplete(err);
             fileUploadRef.current.removeFile(upload.id);
           }}
@@ -376,11 +375,12 @@ const WeightTicketForm = ({
                               <FileUpload
                                 name="proofOfTrailerOwnershipDocument"
                                 className="proofOfTrailerOwnershipDocument"
-                                createUpload={(file) => onCreateUpload('proofOfTrailerOwnershipDocument', file)}
+                                createUpload={(file) =>
+                                  onCreateUpload('proofOfTrailerOwnershipDocument', file, formikProps.setFieldTouched)
+                                }
                                 labelIdle={UploadDropZoneLabel}
                                 labelIdleMobile={UploadDropZoneLabelMobile}
                                 onChange={(err, upload) => {
-                                  formikProps.setFieldTouched('proofOfTrailerOwnershipDocument', true);
                                   onUploadComplete(err);
                                   proofOfTrailerOwnershipDocumentRef.current.removeFile(upload.id);
                                 }}

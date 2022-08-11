@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
-			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig: suite.HandlerConfig(),
 			MoveFetcher:   &mockFetcher,
 		}
 
@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
-			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig: suite.HandlerConfig(),
 			MoveFetcher:   &mockFetcher,
 		}
 
@@ -94,7 +94,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
-			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig: suite.HandlerConfig(),
 			MoveFetcher:   &mockFetcher,
 		}
 
@@ -112,7 +112,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
-			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig: suite.HandlerConfig(),
 			MoveFetcher:   &mockFetcher,
 		}
 
@@ -141,7 +141,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		mockSearcher := mocks.MoveSearcher{}
 
 		handler := SearchMovesHandler{
-			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig: suite.HandlerConfig(),
 			MoveSearcher:  &mockSearcher,
 		}
 		mockSearcher.On("SearchMoves",
@@ -183,7 +183,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		mockSearcher := mocks.MoveSearcher{}
 
 		handler := SearchMovesHandler{
-			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig: suite.HandlerConfig(),
 			MoveSearcher:  &mockSearcher,
 		}
 		mockSearcher.On("SearchMoves",
@@ -232,7 +232,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 	suite.Run("Successful flag setting to true", func() {
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerConfig:                 handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:                 suite.HandlerConfig(),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 		mockFlagSetter.On("SetFinancialReviewFlag",
@@ -258,7 +258,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 		}
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerConfig:                 handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:                 suite.HandlerConfig(),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 
@@ -268,7 +268,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 	suite.Run("Unsuccessful flag - move not found", func() {
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerConfig:                 handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:                 suite.HandlerConfig(),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 		mockFlagSetter.On("SetFinancialReviewFlag",
@@ -285,7 +285,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 	suite.Run("Unsuccessful flag - internal server error", func() {
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerConfig:                 handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:                 suite.HandlerConfig(),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 		mockFlagSetter.On("SetFinancialReviewFlag",
@@ -303,7 +303,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 	suite.Run("Unsuccessful flag - bad etag", func() {
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerConfig:                 handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:                 suite.HandlerConfig(),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 		mockFlagSetter.On("SetFinancialReviewFlag",

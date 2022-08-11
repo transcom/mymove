@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	tacop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -31,7 +30,7 @@ func (suite *HandlerSuite) TestTacValidation() {
 				HTTPRequest: request,
 				Tac:         tc.tacCode,
 			}
-			handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+			handlerConfig := suite.HandlerConfig()
 			handler := TacValidationHandler{handlerConfig}
 			response := handler.Handle(params)
 
@@ -51,7 +50,7 @@ func (suite *HandlerSuite) TestTacValidation() {
 			HTTPRequest: request,
 			Tac:         tac,
 		}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := TacValidationHandler{handlerConfig}
 		response := handler.Handle(params)
 
@@ -68,7 +67,7 @@ func (suite *HandlerSuite) TestTacValidation() {
 			HTTPRequest: request,
 			Tac:         tac,
 		}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := TacValidationHandler{handlerConfig}
 		response := handler.Handle(params)
 
