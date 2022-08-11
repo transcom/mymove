@@ -25,6 +25,13 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 )
 
+const (
+	//BucketNameFlag is the flag for the name of the S3 bucket to which the DB dump will be sent
+	BucketNameFlag string = "bucket-name"
+	//TmpDirFlag is the flag for the temp directory to save the dump file; must have write access
+	TmpDirFlag string = "tmp-dir"
+)
+
 func checkExportDBDataConfig(v *viper.Viper, logger *zap.Logger) error {
 	logger.Debug("checking config")
 	err := cli.CheckDatabase(v, logger)
@@ -39,9 +46,10 @@ func initExportDBDataFlags(flag *pflag.FlagSet) {
 	cli.InitAWSFlags(flag)
 	cli.InitStorageFlags(flag)
 	cli.InitLoggingFlags(flag)
-	flag.String("bucket-name", "mybucket", "Name of S3 bucket to store db dump")
+	flag.String(BucketNameFlag, "mybucket", "Name of S3 bucket to store db dump")
 	flag.String("aws-access-key-id", "1234", "access key id of AWS user")
 	flag.String("aws-secret-access-key", "1234", "secret access key of AWS user")
+	flag.String(TmpDirFlag, "/tmp", "absolute path of temporary directory to save dump file; must have write access")
 	flag.SortFlags = false
 }
 
@@ -75,6 +83,31 @@ func exportDBData(cmd *cobra.Command, args []string) error {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
 
+	dbConnectionDetails, err := getDBConnectionDetails(v, logger)
+	if err != nil {
+		logger.Error("Error getting DB connection details")
+		return err
+	}
+
+	filePath := getDBDumpFilePath(v)
+
+	err = createDBDump(dbConnectionDetails, filePath, logger)
+	if err != nil {
+		logger.Error("Error in execution of pg_dump")
+		return err
+	}
+	logger.Info("Dump success created file " + filePath)
+
+	err = exportToS3Bucket(filePath, v.GetString(BucketNameFlag))
+	if err != nil {
+		logger.Error("Error in upload to S3 bucket")
+		return err
+	}
+	fmt.Println("Upload to S3 bucket successful")
+	return nil
+}
+
+func getDBConnectionDetails(v *viper.Viper, logger *zap.Logger) (*pop.ConnectionDetails, error) {
 	var session *awssession.Session
 	if v.GetBool(cli.DbIamFlag) {
 		c := &aws.Config{
@@ -102,25 +135,14 @@ func exportDBData(cmd *cobra.Command, args []string) error {
 	dbConnectionDetails, err := cli.BuildConnectionDetails(v, dbCreds, logger)
 	if err != nil {
 		logger.Error("Error building the db connection details")
-		return err
 	}
+	return dbConnectionDetails, err
+}
 
+func getDBDumpFilePath(v *viper.Viper) string {
 	fileName := fmt.Sprintf("milmove-database-export_%s.sql", time.Now().Format(time.RFC3339))
-	filePath := filepath.Join("/tmp", fileName)
-	err = createDBDump(dbConnectionDetails, filePath, logger)
-	if err != nil {
-		logger.Error("Error in execution of pg_dump")
-		return err
-	}
-	logger.Info("Dump success created file " + filePath)
-
-	err = exportToS3Bucket(filePath, v.GetString("bucket-name"))
-	if err != nil {
-		logger.Error("Error in upload to S3 bucket")
-		return err
-	}
-	fmt.Println("Upload to S3 bucket successful")
-	return nil
+	dir := v.GetString(TmpDirFlag)
+	return filepath.Join(dir, fileName)
 }
 
 func createDBDump(dbConn *pop.ConnectionDetails, filePath string, logger *zap.Logger) error {
