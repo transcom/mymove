@@ -161,7 +161,7 @@
     "prettier": "2.7.1",
     "react-app-rewired": "^2.2.1",
     "react-scripts": "5.0.1",
-    "react-select-event": "^5.5.0",
+    "react-select-event": "^5.5.1",
     "react-test-renderer": "^17.0.1",
     "source-map-explorer": "^2.5.2"
   },
