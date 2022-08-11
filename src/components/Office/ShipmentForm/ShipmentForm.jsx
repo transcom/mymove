@@ -48,6 +48,7 @@ import {
 } from 'utils/formatMtoShipment';
 import { formatWeight, dropdownInputOptions } from 'utils/formatters';
 import { validateDate, validatePostalCode } from 'utils/validation';
+import { LOCATION_TYPES } from 'types/sitStatusShape';
 
 const ShipmentForm = (props) => {
   const {
@@ -548,7 +549,7 @@ const ShipmentForm = (props) => {
                     weight={mtoShipment.ppmShipment?.sitEstimatedWeight}
                     sitLocation={mtoShipment.ppmShipment?.sitLocation}
                     location={
-                      mtoShipment.ppmShipment?.sitLocation === 'DESTINATION'
+                      mtoShipment.ppmShipment?.sitLocation === LOCATION_TYPES.DESTINATION
                         ? mtoShipment.ppmShipment?.pickupPostalCode
                         : mtoShipment.ppmShipment?.destinationPostalCode
                     }
