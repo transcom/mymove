@@ -54,7 +54,7 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 		MoveID:                           strfmt.UUID(move.ID.String()),
 	}
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := CreateGenericMoveDocumentHandler{handlerConfig}
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := IndexMoveDocumentsHandler{handlerConfig}
@@ -187,7 +187,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFiel
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := IndexMoveDocumentsHandler{handlerConfig}
@@ -250,7 +250,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := IndexMoveDocumentsHandler{handlerConfig}
@@ -318,8 +318,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	moveDocumentUpdateHandler := &mocks.MoveDocumentUpdater{}
 
 	handler := UpdateMoveDocumentHandler{
-		handlers.NewHandlerConfig(suite.DB(),
-			suite.Logger()),
+		suite.HandlerConfig(),
 		moveDocumentUpdateHandler,
 	}
 
@@ -384,8 +383,7 @@ func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
 	}
 
 	handler := DeleteMoveDocumentHandler{
-		handlers.NewHandlerConfig(suite.DB(),
-			suite.Logger()),
+		suite.HandlerConfig(),
 	}
 
 	response := handler.Handle(deleteMoveDocParams)

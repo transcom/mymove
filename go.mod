@@ -7,7 +7,7 @@ require (
 	github.com/XSAM/otelsql v0.15.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20220216073957-c252878bcf5a
 	github.com/alexedwards/scs/v2 v2.5.0
-	github.com/aws/aws-sdk-go v1.44.68
+	github.com/aws/aws-sdk-go v1.44.73
 	github.com/benbjohnson/clock v1.3.0
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/disintegration/imaging v1.6.2
@@ -15,7 +15,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/getlantern/deepcopy v0.0.0-20160317154340-7f45deb8130a
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
-	github.com/go-openapi/errors v0.20.2
+	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/loads v0.21.1
 	github.com/go-openapi/runtime v0.24.1
 	github.com/go-openapi/spec v0.20.6

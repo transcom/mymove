@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	locationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -61,7 +60,7 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 		Search:      "first",
 	}
 
-	handler := SearchDutyLocationsHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
+	handler := SearchDutyLocationsHandler{suite.HandlerConfig()}
 	response := handler.Handle(newSearchParams)
 
 	// Assert we got back the 201 response

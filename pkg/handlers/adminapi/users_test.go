@@ -13,8 +13,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/alexedwards/scs/v2"
-	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
@@ -34,24 +32,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func setupSessionManagers() [3]*scs.SessionManager {
-	var milSession, adminSession, officeSession *scs.SessionManager
-	store := memstore.New()
-	milSession = scs.New()
-	milSession.Store = store
-	milSession.Cookie.Name = "mil_session_token"
-
-	adminSession = scs.New()
-	adminSession.Store = store
-	adminSession.Cookie.Name = "admin_session_token"
-
-	officeSession = scs.New()
-	officeSession.Store = store
-	officeSession.Cookie.Name = "office_session_token"
-
-	return [3]*scs.SessionManager{milSession, adminSession, officeSession}
-}
-
 func (suite *HandlerSuite) TestGetUserHandler() {
 	suite.Run("integration test ok response", func() {
 		user := testdatagen.MakeDefaultUser(suite.DB())
@@ -62,7 +42,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetUserHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			userservice.NewUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -87,7 +67,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 			mock.Anything,
 		).Return(models.User{}, expectedError).Once()
 		handler := GetUserHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			userFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
@@ -115,7 +95,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexUsersHandler{
-			HandlerConfig:  handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:  suite.HandlerConfig(),
 			NewQueryFilter: query.NewQueryFilter,
 			ListFetcher:    fetch.NewListFetcher(queryBuilder),
 			NewPagination:  pagination.NewPagination,
@@ -152,7 +132,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 			mock.Anything,
 		).Return(0, expectedError).Once()
 		handler := IndexUsersHandler{
-			HandlerConfig:  handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:  suite.HandlerConfig(),
 			NewQueryFilter: newQueryFilter,
 			ListFetcher:    userListFetcher,
 			NewPagination:  pagination.NewPagination,
@@ -177,13 +157,13 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	// Create a handler and service object instances to test
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-	sessionManagers := setupSessionManagers()
+	sessionManagers := suite.SetupSessionManagers()
 	queryBuilder := query.NewQueryBuilder()
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 
 	setupHandler := func() UpdateUserHandler {
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetSessionManagers(sessionManagers)
 
 		return UpdateUserHandler{

@@ -8,7 +8,6 @@ import (
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -25,7 +24,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	}
 	builder := officeuser.NewOfficeUserFetcherPop()
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger()), builder}
+	handler := ShowLoggedInUserHandler{suite.HandlerConfig(), builder}
 
 	response := handler.Handle(params)
 
@@ -50,7 +49,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 			HTTPRequest: req,
 		}
 		builder := officeuser.NewOfficeUserFetcherPop()
-		handler := ShowLoggedInUserHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger()), builder}
+		handler := ShowLoggedInUserHandler{suite.HandlerConfig(), builder}
 
 		response := handler.Handle(params)
 
@@ -79,7 +78,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		}
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 		builder := officeuser.NewOfficeUserFetcherPop()
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		handler := ShowLoggedInUserHandler{handlerConfig, builder}
 
@@ -107,7 +106,7 @@ func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 
 	builder := officeuser.NewOfficeUserFetcherPop()
 
