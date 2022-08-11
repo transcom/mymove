@@ -4159,19 +4159,6 @@
     lodash "^4.17.21"
     regenerator-runtime "^0.13.7"
 
-"@storybook/docs-tools@6.5.9":
-  version "6.5.9"
-  resolved "https://registry.yarnpkg.com/@storybook/docs-tools/-/docs-tools-6.5.9.tgz#5ff304f881e972ce14923a5ffcfed3f052094889"
-  integrity sha512-UoTaXLvec8x+q+4oYIk/t8DBju9C3ZTGklqOxDIt+0kS3TFAqEgI3JhKXqQOXgN5zDcvLVSxi8dbVAeSxk2ktA==
-  dependencies:
-    "@babel/core" "^7.12.10"
-    "@storybook/csf" "0.0.2--canary.4566f4d.1"
-    "@storybook/store" "6.5.9"
-    core-js "^3.8.2"
-    doctrine "^3.0.0"
-    lodash "^4.17.21"
-    regenerator-runtime "^0.13.7"
-
 "@storybook/expect@storybook-jest":
   version "27.5.2-0"
   resolved "https://registry.yarnpkg.com/@storybook/expect/-/expect-27.5.2-0.tgz#131fc4336106805ccd100809a3c2852d31f1da68"
@@ -9793,10 +9780,10 @@ eslint-plugin-security@^1.5.0:
   dependencies:
     safe-regex "^2.1.1"
 
-eslint-plugin-storybook@0.6.3:
-  version "0.6.3"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-storybook/-/eslint-plugin-storybook-0.6.3.tgz#4bed14dabd0b40d29b50e4e51b7a5316c2a97c36"
-  integrity sha512-e0zIqHsgUz3Bs3PSyiYwCZ3QqyVmRgNQceBtYlnWXscCJLgdvBH8WwqBOvZUb3SAB4ZTYDLG3GMqpxI6PJZwKg==
+eslint-plugin-storybook@0.6.4:
+  version "0.6.4"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-storybook/-/eslint-plugin-storybook-0.6.4.tgz#4b4f077fcc0cf3b3f4ebc730426497e814e38e49"
+  integrity sha512-wxwbAZqlgjj6MbS/llY7wnXCCUsuFcLB1XnahbgBtjmsFUggpiECt01Dt8huaKvriVXg2w4d7Ye+GzA00rdcKg==
   dependencies:
     "@storybook/csf" "^0.0.1"
     "@typescript-eslint/experimental-utils" "^5.3.0"
@@ -11243,10 +11230,10 @@ handlebars@^4.7.7:
   optionalDependencies:
     uglify-js "^3.1.4"
 
-happo-plugin-storybook@^2.11.2:
-  version "2.11.2"
-  resolved "https://registry.yarnpkg.com/happo-plugin-storybook/-/happo-plugin-storybook-2.11.2.tgz#aebf7b6c12a1a1d8b62b50ed66ce2b874b410672"
-  integrity sha512-JSfyErD4yhXAYSCc2NDI+SF8Ol+xuTNv8yIf7coDGEfW9RheIXkn5hEPQcLCqWrq7yOLJxn1N1dPJhqRzHxDbA==
+happo-plugin-storybook@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/happo-plugin-storybook/-/happo-plugin-storybook-3.0.0.tgz#a1ab09dddefa0a638f5d686e109aec58b2c65698"
+  integrity sha512-qRjM54dJ43CkDNEKXY2dZk8eGbGUN/Wzm/xpon8GtnDbBEcfFGQeLiOEZzwyYLD1fOkrZU7p3fLYylLkH8jzjw==
   dependencies:
     "@babel/runtime" ">=7.0.0"
     archiver "^3.0.0"
