@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -14,7 +15,6 @@ import (
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/gobuffalo/pop/v6"
-	pg "github.com/habx/pg-commands"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -105,15 +105,16 @@ func exportDBData(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	dumpExec := createDBDump(dbConnectionDetails, logger)
-	if dumpExec.Error != nil {
-		logger.Error("Error in pg_dump")
-		return dumpExec.Error.Err
+	fileName := fmt.Sprintf("milmove-database-export_%s.sql", time.Now().Format(time.RFC3339))
+	filePath := filepath.Join("/tmp", fileName)
+	err = createDBDump(dbConnectionDetails, filePath, logger)
+	if err != nil {
+		logger.Error("Error in execution of pg_dump")
+		return err
 	}
-	logger.Info("Dump success created file " + dumpExec.File)
+	logger.Info("Dump success created file " + filePath)
 
-	wd, _ := os.Getwd()
-	err = exportToS3Bucket(dumpExec.File, wd, v.GetString("bucket-name"))
+	err = exportToS3Bucket(filePath, v.GetString("bucket-name"))
 	if err != nil {
 		logger.Error("Error in upload to S3 bucket")
 		return err
@@ -122,30 +123,29 @@ func exportDBData(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func getPGConfig(dbConnectionDetails *pop.ConnectionDetails, logger *zap.Logger) (pg.Postgres, error) {
-	port, err := strconv.Atoi(dbConnectionDetails.Port)
+func createDBDump(dbConn *pop.ConnectionDetails, filePath string, logger *zap.Logger) error {
+	dbname := fmt.Sprintf("--dbname=postgres://%s:%s@%s:%s/%s",
+		dbConn.User,
+		dbConn.Password,
+		dbConn.Host,
+		dbConn.Port,
+		dbConn.Database)
+	cmd := exec.Command("pg_dump", dbname)
+	file, err := os.Create(filePath)
 	if err != nil {
-		logger.Error("Port must be a valid integer")
+		logger.Error(fmt.Sprintf("Error creating file at path %s", filePath))
+		return err
 	}
-	return pg.Postgres{
-		Host:     dbConnectionDetails.Host,
-		Port:     port,
-		DB:       dbConnectionDetails.Database,
-		Username: dbConnectionDetails.User,
-		Password: dbConnectionDetails.Password,
-	}, err
+	cmd.Stdout = file
+	err = cmd.Start()
+	if err != nil {
+		logger.Error("Error executing pg_dump command")
+		return err
+	}
+	return err
 }
 
-func createDBDump(dbConnectionDetails *pop.ConnectionDetails, logger *zap.Logger) pg.Result {
-	pgConfig, err := getPGConfig(dbConnectionDetails, logger)
-	if err != nil {
-		logger.Error("Error building pg config from db connection details")
-	}
-	dump := pg.NewDump(&pgConfig)
-	return dump.Exec(pg.ExecOptions{StreamPrint: false})
-}
-
-func exportToS3Bucket(fileName string, dir string, bucketName string) error {
+func exportToS3Bucket(filePath string, bucketName string) error {
 	sess, err := awssession.NewSession()
 	if err != nil {
 		return err
@@ -155,7 +155,7 @@ func exportToS3Bucket(fileName string, dir string, bucketName string) error {
 		return err
 	}
 
-	file, err := os.Open(filepath.Join(dir, fileName))
+	file, err := os.Open(filePath)
 	if err != nil {
 		return err
 	}
@@ -163,7 +163,7 @@ func exportToS3Bucket(fileName string, dir string, bucketName string) error {
 
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(bucketName),
-		Key:    aws.String(fileName),
+		Key:    aws.String(filePath),
 
 		// The file to be uploaded. io.ReadSeeker is preferred as the Uploader
 		// will be able to optimize memory when uploading large content. io.Reader
