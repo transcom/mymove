@@ -548,7 +548,6 @@ describe('TIO user', () => {
 
   it('can add/edit TAC/SAC', () => {
     // TIO Payment Requests queue
-    // cy.wait(1000);
     cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
     cy.get('#locator').type('NTSTIO');
     cy.get('th[data-testid="locator"]').first().click();
@@ -572,7 +571,9 @@ describe('TIO user', () => {
     cy.url().should('include', `/payment-requests`);
     cy.get('button').contains('Edit').click();
 
+    // Manual wait added to let internal state catch up -- best guess is there was an eTag error.
     cy.wait(1000);
+
     cy.get('input#tacType-NTS').click({ force: true });
     cy.get('input#sacType-NTS').click({ force: true });
     cy.get('button[type="submit"]').click();
@@ -584,7 +585,6 @@ describe('TIO user', () => {
 
   it('can view and approve service items', () => {
     // TIO Payment Requests queue
-    // cy.wait(1000);
     cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
     cy.get('#locator').type('NTSTIO');
     cy.get('th[data-testid="locator"]').first().click();

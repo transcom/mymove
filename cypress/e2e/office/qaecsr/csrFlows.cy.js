@@ -119,6 +119,9 @@ describe('Customer Support User Flows', () => {
     // Changer user
     cy.contains('Sign out').click();
     cy.apiSignInAsUser('3b2cc1b0-31a2-4d1b-874f-0591f9127374', TIOOfficeUserType);
+
+    // Manual wait added to ensure that the queue loads before checking for the corresponding row
+    // For some reason, this won't work properly on CircleCI with a named intercept wait
     cy.wait(2000);
 
     // Validate another user can not edit or delete the remark
