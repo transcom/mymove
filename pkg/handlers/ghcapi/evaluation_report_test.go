@@ -27,7 +27,7 @@ func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
 	setupTestData := func() (models.OfficeUser, models.Move, handlers.HandlerConfig) {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.createS3HandlerConfig()
 		return officeUser, move, handlerConfig
 	}
 	suite.Run("Successful list fetch", func() {
@@ -86,7 +86,7 @@ func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 	setupTestData := func() (models.OfficeUser, models.Move, handlers.HandlerConfig) {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		return officeUser, move, handlerConfig
 	}
 	suite.Run("Successful list fetch", func() {
@@ -140,7 +140,7 @@ func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 	// 200 response
 	suite.Run("Successful fetch (integration) test", func() {
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		fetcher := evaluationreportservice.NewEvaluationReportFetcher()
@@ -171,7 +171,7 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 	suite.Run("404 response when service returns not found", func() {
 		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		uuidForReport, _ := uuid.NewV4()
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		mockFetcher := mocks.EvaluationReportFetcher{}
 		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s", uuidForReport.String()), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -199,7 +199,7 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 	suite.Run("403 response when service returns forbidden", func() {
 		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		uuidForReport, _ := uuid.NewV4()
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		mockFetcher := mocks.EvaluationReportFetcher{}
 		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s", uuidForReport.String()), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -229,7 +229,7 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 
 	suite.Run("Successful POST", func() {
 
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 
 		creator := &mocks.EvaluationReportCreator{}
 		move := testdatagen.MakeDefaultMove(suite.DB())
@@ -279,7 +279,7 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 
 	suite.Run("Unsuccessful POST", func() {
 
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 
 		creator := &mocks.EvaluationReportCreator{}
 		handler := CreateEvaluationReportHandler{handlerConfig, creator}
@@ -316,7 +316,7 @@ func (suite *HandlerSuite) TestDeleteEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		deleter := &mocks.EvaluationReportDeleter{}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := DeleteEvaluationReportHandler{handlerConfig, deleter}
 
 		request := httptest.NewRequest("DELETE", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
@@ -342,7 +342,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		updater := &mocks.EvaluationReportUpdater{}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
@@ -372,7 +372,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		updater := &mocks.EvaluationReportUpdater{}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
@@ -402,7 +402,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		updater := &mocks.EvaluationReportUpdater{}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
@@ -432,7 +432,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		updater := &mocks.EvaluationReportUpdater{}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
@@ -462,7 +462,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		updater := &mocks.EvaluationReportUpdater{}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
@@ -492,7 +492,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		updater := &mocks.EvaluationReportUpdater{}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
@@ -522,7 +522,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		updater := &mocks.EvaluationReportUpdater{}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 

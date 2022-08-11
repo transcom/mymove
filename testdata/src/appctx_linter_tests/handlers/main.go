@@ -8,8 +8,8 @@ type TestAppContext struct { // want "Please remove pop.Connection from the stru
 	testString string
 }
 
-// handlerConfig should not be flagged because it's a special exception.
-type handlerConfig struct {
+// Config should not be flagged because it's a special exception.
+type Config struct {
 	DB         *pop.Connection
 	testString string
 }

@@ -13,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -68,7 +67,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
@@ -128,7 +127,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 		}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handler := GetMovesQueueHandler{
 			handlerConfig,
 			&orderFetcher,
@@ -187,7 +186,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 		HTTPRequest: request,
 		Branch:      models.StringPointer("AIR_FORCE"),
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
@@ -263,7 +262,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
@@ -382,7 +381,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
@@ -590,7 +589,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
@@ -704,7 +703,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
@@ -727,7 +726,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
@@ -768,7 +767,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
@@ -811,7 +810,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),
@@ -887,7 +886,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),
@@ -952,7 +951,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 		Page:        swag.Int64(1),
 		PerPage:     swag.Int64(1),
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),
@@ -980,7 +979,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 		Page:        swag.Int64(1),
 		PerPage:     swag.Int64(1),
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		&paymentRequestListFetcher,
@@ -1008,7 +1007,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 		Page:        swag.Int64(1),
 		PerPage:     swag.Int64(1),
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		&paymentRequestListFetcher,
@@ -1166,7 +1165,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 
 	request := httptest.NewRequest("GET", "/queues/counseling", nil)
 	subtestData.request = suite.AuthenticateOfficeRequest(request, subtestData.officeUser)
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	subtestData.handler = GetServicesCounselingQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
