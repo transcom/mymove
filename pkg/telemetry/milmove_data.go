@@ -78,7 +78,7 @@ func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Me
 			instrument.WithDescription(liveMetricDesc),
 		)
 		if lerr != nil {
-			appCtx.Logger().Error("Error creating live counter", zap.Any("liveCounter", liveMetricName), zap.Error(lerr))
+			appCtx.Logger().Error("Error creating live gauge", zap.Any("liveGauge", liveMetricName), zap.Error(lerr))
 			return lerr
 		}
 		deadTuples, derr := meter.Int64ObservableGauge(
@@ -86,7 +86,7 @@ func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Me
 			instrument.WithDescription(deadMetricDesc),
 		)
 		if derr != nil {
-			appCtx.Logger().Error("Error creating dead counter", zap.Any("deadCounter", deadMetricName), zap.Error(derr))
+			appCtx.Logger().Error("Error creating dead gauge", zap.Any("deadGauge", deadMetricName), zap.Error(derr))
 			return derr
 		}
 		tableNameMetricMap[tableName] = tableStatMetrics{
