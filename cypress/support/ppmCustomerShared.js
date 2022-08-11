@@ -74,7 +74,6 @@ export function signInAndNavigateToWeightTicketPage(userId) {
   cy.get('h3').should('contain', 'Your move is in progress.');
 
   cy.get('button[data-testid="button"]').contains('Upload PPM Documents').should('be.enabled').click();
-  fillOutAboutPage(true);
 }
 
 export function submitWeightTicketPage(options) {
