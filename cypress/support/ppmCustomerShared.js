@@ -131,7 +131,8 @@ export function fillOutWeightTicketPage(options) {
 }
 
 export function navigateFromWeightTicketPage() {
-  cy.get('button:enabled').contains('Save & Continue').click();
+  cy.wait(1000);
+  cy.get('button').contains('Save & Continue').should('be.enabled').click();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/review/);
