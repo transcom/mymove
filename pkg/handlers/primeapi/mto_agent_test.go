@@ -53,7 +53,7 @@ func (suite *HandlerSuite) makeUpdateMTOAgentSubtestData() (subtestData *updateM
 
 	// Create handler and request
 	subtestData.handler = UpdateMTOAgentHandler{
-		handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+		suite.HandlerConfig(),
 		mtoagent.NewMTOAgentUpdater(movetaskorder.NewMoveTaskOrderChecker()),
 	}
 	subtestData.req = httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/agents/%s", subtestData.agent.MTOShipmentID.String(), subtestData.agent.ID.String()), nil)
@@ -273,7 +273,7 @@ func (suite *HandlerSuite) makeCreateMTOAgentSubtestData() (subtestData *createM
 
 	// Create Handler
 	subtestData.handler = CreateMTOAgentHandler{
-		handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+		suite.HandlerConfig(),
 		mtoagent.NewMTOAgentCreator(movetaskorder.NewMoveTaskOrderChecker()),
 	}
 	subtestData.req = httptest.NewRequest("POST", fmt.Sprintf("/mto-shipments/%s/agents", subtestData.mtoShipment.ID), nil)

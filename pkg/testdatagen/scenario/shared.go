@@ -3,7 +3,6 @@ package scenario
 import (
 	"fmt"
 	"log"
-	"net/http/httptest"
 	"strings"
 	"time"
 
@@ -13,10 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
-	"github.com/transcom/mymove/pkg/gen/primemessages"
-	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
@@ -2766,7 +2761,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 	})
 
 	// setup service item
-	mtoServiceItem := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+	testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:     uuid.Must(uuid.NewV4()),
 			Status: models.MTOServiceItemStatusApproved,
@@ -2774,9 +2769,6 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		Move:        mto,
 		MTOShipment: MTOShipment,
 	})
-
-	// using handler to create service item params
-	req := httptest.NewRequest("POST", "/payment_requests", nil)
 
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
@@ -2795,32 +2787,17 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		ghcrateengine.NewServiceItemPricer(),
 	)
 
-	handler := primeapi.CreatePaymentRequestHandler{
-		HandlerConfig:         handlers.NewHandlerConfig(db, logger),
-		PaymentRequestCreator: paymentRequestCreator,
+	paymentRequest := &models.PaymentRequest{
+		IsFinal:         false,
+		MoveTaskOrderID: mto.ID,
 	}
 
-	params := paymentrequestop.CreatePaymentRequestParams{
-		HTTPRequest: req,
-		Body: &primemessages.CreatePaymentRequest{
-			IsFinal:         swag.Bool(false),
-			MoveTaskOrderID: handlers.FmtUUID(mto.ID),
-			ServiceItems: []*primemessages.ServiceItem{
-				{
-					ID: *handlers.FmtUUID(mtoServiceItem.ID),
-				},
-			},
-			PointOfContact: "user@prime.com",
-		},
-	}
+	paymentRequest, err := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, paymentRequest)
 
-	response := handler.Handle(params)
-
-	showResponse, ok := response.(*paymentrequestop.CreatePaymentRequestCreated)
-	if !ok {
-		logger.Fatal("error while creating payment request:", zap.Any("", showResponse))
+	if err != nil {
+		logger.Fatal("error while creating payment request:", zap.Error(err))
 	}
-	logger.Debug("Response of create payment request handler: ", zap.Any("", showResponse))
+	logger.Debug("create payment request ok: ", zap.Any("", paymentRequest))
 }
 
 func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {

@@ -36,7 +36,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexMovesHandler{
-			HandlerConfig:   handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:   suite.HandlerConfig(),
 			NewQueryFilter:  query.NewQueryFilter,
 			MoveListFetcher: move.NewMoveListFetcher(queryBuilder),
 			NewPagination:   pagination.NewPagination,
@@ -65,7 +65,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 			mock.Anything,
 		).Return(nil, expectedError).Once()
 		handler := IndexMovesHandler{
-			HandlerConfig:   handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:   suite.HandlerConfig(),
 			NewQueryFilter:  newQueryFilter,
 			MoveListFetcher: moveListFetcher,
 			NewPagination:   pagination.NewPagination,
@@ -92,7 +92,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		return UpdateMoveHandler{
-			handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderUpdater(
 				builder,
 				mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
@@ -152,7 +152,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			MoveID:      *handlers.FmtUUID(defaultMove.ID),
 		}
 		handler := GetMoveHandler{
-			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig: suite.HandlerConfig(),
 		}
 
 		response := handler.Handle(params)
@@ -170,7 +170,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		}
 
 		handler := GetMoveHandler{
-			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig: suite.HandlerConfig(),
 		}
 
 		response := handler.Handle(params)

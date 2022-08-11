@@ -37,7 +37,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -66,7 +65,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 		HTTPRequest:     request,
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetMoveTaskOrderHandler{
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),
@@ -127,7 +126,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 			IfMatch:          etag.GenerateEtag(move.UpdatedAt),
 			ServiceItemCodes: &serviceItemCodes,
 		}
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
@@ -189,7 +188,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 		MoveTaskOrderID: move.ID.String(),
 		IfMatch:         etag.GenerateEtag(time.Now()),
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 
 	// Stale ETags are already unit tested in the move_task_order_updater_test,
 	// so we can mock this here to speed up the test and avoid hitting the DB
@@ -225,7 +224,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 		MoveTaskOrderID: move.ID.String(),
 		IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
@@ -248,7 +247,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 
 func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler() {
 	setupTestData := func() UpdateMTOStatusServiceCounselingCompletedHandlerFunc {
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
@@ -417,7 +416,7 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 			Order: order,
 		})
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
