@@ -62,26 +62,6 @@ func GetTraitActiveUser() []Customization {
 	}
 }
 
-// GetTraitArmy is a sample GetTraitFunc
-func GetTraitArmy() []Customization {
-	army := models.AffiliationARMY
-	var VariantUserArmy = []Customization{
-		{
-			Model: models.User{
-				LoginGovEmail: "trait@army.mil",
-			},
-			Type: User,
-		},
-		{
-			Model: models.ServiceMember{
-				Affiliation: &army,
-			},
-			Type: ServiceMember,
-		},
-	}
-	return VariantUserArmy
-}
-
 // GetTraitNavy is a sample GetTraitFunc
 func GetTraitNavy() []Customization {
 	navy := models.AffiliationNAVY
@@ -124,6 +104,11 @@ func toInterfacePtr(obj interface{}) interface{} {
 
 // mergeInterfaces transforms the interfaces to match what mergeModels expects
 func mergeInterfaces(model1 interface{}, model2 interface{}) interface{} {
+	// This wrapper function is needed because merge models expects the first
+	// model to be an interface containing a pointer to struct.
+	// This function converts
+	//    an interface containing the struct
+	//    → an interface containing a pointer to the struct
 	modelPtr := toStructPtr(model1)
 	mergeModels(modelPtr, model2)
 	model := toInterfacePtr(modelPtr)
@@ -151,29 +136,24 @@ func hasID(model interface{}) bool {
 // and all three contain the same object:
 //     - trait 1 will override trait 2 (so start with the highest priority)
 //     - customization will override trait 2
-// MYTODO if a customization has an id, it should not be merged with a trait
-// Because a customization with a populated ID is a pre-created object
 func mergeCustomization(customs []Customization, traits []GetTraitFunc) []Customization {
 	// Get a list of traits, each could return a list of customizations
-	fmt.Println("Found ", len(traits), "traits")
-	for i, trait := range traits {
+	for _, trait := range traits {
 		traitCustomizations := trait()
-		fmt.Println(i, ": Trait with ", len(traitCustomizations), "customizations")
 
 		// for each trait custom, merge or replace the one in user supplied customizations
 		for _, traitCustom := range traitCustomizations {
 			j, callerCustom := findCustomWithIdx(customs, traitCustom.Type)
 			if callerCustom != nil {
-				fmt.Println("   ", traitCustom.Type, ": Found matching customization")
-				if hasID(callerCustom.Model) {
-					fmt.Println("   ", "Cannot merge trait, custom has ID")
-				} else {
-					result := mergeInterfaces(callerCustom.Model, traitCustom.Model)
+				// If a customization has an ID, it means we use that precreated object
+				// Therefore we can't merge a trait with it, as those fields will not get
+				// updated.
+				if !hasID(callerCustom.Model) {
+					result := mergeInterfaces(traitCustom.Model, callerCustom.Model)
 					callerCustom.Model = result
 					customs[j] = *callerCustom
 				}
 			} else {
-				fmt.Println("   ", traitCustom.Type, ": No matching customization")
 				customs = append(customs, traitCustom)
 			}
 		}
