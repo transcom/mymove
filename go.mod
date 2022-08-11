@@ -15,7 +15,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/getlantern/deepcopy v0.0.0-20160317154340-7f45deb8130a
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
-	github.com/go-openapi/errors v0.20.2
+	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/loads v0.21.1
 	github.com/go-openapi/runtime v0.24.1
 	github.com/go-openapi/spec v0.20.6
