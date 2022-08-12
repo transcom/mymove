@@ -11,8 +11,8 @@ import { getFormattedMaxAdvancePercentage } from 'utils/incentives';
 describe('components/Office/ShipmentIncentiveAdvance', () => {
   it('should display content without props', () => {
     render(
-      <Formik initialValues={{}}>
-        <ShipmentIncentiveAdvance />
+      <Formik initialValues={{ advanceRequested: 'false' }}>
+        <ShipmentIncentiveAdvance values={{ advanceRequested: 'false' }} />
       </Formik>,
     );
 

@@ -46,7 +46,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, values }) => {
               />
             </FormGroup>
 
-            {advanceRequested && (
+            {values.advanceRequested !== 'false' && (
               <>
                 <FormGroup>
                   <MaskedTextField
@@ -79,8 +79,10 @@ export default ShipmentIncentiveAdvance;
 
 ShipmentIncentiveAdvance.propTypes = {
   estimatedIncentive: PropTypes.number,
+  values: PropTypes.object,
 };
 
 ShipmentIncentiveAdvance.defaultProps = {
   estimatedIncentive: 0,
+  values: {},
 };

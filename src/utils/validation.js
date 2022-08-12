@@ -37,7 +37,6 @@ export const validatePostalCode = async (value, postalCodeType, errMsg = Unsuppo
   if (!value || (value.length !== 5 && value.length !== 10)) {
     return undefined;
   }
-
   let responseBody;
   try {
     responseBody = await ValidateZipRateData(value, postalCodeType);

@@ -8,6 +8,7 @@ const ppmShipmentSchema = ({
   weightAllotment = {},
   requestedAdvanceAmount = 0,
   isAdvanceRequested,
+  isAdvancePage,
 }) => {
   const estimatedWeightLimit = weightAllotment.totalWeightSelf || 0;
   const proGearWeightLimit = weightAllotment.proGearWeight || 0;
@@ -78,8 +79,9 @@ const ppmShipmentSchema = ({
 
     counselorRemarks: Yup.string().when(['advance', 'advanceRequested'], {
       is: (advance, advanceRequested) =>
-        Number(advance) !== requestedAdvanceAmount / 100 ||
-        advanceRequested?.toString() !== isAdvanceRequested?.toString(),
+        isAdvancePage &&
+        (Number(advance) !== requestedAdvanceAmount / 100 ||
+          advanceRequested?.toString() !== isAdvanceRequested?.toString()),
       then: (schema) => schema.required('Required'),
     }),
   });

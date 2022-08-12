@@ -145,8 +145,9 @@ const ShipmentForm = (props) => {
     schema = ppmShipmentSchema({
       estimatedIncentive: initialValues.estimatedIncentive || 0,
       weightAllotment: serviceMember.weightAllotment,
-      requestedAdvanceAmount: mtoShipment.ppmShipment.advanceAmountRequested,
-      isAdvanceRequested: mtoShipment.ppmShipment.hasRequestedAdvance,
+      requestedAdvanceAmount: mtoShipment.ppmShipment?.advanceAmountRequested,
+      isAdvanceRequested: mtoShipment.ppmShipment?.hasRequestedAdvance,
+      isAdvancePage,
     });
   } else {
     const shipmentOptions = getShipmentOptions(shipmentType, userRole);
@@ -301,7 +302,7 @@ const ShipmentForm = (props) => {
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
-      {({ values, isValid, isSubmitting, setValues, handleSubmit, errors, touched }) => {
+      {({ values, isValid, isSubmitting, setValues, handleSubmit, errors, dirty, touched }) => {
         const { hasDeliveryAddress } = values;
 
         const handleUseCurrentResidenceChange = (e) => {
@@ -332,7 +333,8 @@ const ShipmentForm = (props) => {
             });
           }
         };
-
+        console.log(touched);
+        console.log(errors);
         return (
           <>
             <ConnectedDestructiveShipmentConfirmationModal
@@ -562,7 +564,10 @@ const ShipmentForm = (props) => {
                     customerRemarks={mtoShipment.customerRemarks}
                     counselorRemarks={mtoShipment.counselorRemarks}
                     showHint={false}
-                    error={errors.counselorRemarks && (touched.advance || touched.advanceRequested)}
+                    error={
+                      errors.counselorRemarks &&
+                      values.advanceRequested.toString() !== mtoShipment.ppmShipment?.hasRequestedAdvance.toString()
+                    }
                   />
                 )}
 

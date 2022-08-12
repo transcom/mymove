@@ -39,6 +39,7 @@ const OriginZIPInfo = ({ currentZip, postalCodeValidator }) => {
     if (value?.length !== 5) {
       return undefined;
     }
+    console.log(postalCodeValid);
     // only revalidate if the value has changed, editing other fields will re-validate unchanged ones
     if (postalCodeValid[`${name}`]?.value !== value) {
       const response = await postalCodeValidator(value, location, UnsupportedZipCodePPMErrorMsg);
@@ -48,6 +49,7 @@ const OriginZIPInfo = ({ currentZip, postalCodeValidator }) => {
           [name]: { value, isValid: !response },
         };
       });
+      console.log(response);
       return response;
     }
     return postalCodeValid[`${name}`]?.isValid ? undefined : UnsupportedZipCodePPMErrorMsg;

@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Fieldset } from '@trussworks/react-uswds';
-import { FormGroup } from '@material-ui/core';
+import { Fieldset, FormGroup } from '@trussworks/react-uswds';
 
 import TextField from 'components/form/fields/TextField/TextField';
 import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
@@ -45,7 +44,7 @@ const ShipmentFormRemarks = ({ userRole, shipmentType, customerRemarks, counselo
             <FormGroup className={styles.remarksField}>
               <TextField
                 display="textarea"
-                label="Counselor Remarks"
+                label="Counselor remarks"
                 data-testid="counselor-remarks"
                 name="counselorRemarks"
                 className={`${formStyles.remarks}`}

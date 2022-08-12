@@ -30,6 +30,13 @@ const defaultProps = {
     streetAddress1: '123 Main',
     streetAddress2: '',
   },
+  originDutyLocationAddress: {
+    city: 'Fort Benning',
+    state: 'GA',
+    postalCode: '31905',
+    streetAddress1: '123 Main',
+    streetAddress2: '',
+  },
   serviceMember: {
     weightAllotment: {
       totalWeightSelf: 5000,
@@ -84,18 +91,23 @@ const mockShipmentWithDestinationType = {
   destinationType: 'PLACE_ENTERED_ACTIVE_DUTY',
 };
 
-// const mockPPMShipment = {
-//   ...mockMtoShipment,
-//   ppmShipment: {
-//     id: 'ppmShipmentID',
-//     shipmentId: 'shipment123',
-//     status: 'APPROVED',
-//     expectedDepartureDate: '2022-05-05',
-//     actualDepartureDate: '2022-05-07',
-//     pickupPostalCode: '90210',
-//     actualPickupPostalCode: '90210',
-//   }
-// }
+const mockPPMShipment = {
+  ...mockMtoShipment,
+  ppmShipment: {
+    id: 'ppmShipmentID',
+    shipmentId: 'shipment123',
+    status: 'NEEDS_ADVANCE_APPROVAL',
+    expectedDepartureDate: '2022-04-01',
+    pickupPostalCode: '90210',
+    destinationPostalCode: '90211',
+    sitExpected: false,
+    estimatedWeight: 7999,
+    hasProGear: false,
+    estimatedIncentive: 1234500,
+    hasRequestedAdvance: true,
+    advanceAmountRequested: 487500,
+  },
+};
 
 const defaultPropsRetirement = {
   ...defaultProps,
@@ -726,40 +738,46 @@ describe('ShipmentForm component', () => {
     it('renders the PPM shipment form with pre-filled values', async () => {
       render(
         <ShipmentForm
-          {...defaultPropsRetirement}
+          {...defaultProps}
           isCreatePage={false}
           selectedMoveType={SHIPMENT_OPTIONS.PPM}
-          mtoShipment={mockShipmentWithDestinationType}
-          displayDestinationType
+          mtoShipment={mockPPMShipment}
         />,
       );
 
-      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
-      expect(screen.getByLabelText('Use current address')).not.toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
-      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
-      expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
-      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
-      expect(screen.getAllByLabelText('First name')[0]).toHaveValue('Jason');
-      expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
-      expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
-      expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
-      expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
+      expect(await screen.getByLabelText('Planned departure date')).toHaveValue('01 Apr 2022');
+      userEvent.click(screen.getByLabelText('Use current ZIP'));
+      expect(await screen.getByLabelText('Origin ZIP')).toHaveValue(defaultProps.originDutyLocationAddress.postalCode);
+      userEvent.click(screen.getByLabelText('Use ZIP for new duty location'));
+
+      expect(await screen.getByLabelText('Destination ZIP')).toHaveValue(
+        defaultProps.newDutyLocationAddress.postalCode,
+      );
+      expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
+      expect(screen.getAllByLabelText('No')[0]).toBeChecked();
+      expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('7,999');
+      expect(screen.getAllByLabelText('Yes')[1]).not.toBeChecked();
+      expect(screen.getAllByLabelText('No')[1]).toBeChecked();
+    });
+
+    it('renders the PPM shipment form with pre-filled values for Advance Page', async () => {
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          isAdvancePage
+          selectedMoveType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+        />,
+      );
+
+      expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
+      expect(await screen.getByLabelText('No')).not.toBeChecked();
       expect(screen.getByLabelText('Yes')).toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
-      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      expect(screen.getAllByLabelText('City')[1]).toHaveValue('Tacoma');
-      expect(screen.getAllByLabelText('State')[1]).toHaveValue('WA');
-      expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('98421');
-      expect(screen.getAllByLabelText('First name')[1]).toHaveValue('Riley');
-      expect(screen.getAllByLabelText('Last name')[1]).toHaveValue('Baker');
-      expect(screen.getAllByLabelText('Phone')[1]).toHaveValue('863-555-9664');
-      expect(screen.getAllByLabelText('Email')[1]).toHaveValue('rbaker@email.com');
-      expect(screen.getByText('Customer remarks')).toBeTruthy();
-      expect(screen.getByText('mock customer remarks')).toBeTruthy();
+      expect(screen.findByText('Estimated incentive: $12,345').toBeInTheDocument);
+      expect(screen.getByLabelText('Amount requested')).toHaveValue('4,875');
+      expect((await screen.findByText('Maximum advance: $7,407')).toBeInTheDocument);
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
-      expect(screen.getByLabelText('Destination type')).toHaveValue('PLACE_ENTERED_ACTIVE_DUTY');
     });
   });
 });
