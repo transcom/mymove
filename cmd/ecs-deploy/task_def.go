@@ -616,6 +616,15 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 			ReadonlyRootFilesystem: aws.Bool(true),
 			Privileged:             aws.Bool(false),
 			User:                   aws.String("1042"),
+			// "mountPoints": [
+			//   {
+			//     "containerPath": "/var/db-export",
+			//     "sourceVolume": "database_scratch"
+			//   }
+			// ],
+			// "ephemeralStorage": {
+			//   "sizeInGiB": 2
+			// },
 		},
 	}
 
@@ -649,6 +658,9 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		NetworkMode:             aws.String("awsvpc"),
 		RequiresCompatibilities: []*string{aws.String("FARGATE")},
 		TaskRoleArn:             aws.String(taskRoleArn),
+		// volume {
+		//   name = "database_scratch"
+		// }
 	}
 
 	// Registration is never allowed by default and requires a flag
