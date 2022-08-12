@@ -15,7 +15,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/getlantern/deepcopy v0.0.0-20160317154340-7f45deb8130a
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
-	github.com/go-openapi/errors v0.20.2
+	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/loads v0.21.1
 	github.com/go-openapi/runtime v0.24.1
 	github.com/go-openapi/spec v0.20.6
@@ -78,7 +78,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.9.0
 	go.opentelemetry.io/otel/sdk/metric v0.31.0
 	go.opentelemetry.io/otel/trace v1.9.0
-	go.uber.org/zap v1.21.0
+	go.uber.org/zap v1.22.0
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
 	golang.org/x/net v0.0.0-20220728211354-c7608f3a8462
 	golang.org/x/oauth2 v0.0.0-20220718184931-c8730f7fcb92
