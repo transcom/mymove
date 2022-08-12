@@ -6,8 +6,8 @@ import { InvalidZIPTypeError, ZIP5_CODE_REGEX } from 'utils/validation';
 const ppmShipmentSchema = ({
   estimatedIncentive = 0,
   weightAllotment = {},
-  requestedAdvanceAmount = 0,
-  isAdvanceRequested,
+  advanceAmountRequested = 0,
+  hasRequestedAdvance,
   isAdvancePage,
 }) => {
   const estimatedWeightLimit = weightAllotment.totalWeightSelf || 0;
@@ -80,8 +80,8 @@ const ppmShipmentSchema = ({
     counselorRemarks: Yup.string().when(['advance', 'advanceRequested'], {
       is: (advance, advanceRequested) =>
         isAdvancePage &&
-        (Number(advance) !== requestedAdvanceAmount / 100 ||
-          advanceRequested?.toString() !== isAdvanceRequested?.toString()),
+        (Number(advance) !== advanceAmountRequested / 100 ||
+          advanceRequested?.toString() !== hasRequestedAdvance?.toString()),
       then: (schema) => schema.required('Required'),
     }),
   });

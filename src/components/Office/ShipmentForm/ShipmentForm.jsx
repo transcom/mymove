@@ -145,8 +145,8 @@ const ShipmentForm = (props) => {
     schema = ppmShipmentSchema({
       estimatedIncentive: initialValues.estimatedIncentive || 0,
       weightAllotment: serviceMember.weightAllotment,
-      requestedAdvanceAmount: mtoShipment.ppmShipment?.advanceAmountRequested,
-      isAdvanceRequested: mtoShipment.ppmShipment?.hasRequestedAdvance,
+      advanceAmountRequested: mtoShipment.ppmShipment?.advanceAmountRequested,
+      hasRequestedAdvance: mtoShipment.ppmShipment?.hasRequestedAdvance,
       isAdvancePage,
     });
   } else {
