@@ -135,8 +135,8 @@ func InitRoutePlanner(v *viper.Viper) Planner {
 }
 
 // InitHHGRoutePlanner creates a new HHG route planner that adheres to the Planner interface
-func InitHHGRoutePlanner(v *viper.Viper, tlsConfig *tls.Config) (Planner, error) {
-	dtodPlannerMileage, err := initDTODPlannerMileage(v, tlsConfig)
+func InitHHGRoutePlanner(appCtx appcontext.AppContext, v *viper.Viper, tlsConfig *tls.Config) (Planner, error) {
+	dtodPlannerMileage, err := initDTODPlannerMileage(appCtx, v, tlsConfig, "HHG")
 	if err != nil {
 		return nil, err
 	}
@@ -145,8 +145,8 @@ func InitHHGRoutePlanner(v *viper.Viper, tlsConfig *tls.Config) (Planner, error)
 }
 
 // InitDTODRoutePlanner creates a new DTOD route planner that adheres to the Planner interface
-func InitDTODRoutePlanner(v *viper.Viper, tlsConfig *tls.Config) (Planner, error) {
-	dtodPlannerMileage, err := initDTODPlannerMileage(v, tlsConfig)
+func InitDTODRoutePlanner(appCtx appcontext.AppContext, v *viper.Viper, tlsConfig *tls.Config) (Planner, error) {
+	dtodPlannerMileage, err := initDTODPlannerMileage(appCtx, v, tlsConfig, "DTOD")
 	if err != nil {
 		return nil, err
 	}
@@ -154,13 +154,15 @@ func InitDTODRoutePlanner(v *viper.Viper, tlsConfig *tls.Config) (Planner, error
 	return NewDTODPlanner(dtodPlannerMileage), nil
 }
 
-func initDTODPlannerMileage(v *viper.Viper, tlsConfig *tls.Config) (DTODPlannerMileage, error) {
+func initDTODPlannerMileage(appCtx appcontext.AppContext, v *viper.Viper, tlsConfig *tls.Config, plannerType string) (DTODPlannerMileage, error) {
 	dtodUseMock := v.GetBool(cli.DTODUseMockFlag)
 
 	var dtodPlannerMileage DTODPlannerMileage
 	if dtodUseMock {
+		appCtx.Logger().Info(fmt.Sprintf("Using mocked DTOD for %s route planner", plannerType))
 		dtodPlannerMileage = NewMockDTODZip5Distance()
 	} else {
+		appCtx.Logger().Info(fmt.Sprintf("Using real DTOD for %s route planner", plannerType))
 		tr := &http.Transport{TLSClientConfig: tlsConfig}
 		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
 

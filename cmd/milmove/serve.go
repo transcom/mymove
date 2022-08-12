@@ -514,13 +514,13 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	routePlanner := route.InitRoutePlanner(v)
 
 	// Create a secondary planner specifically for HHG.
-	hhgRoutePlanner, err := route.InitHHGRoutePlanner(v, tlsConfig)
+	hhgRoutePlanner, err := route.InitHHGRoutePlanner(appCtx, v, tlsConfig)
 	if err != nil {
 		appCtx.Logger().Fatal("Could not instantiate HHG route planner", zap.Error(err))
 	}
 
 	// Create a secondary planner specifically for DTOD.
-	dtodRoutePlanner, err := route.InitDTODRoutePlanner(v, tlsConfig)
+	dtodRoutePlanner, err := route.InitDTODRoutePlanner(appCtx, v, tlsConfig)
 	if err != nil {
 		appCtx.Logger().Fatal("Could not instantiate dtod route planner", zap.Error(err))
 	}
