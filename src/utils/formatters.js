@@ -409,7 +409,7 @@ export function formatQAReportID(uuid) {
   return `#QA-${getUUIDFirstFive(uuid)}`;
 }
 
-export function formatShortShipmentID(uuid) {
+export function formatShortIDWithPound(uuid) {
   return `#${getUUIDFirstFive(uuid)}`;
 }
 

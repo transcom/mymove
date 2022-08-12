@@ -5,11 +5,12 @@ import classnames from 'classnames';
 import { useParams } from 'react-router';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
-import ShipmentEvaluationForm from '../../../components/Office/ShipmentEvaluationForm/ShipmentEvaluationForm';
 
 import shipmentEvaluationReportStyles from './ShipmentEvaluationReport.module.scss';
 
+import ShipmentEvaluationForm from 'components/Office/ShipmentEvaluationForm/ShipmentEvaluationForm';
 import { useShipmentEvaluationReportQueries } from 'hooks/queries';
+import { formatShortIDWithPound } from 'utils/formatters';
 import DataTable from 'components/DataTable';
 import { CustomerShape } from 'types';
 import { OrdersShape } from 'types/customerShapes';
@@ -63,8 +64,8 @@ const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
         <div className={styles.pageHeader}>
           <h1>Shipment report</h1>
           <div className={styles.pageHeaderDetails}>
-            <h6>REPORT ID #{reportId}</h6>
-            <h6>MOVE CODE {moveCode}</h6>
+            <h6>REPORT ID {formatShortIDWithPound(reportId)}</h6>
+            <h6>MOVE CODE #{moveCode}</h6>
             <h6>MTO REFERENCE ID #{mtoRefId}</h6>
           </div>
         </div>
