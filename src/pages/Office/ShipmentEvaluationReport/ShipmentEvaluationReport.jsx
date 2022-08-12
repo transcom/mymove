@@ -45,14 +45,16 @@ const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
     </>
   );
 
-  const officeUserInfoTableBody = (
+  const officeUserInfoTableBody = evaluationReport.officeUser ? (
     <>
-      {customerInfo.last_name}, {customerInfo.first_name}
+      {evaluationReport.officeUser.lastName}, {evaluationReport.officeUser.firstName}
       <br />
-      {customerInfo.phone}
+      {evaluationReport.officeUser.phone}
       <br />
-      {customerInfo.email}
+      {evaluationReport.officeUser.email}
     </>
+  ) : (
+    ''
   );
 
   return (
