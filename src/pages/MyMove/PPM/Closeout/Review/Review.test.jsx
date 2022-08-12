@@ -1,21 +1,20 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { v4 } from 'uuid';
-import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router-dom';
 
-import { MockProviders } from 'testUtils';
+import { MockProviders, setUpProvidersWithHistory } from 'testUtils';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import Review from 'pages/MyMove/PPM/Closeout/Review/Review';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { customerRoutes } from 'constants/routes';
 import { deleteWeightTicket } from 'services/internalApi';
+import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 
 const mockMoveId = v4();
 const mockMTOShipmentId = v4();
 const mockPPMShipmentId = v4();
-const mockWeightTicketId = v4();
 
 const mockMTOShipment = {
   id: mockMTOShipmentId,
@@ -64,15 +63,7 @@ const mockMTOShipmentWithWeightTicket = {
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
-    weightTickets: [
-      {
-        id: mockWeightTicketId,
-        vehicleDescription: 'DMC Delorean',
-        emptyWeight: 2500,
-        fullWeight: 3500,
-        eTag: 'eTag value',
-      },
-    ],
+    weightTickets: [createCompleteWeightTicket()],
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -98,12 +89,7 @@ const mockMTOShipmentWithIncompleteWeightTicket = {
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
-    weightTickets: [
-      {
-        id: mockWeightTicketId,
-        eTag: 'eTag value',
-      },
-    ],
+    weightTickets: [createBaseWeightTicket()],
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -166,8 +152,9 @@ describe('About page', () => {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
     });
-    const memoryHistory = createMemoryHistory();
-    const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
+
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
     render(<Review />, { wrapper: mockProviderWithHistory });
 
     userEvent.click(screen.getAllByText('Edit')[0]);
@@ -182,8 +169,9 @@ describe('About page', () => {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
     });
-    const memoryHistory = createMemoryHistory();
-    const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
+
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
     render(<Review />, { wrapper: mockProviderWithHistory });
 
     userEvent.click(screen.getByText('Add More Weight'));
@@ -198,10 +186,11 @@ describe('About page', () => {
     const editWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
-      weightTicketId: mockWeightTicketId,
+      weightTicketId: mockMTOShipmentWithWeightTicket.ppmShipment.weightTickets[0].id,
     });
-    const memoryHistory = createMemoryHistory();
-    const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
+
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
     render(<Review />, { wrapper: mockProviderWithHistory });
 
     userEvent.click(screen.getAllByText('Edit')[1]);
@@ -212,8 +201,8 @@ describe('About page', () => {
   });
 
   it('routes to the home page when the finish later link is clicked', async () => {
-    const memoryHistory = createMemoryHistory();
-    const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
     render(<Review />, { wrapper: mockProviderWithHistory });
 
     userEvent.click(screen.getByText('Finish Later'));
@@ -230,8 +219,8 @@ describe('About page', () => {
       mtoShipmentId: mockMTOShipmentId,
     });
 
-    const memoryHistory = createMemoryHistory();
-    const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
     render(<Review />, { wrapper: mockProviderWithHistory });
 
     userEvent.click(screen.getByText('Save & Continue'));
@@ -242,9 +231,7 @@ describe('About page', () => {
   });
 
   it('disables the save and continue link when there are no weight tickets', async () => {
-    const memoryHistory = createMemoryHistory();
-    const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
-    render(<Review />, { wrapper: mockProviderWithHistory });
+    render(<Review />, { wrapper: MockProviders });
 
     expect(screen.getByText('Save & Continue')).toHaveClass('usa-button--disabled');
     expect(screen.getByText('Save & Continue')).toHaveAttribute('aria-disabled', 'true');
@@ -252,9 +239,7 @@ describe('About page', () => {
 
   it('disables the save and continue link when there is an incomplete weight ticket', async () => {
     selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithIncompleteWeightTicket);
-    const memoryHistory = createMemoryHistory();
-    const mockProviderWithHistory = ({ children }) => <MockProviders history={memoryHistory}>{children}</MockProviders>;
-    render(<Review />, { wrapper: mockProviderWithHistory });
+    render(<Review />, { wrapper: MockProviders });
 
     expect(screen.getByText('Save & Continue')).toHaveClass('usa-button--disabled');
     expect(screen.getByText('Save & Continue')).toHaveAttribute('aria-disabled', 'true');
@@ -289,8 +274,9 @@ describe('About page', () => {
 
     userEvent.click(screen.getByRole('button', { name: 'Yes, Delete' }));
 
+    const weightTicket = mockMTOShipmentWithWeightTicket.ppmShipment.weightTickets[0];
     await waitFor(() => {
-      expect(mockDeleteWeightTicket).toHaveBeenCalledWith(mockWeightTicketId, 'eTag value');
+      expect(mockDeleteWeightTicket).toHaveBeenCalledWith(weightTicket.id, weightTicket.eTag);
     });
   });
 });
