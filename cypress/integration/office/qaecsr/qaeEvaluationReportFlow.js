@@ -68,4 +68,21 @@ describe('Quality Evaluation Report Flows', () => {
     cy.url().should('include', `/moves/${moveLocator}/evaluation-reports`);
     cy.contains('View report');
   });
+  it('does prompt to delete if the report has not been saved since creation', () => {
+    const moveLocator = 'TEST12';
+    cy.wait(['@getSortedOrders']);
+    cy.contains(moveLocator).click();
+    // Move Details page
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // go to the QAE report section
+    cy.contains('Quality assurance').click();
+    cy.wait(['@getMTOShipments', '@getShipmentEvaluationReports', '@getCounselingEvaluationReports']);
+    cy.get('[data-testid="shipmentEvaluationCreate"]').click();
+    cy.wait(['@getEvaluationReport']);
+    cy.contains('Cancel').click();
+    cy.contains('Yes, Cancel').click();
+    cy.url().should('include', `/moves/${moveLocator}/evaluation-reports`);
+    cy.contains('Your report has been canceled');
+  });
 });
