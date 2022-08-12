@@ -56,22 +56,22 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		}
 
 		updatedPPMShipment.EstimatedIncentive = estimatedIncentive
-
-		if appCtx.Session().IsOfficeUser() {
-			rejected := models.PPMAdvanceStatusRejected
-			edited := models.PPMAdvanceStatusEdited
-			approved := models.PPMAdvanceStatusApproved
-			if !*oldPPMShipment.HasRequestedAdvance && *updatedPPMShipment.HasRequestedAdvance {
-				updatedPPMShipment.AdvanceStatus = &edited
-			} else if oldPPMShipment.AdvanceAmountRequested != nil && updatedPPMShipment.AdvanceAmountRequested != nil {
-				if *oldPPMShipment.AdvanceAmountRequested != *updatedPPMShipment.AdvanceAmountRequested {
-					updatedPPMShipment.AdvanceStatus = &edited
+		if appCtx.Session() != nil {
+			if appCtx.Session().IsOfficeUser() {
+				rejected := models.PPMAdvanceStatusRejected
+				edited := models.PPMAdvanceStatusEdited
+				approved := models.PPMAdvanceStatusApproved
+				if oldPPMShipment.HasRequestedAdvance != nil && updatedPPMShipment.HasRequestedAdvance != nil && oldPPMShipment.AdvanceAmountRequested != nil && updatedPPMShipment.AdvanceAmountRequested != nil {
+					if !*oldPPMShipment.HasRequestedAdvance && *updatedPPMShipment.HasRequestedAdvance {
+						updatedPPMShipment.AdvanceStatus = &edited
+					} else if *oldPPMShipment.AdvanceAmountRequested != *updatedPPMShipment.AdvanceAmountRequested {
+						updatedPPMShipment.AdvanceStatus = &edited
+					} else if *oldPPMShipment.AdvanceAmountRequested == *updatedPPMShipment.AdvanceAmountRequested && *oldPPMShipment.HasRequestedAdvance == *updatedPPMShipment.HasRequestedAdvance {
+						updatedPPMShipment.AdvanceStatus = &approved
+					} else if *oldPPMShipment.HasRequestedAdvance && !*updatedPPMShipment.HasRequestedAdvance {
+						updatedPPMShipment.AdvanceStatus = &rejected
+					}
 				}
-				if *oldPPMShipment.AdvanceAmountRequested == *updatedPPMShipment.AdvanceAmountRequested && *oldPPMShipment.HasRequestedAdvance == *updatedPPMShipment.HasRequestedAdvance {
-					updatedPPMShipment.AdvanceStatus = &approved
-				}
-			} else if *oldPPMShipment.HasRequestedAdvance && !*updatedPPMShipment.HasRequestedAdvance {
-				updatedPPMShipment.AdvanceStatus = &rejected
 			}
 		}
 
