@@ -54,8 +54,6 @@ describe('Quality Evaluation Report Flows', () => {
     // go to the QAE report section
     cy.contains('Quality assurance').click();
     cy.wait(['@getMTOShipments', '@getShipmentEvaluationReports', '@getCounselingEvaluationReports']);
-
-    // create report object to edit
     cy.get('[data-testid="shipmentEvaluationCreate"]').click();
     cy.wait(['@getEvaluationReport']);
     cy.get('[data-testid="textarea"]').type('this is a remark');
@@ -63,6 +61,7 @@ describe('Quality Evaluation Report Flows', () => {
     cy.url().should('include', `/moves/${moveLocator}/evaluation-reports`);
     cy.wait(['@getMTOShipments', '@getShipmentEvaluationReports', '@getCounselingEvaluationReports']);
     cy.contains('Your draft report has been saved');
+    // On this run through the cancel button should kick us back to the reports list view.
     cy.contains('View report').click();
     cy.wait(['@getEvaluationReport']);
     cy.get('[data-testid="cancelForUpdated"]').click();
