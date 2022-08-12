@@ -43,4 +43,30 @@ describe('Quality Evaluation Report Flows', () => {
     cy.wait(['@getMTOShipments', '@getShipmentEvaluationReports', '@getCounselingEvaluationReports']);
     cy.contains('Your draft report has been saved');
   });
+
+  it('does not prompt to delete report after first save', () => {
+    const moveLocator = 'TEST12';
+    cy.wait(['@getSortedOrders']);
+    cy.contains(moveLocator).click();
+    // Move Details page
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // go to the QAE report section
+    cy.contains('Quality assurance').click();
+    cy.wait(['@getMTOShipments', '@getShipmentEvaluationReports', '@getCounselingEvaluationReports']);
+
+    // create report object to edit
+    cy.get('[data-testid="shipmentEvaluationCreate"]').click();
+    cy.wait(['@getEvaluationReport']);
+    cy.get('[data-testid="textarea"]').type('this is a remark');
+    cy.contains('Save draft').click();
+    cy.url().should('include', `/moves/${moveLocator}/evaluation-reports`);
+    cy.wait(['@getMTOShipments', '@getShipmentEvaluationReports', '@getCounselingEvaluationReports']);
+    cy.contains('Your draft report has been saved');
+    cy.contains('View report').click();
+    cy.wait(['@getEvaluationReport']);
+    cy.get('[data-testid="cancelForUpdated"]').click();
+    cy.url().should('include', `/moves/${moveLocator}/evaluation-reports`);
+    cy.contains('View report');
+  });
 });
