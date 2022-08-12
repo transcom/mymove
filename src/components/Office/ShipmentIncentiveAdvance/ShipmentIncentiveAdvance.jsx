@@ -9,9 +9,9 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive } from 'utils/incentives';
 
-const ShipmentIncentiveAdvance = ({ estimatedIncentive, values }) => {
+const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const [advanceInput, , ,] = useField('advanceRequested');
-  const advanceRequested = !!advanceInput.value;
+  const advanceRequested = advanceInput.value === 'true';
 
   const { formattedMaxAdvance, formattedIncentive } =
     calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);
@@ -33,7 +33,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, values }) => {
                 name="advanceRequested"
                 value="true"
                 title="Yes"
-                checked={values.advanceRequested === 'true'}
+                checked={advanceRequested}
               />
               <Field
                 as={Radio}
@@ -42,11 +42,11 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, values }) => {
                 name="advanceRequested"
                 value="false"
                 title="No"
-                checked={values.advanceRequested === 'false'}
+                checked={!advanceRequested}
               />
             </FormGroup>
 
-            {values.advanceRequested !== 'false' && (
+            {advanceRequested && (
               <>
                 <FormGroup>
                   <MaskedTextField
@@ -79,10 +79,10 @@ export default ShipmentIncentiveAdvance;
 
 ShipmentIncentiveAdvance.propTypes = {
   estimatedIncentive: PropTypes.number,
-  values: PropTypes.object,
+  // values: PropTypes.object,
 };
 
 ShipmentIncentiveAdvance.defaultProps = {
   estimatedIncentive: 0,
-  values: {},
+  // values: {},
 };

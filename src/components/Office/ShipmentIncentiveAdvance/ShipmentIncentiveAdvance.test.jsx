@@ -12,7 +12,7 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
   it('should display content without props', () => {
     render(
       <Formik initialValues={{ advanceRequested: 'false' }}>
-        <ShipmentIncentiveAdvance values={{ advanceRequested: 'false' }} />
+        <ShipmentIncentiveAdvance />
       </Formik>,
     );
 
@@ -46,7 +46,7 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
     });
 
     render(
-      <Formik validationSchema={validationSchema} initialValues={{ advanceRequested: true, advance: '7000' }}>
+      <Formik validationSchema={validationSchema} initialValues={{ advanceRequested: 'true', advance: '7000' }}>
         <ShipmentIncentiveAdvance estimatedIncentive={estimatedIncentive} />
       </Formik>,
     );
