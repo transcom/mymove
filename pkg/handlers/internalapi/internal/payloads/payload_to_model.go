@@ -193,6 +193,22 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	return model
 }
 
+// MovingExpenseModelFromUpdate
+func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingExpense) *models.MovingExpense {
+	if movingExpense == nil {
+		return nil
+	}
+	model := &models.MovingExpense{
+		MovingExpenseType: (*models.MovingExpenseReceiptType)(&movingExpense.MovingExpenseType),
+		Description:       handlers.FmtString(movingExpense.Description),
+		Status:            (*models.PPMDocumentStatus)(&movingExpense.Status),
+		Reason:            handlers.FmtString(movingExpense.Reason),
+		SITStartDate:      handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
+		SITEndDate:        handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
+	}
+	return model
+}
+
 // MTOShipmentModel model
 func MTOShipmentModel(mtoShipment *internalmessages.MTOShipment) *models.MTOShipment {
 	if mtoShipment == nil {

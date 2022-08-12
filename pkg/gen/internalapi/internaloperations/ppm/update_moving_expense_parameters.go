@@ -36,7 +36,18 @@ type UpdateMovingExpenseParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*UUID of the move
+	/*Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+
+	  Required: true
+	  In: header
+	*/
+	IfMatch string
+	/*UUID of the moving expense
+	  Required: true
+	  In: path
+	*/
+	MovingExpenseID strfmt.UUID
+	/*UUID of the ppm shipment
 	  Required: true
 	  In: path
 	*/
@@ -56,6 +67,15 @@ func (o *UpdateMovingExpenseParams) BindRequest(r *http.Request, route *middlewa
 	var res []error
 
 	o.HTTPRequest = r
+
+	if err := o.bindIfMatch(r.Header[http.CanonicalHeaderKey("If-Match")], true, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	rMovingExpenseID, rhkMovingExpenseID, _ := route.Params.GetOK("movingExpenseId")
+	if err := o.bindMovingExpenseID(rMovingExpenseID, rhkMovingExpenseID, route.Formats); err != nil {
+		res = append(res, err)
+	}
 
 	rPpmShipmentID, rhkPpmShipmentID, _ := route.Params.GetOK("ppmShipmentId")
 	if err := o.bindPpmShipmentID(rPpmShipmentID, rhkPpmShipmentID, route.Formats); err != nil {
@@ -91,6 +111,59 @@ func (o *UpdateMovingExpenseParams) BindRequest(r *http.Request, route *middlewa
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+// bindIfMatch binds and validates parameter IfMatch from header.
+func (o *UpdateMovingExpenseParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("If-Match", "header", rawData)
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+
+	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
+		return err
+	}
+	o.IfMatch = raw
+
+	return nil
+}
+
+// bindMovingExpenseID binds and validates parameter MovingExpenseID from path.
+func (o *UpdateMovingExpenseParams) bindMovingExpenseID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+	// Parameter is provided by construction from the route
+
+	// Format: uuid
+	value, err := formats.Parse("uuid", raw)
+	if err != nil {
+		return errors.InvalidType("movingExpenseId", "path", "strfmt.UUID", raw)
+	}
+	o.MovingExpenseID = *(value.(*strfmt.UUID))
+
+	if err := o.validateMovingExpenseID(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateMovingExpenseID carries on validations for parameter MovingExpenseID
+func (o *UpdateMovingExpenseParams) validateMovingExpenseID(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("movingExpenseId", "path", "uuid", o.MovingExpenseID.String(), formats); err != nil {
+		return err
 	}
 	return nil
 }

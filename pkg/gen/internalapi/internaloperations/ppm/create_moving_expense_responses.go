@@ -233,6 +233,50 @@ func (o *CreateMovingExpenseNotFound) WriteResponse(rw http.ResponseWriter, prod
 	}
 }
 
+// CreateMovingExpenseUnprocessableEntityCode is the HTTP code returned for type CreateMovingExpenseUnprocessableEntity
+const CreateMovingExpenseUnprocessableEntityCode int = 422
+
+/*CreateMovingExpenseUnprocessableEntity The payload was unprocessable.
+
+swagger:response createMovingExpenseUnprocessableEntity
+*/
+type CreateMovingExpenseUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewCreateMovingExpenseUnprocessableEntity creates CreateMovingExpenseUnprocessableEntity with default headers values
+func NewCreateMovingExpenseUnprocessableEntity() *CreateMovingExpenseUnprocessableEntity {
+
+	return &CreateMovingExpenseUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the create moving expense unprocessable entity response
+func (o *CreateMovingExpenseUnprocessableEntity) WithPayload(payload *internalmessages.ValidationError) *CreateMovingExpenseUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create moving expense unprocessable entity response
+func (o *CreateMovingExpenseUnprocessableEntity) SetPayload(payload *internalmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateMovingExpenseUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // CreateMovingExpenseInternalServerErrorCode is the HTTP code returned for type CreateMovingExpenseInternalServerError
 const CreateMovingExpenseInternalServerErrorCode int = 500
 

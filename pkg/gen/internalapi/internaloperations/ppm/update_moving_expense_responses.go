@@ -13,42 +13,42 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
-// UpdateMovingExpenseCreatedCode is the HTTP code returned for type UpdateMovingExpenseCreated
-const UpdateMovingExpenseCreatedCode int = 201
+// UpdateMovingExpenseOKCode is the HTTP code returned for type UpdateMovingExpenseOK
+const UpdateMovingExpenseOKCode int = 200
 
-/*UpdateMovingExpenseCreated updated instance of move
+/*UpdateMovingExpenseOK returns an updated moving expense object
 
-swagger:response updateMovingExpenseCreated
+swagger:response updateMovingExpenseOK
 */
-type UpdateMovingExpenseCreated struct {
+type UpdateMovingExpenseOK struct {
 
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.UpdateMovingExpense `json:"body,omitempty"`
+	Payload *internalmessages.MovingExpense `json:"body,omitempty"`
 }
 
-// NewUpdateMovingExpenseCreated creates UpdateMovingExpenseCreated with default headers values
-func NewUpdateMovingExpenseCreated() *UpdateMovingExpenseCreated {
+// NewUpdateMovingExpenseOK creates UpdateMovingExpenseOK with default headers values
+func NewUpdateMovingExpenseOK() *UpdateMovingExpenseOK {
 
-	return &UpdateMovingExpenseCreated{}
+	return &UpdateMovingExpenseOK{}
 }
 
-// WithPayload adds the payload to the update moving expense created response
-func (o *UpdateMovingExpenseCreated) WithPayload(payload *internalmessages.UpdateMovingExpense) *UpdateMovingExpenseCreated {
+// WithPayload adds the payload to the update moving expense o k response
+func (o *UpdateMovingExpenseOK) WithPayload(payload *internalmessages.MovingExpense) *UpdateMovingExpenseOK {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the update moving expense created response
-func (o *UpdateMovingExpenseCreated) SetPayload(payload *internalmessages.UpdateMovingExpense) {
+// SetPayload sets the payload to the update moving expense o k response
+func (o *UpdateMovingExpenseOK) SetPayload(payload *internalmessages.MovingExpense) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *UpdateMovingExpenseCreated) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *UpdateMovingExpenseOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(201)
+	rw.WriteHeader(200)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {
@@ -225,6 +225,94 @@ func (o *UpdateMovingExpenseNotFound) SetPayload(payload *internalmessages.Clien
 func (o *UpdateMovingExpenseNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
+// UpdateMovingExpensePreconditionFailedCode is the HTTP code returned for type UpdateMovingExpensePreconditionFailed
+const UpdateMovingExpensePreconditionFailedCode int = 412
+
+/*UpdateMovingExpensePreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+
+swagger:response updateMovingExpensePreconditionFailed
+*/
+type UpdateMovingExpensePreconditionFailed struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ClientError `json:"body,omitempty"`
+}
+
+// NewUpdateMovingExpensePreconditionFailed creates UpdateMovingExpensePreconditionFailed with default headers values
+func NewUpdateMovingExpensePreconditionFailed() *UpdateMovingExpensePreconditionFailed {
+
+	return &UpdateMovingExpensePreconditionFailed{}
+}
+
+// WithPayload adds the payload to the update moving expense precondition failed response
+func (o *UpdateMovingExpensePreconditionFailed) WithPayload(payload *internalmessages.ClientError) *UpdateMovingExpensePreconditionFailed {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update moving expense precondition failed response
+func (o *UpdateMovingExpensePreconditionFailed) SetPayload(payload *internalmessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMovingExpensePreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(412)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
+// UpdateMovingExpenseUnprocessableEntityCode is the HTTP code returned for type UpdateMovingExpenseUnprocessableEntity
+const UpdateMovingExpenseUnprocessableEntityCode int = 422
+
+/*UpdateMovingExpenseUnprocessableEntity The payload was unprocessable.
+
+swagger:response updateMovingExpenseUnprocessableEntity
+*/
+type UpdateMovingExpenseUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewUpdateMovingExpenseUnprocessableEntity creates UpdateMovingExpenseUnprocessableEntity with default headers values
+func NewUpdateMovingExpenseUnprocessableEntity() *UpdateMovingExpenseUnprocessableEntity {
+
+	return &UpdateMovingExpenseUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the update moving expense unprocessable entity response
+func (o *UpdateMovingExpenseUnprocessableEntity) WithPayload(payload *internalmessages.ValidationError) *UpdateMovingExpenseUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update moving expense unprocessable entity response
+func (o *UpdateMovingExpenseUnprocessableEntity) SetPayload(payload *internalmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMovingExpenseUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {

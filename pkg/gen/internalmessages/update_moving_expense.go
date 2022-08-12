@@ -20,7 +20,8 @@ import (
 type UpdateMovingExpense struct {
 
 	// deleted at
-	DeletedAt bool `json:"deletedAt,omitempty"`
+	// Format: date-time
+	DeletedAt strfmt.DateTime `json:"deletedAt,omitempty"`
 
 	// description
 	Description string `json:"description,omitempty"`
@@ -49,6 +50,10 @@ type UpdateMovingExpense struct {
 func (m *UpdateMovingExpense) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateDeletedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateMovingExpenseType(formats); err != nil {
 		res = append(res, err)
 	}
@@ -68,6 +73,18 @@ func (m *UpdateMovingExpense) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *UpdateMovingExpense) validateDeletedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.DeletedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("deletedAt", "body", "date-time", m.DeletedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

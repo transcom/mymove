@@ -2345,11 +2345,16 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
           "500": {
             "$ref": "#/responses/ServerError"
           }
         }
-      },
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
       "patch": {
         "description": "Any fields sent in this request will be set on the moving expense referenced",
         "tags": [
@@ -2361,9 +2366,24 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the move",
+            "description": "UUID of the ppm shipment",
             "name": "ppmShipmentId",
             "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the moving expense",
+            "name": "movingExpenseId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
             "required": true
           },
           {
@@ -2376,10 +2396,10 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "updated instance of move",
+          "200": {
+            "description": "returns an updated moving expense object",
             "schema": {
-              "$ref": "#/definitions/UpdateMovingExpense"
+              "$ref": "#/definitions/MovingExpense"
             }
           },
           "400": {
@@ -2393,6 +2413,12 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -6617,7 +6643,8 @@ func init() {
       "type": "object",
       "properties": {
         "deletedAt": {
-          "type": "boolean"
+          "type": "string",
+          "format": "date-time"
         },
         "description": {
           "type": "string"
@@ -9668,6 +9695,12 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "A server error occurred.",
             "schema": {
@@ -9675,7 +9708,9 @@ func init() {
             }
           }
         }
-      },
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
       "patch": {
         "description": "Any fields sent in this request will be set on the moving expense referenced",
         "tags": [
@@ -9687,9 +9722,24 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the move",
+            "description": "UUID of the ppm shipment",
             "name": "ppmShipmentId",
             "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the moving expense",
+            "name": "movingExpenseId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
             "required": true
           },
           {
@@ -9702,10 +9752,10 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "updated instance of move",
+          "200": {
+            "description": "returns an updated moving expense object",
             "schema": {
-              "$ref": "#/definitions/UpdateMovingExpense"
+              "$ref": "#/definitions/MovingExpense"
             }
           },
           "400": {
@@ -9730,6 +9780,18 @@ func init() {
             "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -14018,7 +14080,8 @@ func init() {
       "type": "object",
       "properties": {
         "deletedAt": {
-          "type": "boolean"
+          "type": "string",
+          "format": "date-time"
         },
         "description": {
           "type": "string"

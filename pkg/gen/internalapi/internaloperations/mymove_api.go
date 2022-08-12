@@ -1040,7 +1040,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/moving-expenses"] = ppm.NewUpdateMovingExpense(o.context, o.PpmUpdateMovingExpenseHandler)
+	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}"] = ppm.NewUpdateMovingExpense(o.context, o.PpmUpdateMovingExpenseHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}

@@ -29,7 +29,7 @@ func NewUpdateMovingExpense(ctx *middleware.Context, handler UpdateMovingExpense
 	return &UpdateMovingExpense{Context: ctx, Handler: handler}
 }
 
-/* UpdateMovingExpense swagger:route PATCH /ppm-shipments/{ppmShipmentId}/moving-expenses ppm updateMovingExpense
+/* UpdateMovingExpense swagger:route PATCH /ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId} ppm updateMovingExpense
 
 Updates the moving expense
 

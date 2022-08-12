@@ -16,7 +16,8 @@ import (
 
 // UpdateMovingExpenseURL generates an URL for the update moving expense operation
 type UpdateMovingExpenseURL struct {
-	PpmShipmentID strfmt.UUID
+	MovingExpenseID strfmt.UUID
+	PpmShipmentID   strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -42,7 +43,14 @@ func (o *UpdateMovingExpenseURL) SetBasePath(bp string) {
 func (o *UpdateMovingExpenseURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/ppm-shipments/{ppmShipmentId}/moving-expenses"
+	var _path = "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}"
+
+	movingExpenseID := o.MovingExpenseID.String()
+	if movingExpenseID != "" {
+		_path = strings.Replace(_path, "{movingExpenseId}", movingExpenseID, -1)
+	} else {
+		return nil, errors.New("movingExpenseId is required on UpdateMovingExpenseURL")
+	}
 
 	ppmShipmentID := o.PpmShipmentID.String()
 	if ppmShipmentID != "" {
