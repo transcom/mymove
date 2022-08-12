@@ -19,12 +19,13 @@ func (suite *GHCTestSuite) TestMockDTODZip5Distance() {
 		{"zip5 distance max", "00000", "99999", maxZip5Distance, false, ""},
 		{"zip3 distance", "30907", "30901", 7, false, ""},
 		{"zip3 distance reversed", "30901", "30907", 7, false, ""},
-		{"zip3 distance min", "30907", "30907", minZip3Distance, false, ""},
+		{"zip3 distance min", "30907", "30908", minZip3Distance, false, ""},
 		{"zip3 distance max", "30900", "30999", maxZip3Distance, false, ""},
-		{"too short pickup zip", "3090", "29212", 0, true, "pickup zip must be at least 5 digits"},
-		{"too short destination zip", "30907", "2921", 0, true, "destination zip must be at least 5 digits"},
-		{"invalid pickup zip", "3090x", "29212", 0, true, "pickup zip could not be converted to an integer"},
-		{"invalid destination zip", "30907", "2921x", 0, true, "destination zip could not be converted to an integer"},
+		{"zips are identical", "30907", "30907", 0, false, ""},
+		{"too short pickup zip", "3090", "29212", -1, true, "pickup zip must be at least 5 digits"},
+		{"too short destination zip", "30907", "2921", -1, true, "destination zip must be at least 5 digits"},
+		{"invalid pickup zip", "3090x", "29212", -1, true, "pickup zip could not be converted to an integer"},
+		{"invalid destination zip", "30907", "2921x", -1, true, "destination zip could not be converted to an integer"},
 	}
 
 	for _, test := range tests {

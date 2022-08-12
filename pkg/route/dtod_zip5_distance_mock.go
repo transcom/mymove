@@ -13,7 +13,7 @@ const (
 	maxZip5Distance = 3500
 	zip5Range       = 99999
 
-	minZip3Distance = 1
+	minZip3Distance = 2
 	maxZip3Distance = 100
 	zip3Range       = 99
 )
@@ -27,15 +27,18 @@ func NewMockDTODZip5Distance() DTODPlannerMileage {
 
 // DTODZip5Distance returns a deterministic (but fake) distance between a pickup and destination zip
 func (m *mockDTODZip5DistanceInfo) DTODZip5Distance(appCtx appcontext.AppContext, pickupZip string, destinationZip string) (int, error) {
+	// DTOD apparently returns -1 for the distance when there are errors, so we simulate that here
+	// (we shouldn't be using the distance value on error, but this at least keeps things in sync).
+
 	// Get first 5 digits of zip codes
 	if len(pickupZip) < 5 {
-		return 0, fmt.Errorf("pickup zip must be at least 5 digits")
+		return -1, fmt.Errorf("pickup zip must be at least 5 digits")
 	}
 	pickupZip5 := pickupZip[0:5]
 	pickupZip3 := pickupZip5[0:3]
 
 	if len(destinationZip) < 5 {
-		return 0, fmt.Errorf("destination zip must be at least 5 digits")
+		return -1, fmt.Errorf("destination zip must be at least 5 digits")
 	}
 	destinationZip5 := destinationZip[0:5]
 	destinationZip3 := destinationZip5[0:3]
@@ -43,11 +46,16 @@ func (m *mockDTODZip5DistanceInfo) DTODZip5Distance(appCtx appcontext.AppContext
 	// Convert zip codes to integers to help with creating a deterministic distance
 	pickupZip5Int, err := strconv.Atoi(pickupZip5)
 	if err != nil {
-		return 0, fmt.Errorf("pickup zip could not be converted to an integer")
+		return -1, fmt.Errorf("pickup zip could not be converted to an integer")
 	}
 	destinationZip5Int, err := strconv.Atoi(destinationZip5)
 	if err != nil {
-		return 0, fmt.Errorf("destination zip could not be converted to an integer")
+		return -1, fmt.Errorf("destination zip could not be converted to an integer")
+	}
+
+	// If the zip5 values are the same, just return a distance of zero like DTOD
+	if pickupZip5 == destinationZip5 {
+		return 0, nil
 	}
 
 	// For zips where the first 3 digits match, pick a deterministic distance between MinZip3Distance and
