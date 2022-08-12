@@ -6065,6 +6065,15 @@ func init() {
       },
       "x-nullable": true
     },
+    "PPMAdvanceStatus": {
+      "type": "string",
+      "title": "PPM Advance Status",
+      "enum": [
+        "APPROVED",
+        "REJECTED",
+        "EDITED"
+      ]
+    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
@@ -6119,6 +6128,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
+        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -6158,12 +6170,6 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date"
-        },
-        "hasOfficeAdjustedAdvance": {
-          "description": "Indicates whether an advance has been adjusted or denied by the office.\n",
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
@@ -7369,6 +7375,9 @@ func init() {
           "format": "cents",
           "x-nullable": true
         },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
+        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -7386,11 +7395,6 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date",
-          "x-nullable": true
-        },
-        "hasOfficeAdjustedAdvance": {
-          "description": "Indicates whether an advance has been adjusted or denied by the office.\n",
-          "type": "boolean",
           "x-nullable": true
         },
         "hasProGear": {
@@ -14946,6 +14950,15 @@ func init() {
       },
       "x-nullable": true
     },
+    "PPMAdvanceStatus": {
+      "type": "string",
+      "title": "PPM Advance Status",
+      "enum": [
+        "APPROVED",
+        "REJECTED",
+        "EDITED"
+      ]
+    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
@@ -15000,6 +15013,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
+        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -15039,12 +15055,6 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date"
-        },
-        "hasOfficeAdjustedAdvance": {
-          "description": "Indicates whether an advance has been adjusted or denied by the office.\n",
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
@@ -16257,6 +16267,9 @@ func init() {
           "format": "cents",
           "x-nullable": true
         },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
+        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -16274,11 +16287,6 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date",
-          "x-nullable": true
-        },
-        "hasOfficeAdjustedAdvance": {
-          "description": "Indicates whether an advance has been adjusted or denied by the office.\n",
-          "type": "boolean",
           "x-nullable": true
         },
         "hasProGear": {

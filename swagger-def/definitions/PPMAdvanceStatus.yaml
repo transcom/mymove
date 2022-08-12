@@ -1,0 +1,6 @@
+type: string
+title: PPM Advance Status
+enum:
+  - APPROVED
+  - REJECTED
+  - EDITED

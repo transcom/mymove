@@ -48,6 +48,9 @@ type PPMShipment struct {
 	//
 	AdvanceAmountRequested *int64 `json:"advanceAmountRequested"`
 
+	// advance status
+	AdvanceStatus PPMAdvanceStatus `json:"advanceStatus,omitempty"`
+
 	// approved at
 	// Format: date-time
 	ApprovedAt *strfmt.DateTime `json:"approvedAt"`
@@ -81,10 +84,6 @@ type PPMShipment struct {
 	// Required: true
 	// Format: date
 	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate"`
-
-	// Indicates whether an advance has been adjusted or denied by the office.
-	//
-	HasOfficeAdjustedAdvance *bool `json:"hasOfficeAdjustedAdvance"`
 
 	// Indicates whether PPM shipment has pro gear.
 	//
@@ -200,6 +199,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateAdvanceStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateApprovedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -312,6 +315,23 @@ func (m *PPMShipment) validateActualPickupPostalCode(formats strfmt.Registry) er
 	}
 
 	if err := validate.Pattern("actualPickupPostalCode", "body", *m.ActualPickupPostalCode, `^(\d{5})$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateAdvanceStatus(formats strfmt.Registry) error {
+	if swag.IsZero(m.AdvanceStatus) { // not required
+		return nil
+	}
+
+	if err := m.AdvanceStatus.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("advanceStatus")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("advanceStatus")
+		}
 		return err
 	}
 
@@ -577,6 +597,10 @@ func (m *PPMShipment) validateWeightTickets(formats strfmt.Registry) error {
 func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateAdvanceStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -612,6 +636,20 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *PPMShipment) contextValidateAdvanceStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.AdvanceStatus.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("advanceStatus")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("advanceStatus")
+		}
+		return err
+	}
+
 	return nil
 }
 

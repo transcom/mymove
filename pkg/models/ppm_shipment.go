@@ -31,6 +31,18 @@ const (
 	PPMShipmentStatusPaymentApproved PPMShipmentStatus = "PAYMENT_APPROVED"
 )
 
+// PPMAdvanceStatus represents the status of an advance that can be approved, edited or rejected by a SC
+type PPMAdvanceStatus string
+
+const (
+	// PPMAdvanceStatusApproved captures enum value "APPROVED"
+	PPMAdvanceStatusApproved PPMAdvanceStatus = "APPROVED"
+	// PPMAdvanceStatusEdited captures enum value "EDITED"
+	PPMAdvanceStatusEdited PPMAdvanceStatus = "EDITED"
+	// PPMAdvanceStatusRejected captures enum value "REJECTED"
+	PPMAdvanceStatusRejected PPMAdvanceStatus = "REJECTED"
+)
+
 // SITLocationType represents whether the SIT at the origin or destination
 type SITLocationType string
 
@@ -89,7 +101,7 @@ type PPMShipment struct {
 	HasRequestedAdvance            *bool             `json:"has_requested_advance" db:"has_requested_advance"`
 	AdvanceAmountRequested         *unit.Cents       `json:"advance_amount_requested" db:"advance_amount_requested"`
 	HasReceivedAdvance             *bool             `json:"has_received_advance" db:"has_received_advance"`
-	HasOfficeAdjustedAdvance       *bool             `json:"has_officed_adjusted_advance" db:"has_office_adjusted_advance"`
+	AdvanceStatus                  *PPMAdvanceStatus `json:"advance_status" db:"advance_status"`
 	AdvanceAmountReceived          *unit.Cents       `json:"advance_amount_received" db:"advance_amount_received"`
 	SITExpected                    *bool             `json:"sit_expected" db:"sit_expected"`
 	SITLocation                    *SITLocationType  `json:"sit_location" db:"sit_location"`
