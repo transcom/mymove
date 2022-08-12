@@ -26,7 +26,8 @@ export const Details = (args) => <SITCostDetails {...args} />;
 Details.args = {
   cost: 123400,
   weight: 2345,
-  location: '12345',
+  originZip: '12345',
+  destinationZip: '54321',
   sitLocation: 'DESTINATION',
   departureDate: '2022-10-29',
   entryDate: '2022-08-06',

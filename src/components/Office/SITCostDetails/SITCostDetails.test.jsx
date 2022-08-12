@@ -3,11 +3,14 @@ import { render, screen } from '@testing-library/react';
 
 import SITCostDetails from './SITCostDetails';
 
+import { LOCATION_TYPES } from 'types/sitStatusShape';
+
 const args = {
   cost: 12300,
   weight: 234,
-  sitLocation: 'ORIGIN',
-  location: '23456',
+  sitLocation: LOCATION_TYPES.ORIGIN,
+  originZip: '23456',
+  destinationZip: '54321',
   departureDate: '2022-10-29',
   entryDate: '2022-08-06',
 };
@@ -21,7 +24,18 @@ describe('components/Office/SITCostDetails', () => {
   it('displays passed SIT details correctly', () => {
     render(<SITCostDetails {...args} />);
     expect(screen.getByText(/Government constructed cost: \$123/)).toBeInTheDocument();
-    expect(screen.getByText(/Maximum reimbursement for storing 234 lbs of origin SIT at 23456/)).toBeInTheDocument();
+    expect(screen.getByText(/234 lbs of origin SIT/)).toBeInTheDocument();
+  });
+
+  it('displays origin ZIP when SIT location is origin', () => {
+    render(<SITCostDetails {...args} />);
+    expect(screen.getByText(/at 23456/)).toBeInTheDocument();
+  });
+
+  it('displays destination ZIP when SIT location is destination', () => {
+    args.sitLocation = LOCATION_TYPES.DESTINATION;
+    render(<SITCostDetails {...args} />);
+    expect(screen.getByText(/at 54321/)).toBeInTheDocument();
   });
 
   it('correctly computes days between entry and departure', async () => {
@@ -34,7 +48,7 @@ describe('components/Office/SITCostDetails', () => {
     args.weight = 23456;
     render(<SITCostDetails {...args} />);
     expect(screen.queryByText(/Government constructed cost: \$1,234/)).toBeInTheDocument();
-    expect(screen.queryByText(/Maximum reimbursement for storing 23,456 lbs/)).toBeInTheDocument();
+    expect(screen.queryByText(/23,456 lbs/)).toBeInTheDocument();
   });
 
   it('displays singular "day" when there is only one', async () => {
