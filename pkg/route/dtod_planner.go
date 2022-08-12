@@ -9,9 +9,7 @@ import (
 
 // dtodPlanner holds configuration information to make calls to the GHC services (DTOD and RM).
 type dtodPlanner struct {
-	soapClient   SoapCaller
-	dtodUsername string
-	dtodPassword string
+	dtodPlannerMileage DTODPlannerMileage
 }
 
 // TransitDistance calculates the distance between two valid addresses
@@ -54,15 +52,12 @@ func (p *dtodPlanner) ZipTransitDistance(appCtx appcontext.AppContext, source st
 		destination = fmt.Sprintf("%05s", destination)
 	}
 
-	dtod := NewDTODZip5Distance(p.dtodUsername, p.dtodPassword, p.soapClient)
-	return dtod.DTODZip5Distance(appCtx, source, destination)
+	return p.dtodPlannerMileage.DTODZip5Distance(appCtx, source, destination)
 }
 
-// NewDtodPlanner constructs and returns a Planner for GHC routing.
-func NewDtodPlanner(soapClient SoapCaller, dtodUsername string, dtodPassword string) Planner {
+// NewDTODPlanner constructs and returns a Planner for GHC routing.
+func NewDTODPlanner(dtodPlannerMileage DTODPlannerMileage) Planner {
 	return &dtodPlanner{
-		soapClient:   soapClient,
-		dtodUsername: dtodUsername,
-		dtodPassword: dtodPassword,
+		dtodPlannerMileage: dtodPlannerMileage,
 	}
 }
