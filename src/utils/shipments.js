@@ -8,14 +8,55 @@ export function isPPMShipmentComplete(mtoShipment) {
   return false;
 }
 
-export function hasCompleteWeightTickets(weightTickets) {
+// isPPMAboutInfoComplete - checks if all the "About your ppm" fields have data in them.
+export function isPPMAboutInfoComplete(ppmShipment) {
+  const hasBaseRequiredFields = [
+    'actualMoveDate',
+    'actualPickupPostalCode',
+    'actualDestinationPostalCode',
+    'hasReceivedAdvance',
+  ].every((fieldName) => ppmShipment[fieldName] !== null);
+
+  if (hasBaseRequiredFields) {
+    if (
+      !ppmShipment.hasReceivedAdvance ||
+      (ppmShipment.advanceAmountReceived !== null && ppmShipment.advanceAmountReceived > 0)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// isWeightTicketComplete - checks that the required fields for a weight ticket have valid data
+// to check if the weight ticket can be considered complete. For the purposes of this function,
+// any data is enough to consider some fields valid.
+export function isWeightTicketComplete(weightTicket) {
+  const hasValidEmptyWeight = weightTicket.emptyWeight != null && weightTicket.emptyWeight >= 0;
+
+  const hasTrailerDocUpload = weightTicket.proofOfTrailerOwnershipDocument.uploads.length > 0;
+  const needsTrailerUpload = weightTicket.ownsTrailer && weightTicket.trailerMeetsCriteria;
+  const trailerNeedsMet = needsTrailerUpload ? hasTrailerDocUpload : true;
+
+  return !!(
+    weightTicket.vehicleDescription &&
+    hasValidEmptyWeight &&
+    weightTicket.emptyDocument.uploads.length > 0 &&
+    weightTicket.fullWeight > 0 &&
+    weightTicket.fullDocument.uploads.length > 0 &&
+    trailerNeedsMet
+  );
+}
+
+// hasCompletedAllWeightTickets - checks if every weight ticket has been completed.
+// Returns false if there are no weight tickets, or if any of them are incomplete.
+export function hasCompletedAllWeightTickets(weightTickets) {
   if (!weightTickets?.length) {
     return false;
   }
 
-  return !!weightTickets?.every((weightTicket) => {
-    return weightTicket.vehicleDescription && weightTicket.emptyWeight && weightTicket.fullWeight;
-  });
+  return !!weightTickets?.every(isWeightTicketComplete);
 }
 
 export default isPPMShipmentComplete;
