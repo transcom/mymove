@@ -3783,8 +3783,6 @@ definitions:
           Indicates whether PPM shipment has pro gear.
         type: boolean
         x-nullable: true
-      advanceStatus:
-        $ref: 'definitions/PPMAdvanceStatus.yaml'
       proGearWeight:
         type: integer
         x-nullable: true

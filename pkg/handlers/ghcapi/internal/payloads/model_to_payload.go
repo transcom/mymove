@@ -629,7 +629,6 @@ func PPMShipment(ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
-		AdvanceStatus:                  ghcmessages.PPMAdvanceStatus(*ppmShipment.AdvanceStatus),
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
 		SitEstimatedWeight:             handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
 		SitEstimatedEntryDate:          handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
@@ -641,6 +640,10 @@ func PPMShipment(ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 	if ppmShipment.SITLocation != nil {
 		sitLocation := ghcmessages.SITLocationType(*ppmShipment.SITLocation)
 		payloadPPMShipment.SitLocation = &sitLocation
+	}
+
+	if ppmShipment.AdvanceStatus != nil {
+		payloadPPMShipment.AdvanceStatus = ghcmessages.PPMAdvanceStatus(*ppmShipment.AdvanceStatus)
 	}
 
 	return payloadPPMShipment

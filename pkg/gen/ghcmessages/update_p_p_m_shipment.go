@@ -27,9 +27,6 @@ type UpdatePPMShipment struct {
 	//
 	AdvanceAmountRequested *int64 `json:"advanceAmountRequested,omitempty"`
 
-	// advance status
-	AdvanceStatus PPMAdvanceStatus `json:"advanceStatus,omitempty"`
-
 	// ZIP
 	// Example: 90210
 	// Pattern: ^(\d{5})$
@@ -107,10 +104,6 @@ func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateAdvanceStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateDestinationPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
@@ -155,23 +148,6 @@ func (m *UpdatePPMShipment) validateActualMoveDate(formats strfmt.Registry) erro
 	}
 
 	if err := validate.FormatOf("actualMoveDate", "body", "date", m.ActualMoveDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdatePPMShipment) validateAdvanceStatus(formats strfmt.Registry) error {
-	if swag.IsZero(m.AdvanceStatus) { // not required
-		return nil
-	}
-
-	if err := m.AdvanceStatus.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("advanceStatus")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("advanceStatus")
-		}
 		return err
 	}
 
@@ -285,10 +261,6 @@ func (m *UpdatePPMShipment) validateSitLocation(formats strfmt.Registry) error {
 func (m *UpdatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateAdvanceStatus(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateSitLocation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -296,20 +268,6 @@ func (m *UpdatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *UpdatePPMShipment) contextValidateAdvanceStatus(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.AdvanceStatus.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("advanceStatus")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("advanceStatus")
-		}
-		return err
-	}
-
 	return nil
 }
 

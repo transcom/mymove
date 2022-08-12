@@ -402,7 +402,6 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 	if ppmShipment == nil {
 		return nil
 	}
-	advanceStatus := models.PPMAdvanceStatus(ppmShipment.AdvanceStatus)
 	model := &models.PPMShipment{
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
@@ -414,7 +413,6 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
-		AdvanceStatus:                  &advanceStatus,
 		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountRequested),
 	}
 
