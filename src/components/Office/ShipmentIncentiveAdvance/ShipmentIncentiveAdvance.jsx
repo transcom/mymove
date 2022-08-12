@@ -1,6 +1,6 @@
 import React from 'react';
 import { Fieldset, FormGroup, Radio, Grid, Label } from '@trussworks/react-uswds';
-import { useField, Field } from 'formik';
+import { useField } from 'formik';
 import PropTypes from 'prop-types';
 
 import formStyles from 'styles/form.module.scss';
@@ -10,11 +10,16 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive } from 'utils/incentives';
 
 const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
-  const [advanceInput, , ,] = useField('advanceRequested');
-  const advanceRequested = advanceInput.value === 'true';
+  const [advanceInput, , advanceHelper] = useField('advanceRequested');
+  const advanceRequested = !!advanceInput.value;
 
   const { formattedMaxAdvance, formattedIncentive } =
     calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);
+
+  const handleHasRequestedAdvanceChange = (event) => {
+    const selected = event.target.value;
+    advanceHelper.setValue(selected === 'Yes');
+  };
 
   return (
     <SectionWrapper className={formStyles.formSection}>
@@ -26,23 +31,23 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
           <Grid col={12}>
             <FormGroup>
               <Label className={styles.Label}>Advance (AOA) requested?</Label>
-              <Field
-                as={Radio}
+              <Radio
                 id="hasRequestedAdvanceYes"
                 label="Yes"
                 name="advanceRequested"
-                value="true"
+                value="Yes"
                 title="Yes"
                 checked={advanceRequested}
+                onChange={handleHasRequestedAdvanceChange}
               />
-              <Field
-                as={Radio}
+              <Radio
                 id="hasRequestedAdvanceNo"
                 label="No"
                 name="advanceRequested"
-                value="false"
+                value="No"
                 title="No"
                 checked={!advanceRequested}
+                onChange={handleHasRequestedAdvanceChange}
               />
             </FormGroup>
 
@@ -79,10 +84,8 @@ export default ShipmentIncentiveAdvance;
 
 ShipmentIncentiveAdvance.propTypes = {
   estimatedIncentive: PropTypes.number,
-  // values: PropTypes.object,
 };
 
 ShipmentIncentiveAdvance.defaultProps = {
   estimatedIncentive: 0,
-  // values: {},
 };

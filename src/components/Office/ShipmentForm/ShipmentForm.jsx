@@ -169,13 +169,7 @@ const ShipmentForm = (props) => {
   const submitMTOShipment = (formValues) => {
     if (isPPM) {
       const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
-      if (
-        formValues.counselorRemarks &&
-        (formValues.advance !== mtoShipment.ppmShipment.advanceAmountRequested / 100 ||
-          formValues.advanceRequested !== mtoShipment.ppmShipment.hasRequestedAdvance)
-      ) {
-        ppmShipmentBody.ppmShipment.hasOfficeAdjustedAdvance = true;
-      }
+
       if (isCreatePage) {
         const body = { ...ppmShipmentBody, moveTaskOrderID };
         submitHandler({ body, normalize: false })
