@@ -302,7 +302,7 @@ const ShipmentForm = (props) => {
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
-      {({ values, isValid, isSubmitting, setValues, handleSubmit, errors, dirty, touched }) => {
+      {({ values, isValid, isSubmitting, setValues, handleSubmit, errors }) => {
         const { hasDeliveryAddress } = values;
 
         const handleUseCurrentResidenceChange = (e) => {
@@ -333,8 +333,7 @@ const ShipmentForm = (props) => {
             });
           }
         };
-        console.log(touched);
-        console.log(errors);
+
         return (
           <>
             <ConnectedDestructiveShipmentConfirmationModal
