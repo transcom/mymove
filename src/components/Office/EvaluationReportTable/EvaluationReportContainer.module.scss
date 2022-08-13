@@ -1,0 +1,16 @@
+@import 'shared/styles/_basics';
+
+.evaluationReportContainer {
+  @include u-padding-top(0);
+  @include u-padding-x(2);
+  @include u-padding-bottom(3);
+  @include u-bg('white');
+
+  :global .table--data-point-group {
+    @include u-margin-bottom(3);
+  }
+
+  :global .evaluationReport-heading {
+    @include u-margin-bottom(3);
+  }
+}
