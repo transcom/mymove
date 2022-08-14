@@ -97,9 +97,11 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.UpdateMovingExpenseHandler", zap.Error(err))
-				switch e := err.(type) { // no 412 Preconditioned failed? Criteria in header can be met?
+				switch e := err.(type) {
 				case apperror.InvalidInputError:
-					return movingexpenseops.NewUpdateMovingExpenseUnauthorized().WithPayload(payloads.ClientError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest).String(), movingExpense.ID)), err
+					return movingexpenseops.NewUpdateWeightTicketUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
+				case apperror.PreconditionFailedError:
+					return movingexpenseops.NewUpdateMovingExpensePreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.ForbiddenError:
 					return movingexpenseops.NewUpdateMovingExpenseForbidden().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.NotFoundError:
