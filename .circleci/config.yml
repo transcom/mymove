@@ -277,7 +277,6 @@ commands:
             scripts/circleci-announce-broken-branch
           when: on_fail
 
-
   deploy_migrations_steps:
     parameters:
       ecr_env:
@@ -367,7 +366,7 @@ commands:
       - announce_failure
       - deploy:
           name: Deploy export db data service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container export-db-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container export-db-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT} database-export"
           no_output_timeout: 20m
       - announce_failure
   deploy_app_steps:
@@ -456,7 +455,6 @@ commands:
           no_output_timeout: 20m
       - announce_failure
 
-
   deploy_app_storybook:
     parameters:
       s3_bucket:
@@ -542,8 +540,7 @@ commands:
       application:
         type: string
     steps:
-      - run:
-          echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+      - run: echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
           source $BASH_ENV
       - run:
           name: make server_test_build for <<parameters.application>>
@@ -1055,7 +1052,7 @@ jobs:
       # change the baseline of test results on master builds
       - when:
           condition:
-            equal: [ master, << pipeline.git.branch >>]
+            equal: [master, << pipeline.git.branch >>]
           steps:
             save_cache:
               key: server-tests-coverage
@@ -1096,7 +1093,7 @@ jobs:
       # change the baseline of test results on master builds
       - when:
           condition:
-            equal: [ master, << pipeline.git.branch >>]
+            equal: [master, << pipeline.git.branch >>]
           steps:
             save_cache:
               key: client-tests-coverage
@@ -1191,7 +1188,6 @@ jobs:
             - pkg/testdatagen/testdata
       - announce_failure
 
-
   # Compile the client side of the app once and persist the relevant
   # build artifacts to the workspace.
   # This way we don't have to re-run the build and since all necessary
@@ -1234,7 +1230,7 @@ jobs:
       # the cache
       - when:
           condition:
-            equal: [ master, << pipeline.git.branch >>]
+            equal: [master, << pipeline.git.branch >>]
           steps:
             save_cache:
               key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
@@ -1730,8 +1726,8 @@ workflows:
           requires:
             - pre_deps_golang
           filters:
-              branches:
-                ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
+            branches:
+              ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
 
       - anti_virus:
           filters:

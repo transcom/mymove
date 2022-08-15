@@ -38,6 +38,11 @@ const (
 	tagSeparator     string = ":"
 )
 
+// Valid ephemeral storage options
+var storage = []string{
+	"database-export",
+}
+
 // Valid services names
 var services = []string{
 	"app",
@@ -120,6 +125,7 @@ const (
 	memFlag                  string = "memory"
 	registerFlag             string = "register"
 	openTelemetrySidecarFlag string = "open-telemetry-sidecar"
+	storageFlag              string = "storage"
 )
 
 // ECRImage represents an ECR Image tag broken into its constituent parts
@@ -231,6 +237,9 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 
 	// Open Telemetry SideCar
 	flag.Bool(openTelemetrySidecarFlag, false, "Include open telemetry sidecar container")
+
+	// Create ephemeral storage
+	flag.String(storageFlag, "", fmt.Sprintf("The ephemeral storage type (choose %q)", storage))
 
 	// Dry Run or Registration
 	flag.Bool(dryRunFlag, false, "Execute as a dry-run without modifying AWS.")
@@ -619,6 +628,20 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		},
 	}
 
+	if v.GetString(storageFlag) == "database-export" {
+		mps := []*ecs.MountPoint{}
+		mps = append(mps, &ecs.MountPoint{
+			ContainerPath: aws.String("/var/db-export"),
+			ReadOnly:      aws.Bool(false),
+			SourceVolume:  aws.String("database_scratch"),
+		})
+		containerDefinitions = append(containerDefinitions,
+			&ecs.ContainerDefinition{
+				MountPoints: mps,
+			},
+		)
+	}
+
 	if v.GetBool(openTelemetrySidecarFlag) {
 		containerDefinitions = append(containerDefinitions,
 			&ecs.ContainerDefinition{
@@ -649,6 +672,12 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		NetworkMode:             aws.String("awsvpc"),
 		RequiresCompatibilities: []*string{aws.String("FARGATE")},
 		TaskRoleArn:             aws.String(taskRoleArn),
+	}
+
+	if v.GetString(storageFlag) == "database-export" {
+		newTaskDefInput.Volumes = append(newTaskDefInput.Volumes, &ecs.Volume{
+			Name: aws.String("database_scratch"),
+		})
 	}
 
 	// Registration is never allowed by default and requires a flag
