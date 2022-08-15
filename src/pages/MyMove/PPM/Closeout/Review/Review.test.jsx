@@ -182,7 +182,7 @@ describe('About page', () => {
   });
 
   it('routes to the edit weight ticket page when the edit link is clicked', async () => {
-    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithWeightTicket);
+    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithWeightTicket);
     const editWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
@@ -231,6 +231,7 @@ describe('About page', () => {
   });
 
   it('disables the save and continue link when there are no weight tickets', async () => {
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipment);
     render(<Review />, { wrapper: MockProviders });
 
     expect(screen.getByText('Save & Continue')).toHaveClass('usa-button--disabled');
@@ -261,7 +262,7 @@ describe('About page', () => {
   });
 
   it('calls the delete weight ticket api when confirm is clicked', async () => {
-    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithWeightTicket);
+    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithWeightTicket);
     const mockDeleteWeightTicket = jest.fn().mockResolvedValue({});
     deleteWeightTicket.mockImplementationOnce(mockDeleteWeightTicket);
     render(<Review />, { wrapper: MockProviders });
