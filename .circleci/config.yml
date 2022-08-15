@@ -309,32 +309,32 @@ commands:
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy connect to GEX via SFTP service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container connect-to-gex-via-sftp "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container connect-to-gex-via-sftp "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT} no-storage"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy GHC fuel price data task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT} no-storage"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy post move email survey task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-post-move-survey "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-post-move-survey "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT} no-storage"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy payment reminder email task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT} no-storage"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy post to GEX service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container post-file-to-gex "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container post-file-to-gex "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT} no-storage"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy process EDIs service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container process-edis "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container process-edis "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT} no-storage"
           no_output_timeout: 20m
       - announce_failure
   # Used for dp3 sites, which do not include gex/orders
@@ -351,17 +351,17 @@ commands:
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy GHC fuel price data task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT} no-storage"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy post move email survey task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-post-move-survey "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-post-move-survey "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT} no-storage"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy payment reminder email task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT} no-storage"
           no_output_timeout: 20m
       - announce_failure
       - deploy:

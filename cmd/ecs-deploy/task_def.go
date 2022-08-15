@@ -41,6 +41,7 @@ const (
 // Valid ephemeral storage options
 var storage = []string{
 	"database-export",
+	"no-storage",
 }
 
 // Valid services names
