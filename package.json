@@ -37,7 +37,7 @@
     "prop-types": "^15.8.1",
     "query-string": "7",
     "ra-data-simple-rest": "^4.2.5",
-    "ra-language-english": "^4.2.5",
+    "ra-language-english": "^4.2.7",
     "react": "^17.0.1",
     "react-admin": "^3.19.11",
     "react-admin-import-csv": "^1.0.33",
