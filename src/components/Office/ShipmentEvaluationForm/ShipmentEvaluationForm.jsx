@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
 import 'styles/office.scss';
 import { GridContainer, Grid, Button, Radio, FormGroup, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
-import { useParams, useHistory } from 'react-router';
+import { useParams, useHistory, useLocation } from 'react-router';
 import { useMutation } from 'react-query';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
@@ -21,6 +21,7 @@ import { formatDateForSwagger } from 'shared/dates';
 const ShipmentEvaluationForm = ({ evaluationReport }) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
+  const location = useLocation();
 
   const [isDeleteModelOpen, setIsDeleteModelOpen] = useState(false);
 
@@ -46,9 +47,6 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
   };
 
   const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
-    onSuccess: () => {
-      history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
-    },
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
@@ -67,7 +65,7 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
     return { hours, minutes };
   };
 
-  const submitForm = async (values) => {
+  const saveDraft = async (values) => {
     // format the inspection type if its there
     const { evaluationType } = values;
     let inspectionType;
@@ -95,26 +93,42 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
       travelMinutes = convertToMinutes(values.hour, values.minute);
     }
 
+    let violations;
+    if (values.violationsObserved) {
+      violations = values.violationsObserved === 'yes';
+    }
+
     const body = {
       location: evaluationLocation,
       locationDescription: values.otherEvaluationLocation,
       inspectionType,
       remarks: values.remarks,
       // hard coded until violations work
-      violations: false,
+      violationsObserved: violations,
       inspectionDate: formatDateForSwagger(values.inspectionDate),
       evaluationLengthMinutes: evalMinutes,
       travelTimeMinutes: travelMinutes,
       observedDate: formatDateForSwagger(values.observedDate),
     };
     const { eTag } = evaluationReport;
-    mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
+    await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
+  };
+
+  const handleSubmitSaveDraft = async (values) => {
+    await saveDraft(values);
+
+    history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
+  };
+
+  const handleSelectViolations = async (values) => {
+    await saveDraft(values);
+
+    // Reroute to currentURL/violations
+    history.push(`${location.pathname}/violations`);
   };
 
   const initialValues = {
     remarks: evaluationReport.remarks,
-    // hard coded until violations work
-    violations: false,
     inspectionDate: evaluationReport.inspectionDate,
     observedDate: evaluationReport.observedDate,
   };
@@ -144,6 +158,10 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
     initialValues.hour = hours;
   }
 
+  if (evaluationReport.violationsObserved !== undefined) {
+    initialValues.violationsObserved = evaluationReport.violationsObserved ? 'yes' : 'no';
+  }
+
   const validationSchema = Yup.object().shape({});
 
   const minutes = [
@@ -168,7 +186,7 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
       <Formik
         initialValues={initialValues}
         enableReinitialize
-        onSubmit={submitForm}
+        onSubmit={handleSubmitSaveDraft}
         validationSchema={validationSchema}
         validateOnMount
       >
@@ -217,37 +235,35 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                       </Fieldset>
                     </FormGroup>
                     {values.evaluationType === 'physical' && (
-                      <FormGroup>
-                        <Fieldset>
-                          <legend className="usa-label">Travel time to evaluation</legend>
-                          <div className={styles.durationPickers}>
-                            <div>
-                              <DropdownInput
-                                id="hour"
-                                name="hour"
-                                label="Hour"
-                                className={styles.hourPicker}
-                                onChange={(e) => {
-                                  setFieldValue('hour', e.target.value);
-                                }}
-                                options={hours}
-                              />
-                            </div>
-                            <div>
-                              <DropdownInput
-                                id="minute"
-                                name="minute"
-                                label="Minute"
-                                className={styles.minutePicker}
-                                onChange={(e) => {
-                                  setFieldValue('minute', e.target.value);
-                                }}
-                                options={minutes}
-                              />
-                            </div>
+                      <>
+                        <legend className="usa-label">Travel time to evaluation</legend>
+                        <div className={styles.durationPickers}>
+                          <div>
+                            <DropdownInput
+                              id="hour"
+                              name="hour"
+                              label="Hour"
+                              className={styles.hourPicker}
+                              onChange={(e) => {
+                                setFieldValue('hour', e.target.value);
+                              }}
+                              options={hours}
+                            />
                           </div>
-                        </Fieldset>
-                      </FormGroup>
+                          <div>
+                            <DropdownInput
+                              id="minute"
+                              name="minute"
+                              label="Minute"
+                              className={styles.minutePicker}
+                              onChange={(e) => {
+                                setFieldValue('minute', e.target.value);
+                              }}
+                              options={minutes}
+                            />
+                          </div>
+                        </div>
+                      </>
                     )}
                     <FormGroup>
                       <Fieldset className={styles.radioGroup}>
@@ -306,44 +322,43 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                         hint="Only enter a date here if the pickup you witnessed did not happen on the scheduled pickup date"
                       />
                     )}
-                    <FormGroup>
-                      <Fieldset>
-                        <legend className="usa-label">Evaluation length</legend>
-                        <div className={styles.durationPickers}>
-                          <div>
-                            <DropdownInput
-                              id="hour"
-                              name="evalLengthHour"
-                              label="Hour"
-                              className={styles.hourPicker}
-                              onChange={(e) => {
-                                setFieldValue('evalLengthHour', e.target.value);
-                              }}
-                              options={hours}
-                            />
-                          </div>
-                          <div>
-                            <DropdownInput
-                              id="minute"
-                              name="evalLengthMinute"
-                              label="Minute"
-                              className={styles.minutePicker}
-                              onChange={(e) => {
-                                setFieldValue('evalLengthMinute', e.target.value);
-                              }}
-                              options={minutes}
-                            />
-                          </div>
+
+                    <Fieldset>
+                      <legend className="usa-label">Evaluation length</legend>
+                      <div className={styles.durationPickers}>
+                        <div>
+                          <DropdownInput
+                            id="hour"
+                            name="evalLengthHour"
+                            label="Hour"
+                            className={styles.hourPicker}
+                            onChange={(e) => {
+                              setFieldValue('evalLengthHour', e.target.value);
+                            }}
+                            options={hours}
+                          />
                         </div>
-                      </Fieldset>
-                    </FormGroup>
+                        <div>
+                          <DropdownInput
+                            id="minute"
+                            name="evalLengthMinute"
+                            label="Minute"
+                            className={styles.minutePicker}
+                            onChange={(e) => {
+                              setFieldValue('evalLengthMinute', e.target.value);
+                            }}
+                            options={minutes}
+                          />
+                        </div>
+                      </div>
+                    </Fieldset>
                   </Grid>
                 </Grid>
                 <Grid row className={styles.evalInfoSection}>
                   <Grid col>
                     <h3>Violations</h3>
                     <FormGroup className={styles.violationsGroup}>
-                      <Fieldset className={styles.radioGroup}>
+                      <Fieldset>
                         <legend className="usa-label">Violations observed</legend>
                         <Field
                           as={Radio}
@@ -354,6 +369,8 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                           title="No"
                           type="radio"
                           checked={values.violationsObserved === 'no'}
+                          data-testid="noViolationsRadioOption"
+                          className={styles.radioGroup}
                         />
                         <Field
                           as={Radio}
@@ -364,7 +381,14 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                           title="Yes"
                           type="radio"
                           checked={values.violationsObserved === 'yes'}
+                          data-testid="yesViolationsRadioOption"
+                          className={styles.radioGroup}
                         />
+                        {values.violationsObserved === 'yes' && (
+                          <p className={styles.violationsInfo}>
+                            <small>You will select the specific PWS paragraphs violated on the next screen.</small>
+                          </p>
+                        )}
                       </Fieldset>
                     </FormGroup>
                   </Grid>
@@ -405,7 +429,13 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                       <Button data-testid="saveDraft" type="submit" className="usa-button--secondary">
                         Save draft
                       </Button>
-                      <Button disabled>Review and submit</Button>
+                      {values.violationsObserved === 'yes' ? (
+                        <Button onClick={() => handleSelectViolations(values)} type="button">
+                          Next: select violations
+                        </Button>
+                      ) : (
+                        <Button disabled={!values.violationsObserved}>Review and submit</Button>
+                      )}
                     </div>
                   </Grid>
                 </Grid>

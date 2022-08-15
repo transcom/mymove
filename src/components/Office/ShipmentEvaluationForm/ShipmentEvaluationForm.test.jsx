@@ -11,8 +11,14 @@ jest.mock('react-router-dom', () => ({
   useParams: jest.fn().mockReturnValue({ moveCode: 'LR4T8V', reportID: '58350bae-8e87-4e83-bd75-74027fb4333a' }),
 }));
 
+const mockSaveEvaluationReport = jest.fn();
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  saveEvaluationReport: (options) => mockSaveEvaluationReport(options),
+}));
+
 afterEach(() => {
-  jest.clearAllMocks();
+  jest.resetAllMocks();
 });
 
 describe('ShipmentEvaluationForm', () => {
@@ -55,7 +61,7 @@ describe('ShipmentEvaluationForm', () => {
     });
   });
 
-  it('renders conditionally form components correctly', async () => {
+  it('renders conditionally displayed form components correctly', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
         <ShipmentEvaluationForm />
@@ -127,5 +133,48 @@ describe('ShipmentEvaluationForm', () => {
     expect(
       await screen.findByRole('heading', { level: 3, name: 'Are you sure you want to cancel this report?' }),
     ).toBeInTheDocument();
+  });
+
+  it('updates the submit button when there are violations', async () => {
+    render(
+      <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
+        <ShipmentEvaluationForm />
+      </MockProviders>,
+    );
+
+    expect(await screen.findByRole('button', { name: 'Review and submit' })).toBeInTheDocument();
+    expect(
+      screen.queryByText('You will select the specific PWS paragraphs violated on the next screen.'),
+    ).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      userEvent.click(screen.getByTestId('yesViolationsRadioOption'));
+
+      expect(screen.getByRole('button', { name: 'Next: select violations' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Review and submit' })).not.toBeInTheDocument();
+      expect(
+        screen.getByText('You will select the specific PWS paragraphs violated on the next screen.'),
+      ).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      userEvent.click(screen.getByRole('button', { name: 'Next: select violations' }));
+    });
+    expect(mockSaveEvaluationReport).toHaveBeenCalledTimes(1);
+    expect(mockSaveEvaluationReport).toHaveBeenCalledWith({
+      body: {
+        evaluationLengthMinutes: undefined,
+        inspectionDate: undefined,
+        inspectionType: undefined,
+        location: undefined,
+        locationDescription: undefined,
+        observedDate: undefined,
+        remarks: undefined,
+        travelTimeMinutes: undefined,
+        violationsObserved: true,
+      },
+      ifMatchETag: undefined,
+      reportID: undefined,
+    });
   });
 });
