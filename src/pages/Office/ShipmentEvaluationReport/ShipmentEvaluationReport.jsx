@@ -56,7 +56,7 @@ const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
   );
 
   return (
-    <GridContainer className={classnames(styles.tabContent, shipmentEvaluationReportStyles.tabContent)}>
+    <div className={classnames(styles.tabContent, shipmentEvaluationReportStyles.tabContent)}>
       <GridContainer>
         <div className={styles.pageHeader}>
           <h1>Shipment report</h1>
@@ -66,28 +66,30 @@ const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
             <h6>MTO REFERENCE ID #{mtoRefId}</h6>
           </div>
         </div>
-      </GridContainer>
-      <GridContainer className={shipmentEvaluationReportStyles.cardContainer}>
-        <Grid row>
-          <Grid col desktop={{ col: 8 }}>
-            <h2>Shipment information</h2>
-            {mtoShipment.id && (
-              <EvaluationReportShipmentDisplay
-                isSubmitted
-                shipmentId={mtoShipment.id}
-                displayInfo={shipmentDisplayInfo(mtoShipment)}
-                shipmentType={mtoShipment.shipmentType}
-              />
-            )}
+
+        <GridContainer className={shipmentEvaluationReportStyles.cardContainer}>
+          <Grid row>
+            <Grid col desktop={{ col: 8 }}>
+              <h2>Shipment information</h2>
+              {mtoShipment.id && (
+                <EvaluationReportShipmentDisplay
+                  isSubmitted
+                  shipmentId={mtoShipment.id}
+                  displayInfo={shipmentDisplayInfo(mtoShipment)}
+                  shipmentType={mtoShipment.shipmentType}
+                />
+              )}
+            </Grid>
+            <Grid className={shipmentEvaluationReportStyles.qaeAndCustomerInfo} col desktop={{ col: 2 }}>
+              <DataTable columnHeaders={['Customer information']} dataRow={[customerInfoTableBody]} />
+              <DataTable columnHeaders={['QAE']} dataRow={[officeUserInfoTableBody]} />
+            </Grid>
           </Grid>
-          <Grid className={shipmentEvaluationReportStyles.qaeAndCustomerInfo} col desktop={{ col: 2 }}>
-            <DataTable columnHeaders={['Customer information']} dataRow={[customerInfoTableBody]} />
-            <DataTable columnHeaders={['QAE']} dataRow={[officeUserInfoTableBody]} />
-          </Grid>
-        </Grid>
+        </GridContainer>
+
+        <ShipmentEvaluationForm evaluationReport={evaluationReport} />
       </GridContainer>
-      <ShipmentEvaluationForm evaluationReport={evaluationReport} />
-    </GridContainer>
+    </div>
   );
 };
 

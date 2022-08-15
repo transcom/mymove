@@ -143,12 +143,18 @@ describe('ShipmentEvaluationForm', () => {
     );
 
     expect(await screen.findByRole('button', { name: 'Review and submit' })).toBeInTheDocument();
+    expect(
+      screen.queryByText('You will select the specific PWS paragraphs violated on the next screen.'),
+    ).not.toBeInTheDocument();
 
     await waitFor(() => {
       userEvent.click(screen.getByTestId('yesViolationsRadioOption'));
 
       expect(screen.getByRole('button', { name: 'Next: select violations' })).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Review and submit' })).not.toBeInTheDocument();
+      expect(
+        screen.getByText('You will select the specific PWS paragraphs violated on the next screen.'),
+      ).toBeInTheDocument();
     });
 
     await waitFor(() => {
