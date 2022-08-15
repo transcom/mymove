@@ -8,7 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-type ProgearExpense struct {
+type ProgearWeightTicket struct {
 	ID              uuid.UUID          `json:"id" db:"id"`
 	PPMShipmentID   uuid.UUID          `json:"ppm_shipment_id" db:"ppm_shipment_id"`
 	PPMShipment     PPMShipment        `belongs_to:"ppm_shipments" fk_id:"ppm_shipment_id"`
@@ -28,4 +28,4 @@ type ProgearExpense struct {
 	DeletedAt       *time.Time         `json:"deleted_at" db:"deleted_at"`
 }
 
-type ProgearExpenses []ProgearExpense
+type ProgearWeightTickets []ProgearWeightTicket
