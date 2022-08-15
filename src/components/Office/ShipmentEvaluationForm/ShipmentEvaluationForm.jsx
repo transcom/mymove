@@ -30,6 +30,10 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
     setIsDeleteModelOpen(!isDeleteModelOpen);
   };
 
+  const cancelForUpdatedReport = () => {
+    history.push(`/moves/${moveCode}/evaluation-reports`);
+  };
+
   const cancelReport = async () => {
     // Close the modal
     setIsDeleteModelOpen(!isDeleteModelOpen);
@@ -383,9 +387,21 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                 <Grid row>
                   <Grid col>
                     <div className={styles.buttonRow}>
-                      <Button className="usa-button--unstyled" onClick={toggleCancelModel} type="button">
-                        Cancel
-                      </Button>
+                      {evaluationReport.updatedAt === evaluationReport.createdAt && (
+                        <Button className="usa-button--unstyled" onClick={toggleCancelModel} type="button">
+                          Cancel
+                        </Button>
+                      )}
+                      {!(evaluationReport.updatedAt === evaluationReport.createdAt) && (
+                        <Button
+                          className="usa-button--unstyled"
+                          data-testid="cancelForUpdated"
+                          onClick={cancelForUpdatedReport}
+                          type="button"
+                        >
+                          Cancel
+                        </Button>
+                      )}
                       <Button data-testid="saveDraft" type="submit" className="usa-button--secondary">
                         Save draft
                       </Button>

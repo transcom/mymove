@@ -5,11 +5,12 @@ import classnames from 'classnames';
 import { useParams } from 'react-router';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
-import ShipmentEvaluationForm from '../../../components/Office/ShipmentEvaluationForm/ShipmentEvaluationForm';
 
 import shipmentEvaluationReportStyles from './ShipmentEvaluationReport.module.scss';
 
+import ShipmentEvaluationForm from 'components/Office/ShipmentEvaluationForm/ShipmentEvaluationForm';
 import { useShipmentEvaluationReportQueries } from 'hooks/queries';
+import { formatQAReportID } from 'utils/formatters';
 import DataTable from 'components/DataTable';
 import { CustomerShape } from 'types';
 import { OrdersShape } from 'types/customerShapes';
@@ -45,14 +46,16 @@ const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
     </>
   );
 
-  const officeUserInfoTableBody = (
+  const officeUserInfoTableBody = evaluationReport.officeUser ? (
     <>
-      {customerInfo.last_name}, {customerInfo.first_name}
+      {evaluationReport.officeUser.lastName}, {evaluationReport.officeUser.firstName}
       <br />
-      {customerInfo.phone}
+      {evaluationReport.officeUser.phone}
       <br />
-      {customerInfo.email}
+      {evaluationReport.officeUser.email}
     </>
+  ) : (
+    ''
   );
 
   return (
@@ -61,8 +64,8 @@ const ShipmentEvaluationReport = ({ customerInfo, orders }) => {
         <div className={styles.pageHeader}>
           <h1>Shipment report</h1>
           <div className={styles.pageHeaderDetails}>
-            <h6>REPORT ID #{reportId}</h6>
-            <h6>MOVE CODE {moveCode}</h6>
+            <h6>REPORT ID {formatQAReportID(reportId)}</h6>
+            <h6>MOVE CODE #{moveCode}</h6>
             <h6>MTO REFERENCE ID #{mtoRefId}</h6>
           </div>
         </div>
