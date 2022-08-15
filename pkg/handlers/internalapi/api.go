@@ -41,7 +41,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
-	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DtodPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{handlerConfig, officeuser.NewOfficeUserFetcherPop()}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{handlerConfig}
