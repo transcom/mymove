@@ -5,6 +5,11 @@ import (
 	"fmt"
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
+
+	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -91,7 +96,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 
 		response := subtestData.handler.Handle(subtestData.params)
 
-		suite.IsType(&movingexpenseops.CreateWeightTicketUnauthorized{}, response)
+		suite.IsType(&movingexpenseops.CreateMovingExpenseUnauthorized{}, response)
 	})
 
 	suite.Run("POST failure - 403- permission denied - can't create moving expense due to wrong applicant", func() {
@@ -136,4 +141,165 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 	})
 }
 
-// ADD Update test
+//
+// UPDATE test
+//
+
+func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
+	// Create Reusable objects
+	movingExpenseUpdater := movingexpenseservice.NewMovingExpenseUpdater()
+
+	type movingExpenseUpdateSubtestData struct {
+		ppmShipment   models.PPMShipment
+		movingExpense models.MovingExpense
+		params        movingexpenseops.UpdateMovingExpenseParams
+		handler       UpdateMovingExpenseHandler
+	}
+	makeUpdateSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData movingExpenseUpdateSubtestData) {
+		db := appCtx.DB()
+
+		// Fake data:
+		subtestData.movingExpense = testdatagen.MakeMovingExpense(db, testdatagen.Assertions{})
+		subtestData.ppmShipment = subtestData.movingExpense.PPMShipment
+		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/moving-expense/%s", subtestData.ppmShipment.ID.String(), subtestData.movingExpense.ID.String())
+		req := httptest.NewRequest("PATCH", endpoint, nil)
+		if authenticateRequest {
+			req = suite.AuthenticateRequest(req, serviceMember)
+		}
+		eTag := etag.GenerateEtag(subtestData.movingExpense.UpdatedAt)
+		subtestData.params = movingexpenseops.
+			UpdateMovingExpenseParams{
+			HTTPRequest:     req,
+			PpmShipmentID:   *handlers.FmtUUID(subtestData.ppmShipment.ID),
+			MovingExpenseID: *handlers.FmtUUID(subtestData.movingExpense.ID),
+			IfMatch:         eTag,
+		}
+
+		subtestData.handler = UpdateMovingExpenseHandler{
+			suite.createS3HandlerConfig(),
+			movingExpenseUpdater,
+		}
+
+		return subtestData
+	}
+
+	suite.Run("Successfully Update Moving Expense - Integration Test", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+
+		params := subtestData.params
+
+		// Add vehicleDescription
+		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
+			MovingExpenseType: "CONTRACTED_EXPENSE",
+			Description:       "Cost of moving items to a different location",
+			Status:            "APPROVED",
+			Reason:            "Orders",
+			SitStartDate:      strfmt.Date(*subtestData.movingExpense.SITStartDate),
+			SitEndDate:        strfmt.Date(*subtestData.movingExpense.SITEndDate),
+		}
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.UpdateMovingExpenseOK{}, response)
+
+		updatedMovingExpense := response.(*movingexpenseops.UpdateMovingExpenseOK).Payload
+		suite.Equal(subtestData.movingExpense.ID.String(), updatedMovingExpense.ID.String())
+		suite.Equal(params.UpdateMovingExpense.SitStartDate, updatedMovingExpense.SitStartDate)
+	})
+	suite.Run("PATCH failure -400 - nil body", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData.params.UpdateMovingExpense = nil
+		response := subtestData.handler.Handle(subtestData.params)
+
+		suite.IsType(&movingexpenseops.UpdateMovingExpenseBadRequest{}, response)
+	})
+
+	suite.Run("PATCH failure -422 - Invalid Input", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		// missing a reason should trigger error
+		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
+			MovingExpenseType: "OIL",
+			Description:       "any",
+			Status:            "DENIED",
+			Reason:            "",
+			SitStartDate:      strfmt.Date(*subtestData.movingExpense.SITStartDate),
+			SitEndDate:        strfmt.Date(*subtestData.movingExpense.SITEndDate),
+		}
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.UpdateMovingExpenseUnprocessableEntity{}, response)
+	})
+
+	suite.Run("PATCH failure - 404- not found", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{}
+		// Wrong ID provided
+		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("e392b01d-3b23-45a9-8f98-e4d5b03c8a93"))
+		params.MovingExpenseID = *uuidString
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.UpdateMovingExpenseNotFound{}, response)
+	})
+
+	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{}
+		params.IfMatch = "intentionally-bad-if-match-header-value"
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.UpdateMovingExpensePreconditionFailed{}, response)
+	})
+
+	suite.Run("PATCH failure - 500 - server error", func() {
+		mockUpdater := mocks.MovingExpenseUpdater{}
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
+			MovingExpenseType: "CONTRACTED_EXPENSE",
+			Description:       "Cost of moving items to a different location",
+			Status:            "APPROVED",
+			Reason:            "Orders",
+			SitStartDate:      strfmt.Date(*subtestData.movingExpense.SITStartDate),
+			SitEndDate:        strfmt.Date(*subtestData.movingExpense.SITEndDate),
+		}
+
+		err := errors.New("ServerError")
+
+		mockUpdater.On("UpdateMovingExpense",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.MovingExpense"),
+			mock.AnythingOfType("string"),
+		).Return(nil, err)
+
+		handler := UpdateMovingExpenseHandler{
+			suite.HandlerConfig(),
+			&mockUpdater,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.UpdateMovingExpenseInternalServerError{}, response)
+		errResponse := response.(*movingexpenseops.UpdateMovingExpenseInternalServerError)
+		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Wrong Payload title")
+	})
+}
