@@ -598,49 +598,46 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// that have been transitioned into being set as environment variables.
 	secrets = removeSecretsWithMatchingEnvironmentVariables(secrets, containerEnvironment)
 
-	containerDefinitions := []*ecs.ContainerDefinition{
-		{
-			Name:        aws.String(containerDefName),
-			Image:       aws.String(ecrImage.ImageURI),
-			Essential:   aws.Bool(true),
-			EntryPoint:  aws.StringSlice(entryPointList),
-			Command:     []*string{},
-			Secrets:     secrets,
-			Environment: containerEnvironment,
-			Ulimits: []*ecs.Ulimit{
-				{
-					Name:      aws.String("nofile"),
-					SoftLimit: aws.Int64(10000),
-					HardLimit: aws.Int64(10000),
-				},
+	baseContainer := ecs.ContainerDefinition{
+		Name:        aws.String(containerDefName),
+		Image:       aws.String(ecrImage.ImageURI),
+		Essential:   aws.Bool(true),
+		EntryPoint:  aws.StringSlice(entryPointList),
+		Command:     []*string{},
+		Secrets:     secrets,
+		Environment: containerEnvironment,
+		Ulimits: []*ecs.Ulimit{
+			{
+				Name:      aws.String("nofile"),
+				SoftLimit: aws.Int64(10000),
+				HardLimit: aws.Int64(10000),
 			},
-			LogConfiguration: &ecs.LogConfiguration{
-				LogDriver: aws.String("awslogs"),
-				Options: map[string]*string{
-					"awslogs-group":         aws.String(awsLogsGroup),
-					"awslogs-region":        aws.String(awsRegion),
-					"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
-				},
-			},
-			PortMappings:           portMappings,
-			ReadonlyRootFilesystem: aws.Bool(true),
-			Privileged:             aws.Bool(false),
-			User:                   aws.String("1042"),
 		},
+		LogConfiguration: &ecs.LogConfiguration{
+			LogDriver: aws.String("awslogs"),
+			Options: map[string]*string{
+				"awslogs-group":         aws.String(awsLogsGroup),
+				"awslogs-region":        aws.String(awsRegion),
+				"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
+			},
+		},
+		PortMappings:           portMappings,
+		ReadonlyRootFilesystem: aws.Bool(true),
+		Privileged:             aws.Bool(false),
+		User:                   aws.String("1042"),
+	}
+
+	containerDefinitions := []*ecs.ContainerDefinition{
+		&baseContainer,
 	}
 
 	if v.GetString(storageFlag) == "database-export" {
-		mps := []*ecs.MountPoint{}
-		mps = append(mps, &ecs.MountPoint{
+		mp := ecs.MountPoint{
 			ContainerPath: aws.String("/var/db-export"),
 			ReadOnly:      aws.Bool(false),
 			SourceVolume:  aws.String("database_scratch"),
-		})
-		containerDefinitions = append(containerDefinitions,
-			&ecs.ContainerDefinition{
-				MountPoints: mps,
-			},
-		)
+		}
+		baseContainer.MountPoints = append(baseContainer.MountPoints, &mp)
 	}
 
 	if v.GetBool(openTelemetrySidecarFlag) {
