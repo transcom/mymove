@@ -231,37 +231,35 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                       </Fieldset>
                     </FormGroup>
                     {values.evaluationType === 'physical' && (
-                      <FormGroup>
-                        <Fieldset>
-                          <legend className="usa-label">Travel time to evaluation</legend>
-                          <div className={styles.durationPickers}>
-                            <div>
-                              <DropdownInput
-                                id="hour"
-                                name="hour"
-                                label="Hour"
-                                className={styles.hourPicker}
-                                onChange={(e) => {
-                                  setFieldValue('hour', e.target.value);
-                                }}
-                                options={hours}
-                              />
-                            </div>
-                            <div>
-                              <DropdownInput
-                                id="minute"
-                                name="minute"
-                                label="Minute"
-                                className={styles.minutePicker}
-                                onChange={(e) => {
-                                  setFieldValue('minute', e.target.value);
-                                }}
-                                options={minutes}
-                              />
-                            </div>
+                      <Fieldset className={styles.durations}>
+                        <legend className="usa-label">Travel time to evaluation</legend>
+                        <div className={styles.durationPickers}>
+                          <div>
+                            <DropdownInput
+                              id="hour"
+                              name="hour"
+                              label="Hour"
+                              className={styles.hourPicker}
+                              onChange={(e) => {
+                                setFieldValue('hour', e.target.value);
+                              }}
+                              options={hours}
+                            />
                           </div>
-                        </Fieldset>
-                      </FormGroup>
+                          <div>
+                            <DropdownInput
+                              id="minute"
+                              name="minute"
+                              label="Minute"
+                              className={styles.minutePicker}
+                              onChange={(e) => {
+                                setFieldValue('minute', e.target.value);
+                              }}
+                              options={minutes}
+                            />
+                          </div>
+                        </div>
+                      </Fieldset>
                     )}
                     <FormGroup>
                       <Fieldset className={styles.radioGroup}>
@@ -320,44 +318,43 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                         hint="Only enter a date here if the pickup you witnessed did not happen on the scheduled pickup date"
                       />
                     )}
-                    <FormGroup>
-                      <Fieldset>
-                        <legend className="usa-label">Evaluation length</legend>
-                        <div className={styles.durationPickers}>
-                          <div>
-                            <DropdownInput
-                              id="hour"
-                              name="evalLengthHour"
-                              label="Hour"
-                              className={styles.hourPicker}
-                              onChange={(e) => {
-                                setFieldValue('evalLengthHour', e.target.value);
-                              }}
-                              options={hours}
-                            />
-                          </div>
-                          <div>
-                            <DropdownInput
-                              id="minute"
-                              name="evalLengthMinute"
-                              label="Minute"
-                              className={styles.minutePicker}
-                              onChange={(e) => {
-                                setFieldValue('evalLengthMinute', e.target.value);
-                              }}
-                              options={minutes}
-                            />
-                          </div>
+
+                    <Fieldset>
+                      <legend className="usa-label">Evaluation length</legend>
+                      <div className={styles.durationPickers}>
+                        <div>
+                          <DropdownInput
+                            id="hour"
+                            name="evalLengthHour"
+                            label="Hour"
+                            className={styles.hourPicker}
+                            onChange={(e) => {
+                              setFieldValue('evalLengthHour', e.target.value);
+                            }}
+                            options={hours}
+                          />
                         </div>
-                      </Fieldset>
-                    </FormGroup>
+                        <div>
+                          <DropdownInput
+                            id="minute"
+                            name="evalLengthMinute"
+                            label="Minute"
+                            className={styles.minutePicker}
+                            onChange={(e) => {
+                              setFieldValue('evalLengthMinute', e.target.value);
+                            }}
+                            options={minutes}
+                          />
+                        </div>
+                      </div>
+                    </Fieldset>
                   </Grid>
                 </Grid>
                 <Grid row className={styles.evalInfoSection}>
                   <Grid col>
                     <h3>Violations</h3>
                     <FormGroup className={styles.violationsGroup}>
-                      <Fieldset className={styles.radioGroup}>
+                      <Fieldset>
                         <legend className="usa-label">Violations observed</legend>
                         <Field
                           as={Radio}
@@ -369,6 +366,7 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                           type="radio"
                           checked={values.violationsObserved === 'no'}
                           data-testid="noViolationsRadioOption"
+                          className={styles.radioGroup}
                         />
                         <Field
                           as={Radio}
@@ -380,7 +378,13 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                           type="radio"
                           checked={values.violationsObserved === 'yes'}
                           data-testid="yesViolationsRadioOption"
+                          className={styles.radioGroup}
                         />
+                        {values.violationsObserved === 'yes' && (
+                          <p className={styles.violationsInfo}>
+                            <small>You will select the specific PWS paragraphs violated on the next screen.</small>
+                          </p>
+                        )}
                       </Fieldset>
                     </FormGroup>
                   </Grid>
