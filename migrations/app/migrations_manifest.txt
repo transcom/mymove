@@ -743,4 +743,4 @@
 20220628163327_remove_dps.up.sql
 20220630194456_create_evaluation_report_table.up.sql
 20220720214641_create_moving_expenses_table.up.sql
-20220805162727_create_progear_expenses_table.up.sql
+20220805162727_create_progear_weight_tickets_table.up.sql
