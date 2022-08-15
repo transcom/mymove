@@ -678,14 +678,16 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		})
 	}
 
-	// Format the new task def as JSON for viewing
-	newTaskDefJSON, jsonErr := jsonutil.BuildJSON(newTaskDefInput)
-	if jsonErr != nil {
-		quit(logger, nil, err)
-	}
+	// Registration is never allowed by default and requires a flag
+	if v.GetBool(dryRunFlag) {
+		// Format the new task def as JSON for viewing
+		newTaskDefJSON, jsonErr := jsonutil.BuildJSON(newTaskDefInput)
+		if jsonErr != nil {
+			quit(logger, nil, err)
+		}
 
-	logger.Println(string(newTaskDefJSON))
-	if v.GetBool(registerFlag) {
+		logger.Println(string(newTaskDefJSON))
+	} else if v.GetBool(registerFlag) {
 		// Register the new task definition
 		newTaskDefOutput, err := serviceECS.RegisterTaskDefinition(&newTaskDefInput)
 		if err != nil {
