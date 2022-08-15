@@ -544,7 +544,7 @@ const ShipmentForm = (props) => {
 
                 {isPPM && isAdvancePage && isServiceCounselor && mtoShipment.ppmShipment?.sitExpected && (
                   <SITCostDetails
-                    cost={12300}
+                    cost={mtoShipment.ppmShipment?.sitEstimatedCost}
                     weight={mtoShipment.ppmShipment?.sitEstimatedWeight}
                     sitLocation={mtoShipment.ppmShipment?.sitLocation}
                     originZip={mtoShipment.ppmShipment?.pickupPostalCode}

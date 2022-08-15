@@ -1384,6 +1384,77 @@ func createSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 
 }
 
+func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string) {
+	userID := uuid.Must(uuid.NewV4())
+	email := "completeWithSIT@ppm.submitted"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	submittedAt := time.Now()
+	sitLocationType := models.SITLocationTypeOrigin
+
+	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            userID,
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smWithPPM := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			UserID:        userID,
+			FirstName:     models.StringPointer("PPMSC"),
+			LastName:      models.StringPointer("Submitted with SIT"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: smWithPPM.ID,
+			ServiceMember:   smWithPPM,
+		},
+		UserUploader: userUploader,
+		Move: models.Move{
+			Locator:          locator,
+			SelectedMoveType: &ppmMoveType,
+			Status:           models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt:      &submittedAt,
+		},
+	})
+
+	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ShipmentType:    models.MTOShipmentTypePPM,
+			Status:          models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:   move,
+			MoveTaskOrderID: move.ID,
+		},
+	})
+
+	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: mtoShipment,
+		PPMShipment: models.PPMShipment{
+			Status:                    models.PPMShipmentStatusSubmitted,
+			SITExpected:               models.BoolPointer(true),
+			SITEstimatedEntryDate:     models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			SITEstimatedDepartureDate: models.TimePointer(time.Date(testdatagen.GHCTestYear, time.April, 16, 0, 0, 0, 0, time.UTC)),
+			SITEstimatedWeight:        models.PoundPointer(unit.Pound(1234)),
+			SITEstimatedCost:          models.CentPointer(unit.Cents(12345600)),
+			SITLocation:               &sitLocationType,
+		},
+	})
+
+	testdatagen.MakeSignedCertification(appCtx.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID:           move.ID,
+			SubmittingUserID: userID,
+		},
+	})
+
+}
+
 func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	/*
 	 * A service member with orders and two full PPM Shipments.
