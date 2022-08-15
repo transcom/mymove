@@ -748,9 +748,9 @@ describe('ShipmentForm component', () => {
       );
 
       expect(await screen.getByLabelText('Planned departure date')).toHaveValue('01 Apr 2022');
-      userEvent.click(screen.getByLabelText('Use current ZIP'));
+      await userEvent.click(screen.getByLabelText('Use current ZIP'));
       expect(await screen.getByLabelText('Origin ZIP')).toHaveValue(defaultProps.originDutyLocationAddress.postalCode);
-      userEvent.click(screen.getByLabelText('Use ZIP for new duty location'));
+      await userEvent.click(screen.getByLabelText('Use ZIP for new duty location'));
 
       expect(await screen.getByLabelText('Destination ZIP')).toHaveValue(
         defaultProps.newDutyLocationAddress.postalCode,
@@ -802,7 +802,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('No')).not.toBeChecked();
       expect(screen.getByLabelText('Yes')).toBeChecked();
       // Reject a requested advance
-      userEvent.click(screen.getByLabelText('No'));
+      await userEvent.click(screen.getByLabelText('No'));
       await waitFor(() => {
         expect(screen.getByLabelText('No')).toBeChecked();
         expect(screen.getByLabelText('Yes')).not.toBeChecked();

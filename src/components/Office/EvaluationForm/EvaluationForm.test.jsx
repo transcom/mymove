@@ -151,9 +151,8 @@ describe('EvaluationForm', () => {
       screen.queryByText('You will select the specific PWS paragraphs violated on the next screen.'),
     ).not.toBeInTheDocument();
 
+    await userEvent.click(screen.getByTestId('yesViolationsRadioOption'));
     await waitFor(() => {
-      userEvent.click(screen.getByTestId('yesViolationsRadioOption'));
-
       expect(screen.getByRole('button', { name: 'Next: select violations' })).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Review and submit' })).not.toBeInTheDocument();
       expect(
@@ -161,9 +160,8 @@ describe('EvaluationForm', () => {
       ).toBeInTheDocument();
     });
 
-    await waitFor(() => {
-      userEvent.click(screen.getByRole('button', { name: 'Next: select violations' }));
-    });
+    await userEvent.click(screen.getByRole('button', { name: 'Next: select violations' }));
+
     expect(mockSaveEvaluationReport).toHaveBeenCalledTimes(1);
     expect(mockSaveEvaluationReport).toHaveBeenCalledWith({
       body: {
