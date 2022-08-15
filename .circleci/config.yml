@@ -366,7 +366,7 @@ commands:
       - announce_failure
       - deploy:
           name: Deploy export db data service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container export-db-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container export-db-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT} database-export"
           no_output_timeout: 20m
       - announce_failure
   deploy_app_steps:
