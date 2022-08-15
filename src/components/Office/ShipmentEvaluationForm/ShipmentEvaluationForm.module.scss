@@ -93,3 +93,8 @@
   @include u-padding-bottom(0.5);
   @include u-margin-top(0);
 }
+
+.violationsInfo {
+  color: $base-dark;
+  @include u-margin-bottom(0);
+}
