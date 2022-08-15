@@ -122,7 +122,7 @@ describe('AboutForm component', () => {
       render(<AboutForm {...defaultProps} />);
 
       await userEvent.type(screen.getByLabelText('When did you leave your origin?'), '1 January 2022');
-      await userEvent.tab();
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
         expect(screen.getByRole('alert')).toHaveTextContent(
