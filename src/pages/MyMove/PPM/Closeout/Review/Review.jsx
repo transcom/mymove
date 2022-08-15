@@ -26,7 +26,7 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { deleteWeightTicket } from 'services/internalApi';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
-import { hasCompleteWeightTickets } from 'utils/shipments';
+import { hasCompletedAllWeightTickets } from 'utils/shipments';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => (
   <div>
@@ -113,7 +113,7 @@ const Review = () => {
     return prev + weight;
   }, 0);
 
-  const canAdvance = hasCompleteWeightTickets(weightTickets);
+  const canAdvance = hasCompletedAllWeightTickets(weightTickets);
 
   const proGearContents = formatProGearItems(
     proGear,
