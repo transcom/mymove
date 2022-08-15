@@ -1,27 +1,26 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { generatePath } from 'react-router';
+import moment from 'moment';
+import { generatePath } from 'react-router-dom';
 import { v4 } from 'uuid';
 
 import About from 'pages/MyMove/PPM/Closeout/About/About';
-import { selectMTOShipmentById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
+import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
-import { updateMTOShipment } from 'store/entities/actions';
-import { MockProviders } from 'testUtils';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { updateMTOShipment } from 'store/entities/actions';
+import { selectMTOShipmentById } from 'store/entities/selectors';
+import { MockProviders, setUpProvidersWithHistory } from 'testUtils';
+import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 
 const mockMoveId = v4();
 const mockMTOShipmentId = v4();
 const mockPPMShipmentId = v4();
 
-const mockPush = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useHistory: () => ({
-    push: mockPush,
-  }),
   useParams: () => ({
     moveId: mockMoveId,
     mtoShipmentId: mockMTOShipmentId,
@@ -34,24 +33,43 @@ jest.mock('services/internalApi', () => ({
   getResponseError: jest.fn(),
 }));
 
+const mtoShipmentCreatedDate = new Date();
+const ppmShipmentCreatedDate = moment(mtoShipmentCreatedDate).add(5, 'seconds');
+const approvedDate = moment(ppmShipmentCreatedDate).add(2, 'days');
+
 const mockMTOShipment = {
   id: mockMTOShipmentId,
   shipmentType: SHIPMENT_OPTIONS.PPM,
+  status: shipmentStatuses.APPROVED,
+  moveTaskOrderId: mockMoveId,
   ppmShipment: {
     id: mockPPMShipmentId,
+    shipmentId: mockMTOShipmentId,
+    status: ppmShipmentStatuses.WAITING_ON_CUSTOMER,
     pickupPostalCode: '10001',
     destinationPostalCode: '10002',
     expectedDepartureDate: '2022-04-30',
-    advanceRequested: true,
-    advance: 598700,
+    hasRequestedAdvance: true,
+    advanceAmountRequested: 598700,
     estimatedWeight: 4000,
     estimatedIncentive: 1000000,
     sitExpected: false,
     hasProGear: false,
     proGearWeight: null,
     spouseProGearWeight: null,
+    actualMoveDate: null,
+    actualPickupPostalCode: null,
+    actualDestinationPostalCode: null,
+    hasReceivedAdvance: null,
+    advanceAmountReceived: null,
+    weightTickets: [],
+    createdAt: ppmShipmentCreatedDate.toISOString(),
+    updatedAt: approvedDate.toISOString(),
+    eTag: window.btoa(approvedDate.toISOString()),
   },
-  eTag: 'dGVzdGluZzIzNDQzMjQ',
+  createdAt: mtoShipmentCreatedDate.toISOString(),
+  updatedAt: approvedDate.toISOString(),
+  eTag: window.btoa(approvedDate.toISOString()),
 };
 
 const partialPayload = {
@@ -59,11 +77,11 @@ const partialPayload = {
   actualPickupPostalCode: '10001',
   actualDestinationPostalCode: '10002',
   hasReceivedAdvance: true,
-  advanceAmountReceived: 750000,
+  advanceAmountReceived: 598700,
 };
 
 const mockPayload = {
-  shipmentType: 'PPM',
+  shipmentType: SHIPMENT_OPTIONS.PPM,
   ppmShipment: {
     id: mockPPMShipmentId,
     ...partialPayload,
@@ -124,7 +142,7 @@ const fillOutAdvanceSections = () => {
 
   const advanceAmountReceived = screen.getByLabelText('How much did you receive?');
   userEvent.clear(advanceAmountReceived);
-  userEvent.type(advanceAmountReceived, '7500');
+  userEvent.type(advanceAmountReceived, '5987');
 };
 
 describe('About page', () => {
@@ -148,16 +166,21 @@ describe('About page', () => {
   });
 
   it('routes back to home when finish later is clicked', () => {
-    render(<About />, { wrapper: MockProviders });
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
+    render(<About />, { wrapper: mockProviderWithHistory });
 
     userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
-    expect(mockPush).toHaveBeenCalledWith(homePath);
+
+    expect(memoryHistory.location.pathname).toBe(homePath);
   });
 
   it('calls the patch shipment with the appropriate payload', async () => {
     patchMTOShipment.mockResolvedValueOnce(mockMTOShipmentResponse);
 
-    render(<About />, { wrapper: MockProviders });
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
+    render(<About />, { wrapper: mockProviderWithHistory });
 
     fillOutBasicForm();
     fillOutAdvanceSections();
@@ -168,7 +191,8 @@ describe('About page', () => {
     });
 
     expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment(mockMTOShipmentResponse));
-    expect(mockPush).toHaveBeenCalledWith(weightTicketsPath);
+
+    expect(memoryHistory.location.pathname).toBe(weightTicketsPath);
   });
 
   it('displays an error when the patch shipment API fails', async () => {
@@ -201,5 +225,137 @@ describe('About page', () => {
 
     render(<About />, { wrapper: MockProviders });
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Loading, please wait...');
+  });
+
+  describe('routes to the', () => {
+    const ppmShipmentWithActualShipmentInfo = {
+      ...mockMTOShipment,
+      ppmShipment: {
+        ...mockMTOShipment.ppmShipment,
+        actualMoveDate: mockMTOShipment.ppmShipment.expectedDepartureDate,
+        actualPickupPostalCode: mockMTOShipment.ppmShipment.pickupPostalCode,
+        actualDestinationPostalCode: mockMTOShipment.ppmShipment.destinationPostalCode,
+        hasReceivedAdvance: mockMTOShipment.ppmShipment.hasRequestedAdvance,
+        advanceAmountReceived: mockMTOShipment.ppmShipment.advanceAmountRequested,
+      },
+    };
+
+    const serviceMemberId = v4();
+
+    const ppmShipmentWithIncompleteWeightTicket = {
+      ...ppmShipmentWithActualShipmentInfo,
+      ppmShipment: {
+        ...ppmShipmentWithActualShipmentInfo.ppmShipment,
+        weightTickets: [
+          createBaseWeightTicket({ serviceMemberId }, { ppmShipmentId: ppmShipmentWithActualShipmentInfo.id }),
+        ],
+      },
+    };
+
+    const ppmShipmentWithCompleteWeightTicket = {
+      ...ppmShipmentWithIncompleteWeightTicket,
+      ppmShipment: {
+        ...ppmShipmentWithIncompleteWeightTicket.ppmShipment,
+        weightTickets: [
+          createCompleteWeightTicket({ serviceMemberId }, { ppmShipmentId: ppmShipmentWithActualShipmentInfo.id }),
+        ],
+      },
+    };
+
+    const ppmShipmentWithMultipleIncompleteWeightTickets = {
+      ...ppmShipmentWithIncompleteWeightTicket,
+      ppmShipment: {
+        ...ppmShipmentWithIncompleteWeightTicket.ppmShipment,
+        weightTickets: [
+          ...ppmShipmentWithIncompleteWeightTicket.ppmShipment.weightTickets,
+          createBaseWeightTicket({ serviceMemberId }, { ppmShipmentId: ppmShipmentWithIncompleteWeightTicket.id }),
+        ],
+      },
+    };
+
+    const ppmShipmentWithMultipleWeightTickets = {
+      ...ppmShipmentWithCompleteWeightTicket,
+      ppmShipment: {
+        ...ppmShipmentWithCompleteWeightTicket.ppmShipment,
+        weightTickets: [
+          ...ppmShipmentWithCompleteWeightTicket.ppmShipment.weightTickets,
+          createBaseWeightTicket({ serviceMemberId }, { ppmShipmentId: ppmShipmentWithActualShipmentInfo.id }),
+        ],
+      },
+    };
+
+    it.each([
+      [
+        'new Weight Ticket page if weight ticket info is missing',
+        ppmShipmentWithActualShipmentInfo,
+        generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
+          moveId: mockMoveId,
+          mtoShipmentId: ppmShipmentWithActualShipmentInfo.id,
+        }),
+      ],
+      [
+        'edit Weight Ticket page if weight ticket info is incomplete',
+        ppmShipmentWithIncompleteWeightTicket,
+        generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
+          moveId: mockMoveId,
+          mtoShipmentId: ppmShipmentWithIncompleteWeightTicket.id,
+          weightTicketId: ppmShipmentWithIncompleteWeightTicket.ppmShipment.weightTickets[0].id,
+        }),
+      ],
+      [
+        'edit Weight Ticket page for the first weight ticket if there are multiple but none are complete',
+        ppmShipmentWithMultipleIncompleteWeightTickets,
+        generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
+          moveId: mockMoveId,
+          mtoShipmentId: ppmShipmentWithMultipleIncompleteWeightTickets.id,
+          weightTicketId: ppmShipmentWithMultipleIncompleteWeightTickets.ppmShipment.weightTickets[0].id,
+        }),
+      ],
+      [
+        'Review page if weight ticket info is complete',
+        ppmShipmentWithCompleteWeightTicket,
+        generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+          moveId: mockMoveId,
+          mtoShipmentId: ppmShipmentWithCompleteWeightTicket.id,
+        }),
+      ],
+      [
+        'Review page if at least one weight ticket is completely filled out',
+        ppmShipmentWithMultipleWeightTickets,
+        generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+          moveId: mockMoveId,
+          mtoShipmentId: ppmShipmentWithMultipleWeightTickets.id,
+        }),
+      ],
+    ])('%s', async (scenarioDescription, shipment, expectedRoute) => {
+      selectMTOShipmentById.mockReturnValue(shipment);
+      patchMTOShipment.mockResolvedValueOnce(shipment);
+
+      const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
+      render(<About />, { wrapper: mockProviderWithHistory });
+
+      userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      const expectedPayload = {
+        shipmentType: SHIPMENT_OPTIONS.PPM,
+        ppmShipment: {
+          id: mockPPMShipmentId,
+          actualMoveDate: shipment.ppmShipment.actualMoveDate,
+          actualPickupPostalCode: shipment.ppmShipment.actualPickupPostalCode,
+          actualDestinationPostalCode: shipment.ppmShipment.actualDestinationPostalCode,
+          hasReceivedAdvance: shipment.ppmShipment.hasReceivedAdvance,
+          advanceAmountReceived: shipment.ppmShipment.advanceAmountReceived,
+        },
+      };
+
+      await waitFor(() => {
+        expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, expectedPayload, shipment.eTag);
+      });
+
+      expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment(shipment));
+
+      expect(memoryHistory.location.pathname).toEqual(expectedRoute);
+    });
   });
 });

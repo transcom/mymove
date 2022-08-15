@@ -16,6 +16,7 @@ import { formatDateForSwagger } from 'shared/dates';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { isWeightTicketComplete } from 'utils/shipments';
 
 const About = () => {
   const [errorMessage, setErrorMessage] = useState();
@@ -49,7 +50,27 @@ const About = () => {
       .then((response) => {
         setSubmitting(false);
         dispatch(updateMTOShipment(response));
-        history.push(generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, { moveId, mtoShipmentId }));
+
+        let path;
+        if (response.ppmShipment.weightTickets.length === 0) {
+          path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
+            moveId,
+            mtoShipmentId,
+          });
+        } else if (!response.ppmShipment.weightTickets.some(isWeightTicketComplete)) {
+          path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
+            moveId,
+            mtoShipmentId,
+            weightTicketId: response.ppmShipment.weightTickets[0].id,
+          });
+        } else {
+          path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+            moveId,
+            mtoShipmentId,
+          });
+        }
+
+        history.push(path);
       })
       .catch((err) => {
         setSubmitting(false);
