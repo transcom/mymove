@@ -23,6 +23,7 @@ const ShipmentEvaluationReport = lazy(() => import('pages/Office/ShipmentEvaluat
 const CounselingEvaluationReport = lazy(() =>
   import('pages/Office/CounselingEvaluationReport/CounselingEvaluationReport'),
 );
+const EvaluationViolations = lazy(() => import('pages/Office/EvaluationViolations/EvaluationViolations'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 
@@ -134,6 +135,10 @@ const TXOMoveInfo = () => {
 
           <Route path={qaeCSRRoutes.SHIPMENT_EVALUATION_REPORT_PATH} exact>
             <ShipmentEvaluationReport customerInfo={customerData} orders={order} />
+          </Route>
+
+          <Route path={qaeCSRRoutes.EVALUATION_VIOLATIONS_PATH} exact>
+            <EvaluationViolations />
           </Route>
 
           <Route path={qaeCSRRoutes.COUNSELING_EVALUATION_REPORT_PATH} exact>
