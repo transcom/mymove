@@ -231,7 +231,7 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                       </Fieldset>
                     </FormGroup>
                     {values.evaluationType === 'physical' && (
-                      <Fieldset className={styles.durations}>
+                      <>
                         <legend className="usa-label">Travel time to evaluation</legend>
                         <div className={styles.durationPickers}>
                           <div>
@@ -259,7 +259,7 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                             />
                           </div>
                         </div>
-                      </Fieldset>
+                      </>
                     )}
                     <FormGroup>
                       <Fieldset className={styles.radioGroup}>
