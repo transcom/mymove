@@ -11,7 +11,7 @@
     "bytes": "^3.1.2",
     "classnames": "^2.3.1",
     "connected-react-router": "^6.9.3",
-    "core-js": "^3.23.4",
+    "core-js": "^3.24.1",
     "customize-cra": "^1.0.0",
     "deep-object-diff": "^1.1.7",
     "eslint-plugin-react": "^7.30",
