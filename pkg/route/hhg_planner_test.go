@@ -20,7 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *GHCTestSuite) TestTransitDistance() {
+func (suite *GHCTestSuite) TestHHGTransitDistance() {
 	sourceAddress := models.Address{
 		StreetAddress1: "7 Q St",
 		City:           "Augusta",
@@ -36,13 +36,13 @@ func (suite *GHCTestSuite) TestTransitDistance() {
 	}
 
 	panicFunc := func() {
-		planner := NewHHGPlanner(&ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
+		planner := NewHHGPlanner(&ghcmocks.DTODPlannerMileage{})
 		planner.TransitDistance(suite.AppContextForTest(), &sourceAddress, &destinationAddress)
 	}
 	suite.Panics(panicFunc)
 }
 
-func (suite *GHCTestSuite) TestLatLongTransitDistance() {
+func (suite *GHCTestSuite) TestHHGLatLongTransitDistance() {
 	sourceLatLong := LatLong{
 		Latitude:  33.502697,
 		Longitude: -82.022616,
@@ -54,7 +54,7 @@ func (suite *GHCTestSuite) TestLatLongTransitDistance() {
 	}
 
 	panicFunc := func() {
-		planner := NewHHGPlanner(&ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
+		planner := NewHHGPlanner(&ghcmocks.DTODPlannerMileage{})
 		planner.LatLongTransitDistance(suite.AppContextForTest(), sourceLatLong, destinationLatLong)
 	}
 	suite.Panics(panicFunc)
@@ -65,13 +65,13 @@ func (suite *GHCTestSuite) TestZip5TransitDistanceLineHaul() {
 	destinationZip5 := "78234"
 
 	panicFunc := func() {
-		planner := NewHHGPlanner(&ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
+		planner := NewHHGPlanner(&ghcmocks.DTODPlannerMileage{})
 		planner.Zip5TransitDistanceLineHaul(suite.AppContextForTest(), sourceZip5, destinationZip5)
 	}
 	suite.Panics(panicFunc)
 }
 
-func (suite *GHCTestSuite) TestZipTransitDistance() {
+func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 	suite.T().Run("fake DTOD returns a distance", func(t *testing.T) {
 		testSoapClient := &ghcmocks.SoapCaller{}
 		testSoapClient.On("Call",
@@ -88,7 +88,9 @@ func (suite *GHCTestSuite) TestZipTransitDistance() {
 				DistanceMiles: 150,
 			},
 		})
-		planner := NewHHGPlanner(testSoapClient, fakeUsername, fakePassword)
+
+		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient)
+		planner := NewHHGPlanner(plannerMileage)
 		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30301")
 		suite.NoError(err)
 		suite.Equal(150, distance)
@@ -101,7 +103,8 @@ func (suite *GHCTestSuite) TestZipTransitDistance() {
 			mock.Anything,
 		).Return(soapResponseForDistance("150.33"), errors.New("some error"))
 
-		planner := NewHHGPlanner(testSoapClient, fakeUsername, fakePassword)
+		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient)
+		planner := NewHHGPlanner(plannerMileage)
 		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30901")
 		suite.Error(err)
 		suite.Equal(0, distance)
