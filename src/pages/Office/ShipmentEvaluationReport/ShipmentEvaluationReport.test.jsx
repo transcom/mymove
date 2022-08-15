@@ -34,7 +34,7 @@ describe('ShipmentEvaluationReport', () => {
       const h1 = screen.getByRole('heading', { name: 'Shipment report', level: 1 });
       expect(h1).toBeInTheDocument();
 
-      expect(screen.getByText(`REPORT ID #${mockReportId.slice(0, 5).toUpperCase()}`)).toBeInTheDocument();
+      expect(screen.getByText(`REPORT ID #QA-${mockReportId.slice(0, 5).toUpperCase()}`)).toBeInTheDocument();
       expect(screen.getByText(`MOVE CODE #${mockMoveCode}`)).toBeInTheDocument();
       expect(screen.getByText('MTO REFERENCE ID #')).toBeInTheDocument();
 
