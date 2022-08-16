@@ -4741,6 +4741,11 @@ func init() {
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
         },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "violationsObserved": {
           "type": "boolean",
           "x-nullable": true
@@ -13622,6 +13627,11 @@ func init() {
         },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "violationsObserved": {
           "type": "boolean",
