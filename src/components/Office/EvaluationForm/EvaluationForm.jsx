@@ -194,7 +194,7 @@ const EvaluationForm = ({ evaluationReport }) => {
         validateOnMount
       >
         {({ values, setFieldValue }) => {
-          const showDbservedDeliveryDate =
+          const showObservedDeliveryDate =
             values.evaluationType === 'physical' && values.evaluationLocation === 'destination' && isShipment;
           const showObservedPickupDate =
             values.evaluationType === 'physical' && values.evaluationLocation === 'origin' && isShipment;
@@ -318,7 +318,7 @@ const EvaluationForm = ({ evaluationReport }) => {
                         )}
                       </Fieldset>
                     </FormGroup>
-                    {showDbservedDeliveryDate && (
+                    {showObservedDeliveryDate && (
                       <DatePickerInput
                         label="Observed delivery date"
                         name="observedDate"
