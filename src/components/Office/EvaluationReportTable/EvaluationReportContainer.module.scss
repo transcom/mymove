@@ -93,3 +93,7 @@
 .qaeRemarks {
   width: 100%;
 }
+
+.titleSection {
+  @include u-margin-top(4);
+}

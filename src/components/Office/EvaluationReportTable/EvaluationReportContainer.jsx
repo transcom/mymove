@@ -78,7 +78,7 @@ const EvaluationReportContainer = ({
       <ModalContainer>
         <Modal className={styles.evaluationReportModal}>
           <div>
-            <div className={styles.section}>
+            <div className={styles.titleSection}>
               <div className={styles.pageHeader}>
                 <h1>{evaluationReport.type === 'SHIPMENT' ? 'Shipment' : 'Move'} report</h1>
                 <div className={styles.pageHeaderDetails}>
