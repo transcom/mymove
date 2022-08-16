@@ -39,7 +39,7 @@ const EvaluationReports = () => {
     const report = await createCounselingEvaluationReportMutation({ moveCode });
     const reportId = report?.id;
 
-    history.push(`/moves/${moveCode}/counseling-evaluation-reports/${reportId}`);
+    history.push(`/moves/${moveCode}/evaluation-reports/${reportId}`);
   };
 
   if (isLoading) {

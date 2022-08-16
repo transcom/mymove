@@ -19,10 +19,7 @@ const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestRevie
 const ReviewBillableWeight = lazy(() => import('pages/Office/ReviewBillableWeight/ReviewBillableWeight'));
 const CustomerSupportRemarks = lazy(() => import('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks'));
 const EvaluationReports = lazy(() => import('pages/Office/EvaluationReports/EvaluationReports'));
-const ShipmentEvaluationReport = lazy(() => import('pages/Office/ShipmentEvaluationReport/ShipmentEvaluationReport'));
-const CounselingEvaluationReport = lazy(() =>
-  import('pages/Office/CounselingEvaluationReport/CounselingEvaluationReport'),
-);
+const EvaluationReport = lazy(() => import('pages/Office/EvaluationReport/EvaluationReport'));
 const EvaluationViolations = lazy(() => import('pages/Office/EvaluationViolations/EvaluationViolations'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
@@ -133,16 +130,12 @@ const TXOMoveInfo = () => {
             <EvaluationReports />
           </Route>
 
-          <Route path={qaeCSRRoutes.SHIPMENT_EVALUATION_REPORT_PATH} exact>
-            <ShipmentEvaluationReport customerInfo={customerData} orders={order} />
+          <Route path={qaeCSRRoutes.EVALUATION_REPORT_PATH} exact>
+            <EvaluationReport customerInfo={customerData} orders={order} />
           </Route>
 
           <Route path={qaeCSRRoutes.EVALUATION_VIOLATIONS_PATH} exact>
             <EvaluationViolations />
-          </Route>
-
-          <Route path={qaeCSRRoutes.COUNSELING_EVALUATION_REPORT_PATH} exact>
-            <CounselingEvaluationReport customerInfo={customerData} orders={order} />
           </Route>
 
           <Route path="/moves/:moveCode/history" exact>

@@ -32,7 +32,7 @@ const EvaluationReportShipmentInfo = ({ shipment }) => {
     const report = await createReportMutation({ body: { shipmentID }, moveCode });
     const reportId = report?.id;
 
-    history.push(`/moves/${moveCode}/shipment-evaluation-report/${reportId}`);
+    history.push(`/moves/${moveCode}/evaluation-reports/${reportId}`);
   };
 
   let heading;
