@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@adobe/css-tools@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@adobe/css-tools/-/css-tools-4.0.1.tgz#b38b444ad3aa5fedbb15f2f746dcd934226a12dd"
+  integrity sha512-+u76oB43nOHrF4DDWRLWDCtci7f3QJoEBigemIdIeTi1ODqjx6Tad9NCVnPRwewWlKkVab5PlK8DCtPTyX7S8g==
+
 "@ampproject/remapping@^2.1.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz#56c133824780de3174aed5ab6834f3026790154d"
@@ -4752,16 +4757,16 @@
     lz-string "^1.4.4"
     pretty-format "^27.0.2"
 
-"@testing-library/jest-dom@^5.16.2", "@testing-library/jest-dom@^5.16.4":
-  version "5.16.4"
-  resolved "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-5.16.4.tgz#938302d7b8b483963a3ae821f1c0808f872245cd"
-  integrity sha512-Gy+IoFutbMQcky0k+bqqumXZ1cTGswLsFqmNLzNdSKkU9KGV2u9oXhukCbbJ9/LRPKiqwxEE8VpV/+YZlfkPUA==
+"@testing-library/jest-dom@^5.16.2", "@testing-library/jest-dom@^5.16.5":
+  version "5.16.5"
+  resolved "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-5.16.5.tgz#3912846af19a29b2dbf32a6ae9c31ef52580074e"
+  integrity sha512-N5ixQ2qKpi5OLYfwQmUb/5mSV9LneAcaUfp32pn4yCnpb8r/Yz0pXFPck21dIicKmi+ta5WRAknkZCfA8refMA==
   dependencies:
+    "@adobe/css-tools" "^4.0.1"
     "@babel/runtime" "^7.9.2"
     "@types/testing-library__jest-dom" "^5.9.1"
     aria-query "^5.0.0"
     chalk "^3.0.0"
-    css "^3.0.0"
     css.escape "^1.5.1"
     dom-accessibility-api "^0.5.6"
     lodash "^4.17.15"
@@ -8441,15 +8446,6 @@ css.escape@^1.5.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/css.escape/-/css.escape-1.5.1.tgz#42e27d4fa04ae32f931a4b4d4191fa9cddee97cb"
   integrity sha1-QuJ9T6BK4y+TGktNQZH6nN3ul8s=
-
-css@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/css/-/css-3.0.0.tgz#4447a4d58fdd03367c516ca9f64ae365cee4aa5d"
-  integrity sha512-DG9pFfwOrzc+hawpmqX/dHYHJG+Bsdb0klhyi1sDneOgGOXy9wQIC8hzyVp1e4NRYDBdxcylvywPkkXCHAzTyQ==
-  dependencies:
-    inherits "^2.0.4"
-    source-map "^0.6.1"
-    source-map-resolve "^0.6.0"
 
 cssdb@^6.6.2:
   version "6.6.2"
@@ -17104,10 +17100,10 @@ ra-core@^3.19.11:
     query-string "^5.1.1"
     reselect "~3.0.0"
 
-ra-core@^4.2.5:
-  version "4.2.5"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.2.5.tgz#722c254a314175e5d88cc4610bf7d10755bad666"
-  integrity sha512-lQT4I3Y8g4eyMc21C5GktAZ+/T3qadxytxal0J2DdWPlxcBPF7rS8TOCOno2dPaPHOESHfNPwzvxO0ZVR2pkMQ==
+ra-core@^4.2.7:
+  version "4.2.7"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.2.7.tgz#56f23f6ab5c5eab9d09ea6d74c07d6daae2c60ea"
+  integrity sha512-DFrQXsajMv95d2juhXpArDz2I7FVU6x8YtaJpmGaFsClGYK3qcMOfE+duVFdxpihczsihg4YSPumsvNtdtlg6w==
   dependencies:
     clsx "^1.1.1"
     date-fns "^2.19.0"
@@ -17120,10 +17116,10 @@ ra-core@^4.2.5:
     react-is "^17.0.2"
     react-query "^3.32.1"
 
-ra-data-simple-rest@^4.2.5:
-  version "4.2.5"
-  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.2.5.tgz#cff57fcd052da118593ed9ac59add03506cd68e6"
-  integrity sha512-6buDqNggPz0W5OE6SlCUnMzTPTHwg7vVLSzQBozdht0ng/1D4zj1WHy/evqZfxaRKN8gFqi6/pNSQaG9SZdSOA==
+ra-data-simple-rest@^4.2.7:
+  version "4.2.7"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.2.7.tgz#165703e8e18d999992fa1467142010e6e3763bff"
+  integrity sha512-RxGfEnlw02IYZWq18fdNZyamVjFNwSrXITBFSrBNB0A2yX9ssjFSTcyX4Akq9LkN9rJfXcaC+jcTwKzZwCes2g==
   dependencies:
     query-string "^7.1.1"
 
@@ -17142,12 +17138,12 @@ ra-language-english@^3.19.11:
   dependencies:
     ra-core "^3.19.11"
 
-ra-language-english@^4.2.5:
-  version "4.2.5"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.2.5.tgz#1f029059f18e695b351d342aa32c547956e884a3"
-  integrity sha512-2CDBeCHXdBwUI6zsLlAFw5P08Ol0YRAipBikYqRbu/O6CsvC9DJxqyQgH1pR3n3vPUvCAOAYBOHlhO2wJ6/m+g==
+ra-language-english@^4.2.7:
+  version "4.2.7"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.2.7.tgz#ec5ce1b66e37f87a30748dff84c1af182ddffaf2"
+  integrity sha512-Kp2VdgX5U1HkMS7UT5XnXz75KFCVGm/+vzoqKWG2I4EADXb3xEw2cIQ7P4eQnmK8it+DqU7V7zuNQMA3eYdAEA==
   dependencies:
-    ra-core "^4.2.5"
+    ra-core "^4.2.7"
 
 ra-ui-materialui@^3.19.11:
   version "3.19.11"
@@ -19068,14 +19064,6 @@ source-map-resolve@^0.5.0:
     resolve-url "^0.2.1"
     source-map-url "^0.4.0"
     urix "^0.1.0"
-
-source-map-resolve@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/source-map-resolve/-/source-map-resolve-0.6.0.tgz#3d9df87e236b53f16d01e58150fc7711138e5ed2"
-  integrity sha512-KXBr9d/fO/bWo97NXsPIAW1bFSBOuCnjbNTBMO7N59hsv5i9yzRDfcYwwt0l04+VqnKC+EwzvJZIP/qkuMgR/w==
-  dependencies:
-    atob "^2.1.2"
-    decode-uri-component "^0.2.0"
 
 source-map-support@^0.5.16, source-map-support@^0.5.6, source-map-support@^0.5.9, source-map-support@~0.5.12, source-map-support@~0.5.20:
   version "0.5.21"
