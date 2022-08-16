@@ -129,28 +129,42 @@ type FuelSurchargePricer interface {
 // DomesticOriginFirstDaySITPricer prices domestic origin first day SIT for a GHC move
 //go:generate mockery --name DomesticOriginFirstDaySITPricer --disable-version-string
 type DomesticOriginFirstDaySITPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, disableWeightMinimum bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
 // DomesticDestinationFirstDaySITPricer prices domestic destination first day SIT for a GHC move
 //go:generate mockery --name DomesticDestinationFirstDaySITPricer --disable-version-string
 type DomesticDestinationFirstDaySITPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, disableWeightMinimum bool) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// DomesticFirstDaySITPricer prices domestic origin or destination first day SIT for a GHC move
+//go:generate mockery --name DomesticFirstDaySITPricer --disable-version-string
+type DomesticFirstDaySITPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, disableWeightMinimum bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
 // DomesticOriginAdditionalDaysSITPricer prices domestic origin additional days SIT for a GHC move
 //go:generate mockery --name DomesticOriginAdditionalDaysSITPricer --disable-version-string
 type DomesticOriginAdditionalDaysSITPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int, disableWeightMinimum bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
 // DomesticDestinationAdditionalDaysSITPricer prices domestic destination additional days SIT for a GHC move
 //go:generate mockery --name DomesticDestinationAdditionalDaysSITPricer --disable-version-string
 type DomesticDestinationAdditionalDaysSITPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int, disableWeightMinimum bool) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// DomesticAdditionalDaysSITPricer prices domestic origin or domestic additional days SIT for a GHC move
+//go:generate mockery --name DomesticAdditionalDaysSITPricer --disable-version-string
+type DomesticAdditionalDaysSITPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int, disableWeightMinimum bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 

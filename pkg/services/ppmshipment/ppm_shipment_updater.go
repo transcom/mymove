@@ -50,12 +50,13 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// This potentially updates the MTOShipment.Distance field so include it in the transaction
-		estimatedIncentive, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
+		estimatedIncentive, estimatedSITCost, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
 		if err != nil {
 			return err
 		}
 
 		updatedPPMShipment.EstimatedIncentive = estimatedIncentive
+		updatedPPMShipment.SITEstimatedCost = estimatedSITCost
 
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)
 

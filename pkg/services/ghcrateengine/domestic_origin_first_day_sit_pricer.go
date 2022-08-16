@@ -18,8 +18,8 @@ func NewDomesticOriginFirstDaySITPricer() services.DomesticOriginFirstDaySITPric
 }
 
 // Price determines the price for domestic origin first day SIT
-func (p domesticOriginFirstDaySITPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticFirstDaySIT(appCtx, models.ReServiceCodeDOFSIT, contractCode, referenceDate, weight, serviceArea)
+func (p domesticOriginFirstDaySITPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, disableWeightMinimum bool) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticFirstDaySIT(appCtx, models.ReServiceCodeDOFSIT, contractCode, referenceDate, weight, serviceArea, disableWeightMinimum)
 }
 
 // PriceUsingParams determines the price for domestic origin first day SIT given PaymentServiceItemParams
@@ -44,5 +44,5 @@ func (p domesticOriginFirstDaySITPricer) PriceUsingParams(appCtx appcontext.AppC
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, false)
 }

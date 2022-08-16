@@ -2117,6 +2117,425 @@ func createDefaultHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUp
 	createHHGMoveWithPaymentRequest(appCtx, userUploader, affiliation, testdatagen.Assertions{})
 }
 
+func matchedByPostalCode(postalCode string) func(addr *models.Address) bool {
+	return func(addr *models.Address) bool {
+		return addr.PostalCode == postalCode
+	}
+}
+
+// Creates an HHG Shipment with SIT at Origin and a payment request for first day and additional day SIT service items.
+// This is to compare to calculating the cost for SIT with a PPM which excludes delivery/pickup costs because the
+// address is not changing. 30 days of additional days in SIT are invoiced.
+func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	logger := appCtx.Logger()
+
+	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
+	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
+
+	SITAllowance := 90
+	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			RequestedPickupDate:  &issueDate,
+			ActualPickupDate:     &issueDate,
+			SITDaysAllowance:     &SITAllowance,
+		},
+		Move: models.Move{
+			Locator: "ORGSIT",
+		},
+		Order: models.Order{
+			IssueDate:    issueDate,
+			ReportByDate: reportByDate,
+		},
+		DestinationAddress: testdatagen.MakeAddress(db, testdatagen.Assertions{
+			Address: models.Address{
+				City:       "Harlem",
+				State:      "GA",
+				PostalCode: "30813",
+			},
+		}),
+	})
+
+	move := shipment.MoveTaskOrder
+
+	submissionErr := moveRouter.Submit(appCtx, &move)
+	if submissionErr != nil {
+		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
+	}
+
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		logger.Fatal(fmt.Sprintf("Failed to save move and dependencies: %s", err))
+	}
+
+	queryBuilder := query.NewQueryBuilder()
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
+	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+
+	if approveErr != nil {
+		logger.Fatal("Error approving move")
+	}
+
+	planner := &routemocks.Planner{}
+
+	// called using the addresses with origin zip of 90210 and destination zip of 94535
+	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.MatchedBy(matchedByPostalCode("90210")), mock.MatchedBy(matchedByPostalCode("30813"))).Return(2361, nil)
+
+	// called for zip 3 domestic linehaul service item
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+		"90210", "30813").Return(2361, nil)
+
+	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
+	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+	if updateErr != nil {
+		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
+	}
+
+	// The SIT actual address will update the HHG shipment's pickup address, here we're providing the same value because
+	// the prime API requires it to be specified.
+	originSITAddress := shipment.PickupAddress
+	originSITAddress.ID = uuid.Nil
+
+	originSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: shipment,
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOFSIT,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			Reason:                      models.StringPointer("Holiday break"),
+			SITEntryDate:                &issueDate,
+			SITPostalCode:               &originSITAddress.PostalCode,
+			SITOriginHHGActualAddress:   originSITAddress,
+			SITOriginHHGActualAddressID: &originSITAddress.ID,
+		},
+		Stub: true,
+	})
+
+	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &originSIT)
+	if validErrs.HasAny() || createErr != nil {
+		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
+	}
+
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
+
+	var originFirstDaySIT models.MTOServiceItem
+	var originAdditionalDaySIT models.MTOServiceItem
+	var originPickupSIT models.MTOServiceItem
+	for _, createdServiceItem := range *createdOriginServiceItems {
+		switch createdServiceItem.ReService.Code {
+		case models.ReServiceCodeDOFSIT:
+			originFirstDaySIT = createdServiceItem
+		case models.ReServiceCodeDOASIT:
+			originAdditionalDaySIT = createdServiceItem
+		case models.ReServiceCodeDOPSIT:
+			originPickupSIT = createdServiceItem
+		}
+	}
+
+	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT} {
+		_, updateErr := serviceItemUpdator.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		if updateErr != nil {
+			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
+		}
+	}
+
+	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+		planner,
+		ghcrateengine.NewServiceItemPricer(),
+	)
+
+	paymentRequest := models.PaymentRequest{
+		MoveTaskOrderID: move.ID,
+	}
+
+	var serviceItems []models.MTOServiceItem
+	err = db.Eager("ReService").Where("move_id = ? AND id != ?", move.ID, originPickupSIT.ID).All(&serviceItems)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// additional days of SIT should exclude the initial entry day which excludes the first day of SIT
+	// the prime can bill against the same addtional day SIT service item in 30 day increments per payment request
+	doasitPaymentParams := []models.PaymentServiceItemParam{
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
+			Value:       issueDate.Add(time.Hour * 24).Format("2006-01-02"),
+		},
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
+			Value:       issueDate.Add(time.Hour * 24 * 30).Format("2006-01-02"),
+		}}
+
+	paymentServiceItems := []models.PaymentServiceItem{}
+	for _, serviceItem := range serviceItems {
+		paymentItem := models.PaymentServiceItem{
+			MTOServiceItemID: serviceItem.ID,
+			MTOServiceItem:   serviceItem,
+		}
+		if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
+			paymentItem.PaymentServiceItemParams = doasitPaymentParams
+		}
+
+		paymentServiceItems = append(paymentServiceItems, paymentItem)
+	}
+
+	paymentRequest.PaymentServiceItems = paymentServiceItems
+	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest)
+
+	if createErr != nil {
+		logger.Fatal("Error creating payment request", zap.Error(createErr))
+	}
+
+	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
+		PaymentRequest: *newPaymentRequest,
+	})
+
+	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
+	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
+		PrimeUpload: models.PrimeUpload{
+			ProofOfServiceDoc:   proofOfService,
+			ProofOfServiceDocID: proofOfService.ID,
+			Contractor: models.Contractor{
+				ID: primeContractor,
+			},
+			ContractorID: primeContractor,
+		},
+		PrimeUploader: primeUploader,
+	})
+
+	posImage := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
+		PaymentRequest: *newPaymentRequest,
+	})
+
+	// Creates custom test.jpg prime upload
+	file := testdatagen.Fixture("test.jpg")
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
+	}
+
+	// Creates custom test.png prime upload
+	file = testdatagen.Fixture("test.png")
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
+	}
+
+	logger.Info(fmt.Sprintf("New payment request with service item params created with locator %s", move.Locator))
+}
+
+// Creates an HHG Shipment with SIT at Origin and a payment request for first day and additional day SIT service items.
+// This is to compare to calculating the cost for SIT with a PPM which excludes delivery/pickup costs because the
+// address is not changing. 30 days of additional days in SIT are invoiced.
+func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	logger := appCtx.Logger()
+
+	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
+	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
+	SITAllowance := 90
+	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			RequestedPickupDate:  &issueDate,
+			ActualPickupDate:     &issueDate,
+			SITDaysAllowance:     &SITAllowance,
+		},
+		Move: models.Move{
+			Locator: "DSTSIT",
+		},
+		Order: models.Order{
+			IssueDate:    issueDate,
+			ReportByDate: reportByDate,
+		},
+		DestinationAddress: testdatagen.MakeAddress(db, testdatagen.Assertions{
+			Address: models.Address{
+				City:       "Harlem",
+				State:      "GA",
+				PostalCode: "30813",
+			},
+		}),
+	})
+
+	move := shipment.MoveTaskOrder
+
+	submissionErr := moveRouter.Submit(appCtx, &move)
+	if submissionErr != nil {
+		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
+	}
+
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		logger.Fatal(fmt.Sprintf("Failed to save move and dependencies: %s", err))
+	}
+
+	queryBuilder := query.NewQueryBuilder()
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
+	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+
+	if approveErr != nil {
+		logger.Fatal("Error approving move")
+	}
+
+	planner := &routemocks.Planner{}
+
+	// called using the addresses with origin zip of 90210 and destination zip of 30813
+	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.MatchedBy(matchedByPostalCode("90210")), mock.MatchedBy(matchedByPostalCode("30813"))).Return(2361, nil)
+
+	// called for zip 3 domestic linehaul service item
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+		"90210", "30813").Return(2361, nil)
+
+	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
+	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+	if updateErr != nil {
+		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
+	}
+
+	// The SIT actual address will update the HHG shipment's pickup address, here we're providing the same value because
+	// the prime API requires it to be specified.
+	originSITAddress := shipment.PickupAddress
+	originSITAddress.ID = uuid.Nil
+
+	destinationSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: shipment,
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDFSIT,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			Reason:       models.StringPointer("Holiday break"),
+			SITEntryDate: &issueDate,
+		},
+		Stub: true,
+	})
+
+	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &destinationSIT)
+	if validErrs.HasAny() || createErr != nil {
+		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
+	}
+
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
+
+	var destinationFirstDaySIT models.MTOServiceItem
+	var destinationAdditionalDaySIT models.MTOServiceItem
+	var destinationDeliverySIT models.MTOServiceItem
+	for _, createdServiceItem := range *createdOriginServiceItems {
+		switch createdServiceItem.ReService.Code {
+		case models.ReServiceCodeDDFSIT:
+			destinationFirstDaySIT = createdServiceItem
+		case models.ReServiceCodeDDASIT:
+			destinationAdditionalDaySIT = createdServiceItem
+		case models.ReServiceCodeDDDSIT:
+			destinationDeliverySIT = createdServiceItem
+		}
+	}
+
+	for _, createdServiceItem := range []models.MTOServiceItem{destinationFirstDaySIT, destinationAdditionalDaySIT, destinationDeliverySIT} {
+		_, updateErr := serviceItemUpdator.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		if updateErr != nil {
+			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
+		}
+	}
+
+	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+		planner,
+		ghcrateengine.NewServiceItemPricer(),
+	)
+
+	paymentRequest := models.PaymentRequest{
+		MoveTaskOrderID: move.ID,
+	}
+
+	var serviceItems []models.MTOServiceItem
+	err = db.Eager("ReService").Where("move_id = ? AND id != ?", move.ID, destinationDeliverySIT.ID).All(&serviceItems)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// additional days of SIT should exclude the initial entry day which excludes the first day of SIT
+	// the prime can bill against the same addtional day SIT service item in 30 day increments
+
+	ddasitPaymentParams := []models.PaymentServiceItemParam{
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
+			Value:       issueDate.Add(time.Hour * 24).Format("2006-01-02"),
+		},
+		{
+			IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
+			Value:       issueDate.Add(time.Hour * 24 * 30).Format("2006-01-02"),
+		}}
+
+	paymentServiceItems := []models.PaymentServiceItem{}
+	for _, serviceItem := range serviceItems {
+		paymentItem := models.PaymentServiceItem{
+			MTOServiceItemID: serviceItem.ID,
+			MTOServiceItem:   serviceItem,
+		}
+		if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
+			paymentItem.PaymentServiceItemParams = ddasitPaymentParams
+		}
+
+		paymentServiceItems = append(paymentServiceItems, paymentItem)
+	}
+
+	paymentRequest.PaymentServiceItems = paymentServiceItems
+	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, &paymentRequest)
+
+	if createErr != nil {
+		logger.Fatal("Error creating payment request", zap.Error(createErr))
+	}
+
+	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
+		PaymentRequest: *newPaymentRequest,
+	})
+
+	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
+	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
+		PrimeUpload: models.PrimeUpload{
+			ProofOfServiceDoc:   proofOfService,
+			ProofOfServiceDocID: proofOfService.ID,
+			Contractor: models.Contractor{
+				ID: primeContractor,
+			},
+			ContractorID: primeContractor,
+		},
+		PrimeUploader: primeUploader,
+	})
+
+	posImage := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
+		PaymentRequest: *newPaymentRequest,
+	})
+
+	// Creates custom test.jpg prime upload
+	file := testdatagen.Fixture("test.jpg")
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
+	}
+
+	// Creates custom test.png prime upload
+	file = testdatagen.Fixture("test.png")
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
+	}
+
+	logger.Info(fmt.Sprintf("New payment request with service item params created with locator %s", move.Locator))
+}
+
 // Creates a payment request with domestic hhg and shorthaul shipments with
 // service item pricing params for displaying cost calculations
 func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {

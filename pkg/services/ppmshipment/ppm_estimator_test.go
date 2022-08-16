@@ -1,6 +1,7 @@
 package ppmshipment
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/stretchr/testify/mock"
@@ -16,7 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
+func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 	mockedPlanner := &mocks.Planner{}
 	mockedPaymentRequestHelper := &prhelpermocks.Helper{}
@@ -154,7 +155,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 	}
 
 	setupPricerData := func() {
-		testdatagen.MakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
 			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
 				FuelPriceInMillicents: unit.Millicents(281400),
 				PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
@@ -170,7 +171,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
 		})
 
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Contract:             originDomesticServiceArea.Contract,
 				ContractID:           originDomesticServiceArea.ContractID,
@@ -207,7 +208,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			},
 		})
 
-		testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
 				Contract:              originDomesticServiceArea.Contract,
 				ContractID:            originDomesticServiceArea.ContractID,
@@ -221,7 +222,7 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			},
 		})
 
-		testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
 				Contract:              originDomesticServiceArea.Contract,
 				ContractID:            originDomesticServiceArea.ContractID,
@@ -235,167 +236,564 @@ func (suite *PPMShipmentSuite) TestEstimatedIncentive() {
 			},
 		})
 
-		testdatagen.MakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
-			ReContract:            originDomesticServiceArea.Contract,
-			ReDomesticServiceArea: originDomesticServiceArea,
+		dopService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDOP,
 			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-				IsPeakPeriod: false,
-				PriceCents:   unit.Cents(404),
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             dopService.ID,
+				Service:               dopService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            unit.Cents(404),
 			},
 		})
 
-		testdatagen.MakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
-			ReContract:            destDomesticServiceArea.Contract,
-			ReDomesticServiceArea: destDomesticServiceArea,
+		ddpService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDDP,
 			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+			ReContract:            destDomesticServiceArea.Contract,
+			ReDomesticServiceArea: destDomesticServiceArea,
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-				IsPeakPeriod: false,
-				PriceCents:   unit.Cents(832),
+				ServiceID:             ddpService.ID,
+				Service:               ddpService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            unit.Cents(832),
 			},
 		})
 
-		testdatagen.MakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
-			ReContract: originDomesticServiceArea.Contract,
+		dpkService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDPK,
 			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
+				ContractID:   originDomesticServiceArea.ContractID,
+				Contract:     originDomesticServiceArea.Contract,
+				ServiceID:    dpkService.ID,
+				Service:      dpkService,
 				IsPeakPeriod: false,
 				Schedule:     3,
 				PriceCents:   7395,
 			},
 		})
 
-		testdatagen.MakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
-			ReContract: destDomesticServiceArea.Contract,
+		dupkService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDUPK,
 			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
+				ContractID:   destDomesticServiceArea.ContractID,
+				Contract:     destDomesticServiceArea.Contract,
+				ServiceID:    dupkService.ID,
+				Service:      dupkService,
 				IsPeakPeriod: false,
 				Schedule:     2,
 				PriceCents:   597,
 			},
 		})
+
+		dofsitService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             dofsitService.ID,
+				Service:               dofsitService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            1153,
+			},
+		})
+
+		doasitService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             doasitService.ID,
+				Service:               doasitService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            46,
+			},
+		})
+
+		ddfsitService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddfsitService.ID,
+				Service:               ddfsitService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            1612,
+			},
+		})
+
+		ddasitService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDASIT,
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddasitService.ID,
+				Service:               ddasitService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            55,
+			},
+		})
 	}
 
-	suite.Run("Estimated Incentive - Success", func() {
-		oldPPMShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+	suite.Run("Estimated Incentive", func() {
+		suite.Run("Estimated Incentive - Success", func() {
+			oldPPMShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
 
-		setupPricerData()
+			setupPricerData()
 
-		// shipment has locations and date but is now updating the estimated weight for the first time
-		estimatedWeight := unit.Pound(5000)
-		newPPM := oldPPMShipment
-		newPPM.EstimatedWeight = &estimatedWeight
+			// shipment has locations and date but is now updating the estimated weight for the first time
+			estimatedWeight := unit.Pound(5000)
+			newPPM := oldPPMShipment
+			newPPM.EstimatedWeight = &estimatedWeight
 
-		mockedPaymentRequestHelper.On(
-			"FetchServiceParamsForServiceItems",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
 
-		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"90210", "30813").Return(2361, nil)
+			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"90210", "30813").Return(2294, nil)
 
-		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
-		suite.NilOrNoVerrs(err)
+			ppmEstimate, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
 
-		mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"90210", "30813")
-		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"90210", "30813")
+			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-		suite.Equal(oldPPMShipment.PickupPostalCode, newPPM.PickupPostalCode)
-		suite.Equal(unit.Pound(5000), *newPPM.EstimatedWeight)
-		suite.Equal(unit.Cents(72097231), *ppmEstimate)
-	})
-
-	suite.Run("Estimated Incentive - Success - clears advance and advance requested values", func() {
-		oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status: models.PPMShipmentStatusDraft,
-			},
+			suite.Equal(oldPPMShipment.PickupPostalCode, newPPM.PickupPostalCode)
+			suite.Equal(unit.Pound(5000), *newPPM.EstimatedWeight)
+			suite.Equal(unit.Cents(70064364), *ppmEstimate)
 		})
 
-		setupPricerData()
+		suite.Run("Estimated Incentive - Success - clears advance and advance requested values", func() {
+			oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					Status: models.PPMShipmentStatusDraft,
+				},
+			})
 
-		newPPM := oldPPMShipment
+			setupPricerData()
 
-		// updating the departure date will re-calculate the estimate and clear the previously requested advance
-		newPPM.ExpectedDepartureDate = time.Date(testdatagen.GHCTestYear, time.March, 30, 0, 0, 0, 0, time.UTC)
+			newPPM := oldPPMShipment
 
-		mockedPaymentRequestHelper.On(
-			"FetchServiceParamsForServiceItems",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+			// updating the departure date will re-calculate the estimate and clear the previously requested advance
+			newPPM.ExpectedDepartureDate = time.Date(testdatagen.GHCTestYear, time.March, 30, 0, 0, 0, 0, time.UTC)
 
-		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"90210", "30813").Return(2361, nil).Once()
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
 
-		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
-		suite.NilOrNoVerrs(err)
-		suite.Nil(newPPM.HasRequestedAdvance)
-		suite.Nil(newPPM.AdvanceAmountRequested)
-		suite.Equal(unit.Cents(39319267), *ppmEstimate)
-	})
+			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"90210", "30813").Return(2294, nil).Once()
 
-	suite.Run("Estimated Incentive - does not change when required fields are the same", func() {
-		oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				Status:             models.PPMShipmentStatusDraft,
-				EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
-			},
+			ppmEstimate, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
+			suite.Nil(newPPM.HasRequestedAdvance)
+			suite.Nil(newPPM.AdvanceAmountRequested)
+			suite.Equal(unit.Cents(38211767), *ppmEstimate)
 		})
 
-		newPPM := oldPPMShipment
-		newPPM.HasProGear = models.BoolPointer(false)
+		suite.Run("Estimated Incentive - does not change when required fields are the same", func() {
+			oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					Status:             models.PPMShipmentStatusDraft,
+					EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				},
+			})
 
-		estimatedIncentive, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
-		suite.NilOrNoVerrs(err)
-		suite.Equal(oldPPMShipment.PickupPostalCode, newPPM.PickupPostalCode)
-		suite.Equal(*oldPPMShipment.EstimatedWeight, *newPPM.EstimatedWeight)
-		suite.Equal(oldPPMShipment.DestinationPostalCode, newPPM.DestinationPostalCode)
-		suite.True(oldPPMShipment.ExpectedDepartureDate.Equal(newPPM.ExpectedDepartureDate))
-		suite.Equal(*oldPPMShipment.EstimatedIncentive, *estimatedIncentive)
-		suite.Equal(models.BoolPointer(true), newPPM.HasRequestedAdvance)
-		suite.Equal(unit.Cents(598700), *newPPM.AdvanceAmountRequested)
-	})
-	suite.Run("Estimated Incentive - does not change when status is not DRAFT", func() {
-		oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
-			},
+			newPPM := oldPPMShipment
+			newPPM.HasProGear = models.BoolPointer(false)
+
+			estimatedIncentive, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
+			suite.Equal(oldPPMShipment.PickupPostalCode, newPPM.PickupPostalCode)
+			suite.Equal(*oldPPMShipment.EstimatedWeight, *newPPM.EstimatedWeight)
+			suite.Equal(oldPPMShipment.DestinationPostalCode, newPPM.DestinationPostalCode)
+			suite.True(oldPPMShipment.ExpectedDepartureDate.Equal(newPPM.ExpectedDepartureDate))
+			suite.Equal(*oldPPMShipment.EstimatedIncentive, *estimatedIncentive)
+			suite.Equal(models.BoolPointer(true), newPPM.HasRequestedAdvance)
+			suite.Equal(unit.Cents(598700), *newPPM.AdvanceAmountRequested)
 		})
 
-		newPPM := models.PPMShipment{
-			ID:                    uuid.FromStringOrNil("575c25aa-b4eb-4024-9597-43483003c773"),
-			ShipmentID:            oldPPMShipment.ShipmentID,
-			Status:                models.PPMShipmentStatusPaymentApproved,
-			ExpectedDepartureDate: oldPPMShipment.ExpectedDepartureDate,
-			PickupPostalCode:      oldPPMShipment.PickupPostalCode,
-			DestinationPostalCode: "94040",
-			EstimatedWeight:       oldPPMShipment.EstimatedWeight,
-			SITExpected:           oldPPMShipment.SITExpected,
-			EstimatedIncentive:    models.CentPointer(unit.Cents(600000)),
-		}
+		suite.Run("Estimated Incentive - does not change when status is not DRAFT", func() {
+			oldPPMShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					EstimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				},
+			})
 
-		ppmEstimate, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
-		suite.NilOrNoVerrs(err)
-		suite.Equal(oldPPMShipment.EstimatedIncentive, ppmEstimate)
+			newPPM := models.PPMShipment{
+				ID:                    uuid.FromStringOrNil("575c25aa-b4eb-4024-9597-43483003c773"),
+				ShipmentID:            oldPPMShipment.ShipmentID,
+				Status:                models.PPMShipmentStatusPaymentApproved,
+				ExpectedDepartureDate: oldPPMShipment.ExpectedDepartureDate,
+				PickupPostalCode:      oldPPMShipment.PickupPostalCode,
+				DestinationPostalCode: "94040",
+				EstimatedWeight:       oldPPMShipment.EstimatedWeight,
+				SITExpected:           oldPPMShipment.SITExpected,
+				EstimatedIncentive:    models.CentPointer(unit.Cents(600000)),
+			}
+
+			ppmEstimate, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
+			suite.Equal(oldPPMShipment.EstimatedIncentive, ppmEstimate)
+		})
+
+		suite.Run("Estimated Incentive - Success - is skipped when Estimated Weight is missing", func() {
+			oldPPMShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+
+			newPPM := oldPPMShipment
+			newPPM.DestinationPostalCode = "94040"
+
+			_, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NoError(err)
+			suite.Nil(newPPM.EstimatedIncentive)
+		})
 	})
 
-	suite.Run("Estimated Incentive - Failure - is not created when Estimated Weight is missing", func() {
-		oldPPMShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+	suite.Run("SIT Estimated Cost", func() {
+		// For comparison should be priced the same as ORGSIT in devseed
+		suite.Run("Success - Origin First Day and Additional Day SIT", func() {
+			originLocation := models.SITLocationTypeOrigin
+			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			})
+			shipmentOriginSIT := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					Shipment:                  mtoShipment,
+					ShipmentID:                mtoShipment.ID,
+					DestinationPostalCode:     "30813",
+					SITExpected:               models.BoolPointer(true),
+					SITLocation:               &originLocation,
+					SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
+					SITEstimatedEntryDate:     &entryDate,
+					SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
+				},
+				Stub: true,
+			})
 
-		newPPM := oldPPMShipment
-		newPPM.DestinationPostalCode = "94040"
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"90210", "30813").Return(2294, nil)
 
-		_, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
-		suite.NoError(err)
-		suite.Nil(newPPM.EstimatedIncentive)
+			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), models.PPMShipment{}, &shipmentOriginSIT)
+
+			suite.NoError(err)
+			suite.NotNil(estimatedSITCost)
+			suite.Equal(50660, estimatedSITCost.Int())
+		})
+
+		suite.Run("Success - Destination First Day and Additional Day SIT", func() {
+			destinationLocation := models.SITLocationTypeDestination
+			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			})
+			shipmentOriginSIT := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					Shipment:                  mtoShipment,
+					ShipmentID:                mtoShipment.ID,
+					DestinationPostalCode:     "30813",
+					SITExpected:               models.BoolPointer(true),
+					SITLocation:               &destinationLocation,
+					SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
+					SITEstimatedEntryDate:     &entryDate,
+					SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
+				},
+				Stub: true,
+			})
+
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"90210", "30813").Return(2294, nil)
+
+			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), models.PPMShipment{}, &shipmentOriginSIT)
+
+			suite.NoError(err)
+			suite.NotNil(estimatedSITCost)
+			suite.Equal(65240, estimatedSITCost.Int())
+		})
+
+		suite.Run("Success - same entry and departure dates only prices first day SIT", func() {
+			destinationLocation := models.SITLocationTypeDestination
+			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			})
+			shipmentOriginSIT := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					Shipment:                  mtoShipment,
+					ShipmentID:                mtoShipment.ID,
+					DestinationPostalCode:     "30813",
+					SITExpected:               models.BoolPointer(true),
+					SITLocation:               &destinationLocation,
+					SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
+					SITEstimatedEntryDate:     &entryDate,
+					SITEstimatedDepartureDate: &entryDate,
+				},
+				Stub: true,
+			})
+
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"90210", "30813").Return(2294, nil)
+
+			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), models.PPMShipment{}, &shipmentOriginSIT)
+
+			suite.NoError(err)
+			suite.NotNil(estimatedSITCost)
+			suite.Equal(32240, estimatedSITCost.Int())
+		})
+
+		suite.Run("SIT cost is not calculated when required fields are missing", func() {
+			destinationSITLocation := models.SITLocationTypeDestination
+
+			// an MTO Shipment ID is required for the shipment query
+			shipmentSITFieldsNotUpdated := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{})
+			shipmentSITNotExpected := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+				MTOShipment: shipmentSITFieldsNotUpdated.Shipment,
+				Stub:        true,
+			})
+			shipmentSITWeightMissing := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+				MTOShipment: shipmentSITFieldsNotUpdated.Shipment,
+				PPMShipment: models.PPMShipment{
+					SITExpected:               models.BoolPointer(true),
+					SITLocation:               &destinationSITLocation,
+					SITEstimatedEntryDate:     models.TimePointer(time.Now()),
+					SITEstimatedDepartureDate: models.TimePointer(time.Now().Add(time.Hour * 24)),
+				},
+				Stub: true,
+			})
+			shipmentSITEntryDateMissing := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+				MTOShipment: shipmentSITFieldsNotUpdated.Shipment,
+				PPMShipment: models.PPMShipment{
+					SITExpected:               models.BoolPointer(true),
+					SITLocation:               &destinationSITLocation,
+					SITEstimatedDepartureDate: models.TimePointer(time.Now()),
+					SITEstimatedWeight:        models.PoundPointer(unit.Pound(2999)),
+				},
+				Stub: true,
+			})
+			shipmentSITDepartureDateMissing := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+				MTOShipment: shipmentSITFieldsNotUpdated.Shipment,
+				PPMShipment: models.PPMShipment{
+					SITExpected:           models.BoolPointer(true),
+					SITLocation:           &destinationSITLocation,
+					SITEstimatedEntryDate: models.TimePointer(time.Now()),
+					SITEstimatedWeight:    models.PoundPointer(unit.Pound(2999)),
+				},
+				Stub: true,
+			})
+
+			shipmentTestCases := []struct {
+				oldShipment models.PPMShipment
+				newShipment models.PPMShipment
+				name        string
+			}{
+				{
+					models.PPMShipment{},
+					shipmentSITNotExpected,
+					"PPM Shipment with SITExpected set to false",
+				},
+				{
+					models.PPMShipment{},
+					shipmentSITWeightMissing,
+					"PPM Shipment with SIT Estimated Weight missing",
+				},
+				{
+					models.PPMShipment{},
+					shipmentSITEntryDateMissing,
+					"PPM Shipment with SIT Entry Date missing",
+				},
+				{
+					models.PPMShipment{},
+					shipmentSITDepartureDateMissing,
+					"PPM Shipment with SIT Departure Date missing",
+				},
+				{
+					models.PPMShipment{},
+					shipmentSITDepartureDateMissing,
+					"PPM Shipment with SIT Departure Date missing",
+				},
+				{
+					shipmentSITFieldsNotUpdated,
+					shipmentSITFieldsNotUpdated,
+					"PPM Shipment fields were not updated",
+				},
+			}
+
+			for _, testCase := range shipmentTestCases {
+				_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), testCase.oldShipment, &testCase.newShipment)
+				suite.NoError(err, fmt.Sprintf("unexpected error running test %q", testCase.name))
+				suite.Nil(estimatedSITCost, fmt.Sprintf("SIT cost was calculated when it shouldnt't have been during test %q", testCase.name))
+			}
+		})
+
+		suite.Run("SIT cost is not re-calculated when fields are unchanged", func() {
+			destinationLocation := models.SITLocationTypeDestination
+			shipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					SITExpected:               models.BoolPointer(true),
+					SITLocation:               &destinationLocation,
+					SITEstimatedWeight:        models.PoundPointer(unit.Pound(2999)),
+					SITEstimatedEntryDate:     models.TimePointer(time.Now()),
+					SITEstimatedDepartureDate: models.TimePointer(time.Now().Add(time.Hour * 24)),
+					SITEstimatedCost:          models.CentPointer(unit.Cents(89900)),
+				},
+			})
+			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), shipment, &shipment)
+			suite.NoError(err)
+			suite.Equal(*shipment.SITEstimatedCost, *estimatedSITCost)
+		})
+
+		suite.Run("SIT cost is re-calculated when any dependent field is changed", func() {
+			destinationLocation := models.SITLocationTypeDestination
+			originalShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					SITExpected:               models.BoolPointer(true),
+					SITLocation:               &destinationLocation,
+					SITEstimatedWeight:        models.PoundPointer(unit.Pound(2999)),
+					SITEstimatedEntryDate:     models.TimePointer(time.Now()),
+					SITEstimatedDepartureDate: models.TimePointer(time.Now().Add(time.Hour * 24)),
+					SITEstimatedCost:          models.CentPointer(unit.Cents(89900)),
+				},
+			})
+
+			// PPM base shipment field changes will affect SIT pricing
+			shipmentDifferentPickup := originalShipment
+			shipmentDifferentPickup.PickupPostalCode = "90211"
+
+			shipmentDifferentDestination := originalShipment
+			shipmentDifferentDestination.DestinationPostalCode = "30814"
+
+			shipmentDifferentDeparture := originalShipment
+			// original date was Mar 15th so adding 3 months should affect the date peak period pricing
+			shipmentDifferentDeparture.ExpectedDepartureDate = originalShipment.ExpectedDepartureDate.Add(time.Hour * 24 * 90)
+
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"90211", "30813").Return(2294, nil)
+
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"90210", "30814").Return(2290, nil)
+
+			// SIT specific field changes will likely cause the price to change, although adjusting dates may not change
+			// the total number of days in SIT.
+
+			shipmentDifferentLocation := originalShipment
+			originLocation := models.SITLocationTypeOrigin
+			shipmentDifferentLocation.SITLocation = &originLocation
+
+			shipmentDifferentSITWeight := originalShipment
+			shipmentDifferentSITWeight.SITEstimatedWeight = models.PoundPointer(unit.Pound(4555))
+
+			shipmentDifferentEntryDate := originalShipment
+			previousDay := originalShipment.SITEstimatedEntryDate.Add(time.Hour * -24)
+			shipmentDifferentEntryDate.SITEstimatedEntryDate = &previousDay
+
+			shipmentDifferentSITDepartureDate := originalShipment
+			nextDay := shipmentDifferentSITDepartureDate.SITEstimatedDepartureDate.Add(time.Hour * 24)
+			shipmentDifferentSITDepartureDate.SITEstimatedDepartureDate = &nextDay
+
+			for _, updatedShipment := range []models.PPMShipment{
+				shipmentDifferentPickup,
+				shipmentDifferentDestination,
+				shipmentDifferentDeparture,
+				shipmentDifferentLocation,
+				shipmentDifferentSITWeight,
+				shipmentDifferentEntryDate,
+				shipmentDifferentSITDepartureDate,
+			} {
+				copyOfShipment := updatedShipment
+
+				_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), originalShipment, &copyOfShipment)
+
+				suite.NoError(err)
+				suite.NotNil(originalShipment.SITEstimatedCost)
+				suite.NotNil(estimatedSITCost)
+				suite.NotEqual(*originalShipment.SITEstimatedCost, *estimatedSITCost)
+			}
+		})
+
+		suite.Run("SIT cost is set to nil when storage is no longer expected", func() {
+			destinationLocation := models.SITLocationTypeDestination
+			originalShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
+				PPMShipment: models.PPMShipment{
+					SITExpected:               models.BoolPointer(true),
+					SITLocation:               &destinationLocation,
+					SITEstimatedWeight:        models.PoundPointer(unit.Pound(2999)),
+					SITEstimatedEntryDate:     models.TimePointer(time.Now()),
+					SITEstimatedDepartureDate: models.TimePointer(time.Now().Add(time.Hour * 24)),
+					SITEstimatedCost:          models.CentPointer(unit.Cents(89900)),
+				},
+			})
+
+			shipmentSITNotExpected := originalShipment
+			shipmentSITNotExpected.SITExpected = models.BoolPointer(false)
+
+			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), originalShipment, &shipmentSITNotExpected)
+			suite.NoError(err)
+			suite.Nil(shipmentSITNotExpected.SITEstimatedCost)
+			suite.Nil(estimatedSITCost)
+		})
 	})
 }

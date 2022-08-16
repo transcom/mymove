@@ -1,6 +1,9 @@
 package testdatagen
 
 import (
+	"database/sql"
+	"log"
+
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -55,4 +58,24 @@ func MakeReDomesticServiceAreaPrice(db *pop.Connection, assertions Assertions) m
 	mustCreate(db, &reDomesticServiceAreaPrice, assertions.Stub)
 
 	return reDomesticServiceAreaPrice
+}
+
+func FetchOrMakeReDomesticServiceAreaPrice(db *pop.Connection, assertions Assertions) models.ReDomesticServiceAreaPrice {
+	var existingServiceAreaPrice models.ReDomesticServiceAreaPrice
+	serviceAreaPrice := assertions.ReDomesticServiceAreaPrice
+	if serviceAreaPrice.ContractID != uuid.Nil && serviceAreaPrice.DomesticServiceAreaID != uuid.Nil && serviceAreaPrice.ServiceID != uuid.Nil {
+		err := db.Where("contract_id = ? AND domestic_service_area_id = ? AND service_id = ? AND is_peak_period = ?", serviceAreaPrice.ContractID, serviceAreaPrice.DomesticServiceAreaID, serviceAreaPrice.ServiceID, serviceAreaPrice.IsPeakPeriod).First(&existingServiceAreaPrice)
+
+		if err != nil && err != sql.ErrNoRows {
+			log.Panic(err)
+		}
+
+		if existingServiceAreaPrice.ID == uuid.Nil {
+			return MakeReDomesticServiceAreaPrice(db, assertions)
+		}
+	} else {
+		return MakeReDomesticServiceAreaPrice(db, assertions)
+	}
+
+	return existingServiceAreaPrice
 }

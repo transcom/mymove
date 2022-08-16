@@ -53,11 +53,12 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			return err
 		}
 
-		estimatedIncentive, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, models.PPMShipment{}, ppmShipment)
+		estimatedIncentive, estimatedSITCost, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, models.PPMShipment{}, ppmShipment)
 		if err != nil {
 			return err
 		}
 		ppmShipment.EstimatedIncentive = estimatedIncentive
+		ppmShipment.SITEstimatedCost = estimatedSITCost
 
 		// Validate ppm shipment model object and save it to DB
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)

@@ -1,6 +1,9 @@
 package testdatagen
 
 import (
+	"database/sql"
+	"log"
+
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -56,4 +59,28 @@ func MakeReDomesticLinehaulPrice(db *pop.Connection, assertions Assertions) mode
 // MakeDefaultReDomesticLinehaulPrice makes a single ReDomesticLinehaulPrice with default values
 func MakeDefaultReDomesticLinehaulPrice(db *pop.Connection) models.ReDomesticLinehaulPrice {
 	return MakeReDomesticLinehaulPrice(db, Assertions{})
+}
+
+func FetchOrMakeReDomesticLinehaulPrice(db *pop.Connection, assertions Assertions) models.ReDomesticLinehaulPrice {
+	reDomesticLinehaulPrice := assertions.ReDomesticLinehaulPrice
+	var existingReDomesticLinehaulPrice models.ReDomesticLinehaulPrice
+	if reDomesticLinehaulPrice.ContractID != uuid.Nil &&
+		reDomesticLinehaulPrice.DomesticServiceAreaID != uuid.Nil &&
+		reDomesticLinehaulPrice.MilesLower > 0 &&
+		reDomesticLinehaulPrice.MilesUpper > 0 &&
+		reDomesticLinehaulPrice.WeightLower.Int() > 0 &&
+		reDomesticLinehaulPrice.WeightUpper.Int() > 0 {
+
+		err := db.Where("contract_id = ? AND domestic_service_area_id = ? AND miles_lower = ? AND miles_upper = ? AND weight_lower = ? and weight_upper = ? and is_peak_period = ?",
+			reDomesticLinehaulPrice.ContractID, reDomesticLinehaulPrice.DomesticServiceAreaID, reDomesticLinehaulPrice.MilesLower, reDomesticLinehaulPrice.MilesUpper, reDomesticLinehaulPrice.WeightLower, reDomesticLinehaulPrice.WeightUpper, reDomesticLinehaulPrice.IsPeakPeriod).First(&existingReDomesticLinehaulPrice)
+		if err != nil && err != sql.ErrNoRows {
+			log.Panic("unexpected query error looking for existing ReDomesticLinehaulPrice", err)
+		}
+
+		if existingReDomesticLinehaulPrice.ID != uuid.Nil {
+			return reDomesticLinehaulPrice
+		}
+	}
+
+	return MakeReDomesticLinehaulPrice(db, assertions)
 }

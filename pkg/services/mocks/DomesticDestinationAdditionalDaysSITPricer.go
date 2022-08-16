@@ -20,20 +20,20 @@ type DomesticDestinationAdditionalDaysSITPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: appCtx, contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT
-func (_m *DomesticDestinationAdditionalDaysSITPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingDisplayParams, error) {
-	ret := _m.Called(appCtx, contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
+// Price provides a mock function with given fields: appCtx, contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT, disableWeightMinimum
+func (_m *DomesticDestinationAdditionalDaysSITPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int, disableWeightMinimum bool) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(appCtx, contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT, disableWeightMinimum)
 
 	var r0 unit.Cents
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, string, int) unit.Cents); ok {
-		r0 = rf(appCtx, contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, string, int, bool) unit.Cents); ok {
+		r0 = rf(appCtx, contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT, disableWeightMinimum)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
 	var r1 services.PricingDisplayParams
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.Pound, string, int) services.PricingDisplayParams); ok {
-		r1 = rf(appCtx, contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.Pound, string, int, bool) services.PricingDisplayParams); ok {
+		r1 = rf(appCtx, contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT, disableWeightMinimum)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(services.PricingDisplayParams)
@@ -41,8 +41,8 @@ func (_m *DomesticDestinationAdditionalDaysSITPricer) Price(appCtx appcontext.Ap
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.Pound, string, int) error); ok {
-		r2 = rf(appCtx, contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.Pound, string, int, bool) error); ok {
+		r2 = rf(appCtx, contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT, disableWeightMinimum)
 	} else {
 		r2 = ret.Error(2)
 	}

@@ -187,6 +187,7 @@ const ShipmentForm = (props) => {
           .catch(() => {
             setErrorMessage(`A server error occurred adding the shipment`);
           });
+        return;
       }
 
       const updatePPMPayload = {
