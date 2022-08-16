@@ -32,8 +32,8 @@ const EvaluationReportContainer = ({
   const { evaluationReport, mtoShipments } = useViewEvaluationReportQueries(evaluationReportId);
   let mtoShipmentsToShow;
 
-  if (shipmentId) {
-    mtoShipmentsToShow = [mtoShipments?.find((shipment) => shipment.id === shipmentId)];
+  if (shipmentId && mtoShipments) {
+    mtoShipmentsToShow = [mtoShipments.find((shipment) => shipment.id === shipmentId)];
   } else {
     mtoShipmentsToShow = mtoShipments;
   }
@@ -92,9 +92,9 @@ const EvaluationReportContainer = ({
               <Grid row>
                 <Grid col desktop={{ col: 8 }}>
                   <h2>Move information</h2>
-                  {mtoShipmentsToShow?.length > 0 &&
+                  {mtoShipmentsToShow &&
                     mtoShipmentsToShow.map((mtoShipment) => (
-                      <div className={styles.shipmentDisplayContainer}>
+                      <div key={mtoShipment.id} className={styles.shipmentDisplayContainer}>
                         <EvaluationReportShipmentDisplay
                           isSubmitted
                           key={mtoShipment.id}
