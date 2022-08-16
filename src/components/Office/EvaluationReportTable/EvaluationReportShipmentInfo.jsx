@@ -8,7 +8,7 @@ import classnames from 'classnames';
 import styles from './EvaluationReportShipmentInfo.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatEvaluationReportShipmentAddress, formatShortShipmentID } from 'utils/formatters';
+import { formatEvaluationReportShipmentAddress, formatShortIDWithPound } from 'utils/formatters';
 import { ShipmentShape } from 'types/shipment';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { createEvaluationReportForShipment } from 'services/ghcApi';
@@ -78,7 +78,7 @@ const EvaluationReportShipmentInfo = ({ shipment }) => {
       <div className={styles.shipmentInfoContainer}>
         <div className={styles.shipmentInfo}>
           <h4>
-            {heading} Shipment ID {formatShortShipmentID(shipment.id)}
+            {heading} Shipment ID {formatShortIDWithPound(shipment.id)}
           </h4>
           <small>
             {pickupAddress} <FontAwesomeIcon icon="arrow-right" /> {destinationAddress}

@@ -4712,7 +4712,7 @@ func init() {
         },
         "observedDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "officeUser": {
@@ -4740,6 +4740,11 @@ func init() {
         },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "violationsObserved": {
           "type": "boolean",
@@ -13581,7 +13586,7 @@ func init() {
         },
         "observedDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "officeUser": {
@@ -13610,6 +13615,11 @@ func init() {
         },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "violationsObserved": {
           "type": "boolean",

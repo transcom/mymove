@@ -184,7 +184,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		Location:                location,
 		LocationDescription:     evaluationReport.LocationDescription,
 		MoveID:                  moveID,
-		ObservedDate:            handlers.FmtDateTimePtr(evaluationReport.ObservedDate),
+		ObservedDate:            handlers.FmtDatePtr(evaluationReport.ObservedDate),
 		Remarks:                 evaluationReport.Remarks,
 		ShipmentID:              shipmentID,
 		SubmittedAt:             handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
@@ -194,6 +194,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		MoveReferenceID:         evaluationReport.Move.ReferenceID,
 		OfficeUser:              &evaluationReportOfficeUserPayload,
 		ETag:                    etag.GenerateEtag(evaluationReport.UpdatedAt),
+		UpdatedAt:               strfmt.DateTime(evaluationReport.UpdatedAt),
 	}
 	return payload
 }

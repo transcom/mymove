@@ -4434,7 +4434,7 @@ definitions:
         x-nullable: true
       observedDate:
         type: string
-        format: date-time
+        format: date
         x-nullable: true
       evaluationLengthMinutes:
         type: integer
@@ -4457,6 +4457,10 @@ definitions:
         format: date-time
         x-nullable: true
       createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
         type: string
         format: date-time
         readOnly: true

@@ -1,18 +1,8 @@
 import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
 import 'styles/office.scss';
-import {
-  GridContainer,
-  Grid,
-  Button,
-  Radio,
-  FormGroup,
-  Fieldset,
-  Dropdown,
-  Label,
-  Textarea,
-} from '@trussworks/react-uswds';
-import { useParams, useHistory } from 'react-router';
+import { GridContainer, Grid, Button, Radio, FormGroup, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
+import { useParams, useHistory, useLocation } from 'react-router';
 import { useMutation } from 'react-query';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
@@ -24,14 +14,14 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
 import { deleteEvaluationReport, saveEvaluationReport } from 'services/ghcApi';
-import { DatePickerInput } from 'components/form/fields';
-import Hint from 'components/Hint';
+import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { formatDateForSwagger } from 'shared/dates';
 
 const ShipmentEvaluationForm = ({ evaluationReport }) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
+  const location = useLocation();
 
   const [isDeleteModelOpen, setIsDeleteModelOpen] = useState(false);
 
@@ -39,6 +29,10 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
 
   const toggleCancelModel = () => {
     setIsDeleteModelOpen(!isDeleteModelOpen);
+  };
+
+  const cancelForUpdatedReport = () => {
+    history.push(`/moves/${moveCode}/evaluation-reports`);
   };
 
   const cancelReport = async () => {
@@ -53,9 +47,6 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
   };
 
   const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
-    onSuccess: () => {
-      history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
-    },
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
@@ -74,7 +65,7 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
     return { hours, minutes };
   };
 
-  const submitForm = async (values) => {
+  const saveDraft = async (values) => {
     // format the inspection type if its there
     const { evaluationType } = values;
     let inspectionType;
@@ -102,30 +93,49 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
       travelMinutes = convertToMinutes(values.hour, values.minute);
     }
 
+    let violations;
+    if (values.violationsObserved) {
+      violations = values.violationsObserved === 'yes';
+    }
+
     const body = {
       location: evaluationLocation,
       locationDescription: values.otherEvaluationLocation,
       inspectionType,
       remarks: values.remarks,
       // hard coded until violations work
-      violations: false,
+      violationsObserved: violations,
       inspectionDate: formatDateForSwagger(values.inspectionDate),
       evaluationLengthMinutes: evalMinutes,
       travelTimeMinutes: travelMinutes,
+      observedDate: formatDateForSwagger(values.observedDate),
     };
     const { eTag } = evaluationReport;
-    mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
+    await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
+  };
+
+  const handleSubmitSaveDraft = async (values) => {
+    await saveDraft(values);
+
+    history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
+  };
+
+  const handleSelectViolations = async (values) => {
+    await saveDraft(values);
+
+    // Reroute to currentURL/violations
+    history.push(`${location.pathname}/violations`);
   };
 
   const initialValues = {
     remarks: evaluationReport.remarks,
-    // hard coded until violations work
-    violations: false,
     inspectionDate: evaluationReport.inspectionDate,
+    observedDate: evaluationReport.observedDate,
   };
   if (evaluationReport.location) {
     initialValues.evaluationLocation = evaluationReport.location.toLowerCase();
   }
+
   if (evaluationReport.locationDescription) {
     initialValues.otherEvaluationLocation = evaluationReport.locationDescription;
   }
@@ -148,10 +158,23 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
     initialValues.hour = hours;
   }
 
+  if (evaluationReport.violationsObserved !== undefined) {
+    initialValues.violationsObserved = evaluationReport.violationsObserved ? 'yes' : 'no';
+  }
+
   const validationSchema = Yup.object().shape({});
 
-  const hours = [...Array(13).keys()];
-  const minutes = [0, 15, 30, 45];
+  const minutes = [
+    { key: '0', value: '0' },
+    { key: '15', value: '15' },
+    { key: '30', value: '30' },
+    { key: '45', value: '45' },
+  ];
+
+  const hours = [];
+  for (let i = 0; i < 13; i += 1) {
+    hours[i] = { key: String(i), value: String(i) };
+  }
 
   return (
     <>
@@ -163,7 +186,7 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
       <Formik
         initialValues={initialValues}
         enableReinitialize
-        onSubmit={submitForm}
+        onSubmit={handleSubmitSaveDraft}
         validationSchema={validationSchema}
         validateOnMount
       >
@@ -212,53 +235,35 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                       </Fieldset>
                     </FormGroup>
                     {values.evaluationType === 'physical' && (
-                      <FormGroup>
-                        <Fieldset>
-                          <legend className="usa-label">Travel time to evaluation</legend>
-                          <div className={styles.durationPickers}>
-                            <div>
-                              <Hint htmlFor="hour" className={styles.hourLabel}>
-                                Hour
-                              </Hint>
-                              <Dropdown
-                                id="hour"
-                                name="hour"
-                                label="Hour"
-                                className={styles.hourPicker}
-                                onChange={(e) => {
-                                  setFieldValue('hour', e.target.value);
-                                }}
-                              >
-                                {hours.map((option) => (
-                                  <option key={option} value={option} name={option}>
-                                    {option}
-                                  </option>
-                                ))}
-                              </Dropdown>
-                            </div>
-                            <div>
-                              <Hint htmlFor="minute" className={styles.minuteLabel}>
-                                Minute
-                              </Hint>
-                              <Dropdown
-                                id="minute"
-                                name="minute"
-                                label="Minute"
-                                className={styles.minutePicker}
-                                onChange={(e) => {
-                                  setFieldValue('minute', e.target.value);
-                                }}
-                              >
-                                {minutes.map((option) => (
-                                  <option key={option} value={option}>
-                                    {option}
-                                  </option>
-                                ))}
-                              </Dropdown>
-                            </div>
+                      <>
+                        <legend className="usa-label">Travel time to evaluation</legend>
+                        <div className={styles.durationPickers}>
+                          <div>
+                            <DropdownInput
+                              id="hour"
+                              name="hour"
+                              label="Hour"
+                              className={styles.hourPicker}
+                              onChange={(e) => {
+                                setFieldValue('hour', e.target.value);
+                              }}
+                              options={hours}
+                            />
                           </div>
-                        </Fieldset>
-                      </FormGroup>
+                          <div>
+                            <DropdownInput
+                              id="minute"
+                              name="minute"
+                              label="Minute"
+                              className={styles.minutePicker}
+                              onChange={(e) => {
+                                setFieldValue('minute', e.target.value);
+                              }}
+                              options={minutes}
+                            />
+                          </div>
+                        </div>
+                      </>
                     )}
                     <FormGroup>
                       <Fieldset className={styles.radioGroup}>
@@ -317,60 +322,43 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                         hint="Only enter a date here if the pickup you witnessed did not happen on the scheduled pickup date"
                       />
                     )}
-                    <FormGroup>
-                      <Fieldset>
-                        <legend className="usa-label">Evaluation length</legend>
-                        <div className={styles.durationPickers}>
-                          <div>
-                            <Hint htmlFor="hour" className={styles.hourLabel}>
-                              Hour
-                            </Hint>
-                            <Dropdown
-                              id="hour"
-                              name="evalLengthHour"
-                              label="Hour"
-                              className={styles.hourPicker}
-                              onChange={(e) => {
-                                setFieldValue('evalLengthHour', e.target.value);
-                              }}
-                            >
-                              {hours.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </Dropdown>
-                          </div>
-                          <div>
-                            <Hint htmlFor="minute" className={styles.minuteLabel}>
-                              Minute
-                            </Hint>
-                            <Dropdown
-                              id="minute"
-                              name="evalLengthMinute"
-                              label="Minute"
-                              className={styles.minutePicker}
-                              onChange={(e) => {
-                                setFieldValue('evalLengthMinute', e.target.value);
-                              }}
-                            >
-                              {minutes.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </Dropdown>
-                          </div>
+
+                    <Fieldset>
+                      <legend className="usa-label">Evaluation length</legend>
+                      <div className={styles.durationPickers}>
+                        <div>
+                          <DropdownInput
+                            id="hour"
+                            name="evalLengthHour"
+                            label="Hour"
+                            className={styles.hourPicker}
+                            onChange={(e) => {
+                              setFieldValue('evalLengthHour', e.target.value);
+                            }}
+                            options={hours}
+                          />
                         </div>
-                      </Fieldset>
-                    </FormGroup>
+                        <div>
+                          <DropdownInput
+                            id="minute"
+                            name="evalLengthMinute"
+                            label="Minute"
+                            className={styles.minutePicker}
+                            onChange={(e) => {
+                              setFieldValue('evalLengthMinute', e.target.value);
+                            }}
+                            options={minutes}
+                          />
+                        </div>
+                      </div>
+                    </Fieldset>
                   </Grid>
                 </Grid>
                 <Grid row className={styles.evalInfoSection}>
                   <Grid col>
                     <h3>Violations</h3>
                     <FormGroup className={styles.violationsGroup}>
-                      <Fieldset className={styles.radioGroup}>
+                      <Fieldset>
                         <legend className="usa-label">Violations observed</legend>
                         <Field
                           as={Radio}
@@ -381,6 +369,8 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                           title="No"
                           type="radio"
                           checked={values.violationsObserved === 'no'}
+                          data-testid="noViolationsRadioOption"
+                          className={styles.radioGroup}
                         />
                         <Field
                           as={Radio}
@@ -391,7 +381,14 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                           title="Yes"
                           type="radio"
                           checked={values.violationsObserved === 'yes'}
+                          data-testid="yesViolationsRadioOption"
+                          className={styles.radioGroup}
                         />
+                        {values.violationsObserved === 'yes' && (
+                          <p className={styles.violationsInfo}>
+                            <small>You will select the specific PWS paragraphs violated on the next screen.</small>
+                          </p>
+                        )}
                       </Fieldset>
                     </FormGroup>
                   </Grid>
@@ -414,13 +411,31 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
                 <Grid row>
                   <Grid col>
                     <div className={styles.buttonRow}>
-                      <Button className="usa-button--unstyled" onClick={toggleCancelModel} type="button">
-                        Cancel
-                      </Button>
+                      {evaluationReport.updatedAt === evaluationReport.createdAt && (
+                        <Button className="usa-button--unstyled" onClick={toggleCancelModel} type="button">
+                          Cancel
+                        </Button>
+                      )}
+                      {!(evaluationReport.updatedAt === evaluationReport.createdAt) && (
+                        <Button
+                          className="usa-button--unstyled"
+                          data-testid="cancelForUpdated"
+                          onClick={cancelForUpdatedReport}
+                          type="button"
+                        >
+                          Cancel
+                        </Button>
+                      )}
                       <Button data-testid="saveDraft" type="submit" className="usa-button--secondary">
                         Save draft
                       </Button>
-                      <Button disabled>Review and submit</Button>
+                      {values.violationsObserved === 'yes' ? (
+                        <Button onClick={() => handleSelectViolations(values)} type="button">
+                          Next: select violations
+                        </Button>
+                      ) : (
+                        <Button disabled={!values.violationsObserved}>Review and submit</Button>
+                      )}
                     </div>
                   </Grid>
                 </Grid>

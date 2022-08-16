@@ -10,6 +10,8 @@ import (
 	"runtime/debug"
 	"time"
 
+	"github.com/alexedwards/scs/v2"
+	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -36,6 +38,35 @@ func NewBaseHandlerTestSuite(sender notifications.NotificationSender, packageNam
 		PopTestSuite:       testingsuite.NewPopTestSuite(packageName, opts...),
 		notificationSender: sender,
 	}
+}
+
+// HandlerConfig returns a mostly empty handler config for
+// testing.
+// NOTE: it returns the Config implementation, not the
+// HandlerConfig interface, so overrides can be made to the config
+func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
+	return &Config{
+		db:     suite.DB(),
+		logger: suite.Logger(),
+	}
+}
+
+func (suite *BaseHandlerTestSuite) SetupSessionManagers() [3]*scs.SessionManager {
+	var milSession, adminSession, officeSession *scs.SessionManager
+	store := memstore.New()
+	milSession = scs.New()
+	milSession.Store = store
+	milSession.Cookie.Name = "mil_session_token"
+
+	adminSession = scs.New()
+	adminSession.Store = store
+	adminSession.Cookie.Name = "admin_session_token"
+
+	officeSession = scs.New()
+	officeSession.Store = store
+	officeSession.Cookie.Name = "office_session_token"
+
+	return [3]*scs.SessionManager{milSession, adminSession, officeSession}
 }
 
 // TestFilesToClose returns the list of files needed to close at the end of tests

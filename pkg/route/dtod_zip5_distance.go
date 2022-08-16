@@ -45,6 +45,8 @@ import (
 )
 
 // DTODPlannerMileage is the interface for connecting to DTOD SOAP service and requesting distance mileage
+// NOTE: Placing this in a separate package/directory to avoid a circular dependency from an existing mock.
+//go:generate mockery --name DTODPlannerMileage --outpkg ghcmocks --output ./ghcmocks --disable-version-string
 type DTODPlannerMileage interface {
 	DTODZip5Distance(appCtx appcontext.AppContext, pickup string, destination string) (int, error)
 }

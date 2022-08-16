@@ -3,7 +3,6 @@ package scenario
 import (
 	"fmt"
 	"log"
-	"net/http/httptest"
 	"strings"
 	"time"
 
@@ -13,10 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
-	"github.com/transcom/mymove/pkg/gen/primemessages"
-	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
@@ -919,7 +914,7 @@ func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploa
 		firstName:   "Ready",
 		lastName:    "Finish",
 		moveID:      testdatagen.ConvertUUIDStringToUUID("26b960d8-a96d-4450-a441-673ccd7cc3c7"),
-		moveLocator: "REAFIN",
+		moveLocator: "PPMRF1",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -943,7 +938,7 @@ func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploa
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
-func createApprovedMoveWithPPMEmptyAboutPage(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createApprovedMoveWithPPM2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("c28b2eb1-975f-49f7-b8a3-c7377c0da908"),
 		email:       "readyToFinish2@ppm.approved",
@@ -951,7 +946,7 @@ func createApprovedMoveWithPPMEmptyAboutPage(appCtx appcontext.AppContext, userU
 		firstName:   "Ready2",
 		lastName:    "Finish2",
 		moveID:      testdatagen.ConvertUUIDStringToUUID("0e33adbc-20b4-4a93-9ce5-7ee4695a0307"),
-		moveLocator: "NEWNAN",
+		moveLocator: "PPMRF2",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -967,6 +962,102 @@ func createApprovedMoveWithPPMEmptyAboutPage(appCtx appcontext.AppContext, userU
 		},
 		PPMShipment: models.PPMShipment{
 			ID:         testdatagen.ConvertUUIDStringToUUID("1ce52409-009d-4d9c-a48c-b12013fa2d2b"),
+			ApprovedAt: &approvedAt,
+			Status:     models.PPMShipmentStatusWaitingOnCustomer,
+		},
+	}
+
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
+
+func createApprovedMoveWithPPM3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("539af373-9474-49f3-b06b-bc4b4d4111de"),
+		email:       "readyToFinish3@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("1b543655-6e5a-4ea0-b4e0-48fe4e107ef5"),
+		firstName:   "Ready3",
+		lastName:    "Finish3",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("3cf2a0eb-08e6-404d-81ad-022e1aaf26aa"),
+		moveLocator: "PPMRF3",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("1f452b86-4488-46f5-98c0-b696e1410522"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:         testdatagen.ConvertUUIDStringToUUID("7d8f77c3-9829-4241-b0a7-b2897f1d6822"),
+			ApprovedAt: &approvedAt,
+			Status:     models.PPMShipmentStatusWaitingOnCustomer,
+		},
+	}
+
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
+
+func createApprovedMoveWithPPM4(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("c48998dc-8f93-437a-bd0c-2c0b187b12cb"),
+		email:       "readyToFinish4@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("16d13649-f246-456f-8093-da3a769a1247"),
+		firstName:   "Ready4",
+		lastName:    "Finish4",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("9061587a-5b31-4deb-9947-703a40857fa8"),
+		moveLocator: "PPMRF4",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("ae873226-67a4-452f-b92d-924307ff2d9a"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:         testdatagen.ConvertUUIDStringToUUID("881f1084-d5a8-4210-9854-fa5f01c8da81"),
+			ApprovedAt: &approvedAt,
+			Status:     models.PPMShipmentStatusWaitingOnCustomer,
+		},
+	}
+
+	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
+}
+
+func createApprovedMoveWithPPM5(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	moveInfo := moveCreatorInfo{
+		userID:      testdatagen.ConvertUUIDStringToUUID("62e20f62-638f-4390-bbc0-c672cd7fd2e3"),
+		email:       "readyToFinish5@ppm.approved",
+		smID:        testdatagen.ConvertUUIDStringToUUID("55643c43-f48b-471d-8b99-b1e2a0ce5215"),
+		firstName:   "Ready5",
+		lastName:    "Finish5",
+		moveID:      testdatagen.ConvertUUIDStringToUUID("7dcbf7ef-9a74-4efa-b536-c334b2093bc0"),
+		moveLocator: "PPMRF5",
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			ID:     testdatagen.ConvertUUIDStringToUUID("38a9ff5a-76c5-4126-9dc8-649a1f35e847"),
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:         testdatagen.ConvertUUIDStringToUUID("bcbd9762-2041-42e5-9b91-ba5b1ecb3487"),
 			ApprovedAt: &approvedAt,
 			Status:     models.PPMShipmentStatusWaitingOnCustomer,
 		},
@@ -2811,7 +2902,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 	})
 
 	// setup service item
-	mtoServiceItem := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+	testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:     uuid.Must(uuid.NewV4()),
 			Status: models.MTOServiceItemStatusApproved,
@@ -2819,9 +2910,6 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		Move:        mto,
 		MTOShipment: MTOShipment,
 	})
-
-	// using handler to create service item params
-	req := httptest.NewRequest("POST", "/payment_requests", nil)
 
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
@@ -2840,32 +2928,17 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		ghcrateengine.NewServiceItemPricer(),
 	)
 
-	handler := primeapi.CreatePaymentRequestHandler{
-		HandlerConfig:         handlers.NewHandlerConfig(db, logger),
-		PaymentRequestCreator: paymentRequestCreator,
+	paymentRequest := &models.PaymentRequest{
+		IsFinal:         false,
+		MoveTaskOrderID: mto.ID,
 	}
 
-	params := paymentrequestop.CreatePaymentRequestParams{
-		HTTPRequest: req,
-		Body: &primemessages.CreatePaymentRequest{
-			IsFinal:         swag.Bool(false),
-			MoveTaskOrderID: handlers.FmtUUID(mto.ID),
-			ServiceItems: []*primemessages.ServiceItem{
-				{
-					ID: *handlers.FmtUUID(mtoServiceItem.ID),
-				},
-			},
-			PointOfContact: "user@prime.com",
-		},
-	}
+	paymentRequest, err := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, paymentRequest)
 
-	response := handler.Handle(params)
-
-	showResponse, ok := response.(*paymentrequestop.CreatePaymentRequestCreated)
-	if !ok {
-		logger.Fatal("error while creating payment request:", zap.Any("", showResponse))
+	if err != nil {
+		logger.Fatal("error while creating payment request:", zap.Error(err))
 	}
-	logger.Debug("Response of create payment request handler: ", zap.Any("", showResponse))
+	logger.Debug("create payment request ok: ", zap.Any("", paymentRequest))
 }
 
 func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
