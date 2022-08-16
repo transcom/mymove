@@ -74,43 +74,44 @@ var AllowedPPMDocumentStatuses = []string{
 
 // PPMShipment is the portion of a move that a service member performs themselves
 type PPMShipment struct {
-	ID                             uuid.UUID         `json:"id" db:"id"`
-	ShipmentID                     uuid.UUID         `json:"shipment_id" db:"shipment_id"`
-	Shipment                       MTOShipment       `belongs_to:"mto_shipments" fk_id:"shipment_id"`
-	CreatedAt                      time.Time         `json:"created_at" db:"created_at"`
-	UpdatedAt                      time.Time         `json:"updated_at" db:"updated_at"`
-	DeletedAt                      *time.Time        `json:"deleted_at" db:"deleted_at"`
-	Status                         PPMShipmentStatus `json:"status" db:"status"`
-	ExpectedDepartureDate          time.Time         `json:"expected_departure_date" db:"expected_departure_date"`
-	ActualMoveDate                 *time.Time        `json:"actual_move_date" db:"actual_move_date"`
-	SubmittedAt                    *time.Time        `json:"submitted_at" db:"submitted_at"`
-	ReviewedAt                     *time.Time        `json:"reviewed_at" db:"reviewed_at"`
-	ApprovedAt                     *time.Time        `json:"approved_at" db:"approved_at"`
-	PickupPostalCode               string            `json:"pickup_postal_code" db:"pickup_postal_code"`
-	SecondaryPickupPostalCode      *string           `json:"secondary_pickup_postal_code" db:"secondary_pickup_postal_code"`
-	ActualPickupPostalCode         *string           `json:"actual_pickup_postal_code" db:"actual_pickup_postal_code"`
-	DestinationPostalCode          string            `json:"destination_postal_code" db:"destination_postal_code"`
-	SecondaryDestinationPostalCode *string           `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
-	ActualDestinationPostalCode    *string           `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
-	EstimatedWeight                *unit.Pound       `json:"estimated_weight" db:"estimated_weight"`
-	NetWeight                      *unit.Pound       `json:"net_weight" db:"net_weight"`
-	HasProGear                     *bool             `json:"has_pro_gear" db:"has_pro_gear"`
-	ProGearWeight                  *unit.Pound       `json:"pro_gear_weight" db:"pro_gear_weight"`
-	SpouseProGearWeight            *unit.Pound       `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
-	EstimatedIncentive             *unit.Cents       `json:"estimated_incentive" db:"estimated_incentive"`
-	HasRequestedAdvance            *bool             `json:"has_requested_advance" db:"has_requested_advance"`
-	AdvanceAmountRequested         *unit.Cents       `json:"advance_amount_requested" db:"advance_amount_requested"`
-	HasReceivedAdvance             *bool             `json:"has_received_advance" db:"has_received_advance"`
-	AdvanceStatus                  *PPMAdvanceStatus `json:"advance_status" db:"advance_status"`
-	AdvanceAmountReceived          *unit.Cents       `json:"advance_amount_received" db:"advance_amount_received"`
-	SITExpected                    *bool             `json:"sit_expected" db:"sit_expected"`
-	SITLocation                    *SITLocationType  `json:"sit_location" db:"sit_location"`
-	SITEstimatedWeight             *unit.Pound       `json:"sit_estimated_weight" db:"sit_estimated_weight"`
-	SITEstimatedEntryDate          *time.Time        `json:"sit_estimated_entry_date" db:"sit_estimated_entry_date"`
-	SITEstimatedDepartureDate      *time.Time        `json:"sit_estimated_departure_date" db:"sit_estimated_departure_date"`
-	SITEstimatedCost               *unit.Cents       `json:"sit_estimated_cost" db:"sit_estimated_cost"`
-	WeightTickets                  WeightTickets     `has_many:"weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
-	MovingExpenses                 MovingExpenses    `has_many:"moving_expenses" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
+	ID                             uuid.UUID            `json:"id" db:"id"`
+	ShipmentID                     uuid.UUID            `json:"shipment_id" db:"shipment_id"`
+	Shipment                       MTOShipment          `belongs_to:"mto_shipments" fk_id:"shipment_id"`
+	CreatedAt                      time.Time            `json:"created_at" db:"created_at"`
+	UpdatedAt                      time.Time            `json:"updated_at" db:"updated_at"`
+	DeletedAt                      *time.Time           `json:"deleted_at" db:"deleted_at"`
+	Status                         PPMShipmentStatus    `json:"status" db:"status"`
+	ExpectedDepartureDate          time.Time            `json:"expected_departure_date" db:"expected_departure_date"`
+	ActualMoveDate                 *time.Time           `json:"actual_move_date" db:"actual_move_date"`
+	SubmittedAt                    *time.Time           `json:"submitted_at" db:"submitted_at"`
+	ReviewedAt                     *time.Time           `json:"reviewed_at" db:"reviewed_at"`
+	ApprovedAt                     *time.Time           `json:"approved_at" db:"approved_at"`
+	PickupPostalCode               string               `json:"pickup_postal_code" db:"pickup_postal_code"`
+	SecondaryPickupPostalCode      *string              `json:"secondary_pickup_postal_code" db:"secondary_pickup_postal_code"`
+	ActualPickupPostalCode         *string              `json:"actual_pickup_postal_code" db:"actual_pickup_postal_code"`
+	DestinationPostalCode          string               `json:"destination_postal_code" db:"destination_postal_code"`
+	SecondaryDestinationPostalCode *string              `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
+	ActualDestinationPostalCode    *string              `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
+	EstimatedWeight                *unit.Pound          `json:"estimated_weight" db:"estimated_weight"`
+	NetWeight                      *unit.Pound          `json:"net_weight" db:"net_weight"`
+	HasProGear                     *bool                `json:"has_pro_gear" db:"has_pro_gear"`
+	ProGearWeight                  *unit.Pound          `json:"pro_gear_weight" db:"pro_gear_weight"`
+	SpouseProGearWeight            *unit.Pound          `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
+	EstimatedIncentive             *unit.Cents          `json:"estimated_incentive" db:"estimated_incentive"`
+	HasRequestedAdvance            *bool                `json:"has_requested_advance" db:"has_requested_advance"`
+	AdvanceAmountRequested         *unit.Cents          `json:"advance_amount_requested" db:"advance_amount_requested"`
+	HasReceivedAdvance             *bool                `json:"has_received_advance" db:"has_received_advance"`
+	AdvanceStatus                  *PPMAdvanceStatus    `json:"advance_status" db:"advance_status"`
+	AdvanceAmountReceived          *unit.Cents          `json:"advance_amount_received" db:"advance_amount_received"`
+	SITExpected                    *bool                `json:"sit_expected" db:"sit_expected"`
+	SITLocation                    *SITLocationType     `json:"sit_location" db:"sit_location"`
+	SITEstimatedWeight             *unit.Pound          `json:"sit_estimated_weight" db:"sit_estimated_weight"`
+	SITEstimatedEntryDate          *time.Time           `json:"sit_estimated_entry_date" db:"sit_estimated_entry_date"`
+	SITEstimatedDepartureDate      *time.Time           `json:"sit_estimated_departure_date" db:"sit_estimated_departure_date"`
+	SITEstimatedCost               *unit.Cents          `json:"sit_estimated_cost" db:"sit_estimated_cost"`
+	WeightTickets                  WeightTickets        `has_many:"weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
+	MovingExpenses                 MovingExpenses       `has_many:"moving_expenses" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
+	ProgearExpenses                ProgearWeightTickets `has_many:"progear_weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 }
 
 // PPMShipments is a list of PPMs

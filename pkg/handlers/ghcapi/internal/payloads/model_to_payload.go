@@ -194,6 +194,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		MoveReferenceID:         evaluationReport.Move.ReferenceID,
 		OfficeUser:              &evaluationReportOfficeUserPayload,
 		ETag:                    etag.GenerateEtag(evaluationReport.UpdatedAt),
+		UpdatedAt:               strfmt.DateTime(evaluationReport.UpdatedAt),
 	}
 	return payload
 }
