@@ -4,7 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { v4 } from 'uuid';
 import ReactRouter from 'react-router';
 
-import ShipmentEvaluationReport from './ShipmentEvaluationReport';
+import ShipmentEvaluationReport from './EvaluationReport';
 
 import { MockProviders } from 'testUtils';
 
@@ -31,16 +31,13 @@ describe('ShipmentEvaluationReport', () => {
     );
 
     await waitFor(() => {
-      const h1 = screen.getByRole('heading', { name: 'Shipment report', level: 1 });
-      expect(h1).toBeInTheDocument();
-
-      expect(screen.getByText(`REPORT ID #QA-${mockReportId.slice(0, 5).toUpperCase()}`)).toBeInTheDocument();
-      expect(screen.getByText(`MOVE CODE #${mockMoveCode}`)).toBeInTheDocument();
-      expect(screen.getByText('MTO REFERENCE ID #')).toBeInTheDocument();
-
       // Page content sections
-      expect(screen.getByRole('heading', { name: 'Shipment information', level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Move information', level: 2 })).toBeInTheDocument();
+      expect(screen.getByText('Customer information')).toBeInTheDocument();
+      expect(screen.getByText('QAE')).toBeInTheDocument();
+
       expect(screen.getByRole('heading', { name: 'Evaluation form', level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Evaluation information', level: 3 })).toBeInTheDocument();
 
       // Buttons
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();

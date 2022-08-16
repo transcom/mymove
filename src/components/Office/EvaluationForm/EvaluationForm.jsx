@@ -8,7 +8,7 @@ import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import classnames from 'classnames';
 
-import styles from './ShipmentEvaluationForm.module.scss';
+import styles from './EvaluationForm.module.scss';
 
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
@@ -18,7 +18,7 @@ import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { formatDateForSwagger } from 'shared/dates';
 
-const ShipmentEvaluationForm = ({ evaluationReport }) => {
+const EvaluationForm = ({ evaluationReport }) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
   const location = useLocation();
@@ -448,12 +448,12 @@ const ShipmentEvaluationForm = ({ evaluationReport }) => {
   );
 };
 
-ShipmentEvaluationForm.propTypes = {
+EvaluationForm.propTypes = {
   evaluationReport: PropTypes.object,
 };
 
-ShipmentEvaluationForm.defaultProps = {
+EvaluationForm.defaultProps = {
   evaluationReport: {},
 };
 
-export default ShipmentEvaluationForm;
+export default EvaluationForm;

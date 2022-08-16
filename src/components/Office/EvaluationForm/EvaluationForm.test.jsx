@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import ShipmentEvaluationForm from './ShipmentEvaluationForm';
+import EvaluationForm from './EvaluationForm';
 
 import { MockProviders } from 'testUtils';
 
@@ -21,11 +21,11 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
-describe('ShipmentEvaluationForm', () => {
+describe('EvaluationForm', () => {
   it('renders the form components', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <ShipmentEvaluationForm />
+        <EvaluationForm />
       </MockProviders>,
     );
 
@@ -64,7 +64,7 @@ describe('ShipmentEvaluationForm', () => {
   it('renders conditionally displayed form components correctly', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <ShipmentEvaluationForm />
+        <EvaluationForm />
       </MockProviders>,
     );
 
@@ -121,7 +121,7 @@ describe('ShipmentEvaluationForm', () => {
   it('displays the delete confirmation on cancel', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <ShipmentEvaluationForm />
+        <EvaluationForm />
       </MockProviders>,
     );
 
@@ -138,7 +138,7 @@ describe('ShipmentEvaluationForm', () => {
   it('updates the submit button when there are violations', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <ShipmentEvaluationForm />
+        <EvaluationForm />
       </MockProviders>,
     );
 
