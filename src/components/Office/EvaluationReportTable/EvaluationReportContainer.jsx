@@ -177,15 +177,15 @@ const EvaluationReportContainer = ({
                 <EvaluationReportList evaluationReport={evaluationReport} />
               </div>
             )}
-          </div>
-          <div className={styles.section}>
-            <h3>QAE remarks</h3>
-            <dl className={descriptionListStyles.descriptionList}>
-              <div className={descriptionListStyles.row}>
-                <dt>Evaluation remarks</dt>
-                <dd className={styles.qaeRemarks}>{evaluationReport.remarks}</dd>
-              </div>
-            </dl>
+            <div className={styles.section}>
+              <h3>QAE remarks</h3>
+              <dl className={descriptionListStyles.descriptionList}>
+                <div className={descriptionListStyles.row}>
+                  <dt>Evaluation remarks</dt>
+                  <dd className={styles.qaeRemarks}>{evaluationReport.remarks}</dd>
+                </div>
+              </dl>
+            </div>
           </div>
           <div className={styles.buttonsGroup}>
             <Button type="button" secondary onClick={() => setIsModalVisible(false)}>
