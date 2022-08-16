@@ -183,7 +183,7 @@ const EvaluationReportContainer = ({
             <dl className={descriptionListStyles.descriptionList}>
               <div className={descriptionListStyles.row}>
                 <dt>Evaluation remarks</dt>
-                <dd>{evaluationReport.remarks}</dd>
+                <dd className={styles.qaeRemarks}>{evaluationReport.remarks}</dd>
               </div>
             </dl>
           </div>
