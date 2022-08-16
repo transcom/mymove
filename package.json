@@ -36,7 +36,7 @@
     "path-to-regexp": "^6.2.1",
     "prop-types": "^15.8.1",
     "query-string": "7",
-    "ra-data-simple-rest": "^4.2.5",
+    "ra-data-simple-rest": "^4.2.7",
     "ra-language-english": "^4.2.7",
     "react": "^17.0.1",
     "react-admin": "^3.19.11",
