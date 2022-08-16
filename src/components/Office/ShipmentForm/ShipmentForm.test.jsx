@@ -8,6 +8,7 @@ import ShipmentForm from './ShipmentForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
+import { ppmShipmentStatuses } from 'constants/shipments';
 
 const mockPush = jest.fn();
 
@@ -96,7 +97,7 @@ const mockPPMShipment = {
   ppmShipment: {
     id: 'ppmShipmentID',
     shipmentId: 'shipment123',
-    status: 'NEEDS_ADVANCE_APPROVAL',
+    status: ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL,
     expectedDepartureDate: '2022-04-01',
     pickupPostalCode: '90210',
     destinationPostalCode: '90211',
