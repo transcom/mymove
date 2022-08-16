@@ -91,11 +91,9 @@ func exportDBData(cmd *cobra.Command, args []string) error {
 
 	filePath := getDBDumpFilePath(v)
 
-	doLoggingForSadDevs(logger)
-
 	err = createDBDump(dbConnectionDetails, filePath, logger)
 	if err != nil {
-		logger.Error("Error creating database dump")
+		logger.Error("Error in execution of pg_dump")
 		return err
 	}
 	logger.Info("Dump success created file " + filePath)
@@ -107,35 +105,6 @@ func exportDBData(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Println("Upload to S3 bucket successful")
 	return nil
-}
-
-func doLoggingForSadDevs(logger *zap.Logger) {
-	cmd1 := exec.Command("ls", "-fal", "/var")
-	cmd2 := exec.Command("ls", "-fal", "/var/db-export")
-	cmd3 := exec.Command("which", "pg_dump")
-	cmd4 := exec.Command("type", "-p", "pg_dump")
-	cmd5 := exec.Command("echo", "$PATH")
-
-	err := cmd1.Start()
-	if err != nil {
-		logger.Error("Error with ls for /var dir")
-	}
-	err = cmd2.Start()
-	if err != nil {
-		logger.Error("Error with ls for /var/db-export")
-	}
-	err = cmd3.Start()
-	if err != nil {
-		logger.Error("Error with which for pg_dump")
-	}
-	err = cmd4.Start()
-	if err != nil {
-		logger.Error("Error with type for pg_dump")
-	}
-	err = cmd5.Start()
-	if err != nil {
-		logger.Error("Error with echo for $PATH")
-	}
 }
 
 func getDBConnectionDetails(v *viper.Viper, logger *zap.Logger) (*pop.ConnectionDetails, error) {
