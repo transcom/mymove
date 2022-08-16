@@ -76,7 +76,6 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.HasRequestedAdvance = services.SetNoNilOptionalBoolField(newPPMShipment.HasRequestedAdvance, ppmShipment.HasRequestedAdvance)
 	ppmShipment.AdvanceAmountRequested = services.SetNoNilOptionalCentField(newPPMShipment.AdvanceAmountRequested, ppmShipment.AdvanceAmountRequested)
 	ppmShipment.HasReceivedAdvance = services.SetNoNilOptionalBoolField(newPPMShipment.HasReceivedAdvance, ppmShipment.HasReceivedAdvance)
-	ppmShipment.AdvanceStatus = newPPMShipment.AdvanceStatus
 	ppmShipment.AdvanceAmountReceived = services.SetNoNilOptionalCentField(newPPMShipment.AdvanceAmountReceived, ppmShipment.AdvanceAmountReceived)
 
 	ppmShipment.SITExpected = services.SetNoNilOptionalBoolField(newPPMShipment.SITExpected, ppmShipment.SITExpected)
@@ -86,6 +85,10 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 
 	if newPPMShipment.SITLocation != nil {
 		ppmShipment.SITLocation = newPPMShipment.SITLocation
+	}
+
+	if newPPMShipment.AdvanceStatus != nil {
+		ppmShipment.AdvanceStatus = newPPMShipment.AdvanceStatus
 	}
 
 	if ppmShipment.SITExpected != nil && !*ppmShipment.SITExpected {
