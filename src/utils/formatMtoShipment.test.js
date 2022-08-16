@@ -400,7 +400,7 @@ describe('formatPpmShipmentForDisplay', () => {
 
     expect(display.estimatedWeight).toEqual('');
     expect(display.hasProGear).toEqual(false);
-    expect(display.advanceRequested).toEqual(false);
+    expect(display.advanceRequested).toEqual('false');
   });
 
   it('converts an existing shipment to formatted display values', () => {
@@ -455,7 +455,7 @@ describe('formatPpmShipmentForAPI', () => {
       hasProGear: true,
       proGearWeight: '1000',
 
-      advanceRequested: true,
+      advanceRequested: 'true',
       advance: '2000',
 
       counselorRemarks: 'test remarks',

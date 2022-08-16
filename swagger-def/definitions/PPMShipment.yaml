@@ -21,6 +21,8 @@ properties:
     readOnly: true
   status:
     $ref: 'PPMShipmentStatus.yaml'
+  advanceStatus:
+    $ref: 'PPMAdvanceStatus.yaml'
   expectedDepartureDate:
     description: >
       Date the customer expects to move.

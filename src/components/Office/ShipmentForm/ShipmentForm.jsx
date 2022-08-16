@@ -10,6 +10,7 @@ import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOption
 import styles from './ShipmentForm.module.scss';
 import ppmShipmentSchema from './ppmShipmentSchema';
 
+import SITCostDetails from 'components/Office/SITCostDetails/SITCostDetails';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
@@ -145,6 +146,9 @@ const ShipmentForm = (props) => {
     schema = ppmShipmentSchema({
       estimatedIncentive: initialValues.estimatedIncentive || 0,
       weightAllotment: serviceMember.weightAllotment,
+      advanceAmountRequested: mtoShipment.ppmShipment?.advanceAmountRequested,
+      hasRequestedAdvance: mtoShipment.ppmShipment?.hasRequestedAdvance,
+      isAdvancePage,
     });
   } else {
     const shipmentOptions = getShipmentOptions(shipmentType, userRole);
@@ -165,10 +169,10 @@ const ShipmentForm = (props) => {
 
   const submitMTOShipment = (formValues) => {
     if (isPPM) {
-      const ppmShipment = formatPpmShipmentForAPI(formValues);
+      const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
 
       if (isCreatePage) {
-        const body = { ...ppmShipment, moveTaskOrderID };
+        const body = { ...ppmShipmentBody, moveTaskOrderID };
         submitHandler({ body, normalize: false })
           .then((newShipment) => {
             const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
@@ -189,13 +193,12 @@ const ShipmentForm = (props) => {
           });
         return;
       }
-
       const updatePPMPayload = {
         moveTaskOrderID,
         shipmentID: mtoShipment.id,
         ifMatchETag: mtoShipment.eTag,
         normalize: false,
-        body: ppmShipment,
+        body: ppmShipmentBody,
       };
 
       submitHandler(updatePPMPayload).then(() => {
@@ -295,7 +298,7 @@ const ShipmentForm = (props) => {
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
-      {({ values, isValid, isSubmitting, setValues, handleSubmit }) => {
+      {({ values, isValid, isSubmitting, setValues, handleSubmit, errors }) => {
         const { hasDeliveryAddress } = values;
 
         const handleUseCurrentResidenceChange = (e) => {
@@ -542,8 +545,23 @@ const ShipmentForm = (props) => {
                   </>
                 )}
 
+                {isPPM && isAdvancePage && isServiceCounselor && mtoShipment.ppmShipment?.sitExpected && (
+                  <SITCostDetails
+                    cost={mtoShipment.ppmShipment?.sitEstimatedCost}
+                    weight={mtoShipment.ppmShipment?.sitEstimatedWeight}
+                    sitLocation={mtoShipment.ppmShipment?.sitLocation}
+                    originZip={mtoShipment.ppmShipment?.pickupPostalCode}
+                    destinationZip={mtoShipment.ppmShipment?.destinationPostalCode}
+                    departureDate={mtoShipment.ppmShipment?.sitEstimatedDepartureDate}
+                    entryDate={mtoShipment.ppmShipment?.sitEstimatedEntryDate}
+                  />
+                )}
+
                 {isPPM && isAdvancePage && (
-                  <ShipmentIncentiveAdvance estimatedIncentive={mtoShipment.ppmShipment?.estimatedIncentive} />
+                  <ShipmentIncentiveAdvance
+                    values={values}
+                    estimatedIncentive={mtoShipment.ppmShipment?.estimatedIncentive}
+                  />
                 )}
 
                 {(!isPPM || (isPPM && isAdvancePage)) && (
@@ -552,6 +570,12 @@ const ShipmentForm = (props) => {
                     shipmentType={shipmentType}
                     customerRemarks={mtoShipment.customerRemarks}
                     counselorRemarks={mtoShipment.counselorRemarks}
+                    showHint={false}
+                    error={
+                      errors.counselorRemarks &&
+                      (String(values.advanceRequested) !== String(mtoShipment.ppmShipment?.hasRequestedAdvance) ||
+                        String(values.advance) !== String(mtoShipment.ppmShipment?.advanceAmountRequested))
+                    }
                   />
                 )}
 

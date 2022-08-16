@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 
 		uploadInformationFetcher := upload.NewUploadInformationFetcher()
 		handler := GetUploadHandler{
-			HandlerConfig:            handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:            suite.HandlerConfig(),
 			UploadInformationFetcher: uploadInformationFetcher,
 		}
 
@@ -105,7 +105,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 			mock.Anything,
 		).Return(services.UploadInformation{}, expectedError).Once()
 		handler := GetUploadHandler{
-			HandlerConfig:            handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:            suite.HandlerConfig(),
 			UploadInformationFetcher: uploadInformationFetcher,
 		}
 

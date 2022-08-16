@@ -25,7 +25,7 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 		HTTPRequest: request,
 		CustomerID:  strfmt.UUID(customer.ID.String()),
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := GetCustomerHandler{
 		handlerConfig,
 		customerservice.NewCustomerFetcher(),
@@ -76,7 +76,7 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 		IfMatch:     etag.GenerateEtag(customer.UpdatedAt),
 		Body:        body,
 	}
-	handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+	handlerConfig := suite.HandlerConfig()
 	handler := UpdateCustomerHandler{
 		handlerConfig,
 		customerservice.NewCustomerUpdater(),

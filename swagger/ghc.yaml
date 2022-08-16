@@ -4580,7 +4580,7 @@ definitions:
         x-nullable: true
       observedDate:
         type: string
-        format: date-time
+        format: date
         x-nullable: true
       evaluationLengthMinutes:
         type: integer
@@ -4603,6 +4603,10 @@ definitions:
         format: date-time
         x-nullable: true
       createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
         type: string
         format: date-time
         readOnly: true
@@ -5265,6 +5269,13 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_PAYMENT_APPROVAL
       - PAYMENT_APPROVED
+  PPMAdvanceStatus:
+    type: string
+    title: PPM Advance Status
+    enum:
+      - APPROVED
+      - REJECTED
+      - EDITED
   UploadPayload:
     type: object
     properties:
@@ -5445,6 +5456,8 @@ definitions:
         readOnly: true
       status:
         $ref: '#/definitions/PPMShipmentStatus'
+      advanceStatus:
+        $ref: '#/definitions/PPMAdvanceStatus'
       expectedDepartureDate:
         description: |
           Date the customer expects to move.

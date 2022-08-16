@@ -7,7 +7,6 @@ import (
 
 	electronicorderop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 )
@@ -30,7 +29,7 @@ func (suite *HandlerSuite) TestGetElectronicOrdersTotalsHandler() {
 			mock.Anything,
 		).Return(map[interface{}]int{models.IssuerArmy: 2}, nil)
 		handler := GetElectronicOrdersTotalsHandler{
-			HandlerConfig:                       handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:                       suite.HandlerConfig(),
 			ElectronicOrderCategoryCountFetcher: electronicOrderCategoryCountFetcher,
 			NewQueryFilter:                      newQueryFilter,
 		}
@@ -54,7 +53,7 @@ func (suite *HandlerSuite) TestGetElectronicOrdersTotalsHandler() {
 			mock.Anything,
 		).Return(nil, err)
 		handler := GetElectronicOrdersTotalsHandler{
-			HandlerConfig:                       handlers.NewHandlerConfig(suite.DB(), suite.Logger()),
+			HandlerConfig:                       suite.HandlerConfig(),
 			ElectronicOrderCategoryCountFetcher: electronicOrderCategoryCountFetcher,
 			NewQueryFilter:                      newQueryFilter,
 		}

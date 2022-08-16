@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { useField } from 'formik';
-import { FormGroup, Label, TextInput, ErrorMessage } from '@trussworks/react-uswds';
+import { FormGroup, Label, TextInput, Textarea, ErrorMessage } from '@trussworks/react-uswds';
 
 import { OptionalTag } from 'components/form/OptionalTag';
 import Hint from 'components/Hint';
@@ -32,6 +32,7 @@ const TextField = ({
   errorMessage,
   errorClassName,
   isDisabled,
+  display,
   ...inputProps
 }) => {
   const [fieldProps, metaProps] = useField({ name, validate, type });
@@ -58,8 +59,13 @@ const TextField = ({
       )}
 
       {showWarning && <Hint data-testid="textInputWarning">{warning}</Hint>}
-      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-      <TextInput id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />
+      {/* eslint-disable react/jsx-props-no-spreading */}
+      {display === 'input' ? (
+        <TextInput id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />
+      ) : (
+        <Textarea id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />
+      )}
+      {/* eslint-enable react/jsx-props-no-spreading */}
     </FormGroup>
   );
 };
@@ -73,6 +79,7 @@ TextField.propTypes = {
   warning: PropTypes.string,
   optional: PropTypes.bool,
   validate: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  display: PropTypes.oneOf(['input', 'textarea']),
   type: PropTypes.string,
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
@@ -91,6 +98,7 @@ TextField.defaultProps = {
   errorMessage: '',
   errorClassName: '',
   isDisabled: false,
+  display: 'input',
 };
 
 export default TextField;

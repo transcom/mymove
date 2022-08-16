@@ -12,7 +12,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	uploadop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
-	"github.com/transcom/mymove/pkg/handlers"
 
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -23,7 +22,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	setupTestData := func() (CreateUploadHandler, models.PaymentRequest) {
-		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.Logger())
+		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		handler := CreateUploadHandler{
 			handlerConfig,

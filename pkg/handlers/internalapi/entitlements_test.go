@@ -4,7 +4,6 @@ import (
 	"net/http/httptest"
 
 	entitlementop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -22,7 +21,7 @@ func (suite *HandlerSuite) TestIndexEntitlementsHandlerReturns200() {
 	}
 
 	// And: index entitlements endpoint is hit
-	handler := IndexEntitlementsHandler{handlers.NewHandlerConfig(suite.DB(), suite.Logger())}
+	handler := IndexEntitlementsHandler{suite.HandlerConfig()}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code

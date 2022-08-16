@@ -371,6 +371,25 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
   };
 };
 
+export const useViewEvaluationReportQueries = (reportID) => {
+  const { data: evaluationReport = {}, ...viewEvaluationReportQuery } = useQuery(
+    [EVALUATION_REPORT, reportID],
+    getEvaluationReportByID,
+  );
+  const moveId = evaluationReport?.moveID;
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
+    enabled: !!moveId,
+  });
+  const { isLoading, isError, isSuccess } = getQueriesStatus([viewEvaluationReportQuery, mtoShipmentQuery]);
+  return {
+    evaluationReport,
+    mtoShipments,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
 export const useShipmentEvaluationReportQueries = (reportID) => {
   const { data: evaluationReport = {}, ...shipmentEvaluationReportQuery } = useQuery(
     [EVALUATION_REPORT, reportID],
