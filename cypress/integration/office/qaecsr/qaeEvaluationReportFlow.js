@@ -62,12 +62,13 @@ describe('Quality Evaluation Report Flows', () => {
     cy.wait(['@getMTOShipments', '@getShipmentEvaluationReports', '@getCounselingEvaluationReports']);
     cy.contains('Your draft report has been saved');
     // On this run through the cancel button should kick us back to the reports list view.
-    cy.contains('View report').click();
+    cy.contains('Edit report').click();
     cy.wait(['@getEvaluationReport']);
     cy.get('[data-testid="cancelForUpdated"]').click();
     cy.url().should('include', `/moves/${moveLocator}/evaluation-reports`);
-    cy.contains('View report');
+    cy.contains('Edit report');
   });
+
   it('does prompt to delete if the report has not been saved since creation', () => {
     const moveLocator = 'TEST12';
     cy.wait(['@getSortedOrders']);
