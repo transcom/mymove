@@ -24,8 +24,6 @@ import (
 //
 //CREATE TEST
 //
-
-// ADD Create test
 func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 	// Reusable objects
 	movingExpenseCreator := movingexpenseservice.NewMovingExpenseCreator()
