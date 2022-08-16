@@ -780,5 +780,69 @@ describe('ShipmentForm component', () => {
       expect((await screen.findByText('Maximum advance: $7,407')).toBeInTheDocument);
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
     });
+
+    it('validates the Advance Page making counselor remarks required when advance is denied', async () => {
+      const ppmShipmentWithoutRemarks = {
+        ...mockPPMShipment,
+        counselorRemarks: '',
+      };
+
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          isAdvancePage
+          selectedMoveType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={ppmShipmentWithoutRemarks}
+        />,
+      );
+
+      expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
+      expect(screen.getByLabelText('No')).not.toBeChecked();
+      expect(screen.getByLabelText('Yes')).toBeChecked();
+      // Reject a requested advance
+      userEvent.click(screen.getByLabelText('No'));
+      await waitFor(() => {
+        expect(screen.getByLabelText('No')).toBeChecked();
+        expect(screen.getByLabelText('Yes')).not.toBeChecked();
+      });
+      const requiredAlerts = screen.getAllByRole('alert');
+      expect(requiredAlerts[0]).toHaveTextContent('Required');
+
+      expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
+    });
+
+    it('validates the Advance Page making counselor remarks required when advance amount is changed', async () => {
+      const ppmShipmentWithoutRemarks = {
+        ...mockPPMShipment,
+        counselorRemarks: '',
+      };
+
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          isAdvancePage
+          selectedMoveType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={ppmShipmentWithoutRemarks}
+        />,
+      );
+
+      expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
+      const advanceAmountInput = screen.getByLabelText('Amount requested');
+
+      expect(advanceAmountInput).toHaveValue('4,875');
+      // Edit a requested advance amount
+      userEvent.clear(advanceAmountInput);
+      userEvent.type(advanceAmountInput, '2,000');
+      advanceAmountInput.blur();
+      await waitFor(() => {
+        expect(advanceAmountInput).toHaveValue('2,000');
+      });
+
+      const requiredAlerts = screen.getAllByRole('alert');
+
+      expect(requiredAlerts[0]).toHaveTextContent('Required');
+    });
   });
 });

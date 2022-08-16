@@ -559,7 +559,8 @@ const ShipmentForm = (props) => {
                     showHint={false}
                     error={
                       errors.counselorRemarks &&
-                      values.advanceRequested.toString() !== mtoShipment.ppmShipment?.hasRequestedAdvance.toString()
+                      (String(values.advanceRequested) !== String(mtoShipment.ppmShipment?.hasRequestedAdvance) ||
+                        String(values.advance) !== String(mtoShipment.ppmShipment?.advanceAmountRequested))
                     }
                   />
                 )}
