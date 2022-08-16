@@ -18,17 +18,13 @@ const args = {
 describe('components/Office/SITCostDetails', () => {
   it('renders correctly', () => {
     render(<SITCostDetails {...args} />);
-    expect(screen.getByText(/Storage in transit \(SIT\)/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(/Storage in transit \(SIT\)/);
   });
 
   it('displays passed SIT details correctly', () => {
     render(<SITCostDetails {...args} />);
-    expect(screen.getByText(/Government constructed cost: \$123/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(/Government constructed cost: \$123/);
     expect(screen.getByText(/234 lbs of origin SIT/)).toBeInTheDocument();
-  });
-
-  it('displays origin ZIP when SIT location is origin', () => {
-    render(<SITCostDetails {...args} />);
     expect(screen.getByText(/at 23456/)).toBeInTheDocument();
   });
 
@@ -40,20 +36,20 @@ describe('components/Office/SITCostDetails', () => {
 
   it('correctly computes days between entry and departure', async () => {
     render(<SITCostDetails {...args} />);
-    expect(screen.queryByText(/for 84 days./));
+    expect(screen.getByText(/for 84 days./)).toBeInTheDocument();
   });
 
   it('comma-separates thousands values', async () => {
     args.cost = 123400;
     args.weight = 23456;
     render(<SITCostDetails {...args} />);
-    expect(screen.queryByText(/Government constructed cost: \$1,234/)).toBeInTheDocument();
-    expect(screen.queryByText(/23,456 lbs/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(/Government constructed cost: \$1,234/);
+    expect(screen.getByText(/23,456 lbs/)).toBeInTheDocument();
   });
 
   it('displays singular "day" when there is only one', async () => {
     args.entryDate = '2022-10-28';
     render(<SITCostDetails {...args} />);
-    expect(screen.queryByText(/for 1 day./)).toBeInTheDocument();
+    expect(screen.getByText(/for 1 day./)).toBeInTheDocument();
   });
 });
