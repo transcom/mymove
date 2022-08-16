@@ -29,6 +29,4 @@ COPY bin/milmove-tasks /bin/milmove-tasks
 COPY --from=builder-pg --chown=root:root /apkg /
 ENV PATH="${PATH}:/usr/libexec/postgresql14"
 
-RUN mkdir -p /var/db-export
-
 WORKDIR /bin
