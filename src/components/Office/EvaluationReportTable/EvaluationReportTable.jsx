@@ -1,15 +1,26 @@
-import React from 'react';
-import { Tag } from '@trussworks/react-uswds';
+import React, { useState } from 'react';
+import { Button, Tag } from '@trussworks/react-uswds';
+import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router';
 
+import { EvaluationReportShape } from '../../../types/evaluationReport';
+
 import styles from './EvaluationReportTable.module.scss';
+import EvaluationReportContainer from './EvaluationReportContainer';
 
 import { formatCustomerDate, formatEvaluationReportLocation, formatQAReportID } from 'utils/formatters';
-import { EvaluationReportShape } from 'types/evaluationReport';
+import { CustomerShape } from 'types';
 
-const EvaluationReportTable = ({ reports, emptyText }) => {
+const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, grade, shipmentId }) => {
   const { pathname } = useLocation();
+  const [isViewReportModalVisible, setIsViewReportModalVisible] = useState(false);
+  const [reportToView, setReportToView] = useState(undefined);
+
+  const handleViewReportClick = (e) => {
+    setReportToView(reports.find(({ id }) => id === e.target.id));
+    setIsViewReportModalVisible(true);
+  };
 
   const row = (report) => {
     return (
@@ -22,7 +33,17 @@ const EvaluationReportTable = ({ reports, emptyText }) => {
         <td className={styles.violationsColumn}>{report.violationsObserved ? 'Yes' : 'No'}</td>
         <td className={styles.seriousIncidentColumn}>No</td>
         <td className={styles.viewReportColumn}>
-          <a href={`${pathname}/${report.id}`}>View report</a>
+          {report.submittedAt && (
+            <Button
+              type="button"
+              id={report.id}
+              className={classnames(styles.viewButton, 'text-blue usa-button--unstyled')}
+              onClick={(e) => handleViewReportClick(e)}
+            >
+              View report
+            </Button>
+          )}
+          {!report.submittedAt && <a href={`${pathname}/${report.id}`}>Edit report</a>}
         </td>
         <td className={styles.downloadColumn}>
           <a href={`${pathname}/evaluation-reports/${report.id}/download`}>Download</a>
@@ -42,30 +63,48 @@ const EvaluationReportTable = ({ reports, emptyText }) => {
   }
 
   return (
-    <table className={styles.evaluationReportTable}>
-      <thead>
-        <tr>
-          <th className={styles.reportIDColumn}>Report ID</th>
-          <th className={styles.dateSubmittedColumn}>Date submitted</th>
-          <th className={styles.locationColumn}>Location</th>
-          <th className={styles.violationsColumn}>Violations</th>
-          <th className={styles.seriousIncidentColumn}>Serious Incident</th>
-          <th className={styles.viewReportColumn} aria-label="View report" />
-          <th className={styles.downloadColumn} aria-label="Download" />
-        </tr>
-      </thead>
-      <tbody>{tableRows}</tbody>
-    </table>
+    <div>
+      {isViewReportModalVisible && reportToView && (
+        <EvaluationReportContainer
+          reportType={reportToView.type}
+          evaluationReportId={reportToView.id}
+          moveCode={moveCode}
+          customerInfo={customerInfo}
+          grade={grade}
+          shipmentId={shipmentId}
+          setIsModalVisible={setIsViewReportModalVisible}
+        />
+      )}
+      <table className={styles.evaluationReportTable}>
+        <thead>
+          <tr>
+            <th className={styles.reportIDColumn}>Report ID</th>
+            <th className={styles.dateSubmittedColumn}>Date submitted</th>
+            <th className={styles.locationColumn}>Location</th>
+            <th className={styles.violationsColumn}>Violations</th>
+            <th className={styles.seriousIncidentColumn}>Serious Incident</th>
+            <th className={styles.viewReportColumn} aria-label="View report" />
+            <th className={styles.downloadColumn} aria-label="Download" />
+          </tr>
+        </thead>
+        <tbody>{tableRows}</tbody>
+      </table>
+    </div>
   );
 };
 
 EvaluationReportTable.propTypes = {
   reports: PropTypes.arrayOf(EvaluationReportShape),
   emptyText: PropTypes.string.isRequired,
+  moveCode: PropTypes.string.isRequired,
+  customerInfo: CustomerShape.isRequired,
+  grade: PropTypes.string.isRequired,
+  shipmentId: PropTypes.string,
 };
 
 EvaluationReportTable.defaultProps = {
   reports: [],
+  shipmentId: '',
 };
 
 export default EvaluationReportTable;
