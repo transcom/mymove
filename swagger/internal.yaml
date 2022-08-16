@@ -916,9 +916,6 @@ definitions:
         $ref: '#/definitions/MovingExpenseType'
       description:
         type: string
-      deletedAt:
-        type: string
-        format: date-time
       status:
         $ref: '#/definitions/PPMDocumentStatus'
       reason:
