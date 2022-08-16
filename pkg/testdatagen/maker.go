@@ -24,7 +24,11 @@ type Customization struct {
 type CustomType string
 
 // Model customizations will each have a "type" here
+// This does not have to match the model type but generally will
+// You can have CustomType like ResidentialAddress to define specifically
+// where this address will get created and nested
 const (
+	control       CustomType = "Control"
 	Address       CustomType = "Address"
 	User          CustomType = "User"
 	ServiceMember CustomType = "ServiceMember"
@@ -32,18 +36,47 @@ const (
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
 // a code-completion friendly way to select the right type
-type AddressesCustomType struct {
+type AddressesGroup struct {
 	PickupAddress            CustomType
 	DeliveryAddress          CustomType
 	SecondaryDeliveryAddress CustomType
 	ResidentialAddress       CustomType
 }
 
-var Addresses = AddressesCustomType{
+var Addresses = AddressesGroup{
 	PickupAddress:            "PickupAddress",
 	DeliveryAddress:          "DeliveryAddress",
 	SecondaryDeliveryAddress: "SecondaryDeliveryAddress",
 	ResidentialAddress:       "ResidentialAddress",
+}
+
+type DimensionsGroup struct {
+	CrateDimension CustomType
+	ItemDimension  CustomType
+}
+
+var Dimensions = DimensionsGroup{
+	// MTOServiceItems may include:
+	CrateDimension: "CrateDimension",
+	ItemDimension:  "ItemDimension",
+}
+
+type DutyLocationsGroup struct {
+	OriginDutyLocation CustomType
+	NewDutyLocation    CustomType
+}
+
+var DutyLocations = DutyLocationsGroup{
+	// Orders may include:
+	OriginDutyLocation: "OriginDutyLocation",
+	NewDutyLocation:    "NewDutyLocation",
+}
+
+// Control is a struct used with CustomType Control to
+// set flags on overall behaviour and status of the customizations
+type controlObject struct {
+	isValid bool // has this set of customizations been validated
+	//stub    bool // if stub is false, only in-memory objects are created, not db
 }
 
 // GetTraitFunc is a function that returns a set of customizations
@@ -73,6 +106,44 @@ func GetTraitNavy() []Customization {
 			Type: ServiceMember,
 		},
 	}
+}
+
+// validateCustomizations
+func validateCustomizations(customs []Customization) ([]Customization, error) {
+	_, controlCustom := findCustomWithIdx(customs, control)
+
+	// if it does exist, and customization list has been validated already, return
+	if controlCustom != nil {
+		controls := controlCustom.Model.(controlObject)
+		if controls.isValid {
+			return customs, nil
+		}
+	} else {
+		// If control object does not exist, create
+		controlCustom = &Customization{
+			Model: controlObject{},
+			Type:  control,
+		}
+		customs = append(customs, *controlCustom)
+	}
+	controller := (*controlCustom).Model.(controlObject)
+	// validate that there are no repeat model types
+	m := make(map[CustomType]int)
+	for i, custom := range customs {
+		// if custom type already exists
+		idx, exists := m[custom.Type]
+		if exists {
+			controller.isValid = false
+			return customs, fmt.Errorf("Found more than one instance of %s Customization at index %d and %d",
+				custom.Type, idx, i)
+		}
+		// Add to hashmap
+		m[custom.Type] = i
+	}
+	// Store the validation result
+	controller.isValid = true
+	return customs, nil
+
 }
 
 // findCustomWithIdx is a helper function to find a customization of a specific type and its index
@@ -164,13 +235,10 @@ func mergeCustomization(customs []Customization, traits []GetTraitFunc) []Custom
 // UserMaker is the base maker function to create a user
 // MYTODO Instead of error (not useful) can we return a list of the created objects?
 func UserMaker(db *pop.Connection, customs []Customization, traits []GetTraitFunc) (models.User, error) {
-
-	// Combine all traits into the customization list,
-	// do not pass on the traits in downstream maker functions
-	// so this merge is not repeated downstream
-	if len(traits) != 0 {
-		// The order of application is that the customizations override the traits
-		customs = mergeCustomization(customs, traits)
+	customs = mergeCustomization(customs, traits)
+	customs, err := validateCustomizations(customs)
+	if err != nil {
+		log.Panic(err)
 	}
 
 	// Find user assertion and convert to models user
@@ -197,23 +265,38 @@ func UserMaker(db *pop.Connection, customs []Customization, traits []GetTraitFun
 	return user, nil
 }
 
+// Helper function for when you need to elevate the type of customization from say
+// ResidentialAddress to Address before you call makeAddress
+// This is a little finicky because we want to be careful not to harm the existing list
+func convertCustomizationInList(customs []Customization, from CustomType, to CustomType) []Customization {
+	if _, custom := findCustomWithIdx(customs, to); custom != nil {
+		log.Panic(fmt.Errorf("A customization of type %s already exists", to))
+	}
+	if idx, custom := findCustomWithIdx(customs, from); custom != nil {
+		// Create a slice in new memory
+		var newCustoms []Customization
+		// Populate with copies of objects
+		newCustoms = append(newCustoms, customs...)
+		// Update the type
+		newCustoms[idx].Type = to
+		return newCustoms
+	}
+	log.Panic(fmt.Errorf("No customization of type %s found", from))
+	return nil
+}
+
 // MakeServiceMember creates a single ServiceMember
 // If not provided, it will also create an associated
 // - User
 // - ResidentialAddress
 func ServiceMemberMaker(db *pop.Connection, customs []Customization, traits []GetTraitFunc) (models.ServiceMember, error) {
-	// Apply traits
-	if len(traits) != 0 {
-		customs = mergeCustomization(customs, traits)
+	customs = mergeCustomization(customs, traits)
+	customs, err := validateCustomizations(customs)
+	if err != nil {
+		log.Panic(err)
 	}
 
-	// Find the customization for service member
-	var cServiceMember models.ServiceMember
-	if result := findValidCustomization(customs, ServiceMember); result != nil {
-		cServiceMember = result.Model.(models.ServiceMember)
-	}
-
-	// Find the customization for user
+	// Find/create the required user model
 	var user models.User
 	if result := findValidCustomization(customs, User); result != nil {
 		user = result.Model.(models.User)
@@ -223,23 +306,28 @@ func ServiceMemberMaker(db *pop.Connection, customs []Customization, traits []Ge
 	}
 	// At this point, user exists. It's either the provided or created user
 
-	// Find the customization for residential address
+	// Find/create a residential address
 	var resiAddress models.Address
 	result := findValidCustomization(customs, Addresses.ResidentialAddress)
 	if result == nil {
 		// No customization
-		resiAddress, _ = AddressMaker(db, nil, nil)
-	} else if isZeroUUID(resiAddress.ID) {
-		// Customization exists but had no ID
-		result.Type = Address
-		resiAddress, _ = AddressMaker(db,
-			[]Customization{*result}, nil)
+		resiAddress, _ = AddressMaker(db, customs, nil)
 	} else {
-		// Customization exists and had an ID
-		// This means we just need to use this object as-is
+		// Customization exists
 		resiAddress = result.Model.(models.Address)
+		if isZeroUUID(resiAddress.ID) {
+			// Convert ResidentialAddress type to Address type before passing on to Address maker
+			tempCustoms := convertCustomizationInList(customs, Addresses.ResidentialAddress, Address)
+			resiAddress, _ = AddressMaker(db, tempCustoms, nil)
+		}
 	}
 	// At this point, resiAddress exists. It's either the provided or created residential address
+
+	// Find the customization for service member
+	var cServiceMember models.ServiceMember
+	if result := findValidCustomization(customs, ServiceMember); result != nil {
+		cServiceMember = result.Model.(models.ServiceMember)
+	}
 
 	// MYTODO We can add randomization and control with a flag
 	randomEdipi := RandomEdipi()
@@ -285,8 +373,12 @@ func findValidCustomization(customs []Customization, customType CustomType) *Cus
 
 func AddressMaker(db *pop.Connection, customs []Customization, traits []GetTraitFunc) (models.Address, error) {
 	customs = mergeCustomization(customs, traits)
+	customs, err := validateCustomizations(customs)
+	if err != nil {
+		log.Panic(err)
+	}
 
-	// Find the customization for service member
+	// Find the customization for address
 	var cAddress models.Address
 	if result := findValidCustomization(customs, Address); result != nil {
 		cAddress = result.Model.(models.Address)

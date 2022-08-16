@@ -187,6 +187,28 @@ func (suite *MakerSuite) TestServiceMemberMaker() {
 
 	})
 
+	suite.Run("Successful creation of servicemember with premade residential address", func() {
+		// Under test:       ServiceMemberMaker
+		// Set up:           Create a service member with a pre-created residential address, add a trait that affects user
+		// Expected outcome: ServiceMember should not create a user, but link to the provided user
+		//                   Trait should not be applied because user has already been created
+		resiAddress, err := AddressMaker(suite.DB(), nil, nil)
+		suite.NoError(err)
+		sm, err := ServiceMemberMaker(suite.DB(),
+			[]Customization{
+				{
+					Model: resiAddress,
+					Type:  Addresses.ResidentialAddress,
+				},
+			},
+			nil)
+
+		suite.NoError(err)
+		suite.Equal(resiAddress.ID, *(sm.ResidentialAddressID))
+		suite.False(sm.User.Active)
+
+	})
+
 	suite.Run("Successful creation of servicemember with only traits", func() {
 		// Under test:       ServiceMemberMaker
 		// Set up:           Create a service member with only traits
@@ -209,6 +231,34 @@ func (suite *MakerSuite) TestServiceMemberMaker() {
 
 }
 
+func (suite *MakerSuite) TestElevateCustomization() {
+
+	suite.Run("Customization converted ", func() {
+
+		customEmail := "leospaceman123@example.com"
+		streetAddress := "235 Prospect Valley Road SE"
+
+		customizationList :=
+			[]Customization{
+				{
+					Model: models.User{LoginGovEmail: customEmail},
+					Type:  User,
+				},
+				{
+					Model: models.Address{StreetAddress1: streetAddress},
+					Type:  Addresses.ResidentialAddress,
+				},
+			}
+		tempCustoms := convertCustomizationInList(customizationList, Addresses.ResidentialAddress, Address)
+		// Nothing wrong with customizations
+		tempCustoms, err := validateCustomizations(tempCustoms)
+		suite.NoError(err)
+		// Customization has new type
+		suite.Equal(Address, tempCustoms[1].Type)
+		// Old customization list is unchanged
+		suite.Equal(Addresses.ResidentialAddress, customizationList[1].Type)
+	})
+}
 func (suite *MakerSuite) TestMergeCustomization() {
 
 	suite.Run("Customizations and traits merged into result", func() {
@@ -433,6 +483,72 @@ func (suite *MakerSuite) TestNestedModelsCheck() {
 		err := checkNestedModels(c)
 		suite.NoError(err)
 
+	})
+
+}
+
+func (suite *MakerSuite) TestValidateCustomizations() {
+	suite.Run("Control obj added if missing", func() {
+		customs := getTraitArmy()
+		suite.Len(customs, 2)
+
+		customs, err := validateCustomizations(customs)
+		suite.Nil(err)
+		suite.Len(customs, 3)
+		_, controlCustom := findCustomWithIdx(customs, control)
+		suite.NotNil(controlCustom)
+	})
+
+	suite.Run("Control obj not added if not missing", func() {
+		customs := getTraitArmy()
+		customs = append(customs, Customization{
+			Model: controlObject{},
+			Type:  control,
+		})
+		suite.Len(customs, 3)
+
+		customs, err := validateCustomizations(customs)
+		suite.Len(customs, 3)
+		suite.NoError(err)
+		_, controlCustom := findCustomWithIdx(customs, control)
+		suite.NotNil(controlCustom)
+	})
+
+	suite.Run("Pass if customizations not repeated", func() {
+		customs := getTraitArmy()
+		customs = append(customs, Customization{
+			Model: models.Address{},
+			Type:  Addresses.ResidentialAddress,
+		},
+			Customization{
+				Model: models.Address{},
+				Type:  Addresses.PickupAddress,
+			},
+		)
+		suite.Len(customs, 4)
+
+		customs, err := validateCustomizations(customs)
+		suite.Len(customs, 5)
+		suite.NoError(err)
+		_, controlCustom := findCustomWithIdx(customs, control)
+		suite.NotNil(controlCustom)
+	})
+	suite.Run("Error if duplicate customization is used", func() {
+		customs := getTraitArmy()
+		customs = append(customs, Customization{
+			Model: models.User{},
+			Type:  User,
+		})
+		suite.Len(customs, 3)
+
+		customs, err := validateCustomizations(customs)
+		suite.Len(customs, 4) // control object should be added
+		suite.ErrorContains(err, "Found more than one instance")
+
+		// Check that control object was updated
+		_, controlCustom := findCustomWithIdx(customs, control)
+		controller := (*controlCustom).Model.(controlObject)
+		suite.False(controller.isValid)
 	})
 
 }
