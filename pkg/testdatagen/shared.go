@@ -33,10 +33,10 @@ import (
 type Assertions struct {
 	Address                                  models.Address
 	AdminUser                                models.AdminUser
-	TestDataAuditHistory                     TestDataAuditHistory
 	BackupContact                            models.BackupContact
 	ClientCert                               models.ClientCert
 	Contractor                               models.Contractor
+	CustomerSupportRemark                    models.CustomerSupportRemark
 	DestinationAddress                       models.Address
 	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
@@ -45,23 +45,22 @@ type Assertions struct {
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
 	Entitlement                              models.Entitlement
 	EvaluationReport                         models.EvaluationReport
-	FuelEIADieselPrice                       models.FuelEIADieselPrice
 	File                                     afero.File
+	FuelEIADieselPrice                       models.FuelEIADieselPrice
 	GHCDieselFuelPrice                       models.GHCDieselFuelPrice
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
+	MovingExpense                            models.MovingExpense
 	MovingExpenseDocument                    models.MovingExpenseDocument
 	MTOAgent                                 models.MTOAgent
 	MTOServiceItem                           models.MTOServiceItem
+	MTOServiceItemCustomerContact            models.MTOServiceItemCustomerContact
 	MTOServiceItemDimension                  models.MTOServiceItemDimension
 	MTOServiceItemDimensionCrate             models.MTOServiceItemDimension
-	MTOServiceItemCustomerContact            models.MTOServiceItemCustomerContact
 	MTOShipment                              models.MTOShipment
 	Notification                             models.Notification
-	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	OfficeUser                               models.OfficeUser
-	CustomerSupportRemark                    models.CustomerSupportRemark
 	Order                                    models.Order
 	Organization                             models.Organization
 	OriginDutyLocation                       models.DutyLocation
@@ -75,6 +74,7 @@ type Assertions struct {
 	PPMShipment                              models.PPMShipment
 	PrimeUpload                              models.PrimeUpload
 	PrimeUploader                            *uploader.PrimeUploader
+	ProgearWeightTicket                      models.ProgearWeightTicket
 	ProofOfServiceDoc                        models.ProofOfServiceDoc
 	ReContract                               models.ReContract
 	ReContractYear                           models.ReContractYear
@@ -88,35 +88,36 @@ type Assertions struct {
 	Reweigh                                  models.Reweigh
 	ReZip3                                   models.ReZip3
 	Role                                     roles.Role
-	SecondaryPickupAddress                   models.Address
 	SecondaryDeliveryAddress                 models.Address
+	SecondaryPickupAddress                   models.Address
 	ServiceItemParamKey                      models.ServiceItemParamKey
+	ServiceMember                            models.ServiceMember
 	ServiceParam                             models.ServiceParam
 	SignedCertification                      models.SignedCertification
 	SITExtension                             models.SITExtension
-	ServiceMember                            models.ServiceMember
 	StorageFacility                          models.StorageFacility
 	Stub                                     bool
-	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngItem                          models.Tariff400ngItem
 	Tariff400ngItemRate                      models.Tariff400ngItemRate
+	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngZip3                          models.Tariff400ngZip3
+	TestDataAuditHistory                     TestDataAuditHistory
 	TrafficDistributionList                  models.TrafficDistributionList
 	TransportationAccountingCode             models.TransportationAccountingCode
 	TransportationOffice                     models.TransportationOffice
 	TransportationServiceProvider            models.TransportationServiceProvider
 	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance
 	Upload                                   models.Upload
-	UploadUseZeroBytes                       bool
 	Uploader                                 *uploader.Uploader
-	UserUpload                               models.UserUpload
-	UserUploader                             *uploader.UserUploader
+	UploadUseZeroBytes                       bool
 	User                                     models.User
 	UsersRoles                               models.UsersRoles
+	UserUpload                               models.UserUpload
+	UserUploader                             *uploader.UserUploader
 	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
 	WeightTicket                             models.WeightTicket
-	MovingExpense                            models.MovingExpense
+	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	Zip3Distance                             models.Zip3Distance
 }
 
