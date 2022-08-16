@@ -455,7 +455,7 @@ describe('formatPpmShipmentForAPI', () => {
       hasProGear: true,
       proGearWeight: '1000',
 
-      advanceRequested: true,
+      advanceRequested: 'true',
       advance: '2000',
 
       counselorRemarks: 'test remarks',

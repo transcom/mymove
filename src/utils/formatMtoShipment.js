@@ -247,7 +247,7 @@ export function formatPpmShipmentForAPI(formValues) {
     sitExpected: !!formValues.sitExpected,
     estimatedWeight: Number(formValues.estimatedWeight || '0'),
     hasProGear: !!formValues.hasProGear,
-    hasRequestedAdvance: !!formValues.advanceRequested,
+    hasRequestedAdvance: formValues.advanceRequested === 'true',
   };
 
   if (formValues.hasProGear) {

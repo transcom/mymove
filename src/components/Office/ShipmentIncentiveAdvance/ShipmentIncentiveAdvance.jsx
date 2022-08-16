@@ -11,7 +11,7 @@ import { calculateMaxAdvanceAndFormatAdvanceAndIncentive } from 'utils/incentive
 
 const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const [advanceInput, , advanceHelper] = useField('advanceRequested');
-  const advanceRequested = !!advanceInput.value;
+  const advanceRequested = String(advanceInput.value) === 'true';
 
   const { formattedMaxAdvance, formattedIncentive } =
     calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);
