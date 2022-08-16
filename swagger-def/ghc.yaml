@@ -4460,6 +4460,10 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
   CreateShipmentEvaluationReport:
     type: object
     description: Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.

@@ -20,7 +20,7 @@ require (
 	github.com/go-openapi/runtime v0.24.1
 	github.com/go-openapi/spec v0.20.6
 	github.com/go-openapi/strfmt v0.21.3
-	github.com/go-openapi/swag v0.21.1
+	github.com/go-openapi/swag v0.22.0
 	github.com/go-openapi/validate v0.22.0
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/gobuffalo/envy v1.10.1
@@ -78,7 +78,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.9.0
 	go.opentelemetry.io/otel/sdk/metric v0.31.0
 	go.opentelemetry.io/otel/trace v1.9.0
-	go.uber.org/zap v1.21.0
+	go.uber.org/zap v1.22.0
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
 	golang.org/x/net v0.0.0-20220728211354-c7608f3a8462
 	golang.org/x/oauth2 v0.0.0-20220718184931-c8730f7fcb92

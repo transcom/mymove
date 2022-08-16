@@ -1,0 +1,62 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.tabContent {
+  h1,
+  h2,
+  h3 {
+    color: $mm-blue;
+  }
+  h1 {
+    @include u-margin-bottom(3);
+  }
+  h2 {
+    @include u-margin-top(0.5);
+    @include u-margin-bottom(2);
+  }
+  h3 {
+    @include u-margin-top(4);
+    @include u-margin-bottom(1.5);
+  }
+
+  @include u-padding-top(8);
+}
+
+.qaeAndCustomerInfo {
+  @include u-margin-left(36px);
+  @include u-margin-top(68px);
+}
+
+.cardContainer {
+  @include u-padding-bottom(40px);
+  @include u-bg('white');
+  @include u-radius('05');
+  @include u-border('base-lighter');
+  @include u-border('1px');
+  @include u-padding(4);
+  @include u-margin-bottom(4);
+}
+
+.buttonContainer {
+  @include u-padding(0);
+  @include u-margin-bottom(115px);
+}
+
+.buttonRow {
+  @include u-display('flex');
+
+  :global {
+    .usa-button--unstyled {
+      @include u-font-weight(700);
+    }
+  }
+}
+
+.backToEvalButton {
+  @include u-padding(0);
+}
+
+.grow {
+  flex-grow: 1;
+}
