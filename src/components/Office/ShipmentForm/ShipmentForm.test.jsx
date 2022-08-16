@@ -8,6 +8,7 @@ import ShipmentForm from './ShipmentForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
+import { ppmShipmentStatuses } from 'constants/shipments';
 
 const mockPush = jest.fn();
 
@@ -24,6 +25,13 @@ const defaultProps = {
     postalCode: '31905',
   },
   currentResidence: {
+    city: 'Fort Benning',
+    state: 'GA',
+    postalCode: '31905',
+    streetAddress1: '123 Main',
+    streetAddress2: '',
+  },
+  originDutyLocationAddress: {
     city: 'Fort Benning',
     state: 'GA',
     postalCode: '31905',
@@ -82,6 +90,24 @@ const mockShipmentWithDestinationType = {
   ...mockMtoShipment,
   displayDestinationType: true,
   destinationType: 'PLACE_ENTERED_ACTIVE_DUTY',
+};
+
+const mockPPMShipment = {
+  ...mockMtoShipment,
+  ppmShipment: {
+    id: 'ppmShipmentID',
+    shipmentId: 'shipment123',
+    status: ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL,
+    expectedDepartureDate: '2022-04-01',
+    pickupPostalCode: '90210',
+    destinationPostalCode: '90211',
+    sitExpected: false,
+    estimatedWeight: 7999,
+    hasProGear: false,
+    estimatedIncentive: 1234500,
+    hasRequestedAdvance: true,
+    advanceAmountRequested: 487500,
+  },
 };
 
 const defaultPropsRetirement = {
@@ -690,6 +716,133 @@ describe('ShipmentForm component', () => {
           ),
         ).not.toBeInTheDocument();
       });
+    });
+  });
+
+  describe('creating a new PPM shipment', () => {
+    it('displays PPM content', async () => {
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          selectedMoveType={SHIPMENT_OPTIONS.PPM}
+          isCreatePage
+          userRole={roleTypes.SERVICES_COUNSELOR}
+          mtoShipment={mockMtoShipment}
+        />,
+      );
+
+      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+    });
+  });
+
+  describe('editing an already existing PPM shipment', () => {
+    it('renders the PPM shipment form with pre-filled values', async () => {
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          selectedMoveType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+        />,
+      );
+
+      expect(await screen.getByLabelText('Planned departure date')).toHaveValue('01 Apr 2022');
+      userEvent.click(screen.getByLabelText('Use current ZIP'));
+      expect(await screen.getByLabelText('Origin ZIP')).toHaveValue(defaultProps.originDutyLocationAddress.postalCode);
+      userEvent.click(screen.getByLabelText('Use ZIP for new duty location'));
+
+      expect(await screen.getByLabelText('Destination ZIP')).toHaveValue(
+        defaultProps.newDutyLocationAddress.postalCode,
+      );
+      expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
+      expect(screen.getAllByLabelText('No')[0]).toBeChecked();
+      expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('7,999');
+      expect(screen.getAllByLabelText('Yes')[1]).not.toBeChecked();
+      expect(screen.getAllByLabelText('No')[1]).toBeChecked();
+    });
+
+    it('renders the PPM shipment form with pre-filled values for Advance Page', async () => {
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          isAdvancePage
+          selectedMoveType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+        />,
+      );
+
+      expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
+      expect(await screen.getByLabelText('No')).not.toBeChecked();
+      expect(screen.getByLabelText('Yes')).toBeChecked();
+      expect(screen.findByText('Estimated incentive: $12,345').toBeInTheDocument);
+      expect(screen.getByLabelText('Amount requested')).toHaveValue('4,875');
+      expect((await screen.findByText('Maximum advance: $7,407')).toBeInTheDocument);
+      expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
+    });
+
+    it('validates the Advance Page making counselor remarks required when advance is denied', async () => {
+      const ppmShipmentWithoutRemarks = {
+        ...mockPPMShipment,
+        counselorRemarks: '',
+      };
+
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          isAdvancePage
+          selectedMoveType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={ppmShipmentWithoutRemarks}
+        />,
+      );
+
+      expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
+      expect(screen.getByLabelText('No')).not.toBeChecked();
+      expect(screen.getByLabelText('Yes')).toBeChecked();
+      // Reject a requested advance
+      userEvent.click(screen.getByLabelText('No'));
+      await waitFor(() => {
+        expect(screen.getByLabelText('No')).toBeChecked();
+        expect(screen.getByLabelText('Yes')).not.toBeChecked();
+      });
+      const requiredAlerts = screen.getAllByRole('alert');
+      expect(requiredAlerts[0]).toHaveTextContent('Required');
+
+      expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
+    });
+
+    it('validates the Advance Page making counselor remarks required when advance amount is changed', async () => {
+      const ppmShipmentWithoutRemarks = {
+        ...mockPPMShipment,
+        counselorRemarks: '',
+      };
+
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          isAdvancePage
+          selectedMoveType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={ppmShipmentWithoutRemarks}
+        />,
+      );
+
+      expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
+      const advanceAmountInput = screen.getByLabelText('Amount requested');
+
+      expect(advanceAmountInput).toHaveValue('4,875');
+      // Edit a requested advance amount
+      userEvent.clear(advanceAmountInput);
+      userEvent.type(advanceAmountInput, '2,000');
+      advanceAmountInput.blur();
+      await waitFor(() => {
+        expect(advanceAmountInput).toHaveValue('2,000');
+      });
+
+      const requiredAlerts = screen.getAllByRole('alert');
+
+      expect(requiredAlerts[0]).toHaveTextContent('Required');
     });
   });
 

@@ -402,7 +402,6 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 	if ppmShipment == nil {
 		return nil
 	}
-
 	model := &models.PPMShipment{
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,

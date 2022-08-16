@@ -5269,6 +5269,13 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_PAYMENT_APPROVAL
       - PAYMENT_APPROVED
+  PPMAdvanceStatus:
+    type: string
+    title: PPM Advance Status
+    enum:
+      - APPROVED
+      - REJECTED
+      - EDITED
   UploadPayload:
     type: object
     properties:
@@ -5449,6 +5456,8 @@ definitions:
         readOnly: true
       status:
         $ref: '#/definitions/PPMShipmentStatus'
+      advanceStatus:
+        $ref: '#/definitions/PPMAdvanceStatus'
       expectedDepartureDate:
         description: |
           Date the customer expects to move.

@@ -105,7 +105,7 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     spouseProGearWeight: (ppmShipment.spouseProGearWeight || '').toString(),
 
     estimatedIncentive: ppmShipment.estimatedIncentive,
-    advanceRequested: !!ppmShipment.hasRequestedAdvance,
+    advanceRequested: ppmShipment.hasRequestedAdvance?.toString() || 'false',
     advance: (ppmShipment.advanceAmountRequested / 100 || '').toString(),
 
     counselorRemarks,
@@ -247,7 +247,7 @@ export function formatPpmShipmentForAPI(formValues) {
     sitExpected: !!formValues.sitExpected,
     estimatedWeight: Number(formValues.estimatedWeight || '0'),
     hasProGear: !!formValues.hasProGear,
-    hasRequestedAdvance: !!formValues.advanceRequested,
+    hasRequestedAdvance: formValues.advanceRequested === 'true',
   };
 
   if (formValues.hasProGear) {

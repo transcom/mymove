@@ -146,6 +146,9 @@ const ShipmentForm = (props) => {
     schema = ppmShipmentSchema({
       estimatedIncentive: initialValues.estimatedIncentive || 0,
       weightAllotment: serviceMember.weightAllotment,
+      advanceAmountRequested: mtoShipment.ppmShipment?.advanceAmountRequested,
+      hasRequestedAdvance: mtoShipment.ppmShipment?.hasRequestedAdvance,
+      isAdvancePage,
     });
   } else {
     const shipmentOptions = getShipmentOptions(shipmentType, userRole);
@@ -166,10 +169,10 @@ const ShipmentForm = (props) => {
 
   const submitMTOShipment = (formValues) => {
     if (isPPM) {
-      const ppmShipment = formatPpmShipmentForAPI(formValues);
+      const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
 
       if (isCreatePage) {
-        const body = { ...ppmShipment, moveTaskOrderID };
+        const body = { ...ppmShipmentBody, moveTaskOrderID };
         submitHandler({ body, normalize: false })
           .then((newShipment) => {
             const currentPath = generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
@@ -189,13 +192,12 @@ const ShipmentForm = (props) => {
             setErrorMessage(`A server error occurred adding the shipment`);
           });
       }
-
       const updatePPMPayload = {
         moveTaskOrderID,
         shipmentID: mtoShipment.id,
         ifMatchETag: mtoShipment.eTag,
         normalize: false,
-        body: ppmShipment,
+        body: ppmShipmentBody,
       };
 
       submitHandler(updatePPMPayload).then(() => {
@@ -295,7 +297,7 @@ const ShipmentForm = (props) => {
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
-      {({ values, isValid, isSubmitting, setValues, handleSubmit }) => {
+      {({ values, isValid, isSubmitting, setValues, handleSubmit, errors }) => {
         const { hasDeliveryAddress } = values;
 
         const handleUseCurrentResidenceChange = (e) => {
@@ -555,7 +557,10 @@ const ShipmentForm = (props) => {
                 )}
 
                 {isPPM && isAdvancePage && (
-                  <ShipmentIncentiveAdvance estimatedIncentive={mtoShipment.ppmShipment?.estimatedIncentive} />
+                  <ShipmentIncentiveAdvance
+                    values={values}
+                    estimatedIncentive={mtoShipment.ppmShipment?.estimatedIncentive}
+                  />
                 )}
 
                 {(!isPPM || (isPPM && isAdvancePage)) && (
@@ -564,6 +569,12 @@ const ShipmentForm = (props) => {
                     shipmentType={shipmentType}
                     customerRemarks={mtoShipment.customerRemarks}
                     counselorRemarks={mtoShipment.counselorRemarks}
+                    showHint={false}
+                    error={
+                      errors.counselorRemarks &&
+                      (String(values.advanceRequested) !== String(mtoShipment.ppmShipment?.hasRequestedAdvance) ||
+                        String(values.advance) !== String(mtoShipment.ppmShipment?.advanceAmountRequested))
+                    }
                   />
                 )}
 

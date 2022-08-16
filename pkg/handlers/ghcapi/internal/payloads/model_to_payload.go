@@ -643,6 +643,10 @@ func PPMShipment(ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 		payloadPPMShipment.SitLocation = &sitLocation
 	}
 
+	if ppmShipment.AdvanceStatus != nil {
+		payloadPPMShipment.AdvanceStatus = ghcmessages.PPMAdvanceStatus(*ppmShipment.AdvanceStatus)
+	}
+
 	return payloadPPMShipment
 }
 

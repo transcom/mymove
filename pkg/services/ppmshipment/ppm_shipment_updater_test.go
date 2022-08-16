@@ -7,6 +7,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/auth"
+
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -44,7 +46,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	}
 
 	suite.Run("Can successfully update a PPMShipment - edit estimated dates & locations", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		subtestData := setUpForTests(nil, nil)
 
@@ -79,7 +81,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit estimated dates & locations - weights already set", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
 
@@ -121,7 +123,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit estimated dates & locations - add secondary zips", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		subtestData := setUpForTests(nil, nil)
 
@@ -151,7 +153,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit estimated dates & locations - remove secondary zips", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		subtestData := setUpForTests(nil, nil)
 
@@ -186,7 +188,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Can successfully update a PPMShipment - add estimated weights - no pro gear", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		subtestData := setUpForTests(fakeEstimatedIncentive, nil)
 
@@ -219,7 +221,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Can successfully update a PPMShipment - add estimated weights - has pro gear", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		subtestData := setUpForTests(fakeEstimatedIncentive, nil)
 
@@ -254,7 +256,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit estimated weights - pro gear no to yes", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
 
@@ -294,7 +296,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit estimated weights - pro gear yes to no", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
 
@@ -334,7 +336,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Can successfully update a PPMShipment - add advance info - no advance", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -371,7 +373,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Can successfully update a PPMShipment - add advance info - yes advance", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -408,8 +410,131 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
 	})
 
+	suite.Run("Can successfully update a PPMShipment - office user rejects requested advance", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				EstimatedIncentive:     fakeEstimatedIncentive,
+				HasRequestedAdvance:    models.BoolPointer(true),
+				AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+			},
+		})
+
+		newPPM := models.PPMShipment{
+			HasRequestedAdvance:    models.BoolPointer(false),
+			AdvanceAmountRequested: nil,
+		}
+
+		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil)
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that shouldn't have changed
+		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
+		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
+		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
+		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
+		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
+		suite.Equal(*originalPPM.SpouseProGearWeight, *updatedPPM.SpouseProGearWeight)
+		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
+
+		// Fields that should now be updated
+		rejected := models.PPMAdvanceStatusRejected
+		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
+		suite.Nil(updatedPPM.AdvanceAmountRequested)
+		suite.Equal(&rejected, updatedPPM.AdvanceStatus)
+	})
+
+	suite.Run("Can successfully update a PPMShipment - office user edits requested advance", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				EstimatedIncentive:     fakeEstimatedIncentive,
+				HasRequestedAdvance:    models.BoolPointer(true),
+				AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+			},
+		})
+
+		newPPM := models.PPMShipment{
+			HasRequestedAdvance:    models.BoolPointer(true),
+			AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+		}
+
+		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil)
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that shouldn't have changed
+		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
+		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
+		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
+		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
+		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
+		suite.Equal(*originalPPM.SpouseProGearWeight, *updatedPPM.SpouseProGearWeight)
+		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
+
+		// Fields that should now be updated
+		edited := models.PPMAdvanceStatusEdited
+		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
+		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
+		suite.Equal(&edited, updatedPPM.AdvanceStatus)
+	})
+
+	suite.Run("Can successfully update a PPMShipment - office user approves requested advance", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				EstimatedIncentive:     fakeEstimatedIncentive,
+				HasRequestedAdvance:    models.BoolPointer(true),
+				AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+			},
+		})
+
+		newPPM := models.PPMShipment{
+			HasRequestedAdvance:    models.BoolPointer(true),
+			AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
+		}
+
+		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil)
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that shouldn't have changed
+		originalPPM.ExpectedDepartureDate.Equal(updatedPPM.ExpectedDepartureDate)
+		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
+		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
+		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
+		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
+		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
+		suite.Equal(*originalPPM.SpouseProGearWeight, *updatedPPM.SpouseProGearWeight)
+		suite.Equal(*originalPPM.EstimatedIncentive, *updatedPPM.EstimatedIncentive)
+
+		// Fields that should now be updated
+		approved := models.PPMAdvanceStatusApproved
+		suite.Equal(*newPPM.HasRequestedAdvance, *updatedPPM.HasRequestedAdvance)
+		suite.Equal(*newPPM.AdvanceAmountRequested, *updatedPPM.AdvanceAmountRequested)
+		suite.Equal(&approved, updatedPPM.AdvanceStatus)
+	})
+
 	suite.Run("Can successfully update a PPMShipment - edit advance - advance requested no to yes", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -447,7 +572,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit advance - advance requested yes to no", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -484,7 +609,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit SIT - yes to no", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
 
@@ -531,7 +656,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit SIT - no to yes", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
 
@@ -582,7 +707,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(nil, nil)
 
-		updatedPPMShipment, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextForTest(), &models.PPMShipment{}, badMTOShipmentID)
+		updatedPPMShipment, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextWithSessionForTest(&auth.Session{}), &models.PPMShipment{}, badMTOShipmentID)
 
 		suite.Nil(updatedPPMShipment)
 
@@ -592,7 +717,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Can't update if there is invalid input", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		subtestData := setUpForTests(nil, nil)
 
@@ -614,7 +739,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	})
 
 	suite.Run("Can't update if there is an error calculating incentive", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		fakeEstimatedIncentiveError := errors.New("failed to calculate incentive")
 		subtestData := setUpForTests(nil, fakeEstimatedIncentiveError)
