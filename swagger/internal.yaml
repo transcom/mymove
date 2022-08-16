@@ -3238,6 +3238,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       ppmShipmentId:
         type: string
         format: uuid
@@ -3252,26 +3253,44 @@ definitions:
         type: object
       movingExpenseType:
         $ref: '#/definitions/MovingExpenseType'
+        x-nullable: true
+        x-omitempty: false
       description:
         type: string
+        x-nullable: true
+        x-omitempty: false
       paidWithGtcc:
         type: boolean
+        x-nullable: true
+        x-omitempty: false
       amount:
         type: integer
+        x-nullable: true
+        x-omitempty: false
       missingReceipt:
         type: boolean
+        x-nullable: true
+        x-omitempty: false
       status:
         $ref: '#/definitions/PPMDocumentStatus'
+        x-nullable: true
+        x-omitempty: false
       reason:
         type: string
+        x-nullable: true
+        x-omitempty: false
       sitStartDate:
         type: string
         example: '2022-04-26'
         format: date
+        x-nullable: true
+        x-omitempty: false
       sitEndDate:
         type: string
         example: '2018-05-26'
         format: date
+        x-nullable: true
+        x-omitempty: false
       createdAt:
         type: string
         format: date-time
@@ -3282,6 +3301,8 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+        x-nullable: true
+        x-omitempty: false
     required:
       - id
       - createdAt
