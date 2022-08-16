@@ -37,7 +37,7 @@ func (suite *ModelSuite) TestProgearWeightTicketValidation() {
 				"constructed_weight_document_id": {"ConstructedWeightDocumentID can not be blank."},
 			},
 		},
-		"Optional fields are valid": {
+		"Optional fields are invalid": {
 			progearWeightTicket: models.ProgearWeightTicket{
 				PPMShipmentID:               uuid.Must(uuid.NewV4()),
 				EmptyDocumentID:             uuid.Must(uuid.NewV4()),
