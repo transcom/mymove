@@ -61,10 +61,14 @@ describe('EvaluationForm', () => {
     });
   });
 
-  it('renders conditionally displayed form components correctly', async () => {
+  it('renders conditionally displayed shipment form components correctly', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <EvaluationForm />
+        <EvaluationForm
+          evaluationReport={{
+            type: 'SHIPMENT',
+          }}
+        />
       </MockProviders>,
     );
 

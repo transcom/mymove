@@ -17,11 +17,14 @@ import { deleteEvaluationReport, saveEvaluationReport } from 'services/ghcApi';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { formatDateForSwagger } from 'shared/dates';
+import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
 
 const EvaluationForm = ({ evaluationReport }) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
   const location = useLocation();
+
+  const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
 
   const [isDeleteModelOpen, setIsDeleteModelOpen] = useState(false);
 
@@ -191,6 +194,11 @@ const EvaluationForm = ({ evaluationReport }) => {
         validateOnMount
       >
         {({ values, setFieldValue }) => {
+          const showDbservedDeliveryDate =
+            values.evaluationType === 'physical' && values.evaluationLocation === 'destination' && isShipment;
+          const showObservedPickupDate =
+            values.evaluationType === 'physical' && values.evaluationLocation === 'origin' && isShipment;
+
           return (
             <Form className={classnames(formStyles.form, styles.form)}>
               <GridContainer className={styles.cardContainer}>
@@ -278,16 +286,18 @@ const EvaluationForm = ({ evaluationReport }) => {
                           type="radio"
                           checked={values.evaluationLocation === 'origin'}
                         />
-                        <Field
-                          as={Radio}
-                          label="Destination"
-                          id="destination"
-                          name="evaluationLocation"
-                          value="destination"
-                          title="Destination"
-                          type="radio"
-                          checked={values.evaluationLocation === 'destination'}
-                        />
+                        {isShipment && (
+                          <Field
+                            as={Radio}
+                            label="Destination"
+                            id="destination"
+                            name="evaluationLocation"
+                            value="destination"
+                            title="Destination"
+                            type="radio"
+                            checked={values.evaluationLocation === 'destination'}
+                          />
+                        )}
                         <Field
                           as={Radio}
                           label="Other"
@@ -308,14 +318,14 @@ const EvaluationForm = ({ evaluationReport }) => {
                         )}
                       </Fieldset>
                     </FormGroup>
-                    {values.evaluationType === 'physical' && values.evaluationLocation === 'destination' && (
+                    {showDbservedDeliveryDate && (
                       <DatePickerInput
                         label="Observed delivery date"
                         name="observedDate"
                         hint="Only enter a date here if the delivery you witnessed did not happen on the scheduled delivery date"
                       />
                     )}
-                    {values.evaluationType === 'physical' && values.evaluationLocation === 'origin' && (
+                    {showObservedPickupDate && (
                       <DatePickerInput
                         label="Observed pickup date"
                         name="observedDate"
