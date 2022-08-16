@@ -18,7 +18,7 @@ type ProgearWeightTicket struct {
 	PPMShipment                 PPMShipment        `belongs_to:"ppm_shipments" fk_id:"ppm_shipment_id"`
 	BelongsToSelf               *bool              `json:"belongs_to_self" db:"belongs_to_self"`
 	Description                 *string            `json:"description" db:"description"`
-	HasWeightTickets            *bool              `json:"has_weight_tickets" db:"has_weight_ticket"`
+	HasWeightTickets            *bool              `json:"has_weight_tickets" db:"has_weight_tickets"`
 	EmptyWeight                 *unit.Pound        `json:"empty_weight" db:"empty_weight"`
 	EmptyDocumentID             uuid.UUID          `json:"empty_document_id" db:"empty_document_id"`
 	EmptyDocument               Document           `belongs_to:"documents" fk_id:"empty_document_id"`
