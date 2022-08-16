@@ -26,7 +26,7 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
 
   it('should respond to user radio button input', async () => {
     render(
-      <Formik initialValues={{}}>
+      <Formik initialValues={{ advanceRequested: 'true' }}>
         <ShipmentIncentiveAdvance />
       </Formik>,
     );
@@ -46,7 +46,7 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
     });
 
     render(
-      <Formik validationSchema={validationSchema} initialValues={{ advanceRequested: true, advance: '7000' }}>
+      <Formik validationSchema={validationSchema} initialValues={{ advanceRequested: 'true', advance: '7000' }}>
         <ShipmentIncentiveAdvance estimatedIncentive={estimatedIncentive} />
       </Formik>,
     );

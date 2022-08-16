@@ -20,6 +20,7 @@ const ReviewBillableWeight = lazy(() => import('pages/Office/ReviewBillableWeigh
 const CustomerSupportRemarks = lazy(() => import('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks'));
 const EvaluationReports = lazy(() => import('pages/Office/EvaluationReports/EvaluationReports'));
 const ShipmentEvaluationReport = lazy(() => import('pages/Office/ShipmentEvaluationReport/ShipmentEvaluationReport'));
+const EvaluationViolations = lazy(() => import('pages/Office/EvaluationViolations/EvaluationViolations'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 
@@ -126,11 +127,15 @@ const TXOMoveInfo = () => {
           </Route>
 
           <Route path={qaeCSRRoutes.EVALUATION_REPORTS_PATH} exact>
-            <EvaluationReports />
+            <EvaluationReports customerInfo={customerData} grade={order.grade} />
           </Route>
 
           <Route path={qaeCSRRoutes.SHIPMENT_EVALUATION_REPORT_PATH} exact>
             <ShipmentEvaluationReport customerInfo={customerData} orders={order} />
+          </Route>
+
+          <Route path={qaeCSRRoutes.EVALUATION_VIOLATIONS_PATH} exact>
+            <EvaluationViolations />
           </Route>
 
           <Route path="/moves/:moveCode/history" exact>

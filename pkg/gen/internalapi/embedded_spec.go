@@ -5325,6 +5325,15 @@ func init() {
         "REJECTED": "Rejected"
       }
     },
+    "PPMAdvanceStatus": {
+      "type": "string",
+      "title": "PPM Advance Status",
+      "enum": [
+        "APPROVED",
+        "REJECTED",
+        "EDITED"
+      ]
+    },
     "PPMEstimateRange": {
       "type": "object",
       "required": [
@@ -5412,6 +5421,9 @@ func init() {
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "approvedAt": {
           "type": "string",
@@ -12758,6 +12770,15 @@ func init() {
         "REJECTED": "Rejected"
       }
     },
+    "PPMAdvanceStatus": {
+      "type": "string",
+      "title": "PPM Advance Status",
+      "enum": [
+        "APPROVED",
+        "REJECTED",
+        "EDITED"
+      ]
+    },
     "PPMEstimateRange": {
       "type": "object",
       "required": [
@@ -12845,6 +12866,9 @@ func init() {
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "approvedAt": {
           "type": "string",

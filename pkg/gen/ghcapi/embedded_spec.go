@@ -4741,6 +4741,11 @@ func init() {
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
         },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "violationsObserved": {
           "type": "boolean",
           "x-nullable": true
@@ -6184,6 +6189,15 @@ func init() {
         "REJECTED": "Rejected"
       }
     },
+    "PPMAdvanceStatus": {
+      "type": "string",
+      "title": "PPM Advance Status",
+      "enum": [
+        "APPROVED",
+        "REJECTED",
+        "EDITED"
+      ]
+    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
@@ -6237,6 +6251,9 @@ func init() {
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "approvedAt": {
           "type": "string",
@@ -13736,6 +13753,11 @@ func init() {
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
         },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "violationsObserved": {
           "type": "boolean",
           "x-nullable": true
@@ -15165,6 +15187,15 @@ func init() {
       },
       "x-nullable": true
     },
+    "PPMAdvanceStatus": {
+      "type": "string",
+      "title": "PPM Advance Status",
+      "enum": [
+        "APPROVED",
+        "REJECTED",
+        "EDITED"
+      ]
+    },
     "PPMDocumentStatus": {
       "type": "string",
       "title": "PPM document status",
@@ -15232,6 +15263,9 @@ func init() {
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "approvedAt": {
           "type": "string",

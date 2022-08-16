@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -23,6 +24,9 @@ const (
 	DTODApiURLFlag string = "dtod-api-url"
 	// DTODApiWSDLFlag is the DTOD API WSDL Flag
 	DTODApiWSDLFlag string = "dtod-api-wsdl"
+
+	// DTODUseMockFlag is the DTOD Use Mock Flag
+	DTODUseMockFlag string = "dtod-use-mock"
 )
 
 // InitRouteFlags initializes Route command line flags
@@ -36,6 +40,8 @@ func InitRouteFlags(flag *pflag.FlagSet) {
 	flag.String(DTODApiPasswordFlag, "", "DTOD api auth password")
 	flag.String(DTODApiURLFlag, "", "URL for sending a SOAP request to DTOD")
 	flag.String(DTODApiWSDLFlag, "", "WSDL for sending a SOAP request to DTOD")
+
+	flag.Bool(DTODUseMockFlag, false, "Whether to use a mocked version of DTOD")
 }
 
 // CheckRoute validates Route command line flags
@@ -51,6 +57,22 @@ func CheckRoute(v *viper.Viper) error {
 		err := ValidateURL(v, c)
 		if err != nil {
 			return err
+		}
+	}
+
+	if v.GetBool(DTODUseMockFlag) {
+		// Check against the Environment
+		allowedEnvironments := []string{
+			EnvironmentDevelopment,
+			EnvironmentTest,
+			EnvironmentExp,
+			EnvironmentExperimental,
+			EnvironmentDemo,
+			EnvironmentLoadtest,
+			EnvironmentReview,
+		}
+		if environment := v.GetString(EnvironmentFlag); !stringSliceContains(allowedEnvironments, environment) {
+			return errors.Errorf("cannot mock DTOD with the '%s' environment, only in %v", environment, allowedEnvironments)
 		}
 	}
 
