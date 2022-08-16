@@ -57,7 +57,12 @@ const EvaluationReportShipmentInfo = ({ shipment, report, customerInfo, orders }
             />
           )}
         </Grid>
-        <Grid className={evaluationReportStyles.qaeAndCustomerInfo} col desktop={{ col: 2 }}>
+        <Grid
+          className={evaluationReportStyles.qaeAndCustomerInfo}
+          col
+          desktop={{ col: 2 }}
+          data-testid="qaeAndCustomerInfo"
+        >
           <DataTable columnHeaders={['Customer information']} dataRow={[customerInfoTableBody]} />
           <DataTable columnHeaders={['QAE']} dataRow={[officeUserInfoTableBody]} />
         </Grid>
@@ -68,6 +73,9 @@ const EvaluationReportShipmentInfo = ({ shipment, report, customerInfo, orders }
 
 EvaluationReportShipmentInfo.propTypes = {
   report: PropTypes.object.isRequired,
+  shipment: PropTypes.object.isRequired,
+  customerInfo: PropTypes.object.isRequired,
+  orders: PropTypes.object.isRequired,
 };
 
 export default EvaluationReportShipmentInfo;
