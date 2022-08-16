@@ -54,7 +54,7 @@ describe('EvaluationReportTable', () => {
     expect(screen.getByTestId('tag')).toHaveTextContent('DRAFT');
 
     expect(screen.getByText('#QA-1F9D1')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'View report' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Edit report' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
   });
   it('renders table with a submitted report', () => {
@@ -75,7 +75,7 @@ describe('EvaluationReportTable', () => {
     expect(screen.getByText('#QA-A7FDB')).toBeInTheDocument();
     expect(screen.getByText('14 Jul 2022')).toBeInTheDocument();
     expect(screen.getByText('Destination')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'View report' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'View report' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
   });
 });

@@ -845,4 +845,68 @@ describe('ShipmentForm component', () => {
       expect(requiredAlerts[0]).toHaveTextContent('Required');
     });
   });
+
+  describe('creating a new PPM shipment', () => {
+    it('displays PPM content', async () => {
+      render(
+        <ShipmentForm
+          {...defaultProps}
+          selectedMoveType={SHIPMENT_OPTIONS.PPM}
+          isCreatePage
+          userRole={roleTypes.SERVICES_COUNSELOR}
+          mtoShipment={mockMtoShipment}
+        />,
+      );
+
+      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+    });
+  });
+
+  const mockPPMShipmentWithSIT = {
+    sitEstimatedCost: 123400,
+    sitEstimatedWeight: 2345,
+    pickupPostalCode: '12345',
+    destinationPostalCode: '54321',
+    sitLocation: 'DESTINATION',
+    departureDate: '2022-10-29',
+    entryDate: '2022-08-06',
+    sitExpected: true,
+  };
+
+  const defaultSITProps = {
+    ...defaultProps,
+    selectedMoveType: SHIPMENT_OPTIONS.PPM,
+    isAdvancePage: true,
+    mtoShipment: {
+      ...mockMtoShipment,
+      ppmShipment: mockPPMShipmentWithSIT,
+    },
+    userRole: roleTypes.SERVICES_COUNSELOR,
+  };
+
+  describe('as a SC, the SIT details block', () => {
+    it('displays when SIT is expected', () => {
+      render(<ShipmentForm {...defaultSITProps} />);
+      expect(screen.getByRole('heading', { level: 2, name: /Storage in transit \(SIT\)/ })).toBeInTheDocument();
+    });
+    it('does not display when SIT is not expected', () => {
+      render(
+        <ShipmentForm
+          {...defaultSITProps}
+          mtoShipment={{
+            ...mockMtoShipment,
+            ppmShipment: {
+              ...mockPPMShipmentWithSIT,
+              sitExpected: false,
+            },
+          }}
+        />,
+      );
+      expect(screen.queryByRole('heading', { level: 2, name: /Storage in transit \(SIT\)/ })).not.toBeInTheDocument();
+    });
+    it('does not display for TOO', () => {
+      render(<ShipmentForm {...defaultSITProps} userRole={roleTypes.TOO} />);
+      expect(screen.queryByRole('heading', { level: 2, name: /Storage in transit \(SIT\)/ })).not.toBeInTheDocument();
+    });
+  });
 });
