@@ -17,8 +17,8 @@ const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, gra
   const [isViewReportModalVisible, setIsViewReportModalVisible] = useState(false);
   const [reportToView, setReportToView] = useState(undefined);
 
-  const handleViewReportClick = (e) => {
-    setReportToView(reports.find(({ id }) => id === e.target.id));
+  const handleViewReportClick = (report) => {
+    setReportToView(report);
     setIsViewReportModalVisible(true);
   };
 
@@ -38,7 +38,7 @@ const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, gra
               type="button"
               id={report.id}
               className={classnames(styles.viewButton, 'text-blue usa-button--unstyled')}
-              onClick={(e) => handleViewReportClick(e)}
+              onClick={() => handleViewReportClick(report)}
             >
               View report
             </Button>
