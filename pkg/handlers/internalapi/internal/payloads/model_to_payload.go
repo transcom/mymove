@@ -295,7 +295,6 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		Document:          document,
 		CreatedAt:         handlers.FmtDateTime(movingExpense.CreatedAt),
 		UpdatedAt:         handlers.FmtDateTime(movingExpense.UpdatedAt),
-		DeletedAt:         *handlers.FmtDateTimePtr(movingExpense.DeletedAt),
 		MovingExpenseType: internalmessages.MovingExpenseType(*movingExpense.MovingExpenseType),
 		Description:       *movingExpense.Description,
 		PaidWithGtcc:      *movingExpense.PaidWithGTCC,
