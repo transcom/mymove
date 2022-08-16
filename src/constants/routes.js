@@ -74,6 +74,7 @@ export const qaeCSRRoutes = {
   EVALUATION_REPORTS_PATH: '/moves/:moveCode/evaluation-reports',
   SHIPMENT_EVALUATION_REPORT_PATH: '/moves/:moveCode/evaluation-reports/:reportId',
   COUNSELING_EVALUATION_REPORT_PATH: '/moves/:moveCode/counseling-evaluation-reports/:reportId',
+  EVALUATION_VIOLATIONS_PATH: '/moves/:moveCode/evaluation-reports/:reportId/violations',
 };
 
 // README: Prime API endpoints accept either a Move code or ID.

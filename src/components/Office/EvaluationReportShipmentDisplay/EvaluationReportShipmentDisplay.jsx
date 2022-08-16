@@ -15,6 +15,7 @@ import { OrdersLOAShape } from 'types/order';
 import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { formatAddress, retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
+import { formatShortIDWithPound } from 'utils/formatters';
 
 const EvaluationReportShipmentDisplay = ({
   shipmentType,
@@ -59,7 +60,7 @@ const EvaluationReportShipmentDisplay = ({
             )}
             {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
           </div>
-          <div className={styles.headingShipmentID}>Shipment ID: #{shipmentId.slice(0, 5).toUpperCase()}</div>
+          <div className={styles.headingShipmentID}>Shipment ID: {formatShortIDWithPound(shipmentId)}</div>
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
         </div>
         {isExpanded && displayInfo.shipmentType === SHIPMENT_OPTIONS.NTS && (
