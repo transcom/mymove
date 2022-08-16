@@ -180,8 +180,8 @@ const EvaluationReportContainer = ({
             <div className={styles.section}>
               <h3>QAE remarks</h3>
               <dl className={descriptionListStyles.descriptionList}>
-                <div className={descriptionListStyles.row}>
-                  <dt>Evaluation remarks</dt>
+                <div className={classnames(descriptionListStyles.row)}>
+                  <dt className={styles.qaeRemarksLabel}>Evaluation remarks</dt>
                   <dd className={styles.qaeRemarks}>{evaluationReport.remarks}</dd>
                 </div>
               </dl>

@@ -78,6 +78,9 @@
   @include u-radius('05');
   @include u-border('base-lighter');
   @include u-border('1px');
+  h3 {
+    @include u-margin-top(1);
+  }
 }
 
 .shipmentDisplayContainer {
@@ -91,7 +94,11 @@
 }
 
 .qaeRemarks {
-  width: 100%;
+  width: 75%;
+}
+
+.qaeRemarksLabel {
+  width: 25%;
 }
 
 .titleSection {
