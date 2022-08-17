@@ -915,10 +915,18 @@ definitions:
         $ref: 'definitions/MovingExpenseType.yaml'
       description:
         type: string
-      status:
-        $ref: 'definitions/PPMDocumentStatus.yaml'
-      reason:
-        type: string
+      paidWithGTCC:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      amount:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      missingReceipt:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       sitStartDate:
         type: string
         example: '2022-04-26'

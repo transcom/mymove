@@ -20,7 +20,7 @@ import (
 type MovingExpense struct {
 
 	// amount
-	Amount int64 `json:"amount,omitempty"`
+	Amount *int64 `json:"amount"`
 
 	// created at
 	// Required: true
@@ -30,10 +30,10 @@ type MovingExpense struct {
 	// deleted at
 	// Read Only: true
 	// Format: date-time
-	DeletedAt strfmt.DateTime `json:"deletedAt,omitempty"`
+	DeletedAt *strfmt.DateTime `json:"deletedAt"`
 
 	// description
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description"`
 
 	// document
 	// Required: true
@@ -48,17 +48,18 @@ type MovingExpense struct {
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	ID *strfmt.UUID `json:"id"`
+	ID strfmt.UUID `json:"id"`
 
 	// missing receipt
-	MissingReceipt bool `json:"missingReceipt,omitempty"`
+	MissingReceipt *bool `json:"missingReceipt"`
 
 	// moving expense type
 	MovingExpenseType MovingExpenseType `json:"movingExpenseType,omitempty"`
 
 	// paid with gtcc
-	PaidWithGtcc bool `json:"paidWithGtcc,omitempty"`
+	PaidWithGtcc *bool `json:"paidWithGtcc"`
 
 	// ppm shipment
 	// Required: true
@@ -71,17 +72,17 @@ type MovingExpense struct {
 	PpmShipmentID *strfmt.UUID `json:"ppmShipmentId"`
 
 	// reason
-	Reason string `json:"reason,omitempty"`
+	Reason *string `json:"reason"`
 
 	// sit end date
 	// Example: 2018-05-26
 	// Format: date
-	SitEndDate strfmt.Date `json:"sitEndDate,omitempty"`
+	SitEndDate *strfmt.Date `json:"sitEndDate"`
 
 	// sit start date
 	// Example: 2022-04-26
 	// Format: date
-	SitStartDate strfmt.Date `json:"sitStartDate,omitempty"`
+	SitStartDate *strfmt.Date `json:"sitStartDate"`
 
 	// status
 	Status PPMDocumentStatus `json:"status,omitempty"`
@@ -199,7 +200,7 @@ func (m *MovingExpense) validateDocumentID(formats strfmt.Registry) error {
 
 func (m *MovingExpense) validateID(formats strfmt.Registry) error {
 
-	if err := validate.Required("id", "body", m.ID); err != nil {
+	if err := validate.Required("id", "body", strfmt.UUID(m.ID)); err != nil {
 		return err
 	}
 
@@ -322,6 +323,10 @@ func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Regi
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMovingExpenseType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -342,7 +347,16 @@ func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Regi
 
 func (m *MovingExpense) contextValidateDeletedAt(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "deletedAt", "body", strfmt.DateTime(m.DeletedAt)); err != nil {
+	if err := validate.ReadOnly(ctx, "deletedAt", "body", m.DeletedAt); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
 		return err
 	}
 

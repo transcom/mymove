@@ -288,7 +288,7 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 	}
 
 	payload := &internalmessages.MovingExpense{
-		ID:                handlers.FmtUUID(movingExpense.ID),
+		ID:                *handlers.FmtUUID(movingExpense.ID),
 		PpmShipmentID:     handlers.FmtUUID(movingExpense.PPMShipmentID),
 		PpmShipment:       &internalmessages.PPMShipment{},
 		DocumentID:        handlers.FmtUUID(movingExpense.DocumentID),
@@ -296,14 +296,14 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		CreatedAt:         handlers.FmtDateTime(movingExpense.CreatedAt),
 		UpdatedAt:         handlers.FmtDateTime(movingExpense.UpdatedAt),
 		MovingExpenseType: internalmessages.MovingExpenseType(*movingExpense.MovingExpenseType),
-		Description:       *movingExpense.Description,
-		PaidWithGtcc:      *movingExpense.PaidWithGTCC,
-		Amount:            *handlers.FmtCost(movingExpense.Amount),
-		MissingReceipt:    *movingExpense.MissingReceipt,
+		Description:       movingExpense.Description,
+		PaidWithGtcc:      movingExpense.PaidWithGTCC,
+		Amount:            handlers.FmtCost(movingExpense.Amount),
+		MissingReceipt:    movingExpense.MissingReceipt,
 		Status:            internalmessages.MovingExpense{}.Status,
-		Reason:            *movingExpense.Reason,
-		SitStartDate:      *handlers.FmtDate(*movingExpense.SITStartDate),
-		SitEndDate:        *handlers.FmtDate(*movingExpense.SITEndDate),
+		Reason:            movingExpense.Reason,
+		SitStartDate:      handlers.FmtDate(*movingExpense.SITStartDate),
+		SitEndDate:        handlers.FmtDate(*movingExpense.SITEndDate),
 	}
 
 	return payload

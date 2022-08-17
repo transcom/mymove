@@ -5906,7 +5906,9 @@ func init() {
       ],
       "properties": {
         "amount": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "createdAt": {
           "type": "string",
@@ -5915,10 +5917,14 @@ func init() {
         "deletedAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "document": {
           "type": "object"
@@ -5931,16 +5937,23 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "missingReceipt": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "movingExpenseType": {
+          "x-nullable": true,
+          "x-omitempty": false,
           "$ref": "#/definitions/MovingExpenseType"
         },
         "paidWithGtcc": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
@@ -5951,19 +5964,27 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "sitEndDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": "2018-05-26"
         },
         "sitStartDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": "2022-04-26"
         },
         "status": {
+          "x-nullable": true,
+          "x-omitempty": false,
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "updatedAt": {
@@ -6175,6 +6196,15 @@ func init() {
       },
       "x-nullable": true
     },
+    "PPMAdvanceStatus": {
+      "type": "string",
+      "title": "PPM Advance Status",
+      "enum": [
+        "APPROVED",
+        "REJECTED",
+        "EDITED"
+      ]
+    },
     "PPMDocumentStatus": {
       "type": "string",
       "title": "PPM document status",
@@ -6188,15 +6218,6 @@ func init() {
         "EXCLUDED": "Excluded",
         "REJECTED": "Rejected"
       }
-    },
-    "PPMAdvanceStatus": {
-      "type": "string",
-      "title": "PPM Advance Status",
-      "enum": [
-        "APPROVED",
-        "REJECTED",
-        "EDITED"
-      ]
     },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
@@ -14918,7 +14939,9 @@ func init() {
       ],
       "properties": {
         "amount": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "createdAt": {
           "type": "string",
@@ -14927,10 +14950,14 @@ func init() {
         "deletedAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "document": {
           "type": "object"
@@ -14943,16 +14970,23 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "missingReceipt": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "movingExpenseType": {
+          "x-nullable": true,
+          "x-omitempty": false,
           "$ref": "#/definitions/MovingExpenseType"
         },
         "paidWithGtcc": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
@@ -14963,19 +14997,27 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "sitEndDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": "2018-05-26"
         },
         "sitStartDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "example": "2022-04-26"
         },
         "status": {
+          "x-nullable": true,
+          "x-omitempty": false,
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "updatedAt": {

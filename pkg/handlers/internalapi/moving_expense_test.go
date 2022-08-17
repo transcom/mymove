@@ -189,15 +189,15 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		subtestData := makeUpdateSubtestData(appCtx, true)
 
 		params := subtestData.params
-
 		// Add vehicleDescription
 		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
 			MovingExpenseType: "CONTRACTED_EXPENSE",
 			Description:       "Cost of moving items to a different location",
-			Status:            "APPROVED",
-			Reason:            "Orders",
-			SitStartDate:      strfmt.Date(*subtestData.movingExpense.SITStartDate),
-			SitEndDate:        strfmt.Date(*subtestData.movingExpense.SITEndDate),
+			//PaidWithGTCC: 	   false,
+			//Amount: 		   4000,
+			//MissingReceipt:    false,
+			SitStartDate: strfmt.Date(*subtestData.movingExpense.SITStartDate),
+			SitEndDate:   strfmt.Date(*subtestData.movingExpense.SITEndDate),
 		}
 
 		response := subtestData.handler.Handle(params)
@@ -223,12 +223,10 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 
 		subtestData := makeUpdateSubtestData(appCtx, true)
 		params := subtestData.params
-		// missing a reason should trigger error
 		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
 			MovingExpenseType: "OIL",
 			Description:       "any",
-			Status:            "DENIED",
-			Reason:            "",
+			Amount:            nil,
 			SitStartDate:      strfmt.Date(*subtestData.movingExpense.SITStartDate),
 			SitEndDate:        strfmt.Date(*subtestData.movingExpense.SITEndDate),
 		}
@@ -275,8 +273,6 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
 			MovingExpenseType: "CONTRACTED_EXPENSE",
 			Description:       "Cost of moving items to a different location",
-			Status:            "APPROVED",
-			Reason:            "Orders",
 			SitStartDate:      strfmt.Date(*subtestData.movingExpense.SITStartDate),
 			SitEndDate:        strfmt.Date(*subtestData.movingExpense.SITEndDate),
 		}

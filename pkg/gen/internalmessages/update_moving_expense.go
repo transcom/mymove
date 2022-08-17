@@ -19,18 +19,20 @@ import (
 // swagger:model UpdateMovingExpense
 type UpdateMovingExpense struct {
 
-	// deleted at
-	// Format: date-time
-	DeletedAt strfmt.DateTime `json:"deletedAt,omitempty"`
+	// amount
+	Amount *int64 `json:"amount"`
 
 	// description
 	Description string `json:"description,omitempty"`
 
+	// missing receipt
+	MissingReceipt *bool `json:"missingReceipt"`
+
 	// moving expense type
 	MovingExpenseType MovingExpenseType `json:"movingExpenseType,omitempty"`
 
-	// reason
-	Reason string `json:"reason,omitempty"`
+	// paid with g t c c
+	PaidWithGTCC *bool `json:"paidWithGTCC"`
 
 	// sit end date
 	// Example: 2018-05-26
@@ -41,18 +43,11 @@ type UpdateMovingExpense struct {
 	// Example: 2022-04-26
 	// Format: date
 	SitStartDate strfmt.Date `json:"sitStartDate,omitempty"`
-
-	// status
-	Status PPMDocumentStatus `json:"status,omitempty"`
 }
 
 // Validate validates this update moving expense
 func (m *UpdateMovingExpense) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateDeletedAt(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateMovingExpenseType(formats); err != nil {
 		res = append(res, err)
@@ -66,25 +61,9 @@ func (m *UpdateMovingExpense) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *UpdateMovingExpense) validateDeletedAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.DeletedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("deletedAt", "body", "date-time", m.DeletedAt.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -129,32 +108,11 @@ func (m *UpdateMovingExpense) validateSitStartDate(formats strfmt.Registry) erro
 	return nil
 }
 
-func (m *UpdateMovingExpense) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(m.Status) { // not required
-		return nil
-	}
-
-	if err := m.Status.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
-		}
-		return err
-	}
-
-	return nil
-}
-
 // ContextValidate validate this update moving expense based on the context it is used
 func (m *UpdateMovingExpense) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.contextValidateMovingExpenseType(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -171,20 +129,6 @@ func (m *UpdateMovingExpense) contextValidateMovingExpenseType(ctx context.Conte
 			return ve.ValidateName("movingExpenseType")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("movingExpenseType")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMovingExpense) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.Status.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
 		}
 		return err
 	}
