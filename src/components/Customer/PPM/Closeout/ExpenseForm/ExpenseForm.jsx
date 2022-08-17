@@ -190,7 +190,7 @@ const ExpenseForm = ({
                     <h3>
                       Days in storage:{' '}
                       {values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate
-                        ? numOfDaysBetweenDates(values.sitStartDate, values.sitEndDate)
+                        ? 1 + numOfDaysBetweenDates(values.sitStartDate, values.sitEndDate)
                         : ''}
                     </h3>
                   </FormGroup>
