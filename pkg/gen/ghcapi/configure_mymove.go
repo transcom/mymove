@@ -92,9 +92,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation customer_support_remarks.CreateCustomerSupportRemarkForMove has not yet been implemented")
 		})
 	}
-	if api.EvaluationReportsCreateEvaluationReportForShipmentHandler == nil {
-		api.EvaluationReportsCreateEvaluationReportForShipmentHandler = evaluation_reports.CreateEvaluationReportForShipmentHandlerFunc(func(params evaluation_reports.CreateEvaluationReportForShipmentParams) middleware.Responder {
-			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReportForShipment has not yet been implemented")
+	if api.EvaluationReportsCreateEvaluationReportHandler == nil {
+		api.EvaluationReportsCreateEvaluationReportHandler = evaluation_reports.CreateEvaluationReportHandlerFunc(func(params evaluation_reports.CreateEvaluationReportParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReport has not yet been implemented")
 		})
 	}
 	if api.MtoShipmentCreateMTOShipmentHandler == nil {

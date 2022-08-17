@@ -14,13 +14,13 @@ type EvaluationReportCreator struct {
 	mock.Mock
 }
 
-// CreateEvaluationReport provides a mock function with given fields: appCtx, evaluationReport
-func (_m *EvaluationReportCreator) CreateEvaluationReport(appCtx appcontext.AppContext, evaluationReport *models.EvaluationReport) (*models.EvaluationReport, error) {
-	ret := _m.Called(appCtx, evaluationReport)
+// CreateEvaluationReport provides a mock function with given fields: appCtx, evaluationReport, locator
+func (_m *EvaluationReportCreator) CreateEvaluationReport(appCtx appcontext.AppContext, evaluationReport *models.EvaluationReport, locator string) (*models.EvaluationReport, error) {
+	ret := _m.Called(appCtx, evaluationReport, locator)
 
 	var r0 *models.EvaluationReport
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.EvaluationReport) *models.EvaluationReport); ok {
-		r0 = rf(appCtx, evaluationReport)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.EvaluationReport, string) *models.EvaluationReport); ok {
+		r0 = rf(appCtx, evaluationReport, locator)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.EvaluationReport)
@@ -28,8 +28,8 @@ func (_m *EvaluationReportCreator) CreateEvaluationReport(appCtx appcontext.AppC
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.EvaluationReport) error); ok {
-		r1 = rf(appCtx, evaluationReport)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.EvaluationReport, string) error); ok {
+		r1 = rf(appCtx, evaluationReport, locator)
 	} else {
 		r1 = ret.Error(1)
 	}

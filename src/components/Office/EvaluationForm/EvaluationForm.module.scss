@@ -62,18 +62,9 @@
   }
 }
 
-.hourLabel {
-  @include u-margin-top(0 !important);
-}
-
 .hourPicker {
   @include u-width(108px);
   @include u-margin-right(1);
-}
-
-.minuteLabel {
-  @include u-margin-left(1);
-  @include u-margin-top(0 !important);
 }
 
 .minutePicker {

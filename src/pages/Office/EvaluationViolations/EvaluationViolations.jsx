@@ -12,13 +12,13 @@ import evaluationViolationsStyles from './EvaluationViolations.module.scss';
 import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
 import { useShipmentEvaluationReportQueries } from 'hooks/queries';
 import { deleteEvaluationReport } from 'services/ghcApi';
+import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
 
 const EvaluationViolations = () => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
 
   const { evaluationReport } = useShipmentEvaluationReportQueries(reportId);
-  const mtoRefId = evaluationReport.moveReferenceID;
 
   const handleBackToEvalForm = () => {
     // TODO: Save as draft before rerouting
@@ -52,16 +52,7 @@ const EvaluationViolations = () => {
         submitModal={cancelReport}
       />
       <GridContainer className={classnames(styles.tabContent, evaluationViolationsStyles.tabContent)}>
-        <GridContainer>
-          <div className={styles.pageHeader}>
-            <h1>{evaluationReport.type} report</h1>
-            <div className={styles.pageHeaderDetails}>
-              <h6>REPORT ID #{reportId}</h6>
-              <h6>MOVE CODE {moveCode}</h6>
-              <h6>MTO REFERENCE ID #{mtoRefId}</h6>
-            </div>
-          </div>
-        </GridContainer>
+        <QaeReportHeader report={evaluationReport} />
         <GridContainer className={evaluationViolationsStyles.cardContainer}>
           <Grid row>
             <Grid col desktop={{ col: 8 }}>

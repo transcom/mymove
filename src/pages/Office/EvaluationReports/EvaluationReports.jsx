@@ -1,7 +1,8 @@
 import React from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useHistory, useLocation } from 'react-router-dom';
 import { Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
+import { useMutation, queryCache } from 'react-query';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
@@ -14,13 +15,34 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import Alert from 'shared/Alert';
 import { CustomerShape } from 'types';
+import { createCounselingEvaluationReport } from 'services/ghcApi';
+import { COUNSELING_EVALUATION_REPORTS } from 'constants/queryKeys';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 const EvaluationReports = ({ customerInfo, grade }) => {
   const { moveCode } = useParams();
   const location = useLocation();
+  const history = useHistory();
 
   const { shipmentEvaluationReports, counselingEvaluationReports, shipments, isLoading, isError } =
     useEvaluationReportsQueries(moveCode);
+
+  const [createCounselingEvaluationReportMutation] = useMutation(createCounselingEvaluationReport, {
+    onSuccess: () => {
+      queryCache.invalidateQueries([COUNSELING_EVALUATION_REPORTS, moveCode]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
+
+  const handleCounselingCreateClick = async () => {
+    const report = await createCounselingEvaluationReportMutation({ moveCode });
+    const reportId = report?.id;
+
+    history.push(`/moves/${moveCode}/evaluation-reports/${reportId}`);
+  };
 
   if (isLoading) {
     return <LoadingPlaceholder />;
@@ -48,7 +70,7 @@ const EvaluationReports = ({ customerInfo, grade }) => {
         <GridContainer className={evaluationReportsStyles.evaluationReportSection}>
           <Grid row className={evaluationReportsStyles.counselingHeadingContainer}>
             <h2>Counseling QAE reports ({counselingEvaluationReports.length})</h2>
-            <Button>Create report</Button>
+            <Button onClick={() => handleCounselingCreateClick()}>Create report</Button>
           </Grid>
           <Grid row>
             <EvaluationReportTable

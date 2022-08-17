@@ -13,7 +13,7 @@ import { formatCustomerDate, formatEvaluationReportLocation, formatQAReportID } 
 import { CustomerShape } from 'types';
 
 const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, grade, shipmentId }) => {
-  const { pathname } = useLocation();
+  const location = useLocation();
   const [isViewReportModalVisible, setIsViewReportModalVisible] = useState(false);
   const [reportToView, setReportToView] = useState(undefined);
 
@@ -43,10 +43,10 @@ const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, gra
               View report
             </Button>
           )}
-          {!report.submittedAt && <a href={`${pathname}/${report.id}`}>Edit report</a>}
+          {!report.submittedAt && <a href={`${location.pathname}/${report.id}`}>Edit report</a>}
         </td>
         <td className={styles.downloadColumn}>
-          <a href={`${pathname}/evaluation-reports/${report.id}/download`}>Download</a>
+          <a href={`${location}/evaluation-reports/${report.id}/download`}>Download</a>
         </td>
       </tr>
     );
