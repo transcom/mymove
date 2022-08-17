@@ -36,7 +36,7 @@ describe('components/Office/SITCostDetails', () => {
 
   it('correctly computes days between entry and departure', async () => {
     render(<SITCostDetails {...args} />);
-    expect(screen.getByText(/for 84 days./)).toBeInTheDocument();
+    expect(screen.getByText(/for 85 days./)).toBeInTheDocument();
   });
 
   it('comma-separates thousands values', async () => {
@@ -47,8 +47,8 @@ describe('components/Office/SITCostDetails', () => {
     expect(screen.getByText(/23,456 lbs/)).toBeInTheDocument();
   });
 
-  it('displays singular "day" when there is only one', async () => {
-    args.entryDate = '2022-10-28';
+  it('displays singular "day" when the entry and destination dates are equal', async () => {
+    args.entryDate = '2022-10-29';
     render(<SITCostDetails {...args} />);
     expect(screen.getByText(/for 1 day./)).toBeInTheDocument();
   });
