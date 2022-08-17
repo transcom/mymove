@@ -2392,7 +2392,7 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 
 	planner := &routemocks.Planner{}
 
-	// called using the addresses with origin zip of 90210 and destination zip of 94535
+	// called using the addresses with origin zip of 90210 and destination zip of 30813
 	planner.On("TransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.MatchedBy(matchedByPostalCode("90210")), mock.MatchedBy(matchedByPostalCode("30813"))).Return(2361, nil)
 
 	// called for zip 3 domestic linehaul service item
