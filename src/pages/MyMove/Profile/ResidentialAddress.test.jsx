@@ -124,6 +124,9 @@ describe('ResidentialAddress page', () => {
 
     render(<ResidentialAddress {...testProps} />);
 
+    // Touch field so that error message can be displayed
+    await userEvent.click(screen.getByLabelText('ZIP'));
+
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
     await userEvent.click(submitButton);
