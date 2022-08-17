@@ -258,18 +258,14 @@ describe('EstimatedWeightsProGear page', () => {
     const proGearWeightInput = await screen.findByLabelText(/estimated weight of your pro-gear/i);
     expect(proGearWeightInput).toBeInstanceOf(HTMLInputElement);
 
-    await waitFor(async () => {
-      await userEvent.type(proGearWeightInput, String(proGearWeight));
-    });
+    await userEvent.type(proGearWeightInput, String(proGearWeight));
 
     const spouseProGearWeight = 100;
 
     const spouseProGearWeightInput = screen.getByLabelText(/estimated weight of your spouse’s pro-gear/i);
     expect(spouseProGearWeightInput).toBeInstanceOf(HTMLInputElement);
 
-    await waitFor(async () => {
-      await userEvent.type(spouseProGearWeightInput, String(spouseProGearWeight));
-    });
+    await userEvent.type(spouseProGearWeightInput, String(spouseProGearWeight));
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
     expect(saveButton).not.toBeDisabled();

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { UploadOrders } from './UploadOrders';
 
-import { getOrdersForServiceMember, deleteUpload } from 'services/internalApi';
+import { deleteUpload, getOrdersForServiceMember } from 'services/internalApi';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -65,13 +65,12 @@ describe('Orders Upload page', () => {
   });
 
   it('back button goes to the Orders Info page', async () => {
-    const { queryByRole } = render(<UploadOrders {...testProps} />);
+    const { queryByRole, getByRole } = render(<UploadOrders {...testProps} />);
 
-    await waitFor(async () => {
-      const backButton = queryByRole('button', { name: 'Back' });
-      expect(backButton).toBeInTheDocument();
-      await userEvent.click(backButton);
+    await waitFor(() => {
+      expect(queryByRole('button', { name: 'Back' })).toBeInTheDocument();
     });
+    await userEvent.click(getByRole('button', { name: 'Back' }));
 
     expect(testProps.push).toHaveBeenCalledWith('/orders/info');
   });
@@ -107,12 +106,12 @@ describe('Orders Upload page', () => {
     it('implements the delete upload handler', async () => {
       deleteUpload.mockImplementation(() => Promise.resolve(testOrdersValues));
 
-      const { getByRole } = render(<UploadOrders {...testProps} uploads={[testUpload]} />);
+      const { queryByRole, getByRole } = render(<UploadOrders {...testProps} uploads={[testUpload]} />);
 
-      await waitFor(async () => {
-        const deleteButton = getByRole('button', { name: 'Delete' });
-        await userEvent.click(deleteButton);
+      await waitFor(() => {
+        expect(queryByRole('button', { name: 'Delete' })).toBeInTheDocument();
       });
+      await userEvent.click(getByRole('button', { name: 'Delete' }));
 
       expect(deleteUpload).toHaveBeenCalledWith(testUpload.id);
       expect(getOrdersForServiceMember).toHaveBeenCalledTimes(2);
@@ -121,15 +120,14 @@ describe('Orders Upload page', () => {
     });
 
     it('next button goes to the Home page if there are uploads', async () => {
-      const { queryByRole } = render(<UploadOrders {...testProps} uploads={[testUpload]} />);
+      const { queryByRole, getByRole } = render(<UploadOrders {...testProps} uploads={[testUpload]} />);
 
-      await waitFor(async () => {
+      await waitFor(() => {
         const nextButton = queryByRole('button', { name: 'Next' });
         expect(nextButton).toBeInTheDocument();
         expect(nextButton).not.toBeDisabled();
-
-        await userEvent.click(nextButton);
       });
+      await userEvent.click(getByRole('button', { name: 'Next' }));
 
       expect(testProps.push).toHaveBeenCalledWith('/');
     });

@@ -158,19 +158,17 @@ describe('OrdersInfoForm component', () => {
   it('renders each option for orders type', async () => {
     const { getByLabelText } = render(<OrdersInfoForm {...testProps} />);
 
-    await waitFor(async () => {
-      const ordersTypeDropdown = getByLabelText('Orders type');
-      expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
+    const ordersTypeDropdown = getByLabelText('Orders type');
+    expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
 
-      await userEvent.selectOptions(ordersTypeDropdown, 'PERMANENT_CHANGE_OF_STATION');
-      expect(ordersTypeDropdown).toHaveValue('PERMANENT_CHANGE_OF_STATION');
+    await userEvent.selectOptions(ordersTypeDropdown, 'PERMANENT_CHANGE_OF_STATION');
+    expect(ordersTypeDropdown).toHaveValue('PERMANENT_CHANGE_OF_STATION');
 
-      await userEvent.selectOptions(ordersTypeDropdown, 'RETIREMENT');
-      expect(ordersTypeDropdown).toHaveValue('RETIREMENT');
+    await userEvent.selectOptions(ordersTypeDropdown, 'RETIREMENT');
+    expect(ordersTypeDropdown).toHaveValue('RETIREMENT');
 
-      await userEvent.selectOptions(ordersTypeDropdown, 'SEPARATION');
-      expect(ordersTypeDropdown).toHaveValue('SEPARATION');
-    });
+    await userEvent.selectOptions(ordersTypeDropdown, 'SEPARATION');
+    expect(ordersTypeDropdown).toHaveValue('SEPARATION');
   });
 
   it('validates the new duty location against the current duty location', async () => {

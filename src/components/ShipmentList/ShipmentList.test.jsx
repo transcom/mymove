@@ -80,7 +80,7 @@ describe('ShipmentList component', () => {
       const deleteBtn = getByRole(screen.getAllByTestId('shipment-list-item-container')[i], 'button', {
         name: 'Delete',
       });
-      // TODO is there a better way to do this?
+
       /* eslint-disable no-await-in-loop */
       await userEvent.click(deleteBtn);
       expect(onDeleteClick).toHaveBeenCalledWith(`ID-${i + 1}`);

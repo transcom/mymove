@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { Orders } from './Orders';
@@ -193,10 +193,7 @@ describe('Orders page', () => {
 
       render(<Orders {...testProps} />);
 
-      await waitFor(async () => {
-        await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-      });
-
+      await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
       await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
@@ -307,11 +304,10 @@ describe('Orders page', () => {
       // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
       const { queryByRole } = render(<Orders {...testProps} currentOrders={testOrdersValues} />);
 
-      await waitFor(async () => {
-        const submitButton = queryByRole('button', { name: 'Next' });
-        expect(submitButton).toBeInTheDocument();
-        await userEvent.click(submitButton);
+      await waitFor(() => {
+        expect(queryByRole('button', { name: 'Next' })).toBeInTheDocument();
       });
+      await userEvent.click(queryByRole('button', { name: 'Next' }));
 
       await waitFor(() => {
         expect(patchOrders).toHaveBeenCalled();
@@ -383,11 +379,10 @@ describe('Orders page', () => {
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
     const { queryByText } = render(<Orders {...testProps} currentOrders={testOrdersValues} />);
 
-    await waitFor(async () => {
-      const submitButton = queryByText('Next');
-      expect(submitButton).toBeInTheDocument();
-      await userEvent.click(submitButton);
+    await waitFor(() => {
+      expect(queryByText('Next')).toBeInTheDocument();
     });
+    await userEvent.click(queryByText('Next'));
 
     await waitFor(() => {
       expect(patchOrders).toHaveBeenCalled();

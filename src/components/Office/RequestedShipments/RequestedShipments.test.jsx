@@ -1,7 +1,7 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { mount, shallow } from 'enzyme';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import {
@@ -371,9 +371,7 @@ describe('RequestedShipments', () => {
 
       expect(screen.getByTestId('shipmentApproveButton')).toBeDisabled();
 
-      await waitFor(async () => {
-        await userEvent.click(screen.getByLabelText('Move management'));
-      });
+      await userEvent.click(screen.getByLabelText('Move management'));
 
       expect(screen.getByLabelText('Move management').checked).toEqual(true);
 
