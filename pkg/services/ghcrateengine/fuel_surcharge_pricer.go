@@ -47,7 +47,6 @@ func (p fuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDat
 		return 0, nil, errors.New("EIAFuelPrice is required")
 	}
 
-	fmt.Printf("eiaFuelPrice %d fscWeightBasedDistanceMultiplier %f", eiaFuelPrice, fscWeightBasedDistanceMultiplier)
 	fscPriceDifferenceInCents := (eiaFuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.0
 	fscMultiplier := fscWeightBasedDistanceMultiplier * distance.Float64()
 	fscPrice := fscMultiplier * fscPriceDifferenceInCents * 100
