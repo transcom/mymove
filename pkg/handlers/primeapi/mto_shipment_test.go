@@ -148,6 +148,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		proGearWeight := unit.Pound(400)
 		spouseProGearWeight := unit.Pound(250)
 		estimatedIncentive := 123456
+		sitEstimatedCost := 67500
 
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
@@ -181,7 +182,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
-			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil).Once()
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), unit.Cents(sitEstimatedCost), nil).Once()
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
@@ -212,6 +213,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(handlers.FmtPoundPtr(&proGearWeight), createdPPM.ProGearWeight)
 		suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), createdPPM.SpouseProGearWeight)
 		suite.Equal(int64(estimatedIncentive), *createdPPM.EstimatedIncentive)
+		suite.Equal(int64(sitEstimatedCost), *createdPPM.SitEstimatedCost)
 	})
 
 	suite.Run("POST failure - 500", func() {
