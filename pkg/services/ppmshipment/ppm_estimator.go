@@ -277,7 +277,6 @@ func priceFirstDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer
 		return nil, err
 	}
 
-	// appCtx.Logger().Debug(fmt.Sprintf("PPM SIT expected departure date %s estimated weight %d service area %s", ppmShipment.ExpectedDepartureDate, *ppmShipment.SITEstimatedWeight, serviceArea))
 	price, pricingParams, err := firstDayPricer.Price(appCtx, ghcrateengine.DefaultContractCode, ppmShipment.ExpectedDepartureDate, *ppmShipment.SITEstimatedWeight, serviceArea, true)
 	if err != nil {
 		return nil, err
