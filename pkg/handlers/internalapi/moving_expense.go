@@ -55,13 +55,13 @@ func (h CreateMovingExpenseHandler) Handle(params movingexpenseops.CreateMovingE
 				return movingexpenseops.NewCreateMovingExpenseInternalServerError(), err
 			}
 		}
-		// Need to add to payload
+		// Add to payload
 		returnPayload := payloads.MovingExpense(h.FileStorer(), movingExpense)
 		return movingexpenseops.NewCreateMovingExpenseOK().WithPayload(returnPayload), nil
 	})
 }
 
-// UpdateMovingExpenseHandler
+// UpdateMovingExpenseHandler struct
 type UpdateMovingExpenseHandler struct {
 	handlers.HandlerConfig
 	movingExpenseUpdater services.MovingExpenseUpdater
@@ -91,7 +91,7 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 			}
 
 			movingExpense := payloads.MovingExpenseModelFromUpdate(payload)
-			movingExpense.ID = uuid.FromStringOrNil(params.PpmShipmentID.String())
+			movingExpense.ID = uuid.FromStringOrNil(params.MovingExpenseID.String())
 
 			updateMovingExpense, err := h.movingExpenseUpdater.UpdateMovingExpense(appCtx, *movingExpense, params.IfMatch)
 
@@ -99,7 +99,7 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 				appCtx.Logger().Error("internalapi.UpdateMovingExpenseHandler", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.InvalidInputError:
-					return movingexpenseops.NewUpdateWeightTicketUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
+					return movingexpenseops.NewUpdateMovingExpenseUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
 				case apperror.PreconditionFailedError:
 					return movingexpenseops.NewUpdateMovingExpensePreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.ForbiddenError:

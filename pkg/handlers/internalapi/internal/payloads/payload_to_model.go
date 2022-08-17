@@ -201,12 +201,19 @@ func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingEx
 	model := &models.MovingExpense{
 		MovingExpenseType: (*models.MovingExpenseReceiptType)(&movingExpense.MovingExpenseType),
 		Description:       handlers.FmtString(movingExpense.Description),
-		PaidWithGTCC:      handlers.FmtBool(*movingExpense.PaidWithGTCC),
 		Amount:            handlers.FmtInt64PtrToPopPtr(movingExpense.Amount),
-		MissingReceipt:    handlers.FmtBool(*movingExpense.MissingReceipt),
 		SITStartDate:      handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
 		SITEndDate:        handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
 	}
+
+	if movingExpense.PaidWithGTCC != nil {
+		model.PaidWithGTCC = handlers.FmtBool(*movingExpense.PaidWithGTCC)
+	}
+
+	if movingExpense.MissingReceipt != nil {
+		model.MissingReceipt = handlers.FmtBool(*movingExpense.MissingReceipt)
+	}
+
 	return model
 }
 

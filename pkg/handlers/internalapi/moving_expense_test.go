@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http/httptest"
 
-	"github.com/go-openapi/strfmt"
-
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 
@@ -175,6 +173,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 			IfMatch:         eTag,
 		}
 
+		// Use createS3HandlerConfig for the HandlerConfig because we are required to upload a doc
 		subtestData.handler = UpdateMovingExpenseHandler{
 			suite.createS3HandlerConfig(),
 			movingExpenseUpdater,
@@ -193,8 +192,6 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
 			MovingExpenseType: "CONTRACTED_EXPENSE",
 			Description:       "Cost of moving items to a different location",
-			//SitStartDate: strfmt.Date(*subtestData.movingExpense.SITStartDate),
-			//SitEndDate:   strfmt.Date(*subtestData.movingExpense.SITEndDate),
 		}
 
 		response := subtestData.handler.Handle(params)
@@ -203,7 +200,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 
 		updatedMovingExpense := response.(*movingexpenseops.UpdateMovingExpenseOK).Payload
 		suite.Equal(subtestData.movingExpense.ID.String(), updatedMovingExpense.ID.String())
-		suite.Equal(params.UpdateMovingExpense.SitStartDate, updatedMovingExpense.SitStartDate)
+		suite.Equal(params.UpdateMovingExpense.Description, *updatedMovingExpense.Description)
 	})
 	suite.Run("PATCH failure -400 - nil body", func() {
 		appCtx := suite.AppContextForTest()
@@ -220,13 +217,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 
 		subtestData := makeUpdateSubtestData(appCtx, true)
 		params := subtestData.params
-		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
-			MovingExpenseType: "OIL",
-			Description:       "any",
-			Amount:            nil,
-			SitStartDate:      strfmt.Date(*subtestData.movingExpense.SITStartDate),
-			SitEndDate:        strfmt.Date(*subtestData.movingExpense.SITEndDate),
-		}
+		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{}
 
 		response := subtestData.handler.Handle(params)
 
@@ -270,8 +261,6 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
 			MovingExpenseType: "CONTRACTED_EXPENSE",
 			Description:       "Cost of moving items to a different location",
-			SitStartDate:      strfmt.Date(*subtestData.movingExpense.SITStartDate),
-			SitEndDate:        strfmt.Date(*subtestData.movingExpense.SITEndDate),
 		}
 
 		err := errors.New("ServerError")
@@ -282,8 +271,9 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 			mock.AnythingOfType("string"),
 		).Return(nil, err)
 
+		// Use createS3HandlerConfig for the HandlerConfig because we are required to upload a doc
 		handler := UpdateMovingExpenseHandler{
-			suite.HandlerConfig(),
+			suite.createS3HandlerConfig(),
 			&mockUpdater,
 		}
 
