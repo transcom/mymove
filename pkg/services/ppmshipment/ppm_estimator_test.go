@@ -228,6 +228,21 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				ContractID:            originDomesticServiceArea.ContractID,
 				DomesticServiceArea:   originDomesticServiceArea,
 				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				WeightLower:           unit.Pound(500),
+				WeightUpper:           unit.Pound(4999),
+				MilesLower:            2001,
+				MilesUpper:            2500,
+				IsPeakPeriod:          true,
+				PriceMillicents:       unit.Millicents(437600),
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+				Contract:              originDomesticServiceArea.Contract,
+				ContractID:            originDomesticServiceArea.ContractID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
 				WeightLower:           unit.Pound(5000),
 				WeightUpper:           unit.Pound(9999),
 				MilesLower:            2001,
@@ -255,22 +270,48 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             dopService.ID,
+				Service:               dopService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            unit.Cents(465),
+			},
+		})
+
 		ddpService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDDP,
 			},
 		})
 
-		testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
-			ReContract:            destDomesticServiceArea.Contract,
-			ReDomesticServiceArea: destDomesticServiceArea,
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
 				ServiceID:             ddpService.ID,
 				Service:               ddpService,
 				DomesticServiceAreaID: destDomesticServiceArea.ID,
 				DomesticServiceArea:   destDomesticServiceArea,
 				IsPeakPeriod:          false,
 				PriceCents:            unit.Cents(832),
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddpService.ID,
+				Service:               ddpService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            unit.Cents(957),
 			},
 		})
 
@@ -292,6 +333,18 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
+		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
+				ContractID:   originDomesticServiceArea.ContractID,
+				Contract:     originDomesticServiceArea.Contract,
+				ServiceID:    dpkService.ID,
+				Service:      dpkService,
+				IsPeakPeriod: true,
+				Schedule:     3,
+				PriceCents:   8000,
+			},
+		})
+
 		dupkService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDUPK,
@@ -307,6 +360,18 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				IsPeakPeriod: false,
 				Schedule:     2,
 				PriceCents:   597,
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
+				ContractID:   destDomesticServiceArea.ContractID,
+				Contract:     destDomesticServiceArea.Contract,
+				ServiceID:    dupkService.ID,
+				Service:      dupkService,
+				IsPeakPeriod: true,
+				Schedule:     2,
+				PriceCents:   650,
 			},
 		})
 
@@ -329,6 +394,19 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             dofsitService.ID,
+				Service:               dofsitService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            1326,
+			},
+		})
+
 		doasitService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDOASIT,
@@ -345,6 +423,19 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				DomesticServiceArea:   originDomesticServiceArea,
 				IsPeakPeriod:          false,
 				PriceCents:            46,
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             doasitService.ID,
+				Service:               doasitService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            53,
 			},
 		})
 
@@ -367,6 +458,19 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddfsitService.ID,
+				Service:               ddfsitService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            1854,
+			},
+		})
+
 		ddasitService := testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDDASIT,
@@ -383,6 +487,19 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				DomesticServiceArea:   destDomesticServiceArea,
 				IsPeakPeriod:          false,
 				PriceCents:            55,
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddasitService.ID,
+				Service:               ddasitService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            63,
 			},
 		})
 	}
@@ -446,7 +563,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.NilOrNoVerrs(err)
 			suite.Nil(newPPM.HasRequestedAdvance)
 			suite.Nil(newPPM.AdvanceAmountRequested)
-			suite.Equal(unit.Cents(38211767), *ppmEstimate)
+			suite.Equal(unit.Cents(38213948), *ppmEstimate)
 		})
 
 		suite.Run("Estimated Incentive - does not change when required fields are the same", func() {
@@ -510,6 +627,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 	suite.Run("SIT Estimated Cost", func() {
 		// For comparison should be priced the same as ORGSIT in devseed
 		suite.Run("Success - Origin First Day and Additional Day SIT", func() {
+			setupPricerData()
+
 			originLocation := models.SITLocationTypeOrigin
 			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 			mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -542,6 +661,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		})
 
 		suite.Run("Success - Destination First Day and Additional Day SIT", func() {
+			setupPricerData()
+
 			destinationLocation := models.SITLocationTypeDestination
 			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 			mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -574,6 +695,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		})
 
 		suite.Run("Success - same entry and departure dates only prices first day SIT", func() {
+			setupPricerData()
+
 			destinationLocation := models.SITLocationTypeDestination
 			entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 			mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -606,6 +729,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		})
 
 		suite.Run("SIT cost is not calculated when required fields are missing", func() {
+			setupPricerData()
+
 			destinationSITLocation := models.SITLocationTypeDestination
 
 			// an MTO Shipment ID is required for the shipment query
@@ -690,6 +815,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		})
 
 		suite.Run("SIT cost is not re-calculated when fields are unchanged", func() {
+			setupPricerData()
+
 			destinationLocation := models.SITLocationTypeDestination
 			shipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 				PPMShipment: models.PPMShipment{
@@ -707,6 +834,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		})
 
 		suite.Run("SIT cost is re-calculated when any dependent field is changed", func() {
+			setupPricerData()
+
 			destinationLocation := models.SITLocationTypeDestination
 			originalShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 				PPMShipment: models.PPMShipment{
@@ -728,7 +857,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			shipmentDifferentDeparture := originalShipment
 			// original date was Mar 15th so adding 3 months should affect the date peak period pricing
-			shipmentDifferentDeparture.ExpectedDepartureDate = originalShipment.ExpectedDepartureDate.Add(time.Hour * 24 * 90)
+			shipmentDifferentDeparture.ExpectedDepartureDate = originalShipment.ExpectedDepartureDate.Add(time.Hour * 24 * 70)
 
 			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"90211", "30813").Return(2294, nil)
@@ -775,6 +904,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		})
 
 		suite.Run("SIT cost is set to nil when storage is no longer expected", func() {
+			setupPricerData()
+
 			destinationLocation := models.SITLocationTypeDestination
 			originalShipment := testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{
 				PPMShipment: models.PPMShipment{
