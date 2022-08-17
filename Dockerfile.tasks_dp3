@@ -8,6 +8,10 @@ RUN apk update && apk fetch -R postgresql-client
 RUN mkdir /apkg
 RUN for apkFile in *.apk; do tar -zxvf "${apkFile}" -C "/apkg" || exit 10; done
 
+# Expose the /var/db-export volume mount to Fargate
+RUN mkdir -p /var/db-export
+VOLUME ["/var/db-export"]
+
 # hadolint ignore=DL3007
 FROM gcr.io/distroless/base:latest
 
@@ -24,10 +28,6 @@ COPY config/tls/api.exp.dp3.us.chain.der.p7b /config/tls/api.exp.dp3.us.chain.de
 COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
 
 COPY bin/milmove-tasks /bin/milmove-tasks
-
-# Expose the /var/db-export volume mount to Fargate
-RUN mkdir -p /var/db-export
-VOLUME ["/var/db-export"]
 
 # Copy Postgresql and dependencies
 COPY --from=builder-pg --chown=root:root /apkg /
