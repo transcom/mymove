@@ -8,7 +8,11 @@ RUN apk update && apk fetch -R postgresql-client
 RUN mkdir /apkg
 RUN for apkFile in *.apk; do tar -zxvf "${apkFile}" -C "/apkg" || exit 10; done
 
-# Expose the /var/db-export volume mount to Fargate
+###########
+# Build volume to mount for bind point in Fargate
+###########
+
+FROM alpine:3.15.4 as db-volume
 RUN mkdir -p /var/db-export
 VOLUME ["/var/db-export"]
 
@@ -32,5 +36,10 @@ COPY bin/milmove-tasks /bin/milmove-tasks
 # Copy Postgresql and dependencies
 COPY --from=builder-pg --chown=root:root /apkg /
 ENV PATH="${PATH}:/usr/libexec/postgresql14"
+
+# Copy /var/db-export volume
+# README: Set the owner and group to `1042` becuase that's what's been set in
+# the `cmd/ecs-deploy/task_def.go` file
+COPY --from=db-volume --chown=1042:1042 /var/db-export /var/db-export
 
 WORKDIR /bin
