@@ -645,7 +645,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 				*aws.String("-c"),
 			}),
 			Command: aws.StringSlice([]string{
-				*aws.String("sudo chmod 1042:1042 /var/db-export"),
+				*aws.String("sudo chown 1042:1042 /var/db-export"),
 			}),
 		}
 
