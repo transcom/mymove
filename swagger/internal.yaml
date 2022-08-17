@@ -928,29 +928,6 @@ definitions:
         type: string
         example: '2018-05-26'
         format: date
-  MovingExpenseType:
-    type: string
-    title: Moving Expense Type
-    enum:
-      - CONTRACTED_EXPENSE
-      - GAS
-      - OIL
-      - OTHER
-      - PACKING_MATERIALS
-      - RENTAL_EQUIPMENT
-      - STORAGE
-      - TOLLS
-      - WEIGHING_FEES
-    x-display-value:
-      CONTRACTED_EXPENSE: Contracted expense
-      GAS: Gas
-      OIL: Oil
-      OTHER: Other
-      PACKING_MATERIALS: Packing materials
-      STORAGE: Storage
-      RENTAL_EQUIPMENT: Rental equipment
-      TOLLS: Tolls
-      WEIGHING_FEES: Weighing fees
   MoveDocumentStatus:
     type: string
     title: Document status
@@ -1874,17 +1851,6 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       CANCELED: Canceled
-  PPMDocumentStatus:
-    type: string
-    title: PPM document status
-    enum:
-      - APPROVED
-      - EXCLUDED
-      - REJECTED
-    x-display-value:
-      APPROVED: Approved
-      EXCLUDED: Excluded
-      REJECTED: Rejected
   PPMStatus:
     type: string
     title: PPM status
@@ -3240,6 +3206,40 @@ definitions:
       - destinationPostalCode
       - sitExpected
       - eTag
+  MovingExpenseType:
+    type: string
+    title: Moving Expense Type
+    enum:
+      - CONTRACTED_EXPENSE
+      - GAS
+      - OIL
+      - OTHER
+      - PACKING_MATERIALS
+      - RENTAL_EQUIPMENT
+      - STORAGE
+      - TOLLS
+      - WEIGHING_FEES
+    x-display-value:
+      CONTRACTED_EXPENSE: Contracted expense
+      GAS: Gas
+      OIL: Oil
+      OTHER: Other
+      PACKING_MATERIALS: Packing materials
+      STORAGE: Storage
+      RENTAL_EQUIPMENT: Rental equipment
+      TOLLS: Tolls
+      WEIGHING_FEES: Weighing fees
+  PPMDocumentStatus:
+    type: string
+    title: PPM document status
+    enum:
+      - APPROVED
+      - EXCLUDED
+      - REJECTED
+    x-display-value:
+      APPROVED: Approved
+      EXCLUDED: Excluded
+      REJECTED: Rejected
   MovingExpense:
     type: object
     properties:

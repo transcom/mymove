@@ -18,7 +18,7 @@ properties:
   document:
     type: object
   movingExpenseType:
-    $ref: '../internal.yaml#/definitions/MovingExpenseType'
+    $ref: 'MovingExpenseType.yaml'
     x-nullable: true
     x-omitempty: false
   description:
@@ -38,7 +38,7 @@ properties:
     x-nullable: true
     x-omitempty: false
   status:
-    $ref: '../internal.yaml#/definitions/PPMDocumentStatus'
+    $ref: 'PPMDocumentStatus.yaml'
     x-nullable: true
     x-omitempty: false
   reason:
