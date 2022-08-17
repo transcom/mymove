@@ -193,11 +193,8 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
 			MovingExpenseType: "CONTRACTED_EXPENSE",
 			Description:       "Cost of moving items to a different location",
-			//PaidWithGTCC: 	   false,
-			//Amount: 		   4000,
-			//MissingReceipt:    false,
-			SitStartDate: strfmt.Date(*subtestData.movingExpense.SITStartDate),
-			SitEndDate:   strfmt.Date(*subtestData.movingExpense.SITEndDate),
+			//SitStartDate: strfmt.Date(*subtestData.movingExpense.SITStartDate),
+			//SitEndDate:   strfmt.Date(*subtestData.movingExpense.SITEndDate),
 		}
 
 		response := subtestData.handler.Handle(params)

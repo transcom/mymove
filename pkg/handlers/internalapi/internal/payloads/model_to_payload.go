@@ -288,22 +288,30 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 	}
 
 	payload := &internalmessages.MovingExpense{
-		ID:                *handlers.FmtUUID(movingExpense.ID),
-		PpmShipmentID:     handlers.FmtUUID(movingExpense.PPMShipmentID),
-		PpmShipment:       &internalmessages.PPMShipment{},
-		DocumentID:        handlers.FmtUUID(movingExpense.DocumentID),
-		Document:          document,
-		CreatedAt:         handlers.FmtDateTime(movingExpense.CreatedAt),
-		UpdatedAt:         handlers.FmtDateTime(movingExpense.UpdatedAt),
-		MovingExpenseType: internalmessages.MovingExpenseType(*movingExpense.MovingExpenseType),
-		Description:       movingExpense.Description,
-		PaidWithGtcc:      movingExpense.PaidWithGTCC,
-		Amount:            handlers.FmtCost(movingExpense.Amount),
-		MissingReceipt:    movingExpense.MissingReceipt,
-		Status:            internalmessages.MovingExpense{}.Status,
-		Reason:            movingExpense.Reason,
-		SitStartDate:      handlers.FmtDate(*movingExpense.SITStartDate),
-		SitEndDate:        handlers.FmtDate(*movingExpense.SITEndDate),
+		ID:             *handlers.FmtUUID(movingExpense.ID),
+		PpmShipmentID:  handlers.FmtUUID(movingExpense.PPMShipmentID),
+		PpmShipment:    &internalmessages.PPMShipment{},
+		DocumentID:     handlers.FmtUUID(movingExpense.DocumentID),
+		Document:       document,
+		CreatedAt:      handlers.FmtDateTime(movingExpense.CreatedAt),
+		UpdatedAt:      handlers.FmtDateTime(movingExpense.UpdatedAt),
+		Description:    movingExpense.Description,
+		PaidWithGtcc:   movingExpense.PaidWithGTCC,
+		Amount:         handlers.FmtCost(movingExpense.Amount),
+		MissingReceipt: movingExpense.MissingReceipt,
+		Status:         internalmessages.MovingExpense{}.Status,
+		Reason:         movingExpense.Reason,
+	}
+	if movingExpense.MovingExpenseType != nil {
+		payload.MovingExpenseType = internalmessages.MovingExpenseType(*movingExpense.MovingExpenseType)
+	}
+
+	if movingExpense.SITStartDate != nil {
+		payload.SitStartDate = handlers.FmtDatePtr(movingExpense.SITStartDate)
+	}
+
+	if movingExpense.SITEndDate != nil {
+		payload.SitEndDate = handlers.FmtDatePtr(movingExpense.SITEndDate)
 	}
 
 	return payload
