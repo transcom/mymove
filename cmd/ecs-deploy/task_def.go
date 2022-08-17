@@ -627,9 +627,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		User:                   aws.String("1042"),
 	}
 
-	containerDefinitions := []*ecs.ContainerDefinition{
-		&baseContainer,
-	}
+	containerDefinitions := []*ecs.ContainerDefinition{}
 
 	if v.GetString(storageFlag) == "database-export" {
 		mp := ecs.MountPoint{
@@ -637,8 +635,34 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 			ReadOnly:      aws.Bool(false),
 			SourceVolume:  aws.String("database_scratch"),
 		}
+
+		permissionContainer := ecs.ContainerDefinition{
+			Name:      aws.String("permissions-init"),
+			Image:     aws.String("busybox:latest"),
+			Essential: aws.Bool(false),
+			EntryPoint: aws.StringSlice([]string{
+				*aws.String("sh"),
+				*aws.String("-c"),
+			}),
+			Command: aws.StringSlice([]string{
+				*aws.String("sudo chmod 1042:1042 /var/db-export"),
+			}),
+		}
+
+		permissionContainer.MountPoints = append(permissionContainer.MountPoints, &mp)
 		baseContainer.MountPoints = append(baseContainer.MountPoints, &mp)
+
+		baseContainer.DependsOn = []*ecs.ContainerDependency{
+			{
+				Condition:     aws.String("SUCCESS"),
+				ContainerName: aws.String("permissions-init"),
+			},
+		}
+
+		containerDefinitions = append(containerDefinitions, &permissionContainer)
 	}
+
+	containerDefinitions = append(containerDefinitions, &baseContainer)
 
 	if v.GetBool(openTelemetrySidecarFlag) {
 		containerDefinitions = append(containerDefinitions,
