@@ -1840,7 +1840,12 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/moves/shipment-evaluation-reports':
+  '/moves/{locator}/evaluation-reports':
+    parameters:
+      - in: path
+        name: locator
+        required: true
+        type: string
     post:
       produces:
         - application/json
@@ -1850,10 +1855,10 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/CreateShipmentEvaluationReport'
+            $ref: '#/definitions/CreateEvaluationReport'
       responses:
         '200':
-          description: Successfully created shipment evaluation report
+          description: Successfully created evaluation report
           schema:
             $ref: '#/definitions/EvaluationReport'
         '400':
@@ -1866,9 +1871,9 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - evaluationReports
-      description: Creates a shipment evaluation report
-      operationId: createEvaluationReportForShipment
-      summary: Creates a shipment evaluation report
+      description: Creates an evaluation report
+      operationId: createEvaluationReport
+      summary: Creates an evaluation report
   '/evaluation-reports/{reportID}':
     parameters:
       - in: path
@@ -1878,8 +1883,7 @@ paths:
         type: string
         format: uuid
     get:
-      summary:
-       Gets an evaluation report by ID
+      summary: Gets an evaluation report by ID
       description: Gets an evaluation report by ID
       operationId: getEvaluationReport
       tags:
@@ -4464,11 +4468,9 @@ definitions:
         type: string
         format: date-time
         readOnly: true
-  CreateShipmentEvaluationReport:
+  CreateEvaluationReport:
     type: object
     description: Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.
-    required:
-      - shipmentID
     properties:
       shipmentID:
         description: The shipment ID of the shipment to be evaluated in the report

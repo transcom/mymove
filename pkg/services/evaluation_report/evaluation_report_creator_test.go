@@ -18,7 +18,7 @@ func (suite *EvaluationReportSuite) TestEvaluationReportCreator() {
 		})
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		report := &models.EvaluationReport{ShipmentID: &shipment.ID, Type: models.EvaluationReportTypeShipment, OfficeUserID: officeUser.ID}
-		createdEvaluationReport, err := creator.CreateEvaluationReport(suite.AppContextForTest(), report)
+		createdEvaluationReport, err := creator.CreateEvaluationReport(suite.AppContextForTest(), report, move.Locator)
 
 		suite.Nil(err)
 		suite.NotNil(createdEvaluationReport)
@@ -37,9 +37,10 @@ func (suite *EvaluationReportSuite) TestEvaluationReportCreator() {
 	suite.Run("Shipment evaluation report requires valid shipmnet", func() {
 
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		move := testdatagen.MakeDefaultMove(suite.DB())
 		badID := uuid.Must(uuid.NewV4())
 		report := &models.EvaluationReport{ShipmentID: &badID, Type: models.EvaluationReportTypeShipment, OfficeUserID: officeUser.ID}
-		createdEvaluationReport, err := creator.CreateEvaluationReport(suite.AppContextForTest(), report)
+		createdEvaluationReport, err := creator.CreateEvaluationReport(suite.AppContextForTest(), report, move.Locator)
 
 		suite.Error(err)
 		suite.Nil(createdEvaluationReport)

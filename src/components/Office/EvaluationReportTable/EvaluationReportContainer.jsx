@@ -14,7 +14,6 @@ import EvaluationReportList from '../DefinitionLists/EvaluationReportList';
 
 import styles from './EvaluationReportContainer.module.scss';
 
-import shipmentEvaluationReportStyles from 'pages/Office/ShipmentEvaluationReport/ShipmentEvaluationReport.module.scss';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { CustomerShape } from 'types';
 import { shipmentTypeLabels } from 'content/shipments';
@@ -105,7 +104,7 @@ const EvaluationReportContainer = ({
                       </div>
                     ))}
                 </Grid>
-                <Grid className={shipmentEvaluationReportStyles.qaeAndCustomerInfo} col desktop={{ col: 2 }}>
+                <Grid className={styles.qaeAndCustomerInfo} col desktop={{ col: 2 }}>
                   <DataTable columnHeaders={['Customer information']} dataRow={[customerInfoTableBody]} />
                   <DataTable columnHeaders={['QAE']} dataRow={[officeUserInfoTableBody]} />
                 </Grid>

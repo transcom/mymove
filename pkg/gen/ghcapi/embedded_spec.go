@@ -1664,51 +1664,6 @@ func init() {
         }
       }
     },
-    "/moves/shipment-evaluation-reports": {
-      "post": {
-        "description": "Creates a shipment evaluation report",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "evaluationReports"
-        ],
-        "summary": "Creates a shipment evaluation report",
-        "operationId": "createEvaluationReportForShipment",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreateShipmentEvaluationReport"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully created shipment evaluation report",
-            "schema": {
-              "$ref": "#/definitions/EvaluationReport"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
     "/moves/{locator}/customer-support-remarks": {
       "get": {
         "description": "Fetches customer support remarks for a move",
@@ -1789,6 +1744,59 @@ func init() {
           "type": "string",
           "format": "string",
           "description": "move code to identify a move for customer support remarks",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{locator}/evaluation-reports": {
+      "post": {
+        "description": "Creates an evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Creates an evaluation report",
+        "operationId": "createEvaluationReport",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateEvaluationReport"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created evaluation report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
           "name": "locator",
           "in": "path",
           "required": true
@@ -4099,6 +4107,18 @@ func init() {
         }
       }
     },
+    "CreateEvaluationReport": {
+      "description": "Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.",
+      "type": "object",
+      "properties": {
+        "shipmentID": {
+          "description": "The shipment ID of the shipment to be evaluated in the report",
+          "type": "string",
+          "format": "uuid",
+          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
+        }
+      }
+    },
     "CreateMTOShipment": {
       "type": "object",
       "required": [
@@ -4333,21 +4353,6 @@ func init() {
             "OTHER"
           ],
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
-        }
-      }
-    },
-    "CreateShipmentEvaluationReport": {
-      "description": "Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.",
-      "type": "object",
-      "required": [
-        "shipmentID"
-      ],
-      "properties": {
-        "shipmentID": {
-          "description": "The shipment ID of the shipment to be evaluated in the report",
-          "type": "string",
-          "format": "uuid",
-          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
         }
       }
     },
@@ -10067,63 +10072,6 @@ func init() {
         }
       }
     },
-    "/moves/shipment-evaluation-reports": {
-      "post": {
-        "description": "Creates a shipment evaluation report",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "evaluationReports"
-        ],
-        "summary": "Creates a shipment evaluation report",
-        "operationId": "createEvaluationReportForShipment",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreateShipmentEvaluationReport"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully created shipment evaluation report",
-            "schema": {
-              "$ref": "#/definitions/EvaluationReport"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
     "/moves/{locator}/customer-support-remarks": {
       "get": {
         "description": "Fetches customer support remarks for a move",
@@ -10228,6 +10176,71 @@ func init() {
           "type": "string",
           "format": "string",
           "description": "move code to identify a move for customer support remarks",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{locator}/evaluation-reports": {
+      "post": {
+        "description": "Creates an evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Creates an evaluation report",
+        "operationId": "createEvaluationReport",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateEvaluationReport"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created evaluation report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
           "name": "locator",
           "in": "path",
           "required": true
@@ -12984,6 +12997,18 @@ func init() {
         }
       }
     },
+    "CreateEvaluationReport": {
+      "description": "Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.",
+      "type": "object",
+      "properties": {
+        "shipmentID": {
+          "description": "The shipment ID of the shipment to be evaluated in the report",
+          "type": "string",
+          "format": "uuid",
+          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
+        }
+      }
+    },
     "CreateMTOShipment": {
       "type": "object",
       "required": [
@@ -13218,21 +13243,6 @@ func init() {
             "OTHER"
           ],
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
-        }
-      }
-    },
-    "CreateShipmentEvaluationReport": {
-      "description": "Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.",
-      "type": "object",
-      "required": [
-        "shipmentID"
-      ],
-      "properties": {
-        "shipmentID": {
-          "description": "The shipment ID of the shipment to be evaluated in the report",
-          "type": "string",
-          "format": "uuid",
-          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
         }
       }
     },
