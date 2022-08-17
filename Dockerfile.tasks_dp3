@@ -25,6 +25,10 @@ COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
 
 COPY bin/milmove-tasks /bin/milmove-tasks
 
+# Expose the /var/db-export volume mount to Fargate
+RUN mkdir -p /var/db-export
+VOLUME ["/var/db-export"]
+
 # Copy Postgresql and dependencies
 COPY --from=builder-pg --chown=root:root /apkg /
 ENV PATH="${PATH}:/usr/libexec/postgresql14"

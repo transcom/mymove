@@ -22,6 +22,10 @@ COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
 COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY bin/milmove-tasks /bin/milmove-tasks
 
+# Expose the /var/db-export volume mount to Fargate
+RUN mkdir -p /var/db-export
+VOLUME ["/var/db-export"]
+
 COPY --from=builder-pg --chown=root:root /apkg /
 ENV PATH="${PATH}:/usr/libexec/postgresql14"
 
