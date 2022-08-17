@@ -61,8 +61,7 @@ dry_run_task_definition_date=$("${DIR}/../bin/ecs-deploy" task-def \
   --entrypoint "/bin/milmove-tasks ${name}" \
   --dry-run)
 
-dry_run_task_definition=$(echo "${dry_run_task_definition_date}" | cut -d ' ' -f 3)
-echo "${dry_run_task_definition}" | jq .
+echo "${dry_run_task_definition_date}" | jq .
 
 echo
 echo "Registering ECS task definition for ${name}"
@@ -83,11 +82,10 @@ task_definition_date_arn=$("${DIR}/../bin/ecs-deploy" task-def \
 if [ "$?" != "0" ]; then echo "$task_definition_date_arn"; exit 1; fi
 set -e
 
-task_definition_arn=$(echo "${task_definition_date_arn}" | cut -d ' ' -f 3)
-check_arn "$task_definition_arn"
+check_arn "$task_definition_date_arn"
 
 echo
-echo "Registered ECS task definition ${task_definition_arn}"
+echo "Registered ECS task definition ${task_definition_date_arn}"
 
 echo
 echo "Put new CloudWatch Event target for ${name}"
@@ -97,8 +95,8 @@ echo "Put new CloudWatch Event target for ${name}"
   --aws-region "${AWS_DEFAULT_REGION}" \
   --environment "${environment}" \
   --name "${name}" \
-  --task-def-arn "${task_definition_arn}" \
+  --task-def-arn "${task_definition_date_arn}" \
   --put-target
 
 echo
-echo "Successfully put new CloudWatch Event target for ${name} with ECS task definition ${task_definition_arn}"
+echo "Successfully put new CloudWatch Event target for ${name} with ECS task definition ${task_definition_date_arn}"
