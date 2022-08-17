@@ -182,7 +182,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
-			Return(models.CentPointer(unit.Cents(estimatedIncentive)), unit.Cents(sitEstimatedCost), nil).Once()
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
