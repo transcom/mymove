@@ -65,12 +65,6 @@ properties:
   updatedAt:
     type: string
     format: date-time
-  deletedAt:
-    type: string
-    format: date-time
-    readOnly: true
-    x-nullable: true
-    x-omitempty: false
 required:
   - id
   - createdAt

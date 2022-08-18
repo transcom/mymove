@@ -5756,7 +5756,6 @@ definitions:
       - createdAt
       - updatedAt
       - ppmShipmentId
-      - ppmShipment
       - documentId
       - document
   MTOShipment:

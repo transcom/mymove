@@ -3327,7 +3327,6 @@ definitions:
       - createdAt
       - updatedAt
       - ppmShipmentId
-      - ppmShipment
       - documentId
       - document
   NullableString:
