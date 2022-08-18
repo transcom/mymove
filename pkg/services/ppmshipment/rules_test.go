@@ -503,4 +503,91 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			suite.Equal("cannot be empty", err.Error())
 		})
 	})
+
+	suite.Run("CheckSITRequiredFields()", func() {
+		suite.Run("success SITExpected is nil", func() {
+			shipmentID := uuid.Must(uuid.NewV4())
+
+			newPPMShipment := models.PPMShipment{
+				ShipmentID: shipmentID,
+			}
+
+			err := checkSITRequiredFields().Validate(suite.AppContextForTest(), newPPMShipment, &models.PPMShipment{}, nil)
+			suite.NilOrNoVerrs(err)
+		})
+
+		suite.Run("success SITExpected is false", func() {
+			shipmentID := uuid.Must(uuid.NewV4())
+
+			newPPMShipment := models.PPMShipment{
+				ShipmentID:  shipmentID,
+				SITExpected: models.BoolPointer(false),
+			}
+
+			err := checkSITRequiredFields().Validate(suite.AppContextForTest(), newPPMShipment, &models.PPMShipment{}, nil)
+			suite.NilOrNoVerrs(err)
+		})
+
+		suite.Run("success SITExpected is true without other SIT values", func() {
+			shipmentID := uuid.Must(uuid.NewV4())
+
+			newPPMShipment := models.PPMShipment{
+				ShipmentID:  shipmentID,
+				SITExpected: models.BoolPointer(true),
+			}
+
+			err := checkSITRequiredFields().Validate(suite.AppContextForTest(), newPPMShipment, &models.PPMShipment{}, nil)
+			suite.NilOrNoVerrs(err)
+		})
+
+		suite.Run("failure", func() {
+			ppmMissingSITLocation := models.PPMShipment{
+				SITExpected:               models.BoolPointer(true),
+				SITEstimatedWeight:        models.PoundPointer(unit.Pound(2999)),
+				SITEstimatedEntryDate:     models.TimePointer(time.Now()),
+				SITEstimatedDepartureDate: models.TimePointer(time.Now()),
+			}
+
+			destinationLocation := models.SITLocationTypeDestination
+			ppmMissingSITEstimatedWeight := models.PPMShipment{
+				SITExpected:               models.BoolPointer(true),
+				SITLocation:               &destinationLocation,
+				SITEstimatedEntryDate:     models.TimePointer(time.Now()),
+				SITEstimatedDepartureDate: models.TimePointer(time.Now()),
+			}
+
+			ppmMissingSITEstimatedEntryDate := models.PPMShipment{
+				SITExpected:               models.BoolPointer(true),
+				SITLocation:               &destinationLocation,
+				SITEstimatedWeight:        models.PoundPointer(unit.Pound(2999)),
+				SITEstimatedDepartureDate: models.TimePointer(time.Now()),
+			}
+
+			ppmMissingSITEstimatedDepartureDate := models.PPMShipment{
+				SITExpected:           models.BoolPointer(true),
+				SITLocation:           &destinationLocation,
+				SITEstimatedWeight:    models.PoundPointer(unit.Pound(2999)),
+				SITEstimatedEntryDate: models.TimePointer(time.Now()),
+			}
+
+			ppmSITDepartureBeforeEntry := models.PPMShipment{
+				SITExpected:               models.BoolPointer(true),
+				SITLocation:               &destinationLocation,
+				SITEstimatedWeight:        models.PoundPointer(unit.Pound(2999)),
+				SITEstimatedEntryDate:     models.TimePointer(time.Now()),
+				SITEstimatedDepartureDate: models.TimePointer(time.Now().Add(time.Hour * -24)),
+			}
+
+			for _, ppmShipment := range []models.PPMShipment{
+				ppmMissingSITLocation,
+				ppmMissingSITEstimatedWeight,
+				ppmMissingSITEstimatedEntryDate,
+				ppmMissingSITEstimatedDepartureDate,
+				ppmSITDepartureBeforeEntry,
+			} {
+				err := checkSITRequiredFields().Validate(suite.AppContextForTest(), ppmShipment, &models.PPMShipment{}, nil)
+				suite.Error(err)
+			}
+		})
+	})
 }

@@ -148,6 +148,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		proGearWeight := unit.Pound(400)
 		spouseProGearWeight := unit.Pound(250)
 		estimatedIncentive := 123456
+		sitEstimatedCost := 67500
 
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
@@ -181,7 +182,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
-			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil).Once()
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
@@ -212,6 +213,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(handlers.FmtPoundPtr(&proGearWeight), createdPPM.ProGearWeight)
 		suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), createdPPM.SpouseProGearWeight)
 		suite.Equal(int64(estimatedIncentive), *createdPPM.EstimatedIncentive)
+		suite.Equal(int64(sitEstimatedCost), *createdPPM.SitEstimatedCost)
 	})
 
 	suite.Run("POST failure - 500", func() {
@@ -723,6 +725,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		proGearWeight := unit.Pound(300)
 		spouseProGearWeight := unit.Pound(200)
 		estimatedIncentive := 654321
+		sitEstimatedCost := 67500
 
 		req := httptest.NewRequest("PATCH", "/mto-shipments/{MtoShipmentID}", nil)
 		eTag := etag.GenerateEtag(ppmShipment.Shipment.UpdatedAt)
@@ -759,7 +762,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
-			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil).Once()
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
@@ -779,6 +782,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(handlers.FmtPoundPtr(&estimatedWeight), updatedShipment.PpmShipment.EstimatedWeight)
 		suite.Equal(handlers.FmtPoundPtr(&netWeight), updatedShipment.PpmShipment.NetWeight)
 		suite.Equal(int64(estimatedIncentive), *updatedShipment.PpmShipment.EstimatedIncentive)
+		suite.Equal(int64(sitEstimatedCost), *updatedShipment.PpmShipment.SitEstimatedCost)
 		suite.Equal(handlers.FmtBool(hasProGear), updatedShipment.PpmShipment.HasProGear)
 		suite.Equal(handlers.FmtPoundPtr(&proGearWeight), updatedShipment.PpmShipment.ProGearWeight)
 		suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), updatedShipment.PpmShipment.SpouseProGearWeight)

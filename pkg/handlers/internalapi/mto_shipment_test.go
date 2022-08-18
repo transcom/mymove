@@ -236,7 +236,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
-			Return(nil, nil).Once()
+			Return(nil, nil, nil).Once()
 
 		suite.Nil(params.Body.Validate(strfmt.Default))
 
@@ -290,7 +290,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
-			Return(nil, nil).Once()
+			Return(nil, nil, nil).Once()
 
 		suite.Nil(params.Body.Validate(strfmt.Default))
 
@@ -1039,7 +1039,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					mock.AnythingOfType("*appcontext.appContext"),
 					mock.AnythingOfType("models.PPMShipment"),
 					mock.AnythingOfType("*models.PPMShipment")).
-					Return(tc.estimatedIncentive, nil).Once()
+					Return(tc.estimatedIncentive, nil, nil).Once()
 
 				originalPPMShipment := tc.setUpOriginalPPM(appCtx)
 
