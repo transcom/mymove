@@ -76,6 +76,5 @@ required:
   - createdAt
   - updatedAt
   - ppmShipmentId
-  - ppmShipment
   - documentId
   - document
