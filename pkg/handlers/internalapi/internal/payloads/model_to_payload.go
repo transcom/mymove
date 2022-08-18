@@ -299,11 +299,14 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		PaidWithGtcc:   movingExpense.PaidWithGTCC,
 		Amount:         handlers.FmtCost(movingExpense.Amount),
 		MissingReceipt: movingExpense.MissingReceipt,
-		Status:         internalmessages.MovingExpense{}.Status,
 		Reason:         movingExpense.Reason,
 	}
 	if movingExpense.MovingExpenseType != nil {
 		payload.MovingExpenseType = internalmessages.MovingExpenseType(*movingExpense.MovingExpenseType)
+	}
+
+	if movingExpense.Status != nil {
+		payload.Status = internalmessages.PPMDocumentStatus(*movingExpense.Status)
 	}
 
 	if movingExpense.SITStartDate != nil {

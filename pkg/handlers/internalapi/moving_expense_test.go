@@ -188,7 +188,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		subtestData := makeUpdateSubtestData(appCtx, true)
 
 		params := subtestData.params
-		// Add vehicleDescription
+		// Add a Description
 		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
 			MovingExpenseType: "CONTRACTED_EXPENSE",
 			Description:       "Cost of moving items to a different location",
@@ -212,16 +212,29 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		suite.IsType(&movingexpenseops.UpdateMovingExpenseBadRequest{}, response)
 	})
 
-	suite.Run("PATCH failure -422 - Invalid Input", func() {
+	suite.Run("PATCH failure - 401- permission denied - not authenticated", func() {
+		appCtx := suite.AppContextForTest()
+		subtestData := makeUpdateSubtestData(appCtx, false)
+		response := subtestData.handler.Handle(subtestData.params)
+
+		suite.IsType(&movingexpenseops.UpdateMovingExpenseUnauthorized{}, response)
+	})
+
+	suite.Run("PATCH failure - 403- permission denied - wrong application / user", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeUpdateSubtestData(appCtx, true)
-		params := subtestData.params
-		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{}
+		subtestData := makeUpdateSubtestData(appCtx, false)
 
-		response := subtestData.handler.Handle(params)
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-		suite.IsType(&movingexpenseops.UpdateMovingExpenseUnprocessableEntity{}, response)
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+
+		suite.IsType(&movingexpenseops.UpdateMovingExpenseForbidden{}, response)
 	})
 
 	suite.Run("PATCH failure - 404- not found", func() {
@@ -250,6 +263,18 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		response := subtestData.handler.Handle(params)
 
 		suite.IsType(&movingexpenseops.UpdateMovingExpensePreconditionFailed{}, response)
+	})
+
+	suite.Run("PATCH failure -422 - Invalid Input", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{}
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.UpdateMovingExpenseUnprocessableEntity{}, response)
 	})
 
 	suite.Run("PATCH failure - 500 - server error", func() {
