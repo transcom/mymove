@@ -918,16 +918,10 @@ definitions:
         type: string
       paidWithGTCC:
         type: boolean
-        x-nullable: true
-        x-omitempty: false
       amount:
         type: integer
-        x-nullable: true
-        x-omitempty: false
       missingReceipt:
         type: boolean
-        x-nullable: true
-        x-omitempty: false
       sitStartDate:
         type: string
         example: '2022-04-26'
@@ -936,6 +930,12 @@ definitions:
         type: string
         example: '2018-05-26'
         format: date
+    required:
+      - movingExpenseType
+      - description
+      - paidWithGTCC
+      - amount
+      - missingReceipt
   MoveDocumentStatus:
     type: string
     title: Document status
@@ -3260,12 +3260,14 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
       documentId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       document:
         type: object
       movingExpenseType:
@@ -5104,7 +5106,7 @@ paths:
   /ppm-shipments/{ppmShipmentId}/moving-expenses:
     post:
       summary: Creates moving expense document
-      description: Created a moving expense document with the given information
+      description: Creates a moving expense document for the PPM shipment
       operationId: createMovingExpense
       tags:
         - ppm
