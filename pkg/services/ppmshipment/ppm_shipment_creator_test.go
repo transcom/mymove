@@ -175,7 +175,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment"),
-		).Return(&estimatedIncentive, nil).Once()
+		).Return(&estimatedIncentive, nil, nil).Once()
 
 		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
 
