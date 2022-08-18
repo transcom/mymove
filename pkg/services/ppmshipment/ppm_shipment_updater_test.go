@@ -28,7 +28,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	}
 
 	// setUpForTests - Sets up objects/mocks that need to be set up on a per-test basis.
-	setUpForTests := func(estimatedIncentiveAmount *unit.Cents, estimatedIncentiveError error) (subtestData updateSubtestData) {
+	setUpForTests := func(estimatedIncentiveAmount *unit.Cents, sitEstimatedCost *unit.Cents, estimatedIncentiveError error) (subtestData updateSubtestData) {
 		ppmEstimator := mocks.PPMEstimator{}
 
 		ppmEstimator.
@@ -38,7 +38,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				mock.AnythingOfType("models.PPMShipment"),
 				mock.AnythingOfType("*models.PPMShipment"),
 			).
-			Return(estimatedIncentiveAmount, estimatedIncentiveError)
+			Return(estimatedIncentiveAmount, sitEstimatedCost, estimatedIncentiveError)
 
 		subtestData.ppmShipmentUpdater = NewPPMShipmentUpdater(&ppmEstimator)
 
@@ -48,7 +48,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	suite.Run("Can successfully update a PPMShipment - edit estimated dates & locations", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
-		subtestData := setUpForTests(nil, nil)
+		subtestData := setUpForTests(nil, nil, nil)
 
 		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -85,7 +85,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
 
-		subtestData := setUpForTests(newFakeEstimatedIncentive, nil)
+		subtestData := setUpForTests(newFakeEstimatedIncentive, nil, nil)
 
 		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -125,7 +125,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	suite.Run("Can successfully update a PPMShipment - edit estimated dates & locations - add secondary zips", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
-		subtestData := setUpForTests(nil, nil)
+		subtestData := setUpForTests(nil, nil, nil)
 
 		originalPPM := testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
 
@@ -155,7 +155,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	suite.Run("Can successfully update a PPMShipment - edit estimated dates & locations - remove secondary zips", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
-		subtestData := setUpForTests(nil, nil)
+		subtestData := setUpForTests(nil, nil, nil)
 
 		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -190,7 +190,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	suite.Run("Can successfully update a PPMShipment - add estimated weights - no pro gear", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
-		subtestData := setUpForTests(fakeEstimatedIncentive, nil)
+		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
 
 		originalPPM := testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
 
@@ -223,7 +223,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	suite.Run("Can successfully update a PPMShipment - add estimated weights - has pro gear", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
-		subtestData := setUpForTests(fakeEstimatedIncentive, nil)
+		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
 
 		originalPPM := testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
 
@@ -260,7 +260,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
 
-		subtestData := setUpForTests(newFakeEstimatedIncentive, nil)
+		subtestData := setUpForTests(newFakeEstimatedIncentive, nil, nil)
 
 		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -300,7 +300,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
 
-		subtestData := setUpForTests(newFakeEstimatedIncentive, nil)
+		subtestData := setUpForTests(newFakeEstimatedIncentive, nil, nil)
 
 		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
 			PPMShipment: models.PPMShipment{
@@ -350,7 +350,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			HasRequestedAdvance: models.BoolPointer(false),
 		}
 
-		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil)
+		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
 
@@ -388,7 +388,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(300000)),
 		}
 
-		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil)
+		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
 
@@ -427,7 +427,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			AdvanceAmountRequested: nil,
 		}
 
-		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil)
+		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
 
@@ -468,7 +468,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
 		}
 
-		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil)
+		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
 
@@ -509,7 +509,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
 		}
 
-		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil)
+		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
 
@@ -549,7 +549,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(400000)),
 		}
 
-		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil)
+		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
 
@@ -586,7 +586,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			HasRequestedAdvance: models.BoolPointer(false),
 		}
 
-		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil)
+		subtestData := setUpForTests(originalPPM.EstimatedIncentive, nil, nil)
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
 
@@ -613,7 +613,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
 
-		subtestData := setUpForTests(newFakeEstimatedIncentive, nil)
+		subtestData := setUpForTests(newFakeEstimatedIncentive, nil, nil)
 		sitLocation := models.SITLocationTypeOrigin
 
 		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
@@ -623,6 +623,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				SITEstimatedEntryDate:     models.TimePointer(testdatagen.NextValidMoveDate),
 				SITEstimatedDepartureDate: models.TimePointer(testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek)),
 				SITEstimatedWeight:        models.PoundPointer(1000),
+				SITEstimatedCost:          models.CentPointer(unit.Cents(69900)),
 			},
 		})
 
@@ -653,14 +654,16 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Nil(updatedPPM.SITEstimatedEntryDate)
 		suite.Nil(updatedPPM.SITEstimatedDepartureDate)
 		suite.Nil(updatedPPM.SITEstimatedWeight)
+		suite.Nil(updatedPPM.SITEstimatedCost)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit SIT - no to yes", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
+		newFakeSITEstimatedCost := models.CentPointer(unit.Cents(62500))
 
-		subtestData := setUpForTests(newFakeEstimatedIncentive, nil)
+		subtestData := setUpForTests(newFakeEstimatedIncentive, newFakeSITEstimatedCost, nil)
 		sitLocation := models.SITLocationTypeOrigin
 
 		originalPPM := testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
@@ -700,12 +703,13 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*newPPM.SITEstimatedEntryDate, *updatedPPM.SITEstimatedEntryDate)
 		suite.Equal(*newPPM.SITEstimatedDepartureDate, *updatedPPM.SITEstimatedDepartureDate)
 		suite.Equal(*newPPM.SITEstimatedWeight, *updatedPPM.SITEstimatedWeight)
+		suite.Equal(*newFakeSITEstimatedCost, *updatedPPM.SITEstimatedCost)
 	})
 
 	suite.Run("Can't update if Shipment can't be found", func() {
 		badMTOShipmentID := uuid.Must(uuid.NewV4())
 
-		subtestData := setUpForTests(nil, nil)
+		subtestData := setUpForTests(nil, nil, nil)
 
 		updatedPPMShipment, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(suite.AppContextWithSessionForTest(&auth.Session{}), &models.PPMShipment{}, badMTOShipmentID)
 
@@ -719,7 +723,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	suite.Run("Can't update if there is invalid input", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
-		subtestData := setUpForTests(nil, nil)
+		subtestData := setUpForTests(nil, nil, nil)
 
 		originalPPMShipment := testdatagen.MakeDefaultPPMShipment(appCtx.DB())
 
@@ -742,7 +746,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		fakeEstimatedIncentiveError := errors.New("failed to calculate incentive")
-		subtestData := setUpForTests(nil, fakeEstimatedIncentiveError)
+		subtestData := setUpForTests(nil, nil, fakeEstimatedIncentiveError)
 
 		originalPPMShipment := testdatagen.MakeDefaultPPMShipment(appCtx.DB())
 
