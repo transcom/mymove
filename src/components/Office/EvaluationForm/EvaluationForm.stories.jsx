@@ -1,7 +1,7 @@
 import React from 'react';
 import { MemoryRouter, Route } from 'react-router';
 
-import ShipmentEvaluationForm from './ShipmentEvaluationForm';
+import ShipmentEvaluationForm from './EvaluationForm';
 
 import { MockProviders } from 'testUtils';
 

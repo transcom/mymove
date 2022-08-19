@@ -46,6 +46,47 @@ func (h GetShipmentEvaluationReportsHandler) Handle(params moveop.GetMoveShipmen
 	)
 }
 
+// CreateEvaluationReport is the struct for creating an evaluation report
+type CreateEvaluationReportHandler struct {
+	handlers.HandlerConfig
+	services.EvaluationReportCreator
+}
+
+//Handle is the handler for creating an evaluation report
+func (h CreateEvaluationReportHandler) Handle(params evaluationReportop.CreateEvaluationReportParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			report := &models.EvaluationReport{
+				ID: uuid.Must(uuid.NewV4()),
+			}
+
+			if params.Body != nil {
+				payload := params.Body
+
+				shipmentID := uuid.FromStringOrNil(payload.ShipmentID.String())
+				report.Type = models.EvaluationReportTypeShipment
+				report.ShipmentID = &shipmentID
+			} else {
+				report.Type = models.EvaluationReportTypeCounseling
+			}
+
+			if appCtx.Session() != nil {
+				report.OfficeUserID = appCtx.Session().OfficeUserID
+			}
+
+			evaluationReport, err := h.CreateEvaluationReport(appCtx, report, params.Locator)
+			if err != nil {
+				appCtx.Logger().Error("Error creating evaluation report: ", zap.Error(err))
+				return evaluationReportop.NewCreateEvaluationReportInternalServerError(), err
+			}
+
+			returnPayload := payloads.EvaluationReport(evaluationReport)
+
+			return evaluationReportop.NewCreateEvaluationReportOK().WithPayload(returnPayload), nil
+		})
+}
+
 // GetCounselingEvaluationReportsHandler gets a list of counseling evaluation reports for a given move
 type GetCounselingEvaluationReportsHandler struct {
 	handlers.HandlerConfig
@@ -71,41 +112,6 @@ func (h GetCounselingEvaluationReportsHandler) Handle(params moveop.GetMoveCouns
 			return moveop.NewGetMoveCounselingEvaluationReportsListOK().WithPayload(payload), nil
 		},
 	)
-}
-
-// CreateEvaluationReportHandler is the struct for creating an evaluation report
-type CreateEvaluationReportHandler struct {
-	handlers.HandlerConfig
-	services.EvaluationReportCreator
-}
-
-//Handle is the handler for creating an evaluation report
-func (h CreateEvaluationReportHandler) Handle(params evaluationReportop.CreateEvaluationReportForShipmentParams) middleware.Responder {
-	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			payload := params.Body
-			shipmentID := uuid.FromStringOrNil(payload.ShipmentID.String())
-			report := &models.EvaluationReport{
-				ShipmentID: &shipmentID,
-				Type:       models.EvaluationReportTypeShipment,
-				ID:         uuid.Must(uuid.NewV4()),
-			}
-
-			if appCtx.Session() != nil {
-				report.OfficeUserID = appCtx.Session().OfficeUserID
-			}
-
-			evaluationReport, err := h.CreateEvaluationReport(appCtx, report)
-			if err != nil {
-				appCtx.Logger().Error("Error creating evaluation report: ", zap.Error(err))
-				return evaluationReportop.NewCreateEvaluationReportForShipmentInternalServerError(), err
-			}
-
-			returnPayload := payloads.EvaluationReport(evaluationReport)
-
-			return evaluationReportop.NewCreateEvaluationReportForShipmentOK().WithPayload(returnPayload), nil
-		})
 }
 
 // GetEvaluationReportHandler is the struct for fetching an evaluation report by ID

@@ -16,7 +16,7 @@ type EvaluationReportFetcher interface {
 
 //go:generate mockery --name EvaluationReportCreator --disable-version-string
 type EvaluationReportCreator interface {
-	CreateEvaluationReport(appCtx appcontext.AppContext, evaluationReport *models.EvaluationReport) (*models.EvaluationReport, error)
+	CreateEvaluationReport(appCtx appcontext.AppContext, evaluationReport *models.EvaluationReport, locator string) (*models.EvaluationReport, error)
 }
 
 //go:generate mockery --name EvaluationReportUpdater --disable-version-string

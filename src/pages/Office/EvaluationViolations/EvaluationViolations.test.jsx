@@ -47,13 +47,7 @@ describe('EvaluationViolations', () => {
   it('renders the component content', async () => {
     render(<EvaluationViolations />);
 
-    // Check out headings
-    expect(await screen.getByRole('heading', { name: 'SHIPMENT report', level: 1 })).toBeInTheDocument();
-    expect(await screen.getByRole('heading', { name: `REPORT ID #${mockReportId}`, level: 6 })).toBeInTheDocument();
-    expect(await screen.getByRole('heading', { name: `MOVE CODE ${mockMoveCode}`, level: 6 })).toBeInTheDocument();
-    expect(
-      await screen.getByRole('heading', { name: `MTO REFERENCE ID #${mockMtoRefId}`, level: 6 }),
-    ).toBeInTheDocument();
+    // Check out heading
     expect(await screen.getByRole('heading', { name: 'Select violations', level: 2 })).toBeInTheDocument();
 
     // Check out buttons

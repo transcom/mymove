@@ -1,0 +1,18 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.qaeAndCustomerInfo {
+  @include u-margin-left(36px);
+  @include u-margin-top(68px);
+}
+
+.cardContainer {
+  @include u-padding-bottom(40px);
+  @include u-bg('white');
+  @include u-radius('05');
+  @include u-border('base-lighter');
+  @include u-border('1px');
+  @include u-padding(4);
+  @include u-margin-bottom(4);
+}
