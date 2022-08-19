@@ -271,7 +271,9 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 
 		subtestData := makeUpdateSubtestData(appCtx, true)
 		params := subtestData.params
-		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{}
+		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
+			Amount: handlers.FmtInt64(0),
+		}
 
 		response := subtestData.handler.Handle(params)
 
