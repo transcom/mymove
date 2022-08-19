@@ -138,7 +138,14 @@ func (p LoginGovProvider) AuthorizationURL(r *http.Request) (*LoginGovData, erro
 	}
 
 	params := authURL.Query()
-	params.Add("acr_values", "http://idmanagement.gov/ns/assurance/ial/1 http://idmanagement.gov/ns/assurance/aal/3?hspd12=true")
+	// Logging into the Admin app will require a CAC.
+	session := auth.SessionFromRequestContext(r)
+	if session.IsAdminApp() {
+		// This specifies that a user has been authenticated with an HSPD12 credential, via their CAC. Both acr_values must be specified.
+		params.Add("acr_values", "http://idmanagement.gov/ns/assurance/ial/1 http://idmanagement.gov/ns/assurance/aal/3?hspd12=true")
+	} else {
+		params.Add("acr_values", "http://idmanagement.gov/ns/assurance/loa/1")
+	}
 	params.Add("nonce", state)
 	params.Set("scope", "openid email")
 
