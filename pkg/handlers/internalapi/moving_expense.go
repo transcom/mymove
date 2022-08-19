@@ -1,6 +1,8 @@
 package internalapi
 
 import (
+	"database/sql"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -43,16 +45,44 @@ func (h CreateMovingExpenseHandler) Handle(params movingexpenseops.CreateMovingE
 
 		if err != nil {
 			appCtx.Logger().Error("internalapi.CreateMovingExpenseHandler", zap.Error(err))
-			// Can get a status error
-			// Can get an DB error - check if moving expense doc creates
-			// Can get an error for whether the PPM exist
-			switch err.(type) {
-			case apperror.ForbiddenError:
-				return movingexpenseops.NewCreateMovingExpenseForbidden(), err
+			switch e := err.(type) {
+			case apperror.InvalidInputError:
+				return movingexpenseops.NewCreateMovingExpenseUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage,
+					h.GetTraceIDFromRequest(params.HTTPRequest),
+					e.ValidationErrors)), err
 			case apperror.NotFoundError:
 				return movingexpenseops.NewCreateMovingExpenseNotFound(), err
+			case apperror.QueryError:
+				if e.Unwrap() != nil {
+					// If you can unwrap, log the internal error (usually a pq error) for better debugging
+					appCtx.Logger().Error("internalapi.CreateMovingExpenseHandler error", zap.Error(e.Unwrap()))
+				}
+				return movingexpenseops.
+					NewCreateMovingExpenseInternalServerError().
+					WithPayload(
+						payloads.InternalServerError(
+							nil,
+							h.GetTraceIDFromRequest(params.HTTPRequest),
+						),
+					), err
 			default:
-				return movingexpenseops.NewCreateMovingExpenseInternalServerError(), err
+				return movingexpenseops.NewCreateMovingExpenseInternalServerError().WithPayload(
+					payloads.InternalServerError(
+						nil,
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+					),
+				), err
+			}
+		}
+
+		// Get the MovingExpense ID
+		err = appCtx.DB().Find(movingExpense, movingExpense.ID)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return nil, apperror.NewNotFoundError(movingExpense.ID, "looking for Moving Expense")
+			default:
+				return nil, apperror.NewQueryError("Moving Expense", err, "")
 			}
 		}
 		// Add to payload
@@ -102,8 +132,6 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 					return movingexpenseops.NewUpdateMovingExpenseUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
 				case apperror.PreconditionFailedError:
 					return movingexpenseops.NewUpdateMovingExpensePreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
-				case apperror.ForbiddenError:
-					return movingexpenseops.NewUpdateMovingExpenseForbidden().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.NotFoundError:
 					return movingexpenseops.NewUpdateMovingExpenseNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.QueryError:
