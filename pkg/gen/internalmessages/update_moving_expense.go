@@ -20,18 +20,23 @@ import (
 type UpdateMovingExpense struct {
 
 	// amount
+	// Required: true
 	Amount *int64 `json:"amount"`
 
 	// description
-	Description string `json:"description,omitempty"`
+	// Required: true
+	Description *string `json:"description"`
 
 	// missing receipt
+	// Required: true
 	MissingReceipt *bool `json:"missingReceipt"`
 
 	// moving expense type
-	MovingExpenseType MovingExpenseType `json:"movingExpenseType,omitempty"`
+	// Required: true
+	MovingExpenseType *MovingExpenseType `json:"movingExpenseType"`
 
 	// paid with g t c c
+	// Required: true
 	PaidWithGTCC *bool `json:"paidWithGTCC"`
 
 	// sit end date
@@ -49,7 +54,23 @@ type UpdateMovingExpense struct {
 func (m *UpdateMovingExpense) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAmount(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDescription(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMissingReceipt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateMovingExpenseType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePaidWithGTCC(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -67,17 +88,60 @@ func (m *UpdateMovingExpense) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdateMovingExpense) validateMovingExpenseType(formats strfmt.Registry) error {
-	if swag.IsZero(m.MovingExpenseType) { // not required
-		return nil
+func (m *UpdateMovingExpense) validateAmount(formats strfmt.Registry) error {
+
+	if err := validate.Required("amount", "body", m.Amount); err != nil {
+		return err
 	}
 
-	if err := m.MovingExpenseType.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("movingExpenseType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("movingExpenseType")
+	return nil
+}
+
+func (m *UpdateMovingExpense) validateDescription(formats strfmt.Registry) error {
+
+	if err := validate.Required("description", "body", m.Description); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateMovingExpense) validateMissingReceipt(formats strfmt.Registry) error {
+
+	if err := validate.Required("missingReceipt", "body", m.MissingReceipt); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateMovingExpense) validateMovingExpenseType(formats strfmt.Registry) error {
+
+	if err := validate.Required("movingExpenseType", "body", m.MovingExpenseType); err != nil {
+		return err
+	}
+
+	if err := validate.Required("movingExpenseType", "body", m.MovingExpenseType); err != nil {
+		return err
+	}
+
+	if m.MovingExpenseType != nil {
+		if err := m.MovingExpenseType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("movingExpenseType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("movingExpenseType")
+			}
+			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *UpdateMovingExpense) validatePaidWithGTCC(formats strfmt.Registry) error {
+
+	if err := validate.Required("paidWithGTCC", "body", m.PaidWithGTCC); err != nil {
 		return err
 	}
 
@@ -124,13 +188,15 @@ func (m *UpdateMovingExpense) ContextValidate(ctx context.Context, formats strfm
 
 func (m *UpdateMovingExpense) contextValidateMovingExpenseType(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.MovingExpenseType.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("movingExpenseType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("movingExpenseType")
+	if m.MovingExpenseType != nil {
+		if err := m.MovingExpenseType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("movingExpenseType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("movingExpenseType")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

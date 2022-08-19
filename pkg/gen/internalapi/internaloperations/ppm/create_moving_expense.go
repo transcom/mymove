@@ -33,7 +33,7 @@ func NewCreateMovingExpense(ctx *middleware.Context, handler CreateMovingExpense
 
 Creates moving expense document
 
-Created a moving expense document with the given information
+Creates a moving expense document for the PPM shipment
 
 */
 type CreateMovingExpense struct {

@@ -2310,7 +2310,7 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
       "post": {
-        "description": "Created a moving expense document with the given information",
+        "description": "Creates a moving expense document for the PPM shipment",
         "tags": [
           "ppm"
         ],
@@ -4972,7 +4972,6 @@ func init() {
         "createdAt",
         "updatedAt",
         "ppmShipmentId",
-        "ppmShipment",
         "documentId",
         "document"
       ],
@@ -4986,13 +4985,6 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
         "description": {
           "type": "string",
           "x-nullable": true,
@@ -5004,6 +4996,7 @@ func init() {
         "documentId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "id": {
@@ -5027,12 +5020,10 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "ppmShipment": {
-          "$ref": "#/definitions/PPMShipment"
-        },
         "ppmShipmentId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
@@ -6674,27 +6665,28 @@ func init() {
     },
     "UpdateMovingExpense": {
       "type": "object",
+      "required": [
+        "movingExpenseType",
+        "description",
+        "paidWithGTCC",
+        "amount",
+        "missingReceipt"
+      ],
       "properties": {
         "amount": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
+          "type": "integer"
         },
         "description": {
           "type": "string"
         },
         "missingReceipt": {
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
+          "type": "boolean"
         },
         "movingExpenseType": {
           "$ref": "#/definitions/MovingExpenseType"
         },
         "paidWithGTCC": {
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
+          "type": "boolean"
         },
         "sitEndDate": {
           "type": "string",
@@ -9686,7 +9678,7 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
       "post": {
-        "description": "Created a moving expense document with the given information",
+        "description": "Creates a moving expense document for the PPM shipment",
         "tags": [
           "ppm"
         ],
@@ -12443,7 +12435,6 @@ func init() {
         "createdAt",
         "updatedAt",
         "ppmShipmentId",
-        "ppmShipment",
         "documentId",
         "document"
       ],
@@ -12457,13 +12448,6 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
         "description": {
           "type": "string",
           "x-nullable": true,
@@ -12475,6 +12459,7 @@ func init() {
         "documentId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "id": {
@@ -12498,12 +12483,10 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "ppmShipment": {
-          "$ref": "#/definitions/PPMShipment"
-        },
         "ppmShipmentId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
@@ -14149,27 +14132,28 @@ func init() {
     },
     "UpdateMovingExpense": {
       "type": "object",
+      "required": [
+        "movingExpenseType",
+        "description",
+        "paidWithGTCC",
+        "amount",
+        "missingReceipt"
+      ],
       "properties": {
         "amount": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
+          "type": "integer"
         },
         "description": {
           "type": "string"
         },
         "missingReceipt": {
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
+          "type": "boolean"
         },
         "movingExpenseType": {
           "$ref": "#/definitions/MovingExpenseType"
         },
         "paidWithGTCC": {
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
+          "type": "boolean"
         },
         "sitEndDate": {
           "type": "string",

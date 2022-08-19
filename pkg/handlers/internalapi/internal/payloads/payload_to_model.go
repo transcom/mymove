@@ -199,8 +199,8 @@ func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingEx
 		return nil
 	}
 	model := &models.MovingExpense{
-		MovingExpenseType: (*models.MovingExpenseReceiptType)(&movingExpense.MovingExpenseType),
-		Description:       handlers.FmtString(movingExpense.Description),
+		MovingExpenseType: (*models.MovingExpenseReceiptType)(movingExpense.MovingExpenseType),
+		Description:       handlers.FmtString(*movingExpense.Description),
 		Amount:            handlers.FmtInt64PtrToPopPtr(movingExpense.Amount),
 		SITStartDate:      handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
 		SITEndDate:        handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),

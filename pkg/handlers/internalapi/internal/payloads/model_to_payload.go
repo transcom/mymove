@@ -289,9 +289,8 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 
 	payload := &internalmessages.MovingExpense{
 		ID:             *handlers.FmtUUID(movingExpense.ID),
-		PpmShipmentID:  handlers.FmtUUID(movingExpense.PPMShipmentID),
-		PpmShipment:    &internalmessages.PPMShipment{},
-		DocumentID:     handlers.FmtUUID(movingExpense.DocumentID),
+		PpmShipmentID:  *handlers.FmtUUID(movingExpense.PPMShipmentID),
+		DocumentID:     *handlers.FmtUUID(movingExpense.DocumentID),
 		Document:       document,
 		CreatedAt:      handlers.FmtDateTime(movingExpense.CreatedAt),
 		UpdatedAt:      handlers.FmtDateTime(movingExpense.UpdatedAt),

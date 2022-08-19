@@ -27,11 +27,6 @@ type MovingExpense struct {
 	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
-	// deleted at
-	// Read Only: true
-	// Format: date-time
-	DeletedAt *strfmt.DateTime `json:"deletedAt"`
-
 	// description
 	Description *string `json:"description"`
 
@@ -42,8 +37,9 @@ type MovingExpense struct {
 	// document Id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	DocumentID *strfmt.UUID `json:"documentId"`
+	DocumentID strfmt.UUID `json:"documentId"`
 
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -61,15 +57,12 @@ type MovingExpense struct {
 	// paid with gtcc
 	PaidWithGtcc *bool `json:"paidWithGtcc"`
 
-	// ppm shipment
-	// Required: true
-	PpmShipment *PPMShipment `json:"ppmShipment"`
-
 	// ppm shipment Id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	PpmShipmentID *strfmt.UUID `json:"ppmShipmentId"`
+	PpmShipmentID strfmt.UUID `json:"ppmShipmentId"`
 
 	// reason
 	Reason *string `json:"reason"`
@@ -101,10 +94,6 @@ func (m *MovingExpense) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateDeletedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateDocument(formats); err != nil {
 		res = append(res, err)
 	}
@@ -118,10 +107,6 @@ func (m *MovingExpense) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMovingExpenseType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePpmShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -164,18 +149,6 @@ func (m *MovingExpense) validateCreatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MovingExpense) validateDeletedAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.DeletedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("deletedAt", "body", "date-time", m.DeletedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *MovingExpense) validateDocument(formats strfmt.Registry) error {
 
 	if m.Document == nil {
@@ -187,7 +160,7 @@ func (m *MovingExpense) validateDocument(formats strfmt.Registry) error {
 
 func (m *MovingExpense) validateDocumentID(formats strfmt.Registry) error {
 
-	if err := validate.Required("documentId", "body", m.DocumentID); err != nil {
+	if err := validate.Required("documentId", "body", strfmt.UUID(m.DocumentID)); err != nil {
 		return err
 	}
 
@@ -228,29 +201,9 @@ func (m *MovingExpense) validateMovingExpenseType(formats strfmt.Registry) error
 	return nil
 }
 
-func (m *MovingExpense) validatePpmShipment(formats strfmt.Registry) error {
-
-	if err := validate.Required("ppmShipment", "body", m.PpmShipment); err != nil {
-		return err
-	}
-
-	if m.PpmShipment != nil {
-		if err := m.PpmShipment.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("ppmShipment")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("ppmShipment")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *MovingExpense) validatePpmShipmentID(formats strfmt.Registry) error {
 
-	if err := validate.Required("ppmShipmentId", "body", m.PpmShipmentID); err != nil {
+	if err := validate.Required("ppmShipmentId", "body", strfmt.UUID(m.PpmShipmentID)); err != nil {
 		return err
 	}
 
@@ -319,7 +272,7 @@ func (m *MovingExpense) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateDeletedAt(ctx, formats); err != nil {
+	if err := m.contextValidateDocumentID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -331,7 +284,7 @@ func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Regi
 		res = append(res, err)
 	}
 
-	if err := m.contextValidatePpmShipment(ctx, formats); err != nil {
+	if err := m.contextValidatePpmShipmentID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -345,9 +298,9 @@ func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Regi
 	return nil
 }
 
-func (m *MovingExpense) contextValidateDeletedAt(ctx context.Context, formats strfmt.Registry) error {
+func (m *MovingExpense) contextValidateDocumentID(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "deletedAt", "body", m.DeletedAt); err != nil {
+	if err := validate.ReadOnly(ctx, "documentId", "body", strfmt.UUID(m.DocumentID)); err != nil {
 		return err
 	}
 
@@ -377,17 +330,10 @@ func (m *MovingExpense) contextValidateMovingExpenseType(ctx context.Context, fo
 	return nil
 }
 
-func (m *MovingExpense) contextValidatePpmShipment(ctx context.Context, formats strfmt.Registry) error {
+func (m *MovingExpense) contextValidatePpmShipmentID(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.PpmShipment != nil {
-		if err := m.PpmShipment.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("ppmShipment")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("ppmShipment")
-			}
-			return err
-		}
+	if err := validate.ReadOnly(ctx, "ppmShipmentId", "body", strfmt.UUID(m.PpmShipmentID)); err != nil {
+		return err
 	}
 
 	return nil

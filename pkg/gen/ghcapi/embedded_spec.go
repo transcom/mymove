@@ -5900,7 +5900,6 @@ func init() {
         "createdAt",
         "updatedAt",
         "ppmShipmentId",
-        "ppmShipment",
         "documentId",
         "document"
       ],
@@ -5914,13 +5913,6 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
         "description": {
           "type": "string",
           "x-nullable": true,
@@ -5932,6 +5924,7 @@ func init() {
         "documentId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "id": {
@@ -5955,12 +5948,10 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "ppmShipment": {
-          "$ref": "#/definitions/PPMShipment"
-        },
         "ppmShipmentId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
@@ -14933,7 +14924,6 @@ func init() {
         "createdAt",
         "updatedAt",
         "ppmShipmentId",
-        "ppmShipment",
         "documentId",
         "document"
       ],
@@ -14947,13 +14937,6 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
         "description": {
           "type": "string",
           "x-nullable": true,
@@ -14965,6 +14948,7 @@ func init() {
         "documentId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "id": {
@@ -14988,12 +14972,10 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "ppmShipment": {
-          "$ref": "#/definitions/PPMShipment"
-        },
         "ppmShipmentId": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {

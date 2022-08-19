@@ -5430,6 +5430,113 @@ definitions:
       - fullDocumentId
       - proofOfTrailerOwnershipDocument
       - proofOfTrailerOwnershipDocumentId
+  MovingExpenseType:
+    type: string
+    title: Moving Expense Type
+    enum:
+      - CONTRACTED_EXPENSE
+      - GAS
+      - OIL
+      - OTHER
+      - PACKING_MATERIALS
+      - RENTAL_EQUIPMENT
+      - STORAGE
+      - TOLLS
+      - WEIGHING_FEES
+    x-display-value:
+      CONTRACTED_EXPENSE: Contracted expense
+      GAS: Gas
+      OIL: Oil
+      OTHER: Other
+      PACKING_MATERIALS: Packing materials
+      STORAGE: Storage
+      RENTAL_EQUIPMENT: Rental equipment
+      TOLLS: Tolls
+      WEIGHING_FEES: Weighing fees
+  PPMDocumentStatus:
+    type: string
+    title: PPM document status
+    enum:
+      - APPROVED
+      - EXCLUDED
+      - REJECTED
+    x-display-value:
+      APPROVED: Approved
+      EXCLUDED: Excluded
+      REJECTED: Rejected
+  MovingExpense:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      ppmShipmentId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      documentId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      document:
+        type: object
+      movingExpenseType:
+        $ref: '#/definitions/MovingExpenseType'
+        x-nullable: true
+        x-omitempty: false
+      description:
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      paidWithGtcc:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      amount:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      missingReceipt:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      status:
+        $ref: '#/definitions/PPMDocumentStatus'
+        x-nullable: true
+        x-omitempty: false
+      reason:
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      sitStartDate:
+        type: string
+        example: '2022-04-26'
+        format: date
+        x-nullable: true
+        x-omitempty: false
+      sitEndDate:
+        type: string
+        example: '2018-05-26'
+        format: date
+        x-nullable: true
+        x-omitempty: false
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+    required:
+      - id
+      - createdAt
+      - updatedAt
+      - ppmShipmentId
+      - documentId
+      - document
   PPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service members
@@ -5643,121 +5750,6 @@ definitions:
       - destinationPostalCode
       - sitExpected
       - eTag
-  MovingExpenseType:
-    type: string
-    title: Moving Expense Type
-    enum:
-      - CONTRACTED_EXPENSE
-      - GAS
-      - OIL
-      - OTHER
-      - PACKING_MATERIALS
-      - RENTAL_EQUIPMENT
-      - STORAGE
-      - TOLLS
-      - WEIGHING_FEES
-    x-display-value:
-      CONTRACTED_EXPENSE: Contracted expense
-      GAS: Gas
-      OIL: Oil
-      OTHER: Other
-      PACKING_MATERIALS: Packing materials
-      STORAGE: Storage
-      RENTAL_EQUIPMENT: Rental equipment
-      TOLLS: Tolls
-      WEIGHING_FEES: Weighing fees
-  PPMDocumentStatus:
-    type: string
-    title: PPM document status
-    enum:
-      - APPROVED
-      - EXCLUDED
-      - REJECTED
-    x-display-value:
-      APPROVED: Approved
-      EXCLUDED: Excluded
-      REJECTED: Rejected
-  MovingExpense:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      ppmShipmentId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      ppmShipment:
-        $ref: '#/definitions/PPMShipment'
-      documentId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      document:
-        type: object
-      movingExpenseType:
-        $ref: '#/definitions/MovingExpenseType'
-        x-nullable: true
-        x-omitempty: false
-      description:
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      paidWithGtcc:
-        type: boolean
-        x-nullable: true
-        x-omitempty: false
-      amount:
-        type: integer
-        x-nullable: true
-        x-omitempty: false
-      missingReceipt:
-        type: boolean
-        x-nullable: true
-        x-omitempty: false
-      status:
-        $ref: '#/definitions/PPMDocumentStatus'
-        x-nullable: true
-        x-omitempty: false
-      reason:
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      sitStartDate:
-        type: string
-        example: '2022-04-26'
-        format: date
-        x-nullable: true
-        x-omitempty: false
-      sitEndDate:
-        type: string
-        example: '2018-05-26'
-        format: date
-        x-nullable: true
-        x-omitempty: false
-      createdAt:
-        type: string
-        format: date-time
-      updatedAt:
-        type: string
-        format: date-time
-      deletedAt:
-        type: string
-        format: date-time
-        readOnly: true
-        x-nullable: true
-        x-omitempty: false
-    required:
-      - id
-      - createdAt
-      - updatedAt
-      - ppmShipmentId
-      - documentId
-      - document
   MTOShipment:
     properties:
       moveTaskOrderID:

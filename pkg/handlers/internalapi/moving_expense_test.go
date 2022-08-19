@@ -189,11 +189,12 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 
 		params := subtestData.params
 		// Add a Description
+		contractedExpense := internalmessages.MovingExpenseType("CONTRACTED_EXPENSE")
+		description := "Cost of moving items to a different location"
 		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
-			MovingExpenseType: "CONTRACTED_EXPENSE",
-			Description:       "Cost of moving items to a different location",
+			MovingExpenseType: &contractedExpense,
+			Description:       &description,
 		}
-
 		response := subtestData.handler.Handle(params)
 
 		suite.IsType(&movingexpenseops.UpdateMovingExpenseOK{}, response)
@@ -283,9 +284,11 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 
 		subtestData := makeUpdateSubtestData(appCtx, true)
 		params := subtestData.params
+		contractedExpense := internalmessages.MovingExpenseType("CONTRACTED_EXPENSE")
+		description := "Cost of moving items to a different location"
 		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
-			MovingExpenseType: "CONTRACTED_EXPENSE",
-			Description:       "Cost of moving items to a different location",
+			MovingExpenseType: &contractedExpense,
+			Description:       &description,
 		}
 
 		err := errors.New("ServerError")
