@@ -189,7 +189,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 
 		params := subtestData.params
 		// Add a Description
-		contractedExpense := internalmessages.MovingExpenseType("CONTRACTED_EXPENSE")
+		contractedExpense := internalmessages.MovingExpenseType(models.MovingExpenseReceiptTypeContractedExpense)
 		description := "Cost of moving items to a different location"
 		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
 			MovingExpenseType: &contractedExpense,
@@ -286,7 +286,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 
 		subtestData := makeUpdateSubtestData(appCtx, true)
 		params := subtestData.params
-		contractedExpense := internalmessages.MovingExpenseType("CONTRACTED_EXPENSE")
+		contractedExpense := internalmessages.MovingExpenseType(models.MovingExpenseReceiptTypeContractedExpense)
 		description := "Cost of moving items to a different location"
 		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{
 			MovingExpenseType: &contractedExpense,
