@@ -201,7 +201,7 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 
 		updatedMovingExpense := response.(*movingexpenseops.UpdateMovingExpenseOK).Payload
 		suite.Equal(subtestData.movingExpense.ID.String(), updatedMovingExpense.ID.String())
-		suite.Equal(params.UpdateMovingExpense.Description, *updatedMovingExpense.Description)
+		suite.Equal(params.UpdateMovingExpense.Description, updatedMovingExpense.Description)
 	})
 	suite.Run("PATCH failure -400 - nil body", func() {
 		appCtx := suite.AppContextForTest()
