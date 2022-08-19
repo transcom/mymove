@@ -17,7 +17,7 @@ type PPMEstimator struct {
 }
 
 // EstimateIncentiveWithDefaultChecks provides a mock function with given fields: appCtx, oldPPMShipment, newPPMShipment
-func (_m *PPMEstimator) EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error) {
+func (_m *PPMEstimator) EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, *unit.Cents, error) {
 	ret := _m.Called(appCtx, oldPPMShipment, newPPMShipment)
 
 	var r0 *unit.Cents
@@ -29,14 +29,23 @@ func (_m *PPMEstimator) EstimateIncentiveWithDefaultChecks(appCtx appcontext.App
 		}
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) error); ok {
+	var r1 *unit.Cents
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) *unit.Cents); ok {
 		r1 = rf(appCtx, oldPPMShipment, newPPMShipment)
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*unit.Cents)
+		}
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) error); ok {
+		r2 = rf(appCtx, oldPPMShipment, newPPMShipment)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 type mockConstructorTestingTNewPPMEstimator interface {

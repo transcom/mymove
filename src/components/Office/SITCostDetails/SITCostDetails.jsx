@@ -7,7 +7,7 @@ import { formatCentsTruncateWhole, formatDaysInTransit, formatWeight } from 'uti
 import { LOCATION_TYPES } from 'types/sitStatusShape';
 
 const SITCostDetails = ({ cost, weight, originZip, destinationZip, sitLocation, departureDate, entryDate }) => {
-  const days = moment(departureDate).diff(moment(entryDate), 'days');
+  const days = 1 + moment(departureDate).diff(moment(entryDate), 'days');
   const displaySitLocation = sitLocation.toLowerCase();
   const displayZip = sitLocation === LOCATION_TYPES.DESTINATION ? destinationZip : originZip;
   return (

@@ -18,8 +18,8 @@ func NewDomesticOriginAdditionalDaysSITPricer() services.DomesticOriginAdditiona
 }
 
 // Price determines the price for domestic origin additional days SIT
-func (p domesticOriginAdditionalDaysSITPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticAdditionalDaysSIT(appCtx, models.ReServiceCodeDOASIT, contractCode, referenceDate, weight, serviceArea, numberOfDaysInSIT)
+func (p domesticOriginAdditionalDaysSITPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int, disableWeightMinimum bool) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticAdditionalDaysSIT(appCtx, models.ReServiceCodeDOASIT, contractCode, referenceDate, weight, serviceArea, numberOfDaysInSIT, disableWeightMinimum)
 }
 
 // PriceUsingParams determines the price for domestic origin first day SIT given PaymentServiceItemParams
@@ -49,5 +49,5 @@ func (p domesticOriginAdditionalDaysSITPricer) PriceUsingParams(appCtx appcontex
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, numberOfDaysInSIT)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, numberOfDaysInSIT, false)
 }
