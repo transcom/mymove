@@ -138,7 +138,7 @@ func (p LoginGovProvider) AuthorizationURL(r *http.Request) (*LoginGovData, erro
 	}
 
 	params := authURL.Query()
-	params.Add("acr_values", "http://idmanagement.gov/ns/assurance/aal/3?hspd12=true")
+	params.Add("acr_values", "http://idmanagement.gov/ns/assurance/ial/1 http://idmanagement.gov/ns/assurance/aal/3?hspd12=true")
 	params.Add("nonce", state)
 	params.Set("scope", "openid email")
 
