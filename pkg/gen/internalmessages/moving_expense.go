@@ -41,6 +41,10 @@ type MovingExpense struct {
 	// Format: uuid
 	DocumentID strfmt.UUID `json:"documentId"`
 
+	// e tag
+	// Read Only: true
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
@@ -276,6 +280,10 @@ func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Regi
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -301,6 +309,15 @@ func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Regi
 func (m *MovingExpense) contextValidateDocumentID(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "documentId", "body", strfmt.UUID(m.DocumentID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
 		return err
 	}
 
