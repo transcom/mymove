@@ -26,7 +26,8 @@ describe('Customer Support User Flows', () => {
     const editString = '-edit';
 
     // Moves queue (eventually will come via QAE/CSR move search)
-    cy.wait(['@getSortedOrders']);
+    cy.wait(2000);
+
     cy.contains(moveLocator).click({ force: true });
     cy.url().should('include', `/moves/${moveLocator}/details`);
 
