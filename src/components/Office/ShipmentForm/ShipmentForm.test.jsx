@@ -102,7 +102,7 @@ const mockPPMShipment = {
     pickupPostalCode: '90210',
     destinationPostalCode: '90211',
     sitExpected: false,
-    estimatedWeight: 7999,
+    estimatedWeight: 4999,
     hasProGear: false,
     estimatedIncentive: 1234500,
     hasRequestedAdvance: true,
@@ -123,6 +123,10 @@ const defaultPropsSeparation = {
   destinationType: 'HOME_OF_SELECTION',
   orderType: ORDERS_TYPE.SEPARATION,
 };
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('ShipmentForm component', () => {
   beforeEach(() => {
@@ -756,12 +760,12 @@ describe('ShipmentForm component', () => {
       );
       expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
       expect(screen.getAllByLabelText('No')[0]).toBeChecked();
-      expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('7,999');
+      expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
       expect(screen.getAllByLabelText('Yes')[1]).not.toBeChecked();
       expect(screen.getAllByLabelText('No')[1]).toBeChecked();
     });
 
-    it('renders the PPM shipment form with pre-filled values for Advance Page', async () => {
+    it('renders the PPM shipment form with pre-filled requested values for Advance Page', async () => {
       render(
         <ShipmentForm
           {...defaultProps}
@@ -779,6 +783,19 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Amount requested')).toHaveValue('4,875');
       expect((await screen.findByText('Maximum advance: $7,407')).toBeInTheDocument);
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save and Continue' }));
+
+      await waitFor(() => {
+        expect(defaultProps.submitHandler).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.objectContaining({
+              counselorRemarks: 'mock counselor remarks',
+              ppmShipment: expect.objectContaining({ hasRequestedAdvance: true, advanceAmountRequested: 487500 }),
+            }),
+          }),
+        );
+      });
     });
 
     it('validates the Advance Page making counselor remarks required when advance is denied', async () => {
@@ -810,6 +827,26 @@ describe('ShipmentForm component', () => {
       expect(requiredAlerts[0]).toHaveTextContent('Required');
 
       expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
+
+      await userEvent.type(screen.getByLabelText('Counselor remarks'), 'retirees are not given advances');
+      await userEvent.tab();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeEnabled();
+      });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save and Continue' }));
+
+      await waitFor(() => {
+        expect(defaultProps.submitHandler).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.objectContaining({
+              counselorRemarks: 'retirees are not given advances',
+              ppmShipment: expect.objectContaining({ hasRequestedAdvance: false }),
+            }),
+          }),
+        );
+      });
     });
 
     it('validates the Advance Page making counselor remarks required when advance amount is changed', async () => {
