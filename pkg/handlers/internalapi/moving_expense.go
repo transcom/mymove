@@ -25,6 +25,10 @@ type CreateMovingExpenseHandler struct {
 // Handle creates a moving expense
 func (h CreateMovingExpenseHandler) Handle(params movingexpenseops.CreateMovingExpenseParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest, func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+		if appCtx.Session() == nil {
+			noSessionErr := apperror.NewSessionError("No user session")
+			return movingexpenseops.NewCreateMovingExpenseUnauthorized(), noSessionErr
+		}
 		if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
 			noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
 			return movingexpenseops.NewCreateMovingExpenseForbidden(), noServiceMemberIDErr
