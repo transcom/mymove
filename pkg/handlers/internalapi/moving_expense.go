@@ -25,10 +25,6 @@ type CreateMovingExpenseHandler struct {
 // Handle creates a moving expense
 func (h CreateMovingExpenseHandler) Handle(params movingexpenseops.CreateMovingExpenseParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest, func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-		if appCtx.Session() == nil {
-			noSessionErr := apperror.NewSessionError("No user session")
-			return movingexpenseops.NewCreateMovingExpenseUnauthorized(), noSessionErr
-		}
 		if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
 			noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
 			return movingexpenseops.NewCreateMovingExpenseForbidden(), noServiceMemberIDErr
@@ -37,8 +33,13 @@ func (h CreateMovingExpenseHandler) Handle(params movingexpenseops.CreateMovingE
 		// No need for payload_to_model for Create
 		ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
 		if err != nil {
-			appCtx.Logger().Error("missing PPM Shipment ID", zap.Error(err))
-			return movingexpenseops.NewCreateMovingExpenseBadRequest(), nil
+			switch err {
+			case sql.ErrNoRows:
+				return nil, apperror.NewNotFoundError(ppmShipmentID, "Incorrect PPMShipmentID")
+			default:
+				appCtx.Logger().Error("missing PPM Shipment ID", zap.Error(err))
+				return movingexpenseops.NewCreateMovingExpenseBadRequest(), nil
+			}
 		}
 
 		movingExpense, err := h.movingExpenseCreator.CreateMovingExpense(appCtx, ppmShipmentID)
@@ -75,16 +76,6 @@ func (h CreateMovingExpenseHandler) Handle(params movingexpenseops.CreateMovingE
 			}
 		}
 
-		// Get the MovingExpense ID
-		err = appCtx.DB().Find(movingExpense, movingExpense.ID)
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(movingExpense.ID, "looking for Moving Expense")
-			default:
-				return nil, apperror.NewQueryError("Moving Expense", err, "")
-			}
-		}
 		// Add to payload
 		returnPayload := payloads.MovingExpense(h.FileStorer(), movingExpense)
 		return movingexpenseops.NewCreateMovingExpenseOK().WithPayload(returnPayload), nil

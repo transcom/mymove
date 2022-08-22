@@ -67,7 +67,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 		createdMovingExpense := response.(*movingexpenseops.CreateMovingExpenseOK).Payload
 
 		suite.NotEmpty(createdMovingExpense.ID.String())
-		suite.NotNil(createdMovingExpense.PpmShipmentID.String())
+		suite.Equal(createdMovingExpense.PpmShipmentID.String(), subtestData.ppmShipment.ID.String())
 		suite.NotNil(createdMovingExpense.DocumentID.String())
 	})
 
