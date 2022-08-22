@@ -20,3 +20,4 @@ export const QAE_CSR_MOVE_SEARCH = 'qaeCSRMoveSearch';
 export const SHIPMENT_EVALUATION_REPORTS = 'shipmentEvaluationReports';
 export const COUNSELING_EVALUATION_REPORTS = 'counselingEvaluationReports';
 export const EVALUATION_REPORT = 'evaluationReport';
+export const EVALUATION_REPORT_VIOLATIONS = 'evaluationReportViolations';

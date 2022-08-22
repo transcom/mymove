@@ -20,6 +20,7 @@ import {
   getCounselingEvaluationReports,
   searchMoves,
   getEvaluationReportByID,
+  getEvaluationReportViolations,
   getMTOShipmentByID,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
@@ -47,6 +48,7 @@ import {
   SHIPMENT_EVALUATION_REPORTS,
   COUNSELING_EVALUATION_REPORTS,
   EVALUATION_REPORT,
+  EVALUATION_REPORT_VIOLATIONS,
   MTO_SHIPMENT,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
@@ -450,6 +452,19 @@ export const useEvaluationReportsQueries = (moveCode) => {
     isSuccess,
   };
 };
+
+export const useEvaluationReportViolationsQueries = () => {
+  const { data: violations = {}, ...evaluationReportViolationsQuery } = useQuery(
+    EVALUATION_REPORT_VIOLATIONS,
+    getEvaluationReportViolations,
+  );
+
+  return {
+    violations,
+    ...evaluationReportViolationsQuery,
+  };
+};
+
 export const useMoveDetailsQueries = (moveCode) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
   const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
