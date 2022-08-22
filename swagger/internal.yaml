@@ -909,29 +909,33 @@ definitions:
       - moving_expense_type
       - requested_amount_cents
       - payment_method
-  MovingExpenseType:
-    type: string
-    title: Moving Expense Type
-    enum:
-      - CONTRACTED_EXPENSE
-      - GAS
-      - OIL
-      - OTHER
-      - PACKING_MATERIALS
-      - RENTAL_EQUIPMENT
-      - STORAGE
-      - TOLLS
-      - WEIGHING_FEES
-    x-display-value:
-      CONTRACTED_EXPENSE: Contracted expense
-      GAS: Gas
-      OIL: Oil
-      OTHER: Other
-      PACKING_MATERIALS: Packing materials
-      STORAGE: Storage
-      RENTAL_EQUIPMENT: Rental equipment
-      TOLLS: Tolls
-      WEIGHING_FEES: Weighing fees
+  UpdateMovingExpense:
+    type: object
+    properties:
+      movingExpenseType:
+        $ref: '#/definitions/MovingExpenseType'
+      description:
+        type: string
+      paidWithGTCC:
+        type: boolean
+      amount:
+        type: integer
+      missingReceipt:
+        type: boolean
+      sitStartDate:
+        type: string
+        example: '2022-04-26'
+        format: date
+      sitEndDate:
+        type: string
+        example: '2018-05-26'
+        format: date
+    required:
+      - movingExpenseType
+      - description
+      - paidWithGTCC
+      - amount
+      - missingReceipt
   MoveDocumentStatus:
     type: string
     title: Document status
@@ -2997,6 +3001,116 @@ definitions:
     enum:
       - ORIGIN
       - DESTINATION
+  MovingExpenseType:
+    type: string
+    title: Moving Expense Type
+    enum:
+      - CONTRACTED_EXPENSE
+      - GAS
+      - OIL
+      - OTHER
+      - PACKING_MATERIALS
+      - RENTAL_EQUIPMENT
+      - STORAGE
+      - TOLLS
+      - WEIGHING_FEES
+    x-display-value:
+      CONTRACTED_EXPENSE: Contracted expense
+      GAS: Gas
+      OIL: Oil
+      OTHER: Other
+      PACKING_MATERIALS: Packing materials
+      STORAGE: Storage
+      RENTAL_EQUIPMENT: Rental equipment
+      TOLLS: Tolls
+      WEIGHING_FEES: Weighing fees
+  PPMDocumentStatus:
+    type: string
+    title: PPM document status
+    enum:
+      - APPROVED
+      - EXCLUDED
+      - REJECTED
+    x-display-value:
+      APPROVED: Approved
+      EXCLUDED: Excluded
+      REJECTED: Rejected
+  MovingExpense:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      ppmShipmentId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      documentId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      document:
+        type: object
+      movingExpenseType:
+        $ref: '#/definitions/MovingExpenseType'
+        x-nullable: true
+        x-omitempty: false
+      description:
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      paidWithGtcc:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      amount:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      missingReceipt:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      status:
+        $ref: '#/definitions/PPMDocumentStatus'
+        x-nullable: true
+        x-omitempty: false
+      reason:
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      sitStartDate:
+        type: string
+        example: '2022-04-26'
+        format: date
+        x-nullable: true
+        x-omitempty: false
+      sitEndDate:
+        type: string
+        example: '2018-05-26'
+        format: date
+        x-nullable: true
+        x-omitempty: false
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+      eTag:
+        type: string
+        readOnly: true
+    required:
+      - id
+      - createdAt
+      - updatedAt
+      - ppmShipmentId
+      - documentId
+      - document
   PPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service members
@@ -3189,6 +3303,10 @@ definitions:
       weightTickets:
         items:
           $ref: '#/definitions/WeightTicket'
+        type: array
+      movingExpense:
+        items:
+          $ref: '#/definitions/MovingExpense'
         type: array
       eTag:
         description: >-
@@ -4979,6 +5097,92 @@ paths:
           description: not authorized to modify this move
         '500':
           description: server error
+  /ppm-shipments/{ppmShipmentId}/moving-expenses:
+    post:
+      summary: Creates moving expense document
+      description: Creates a moving expense document for the PPM shipment
+      operationId: createMovingExpense
+      tags:
+        - ppm
+      parameters:
+        - name: ppmShipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppm
+      responses:
+        '200':
+          description: returns new moving expense object
+          schema:
+            $ref: '#/definitions/MovingExpense'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}:
+    patch:
+      summary: Updates the moving expense
+      description: >-
+        Any fields sent in this request will be set on the moving expense
+        referenced
+      operationId: updateMovingExpense
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: ppmShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppm shipment
+        - in: path
+          name: movingExpenseId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the moving expense
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the
+            ETag header does not match the value of the resource on the server,
+            the server rejects the change with a `412 Precondition Failed`
+            error.
+        - in: body
+          name: updateMovingExpense
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMovingExpense'
+      responses:
+        '200':
+          description: returns an updated moving expense object
+          schema:
+            $ref: '#/definitions/MovingExpense'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/weight-ticket:
     post:
       summary: Creates a weight ticket document

@@ -5,6 +5,7 @@ import { MTOAgentType } from 'shared/constants';
 import { parseDate } from 'shared/dates';
 import { formatDelimitedNumber, parseSwaggerDate } from 'utils/formatters';
 import { roleTypes } from 'constants/userRoles';
+import { LOCATION_TYPES } from 'types/sitStatusShape';
 
 const formatDateForSwagger = (date) => {
   const parsedDate = parseDate(date);
@@ -94,7 +95,7 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     secondDestinationPostalCode: ppmShipment.secondaryDestinationPostalCode || '',
 
     sitExpected: !!ppmShipment.sitExpected,
-    sitLocation: ppmShipment.sitLocation,
+    sitLocation: ppmShipment.sitLocation ?? LOCATION_TYPES.DESTINATION,
     sitEstimatedWeight: (ppmShipment.sitEstimatedWeight || '').toString(),
     sitEstimatedEntryDate: ppmShipment.sitEstimatedEntryDate,
     sitEstimatedDepartureDate: ppmShipment.sitEstimatedDepartureDate,
