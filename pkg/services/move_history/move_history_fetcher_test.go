@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -27,7 +26,7 @@ import (
 func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 	moveHistoryFetcher := NewMoveHistoryFetcher()
 
-	suite.T().Run("successfully returns submitted move history available to prime", func(t *testing.T) {
+	suite.Run("successfully returns submitted move history available to prime", func() {
 
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		now := time.Now()
@@ -173,7 +172,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		suite.True(verifyDBAuthorizedWeight, "verifyDBAuthorizedWeight")
 	})
 
-	suite.T().Run("returns not found error for unknown locator", func(t *testing.T) {
+	suite.Run("returns not found error for unknown locator", func() {
 		_ = testdatagen.MakeAvailableMove(suite.DB())
 
 		params := services.FetchMoveHistoryParams{Locator: "QX97UY", Page: swag.Int64(1), PerPage: swag.Int64(20)}
@@ -182,7 +181,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	suite.T().Run("returns Orders fields and context", func(t *testing.T) {
+	suite.Run("returns Orders fields and context", func() {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		order := approvedMove.Orders
 		now := time.Now()
@@ -304,7 +303,7 @@ func removeEscapeJSONtoArray(data *string) []map[string]string {
 func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 	moveHistoryFetcher := NewMoveHistoryFetcher()
 
-	suite.T().Run("returns Audit History with session information", func(t *testing.T) {
+	suite.Run("returns Audit History with session information", func() {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		fakeRole, _ := testdatagen.LookupOrMakeRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
 		fakeUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
@@ -341,7 +340,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotEmpty(moveHistoryData.AuditHistories[0].SessionUserTelephone, "AuditHistories contains an AuditHistory with a SessionUserTelephone")
 	})
 
-	suite.T().Run("filters shipments and service items from different move ", func(t *testing.T) {
+	suite.Run("filters shipments and service items from different move ", func() {
 
 		auditHistoryContains := func(auditHistories models.AuditHistories, keyword string) func() (success bool) {
 			return func() (success bool) {
@@ -397,7 +396,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 
 	})
 
-	suite.T().Run("has context", func(t *testing.T) {
+	suite.Run("has context", func() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 
@@ -435,7 +434,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.True(verifyServiceItemStatusContext, "AuditHistories contains an AuditHistory with a Context when a service item is approved")
 	})
 
-	suite.T().Run("has paginated results", func(t *testing.T) {
+	suite.Run("has paginated results", func() {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 
 		// update move
@@ -455,7 +454,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 
 	})
 
-	suite.T().Run("approved payment request shows up", func(t *testing.T) {
+	suite.Run("approved payment request shows up", func() {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		cents := unit.Cents(1000)
 		approvedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
@@ -494,7 +493,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.Contains(contextValue, "APPROVED")
 	})
 
-	suite.T().Run("has audit history records for reweighs", func(t *testing.T) {
+	suite.Run("has audit history records for reweighs", func() {
 		shipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), nil, testdatagen.Assertions{})
 		// Create a valid reweigh for the move
 		newReweigh := &models.Reweigh{
@@ -531,7 +530,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.True(verifyReweighContext, "Reweigh creation AuditHistory contains a context with the appropriate shipment type")
 	})
 
-	suite.T().Run("has audit history records for service item dimensions", func(t *testing.T) {
+	suite.Run("has audit history records for service item dimensions", func() {
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -585,7 +584,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.True(verifyServiceItemDimensionsHistoryFound, "AuditHistories contains an AuditHistory with a service item dimensions creation")
 	})
 
-	suite.T().Run("has audit history records for service item customer contacts", func(t *testing.T) {
+	suite.Run("has audit history records for service item customer contacts", func() {
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
