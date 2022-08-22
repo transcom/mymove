@@ -27,7 +27,7 @@ describe('Customer Support User Flows', () => {
 
     // Moves queue (eventually will come via QAE/CSR move search)
     cy.wait(['@getSortedOrders']);
-    cy.contains(moveLocator).click();
+    cy.contains(moveLocator).click({ force: true });
     cy.url().should('include', `/moves/${moveLocator}/details`);
 
     // Move Details page
