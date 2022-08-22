@@ -868,8 +868,8 @@ describe('ShipmentForm component', () => {
     pickupPostalCode: '12345',
     destinationPostalCode: '54321',
     sitLocation: 'DESTINATION',
-    departureDate: '2022-10-29',
-    entryDate: '2022-08-06',
+    sitEstimatedDepartureDate: '2022-10-29',
+    sitEstimatedEntryDate: '2022-08-06',
     sitExpected: true,
   };
 
