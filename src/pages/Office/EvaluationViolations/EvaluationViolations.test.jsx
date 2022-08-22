@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import EvaluationViolations from './EvaluationViolations';
@@ -72,63 +72,5 @@ describe('EvaluationViolations', () => {
     // Verify that we re-route back to the eval report
     expect(mockPush).toHaveBeenCalledTimes(1);
     expect(mockPush).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports/${mockReportId}`);
-  });
-
-  it('displays the delete confirmation on cancel', async () => {
-    render(
-      <MockProviders initialEntries={[`/moves/${mockMoveCode}/evaluation-reports/${mockReportId}`]}>
-        <EvaluationViolations />
-      </MockProviders>,
-    );
-
-    // Modal not shown initially
-    expect(
-      screen.queryByRole('heading', { level: 3, name: 'Are you sure you want to cancel this report?' }),
-    ).not.toBeInTheDocument();
-
-    // Open the modal
-    await userEvent.click(await screen.getByRole('button', { name: 'Cancel' }));
-
-    /// Verify it is open
-    expect(
-      await screen.findByRole('heading', { level: 3, name: 'Are you sure you want to cancel this report?' }),
-    ).toBeInTheDocument();
-
-    // Close the modal without deleting
-    await userEvent.click(await screen.findByRole('button', { name: 'No, keep it' }));
-
-    // Model should be closed and we should not have deleted any reports
-    expect(
-      screen.queryByRole('heading', { level: 3, name: 'Are you sure you want to cancel this report?' }),
-    ).not.toBeInTheDocument();
-    expect(mockDeleteEvaluationReport).not.toHaveBeenCalled();
-  });
-
-  it('deletes report when confirmed in modal', async () => {
-    render(
-      <MockProviders initialEntries={[`/moves/${mockMoveCode}/evaluation-reports/${mockReportId}`]}>
-        <EvaluationViolations />
-      </MockProviders>,
-    );
-
-    // Open the modal
-    await userEvent.click(await screen.getByRole('button', { name: 'Cancel' }));
-
-    // Verify it is open
-    expect(
-      await screen.findByRole('heading', { level: 3, name: 'Are you sure you want to cancel this report?' }),
-    ).toBeInTheDocument();
-
-    // Confirm the deletion
-    await userEvent.click(await screen.findByRole('button', { name: 'Yes, Cancel' }));
-
-    // Verify the modal is closed and the report deleted
-    await waitFor(() => {
-      expect(
-        screen.queryByRole('heading', { level: 3, name: 'Are you sure you want to cancel this report?' }),
-      ).not.toBeInTheDocument();
-      expect(mockDeleteEvaluationReport).toHaveBeenCalledTimes(1);
-      expect(mockDeleteEvaluationReport).toHaveBeenCalledWith(mockReportId);
-    });
   });
 });
