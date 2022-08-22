@@ -8,7 +8,7 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import evaluationViolationsStyles from './EvaluationViolations.module.scss';
 
-import { useShipmentEvaluationReportQueries, useEvaluationReportViolationsQueries } from 'hooks/queries';
+import { useShipmentEvaluationReportQueries, usePWSViolationsQueries } from 'hooks/queries';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
 
 const EvaluationViolations = () => {
@@ -16,7 +16,7 @@ const EvaluationViolations = () => {
   const history = useHistory();
 
   const { evaluationReport } = useShipmentEvaluationReportQueries(reportId);
-  const { violations } = useEvaluationReportViolationsQueries();
+  const { violations } = usePWSViolationsQueries();
 
   const handleBackToEvalForm = () => {
     // TODO: Save as draft before rerouting
