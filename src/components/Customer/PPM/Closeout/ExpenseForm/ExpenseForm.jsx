@@ -7,6 +7,7 @@ import * as Yup from 'yup';
 
 import styles from './ExpenseForm.module.scss';
 
+import { formatCents } from 'utils/formatters';
 import numOfDaysBetweenDates from 'utils/dates';
 import { ExpenseShape } from 'types/shipment';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
@@ -59,7 +60,7 @@ const ExpenseForm = ({
     expenseType: expenseType || '',
     description: description || '',
     paidWithGTCC: paidWithGTCC ? 'true' : 'false',
-    amount: amount ? `${amount}` : '',
+    amount: amount ? `${formatCents(amount)}` : '',
     missingReceipt: !!missingReceipt,
     receiptDocument: receiptDocument?.uploads || [],
     sitStartDate: sitStartDate || '',
