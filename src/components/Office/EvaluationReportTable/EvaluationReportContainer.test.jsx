@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import { useViewEvaluationReportQueries } from '../../../hooks/queries';
+import { useEvaluationReportQueries } from '../../../hooks/queries';
 
 import EvaluationReportContainer from './EvaluationReportContainer';
 
 jest.mock('hooks/queries', () => ({
-  useViewEvaluationReportQueries: jest.fn(),
+  useEvaluationReportQueries: jest.fn(),
 }));
 
 const setIsModalVisible = jest.fn();
@@ -253,7 +253,7 @@ const viewReportReturn = { evaluationReport, mtoShipments };
 
 describe('Evaluation Report Container', () => {
   it('renders the sample text', async () => {
-    useViewEvaluationReportQueries.mockReturnValue(viewReportReturn);
+    useEvaluationReportQueries.mockReturnValue(viewReportReturn);
 
     render(
       <EvaluationReportContainer
