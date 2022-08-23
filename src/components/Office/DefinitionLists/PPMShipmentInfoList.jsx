@@ -49,7 +49,7 @@ const PPMShipmentInfoList = ({
     <div className={expectedDepartureDateElementFlags.classes}>
       <dt>Departure date</dt>
       <dd data-testid="expectedDepartureDate">
-        {expectedDepartureDate && formatDate(expectedDepartureDate, 'DD MMM YYYY')}
+        {(expectedDepartureDate && formatDate(expectedDepartureDate, 'DD MMM YYYY')) || '—'}
       </dd>
     </div>
   );
