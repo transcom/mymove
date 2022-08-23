@@ -9,34 +9,28 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import evaluationReportStyles from './EvaluationReport.module.scss';
 
 import EvaluationForm from 'components/Office/EvaluationForm/EvaluationForm';
-import { useShipmentEvaluationReportQueries } from 'hooks/queries';
+import { useEvaluationReportQueries } from 'hooks/queries';
 import { CustomerShape } from 'types';
 import { OrdersShape } from 'types/customerShapes';
-import EvaluationReportMoveInfo from 'components/Office/EvaluationReportMoveInfo/EvaluationReportMoveInfo';
 import EvaluationReportShipmentInfo from 'components/Office/EvaluationReportShipmentInfo/EvaluationReportShipmentInfo';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
-import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
 
 const EvaluationReport = ({ customerInfo, orders }) => {
   const { reportId } = useParams();
-  const { evaluationReport, mtoShipment } = useShipmentEvaluationReportQueries(reportId);
-  const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
+  const { evaluationReport, mtoShipments } = useEvaluationReportQueries(reportId);
   return (
     <div className={classnames(styles.tabContent, evaluationReportStyles.tabContent)}>
       <GridContainer>
         <QaeReportHeader report={evaluationReport} />
 
-        {isShipment ? (
+        {mtoShipments?.length > 0 && (
           <EvaluationReportShipmentInfo
             customerInfo={customerInfo}
             orders={orders}
-            shipment={mtoShipment}
+            shipments={mtoShipments}
             report={evaluationReport}
           />
-        ) : (
-          <EvaluationReportMoveInfo customerInfo={customerInfo} orders={orders} />
         )}
-
         <EvaluationForm evaluationReport={evaluationReport} />
       </GridContainer>
     </div>

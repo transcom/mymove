@@ -9,6 +9,7 @@
   @include u-padding-left(8px);
   @include u-padding-right(8px);
   width: 100%;
+  word-break: break-word;
 }
 
 .headingShipmentID {
@@ -19,20 +20,26 @@
 
 .ntsHeaderText {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
   font-size: 15px;
   @include u-padding-left(8px);
   color: $base-dark;
 }
 
 .ntsHeaderTextField {
-  width: 50%;
+  flex-grow: 1;
+  @include u-padding-left(1);
+}
+
+.ntsHeaderTextRight {
+  @include u-margin-left(5);
 }
 
 .shipmentAddressArrow {
-  flex: 0;
-  @include u-padding-left(17px);
-  @include u-padding-right(17px);
+  //flex: 0;
+  flex-grow: 0;
+  @include u-margin-left(0);
+  @include u-margin-right(1);
   @include u-padding-top(4px);
   svg {
     display: block;
@@ -41,7 +48,12 @@
 }
 
 .shipmentAddressTextFields {
-    flex: 1;
+  flex: 1;
+  @include u-padding-left(1);
+}
+
+.shipmentAddressLeft {
+  max-width: 46.5%;
 }
 
 .ShipmentCard {

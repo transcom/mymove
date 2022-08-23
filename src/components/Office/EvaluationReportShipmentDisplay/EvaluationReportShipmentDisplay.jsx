@@ -66,7 +66,7 @@ const EvaluationReportShipmentDisplay = ({
         {isExpanded && displayInfo.shipmentType === SHIPMENT_OPTIONS.NTS && (
           <div className={styles.ntsHeaderText}>
             <div className={styles.ntsHeaderTextField}>Pickup address</div>
-            <div className={styles.ntsHeaderTextField}>
+            <div className={classnames(styles.ntsHeaderTextField, styles.ntsHeaderTextRight)}>
               {displayInfo?.storageFacility ? displayInfo.storageFacility.facilityName : ''}
             </div>
           </div>
@@ -76,12 +76,14 @@ const EvaluationReportShipmentDisplay = ({
             <div className={styles.ntsHeaderTextField}>
               {displayInfo?.storageFacility ? displayInfo.storageFacility.facilityName : ''}
             </div>
-            <div className={styles.ntsHeaderTextField}>Delivery address</div>
+            <div className={classnames(styles.ntsHeaderTextField, styles.ntsHeaderTextRight)}>Delivery address</div>
           </div>
         )}
-        {isExpanded && displayInfo.pickupAddress && displayInfo.destinationAddress && (
+        {isExpanded && (displayInfo.pickupAddress || displayInfo.destinationAddress) && (
           <div className={styles.shipmentAddresses}>
-            <div className={styles.shipmentAddressTextFields}>{pickupAddressString}</div>
+            <div className={classnames(styles.shipmentAddressTextFields, styles.shipmentAddressLeft)}>
+              {pickupAddressString}
+            </div>
             <div className={styles.shipmentAddressArrow}>
               <FontAwesomeIcon icon="arrow-right" />
             </div>

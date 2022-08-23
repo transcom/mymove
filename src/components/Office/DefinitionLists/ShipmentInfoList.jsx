@@ -1,7 +1,6 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
 
@@ -230,45 +229,43 @@ const ShipmentInfoList = ({
   );
 
   const evaluationReportDetails = (
-    <GridContainer className={shipmentDefinitionListsStyles.evaluationReportDLContainer}>
-      <Grid row className={shipmentDefinitionListsStyles.evaluationReportRow}>
-        <Grid col={6}>
-          <dl
-            className={classNames(
-              shipmentDefinitionListsStyles.evaluationReportDL,
-              styles.descriptionList,
-              styles.tableDisplay,
-              styles.compact,
-              className,
-            )}
-            data-testid="shipment-info-list-left"
-          >
-            {showElement(scheduledPickupDateElement) && scheduledPickupDateElement}
-            {showElement(actualPickupDateElementFlags) && actualPickupDateElement}
-            {showElement(requestedDeliveryDateElementFlags) && requestedDeliveryDateElement}
-            {showElement(agentsElementFlags) && releasingAgentElement}
-          </dl>
-        </Grid>
-        <Grid col={6}>
-          <dl
-            className={classNames(
-              shipmentDefinitionListsStyles.evaluationReportDL,
-              shipmentDefinitionListsStyles.evaluationReportDLRight,
-              styles.descriptionList,
-              styles.tableDisplay,
-              styles.compact,
-              className,
-            )}
-            data-testid="shipment-info-list-right"
-          >
-            {showElement(scheduledDeliveryDateElementFlags) && scheduledDeliveryDateElement}
-            {showElement(requiredDeliveryDateElementFlags) && requiredDeliveryDateElement}
-            {showElement(actualDeliveryDateElementFlags) && actualDeliveryDateElement}
-            {showElement(agentsElementFlags) && receivingAgentElement}
-          </dl>
-        </Grid>
-      </Grid>
-    </GridContainer>
+    <div className={shipmentDefinitionListsStyles.sideBySideContainer}>
+      <div className={shipmentDefinitionListsStyles.sidebySideItem}>
+        <dl
+          className={classNames(
+            shipmentDefinitionListsStyles.evaluationReportDL,
+            styles.descriptionList,
+            styles.tableDisplay,
+            styles.compact,
+            className,
+          )}
+          data-testid="shipment-info-list-left"
+        >
+          {showElement(scheduledPickupDateElement) && scheduledPickupDateElement}
+          {showElement(actualPickupDateElementFlags) && actualPickupDateElement}
+          {showElement(requestedDeliveryDateElementFlags) && requestedDeliveryDateElement}
+          {showElement(agentsElementFlags) && releasingAgentElement}
+        </dl>
+      </div>
+      <div className={shipmentDefinitionListsStyles.sidebySideItem}>
+        <dl
+          className={classNames(
+            shipmentDefinitionListsStyles.evaluationReportDL,
+            shipmentDefinitionListsStyles.evaluationReportDLRight,
+            styles.descriptionList,
+            styles.tableDisplay,
+            styles.compact,
+            className,
+          )}
+          data-testid="shipment-info-list-right"
+        >
+          {showElement(scheduledDeliveryDateElementFlags) && scheduledDeliveryDateElement}
+          {showElement(requiredDeliveryDateElementFlags) && requiredDeliveryDateElement}
+          {showElement(actualDeliveryDateElementFlags) && actualDeliveryDateElement}
+          {showElement(agentsElementFlags) && receivingAgentElement}
+        </dl>
+      </div>
+    </div>
   );
 
   return <div>{isForEvaluationReport ? evaluationReportDetails : defaultDetails}</div>;

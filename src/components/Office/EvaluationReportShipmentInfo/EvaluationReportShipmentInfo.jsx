@@ -3,6 +3,8 @@ import { PropTypes } from 'prop-types';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import 'styles/office.scss';
 
+import styles from '../EvaluationReportTable/EvaluationReportContainer.module.scss';
+
 import evaluationReportStyles from './EvaluationReportShipmentInfo.module.scss';
 
 import DataTable from 'components/DataTable';
@@ -10,8 +12,8 @@ import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { shipmentTypeLabels } from 'content/shipments';
 import EvaluationReportShipmentDisplay from 'components/Office/EvaluationReportShipmentDisplay/EvaluationReportShipmentDisplay';
 
-const EvaluationReportShipmentInfo = ({ shipment, report, customerInfo, orders }) => {
-  const shipmentDisplayInfo = () => ({
+const EvaluationReportShipmentInfo = ({ shipments, report, customerInfo, orders }) => {
+  const shipmentDisplayInfo = (shipment) => ({
     ...shipment,
     heading: shipmentTypeLabels[shipment.shipmentType],
     isDiversion: shipment.diversion,
@@ -47,15 +49,19 @@ const EvaluationReportShipmentInfo = ({ shipment, report, customerInfo, orders }
     <GridContainer className={evaluationReportStyles.cardContainer}>
       <Grid row>
         <Grid col desktop={{ col: 8 }}>
-          <h2>Shipment information</h2>
-          {shipment.id && (
-            <EvaluationReportShipmentDisplay
-              isSubmitted
-              shipmentId={shipment.id}
-              displayInfo={shipmentDisplayInfo(shipment)}
-              shipmentType={shipment.shipmentType}
-            />
-          )}
+          <h2>{report.type === 'SHIPMENT' ? 'Shipment' : 'Move'} information</h2>
+          {shipments.length > 0 &&
+            shipments.map((shipment) => (
+              <div key={shipment.id} className={styles.shipmentDisplayContainer}>
+                <EvaluationReportShipmentDisplay
+                  isSubmitted
+                  key={shipment.id}
+                  shipmentId={shipment.id}
+                  displayInfo={shipmentDisplayInfo(shipment)}
+                  shipmentType={shipment.shipmentType}
+                />
+              </div>
+            ))}
         </Grid>
         <Grid
           className={evaluationReportStyles.qaeAndCustomerInfo}
@@ -73,7 +79,7 @@ const EvaluationReportShipmentInfo = ({ shipment, report, customerInfo, orders }
 
 EvaluationReportShipmentInfo.propTypes = {
   report: PropTypes.object.isRequired,
-  shipment: PropTypes.object.isRequired,
+  shipments: PropTypes.arrayOf(PropTypes.object).isRequired,
   customerInfo: PropTypes.object.isRequired,
   orders: PropTypes.object.isRequired,
 };

@@ -10,7 +10,7 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import evaluationViolationsStyles from './EvaluationViolations.module.scss';
 
 import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
-import { useShipmentEvaluationReportQueries } from 'hooks/queries';
+import { useEvaluationReportQueries } from 'hooks/queries';
 import { deleteEvaluationReport } from 'services/ghcApi';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
 
@@ -18,7 +18,7 @@ const EvaluationViolations = () => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
 
-  const { evaluationReport } = useShipmentEvaluationReportQueries(reportId);
+  const { evaluationReport } = useEvaluationReportQueries(reportId);
 
   const handleBackToEvalForm = () => {
     // TODO: Save as draft before rerouting
