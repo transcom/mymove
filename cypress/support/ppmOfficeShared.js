@@ -20,3 +20,59 @@ export function navigateToShipmentDetails(moveLocator) {
   cy.url().should('include', `/counseling/moves/${moveLocator}/details`);
   cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
 }
+
+export const fillOutWeight = (options = {}) => {
+  const { estimatedWeight = '4000', hasProGear = false, proGearWeight = '1000', spouseProGearWeight = '500' } = options;
+
+  cy.get('input[name="estimatedWeight"]').clear().type(estimatedWeight).blur();
+  if (hasProGear) {
+    cy.get('input[name="hasProGear"][value="yes"]').check({ force: true });
+    cy.get('input[name="proGearWeight"]').type(proGearWeight).blur();
+    cy.get('input[name="spouseProGearWeight"]').type(spouseProGearWeight).blur();
+  }
+};
+
+export const fillOutSitExpected = (options = {}) => {
+  const {
+    sitEstimatedWeight = '1000',
+    sitEstimatedEntryDate = '01 Mar 2020',
+    sitEstimatedDepartureDate = '31 Mar 2020',
+    sitLocation = 'DESTINATION', // takes in values of either 'DESTINATION' or 'ORIGIN'
+  } = options;
+
+  cy.get('input[name="sitExpected"][value="yes"]').check({ force: true });
+  cy.get(`input[name="sitLocation"][value="${sitLocation}"]`).check({ force: true });
+  cy.get('input[name="sitEstimatedWeight"]').clear().type(sitEstimatedWeight).blur();
+  cy.get('input[name="sitEstimatedEntryDate"]').clear().type(sitEstimatedEntryDate).blur();
+  cy.get('input[name="sitEstimatedDepartureDate"]').clear().type(sitEstimatedDepartureDate).blur();
+};
+
+export const fillOutOriginInfo = (options = {}) => {
+  const {
+    expectedDepartureDate = '09 Jun 2022',
+    pickupPostalCode = '90210',
+    secondPickupPostalCode = '07003',
+  } = options;
+
+  cy.get('input[name="expectedDepartureDate"]').clear().type(expectedDepartureDate).blur();
+  cy.get('input[name="pickupPostalCode"]').clear().type(pickupPostalCode).blur();
+  if (secondPickupPostalCode) {
+    cy.get('input[name="secondPickupPostalCode"]').clear().type(secondPickupPostalCode).blur();
+  }
+};
+
+export const fillOutDestinationInfo = (options = {}) => {
+  const { destinationPostalCode = '76127', secondDestinationPostalCode = '08540' } = options;
+
+  cy.get('input[name="destinationPostalCode"]').clear().type(destinationPostalCode).blur();
+  if (secondDestinationPostalCode) {
+    cy.get('input[name="secondDestinationPostalCode"]').clear().type(secondDestinationPostalCode).blur();
+  }
+};
+
+export const fillOutIncentiveAndAdvance = (options = {}) => {
+  const { advance = '6000' } = options;
+
+  cy.get('input[name="advanceRequested"][value="Yes"]').check({ force: true });
+  cy.get('input[name="advance"]').clear().type(advance).blur();
+};

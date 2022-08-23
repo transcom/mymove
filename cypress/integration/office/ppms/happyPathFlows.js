@@ -1,5 +1,12 @@
 import { ServicesCounselorOfficeUserType } from '../../../support/constants';
-import { navigateToShipmentDetails } from '../../../support/ppmOfficeShared';
+import {
+  fillOutDestinationInfo,
+  fillOutIncentiveAndAdvance,
+  fillOutOriginInfo,
+  fillOutSitExpected,
+  fillOutWeight,
+  navigateToShipmentDetails,
+} from '../../../support/ppmOfficeShared';
 
 describe('Services counselor user', () => {
   before(() => {
@@ -17,6 +24,7 @@ describe('Services counselor user', () => {
     cy.intercept('**/ghc/v1/orders/**').as('getOrders');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments/**').as('updateMTOShipments');
+    cy.intercept('**/ghc/v1/mto-shipments').as('createShipment');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
 
     const userId = 'a6c8663f-998f-4626-a978-ad60da2476ec'; // services_counselor_role@office.mil
@@ -28,30 +36,30 @@ describe('Services counselor user', () => {
 
     navigateToShipmentDetails(moveLocator);
 
-    // view existing shipment
+    // View existing shipment
     cy.get('[data-testid="ShipmentContainer"] .usa-button').click();
     cy.wait(['@getMTOShipments', '@getMoves', '@getOrders']);
 
-    // add SIT
-    cy.get('input[name="sitExpected"][value="yes"]').check({ force: true });
-    cy.get('input[name="sitEstimatedWeight"]').clear().type(1000).blur();
-    cy.get('input[name="sitEstimatedEntryDate"]').clear().type('01 Mar 2020').blur();
-    cy.get('input[name="sitEstimatedDepartureDate"]').clear().type('31 Mar 2020').blur();
+    fillOutSitExpected();
 
-    // submit page 1 of form
+    // Submit page 1 of form
     cy.get('[data-testid="submitForm"]').should('be.enabled').click();
     cy.wait(['@updateMTOShipments', '@getMTOShipments', '@getMoves', '@getOrders', '@getMTOServiceItems']);
 
-    // update page 2
-    cy.get('input[name="advance"]').clear().type('6000').blur();
+    // Verify SIT info
+    cy.contains('Government constructed cost: $326');
+    cy.contains('1,000 lbs of destination SIT at 30813 for 31 days.');
+
+    // Update page 2
+    fillOutIncentiveAndAdvance();
     cy.get('[data-testid="errorMessage"]').contains('Required');
     cy.get('[data-testid="counselor-remarks"]').clear().type('Increased incentive to max').blur();
 
-    // submit page 2 of form
+    // Submit page 2 of form
     cy.get('[data-testid="submitForm"]').should('be.enabled').click();
     cy.wait(['@updateMTOShipments', '@getMTOShipments', '@getMoves', '@getOrders', '@getMTOServiceItems']);
 
-    // expand details and verify information
+    // Expand details and verify information
     cy.contains('Your changes were saved.');
     cy.get('[data-prefix="fas"][data-icon="chevron-down"]').click();
     cy.get('[data-testid="expectedDepartureDate"]').contains('15 Mar 2020');
@@ -77,33 +85,42 @@ describe('Services counselor user', () => {
     cy.wait(['@getMTOShipments', '@getMoves', '@getOrders']);
 
     // Fill out page one
-    cy.get('input[name="expectedDepartureDate"]').clear().type('09 Jun 2022').blur();
-    cy.get('input[name="pickupPostalCode"]').clear().type('90210').blur();
-    cy.get('input[name="secondPickupPostalCode"]').clear().type('07003').blur();
-
-    cy.get('input[name="destinationPostalCode"]').clear().type('76127').blur();
-    cy.get('input[name="secondDestinationPostalCode"]').clear().type('08540').blur();
-
-    cy.get('input[name="estimatedWeight"]').clear().type('4000').blur();
-    cy.get('input[name="hasProGear"][value="yes"]').check({ force: true });
-    cy.get('input[name="proGearWeight"]').type(1000).blur();
-    cy.get('input[name="spouseProGearWeight"]').type(500).blur();
-
-    cy.get('input[name="sitExpected"][value="yes"]').check({ force: true });
-    cy.get('input[name="sitEstimatedWeight"]').clear().type(1000).blur();
-    cy.get('input[name="sitEstimatedEntryDate"]').clear().type('01 Mar 2020').blur();
-    cy.get('input[name="sitEstimatedDepartureDate"]').clear().type('31 Mar 2020').blur();
+    fillOutOriginInfo();
+    fillOutDestinationInfo();
+    fillOutSitExpected();
+    fillOutWeight({ hasProGear: true });
 
     cy.get('[data-testid="submitForm"]').should('be.enabled').click();
-    cy.wait(['@getMTOShipments', '@getMoves', '@getOrders']);
+    cy.wait(['@createShipment', '@getMTOShipments', '@getMoves', '@getOrders']);
+
+    // Verify SIT info
+    cy.contains('Government constructed cost: $379');
+    cy.contains('1,000 lbs of destination SIT at 76127 for 31 days.');
 
     // Fill out page two
-    cy.get('input[name="advanceRequested"][value="Yes"]').check({ force: true });
-    cy.get('input[name="advance"]').clear().type('10000').blur();
+    fillOutIncentiveAndAdvance({ advance: '10000' });
     cy.get('[data-testid="errorMessage"]').contains('Required');
-    cy.get('[data-testid="counselor-remarks"]').clear().type('Increased incentive to max').blur();
+    cy.get('[data-testid="counselor-remarks"]').clear().type('Added correct incentive').blur();
 
+    // Submit page two
     cy.get('[data-testid="submitForm"]').should('be.enabled').click();
-    cy.wait(['@updateMTOShipments', '@getMTOShipments', '@getMoves', '@getOrders', '@getMTOServiceItems']);
+    cy.wait(['@updateMTOShipments', '@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    // Expand details and verify information
+    cy.contains('Your changes were saved.');
+    cy.get('[data-prefix="fas"][data-icon="chevron-down"]').last().click();
+    cy.get('[data-testid="expectedDepartureDate"]').contains('09 Jun 2022');
+    cy.get('[data-testid="originZIP"]').contains('90210');
+    cy.get('[data-testid="secondOriginZIP"]').contains('07003');
+    cy.get('[data-testid="destinationZIP"]').contains('76127');
+    cy.get('[data-testid="secondDestinationZIP"]').contains('08540');
+    cy.get('[data-testid="sitPlanned"]').contains('yes');
+    cy.get('[data-testid="estimatedWeight"]').contains('4,000 lbs');
+    cy.get('[data-testid="proGearWeight"]').contains('Yes, 1,000 lbs');
+    cy.get('[data-testid="spouseProGear"]').contains('Yes, 500 lbs');
+    cy.get('[data-testid="estimatedIncentive"]').contains('$201,506');
+    // Need to add back when bug is merged in
+    // cy.get('[data-testid="hasRequestedAdvance"]').contains('Yes, $10,000');
+    cy.get('[data-testid="counselorRemarks"]').contains('Added correct incentive');
   });
 });
