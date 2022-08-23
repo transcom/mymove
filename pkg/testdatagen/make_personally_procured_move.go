@@ -1,8 +1,6 @@
 package testdatagen
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/pop/v6"
 	//"github.com/gofrs/uuid"
 
@@ -13,13 +11,10 @@ import (
 func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcuredMove {
 
 	// Create new Move if not provided
-	move := assertions.Move
+	move := assertions.PersonallyProcuredMove.Move
 	// ID is required because it must be populated for Eager saving to work.
-	if isZeroUUID(assertions.Move.ID) {
-		fmt.Println("🛑🛑🛑No move provided to MakePPM")
+	if isZeroUUID(assertions.PersonallyProcuredMove.MoveID) {
 		move = MakeMove(db, assertions)
-	} else {
-		fmt.Println("🛑🛑🛑YES move provided to MakePPM")
 	}
 
 	ppm := models.PersonallyProcuredMove{
