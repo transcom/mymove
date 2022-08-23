@@ -26,7 +26,7 @@ const validationSchema = Yup.object().shape({
   expenseType: Yup.string().required('Required'),
   description: Yup.string().required('Required'),
   paidWithGTCC: Yup.boolean().required('Required'),
-  amount: Yup.number().required('Required'),
+  amount: Yup.string().required('Required'),
   missingReceipt: Yup.boolean().required('Required'),
   receiptDocument: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
   sitStartDate: Yup.date()
@@ -123,8 +123,11 @@ const ExpenseForm = ({
                         label="Amount"
                         id="amount"
                         mask={Number}
-                        scale={0} // digits after point, 0 for integers
+                        scale={2} // digits after point, 0 for integers
                         signed={false} // disallow negative
+                        radix="." // fractional delimiter
+                        mapToRadix={['.']} // symbols to process as radix
+                        padFractionalZeros // if true, then pads zeros at end to the length of scale
                         thousandsSeparator=","
                         lazy={false} // immediate masking evaluation
                         prefix="$"

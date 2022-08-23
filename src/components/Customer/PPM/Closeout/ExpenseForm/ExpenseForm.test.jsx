@@ -47,7 +47,7 @@ const expenseRequiredProps = {
     description: 'bubble wrap',
     missingReceipt: false,
     paidWithGTCC: false,
-    amount: 600,
+    amount: '600',
     receiptDocument: {
       uploads: [
         {
@@ -71,7 +71,7 @@ const sitExpenseProps = {
     description: '10x10 storage pod',
     missingReceipt: false,
     paidWithGTCC: false,
-    amount: 1600,
+    amount: '1600.99',
     sitStartDate: '2022-09-24',
     sitEndDate: '2022-12-26',
     receiptDocument: {
