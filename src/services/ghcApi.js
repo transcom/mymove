@@ -120,7 +120,7 @@ export async function getCounselingEvaluationReports(key, moveID) {
 }
 
 export async function getPWSViolations() {
-  return makeGHCRequest('evaluationReports.getPWSViolations', { schemaKey: 'evaluationReports' });
+  return makeGHCRequest('evaluationReports.getPWSViolations', {}, { normalize: false });
 }
 
 export async function getMTOServiceItems(key, moveTaskOrderID, normalize = true) {
