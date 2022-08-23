@@ -1,0 +1,9 @@
+@import 'shared/styles/_basics';
+
+.ProGearForm {
+  .ownerSectionWrapper {
+    :global(.usa-form-group:first-of-type .usa-label) {
+      @include u-margin-top(0);
+    }
+  }
+}
