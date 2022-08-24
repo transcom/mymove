@@ -104,7 +104,7 @@ describe('Services counselor user', () => {
 
     // Submit page two
     cy.get('[data-testid="submitForm"]').should('be.enabled').click();
-    cy.wait(['@updateMTOShipments', '@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.wait(['@updateMTOShipments', '@getMTOShipments', '@getMoves', '@getOrders', '@getMTOServiceItems']);
 
     // Expand details and verify information
     cy.contains('Your changes were saved.');
@@ -119,7 +119,7 @@ describe('Services counselor user', () => {
     cy.get('[data-testid="proGearWeight"]').contains('Yes, 1,000 lbs');
     cy.get('[data-testid="spouseProGear"]').contains('Yes, 500 lbs');
     cy.get('[data-testid="estimatedIncentive"]').contains('$201,506');
-    // Need to add back when bug is merged in
+    // TODO Add back when bug is merged in
     // cy.get('[data-testid="hasRequestedAdvance"]').contains('Yes, $10,000');
     cy.get('[data-testid="counselorRemarks"]').contains('Added correct incentive');
   });
