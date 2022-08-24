@@ -23,7 +23,7 @@ properties:
     $ref: 'PPMShipmentStatus.yaml'
   w2Address:
     x-nullable: true
-    $ref: '#Address.yaml'
+    $ref: 'Address.yaml'
   advanceStatus:
     $ref: 'PPMAdvanceStatus.yaml'
   expectedDepartureDate:

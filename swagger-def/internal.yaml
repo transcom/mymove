@@ -2599,6 +2599,9 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      w2Address:
+        x-nullable: true
+        $ref: 'definitions/Address.yaml'
       sitExpected:
         type: boolean
         x-nullable: true

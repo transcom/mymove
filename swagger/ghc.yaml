@@ -3882,6 +3882,9 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      w2Address:
+        x-nullable: true
+        $ref: '#/definitions/Address'
       sitExpected:
         type: boolean
         x-nullable: true
@@ -5569,6 +5572,9 @@ definitions:
         readOnly: true
       status:
         $ref: '#/definitions/PPMShipmentStatus'
+      w2Address:
+        x-nullable: true
+        $ref: '#/definitions/Address'
       advanceStatus:
         $ref: '#/definitions/PPMAdvanceStatus'
       expectedDepartureDate:
