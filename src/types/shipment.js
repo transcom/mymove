@@ -8,6 +8,7 @@ import { AgentShape } from 'types/agent';
 import { LOCATION_TYPES_ONE_OF, SitStatusShape } from 'types/sitStatusShape';
 import { SITExtensionShape } from 'types/sitExtensions';
 import { ExistingUploadsShape } from 'types/uploads';
+import { ppmExpenseTypes } from 'constants/ppmExpenseTypes';
 
 export const ShipmentOptionsOneOf = oneOf(Object.values(SHIPMENT_OPTIONS));
 
@@ -138,7 +139,7 @@ export const ExpenseShape = shape({
   id: string,
   ppmShipmentId: string,
   description: string,
-  expenseType: string,
+  expenseType: oneOf(Object.values(ppmExpenseTypes)),
   missingReceipt: bool,
   receiptDocumentId: string,
   receiptDocument: DocumentShape,
