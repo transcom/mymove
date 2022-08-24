@@ -1972,6 +1972,8 @@ paths:
       summary: Saves an evaluation report as a draft
       description: Saves an evaluation report as a draft
       operationId: saveEvaluationReport
+      x-permissions:
+        - update.evaluationReport
       tags:
         - evaluationReports
       produces:

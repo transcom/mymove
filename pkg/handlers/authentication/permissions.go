@@ -36,7 +36,7 @@ var ServicesCounselor = RolePermissions{
 
 var QAECSR = RolePermissions{
 	RoleType:    roles.RoleTypeQaeCsr,
-	Permissions: []string{"read.paymentRequest", "create.evaluationReport"},
+	Permissions: []string{"read.paymentRequest", "create.evaluationReport", "update.evaluationReport"},
 }
 
 var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAECSR}
