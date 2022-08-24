@@ -142,7 +142,7 @@ export const ExpenseShape = shape({
   missingReceipt: bool,
   receiptDocumentId: string,
   receiptDocument: DocumentShape,
-  amount: string,
+  amount: number,
   paidWithGTCC: bool,
   sitStartDate: string,
   sitEndDate: string,

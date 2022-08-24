@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { DocumentAndImageUploadInstructions } from 'content/uploads';
+import { expenseTypes } from 'constants/ppmExpenseTypes';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -13,7 +14,7 @@ const defaultProps = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    expenseType: 'packing_materials',
+    expenseType: expenseTypes.PACKING_MATERIALS,
   },
   receiptNumber: '1',
   onCreateUpload: jest.fn(),
@@ -27,7 +28,7 @@ const missingReceiptProps = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    expenseType: 'packing_materials',
+    expenseType: expenseTypes.PACKING_MATERIALS,
     description: 'bubble wrap',
     missingReceipt: true,
   },
@@ -43,7 +44,7 @@ const expenseRequiredProps = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    expenseType: 'packing_materials',
+    expenseType: expenseTypes.PACKING_MATERIALS,
     description: 'bubble wrap',
     missingReceipt: false,
     paidWithGTCC: false,
@@ -67,7 +68,7 @@ const sitExpenseProps = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    expenseType: 'storage',
+    expenseType: expenseTypes.STORAGE,
     description: '10x10 storage pod',
     missingReceipt: false,
     paidWithGTCC: false,
@@ -132,7 +133,7 @@ describe('ExpenseForm component', () => {
         expect(screen.getByLabelText('What did you buy?')).toHaveDisplayValue('bubble wrap');
       });
       expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
-      expect(screen.getByRole('option', { name: 'Packing materials' }).selected).toBe(true);
+      expect(screen.getAllByRole('option')[3].selected).toBe(true);
       expect(screen.getByText('expenseReceipt.pdf')).toBeInTheDocument();
       const deleteButton = screen.getByRole('button', { name: 'Delete' });
       expect(deleteButton).toBeInTheDocument();
