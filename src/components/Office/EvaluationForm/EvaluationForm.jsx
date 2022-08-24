@@ -250,7 +250,7 @@ const EvaluationForm = ({ evaluationReport }) => {
                             <DropdownInput
                               id="hour"
                               name="hour"
-                              label="Hour"
+                              label="Hours"
                               className={styles.hourPicker}
                               onChange={(e) => {
                                 setFieldValue('hour', e.target.value);
@@ -262,7 +262,7 @@ const EvaluationForm = ({ evaluationReport }) => {
                             <DropdownInput
                               id="minute"
                               name="minute"
-                              label="Minute"
+                              label="Minutes"
                               className={styles.minutePicker}
                               onChange={(e) => {
                                 setFieldValue('minute', e.target.value);
