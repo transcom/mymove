@@ -1869,6 +1869,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - create.evaluationReport
       tags:
         - evaluationReports
       description: Creates an evaluation report

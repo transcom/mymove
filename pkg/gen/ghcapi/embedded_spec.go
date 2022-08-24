@@ -1792,7 +1792,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "create.evaluationReport"
+        ]
       },
       "parameters": [
         {
@@ -10377,7 +10380,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "create.evaluationReport"
+        ]
       },
       "parameters": [
         {
