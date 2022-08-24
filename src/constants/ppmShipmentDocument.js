@@ -1,0 +1,19 @@
+const ppmDocumentStatuses = {
+  APPROVED: 'APPROVED',
+  EXCLUDED: 'EXCLUDED',
+  REJECTED: 'REJECTED',
+};
+
+const movingExpenseTypes = {
+  CONTRACTED_EXPENSE: 'CONTRACTED_EXPENSE',
+  GAS: 'GAS',
+  OIL: 'OIL',
+  OTHER: 'OTHER',
+  PACKING_MATERIALS: 'PACKING_MATERIALS',
+  RENTAL_EQUIPMENT: 'RENTAL_EQUIPMENT',
+  STORAGE: 'STORAGE',
+  TOLLS: 'TOLLS',
+  WEIGHING_FEES: 'WEIGHING_FEES',
+};
+
+export { movingExpenseTypes, ppmDocumentStatuses };
