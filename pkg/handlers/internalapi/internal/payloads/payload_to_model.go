@@ -159,6 +159,12 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		ppmModel.PickupPostalCode = *ppmShipment.PickupPostalCode
 	}
 
+	var addressModel *models.Address
+	if ppmShipment.W2Address != nil {
+		addressModel = AddressModel(ppmShipment.W2Address)
+		ppmModel.W2Address = addressModel
+	}
+
 	return ppmModel
 }
 

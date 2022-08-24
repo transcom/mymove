@@ -3,4 +3,4 @@ ALTER table ppm_shipments
 
 CREATE INDEX on ppm_shipments (w2_address_id);
 
-COMMENT ON COLUMN ppm_shipments.w2_address_id IS "Customer's address to receive their W2 tax form";
+COMMENT ON COLUMN ppm_shipments.w2_address_id IS 'Customer address to receive their W2 tax form';

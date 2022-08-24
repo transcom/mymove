@@ -428,6 +428,13 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
 	}
 
+	var addressModel *models.Address
+
+	if ppmShipment.W2Address != nil {
+		addressModel = AddressModel(ppmShipment.W2Address)
+		model.W2Address = addressModel
+	}
+
 	if ppmShipment.SitLocation != nil {
 		sitLocation := models.SITLocationType(*ppmShipment.SitLocation)
 		model.SITLocation = &sitLocation

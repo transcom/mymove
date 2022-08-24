@@ -5620,6 +5620,10 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "weightTickets": {
           "type": "array",
           "items": {
@@ -6816,6 +6820,10 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -13087,6 +13095,10 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "weightTickets": {
           "type": "array",
           "items": {
@@ -14287,6 +14299,10 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         }
       }
     },
