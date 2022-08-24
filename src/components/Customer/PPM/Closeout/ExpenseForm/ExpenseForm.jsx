@@ -28,7 +28,7 @@ const validationSchema = Yup.object().shape({
   expenseType: Yup.string().required('Required'),
   description: Yup.string().required('Required'),
   paidWithGTCC: Yup.boolean().required('Required'),
-  amount: Yup.string().required('Required'),
+  amount: Yup.string().notOneOf(['0', '0.00'], 'Please enter a non-zero amount').required('Required'),
   missingReceipt: Yup.boolean().required('Required'),
   receiptDocument: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
   sitStartDate: Yup.date()

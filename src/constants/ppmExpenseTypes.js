@@ -9,6 +9,17 @@ export const expenseTypes = {
   OTHER: 'OTHER',
 };
 
+export const expenseTypesArr = [
+  'CONTRACTED_EXPENSE',
+  'OIL',
+  'PACKING_MATERIALS',
+  'RENTAL_EQUIPMENT',
+  'STORAGE',
+  'TOLLS',
+  'WEIGHING_FEE',
+  'OTHER',
+];
+
 export const ppmExpenseTypes = [
   { value: 'Contracted expense', key: 'CONTRACTED_EXPENSE' },
   { value: 'Oil', key: 'OIL' },
