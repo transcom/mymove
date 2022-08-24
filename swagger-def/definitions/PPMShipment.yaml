@@ -21,6 +21,9 @@ properties:
     readOnly: true
   status:
     $ref: 'PPMShipmentStatus.yaml'
+  w2Address:
+    x-nullable: true
+    $ref: '#Address.yaml'
   advanceStatus:
     $ref: 'PPMAdvanceStatus.yaml'
   expectedDepartureDate:

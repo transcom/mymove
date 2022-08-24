@@ -86,6 +86,8 @@ type PPMShipment struct {
 	SubmittedAt                    *time.Time           `json:"submitted_at" db:"submitted_at"`
 	ReviewedAt                     *time.Time           `json:"reviewed_at" db:"reviewed_at"`
 	ApprovedAt                     *time.Time           `json:"approved_at" db:"approved_at"`
+	W2Address                      *Address             `belongs_to:"addresses" fk_id:"w2_address_id"`
+	W2AddressID                    *uuid.UUID           `db:"w2_address_id"`
 	PickupPostalCode               string               `json:"pickup_postal_code" db:"pickup_postal_code"`
 	SecondaryPickupPostalCode      *string              `json:"secondary_pickup_postal_code" db:"secondary_pickup_postal_code"`
 	ActualPickupPostalCode         *string              `json:"actual_pickup_postal_code" db:"actual_pickup_postal_code"`
