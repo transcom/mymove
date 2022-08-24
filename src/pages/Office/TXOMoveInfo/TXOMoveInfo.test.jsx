@@ -1,6 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { queryByTestId, render, screen } from '@testing-library/react';
+import { queryByTestId, render, screen, waitFor } from '@testing-library/react';
+
+import { permissionTypes } from '../../../constants/permissions';
 
 import TXOMoveInfo from './TXOMoveInfo';
 
@@ -244,6 +246,36 @@ describe('TXO Move Info Container', () => {
       const renderedRoute = wrapper.find('Route');
       expect(renderedRoute).toHaveLength(1);
       expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/history');
+    });
+
+    it('should handle the Evaluation Report route', async () => {
+      render(
+        <MockProviders
+          permissions={[permissionTypes.updateEvaluationReport]}
+          initialEntries={[`/moves/${testMoveCode}/evaluation-reports/452e8013-805c-4e17-a6ff-ce90722c12c7`]}
+        >
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Evaluation form')).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Go to move details' })).not.toBeInTheDocument();
+      });
+    });
+    it('should not render Evaluation Report form when we do not have permission', async () => {
+      render(
+        <MockProviders
+          initialEntries={[`/moves/${testMoveCode}/evaluation-reports/452e8013-805c-4e17-a6ff-ce90722c12c7`]}
+        >
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("Sorry, you can't access this page")).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Go to move details' })).toBeInTheDocument();
+      });
     });
   });
 });

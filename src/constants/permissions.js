@@ -14,4 +14,5 @@ export const permissionTypes = {
   createReweighRequest: 'create.reweighRequest',
   updateMTOServiceItem: 'update.MTOServiceItem',
   createEvaluationReport: 'create.evaluationReport',
+  updateEvaluationReport: 'update.evaluationReport',
 };
