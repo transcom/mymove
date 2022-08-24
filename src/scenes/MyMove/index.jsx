@@ -70,6 +70,7 @@ const Advance = lazy(() => import('pages/MyMove/PPM/Booking/Advance/Advance'));
 const About = lazy(() => import('pages/MyMove/PPM/Closeout/About/About'));
 const WeightTickets = lazy(() => import('pages/MyMove/PPM/Closeout/WeightTickets/WeightTickets'));
 const PPMReview = lazy(() => import('pages/MyMove/PPM/Closeout/Review/Review'));
+const PPMFinalCloseout = lazy(() => import('pages/MyMove/PPM/Closeout/FinalCloseout/FinalCloseout'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -197,6 +198,11 @@ export class CustomerApp extends Component {
                     component={WeightTickets}
                   />
                   <CustomerPrivateRoute exact path={customerRoutes.SHIPMENT_PPM_REVIEW_PATH} component={PPMReview} />
+                  <CustomerPrivateRoute
+                    exact
+                    path={customerRoutes.SHIPMENT_PPM_COMPLETE_PATH}
+                    component={PPMFinalCloseout}
+                  />
                   <CustomerPrivateRoute path={customerRoutes.ORDERS_EDIT_PATH} component={EditOrders} />
                   <CustomerPrivateRoute path={customerRoutes.ORDERS_AMEND_PATH} component={AmendOrders} />
                   <CustomerPrivateRoute
