@@ -481,6 +481,10 @@ func subScenarioPaymentRequestCalculations(appCtx appcontext.AppContext, userUpl
 		})
 		// Locator PARAMS
 		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter)
+		// Locator ORGSIT
+		createHHGWithOriginSITServiceItems(appCtx, primeUploader, moveRouter)
+		// Locator DSTSIT
+		createHHGWithDestinationSITServiceItems(appCtx, primeUploader, moveRouter)
 	}
 }
 

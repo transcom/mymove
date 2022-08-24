@@ -18,3 +18,7 @@ func (r ServiceAreaLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 
 	return domesticServiceArea.ServiceArea, err
 }
+
+func (r ServiceAreaLookup) ParamValue(appCtx appcontext.AppContext, contractCode string) (string, error) {
+	return r.lookup(appCtx, &ServiceItemParamKeyData{ContractCode: contractCode})
+}
