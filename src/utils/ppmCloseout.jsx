@@ -109,3 +109,41 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
     return contents;
   });
 };
+
+export const calculateNetWeightForWeightTicket = (weightTicket) => {
+  if (weightTicket.emptyWeight === null || weightTicket.fullWeight === null) {
+    return 0;
+  }
+
+  return weightTicket.fullWeight - weightTicket.emptyWeight;
+};
+
+export const calculateTotalNetWeightForWeightTickets = (weightTickets) => {
+  return weightTickets.reduce((prev, curr) => {
+    return prev + calculateNetWeightForWeightTicket(curr);
+  }, 0);
+};
+
+export const calculateNetWeightForProGearWeightTicket = (proGearWeightTicket) => {
+  if (proGearWeightTicket.constructedWeight !== null) {
+    return proGearWeightTicket.constructedWeight;
+  }
+
+  if (proGearWeightTicket.emptyWeight === null || proGearWeightTicket.fullWeight === null) {
+    return 0;
+  }
+
+  return proGearWeightTicket.fullWeight - proGearWeightTicket.emptyWeight;
+};
+
+export const calculateTotalNetWeightForProGearWeightTickets = (proGearWeightTickets) => {
+  return proGearWeightTickets.reduce((prev, curr) => {
+    return prev + calculateNetWeightForProGearWeightTicket(curr);
+  }, 0);
+};
+
+export const calculateTotalMovingExpensesAmount = (movingExpenses) => {
+  return movingExpenses.reduce((prev, curr) => {
+    return curr.amount ? prev + curr.amount : prev;
+  }, 0);
+};
