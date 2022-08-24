@@ -1949,6 +1949,8 @@ paths:
       summary: Soft deletes an evaluation report by ID
       description: Soft deletes an evaluation report by ID
       operationId: deleteEvaluationReport
+      x-permissions:
+        - delete.evaluationReport
       tags:
         - evaluationReports
       produces:
