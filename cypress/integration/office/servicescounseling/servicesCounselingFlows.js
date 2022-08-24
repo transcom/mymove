@@ -184,7 +184,7 @@ describe('Services counselor user', () => {
       cy.get('input[name="dependentsAuthorized"]').siblings('label[for="dependentsAuthorizedInput"]').click();
 
       // Edit allowances page | Save
-      cy.get('[data-testid="scAllowancesSave"]').should('be.enabled').click({ force: true });
+      cy.get('[data-testid="scAllowancesSave"]').should('be.enabled').click();
     });
 
     cy.wait(['@patchAllowances']);
