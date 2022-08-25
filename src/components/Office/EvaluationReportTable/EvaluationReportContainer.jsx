@@ -20,14 +20,7 @@ import { shipmentTypeLabels } from 'content/shipments';
 import { useViewEvaluationReportQueries } from 'hooks/queries';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 
-const EvaluationReportContainer = ({
-  evaluationReportId,
-  shipmentId,
-  moveCode,
-  customerInfo,
-  grade,
-  setIsModalVisible,
-}) => {
+const EvaluationReportContainer = ({ evaluationReportId, shipmentId, moveCode, customerInfo, grade }) => {
   const { evaluationReport, mtoShipments } = useViewEvaluationReportQueries(evaluationReportId);
   let mtoShipmentsToShow;
 
@@ -186,11 +179,6 @@ const EvaluationReportContainer = ({
               </dl>
             </div>
           </div>
-          <div className={styles.buttonsGroup}>
-            <Button type="button" secondary onClick={() => setIsModalVisible(false)}>
-              Close
-            </Button>
-          </div>
         </Modal>
       </ModalContainer>
     </div>
@@ -202,7 +190,7 @@ EvaluationReportContainer.propTypes = {
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
-  setIsModalVisible: PropTypes.func.isRequired,
+  setIsCloseModalVisible: PropTypes.func.isRequired,
   shipmentId: PropTypes.string,
 };
 

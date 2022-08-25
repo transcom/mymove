@@ -7,10 +7,11 @@ import { useLocation } from 'react-router';
 import { EvaluationReportShape } from '../../../types/evaluationReport';
 
 import styles from './EvaluationReportTable.module.scss';
-import EvaluationReportContainer from './EvaluationReportContainer';
+import EvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 
 import { formatCustomerDate, formatEvaluationReportLocation, formatQAReportID } from 'utils/formatters';
 import { CustomerShape } from 'types';
+import EvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 
 const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, grade, shipmentId }) => {
   const location = useLocation();
@@ -20,6 +21,11 @@ const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, gra
   const handleViewReportClick = (report) => {
     setReportToView(report);
     setIsViewReportModalVisible(true);
+  };
+
+  // this handles the close button at the bottom of the view report modal
+  const toggleCloseModal = () => {
+    setIsViewReportModalVisible(!isViewReportModalVisible);
   };
 
   const row = (report) => {
@@ -65,14 +71,16 @@ const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, gra
   return (
     <div>
       {isViewReportModalVisible && reportToView && (
-        <EvaluationReportContainer
-          reportType={reportToView.type}
-          evaluationReportId={reportToView.id}
+        <EvaluationReportConfirmationModal
+          reportId={reportToView.id}
           moveCode={moveCode}
           customerInfo={customerInfo}
           grade={grade}
           shipmentId={shipmentId}
-          setIsModalVisible={setIsViewReportModalVisible}
+          closeModalOptions={{
+            onClick: toggleCloseModal,
+            text: 'Close',
+          }}
         />
       )}
       <table className={styles.evaluationReportTable}>

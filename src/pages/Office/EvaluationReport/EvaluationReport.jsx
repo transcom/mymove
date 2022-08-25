@@ -37,7 +37,7 @@ const EvaluationReport = ({ customerInfo, orders }) => {
           <EvaluationReportMoveInfo customerInfo={customerInfo} orders={orders} />
         )}
 
-        <EvaluationForm evaluationReport={evaluationReport} />
+        <EvaluationForm evaluationReport={evaluationReport} customerInfo={customerInfo} />
       </GridContainer>
     </div>
   );

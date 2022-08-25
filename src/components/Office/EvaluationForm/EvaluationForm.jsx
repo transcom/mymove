@@ -18,20 +18,27 @@ import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { formatDateForSwagger } from 'shared/dates';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
+import EvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 
-const EvaluationForm = ({ evaluationReport }) => {
+const EvaluationForm = ({ evaluationReport, customerInfo }) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
   const location = useLocation();
 
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
 
-  const [isDeleteModelOpen, setIsDeleteModelOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
   const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport);
+  const [submitEvaluationReportMutation] = useMutation(submitEvaluationReport);
 
-  const toggleCancelModel = () => {
-    setIsDeleteModelOpen(!isDeleteModelOpen);
+  const toggleCancelModal = () => {
+    setIsDeleteModalOpen(!isDeleteModalOpen);
+  };
+
+  const toggleSubmitModal = () => {
+    setIsSubmitModalOpen(!isSubmitModalOpen);
   };
 
   const cancelForUpdatedReport = () => {
@@ -40,13 +47,24 @@ const EvaluationForm = ({ evaluationReport }) => {
 
   const cancelReport = async () => {
     // Close the modal
-    setIsDeleteModelOpen(!isDeleteModelOpen);
+    setIsDeleteModalOpen(!isDeleteModalOpen);
 
     // Mark as deleted in database
     await deleteEvaluationReportMutation(reportId);
 
     // Reroute back to eval report page, include flag to know to show alert
     history.push(`/moves/${moveCode}/evaluation-reports`, { showDeleteSuccess: true });
+  };
+
+  const submitReport = async () => {
+    // close the modal
+    setIsSubmitModalOpen(!isSubmitModalOpen);
+
+    // mark as submitted in the DB
+    await submitEvaluationReportMutation(reportId);
+
+    // Reroute back to eval report page, include flag to show success alert
+    history.push(`/moves/${moveCode}/evaluation-reports`, { showSubmitSuccess: true });
   };
 
   const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
@@ -182,10 +200,27 @@ const EvaluationForm = ({ evaluationReport }) => {
   return (
     <>
       <ConnectedDeleteEvaluationReportConfirmationModal
-        isOpen={isDeleteModelOpen}
-        closeModal={toggleCancelModel}
+        isOpen={isDeleteModalOpen}
+        closeModal={toggleCancelDeleteModal}
         submitModal={cancelReport}
       />
+      <EvaluationReportConfirmationModal>
+        reportId={evaluationReport.id}
+        moveCode={moveCode}
+        customerInfo={customerInfo}
+        grade={grade}
+        shipmentId={shipmentId}
+        closeModalOptions=
+        {{
+          onClick: toggleSubmitModal,
+          text: 'Back to evaluation form',
+        }}
+        submitModalOptions=
+        {{
+          onClick: submitReport,
+          text: 'Submit',
+        }}
+      </EvaluationReportConfirmationModal>
       <Formik
         initialValues={initialValues}
         enableReinitialize
@@ -422,7 +457,7 @@ const EvaluationForm = ({ evaluationReport }) => {
                   <Grid col>
                     <div className={styles.buttonRow}>
                       {evaluationReport.updatedAt === evaluationReport.createdAt && (
-                        <Button className="usa-button--unstyled" onClick={toggleCancelModel} type="button">
+                        <Button className="usa-button--unstyled" onClick={toggleCancelModal} type="button">
                           Cancel
                         </Button>
                       )}
@@ -444,7 +479,9 @@ const EvaluationForm = ({ evaluationReport }) => {
                           Next: select violations
                         </Button>
                       ) : (
-                        <Button disabled={!values.violationsObserved}>Review and submit</Button>
+                        <Button disabled={!values.violationsObserved} onClick={toggleSubmitModal}>
+                          Review and submit
+                        </Button>
                       )}
                     </div>
                   </Grid>

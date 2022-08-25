@@ -259,7 +259,7 @@ describe('Evaluation Report Container', () => {
       <EvaluationReportContainer
         evaluationReportId={evaluationReport.id}
         grade="E_4"
-        setIsModalVisible={setIsModalVisible}
+        setIsCloseModalVisible={setIsCloseModalVisible}
         moveCode="TEST123"
         customerInfo={customerInfo}
       />,
