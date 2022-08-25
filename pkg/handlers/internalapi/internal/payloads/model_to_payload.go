@@ -279,6 +279,46 @@ func PayloadForUploadModel(
 	return uploadPayload
 }
 
+// MovingExpense payload
+func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpense) *internalmessages.MovingExpense {
+
+	document, err := PayloadForDocumentModel(storer, movingExpense.Document)
+	if err != nil {
+		return nil
+	}
+
+	payload := &internalmessages.MovingExpense{
+		ID:             *handlers.FmtUUID(movingExpense.ID),
+		PpmShipmentID:  *handlers.FmtUUID(movingExpense.PPMShipmentID),
+		DocumentID:     *handlers.FmtUUID(movingExpense.DocumentID),
+		Document:       document,
+		CreatedAt:      handlers.FmtDateTime(movingExpense.CreatedAt),
+		UpdatedAt:      handlers.FmtDateTime(movingExpense.UpdatedAt),
+		Description:    movingExpense.Description,
+		PaidWithGtcc:   movingExpense.PaidWithGTCC,
+		Amount:         handlers.FmtCost(movingExpense.Amount),
+		MissingReceipt: movingExpense.MissingReceipt,
+		Reason:         movingExpense.Reason,
+	}
+	if movingExpense.MovingExpenseType != nil {
+		payload.MovingExpenseType = internalmessages.MovingExpenseType(*movingExpense.MovingExpenseType)
+	}
+
+	if movingExpense.Status != nil {
+		payload.Status = internalmessages.PPMDocumentStatus(*movingExpense.Status)
+	}
+
+	if movingExpense.SITStartDate != nil {
+		payload.SitStartDate = handlers.FmtDatePtr(movingExpense.SITStartDate)
+	}
+
+	if movingExpense.SITEndDate != nil {
+		payload.SitEndDate = handlers.FmtDatePtr(movingExpense.SITEndDate)
+	}
+
+	return payload
+}
+
 func WeightTickets(storer storage.FileStorer, weightTickets models.WeightTickets) []*internalmessages.WeightTicket {
 	payload := make([]*internalmessages.WeightTicket, len(weightTickets))
 	for i, weightTicket := range weightTickets {
