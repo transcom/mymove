@@ -20,12 +20,12 @@ describe('Services counselor user', () => {
     cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&locator=**').as(
       'getFilterSortedMoves',
     );
-    cy.intercept('**/ghc/v1/move/**').as('getMoves');
-    cy.intercept('**/ghc/v1/orders/**').as('getOrders');
-    cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
+    cy.intercept('GET', '**/ghc/v1/move/**').as('getMoves');
+    cy.intercept('GET', '**/ghc/v1/orders/**').as('getOrders');
+    cy.intercept('GET', '**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments/**').as('updateMTOShipments');
     cy.intercept('**/ghc/v1/mto-shipments').as('createShipment');
-    cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
+    cy.intercept('GET', '**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
 
     const userId = 'a6c8663f-998f-4626-a978-ad60da2476ec'; // services_counselor_role@office.mil
     cy.apiSignInAsUser(userId, ServicesCounselorOfficeUserType);
@@ -108,19 +108,22 @@ describe('Services counselor user', () => {
 
     // Expand details and verify information
     cy.contains('Your changes were saved.');
-    cy.get('[data-prefix="fas"][data-icon="chevron-down"]').last().click();
-    cy.get('[data-testid="expectedDepartureDate"]').contains('09 Jun 2022');
-    cy.get('[data-testid="originZIP"]').contains('90210');
-    cy.get('[data-testid="secondOriginZIP"]').contains('07003');
-    cy.get('[data-testid="destinationZIP"]').contains('76127');
-    cy.get('[data-testid="secondDestinationZIP"]').contains('08540');
-    cy.get('[data-testid="sitPlanned"]').contains('yes');
-    cy.get('[data-testid="estimatedWeight"]').contains('4,000 lbs');
-    cy.get('[data-testid="proGearWeight"]').contains('Yes, 1,000 lbs');
-    cy.get('[data-testid="spouseProGear"]').contains('Yes, 500 lbs');
-    cy.get('[data-testid="estimatedIncentive"]').contains('$201,506');
-    // TODO Add back when bug is merged in
-    // cy.get('[data-testid="hasRequestedAdvance"]').contains('Yes, $10,000');
-    cy.get('[data-testid="counselorRemarks"]').contains('Added correct incentive');
+    cy.get('[data-testid="ShipmentContainer"]')
+      .last()
+      .within(($shipmentContainer) => {
+        cy.get('[data-prefix="fas"][data-icon="chevron-down"]').click();
+        cy.get('[data-testid="expectedDepartureDate"]').contains('09 Jun 2022');
+        cy.get('[data-testid="originZIP"]').contains('90210');
+        cy.get('[data-testid="secondOriginZIP"]').contains('07003');
+        cy.get('[data-testid="destinationZIP"]').contains('76127');
+        cy.get('[data-testid="secondDestinationZIP"]').contains('08540');
+        cy.get('[data-testid="sitPlanned"]').contains('yes');
+        cy.get('[data-testid="estimatedWeight"]').contains('4,000 lbs');
+        cy.get('[data-testid="proGearWeight"]').contains('Yes, 1,000 lbs');
+        cy.get('[data-testid="spouseProGear"]').contains('Yes, 500 lbs');
+        cy.get('[data-testid="estimatedIncentive"]').contains('$67,692');
+        cy.get('[data-testid="hasRequestedAdvance"]').contains('Yes, $10,000');
+        cy.get('[data-testid="counselorRemarks"]').contains('Added correct incentive');
+      });
   });
 });
