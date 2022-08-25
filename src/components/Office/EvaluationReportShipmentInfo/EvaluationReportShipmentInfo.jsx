@@ -1,9 +1,10 @@
 import React from 'react';
 import { PropTypes } from 'prop-types';
-import { GridContainer, Grid } from '@trussworks/react-uswds';
-import 'styles/office.scss';
+import { GridContainer } from '@trussworks/react-uswds';
+import classnames from 'classnames';
 
 import styles from '../EvaluationReportTable/EvaluationReportContainer.module.scss';
+import 'styles/office.scss';
 
 import evaluationReportStyles from './EvaluationReportShipmentInfo.module.scss';
 
@@ -47,12 +48,15 @@ const EvaluationReportShipmentInfo = ({ shipments, report, customerInfo, orders 
 
   return (
     <GridContainer className={evaluationReportStyles.cardContainer}>
-      <Grid row>
-        <Grid col desktop={{ col: 8 }}>
+      <div className={evaluationReportStyles.sidebySideContainer}>
+        <div>
           <h2>{report.type === 'SHIPMENT' ? 'Shipment' : 'Move'} information</h2>
           {shipments.length > 0 &&
             shipments.map((shipment) => (
-              <div key={shipment.id} className={styles.shipmentDisplayContainer}>
+              <div
+                key={shipment.id}
+                className={classnames(styles.shipmentDisplayContainer, evaluationReportStyles.shipmentCardColumn)}
+              >
                 <EvaluationReportShipmentDisplay
                   isSubmitted
                   key={shipment.id}
@@ -62,17 +66,12 @@ const EvaluationReportShipmentInfo = ({ shipments, report, customerInfo, orders 
                 />
               </div>
             ))}
-        </Grid>
-        <Grid
-          className={evaluationReportStyles.qaeAndCustomerInfo}
-          col
-          desktop={{ col: 2 }}
-          data-testid="qaeAndCustomerInfo"
-        >
-          <DataTable columnHeaders={['Customer information']} dataRow={[customerInfoTableBody]} />
+        </div>
+        <div className={evaluationReportStyles.qaeAndCustomerInfo} data-testid="qaeAndCustomerInfo">
           <DataTable columnHeaders={['QAE']} dataRow={[officeUserInfoTableBody]} />
-        </Grid>
-      </Grid>
+          <DataTable columnHeaders={['Customer information']} dataRow={[customerInfoTableBody]} />
+        </div>
+      </div>
     </GridContainer>
   );
 };

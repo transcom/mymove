@@ -18,16 +18,24 @@ import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
 const EvaluationReport = ({ customerInfo, orders }) => {
   const { reportId } = useParams();
   const { evaluationReport, mtoShipments } = useEvaluationReportQueries(reportId);
+
+  let mtoShipmentsToShow;
+  if (evaluationReport.shipmentID && mtoShipments) {
+    mtoShipmentsToShow = [mtoShipments.find((shipment) => shipment.id === evaluationReport.shipmentID)];
+  } else {
+    mtoShipmentsToShow = mtoShipments;
+  }
+
   return (
     <div className={classnames(styles.tabContent, evaluationReportStyles.tabContent)}>
-      <GridContainer>
+      <GridContainer className={evaluationReportStyles.container}>
         <QaeReportHeader report={evaluationReport} />
 
-        {mtoShipments?.length > 0 && (
+        {mtoShipmentsToShow?.length > 0 && (
           <EvaluationReportShipmentInfo
             customerInfo={customerInfo}
             orders={orders}
-            shipments={mtoShipments}
+            shipments={mtoShipmentsToShow}
             report={evaluationReport}
           />
         )}

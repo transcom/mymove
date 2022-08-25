@@ -73,8 +73,10 @@ const PPMShipmentInfoList = ({
   const destinationZIPElementFlags = getDisplayFlags('DestinationZIP');
   const destinationZIPElement = (
     <div className={destinationZIPElementFlags.classes}>
-      <dt>Destination ZIP</dt>
-      <dd data-testid="destinationZIP">{destinationPostalCode}</dd>
+      <dt className={shipmentDefinitionListsStyles.ppmRightLonerDataRow}>Destination ZIP</dt>
+      <dd className={shipmentDefinitionListsStyles.ppmRightLonerDataRow} data-testid="destinationZIP">
+        {destinationPostalCode}
+      </dd>
     </div>
   );
 

@@ -16,6 +16,8 @@
   color: $base-dark;
   font-size: 13px;
   @include u-padding-right(17px);
+  @include u-margin-top(0);
+  @include u-margin-bottom(0);
 }
 
 .ntsHeaderText {
@@ -29,6 +31,8 @@
 .ntsHeaderTextField {
   flex-grow: 1;
   @include u-padding-left(1);
+  @include u-margin-top(2px);
+  @include u-margin-bottom(1);
 }
 
 .ntsHeaderTextRight {
@@ -63,8 +67,10 @@
     justify-items: flex-start;
     @include u-text('base-darkest');
     @include u-margin(0);
-    @include u-padding(2);
-
+    @include u-padding-left(2);
+    @include u-padding-right(2);
+    @include u-padding-bottom(2);
+    @include u-padding-top(12px);
     h3 {
       display: inline;
       font-weight: normal;
@@ -86,6 +92,10 @@
       display: flex;
       align-items: center;
       flex-grow: 1;
+      h5 {
+        @include u-margin-top(0);
+        @include u-margin-bottom(0);
+      }
     }
 
     :global(.usa-checkbox__label) {
