@@ -1,7 +1,6 @@
 package ghcdieselfuelprice
 
 import (
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -9,7 +8,7 @@ import (
 )
 
 func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceStorer() {
-	suite.T().Run("run storer for new publication date", func(t *testing.T) {
+	suite.Run("run storer for new publication date", func() {
 		dieselFuelPriceInfo := DieselFuelPriceInfo{
 			dieselFuelPriceData: dieselFuelPriceData{
 				publicationDate: "20200622",
@@ -29,7 +28,7 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceStorer() {
 		suite.Equal(unit.Millicents(265900), ghcDieselFuelPrice.FuelPriceInMillicents)
 	})
 
-	suite.T().Run("run storer for existing publication date", func(t *testing.T) {
+	suite.Run("run storer for existing publication date", func() {
 		updatedDieselFuelPriceInfo := DieselFuelPriceInfo{
 			dieselFuelPriceData: dieselFuelPriceData{
 				publicationDate: "20200622",

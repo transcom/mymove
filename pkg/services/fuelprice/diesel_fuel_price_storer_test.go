@@ -5,9 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gobuffalo/pop/v6"
-
 	"github.com/benbjohnson/clock"
+	"github.com/gobuffalo/pop/v6"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
