@@ -1,4 +1,27 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
 .forbidden {
-//   width: 640px;
-//   display: flex;
+  width: 640px;
+  margin: auto;
+  @include u-margin-top(10);
+  @include u-margin-bottom(0);
+  h1 {
+    @include u-margin-top(0);
+    @include u-margin-bottom(4);
+    color: $base-darkest;
+  }
+
+  .subHeading {
+    @include u-margin-y(3);
+    @include u-font-size('body', 9);
+    color: $base-darkest;
+  }
+
+  .explanation {
+    @include u-margin-bottom(3);
+    line-height: 23px;
+    @include u-font-size('body', 4);
+    color: #000000;
+  }
 }
