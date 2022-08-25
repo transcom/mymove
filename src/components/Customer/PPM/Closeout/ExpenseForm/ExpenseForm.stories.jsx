@@ -3,6 +3,7 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { expenseTypes } from 'constants/ppmExpenseTypes';
 
 export default {
   title: 'Customer Components / PPM Closeout / Expenses PPM Form',
@@ -52,7 +53,7 @@ ExistingExpenses.args = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    expenseType: 'packing_materials',
+    expenseType: expenseTypes.PACKING_MATERIALS,
     description: 'bubble wrap',
     missingReceipt: false,
     paidWithGTCC: false,
@@ -86,7 +87,7 @@ SITExpenses.args = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    expenseType: 'storage',
+    expenseType: expenseTypes.STORAGE,
     description: '10x10 storage pod',
     missingReceipt: false,
     paidWithGTCC: false,
