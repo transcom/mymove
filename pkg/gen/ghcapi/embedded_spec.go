@@ -6316,6 +6316,12 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "finalIncentive": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -7548,6 +7554,12 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
+        },
+        "finalIncentive": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
@@ -15357,6 +15369,12 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "finalIncentive": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -16596,6 +16614,12 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
+        },
+        "finalIncentive": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",

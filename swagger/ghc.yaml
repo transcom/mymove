@@ -3885,6 +3885,11 @@ definitions:
       w2Address:
         x-nullable: true
         $ref: '#/definitions/Address'
+      finalIncentive:
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
       sitExpected:
         type: boolean
         x-nullable: true
@@ -5682,6 +5687,11 @@ definitions:
         x-nullable: true
         x-omitempty: false
       estimatedIncentive:
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      finalIncentive:
         type: integer
         format: cents
         x-nullable: true

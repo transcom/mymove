@@ -100,6 +100,7 @@ type PPMShipment struct {
 	ProGearWeight                  *unit.Pound          `json:"pro_gear_weight" db:"pro_gear_weight"`
 	SpouseProGearWeight            *unit.Pound          `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
 	EstimatedIncentive             *unit.Cents          `json:"estimated_incentive" db:"estimated_incentive"`
+	FinalIncentive                 *unit.Cents          `json:"final_incentive" db:"final_incentive"`
 	HasRequestedAdvance            *bool                `json:"has_requested_advance" db:"has_requested_advance"`
 	AdvanceAmountRequested         *unit.Cents          `json:"advance_amount_requested" db:"advance_amount_requested"`
 	HasReceivedAdvance             *bool                `json:"has_received_advance" db:"has_received_advance"`

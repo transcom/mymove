@@ -2602,6 +2602,11 @@ definitions:
       w2Address:
         x-nullable: true
         $ref: 'definitions/Address.yaml'
+      finalIncentive:
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
       sitExpected:
         type: boolean
         x-nullable: true
