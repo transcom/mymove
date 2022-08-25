@@ -74,6 +74,7 @@ describe('Services counselor user', () => {
 
     // Confirm new shipment is visible
     cy.get('[data-testid="ShipmentContainer"]').within(($shipmentContainer) => {
+      // Verify unexpanded view
       cy.get('[data-testid="expectedDepartureDate"]').contains('09 Jun 2022');
       cy.get('[data-testid="originZIP"]').contains('90210');
       cy.get('[data-testid="destinationZIP"]').contains('76127');
@@ -81,6 +82,14 @@ describe('Services counselor user', () => {
       cy.get('[data-testid="estimatedWeight"]').contains('4,000 lbs');
       cy.get('[data-testid="hasRequestedAdvance"]').contains('Yes, $5,987');
       cy.get('[data-testid="counselorRemarks"]').contains('The requested advance amount has been added.');
+
+      // Verify fields in the expanded view
+      cy.get('[data-prefix="fas"][data-icon="chevron-down"]').click();
+      cy.get('[data-testid="secondOriginZIP"]').contains('07003');
+      cy.get('[data-testid="secondDestinationZIP"]').contains('08540');
+      cy.get('[data-testid="proGearWeight"]').contains('Yes, 1,000 lbs');
+      cy.get('[data-testid="spouseProGear"]').contains('Yes, 500 lbs');
+      cy.get('[data-testid="estimatedIncentive"]').contains('$67,692');
     });
   });
 });
