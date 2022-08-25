@@ -454,7 +454,7 @@ export const useEvaluationReportsQueries = (moveCode) => {
 };
 
 export const usePWSViolationsQueries = () => {
-  const { data: violations = {}, ...pwsViolationsQuery } = useQuery(PWS_VIOLATIONS, getPWSViolations);
+  const { data: violations = [], ...pwsViolationsQuery } = useQuery(PWS_VIOLATIONS, getPWSViolations);
 
   return {
     violations,

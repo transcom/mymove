@@ -1,6 +1,6 @@
 import React from 'react';
 import 'styles/office.scss';
-import { GridContainer, Grid, Button, Accordion, Checkbox } from '@trussworks/react-uswds';
+import { GridContainer, Grid, Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { useParams, useHistory } from 'react-router';
 
@@ -10,14 +10,14 @@ import evaluationViolationsStyles from './EvaluationViolations.module.scss';
 
 import { useShipmentEvaluationReportQueries, usePWSViolationsQueries } from 'hooks/queries';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import ViolationAccordion from 'components/Office/ViolationAccordion/ViolationAccordion';
 
 const EvaluationViolations = () => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
 
   const { evaluationReport } = useShipmentEvaluationReportQueries(reportId);
-  const { violations, isLoading } = usePWSViolationsQueries();
+  const { violations } = usePWSViolationsQueries();
 
   const handleBackToEvalForm = () => {
     // TODO: Save as draft before rerouting
@@ -28,16 +28,8 @@ const EvaluationViolations = () => {
     history.push(`/moves/${moveCode}/evaluation-reports`);
   };
 
-  if (!violations || isLoading) return <LoadingPlaceholder />;
-  const accordionItems = violations.map((violation) => {
-    return {
-      title: `${violation.category} -${violation.subCategory}`,
-      content: <Checkbox label={`${violation.paragraphNumber} ${violation.title} `} id={`${violation.id}-checkbox`} />,
-      expanded: false,
-      id: violation.id,
-      headingLevel: 'h4',
-    };
-  });
+  // Get distinct categories
+  const categories = [...new Set(violations.map((item) => item.category))];
 
   return (
     <div className={classnames(styles.tabContent, evaluationViolationsStyles.tabContent)}>
@@ -45,11 +37,18 @@ const EvaluationViolations = () => {
         <QaeReportHeader report={evaluationReport} />
         <GridContainer className={evaluationViolationsStyles.cardContainer}>
           <Grid row>
-            <Grid col desktop={{ col: 8 }}>
+            <Grid col>
               <h2>Select violations</h2>
+              <p>Select the paragraph from the Performance Work Statement (PWS) that the GHC Prime has violated.</p>
             </Grid>
           </Grid>
-          <Accordion items={accordionItems} multiselectable />
+          {categories.map((category) => (
+            <ViolationAccordion
+              category={category}
+              violations={violations.filter((violation) => violation.category === category)}
+              key={`${category}-category`}
+            />
+          ))}
         </GridContainer>
         <GridContainer className={evaluationViolationsStyles.buttonContainer}>
           <Grid row>

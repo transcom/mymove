@@ -1,0 +1,14 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.accordion {
+  :global {
+    .usa-prose {
+      @include u-padding-bottom(0);
+      @include u-padding-top(0.5);
+      @include u-padding-left(1);
+      @include u-padding-right(1);
+    }
+  }
+}
