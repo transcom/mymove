@@ -20,11 +20,41 @@ describe('TOO user', () => {
     cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**').as('patchShipment');
     cy.intercept('PATCH', '**/ghc/v1/orders/**/allowances').as('patchAllowances');
     cy.intercept('**/ghc/v1/moves/**/financial-review-flag').as('financialReviewFlagCompleted');
+    cy.intercept('**/ghc/v1/moves/**/shipment-evaluation-reports-list').as('getShipmentEvaluationReports');
+    cy.intercept('**/ghc/v1/moves/**/counseling-evaluation-reports-list').as('getCounselingEvaluationReports');
+    cy.intercept('**/ghc/v1/customer/**').as('getCustomer');
 
     // This user has multiple roles, which is the kind of user we use to test in staging.
     // By using this type of user, we can catch bugs like the one fixed in PR 6706.
     const userId = 'dcf86235-53d3-43dd-8ee8-54212ae3078f';
     cy.apiSignInAsUser(userId, TOOOfficeUserType);
+  });
+
+  it('is unable to see create report buttons', () => {
+    const moveLocator = 'TEST12';
+
+    // Navigate to Move details page from TOO Moves queue
+    navigateToMove(moveLocator);
+    cy.contains('Quality assurance').click();
+    cy.wait(['@getMoves', '@getMTOShipments', '@getShipmentEvaluationReports', '@getCounselingEvaluationReports']);
+    cy.contains('Quality assurance reports');
+
+    // Make sure there are no create report buttons on the page
+    cy.contains('Create report').should('not.exist');
+  });
+
+  it('cannot load evaluation report creation form', () => {
+    const moveLocator = 'TEST12';
+
+    // Attempt to visit edit page for an evaluation report
+    cy.visit(`/moves/${moveLocator}/evaluation-reports/11111111-1111-1111-1111-111111111111`);
+    cy.wait(['@getMoves', '@getOrders', '@getCustomer']);
+    cy.contains("Sorry, you can't access this page");
+    cy.contains('Go to move details').click();
+
+    // Make sure we go to move details page
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
   });
 
   // This test performs a mutation so it can only succeed on a fresh DB.
