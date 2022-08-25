@@ -39,6 +39,28 @@ export function signInAndNavigateToAboutPage(userId, selectAdvance) {
   fillOutAboutPage(selectAdvance);
 }
 
+export function signInAndNavigateToPPMReviewPage(userId) {
+  signInAndClickOnUploadPPMDocumentsButton(userId);
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+  });
+}
+
+export function navigateFromPPMReviewPageToFinalCloseoutPage() {
+  cy.get('a').contains('Save & Continue').click();
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/complete/);
+  });
+}
+
+export function signInAndNavigateToFinalCloseoutPage(userId) {
+  signInAndNavigateToPPMReviewPage(userId);
+
+  navigateFromPPMReviewPageToFinalCloseoutPage();
+}
+
 export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
   if (isMoveSubmitted) {
     cy.get('h3').contains('Next step: Your move gets approved');
