@@ -20,42 +20,46 @@ const ViolationAccordion = ({ category, violations }) => {
   const getContentForItem = (subCategory) => {
     const subCategoryViolations = violations.filter((violation) => violation.subCategory === subCategory);
     const items = subCategoryViolations.map((violation) => (
-      <div style={{ borderBottom: '1px solid #F0F0F0' }} key={`${violation.id}-accordion-option`}>
-        <div style={{ display: 'flex' }}>
+      <div key={`${violation.id}-accordion-option`} className={styles.accordionOption}>
+        <div className={styles.flex}>
           <Checkbox
             id={`${violation.id}-checkbox`}
             name={`${violation.paragraphNumber} ${violation.title}`}
-            // label={`${violation.paragraphNumber} ${violation.title}`}
+            className={styles.checkbox}
+            label=""
+            aria-labelledby={`${violation.id}-checkbox-label`}
           />
-          <div style={{ flexGrow: 1 }}>
-            <h5 style={{ marginTop: '12px', marginBottom: 0 }}>{`${violation.paragraphNumber} ${violation.title}`}</h5>
+          <div className={styles.grow} id={`${violation.id}-checkbox-label`}>
+            <h5 className={styles.checkboxLabel}>{`${violation.paragraphNumber} ${violation.title}`}</h5>
             <small>{violation.requirementSummary}</small>
           </div>
           {expandedViolations.includes(violation.id) ? (
             <FontAwesomeIcon
               icon="chevron-down"
-              style={{ color: '#565C65', fontSize: '20px', marginTop: '12px', marginRight: '12px', cursor: 'pointer' }}
+              className={styles.detailIcon}
               onClick={() => {
                 toggleDetailExpand(violation.id);
               }}
+              fontSize="20px"
             />
           ) : (
             <FontAwesomeIcon
               icon="chevron-up"
-              style={{ color: '#565C65', fontSize: '20px', marginTop: '12px', marginRight: '12px', cursor: 'pointer' }}
+              className={styles.detailIcon}
               onClick={() => {
                 toggleDetailExpand(violation.id);
               }}
+              fontSize="20px"
             />
           )}
         </div>
-        {expandedViolations.includes(violation.id) ? (
-          <p
-            style={{ marginLeft: '32px', marginTop: '8px', marginRight: '8px', marginBottom: '8px', color: '#71767A' }}
-          >
+
+        {/* Expandable Requirements Statement */}
+        {expandedViolations.includes(violation.id) && (
+          <p className={styles.requirementStatement}>
             <small>{violation.requirementStatement}</small>
           </p>
-        ) : null}
+        )}
       </div>
     ));
 

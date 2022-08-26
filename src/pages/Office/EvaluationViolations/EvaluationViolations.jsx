@@ -39,7 +39,9 @@ const EvaluationViolations = () => {
           <Grid row>
             <Grid col>
               <h2>Select violations</h2>
-              <p>Select the paragraph from the Performance Work Statement (PWS) that the GHC Prime has violated.</p>
+              <p className={evaluationViolationsStyles.detailText}>
+                Select the paragraph from the Performance Work Statement (PWS) that the GHC Prime has violated.
+              </p>
             </Grid>
           </Grid>
           {categories.map((category) => (

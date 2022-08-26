@@ -11,4 +11,51 @@
       @include u-padding-right(1);
     }
   }
+
+  :global {
+    .usa-accordion__button {
+      padding-bottom: 8px;
+      padding-top: 8px;
+    }
+  }
+}
+
+.accordionOption {
+  @include u-border-bottom('1px', 'solid', 'base-lightest');
+
+  h5 {
+    @include u-margin-top(1);
+    @include u-margin-bottom(0);
+    @include u-color('base-darkest');
+  }
+}
+
+.flex {
+  @include u-display('flex');
+}
+
+.grow {
+  flex-grow: 1;
+}
+
+.checkbox {
+  @include u-color('base');
+
+  :global {
+    .usa-checkbox__label::before {
+      box-shadow: 0 0 0 2px $base;
+    }
+  }
+}
+
+.detailIcon {
+  @include u-color('base-dark');
+  @include u-margin-top(1);
+  @include u-margin-right(1);
+  @include u-cursor('pointer');
+}
+
+.requirementStatement {
+  @include u-color('base');
+  margin: 8px 8px 8px 32px;
 }
