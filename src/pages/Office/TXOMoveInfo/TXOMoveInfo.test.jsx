@@ -252,7 +252,7 @@ describe('TXO Move Info Container', () => {
       render(
         <MockProviders
           permissions={[permissionTypes.updateEvaluationReport]}
-          initialEntries={[`/moves/${testMoveCode}/evaluation-reports/452e8013-805c-4e17-a6ff-ce90722c12c7`]}
+          initialEntries={[`/moves/${testMoveCode}/evaluation-reports/11111111-1111-1111-1111-111111111111`]}
         >
           <TXOMoveInfo />
         </MockProviders>,
@@ -266,7 +266,7 @@ describe('TXO Move Info Container', () => {
     it('should not render Evaluation Report form when we do not have permission', async () => {
       render(
         <MockProviders
-          initialEntries={[`/moves/${testMoveCode}/evaluation-reports/452e8013-805c-4e17-a6ff-ce90722c12c7`]}
+          initialEntries={[`/moves/${testMoveCode}/evaluation-reports/11111111-1111-1111-1111-111111111111`]}
         >
           <TXOMoveInfo />
         </MockProviders>,
