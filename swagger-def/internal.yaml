@@ -2613,10 +2613,7 @@ definitions:
         x-nullable: true
         $ref: 'definitions/Address.yaml'
       finalIncentive:
-        type: integer
-        format: cents
-        x-nullable: true
-        x-omitempty: false
+        $ref: 'definitions/FinalIncentive.yaml'
       sitExpected:
         type: boolean
         x-nullable: true

@@ -1,0 +1,6 @@
+description: >
+    The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.
+type: integer
+format: cents
+x-nullable: true
+x-omitempty: false
