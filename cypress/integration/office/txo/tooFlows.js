@@ -30,33 +30,6 @@ describe('TOO user', () => {
     cy.apiSignInAsUser(userId, TOOOfficeUserType);
   });
 
-  it('is unable to see create report buttons', () => {
-    const moveLocator = 'TEST12';
-
-    // Navigate to Move details page from TOO Moves queue
-    navigateToMove(moveLocator);
-    cy.contains('Quality assurance').click();
-    cy.wait(['@getMoves', '@getMTOShipments', '@getShipmentEvaluationReports', '@getCounselingEvaluationReports']);
-    cy.contains('Quality assurance reports');
-
-    // Make sure there are no create report buttons on the page
-    cy.contains('Create report').should('not.exist');
-  });
-
-  it('cannot load evaluation report creation form', () => {
-    const moveLocator = 'TEST12';
-
-    // Attempt to visit edit page for an evaluation report
-    cy.visit(`/moves/${moveLocator}/evaluation-reports/11111111-1111-1111-1111-111111111111`);
-    cy.wait(['@getMoves', '@getOrders', '@getCustomer']);
-    cy.contains("Sorry, you can't access this page");
-    cy.contains('Go to move details').click();
-
-    // Make sure we go to move details page
-    cy.url().should('include', `/moves/${moveLocator}/details`);
-    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
-  });
-
   // This test performs a mutation so it can only succeed on a fresh DB.
   it('is able to approve a shipment', () => {
     const moveLocator = 'TEST12';
@@ -471,5 +444,34 @@ describe('TOO user', () => {
     cy.contains('Serious illness of the member');
     cy.contains('The customer requested an extension.');
     cy.contains('The service member is unable to move into their new home at the expected time');
+  });
+
+  // Test that the TOO is blocked from doing QAECSR actions
+  it('is unable to see create report buttons', () => {
+    const moveLocator = 'TEST12';
+
+    // Navigate to Move details page from TOO Moves queue
+    navigateToMove(moveLocator);
+    cy.contains('Quality assurance').click();
+    cy.wait(['@getMoves', '@getMTOShipments', '@getShipmentEvaluationReports', '@getCounselingEvaluationReports']);
+    cy.contains('Quality assurance reports');
+
+    // Make sure there are no create report buttons on the page
+    cy.contains('Create report').should('not.exist');
+  });
+
+  it('cannot load evaluation report creation form', () => {
+    const moveLocator = 'TEST12';
+
+    // Attempt to visit edit page for an evaluation report (report ID doesn't matter since
+    // we should get stopped before looking it up)
+    cy.visit(`/moves/${moveLocator}/evaluation-reports/11111111-1111-1111-1111-111111111111`);
+    cy.wait(['@getMoves', '@getOrders', '@getCustomer']);
+    cy.contains("Sorry, you can't access this page");
+    cy.contains('Go to move details').click();
+
+    // Make sure we go to move details page
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
   });
 });
