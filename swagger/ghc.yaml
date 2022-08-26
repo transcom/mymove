@@ -5284,6 +5284,14 @@ definitions:
       - APPROVED
       - REJECTED
       - EDITED
+  FinalIncentive:
+    description: >
+      The final calculated incentive for the PPM shipment. This does not include
+      **SIT** as it is a reimbursement.
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
   UploadPayload:
     type: object
     properties:
@@ -5689,10 +5697,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       finalIncentive:
-        type: integer
-        format: cents
-        x-nullable: true
-        x-omitempty: false
+        $ref: '#/definitions/FinalIncentive'
       hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
@@ -5933,14 +5938,6 @@ definitions:
     enum:
       - HHG
       - NTS
-  FinalIncentive:
-    description: >
-      The final calculated incentive for the PPM shipment. This does not include
-      **SIT** as it is a reimbursement.
-    type: integer
-    format: cents
-    x-nullable: true
-    x-omitempty: false
   ServiceItemParamName:
     type: string
     enum:

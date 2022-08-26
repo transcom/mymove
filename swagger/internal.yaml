@@ -1576,10 +1576,7 @@ definitions:
         format: uuid
         x-nullable: true
       ppm_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
+        $ref: '#/definitions/PpmID'
       certification_type:
         $ref: '#/definitions/SignedCertificationType'
     required:
@@ -1607,10 +1604,7 @@ definitions:
         format: uuid
         x-nullable: true
       ppm_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
+        $ref: '#/definitions/PpmID'
       certification_type:
         $ref: '#/definitions/SignedCertificationTypeCreate'
     required:
@@ -3010,6 +3004,14 @@ definitions:
       - APPROVED
       - REJECTED
       - EDITED
+  FinalIncentive:
+    description: >
+      The final calculated incentive for the PPM shipment. This does not include
+      **SIT** as it is a reimbursement.
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
   SITLocationType:
     description: The list of SIT location types.
     type: string
@@ -3267,10 +3269,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       finalIncentive:
-        type: integer
-        format: cents
-        x-nullable: true
-        x-omitempty: false
+        $ref: '#/definitions/FinalIncentive'
       hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
@@ -3347,20 +3346,19 @@ definitions:
       - destinationPostalCode
       - sitExpected
       - eTag
+  PpmID:
+    description: |
+      The PPM Shipment ID to associate with the assigned certificate.
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    x-nullable: true
   NullableString:
     type: string
     x-go-type:
       import:
         package: github.com/transcom/mymove/pkg/swagger/nullable
       type: String
-  FinalIncentive:
-    description: >
-      The final calculated incentive for the PPM shipment. This does not include
-      **SIT** as it is a reimbursement.
-    type: integer
-    format: cents
-    x-nullable: true
-    x-omitempty: false
 paths:
   /estimates/ppm:
     get:

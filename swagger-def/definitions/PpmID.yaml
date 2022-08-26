@@ -1,0 +1,6 @@
+description: >
+  The PPM Shipment ID to associate with the assigned certificate.
+type: string
+format: uuid
+example: c56a4180-65aa-42ec-a945-5fd21dec0538
+x-nullable: true

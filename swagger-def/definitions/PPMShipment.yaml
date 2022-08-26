@@ -134,10 +134,7 @@ properties:
     x-nullable: true
     x-omitempty: false
   finalIncentive:
-    type: integer
-    format: cents
-    x-nullable: true
-    x-omitempty: false
+    $ref: 'FinalIncentive.yaml'
   hasRequestedAdvance:
     description: >
       Indicates whether an advance has been requested for the PPM shipment.
