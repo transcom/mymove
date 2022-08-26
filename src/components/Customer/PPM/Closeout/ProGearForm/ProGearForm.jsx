@@ -57,7 +57,7 @@ const ProGearForm = ({ initialValues, setNumber, onSubmit, onBack }) => {
                   onClick={onSubmit}
                   disabled={!isValid || isSubmitting}
                 >
-                  Save &amp; Continue
+                  Save & Continue
                 </Button>
               </div>
             </Form>
