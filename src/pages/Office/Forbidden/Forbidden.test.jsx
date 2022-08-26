@@ -10,13 +10,8 @@ const testMoveCode = '123ABC';
 
 const mockPush = jest.fn();
 
-// These mocks don't seem like they are actually being used, which might
-// be why the second test is failing.
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({
-    pathname: 'localhost:3000/',
-  }),
   useParams: jest.fn().mockReturnValue({
     moveCode: testMoveCode,
   }),
@@ -25,9 +20,6 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
 describe('Forbidden', () => {
   it('renders', async () => {
     render(
@@ -56,8 +48,7 @@ describe('Forbidden', () => {
     });
     await userEvent.click(screen.getByRole('button', { name: 'Go to move details' }));
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalled();
-      // expect(mockPush).toHaveBeenCalledWith(`/moves/${testMoveCode}/details`)
+      expect(mockPush).toHaveBeenCalledWith(`/moves/${testMoveCode}/details`);
     });
   });
 });
