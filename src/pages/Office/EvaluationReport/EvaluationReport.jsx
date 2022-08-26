@@ -11,12 +11,10 @@ import evaluationReportStyles from './EvaluationReport.module.scss';
 import EvaluationForm from 'components/Office/EvaluationForm/EvaluationForm';
 import { useShipmentEvaluationReportQueries } from 'hooks/queries';
 import { CustomerShape } from 'types';
-import { OrdersShape } from 'types/customerShapes';
 import EvaluationReportMoveInfo from 'components/Office/EvaluationReportMoveInfo/EvaluationReportMoveInfo';
 import EvaluationReportShipmentInfo from 'components/Office/EvaluationReportShipmentInfo/EvaluationReportShipmentInfo';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
-import propTypes from 'eslint-plugin-react/lib/rules/prop-types';
 
 const EvaluationReport = ({ customerInfo, grade }) => {
   const { reportId } = useParams();

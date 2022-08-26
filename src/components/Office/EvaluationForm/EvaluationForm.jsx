@@ -10,15 +10,17 @@ import classnames from 'classnames';
 
 import styles from './EvaluationForm.module.scss';
 
+import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
+import EvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
+
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
-import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
-import { deleteEvaluationReport, saveEvaluationReport } from 'services/ghcApi';
+import { deleteEvaluationReport, saveEvaluationReport, submitEvaluationReport } from 'services/ghcApi';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { formatDateForSwagger } from 'shared/dates';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
-import EvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
+import { CustomerShape } from 'types';
 
 const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) => {
   const { moveCode, reportId } = useParams();

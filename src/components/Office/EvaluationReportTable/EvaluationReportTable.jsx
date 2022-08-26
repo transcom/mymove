@@ -4,14 +4,11 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router';
 
-import { EvaluationReportShape } from '../../../types/evaluationReport';
-
 import styles from './EvaluationReportTable.module.scss';
 import EvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 
 import { formatCustomerDate, formatEvaluationReportLocation, formatQAReportID } from 'utils/formatters';
-import { CustomerShape } from 'types';
-import EvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
+import { CustomerShape, EvaluationReportShape } from 'types';
 
 const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, grade, shipmentId }) => {
   const location = useLocation();

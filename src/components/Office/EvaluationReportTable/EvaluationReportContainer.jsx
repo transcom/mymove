@@ -190,7 +190,6 @@ EvaluationReportContainer.propTypes = {
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
-  setIsCloseModalVisible: PropTypes.func.isRequired,
   shipmentId: PropTypes.string,
 };
 

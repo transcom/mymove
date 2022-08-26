@@ -6,7 +6,6 @@ import evaluationReportStyles from './EvaluationReportMoveInfo.module.scss';
 
 import DataTable from 'components/DataTable';
 import { CustomerShape } from 'types';
-import { OrdersShape } from 'types/customerShapes';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 
 const EvaluationReportMoveInfo = ({ customerInfo, grade }) => {

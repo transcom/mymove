@@ -81,7 +81,7 @@ ModalClose.defaultProps = {
   className: '',
 };
 
-exports.ModalClose = ModalClose;
+export { ModalClose };
 
 // TODO: default styling
 const ModalSubmit = ({ handleClick, className, ...buttonProps }) => {
@@ -89,7 +89,7 @@ const ModalSubmit = ({ handleClick, className, ...buttonProps }) => {
   // What testId we should use, defaults to modalSubmitButton
   const { buttonContent, dataTestId } = buttonProps;
 
-  reutrn(
+  return (
     <Button
       className={classnames(styles.ModalSubmit, className)}
       type="button"
@@ -99,7 +99,7 @@ const ModalSubmit = ({ handleClick, className, ...buttonProps }) => {
       {...buttonProps}
     >
       {buttonContent || 'Submit'}
-    </Button>,
+    </Button>
   );
 };
 
@@ -112,7 +112,7 @@ ModalSubmit.defaultProps = {
   className: '',
 };
 
-exports.ModalSubmit = ModalSubmit;
+export { ModalSubmit };
 
 export const ModalActions = ({ children }) => <div className={styles.ModalActions}>{children}</div>;
 
