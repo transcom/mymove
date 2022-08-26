@@ -82,12 +82,12 @@ const EvaluationReportShipmentDisplay = ({
         {isExpanded && (displayInfo.pickupAddress || displayInfo.destinationAddress) && (
           <div className={styles.shipmentAddresses}>
             <div className={classnames(styles.shipmentAddressTextFields, styles.shipmentAddressLeft)}>
-              {pickupAddressString}
+              {pickupAddressString || '—'}
             </div>
             <div className={styles.shipmentAddressArrow}>
               <FontAwesomeIcon icon="arrow-right" />
             </div>
-            <div className={styles.shipmentAddressTextFields}>{destinationAddressString}</div>
+            <div className={styles.shipmentAddressTextFields}>{destinationAddressString || '—'}</div>
           </div>
         )}
         <ShipmentInfoListSelector
