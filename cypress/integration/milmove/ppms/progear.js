@@ -1,8 +1,9 @@
 import {
-  navigateFromReviewPageToProGearPage,
+  navigateFromCloseoutReviewPageToProGearPage,
   setMobileViewport,
   signInAndNavigateToWeightTicketPage,
 } from '../../../support/ppmCustomerShared';
+import { selectedRadioOptionChanges } from '../../../support/utils';
 
 describe('Progear', function () {
   before(() => {
@@ -22,7 +23,12 @@ describe('Progear', function () {
       }
 
       signInAndNavigateToWeightTicketPage(userId);
-      navigateFromReviewPageToProGearPage();
+      navigateFromCloseoutReviewPageToProGearPage();
+      cy.get('#ownerOfProGearSelf').should('exist', 'be.checked');
+      cy.get('#ownerOfProGearSpouse').should('exist', 'not.be.checked');
+      cy.get('label[for="ownerOfProGearSpouse"').should('exist').click();
+      cy.get('#ownerOfProGearSelf').should('not.be.checked');
+      cy.get('#ownerOfProGearSpouse').should('be.checked');
     });
   });
 });

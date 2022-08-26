@@ -306,7 +306,7 @@ export function deleteShipment(selector, expectedLength) {
   cy.get('[data-testid="alert"]').should('contain', 'The shipment was deleted.');
 }
 
-export function navigateFromReviewPageToProGearPage() {
+export function navigateFromCloseoutReviewPageToProGearPage() {
   cy.get('a.usa-button').contains('Add Pro-gear Weight').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
