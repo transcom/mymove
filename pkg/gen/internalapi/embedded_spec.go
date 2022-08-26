@@ -3924,6 +3924,12 @@ func init() {
           "format": "uuid",
           "x-nullable": true
         },
+        "ppm_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "signature": {
           "type": "string",
           "title": "Signature"
@@ -6554,6 +6560,12 @@ func init() {
           "type": "string",
           "format": "uuid",
           "x-nullable": true
+        },
+        "ppm_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "signature": {
           "type": "string",
@@ -11396,6 +11408,12 @@ func init() {
           "format": "uuid",
           "x-nullable": true
         },
+        "ppm_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "signature": {
           "type": "string",
           "title": "Signature"
@@ -14045,6 +14063,12 @@ func init() {
           "type": "string",
           "format": "uuid",
           "x-nullable": true
+        },
+        "ppm_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "signature": {
           "type": "string",

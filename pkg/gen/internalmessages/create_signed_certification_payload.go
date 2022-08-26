@@ -35,6 +35,11 @@ type CreateSignedCertificationPayload struct {
 	// Format: uuid
 	PersonallyProcuredMoveID *strfmt.UUID `json:"personally_procured_move_id,omitempty"`
 
+	// ppm id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Format: uuid
+	PpmID *strfmt.UUID `json:"ppm_id,omitempty"`
+
 	// Signature
 	// Required: true
 	Signature *string `json:"signature"`
@@ -57,6 +62,10 @@ func (m *CreateSignedCertificationPayload) Validate(formats strfmt.Registry) err
 	}
 
 	if err := m.validatePersonallyProcuredMoveID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePpmID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -117,6 +126,18 @@ func (m *CreateSignedCertificationPayload) validatePersonallyProcuredMoveID(form
 	}
 
 	if err := validate.FormatOf("personally_procured_move_id", "body", "uuid", m.PersonallyProcuredMoveID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateSignedCertificationPayload) validatePpmID(formats strfmt.Registry) error {
+	if swag.IsZero(m.PpmID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("ppm_id", "body", "uuid", m.PpmID.String(), formats); err != nil {
 		return err
 	}
 

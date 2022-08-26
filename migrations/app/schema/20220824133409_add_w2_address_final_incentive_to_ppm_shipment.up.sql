@@ -1,5 +1,5 @@
 ALTER table ppm_shipments
-    ADD COLUMN w2_address_id uuid CONSTRAINT ppm_shipments_address_id_fkey REFERENCES addresses (id)
+    ADD COLUMN w2_address_id uuid CONSTRAINT ppm_shipments_address_id_fkey REFERENCES addresses (id),
     ADD COLUMN final_incentive int;
 
 CREATE INDEX on ppm_shipments (w2_address_id);
