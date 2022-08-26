@@ -53,19 +53,24 @@ ModalTitle.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-export const ModalClose = ({ handleClick, className, ...buttonProps }) => (
-  <Button
-    type="button"
-    onClick={handleClick}
-    unstyled
-    className={classnames(styles.ModalClose, className)}
-    data-testid="modalCloseButton"
-    aria-label="Close"
-    {...buttonProps}
-  >
-    <FontAwesomeIcon icon="times" />
-  </Button>
-);
+const ModalClose = ({ handleClick, className, ...buttonProps }) => {
+  // What the button will display, defaults to X icon
+  const { buttonContent, dataTestId } = buttonProps;
+
+  return (
+    <Button
+      type="button"
+      onClick={handleClick}
+      unstyled
+      className={classnames(styles.ModalClose, className)}
+      data-testid={dataTestId || 'modalCloseButton'}
+      aria-label="Close"
+      {...buttonProps}
+    >
+      {buttonContent || <FontAwesomeIcon icon="times" />}
+    </Button>
+  );
+};
 
 ModalClose.propTypes = {
   handleClick: PropTypes.func.isRequired,
@@ -75,6 +80,39 @@ ModalClose.propTypes = {
 ModalClose.defaultProps = {
   className: '',
 };
+
+exports.ModalClose = ModalClose;
+
+// TODO: default styling
+const ModalSubmit = ({ handleClick, className, ...buttonProps }) => {
+  // What the button will display, defaults to Submit
+  // What testId we should use, defaults to modalSubmitButton
+  const { buttonContent, dataTestId } = buttonProps;
+
+  reutrn(
+    <Button
+      className={classnames(styles.ModalSubmit, className)}
+      type="button"
+      onClick={handleClick}
+      data-testid={dataTestId || 'modalSubmitButton'}
+      aria-label="Submit"
+      {...buttonProps}
+    >
+      {buttonContent || 'Submit'}
+    </Button>,
+  );
+};
+
+ModalSubmit.propTypes = {
+  handleClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+};
+
+ModalSubmit.defaultProps = {
+  className: '',
+};
+
+exports.ModalSubmit = ModalSubmit;
 
 export const ModalActions = ({ children }) => <div className={styles.ModalActions}>{children}</div>;
 

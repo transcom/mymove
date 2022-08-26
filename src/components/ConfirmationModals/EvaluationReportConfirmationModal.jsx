@@ -15,11 +15,31 @@ import EvaluationReportContainer from 'components/Office/EvaluationReportTable/E
     View (already submitted report)
       No title/subtext
       Close button only on the bottom
+  
+  modalTitle - optional
+    * format <html or react elements to render within the ModalTitle div>
+  
+  modalTopRightClose - optional
+    * renders a close button in the top right corner
+    * triggers the passed in onClick method
+
+  reportId, moveCode - required
+   * used to look up the report to fill in details
+  
+  grade - required
+    ORDERS_RANK_OPTIONS[GRADE]
+
+  shipmentId - required if a shipment eval report, optional for others
+  
+  close & submitModalOptions
+    onClick
+    content
+
 */
 
 export const EvaluationReportConfirmationModal = ({
   modalTitle,
-  modalClose,
+  modalTopRightClose,
   reportId,
   moveCode,
   customerInfo,
@@ -29,7 +49,7 @@ export const EvaluationReportConfirmationModal = ({
   submitModalOptions,
 }) => (
   <Modal>
-    {modalClose && <ModalClose handleClick={closeModal} />}
+    {modalTopRightClose && <ModalClose handleClick={modalTopRightClose} dataTestId={'modalCloseButtonTop'} />}
     {modalTitle && <ModalTitle>{modalTitle}</ModalTitle>}
     <EvaluationReportContainer
       evaluationReportId={reportId}
@@ -40,43 +60,45 @@ export const EvaluationReportConfirmationModal = ({
     />
     <ModalActions autofocus="true">
       {closeModalOptions && (
-        <Button data-focus="true" className="usa-button--destructive" type="submit" onClick={closeModalOptions.onClick}>
-          {closeModalOptions.text}
-        </Button>
+        <ModalClose>
+          handleClick={closeModalOptions.handleClick}
+          buttonContent={closeModalOptions.content}
+          dataTestId={'modalCloseButtonBottom'}
+        </ModalClose>
       )}
       {submitModalOptions && (
-        <Button
-          className="usa-button--secondary"
-          type="button"
-          onClick={submitModalOptions.onClick}
-          data-testid="modalBackButton"
-        >
-          {submitModalOptions.text}
-        </Button>
+        <ModalSubmit>
+          handleClick={submitModalOptions.handleClick}
+          buttonContent={submitModalOptions.content}
+        </ModalSubmit>
       )}
     </ModalActions>
   </Modal>
 );
 
-EvaluationReportConfirmationModal.PropTypes = {
-  modalTitle: PropTypes.html,
+// TODO: check that shipmentId, reportId types make sense
+// Why is there this typo error here?
+EvaluationReportConfirmationModal.propTypes = {
+  modalTitle: PropTypes.element,
+  modalTopRightClose: PropTypes.func,
   reportId: PropTypes.string.isRequired,
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
   shipmentId: PropTypes.string,
   closeModalOptions: PropTypes.shape({
-    onClick: PropTypes.func,
-    text: PropTypes.string,
+    handleClick: PropTypes.func,
+    content: PropTypes.string,
   }),
   submitModalOptions: PropTypes.shape({
-    onclick: PropTypes.func,
+    handleClick: PropTypes.func,
     text: PropTypes.string,
   }),
 };
 
 EvaluationReportConfirmationModal.defaultProps = {
-  modalTitle: null,
+  modalTitle: <></>,
+  modalTopRightClose: () => {},
   shipmentId: '',
   closeModalOptions: null,
   submitModalOptions: null,

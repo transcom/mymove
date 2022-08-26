@@ -20,7 +20,7 @@ import { formatDateForSwagger } from 'shared/dates';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
 import EvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 
-const EvaluationForm = ({ evaluationReport, customerInfo }) => {
+const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
   const location = useLocation();
@@ -212,13 +212,13 @@ const EvaluationForm = ({ evaluationReport, customerInfo }) => {
         shipmentId={shipmentId}
         closeModalOptions=
         {{
-          onClick: toggleSubmitModal,
-          text: 'Back to evaluation form',
+          handleClick: toggleSubmitModal,
+          buttonContent: 'Back to evaluation form',
         }}
         submitModalOptions=
         {{
-          onClick: submitReport,
-          text: 'Submit',
+          handleClick: submitReport,
+          buttonContent: 'Submit',
         }}
       </EvaluationReportConfirmationModal>
       <Formik
@@ -497,10 +497,14 @@ const EvaluationForm = ({ evaluationReport, customerInfo }) => {
 
 EvaluationForm.propTypes = {
   evaluationReport: PropTypes.object,
+  customerInfo: CustomerShape.isRequired,
+  grade: PropTypes.string.isRequired,
+  shipmentId: PropTypes.string,
 };
 
 EvaluationForm.defaultProps = {
   evaluationReport: {},
+  shipmentId: null,
 };
 
 export default EvaluationForm;

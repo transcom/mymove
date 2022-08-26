@@ -16,11 +16,17 @@ import EvaluationReportMoveInfo from 'components/Office/EvaluationReportMoveInfo
 import EvaluationReportShipmentInfo from 'components/Office/EvaluationReportShipmentInfo/EvaluationReportShipmentInfo';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
+import propTypes from 'eslint-plugin-react/lib/rules/prop-types';
 
-const EvaluationReport = ({ customerInfo, orders }) => {
+const EvaluationReport = ({ customerInfo, grade }) => {
   const { reportId } = useParams();
   const { evaluationReport, mtoShipment } = useShipmentEvaluationReportQueries(reportId);
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
+  let shipmentId = null;
+  if (isShipment) {
+    shipmentId = mtoShipment.id;
+  }
+
   return (
     <div className={classnames(styles.tabContent, evaluationReportStyles.tabContent)}>
       <GridContainer>
@@ -29,15 +35,20 @@ const EvaluationReport = ({ customerInfo, orders }) => {
         {isShipment ? (
           <EvaluationReportShipmentInfo
             customerInfo={customerInfo}
-            orders={orders}
+            grade={grade}
             shipment={mtoShipment}
             report={evaluationReport}
           />
         ) : (
-          <EvaluationReportMoveInfo customerInfo={customerInfo} orders={orders} />
+          <EvaluationReportMoveInfo customerInfo={customerInfo} grade={grade} />
         )}
 
-        <EvaluationForm evaluationReport={evaluationReport} customerInfo={customerInfo} />
+        <EvaluationForm
+          evaluationReport={evaluationReport}
+          customerInfo={customerInfo}
+          grade={grade}
+          shipmentId={shipmentId}
+        />
       </GridContainer>
     </div>
   );
@@ -45,7 +56,7 @@ const EvaluationReport = ({ customerInfo, orders }) => {
 
 EvaluationReport.propTypes = {
   customerInfo: CustomerShape.isRequired,
-  orders: OrdersShape.isRequired,
+  grade: PropTypes.string.isRequired,
 };
 
 export default EvaluationReport;
