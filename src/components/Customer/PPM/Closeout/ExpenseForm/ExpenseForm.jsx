@@ -7,7 +7,9 @@ import * as Yup from 'yup';
 
 import styles from './ExpenseForm.module.scss';
 
+import { formatCents } from 'utils/formatters';
 import numOfDaysBetweenDates from 'utils/dates';
+import { ppmExpenseTypes } from 'constants/ppmExpenseTypes';
 import { ExpenseShape } from 'types/shipment';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -26,19 +28,19 @@ const validationSchema = Yup.object().shape({
   expenseType: Yup.string().required('Required'),
   description: Yup.string().required('Required'),
   paidWithGTCC: Yup.boolean().required('Required'),
-  amount: Yup.number().required('Required'),
+  amount: Yup.string().notOneOf(['0', '0.00'], 'Please enter a non-zero amount').required('Required'),
   missingReceipt: Yup.boolean().required('Required'),
   receiptDocument: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
   sitStartDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
-      is: 'storage',
+      is: 'STORAGE',
       then: (schema) => schema.required('Required'),
     }),
   sitEndDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
-      is: 'storage',
+      is: 'STORAGE',
       then: (schema) => schema.required('Required'),
     }),
 });
@@ -59,7 +61,7 @@ const ExpenseForm = ({
     expenseType: expenseType || '',
     description: description || '',
     paidWithGTCC: paidWithGTCC ? 'true' : 'false',
-    amount: amount ? `${amount}` : '',
+    amount: amount ? `${formatCents(amount)}` : '',
     missingReceipt: !!missingReceipt,
     receiptDocument: receiptDocument?.uploads || [],
     sitStartDate: sitStartDate || '',
@@ -67,16 +69,7 @@ const ExpenseForm = ({
   };
 
   const receiptDocumentRef = createRef();
-  const expenseOptions = [
-    { value: 'Contracted expense', key: 'contracted_expense' },
-    { value: 'Oil', key: 'oil' },
-    { value: 'Packing materials', key: 'packing_materials' },
-    { value: 'Rental equipment', key: 'rental_equipment' },
-    { value: 'Storage', key: 'storage' },
-    { value: 'Tolls', key: 'tolls' },
-    { value: 'Weighing fee', key: 'weighing_fee' },
-    { value: 'Other', key: 'other' },
-  ];
+
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, values, errors, ...formikProps }) => {
@@ -86,7 +79,7 @@ const ExpenseForm = ({
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>{`Receipt ${receiptNumber}`}</h2>
                 <FormGroup>
-                  <DropdownInput label="Select type" name="expenseType" options={expenseOptions} id="expenseType" />
+                  <DropdownInput label="Select type" name="expenseType" options={ppmExpenseTypes} id="expenseType" />
                 </FormGroup>
                 {values.expenseType && (
                   <>
@@ -123,8 +116,11 @@ const ExpenseForm = ({
                         label="Amount"
                         id="amount"
                         mask={Number}
-                        scale={0} // digits after point, 0 for integers
+                        scale={2} // digits after point, 0 for integers
                         signed={false} // disallow negative
+                        radix="." // fractional delimiter
+                        mapToRadix={['.']} // symbols to process as radix
+                        padFractionalZeros // if true, then pads zeros at end to the length of scale
                         thousandsSeparator=","
                         lazy={false} // immediate masking evaluation
                         prefix="$"
@@ -182,7 +178,7 @@ const ExpenseForm = ({
                     </FormGroup>
                   </>
                 )}
-                {values.expenseType === 'storage' && (
+                {values.expenseType === 'STORAGE' && (
                   <FormGroup>
                     <h3>Dates</h3>
                     <DatePickerInput name="sitStartDate" label="Start date" />
