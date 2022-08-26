@@ -7,6 +7,9 @@ import styles from './Forbidden.module.scss';
 const Forbidden = () => {
   const history = useHistory();
   const { moveCode } = useParams();
+  const onClick = () => {
+    history.push(`/moves/${moveCode}/details`);
+  };
   return (
     <div className={styles.forbidden}>
       <h1>Sorry, you can&apos;t access this page</h1>
@@ -15,7 +18,7 @@ const Forbidden = () => {
         You are not signed in to MilMove in a role that gives you access. If you believe you should have access, contact
         your administrator.
       </p>
-      <Button type="button" onClick={() => history.push(`/moves/${moveCode}/details`)}>
+      <Button type="button" onClick={onClick}>
         Go to move details
       </Button>
     </div>
