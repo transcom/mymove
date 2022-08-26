@@ -2622,10 +2622,7 @@ definitions:
         x-nullable: true
         $ref: '#/definitions/Address'
       finalIncentive:
-        type: integer
-        format: cents
-        x-nullable: true
-        x-omitempty: false
+        $ref: '#/definitions/FinalIncentive'
       sitExpected:
         type: boolean
         x-nullable: true
@@ -3356,6 +3353,14 @@ definitions:
       import:
         package: github.com/transcom/mymove/pkg/swagger/nullable
       type: String
+  FinalIncentive:
+    description: >
+      The final calculated incentive for the PPM shipment. This does not include
+      **SIT** as it is a reimbursement.
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
 paths:
   /estimates/ppm:
     get:

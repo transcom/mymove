@@ -3886,10 +3886,7 @@ definitions:
         x-nullable: true
         $ref: '#/definitions/Address'
       finalIncentive:
-        type: integer
-        format: cents
-        x-nullable: true
-        x-omitempty: false
+        $ref: '#/definitions/FinalIncentive'
       sitExpected:
         type: boolean
         x-nullable: true
@@ -5936,6 +5933,14 @@ definitions:
     enum:
       - HHG
       - NTS
+  FinalIncentive:
+    description: >
+      The final calculated incentive for the PPM shipment. This does not include
+      **SIT** as it is a reimbursement.
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
   ServiceItemParamName:
     type: string
     enum:
