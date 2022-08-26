@@ -4,11 +4,10 @@ import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
 
-import Restricted from '../../../components/Restricted/Restricted';
-import { permissionTypes } from '../../../constants/permissions';
-
+import { permissionTypes } from 'constants/permissions';
 import { qaeCSRRoutes, tioRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
+import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';

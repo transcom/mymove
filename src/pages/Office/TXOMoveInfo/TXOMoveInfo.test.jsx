@@ -2,10 +2,9 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { queryByTestId, render, screen, waitFor } from '@testing-library/react';
 
-import { permissionTypes } from '../../../constants/permissions';
-
 import TXOMoveInfo from './TXOMoveInfo';
 
+import { permissionTypes } from 'constants/permissions';
 import { MockProviders } from 'testUtils';
 import { useTXOMoveInfoQueries } from 'hooks/queries';
 
