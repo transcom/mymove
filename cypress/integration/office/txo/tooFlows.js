@@ -304,7 +304,7 @@ describe('TOO user', () => {
       cy.get('input[name="dependentsAuthorized"]').siblings('label[for="dependentsAuthorizedInput"]').click();
 
       // Edit allowances page | Save
-      cy.get('button').contains('Save').should('be.enabled').click().should('be.disabled');
+      cy.get('button').contains('Save').should('be.enabled').click();
     });
 
     cy.wait(['@patchAllowances']);
