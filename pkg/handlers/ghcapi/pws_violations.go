@@ -12,13 +12,13 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// PWSViolationsHandler is a struct that describes listing PWS violations for a move
+// PWSViolationsHandler is a struct that describes getting PWS violations for evaluation reports
 type GetPWSViolationsHandler struct {
 	handlers.HandlerConfig
 	services.PWSViolationsFetcher
 }
 
-// Handle handles the handling for getting a list of PWS violations for a move
+// Handle handles the handling of getting PWS violations for evaluation reports
 func (h GetPWSViolationsHandler) Handle(params pwsviolationsop.GetPWSViolationsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
