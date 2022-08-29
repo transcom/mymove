@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { v4 } from 'uuid';
 
-import { movingExpenseTypes } from 'constants/ppmShipmentDocument';
+import { expenseTypes } from 'constants/ppmExpenseTypes';
 import { createDocumentWithoutUploads } from 'utils/test/factories/document';
 import createUpload from 'utils/test/factories/upload';
 
@@ -34,7 +34,7 @@ const createBaseMovingExpense = ({ serviceMemberId, creationDate = new Date() } 
 
 const createCompleteMovingExpense = ({ serviceMemberId, creationDate } = {}, fieldOverrides = {}) => {
   const fullFieldOverrides = {
-    movingExpenseType: movingExpenseTypes.PACKING_MATERIALS,
+    movingExpenseType: expenseTypes.PACKING_MATERIALS,
     description: 'Medium and large boxes',
     paidWithGtcc: false,
     amount: '7500',
@@ -60,7 +60,7 @@ const createCompleteMovingExpense = ({ serviceMemberId, creationDate } = {}, fie
 
 const createCompleteSITMovingExpense = ({ serviceMemberId, creationDate } = {}, fieldOverrides = {}) => {
   const fullFieldOverrides = {
-    movingExpenseType: movingExpenseTypes.STORAGE,
+    movingExpenseType: expenseTypes.STORAGE,
     description: 'Storage while away',
     sitStartDate: '2022-09-15',
     sitEndDate: '2022-09-20',
