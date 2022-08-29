@@ -5,9 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"

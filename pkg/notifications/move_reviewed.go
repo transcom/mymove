@@ -7,14 +7,12 @@ import (
 	text "text/template"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/assets"
-
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/assets"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 const surveyLink = "https://www.surveymonkey.com/r/MilMovePt3-08191"
