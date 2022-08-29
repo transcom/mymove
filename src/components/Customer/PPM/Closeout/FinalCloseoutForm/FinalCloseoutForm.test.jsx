@@ -44,22 +44,22 @@ describe('FinalCloseoutForm component', () => {
     render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
 
     expect(
-      screen.getByRole('heading', { level: 2, name: 'Your final estimated incentive: $2,000,000' }),
+      screen.getByRole('heading', { level: 2, name: 'Your final estimated incentive: $2,000,000.00' }),
     ).toBeInTheDocument();
 
-    expect(screen.getByRole('heading', { level: 2, name: 'This PPM includes:' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'This PPM includes:' })).toBeInTheDocument();
 
     const findListItemWithText = prepListSearchForItem(screen.getAllByRole('listitem'));
 
     expect(findListItemWithText('4,000 lbs total net weight')).toBeInTheDocument();
     expect(findListItemWithText('2,000 lbs of pro-gear')).toBeInTheDocument();
-    expect(findListItemWithText('$300 in expenses claimed')).toBeInTheDocument();
+    expect(findListItemWithText('$300.00 in expenses claimed')).toBeInTheDocument();
 
     expect(
       screen.getByRole('heading', { level: 2, name: 'Your actual payment will probably be lower' }),
     ).toBeInTheDocument();
 
-    expect(findListItemWithText('minus any advances you were given (you received $900,000)')).toBeInTheDocument();
+    expect(findListItemWithText('minus any advances you were given (you received $900,000.00)')).toBeInTheDocument();
   });
 
   it('properly handles multiple weight tickets, pro gear weight tickets, and moving expenses', () => {
@@ -93,7 +93,7 @@ describe('FinalCloseoutForm component', () => {
 
     expect(findListItemWithText('7,000 lbs total net weight')).toBeInTheDocument();
     expect(findListItemWithText('1,500 lbs of pro-gear')).toBeInTheDocument();
-    expect(findListItemWithText('$1,200 in expenses claimed')).toBeInTheDocument();
+    expect(findListItemWithText('$1,200.00 in expenses claimed')).toBeInTheDocument();
   });
 
   it('calls onBack func when "Finish Later" button is clicked', async () => {

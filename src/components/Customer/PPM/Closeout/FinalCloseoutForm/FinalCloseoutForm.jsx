@@ -2,9 +2,11 @@ import React from 'react';
 import { func } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
+import styles from './FinalCloseoutForm.module.scss';
+
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { ShipmentShape } from 'types/shipment';
-import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
+import { formatCents, formatWeight } from 'utils/formatters';
 import {
   calculateTotalMovingExpensesAmount,
   calculateTotalNetWeightForProGearWeightTickets,
@@ -24,41 +26,52 @@ const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
   const isSubmitting = true;
 
   return (
-    <>
-      <h2>
-        Your final estimated incentive: $
-        {formatCentsTruncateWhole(mtoShipment?.ppmShipment?.finalEstimatedIncentive || 0)}
-      </h2>
-      <div>
-        <p>Your incentive is calculated using:</p>
+    <div className={styles.FinalCloseoutForm}>
+      <h2>Your final estimated incentive: ${formatCents(mtoShipment?.ppmShipment?.finalEstimatedIncentive || 0)}</h2>
+      <div className={styles.incentiveFactors}>
+        <p className={styles.listDescription}>Your incentive is calculated using:</p>
+        <dl>
+          <div className={styles.definitionWrapper}>
+            <dt>weight</dt>
+            <dd>verified net weight of your completed PPM</dd>
+          </div>
+          <div className={styles.definitionWrapper}>
+            <dt>distance</dt>
+            <dd>starting and ending ZIP codes</dd>
+          </div>
+          <div className={styles.definitionWrapper}>
+            <dt>date</dt>
+            <dd>when you started moving your PPM</dd>
+          </div>
+          <div className={styles.definitionWrapper}>
+            <dt>allowances</dt>
+            <dd>
+              your total weight allowance for your whole move, including all shipments, both PPMs and government-funded
+              (such as HHGs)
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div className={styles.shipmentTotals}>
+        <h3>This PPM includes:</h3>
         <ul>
-          <li>weight: verified net weight of your completed PPM</li>
-          <li>distance: starting and ending ZIP codes</li>
-          <li>date: when you started moving your PPM</li>
-          <li>
-            allowances: your total weight allowance for your whole move, including all shipments, both PPMs and
-            government-funded (such as HHGs)
-          </li>
+          <li>{formatWeight(totalNetWeight)} total net weight</li>
+          <li>{formatWeight(totalProGearWeight)} of pro-gear</li>
+          <li>${formatCents(totalExpensesClaimed)} in expenses claimed</li>
         </ul>
       </div>
 
-      <h2>This PPM includes:</h2>
-      <ul>
-        <li>{formatWeight(totalNetWeight)} total net weight</li>
-        <li>{formatWeight(totalProGearWeight)} of pro-gear</li>
-        <li>${formatCentsTruncateWhole(totalExpensesClaimed)} in expenses claimed</li>
-      </ul>
-
       <h2>Your actual payment will probably be lower</h2>
       <div>
-        <p>Your final payment will be:</p>
+        <p className={styles.listDescription}>Your final payment will be:</p>
         <ul>
           <li>based on your final incentive</li>
           <li>modified by expenses submitted (authorized expenses reduce your tax burden)</li>
           <li>minus any taxes withheld (the IRS considers your incentive to be taxable income)</li>
           <li>
             minus any advances you were given (you received $
-            {formatCentsTruncateWhole(mtoShipment?.ppmShipment?.advanceAmountReceived || 0)})
+            {formatCents(mtoShipment?.ppmShipment?.advanceAmountReceived || 0)})
           </li>
           <li>plus any reimbursements you receive</li>
         </ul>
@@ -77,7 +90,7 @@ const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
           Submit PPM Documentation
         </Button>
       </div>
-    </>
+    </div>
   );
 };
 

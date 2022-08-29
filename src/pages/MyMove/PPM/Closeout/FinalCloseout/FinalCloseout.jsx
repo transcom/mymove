@@ -1,7 +1,10 @@
+import classnames from 'classnames';
 import React, { useState } from 'react';
-import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
-import { useHistory, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory, useParams } from 'react-router-dom';
+import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
+
+import styles from './FinalCloseout.module.scss';
 
 import FinalCloseoutForm from 'components/Customer/PPM/Closeout/FinalCloseoutForm/FinalCloseoutForm';
 import ScrollToTop from 'components/ScrollToTop';
@@ -54,7 +57,7 @@ const FinalCloseout = () => {
   };
 
   return (
-    <div className={ppmPageStyles.ppmPageStyle}>
+    <div className={classnames(ppmPageStyles.ppmPageStyle, styles.FinalCloseout)}>
       <ScrollToTop otherDep={errorMessage} />
 
       <GridContainer>
