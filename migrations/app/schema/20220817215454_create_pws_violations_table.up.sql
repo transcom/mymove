@@ -5,9 +5,9 @@ CREATE TYPE category_type AS enum (
 );
 
 CREATE TYPE sub_category_type AS enum (
-    'Customer Support',
-    'Counseling',
-    'Weight Estimate',
+	'Customer Support',
+	'Counseling',
+	'Weight Estimate',
 	'Additional Services',
 	'Inventory & Documentation',
 	'Packing/Unpacking',
@@ -21,14 +21,14 @@ CREATE TYPE sub_category_type AS enum (
 
 CREATE TABLE IF NOT EXISTS pws_violations (
 	id uuid PRIMARY KEY,
-    display_order integer,
-    paragraph_number text,
-    title text,
-    category text,
-    sub_category sub_category_type,
-    requirement_summary text,
-    requirement_statement text,
-    is_kpi boolean,
+	display_order integer,
+	paragraph_number text,
+	title text,
+	category text,
+	sub_category sub_category_type,
+	requirement_summary text,
+	requirement_statement text,
+	is_kpi boolean,
 	additional_data_elem text
 );
 
