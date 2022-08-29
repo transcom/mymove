@@ -272,7 +272,7 @@ describe('TXO Move Info Container', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText("Sorry, you can't access this page")).toBeInTheDocument();
+        expect(screen.getByText("Sorry, you can't access this page.")).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Go to move details' })).toBeInTheDocument();
       });
     });

@@ -30,7 +30,7 @@ describe('Forbidden', () => {
       </MockProviders>,
     );
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1, name: "Sorry, you can't access this page" })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 1, name: "Sorry, you can't access this page." })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Go to move details' })).toBeInTheDocument();
     });
   });
@@ -44,7 +44,7 @@ describe('Forbidden', () => {
       </MockProviders>,
     );
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1, name: "Sorry, you can't access this page" })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 1, name: "Sorry, you can't access this page." })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Go to move details' })).toBeInTheDocument();
     });
     await userEvent.click(screen.getByRole('button', { name: 'Go to move details' }));
