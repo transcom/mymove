@@ -12,8 +12,8 @@ const Forbidden = () => {
   };
   return (
     <div className={styles.forbidden}>
-      <h1>Sorry, you can&apos;t access this page</h1>
-      <p className={styles.subHeading}>This page is only available to authorized users</p>
+      <h1>Sorry, you can&apos;t access this page.</h1>
+      <p className={styles.subHeading}>This page is only available to authorized users.</p>
       <p className={styles.explanation}>
         You are not signed in to MilMove in a role that gives you access. If you believe you should have access, contact
         your administrator.
