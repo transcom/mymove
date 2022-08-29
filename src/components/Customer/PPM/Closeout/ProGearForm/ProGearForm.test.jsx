@@ -7,14 +7,14 @@ import ProGearForm from 'components/Customer/PPM/Closeout/ProGearForm/ProGearFor
 const defaultProps = {
   onBack: jest.fn(),
   onSubmit: jest.fn(),
-  initialValues: {
-    selfProGear: 'true',
+  proGear: {
+    selfProGear: true,
   },
 };
 
 const spouseProGearProps = {
-  initialValues: {
-    selfProGear: 'false',
+  proGear: {
+    selfProGear: false,
   },
 };
 

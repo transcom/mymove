@@ -1,32 +1,35 @@
 import React from 'react';
 import * as Yup from 'yup';
 import { Field, Formik } from 'formik';
-import classnames from 'classnames';
-import { func, number, shape, string } from 'prop-types';
+import { func, number } from 'prop-types';
 import { Button, Form, Radio } from '@trussworks/react-uswds';
 import { FormGroup } from '@material-ui/core';
 
-import styles from 'components/Customer/PPM/Closeout/ProGearForm/ProGearForm.module.scss';
 import formStyles from 'styles/form.module.scss';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Fieldset from 'shared/Fieldset';
+import { ProGearTicketShape } from 'types/shipment';
 
 const validationSchema = Yup.object().shape({
   selfProGear: Yup.string().required('Required'),
 });
 
-const ProGearForm = ({ initialValues, setNumber, onSubmit, onBack }) => {
+const ProGearForm = ({ proGear, setNumber, onSubmit, onBack }) => {
+  const { selfProGear } = proGear || {};
+  const initialValues = {
+    selfProGear: selfProGear ? 'true' : 'false',
+  };
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, values }) => {
         return (
-          <div className={classnames(ppmStyles.formContainer, styles.ProGearForm)}>
+          <div className={ppmStyles.formContainer}>
             <Form className={ppmStyles.form}>
-              <SectionWrapper className={classnames(formStyles.formSection, styles.weightTicketSectionWrapper)}>
+              <SectionWrapper className={formStyles.formSection}>
                 <h2>Set {setNumber}</h2>
                 <FormGroup>
-                  <Fieldset className={styles.ownershipFieldset}>
+                  <Fieldset>
                     <legend className="usa-label margin-bottom-0">Pro-gear belongs to</legend>
                     <Field
                       as={Radio}
@@ -35,6 +38,7 @@ const ProGearForm = ({ initialValues, setNumber, onSubmit, onBack }) => {
                       name="selfProGear"
                       value="true"
                       checked={values.selfProGear === 'true'}
+                      data-testid=""
                     />
                     <Field
                       as={Radio}
@@ -57,7 +61,7 @@ const ProGearForm = ({ initialValues, setNumber, onSubmit, onBack }) => {
                   onClick={onSubmit}
                   disabled={!isValid || isSubmitting}
                 >
-                  Save & Continue
+                  Save &amp; Continue
                 </Button>
               </div>
             </Form>
@@ -72,15 +76,13 @@ ProGearForm.propTypes = {
   setNumber: number,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
-  initialValues: shape({
-    selfProGear: string,
-  }),
+  proGear: ProGearTicketShape,
 };
 
 ProGearForm.defaultProps = {
   setNumber: 1,
-  initialValues: {
-    selfProGear: 'true',
+  proGear: {
+    selfProGear: true,
   },
 };
 

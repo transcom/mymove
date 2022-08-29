@@ -17,6 +17,7 @@ const ProGear = () => {
   const handleBack = () => {
     history.push(generalRoutes.HOME_PATH);
   };
+  const initialValues = { selfProGear: true };
   return (
     <div className={ppmPageStyles.ppmPageStyle}>
       <ScrollToTop />
@@ -31,7 +32,7 @@ const ProGear = () => {
                 Reminder: This pro-gear should be included in your total weight moved.
               </p>
             </div>
-            <ProGearForm onBack={handleBack} onSubmit={handleSubmit} />
+            <ProGearForm onBack={handleBack} onSubmit={handleSubmit} initialValues={initialValues} />
           </Grid>
         </Grid>
       </GridContainer>
