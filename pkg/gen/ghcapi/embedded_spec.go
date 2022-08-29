@@ -6521,8 +6521,13 @@ func init() {
           "type": "string",
           "example": "Pre-Move Services"
         },
-        "id": {
+        "displayOrder": {
           "type": "integer",
+          "example": 3
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "isKpi": {
@@ -15648,8 +15653,13 @@ func init() {
           "type": "string",
           "example": "Pre-Move Services"
         },
-        "id": {
+        "displayOrder": {
           "type": "integer",
+          "example": 3
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "isKpi": {

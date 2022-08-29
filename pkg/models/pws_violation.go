@@ -1,5 +1,7 @@
 package models
 
+import "github.com/gofrs/uuid"
+
 type PWSViolationCategory string
 
 const (
@@ -8,25 +10,9 @@ const (
 	PWSViolationCategoryLiability            PWSViolationCategory = "Liability"
 )
 
-// type PWSViolationSubCategory string
-
-// const (
-// 	PWSViolationSubCategoryCustomerSupport    PWSViolationSubCategory = "Customer Support"
-// 	PWSViolationSubCategoryCounseling         PWSViolationSubCategory = "Counseling"
-// 	PWSViolationSubCategoryWeightEstimate     PWSViolationSubCategory = "Weight Estimate"
-// 	PWSViolationSubCategoryAdditionalServices PWSViolationSubCategory = "Additional Services"
-// 	PWSViolationSubCategoryInventory          PWSViolationSubCategory = "Inventory & Documentation"
-// 	PWSViolationSubCategoryPackingUnpacking   PWSViolationSubCategory = "Packing/Unpacking"
-// 	PWSViolationSubCategoryShipmentSchedule   PWSViolationSubCategory = "Shipment Schedule"
-// 	PWSViolationSubCategoryShipmentWeights    PWSViolationSubCategory = "Shipment Weights"
-// 	PWSViolationSubCategoryStorage            PWSViolationSubCategory = "Storage"
-// 	PWSViolationSubCategoryWorkforce          PWSViolationSubCategory = "Workforce/Sub-Contractor Management"
-// 	PWSViolationSubCategoryLossAndDamage      PWSViolationSubCategory = "Loss & Damage"
-// 	PWSViolationSubCategoryInconvenience      PWSViolationSubCategory = "Inconvenience & Hardship Claims"
-// )
-
 type PWSViolation struct {
-	ID                   int                  `json:"id" db:"id"`
+	ID                   uuid.UUID            `json:"id" db:"id"`
+	DisplayOrder         int                  `json:"display_order" db:"display_order"`
 	ParagraphNumber      string               `db:"paragraph_number"`
 	Title                string               `db:"title"`
 	Category             PWSViolationCategory `db:"category"`

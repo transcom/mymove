@@ -17,7 +17,7 @@ func NewPWSViolationsFetcher() services.PWSViolationsFetcher {
 func (o pwsViolationsFetcher) GetPWSViolations(appCtx appcontext.AppContext) (*models.PWSViolations, error) {
 
 	pwsViolations := models.PWSViolations{}
-	err := appCtx.DB().Order("id ASC").All(&pwsViolations)
+	err := appCtx.DB().Order("display_order asc").All(&pwsViolations)
 	if err != nil {
 		return nil, apperror.NewQueryError("PWSViolations", err, "")
 	}

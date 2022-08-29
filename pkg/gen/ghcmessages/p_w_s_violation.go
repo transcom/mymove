@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // PWSViolation A PWS violation for an evaluation report
@@ -26,9 +27,14 @@ type PWSViolation struct {
 	// Example: Pre-Move Services
 	Category string `json:"category,omitempty"`
 
+	// display order
+	// Example: 3
+	DisplayOrder int64 `json:"displayOrder,omitempty"`
+
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-	ID int64 `json:"id,omitempty"`
+	// Format: uuid
+	ID strfmt.UUID `json:"id,omitempty"`
 
 	// is kpi
 	// Example: false
@@ -57,6 +63,27 @@ type PWSViolation struct {
 
 // Validate validates this p w s violation
 func (m *PWSViolation) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *PWSViolation) validateID(formats strfmt.Registry) error {
+	if swag.IsZero(m.ID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

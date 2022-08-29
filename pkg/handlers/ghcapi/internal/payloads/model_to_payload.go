@@ -203,7 +203,8 @@ func PWSViolationItem(violation *models.PWSViolation) *ghcmessages.PWSViolation 
 	}
 
 	payload := &ghcmessages.PWSViolation{
-		ID:                   int64(violation.ID),
+		ID:                   strfmt.UUID(violation.ID.String()),
+		DisplayOrder:         int64(violation.DisplayOrder),
 		ParagraphNumber:      violation.ParagraphNumber,
 		Title:                violation.Title,
 		Category:             string(violation.Category),
