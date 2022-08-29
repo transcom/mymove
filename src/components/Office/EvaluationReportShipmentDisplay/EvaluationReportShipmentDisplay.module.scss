@@ -24,8 +24,12 @@
   display: flex;
   justify-content: space-between;
   font-size: 15px;
-  @include u-padding-left(8px);
   color: $base-dark;
+  @include u-padding-left(8px);
+  :last-of-type {
+    @include u-padding-left(0);
+  }
+
 }
 
 .ntsHeaderTextField {
