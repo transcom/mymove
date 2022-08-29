@@ -4,15 +4,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gobuffalo/validate/v3"
-
-	"github.com/transcom/mymove/pkg/gen/adminmessages"
-
 	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	adminuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	adminuser "github.com/transcom/mymove/pkg/services/admin_user"

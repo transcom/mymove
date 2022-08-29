@@ -11,9 +11,8 @@ package scenario
 
 import (
 	"github.com/transcom/mymove/pkg/appcontext"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
 	"github.com/transcom/mymove/pkg/models"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 

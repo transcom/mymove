@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/spf13/afero"
-
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/testingsuite"

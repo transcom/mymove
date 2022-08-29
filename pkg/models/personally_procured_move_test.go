@@ -16,7 +16,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -101,14 +100,14 @@ func (suite *ModelSuite) TestFetchMoveDocumentsForTypes() {
 	sm := ppm.Move.Orders.ServiceMember
 
 	assertions := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
+		MoveDocument: MoveDocument{
 			MoveID:                   ppm.Move.ID,
 			Move:                     ppm.Move,
 			PersonallyProcuredMoveID: &ppm.ID,
 			Status:                   "OK",
 			MoveDocumentType:         "EXPENSE",
 		},
-		Document: models.Document{
+		Document: Document{
 			ServiceMemberID: sm.ID,
 			ServiceMember:   sm,
 		},
@@ -119,7 +118,7 @@ func (suite *ModelSuite) TestFetchMoveDocumentsForTypes() {
 
 	deletedAt := time.Date(2019, 8, 7, 0, 0, 0, 0, time.UTC)
 	deleteAssertions := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
+		MoveDocument: MoveDocument{
 			MoveID:                   ppm.Move.ID,
 			Move:                     ppm.Move,
 			PersonallyProcuredMoveID: &ppm.ID,
@@ -127,7 +126,7 @@ func (suite *ModelSuite) TestFetchMoveDocumentsForTypes() {
 			MoveDocumentType:         "EXPENSE",
 			DeletedAt:                &deletedAt,
 		},
-		Document: models.Document{
+		Document: Document{
 			ServiceMemberID: sm.ID,
 			ServiceMember:   sm,
 			DeletedAt:       &deletedAt,
