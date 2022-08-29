@@ -1429,7 +1429,7 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 		firstName:   "ReadyFor",
 		lastName:    "PPMFinalCloseout",
 		moveID:      testdatagen.ConvertUUIDStringToUUID("0b2e4341-583d-4793-b4a4-bd266534d17c"),
-		moveLocator: "PR0G3R",
+		moveLocator: "PPMRFC",
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
