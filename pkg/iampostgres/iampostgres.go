@@ -15,9 +15,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/jmoiron/sqlx"
-	"go.uber.org/zap"
-
 	pg "github.com/lib/pq"
+	"go.uber.org/zap"
 )
 
 type config struct {

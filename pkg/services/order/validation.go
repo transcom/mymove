@@ -7,7 +7,6 @@ import (
 	"github.com/gobuffalo/validate/v3/validators"
 
 	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )

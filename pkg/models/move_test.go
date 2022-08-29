@@ -19,7 +19,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -71,7 +70,7 @@ func (suite *ModelSuite) TestGenerateReferenceID() {
 
 func (suite *ModelSuite) TestFetchMove() {
 
-	setupTestData := func() (*auth.Session, models.Order) {
+	setupTestData := func() (*auth.Session, Order) {
 
 		order := testdatagen.MakeDefaultOrder(suite.DB())
 		testdatagen.MakeDefaultContractor(suite.DB())
@@ -168,7 +167,7 @@ func (suite *ModelSuite) TestFetchMove() {
 		session, order := setupTestData()
 		// Create a hidden move
 		hiddenMove := testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
+			Order: Order{
 				ID: order.ID,
 			},
 		})

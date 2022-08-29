@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/apperror"
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-	"github.com/transcom/mymove/pkg/testdatagen"
-
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ReweighSuite) TestValidationRules() {
