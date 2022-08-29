@@ -5,12 +5,11 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	pwsviolationsop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-
-	pwsviolationsop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 )
 
 // PWSViolationsHandler is a struct that describes listing PWS violations for a move
