@@ -191,11 +191,7 @@ const Review = () => {
                 }
                 contents={proGearContents}
                 renderAddButton={() => (
-                  <Link
-                    className="usa-button usa-button--secondary"
-                    to={proGearCreatePath}
-                    data-testid="add-progear-weight"
-                  >
+                  <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
                     Add Pro-gear Weight
                   </Link>
                 )}

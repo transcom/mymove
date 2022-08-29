@@ -38,7 +38,6 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack }) => {
                       name="selfProGear"
                       value="true"
                       checked={values.selfProGear === 'true'}
-                      data-testid=""
                     />
                     <Field
                       as={Radio}

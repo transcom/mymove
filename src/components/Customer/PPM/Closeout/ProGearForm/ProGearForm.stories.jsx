@@ -17,11 +17,6 @@ export default {
       </GridContainer>
     ),
   ],
-  args: {
-    initialValues: {
-      selfProGear: 'true',
-    },
-  },
   argTypes: {
     onBack: { action: 'back button clicked' },
     onSubmit: { action: 'submit button clicked' },
