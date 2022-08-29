@@ -10,7 +10,7 @@ import evaluationViolationsStyles from './EvaluationViolations.module.scss';
 
 import { useShipmentEvaluationReportQueries, usePWSViolationsQueries } from 'hooks/queries';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
-import ViolationAccordion from 'components/Office/ViolationAccordion/ViolationAccordion';
+import ViolationsAccordion from 'components/Office/ViolationsAccordion/ViolationsAccordion';
 
 const EvaluationViolations = () => {
   const { moveCode, reportId } = useParams();
@@ -45,7 +45,7 @@ const EvaluationViolations = () => {
             </Grid>
           </Grid>
           {categories.map((category) => (
-            <ViolationAccordion
+            <ViolationsAccordion
               category={category}
               violations={violations.filter((violation) => violation.category === category)}
               key={`${category}-category`}

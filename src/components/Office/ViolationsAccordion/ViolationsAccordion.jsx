@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import { Grid, Accordion, Checkbox } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import styles from './ViolationAccordion.module.scss';
+import styles from './ViolationsAccordion.module.scss';
 
-const ViolationAccordion = ({ category, violations }) => {
+import { PWSViolationShape } from 'types/pwsViolation';
+
+const ViolationsAccordion = ({ violations }) => {
   const [expandedViolations, setExpandedViolations] = React.useState([]);
   const subCategories = [...new Set(violations.map((item) => item.subCategory))];
 
@@ -29,10 +31,14 @@ const ViolationAccordion = ({ category, violations }) => {
             label=""
             aria-labelledby={`${violation.id}-checkbox-label`}
           />
+
+          {/* Checkbox label */}
           <div className={styles.grow} id={`${violation.id}-checkbox-label`}>
             <h5 className={styles.checkboxLabel}>{`${violation.paragraphNumber} ${violation.title}`}</h5>
             <small>{violation.requirementSummary}</small>
           </div>
+
+          {/* Expand Requirements Statement Toggle Button */}
           {expandedViolations.includes(violation.id) ? (
             <FontAwesomeIcon
               icon="chevron-down"
@@ -81,9 +87,10 @@ const ViolationAccordion = ({ category, violations }) => {
     return items;
   };
 
+  const { category } = violations[0]; // All should be the same violaiton category
   return (
     <>
-      <Grid row key={`${category}-category`}>
+      <Grid row key={`${category}-accordion-category`}>
         <Grid col>
           <h3>{category}</h3>
         </Grid>
@@ -95,14 +102,12 @@ const ViolationAccordion = ({ category, violations }) => {
   );
 };
 
-ViolationAccordion.propTypes = {
-  violations: PropTypes.arrayOf(PropTypes.object),
-  category: PropTypes.string,
+ViolationsAccordion.propTypes = {
+  violations: PropTypes.arrayOf(PWSViolationShape),
 };
 
-ViolationAccordion.defaultProps = {
+ViolationsAccordion.defaultProps = {
   violations: [],
-  category: '',
 };
 
-export default ViolationAccordion;
+export default ViolationsAccordion;
