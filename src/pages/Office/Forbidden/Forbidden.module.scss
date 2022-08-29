@@ -22,6 +22,6 @@
     @include u-margin-bottom(3);
     line-height: 23px;
     @include u-font-size('body', 4);
-    color: #000000;
+    color: $base-darkest;
   }
 }
