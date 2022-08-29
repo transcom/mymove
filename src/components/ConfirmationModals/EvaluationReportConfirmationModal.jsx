@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
 
-import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
+import Modal, { ModalTitle, ModalClose, ModalSubmit, ModalActions, connectModal } from 'components/Modal/Modal';
 import { CustomerShape } from 'types';
-
 import EvaluationReportContainer from 'components/Office/EvaluationReportTable/EvaluationReportContainer';
 
 /*
@@ -49,8 +47,8 @@ export const EvaluationReportConfirmationModal = ({
   submitModalOptions,
 }) => (
   <Modal>
-    {modalTopRightClose && <ModalClose handleClick={modalTopRightClose} dataTestId={'modalCloseButtonTop'} />}
-    {modalTitle && <ModalTitle>{modalTitle}</ModalTitle>}
+    modalTopRightClose && <ModalClose handleClick={modalTopRightClose} dataTestId="modalCloseButtonTop" />
+    modalTitle && <ModalTitle>{modalTitle}</ModalTitle>
     <EvaluationReportContainer
       evaluationReportId={reportId}
       moveCode={moveCode}
@@ -60,17 +58,14 @@ export const EvaluationReportConfirmationModal = ({
     />
     <ModalActions autofocus="true">
       {closeModalOptions && (
-        <ModalClose>
+        <ModalClose
           handleClick={closeModalOptions.handleClick}
           buttonContent={closeModalOptions.content}
-          dataTestId={'modalCloseButtonBottom'}
-        </ModalClose>
+          data-testid="modalCloseButtonBottom"
+        />
       )}
       {submitModalOptions && (
-        <ModalSubmit>
-          handleClick={submitModalOptions.handleClick}
-          buttonContent={submitModalOptions.content}
-        </ModalSubmit>
+        <ModalSubmit handleClick={submitModalOptions.handleClick} buttonContent={submitModalOptions.content} />
       )}
     </ModalActions>
   </Modal>
@@ -97,7 +92,7 @@ EvaluationReportConfirmationModal.propTypes = {
 };
 
 EvaluationReportConfirmationModal.defaultProps = {
-  modalTitle: <></>,
+  modalTitle: null,
   modalTopRightClose: () => {},
   shipmentId: '',
   closeModalOptions: null,

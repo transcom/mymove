@@ -5,8 +5,8 @@ import PropTypes from 'prop-types';
 import { useLocation } from 'react-router';
 
 import styles from './EvaluationReportTable.module.scss';
-import EvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 
+import ConnectedEvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 import { formatCustomerDate, formatEvaluationReportLocation, formatQAReportID } from 'utils/formatters';
 import { CustomerShape, EvaluationReportShape } from 'types';
 
@@ -68,7 +68,7 @@ const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, gra
   return (
     <div>
       {isViewReportModalVisible && reportToView && (
-        <EvaluationReportConfirmationModal
+        <ConnectedEvaluationReportConfirmationModal
           reportId={reportToView.id}
           moveCode={moveCode}
           customerInfo={customerInfo}

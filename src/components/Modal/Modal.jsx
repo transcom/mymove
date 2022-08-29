@@ -63,7 +63,7 @@ const ModalClose = ({ handleClick, className, ...buttonProps }) => {
       onClick={handleClick}
       unstyled
       className={classnames(styles.ModalClose, className)}
-      data-testid={dataTestId || 'modalCloseButton'}
+      data-testid="modalCloseButton"
       aria-label="Close"
       {...buttonProps}
     >

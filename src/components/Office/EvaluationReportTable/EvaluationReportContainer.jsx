@@ -1,6 +1,6 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
-import { Button, Grid } from '@trussworks/react-uswds';
+import { Grid } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import { ModalContainer, Overlay } from '../../MigratedModal/MigratedModal';

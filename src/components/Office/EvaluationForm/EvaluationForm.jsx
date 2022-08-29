@@ -11,8 +11,7 @@ import classnames from 'classnames';
 import styles from './EvaluationForm.module.scss';
 
 import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
-import EvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
-
+import ConnectedEvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import { deleteEvaluationReport, saveEvaluationReport, submitEvaluationReport } from 'services/ghcApi';
@@ -35,11 +34,13 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
   const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport);
   const [submitEvaluationReportMutation] = useMutation(submitEvaluationReport);
 
-  const toggleCancelModal = () => {
+  // whether or not the delete report modal is displaying
+  const toggleDeleteReportModal = () => {
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  const toggleSubmitModal = () => {
+  // whether or not the submit report modal is displaying
+  const toggleSubmitReportModal = () => {
     setIsSubmitModalOpen(!isSubmitModalOpen);
   };
 
@@ -47,7 +48,7 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
     history.push(`/moves/${moveCode}/evaluation-reports`);
   };
 
-  const cancelReport = async () => {
+  const deleteReport = async () => {
     // Close the modal
     setIsDeleteModalOpen(!isDeleteModalOpen);
 
@@ -203,10 +204,10 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
     <>
       <ConnectedDeleteEvaluationReportConfirmationModal
         isOpen={isDeleteModalOpen}
-        closeModal={toggleCancelDeleteModal}
-        submitModal={cancelReport}
+        closeModal={toggleDeleteReportModal}
+        submitModal={deleteReport}
       />
-      <EvaluationReportConfirmationModal>
+      <ConnectedEvaluationReportConfirmationModal>
         reportId={evaluationReport.id}
         moveCode={moveCode}
         customerInfo={customerInfo}
@@ -214,7 +215,7 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
         shipmentId={shipmentId}
         closeModalOptions=
         {{
-          handleClick: toggleSubmitModal,
+          handleClick: toggleSubmitReportModal,
           buttonContent: 'Back to evaluation form',
         }}
         submitModalOptions=
@@ -222,7 +223,7 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
           handleClick: submitReport,
           buttonContent: 'Submit',
         }}
-      </EvaluationReportConfirmationModal>
+      </ConnectedEvaluationReportConfirmationModal>
       <Formik
         initialValues={initialValues}
         enableReinitialize
@@ -459,7 +460,7 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
                   <Grid col>
                     <div className={styles.buttonRow}>
                       {evaluationReport.updatedAt === evaluationReport.createdAt && (
-                        <Button className="usa-button--unstyled" onClick={toggleCancelModal} type="button">
+                        <Button className="usa-button--unstyled" onClick={toggleDeleteReportModal} type="button">
                           Cancel
                         </Button>
                       )}
@@ -481,7 +482,7 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
                           Next: select violations
                         </Button>
                       ) : (
-                        <Button disabled={!values.violationsObserved} onClick={toggleSubmitModal}>
+                        <Button disabled={!values.violationsObserved} onClick={toggleSubmitReportModal}>
                           Review and submit
                         </Button>
                       )}
