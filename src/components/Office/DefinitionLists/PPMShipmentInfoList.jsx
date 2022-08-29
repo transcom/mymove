@@ -91,7 +91,7 @@ const PPMShipmentInfoList = ({
   const sitPlannedElement = (
     <div className={sitPlannedElementFlags.classes}>
       <dt>SIT planned?</dt>
-      <dd data-testid="sitPlanned">{sitExpected ? 'yes' : 'no'}</dd>
+      <dd data-testid="sitPlanned">{sitExpected ? 'Yes' : 'No'}</dd>
     </div>
   );
 
