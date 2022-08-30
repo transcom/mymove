@@ -70,6 +70,7 @@ const Advance = lazy(() => import('pages/MyMove/PPM/Booking/Advance/Advance'));
 const About = lazy(() => import('pages/MyMove/PPM/Closeout/About/About'));
 const WeightTickets = lazy(() => import('pages/MyMove/PPM/Closeout/WeightTickets/WeightTickets'));
 const PPMReview = lazy(() => import('pages/MyMove/PPM/Closeout/Review/Review'));
+const ProGear = lazy(() => import('pages/MyMove/PPM/Closeout/ProGear/ProGear.jsx'));
 const PPMFinalCloseout = lazy(() => import('pages/MyMove/PPM/Closeout/FinalCloseout/FinalCloseout'));
 
 export class CustomerApp extends Component {
@@ -223,6 +224,11 @@ export class CustomerApp extends Component {
                   <CustomerPrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
                   <CustomerPrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
                   <CustomerPrivateRoute path="/moves/:moveId/ppm-payment-review" component={PaymentReview} />
+                  <CustomerPrivateRoute
+                    exact
+                    path={[customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH, customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH]}
+                    component={ProGear}
+                  />
                   <CustomerPrivateRoute exact path="/ppm-customer-agreement" component={CustomerAgreementLegalese} />
 
                   {/* Errors */}

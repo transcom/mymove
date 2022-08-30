@@ -157,3 +157,7 @@ export const StorageFacilityShape = shape({
   address: ResidentialAddressShape,
   lotNumber: string,
 });
+
+export const ProGearTicketShape = shape({
+  selfProGear: bool,
+});
