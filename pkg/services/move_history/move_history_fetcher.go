@@ -109,8 +109,8 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		JOIN re_services ON mto_service_items.re_service_id = re_services.id
 		JOIN moves ON moves.id = mto_service_items.move_id
 		LEFT JOIN mto_shipments ON mto_service_items.mto_shipment_id = mto_shipments.id
-    GROUP BY
-			mto_service_items.id
+		GROUP BY
+				mto_service_items.id
 	),
 	service_item_logs AS (
 		SELECT
@@ -142,16 +142,24 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	),
 	service_item_dimensions AS (
 		SELECT
-			mto_service_item_dimensions.*
+			mto_service_item_dimensions.*,
+			json_agg(json_build_object('name',
+					re_services.name,
+					'shipment_type',
+					mto_shipments.shipment_type))::TEXT AS context
 		FROM
 			mto_service_item_dimensions
 		JOIN mto_service_items on mto_service_items.id = mto_service_item_dimensions.mto_service_item_id
+		JOIN re_services ON mto_service_items.re_service_id = re_services.id
+		LEFT JOIN mto_shipments ON mto_service_items.mto_shipment_id = mto_shipments.id
 		JOIN moves ON moves.id = mto_service_items.move_id
+		GROUP BY
+			mto_service_item_dimensions.id
 	),
 	service_item_dimensions_logs AS  (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			context,
 			NULL AS context_id
 		FROM
 			audit_history
