@@ -10,20 +10,19 @@ import DataTableWrapper from '../../DataTableWrapper';
 import { formatDate } from '../../../shared/dates';
 import EvaluationReportList from '../DefinitionLists/EvaluationReportList';
 
-import styles from './EvaluationReportContainer.module.scss';
+import styles from './EvaluationReportPreview.module.scss';
 
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
-import { CustomerShape } from 'types';
+import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 import { shipmentTypeLabels } from 'content/shipments';
-import { useViewEvaluationReportQueries } from 'hooks/queries';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 
-const EvaluationReportContainer = ({ evaluationReportId, shipmentId, moveCode, customerInfo, grade }) => {
-  const { evaluationReport, mtoShipments } = useViewEvaluationReportQueries(evaluationReportId);
+const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, customerInfo, grade }) => {
+  const reportType = evaluationReport.type;
   let mtoShipmentsToShow;
 
-  if (shipmentId && mtoShipments) {
-    mtoShipmentsToShow = [mtoShipments.find((shipment) => shipment.id === shipmentId)];
+  if (reportType === 'SHIPMENT') {
+    mtoShipmentsToShow = [mtoShipments.find((shipment) => shipment.id === evaluationReport.shipmentId)];
   } else {
     mtoShipmentsToShow = mtoShipments;
   }
@@ -63,13 +62,13 @@ const EvaluationReportContainer = ({ evaluationReportId, shipmentId, moveCode, c
   };
 
   return (
-    <div className={styles.evaluationReportContainer} data-testid="EvaluationReportContainer">
+    <div className={styles.evaluationReportPreview} data-testid="EvaluationReportPreview">
       <div>
         <div className={styles.titleSection}>
           <div className={styles.pageHeader}>
-            <h1>{evaluationReport.type === 'SHIPMENT' ? 'Shipment' : 'Move'} report</h1>
+            <h1>{reportType === 'SHIPMENT' ? 'Shipment' : 'Move'} report</h1>
             <div className={styles.pageHeaderDetails}>
-              <h6>REPORT ID {formatQAReportID(evaluationReportId)}</h6>
+              <h6>REPORT ID {formatQAReportID(evaluationReport.id)}</h6>
               <h6>MOVE CODE #{moveCode}</h6>
               <h6>MTO REFERENCE ID #{evaluationReport.moveReferenceID}</h6>
             </div>
@@ -101,7 +100,7 @@ const EvaluationReportContainer = ({ evaluationReportId, shipmentId, moveCode, c
       </div>
       <div className={styles.section}>
         <h2>Evaluation report</h2>
-        {evaluationReport.type === 'SHIPMENT' && evaluationReport.location !== 'OTHER' && (
+        {reportType === 'SHIPMENT' && evaluationReport.location !== 'OTHER' && (
           <div className={styles.section}>
             <h3>Information</h3>
             <div className={styles.sideBySideDetails}>
@@ -139,7 +138,7 @@ const EvaluationReportContainer = ({ evaluationReportId, shipmentId, moveCode, c
             <EvaluationReportList evaluationReport={evaluationReport} />
           </div>
         )}
-        {(evaluationReport.type === 'COUNSELING' || evaluationReport.location === 'OTHER') && (
+        {(reportType === 'COUNSELING' || evaluationReport.location === 'OTHER') && (
           <div className={styles.section}>
             <h3>Information</h3>
             <DataTableWrapper className={classnames(styles.detailsRight, 'table--data-point-group')}>
@@ -168,16 +167,16 @@ const EvaluationReportContainer = ({ evaluationReportId, shipmentId, moveCode, c
   );
 };
 
-EvaluationReportContainer.propTypes = {
-  evaluationReportId: PropTypes.string.isRequired,
+EvaluationReportPreview.propTypes = {
+  evaluationReport: EvaluationReportShape.isRequired,
+  mtoShipments: PropTypes.arrayOf(ShipmentShape),
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
-  shipmentId: PropTypes.string,
 };
 
-EvaluationReportContainer.defaultProps = {
-  shipmentId: '',
+EvaluationReportPreview.defaultProps = {
+  mtoShipments: null,
 };
 
-export default EvaluationReportContainer;
+export default EvaluationReportPreview;

@@ -3,7 +3,7 @@ import React from 'react';
 
 import { useViewEvaluationReportQueries } from '../../../hooks/queries';
 
-import EvaluationReportContainer from './EvaluationReportContainer';
+import EvaluationReportContainer from './EvaluationReportPreview';
 
 jest.mock('hooks/queries', () => ({
   useViewEvaluationReportQueries: jest.fn(),

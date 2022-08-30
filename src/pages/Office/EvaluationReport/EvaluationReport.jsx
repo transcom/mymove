@@ -10,7 +10,7 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import evaluationReportStyles from './EvaluationReport.module.scss';
 
 import EvaluationForm from 'components/Office/EvaluationForm/EvaluationForm';
-import { useShipmentEvaluationReportQueries } from 'hooks/queries';
+import { useEvaluationMoveInfoQueries } from 'hooks/queries';
 import { CustomerShape } from 'types';
 import EvaluationReportMoveInfo from 'components/Office/EvaluationReportMoveInfo/EvaluationReportMoveInfo';
 import EvaluationReportShipmentInfo from 'components/Office/EvaluationReportShipmentInfo/EvaluationReportShipmentInfo';
@@ -19,11 +19,14 @@ import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
 
 const EvaluationReport = ({ customerInfo, grade }) => {
   const { reportId } = useParams();
-  const { evaluationReport, mtoShipment } = useShipmentEvaluationReportQueries(reportId);
+
+  const { evaluationReport, mtoShipments } = useEvaluationMoveInfoQueries(reportId);
+  const { shipmentID } = evaluationReport;
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
-  let shipmentId = null;
+  let singleShipment = null;
+
   if (isShipment) {
-    shipmentId = mtoShipment.id;
+    singleShipment = [mtoShipments.find((shipment) => shipment.id === shipmentID)];
   }
 
   return (
@@ -35,7 +38,7 @@ const EvaluationReport = ({ customerInfo, grade }) => {
           <EvaluationReportShipmentInfo
             customerInfo={customerInfo}
             grade={grade}
-            shipment={mtoShipment}
+            shipment={singleShipment}
             report={evaluationReport}
           />
         ) : (
@@ -44,9 +47,9 @@ const EvaluationReport = ({ customerInfo, grade }) => {
 
         <EvaluationForm
           evaluationReport={evaluationReport}
+          mtoShipments={mtoShipments}
           customerInfo={customerInfo}
           grade={grade}
-          shipmentId={shipmentId}
         />
       </GridContainer>
     </div>

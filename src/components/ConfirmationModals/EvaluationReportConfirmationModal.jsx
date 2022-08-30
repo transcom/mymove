@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import styles from './EvaluationReportConfirmationModal.module.scss';
 
 import Modal, { ModalTitle, ModalClose, ModalSubmit, ModalActions, connectModal } from 'components/Modal/Modal';
-import { CustomerShape } from 'types';
-import EvaluationReportContainer from 'components/Office/EvaluationReportTable/EvaluationReportContainer';
+import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
+import EvaluationReportContainer from 'components/Office/EvaluationReportPreview/EvaluationReportPreview';
 
 /*
   Used for the Evaluation Report:
@@ -15,22 +15,22 @@ import EvaluationReportContainer from 'components/Office/EvaluationReportTable/E
     View (already submitted report)
       No title/subtext
       Close button only on the bottom
-  
+
   modalTitle - optional
     * format <html or react elements to render within the ModalTitle div>
-  
+
   modalTopRightClose - optional
     * renders a close button in the top right corner
     * triggers the passed in onClick method
 
   reportId, moveCode - required
    * used to look up the report to fill in details
-  
+
   grade - required
     ORDERS_RANK_OPTIONS[GRADE]
 
   shipmentId - required if a shipment eval report, optional for others
-  
+
   close & submitModalOptions
     onClick
     content
@@ -40,36 +40,36 @@ import EvaluationReportContainer from 'components/Office/EvaluationReportTable/E
 export const EvaluationReportConfirmationModal = ({
   modalTitle,
   modalTopRightClose,
-  reportId,
+  evaluationReport,
   moveCode,
   customerInfo,
   grade,
-  shipmentId,
+  mtoShipments,
   closeModalOptions,
   submitModalOptions,
 }) => (
   <Modal className={styles.evaluationReportModal}>
-    modalTopRightClose && <ModalClose handleClick={modalTopRightClose} data-testid="modalCloseButtonTop" />
-    modalTitle && <ModalTitle className={styles.titleSection}>{modalTitle}</ModalTitle>
+    {modalTopRightClose && <ModalClose handleClick={() => modalTopRightClose()} data-testid="modalCloseButtonTop" />}
+    {modalTitle && <ModalTitle className={styles.titleSection}>{modalTitle}</ModalTitle>}
     <EvaluationReportContainer
-      evaluationReportId={reportId}
+      evaluationReport={evaluationReport}
       moveCode={moveCode}
+      mtoShipments={mtoShipments}
       customerInfo={customerInfo}
       grade={grade}
-      shipmentId={shipmentId}
     />
-    <ModalActions autofocus="true">
+    {/* <ModalActions autofocus="true">
       {closeModalOptions && (
         <ModalClose
-          handleClick={closeModalOptions.handleClick}
+          handleClick={() => closeModalOptions.handleClick()}
           buttonContent={closeModalOptions.buttonContent}
           data-testid="modalCloseButtonBottom"
         />
       )}
       {submitModalOptions && (
-        <ModalSubmit handleClick={submitModalOptions.handleClick} buttonContent={submitModalOptions.buttonContent} />
+        <ModalSubmit handleClick={() => submitModalOptions.handleClick()} buttonContent={submitModalOptions.buttonContent} />
       )}
-    </ModalActions>
+    </ModalActions> */}
   </Modal>
 );
 
@@ -78,11 +78,11 @@ export const EvaluationReportConfirmationModal = ({
 EvaluationReportConfirmationModal.propTypes = {
   modalTitle: PropTypes.element,
   modalTopRightClose: PropTypes.func,
-  reportId: PropTypes.string.isRequired,
+  evaluationReport: EvaluationReportShape.isRequired,
+  mtoShipments: PropTypes.arrayOf(ShipmentShape),
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
-  shipmentId: PropTypes.string,
   closeModalOptions: PropTypes.shape({
     handleClick: PropTypes.func,
     buttonContent: PropTypes.string,
@@ -95,8 +95,8 @@ EvaluationReportConfirmationModal.propTypes = {
 
 EvaluationReportConfirmationModal.defaultProps = {
   modalTitle: null,
-  modalTopRightClose: () => {},
-  shipmentId: '',
+  modalTopRightClose: null,
+  mtoShipments: null,
   closeModalOptions: null,
   submitModalOptions: null,
 };

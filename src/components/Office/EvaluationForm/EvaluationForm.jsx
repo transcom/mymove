@@ -19,9 +19,9 @@ import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { formatDateForSwagger } from 'shared/dates';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
-import { CustomerShape } from 'types';
+import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 
-const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) => {
+const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade }) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
   const location = useLocation();
@@ -140,14 +140,18 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
     await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
   };
 
+  const handleSaveDraft = async (values) => {
+    await saveDraft(values);
+
+    history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
+  };
+
   // Review and Submit button
   // Saves report changes
   // displays report preview ahead of final submission
   const handlePreviewReport = async (values) => {
     // save updates
     await saveDraft(values);
-
-    // history.push(`/moves/${moveCode}/evaluation-reports`);
 
     // open the modal to submit
     setIsSubmitModalOpen(!isSubmitModalOpen);
@@ -217,7 +221,7 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
   );
 
   const closeModalOptions = {
-    handleClick: toggleSubmitReportModal,
+    handleClick: setIsSubmitModalOpen,
     buttonContent: 'Back to evaluation form',
   };
 
@@ -234,20 +238,21 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
         submitModal={deleteReport}
       />
       <ConnectedEvaluationReportConfirmationModal
+        modalTopRightClose={setIsSubmitModalOpen}
         isOpen={isSubmitModalOpen}
         modalTitle={modalTitle}
-        reportId={evaluationReport.id}
+        evaluationReport={evaluationReport}
         moveCode={moveCode}
         customerInfo={customerInfo}
         grade={grade}
-        shipmentId={shipmentId}
+        mtoShipments={mtoShipments}
         closeModalOptions={closeModalOptions}
         submitModalOptions={submitModalOptions}
       />
       <Formik
         initialValues={initialValues}
         enableReinitialize
-        onSubmit={handlePreviewReport}
+        onSubmit={handleSaveDraft}
         validationSchema={validationSchema}
         validateOnMount
       >
@@ -502,7 +507,11 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
                           Next: select violations
                         </Button>
                       ) : (
-                        <Button disabled={!values.violationsObserved} type="submit">
+                        <Button
+                          disabled={!values.violationsObserved}
+                          type="button"
+                          onClick={() => handlePreviewReport(values)}
+                        >
                           Review and submit
                         </Button>
                       )}
@@ -519,15 +528,14 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
 };
 
 EvaluationForm.propTypes = {
-  evaluationReport: PropTypes.object,
+  evaluationReport: EvaluationReportShape.isRequired,
+  mtoShipments: PropTypes.arrayOf(ShipmentShape),
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
-  shipmentId: PropTypes.string,
 };
 
 EvaluationForm.defaultProps = {
-  evaluationReport: {},
-  shipmentId: null,
+  mtoShipments: null,
 };
 
 export default EvaluationForm;

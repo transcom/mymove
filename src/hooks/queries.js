@@ -371,7 +371,8 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
   };
 };
 
-export const useViewEvaluationReportQueries = (reportID) => {
+// counseling reports look up all shipments
+export const useEvaluationMoveInfoQueries = (reportID) => {
   const { data: evaluationReport = {}, ...viewEvaluationReportQuery } = useQuery(
     [EVALUATION_REPORT, reportID],
     getEvaluationReportByID,
