@@ -111,7 +111,7 @@ const Review = () => {
     handleDelete,
   );
 
-  const weightTicketsTotal = calculateTotalNetWeightForWeightTickets(weightTickets || []);
+  const weightTicketsTotal = calculateTotalNetWeightForWeightTickets(weightTickets);
 
   const canAdvance = hasCompletedAllWeightTickets(weightTickets);
 
@@ -122,7 +122,7 @@ const Review = () => {
     handleDelete,
   );
 
-  const proGearTotal = calculateTotalNetWeightForProGearWeightTickets(proGear || []);
+  const proGearTotal = calculateTotalNetWeightForProGearWeightTickets(proGear);
 
   const expenseContents = formatExpenseItems(
     expenses,
@@ -134,7 +134,7 @@ const Review = () => {
     handleDelete,
   );
 
-  const expensesTotal = calculateTotalMovingExpensesAmount(expenses || []);
+  const expensesTotal = calculateTotalMovingExpensesAmount(expenses);
 
   return (
     <div className={classnames(ppmPageStyles.ppmPageStyle, styles.PPMReview)}>

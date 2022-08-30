@@ -123,7 +123,7 @@ export const calculateNetWeightForWeightTicket = (weightTicket) => {
   return weightTicket.fullWeight - weightTicket.emptyWeight;
 };
 
-export const calculateTotalNetWeightForWeightTickets = (weightTickets) => {
+export const calculateTotalNetWeightForWeightTickets = (weightTickets = []) => {
   return weightTickets.reduce((prev, curr) => {
     return prev + calculateNetWeightForWeightTicket(curr);
   }, 0);
@@ -146,13 +146,13 @@ export const calculateNetWeightForProGearWeightTicket = (proGearWeightTicket) =>
   return proGearWeightTicket.fullWeight - proGearWeightTicket.emptyWeight;
 };
 
-export const calculateTotalNetWeightForProGearWeightTickets = (proGearWeightTickets) => {
+export const calculateTotalNetWeightForProGearWeightTickets = (proGearWeightTickets = []) => {
   return proGearWeightTickets.reduce((prev, curr) => {
     return prev + calculateNetWeightForProGearWeightTicket(curr);
   }, 0);
 };
 
-export const calculateTotalMovingExpensesAmount = (movingExpenses) => {
+export const calculateTotalMovingExpensesAmount = (movingExpenses = []) => {
   return movingExpenses.reduce((prev, curr) => {
     return curr.amount && !Number.isNaN(Number(curr.amount)) ? prev + curr.amount : prev;
   }, 0);

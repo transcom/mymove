@@ -14,13 +14,13 @@ import {
 } from 'utils/ppmCloseout';
 
 const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
-  const totalNetWeight = calculateTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets || []);
+  const totalNetWeight = calculateTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
 
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
-    mtoShipment?.ppmShipment?.proGearWeightTickets || [],
+    mtoShipment?.ppmShipment?.proGearWeightTickets,
   );
 
-  const totalExpensesClaimed = calculateTotalMovingExpensesAmount(mtoShipment?.ppmShipment?.movingExpenses || []);
+  const totalExpensesClaimed = calculateTotalMovingExpensesAmount(mtoShipment?.ppmShipment?.movingExpenses);
 
   const isValid = false;
   const isSubmitting = true;
