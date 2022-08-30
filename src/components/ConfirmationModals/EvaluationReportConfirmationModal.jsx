@@ -58,7 +58,7 @@ export const EvaluationReportConfirmationModal = ({
       customerInfo={customerInfo}
       grade={grade}
     />
-    {/* <ModalActions autofocus="true">
+    <ModalActions autofocus="true">
       {closeModalOptions && (
         <ModalClose
           handleClick={() => closeModalOptions.handleClick()}
@@ -67,9 +67,12 @@ export const EvaluationReportConfirmationModal = ({
         />
       )}
       {submitModalOptions && (
-        <ModalSubmit handleClick={() => submitModalOptions.handleClick()} buttonContent={submitModalOptions.buttonContent} />
+        <ModalSubmit
+          handleClick={() => submitModalOptions.handleClick()}
+          buttonContent={submitModalOptions.buttonContent}
+        />
       )}
-    </ModalActions> */}
+    </ModalActions>
   </Modal>
 );
 

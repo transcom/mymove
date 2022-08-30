@@ -39,11 +39,6 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  // whether or not the submit report modal is displaying
-  const toggleSubmitReportModal = () => {
-    setIsSubmitModalOpen(!isSubmitModalOpen);
-  };
-
   const cancelForUpdatedReport = () => {
     history.push(`/moves/${moveCode}/evaluation-reports`);
   };
@@ -65,7 +60,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
 
     // TODO: commenting out until i get the endpoint hooked up
     // mark as submitted in the DB
-    // await submitEvaluationReportMutation(reportId);
+    await submitEvaluationReportMutation(reportId);
 
     // Reroute back to eval report page, include flag to show success alert
     // TODO: what happens on failure?
