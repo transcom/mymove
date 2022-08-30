@@ -15,22 +15,19 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/transcom/mymove/pkg/unit"
-
-	"github.com/go-openapi/swag"
-	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route/mocks"
-
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/route/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {

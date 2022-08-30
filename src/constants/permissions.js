@@ -13,4 +13,6 @@ export const permissionTypes = {
   createShipmentDiversionRequest: 'create.shipmentDiversionRequest',
   createReweighRequest: 'create.reweighRequest',
   updateMTOServiceItem: 'update.MTOServiceItem',
+  createEvaluationReport: 'create.evaluationReport',
+  updateEvaluationReport: 'update.evaluationReport',
 };

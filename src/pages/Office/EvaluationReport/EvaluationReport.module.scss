@@ -22,3 +22,9 @@
 
   @include u-padding-top(8);
 }
+
+.container {
+  max-width: 1200px;
+  @include u-padding-left(0);
+  @include u-padding-right(0);
+}

@@ -357,6 +357,8 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(appCtx.Logger()))
 		api := ghcapi.NewGhcAPIHandler(routingConfig.HandlerConfig)
+		permissionsMiddleware := authentication.PermissionsMiddleware(appCtx, api)
+		ghcAPIMux.Use(permissionsMiddleware)
 		tracingMiddleware := middleware.OpenAPITracing(api)
 		ghcAPIMux.PathPrefix("/").Handler(api.Serve(tracingMiddleware))
 	}

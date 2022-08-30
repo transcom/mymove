@@ -4,11 +4,26 @@ import ShipmentEvaluationReports from './ShipmentEvaluationReports';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 export default {
   title: 'Office Components/ShipmentEvaluationReports',
   component: ShipmentEvaluationReports,
-  decorators: [(Story) => <MockProviders>{Story()}</MockProviders>],
+  decorators: [
+    (Story, context) => {
+      // Dont wrap with permissions for the read only tests
+      if (context.name.includes('Read Only')) {
+        return <MockProviders>{Story()}</MockProviders>;
+      }
+
+      // By default, show component with permissions
+      return (
+        <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
+          <Story />
+        </MockProviders>
+      );
+    },
+  ],
 };
 
 const hhgShipment = {
@@ -92,6 +107,12 @@ export const empty = () => (
 );
 
 export const single = () => (
+  <div className="officeApp">
+    <ShipmentEvaluationReports shipments={shipments} reports={reports} />
+  </div>
+);
+
+export const singleReadOnly = () => (
   <div className="officeApp">
     <ShipmentEvaluationReports shipments={shipments} reports={reports} />
   </div>

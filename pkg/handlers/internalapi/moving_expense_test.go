@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"net/http/httptest"
 
-	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
-
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/etag"
 	movingexpenseops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"

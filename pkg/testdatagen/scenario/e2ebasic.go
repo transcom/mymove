@@ -15,20 +15,17 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/services"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/models/roles"
-
-	"github.com/gofrs/uuid"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/services"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -4191,6 +4188,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createApprovedMoveWithPPM4(appCtx, userUploader)
 	createApprovedMoveWithPPM5(appCtx, userUploader)
 	createApprovedMoveWithPPM(appCtx, userUploader)
+	createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
+	createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMADD")
 	createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx, userUploader, moveRouter, "PPMSIT")

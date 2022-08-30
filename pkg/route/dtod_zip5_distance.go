@@ -37,9 +37,8 @@ The Request to DTOD using the service ProcessRequest which looks like
 import (
 	"fmt"
 
-	"go.uber.org/zap"
-
 	"github.com/tiaguinho/gosoap"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 )

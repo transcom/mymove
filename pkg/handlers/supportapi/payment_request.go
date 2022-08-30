@@ -5,18 +5,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/apperror"
-
-	"github.com/spf13/viper"
-
-	"github.com/transcom/mymove/pkg/cli"
-	"github.com/transcom/mymove/pkg/services/invoice"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/cli"
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_request"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -24,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
+	"github.com/transcom/mymove/pkg/services/invoice"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
 

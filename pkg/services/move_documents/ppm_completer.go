@@ -8,7 +8,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 

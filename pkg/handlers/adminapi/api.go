@@ -3,13 +3,6 @@ package adminapi
 import (
 	"log"
 
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-
-	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
-
-	"github.com/transcom/mymove/pkg/services/organization"
-
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/gen/adminapi"
@@ -19,13 +12,17 @@ import (
 	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
 	fetch "github.com/transcom/mymove/pkg/services/fetch"
 	move "github.com/transcom/mymove/pkg/services/move"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/office"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
+	"github.com/transcom/mymove/pkg/services/organization"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	tspop "github.com/transcom/mymove/pkg/services/tsp"
 	"github.com/transcom/mymove/pkg/services/upload"
 	user "github.com/transcom/mymove/pkg/services/user"
+	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 	webhooksubscription "github.com/transcom/mymove/pkg/services/webhook_subscription"
 )
 

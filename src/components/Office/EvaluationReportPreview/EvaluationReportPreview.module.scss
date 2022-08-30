@@ -45,6 +45,9 @@
   overflow-y: auto;
   max-height: 90vh;
   @include u-padding-bottom(5 !important);
+  dd {
+    width: 164px;
+  }
 }
 
 .approvalClose {

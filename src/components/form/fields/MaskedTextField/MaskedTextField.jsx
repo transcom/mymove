@@ -75,7 +75,11 @@ const MaskedTextField = ({
             blocks={blocks}
             lazy={lazy}
             onAccept={(val, masked) => {
-              helpers.setValue(masked.unmaskedValue);
+              if (props.scale === 0) {
+                helpers.setValue(masked.unmaskedValue);
+              } else {
+                helpers.setValue(val);
+              }
               // setValue is already triggering validation for this field so we should be able to skip it in setTouched
               helpers.setTouched(true, false);
             }}
