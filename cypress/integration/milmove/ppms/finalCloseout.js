@@ -19,7 +19,7 @@ describe('Final Closeout', function () {
     { viewport: 'mobile', isMobile: true },
   ];
 
-  testCases.forEach(({ viewport, isMobile, userId }) => {
+  testCases.forEach(({ viewport, isMobile }) => {
     it(`can see final closeout page with final estimated incentive and shipment totals - ${viewport}`, () => {
       if (isMobile) {
         setMobileViewport();
