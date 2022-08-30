@@ -36,6 +36,8 @@ export function signInAndNavigateToAboutPage(userId, selectAdvance) {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/about/);
   });
 
+  cy.get('h1').should('contain', 'About your PPM');
+
   fillOutAboutPage(selectAdvance);
 }
 
@@ -45,6 +47,8 @@ export function signInAndNavigateToPPMReviewPage(userId) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   });
+
+  cy.get('h1').should('contain', 'Review');
 }
 
 export function navigateFromPPMReviewPageToFinalCloseoutPage() {
@@ -53,6 +57,8 @@ export function navigateFromPPMReviewPageToFinalCloseoutPage() {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/complete/);
   });
+
+  cy.get('h1').should('contain', 'Complete PPM');
 }
 
 export function signInAndNavigateToFinalCloseoutPage(userId) {
@@ -87,7 +93,7 @@ export function fillOutAboutPage(selectAdvance) {
 }
 
 export function navigateFromAboutPageToWeightTicketPage() {
-  cy.get('button').contains('Save & Continue').click();
+  cy.get('button').contains('Save & Continue').should('be.enabled').click();
   cy.wait('@patchShipment');
 
   cy.location().should((loc) => {
@@ -101,6 +107,8 @@ export function signInAndNavigateToWeightTicketPage(userId) {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
   });
+
+  cy.get('h1').should('contain', 'Weight Tickets');
 }
 
 export function submitWeightTicketPage(options) {
