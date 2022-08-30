@@ -26,6 +26,7 @@ describe('EvaluationReportShipmentInfo', () => {
         phone: '+441234567890',
         email: 'abc@123.com',
       },
+      type: 'SHIPMENT',
     };
 
     const mockShipment = {
@@ -75,7 +76,7 @@ describe('EvaluationReportShipmentInfo', () => {
         customerInfo={mockCustomerInfo}
         orders={mockOrders}
         report={mockReport}
-        shipment={mockShipment}
+        shipments={[mockShipment]}
       />,
     );
 

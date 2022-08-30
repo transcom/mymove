@@ -1,7 +1,6 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
 
@@ -50,7 +49,7 @@ const PPMShipmentInfoList = ({
     <div className={expectedDepartureDateElementFlags.classes}>
       <dt>Departure date</dt>
       <dd data-testid="expectedDepartureDate">
-        {expectedDepartureDate && formatDate(expectedDepartureDate, 'DD MMM YYYY')}
+        {(expectedDepartureDate && formatDate(expectedDepartureDate, 'DD MMM YYYY')) || '—'}
       </dd>
     </div>
   );
@@ -74,8 +73,10 @@ const PPMShipmentInfoList = ({
   const destinationZIPElementFlags = getDisplayFlags('DestinationZIP');
   const destinationZIPElement = (
     <div className={destinationZIPElementFlags.classes}>
-      <dt>Destination ZIP</dt>
-      <dd data-testid="destinationZIP">{destinationPostalCode}</dd>
+      <dt className={shipmentDefinitionListsStyles.ppmRightLonerDataRow}>Destination ZIP</dt>
+      <dd className={shipmentDefinitionListsStyles.ppmRightLonerDataRow} data-testid="destinationZIP">
+        {destinationPostalCode}
+      </dd>
     </div>
   );
 
@@ -174,40 +175,37 @@ const PPMShipmentInfoList = ({
   );
 
   const evaluationReportDetails = (
-    <GridContainer className={shipmentDefinitionListsStyles.evaluationReportDLContainer}>
-      <Grid row className={shipmentDefinitionListsStyles.evaluationReportRow}>
-        <Grid col={6}>
-          <dl
-            className={classNames(
-              shipmentDefinitionListsStyles.evaluationReportDL,
-              styles.descriptionList,
-              styles.tableDisplay,
-              styles.compact,
-              className,
-            )}
-            data-testid="shipment-info-list-left"
-          >
-            {isExpanded && originZIPElement}
-            {isExpanded && expectedDepartureDateElement}
-          </dl>
-        </Grid>
-        <Grid col={6}>
-          <dl
-            className={classNames(
-              shipmentDefinitionListsStyles.evaluationReportDL,
-              shipmentDefinitionListsStyles.evaluationReportDLRight,
-              styles.descriptionList,
-              styles.tableDisplay,
-              styles.compact,
-              className,
-            )}
-            data-testid="shipment-info-list-right"
-          >
-            {isExpanded && destinationZIPElement}
-          </dl>
-        </Grid>
-      </Grid>
-    </GridContainer>
+    <div className={shipmentDefinitionListsStyles.sideBySideContainer}>
+      <div className={shipmentDefinitionListsStyles.sidebySideItem}>
+        <dl
+          className={classNames(
+            shipmentDefinitionListsStyles.evaluationReportDL,
+            styles.descriptionList,
+            styles.tableDisplay,
+            styles.compact,
+            className,
+          )}
+          data-testid="shipment-info-list-left"
+        >
+          {isExpanded && originZIPElement}
+          {isExpanded && expectedDepartureDateElement}
+        </dl>
+      </div>
+      <div className={shipmentDefinitionListsStyles.sidebySideItem}>
+        <dl
+          className={classNames(
+            shipmentDefinitionListsStyles.evaluationReportDL,
+            styles.descriptionList,
+            styles.tableDisplay,
+            styles.compact,
+            className,
+          )}
+          data-testid="shipment-info-list-right"
+        >
+          {isExpanded && destinationZIPElement}
+        </dl>
+      </div>
+    </div>
   );
 
   return <div>{isForEvaluationReport ? evaluationReportDetails : defaultDetails}</div>;
