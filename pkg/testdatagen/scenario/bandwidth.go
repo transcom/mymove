@@ -9,13 +9,11 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
-
-	"github.com/transcom/mymove/pkg/models/roles"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"

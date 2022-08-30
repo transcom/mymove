@@ -13,7 +13,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
-
 	mtoShipment "github.com/transcom/mymove/pkg/gen/primeclient/mto_shipment"
 )
 

@@ -3,9 +3,8 @@ package ppmshipment
 import (
 	"fmt"
 
-	"github.com/stretchr/testify/mock"
-
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"

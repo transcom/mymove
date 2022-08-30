@@ -6,7 +6,6 @@ import (
 
 	"github.com/felixge/httpsnoop"
 	"github.com/gofrs/uuid"
-
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"

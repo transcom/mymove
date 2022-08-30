@@ -5,22 +5,17 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
-
-	paymentServiceItemService "github.com/transcom/mymove/pkg/services/payment_service_item"
-	"github.com/transcom/mymove/pkg/trace"
-
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/go-openapi/swag"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
+	paymentServiceItemOp "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
+	paymentServiceItemService "github.com/transcom/mymove/pkg/services/payment_service_item"
 	"github.com/transcom/mymove/pkg/testdatagen"
-
-	paymentServiceItemOp "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
+	"github.com/transcom/mymove/pkg/trace"
 )
 
 type updatePaymentSubtestData struct {
