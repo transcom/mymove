@@ -7,6 +7,9 @@ import ProGearForm from 'components/Customer/PPM/Closeout/ProGearForm/ProGearFor
 const defaultProps = {
   onBack: jest.fn(),
   onSubmit: jest.fn(),
+};
+
+const selfProGearProps = {
   proGear: {
     selfProGear: true,
   },
@@ -32,8 +35,14 @@ describe('ProGearForm component', () => {
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
-    it('selects "Me" radio when selfProGear is true', () => {
+    it('does not select a radio when selfProGear is null', () => {
       render(<ProGearForm {...defaultProps} />);
+      expect(screen.getByLabelText('Me')).not.toBeChecked();
+      expect(screen.getByLabelText('My spouse')).not.toBeChecked();
+    });
+
+    it('selects "Me" radio when selfProGear is true', () => {
+      render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
       expect(screen.getByLabelText('Me')).toBeChecked();
       expect(screen.getByLabelText('My spouse')).not.toBeChecked();
     });
@@ -45,14 +54,17 @@ describe('ProGearForm component', () => {
     });
   });
   describe('attaches button handler callbacks', () => {
-    it('calls the onSubmit callback', async () => {
-      render(<ProGearForm {...defaultProps} />);
+    it('calls the onSubmit callback with selfProGear set', async () => {
+      const expectedPayload = {
+        selfProGear: 'true',
+      };
+      render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
-        expect(defaultProps.onSubmit).toHaveBeenCalled();
-      }, expect.anything());
+        expect(defaultProps.onSubmit).toHaveBeenCalledWith(expectedPayload, expect.anything());
+      });
     });
     it('calls the onBack prop when the Finish Later button is clicked', async () => {
       render(<ProGearForm {...defaultProps} />);

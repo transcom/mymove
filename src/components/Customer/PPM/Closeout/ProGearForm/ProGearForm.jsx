@@ -12,17 +12,22 @@ import Fieldset from 'shared/Fieldset';
 import { ProGearTicketShape } from 'types/shipment';
 
 const validationSchema = Yup.object().shape({
-  selfProGear: Yup.string().required('Required'),
+  selfProGear: Yup.bool().required('Required'),
 });
 
 const ProGearForm = ({ proGear, setNumber, onSubmit, onBack }) => {
   const { selfProGear } = proGear || {};
-  const initialValues = {
-    selfProGear: selfProGear ? 'true' : 'false',
-  };
+  let proGearValue;
+  if (selfProGear === true) {
+    proGearValue = 'true';
+  }
+  if (selfProGear === false) {
+    proGearValue = 'false';
+  }
+  const initialValues = { selfProGear: proGearValue };
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, values }) => {
+      {({ handleSubmit, isValid, isSubmitting, values }) => {
         return (
           <div className={ppmStyles.formContainer}>
             <Form className={ppmStyles.form}>
@@ -38,6 +43,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack }) => {
                       name="selfProGear"
                       value="true"
                       checked={values.selfProGear === 'true'}
+                      data-testid="selfProGear"
                     />
                     <Field
                       as={Radio}
@@ -46,6 +52,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack }) => {
                       name="selfProGear"
                       value="false"
                       checked={values.selfProGear === 'false'}
+                      data-testid="spouseProGear"
                     />
                   </Fieldset>
                 </FormGroup>
@@ -57,7 +64,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack }) => {
                 <Button
                   className={ppmStyles.saveButton}
                   type="button"
-                  onClick={onSubmit}
+                  onClick={handleSubmit}
                   disabled={!isValid || isSubmitting}
                 >
                   Save &amp; Continue
@@ -81,7 +88,7 @@ ProGearForm.propTypes = {
 ProGearForm.defaultProps = {
   setNumber: 1,
   proGear: {
-    selfProGear: true,
+    selfProGear: null,
   },
 };
 

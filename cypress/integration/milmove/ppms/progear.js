@@ -23,11 +23,14 @@ describe('Progear', function () {
 
       signInAndNavigateToWeightTicketPage(userId);
       navigateFromCloseoutReviewPageToProGearPage();
-      cy.get('#ownerOfProGearSelf').should('be.checked');
-      cy.get('#ownerOfProGearSpouse').should('not.be.checked');
-      cy.get('label[for="ownerOfProGearSpouse"').should('exist').click();
-      cy.get('#ownerOfProGearSelf').should('not.be.checked');
-      cy.get('#ownerOfProGearSpouse').should('be.checked');
+      cy.get('[data-testid="selfProGear"]').should('not.be.checked');
+      cy.get('[data-testid="spouseProGear"]').should('not.be.checked');
+      cy.get('label[for="ownerOfProGearSelf"').click();
+      cy.get('[data-testid="selfProGear"]').should('be.checked');
+      cy.get('[data-testid="spouseProGear"]').should('not.be.checked');
+      cy.get('label[for="ownerOfProGearSpouse"').click();
+      cy.get('[data-testid="selfProGear"]').should('not.be.checked');
+      cy.get('[data-testid="spouseProGear"]').should('be.checked');
     });
   });
 });
