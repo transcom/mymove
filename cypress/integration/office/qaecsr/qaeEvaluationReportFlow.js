@@ -1,4 +1,5 @@
 import { QAECSROfficeUserType } from '../../../support/constants';
+import { searchForAndNavigateToMove } from './qaeCSRIntegrationUtils';
 
 describe('Quality Evaluation Report Flows', () => {
   before(() => {
@@ -15,24 +16,18 @@ describe('Quality Evaluation Report Flows', () => {
     cy.intercept('**/ghc/v1/moves/**/counseling-evaluation-reports-list').as('getCounselingEvaluationReports');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
     cy.intercept('**/ghc/v1/evaluation-reports/**').as('getEvaluationReport');
+    cy.intercept('**/ghc/v1/moves/search').as('getSearchResults');
 
-    // This user has multiple roles, which is the kind of user we use to test in staging.
-    // By using this type of user, we can catch bugs like the one fixed in PR 6706.
-    const userId = 'b264abd6-52fc-4e42-9e0f-173f7d217bc5';
+    const userId = '2419b1d6-097f-4dc4-8171-8f858967b4db';
     cy.apiSignInAsUser(userId, QAECSROfficeUserType);
   });
 
   it('is able to create and save a draft shipment evaluation report', () => {
     const moveLocator = 'TEST12';
-    cy.wait(['@getSortedOrders']);
-    cy.contains(moveLocator).click();
-    // Move Details page
-    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
-    cy.url().should('include', `/moves/${moveLocator}/details`);
-    // go to the QAE report section
+    // Navigate to the move
+    searchForAndNavigateToMove(moveLocator);
+    // Go to quality assurance tab
     cy.contains('Quality assurance').click();
-    cy.wait(['@getMTOShipments', '@getShipmentEvaluationReports', '@getCounselingEvaluationReports']);
-
     // create report object to edit
     cy.get('[data-testid="shipmentEvaluationCreate"]').click();
     cy.wait(['@getEvaluationReport']);
@@ -46,11 +41,8 @@ describe('Quality Evaluation Report Flows', () => {
 
   it('does not prompt to delete report after first save', () => {
     const moveLocator = 'TEST12';
-    cy.wait(['@getSortedOrders']);
-    cy.contains(moveLocator).click();
-    // Move Details page
-    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
-    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // Navigate to the move
+    searchForAndNavigateToMove(moveLocator);
     // go to the QAE report section
     cy.contains('Quality assurance').click();
     cy.wait(['@getMTOShipments', '@getShipmentEvaluationReports', '@getCounselingEvaluationReports']);
@@ -71,11 +63,8 @@ describe('Quality Evaluation Report Flows', () => {
 
   it('does prompt to delete if the report has not been saved since creation', () => {
     const moveLocator = 'TEST12';
-    cy.wait(['@getSortedOrders']);
-    cy.contains(moveLocator).click();
-    // Move Details page
-    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
-    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // Navigate to the move
+    searchForAndNavigateToMove(moveLocator);
     // go to the QAE report section
     cy.contains('Quality assurance').click();
     cy.wait(['@getMTOShipments', '@getShipmentEvaluationReports', '@getCounselingEvaluationReports']);
