@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import styles from './EvaluationReportConfirmationModal.module.scss';
+
 import Modal, { ModalTitle, ModalClose, ModalSubmit, ModalActions, connectModal } from 'components/Modal/Modal';
 import { CustomerShape } from 'types';
 import EvaluationReportContainer from 'components/Office/EvaluationReportTable/EvaluationReportContainer';
@@ -46,9 +48,9 @@ export const EvaluationReportConfirmationModal = ({
   closeModalOptions,
   submitModalOptions,
 }) => (
-  <Modal>
-    modalTopRightClose && <ModalClose handleClick={modalTopRightClose} dataTestId="modalCloseButtonTop" />
-    modalTitle && <ModalTitle>{modalTitle}</ModalTitle>
+  <Modal className={styles.evaluationReportModal}>
+    modalTopRightClose && <ModalClose handleClick={modalTopRightClose} data-testid="modalCloseButtonTop" />
+    modalTitle && <ModalTitle className={styles.titleSection}>{modalTitle}</ModalTitle>
     <EvaluationReportContainer
       evaluationReportId={reportId}
       moveCode={moveCode}
@@ -60,12 +62,12 @@ export const EvaluationReportConfirmationModal = ({
       {closeModalOptions && (
         <ModalClose
           handleClick={closeModalOptions.handleClick}
-          buttonContent={closeModalOptions.content}
+          buttonContent={closeModalOptions.buttonContent}
           data-testid="modalCloseButtonBottom"
         />
       )}
       {submitModalOptions && (
-        <ModalSubmit handleClick={submitModalOptions.handleClick} buttonContent={submitModalOptions.content} />
+        <ModalSubmit handleClick={submitModalOptions.handleClick} buttonContent={submitModalOptions.buttonContent} />
       )}
     </ModalActions>
   </Modal>
@@ -83,11 +85,11 @@ EvaluationReportConfirmationModal.propTypes = {
   shipmentId: PropTypes.string,
   closeModalOptions: PropTypes.shape({
     handleClick: PropTypes.func,
-    content: PropTypes.string,
+    buttonContent: PropTypes.string,
   }),
   submitModalOptions: PropTypes.shape({
     handleClick: PropTypes.func,
-    text: PropTypes.string,
+    buttonContent: PropTypes.string,
   }),
 };
 

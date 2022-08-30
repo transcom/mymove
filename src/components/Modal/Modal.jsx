@@ -53,10 +53,7 @@ ModalTitle.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-const ModalClose = ({ handleClick, className, ...buttonProps }) => {
-  // What the button will display, defaults to X icon
-  const { buttonContent, dataTestId } = buttonProps;
-
+const ModalClose = ({ handleClick, className, buttonContent, ...buttonProps }) => {
   return (
     <Button
       type="button"
@@ -75,26 +72,24 @@ const ModalClose = ({ handleClick, className, ...buttonProps }) => {
 ModalClose.propTypes = {
   handleClick: PropTypes.func.isRequired,
   className: PropTypes.string,
+  buttonContent: PropTypes.string,
 };
 
 ModalClose.defaultProps = {
   className: '',
+  buttonContent: null,
 };
 
 export { ModalClose };
 
 // TODO: default styling
-const ModalSubmit = ({ handleClick, className, ...buttonProps }) => {
-  // What the button will display, defaults to Submit
-  // What testId we should use, defaults to modalSubmitButton
-  const { buttonContent, dataTestId } = buttonProps;
-
+const ModalSubmit = ({ handleClick, className, buttonContent, ...buttonProps }) => {
   return (
     <Button
       className={classnames(styles.ModalSubmit, className)}
-      type="button"
+      type="submit"
       onClick={handleClick}
-      data-testid={dataTestId || 'modalSubmitButton'}
+      data-testid="modalSubmitButton"
       aria-label="Submit"
       {...buttonProps}
     >
@@ -106,10 +101,12 @@ const ModalSubmit = ({ handleClick, className, ...buttonProps }) => {
 ModalSubmit.propTypes = {
   handleClick: PropTypes.func.isRequired,
   className: PropTypes.string,
+  buttonContent: PropTypes.string,
 };
 
 ModalSubmit.defaultProps = {
   className: '',
+  buttonContent: null,
 };
 
 export { ModalSubmit };

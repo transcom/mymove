@@ -3,8 +3,6 @@ import * as PropTypes from 'prop-types';
 import { Grid } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import { ModalContainer, Overlay } from '../../MigratedModal/MigratedModal';
-import Modal from '../../Modal/Modal';
 import { formatDateFromIso, formatQAReportID } from '../../../utils/formatters';
 import EvaluationReportShipmentDisplay from '../EvaluationReportShipmentDisplay/EvaluationReportShipmentDisplay';
 import DataTable from '../../DataTable';
@@ -66,121 +64,106 @@ const EvaluationReportContainer = ({ evaluationReportId, shipmentId, moveCode, c
 
   return (
     <div className={styles.evaluationReportContainer} data-testid="EvaluationReportContainer">
-      <Overlay />
-      <ModalContainer>
-        <Modal className={styles.evaluationReportModal}>
-          <div>
-            <div className={styles.titleSection}>
-              <div className={styles.pageHeader}>
-                <h1>{evaluationReport.type === 'SHIPMENT' ? 'Shipment' : 'Move'} report</h1>
-                <div className={styles.pageHeaderDetails}>
-                  <h6>REPORT ID {formatQAReportID(evaluationReportId)}</h6>
-                  <h6>MOVE CODE #{moveCode}</h6>
-                  <h6>MTO REFERENCE ID #{evaluationReport.moveReferenceID}</h6>
-                </div>
-              </div>
-            </div>
-            <div className={styles.section}>
-              <Grid row>
-                <Grid col desktop={{ col: 8 }}>
-                  <h2>Move information</h2>
-                  {mtoShipmentsToShow &&
-                    mtoShipmentsToShow.map((mtoShipment) => (
-                      <div key={mtoShipment.id} className={styles.shipmentDisplayContainer}>
-                        <EvaluationReportShipmentDisplay
-                          isSubmitted
-                          key={mtoShipment.id}
-                          shipmentId={mtoShipment.id}
-                          displayInfo={shipmentDisplayInfo(mtoShipment)}
-                          shipmentType={mtoShipment.shipmentType}
-                        />
-                      </div>
-                    ))}
-                </Grid>
-                <Grid className={styles.qaeAndCustomerInfo} col desktop={{ col: 2 }}>
-                  <DataTable columnHeaders={['Customer information']} dataRow={[customerInfoTableBody]} />
-                  <DataTable columnHeaders={['QAE']} dataRow={[officeUserInfoTableBody]} />
-                </Grid>
-              </Grid>
+      <div>
+        <div className={styles.titleSection}>
+          <div className={styles.pageHeader}>
+            <h1>{evaluationReport.type === 'SHIPMENT' ? 'Shipment' : 'Move'} report</h1>
+            <div className={styles.pageHeaderDetails}>
+              <h6>REPORT ID {formatQAReportID(evaluationReportId)}</h6>
+              <h6>MOVE CODE #{moveCode}</h6>
+              <h6>MTO REFERENCE ID #{evaluationReport.moveReferenceID}</h6>
             </div>
           </div>
-          <div className={styles.section}>
-            <h2>Evaluation report</h2>
-            {evaluationReport.type === 'SHIPMENT' && evaluationReport.location !== 'OTHER' && (
-              <div className={styles.section}>
-                <h3>Information</h3>
-                <div className={styles.sideBySideDetails}>
-                  <DataTableWrapper className={classnames(styles.detailsLeft, 'table--data-point-group')}>
-                    {evaluationReport.location === 'ORIGIN' && (
-                      <DataTable
-                        columnHeaders={['Scheduled pickup', 'Observed pickup']}
-                        dataRow={[
-                          mtoShipments[0].scheduledPickupDate
-                            ? formatDate(mtoShipments[0].scheduledPickupDate, 'DD MMM YYYY')
-                            : '—',
-                          evaluationReport.observedDate
-                            ? formatDate(evaluationReport.observedDate, 'DD MMM YYYY')
-                            : '—',
-                        ]}
-                      />
-                    )}
-                    {evaluationReport.location === 'DESTINATION' && (
-                      <DataTable
-                        columnHeaders={['Observed delivery']}
-                        dataRow={[
-                          evaluationReport.observedDate
-                            ? formatDate(evaluationReport.observedDate, 'DD MMM YYYY')
-                            : '—',
-                        ]}
-                      />
-                    )}
-                  </DataTableWrapper>
-                  <DataTableWrapper className={classnames(styles.detailsRight, 'table--data-point-group')}>
-                    <DataTable
-                      columnHeaders={['Inspection date', 'Report submission']}
-                      dataRow={[
-                        evaluationReport.inspectionDate
-                          ? formatDate(evaluationReport.inspectionDate, 'DD MMM YYYY')
-                          : '—',
-                        evaluationReport.observedDate ? formatDate(evaluationReport.observedDate, 'DD MMM YYYY') : '—',
-                      ]}
+        </div>
+        <div className={styles.section}>
+          <Grid row>
+            <Grid col desktop={{ col: 8 }}>
+              <h2>Move information</h2>
+              {mtoShipmentsToShow &&
+                mtoShipmentsToShow.map((mtoShipment) => (
+                  <div key={mtoShipment.id} className={styles.shipmentDisplayContainer}>
+                    <EvaluationReportShipmentDisplay
+                      isSubmitted
+                      key={mtoShipment.id}
+                      shipmentId={mtoShipment.id}
+                      displayInfo={shipmentDisplayInfo(mtoShipment)}
+                      shipmentType={mtoShipment.shipmentType}
                     />
-                  </DataTableWrapper>
-                </div>
-                <EvaluationReportList evaluationReport={evaluationReport} />
-              </div>
-            )}
-            {(evaluationReport.type === 'COUNSELING' || evaluationReport.location === 'OTHER') && (
-              <div className={styles.section}>
-                <h3>Information</h3>
-                <DataTableWrapper className={classnames(styles.detailsRight, 'table--data-point-group')}>
+                  </div>
+                ))}
+            </Grid>
+            <Grid className={styles.qaeAndCustomerInfo} col desktop={{ col: 2 }}>
+              <DataTable columnHeaders={['Customer information']} dataRow={[customerInfoTableBody]} />
+              <DataTable columnHeaders={['QAE']} dataRow={[officeUserInfoTableBody]} />
+            </Grid>
+          </Grid>
+        </div>
+      </div>
+      <div className={styles.section}>
+        <h2>Evaluation report</h2>
+        {evaluationReport.type === 'SHIPMENT' && evaluationReport.location !== 'OTHER' && (
+          <div className={styles.section}>
+            <h3>Information</h3>
+            <div className={styles.sideBySideDetails}>
+              <DataTableWrapper className={classnames(styles.detailsLeft, 'table--data-point-group')}>
+                {evaluationReport.location === 'ORIGIN' && (
                   <DataTable
-                    columnHeaders={['Inspection date', 'Report submission']}
+                    columnHeaders={['Scheduled pickup', 'Observed pickup']}
                     dataRow={[
-                      evaluationReport.inspectionDate
-                        ? formatDate(evaluationReport.inspectionDate, 'DD MMM YYYY')
+                      mtoShipments[0].scheduledPickupDate
+                        ? formatDate(mtoShipments[0].scheduledPickupDate, 'DD MMM YYYY')
                         : '—',
-                      evaluationReport.submittedAt
-                        ? formatDateFromIso(evaluationReport.submittedAt, 'DD MMM YYYY')
-                        : '—',
+                      evaluationReport.observedDate ? formatDate(evaluationReport.observedDate, 'DD MMM YYYY') : '—',
                     ]}
                   />
-                </DataTableWrapper>
-                <EvaluationReportList evaluationReport={evaluationReport} />
-              </div>
-            )}
-            <div className={styles.section}>
-              <h3>QAE remarks</h3>
-              <dl className={descriptionListStyles.descriptionList}>
-                <div className={classnames(descriptionListStyles.row)}>
-                  <dt className={styles.qaeRemarksLabel}>Evaluation remarks</dt>
-                  <dd className={styles.qaeRemarks}>{evaluationReport.remarks}</dd>
-                </div>
-              </dl>
+                )}
+                {evaluationReport.location === 'DESTINATION' && (
+                  <DataTable
+                    columnHeaders={['Observed delivery']}
+                    dataRow={[
+                      evaluationReport.observedDate ? formatDate(evaluationReport.observedDate, 'DD MMM YYYY') : '—',
+                    ]}
+                  />
+                )}
+              </DataTableWrapper>
+              <DataTableWrapper className={classnames(styles.detailsRight, 'table--data-point-group')}>
+                <DataTable
+                  columnHeaders={['Inspection date', 'Report submission']}
+                  dataRow={[
+                    evaluationReport.inspectionDate ? formatDate(evaluationReport.inspectionDate, 'DD MMM YYYY') : '—',
+                    evaluationReport.observedDate ? formatDate(evaluationReport.observedDate, 'DD MMM YYYY') : '—',
+                  ]}
+                />
+              </DataTableWrapper>
             </div>
+            <EvaluationReportList evaluationReport={evaluationReport} />
           </div>
-        </Modal>
-      </ModalContainer>
+        )}
+        {(evaluationReport.type === 'COUNSELING' || evaluationReport.location === 'OTHER') && (
+          <div className={styles.section}>
+            <h3>Information</h3>
+            <DataTableWrapper className={classnames(styles.detailsRight, 'table--data-point-group')}>
+              <DataTable
+                columnHeaders={['Inspection date', 'Report submission']}
+                dataRow={[
+                  evaluationReport.inspectionDate ? formatDate(evaluationReport.inspectionDate, 'DD MMM YYYY') : '—',
+                  evaluationReport.submittedAt ? formatDateFromIso(evaluationReport.submittedAt, 'DD MMM YYYY') : '—',
+                ]}
+              />
+            </DataTableWrapper>
+            <EvaluationReportList evaluationReport={evaluationReport} />
+          </div>
+        )}
+        <div className={styles.section}>
+          <h3>QAE remarks</h3>
+          <dl className={descriptionListStyles.descriptionList}>
+            <div className={classnames(descriptionListStyles.row)}>
+              <dt className={styles.qaeRemarksLabel}>Evaluation remarks</dt>
+              <dd className={styles.qaeRemarks}>{evaluationReport.remarks}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
     </div>
   );
 };

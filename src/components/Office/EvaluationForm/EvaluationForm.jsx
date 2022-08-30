@@ -63,10 +63,12 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
     // close the modal
     setIsSubmitModalOpen(!isSubmitModalOpen);
 
+    // TODO: commenting out until i get the endpoint hooked up
     // mark as submitted in the DB
-    await submitEvaluationReportMutation(reportId);
+    // await submitEvaluationReportMutation(reportId);
 
     // Reroute back to eval report page, include flag to show success alert
+    // TODO: what happens on failure?
     history.push(`/moves/${moveCode}/evaluation-reports`, { showSubmitSuccess: true });
   };
 
@@ -138,10 +140,17 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
     await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
   };
 
-  const handleSubmitSaveDraft = async (values) => {
+  // Review and Submit button
+  // Saves report changes
+  // displays report preview ahead of final submission
+  const handlePreviewReport = async (values) => {
+    // save updates
     await saveDraft(values);
 
-    history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
+    // history.push(`/moves/${moveCode}/evaluation-reports`);
+
+    // open the modal to submit
+    setIsSubmitModalOpen(!isSubmitModalOpen);
   };
 
   const handleSelectViolations = async (values) => {
@@ -200,6 +209,23 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
     hours[i] = { key: String(i), value: String(i) };
   }
 
+  const modalTitle = (
+    <div>
+      <h3>Preview and submit {evaluationReport.type} report</h3>
+      <p>Is all the information shown correct?</p>
+    </div>
+  );
+
+  const closeModalOptions = {
+    handleClick: toggleSubmitReportModal,
+    buttonContent: 'Back to evaluation form',
+  };
+
+  const submitModalOptions = {
+    handleClick: submitReport,
+    buttonContent: 'Submit',
+  };
+
   return (
     <>
       <ConnectedDeleteEvaluationReportConfirmationModal
@@ -207,27 +233,21 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
         closeModal={toggleDeleteReportModal}
         submitModal={deleteReport}
       />
-      <ConnectedEvaluationReportConfirmationModal>
+      <ConnectedEvaluationReportConfirmationModal
+        isOpen={isSubmitModalOpen}
+        modalTitle={modalTitle}
         reportId={evaluationReport.id}
         moveCode={moveCode}
         customerInfo={customerInfo}
         grade={grade}
         shipmentId={shipmentId}
-        closeModalOptions=
-        {{
-          handleClick: toggleSubmitReportModal,
-          buttonContent: 'Back to evaluation form',
-        }}
-        submitModalOptions=
-        {{
-          handleClick: submitReport,
-          buttonContent: 'Submit',
-        }}
-      </ConnectedEvaluationReportConfirmationModal>
+        closeModalOptions={closeModalOptions}
+        submitModalOptions={submitModalOptions}
+      />
       <Formik
         initialValues={initialValues}
         enableReinitialize
-        onSubmit={handleSubmitSaveDraft}
+        onSubmit={handlePreviewReport}
         validationSchema={validationSchema}
         validateOnMount
       >
@@ -482,7 +502,7 @@ const EvaluationForm = ({ evaluationReport, customerInfo, grade, shipmentId }) =
                           Next: select violations
                         </Button>
                       ) : (
-                        <Button disabled={!values.violationsObserved} onClick={toggleSubmitReportModal}>
+                        <Button disabled={!values.violationsObserved} type="submit">
                           Review and submit
                         </Button>
                       )}
