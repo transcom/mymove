@@ -5,7 +5,6 @@ import { useParams } from 'react-router-dom';
 
 import { generalRoutes } from 'constants/routes';
 import FinalCloseout from 'pages/MyMove/PPM/Closeout/FinalCloseout/FinalCloseout';
-// import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { MockProviders, setUpProvidersWithHistory } from 'testUtils';
 import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
