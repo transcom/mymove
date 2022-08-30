@@ -13,7 +13,7 @@
     }
   }
 
-    p.listDescription {
+  p.listDescription {
     @include u-margin-y(0);
   }
 
@@ -25,6 +25,7 @@
     .definitionWrapper {
       display: list-item;
       list-style: disc inside;
+      @include u-font-size('body', 'xs');
     }
 
     dt, dd {
@@ -51,15 +52,26 @@
     }
 
     ul {
+      list-style-position: inside;
+      @include u-margin-left(0);
+      @include u-padding-left(0);
       @include u-text('bold');
       @include u-font-size('body', 'md');
-      @include u-margin-left(1);
     }
 
       @include at-media(mobile-lg) {
       ul {
         @include u-font-size('body', 'lg');
       }
+    }
+  }
+
+  .finalPaymentFactors {
+    @include u-font-size('body', 'xs');
+
+    ul {
+      list-style-position: inside;
+      @include u-padding-left(0);
     }
   }
 }

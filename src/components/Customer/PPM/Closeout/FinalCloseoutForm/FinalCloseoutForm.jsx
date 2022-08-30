@@ -63,7 +63,7 @@ const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
       </div>
 
       <h2>Your actual payment will probably be lower</h2>
-      <div>
+      <div className={styles.finalPaymentFactors}>
         <p className={styles.listDescription}>Your final payment will be:</p>
         <ul>
           <li>based on your final incentive</li>
