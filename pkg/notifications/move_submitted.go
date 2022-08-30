@@ -7,7 +7,6 @@ import (
 	text "text/template"
 
 	"github.com/dustin/go-humanize"
-
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 

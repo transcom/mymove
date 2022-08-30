@@ -12,21 +12,17 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime"
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/models/roles"
-
-	"github.com/transcom/mymove/pkg/random"
-
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"github.com/imdario/mergo"
+	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-
-	"github.com/transcom/mymove/pkg/uploader"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/random"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // Assertions defines assertions about what the data contains

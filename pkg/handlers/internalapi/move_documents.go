@@ -1,19 +1,17 @@
 package internalapi
 
 import (
-	"github.com/go-openapi/strfmt"
-
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/services"
-
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
 )

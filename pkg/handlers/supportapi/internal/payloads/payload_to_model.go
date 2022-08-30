@@ -3,16 +3,14 @@ package payloads
 import (
 	"time"
 
-	"github.com/gobuffalo/validate/v3"
-
-	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/services/event"
-
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/event"
 	"github.com/transcom/mymove/pkg/unit"
 )
 

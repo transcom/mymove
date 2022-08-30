@@ -5,22 +5,17 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gofrs/uuid"
-
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/services"
-
-	"github.com/transcom/mymove/pkg/models/roles"
-
-	"github.com/go-openapi/strfmt"
-
-	"github.com/transcom/mymove/pkg/gen/adminmessages"
-
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/services"
 	fetch "github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"

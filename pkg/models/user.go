@@ -1,11 +1,8 @@
 package models
 
 import (
-	"time"
-
-	"github.com/transcom/mymove/pkg/models/roles"
-
 	"strings"
+	"time"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
@@ -14,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 // User is an entity with a registered uuid and email at login.gov

@@ -17,14 +17,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gobuffalo/pop/v6"
-
 	"github.com/alexedwards/scs/redisstore"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
 	"github.com/pkg/errors"

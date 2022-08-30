@@ -9,30 +9,45 @@
   @include u-padding-left(8px);
   @include u-padding-right(8px);
   width: 100%;
+  word-break: break-word;
 }
 
 .headingShipmentID {
   color: $base-dark;
   font-size: 13px;
   @include u-padding-right(17px);
+  @include u-margin-top(0);
+  @include u-margin-bottom(0);
 }
 
 .ntsHeaderText {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
   font-size: 15px;
-  @include u-padding-left(8px);
   color: $base-dark;
+  @include u-padding-left(8px);
+  :last-of-type {
+    @include u-padding-left(0);
+  }
+
 }
 
 .ntsHeaderTextField {
-  width: 50%;
+  flex-grow: 1;
+  @include u-padding-left(1);
+  @include u-margin-top(2px);
+  @include u-margin-bottom(1);
+}
+
+.ntsHeaderTextRight {
+  @include u-margin-left(5);
 }
 
 .shipmentAddressArrow {
-  flex: 0;
-  @include u-padding-left(17px);
-  @include u-padding-right(17px);
+  //flex: 0;
+  flex-grow: 0;
+  @include u-margin-left(0);
+  @include u-margin-right(1);
   @include u-padding-top(4px);
   svg {
     display: block;
@@ -41,7 +56,12 @@
 }
 
 .shipmentAddressTextFields {
-    flex: 1;
+  flex: 1;
+  @include u-padding-left(1);
+}
+
+.shipmentAddressLeft {
+  max-width: 46.5%;
 }
 
 .ShipmentCard {
@@ -51,8 +71,10 @@
     justify-items: flex-start;
     @include u-text('base-darkest');
     @include u-margin(0);
-    @include u-padding(2);
-
+    @include u-padding-left(2);
+    @include u-padding-right(2);
+    @include u-padding-bottom(2);
+    @include u-padding-top(12px);
     h3 {
       display: inline;
       font-weight: normal;
@@ -74,6 +96,10 @@
       display: flex;
       align-items: center;
       flex-grow: 1;
+      h5 {
+        @include u-margin-top(0);
+        @include u-margin-bottom(0);
+      }
     }
 
     :global(.usa-checkbox__label) {

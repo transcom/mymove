@@ -12,7 +12,7 @@ const mockReportId = 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2';
 const mockMtoRefId = '6789-1234';
 
 jest.mock('hooks/queries', () => ({
-  useShipmentEvaluationReportQueries: jest.fn(() => ({
+  useEvaluationReportQueries: jest.fn(() => ({
     isLoading: false,
     isError: false,
     evaluationReport: {

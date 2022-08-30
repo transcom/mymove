@@ -17,7 +17,7 @@ import styles from './EvaluationReportContainer.module.scss';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { CustomerShape } from 'types';
 import { shipmentTypeLabels } from 'content/shipments';
-import { useViewEvaluationReportQueries } from 'hooks/queries';
+import { useEvaluationReportQueries } from 'hooks/queries';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const EvaluationReportContainer = ({
@@ -28,7 +28,7 @@ const EvaluationReportContainer = ({
   grade,
   setIsModalVisible,
 }) => {
-  const { evaluationReport, mtoShipments } = useViewEvaluationReportQueries(evaluationReportId);
+  const { evaluationReport, mtoShipments } = useEvaluationReportQueries(evaluationReportId);
   let mtoShipmentsToShow;
 
   if (shipmentId && mtoShipments) {

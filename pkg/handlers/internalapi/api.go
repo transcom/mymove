@@ -4,21 +4,19 @@ import (
 	"io"
 	"log"
 
-	movingexpense "github.com/transcom/mymove/pkg/services/moving_expense"
-
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
-
 	"github.com/transcom/mymove/pkg/handlers"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	move "github.com/transcom/mymove/pkg/services/move"
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
+	movingexpense "github.com/transcom/mymove/pkg/services/moving_expense"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
