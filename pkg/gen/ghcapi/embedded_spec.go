@@ -499,7 +499,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
       },
       "delete": {
         "description": "Soft deletes an evaluation report by ID",
@@ -533,7 +536,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "delete.evaluationReport"
+        ]
       },
       "parameters": [
         {
@@ -1792,7 +1798,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "create.evaluationReport"
+        ]
       },
       "parameters": [
         {
@@ -8808,7 +8817,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
       },
       "delete": {
         "description": "Soft deletes an evaluation report by ID",
@@ -8860,7 +8872,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "delete.evaluationReport"
+        ]
       },
       "parameters": [
         {
@@ -10464,7 +10479,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "create.evaluationReport"
+        ]
       },
       "parameters": [
         {

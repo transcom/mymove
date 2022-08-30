@@ -1,7 +1,6 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
 
@@ -279,43 +278,41 @@ const NTSRShipmentInfoList = ({
   );
 
   const evaluationReportDetails = (
-    <GridContainer className={shipmentDefinitionListsStyles.evaluationReportDLContainer}>
-      <Grid row className={shipmentDefinitionListsStyles.evaluationReportRow}>
-        <Grid col={6}>
-          <dl
-            className={classNames(
-              shipmentDefinitionListsStyles.evaluationReportDL,
-              styles.descriptionList,
-              styles.tableDisplay,
-              styles.compact,
-              className,
-            )}
-            data-testid="shipment-info-list"
-          >
-            {isExpanded && scheduledPickupDateElement}
-            {isExpanded && actualPickupDateElement}
-            {isExpanded && storageFacilityContactInfoElement}
-          </dl>
-        </Grid>
-        <Grid col={6}>
-          <dl
-            className={classNames(
-              shipmentDefinitionListsStyles.evaluationReportDL,
-              styles.descriptionList,
-              styles.tableDisplay,
-              styles.compact,
-              className,
-            )}
-            data-testid="shipment-info-list"
-          >
-            {isExpanded && scheduledDeliveryDateElement}
-            {isExpanded && requiredDeliveryDateElement}
-            {isExpanded && actualDeliveryDateElement}
-            {isExpanded && receivingAgentElement}
-          </dl>
-        </Grid>
-      </Grid>
-    </GridContainer>
+    <div className={shipmentDefinitionListsStyles.sideBySideContainer}>
+      <div className={shipmentDefinitionListsStyles.sidebySideItem}>
+        <dl
+          className={classNames(
+            shipmentDefinitionListsStyles.evaluationReportDL,
+            styles.descriptionList,
+            styles.tableDisplay,
+            styles.compact,
+            className,
+          )}
+          data-testid="shipment-info-list"
+        >
+          {isExpanded && scheduledPickupDateElement}
+          {isExpanded && actualPickupDateElement}
+          {isExpanded && storageFacilityContactInfoElement}
+        </dl>
+      </div>
+      <div className={shipmentDefinitionListsStyles.sidebySideItem}>
+        <dl
+          className={classNames(
+            shipmentDefinitionListsStyles.evaluationReportDL,
+            styles.descriptionList,
+            styles.tableDisplay,
+            styles.compact,
+            className,
+          )}
+          data-testid="shipment-info-list"
+        >
+          {isExpanded && scheduledDeliveryDateElement}
+          {isExpanded && requiredDeliveryDateElement}
+          {isExpanded && actualDeliveryDateElement}
+          {isExpanded && receivingAgentElement}
+        </dl>
+      </div>
+    </div>
   );
 
   return <div>{isForEvaluationReport ? evaluationReportDetails : defaultDetails}</div>;

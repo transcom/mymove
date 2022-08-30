@@ -373,7 +373,7 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
   };
 };
 
-export const useViewEvaluationReportQueries = (reportID) => {
+export const useEvaluationReportQueries = (reportID) => {
   const { data: evaluationReport = {}, ...viewEvaluationReportQuery } = useQuery(
     [EVALUATION_REPORT, reportID],
     getEvaluationReportByID,

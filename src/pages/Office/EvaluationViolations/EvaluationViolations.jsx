@@ -8,7 +8,7 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import evaluationViolationsStyles from './EvaluationViolations.module.scss';
 
-import { useShipmentEvaluationReportQueries, usePWSViolationsQueries } from 'hooks/queries';
+import { useEvaluationReportQueries, usePWSViolationsQueries } from 'hooks/queries';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
 import ViolationsAccordion from 'components/Office/ViolationsAccordion/ViolationsAccordion';
 
@@ -16,7 +16,7 @@ const EvaluationViolations = () => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
 
-  const { evaluationReport } = useShipmentEvaluationReportQueries(reportId);
+  const { evaluationReport } = useEvaluationReportQueries(reportId);
   const { violations } = usePWSViolationsQueries();
 
   const handleBackToEvalForm = () => {

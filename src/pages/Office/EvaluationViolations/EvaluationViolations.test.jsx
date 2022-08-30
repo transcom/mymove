@@ -23,7 +23,7 @@ const mockViolation = {
 
 const mockUsePWSViolationsQueries = jest.fn();
 jest.mock('hooks/queries', () => ({
-  useShipmentEvaluationReportQueries: jest.fn(() => ({
+  useEvaluationReportQueries: jest.fn(() => ({
     isLoading: false,
     isError: false,
     evaluationReport: {
