@@ -4,11 +4,26 @@ import EvaluationReportShipmentInfo from './EvaluationReportShipmentInfo';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 export default {
   title: 'Office Components/EvaluationReportShipmentInfo',
   component: EvaluationReportShipmentInfo,
-  decorators: [(Story) => <MockProviders>{Story()}</MockProviders>],
+  decorators: [
+    (Story, context) => {
+      // Dont wrap with permissions for the read only tests
+      if (context.name.includes('Read Only')) {
+        return <MockProviders>{Story()}</MockProviders>;
+      }
+
+      // By default, show component with permissions
+      return (
+        <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
+          <Story />
+        </MockProviders>
+      );
+    },
+  ],
 };
 
 const hhgShipment = {
@@ -80,6 +95,27 @@ export const ntsr = () => (
   </div>
 );
 export const ppm = () => (
+  <div className="officeApp">
+    <EvaluationReportShipmentInfo shipment={ppmShipment} />
+  </div>
+);
+export const hhgReadOnly = () => (
+  <div className="officeApp">
+    <EvaluationReportShipmentInfo shipment={hhgShipment} />
+  </div>
+);
+
+export const ntsReadOnly = () => (
+  <div className="officeApp">
+    <EvaluationReportShipmentInfo shipment={ntsShipment} />
+  </div>
+);
+export const ntsrReadOnly = () => (
+  <div className="officeApp">
+    <EvaluationReportShipmentInfo shipment={ntsrShipment} />
+  </div>
+);
+export const ppmReadOnly = () => (
   <div className="officeApp">
     <EvaluationReportShipmentInfo shipment={ppmShipment} />
   </div>

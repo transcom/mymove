@@ -1869,6 +1869,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - create.evaluationReport
       tags:
         - evaluationReports
       description: Creates an evaluation report
@@ -1907,6 +1909,8 @@ paths:
       summary: Soft deletes an evaluation report by ID
       description: Soft deletes an evaluation report by ID
       operationId: deleteEvaluationReport
+      x-permissions:
+        - delete.evaluationReport
       tags:
         - evaluationReports
       produces:
@@ -1930,6 +1934,8 @@ paths:
       summary: Saves an evaluation report as a draft
       description: Saves an evaluation report as a draft
       operationId: saveEvaluationReport
+      x-permissions:
+        - update.evaluationReport
       tags:
         - evaluationReports
       produces:
