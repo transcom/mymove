@@ -3756,8 +3756,6 @@ definitions:
       w2Address:
         x-nullable: true
         $ref: 'definitions/Address.yaml'
-      finalIncentive:
-        $ref: 'definitions/FinalIncentive.yaml'
       sitExpected:
         type: boolean
         x-nullable: true

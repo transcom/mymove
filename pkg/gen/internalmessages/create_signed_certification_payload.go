@@ -36,9 +36,8 @@ type CreateSignedCertificationPayload struct {
 	PersonallyProcuredMoveID *strfmt.UUID `json:"personally_procured_move_id,omitempty"`
 
 	// ppm id
-	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
-	PpmID *strfmt.UUID `json:"ppm_id,omitempty"`
+	PpmID *PpmID `json:"ppm_id,omitempty"`
 
 	// Signature
 	// Required: true
@@ -137,8 +136,15 @@ func (m *CreateSignedCertificationPayload) validatePpmID(formats strfmt.Registry
 		return nil
 	}
 
-	if err := validate.FormatOf("ppm_id", "body", "uuid", m.PpmID.String(), formats); err != nil {
-		return err
+	if m.PpmID != nil {
+		if err := m.PpmID.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppm_id")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppm_id")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -161,6 +167,10 @@ func (m *CreateSignedCertificationPayload) ContextValidate(ctx context.Context, 
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePpmID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -175,6 +185,22 @@ func (m *CreateSignedCertificationPayload) contextValidateCertificationType(ctx 
 				return ve.ValidateName("certification_type")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("certification_type")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateSignedCertificationPayload) contextValidatePpmID(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PpmID != nil {
+		if err := m.PpmID.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppm_id")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppm_id")
 			}
 			return err
 		}

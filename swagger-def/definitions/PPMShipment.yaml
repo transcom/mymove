@@ -134,7 +134,13 @@ properties:
     x-nullable: true
     x-omitempty: false
   finalIncentive:
-    $ref: 'FinalIncentive.yaml'
+    description: >
+      The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
+    readOnly: true
   hasRequestedAdvance:
     description: >
       Indicates whether an advance has been requested for the PPM shipment.

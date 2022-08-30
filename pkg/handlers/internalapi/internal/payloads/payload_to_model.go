@@ -143,7 +143,6 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
 		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountRequested),
-		FinalIncentive:                 handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
 	}
@@ -164,6 +163,10 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	if ppmShipment.W2Address != nil {
 		addressModel = AddressModel(ppmShipment.W2Address)
 		ppmModel.W2Address = addressModel
+	}
+
+	if ppmShipment.FinalIncentive != nil {
+		ppmModel.FinalIncentive = handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive)
 	}
 
 	return ppmModel

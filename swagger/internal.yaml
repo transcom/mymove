@@ -2616,7 +2616,14 @@ definitions:
         x-nullable: true
         $ref: '#/definitions/Address'
       finalIncentive:
-        $ref: '#/definitions/FinalIncentive'
+        description: >
+          The final calculated incentive for the PPM shipment. This does not
+          include **SIT** as it is a reimbursement.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+        readOnly: true
       sitExpected:
         type: boolean
         x-nullable: true
@@ -3004,14 +3011,6 @@ definitions:
       - APPROVED
       - REJECTED
       - EDITED
-  FinalIncentive:
-    description: >
-      The final calculated incentive for the PPM shipment. This does not include
-      **SIT** as it is a reimbursement.
-    type: integer
-    format: cents
-    x-nullable: true
-    x-omitempty: false
   SITLocationType:
     description: The list of SIT location types.
     type: string
@@ -3269,7 +3268,14 @@ definitions:
         x-nullable: true
         x-omitempty: false
       finalIncentive:
-        $ref: '#/definitions/FinalIncentive'
+        description: >
+          The final calculated incentive for the PPM shipment. This does not
+          include **SIT** as it is a reimbursement.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+        readOnly: true
       hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.

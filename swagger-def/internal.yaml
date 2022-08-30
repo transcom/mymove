@@ -2607,7 +2607,13 @@ definitions:
         x-nullable: true
         $ref: 'definitions/Address.yaml'
       finalIncentive:
-        $ref: 'definitions/FinalIncentive.yaml'
+        description: >
+          The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+        readOnly: true
       sitExpected:
         type: boolean
         x-nullable: true

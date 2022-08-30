@@ -6317,10 +6317,12 @@ func init() {
           "format": "date"
         },
         "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
-          "x-omitempty": false
+          "x-omitempty": false,
+          "readOnly": true
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
@@ -7554,12 +7556,6 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
-        },
-        "finalIncentive": {
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true,
-          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
@@ -15370,10 +15366,12 @@ func init() {
           "format": "date"
         },
         "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
-          "x-omitempty": false
+          "x-omitempty": false,
+          "readOnly": true
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
@@ -16614,12 +16612,6 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
-        },
-        "finalIncentive": {
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true,
-          "x-omitempty": false
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",

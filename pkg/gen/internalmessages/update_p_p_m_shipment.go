@@ -62,7 +62,9 @@ type UpdatePPMShipment struct {
 	// Format: date
 	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate,omitempty"`
 
-	// final incentive
+	// The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.
+	//
+	// Read Only: true
 	FinalIncentive *int64 `json:"finalIncentive"`
 
 	// Indicates whether PPM shipment has pro gear.
@@ -285,6 +287,10 @@ func (m *UpdatePPMShipment) validateW2Address(formats strfmt.Registry) error {
 func (m *UpdatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateFinalIncentive(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateSecondaryDestinationPostalCode(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -300,6 +306,15 @@ func (m *UpdatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *UpdatePPMShipment) contextValidateFinalIncentive(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "finalIncentive", "body", m.FinalIncentive); err != nil {
+		return err
+	}
+
 	return nil
 }
 

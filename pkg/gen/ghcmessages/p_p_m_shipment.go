@@ -85,7 +85,9 @@ type PPMShipment struct {
 	// Format: date
 	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate"`
 
-	// final incentive
+	// The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.
+	//
+	// Read Only: true
 	FinalIncentive *int64 `json:"finalIncentive"`
 
 	// Indicates whether PPM shipment has pro gear.
@@ -671,6 +673,10 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateFinalIncentive(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -735,6 +741,15 @@ func (m *PPMShipment) contextValidateCreatedAt(ctx context.Context, formats strf
 func (m *PPMShipment) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateFinalIncentive(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "finalIncentive", "body", m.FinalIncentive); err != nil {
 		return err
 	}
 
