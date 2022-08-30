@@ -111,7 +111,12 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
 };
 
 export const calculateNetWeightForWeightTicket = (weightTicket) => {
-  if (weightTicket.emptyWeight === null || weightTicket.fullWeight === null) {
+  if (
+    weightTicket.emptyWeight == null ||
+    weightTicket.fullWeight == null ||
+    Number.isNaN(Number(weightTicket.emptyWeight)) ||
+    Number.isNaN(Number(weightTicket.fullWeight))
+  ) {
     return 0;
   }
 
@@ -125,11 +130,16 @@ export const calculateTotalNetWeightForWeightTickets = (weightTickets) => {
 };
 
 export const calculateNetWeightForProGearWeightTicket = (proGearWeightTicket) => {
-  if (proGearWeightTicket.constructedWeight !== null) {
+  if (proGearWeightTicket.constructedWeight != null && !Number.isNaN(Number(proGearWeightTicket.constructedWeight))) {
     return proGearWeightTicket.constructedWeight;
   }
 
-  if (proGearWeightTicket.emptyWeight === null || proGearWeightTicket.fullWeight === null) {
+  if (
+    proGearWeightTicket.emptyWeight == null ||
+    proGearWeightTicket.fullWeight == null ||
+    Number.isNaN(Number(proGearWeightTicket.emptyWeight)) ||
+    Number.isNaN(Number(proGearWeightTicket.fullWeight))
+  ) {
     return 0;
   }
 
@@ -144,6 +154,6 @@ export const calculateTotalNetWeightForProGearWeightTickets = (proGearWeightTick
 
 export const calculateTotalMovingExpensesAmount = (movingExpenses) => {
   return movingExpenses.reduce((prev, curr) => {
-    return curr.amount ? prev + curr.amount : prev;
+    return curr.amount && !Number.isNaN(Number(curr.amount)) ? prev + curr.amount : prev;
   }, 0);
 };
