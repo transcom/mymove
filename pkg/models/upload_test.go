@@ -1,9 +1,9 @@
 package models_test
 
 import (
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) Test_ValidateUpload() {

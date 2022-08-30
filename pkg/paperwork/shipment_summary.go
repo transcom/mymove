@@ -5,13 +5,10 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/route"
-
-	"github.com/transcom/mymove/pkg/rateengine"
-
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type ppmComputer interface {

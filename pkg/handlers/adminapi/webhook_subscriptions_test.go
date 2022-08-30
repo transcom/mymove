@@ -5,13 +5,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/transcom/mymove/pkg/etag"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/etag"
 	webhooksubscriptionop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -21,7 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	webhooksubscription "github.com/transcom/mymove/pkg/services/webhook_subscription"
-	webhooksubscriptionservice "github.com/transcom/mymove/pkg/services/webhook_subscription"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -107,7 +105,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetWebhookSubscriptionHandler{
 			suite.HandlerConfig(),
-			webhooksubscriptionservice.NewWebhookSubscriptionFetcher(queryBuilder),
+			webhooksubscription.NewWebhookSubscriptionFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
 
@@ -237,7 +235,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
 			suite.HandlerConfig(),
-			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
+			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}
 
@@ -274,7 +272,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
 			suite.HandlerConfig(),
-			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
+			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}
 
@@ -318,7 +316,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
 			suite.HandlerConfig(),
-			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
+			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}
 
@@ -345,7 +343,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
 			suite.HandlerConfig(),
-			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
+			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}
 

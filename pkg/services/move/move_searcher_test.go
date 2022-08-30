@@ -5,9 +5,8 @@ import (
 
 	"github.com/go-openapi/swag"
 
-	"github.com/transcom/mymove/pkg/services"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
