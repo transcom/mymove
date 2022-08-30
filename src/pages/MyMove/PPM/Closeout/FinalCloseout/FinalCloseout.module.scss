@@ -2,7 +2,13 @@
 
 .FinalCloseout {
   h1 {
-    @include u-margin-top(4);
+    @include u-margin-top(3);
     @include u-margin-bottom(0)
+  }
+
+  @include at-media(mobile-lg) {
+    h1 {
+      @include u-margin-top(4);
+    }
   }
 }

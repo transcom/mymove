@@ -2,11 +2,18 @@
 
 .FinalCloseoutForm {
   h2 {
-    @include u-margin-top(4);
-    @include u-margin-bottom(3);
+    @include u-margin-top(3);
+    @include u-margin-bottom(2);
   }
 
-  p.listDescription {
+  @include at-media(mobile-lg) {
+    h2 {
+      @include u-margin-top(4);
+      @include u-margin-bottom(3);
+    }
+  }
+
+    p.listDescription {
     @include u-margin-y(0);
   }
 
@@ -45,8 +52,14 @@
 
     ul {
       @include u-text('bold');
-      @include u-font-size('body', 'lg');
+      @include u-font-size('body', 'md');
       @include u-margin-left(1);
+    }
+
+      @include at-media(mobile-lg) {
+      ul {
+        @include u-font-size('body', 'lg');
+      }
     }
   }
 }
