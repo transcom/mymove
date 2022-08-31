@@ -164,11 +164,15 @@ func mergeInterfaces(model1 interface{}, model2 interface{}) interface{} {
 	return model
 }
 
+func isModel(modelValue reflect.Value) bool {
+	return modelValue.Kind() == reflect.Struct && strings.HasPrefix(modelValue.Type().String(), "models.")
+}
+
 func hasID(model interface{}) bool {
 	mv := reflect.ValueOf(model)
 
 	// mv should be a model of type struct
-	if mv.Kind() != reflect.Struct || !strings.HasPrefix(mv.Type().String(), "models.") {
+	if !isModel(mv) {
 		log.Panic("Expecting interface containing a model")
 	}
 
@@ -401,36 +405,36 @@ func checkNestedModels(c interface{}) error {
 	}
 	mv = mv.Elem() // get the model from the interface
 
-	// mv SHOULD BE A STRUCT
-	if mv.Kind() == reflect.Struct {
-		numberOfFields := mv.NumField()
-		mt := mv.Type() // get the model type
+	if !isModel(mv) {
+		return nil
+	}
+	numberOfFields := mv.NumField()
+	mt := mv.Type() // get the model type
 
-		// CHECK ALL FIELDS IN THE STRUCT
-		for i := 0; i < numberOfFields; i++ {
-			fieldName := mt.Field(i).Name
-			field := mv.Field(i)
+	// CHECK ALL FIELDS IN THE STRUCT
+	for i := 0; i < numberOfFields; i++ {
+		fieldName := mt.Field(i).Name
+		field := mv.Field(i)
 
-			// There are a couple conditions we want to check for
-			// - If a field is a struct that is a model, it should be empty
-			// - If a field is a pointer to struct, and that struct is a model it should be nil
+		// There are a couple conditions we want to check for
+		// - If a field is a struct that is a model, it should be empty
+		// - If a field is a pointer to struct, and that struct is a model it should be nil
 
-			// IF A FIELD IS A MODELS STRUCT - SHOULD BE EMPTY
-			ft := field.Type()
-			if field.Kind() == reflect.Struct && strings.HasPrefix(ft.String(), "models.") {
-				if !reflect.DeepEqual(field.Interface(), reflect.Zero(field.Type()).Interface()) {
-					return fmt.Errorf("%s cannot be populated, no nested models allowed", fieldName)
-				}
+		// IF A FIELD IS A MODELS STRUCT - SHOULD BE EMPTY
+		if isModel(field) {
+			if !reflect.DeepEqual(field.Interface(), reflect.Zero(field.Type()).Interface()) {
+				return fmt.Errorf("%s cannot be populated, no nested models allowed", fieldName)
 			}
+		}
 
-			// IF A FIELD IS A POINTER TO A MODELS STRUCT - SHOULD ALSO BE EMPTY
-			if field.Kind() == reflect.Pointer {
-				nf := field.Elem()
-				if !field.IsNil() && nf.Kind() == reflect.Struct && strings.HasPrefix(nf.Type().String(), "models.") {
-					return fmt.Errorf("%s cannot be populated, no nested models allowed", fieldName)
-				}
+		// IF A FIELD IS A POINTER TO A MODELS STRUCT - SHOULD ALSO BE EMPTY
+		if field.Kind() == reflect.Pointer {
+			nf := field.Elem()
+			if !field.IsNil() && isModel(nf) {
+				return fmt.Errorf("%s cannot be populated, no nested models allowed", fieldName)
 			}
 		}
 	}
+
 	return nil
 }
