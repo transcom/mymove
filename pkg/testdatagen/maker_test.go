@@ -44,12 +44,11 @@ func (suite *MakerSuite) TestUserMaker() {
 		// Under test:      UserMaker
 		// Set up:          Create a User with a customized email and no trait
 		// Expected outcome:User should be created with email and inactive status
-		user, err := UserMaker(suite.DB(), []Customization{
-			{
+		user, err := UserMaker(suite.DB(), CustomizationMap{
+			User: {
 				Model: models.User{
 					LoginGovEmail: customEmail,
 				},
-				Type: User,
 			},
 		}, nil)
 		suite.NoError(err)
@@ -77,12 +76,11 @@ func (suite *MakerSuite) TestUserMaker() {
 		// Set up:          Create a User with a customized email and active trait
 		// Expected outcome:User should be created with email and active status
 
-		user, err := UserMaker(suite.DB(), []Customization{
-			{
+		user, err := UserMaker(suite.DB(), CustomizationMap{
+			User: {
 				Model: models.User{
 					LoginGovEmail: customEmail,
 				},
-				Type: User,
 			}}, []GetTraitFunc{
 			GetTraitActiveUser,
 		})
@@ -116,14 +114,12 @@ func (suite *MakerSuite) TestServiceMemberMaker() {
 		// Expected outcome: ServiceMember should be created with the right customizations
 		streetAddress := "448 Washington Blvd NE"
 		sm, err := ServiceMemberMaker(suite.DB(),
-			[]Customization{
-				{
+			CustomizationMap{
+				User: {
 					Model: models.User{LoginGovEmail: customEmail},
-					Type:  User,
 				},
-				{
+				Addresses.ResidentialAddress: {
 					Model: models.Address{StreetAddress1: streetAddress},
-					Type:  Addresses.ResidentialAddress,
 				},
 			}, nil)
 
@@ -141,14 +137,12 @@ func (suite *MakerSuite) TestServiceMemberMaker() {
 		// Expected outcome: ServiceMember should be created with the right customizations, and active
 		streetAddress := "448 Washington Blvd NE"
 		sm, err := ServiceMemberMaker(suite.DB(),
-			[]Customization{
-				{
+			CustomizationMap{
+				User: {
 					Model: models.User{LoginGovEmail: customEmail},
-					Type:  User,
 				},
-				{
+				Addresses.ResidentialAddress: {
 					Model: models.Address{StreetAddress1: streetAddress},
-					Type:  Addresses.ResidentialAddress,
 				},
 			},
 			[]GetTraitFunc{
@@ -171,10 +165,9 @@ func (suite *MakerSuite) TestServiceMemberMaker() {
 		user, err := UserMaker(suite.DB(), nil, nil)
 		suite.NoError(err)
 		sm, err := ServiceMemberMaker(suite.DB(),
-			[]Customization{
-				{
+			CustomizationMap{
+				User: {
 					Model: user,
-					Type:  User,
 				},
 			},
 			[]GetTraitFunc{
@@ -195,10 +188,9 @@ func (suite *MakerSuite) TestServiceMemberMaker() {
 		resiAddress, err := AddressMaker(suite.DB(), nil, nil)
 		suite.NoError(err)
 		sm, err := ServiceMemberMaker(suite.DB(),
-			[]Customization{
-				{
+			CustomizationMap{
+				Addresses.ResidentialAddress: {
 					Model: resiAddress,
-					Type:  Addresses.ResidentialAddress,
 				},
 			},
 			nil)
@@ -238,25 +230,26 @@ func (suite *MakerSuite) TestElevateCustomization() {
 		customEmail := "leospaceman123@example.com"
 		streetAddress := "235 Prospect Valley Road SE"
 
-		customizationList :=
-			[]Customization{
-				{
-					Model: models.User{LoginGovEmail: customEmail},
-					Type:  User,
-				},
-				{
-					Model: models.Address{StreetAddress1: streetAddress},
-					Type:  Addresses.ResidentialAddress,
-				},
-			}
-		tempCustoms := convertCustomizationInList(customizationList, Addresses.ResidentialAddress, Address)
+		customizations := CustomizationMap{
+			User: {
+				Model: models.User{LoginGovEmail: customEmail},
+			},
+			Addresses.ResidentialAddress: {
+				Model: models.Address{StreetAddress1: streetAddress},
+			},
+		}
+
+		tempCustoms := convertCustomizationInList(customizations, Addresses.ResidentialAddress, Address)
 		// Nothing wrong with customizations
 		tempCustoms, err := validateCustomizations(tempCustoms)
 		suite.NoError(err)
 		// Customization has new type
-		suite.Equal(Address, tempCustoms[1].Type)
+		suite.Contains(tempCustoms, Address)
+		suite.NotContains(tempCustoms, Addresses.ResidentialAddress)
+
 		// Old customization list is unchanged
-		suite.Equal(Addresses.ResidentialAddress, customizationList[1].Type)
+		suite.NotContains(customizations, Address)
+		suite.Contains(customizations, Addresses.ResidentialAddress)
 	})
 }
 func (suite *MakerSuite) TestMergeCustomization() {
@@ -268,12 +261,11 @@ func (suite *MakerSuite) TestMergeCustomization() {
 		streetAddress := "235 Prospect Valley Road SE"
 		result := mergeCustomization(
 			// Address customization
-			[]Customization{
-				{
+			CustomizationMap{
+				Address: {
 					Model: models.Address{
 						StreetAddress1: streetAddress,
 					},
-					Type: Address,
 				},
 			},
 			// User and ServiceMember customization
@@ -282,19 +274,21 @@ func (suite *MakerSuite) TestMergeCustomization() {
 			},
 		)
 		suite.Len(result, 3)
-		_, custom := findCustomWithIdx(result, Address)
-		suite.NotNil(custom)
-		address := custom.Model.(models.Address)
+
+		suite.Contains(result, Address)
+		suite.NotNil(result[Address])
+		address := result[Address].Model.(models.Address)
 		suite.Equal(streetAddress, address.StreetAddress1)
 
 		// Check that User customization from trait is available
-		_, custom = findCustomWithIdx(result, User)
-		suite.NotNil(custom)
-		user := custom.Model.(models.User)
+		suite.Contains(result, User)
+		suite.NotNil(result[User])
+		user := result[User].Model.(models.User)
 		suite.Equal("trait@army.mil", user.LoginGovEmail)
+
 		// Check that ServiceMember customization from trait is available
-		_, custom = findCustomWithIdx(result, ServiceMember)
-		suite.NotNil(custom)
+		suite.Contains(result, ServiceMember)
+		suite.NotNil(result[ServiceMember])
 	})
 
 	suite.Run("Customization should override traits", func() {
@@ -304,20 +298,19 @@ func (suite *MakerSuite) TestMergeCustomization() {
 		//                   If an object exists and no customization, it should become a customization
 		uuidval := uuid.Must(uuid.NewV4())
 		result := mergeCustomization(
-			[]Customization{
-				{
+			CustomizationMap{
+				User: {
 					Model: models.User{
 						LoginGovUUID:  &uuidval,
 						LoginGovEmail: "custom@army.mil",
 					},
-					Type: User,
 				},
 			},
 			[]GetTraitFunc{
 				getTraitArmy,
 			},
 		)
-		userModel := result[0].Model.(models.User)
+		userModel := result[User].Model.(models.User)
 		// Customization email should be used
 		suite.Equal("custom@army.mil", userModel.LoginGovEmail)
 		// But other fields could come from trait
@@ -390,7 +383,6 @@ func (suite *MakerSuite) TestNestedModelsCheck() {
 
 		c := Customization{
 			Model: models.ServiceMember{},
-			Type:  ServiceMember,
 		}
 		err := checkNestedModels(&c)
 		suite.Error(err)
@@ -401,9 +393,7 @@ func (suite *MakerSuite) TestNestedModelsCheck() {
 		// Under test:       checkNestedModels
 		// Set up:           Call with a struct that doesn't contain the main model
 		// Expected outcome: Error
-		c := Customization{
-			Type: ServiceMember,
-		}
+		c := Customization{}
 		err := checkNestedModels(c)
 		suite.Error(err)
 		suite.Contains(err.Error(), "must contain a model")
@@ -419,7 +409,6 @@ func (suite *MakerSuite) TestNestedModelsCheck() {
 			Model: models.ServiceMember{
 				User: user,
 			},
-			Type: ServiceMember,
 		}
 		err = checkNestedModels(c)
 		suite.Error(err)
@@ -437,7 +426,6 @@ func (suite *MakerSuite) TestNestedModelsCheck() {
 			Model: models.ServiceMember{
 				ResidentialAddress: &resiAddress,
 			},
-			Type: ServiceMember,
 		}
 		err := checkNestedModels(c)
 		suite.Error(err)
@@ -478,7 +466,6 @@ func (suite *MakerSuite) TestNestedModelsCheck() {
 				BackupMailingAddressID: &testid,
 				DutyLocationID:         &testid,
 			},
-			Type: ServiceMember,
 		}
 		err := checkNestedModels(c)
 		suite.NoError(err)
@@ -495,80 +482,57 @@ func (suite *MakerSuite) TestValidateCustomizations() {
 		customs, err := validateCustomizations(customs)
 		suite.Nil(err)
 		suite.Len(customs, 3)
-		_, controlCustom := findCustomWithIdx(customs, control)
-		suite.NotNil(controlCustom)
+		suite.Contains(customs, control)
+		suite.NotNil(customs[control])
 	})
 
 	suite.Run("Control obj not added if not missing", func() {
 		customs := getTraitArmy()
-		customs = append(customs, Customization{
+		customs[control] = Customization{
 			Model: controlObject{},
-			Type:  control,
-		})
+		}
 		suite.Len(customs, 3)
 
 		customs, err := validateCustomizations(customs)
 		suite.Len(customs, 3)
 		suite.NoError(err)
-		_, controlCustom := findCustomWithIdx(customs, control)
-		suite.NotNil(controlCustom)
+		suite.Contains(customs, control)
+		suite.NotNil(customs[control])
 	})
 
 	suite.Run("Pass if customizations not repeated", func() {
 		customs := getTraitArmy()
-		customs = append(customs, Customization{
+		customs[Addresses.ResidentialAddress] = Customization{
 			Model: models.Address{},
-			Type:  Addresses.ResidentialAddress,
-		},
-			Customization{
-				Model: models.Address{},
-				Type:  Addresses.PickupAddress,
-			},
-		)
+		}
+		customs[Addresses.PickupAddress] = Customization{
+			Model: models.Address{},
+		}
+
 		suite.Len(customs, 4)
 
 		customs, err := validateCustomizations(customs)
 		suite.Len(customs, 5)
 		suite.NoError(err)
-		_, controlCustom := findCustomWithIdx(customs, control)
-		suite.NotNil(controlCustom)
+		suite.Contains(customs, control)
+		suite.NotNil(customs[control])
 	})
-	suite.Run("Error if duplicate customization is used", func() {
-		customs := getTraitArmy()
-		customs = append(customs, Customization{
-			Model: models.User{},
-			Type:  User,
-		})
-		suite.Len(customs, 3)
-
-		customs, err := validateCustomizations(customs)
-		suite.Len(customs, 4) // control object should be added
-		suite.ErrorContains(err, "Found more than one instance")
-
-		// Check that control object was updated
-		_, controlCustom := findCustomWithIdx(customs, control)
-		controller := (*controlCustom).Model.(controlObject)
-		suite.False(controller.isValid)
-	})
-
 }
 
 // GetTraitArmy is a custom GetTraitFunc
-func getTraitArmy() []Customization {
+func getTraitArmy() CustomizationMap {
 	army := models.AffiliationARMY
-	return []Customization{
-		{
+	return CustomizationMap{
+		User: {
 			Model: models.User{
 				LoginGovEmail:         "trait@army.mil",
 				CurrentAdminSessionID: "my-session-id",
 			},
-			Type: User,
 		},
-		{
+		ServiceMember: {
 			Model: models.ServiceMember{
 				Affiliation: &army,
 			},
-			Type: ServiceMember,
 		},
 	}
 }

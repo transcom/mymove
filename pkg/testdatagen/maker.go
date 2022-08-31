@@ -13,10 +13,11 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+type CustomizationMap map[CustomType]Customization
+
 // Customization type is the building block for passing in customizations and traits
 type Customization struct {
 	Model     interface{}
-	Type      CustomType
 	ForceUUID bool
 }
 
@@ -81,79 +82,56 @@ type controlObject struct {
 
 // GetTraitFunc is a function that returns a set of customizations
 // Every GetTraitFunc should start with GetTrait for discoverability
-type GetTraitFunc func() []Customization
+type GetTraitFunc func() CustomizationMap
 
 // GetTraitActiveUser returns a customization to enable active on a user
-func GetTraitActiveUser() []Customization {
-	return []Customization{
-		{
+func GetTraitActiveUser() CustomizationMap {
+	return CustomizationMap{
+		User: {
 			Model: models.User{
 				Active: true,
 			},
-			Type: User,
 		},
 	}
 }
 
 // GetTraitNavy is a sample GetTraitFunc
-func GetTraitNavy() []Customization {
+func GetTraitNavy() CustomizationMap {
 	navy := models.AffiliationNAVY
-	return []Customization{
-		{
+	return CustomizationMap{
+		ServiceMember: {
 			Model: models.ServiceMember{
 				Affiliation: &navy,
 			},
-			Type: ServiceMember,
 		},
 	}
 }
 
 // validateCustomizations
-func validateCustomizations(customs []Customization) ([]Customization, error) {
-	_, controlCustom := findCustomWithIdx(customs, control)
+func validateCustomizations(customs CustomizationMap) (CustomizationMap, error) {
+	controlCustom, controlExists := customs[control]
 
 	// if it does exist, and customization list has been validated already, return
-	if controlCustom != nil {
+	if controlExists {
 		controls := controlCustom.Model.(controlObject)
 		if controls.isValid {
 			return customs, nil
 		}
 	} else {
 		// If control object does not exist, create
-		controlCustom = &Customization{
+		controlCustom = Customization{
 			Model: controlObject{},
-			Type:  control,
 		}
-		customs = append(customs, *controlCustom)
+
+		customs[control] = controlCustom
 	}
-	controller := (*controlCustom).Model.(controlObject)
-	// validate that there are no repeat model types
-	m := make(map[CustomType]int)
-	for i, custom := range customs {
-		// if custom type already exists
-		idx, exists := m[custom.Type]
-		if exists {
-			controller.isValid = false
-			return customs, fmt.Errorf("Found more than one instance of %s Customization at index %d and %d",
-				custom.Type, idx, i)
-		}
-		// Add to hashmap
-		m[custom.Type] = i
-	}
-	// Store the validation result
+
+	controller := (controlCustom).Model.(controlObject)
+	// Store the validation result, with maps, not sure if we need this. Could possibly have it for other types of
+	// validation, like for the nested values. Maybe that could be called here.
 	controller.isValid = true
 	return customs, nil
 
-}
-
-// findCustomWithIdx is a helper function to find a customization of a specific type and its index
-func findCustomWithIdx(customs []Customization, customType CustomType) (int, *Customization) {
-	for i, custom := range customs {
-		if custom.Type == customType {
-			return i, &custom
-		}
-	}
-	return -1, nil
 }
 
 // toStructPtr takes an interface wrapping a struct and
@@ -207,25 +185,28 @@ func hasID(model interface{}) bool {
 // and all three contain the same object:
 //     - trait 1 will override trait 2 (so start with the highest priority)
 //     - customization will override trait 2
-func mergeCustomization(customs []Customization, traits []GetTraitFunc) []Customization {
+func mergeCustomization(customs CustomizationMap, traits []GetTraitFunc) CustomizationMap {
+	if customs == nil {
+		customs = CustomizationMap{}
+	}
 	// Get a list of traits, each could return a list of customizations
 	for _, trait := range traits {
 		traitCustomizations := trait()
 
 		// for each trait custom, merge or replace the one in user supplied customizations
-		for _, traitCustom := range traitCustomizations {
-			j, callerCustom := findCustomWithIdx(customs, traitCustom.Type)
-			if callerCustom != nil {
+		for traitKey, traitValue := range traitCustomizations {
+			callerCustom, customExists := customs[traitKey]
+			if customExists {
 				// If a customization has an ID, it means we use that precreated object
 				// Therefore we can't merge a trait with it, as those fields will not get
 				// updated.
 				if !hasID(callerCustom.Model) {
-					result := mergeInterfaces(traitCustom.Model, callerCustom.Model)
+					result := mergeInterfaces(traitValue.Model, callerCustom.Model)
 					callerCustom.Model = result
-					customs[j] = *callerCustom
+					customs[traitKey] = callerCustom
 				}
 			} else {
-				customs = append(customs, traitCustom)
+				customs[traitKey] = traitValue
 			}
 		}
 	}
@@ -234,7 +215,7 @@ func mergeCustomization(customs []Customization, traits []GetTraitFunc) []Custom
 
 // UserMaker is the base maker function to create a user
 // MYTODO Instead of error (not useful) can we return a list of the created objects?
-func UserMaker(db *pop.Connection, customs []Customization, traits []GetTraitFunc) (models.User, error) {
+func UserMaker(db *pop.Connection, customs CustomizationMap, traits []GetTraitFunc) (models.User, error) {
 	customs = mergeCustomization(customs, traits)
 	customs, err := validateCustomizations(customs)
 	if err != nil {
@@ -268,28 +249,32 @@ func UserMaker(db *pop.Connection, customs []Customization, traits []GetTraitFun
 // Helper function for when you need to elevate the type of customization from say
 // ResidentialAddress to Address before you call makeAddress
 // This is a little finicky because we want to be careful not to harm the existing list
-func convertCustomizationInList(customs []Customization, from CustomType, to CustomType) []Customization {
-	if _, custom := findCustomWithIdx(customs, to); custom != nil {
+func convertCustomizationInList(customs CustomizationMap, from CustomType, to CustomType) CustomizationMap {
+	if _, found := customs[to]; found {
 		log.Panic(fmt.Errorf("A customization of type %s already exists", to))
+	} else if _, found := customs[from]; !found {
+		log.Panic(fmt.Errorf("No customization of type %s found", from))
 	}
-	if idx, custom := findCustomWithIdx(customs, from); custom != nil {
-		// Create a slice in new memory
-		var newCustoms []Customization
-		// Populate with copies of objects
-		newCustoms = append(newCustoms, customs...)
-		// Update the type
-		newCustoms[idx].Type = to
-		return newCustoms
+
+	// Create a new map
+	newCustoms := CustomizationMap{}
+	// Populate with copies of objects
+	for k, v := range customs {
+		if k == from {
+			newCustoms[to] = v
+		} else {
+			newCustoms[k] = v
+		}
 	}
-	log.Panic(fmt.Errorf("No customization of type %s found", from))
-	return nil
+
+	return newCustoms
 }
 
 // MakeServiceMember creates a single ServiceMember
 // If not provided, it will also create an associated
 // - User
 // - ResidentialAddress
-func ServiceMemberMaker(db *pop.Connection, customs []Customization, traits []GetTraitFunc) (models.ServiceMember, error) {
+func ServiceMemberMaker(db *pop.Connection, customs CustomizationMap, traits []GetTraitFunc) (models.ServiceMember, error) {
 	customs = mergeCustomization(customs, traits)
 	customs, err := validateCustomizations(customs)
 	if err != nil {
@@ -358,20 +343,20 @@ func ServiceMemberMaker(db *pop.Connection, customs []Customization, traits []Ge
 	return serviceMember, nil
 }
 
-func findValidCustomization(customs []Customization, customType CustomType) *Customization {
-	_, custom := findCustomWithIdx(customs, customType)
-	if custom == nil {
+func findValidCustomization(customs CustomizationMap, customType CustomType) *Customization {
+	custom, exists := customs[customType]
+	if !exists {
 		return nil
 	}
 
 	// Else check that the customization is valid
-	if err := checkNestedModels(*custom); err != nil {
-		log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", custom.Type, err))
+	if err := checkNestedModels(custom); err != nil {
+		log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", customType, err))
 	}
-	return custom
+	return &custom
 }
 
-func AddressMaker(db *pop.Connection, customs []Customization, traits []GetTraitFunc) (models.Address, error) {
+func AddressMaker(db *pop.Connection, customs CustomizationMap, traits []GetTraitFunc) (models.Address, error) {
 	customs = mergeCustomization(customs, traits)
 	customs, err := validateCustomizations(customs)
 	if err != nil {
