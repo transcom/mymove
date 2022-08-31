@@ -29,22 +29,29 @@ export const fillOutWeight = (options = {}) => {
     cy.get('input[name="hasProGear"][value="yes"]').check({ force: true });
     cy.get('input[name="proGearWeight"]').type(proGearWeight).blur();
     cy.get('input[name="spouseProGearWeight"]').type(spouseProGearWeight).blur();
+  } else {
+    cy.get('input[name="hasProGear"][value="no"]').check({ force: true });
   }
 };
 
 export const fillOutSitExpected = (options = {}) => {
   const {
+    hasSit = true,
     sitEstimatedWeight = '1000',
     sitEstimatedEntryDate = '01 Mar 2020',
     sitEstimatedDepartureDate = '31 Mar 2020',
     sitLocation = 'DESTINATION', // takes in values of either 'DESTINATION' or 'ORIGIN'
   } = options;
 
-  cy.get('input[name="sitExpected"][value="yes"]').check({ force: true });
-  cy.get(`input[name="sitLocation"][value="${sitLocation}"]`).check({ force: true });
-  cy.get('input[name="sitEstimatedWeight"]').clear().type(sitEstimatedWeight).blur();
-  cy.get('input[name="sitEstimatedEntryDate"]').clear().type(sitEstimatedEntryDate).blur();
-  cy.get('input[name="sitEstimatedDepartureDate"]').clear().type(sitEstimatedDepartureDate).blur();
+  if (hasSit) {
+    cy.get('input[name="sitExpected"][value="yes"]').check({ force: true });
+    cy.get(`input[name="sitLocation"][value="${sitLocation}"]`).check({ force: true });
+    cy.get('input[name="sitEstimatedWeight"]').clear().type(sitEstimatedWeight).blur();
+    cy.get('input[name="sitEstimatedEntryDate"]').clear().type(sitEstimatedEntryDate).blur();
+    cy.get('input[name="sitEstimatedDepartureDate"]').clear().type(sitEstimatedDepartureDate).blur();
+  } else {
+    cy.get('input[name="sitExpected"][value="no"]').check({ force: true });
+  }
 };
 
 export const fillOutOriginInfo = (options = {}) => {
@@ -71,8 +78,12 @@ export const fillOutDestinationInfo = (options = {}) => {
 };
 
 export const fillOutIncentiveAndAdvance = (options = {}) => {
-  const { advance = '6000' } = options;
+  const { hasAdvance = true, advance = '6000' } = options;
 
-  cy.get('input[name="advanceRequested"][value="Yes"]').check({ force: true });
-  cy.get('input[name="advance"]').clear().type(advance).blur();
+  if (hasAdvance) {
+    cy.get('input[name="advanceRequested"][value="Yes"]').check({ force: true });
+    cy.get('input[name="advance"]').clear().type(advance).blur();
+  } else {
+    cy.get('input[name="advanceRequested"][value="No"]').check({ force: true });
+  }
 };

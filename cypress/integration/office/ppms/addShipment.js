@@ -24,7 +24,7 @@ describe('Services counselor user', () => {
     cy.intercept('GET', '**/ghc/v1/orders/**').as('getOrders');
     cy.intercept('GET', '**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('GET', '**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
-    cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments/**').as('updateMTOShipments');
+    cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**').as('updateMTOShipments');
 
     cy.intercept('POST', '**/ghc/v1/mto-shipments').as('createShipment');
     cy.intercept('DELETE', '**/ghc/v1/shipments/**').as('deleteShipment');
