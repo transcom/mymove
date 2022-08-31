@@ -8,9 +8,9 @@ import styles from './EvaluationReportTable.module.scss';
 
 import ConnectedEvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 import { formatCustomerDate, formatEvaluationReportLocation, formatQAReportID } from 'utils/formatters';
-import { CustomerShape, EvaluationReportShape } from 'types';
+import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 
-const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, grade, shipmentId }) => {
+const EvaluationReportTable = ({ reports, shipments, emptyText, moveCode, customerInfo, grade }) => {
   const location = useLocation();
   const [isViewReportModalVisible, setIsViewReportModalVisible] = useState(false);
   const [reportToView, setReportToView] = useState(undefined);
@@ -69,14 +69,15 @@ const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, gra
     <div>
       {isViewReportModalVisible && reportToView && (
         <ConnectedEvaluationReportConfirmationModal
-          reportId={reportToView.id}
+          isOpen={isViewReportModalVisible}
+          evaluationReport={reportToView}
           moveCode={moveCode}
           customerInfo={customerInfo}
           grade={grade}
-          shipmentId={shipmentId}
+          mtoShipments={shipments}
           closeModalOptions={{
-            onClick: toggleCloseModal,
-            text: 'Close',
+            handleClick: toggleCloseModal,
+            buttonContent: 'Close',
           }}
         />
       )}
@@ -104,12 +105,12 @@ EvaluationReportTable.propTypes = {
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
-  shipmentId: PropTypes.string,
+  shipments: PropTypes.arrayOf(ShipmentShape),
 };
 
 EvaluationReportTable.defaultProps = {
   reports: [],
-  shipmentId: '',
+  shipments: null,
 };
 
 export default EvaluationReportTable;

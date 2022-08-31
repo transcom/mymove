@@ -21,11 +21,38 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
+const customerInfo = {
+  agency: 'ARMY',
+  backup_contact: { email: 'email@example.com', name: 'name', phone: '555-555-5555' },
+  current_address: {
+    city: 'Beverly Hills',
+    country: 'US',
+    eTag: 'MjAyMi0wOC0xNVQxNjoxMToyNi4zMzIwOTFa',
+    id: '28f11990-7ced-4d01-87ad-b16f2c86ea83',
+    postalCode: '90210',
+    state: 'CA',
+    streetAddress1: '123 Any Street',
+    streetAddress2: 'P.O. Box 12345',
+    streetAddress3: 'c/o Some Person',
+  },
+  dodID: '5052247544',
+  eTag: 'MjAyMi0wOC0xNVQxNjoxMToyNi4zNTkzNFo=',
+  email: 'leo_spaceman_sm@example.com',
+  first_name: 'Leo',
+  id: 'ea557b1f-2660-4d6b-89a0-fb1b5efd2113',
+  last_name: 'Spacemen',
+  phone: '555-555-5555',
+  userID: 'f4bbfcdf-ef66-4ce7-92f8-4c1bf507d596',
+};
+
+const grade = 'E_4';
+const moveCode = 'FAKEIT';
+
 describe('EvaluationForm', () => {
   it('renders the form components', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <EvaluationForm />
+        <EvaluationForm customerInfo grade moveCode />
       </MockProviders>,
     );
 
@@ -68,6 +95,9 @@ describe('EvaluationForm', () => {
           evaluationReport={{
             type: 'SHIPMENT',
           }}
+          customerInfo
+          grade
+          moveCode
         />
       </MockProviders>,
     );
@@ -125,7 +155,7 @@ describe('EvaluationForm', () => {
   it('displays the delete confirmation on cancel', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <EvaluationForm />
+        <EvaluationForm customerInfo grade moveCode />
       </MockProviders>,
     );
 
@@ -142,7 +172,7 @@ describe('EvaluationForm', () => {
   it('updates the submit button when there are violations', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <EvaluationForm />
+        <EvaluationForm customerInfo grade moveCode />
       </MockProviders>,
     );
 

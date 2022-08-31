@@ -26,19 +26,25 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
   const history = useHistory();
   const location = useLocation();
 
-  const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
+  const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport);
+  const [submitEvaluationReportMutation] = useMutation(submitEvaluationReport);
+
+  const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+  });
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
-
-  const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport);
-  const [submitEvaluationReportMutation] = useMutation(submitEvaluationReport);
 
   // whether or not the delete report modal is displaying
   const toggleDeleteReportModal = () => {
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
+  // cancel report updates but don't delete, just re-route back to reports page
   const cancelForUpdatedReport = () => {
     history.push(`/moves/${moveCode}/evaluation-reports`);
   };
@@ -54,11 +60,11 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
     history.push(`/moves/${moveCode}/evaluation-reports`, { showDeleteSuccess: true });
   };
 
+  // passed to the confrimation modal
   const submitReport = async () => {
     // close the modal
     setIsSubmitModalOpen(!isSubmitModalOpen);
 
-    // TODO: commenting out until i get the endpoint hooked up
     // mark as submitted in the DB
     await submitEvaluationReportMutation(reportId);
 
@@ -66,13 +72,6 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
     // TODO: what happens on failure?
     history.push(`/moves/${moveCode}/evaluation-reports`, { showSubmitSuccess: true });
   };
-
-  const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
-    onError: (error) => {
-      const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
-    },
-  });
 
   const convertToMinutes = (hours, minutes) => {
     return Number(hours || 0) * 60 + Number(minutes || 0);
@@ -159,11 +158,31 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
     history.push(`${location.pathname}/violations`);
   };
 
+  const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
+
+  const modalTitle = (
+    <div>
+      <h3>Preview and submit {evaluationReport.type} report</h3>
+      <p>Is all the information shown correct?</p>
+    </div>
+  );
+
+  const closeModalOptions = {
+    handleClick: setIsSubmitModalOpen,
+    buttonContent: 'Back to evaluation form',
+  };
+
+  const submitModalOptions = {
+    handleClick: submitReport,
+    buttonContent: 'Submit',
+  };
+
   const initialValues = {
     remarks: evaluationReport.remarks,
     inspectionDate: evaluationReport.inspectionDate,
     observedDate: evaluationReport.observedDate,
   };
+
   if (evaluationReport.location) {
     initialValues.evaluationLocation = evaluationReport.location.toLowerCase();
   }
@@ -207,23 +226,6 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
   for (let i = 0; i < 13; i += 1) {
     hours[i] = { key: String(i), value: String(i) };
   }
-
-  const modalTitle = (
-    <div>
-      <h3>Preview and submit {evaluationReport.type} report</h3>
-      <p>Is all the information shown correct?</p>
-    </div>
-  );
-
-  const closeModalOptions = {
-    handleClick: setIsSubmitModalOpen,
-    buttonContent: 'Back to evaluation form',
-  };
-
-  const submitModalOptions = {
-    handleClick: submitReport,
-    buttonContent: 'Submit',
-  };
 
   return (
     <>

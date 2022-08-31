@@ -371,8 +371,8 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
   };
 };
 
-// counseling reports look up all shipments
-export const useEvaluationMoveInfoQueries = (reportID) => {
+// send in a single report ID and get all shipment information
+export const useEvaluationReportShipmentListQueries = (reportID) => {
   const { data: evaluationReport = {}, ...viewEvaluationReportQuery } = useQuery(
     [EVALUATION_REPORT, reportID],
     getEvaluationReportByID,
@@ -391,7 +391,8 @@ export const useEvaluationMoveInfoQueries = (reportID) => {
   };
 };
 
-export const useShipmentEvaluationReportQueries = (reportID) => {
+// lookup a single evaluation report, single shipment associated with that report
+export const useEvaluationReportQueries = (reportID) => {
   const { data: evaluationReport = {}, ...shipmentEvaluationReportQuery } = useQuery(
     [EVALUATION_REPORT, reportID],
     getEvaluationReportByID,
@@ -413,6 +414,7 @@ export const useShipmentEvaluationReportQueries = (reportID) => {
   };
 };
 
+// Lookup all Evaluation Reports and associated move/shipment data
 export const useEvaluationReportsQueries = (moveCode) => {
   const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
   const moveId = move?.id;

@@ -82,6 +82,7 @@ const EvaluationReports = ({ customerInfo, grade }) => {
               moveCode={moveCode}
               customerInfo={customerInfo}
               grade={grade}
+              shipments={shipments}
               emptyText="No QAE reports have been submitted for counseling."
             />
           </Grid>

@@ -5,7 +5,7 @@ import styles from './EvaluationReportConfirmationModal.module.scss';
 
 import Modal, { ModalTitle, ModalClose, ModalSubmit, ModalActions, connectModal } from 'components/Modal/Modal';
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
-import EvaluationReportContainer from 'components/Office/EvaluationReportPreview/EvaluationReportPreview';
+import EvaluationReportPreview from 'components/Office/EvaluationReportPreview/EvaluationReportPreview';
 
 /*
   Used for the Evaluation Report:
@@ -22,19 +22,13 @@ import EvaluationReportContainer from 'components/Office/EvaluationReportPreview
   modalTopRightClose - optional
     * renders a close button in the top right corner
     * triggers the passed in onClick method
+    * 
+  
+  closeModalOptions - optional
+    * renders a close button in bottom * corner
 
-  reportId, moveCode - required
-   * used to look up the report to fill in details
-
-  grade - required
-    ORDERS_RANK_OPTIONS[GRADE]
-
-  shipmentId - required if a shipment eval report, optional for others
-
-  close & submitModalOptions
-    onClick
-    content
-
+  submitModalOptions - optional
+    * renders a submit button in bottom * corner
 */
 
 export const EvaluationReportConfirmationModal = ({
@@ -51,7 +45,7 @@ export const EvaluationReportConfirmationModal = ({
   <Modal className={styles.evaluationReportModal}>
     {modalTopRightClose && <ModalClose handleClick={() => modalTopRightClose()} data-testid="modalCloseButtonTop" />}
     {modalTitle && <ModalTitle className={styles.titleSection}>{modalTitle}</ModalTitle>}
-    <EvaluationReportContainer
+    <EvaluationReportPreview
       evaluationReport={evaluationReport}
       moveCode={moveCode}
       mtoShipments={mtoShipments}
@@ -76,8 +70,6 @@ export const EvaluationReportConfirmationModal = ({
   </Modal>
 );
 
-// TODO: check that shipmentId, reportId types make sense
-// Why is there this typo error here?
 EvaluationReportConfirmationModal.propTypes = {
   modalTitle: PropTypes.element,
   modalTopRightClose: PropTypes.func,

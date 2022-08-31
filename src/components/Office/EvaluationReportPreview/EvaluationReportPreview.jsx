@@ -3,19 +3,18 @@ import * as PropTypes from 'prop-types';
 import { Grid } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import { formatDateFromIso, formatQAReportID } from '../../../utils/formatters';
-import EvaluationReportShipmentDisplay from '../EvaluationReportShipmentDisplay/EvaluationReportShipmentDisplay';
-import DataTable from '../../DataTable';
-import DataTableWrapper from '../../DataTableWrapper';
-import { formatDate } from '../../../shared/dates';
-import EvaluationReportList from '../DefinitionLists/EvaluationReportList';
-
 import styles from './EvaluationReportPreview.module.scss';
 
+import descriptionListStyles from 'styles/descriptionList.module.scss';
+import EvaluationReportShipmentDisplay from 'components/Office/EvaluationReportShipmentDisplay/EvaluationReportShipmentDisplay';
+import DataTable from 'components/DataTable';
+import DataTableWrapper from 'components/DataTableWrapper';
+import EvaluationReportList from 'components/Office/DefinitionLists/EvaluationReportList';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
+import { formatDateFromIso, formatQAReportID } from 'utils/formatters';
+import { formatDate } from 'shared/dates';
 import { shipmentTypeLabels } from 'content/shipments';
-import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, customerInfo, grade }) => {
   const reportType = evaluationReport.type;
