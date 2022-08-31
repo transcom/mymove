@@ -3,14 +3,13 @@ package adminapi
 import (
 	"net/http"
 
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
-	organization2 "github.com/transcom/mymove/pkg/services/organization"
-
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	organization2 "github.com/transcom/mymove/pkg/services/organization"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"

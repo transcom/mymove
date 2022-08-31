@@ -1,14 +1,13 @@
 package models_test
 
 import (
+	"github.com/gofrs/uuid"
 	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
-
-	"github.com/gofrs/uuid"
 )
 
 func (suite *ModelSuite) Test_UserUploadCreate() {

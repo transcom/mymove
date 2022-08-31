@@ -60,7 +60,6 @@ func CreatePrimeClientWithCACStoreParam(v *viper.Viper, store *pksigner.Store) (
 			MinVersion:         tls.VersionTLS12,
 			MaxVersion:         tls.VersionTLS12,
 		}
-		tlsConfig.BuildNameToCertificate()
 		transport := &http.Transport{
 			TLSClientConfig: tlsConfig,
 		}
@@ -134,7 +133,6 @@ func CreatePrimeClient(v *viper.Viper) (*primeClient.Mymove, *pksigner.Store, er
 			MinVersion:         tls.VersionTLS12,
 			MaxVersion:         tls.VersionTLS12,
 		}
-		tlsConfig.BuildNameToCertificate()
 		transport := &http.Transport{
 			TLSClientConfig: tlsConfig,
 		}
@@ -208,7 +206,6 @@ func CreateSupportClient(v *viper.Viper) (*supportClient.Mymove, *pksigner.Store
 			MinVersion:         tls.VersionTLS12,
 			MaxVersion:         tls.VersionTLS12,
 		}
-		tlsConfig.BuildNameToCertificate()
 		transport := &http.Transport{
 			TLSClientConfig: tlsConfig,
 		}

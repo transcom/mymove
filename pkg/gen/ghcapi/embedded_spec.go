@@ -499,7 +499,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
       },
       "delete": {
         "description": "Soft deletes an evaluation report by ID",
@@ -533,7 +536,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "delete.evaluationReport"
+        ]
       },
       "parameters": [
         {
@@ -1792,7 +1798,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "create.evaluationReport"
+        ]
       },
       "parameters": [
         {
@@ -2584,6 +2593,39 @@ func init() {
           },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/pws-violations": {
+      "get": {
+        "description": "Fetch the possible PWS violations for an evaluation report",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Fetch the possible PWS violations for an evaluation report",
+        "operationId": "getPWSViolations",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the PWS violations",
+            "schema": {
+              "$ref": "#/definitions/PWSViolations"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -6488,6 +6530,60 @@ func init() {
       ],
       "readOnly": true
     },
+    "PWSViolation": {
+      "description": "A PWS violation for an evaluation report",
+      "type": "object",
+      "properties": {
+        "additionalDataElem": {
+          "type": "string",
+          "example": "QAE Observed Delivery Date"
+        },
+        "category": {
+          "type": "string",
+          "example": "Pre-Move Services"
+        },
+        "displayOrder": {
+          "type": "integer",
+          "example": 3
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isKpi": {
+          "type": "boolean",
+          "example": false
+        },
+        "paragraphNumber": {
+          "type": "string",
+          "example": "1.2.3.4.5"
+        },
+        "requirementStatement": {
+          "type": "string",
+          "example": "The contractor shall prepare and load property going into NTS in containers at residence for shipment to NTS."
+        },
+        "requirementSummary": {
+          "type": "string",
+          "example": "Provide a single point of contact (POC)"
+        },
+        "subCategory": {
+          "type": "string",
+          "example": "Weight Estimate"
+        },
+        "title": {
+          "type": "string",
+          "example": "Customer Support"
+        }
+      },
+      "readOnly": true
+    },
+    "PWSViolations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PWSViolation"
+      }
+    },
     "PatchMTOServiceItemStatusPayload": {
       "properties": {
         "rejectionReason": {
@@ -8737,7 +8833,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
       },
       "delete": {
         "description": "Soft deletes an evaluation report by ID",
@@ -8789,7 +8888,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "delete.evaluationReport"
+        ]
       },
       "parameters": [
         {
@@ -10393,7 +10495,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "create.evaluationReport"
+        ]
       },
       "parameters": [
         {
@@ -11398,6 +11503,51 @@ func init() {
             "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/pws-violations": {
+      "get": {
+        "description": "Fetch the possible PWS violations for an evaluation report",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Fetch the possible PWS violations for an evaluation report",
+        "operationId": "getPWSViolations",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the PWS violations",
+            "schema": {
+              "$ref": "#/definitions/PWSViolations"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
@@ -15536,6 +15686,60 @@ func init() {
         "PAYMENT_APPROVED"
       ],
       "readOnly": true
+    },
+    "PWSViolation": {
+      "description": "A PWS violation for an evaluation report",
+      "type": "object",
+      "properties": {
+        "additionalDataElem": {
+          "type": "string",
+          "example": "QAE Observed Delivery Date"
+        },
+        "category": {
+          "type": "string",
+          "example": "Pre-Move Services"
+        },
+        "displayOrder": {
+          "type": "integer",
+          "example": 3
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isKpi": {
+          "type": "boolean",
+          "example": false
+        },
+        "paragraphNumber": {
+          "type": "string",
+          "example": "1.2.3.4.5"
+        },
+        "requirementStatement": {
+          "type": "string",
+          "example": "The contractor shall prepare and load property going into NTS in containers at residence for shipment to NTS."
+        },
+        "requirementSummary": {
+          "type": "string",
+          "example": "Provide a single point of contact (POC)"
+        },
+        "subCategory": {
+          "type": "string",
+          "example": "Weight Estimate"
+        },
+        "title": {
+          "type": "string",
+          "example": "Customer Support"
+        }
+      },
+      "readOnly": true
+    },
+    "PWSViolations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PWSViolation"
+      }
     },
     "PatchMTOServiceItemStatusPayload": {
       "properties": {

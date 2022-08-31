@@ -13,6 +13,8 @@ import { ShipmentShape } from 'types/shipment';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { createShipmentEvaluationReport } from 'services/ghcApi';
 import { SHIPMENT_EVALUATION_REPORTS } from 'constants/queryKeys';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const EvaluationReportShipmentInfo = ({ shipment }) => {
   const { moveCode } = useParams();
@@ -83,9 +85,11 @@ const EvaluationReportShipmentInfo = ({ shipment }) => {
             {pickupAddress} <FontAwesomeIcon icon="arrow-right" /> {destinationAddress}
           </small>
         </div>
-        <Button data-testid="shipmentEvaluationCreate" onClick={() => handleCreateClick(shipment.id)}>
-          Create report
-        </Button>
+        <Restricted to={permissionTypes.createEvaluationReport}>
+          <Button data-testid="shipmentEvaluationCreate" onClick={() => handleCreateClick(shipment.id)}>
+            Create report
+          </Button>
+        </Restricted>
       </div>
     </>
   );

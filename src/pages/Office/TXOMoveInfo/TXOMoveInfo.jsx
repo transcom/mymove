@@ -4,8 +4,10 @@ import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
 
+import { permissionTypes } from 'constants/permissions';
 import { qaeCSRRoutes, tioRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
+import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
@@ -23,6 +25,7 @@ const EvaluationReport = lazy(() => import('pages/Office/EvaluationReport/Evalua
 const EvaluationViolations = lazy(() => import('pages/Office/EvaluationViolations/EvaluationViolations'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
+const Forbidden = lazy(() => import('pages/Office/Forbidden/Forbidden'));
 
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
@@ -131,7 +134,9 @@ const TXOMoveInfo = () => {
           </Route>
 
           <Route path={qaeCSRRoutes.EVALUATION_REPORT_PATH} exact>
-            <EvaluationReport customerInfo={customerData} orders={order} />
+            <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
+              <EvaluationReport customerInfo={customerData} orders={order} />
+            </Restricted>
           </Route>
 
           <Route path={qaeCSRRoutes.EVALUATION_VIOLATIONS_PATH} exact>

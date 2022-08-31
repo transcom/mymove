@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/certs"

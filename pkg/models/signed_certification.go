@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
-
-	"github.com/transcom/mymove/pkg/auth"
-
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 // SignedCertificationType represents the types of certificates

@@ -4,11 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel/attribute"
 	sdktrace "go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
-
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/trace"

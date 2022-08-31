@@ -18,6 +18,8 @@ import { CustomerShape } from 'types';
 import { createCounselingEvaluationReport } from 'services/ghcApi';
 import { COUNSELING_EVALUATION_REPORTS } from 'constants/queryKeys';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const EvaluationReports = ({ customerInfo, grade }) => {
   const { moveCode } = useParams();
@@ -70,7 +72,9 @@ const EvaluationReports = ({ customerInfo, grade }) => {
         <GridContainer className={evaluationReportsStyles.evaluationReportSection}>
           <Grid row className={evaluationReportsStyles.counselingHeadingContainer}>
             <h2>Counseling QAE reports ({counselingEvaluationReports.length})</h2>
-            <Button onClick={() => handleCounselingCreateClick()}>Create report</Button>
+            <Restricted to={permissionTypes.createEvaluationReport}>
+              <Button onClick={() => handleCounselingCreateClick()}>Create report</Button>
+            </Restricted>
           </Grid>
           <Grid row>
             <EvaluationReportTable
