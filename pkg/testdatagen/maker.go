@@ -127,8 +127,15 @@ func validateCustomizations(customs CustomizationMap) (CustomizationMap, error) 
 	}
 
 	controller := (controlCustom).Model.(controlObject)
-	// Store the validation result, with maps, not sure if we need this. Could possibly have it for other types of
-	// validation, like for the nested values. Maybe that could be called here.
+
+	for customType, custom := range customs {
+		if err := checkNestedModels(custom); err != nil {
+			controller.isValid = false
+			return customs, fmt.Errorf("Errors encountered in customization for %s: %w", customType, err)
+		}
+	}
+
+	// Store the validation result
 	controller.isValid = true
 	return customs, nil
 
@@ -228,7 +235,7 @@ func UserMaker(db *pop.Connection, customs CustomizationMap, traits []GetTraitFu
 
 	// Find user assertion and convert to models user
 	var cUser models.User
-	if result := findValidCustomization(customs, User); result != nil {
+	if result, exists := customs[User]; exists {
 		cUser = result.Model.(models.User)
 	}
 
@@ -287,7 +294,7 @@ func ServiceMemberMaker(db *pop.Connection, customs CustomizationMap, traits []G
 
 	// Find/create the required user model
 	var user models.User
-	if result := findValidCustomization(customs, User); result != nil {
+	if result, exists := customs[User]; exists {
 		user = result.Model.(models.User)
 	}
 	if isZeroUUID(user.ID) {
@@ -297,8 +304,9 @@ func ServiceMemberMaker(db *pop.Connection, customs CustomizationMap, traits []G
 
 	// Find/create a residential address
 	var resiAddress models.Address
-	result := findValidCustomization(customs, Addresses.ResidentialAddress)
-	if result == nil {
+	result, exists := customs[Addresses.ResidentialAddress]
+
+	if !exists {
 		// No customization
 		resiAddress, _ = AddressMaker(db, customs, nil)
 	} else {
@@ -314,7 +322,7 @@ func ServiceMemberMaker(db *pop.Connection, customs CustomizationMap, traits []G
 
 	// Find the customization for service member
 	var cServiceMember models.ServiceMember
-	if result := findValidCustomization(customs, ServiceMember); result != nil {
+	if result, exists := customs[ServiceMember]; exists {
 		cServiceMember = result.Model.(models.ServiceMember)
 	}
 
@@ -347,19 +355,6 @@ func ServiceMemberMaker(db *pop.Connection, customs CustomizationMap, traits []G
 	return serviceMember, nil
 }
 
-func findValidCustomization(customs CustomizationMap, customType CustomType) *Customization {
-	custom, exists := customs[customType]
-	if !exists {
-		return nil
-	}
-
-	// Else check that the customization is valid
-	if err := checkNestedModels(custom); err != nil {
-		log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", customType, err))
-	}
-	return &custom
-}
-
 func AddressMaker(db *pop.Connection, customs CustomizationMap, traits []GetTraitFunc) (models.Address, error) {
 	customs = mergeCustomization(customs, traits)
 	customs, err := validateCustomizations(customs)
@@ -369,7 +364,7 @@ func AddressMaker(db *pop.Connection, customs CustomizationMap, traits []GetTrai
 
 	// Find the customization for address
 	var cAddress models.Address
-	if result := findValidCustomization(customs, Address); result != nil {
+	if result, exists := customs[Address]; exists {
 		cAddress = result.Model.(models.Address)
 	}
 
