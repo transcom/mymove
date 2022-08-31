@@ -22,10 +22,11 @@
 
 .accordionOption {
   @include u-border-bottom('1px', 'solid', 'base-lightest');
+  @include u-padding-bottom(0.5);
 
   h5 {
     @include u-margin-top(1);
-    @include u-margin-bottom(0);
+    margin-bottom: -6px;
     @include u-color('base-darkest');
   }
 }
@@ -51,7 +52,7 @@
 .detailIcon {
   @include u-color('base-dark');
   @include u-margin-top(1);
-  @include u-margin-right(1);
+  margin-right: 0.73rem;
   @include u-cursor('pointer');
 }
 
