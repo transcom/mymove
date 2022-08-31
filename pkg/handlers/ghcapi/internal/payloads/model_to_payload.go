@@ -196,6 +196,39 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 	return payload
 }
 
+// PWSViolationItem payload
+func PWSViolationItem(violation *models.PWSViolation) *ghcmessages.PWSViolation {
+	if violation == nil {
+		return nil
+	}
+
+	payload := &ghcmessages.PWSViolation{
+		ID:                   strfmt.UUID(violation.ID.String()),
+		DisplayOrder:         int64(violation.DisplayOrder),
+		ParagraphNumber:      violation.ParagraphNumber,
+		Title:                violation.Title,
+		Category:             string(violation.Category),
+		SubCategory:          violation.SubCategory,
+		RequirementSummary:   violation.RequirementSummary,
+		RequirementStatement: violation.RequirementStatement,
+		IsKpi:                violation.IsKpi,
+		AdditionalDataElem:   violation.AdditionalDataElem,
+	}
+
+	return payload
+}
+
+// PWSViolations payload
+func PWSViolations(violations models.PWSViolations) ghcmessages.PWSViolations {
+	payload := make(ghcmessages.PWSViolations, len(violations))
+
+	for i, v := range violations {
+		violation := v
+		payload[i] = PWSViolationItem(&violation)
+	}
+	return payload
+}
+
 // MoveHistory payload
 func MoveHistory(logger *zap.Logger, moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{

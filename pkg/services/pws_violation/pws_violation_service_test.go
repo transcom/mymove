@@ -1,4 +1,4 @@
-package movehistory
+package pwsviolation
 
 import (
 	"testing"
@@ -8,15 +8,16 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type MoveHistoryServiceSuite struct {
+type PWSViolationsSuite struct {
 	*testingsuite.PopTestSuite
 }
 
-func TestMoveServiceSuite(t *testing.T) {
-
-	hs := &MoveHistoryServiceSuite{
+func TestPWSViolationsServiceSuite(t *testing.T) {
+	ts := &PWSViolationsSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 	}
-	suite.Run(t, hs)
-	hs.PopTestSuite.TearDown()
+
+	suite.Run(t, ts)
+
+	ts.PopTestSuite.TearDown()
 }
