@@ -14,9 +14,9 @@ printf "These are the names of duty stations with the same GBLOC as %s: \\n\\n" 
 # The -t option prints just the names as opposed to the default formatting that
 # includes the column name underlined
 psql -t postgres://"$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME" << EOF
-SELECT duty_stations.name FROM duty_stations
+SELECT duty_locations.name FROM duty_locations
   JOIN transportation_offices
-  ON duty_stations.transportation_office_id = transportation_offices.id
+  ON duty_locations.transportation_office_id = transportation_offices.id
   WHERE transportation_offices.gbloc IN (
     SELECT gbloc FROM transportation_offices
     WHERE transportation_offices.name = '$name'

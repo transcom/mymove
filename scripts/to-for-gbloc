@@ -17,9 +17,9 @@ psql -t postgres://"$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME" << EOF
 SELECT name FROM transportation_offices
   WHERE gbloc IN (
     SELECT gbloc FROM transportation_offices
-    INNER JOIN duty_stations
-    ON duty_stations.transportation_office_id = transportation_offices.id
-    WHERE duty_stations.name = '$name'
+    INNER JOIN duty_locations
+    ON duty_locations.transportation_office_id = transportation_offices.id
+    WHERE duty_locations.name = '$name'
   )
 EOF
 
