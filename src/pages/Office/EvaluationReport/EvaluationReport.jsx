@@ -16,15 +16,24 @@ import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
 import EvaluationReportMoveInfo from 'components/Office/EvaluationReportMoveInfo/EvaluationReportMoveInfo';
 import EvaluationReportShipmentInfo from 'components/Office/EvaluationReportShipmentInfo/EvaluationReportShipmentInfo';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const EvaluationReport = ({ customerInfo, grade }) => {
   const { reportId } = useParams();
-  const { evaluationReport, mtoShipments } = useEvaluationReportShipmentListQueries(reportId);
-  const { shipmentID } = evaluationReport;
+  const { evaluationReport, mtoShipments, isLoading, isError } = useEvaluationReportShipmentListQueries(reportId);
+
+  if (isLoading) {
+    return <LoadingPlaceholder />;
+  }
+  if (isError) {
+    return <SomethingWentWrong />;
+  }
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
   let singleShipment = null;
 
   if (isShipment) {
+    const { shipmentID } = evaluationReport.shipmentID;
     singleShipment = [mtoShipments.find((shipment) => shipment.id === shipmentID)];
   }
 
@@ -32,17 +41,16 @@ const EvaluationReport = ({ customerInfo, grade }) => {
     <div className={classnames(styles.tabContent, evaluationReportStyles.tabContent)}>
       <GridContainer className={evaluationReportStyles.container}>
         <QaeReportHeader report={evaluationReport} />
-        {mtoShipments?.length > 0 && (
+        {isShipment ? (
           <EvaluationReportShipmentInfo
             customerInfo={customerInfo}
             grade={grade}
             shipment={singleShipment}
             report={evaluationReport}
           />
-        )}{' '}
-        : (
-        <EvaluationReportMoveInfo customerInfo={customerInfo} grade={grade} />
-        )
+        ) : (
+          <EvaluationReportMoveInfo customerInfo={customerInfo} grade={grade} />
+        )}
         <EvaluationForm
           evaluationReport={evaluationReport}
           mtoShipments={mtoShipments}
