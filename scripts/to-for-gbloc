@@ -19,7 +19,7 @@ SELECT name FROM transportation_offices
     SELECT gbloc FROM transportation_offices
     INNER JOIN duty_locations
     ON duty_locations.transportation_office_id = transportation_offices.id
-    WHERE duty_locations.name = '$name'
+    WHERE duty_locations.name SIMILAR TO '%$name%'
   )
 EOF
 
