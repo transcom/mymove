@@ -10,7 +10,7 @@ import { PWSViolationShape } from 'types/pwsViolation';
 /**
  * A component that renders an accordion for a single violation category. An expandable section of the accordion is rendered for each subcategory.
  */
-const ViolationsAccordion = ({ violations }) => {
+const ViolationsAccordion = ({ violations, onChange, selected }) => {
   const [expandedViolations, setExpandedViolations] = React.useState([]);
   const subCategories = [...new Set(violations.map((item) => item.subCategory))];
 
@@ -32,6 +32,8 @@ const ViolationsAccordion = ({ violations }) => {
             name={`${violation.paragraphNumber} ${violation.title}`}
             className={styles.checkbox}
             aria-labelledby={`${violation.id}-checkbox-label`}
+            onChange={() => onChange(violation.id)}
+            checked={!!(selected && selected.includes(violation.id))}
           />
 
           {/* Checkbox label */}
