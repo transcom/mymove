@@ -145,8 +145,10 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
+		FinalIncentive:                 handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive),
 	}
 
+	ppmModel.W2Address = AddressModel(ppmShipment.W2Address)
 	if ppmShipment.ExpectedDepartureDate != nil {
 		ppmModel.ExpectedDepartureDate = *handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
 	}
@@ -157,12 +159,6 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 
 	if ppmShipment.PickupPostalCode != nil {
 		ppmModel.PickupPostalCode = *ppmShipment.PickupPostalCode
-	}
-
-	var addressModel *models.Address
-	if ppmShipment.W2Address != nil {
-		addressModel = AddressModel(ppmShipment.W2Address)
-		ppmModel.W2Address = addressModel
 	}
 
 	if ppmShipment.FinalIncentive != nil {
