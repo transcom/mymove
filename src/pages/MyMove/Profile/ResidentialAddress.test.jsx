@@ -3,12 +3,14 @@ import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { v4 } from 'uuid';
 
 import { MockProviders } from 'testUtils';
 import ConnectedResidentialAddress, { ResidentialAddress } from 'pages/MyMove/Profile/ResidentialAddress';
 import { customerRoutes } from 'constants/routes';
 import { patchServiceMember } from 'services/internalApi';
 import { ValidateZipRateData } from 'shared/api';
+import addressFactory, { ADDRESS_WITHOUT_COUNTRY } from 'utils/test/factories/address';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -20,30 +22,25 @@ jest.mock('shared/api', () => ({
   ValidateZipRateData: jest.fn(),
 }));
 
+const baseProps = {
+  updateServiceMember: jest.fn(),
+  push: jest.fn(),
+};
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 describe('ResidentialAddress page', () => {
-  const fakeAddress = {
-    streetAddress1: '235 Prospect Valley Road SE',
-    streetAddress2: '#125',
-    city: 'El Paso',
-    state: 'TX',
-    postalCode: '79912',
+  const props = {
+    ...baseProps,
+    serviceMember: {
+      id: v4(),
+    },
   };
 
-  const blankAddress = Object.fromEntries(Object.keys(fakeAddress).map((k) => [k, '']));
-  // TODO: We may want to change residential_address to residentialAddress
-  const generateTestProps = (address) => ({
-    updateServiceMember: jest.fn(),
-    push: jest.fn(),
-    serviceMember: {
-      id: 'testServiceMemberId',
-      residential_address: address,
-    },
-  });
-
   it('renders the ResidentialAddressForm', async () => {
-    const testProps = generateTestProps(blankAddress);
-
-    render(<ResidentialAddress {...testProps} />);
+    render(<ResidentialAddress {...props} />);
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Current mailing address', level: 1 })).toBeInTheDocument();
@@ -51,13 +48,11 @@ describe('ResidentialAddress page', () => {
   });
 
   it('validates zip code using api endpoint', async () => {
-    const testProps = generateTestProps(blankAddress);
-
     ValidateZipRateData.mockImplementation(() => ({
       valid: true,
     }));
 
-    render(<ResidentialAddress {...testProps} />);
+    render(<ResidentialAddress {...props} />);
 
     const postalCodeInput = await screen.findByLabelText('ZIP');
 
@@ -72,28 +67,26 @@ describe('ResidentialAddress page', () => {
   });
 
   it('back button goes to the Current duty location step', async () => {
-    const testProps = generateTestProps(blankAddress);
-
-    render(<ResidentialAddress {...testProps} />);
+    render(<ResidentialAddress {...props} />);
 
     const backButton = await screen.findByRole('button', { name: 'Back' });
     expect(backButton).toBeInTheDocument();
     userEvent.click(backButton);
 
-    expect(testProps.push).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
+    expect(baseProps.push).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
   });
 
   it('next button submits the form and goes to the Backup address step', async () => {
-    const testProps = generateTestProps(blankAddress);
+    const fakeAddress = addressFactory({ traits: ADDRESS_WITHOUT_COUNTRY });
 
-    const expectedServiceMemberPayload = { ...testProps.serviceMember, residential_address: fakeAddress };
+    const expectedServiceMemberPayload = { ...props.serviceMember, residential_address: fakeAddress };
 
     ValidateZipRateData.mockImplementation(() => ({
       valid: true,
     }));
     patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
 
-    render(<ResidentialAddress {...testProps} />);
+    render(<ResidentialAddress {...props} />);
 
     userEvent.type(screen.getByLabelText('Address 1'), fakeAddress.streetAddress1);
     userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
@@ -109,12 +102,13 @@ describe('ResidentialAddress page', () => {
       expect(patchServiceMember).toHaveBeenCalledWith(expectedServiceMemberPayload);
     });
 
-    expect(testProps.updateServiceMember).toHaveBeenCalledWith(expectedServiceMemberPayload);
-    expect(testProps.push).toHaveBeenCalledWith(customerRoutes.BACKUP_ADDRESS_PATH);
+    expect(baseProps.updateServiceMember).toHaveBeenCalledWith(expectedServiceMemberPayload);
+    expect(baseProps.push).toHaveBeenCalledWith(customerRoutes.BACKUP_ADDRESS_PATH);
   });
 
   it('shows an error if the ValidateZipRateData API returns an error', async () => {
-    const testProps = generateTestProps(fakeAddress);
+    const testProps = { ...props };
+    testProps.serviceMember.residential_address = addressFactory();
 
     ValidateZipRateData.mockImplementation(() => ({
       valid: false,
@@ -138,7 +132,8 @@ describe('ResidentialAddress page', () => {
   });
 
   it('shows an error if the patchServiceMember API returns an error', async () => {
-    const testProps = generateTestProps(fakeAddress);
+    const testProps = { ...props };
+    testProps.serviceMember.residential_address = addressFactory();
 
     ValidateZipRateData.mockImplementation(() => ({
       valid: true,
@@ -273,6 +268,10 @@ describe('requireCustomerState ResidentialAddress', () => {
   });
 
   it('does not redirect if the current state is after the "DUTY LOCATION COMPLETE" state and profile is not complete', async () => {
+    ValidateZipRateData.mockImplementation(() => ({
+      valid: true,
+    }));
+
     const mockState = {
       entities: {
         user: {
@@ -296,12 +295,8 @@ describe('requireCustomerState ResidentialAddress', () => {
             current_location: {
               id: 'testDutyLocationId',
             },
-            residential_address: {
-              street: '123 Main St',
-            },
-            backup_mailing_address: {
-              street: '456 Main St',
-            },
+            residential_address: addressFactory(),
+            backup_mailing_address: addressFactory(),
           },
         },
       },
@@ -345,12 +340,8 @@ describe('requireCustomerState ResidentialAddress', () => {
             current_location: {
               id: 'testDutyLocationId',
             },
-            residential_address: {
-              street: '123 Main St',
-            },
-            backup_mailing_address: {
-              street: '456 Main St',
-            },
+            residential_address: addressFactory(),
+            backup_mailing_address: addressFactory(),
             backup_contacts: [
               {
                 id: 'testBackupContact',
