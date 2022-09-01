@@ -6,6 +6,7 @@ import { Formik } from 'formik';
 import classnames from 'classnames';
 
 import styles from './EvaluationViolationsForm.module.scss';
+import SelectedViolation from './SelectedViolation/SelectedViolation';
 
 import ViolationsAccordion from 'components/Office/ViolationsAccordion/ViolationsAccordion';
 
@@ -35,9 +36,11 @@ const EvaluationViolationsForm = ({ violations }) => {
       validateOnMount
     >
       {({ values, setFieldValue }) => {
-        const handleAccordionChange = (id) => {
+        // Handles adding/removing violations form formic `values`
+        const toggleSelectedViolation = (id) => {
           const fieldKey = 'selectedViolations';
           const prevSelectedViolations = values[fieldKey] || [];
+
           if (prevSelectedViolations.includes(id)) {
             setFieldValue(
               fieldKey,
@@ -63,7 +66,7 @@ const EvaluationViolationsForm = ({ violations }) => {
               {/* Violations Accordions */}
               {categories.map((category) => (
                 <ViolationsAccordion
-                  onChange={handleAccordionChange}
+                  onChange={toggleSelectedViolation}
                   violations={violations.filter((violation) => violation.category === category)}
                   key={`${category}-category`}
                   selected={values.selectedViolations}
@@ -76,32 +79,12 @@ const EvaluationViolationsForm = ({ violations }) => {
                   <h3>
                     Violations Selected ({(values.selectedViolations && values.selectedViolations.length) || '0'})
                   </h3>
-                  {values.selectedViolations?.map((violationId) => {
-                    const violation = violations.find((v) => v.id === violationId);
-                    return (
-                      <div
-                        key={`${violationId}-violation`}
-                        style={{ display: 'flex', border: '1px solid #A9AEB1', borderRadius: '2px' }}
-                      >
-                        <div>
-                          <h5 className={styles.checkboxLabel}>{`${violation.paragraphNumber} ${violation.title}`}</h5>
-                          <small>{violation.requirementSummary}</small>
-                        </div>
-                        <Button
-                          type="button"
-                          unstyled
-                          onClick={() => {
-                            setFieldValue(
-                              'selectedViolations',
-                              values.selectedViolations.filter((id) => id !== violationId),
-                            );
-                          }}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    );
-                  })}
+                  {values.selectedViolations?.map((violationId) => (
+                    <SelectedViolation
+                      violation={violations.find((v) => v.id === violationId)}
+                      unselectViolation={toggleSelectedViolation}
+                    />
+                  ))}
                 </Grid>
               </Grid>
             </GridContainer>
