@@ -3,6 +3,9 @@ import { build } from '@jackfranklin/test-data-bot';
 
 import fake from 'utils/test/factories/base';
 
+export const BLANK_ADDRESS = 'blank';
+export const ADDRESS_WITHOUT_COUNTRY = 'omitCountry';
+
 const addressFactory = build({
   fields: {
     streetAddress1: fake((f) => f.address.streetAddress()),
@@ -10,14 +13,36 @@ const addressFactory = build({
     // left out streetAddress3 since we don't even let users input that line...
     city: fake((f) => f.address.city()),
     state: fake((f) => f.address.stateAbbr()),
-    country: 'US', // Likely change once we support more than just OCONUS moves.
+    country: 'US', // Likely change once we support more than just CONUS moves.
+  },
+  traits: {
+    [BLANK_ADDRESS]: {
+      overrides: {
+        streetAddress1: '',
+        streetAddress2: '',
+        city: '',
+        state: '',
+        country: '',
+      },
+    },
+    [ADDRESS_WITHOUT_COUNTRY]: {
+      postBuild: (address) => {
+        delete address.country;
+
+        return address;
+      },
+    },
   },
   postBuild: (address) => {
-    address.postalCode = faker.address.zipCodeByState(address.state);
+    if (address.state !== '') {
+      address.postalCode = faker.address.zipCodeByState(address.state);
 
-    // The `zipCodeByState` function uses ranges of numbers for each state to generate the zip, but since some state
-    // zip codes start with 0's, they get stripped out. This adds the zero back to the front if needed.
-    address.postalCode = address.postalCode.padStart(5, '0');
+      // The `zipCodeByState` function uses ranges of numbers for each state to generate the zip, but since some state
+      // zip codes start with 0's, they get stripped out. This adds the zero back to the front if needed.
+      address.postalCode = address.postalCode.padStart(5, '0');
+    } else {
+      address.postalCode = '';
+    }
 
     return address;
   },
