@@ -1,18 +1,25 @@
 package ghcapi
 
 import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/assets"
 	evaluationReportop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	moveop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -109,6 +116,62 @@ func (h GetCounselingEvaluationReportsHandler) Handle(params moveop.GetMoveCouns
 			return moveop.NewGetMoveCounselingEvaluationReportsListOK().WithPayload(payload), nil
 		},
 	)
+}
+
+// DownloadEvaluationReportHandler is the struct for fetching an evaluation report by ID
+type DownloadEvaluationReportHandler struct {
+	handlers.HandlerConfig
+	services.EvaluationReportFetcher
+}
+
+// Handle is the handler for fetching an evaluation report by ID
+func (h DownloadEvaluationReportHandler) Handle(params evaluationReportop.DownloadEvaluationReportParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("DownloadEvaluationReport error", zap.Error(err))
+				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return evaluationReportop.NewDownloadEvaluationReportNotFound().WithPayload(payload), err
+				case apperror.ForbiddenError:
+					return evaluationReportop.NewDownloadEvaluationReportForbidden().WithPayload(payload), err
+				case apperror.QueryError:
+					return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
+				default:
+					return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
+				}
+			}
+
+			reportID := uuid.FromStringOrNil(params.ReportID.String())
+			evaluationReport, err := h.FetchEvaluationReportByID(appCtx, reportID, appCtx.Session().OfficeUserID)
+			if err != nil {
+				return handleError(err)
+			}
+			page1Data := paperwork.FormatValuesEvaluationReportPage1(*evaluationReport)
+			formFiller := paperwork.NewFormFiller()
+			page1Layout := paperwork.EvaluationReportPage1Layout
+			page1Template, err := assets.Asset(page1Layout.TemplateImagePath)
+			if err != nil {
+				appCtx.Logger().Error("Error reading page 1 template file", zap.String("asset", page1Layout.TemplateImagePath), zap.Error(err))
+				return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
+			}
+			page1Reader := bytes.NewReader(page1Template)
+			err = formFiller.AppendPage(page1Reader, page1Layout.FieldsLayout, page1Data)
+			if err != nil {
+				appCtx.Logger().Error("Error appending page 1 to PDF", zap.Error(err))
+				return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
+			}
+			buf := new(bytes.Buffer)
+			err = formFiller.Output(buf)
+			if err != nil {
+				appCtx.Logger().Error("Error writing out PDF", zap.Error(err))
+				return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
+			}
+			payload := ioutil.NopCloser(buf)
+			filename := fmt.Sprintf("inline; filename=\"evalreport-%s-%s.pdf\"", evaluationReport.ID, time.Now().Format("01-02-2006"))
+			return evaluationReportop.NewDownloadEvaluationReportOK().WithContentDisposition(filename).WithPayload(payload), nil
+		})
 }
 
 // GetEvaluationReportHandler is the struct for fetching an evaluation report by ID
