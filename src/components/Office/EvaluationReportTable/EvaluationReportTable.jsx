@@ -63,7 +63,9 @@ const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, gra
           {!report.submittedAt && <a href={`${location.pathname}/${report.id}`}>Edit report</a>}
         </td>
         <td className={styles.downloadColumn}>
-          <Button onClick={() => handleDownloadReportClick(report.id)}>Download</Button>
+          <Button className="usa-button--unstyled" onClick={() => handleDownloadReportClick(report.id)}>
+            Download
+          </Button>
         </td>
       </tr>
     );
