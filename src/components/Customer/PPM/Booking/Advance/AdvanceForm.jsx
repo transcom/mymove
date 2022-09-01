@@ -59,8 +59,8 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                 <h2>{`You can ask for up to $${formattedMaxAdvance} as an advance`}</h2>
                 <p>{`That's ${getFormattedMaxAdvancePercentage()} of $${formattedIncentive}, the estimated incentive for your PPM.`}</p>
                 <p>
-                  You can use an advance to pay for up-front moving expenses. Your service will award and distribute any
-                  advance. Different services handle advances differently. Talk to your counselor for specifics.
+                  You can request an Advance Operating Allowance (AOA, or “Advance”) to help cover some of your up-front
+                  moving expenses.
                 </p>
                 <p>If you take an advance, it will be deducted from your incentive payment.</p>
                 <Fieldset>
