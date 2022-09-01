@@ -56,9 +56,7 @@ module.exports = {
       {
         devDependencies: [
           '**/*.stories.js*',
-          // '**/*.stories.js',
           '**/*.test.js*',
-          // '**/*.test.jsx',
           '**/setupTests.js',
           '**/testUtils.jsx',
           '**/test/factories/**',
