@@ -8533,10 +8533,10 @@ danger-plugin-jira-issue@^1.4.1:
   resolved "https://registry.yarnpkg.com/danger-plugin-jira-issue/-/danger-plugin-jira-issue-1.4.1.tgz#1e2317ae8a291d96dc19762a55cb905681320940"
   integrity sha512-B/XaW8YigUboK4BH4sMM8GmE0e+Bc6ibAg+Xyf0HFGph4DIawNYOuwKbCh2K1fAyXafott6tGpxFMe9Tc0Aabw==
 
-danger@^11.1.1:
-  version "11.1.1"
-  resolved "https://registry.yarnpkg.com/danger/-/danger-11.1.1.tgz#b745f6191c1478dd4ef81596ac96be8f8e2d0634"
-  integrity sha512-kQX1/Rggut/KFgArOloAdw6paB7hkoznRaUhpPFKVHKRgc6FtlhC8zpb480jVE71Z6eI7rrHVDGEYLv8x96yyA==
+danger@^11.1.2:
+  version "11.1.2"
+  resolved "https://registry.yarnpkg.com/danger/-/danger-11.1.2.tgz#6fa7807c8721e9f8a040252ae8a22db222b8c4e0"
+  integrity sha512-tlAyADE7BRHbnoAA7BB7RzcO/ZLvXMpnWms7dBT/Tm4ntxdbrTT6wCPO1qFcd5Jc9LfM0Iez3hKUSINtnPLH+g==
   dependencies:
     "@octokit/rest" "^18.12.0"
     async-retry "1.2.3"
@@ -11566,7 +11566,7 @@ https-browserify@^1.0.0:
   resolved "https://registry.yarnpkg.com/https-browserify/-/https-browserify-1.0.0.tgz#ec06c10e0a34c0f2faf199f7fd7fc78fffd03c73"
   integrity sha512-J+FkSdyD+0mA0N+81tMotaRMfSL9SGi+xpD3T6YApKsc3bGSXJlfXri3VyFOeYkfLRQisDk1W+jIFFKBeUBbBg==
 
-https-proxy-agent@5:
+https-proxy-agent@5, https-proxy-agent@^5.0.0:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-5.0.1.tgz#c59ef224a04fe8b754f3db0063a25ea30d0005d6"
   integrity sha512-dFcAjpTQFgoLMzC2VwU+C/CbS7uRL0lWmxDITmqm7C+7F0Odmj6s9l6alZc6AELXhrnggM2CeWSXHGOdX2YtwA==
@@ -11581,14 +11581,6 @@ https-proxy-agent@^2.2.1:
   dependencies:
     agent-base "^4.3.0"
     debug "^3.1.0"
-
-https-proxy-agent@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-5.0.0.tgz#e2a90542abb68a762e0a0850f6c9edadfd8506b2"
-  integrity sha512-EkYm5BcKUGiduxzSt3Eppko+PiNWNEpa4ySk9vTC6wDsQJW9rHSa+UhGNJoRYp7bz6Ht1eaRIa6QaJqO5rCFbA==
-  dependencies:
-    agent-base "6"
-    debug "4"
 
 human-signals@^1.1.1:
   version "1.1.1"
