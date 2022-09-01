@@ -3924,6 +3924,9 @@ func init() {
           "format": "uuid",
           "x-nullable": true
         },
+        "ppm_id": {
+          "$ref": "#/definitions/PpmID"
+        },
         "signature": {
           "type": "string",
           "title": "Signature"
@@ -5481,6 +5484,14 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -5619,6 +5630,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         },
         "weightTickets": {
           "type": "array",
@@ -6115,6 +6130,13 @@ func init() {
         }
       }
     },
+    "PpmID": {
+      "description": "The PPM Shipment ID to associate with the assigned certificate.\n",
+      "type": "string",
+      "format": "uuid",
+      "x-nullable": true,
+      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -6545,6 +6567,9 @@ func init() {
           "format": "uuid",
           "x-nullable": true
         },
+        "ppm_id": {
+          "$ref": "#/definitions/PpmID"
+        },
         "signature": {
           "type": "string",
           "title": "Signature"
@@ -6761,6 +6786,14 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -6816,6 +6849,10 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -11376,6 +11413,9 @@ func init() {
           "format": "uuid",
           "x-nullable": true
         },
+        "ppm_id": {
+          "$ref": "#/definitions/PpmID"
+        },
         "signature": {
           "type": "string",
           "title": "Signature"
@@ -12948,6 +12988,14 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -13086,6 +13134,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         },
         "weightTickets": {
           "type": "array",
@@ -13586,6 +13638,13 @@ func init() {
         }
       }
     },
+    "PpmID": {
+      "description": "The PPM Shipment ID to associate with the assigned certificate.\n",
+      "type": "string",
+      "format": "uuid",
+      "x-nullable": true,
+      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -14016,6 +14075,9 @@ func init() {
           "format": "uuid",
           "x-nullable": true
         },
+        "ppm_id": {
+          "$ref": "#/definitions/PpmID"
+        },
         "signature": {
           "type": "string",
           "title": "Signature"
@@ -14232,6 +14294,14 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -14287,6 +14357,10 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         }
       }
     },
