@@ -8,6 +8,7 @@ import classnames from 'classnames';
 import styles from './EvaluationViolationsForm.module.scss';
 
 import ViolationsAccordion from 'components/Office/ViolationsAccordion/ViolationsAccordion';
+import { DatePickerInput } from 'components/form/fields';
 
 const EvaluationViolationsForm = ({ violations }) => {
   const { moveCode, reportId } = useParams();
@@ -47,6 +48,11 @@ const EvaluationViolationsForm = ({ violations }) => {
             setFieldValue(fieldKey, [...prevSelectedViolations, id]);
           }
         };
+        let kpiItems = [];
+        if (values.selectedViolations) {
+          kpiItems = violations.filter((item) => values.selectedViolations.includes(item.id) && item.isKpi);
+        }
+        const kpiDates = [...new Set(kpiItems.map((item) => item.additionalDataElem))];
 
         return (
           <>
@@ -102,6 +108,41 @@ const EvaluationViolationsForm = ({ violations }) => {
                       </div>
                     );
                   })}
+                </Grid>
+              </Grid>
+
+              <Grid row>
+                <Grid col>
+                  <div>
+                    <h5>Optional</h5>
+                    {kpiDates.includes('Observed Claim Response Date (Or None)') && (
+                      <DatePickerInput
+                        label="Observed claim response date (optional)"
+                        name="observedClaimDate"
+                        hint="Only enter a date here if the claim has a response."
+                      />
+                    )}
+                    {kpiDates.includes('QAE Observed Pickup Date') && (
+                      <DatePickerInput
+                        label="Observed pickup date"
+                        name="observedPickupDate"
+                        hint="Enter the date you witnessed the pickup."
+                      />
+                    )}
+                    {kpiDates.includes(
+                      'QAE Observed Pickup Spread Start (Date); QAE Observed Pickup Spread End (Date)',
+                    ) && (
+                      <DatePickerInput
+                        label="Observed pickup spread start date"
+                        name="observedpickupStartDateScheduling"
+                      />
+                    )}
+                    {kpiDates.includes(
+                      'QAE Observed Pickup Spread Start (Date); QAE Observed Pickup Spread End (Date)',
+                    ) && (
+                      <DatePickerInput label="Observed pickup spread End date" name="observedpickupEndDateScheduling" />
+                    )}
+                  </div>
                 </Grid>
               </Grid>
             </GridContainer>
