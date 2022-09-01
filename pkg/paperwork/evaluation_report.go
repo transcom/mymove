@@ -1,6 +1,8 @@
 package paperwork
 
-import "github.com/transcom/mymove/pkg/models"
+import (
+	"github.com/transcom/mymove/pkg/models"
+)
 
 const (
 	controlledUnclassifiedInformationText = "CONTROLLED UNCLASSIFIED INFORMATION"
@@ -33,8 +35,8 @@ func FormatValuesEvaluationReportPage1(data models.EvaluationReport) EvaluationR
 	page1 := EvaluationReportPage1Values{
 		CUIBanner:        controlledUnclassifiedInformationText,
 		ReportID:         data.ID.String(),
-		DateOfInspection: "2022",
-		EvaluationType:   "WOW",
+		DateOfInspection: data.InspectionDate.Format("2006-01-02"),
+		EvaluationType:   string(data.Type),
 	}
 	if data.Remarks != nil {
 		page1.Remarks = *data.Remarks
