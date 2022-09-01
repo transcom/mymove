@@ -15,6 +15,10 @@ const addressFactory = build({
   postBuild: (address) => {
     address.postalCode = faker.address.zipCodeByState(address.state);
 
+    // The `zipCodeByState` function uses ranges of numbers for each state to generate the zip, but since some state
+    // zip codes start with 0's, they get stripped out. This adds the zero back to the front if needed.
+    address.postalCode = address.postalCode.padStart(5, '0');
+
     return address;
   },
 });
