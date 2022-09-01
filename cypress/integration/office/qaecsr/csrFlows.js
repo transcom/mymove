@@ -112,15 +112,8 @@ describe('Customer Support User Flows', () => {
 
     // Changer user
     cy.contains('Sign out').click();
-    cy.apiSignInAsUser('3b2cc1b0-31a2-4d1b-874f-0591f9127374', TIOOfficeUserType);
-
-    // Manual wait added to ensure that the queue loads before checking for the corresponding row
-    // For some reason, this won't work properly on CircleCI with a named intercept wait
-    cy.wait(2000);
-
-    // Validate another user can not edit or delete the remark
-    cy.contains(moveLocator).click({ force: true });
-    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments']);
+    cy.apiSignInAsUser('7f45b6bc-1131-4c9a-85ef-24552979d28d', QAECSROfficeUserType);
+    searchForAndNavigateToMove(moveLocator);
 
     // Go to Customer support remarks
     cy.contains('Customer support remarks').click();
