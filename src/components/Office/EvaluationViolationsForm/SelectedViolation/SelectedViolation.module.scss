@@ -1,0 +1,26 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.violation {
+  display: flex;
+  border: 1px solid $base-light;
+  border-radius: 2px;
+  max-width: 648px;
+
+  h5 {
+    margin-top: 8px;
+    margin-bottom: 0;
+    margin-left: 16px;
+  }
+
+  p {
+    margin-top: 0;
+    margin-bottom: 8px;
+    padding-left: 16px;
+  }
+}
+
+.grow {
+  flex-grow: 1;
+}
