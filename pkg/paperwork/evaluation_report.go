@@ -8,11 +8,10 @@ const (
 	controlledUnclassifiedInformationText = "CONTROLLED UNCLASSIFIED INFORMATION"
 )
 
-// EvaluationReortPage1Layout specifies the layout and template of a
+// EvaluationReportPage1Layout specifies the layout and template of the first page of an evaluation report
 var EvaluationReportPage1Layout = FormLayout{
 	TemplateImagePath: "pkg/paperwork/formtemplates/qae_spike_template.png",
 
-	// For now only lists a single shipment. Will need to update to accommodate multiple shipments
 	FieldsLayout: map[string]FieldPos{
 		"CUIBanner":        FormField(0, 1.5, 216, floatPtr(10), nil, stringPtr("CM")),
 		"ReportID":         FormField(80, 40, 216, floatPtr(10), nil, stringPtr("LM")),
@@ -22,7 +21,7 @@ var EvaluationReportPage1Layout = FormLayout{
 	},
 }
 
-// EvaluationReportPage1Values is an object representing a Shipment Summary Worksheet
+// EvaluationReportPage1Values is an object representing an evaluation report
 type EvaluationReportPage1Values struct {
 	CUIBanner        string
 	ReportID         string
@@ -33,13 +32,15 @@ type EvaluationReportPage1Values struct {
 
 func FormatValuesEvaluationReportPage1(data models.EvaluationReport) EvaluationReportPage1Values {
 	page1 := EvaluationReportPage1Values{
-		CUIBanner:        controlledUnclassifiedInformationText,
-		ReportID:         data.ID.String(),
-		DateOfInspection: data.InspectionDate.Format("2006-01-02"),
-		EvaluationType:   string(data.Type),
+		CUIBanner:      controlledUnclassifiedInformationText,
+		ReportID:       data.ID.String(),
+		EvaluationType: string(data.Type),
 	}
 	if data.Remarks != nil {
 		page1.Remarks = *data.Remarks
+	}
+	if data.InspectionDate != nil {
+		page1.DateOfInspection = data.InspectionDate.Format("2006-01-02")
 	}
 	return page1
 }
