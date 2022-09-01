@@ -6358,6 +6358,14 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -6496,6 +6504,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         },
         "weightTickets": {
           "type": "array",
@@ -7718,6 +7730,10 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -15499,6 +15515,14 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -15637,6 +15661,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         },
         "weightTickets": {
           "type": "array",
@@ -16866,6 +16894,10 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         }
       }
     },
