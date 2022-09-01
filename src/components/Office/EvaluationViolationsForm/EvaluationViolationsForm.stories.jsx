@@ -10,8 +10,10 @@ export default {
   component: EvaluationViolationsForm,
   decorators: [
     (Story) => (
-      <MemoryRouter initialEntries={['/moves/AMDORD/customer-support-remarks']}>
-        <Route path="/moves/:moveCode/customer-support-remarks">
+      <MemoryRouter
+        initialEntries={['/moves/REWAYD/evaluation-reports/09132c3b-3ffe-41ec-9393-16e6f074adf7/violations']}
+      >
+        <Route path="/moves/:moveCode/evaluation-reports/:reportId/violations">
           <MockProviders>
             <div style={{ padding: '40px', width: '950px', minWidth: '950px' }}>
               <Story />
