@@ -85,6 +85,8 @@ type PPMShipment struct {
 	SubmittedAt                    *time.Time           `json:"submitted_at" db:"submitted_at"`
 	ReviewedAt                     *time.Time           `json:"reviewed_at" db:"reviewed_at"`
 	ApprovedAt                     *time.Time           `json:"approved_at" db:"approved_at"`
+	W2Address                      *Address             `belongs_to:"addresses" fk_id:"w2_address_id"`
+	W2AddressID                    *uuid.UUID           `db:"w2_address_id"`
 	PickupPostalCode               string               `json:"pickup_postal_code" db:"pickup_postal_code"`
 	SecondaryPickupPostalCode      *string              `json:"secondary_pickup_postal_code" db:"secondary_pickup_postal_code"`
 	ActualPickupPostalCode         *string              `json:"actual_pickup_postal_code" db:"actual_pickup_postal_code"`
@@ -97,6 +99,7 @@ type PPMShipment struct {
 	ProGearWeight                  *unit.Pound          `json:"pro_gear_weight" db:"pro_gear_weight"`
 	SpouseProGearWeight            *unit.Pound          `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
 	EstimatedIncentive             *unit.Cents          `json:"estimated_incentive" db:"estimated_incentive"`
+	FinalIncentive                 *unit.Cents          `json:"final_incentive" db:"final_incentive"`
 	HasRequestedAdvance            *bool                `json:"has_requested_advance" db:"has_requested_advance"`
 	AdvanceAmountRequested         *unit.Cents          `json:"advance_amount_requested" db:"advance_amount_requested"`
 	HasReceivedAdvance             *bool                `json:"has_received_advance" db:"has_received_advance"`
@@ -111,6 +114,7 @@ type PPMShipment struct {
 	WeightTickets                  WeightTickets        `has_many:"weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	MovingExpenses                 MovingExpenses       `has_many:"moving_expenses" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	ProgearExpenses                ProgearWeightTickets `has_many:"progear_weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
+	SignedCertifications           SignedCertifications `has_many:"signed_certifications" fk_id:"ppm_id" order_by:"created_at desc"`
 }
 
 // PPMShipments is a list of PPMs

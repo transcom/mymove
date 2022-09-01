@@ -38,7 +38,7 @@ const ViolationsAccordion = ({ violations, onChange, selected }) => {
 
           {/* Checkbox label */}
           <div className={styles.grow} id={`${violation.id}-checkbox-label`}>
-            <h5 className={styles.checkboxLabel}>{`${violation.paragraphNumber} ${violation.title}`}</h5>
+            <h5>{`${violation.paragraphNumber} ${violation.title}`}</h5>
             <small>{violation.requirementSummary}</small>
           </div>
 

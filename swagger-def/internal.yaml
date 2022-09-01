@@ -1574,6 +1574,8 @@ definitions:
         type: string
         format: uuid
         x-nullable: true
+      ppm_id:
+        $ref: 'definitions/PpmID.yaml'
       certification_type:
         $ref: '#/definitions/SignedCertificationType'
     required:
@@ -1600,6 +1602,8 @@ definitions:
         type: string
         format: uuid
         x-nullable: true
+      ppm_id:
+        $ref: 'definitions/PpmID.yaml'
       certification_type:
         $ref: '#/definitions/SignedCertificationTypeCreate'
     required:
@@ -2599,6 +2603,17 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      w2Address:
+        x-nullable: true
+        $ref: 'definitions/Address.yaml'
+      finalIncentive:
+        description: >
+          The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+        readOnly: true
       sitExpected:
         type: boolean
         x-nullable: true

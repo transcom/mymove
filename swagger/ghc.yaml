@@ -3910,6 +3910,9 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      w2Address:
+        x-nullable: true
+        $ref: '#/definitions/Address'
       sitExpected:
         type: boolean
         x-nullable: true
@@ -5639,6 +5642,9 @@ definitions:
         readOnly: true
       status:
         $ref: '#/definitions/PPMShipmentStatus'
+      w2Address:
+        x-nullable: true
+        $ref: '#/definitions/Address'
       advanceStatus:
         $ref: '#/definitions/PPMAdvanceStatus'
       expectedDepartureDate:
@@ -5750,6 +5756,15 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      finalIncentive:
+        description: >
+          The final calculated incentive for the PPM shipment. This does not
+          include **SIT** as it is a reimbursement.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+        readOnly: true
       hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
