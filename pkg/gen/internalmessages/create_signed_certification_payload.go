@@ -35,6 +35,10 @@ type CreateSignedCertificationPayload struct {
 	// Format: uuid
 	PersonallyProcuredMoveID *strfmt.UUID `json:"personally_procured_move_id,omitempty"`
 
+	// ppm id
+	// Format: uuid
+	PpmID *PpmID `json:"ppm_id,omitempty"`
+
 	// Signature
 	// Required: true
 	Signature *string `json:"signature"`
@@ -57,6 +61,10 @@ func (m *CreateSignedCertificationPayload) Validate(formats strfmt.Registry) err
 	}
 
 	if err := m.validatePersonallyProcuredMoveID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePpmID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -123,6 +131,25 @@ func (m *CreateSignedCertificationPayload) validatePersonallyProcuredMoveID(form
 	return nil
 }
 
+func (m *CreateSignedCertificationPayload) validatePpmID(formats strfmt.Registry) error {
+	if swag.IsZero(m.PpmID) { // not required
+		return nil
+	}
+
+	if m.PpmID != nil {
+		if err := m.PpmID.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppm_id")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppm_id")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *CreateSignedCertificationPayload) validateSignature(formats strfmt.Registry) error {
 
 	if err := validate.Required("signature", "body", m.Signature); err != nil {
@@ -140,6 +167,10 @@ func (m *CreateSignedCertificationPayload) ContextValidate(ctx context.Context, 
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePpmID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -154,6 +185,22 @@ func (m *CreateSignedCertificationPayload) contextValidateCertificationType(ctx 
 				return ve.ValidateName("certification_type")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("certification_type")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateSignedCertificationPayload) contextValidatePpmID(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PpmID != nil {
+		if err := m.PpmID.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ppm_id")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("ppm_id")
 			}
 			return err
 		}
