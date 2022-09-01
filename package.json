@@ -125,6 +125,7 @@
     "@jackfranklin/test-data-bot": "^2.0.0",
     "@stoplight/spectral-cli": "^6.5.1",
     "@storybook/addon-a11y": "^6.5.10",
+    "@storybook/addon-actions": "6.5.10",
     "@storybook/addon-essentials": "^6.5.10",
     "@storybook/addon-knobs": "^6.4.0",
     "@storybook/addon-links": "^6.5.10",
