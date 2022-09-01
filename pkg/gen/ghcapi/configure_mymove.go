@@ -50,6 +50,7 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 
 	api.JSONConsumer = runtime.JSONConsumer()
 
+	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
 
 	if api.MoveTaskOrderUpdateMTOReviewedBillableWeightsAtHandler == nil {
@@ -125,6 +126,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ShipmentDenySITExtensionHandler == nil {
 		api.ShipmentDenySITExtensionHandler = shipment.DenySITExtensionHandlerFunc(func(params shipment.DenySITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DenySITExtension has not yet been implemented")
+		})
+	}
+	if api.EvaluationReportsDownloadEvaluationReportHandler == nil {
+		api.EvaluationReportsDownloadEvaluationReportHandler = evaluation_reports.DownloadEvaluationReportHandlerFunc(func(params evaluation_reports.DownloadEvaluationReportParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.DownloadEvaluationReport has not yet been implemented")
 		})
 	}
 	if api.MtoAgentFetchMTOAgentListHandler == nil {

@@ -552,6 +552,56 @@ func init() {
         }
       ]
     },
+    "/evaluation-reports/{reportID}/download": {
+      "get": {
+        "description": "Gets an evaluation report by ID",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Gets a pdf",
+        "operationId": "downloadEvaluationReport",
+        "responses": {
+          "200": {
+            "description": "Pre-filled worksheet PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "Gets a move",
@@ -8892,6 +8942,68 @@ func init() {
         "x-permissions": [
           "delete.evaluationReport"
         ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/evaluation-reports/{reportID}/download": {
+      "get": {
+        "description": "Gets an evaluation report by ID",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Gets a pdf",
+        "operationId": "downloadEvaluationReport",
+        "responses": {
+          "200": {
+            "description": "Pre-filled worksheet PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
       },
       "parameters": [
         {

@@ -18,6 +18,7 @@
 //    - application/json
 //
 //  Produces:
+//    - application/pdf
 //    - application/json
 //
 // swagger:meta
