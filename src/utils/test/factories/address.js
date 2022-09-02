@@ -15,7 +15,7 @@ export const ADDRESS_FIELDS = {
   COUNTRY: 'country',
 };
 
-const addressFactory = build({
+export const addressFactory = build({
   fields: {
     [ADDRESS_FIELDS.STREET_ADDRESS_1]: fake((f) => f.address.streetAddress()),
     [ADDRESS_FIELDS.STREET_ADDRESS_2]: fake((f) => f.address.secondaryAddress()),
@@ -56,5 +56,3 @@ const addressFactory = build({
     return address;
   },
 });
-
-export default addressFactory;

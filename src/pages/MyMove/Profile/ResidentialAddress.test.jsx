@@ -10,7 +10,7 @@ import ConnectedResidentialAddress, { ResidentialAddress } from 'pages/MyMove/Pr
 import { customerRoutes } from 'constants/routes';
 import { patchServiceMember } from 'services/internalApi';
 import { ValidateZipRateData } from 'shared/api';
-import addressFactory, { ADDRESS_WITHOUT_COUNTRY } from 'utils/test/factories/address';
+import { addressFactory, ADDRESS_WITHOUT_COUNTRY } from 'utils/test/factories/address';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
