@@ -16933,10 +16933,10 @@ ra-core@^4.2.7:
     react-is "^17.0.2"
     react-query "^3.32.1"
 
-ra-data-simple-rest@^4.2.7:
-  version "4.2.7"
-  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.2.7.tgz#165703e8e18d999992fa1467142010e6e3763bff"
-  integrity sha512-RxGfEnlw02IYZWq18fdNZyamVjFNwSrXITBFSrBNB0A2yX9ssjFSTcyX4Akq9LkN9rJfXcaC+jcTwKzZwCes2g==
+ra-data-simple-rest@^4.3.1:
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.3.1.tgz#8120466c1e65f73e83f53c2dbd3424b41568b75d"
+  integrity sha512-gNM+I34W/9saGVw6TMUW/xBs4pOiMaAiT1FTmvB7QEDLzgjKw2NPip5vs2FG6l3D/DvvafgxPlXycWY1ek8mAQ==
   dependencies:
     query-string "^7.1.1"
 
@@ -18382,10 +18382,10 @@ sass-loader@^12.3.0:
     klona "^2.0.4"
     neo-async "^2.6.2"
 
-sass@^1.54.4:
-  version "1.54.4"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.54.4.tgz#803ff2fef5525f1dd01670c3915b4b68b6cba72d"
-  integrity sha512-3tmF16yvnBwtlPrNBHw/H907j8MlOX8aTBnlNX1yrKx24RKcJGPyLhFUwkoKBKesR3unP93/2z14Ll8NicwQUA==
+sass@^1.54.8:
+  version "1.54.8"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.54.8.tgz#4adef0dd86ea2b1e4074f551eeda4fc5f812a996"
+  integrity sha512-ib4JhLRRgbg6QVy6bsv5uJxnJMTS2soVcCp9Y88Extyy13A8vV0G1fAwujOzmNkFQbR3LvedudAMbtuNRPbQww==
   dependencies:
     chokidar ">=3.0.0 <4.0.0"
     immutable "^4.0.0"
