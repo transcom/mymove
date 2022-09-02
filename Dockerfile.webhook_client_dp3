@@ -10,7 +10,7 @@ USER root
 
 # Demo Environment Certs
 COPY config/tls/api.demo.dp3.us.chain.der.p7b /tmp/api.demo.dp3.us.chain.der.p7b
-RUN openssl pkcs7 -print_certs -inform der -in /tmp/api.demo.dp3.us.p7b -out /usr/local/share/ca-certificates/api.demo.dp3.us.crt
+RUN openssl pkcs7 -print_certs -inform der -in /tmp/api.demo.dp3.us.chain.der.p7b -out /usr/local/share/ca-certificates/api.demo.dp3.us.chain.der.crt
 # Loadtesting Environment Certs
 COPY config/tls/api.loadtest.dp3.us.chain.der.p7b /tmp/api.loadtest.dp3.us.chain.der.p7b
 RUN openssl pkcs7 -print_certs -inform der -in /tmp/api.loadtest.dp3.us.chain.der.p7b -out /usr/local/share/ca-certificates/api.loadtest.dp3.us.chain.der.crt
