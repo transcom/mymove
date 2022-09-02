@@ -16917,10 +16917,10 @@ ra-core@^3.19.11:
     query-string "^5.1.1"
     reselect "~3.0.0"
 
-ra-core@^4.2.7:
-  version "4.2.7"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.2.7.tgz#56f23f6ab5c5eab9d09ea6d74c07d6daae2c60ea"
-  integrity sha512-DFrQXsajMv95d2juhXpArDz2I7FVU6x8YtaJpmGaFsClGYK3qcMOfE+duVFdxpihczsihg4YSPumsvNtdtlg6w==
+ra-core@^4.3.1:
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.3.1.tgz#60fa53354b20d54b0f05be37e79b7ae21be64638"
+  integrity sha512-wkXesrhwhLMAgdGpDKCtEMHUqJ7NkyPL9VJiQjtnCmV3KGvSVEJn0ZdEL5aKjwtzNDgGHKa3U/mCQHX16sbaSw==
   dependencies:
     clsx "^1.1.1"
     date-fns "^2.19.0"
@@ -16955,12 +16955,12 @@ ra-language-english@^3.19.11:
   dependencies:
     ra-core "^3.19.11"
 
-ra-language-english@^4.2.7:
-  version "4.2.7"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.2.7.tgz#ec5ce1b66e37f87a30748dff84c1af182ddffaf2"
-  integrity sha512-Kp2VdgX5U1HkMS7UT5XnXz75KFCVGm/+vzoqKWG2I4EADXb3xEw2cIQ7P4eQnmK8it+DqU7V7zuNQMA3eYdAEA==
+ra-language-english@^4.3.1:
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.3.1.tgz#6e00a42f8e099247434834cc0cf9ec7c0b9a16a5"
+  integrity sha512-KJHFgynXUS/UeFIZtxzMBjY+1I/tdPcCplki6VXT6pHr/8NEdhvSxvu8QRZRWHOfsz6IK1Mxj76r6iLCik81tg==
   dependencies:
-    ra-core "^4.2.7"
+    ra-core "^4.3.1"
 
 ra-ui-materialui@^3.19.11:
   version "3.19.11"
@@ -18382,10 +18382,10 @@ sass-loader@^12.3.0:
     klona "^2.0.4"
     neo-async "^2.6.2"
 
-sass@^1.54.4:
-  version "1.54.4"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.54.4.tgz#803ff2fef5525f1dd01670c3915b4b68b6cba72d"
-  integrity sha512-3tmF16yvnBwtlPrNBHw/H907j8MlOX8aTBnlNX1yrKx24RKcJGPyLhFUwkoKBKesR3unP93/2z14Ll8NicwQUA==
+sass@^1.54.8:
+  version "1.54.8"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.54.8.tgz#4adef0dd86ea2b1e4074f551eeda4fc5f812a996"
+  integrity sha512-ib4JhLRRgbg6QVy6bsv5uJxnJMTS2soVcCp9Y88Extyy13A8vV0G1fAwujOzmNkFQbR3LvedudAMbtuNRPbQww==
   dependencies:
     chokidar ">=3.0.0 <4.0.0"
     immutable "^4.0.0"
