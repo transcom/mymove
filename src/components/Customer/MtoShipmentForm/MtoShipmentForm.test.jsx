@@ -10,6 +10,8 @@ import MtoShipmentForm from './MtoShipmentForm';
 import { customerRoutes } from 'constants/routes';
 import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import serviceMemberBuilder from 'utils/test/factories/serviceMember';
+import { TOTAL_WEIGHT_SELF, TOTAL_WEIGHT_SELF_PLUS_DEPENDENTS } from 'constants/weightEntitlements';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -44,12 +46,14 @@ const defaultProps = {
     streetAddress1: '123 Main',
     streetAddress2: '',
   },
-  serviceMember: {
-    weight_allotment: {
-      total_weight_self: 5000,
-      total_weight_self_plus_dependents: 8000,
+  serviceMember: serviceMemberBuilder({
+    overrides: {
+      weight_allotment: {
+        [TOTAL_WEIGHT_SELF]: 5000,
+        [TOTAL_WEIGHT_SELF_PLUS_DEPENDENTS]: 8000,
+      },
     },
-  },
+  }),
   orders: {
     orders_type: 'PERMANENT_CHANGE_OF_STATION',
     has_dependents: false,

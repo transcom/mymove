@@ -8,6 +8,11 @@ import ConnectedBackupContact, { BackupContact } from './BackupContact';
 
 import { MockProviders } from 'testUtils';
 import { createBackupContactForServiceMember, patchBackupContact, getServiceMember } from 'services/internalApi';
+import serviceMemberBuilder, {
+  HAS_BACKUP_CONTACTS,
+  HAS_BACKUP_MAILING_ADDRESS,
+  HAS_CURRENT_LOCATION,
+} from 'utils/test/factories/serviceMember';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -17,14 +22,13 @@ jest.mock('services/internalApi', () => ({
 }));
 
 describe('BackupContact page', () => {
+  const serviceMember = serviceMemberBuilder();
   const testProps = {
     updateServiceMember: jest.fn(),
     updateBackupContact: jest.fn(),
     push: jest.fn(),
-    serviceMember: {
-      id: 'testServiceMemberId',
-    },
     currentBackupContacts: [],
+    ...serviceMember,
   };
 
   const testBackupContactValues = {
@@ -184,14 +188,14 @@ describe('requireCustomerState BackupContact', () => {
     useDispatchMock.mockReturnValue(mockDispatch);
   });
 
+  let serviceMember = serviceMemberBuilder({ traits: HAS_CURRENT_LOCATION });
+
   const props = {
     updateServiceMember: jest.fn(),
     updateBackupContact: jest.fn(),
     push: jest.fn(),
-    serviceMember: {
-      id: 'testServiceMemberId',
-    },
     currentBackupContacts: [],
+    ...serviceMember,
   };
 
   it('dispatches a redirect if the current state is earlier than the "BACKUP MAILING ADDRESS COMPLETE" state', async () => {
@@ -201,27 +205,11 @@ describe('requireCustomerState BackupContact', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            service_member: serviceMember.id,
           },
         },
         serviceMembers: {
-          testServiceMemberId: {
-            id: 'testServiceMemberId',
-            rank: 'test rank',
-            edipi: '1234567890',
-            affiliation: 'ARMY',
-            first_name: 'Tester',
-            last_name: 'Testperson',
-            telephone: '1234567890',
-            personal_email: 'test@example.com',
-            email_is_preferred: true,
-            current_location: {
-              id: 'testDutyLocationId',
-            },
-            residential_address: {
-              street: '123 Main St',
-            },
-          },
+          [serviceMember.id]: serviceMember,
         },
       },
     };
@@ -240,6 +228,7 @@ describe('requireCustomerState BackupContact', () => {
   });
 
   it('does not redirect if the current state equals the "BACKUP MAILING ADDRESS COMPLETE" state', async () => {
+    serviceMember = serviceMemberBuilder({ traits: [HAS_CURRENT_LOCATION, HAS_BACKUP_MAILING_ADDRESS] });
     const mockState = {
       entities: {
         user: {
@@ -250,26 +239,7 @@ describe('requireCustomerState BackupContact', () => {
           },
         },
         serviceMembers: {
-          testServiceMemberId: {
-            id: 'testServiceMemberId',
-            rank: 'test rank',
-            edipi: '1234567890',
-            affiliation: 'ARMY',
-            first_name: 'Tester',
-            last_name: 'Testperson',
-            telephone: '1234567890',
-            personal_email: 'test@example.com',
-            email_is_preferred: true,
-            current_location: {
-              id: 'testDutyLocationId',
-            },
-            residential_address: {
-              street: '123 Main St',
-            },
-            backup_mailing_address: {
-              street: '456 Main St',
-            },
-          },
+          [serviceMember.id]: serviceMember,
         },
       },
     };
@@ -288,6 +258,9 @@ describe('requireCustomerState BackupContact', () => {
   });
 
   it('does redirect if the profile is complete', async () => {
+    serviceMember = serviceMemberBuilder({
+      traits: [HAS_CURRENT_LOCATION, HAS_BACKUP_MAILING_ADDRESS, HAS_BACKUP_CONTACTS],
+    });
     const mockState = {
       entities: {
         user: {
@@ -298,31 +271,7 @@ describe('requireCustomerState BackupContact', () => {
           },
         },
         serviceMembers: {
-          testServiceMemberId: {
-            id: 'testServiceMemberId',
-            rank: 'test rank',
-            edipi: '1234567890',
-            affiliation: 'ARMY',
-            first_name: 'Tester',
-            last_name: 'Testperson',
-            telephone: '1234567890',
-            personal_email: 'test@example.com',
-            email_is_preferred: true,
-            current_location: {
-              id: 'testDutyLocationId',
-            },
-            residential_address: {
-              street: '123 Main St',
-            },
-            backup_mailing_address: {
-              street: '456 Main St',
-            },
-            backup_contacts: [
-              {
-                id: 'testBackupContact',
-              },
-            ],
-          },
+          [serviceMember.id]: serviceMember,
         },
       },
     };

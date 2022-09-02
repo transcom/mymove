@@ -15,6 +15,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
 import { roleTypes } from 'constants/userRoles';
+import { TOTAL_WEIGHT_SELF } from 'constants/weightEntitlements';
 
 const EditShipmentDetails = ({ match }) => {
   const { moveCode, shipmentId } = useParams();
@@ -34,7 +35,7 @@ const EditShipmentDetails = ({ match }) => {
   const { customer, entitlement: allowances } = order;
 
   const matchingShipment = mtoShipments?.filter((shipment) => shipment.id === shipmentId)[0];
-  const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
+  const weightAllotment = { ...allowances, [TOTAL_WEIGHT_SELF]: allowances.authorizedWeight };
 
   const TACs = {
     HHG: order.tac,

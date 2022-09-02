@@ -5,6 +5,7 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { within, userEvent, waitFor } from '@storybook/testing-library';
 
 import EstimatedWeightsProGearForm from 'components/Customer/PPM/Booking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm';
+import { TOTAL_WEIGHT_SELF_PLUS_DEPENDENTS } from 'constants/weightEntitlements';
 
 export default {
   title: 'Customer Components / PPM Booking / Estimated Weights and Pro-gear',
@@ -33,7 +34,7 @@ BlankEstimatedWeightsProGear.args = {
   },
   serviceMember: {
     weight_allotment: {
-      total_weight_self_plus_dependents: 8000,
+      [TOTAL_WEIGHT_SELF_PLUS_DEPENDENTS]: 8000,
     },
   },
 };
@@ -47,7 +48,7 @@ WarningForOverweightEstimatedWeightProGear.args = {
   },
   serviceMember: {
     weight_allotment: {
-      total_weight_self_plus_dependents: 5000,
+      [TOTAL_WEIGHT_SELF_PLUS_DEPENDENTS]: 5000,
     },
   },
   mtoShipment: {
@@ -68,7 +69,7 @@ MTOShipmentEstimatedWeightProGear.args = {
   },
   serviceMember: {
     weight_allotment: {
-      total_weight_self_plus_dependents: 5000,
+      [TOTAL_WEIGHT_SELF_PLUS_DEPENDENTS]: 5000,
     },
   },
   mtoShipment: {
@@ -92,7 +93,7 @@ ErrorEstimatedWeightsProGear.args = {
   },
   serviceMember: {
     weight_allotment: {
-      total_weight_self_plus_dependents: 5000,
+      [TOTAL_WEIGHT_SELF_PLUS_DEPENDENTS]: 5000,
     },
   },
 };

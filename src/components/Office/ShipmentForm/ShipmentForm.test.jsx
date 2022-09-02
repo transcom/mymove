@@ -9,6 +9,8 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
 import { ppmShipmentStatuses } from 'constants/shipments';
+import serviceMemberBuilder from 'utils/test/factories/serviceMember';
+import { TOTAL_WEIGHT_SELF } from 'constants/weightEntitlements';
 
 const mockPush = jest.fn();
 
@@ -38,11 +40,13 @@ const defaultProps = {
     streetAddress1: '123 Main',
     streetAddress2: '',
   },
-  serviceMember: {
-    weightAllotment: {
-      totalWeightSelf: 5000,
+  serviceMember: serviceMemberBuilder({
+    overrides: {
+      weight_allotment: {
+        [TOTAL_WEIGHT_SELF]: 5000,
+      },
     },
-  },
+  }),
   moveTaskOrderID: 'mock move id',
   mtoShipments: [],
   userRole: roleTypes.SERVICES_COUNSELOR,

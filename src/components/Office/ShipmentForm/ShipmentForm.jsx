@@ -145,7 +145,7 @@ const ShipmentForm = (props) => {
   if (isPPM) {
     schema = ppmShipmentSchema({
       estimatedIncentive: initialValues.estimatedIncentive || 0,
-      weightAllotment: serviceMember.weightAllotment,
+      weightAllotment: serviceMember.weight_allotment,
       advanceAmountRequested: mtoShipment.ppmShipment?.advanceAmountRequested,
       hasRequestedAdvance: mtoShipment.ppmShipment?.hasRequestedAdvance,
       isAdvancePage,
@@ -373,7 +373,7 @@ const ShipmentForm = (props) => {
               <SectionWrapper className={styles.weightAllowance}>
                 <p>
                   <strong>Weight allowance: </strong>
-                  {formatWeight(serviceMember.weightAllotment.totalWeightSelf)}
+                  {formatWeight(serviceMember.weight_allotment.total_weight_self)}
                 </p>
               </SectionWrapper>
 
@@ -541,7 +541,7 @@ const ShipmentForm = (props) => {
                       dutyZip={newDutyLocationAddress.postalCode}
                     />
                     <ShipmentCustomerSIT />
-                    <ShipmentWeight authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()} />
+                    <ShipmentWeight authorizedWeight={serviceMember.weight_allotment.total_weight_self.toString()} />
                   </>
                 )}
 
