@@ -94,13 +94,13 @@ const EvaluationViolationsForm = ({ violations }) => {
                 </Grid>
               </Grid>
 
-              <Grid row>
+              <Grid row className={styles.evalViolationsSection}>
                 <Grid col>
                   <div>
-                    <h5>Optional</h5>
                     {kpiDates.includes('Observed Claim Response Date (Or None)') && (
                       <DatePickerInput
-                        label="Observed claim response date (optional)"
+                        label="Observed claims response date..............Optional"
+                        required={false}
                         name="observedClaimDate"
                         hint="Only enter a date here if the claim has a response."
                       />
@@ -123,7 +123,7 @@ const EvaluationViolationsForm = ({ violations }) => {
                     {kpiDates.includes(
                       'QAE Observed Pickup Spread Start (Date); QAE Observed Pickup Spread End (Date)',
                     ) && (
-                      <DatePickerInput label="Observed pickup spread End date" name="observedpickupEndDateScheduling" />
+                      <DatePickerInput label="Observed pickup spread end date" name="observedpickupEndDateScheduling" />
                     )}
                   </div>
                 </Grid>

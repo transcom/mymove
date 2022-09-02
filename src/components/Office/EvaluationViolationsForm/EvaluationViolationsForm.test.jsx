@@ -52,6 +52,12 @@ describe('EvaluationViolationsForm', () => {
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save draft' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Review and submit' })).toBeInTheDocument();
+
+      // Date pickers should not be shown by default
+      expect(screen.queryByText('Observed claims response date')).not.toBeInTheDocument();
+      expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
+      expect(screen.queryByText('Observed pickup spread start date')).not.toBeInTheDocument();
+      expect(screen.queryByText('Observed pickup spread end date')).not.toBeInTheDocument();
     });
   });
 

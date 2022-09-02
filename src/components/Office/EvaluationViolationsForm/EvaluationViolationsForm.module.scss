@@ -27,6 +27,14 @@
   }
 }
 
+.evalViolationsSection {
+  :global {
+    .usa-label {
+      @include u-font-weight(400);
+    }
+  }
+}
+
 .backToEvalButton {
   @include u-padding(0);
 }
