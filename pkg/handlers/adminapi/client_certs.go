@@ -22,6 +22,7 @@ func payloadForClientCertModel(o models.ClientCert) *adminmessages.ClientCert {
 		ID:                          *handlers.FmtUUID(o.ID),
 		Sha256Digest:                o.Sha256Digest,
 		Subject:                     o.Subject,
+		UserID:                      *handlers.FmtUUID(o.UserID),
 		CreatedAt:                   *handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:                   *handlers.FmtDateTime(o.UpdatedAt),
 		AllowOrdersAPI:              o.AllowOrdersAPI,
@@ -121,18 +122,17 @@ func (h GetClientCertHandler) Handle(params clientcertop.GetClientCertParams) mi
 type CreateClientCertHandler struct {
 	handlers.HandlerConfig
 	services.ClientCertCreator
-	services.NewQueryFilter
 }
 
-// Handle creates an admin user
+// Handle creates a client certificate
 func (h CreateClientCertHandler) Handle(params clientcertop.CreateClientCertParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			payload := params.ClientCert
 
 			clientCert := models.ClientCert{
-				Sha256Digest:                payload.Sha256Digest,
-				Subject:                     payload.Subject,
+				Sha256Digest:                *payload.Sha256Digest,
+				Subject:                     *payload.Subject,
 				AllowOrdersAPI:              payload.AllowOrdersAPI,
 				AllowAirForceOrdersRead:     payload.AllowAirForceOrdersRead,
 				AllowAirForceOrdersWrite:    payload.AllowAirForceOrdersWrite,
@@ -150,7 +150,7 @@ func (h CreateClientCertHandler) Handle(params clientcertop.CreateClientCertPara
 			createdClientCert, verrs, err := h.ClientCertCreator.CreateClientCert(appCtx, &clientCert)
 			if err != nil || verrs != nil {
 				appCtx.Logger().Error("Error saving user", zap.Error(err), zap.Error(verrs))
-				return clientcertop.NewCreateClientCertInternalServerError(), err
+				return handlers.ResponseForConflictErrors(appCtx.Logger(), err), err
 			}
 
 			_, err = audit.Capture(appCtx, createdClientCert, nil, params.HTTPRequest)

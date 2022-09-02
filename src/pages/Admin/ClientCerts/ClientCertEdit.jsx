@@ -14,6 +14,7 @@ const ClientCertEdit = (props) => (
       <TextInput source="id" disabled />
       <TextInput source="subject" disabled />
       <TextInput source="sha256Digest" disabled />
+      <TextInput source="user_id" disabled />
       <SelectInput
         source="allowDpsAuthAPI"
         choices={[

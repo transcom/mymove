@@ -78,6 +78,11 @@ type ClientCert struct {
 	// updated at
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+
+	// user Id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Format: uuid
+	UserID strfmt.UUID `json:"userId,omitempty"`
 }
 
 // Validate validates this client cert
@@ -93,6 +98,10 @@ func (m *ClientCert) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUserID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -132,6 +141,18 @@ func (m *ClientCert) validateUpdatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ClientCert) validateUserID(formats strfmt.Registry) error {
+	if swag.IsZero(m.UserID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("userId", "body", "uuid", m.UserID.String(), formats); err != nil {
 		return err
 	}
 

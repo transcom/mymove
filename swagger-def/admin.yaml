@@ -208,6 +208,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      userId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       sha256Digest:
         type: string
         example: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
@@ -605,6 +609,9 @@ definitions:
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
   ClientCertCreatePayload:
     type: object
+    required:
+      - sha256Digest
+      - subject
     properties:
       sha256Digest:
         type: string

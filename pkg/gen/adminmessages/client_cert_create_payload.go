@@ -8,8 +8,10 @@ package adminmessages
 import (
 	"context"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ClientCertCreatePayload client cert create payload
@@ -55,15 +57,48 @@ type ClientCertCreatePayload struct {
 
 	// sha256 digest
 	// Example: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
-	Sha256Digest string `json:"sha256Digest,omitempty"`
+	// Required: true
+	Sha256Digest *string `json:"sha256Digest"`
 
 	// subject
 	// Example: CN=example-user,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US
-	Subject string `json:"subject,omitempty"`
+	// Required: true
+	Subject *string `json:"subject"`
 }
 
 // Validate validates this client cert create payload
 func (m *ClientCertCreatePayload) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateSha256Digest(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSubject(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ClientCertCreatePayload) validateSha256Digest(formats strfmt.Registry) error {
+
+	if err := validate.Required("sha256Digest", "body", m.Sha256Digest); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ClientCertCreatePayload) validateSubject(formats strfmt.Registry) error {
+
+	if err := validate.Required("subject", "body", m.Subject); err != nil {
+		return err
+	}
+
 	return nil
 }
 

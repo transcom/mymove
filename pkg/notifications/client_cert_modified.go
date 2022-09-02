@@ -12,7 +12,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-
 	"github.com/transcom/mymove/pkg/assets"
 )
 

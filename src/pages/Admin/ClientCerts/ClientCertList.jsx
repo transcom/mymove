@@ -5,8 +5,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 const ClientCertListFilter = (props) => (
+  // eslint-disable-next-line react/jsx-props-no-spreading
   <Filter {...props}>
-    <TextInput source="search" alwaysOn />
+    <TextInput labl="Search by Cert Subject" source="search" resettable alwaysOn />
   </Filter>
 );
 
@@ -21,10 +22,11 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const ClientCertList = ({ ...props }) => {
+const ClientCertList = (props) => {
   const classes = useStyles();
   return (
     <List
+      // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
       pagination={<AdminPagination />}
       perPage={25}
@@ -34,7 +36,6 @@ const ClientCertList = ({ ...props }) => {
     >
       <Datagrid rowClick="show">
         <TextField cellClassName={classes.tableCell} source="subject" />
-        <BooleanField source="allowDpsAuthAPI" label="Allow DPS Auth API" />
         <BooleanField source="allowOrdersAPI" label="Allow Orders API" />
         <BooleanField source="allowAirForceOrdersRead" />
         <BooleanField source="allowAirForceOrdersWrite" />
@@ -49,6 +50,7 @@ const ClientCertList = ({ ...props }) => {
         <BooleanField source="allowPrime" />
         <TextField source="id" />
         <TextField source="sha256Digest" />
+        <TextField source="userId" />
       </Datagrid>
     </List>
   );
