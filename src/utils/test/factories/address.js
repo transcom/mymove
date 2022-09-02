@@ -6,23 +6,32 @@ import fake from 'utils/test/factories/base';
 export const BLANK_ADDRESS = 'blank';
 export const ADDRESS_WITHOUT_COUNTRY = 'omitCountry';
 
+export const ADDRESS_FIELDS = {
+  STREET_ADDRESS_1: 'streetAddress1',
+  STREET_ADDRESS_2: 'streetAddress2',
+  CITY: 'city',
+  STATE: 'state',
+  POSTAL_CODE: 'postalCode',
+  COUNTRY: 'country',
+};
+
 const addressFactory = build({
   fields: {
-    streetAddress1: fake((f) => f.address.streetAddress()),
-    streetAddress2: fake((f) => f.address.secondaryAddress()),
+    [ADDRESS_FIELDS.STREET_ADDRESS_1]: fake((f) => f.address.streetAddress()),
+    [ADDRESS_FIELDS.STREET_ADDRESS_2]: fake((f) => f.address.secondaryAddress()),
     // left out streetAddress3 since we don't even let users input that line...
-    city: fake((f) => f.address.city()),
-    state: fake((f) => f.address.stateAbbr()),
-    country: 'US', // Likely change once we support more than just CONUS moves.
+    [ADDRESS_FIELDS.CITY]: fake((f) => f.address.city()),
+    [ADDRESS_FIELDS.STATE]: fake((f) => f.address.stateAbbr()),
+    [ADDRESS_FIELDS.COUNTRY]: 'US', // Likely change once we support more than just CONUS moves.
   },
   traits: {
     [BLANK_ADDRESS]: {
       overrides: {
-        streetAddress1: '',
-        streetAddress2: '',
-        city: '',
-        state: '',
-        country: '',
+        [ADDRESS_FIELDS.STREET_ADDRESS_1]: '',
+        [ADDRESS_FIELDS.STREET_ADDRESS_2]: '',
+        [ADDRESS_FIELDS.CITY]: '',
+        [ADDRESS_FIELDS.STATE]: '',
+        [ADDRESS_FIELDS.COUNTRY]: '',
       },
     },
     [ADDRESS_WITHOUT_COUNTRY]: {
