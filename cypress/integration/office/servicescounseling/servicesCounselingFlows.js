@@ -187,7 +187,7 @@ describe('Services counselor user', () => {
       cy.get('[data-testid="scAllowancesSave"]').should('be.enabled').click();
     });
 
-    cy.wait(['@patchAllowances']);
+    cy.wait(['@patchAllowances']).its('response.statusCode').should('eq', 200);
 
     // Verify edited values are saved
     cy.url().should('include', `/moves/${moveLocator}/details`);
