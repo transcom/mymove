@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 import 'styles/office.scss';
 import { GridContainer, Grid, Button, Radio, FormGroup, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 import { useParams, useHistory, useLocation } from 'react-router';
-import { useMutation } from 'react-query';
+import { useMutation, queryCache } from 'react-query';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import classnames from 'classnames';
@@ -27,12 +27,24 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
   const location = useLocation();
 
   const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport);
-  const [submitEvaluationReportMutation] = useMutation(submitEvaluationReport);
+  const [submitEvaluationReportMutation] = useMutation(submitEvaluationReport, {
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+    onSuccess: () => {
+      // Reroute back to eval report page, include flag to show success alert
+      history.push(`/moves/${moveCode}/evaluation-reports`, { showSubmitSuccess: true });
+    },
+  });
 
   const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+    onSuccess: () => {
+      queryCache.refetchQueries(['evaluationReport']).then();
     },
   });
 
@@ -66,11 +78,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
     setIsSubmitModalOpen(!isSubmitModalOpen);
 
     // mark as submitted in the DB
-    await submitEvaluationReportMutation(reportId);
-
-    // Reroute back to eval report page, include flag to show success alert
-    // TODO: what happens on failure?
-    history.push(`/moves/${moveCode}/evaluation-reports`, { showSubmitSuccess: true });
+    await submitEvaluationReportMutation({ reportID: reportId, ifMatchETag: evaluationReport.eTag });
   };
 
   const convertToMinutes = (hours, minutes) => {

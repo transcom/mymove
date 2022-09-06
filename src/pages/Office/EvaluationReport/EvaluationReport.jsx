@@ -12,8 +12,6 @@ import evaluationReportStyles from './EvaluationReport.module.scss';
 import EvaluationForm from 'components/Office/EvaluationForm/EvaluationForm';
 import { useEvaluationReportShipmentListQueries } from 'hooks/queries';
 import { CustomerShape } from 'types';
-import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
-import EvaluationReportMoveInfo from 'components/Office/EvaluationReportMoveInfo/EvaluationReportMoveInfo';
 import EvaluationReportShipmentInfo from 'components/Office/EvaluationReportShipmentInfo/EvaluationReportShipmentInfo';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -29,33 +27,31 @@ const EvaluationReport = ({ customerInfo, grade }) => {
   if (isError) {
     return <SomethingWentWrong />;
   }
-  const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
-  let singleShipment = null;
-
-  if (isShipment) {
-    const { shipmentID } = evaluationReport.shipmentID;
-    singleShipment = [mtoShipments.find((shipment) => shipment.id === shipmentID)];
+  let mtoShipmentsToShow;
+  if (evaluationReport.shipmentID && mtoShipments) {
+    mtoShipmentsToShow = [mtoShipments.find((shipment) => shipment.id === evaluationReport.shipmentID)];
+  } else {
+    mtoShipmentsToShow = mtoShipments;
   }
 
   return (
     <div className={classnames(styles.tabContent, evaluationReportStyles.tabContent)}>
       <GridContainer className={evaluationReportStyles.container}>
         <QaeReportHeader report={evaluationReport} />
-        {isShipment ? (
+
+        {mtoShipmentsToShow?.length > 0 && (
           <EvaluationReportShipmentInfo
             customerInfo={customerInfo}
             grade={grade}
-            shipment={singleShipment}
+            shipments={mtoShipmentsToShow}
             report={evaluationReport}
           />
-        ) : (
-          <EvaluationReportMoveInfo customerInfo={customerInfo} grade={grade} />
         )}
         <EvaluationForm
           evaluationReport={evaluationReport}
-          mtoShipments={mtoShipments}
-          customerInfo={customerInfo}
           grade={grade}
+          customerInfo={customerInfo}
+          mtoShipments={mtoShipments}
         />
       </GridContainer>
     </div>

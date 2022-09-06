@@ -66,6 +66,11 @@ const EvaluationReports = ({ customerInfo, grade }) => {
             <Alert type="success">Your draft report has been saved</Alert>
           </div>
         )}
+        {location.state?.showSubmitSuccess && (
+          <div className={evaluationReportsStyles.alert}>
+            <Alert type="success">Your report has been successfully submitted</Alert>
+          </div>
+        )}
         <Grid row>
           <h1>Quality assurance reports</h1>
         </Grid>

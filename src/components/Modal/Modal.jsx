@@ -88,7 +88,7 @@ const ModalSubmit = ({ handleClick, className, buttonContent, ...buttonProps }) 
     <Button
       className={classnames(styles.ModalSubmit, className)}
       type="submit"
-      onClick={() => handleClick}
+      onClick={handleClick}
       data-testid="modalSubmitButton"
       aria-label="Submit"
       {...buttonProps}

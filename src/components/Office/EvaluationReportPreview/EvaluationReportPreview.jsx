@@ -20,8 +20,8 @@ const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, cus
   const reportType = evaluationReport.type;
   let mtoShipmentsToShow;
 
-  if (reportType === 'SHIPMENT') {
-    mtoShipmentsToShow = [mtoShipments.find((shipment) => shipment.id === evaluationReport.shipmentId)];
+  if (evaluationReport.shipmentID) {
+    mtoShipmentsToShow = [mtoShipments.find((shipment) => shipment.id === evaluationReport.shipmentID)];
   } else {
     mtoShipmentsToShow = mtoShipments;
   }

@@ -4866,49 +4866,7 @@ func init() {
     "EvaluationReportList": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/EvaluationReportListItem"
-      }
-    },
-    "EvaluationReportListItem": {
-      "description": "An evaluation report",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "location": {
-          "x-nullable": true,
-          "$ref": "#/definitions/EvaluationReportLocation"
-        },
-        "moveID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "seriousIncident": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "shipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "submittedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
-        "type": {
-          "$ref": "#/definitions/EvaluationReportType"
-        },
-        "violationsObserved": {
-          "type": "boolean",
-          "x-nullable": true
-        }
+        "$ref": "#/definitions/EvaluationReport"
       }
     },
     "EvaluationReportLocation": {
@@ -14093,49 +14051,7 @@ func init() {
     "EvaluationReportList": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/EvaluationReportListItem"
-      }
-    },
-    "EvaluationReportListItem": {
-      "description": "An evaluation report",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "location": {
-          "x-nullable": true,
-          "$ref": "#/definitions/EvaluationReportLocation"
-        },
-        "moveID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "seriousIncident": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "shipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "submittedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
-        "type": {
-          "$ref": "#/definitions/EvaluationReportType"
-        },
-        "violationsObserved": {
-          "type": "boolean",
-          "x-nullable": true
-        }
+        "$ref": "#/definitions/EvaluationReport"
       }
     },
     "EvaluationReportLocation": {

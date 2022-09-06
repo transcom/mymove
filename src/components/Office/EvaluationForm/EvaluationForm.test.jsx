@@ -21,6 +21,14 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
+const evaluationReportCounseling = {
+  type: 'COUNSELING',
+};
+
+const evaluationReportShipment = {
+  type: 'SHIPMENT',
+};
+
 const customerInfo = {
   agency: 'ARMY',
   backup_contact: { email: 'email@example.com', name: 'name', phone: '555-555-5555' },
@@ -52,7 +60,12 @@ describe('EvaluationForm', () => {
   it('renders the form components', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <EvaluationForm customerInfo grade moveCode />
+        <EvaluationForm
+          evaluationReport={evaluationReportCounseling}
+          customerInfo={customerInfo}
+          grade={grade}
+          moveCode={moveCode}
+        />
       </MockProviders>,
     );
 
@@ -92,12 +105,10 @@ describe('EvaluationForm', () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
         <EvaluationForm
-          evaluationReport={{
-            type: 'SHIPMENT',
-          }}
-          customerInfo
-          grade
-          moveCode
+          evaluationReport={evaluationReportShipment}
+          customerInfo={customerInfo}
+          grade={grade}
+          moveCode={moveCode}
         />
       </MockProviders>,
     );
@@ -155,7 +166,12 @@ describe('EvaluationForm', () => {
   it('displays the delete confirmation on cancel', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <EvaluationForm customerInfo grade moveCode />
+        <EvaluationForm
+          evaluationReport={evaluationReportCounseling}
+          customerInfo={customerInfo}
+          grade={grade}
+          moveCode={moveCode}
+        />
       </MockProviders>,
     );
 
@@ -172,7 +188,12 @@ describe('EvaluationForm', () => {
   it('updates the submit button when there are violations', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <EvaluationForm customerInfo grade moveCode />
+        <EvaluationForm
+          evaluationReport={evaluationReportCounseling}
+          customerInfo={customerInfo}
+          grade={grade}
+          moveCode={moveCode}
+        />
       </MockProviders>,
     );
 

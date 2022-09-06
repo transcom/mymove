@@ -22,8 +22,8 @@ import EvaluationReportPreview from 'components/Office/EvaluationReportPreview/E
   modalTopRightClose - optional
     * renders a close button in the top right corner
     * triggers the passed in onClick method
-    * 
-  
+    *
+
   closeModalOptions - optional
     * renders a close button in bottom * corner
 
@@ -46,11 +46,11 @@ export const EvaluationReportConfirmationModal = ({
     {modalTopRightClose && <ModalClose handleClick={() => modalTopRightClose()} data-testid="modalCloseButtonTop" />}
     {modalTitle && <ModalTitle className={styles.titleSection}>{modalTitle}</ModalTitle>}
     <EvaluationReportPreview
-      evaluationReport={evaluationReport}
       moveCode={moveCode}
       mtoShipments={mtoShipments}
       customerInfo={customerInfo}
       grade={grade}
+      evaluationReport={evaluationReport}
     />
     <ModalActions autofocus="true">
       {closeModalOptions && (
@@ -61,10 +61,7 @@ export const EvaluationReportConfirmationModal = ({
         />
       )}
       {submitModalOptions && (
-        <ModalSubmit
-          handleClick={() => submitModalOptions.handleClick()}
-          buttonContent={submitModalOptions.buttonContent}
-        />
+        <ModalSubmit handleClick={submitModalOptions.handleClick} buttonContent={submitModalOptions.buttonContent} />
       )}
     </ModalActions>
   </Modal>

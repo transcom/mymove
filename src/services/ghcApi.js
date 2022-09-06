@@ -75,10 +75,13 @@ export async function saveEvaluationReport({ reportID, ifMatchETag, body }) {
   );
 }
 
-// export async function submitEvaluationReport({ reportID }) {
-//   // TODO: the BE here
-//   return true;
-// }
+export async function submitEvaluationReport({ reportID, ifMatchETag }) {
+  return makeGHCRequest(
+    'evaluationReports.submitEvaluationReport',
+    { reportID, 'If-Match': ifMatchETag },
+    { normalize: false },
+  );
+}
 
 export async function getMoveHistory(key, { moveCode, currentPage = 1, currentPageSize = 20 }) {
   return makeGHCRequest(
