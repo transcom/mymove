@@ -94,16 +94,20 @@ const EvaluationViolationsForm = ({ violations }) => {
                 </Grid>
               </Grid>
 
-              <Grid row className={styles.evalViolationsSection}>
-                <Grid col>
+              <Grid row>
+                <Grid col className={styles.claimDatePicker}>
                   <div>
                     {kpiDates.includes('Observed Claim Response Date (Or None)') && (
-                      <DatePickerInput
-                        label="Observed claims response date..............Optional"
-                        required={false}
-                        name="observedClaimDate"
-                        hint="Only enter a date here if the claim has a response."
-                      />
+                      <>
+                        {/* <span className={styles.optionalLabel}>Optional</span> */}
+                        <DatePickerInput
+                          className={styles.datePicker}
+                          label="Observed claims response date"
+                          name="observedClaimDate"
+                          hint="Only enter a date here if the claim has a response."
+                          showOptional
+                        />
+                      </>
                     )}
                     {kpiDates.includes('QAE Observed Pickup Date') && (
                       <DatePickerInput

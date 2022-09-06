@@ -13,7 +13,7 @@ import Hint from 'components/Hint';
 
 export const DatePickerInput = (props) => {
   const dateFormat = 'DD MMM YYYY';
-  const { label, name, id, className, renderInput, disabled, required, hint } = props;
+  const { label, showOptional, name, id, className, renderInput, disabled, required, hint } = props;
   const [field, meta, helpers] = useField(props);
   const hasError = meta.touched && !!meta.error;
 
@@ -24,10 +24,11 @@ export const DatePickerInput = (props) => {
     <FormGroup error={hasError}>
       {renderInput(
         <>
-          <div className="labelWrapper">
-            <Label error={hasError} htmlFor={inputId.current}>
+          <div style={{ width: '356px' }} className="labelWrapper">
+            <Label className={styles.label} error={hasError} htmlFor={inputId.current}>
               {label}
             </Label>
+            {showOptional && <div className={styles.optionalLabel}>Optional</div>}
           </div>
           {hint && <Hint className={styles.hint}>{hint}</Hint>}
           <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>

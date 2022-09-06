@@ -27,14 +27,6 @@
   }
 }
 
-.evalViolationsSection {
-  :global {
-    .usa-label {
-      @include u-font-weight(400);
-    }
-  }
-}
-
 .backToEvalButton {
   @include u-padding(0);
 }
@@ -46,3 +38,15 @@
 .detailText {
   @include u-margin(0);
 }
+
+.claimDatePicker {
+
+  :global {
+    .usa-label {
+      @include u-font-weight(700);
+      @include u-color('base-darker');
+    }
+  }
+}
+
+
