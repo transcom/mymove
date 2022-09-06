@@ -1971,6 +1971,45 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/evaluation-reports/{reportID}/submit':
+    parameters:
+      - in: path
+        description: the evaluation report ID to be modified
+        name: reportID
+        required: true
+        type: string
+        format: uuid
+    post:
+      summary: Submits an evaluation report
+      description: Submits an evaluation report
+      operationId: submitEvaluationReport
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+      responses:
+        '204':
+          description: Successfully submitted an evaluation report with the provided ID
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.evaluationReport
   '/moves/{locator}/payment-requests':
     parameters:
       - description: move code to identify a move for payment requests
