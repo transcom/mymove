@@ -111,6 +111,7 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createNeedsServicesCounselingWithoutCompletedOrders(appCtx, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION, models.MTOShipmentTypePPM, nil, "SCPPM1")
 		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
 		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMADD")
+		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSCF")
 		createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx, userUploader, moveRouter, "PPMSIT")
 		// Post-onboarding
 		createApprovedMoveWithPPM(appCtx, userUploader)
@@ -124,6 +125,8 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createApprovedMoveWithPPMWeightTicket(appCtx, userUploader)
 		createApprovedMoveWithPPMMovingExpense(appCtx, userUploader)
 		createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
+		createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
+		createMoveWithPPMShipmentReadyForFinalCloseout(appCtx, userUploader)
 	}
 }
 

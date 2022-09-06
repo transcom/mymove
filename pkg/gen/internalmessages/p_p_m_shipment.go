@@ -85,6 +85,11 @@ type PPMShipment struct {
 	// Format: date
 	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate"`
 
+	// The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.
+	//
+	// Read Only: true
+	FinalIncentive *int64 `json:"finalIncentive"`
+
 	// Indicates whether PPM shipment has pro gear.
 	//
 	HasProGear *bool `json:"hasProGear"`
@@ -181,6 +186,9 @@ type PPMShipment struct {
 	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+
+	// w2 address
+	W2Address *Address `json:"w2Address,omitempty"`
 
 	// weight tickets
 	WeightTickets []*WeightTicket `json:"weightTickets"`
@@ -279,6 +287,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateW2Address(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -600,6 +612,25 @@ func (m *PPMShipment) validateUpdatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *PPMShipment) validateW2Address(formats strfmt.Registry) error {
+	if swag.IsZero(m.W2Address) { // not required
+		return nil
+	}
+
+	if m.W2Address != nil {
+		if err := m.W2Address.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("w2Address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("w2Address")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) validateWeightTickets(formats strfmt.Registry) error {
 	if swag.IsZero(m.WeightTickets) { // not required
 		return nil
@@ -642,6 +673,10 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateFinalIncentive(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -663,6 +698,10 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateW2Address(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -702,6 +741,15 @@ func (m *PPMShipment) contextValidateCreatedAt(ctx context.Context, formats strf
 func (m *PPMShipment) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateFinalIncentive(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "finalIncentive", "body", m.FinalIncentive); err != nil {
 		return err
 	}
 
@@ -780,6 +828,22 @@ func (m *PPMShipment) contextValidateUpdatedAt(ctx context.Context, formats strf
 
 	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateW2Address(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.W2Address != nil {
+		if err := m.W2Address.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("w2Address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("w2Address")
+			}
+			return err
+		}
 	}
 
 	return nil

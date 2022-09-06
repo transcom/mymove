@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/go-openapi/runtime/middleware"
-
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 

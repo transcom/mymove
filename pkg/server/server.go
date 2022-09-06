@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	idleTimeout   = 120 * time.Second // 2 minutes
-	maxHeaderSize = 1 * 1000 * 1000   // 1 Megabyte
+	idleTimeout       = 120 * time.Second // 2 minutes
+	readHeaderTimeout = 60 * time.Second  // 1 minute
+	maxHeaderSize     = 1 * 1000 * 1000   // 1 Megabyte
 )
 
 // ErrMissingCACert represents an error caused by server config that requires
@@ -141,23 +142,18 @@ func CreateNamedServer(input *CreateNamedServerInput) (*NamedServer, error) {
 			NextProtos:               []string{"h2"},
 			PreferServerCipherSuites: true,
 		}
-
-		// Map certificates with the CommonName / DNSNames to support
-		// Server Name Indication (SNI). In other words this will tell
-		// the TLS listener to sever the appropriate certificate matching
-		// the requested hostname.
-		tlsConfig.BuildNameToCertificate()
 	}
 
 	srv := &NamedServer{
 		Name: input.Name,
 		Server: &http.Server{
-			Addr:           address,
-			ErrorLog:       newStandardLogger(input.Logger),
-			Handler:        input.HTTPHandler,
-			IdleTimeout:    idleTimeout,
-			MaxHeaderBytes: maxHeaderSize,
-			TLSConfig:      tlsConfig,
+			Addr:              address,
+			ErrorLog:          newStandardLogger(input.Logger),
+			Handler:           input.HTTPHandler,
+			IdleTimeout:       idleTimeout,
+			MaxHeaderBytes:    maxHeaderSize,
+			ReadHeaderTimeout: readHeaderTimeout,
+			TLSConfig:         tlsConfig,
 		},
 	}
 	return srv, nil

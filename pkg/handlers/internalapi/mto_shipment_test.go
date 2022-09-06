@@ -6,8 +6,6 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/transcom/mymove/pkg/swagger/nullable"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -31,6 +29,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/swagger/nullable"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -712,6 +711,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		type setUpOriginalPPMFunc func(appCtx appcontext.AppContext) models.PPMShipment
 		type runChecksFunc func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment)
 
+		// Address fields
+		street1 := "123 main street"
+		city := "New York"
+		state := "NY"
+		zipcode := "90210"
+
 		ppmUpdateTestCases := map[string]struct {
 			setUpOriginalPPM   setUpOriginalPPMFunc
 			desiredShipment    internalmessages.UpdatePPMShipment
@@ -990,6 +995,42 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					suite.Equal(desiredShipment.ActualDestinationPostalCode, updatedShipment.PpmShipment.ActualDestinationPostalCode)
 					suite.Equal(desiredShipment.HasReceivedAdvance, updatedShipment.PpmShipment.HasReceivedAdvance)
 					suite.Equal(desiredShipment.AdvanceAmountReceived, updatedShipment.PpmShipment.AdvanceAmountReceived)
+				},
+			},
+			"Add W2 Address and Final Incentive": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+						PPMShipment: models.PPMShipment{
+							EstimatedWeight:        models.PoundPointer(4000),
+							HasProGear:             models.BoolPointer(false),
+							EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+							HasRequestedAdvance:    models.BoolPointer(true),
+							AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+						},
+					})
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					W2Address: &internalmessages.Address{
+						StreetAddress1: &street1,
+						City:           &city,
+						State:          &state,
+						PostalCode:     &zipcode,
+					},
+					FinalIncentive: handlers.FmtInt64(250000),
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check existing fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
+					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
+					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
+
+					// check expected fields were updated
+					suite.Equal(desiredShipment.FinalIncentive, updatedShipment.PpmShipment.FinalIncentive)
+					suite.Equal(desiredShipment.W2Address.StreetAddress1, updatedShipment.PpmShipment.W2Address.StreetAddress1)
+					suite.Equal(desiredShipment.W2Address.City, updatedShipment.PpmShipment.W2Address.City)
+					suite.Equal(desiredShipment.W2Address.PostalCode, updatedShipment.PpmShipment.W2Address.PostalCode)
+					suite.Equal(desiredShipment.W2Address.State, updatedShipment.PpmShipment.W2Address.State)
 				},
 			},
 			"Remove actual advance": {

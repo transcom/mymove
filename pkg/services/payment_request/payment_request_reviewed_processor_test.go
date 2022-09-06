@@ -11,18 +11,14 @@ import (
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
-	"github.com/transcom/mymove/pkg/services"
-
-	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/services/invoice"
-
-	"github.com/transcom/mymove/pkg/services/mocks"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/invoice"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 

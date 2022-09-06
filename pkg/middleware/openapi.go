@@ -3,11 +3,10 @@ package middleware
 import (
 	"net/http"
 
-	sdktrace "go.opentelemetry.io/otel/trace"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/trussworks/otelhttp"
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
+	sdktrace "go.opentelemetry.io/otel/trace"
 
 	"github.com/transcom/mymove/pkg/audit"
 	"github.com/transcom/mymove/pkg/logging"

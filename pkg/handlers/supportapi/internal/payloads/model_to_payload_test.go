@@ -10,7 +10,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/handlers"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 

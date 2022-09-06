@@ -1,18 +1,25 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import EvaluationViolations from './EvaluationViolations';
 
-import { MockProviders } from 'testUtils';
-
-const mockMoveCode = 'A12345';
 const mockReportId = 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2';
 const mockMtoRefId = '6789-1234';
+const mockViolation = {
+  category: 'Category 1',
+  displayOrder: 1,
+  id: '9cdc8dc3-6cf4-46fb-b272-1468ef40796f',
+  paragraphNumber: '1.2.3',
+  requirementStatement: 'Test requirement statement for violation 1',
+  requirementSummary: 'Test requirement summary for violation 1',
+  subCategory: 'SubCategory 1',
+  title: 'Title for violation 1',
+};
 
+const mockUsePWSViolationsQueries = jest.fn();
 jest.mock('hooks/queries', () => ({
-  useShipmentEvaluationReportQueries: jest.fn(() => ({
+  useEvaluationReportQueries: jest.fn(() => ({
     isLoading: false,
     isError: false,
     evaluationReport: {
@@ -22,6 +29,7 @@ jest.mock('hooks/queries', () => ({
       moveReferenceID: mockMtoRefId,
     },
   })),
+  usePWSViolationsQueries: () => mockUsePWSViolationsQueries(),
 }));
 
 const mockDeleteEvaluationReport = jest.fn();
@@ -45,32 +53,24 @@ beforeEach(() => {
 
 describe('EvaluationViolations', () => {
   it('renders the component content', async () => {
+    mockUsePWSViolationsQueries.mockImplementation(() => ({
+      isLoading: false,
+      isError: false,
+      violations: [mockViolation],
+    }));
+
     render(<EvaluationViolations />);
 
-    // Check out heading
-    expect(await screen.getByRole('heading', { name: 'Select violations', level: 2 })).toBeInTheDocument();
+    await waitFor(() => {
+      // Displays heading
+      expect(screen.getByRole('heading', { name: 'Shipment report', level: 1 })).toBeInTheDocument();
 
-    // Check out buttons
-    const buttons = await screen.getAllByRole('button');
-    expect(buttons).toHaveLength(4);
-    expect(buttons[0]).toHaveTextContent('< Back to Evaluation form');
-    expect(buttons[1]).toHaveTextContent('Cancel');
-    expect(buttons[2]).toHaveTextContent('Save draft');
-    expect(buttons[3]).toHaveTextContent('Review and submit');
-  });
-
-  it('re-routes back to the eval report', async () => {
-    render(
-      <MockProviders initialEntries={[`/moves/${mockMoveCode}/evaluation-reports/${mockReportId}`]}>
-        <EvaluationViolations />
-      </MockProviders>,
-    );
-
-    // Click back button
-    await userEvent.click(await screen.findByRole('button', { name: '< Back to Evaluation form' }));
-
-    // Verify that we re-route back to the eval report
-    expect(mockPush).toHaveBeenCalledTimes(1);
-    expect(mockPush).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports/${mockReportId}`);
+      // Displays Evalutaion Violations Form
+      expect(screen.getByRole('heading', { name: 'Select violations', level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '< Back to Evaluation form' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save draft' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Review and submit' })).toBeInTheDocument();
+    });
   });
 });

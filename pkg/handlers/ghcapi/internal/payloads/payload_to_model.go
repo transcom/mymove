@@ -3,16 +3,14 @@ package payloads
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MTOAgentModel model
@@ -426,6 +424,13 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 	}
 	if ppmShipment.DestinationPostalCode != nil {
 		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
+	}
+
+	var addressModel *models.Address
+
+	if ppmShipment.W2Address != nil {
+		addressModel = AddressModel(ppmShipment.W2Address)
+		model.W2Address = addressModel
 	}
 
 	if ppmShipment.SitLocation != nil {

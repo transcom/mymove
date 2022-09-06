@@ -10,14 +10,12 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
-
-	paymentrequestclient "github.com/transcom/mymove/pkg/gen/supportclient/payment_request"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
+	paymentrequestclient "github.com/transcom/mymove/pkg/gen/supportclient/payment_request"
 )
 
 // InitRecalculatePaymentRequestFlags declares which flags are enabled

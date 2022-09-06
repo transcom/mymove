@@ -11,6 +11,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { customerRoutes } from 'constants/routes';
 import { deleteWeightTicket } from 'services/internalApi';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
+import { createBaseProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
 
 const mockMoveId = v4();
 const mockMTOShipmentId = v4();
@@ -90,6 +91,32 @@ const mockMTOShipmentWithIncompleteWeightTicket = {
     proGearWeight: null,
     spouseProGearWeight: null,
     weightTickets: [createBaseWeightTicket()],
+  },
+  eTag: 'dGVzdGluZzIzNDQzMjQ',
+};
+
+const mockMTOShipmentWithProGear = {
+  id: mockMTOShipmentId,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
+  ppmShipment: {
+    id: mockPPMShipmentId,
+    actualMoveDate: '2022-05-01',
+    actualPickupPostalCode: '10003',
+    actualDestinationPostalCode: '10004',
+    advanceReceived: true,
+    advanceAmountReceived: '6000000',
+    pickupPostalCode: '10001',
+    destinationPostalCode: '10002',
+    expectedDepartureDate: '2022-04-30',
+    advanceRequested: true,
+    advanceAmountRequested: 598700,
+    estimatedWeight: 4000,
+    estimatedIncentive: 1000000,
+    sitExpected: false,
+    hasProGear: true,
+    proGearWeight: 100,
+    spouseProGearWeight: null,
+    proGear: [createBaseProGearWeightTicket()],
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -197,6 +224,42 @@ describe('About page', () => {
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual(editWeightTicket);
+    });
+  });
+
+  it('routes to the add pro-gear page when the add link is clicked', async () => {
+    const newProGear = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH, {
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+    });
+
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
+    render(<Review />, { wrapper: mockProviderWithHistory });
+
+    userEvent.click(screen.getByText('Add Pro-gear Weight'));
+
+    await waitFor(() => {
+      expect(memoryHistory.location.pathname).toEqual(newProGear);
+    });
+  });
+
+  it('routes to the edit pro-gear page when the edit link is clicked', async () => {
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithProGear);
+    const editProGearWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH, {
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+      proGearId: mockMTOShipmentWithProGear.ppmShipment.proGear[0].id,
+    });
+
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
+    render(<Review />, { wrapper: mockProviderWithHistory });
+
+    userEvent.click(screen.getAllByText('Edit')[1]);
+
+    await waitFor(() => {
+      expect(memoryHistory.location.pathname).toEqual(editProGearWeightTicket);
     });
   });
 
