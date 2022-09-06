@@ -144,7 +144,8 @@ describe('Services counselor user', () => {
     cy.wait('@createShipment');
   });
 
-  it('is able to edit allowances', () => {
+  /* This test is being temporarily skipped until flakiness issues can be resolved. */
+  it.skip('is able to edit allowances', () => {
     const moveLocator = 'RET1RE';
 
     // TOO Moves queue
