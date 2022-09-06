@@ -15,6 +15,9 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import ReviewItems from 'components/Customer/PPM/Closeout/ReviewItems/ReviewItems';
 import {
+  calculateTotalMovingExpensesAmount,
+  calculateTotalNetWeightForProGearWeightTickets,
+  calculateTotalNetWeightForWeightTickets,
   formatAboutYourPPMItem,
   formatExpenseItems,
   formatProGearItems,
@@ -108,10 +111,7 @@ const Review = () => {
     handleDelete,
   );
 
-  const weightTicketsTotal = weightTickets?.reduce((prev, curr) => {
-    const weight = Number(curr.emptyWeight) && Number(curr.fullWeight) ? curr.fullWeight - curr.emptyWeight : 0;
-    return prev + weight;
-  }, 0);
+  const weightTicketsTotal = calculateTotalNetWeightForWeightTickets(weightTickets);
 
   const canAdvance = hasCompletedAllWeightTickets(weightTickets);
 
@@ -122,13 +122,7 @@ const Review = () => {
     handleDelete,
   );
 
-  const proGearTotal = proGear?.reduce((prev, curr) => {
-    if (curr.constructedWeight) {
-      return prev + curr.constructedWeight;
-    }
-    const weight = Number(curr.emptyWeight) && Number(curr.fullWeight) ? curr.fullWeight - curr.emptyWeight : 0;
-    return prev + weight;
-  }, 0);
+  const proGearTotal = calculateTotalNetWeightForProGearWeightTickets(proGear);
 
   const expenseContents = formatExpenseItems(
     expenses,
@@ -140,10 +134,7 @@ const Review = () => {
     handleDelete,
   );
 
-  const expensesTotal = expenses?.reduce(
-    (prev, curr) => prev + (Number.isNaN(Number(curr.amount)) ? 0 : curr.amount),
-    0,
-  );
+  const expensesTotal = calculateTotalMovingExpensesAmount(expenses);
 
   return (
     <div className={classnames(ppmPageStyles.ppmPageStyle, styles.PPMReview)}>
