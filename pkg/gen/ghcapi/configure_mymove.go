@@ -197,6 +197,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation order.GetOrder has not yet been implemented")
 		})
 	}
+	if api.EvaluationReportsGetPWSViolationsHandler == nil {
+		api.EvaluationReportsGetPWSViolationsHandler = evaluation_reports.GetPWSViolationsHandlerFunc(func(params evaluation_reports.GetPWSViolationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.GetPWSViolations has not yet been implemented")
+		})
+	}
 	if api.PaymentRequestsGetPaymentRequestHandler == nil {
 		api.PaymentRequestsGetPaymentRequestHandler = payment_requests.GetPaymentRequestHandlerFunc(func(params payment_requests.GetPaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.GetPaymentRequest has not yet been implemented")

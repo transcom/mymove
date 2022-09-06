@@ -75,10 +75,10 @@ export async function saveEvaluationReport({ reportID, ifMatchETag, body }) {
   );
 }
 
-export async function submitEvaluationReport({ reportID }) {
-  // TODO: the BE here
-  return true;
-}
+// export async function submitEvaluationReport({ reportID }) {
+//   // TODO: the BE here
+//   return true;
+// }
 
 export async function getMoveHistory(key, { moveCode, currentPage = 1, currentPageSize = 20 }) {
   return makeGHCRequest(
@@ -122,6 +122,10 @@ export async function getCounselingEvaluationReports(key, moveID) {
     { moveID },
     { schemaKey: 'evaluationReports', normalize: false },
   );
+}
+
+export async function getPWSViolations() {
+  return makeGHCRequest('evaluationReports.getPWSViolations', {}, { normalize: false });
 }
 
 export async function getMTOServiceItems(key, moveTaskOrderID, normalize = true) {

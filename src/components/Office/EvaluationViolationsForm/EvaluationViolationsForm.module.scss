@@ -1,0 +1,40 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.cardContainer {
+  @include u-padding-bottom(40px);
+  @include u-bg('white');
+  @include u-radius('05');
+  @include u-border('base-lighter');
+  @include u-border('1px');
+  @include u-padding(4);
+  @include u-margin-bottom(4);
+}
+
+.buttonContainer {
+  @include u-padding(0);
+  @include u-margin-bottom(115px);
+}
+
+.buttonRow {
+  @include u-display('flex');
+
+  :global {
+    .usa-button--unstyled {
+      @include u-font-weight(700);
+    }
+  }
+}
+
+.backToEvalButton {
+  @include u-padding(0);
+}
+
+.grow {
+  flex-grow: 1;
+}
+
+.detailText {
+  @include u-margin(0);
+}

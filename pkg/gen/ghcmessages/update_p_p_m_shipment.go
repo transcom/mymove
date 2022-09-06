@@ -94,6 +94,9 @@ type UpdatePPMShipment struct {
 
 	// spouse pro gear weight
 	SpouseProGearWeight *int64 `json:"spouseProGearWeight,omitempty"`
+
+	// w2 address
+	W2Address *Address `json:"w2Address,omitempty"`
 }
 
 // Validate validates this update p p m shipment
@@ -133,6 +136,10 @@ func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitLocation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateW2Address(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -257,11 +264,34 @@ func (m *UpdatePPMShipment) validateSitLocation(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *UpdatePPMShipment) validateW2Address(formats strfmt.Registry) error {
+	if swag.IsZero(m.W2Address) { // not required
+		return nil
+	}
+
+	if m.W2Address != nil {
+		if err := m.W2Address.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("w2Address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("w2Address")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update p p m shipment based on the context it is used
 func (m *UpdatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.contextValidateSitLocation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateW2Address(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -279,6 +309,22 @@ func (m *UpdatePPMShipment) contextValidateSitLocation(ctx context.Context, form
 				return ve.ValidateName("sitLocation")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("sitLocation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdatePPMShipment) contextValidateW2Address(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.W2Address != nil {
+		if err := m.W2Address.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("w2Address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("w2Address")
 			}
 			return err
 		}

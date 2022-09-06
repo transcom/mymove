@@ -24,6 +24,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	paymentserviceitem "github.com/transcom/mymove/pkg/services/payment_service_item"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
+	pwsviolation "github.com/transcom/mymove/pkg/services/pws_violation"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -378,6 +379,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PaymentRequestsGetShipmentsPaymentSITBalanceHandler = ShipmentsSITBalanceHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestShipmentsSITBalance(),
+	}
+
+	ghcAPI.EvaluationReportsGetPWSViolationsHandler = GetPWSViolationsHandler{
+		handlerConfig,
+		pwsviolation.NewPWSViolationsFetcher(),
 	}
 
 	return ghcAPI
