@@ -241,8 +241,6 @@ const customerInfo = {
   userID: 'f4bbfcdf-ef66-4ce7-92f8-4c1bf507d596',
 };
 
-const viewReportReturn = { evaluationReport, mtoShipments };
-
 describe('Evaluation Report Container', () => {
   it('renders the sample text', async () => {
     render(
