@@ -221,7 +221,42 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
     initialValues.violationsObserved = evaluationReport.violationsObserved ? 'yes' : 'no';
   }
 
-  const validationSchema = Yup.object().shape({});
+  const validationSchema = Yup.object().shape(
+    {
+      inspectionDate: Yup.date().required(),
+      evaluationType: Yup.string().required(),
+      evaluationLocation: Yup.string().required(),
+      violationsObserved: Yup.string().required(),
+      remarks: Yup.string().required(),
+      other: Yup.string().when('evaluationLocation', {
+        is: 'other',
+        then: Yup.string().required(),
+      }),
+      hour: Yup.string().when('evaluationType', {
+        is: 'physical',
+        then: Yup.string().when('minute', {
+          is: (minute) => !minute,
+          then: Yup.string().required(),
+        }),
+      }),
+      minute: Yup.string().when('evaluationType', {
+        is: 'physical',
+        then: Yup.string().when('hour', {
+          is: (hour) => !hour,
+          then: Yup.string().required(),
+        }),
+      }),
+      evalLengthHour: Yup.string().when('evalLengthMinute', {
+        is: (evalLengthMinute) => !evalLengthMinute,
+        then: Yup.string().required(),
+      }),
+      evalLengthMinute: Yup.string().when('evalLengthHour', {
+        is: (evalLengthHour) => !evalLengthHour,
+        then: Yup.string().required(),
+      }),
+    },
+    ['evalLengthMinute', 'evalLengthHour'],
+  );
 
   const minutes = [
     { key: '0', value: '0' },
@@ -254,14 +289,15 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
         closeModalOptions={closeModalOptions}
         submitModalOptions={submitModalOptions}
       />
+
       <Formik
         initialValues={initialValues}
         enableReinitialize
-        onSubmit={handleSaveDraft}
+        onSubmit={handlePreviewReport}
         validationSchema={validationSchema}
         validateOnMount
       >
-        {({ values, setFieldValue }) => {
+        {({ values, setFieldValue, isValid }) => {
           const showObservedDeliveryDate =
             values.evaluationType === 'physical' && values.evaluationLocation === 'destination' && isShipment;
           const showObservedPickupDate =
@@ -274,7 +310,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
                   <Grid col>
                     <h2>Evaluation form</h2>
                     <h3>Evaluation information</h3>
-                    <DatePickerInput label="Date of inspection" name="inspectionDate" />
+                    <DatePickerInput label="Date of inspection" name="inspectionDate" disableErrorLabel />
                     <FormGroup>
                       <Fieldset className={styles.radioGroup}>
                         <legend className="usa-label">Evaluation type</legend>
@@ -323,6 +359,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
                               onChange={(e) => {
                                 setFieldValue('hour', e.target.value);
                               }}
+                              disableErrorLabel
                               options={hours}
                             />
                           </div>
@@ -335,6 +372,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
                               onChange={(e) => {
                                 setFieldValue('minute', e.target.value);
                               }}
+                              disableErrorLabel
                               options={minutes}
                             />
                           </div>
@@ -413,6 +451,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
                             onChange={(e) => {
                               setFieldValue('evalLengthHour', e.target.value);
                             }}
+                            disableErrorLabel
                             options={hours}
                           />
                         </div>
@@ -425,6 +464,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
                             onChange={(e) => {
                               setFieldValue('evalLengthMinute', e.target.value);
                             }}
+                            disableErrorLabel
                             options={minutes}
                           />
                         </div>
@@ -504,19 +544,20 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
                           Cancel
                         </Button>
                       )}
-                      <Button data-testid="saveDraft" type="submit" className="usa-button--secondary">
+                      <Button
+                        data-testid="saveDraft"
+                        type="button"
+                        className="usa-button--secondary"
+                        onClick={() => handleSaveDraft(values)}
+                      >
                         Save draft
                       </Button>
                       {values.violationsObserved === 'yes' ? (
-                        <Button onClick={() => handleSelectViolations(values)} type="button">
+                        <Button disabled={!isValid} onClick={() => handleSelectViolations(values)} type="button">
                           Next: select violations
                         </Button>
                       ) : (
-                        <Button
-                          disabled={!values.violationsObserved}
-                          type="button"
-                          onClick={() => handlePreviewReport(values)}
-                        >
+                        <Button disabled={!isValid} type="button" onClick={() => handlePreviewReport(values)}>
                           Review and submit
                         </Button>
                       )}
