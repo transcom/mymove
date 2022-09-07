@@ -10,6 +10,7 @@ import classnames from 'classnames';
 
 import styles from './EvaluationForm.module.scss';
 
+import { EVALUATION_REPORT } from 'constants/queryKeys';
 import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
 import ConnectedEvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 import { Form } from 'components/form/Form';
@@ -44,7 +45,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
     onSuccess: () => {
-      queryCache.refetchQueries(['evaluationReport']).then();
+      queryCache.refetchQueries([EVALUATION_REPORT, reportId]).then();
     },
   });
 
