@@ -24,11 +24,11 @@ export const DatePickerInput = (props) => {
     <FormGroup error={hasError}>
       {renderInput(
         <>
-          <div style={{ width: '356px' }} className="labelWrapper">
+          <div className="labelWrapper">
             <Label className={styles.label} error={hasError} htmlFor={inputId.current}>
               {label}
+              {showOptional && <div className={styles.optionalLabel}>Optional</div>}
             </Label>
-            {showOptional && <div className={styles.optionalLabel}>Optional</div>}
           </div>
           {hint && <Hint className={styles.hint}>{hint}</Hint>}
           <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
