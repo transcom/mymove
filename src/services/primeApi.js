@@ -143,7 +143,7 @@ export function updatePrimeMTOShipmentStatus({
   // this time. See documentation here:
   // https://transcom.github.io/mymove-docs/api/prime#tag/mtoShipment/operation/updateMTOShipmentStatus
   const body = {
-    status: 'CANCELLATION_REQUESTED',
+    status: 'CANCELED',
   };
   return makePrimeSimulatorRequest(
     operationPath,
