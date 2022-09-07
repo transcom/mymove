@@ -19,7 +19,7 @@ references:
   cypress: &cypress milmove/circleci-docker:milmove-cypress-f678d1c6a5e2085f733f5408b7affd628f9f3576
 
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
-  postgres: &postgres circleci/postgres:12.7-ram
+  postgres: &postgres cimg/postgres:12.7
 
   redis: &redis redis:5.0.6
 
@@ -576,10 +576,12 @@ commands:
         default: *cypress
     steps:
       - setup_remote_docker:
+          version: 17.09.0-ce
           docker_layer_caching: false
       - run:
           name: setup docker for server
           command: |
+            docker version
             docker network create e2e_cypress
             docker build -t milmove_e2e:local -f Dockerfile.e2e .
       - run:
@@ -638,6 +640,7 @@ commands:
   e2e_tests_mtls:
     steps:
       - setup_remote_docker:
+          version: 17.09.0-ce
           docker_layer_caching: false
       - run:
           name: setup docker for server

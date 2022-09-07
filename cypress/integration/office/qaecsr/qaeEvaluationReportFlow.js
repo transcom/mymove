@@ -22,7 +22,8 @@ describe('Quality Evaluation Report Flows', () => {
     cy.apiSignInAsUser(userId, QAECSROfficeUserType);
   });
 
-  it('is able to create and save a draft shipment evaluation report', () => {
+  /* This test is being temporarily skipped until flakiness issues can be resolved. */
+  it.skip('is able to create and save a draft shipment evaluation report', () => {
     const moveLocator = 'TEST12';
     cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
@@ -44,7 +45,8 @@ describe('Quality Evaluation Report Flows', () => {
     cy.contains('Your draft report has been saved');
   });
 
-  it('does not prompt to delete report after first save', () => {
+  /* This test is being temporarily skipped until flakiness issues can be resolved. */
+  it.skip('does not prompt to delete report after first save', () => {
     const moveLocator = 'TEST12';
     cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
@@ -69,7 +71,8 @@ describe('Quality Evaluation Report Flows', () => {
     cy.contains('Edit report');
   });
 
-  it('does prompt to delete if the report has not been saved since creation', () => {
+  /* This test is being temporarily skipped until flakiness issues can be resolved. */
+  it.skip('does prompt to delete if the report has not been saved since creation', () => {
     const moveLocator = 'TEST12';
     cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
