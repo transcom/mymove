@@ -59,10 +59,23 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                 <h2>{`You can ask for up to $${formattedMaxAdvance} as an advance`}</h2>
                 <p>{`That's ${getFormattedMaxAdvancePercentage()} of $${formattedIncentive}, the estimated incentive for your PPM.`}</p>
                 <p>
-                  You can use an advance to pay for up-front moving expenses. Your service will award and distribute any
-                  advance. Different services handle advances differently. Talk to your counselor for specifics.
+                  You can request an Advance Operating Allowance (AOA, or “Advance”) to help cover some of your up-front
+                  moving expenses.
                 </p>
-                <p>If you take an advance, it will be deducted from your incentive payment.</p>
+                <p>
+                  Your service’s policy will determine if you are authorized to receive one. You will not receive an
+                  advance if your service requires you to use your Government Travel Charge Card (GTCC) for PPM
+                  expenses.
+                </p>
+                <p>
+                  Your service may have other policies that mean you will not receive an advance. One example: Your
+                  service might not authorize any advances for moves associated with retirement or separation.
+                </p>
+                <p>
+                  If your service authorizes an advance, the amount you receive will be deducted from your PPM incentive
+                  payment. If your incentive ends up being less than your advance, you will be required to pay back the
+                  difference.
+                </p>
                 <Fieldset>
                   <legend className="usa-label">Would you like to request an advance on your incentive?</legend>
                   <Field
