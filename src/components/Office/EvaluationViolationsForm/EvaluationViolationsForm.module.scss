@@ -38,3 +38,8 @@
 .detailText {
   @include u-margin(0);
 }
+
+.incidentTextAreaLabel {
+  @include u-margin-bottom(0);
+}
+

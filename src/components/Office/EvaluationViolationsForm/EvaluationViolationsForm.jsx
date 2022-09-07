@@ -1,8 +1,8 @@
 import React from 'react';
-import { Grid, GridContainer, Button } from '@trussworks/react-uswds';
+import { Grid, GridContainer, Button, FormGroup, Radio, Fieldset, Textarea } from '@trussworks/react-uswds';
 import { useParams, useHistory } from 'react-router';
 import * as Yup from 'yup';
-import { Formik } from 'formik';
+import { Formik, Field } from 'formik';
 import classnames from 'classnames';
 
 import styles from './EvaluationViolationsForm.module.scss';
@@ -85,6 +85,44 @@ const EvaluationViolationsForm = ({ violations }) => {
                       unselectViolation={toggleSelectedViolation}
                     />
                   ))}
+                </Grid>
+              </Grid>
+
+              {/* Serious incident */}
+              <Grid row>
+                <Grid col>
+                  <h3>Serious incident</h3>
+                  <FormGroup>
+                    <Fieldset className={styles.seriousIncident}>
+                      <legend className="usa-label">Serious incident</legend>
+                      <Field
+                        as={Radio}
+                        label="No"
+                        id="no"
+                        name="seriousIncident"
+                        value="no"
+                        title="No"
+                        type="radio"
+                        checked={values.seriousIncident === 'no'}
+                      />
+                      <Field
+                        as={Radio}
+                        label="Yes"
+                        id="yes"
+                        name="seriousIncident"
+                        value="yes"
+                        title="Yes"
+                        type="radio"
+                        checked={values.seriousIncident === 'yes'}
+                      />
+                      {values.seriousIncident === 'yes' && (
+                        <>
+                          <p className={styles.incidentTextAreaLabel}>Serious incident description</p>
+                          <Field as={Textarea} name="yesSeriousIncident" />
+                        </>
+                      )}
+                    </Fieldset>
+                  </FormGroup>
                 </Grid>
               </Grid>
             </GridContainer>
