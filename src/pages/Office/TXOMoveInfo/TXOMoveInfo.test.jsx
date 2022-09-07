@@ -6,9 +6,63 @@ import TXOMoveInfo from './TXOMoveInfo';
 
 import { permissionTypes } from 'constants/permissions';
 import { MockProviders } from 'testUtils';
-import { useTXOMoveInfoQueries } from 'hooks/queries';
+import { useEvaluationReportShipmentListQueries, useTXOMoveInfoQueries } from 'hooks/queries';
 
 const testMoveCode = '1A5PM3';
+const mockReportId = 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2';
+const mockMtoRefId = '6789-1234';
+const testEvaluationReport = {
+  isLoading: false,
+  isError: false,
+  evaluationReport: {
+    id: mockReportId,
+    type: 'SHIPMENT',
+    moveReferenceID: mockMtoRefId,
+  },
+  mtoShipments: [
+    {
+      actualPickupDate: '2020-03-16',
+      approvedDate: '2022-08-16T00:00:00.000Z',
+      billableWeightCap: 4000,
+      billableWeightJustification: 'heavy',
+      createdAt: '2022-08-16T00:00:22.316Z',
+      customerRemarks: 'Please treat gently',
+      destinationAddress: {
+        city: 'Fairfield',
+        country: 'US',
+        eTag: 'MjAyMi0wOC0xNlQwMDowMDoyMi4zMTQ0MDha',
+        id: '1cf638df-1c1e-4c03-916a-bd20f7ec58ce',
+        postalCode: '94535',
+        state: 'CA',
+        streetAddress1: '987 Any Avenue',
+        streetAddress2: 'P.O. Box 9876',
+        streetAddress3: 'c/o Some Person',
+      },
+      eTag: 'MjAyMi0wOC0xNlQwMDowMDoyMi4zMTY2N1o=',
+      id: 'c37ccf04-637c-4afc-9ef6-dee1555e16ef',
+      moveTaskOrderID: '35eb1c36-8916-46f4-a72a-32267c9cb070',
+      pickupAddress: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMi0wOC0xNlQwMDowMDoyMi4zMTIzOTZa',
+        id: 'c0cf15bb-96ee-443a-982e-0e9ef2b9a80d',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      primeActualWeight: 2000,
+      primeEstimatedWeight: 1400,
+      requestedDeliveryDate: '2020-03-15',
+      requestedPickupDate: '2020-03-15',
+      scheduledPickupDate: '2020-03-16',
+      shipmentType: 'HHG',
+      status: 'APPROVED',
+      updatedAt: '2022-08-16T00:00:22.316Z',
+    },
+  ],
+};
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -18,6 +72,7 @@ jest.mock('react-router-dom', () => ({
 jest.mock('hooks/queries', () => ({
   ...jest.requireActual('hooks/queries'),
   useTXOMoveInfoQueries: jest.fn(),
+  useEvaluationReportShipmentListQueries: jest.fn(),
 }));
 
 const basicUseTXOMoveInfoQueriesValue = {
@@ -248,6 +303,7 @@ describe('TXO Move Info Container', () => {
     });
 
     it('should handle the Evaluation Report route', async () => {
+      useEvaluationReportShipmentListQueries.mockReturnValueOnce(testEvaluationReport);
       render(
         <MockProviders
           permissions={[permissionTypes.updateEvaluationReport]}
