@@ -56,8 +56,8 @@ describe('EvaluationReportTable', () => {
           reports={[]}
           emptyText="no reports for this"
           shipments={[]}
-          moveCode={'FAKEIT'}
-          grade={'E_4'}
+          moveCode="FAKEIT"
+          grade="E_4"
           customerInfo={customerInfo}
         />
       </MockProviders>,
@@ -76,8 +76,8 @@ describe('EvaluationReportTable', () => {
           reports={[draftReport]}
           emptyText="no reports for this"
           shipments={[]}
-          moveCode={'FAKEIT'}
-          grade={'E_4'}
+          moveCode="FAKEIT"
+          grade="E_4"
           customerInfo={customerInfo}
         />
       </MockProviders>,
@@ -102,8 +102,8 @@ describe('EvaluationReportTable', () => {
           reports={[submittedReport]}
           emptyText="no reports for this"
           shipments={[]}
-          moveCode={'FAKEIT'}
-          grade={'E_4'}
+          moveCode="FAKEIT"
+          grade="E_4"
           customerInfo={customerInfo}
         />
       </MockProviders>,
