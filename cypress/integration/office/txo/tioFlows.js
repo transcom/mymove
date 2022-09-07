@@ -543,7 +543,8 @@ describe('TIO user', () => {
     cy.contains('Payment requests', { matchCase: false });
   });
 
-  it('can add/edit TAC/SAC', () => {
+  /* This test is being temporarily skipped until flakiness issues can be resolved. */
+  it.skip('can add/edit TAC/SAC', () => {
     // TIO Payment Requests queue
     cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
     cy.get('#locator').type('NTSTIO');
