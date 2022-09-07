@@ -91,38 +91,44 @@ const EvaluationViolationsForm = ({ violations }) => {
               {/* Serious incident */}
               <Grid row>
                 <Grid col>
-                  <h3>Serious incident</h3>
-                  <FormGroup>
-                    <Fieldset className={styles.seriousIncident}>
-                      <legend className="usa-label">Serious incident</legend>
-                      <Field
-                        as={Radio}
-                        label="No"
-                        id="no"
-                        name="seriousIncident"
-                        value="no"
-                        title="No"
-                        type="radio"
-                        checked={values.seriousIncident === 'no'}
-                      />
-                      <Field
-                        as={Radio}
-                        label="Yes"
-                        id="yes"
-                        name="seriousIncident"
-                        value="yes"
-                        title="Yes"
-                        type="radio"
-                        checked={values.seriousIncident === 'yes'}
-                      />
-                      {values.seriousIncident === 'yes' && (
-                        <>
-                          <p className={styles.incidentTextAreaLabel}>Serious incident description</p>
-                          <Field as={Textarea} name="yesSeriousIncident" />
-                        </>
-                      )}
-                    </Fieldset>
-                  </FormGroup>
+                  <div className={styles.incident}>
+                    <h3 className={styles.siHeading}>Serious incident</h3>
+                    <FormGroup>
+                      <Fieldset>
+                        <div className={styles.serious}>
+                          <legend className="usa-label">Serious incident</legend>
+                        </div>
+                        <div className={styles.seriousIncident}>
+                          <Field
+                            as={Radio}
+                            label="No"
+                            id="no"
+                            name="seriousIncident"
+                            value="no"
+                            title="No"
+                            type="radio"
+                            checked={values.seriousIncident === 'no'}
+                          />
+                          <Field
+                            as={Radio}
+                            label="Yes"
+                            id="yes"
+                            name="seriousIncident"
+                            value="yes"
+                            title="Yes"
+                            type="radio"
+                            checked={values.seriousIncident === 'yes'}
+                          />
+                          {values.seriousIncident === 'yes' && (
+                            <>
+                              <p className={styles.incidentTextAreaLabel}>Serious incident description</p>
+                              <Field as={Textarea} name="yesSeriousIncident" />
+                            </>
+                          )}
+                        </div>
+                      </Fieldset>
+                    </FormGroup>
+                  </div>
                 </Grid>
               </Grid>
             </GridContainer>
