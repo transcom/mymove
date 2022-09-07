@@ -2,7 +2,7 @@
 FROM gcr.io/distroless/base:latest
 
 # Demo Environment Certs
-COPY config/tls/api.demo.dp3.us.p7b /config/tls/api.demo.dp3.us.p7b
+COPY config/tls/api.demo.dp3.us.chain.der.p7b /config/tls/api.demo.dp3.us.chain.der.p7b
 
 # Loadtesting Environment Certs
 COPY config/tls/api.loadtest.dp3.us.chain.der.p7b /config/tls/api.loadtest.dp3.us.chain.der.p7b
