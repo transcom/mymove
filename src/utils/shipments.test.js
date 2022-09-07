@@ -10,7 +10,7 @@ import {
 
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import createDocumentWithoutUploads from 'utils/test/factories/document';
+import { createDocumentWithoutUploads } from 'utils/test/factories/document';
 import {
   createBaseWeightTicket,
   createCompleteWeightTicket,
