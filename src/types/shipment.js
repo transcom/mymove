@@ -39,6 +39,7 @@ export const PPMShipmentShape = shape({
   proGearWeight: number,
   spouseProGearWeight: number,
   estimatedIncentive: number,
+  finalEstimatedIncentive: number,
   hasRequestedAdvance: bool,
   advanceAmountRequested: number,
   hasReceivedAdvance: bool,
@@ -155,4 +156,8 @@ export const StorageFacilityShape = shape({
   email: string,
   address: ResidentialAddressShape,
   lotNumber: string,
+});
+
+export const ProGearTicketShape = shape({
+  selfProGear: bool,
 });

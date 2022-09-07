@@ -19,8 +19,10 @@ describe('Customer Support User Flows', () => {
     const userId = 'b264abd6-52fc-4e42-9e0f-173f7d217bc5';
     cy.apiSignInAsUser(userId, QAECSROfficeUserType);
   });
+
   // This test performs a mutation so it can only succeed on a fresh DB.
-  it('is able to add, edit, and delete a remark', () => {
+  /* This test is being temporarily skipped until flakiness issues can be resolved. */
+  it.skip('is able to add, edit, and delete a remark', () => {
     const moveLocator = 'TEST12';
     const testRemarkText = 'This is a test remark';
     const editString = '-edit';

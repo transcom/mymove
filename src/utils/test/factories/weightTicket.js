@@ -2,14 +2,15 @@ import moment from 'moment';
 import { v4 } from 'uuid';
 
 import createUpload from 'utils/test/factories/upload';
+import { createDocumentWithoutUploads } from 'utils/test/factories/document';
 
-const createBaseWeightTicket = ({ serviceMemberId, creationDate } = {}, fieldOverrides = {}) => {
-  const weightTicketCreatedAtDate = creationDate || new Date();
+const createBaseWeightTicket = ({ serviceMemberId, creationDate = new Date() } = {}, fieldOverrides = {}) => {
+  const weightTicketCreatedAtDate = creationDate.toISOString();
 
   const smId = serviceMemberId || v4();
-  const emptyDocumentId = v4();
-  const fullDocumentId = v4();
-  const trailerDocumentId = v4();
+  const emptyDocument = createDocumentWithoutUploads({ serviceMemberId: smId });
+  const fullDocument = createDocumentWithoutUploads({ serviceMemberId: smId });
+  const trailerDocument = createDocumentWithoutUploads({ serviceMemberId: smId });
 
   return {
     id: v4(),
@@ -17,31 +18,19 @@ const createBaseWeightTicket = ({ serviceMemberId, creationDate } = {}, fieldOve
     vehicleDescription: null,
     emptyWeight: null,
     missingEmptyWeightTicket: null,
-    emptyDocumentId,
-    emptyDocument: {
-      id: emptyDocumentId,
-      service_member_id: smId,
-      uploads: [],
-    },
+    emptyDocumentId: emptyDocument.id,
+    emptyDocument,
     fullWeight: null,
     missingFullWeightTicket: null,
-    fullDocumentId,
-    fullDocument: {
-      id: fullDocumentId,
-      service_member_id: smId,
-      uploads: [],
-    },
+    fullDocumentId: fullDocument.id,
+    fullDocument,
     ownsTrailer: null,
     trailerMeetsCriteria: null,
-    proofOfTrailerOwnershipDocumentId: trailerDocumentId,
-    proofOfTrailerOwnershipDocument: {
-      id: trailerDocumentId,
-      service_member_id: smId,
-      uploads: [],
-    },
-    createdAt: weightTicketCreatedAtDate.toISOString(),
-    updatedAt: weightTicketCreatedAtDate.toISOString(),
-    eTag: window.btoa(weightTicketCreatedAtDate.toISOString()),
+    proofOfTrailerOwnershipDocumentId: trailerDocument.id,
+    proofOfTrailerOwnershipDocument: trailerDocument,
+    createdAt: weightTicketCreatedAtDate,
+    updatedAt: weightTicketCreatedAtDate,
+    eTag: window.btoa(weightTicketCreatedAtDate),
     ...fieldOverrides,
   };
 };

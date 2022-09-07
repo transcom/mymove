@@ -1575,6 +1575,8 @@ definitions:
         type: string
         format: uuid
         x-nullable: true
+      ppm_id:
+        $ref: '#/definitions/PpmID'
       certification_type:
         $ref: '#/definitions/SignedCertificationType'
     required:
@@ -1601,6 +1603,8 @@ definitions:
         type: string
         format: uuid
         x-nullable: true
+      ppm_id:
+        $ref: '#/definitions/PpmID'
       certification_type:
         $ref: '#/definitions/SignedCertificationTypeCreate'
     required:
@@ -2608,6 +2612,18 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      w2Address:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      finalIncentive:
+        description: >
+          The final calculated incentive for the PPM shipment. This does not
+          include **SIT** as it is a reimbursement.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+        readOnly: true
       sitExpected:
         type: boolean
         x-nullable: true
@@ -3137,6 +3153,9 @@ definitions:
         readOnly: true
       status:
         $ref: '#/definitions/PPMShipmentStatus'
+      w2Address:
+        x-nullable: true
+        $ref: '#/definitions/Address'
       advanceStatus:
         $ref: '#/definitions/PPMAdvanceStatus'
       expectedDepartureDate:
@@ -3248,6 +3267,15 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      finalIncentive:
+        description: >
+          The final calculated incentive for the PPM shipment. This does not
+          include **SIT** as it is a reimbursement.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+        readOnly: true
       hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
@@ -3324,6 +3352,13 @@ definitions:
       - destinationPostalCode
       - sitExpected
       - eTag
+  PpmID:
+    description: |
+      The PPM Shipment ID to associate with the assigned certificate.
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    x-nullable: true
   NullableString:
     type: string
     x-go-type:
