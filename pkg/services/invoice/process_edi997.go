@@ -7,9 +7,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	edisegment "github.com/transcom/mymove/pkg/edi/segment"
-
 	ediResponse997 "github.com/transcom/mymove/pkg/edi/edi997"
+	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )

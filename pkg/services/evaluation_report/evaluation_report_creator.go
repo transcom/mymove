@@ -15,18 +15,42 @@ func NewEvaluationReportCreator() services.EvaluationReportCreator {
 	return &evaluationReportCreator{}
 }
 
-func (o evaluationReportCreator) CreateEvaluationReport(appCtx appcontext.AppContext, report *models.EvaluationReport) (*models.EvaluationReport, error) {
-	// Note: this assumes we are creating a shipment report. When adding counceling eval reports this will need tweaked.
-	// Need to get the Shipment for some report fields
-	var shipment models.MTOShipment
-	err := appCtx.DB().Q().Where("id = ?", report.ShipmentID).First(&shipment)
-	if err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return nil, models.ErrFetchNotFound
+func (o evaluationReportCreator) CreateEvaluationReport(appCtx appcontext.AppContext, report *models.EvaluationReport, locator string) (*models.EvaluationReport, error) {
+
+	// check if it is a shipment or counseling report
+	reportType := report.Type
+
+	// counseling
+	if reportType == models.EvaluationReportTypeCounseling {
+		// get moveID via locator & make sure it exists
+		var move models.Move
+		err := appCtx.DB().Q().Where("locator = ?", locator).First(&move)
+		if err != nil {
+			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+				return nil, models.ErrFetchNotFound
+			}
+			return nil, err
 		}
-		return nil, err
+
+		report.MoveID = move.ID
+		report.Move = move
 	}
-	report.MoveID = shipment.MoveTaskOrderID
+
+	// shipment
+	if reportType == models.EvaluationReportTypeShipment {
+		// Need to get the Shipment for some report fields
+		var shipment models.MTOShipment
+		err := appCtx.DB().Q().Where("id = ?", report.ShipmentID).First(&shipment)
+		if err != nil {
+			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+				return nil, models.ErrFetchNotFound
+			}
+			return nil, err
+		}
+
+		report.Shipment = &shipment
+		report.MoveID = shipment.MoveTaskOrderID
+	}
 
 	verrs, err := appCtx.DB().ValidateAndCreate(report)
 	if verrs.Count() != 0 || err != nil {

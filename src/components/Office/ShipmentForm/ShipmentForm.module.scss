@@ -54,6 +54,15 @@
     padding-bottom: 9px;
   }
 
+  .remarksField :global(.usa-form-group) {
+    @include u-margin-top(0);
+
+    input {
+      @include u-margin-top(1);
+      width: 70%;
+    }
+  }
+
   .buttonGroup {
     display: flex;
   }

@@ -15,6 +15,7 @@ import { OrdersLOAShape } from 'types/order';
 import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { formatAddress, retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
+import { formatShortIDWithPound } from 'utils/formatters';
 
 const EvaluationReportShipmentDisplay = ({
   shipmentType,
@@ -48,9 +49,9 @@ const EvaluationReportShipmentDisplay = ({
       <ShipmentContainer className={containerClasses} shipmentType={shipmentType}>
         <div className={styles.heading}>
           <div className={styles.headingTagWrapper}>
-            <h3>
+            <h5>
               <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
-            </h3>
+            </h5>
             {displayInfo.isDiversion && <Tag>diversion</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
@@ -59,32 +60,34 @@ const EvaluationReportShipmentDisplay = ({
             )}
             {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
           </div>
-          <div className={styles.headingShipmentID}>Shipment ID: #{shipmentId.slice(0, 5).toUpperCase()}</div>
+          <h6 className={styles.headingShipmentID}>Shipment ID: {formatShortIDWithPound(shipmentId)}</h6>
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
         </div>
         {isExpanded && displayInfo.shipmentType === SHIPMENT_OPTIONS.NTS && (
           <div className={styles.ntsHeaderText}>
-            <div className={styles.ntsHeaderTextField}>Pickup address</div>
-            <div className={styles.ntsHeaderTextField}>
+            <h6 className={styles.ntsHeaderTextField}>Pickup address</h6>
+            <h6 className={classnames(styles.ntsHeaderTextField, styles.ntsHeaderTextRight)}>
               {displayInfo?.storageFacility ? displayInfo.storageFacility.facilityName : ''}
-            </div>
+            </h6>
           </div>
         )}
         {isExpanded && displayInfo.shipmentType === SHIPMENT_OPTIONS.NTSR && (
           <div className={styles.ntsHeaderText}>
-            <div className={styles.ntsHeaderTextField}>
+            <h6 className={styles.ntsHeaderTextField}>
               {displayInfo?.storageFacility ? displayInfo.storageFacility.facilityName : ''}
-            </div>
-            <div className={styles.ntsHeaderTextField}>Delivery address</div>
+            </h6>
+            <h6 className={classnames(styles.ntsHeaderTextField, styles.ntsHeaderTextRight)}>Delivery address</h6>
           </div>
         )}
-        {isExpanded && displayInfo.pickupAddress && displayInfo.destinationAddress && (
+        {isExpanded && (displayInfo.pickupAddress || displayInfo.destinationAddress) && (
           <div className={styles.shipmentAddresses}>
-            <div className={styles.shipmentAddressTextFields}>{pickupAddressString}</div>
+            <div className={classnames(styles.shipmentAddressTextFields, styles.shipmentAddressLeft)}>
+              {pickupAddressString || '—'}
+            </div>
             <div className={styles.shipmentAddressArrow}>
               <FontAwesomeIcon icon="arrow-right" />
             </div>
-            <div className={styles.shipmentAddressTextFields}>{destinationAddressString}</div>
+            <div className={styles.shipmentAddressTextFields}>{destinationAddressString || '—'}</div>
           </div>
         )}
         <ShipmentInfoListSelector

@@ -145,8 +145,10 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
+		FinalIncentive:                 handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive),
 	}
 
+	ppmModel.W2Address = AddressModel(ppmShipment.W2Address)
 	if ppmShipment.ExpectedDepartureDate != nil {
 		ppmModel.ExpectedDepartureDate = *handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
 	}
@@ -157,6 +159,10 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 
 	if ppmShipment.PickupPostalCode != nil {
 		ppmModel.PickupPostalCode = *ppmShipment.PickupPostalCode
+	}
+
+	if ppmShipment.FinalIncentive != nil {
+		ppmModel.FinalIncentive = handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive)
 	}
 
 	return ppmModel
@@ -189,6 +195,30 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	}
 
 	model.PPMShipment = UpdatePPMShipmentModel(mtoShipment.PpmShipment)
+
+	return model
+}
+
+// MovingExpenseModelFromUpdate
+func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingExpense) *models.MovingExpense {
+	if movingExpense == nil {
+		return nil
+	}
+	model := &models.MovingExpense{
+		MovingExpenseType: (*models.MovingExpenseReceiptType)(movingExpense.MovingExpenseType),
+		Description:       handlers.FmtStringPtr(movingExpense.Description),
+		Amount:            handlers.FmtInt64PtrToPopPtr(movingExpense.Amount),
+		SITStartDate:      handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
+		SITEndDate:        handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
+	}
+
+	if movingExpense.PaidWithGTCC != nil {
+		model.PaidWithGTCC = handlers.FmtBool(*movingExpense.PaidWithGTCC)
+	}
+
+	if movingExpense.MissingReceipt != nil {
+		model.MissingReceipt = handlers.FmtBool(*movingExpense.MissingReceipt)
+	}
 
 	return model
 }

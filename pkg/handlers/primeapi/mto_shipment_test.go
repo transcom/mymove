@@ -6,51 +6,40 @@ import (
 	"net/http/httptest"
 	"time"
 
-	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
-	"github.com/transcom/mymove/pkg/services/ppmshipment"
-
-	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-	moveservices "github.com/transcom/mymove/pkg/services/move"
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-
-	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-
-	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
-
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-
-	"github.com/gofrs/uuid"
-
-	"github.com/go-openapi/swag"
-
-	routemocks "github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/unit"
-
-	"github.com/transcom/mymove/pkg/models"
-
-	"github.com/transcom/mymove/pkg/gen/primemessages"
-
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	moveservices "github.com/transcom/mymove/pkg/services/move"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	builder := query.NewQueryBuilder()
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 	fetcher := fetch.NewFetcher(builder)
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 	ppmEstimator := mocks.PPMEstimator{}
@@ -148,6 +137,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		proGearWeight := unit.Pound(400)
 		spouseProGearWeight := unit.Pound(250)
 		estimatedIncentive := 123456
+		sitEstimatedCost := 67500
 
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
@@ -181,7 +171,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
-			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil).Once()
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
@@ -212,6 +202,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(handlers.FmtPoundPtr(&proGearWeight), createdPPM.ProGearWeight)
 		suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), createdPPM.SpouseProGearWeight)
 		suite.Equal(int64(estimatedIncentive), *createdPPM.EstimatedIncentive)
+		suite.Equal(int64(sitEstimatedCost), *createdPPM.SitEstimatedCost)
 	})
 
 	suite.Run("POST failure - 500", func() {
@@ -483,7 +474,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -723,6 +714,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		proGearWeight := unit.Pound(300)
 		spouseProGearWeight := unit.Pound(200)
 		estimatedIncentive := 654321
+		sitEstimatedCost := 67500
 
 		req := httptest.NewRequest("PATCH", "/mto-shipments/{MtoShipmentID}", nil)
 		eTag := etag.GenerateEtag(ppmShipment.Shipment.UpdatedAt)
@@ -759,7 +751,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
-			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil).Once()
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
@@ -779,6 +771,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(handlers.FmtPoundPtr(&estimatedWeight), updatedShipment.PpmShipment.EstimatedWeight)
 		suite.Equal(handlers.FmtPoundPtr(&netWeight), updatedShipment.PpmShipment.NetWeight)
 		suite.Equal(int64(estimatedIncentive), *updatedShipment.PpmShipment.EstimatedIncentive)
+		suite.Equal(int64(sitEstimatedCost), *updatedShipment.PpmShipment.SitEstimatedCost)
 		suite.Equal(handlers.FmtBool(hasProGear), updatedShipment.PpmShipment.HasProGear)
 		suite.Equal(handlers.FmtPoundPtr(&proGearWeight), updatedShipment.PpmShipment.ProGearWeight)
 		suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), updatedShipment.PpmShipment.SpouseProGearWeight)
@@ -1174,7 +1167,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -1354,7 +1347,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	// Create a handler object to use in the tests
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -1886,7 +1879,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())

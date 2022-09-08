@@ -1,21 +1,18 @@
 package ghcapi
 
 import (
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/models"
-
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	evaluationReportop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	moveop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -46,6 +43,47 @@ func (h GetShipmentEvaluationReportsHandler) Handle(params moveop.GetMoveShipmen
 	)
 }
 
+// CreateEvaluationReport is the struct for creating an evaluation report
+type CreateEvaluationReportHandler struct {
+	handlers.HandlerConfig
+	services.EvaluationReportCreator
+}
+
+//Handle is the handler for creating an evaluation report
+func (h CreateEvaluationReportHandler) Handle(params evaluationReportop.CreateEvaluationReportParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			report := &models.EvaluationReport{
+				ID: uuid.Must(uuid.NewV4()),
+			}
+
+			if params.Body != nil {
+				payload := params.Body
+
+				shipmentID := uuid.FromStringOrNil(payload.ShipmentID.String())
+				report.Type = models.EvaluationReportTypeShipment
+				report.ShipmentID = &shipmentID
+			} else {
+				report.Type = models.EvaluationReportTypeCounseling
+			}
+
+			if appCtx.Session() != nil {
+				report.OfficeUserID = appCtx.Session().OfficeUserID
+			}
+
+			evaluationReport, err := h.CreateEvaluationReport(appCtx, report, params.Locator)
+			if err != nil {
+				appCtx.Logger().Error("Error creating evaluation report: ", zap.Error(err))
+				return evaluationReportop.NewCreateEvaluationReportInternalServerError(), err
+			}
+
+			returnPayload := payloads.EvaluationReport(evaluationReport)
+
+			return evaluationReportop.NewCreateEvaluationReportOK().WithPayload(returnPayload), nil
+		})
+}
+
 // GetCounselingEvaluationReportsHandler gets a list of counseling evaluation reports for a given move
 type GetCounselingEvaluationReportsHandler struct {
 	handlers.HandlerConfig
@@ -71,41 +109,6 @@ func (h GetCounselingEvaluationReportsHandler) Handle(params moveop.GetMoveCouns
 			return moveop.NewGetMoveCounselingEvaluationReportsListOK().WithPayload(payload), nil
 		},
 	)
-}
-
-// CreateEvaluationReportHandler is the struct for creating an evaluation report
-type CreateEvaluationReportHandler struct {
-	handlers.HandlerConfig
-	services.EvaluationReportCreator
-}
-
-//Handle is the handler for creating an evaluation report
-func (h CreateEvaluationReportHandler) Handle(params evaluationReportop.CreateEvaluationReportForShipmentParams) middleware.Responder {
-	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			payload := params.Body
-			shipmentID := uuid.FromStringOrNil(payload.ShipmentID.String())
-			report := &models.EvaluationReport{
-				ShipmentID: &shipmentID,
-				Type:       models.EvaluationReportTypeShipment,
-				ID:         uuid.Must(uuid.NewV4()),
-			}
-
-			if appCtx.Session() != nil {
-				report.OfficeUserID = appCtx.Session().OfficeUserID
-			}
-
-			evaluationReport, err := h.CreateEvaluationReport(appCtx, report)
-			if err != nil {
-				appCtx.Logger().Error("Error creating evaluation report: ", zap.Error(err))
-				return evaluationReportop.NewCreateEvaluationReportForShipmentInternalServerError(), err
-			}
-
-			returnPayload := payloads.EvaluationReport(evaluationReport)
-
-			return evaluationReportop.NewCreateEvaluationReportForShipmentOK().WithPayload(returnPayload), nil
-		})
 }
 
 // GetEvaluationReportHandler is the struct for fetching an evaluation report by ID

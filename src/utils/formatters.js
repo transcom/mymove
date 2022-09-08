@@ -174,6 +174,9 @@ export const formatPrimeAPIFullAddress = (address) => {
 
 export const formatEvaluationReportShipmentAddress = (address) => {
   const { streetAddress1, city, state, postalCode } = address;
+  if (!streetAddress1 || !city || !state) {
+    return postalCode;
+  }
   return `${streetAddress1}, ${city}, ${state} ${postalCode}`;
 };
 
@@ -406,7 +409,7 @@ export function formatQAReportID(uuid) {
   return `#QA-${getUUIDFirstFive(uuid)}`;
 }
 
-export function formatShortShipmentID(uuid) {
+export function formatShortIDWithPound(uuid) {
   return `#${getUUIDFirstFive(uuid)}`;
 }
 

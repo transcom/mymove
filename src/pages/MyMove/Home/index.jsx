@@ -52,7 +52,7 @@ import {
 import { HistoryShape, MoveShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
-import { isPPMShipmentComplete } from 'utils/shipments';
+import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -281,11 +281,37 @@ export class Home extends Component {
   };
 
   handlePPMUploadClick = (shipmentId) => {
-    const { move, history } = this.props;
-    const path = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
+    const { move, mtoShipments, history } = this.props;
+
+    const shipment = mtoShipments.find((mtoShipment) => mtoShipment.id === shipmentId);
+
+    const aboutInfoComplete = isPPMAboutInfoComplete(shipment.ppmShipment);
+
+    let path = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
       moveId: move.id,
       mtoShipmentId: shipmentId,
     });
+
+    if (aboutInfoComplete) {
+      if (shipment.ppmShipment.weightTickets.length === 0) {
+        path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
+          moveId: move.id,
+          mtoShipmentId: shipmentId,
+        });
+      } else if (!shipment.ppmShipment.weightTickets.some(isWeightTicketComplete)) {
+        path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
+          moveId: move.id,
+          mtoShipmentId: shipmentId,
+          weightTicketId: shipment.ppmShipment.weightTickets[0].id,
+        });
+      } else {
+        path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+          moveId: move.id,
+          mtoShipmentId: shipmentId,
+        });
+      }
+    }
+
     history.push(path);
   };
 

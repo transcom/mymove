@@ -6,7 +6,9 @@ import EvaluationReportTable from './EvaluationReportTable';
 import EvaluationReportShipmentInfo from './EvaluationReportShipmentInfo';
 import styles from './ShipmentEvaluationReports.module.scss';
 
-const ShipmentEvaluationReports = ({ shipments, reports }) => {
+import { CustomerShape } from 'types';
+
+const ShipmentEvaluationReports = ({ shipments, reports, moveCode, customerInfo, grade }) => {
   const sortedShipments = shipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
 
   const shipmentRows = sortedShipments.map((shipment) => {
@@ -14,7 +16,11 @@ const ShipmentEvaluationReports = ({ shipments, reports }) => {
       <div key={shipment.id} className={styles.shipmentRow}>
         <EvaluationReportShipmentInfo shipment={shipment} />
         <EvaluationReportTable
+          moveCode={moveCode}
           reports={reports.filter((r) => r.shipmentID === shipment.id)}
+          customerInfo={customerInfo}
+          grade={grade}
+          shipmentId={shipment.id}
           emptyText="No QAE reports have been submitted for this shipment."
         />
       </div>
@@ -32,6 +38,9 @@ const ShipmentEvaluationReports = ({ shipments, reports }) => {
 ShipmentEvaluationReports.propTypes = {
   reports: PropTypes.arrayOf(PropTypes.object),
   shipments: PropTypes.arrayOf(PropTypes.object),
+  moveCode: PropTypes.string.isRequired,
+  customerInfo: CustomerShape.isRequired,
+  grade: PropTypes.string.isRequired,
 };
 ShipmentEvaluationReports.defaultProps = {
   reports: [],

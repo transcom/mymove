@@ -1,15 +1,11 @@
 package authentication
 
 import (
-	"github.com/spf13/cast"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-
 	"github.com/transcom/mymove/pkg/auth"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
@@ -37,7 +33,7 @@ var ServicesCounselor = RolePermissions{
 
 var QAECSR = RolePermissions{
 	RoleType:    roles.RoleTypeQaeCsr,
-	Permissions: []string{"read.paymentRequest"},
+	Permissions: []string{"read.paymentRequest", "create.evaluationReport", "update.evaluationReport", "delete.evaluationReport"},
 }
 
 var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAECSR}
@@ -99,7 +95,7 @@ func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]roles.Ro
 		return nil, err
 	}
 
-	logger.Info("User has the following roles: ", zap.String("user roles", cast.ToString(userRoleTypes)))
+	logger.Info("User has the following roles: ", zap.Any("user roles", userRoleTypes))
 
 	return userRoleTypes, nil
 }

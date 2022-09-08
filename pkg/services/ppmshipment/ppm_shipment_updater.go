@@ -50,12 +50,36 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// This potentially updates the MTOShipment.Distance field so include it in the transaction
-		estimatedIncentive, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
+		estimatedIncentive, estimatedSITCost, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
 		if err != nil {
 			return err
 		}
 
 		updatedPPMShipment.EstimatedIncentive = estimatedIncentive
+		updatedPPMShipment.SITEstimatedCost = estimatedSITCost
+
+		if appCtx.Session() != nil {
+			if appCtx.Session().IsOfficeUser() {
+				rejected := models.PPMAdvanceStatusRejected
+				edited := models.PPMAdvanceStatusEdited
+				approved := models.PPMAdvanceStatusApproved
+				if oldPPMShipment.HasRequestedAdvance != nil && updatedPPMShipment.HasRequestedAdvance != nil {
+					if !*oldPPMShipment.HasRequestedAdvance && *updatedPPMShipment.HasRequestedAdvance {
+						updatedPPMShipment.AdvanceStatus = &edited
+					} else if *oldPPMShipment.HasRequestedAdvance && !*updatedPPMShipment.HasRequestedAdvance {
+						updatedPPMShipment.AdvanceStatus = &rejected
+					}
+				}
+				if oldPPMShipment.AdvanceAmountRequested != nil && updatedPPMShipment.AdvanceAmountRequested != nil {
+					if *oldPPMShipment.AdvanceAmountRequested != *updatedPPMShipment.AdvanceAmountRequested {
+						updatedPPMShipment.AdvanceStatus = &edited
+					}
+					if *oldPPMShipment.AdvanceAmountRequested == *updatedPPMShipment.AdvanceAmountRequested && *oldPPMShipment.HasRequestedAdvance == *updatedPPMShipment.HasRequestedAdvance {
+						updatedPPMShipment.AdvanceStatus = &approved
+					}
+				}
+			}
+		}
 
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)
 

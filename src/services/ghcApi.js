@@ -55,8 +55,12 @@ export async function deleteCustomerSupportRemark({ customerSupportRemarkID }) {
   );
 }
 
-export async function createEvaluationReportForShipment({ body }) {
-  return makeGHCRequest('evaluationReports.createEvaluationReportForShipment', { body }, { normalize: false });
+export async function createCounselingEvaluationReport({ moveCode }) {
+  return makeGHCRequest('evaluationReports.createEvaluationReport', { locator: moveCode }, { normalize: false });
+}
+
+export async function createShipmentEvaluationReport({ body, moveCode }) {
+  return makeGHCRequest('evaluationReports.createEvaluationReport', { locator: moveCode, body }, { normalize: false });
 }
 
 export async function deleteEvaluationReport(reportID) {
@@ -113,6 +117,10 @@ export async function getCounselingEvaluationReports(key, moveID) {
     { moveID },
     { schemaKey: 'evaluationReports', normalize: false },
   );
+}
+
+export async function getPWSViolations() {
+  return makeGHCRequest('evaluationReports.getPWSViolations', {}, { normalize: false });
 }
 
 export async function getMTOServiceItems(key, moveTaskOrderID, normalize = true) {

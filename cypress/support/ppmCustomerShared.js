@@ -5,6 +5,14 @@ export function setMobileViewport() {
   cy.viewport(479, 875);
 }
 
+export function signInAndClickOnUploadPPMDocumentsButton(userId) {
+  cy.apiSignInAsUser(userId);
+  cy.wait('@getShipment');
+  cy.get('h3').should('contain', 'Your move is in progress.');
+
+  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').should('be.enabled').click();
+}
+
 export function customerStartsAddingAPPMShipment() {
   cy.get('button[data-testid="shipment-selection-btn"]').click();
   cy.nextPage();
@@ -22,16 +30,41 @@ export function signInAndNavigateFromHomePageToReviewPage(userId, isMoveSubmitte
 }
 
 export function signInAndNavigateToAboutPage(userId, selectAdvance) {
-  cy.apiSignInAsUser(userId);
+  signInAndClickOnUploadPPMDocumentsButton(userId);
 
-  cy.wait('@getShipment');
-  cy.get('h3').should('contain', 'Your move is in progress.');
-  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/about/);
   });
 
+  cy.get('h1').should('contain', 'About your PPM');
+
   fillOutAboutPage(selectAdvance);
+}
+
+export function signInAndNavigateToPPMReviewPage(userId) {
+  signInAndClickOnUploadPPMDocumentsButton(userId);
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+  });
+
+  cy.get('h1').should('contain', 'Review');
+}
+
+export function navigateFromPPMReviewPageToFinalCloseoutPage() {
+  cy.get('a').contains('Save & Continue').click();
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/complete/);
+  });
+
+  cy.get('h1').should('contain', 'Complete PPM');
+}
+
+export function signInAndNavigateToFinalCloseoutPage(userId) {
+  signInAndNavigateToPPMReviewPage(userId);
+
+  navigateFromPPMReviewPageToFinalCloseoutPage();
 }
 
 export function navigateFromHomePageToReviewPage(isMoveSubmitted = false) {
@@ -60,7 +93,7 @@ export function fillOutAboutPage(selectAdvance) {
 }
 
 export function navigateFromAboutPageToWeightTicketPage() {
-  cy.get('button').contains('Save & Continue').click();
+  cy.get('button').contains('Save & Continue').should('be.enabled').click();
   cy.wait('@patchShipment');
 
   cy.location().should((loc) => {
@@ -69,12 +102,13 @@ export function navigateFromAboutPageToWeightTicketPage() {
 }
 
 export function signInAndNavigateToWeightTicketPage(userId) {
-  cy.apiSignInAsUser(userId);
-  cy.wait('@getShipment');
-  cy.get('h3').should('contain', 'Your move is in progress.');
+  signInAndClickOnUploadPPMDocumentsButton(userId);
 
-  cy.get('button[data-testid="button"]').contains('Upload PPM Documents').should('be.enabled').click();
-  fillOutAboutPage(true);
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+  });
+
+  cy.get('h1').should('contain', 'Weight Tickets');
 }
 
 export function submitWeightTicketPage(options) {
@@ -305,4 +339,11 @@ export function deleteShipment(selector, expectedLength) {
     cy.get(selector).should('not.exist');
   }
   cy.get('[data-testid="alert"]').should('contain', 'The shipment was deleted.');
+}
+
+export function navigateFromCloseoutReviewPageToProGearPage() {
+  cy.get('a.usa-button').contains('Add Pro-gear Weight').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
+  });
 }

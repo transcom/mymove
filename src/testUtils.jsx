@@ -49,10 +49,23 @@ MockProviders.propTypes = {
   currentUserId: string,
 };
 
+const DEFAULT_INITIAL_ENTRIES = ['/'];
+
 MockProviders.defaultProps = {
   initialState: {},
-  initialEntries: ['/'],
+  initialEntries: DEFAULT_INITIAL_ENTRIES,
   history: null,
   permissions: [],
   currentUserId: null,
+};
+
+export const setUpProvidersWithHistory = (initialEntries = DEFAULT_INITIAL_ENTRIES) => {
+  const memoryHistory = createMockHistory(initialEntries);
+
+  const mockProviderWithHistory = (props) => <MockProviders history={memoryHistory} {...props} />;
+
+  return {
+    memoryHistory,
+    mockProviderWithHistory,
+  };
 };

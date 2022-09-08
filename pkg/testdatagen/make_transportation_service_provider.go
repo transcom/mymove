@@ -7,9 +7,8 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/random"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/random"
 )
 
 const alphanumericBytes = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"

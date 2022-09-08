@@ -499,7 +499,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
       },
       "delete": {
         "description": "Soft deletes an evaluation report by ID",
@@ -533,7 +536,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "delete.evaluationReport"
+        ]
       },
       "parameters": [
         {
@@ -1664,51 +1670,6 @@ func init() {
         }
       }
     },
-    "/moves/shipment-evaluation-reports": {
-      "post": {
-        "description": "Creates a shipment evaluation report",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "evaluationReports"
-        ],
-        "summary": "Creates a shipment evaluation report",
-        "operationId": "createEvaluationReportForShipment",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreateShipmentEvaluationReport"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully created shipment evaluation report",
-            "schema": {
-              "$ref": "#/definitions/EvaluationReport"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
     "/moves/{locator}/customer-support-remarks": {
       "get": {
         "description": "Fetches customer support remarks for a move",
@@ -1789,6 +1750,62 @@ func init() {
           "type": "string",
           "format": "string",
           "description": "move code to identify a move for customer support remarks",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{locator}/evaluation-reports": {
+      "post": {
+        "description": "Creates an evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Creates an evaluation report",
+        "operationId": "createEvaluationReport",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateEvaluationReport"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created evaluation report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "create.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
           "name": "locator",
           "in": "path",
           "required": true
@@ -2576,6 +2593,39 @@ func init() {
           },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/pws-violations": {
+      "get": {
+        "description": "Fetch the possible PWS violations for an evaluation report",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Fetch the possible PWS violations for an evaluation report",
+        "operationId": "getPWSViolations",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the PWS violations",
+            "schema": {
+              "$ref": "#/definitions/PWSViolations"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -4099,6 +4149,18 @@ func init() {
         }
       }
     },
+    "CreateEvaluationReport": {
+      "description": "Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.",
+      "type": "object",
+      "properties": {
+        "shipmentID": {
+          "description": "The shipment ID of the shipment to be evaluated in the report",
+          "type": "string",
+          "format": "uuid",
+          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
+        }
+      }
+    },
     "CreateMTOShipment": {
       "type": "object",
       "required": [
@@ -4333,21 +4395,6 @@ func init() {
             "OTHER"
           ],
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
-        }
-      }
-    },
-    "CreateShipmentEvaluationReport": {
-      "description": "Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.",
-      "type": "object",
-      "required": [
-        "shipmentID"
-      ],
-      "properties": {
-        "shipmentID": {
-          "description": "The shipment ID of the shipment to be evaluated in the report",
-          "type": "string",
-          "format": "uuid",
-          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
         }
       }
     },
@@ -4740,6 +4787,11 @@ func init() {
         },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "violationsObserved": {
           "type": "boolean",
@@ -5888,6 +5940,127 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "MovingExpense": {
+      "type": "object",
+      "required": [
+        "id",
+        "createdAt",
+        "updatedAt",
+        "ppmShipmentId",
+        "documentId",
+        "document"
+      ],
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "document": {
+          "type": "object"
+        },
+        "documentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missingReceipt": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "movingExpenseType": {
+          "x-nullable": true,
+          "x-omitempty": false,
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "paidWithGtcc": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2018-05-26"
+        },
+        "sitStartDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2022-04-26"
+        },
+        "status": {
+          "x-nullable": true,
+          "x-omitempty": false,
+          "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "MovingExpenseType": {
+      "type": "string",
+      "title": "Moving Expense Type",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEES"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEES": "Weighing fees"
+      }
+    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -6065,6 +6238,29 @@ func init() {
       },
       "x-nullable": true
     },
+    "PPMAdvanceStatus": {
+      "type": "string",
+      "title": "PPM Advance Status",
+      "enum": [
+        "APPROVED",
+        "REJECTED",
+        "EDITED"
+      ]
+    },
+    "PPMDocumentStatus": {
+      "type": "string",
+      "title": "PPM document status",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
+      }
+    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
@@ -6119,6 +6315,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
+        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -6159,6 +6358,14 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -6182,6 +6389,12 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "movingExpense": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MovingExpense"
+          }
         },
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
@@ -6292,6 +6505,10 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "weightTickets": {
           "type": "array",
           "items": {
@@ -6312,6 +6529,60 @@ func init() {
         "PAYMENT_APPROVED"
       ],
       "readOnly": true
+    },
+    "PWSViolation": {
+      "description": "A PWS violation for an evaluation report",
+      "type": "object",
+      "properties": {
+        "additionalDataElem": {
+          "type": "string",
+          "example": "QAE Observed Delivery Date"
+        },
+        "category": {
+          "type": "string",
+          "example": "Pre-Move Services"
+        },
+        "displayOrder": {
+          "type": "integer",
+          "example": 3
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isKpi": {
+          "type": "boolean",
+          "example": false
+        },
+        "paragraphNumber": {
+          "type": "string",
+          "example": "1.2.3.4.5"
+        },
+        "requirementStatement": {
+          "type": "string",
+          "example": "The contractor shall prepare and load property going into NTS in containers at residence for shipment to NTS."
+        },
+        "requirementSummary": {
+          "type": "string",
+          "example": "Provide a single point of contact (POC)"
+        },
+        "subCategory": {
+          "type": "string",
+          "example": "Weight Estimate"
+        },
+        "title": {
+          "type": "string",
+          "example": "Customer Support"
+        }
+      },
+      "readOnly": true
+    },
+    "PWSViolations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PWSViolation"
+      }
     },
     "PatchMTOServiceItemStatusPayload": {
       "properties": {
@@ -7459,6 +7730,10 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -8558,7 +8833,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
       },
       "delete": {
         "description": "Soft deletes an evaluation report by ID",
@@ -8610,7 +8888,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "delete.evaluationReport"
+        ]
       },
       "parameters": [
         {
@@ -10050,63 +10331,6 @@ func init() {
         }
       }
     },
-    "/moves/shipment-evaluation-reports": {
-      "post": {
-        "description": "Creates a shipment evaluation report",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "evaluationReports"
-        ],
-        "summary": "Creates a shipment evaluation report",
-        "operationId": "createEvaluationReportForShipment",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreateShipmentEvaluationReport"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully created shipment evaluation report",
-            "schema": {
-              "$ref": "#/definitions/EvaluationReport"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
     "/moves/{locator}/customer-support-remarks": {
       "get": {
         "description": "Fetches customer support remarks for a move",
@@ -10211,6 +10435,74 @@ func init() {
           "type": "string",
           "format": "string",
           "description": "move code to identify a move for customer support remarks",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{locator}/evaluation-reports": {
+      "post": {
+        "description": "Creates an evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Creates an evaluation report",
+        "operationId": "createEvaluationReport",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateEvaluationReport"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created evaluation report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "create.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
           "name": "locator",
           "in": "path",
           "required": true
@@ -11211,6 +11503,51 @@ func init() {
             "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/pws-violations": {
+      "get": {
+        "description": "Fetch the possible PWS violations for an evaluation report",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Fetch the possible PWS violations for an evaluation report",
+        "operationId": "getPWSViolations",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the PWS violations",
+            "schema": {
+              "$ref": "#/definitions/PWSViolations"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
@@ -12967,6 +13304,18 @@ func init() {
         }
       }
     },
+    "CreateEvaluationReport": {
+      "description": "Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.",
+      "type": "object",
+      "properties": {
+        "shipmentID": {
+          "description": "The shipment ID of the shipment to be evaluated in the report",
+          "type": "string",
+          "format": "uuid",
+          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
+        }
+      }
+    },
     "CreateMTOShipment": {
       "type": "object",
       "required": [
@@ -13201,21 +13550,6 @@ func init() {
             "OTHER"
           ],
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
-        }
-      }
-    },
-    "CreateShipmentEvaluationReport": {
-      "description": "Minimal set of info needed to create a shipment evaluation report, which is just a shipment ID.",
-      "type": "object",
-      "required": [
-        "shipmentID"
-      ],
-      "properties": {
-        "shipmentID": {
-          "description": "The shipment ID of the shipment to be evaluated in the report",
-          "type": "string",
-          "format": "uuid",
-          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
         }
       }
     },
@@ -13610,6 +13944,11 @@ func init() {
         },
         "type": {
           "$ref": "#/definitions/EvaluationReportType"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "violationsObserved": {
           "type": "boolean",
@@ -14758,6 +15097,127 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "MovingExpense": {
+      "type": "object",
+      "required": [
+        "id",
+        "createdAt",
+        "updatedAt",
+        "ppmShipmentId",
+        "documentId",
+        "document"
+      ],
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "document": {
+          "type": "object"
+        },
+        "documentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missingReceipt": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "movingExpenseType": {
+          "x-nullable": true,
+          "x-omitempty": false,
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "paidWithGtcc": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2018-05-26"
+        },
+        "sitStartDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2022-04-26"
+        },
+        "status": {
+          "x-nullable": true,
+          "x-omitempty": false,
+          "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "MovingExpenseType": {
+      "type": "string",
+      "title": "Moving Expense Type",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEES"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEES": "Weighing fees"
+      }
+    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -14935,6 +15395,29 @@ func init() {
       },
       "x-nullable": true
     },
+    "PPMAdvanceStatus": {
+      "type": "string",
+      "title": "PPM Advance Status",
+      "enum": [
+        "APPROVED",
+        "REJECTED",
+        "EDITED"
+      ]
+    },
+    "PPMDocumentStatus": {
+      "type": "string",
+      "title": "PPM document status",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
+      }
+    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
@@ -14989,6 +15472,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
+        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -15029,6 +15515,14 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -15052,6 +15546,12 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "movingExpense": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MovingExpense"
+          }
         },
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
@@ -15162,6 +15662,10 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "weightTickets": {
           "type": "array",
           "items": {
@@ -15182,6 +15686,60 @@ func init() {
         "PAYMENT_APPROVED"
       ],
       "readOnly": true
+    },
+    "PWSViolation": {
+      "description": "A PWS violation for an evaluation report",
+      "type": "object",
+      "properties": {
+        "additionalDataElem": {
+          "type": "string",
+          "example": "QAE Observed Delivery Date"
+        },
+        "category": {
+          "type": "string",
+          "example": "Pre-Move Services"
+        },
+        "displayOrder": {
+          "type": "integer",
+          "example": 3
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isKpi": {
+          "type": "boolean",
+          "example": false
+        },
+        "paragraphNumber": {
+          "type": "string",
+          "example": "1.2.3.4.5"
+        },
+        "requirementStatement": {
+          "type": "string",
+          "example": "The contractor shall prepare and load property going into NTS in containers at residence for shipment to NTS."
+        },
+        "requirementSummary": {
+          "type": "string",
+          "example": "Provide a single point of contact (POC)"
+        },
+        "subCategory": {
+          "type": "string",
+          "example": "Weight Estimate"
+        },
+        "title": {
+          "type": "string",
+          "example": "Customer Support"
+        }
+      },
+      "readOnly": true
+    },
+    "PWSViolations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PWSViolation"
+      }
     },
     "PatchMTOServiceItemStatusPayload": {
       "properties": {
@@ -16336,6 +16894,10 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         }
       }
     },

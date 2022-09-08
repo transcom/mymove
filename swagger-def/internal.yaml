@@ -554,7 +554,7 @@ definitions:
     type: object
     properties:
       category:
-        $ref: '#/definitions/MovingExpenseType'
+        $ref: 'definitions/MovingExpenseType.yaml'
       payment_methods:
         $ref: '#/definitions/PaymentMethodsTotals'
       total:
@@ -717,7 +717,7 @@ definitions:
         x-nullable: true
         title: Notes
       moving_expense_type:
-        $ref: '#/definitions/MovingExpenseType'
+        $ref: 'definitions/MovingExpenseType.yaml'
       requested_amount_cents:
         type: integer
         format: cents
@@ -864,7 +864,7 @@ definitions:
         type: string
         example: very_useful_document.pdf
       moving_expense_type:
-        $ref: '#/definitions/MovingExpenseType'
+        $ref: 'definitions/MovingExpenseType.yaml'
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
       requested_amount_cents:
@@ -908,29 +908,33 @@ definitions:
       - moving_expense_type
       - requested_amount_cents
       - payment_method
-  MovingExpenseType:
-    type: string
-    title: Moving Expense Type
-    enum:
-      - CONTRACTED_EXPENSE
-      - GAS
-      - OIL
-      - OTHER
-      - PACKING_MATERIALS
-      - RENTAL_EQUIPMENT
-      - STORAGE
-      - TOLLS
-      - WEIGHING_FEES
-    x-display-value:
-      CONTRACTED_EXPENSE: Contracted expense
-      GAS: Gas
-      OIL: Oil
-      OTHER: Other
-      PACKING_MATERIALS: Packing materials
-      STORAGE: Storage
-      RENTAL_EQUIPMENT: Rental equipment
-      TOLLS: Tolls
-      WEIGHING_FEES: Weighing fees
+  UpdateMovingExpense:
+    type: object
+    properties:
+      movingExpenseType:
+        $ref: 'definitions/MovingExpenseType.yaml'
+      description:
+        type: string
+      paidWithGTCC:
+        type: boolean
+      amount:
+        type: integer
+      missingReceipt:
+        type: boolean
+      sitStartDate:
+        type: string
+        example: '2022-04-26'
+        format: date
+      sitEndDate:
+        type: string
+        example: '2018-05-26'
+        format: date
+    required:
+      - movingExpenseType
+      - description
+      - paidWithGTCC
+      - amount
+      - missingReceipt
   MoveDocumentStatus:
     type: string
     title: Document status
@@ -1570,6 +1574,8 @@ definitions:
         type: string
         format: uuid
         x-nullable: true
+      ppm_id:
+        $ref: 'definitions/PpmID.yaml'
       certification_type:
         $ref: '#/definitions/SignedCertificationType'
     required:
@@ -1596,6 +1602,8 @@ definitions:
         type: string
         format: uuid
         x-nullable: true
+      ppm_id:
+        $ref: 'definitions/PpmID.yaml'
       certification_type:
         $ref: '#/definitions/SignedCertificationTypeCreate'
     required:
@@ -2595,6 +2603,17 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      w2Address:
+        x-nullable: true
+        $ref: 'definitions/Address.yaml'
+      finalIncentive:
+        description: >
+          The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+        readOnly: true
       sitExpected:
         type: boolean
         x-nullable: true
@@ -4450,6 +4469,88 @@ paths:
           description: not authorized to modify this move
         '500':
           description: server error
+  /ppm-shipments/{ppmShipmentId}/moving-expenses:
+    post:
+      summary: Creates moving expense document
+      description: Creates a moving expense document for the PPM shipment
+      operationId: createMovingExpense
+      tags:
+        - ppm
+      parameters:
+        - name: ppmShipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppm
+      responses:
+        '200':
+          description: returns new moving expense object
+          schema:
+            $ref: 'definitions/MovingExpense.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}:
+    patch:
+      summary: Updates the moving expense
+      description: Any fields sent in this request will be set on the moving expense referenced
+      operationId: updateMovingExpense
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: ppmShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppm shipment
+        - in: path
+          name: movingExpenseId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the moving expense
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - in: body
+          name: updateMovingExpense
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMovingExpense'
+      responses:
+        '200':
+          description: returns an updated moving expense object
+          schema:
+            $ref: 'definitions/MovingExpense.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/weight-ticket:
     post:
       summary: Creates a weight ticket document

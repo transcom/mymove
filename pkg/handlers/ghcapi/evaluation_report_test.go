@@ -5,21 +5,19 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/mocks"
-
 	evaluationReportop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	moveop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 	evaluationreportservice "github.com/transcom/mymove/pkg/services/evaluation_report"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -232,18 +230,23 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 		handlerConfig := suite.HandlerConfig()
 
 		creator := &mocks.EvaluationReportCreator{}
-		handler := CreateEvaluationReportHandler{handlerConfig, creator}
-
 		move := testdatagen.MakeDefaultMove(suite.DB())
+
+		handler := CreateEvaluationReportHandler{
+			HandlerConfig:           handlerConfig,
+			EvaluationReportCreator: creator,
+		}
+
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				MoveTaskOrderID: move.ID,
 			},
 		})
-		body := ghcmessages.CreateShipmentEvaluationReport{ShipmentID: handlers.FmtUUID(shipment.ID)}
+
+		body := ghcmessages.CreateEvaluationReport{ShipmentID: strfmt.UUID(shipment.ID.String())}
 		request := httptest.NewRequest("POST", "/moves/shipment-evaluation-reports/", nil)
 
-		params := evaluationReportop.CreateEvaluationReportForShipmentParams{
+		params := evaluationReportop.CreateEvaluationReportParams{
 			HTTPRequest: request,
 			Body:        &body,
 		}
@@ -264,11 +267,12 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 		creator.On("CreateEvaluationReport",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.EvaluationReport"),
+			mock.AnythingOfType("string"),
 		).Return(&returnReport, nil).Once()
 
 		response := handler.Handle(params)
 
-		suite.Assertions.IsType(&evaluationReportop.CreateEvaluationReportForShipmentOK{}, response)
+		suite.Assertions.IsType(&evaluationReportop.CreateEvaluationReportOK{}, response)
 	})
 
 	suite.Run("Unsuccessful POST", func() {
@@ -284,10 +288,10 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 				MoveTaskOrderID: move.ID,
 			},
 		})
-		body := ghcmessages.CreateShipmentEvaluationReport{ShipmentID: handlers.FmtUUID(shipment.ID)}
+		body := ghcmessages.CreateEvaluationReport{ShipmentID: strfmt.UUID(shipment.ID.String())}
 		request := httptest.NewRequest("POST", "/moves/shipment-evaluation-reports/", nil)
 
-		params := evaluationReportop.CreateEvaluationReportForShipmentParams{
+		params := evaluationReportop.CreateEvaluationReportParams{
 			HTTPRequest: request,
 			Body:        &body,
 		}
@@ -295,11 +299,12 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 		creator.On("CreateEvaluationReport",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.EvaluationReport"),
+			mock.AnythingOfType("string"),
 		).Return(nil, fmt.Errorf("error")).Once()
 
 		response := handler.Handle(params)
 
-		suite.Assertions.IsType(&evaluationReportop.CreateEvaluationReportForShipmentInternalServerError{}, response)
+		suite.Assertions.IsType(&evaluationReportop.CreateEvaluationReportInternalServerError{}, response)
 	})
 }
 

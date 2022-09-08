@@ -13,7 +13,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
-
 	movetaskorderclient "github.com/transcom/mymove/pkg/gen/supportclient/move_task_order"
 )
 

@@ -1,0 +1,33 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.qaeAndCustomerInfo {
+  @include u-margin-top(68px);
+  @include u-width(218px);
+  th, td {
+    min-width: 218px !important;
+  }
+}
+
+.cardContainer {
+  @include u-padding-bottom(40px);
+  max-width: 1200px;
+  @include u-bg('white');
+  @include u-radius('05');
+  @include u-border('base-lighter');
+  @include u-border('1px');
+  @include u-padding-top(4);
+  @include u-padding-left(0);
+  @include u-padding-right(0);
+  @include u-margin-bottom(4);
+}
+
+.sidebySideContainer {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.shipmentCardColumn {
+  width: 818px;
+}

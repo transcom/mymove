@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/testdatagen"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -477,6 +476,38 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				// ensure fields were set correctly
 				suite.Equal(newShipment.HasReceivedAdvance, mergedShipment.HasReceivedAdvance)
 				suite.Nil(mergedShipment.AdvanceAmountReceived)
+			},
+		},
+		"Add W2 Address and Final Incentive": {
+			oldState: PPMShipmentStateActualDatesZipsAndAdvance,
+			oldFlags: flags{
+				hasSecondaryZips:    false,
+				hasSIT:              false,
+				hasProGear:          true,
+				hasRequestedAdvance: true,
+				hasReceivedAdvance:  true,
+			},
+			newShipment: models.PPMShipment{
+				W2Address: &models.Address{
+					StreetAddress1: "123 Main",
+					City:           "New York",
+					State:          "NY",
+					PostalCode:     "90210",
+				},
+				FinalIncentive: models.CentPointer(unit.Cents(3300)),
+			},
+			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
+				// ensure existing fields weren't changed
+				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
+				checkEstimatedWeightsDidntChange(mergedShipment, oldShipment)
+				checkSITDidntChange(mergedShipment, oldShipment)
+
+				// ensure fields were set correctly
+				suite.Equal(newShipment.FinalIncentive, mergedShipment.FinalIncentive)
+				suite.Equal(newShipment.W2Address.StreetAddress1, mergedShipment.W2Address.StreetAddress1)
+				suite.Equal(newShipment.W2Address.City, mergedShipment.W2Address.City)
+				suite.Equal(newShipment.W2Address.PostalCode, mergedShipment.W2Address.PostalCode)
+				suite.Equal(newShipment.W2Address.State, mergedShipment.W2Address.State)
 			},
 		},
 		"Add SIT info - SIT expected ": {

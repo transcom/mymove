@@ -2308,6 +2308,124 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
+      "post": {
+        "description": "Creates a moving expense document for the PPM shipment",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates moving expense document",
+        "operationId": "createMovingExpense",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns new moving expense object",
+            "schema": {
+              "$ref": "#/definitions/MovingExpense"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
+      "patch": {
+        "description": "Any fields sent in this request will be set on the moving expense referenced",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates the moving expense",
+        "operationId": "updateMovingExpense",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the moving expense",
+            "name": "movingExpenseId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "updateMovingExpense",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMovingExpense"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated moving expense object",
+            "schema": {
+              "$ref": "#/definitions/MovingExpense"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket": {
       "post": {
         "description": "Created a weight ticket document with the given information",
@@ -3806,6 +3924,9 @@ func init() {
           "format": "uuid",
           "x-nullable": true
         },
+        "ppm_id": {
+          "$ref": "#/definitions/PpmID"
+        },
         "signature": {
           "type": "string",
           "title": "Signature"
@@ -4847,6 +4968,101 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
+    "MovingExpense": {
+      "type": "object",
+      "required": [
+        "id",
+        "createdAt",
+        "updatedAt",
+        "ppmShipmentId",
+        "documentId",
+        "document"
+      ],
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "document": {
+          "type": "object"
+        },
+        "documentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missingReceipt": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "movingExpenseType": {
+          "x-nullable": true,
+          "x-omitempty": false,
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "paidWithGtcc": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2018-05-26"
+        },
+        "sitStartDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2022-04-26"
+        },
+        "status": {
+          "x-nullable": true,
+          "x-omitempty": false,
+          "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "MovingExpenseType": {
       "type": "string",
       "title": "Moving Expense Type",
@@ -5114,6 +5330,29 @@ func init() {
       },
       "x-nullable": true
     },
+    "PPMAdvanceStatus": {
+      "type": "string",
+      "title": "PPM Advance Status",
+      "enum": [
+        "APPROVED",
+        "REJECTED",
+        "EDITED"
+      ]
+    },
+    "PPMDocumentStatus": {
+      "type": "string",
+      "title": "PPM document status",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
+      }
+    },
     "PPMEstimateRange": {
       "type": "object",
       "required": [
@@ -5202,6 +5441,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
+        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -5242,6 +5484,14 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -5265,6 +5515,12 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "movingExpense": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MovingExpense"
+          }
         },
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
@@ -5374,6 +5630,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         },
         "weightTickets": {
           "type": "array",
@@ -5870,6 +6130,13 @@ func init() {
         }
       }
     },
+    "PpmID": {
+      "description": "The PPM Shipment ID to associate with the assigned certificate.\n",
+      "type": "string",
+      "format": "uuid",
+      "x-nullable": true,
+      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -6300,6 +6567,9 @@ func init() {
           "format": "uuid",
           "x-nullable": true
         },
+        "ppm_id": {
+          "$ref": "#/definitions/PpmID"
+        },
         "signature": {
           "type": "string",
           "title": "Signature"
@@ -6422,6 +6692,43 @@ func init() {
         }
       }
     },
+    "UpdateMovingExpense": {
+      "type": "object",
+      "required": [
+        "movingExpenseType",
+        "description",
+        "paidWithGTCC",
+        "amount",
+        "missingReceipt"
+      ],
+      "properties": {
+        "amount": {
+          "type": "integer"
+        },
+        "description": {
+          "type": "string"
+        },
+        "missingReceipt": {
+          "type": "boolean"
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "paidWithGTCC": {
+          "type": "boolean"
+        },
+        "sitEndDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-05-26"
+        },
+        "sitStartDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2022-04-26"
+        }
+      }
+    },
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
@@ -6479,6 +6786,14 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -6534,6 +6849,10 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -9398,6 +9717,163 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
+      "post": {
+        "description": "Creates a moving expense document for the PPM shipment",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates moving expense document",
+        "operationId": "createMovingExpense",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns new moving expense object",
+            "schema": {
+              "$ref": "#/definitions/MovingExpense"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
+      "patch": {
+        "description": "Any fields sent in this request will be set on the moving expense referenced",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates the moving expense",
+        "operationId": "updateMovingExpense",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the moving expense",
+            "name": "movingExpenseId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "updateMovingExpense",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMovingExpense"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated moving expense object",
+            "schema": {
+              "$ref": "#/definitions/MovingExpense"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket": {
       "post": {
         "description": "Created a weight ticket document with the given information",
@@ -10937,6 +11413,9 @@ func init() {
           "format": "uuid",
           "x-nullable": true
         },
+        "ppm_id": {
+          "$ref": "#/definitions/PpmID"
+        },
         "signature": {
           "type": "string",
           "title": "Signature"
@@ -11993,6 +12472,101 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
+    "MovingExpense": {
+      "type": "object",
+      "required": [
+        "id",
+        "createdAt",
+        "updatedAt",
+        "ppmShipmentId",
+        "documentId",
+        "document"
+      ],
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "document": {
+          "type": "object"
+        },
+        "documentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "missingReceipt": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "movingExpenseType": {
+          "x-nullable": true,
+          "x-omitempty": false,
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "paidWithGtcc": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "sitEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2018-05-26"
+        },
+        "sitStartDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2022-04-26"
+        },
+        "status": {
+          "x-nullable": true,
+          "x-omitempty": false,
+          "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "MovingExpenseType": {
       "type": "string",
       "title": "Moving Expense Type",
@@ -12260,6 +12834,29 @@ func init() {
       },
       "x-nullable": true
     },
+    "PPMAdvanceStatus": {
+      "type": "string",
+      "title": "PPM Advance Status",
+      "enum": [
+        "APPROVED",
+        "REJECTED",
+        "EDITED"
+      ]
+    },
+    "PPMDocumentStatus": {
+      "type": "string",
+      "title": "PPM document status",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
+      }
+    },
     "PPMEstimateRange": {
       "type": "object",
       "required": [
@@ -12348,6 +12945,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "advanceStatus": {
+          "$ref": "#/definitions/PPMAdvanceStatus"
+        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -12388,6 +12988,14 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -12411,6 +13019,12 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "movingExpense": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MovingExpense"
+          }
         },
         "netWeight": {
           "description": "The net weight of the shipment once it has been weight\n",
@@ -12520,6 +13134,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         },
         "weightTickets": {
           "type": "array",
@@ -13020,6 +13638,13 @@ func init() {
         }
       }
     },
+    "PpmID": {
+      "description": "The PPM Shipment ID to associate with the assigned certificate.\n",
+      "type": "string",
+      "format": "uuid",
+      "x-nullable": true,
+      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -13450,6 +14075,9 @@ func init() {
           "format": "uuid",
           "x-nullable": true
         },
+        "ppm_id": {
+          "$ref": "#/definitions/PpmID"
+        },
         "signature": {
           "type": "string",
           "title": "Signature"
@@ -13572,6 +14200,43 @@ func init() {
         }
       }
     },
+    "UpdateMovingExpense": {
+      "type": "object",
+      "required": [
+        "movingExpenseType",
+        "description",
+        "paidWithGTCC",
+        "amount",
+        "missingReceipt"
+      ],
+      "properties": {
+        "amount": {
+          "type": "integer"
+        },
+        "description": {
+          "type": "string"
+        },
+        "missingReceipt": {
+          "type": "boolean"
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "paidWithGTCC": {
+          "type": "boolean"
+        },
+        "sitEndDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-05-26"
+        },
+        "sitStartDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2022-04-26"
+        }
+      }
+    },
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
@@ -13629,6 +14294,14 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -13684,6 +14357,10 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         }
       }
     },

@@ -82,8 +82,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler: customer_support_remarks.CreateCustomerSupportRemarkForMoveHandlerFunc(func(params customer_support_remarks.CreateCustomerSupportRemarkForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.CreateCustomerSupportRemarkForMove has not yet been implemented")
 		}),
-		EvaluationReportsCreateEvaluationReportForShipmentHandler: evaluation_reports.CreateEvaluationReportForShipmentHandlerFunc(func(params evaluation_reports.CreateEvaluationReportForShipmentParams) middleware.Responder {
-			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReportForShipment has not yet been implemented")
+		EvaluationReportsCreateEvaluationReportHandler: evaluation_reports.CreateEvaluationReportHandlerFunc(func(params evaluation_reports.CreateEvaluationReportParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReport has not yet been implemented")
 		}),
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
@@ -144,6 +144,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OrderGetOrderHandler: order.GetOrderHandlerFunc(func(params order.GetOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.GetOrder has not yet been implemented")
+		}),
+		EvaluationReportsGetPWSViolationsHandler: evaluation_reports.GetPWSViolationsHandlerFunc(func(params evaluation_reports.GetPWSViolationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.GetPWSViolations has not yet been implemented")
 		}),
 		PaymentRequestsGetPaymentRequestHandler: payment_requests.GetPaymentRequestHandlerFunc(func(params payment_requests.GetPaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.GetPaymentRequest has not yet been implemented")
@@ -293,8 +296,8 @@ type MymoveAPI struct {
 	OrderCounselingUpdateOrderHandler order.CounselingUpdateOrderHandler
 	// CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler sets the operation handler for the create customer support remark for move operation
 	CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler
-	// EvaluationReportsCreateEvaluationReportForShipmentHandler sets the operation handler for the create evaluation report for shipment operation
-	EvaluationReportsCreateEvaluationReportForShipmentHandler evaluation_reports.CreateEvaluationReportForShipmentHandler
+	// EvaluationReportsCreateEvaluationReportHandler sets the operation handler for the create evaluation report operation
+	EvaluationReportsCreateEvaluationReportHandler evaluation_reports.CreateEvaluationReportHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// ShipmentCreateSITExtensionAsTOOHandler sets the operation handler for the create s i t extension as t o o operation
@@ -335,6 +338,8 @@ type MymoveAPI struct {
 	QueuesGetMovesQueueHandler queues.GetMovesQueueHandler
 	// OrderGetOrderHandler sets the operation handler for the get order operation
 	OrderGetOrderHandler order.GetOrderHandler
+	// EvaluationReportsGetPWSViolationsHandler sets the operation handler for the get p w s violations operation
+	EvaluationReportsGetPWSViolationsHandler evaluation_reports.GetPWSViolationsHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
 	// PaymentRequestsGetPaymentRequestsForMoveHandler sets the operation handler for the get payment requests for move operation
@@ -498,8 +503,8 @@ func (o *MymoveAPI) Validate() error {
 	if o.CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler")
 	}
-	if o.EvaluationReportsCreateEvaluationReportForShipmentHandler == nil {
-		unregistered = append(unregistered, "evaluation_reports.CreateEvaluationReportForShipmentHandler")
+	if o.EvaluationReportsCreateEvaluationReportHandler == nil {
+		unregistered = append(unregistered, "evaluation_reports.CreateEvaluationReportHandler")
 	}
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
@@ -560,6 +565,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrderGetOrderHandler == nil {
 		unregistered = append(unregistered, "order.GetOrderHandler")
+	}
+	if o.EvaluationReportsGetPWSViolationsHandler == nil {
+		unregistered = append(unregistered, "evaluation_reports.GetPWSViolationsHandler")
 	}
 	if o.PaymentRequestsGetPaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_requests.GetPaymentRequestHandler")
@@ -777,7 +785,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/moves/shipment-evaluation-reports"] = evaluation_reports.NewCreateEvaluationReportForShipment(o.context, o.EvaluationReportsCreateEvaluationReportForShipmentHandler)
+	o.handlers["POST"]["/moves/{locator}/evaluation-reports"] = evaluation_reports.NewCreateEvaluationReport(o.context, o.EvaluationReportsCreateEvaluationReportHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -858,6 +866,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/orders/{orderID}"] = order.NewGetOrder(o.context, o.OrderGetOrderHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/pws-violations"] = evaluation_reports.NewGetPWSViolations(o.context, o.EvaluationReportsGetPWSViolationsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

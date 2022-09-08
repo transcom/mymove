@@ -9,9 +9,7 @@ import (
 
 // hhgPlanner holds configuration information to make calls to the GHC services (DTOD and RM).
 type hhgPlanner struct {
-	soapClient   SoapCaller
-	dtodUsername string
-	dtodPassword string
+	dtodPlannerMileage DTODPlannerMileage
 }
 
 // TransitDistance calculates the distance between two valid addresses
@@ -59,18 +57,15 @@ func (p *hhgPlanner) ZipTransitDistance(appCtx appcontext.AppContext, source str
 	destZip3 := destZip5[0:3]
 
 	if sourceZip3 == destZip3 {
-		dtod := NewDTODZip5Distance(p.dtodUsername, p.dtodPassword, p.soapClient)
-		return dtod.DTODZip5Distance(appCtx, source, destination)
+		return p.dtodPlannerMileage.DTODZip5Distance(appCtx, source, destination)
 	}
 
 	return randMcNallyZip3Distance(appCtx, sourceZip3, destZip3)
 }
 
 // NewHHGPlanner constructs and returns a Planner for GHC routing.
-func NewHHGPlanner(soapClient SoapCaller, dtodUsername string, dtodPassword string) Planner {
+func NewHHGPlanner(dtodPlannerMileage DTODPlannerMileage) Planner {
 	return &hhgPlanner{
-		soapClient:   soapClient,
-		dtodUsername: dtodUsername,
-		dtodPassword: dtodPassword,
+		dtodPlannerMileage: dtodPlannerMileage,
 	}
 }

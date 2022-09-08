@@ -8,6 +8,7 @@ import { AgentShape } from 'types/agent';
 import { LOCATION_TYPES_ONE_OF, SitStatusShape } from 'types/sitStatusShape';
 import { SITExtensionShape } from 'types/sitExtensions';
 import { ExistingUploadsShape } from 'types/uploads';
+import { expenseTypesArr } from 'constants/ppmExpenseTypes';
 
 export const ShipmentOptionsOneOf = oneOf(Object.values(SHIPMENT_OPTIONS));
 
@@ -38,6 +39,7 @@ export const PPMShipmentShape = shape({
   proGearWeight: number,
   spouseProGearWeight: number,
   estimatedIncentive: number,
+  finalEstimatedIncentive: number,
   hasRequestedAdvance: bool,
   advanceAmountRequested: number,
   hasReceivedAdvance: bool,
@@ -138,7 +140,7 @@ export const ExpenseShape = shape({
   id: string,
   ppmShipmentId: string,
   description: string,
-  expenseType: string,
+  expenseType: oneOf(Object.values(expenseTypesArr)),
   missingReceipt: bool,
   receiptDocumentId: string,
   receiptDocument: DocumentShape,
@@ -154,4 +156,8 @@ export const StorageFacilityShape = shape({
   email: string,
   address: ResidentialAddressShape,
   lotNumber: string,
+});
+
+export const ProGearTicketShape = shape({
+  selfProGear: bool,
 });

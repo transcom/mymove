@@ -5,19 +5,16 @@ import (
 	"math"
 	"time"
 
-	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/services"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/storage"
 )
@@ -194,6 +191,40 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		MoveReferenceID:         evaluationReport.Move.ReferenceID,
 		OfficeUser:              &evaluationReportOfficeUserPayload,
 		ETag:                    etag.GenerateEtag(evaluationReport.UpdatedAt),
+		UpdatedAt:               strfmt.DateTime(evaluationReport.UpdatedAt),
+	}
+	return payload
+}
+
+// PWSViolationItem payload
+func PWSViolationItem(violation *models.PWSViolation) *ghcmessages.PWSViolation {
+	if violation == nil {
+		return nil
+	}
+
+	payload := &ghcmessages.PWSViolation{
+		ID:                   strfmt.UUID(violation.ID.String()),
+		DisplayOrder:         int64(violation.DisplayOrder),
+		ParagraphNumber:      violation.ParagraphNumber,
+		Title:                violation.Title,
+		Category:             string(violation.Category),
+		SubCategory:          violation.SubCategory,
+		RequirementSummary:   violation.RequirementSummary,
+		RequirementStatement: violation.RequirementStatement,
+		IsKpi:                violation.IsKpi,
+		AdditionalDataElem:   violation.AdditionalDataElem,
+	}
+
+	return payload
+}
+
+// PWSViolations payload
+func PWSViolations(violations models.PWSViolations) ghcmessages.PWSViolations {
+	payload := make(ghcmessages.PWSViolations, len(violations))
+
+	for i, v := range violations {
+		violation := v
+		payload[i] = PWSViolationItem(&violation)
 	}
 	return payload
 }
@@ -640,6 +671,13 @@ func PPMShipment(ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 	if ppmShipment.SITLocation != nil {
 		sitLocation := ghcmessages.SITLocationType(*ppmShipment.SITLocation)
 		payloadPPMShipment.SitLocation = &sitLocation
+	}
+	if ppmShipment.AdvanceStatus != nil {
+		payloadPPMShipment.AdvanceStatus = ghcmessages.PPMAdvanceStatus(*ppmShipment.AdvanceStatus)
+	}
+
+	if ppmShipment.W2Address != nil {
+		payloadPPMShipment.W2Address = Address(ppmShipment.W2Address)
 	}
 
 	return payloadPPMShipment

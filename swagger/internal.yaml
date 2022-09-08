@@ -909,29 +909,33 @@ definitions:
       - moving_expense_type
       - requested_amount_cents
       - payment_method
-  MovingExpenseType:
-    type: string
-    title: Moving Expense Type
-    enum:
-      - CONTRACTED_EXPENSE
-      - GAS
-      - OIL
-      - OTHER
-      - PACKING_MATERIALS
-      - RENTAL_EQUIPMENT
-      - STORAGE
-      - TOLLS
-      - WEIGHING_FEES
-    x-display-value:
-      CONTRACTED_EXPENSE: Contracted expense
-      GAS: Gas
-      OIL: Oil
-      OTHER: Other
-      PACKING_MATERIALS: Packing materials
-      STORAGE: Storage
-      RENTAL_EQUIPMENT: Rental equipment
-      TOLLS: Tolls
-      WEIGHING_FEES: Weighing fees
+  UpdateMovingExpense:
+    type: object
+    properties:
+      movingExpenseType:
+        $ref: '#/definitions/MovingExpenseType'
+      description:
+        type: string
+      paidWithGTCC:
+        type: boolean
+      amount:
+        type: integer
+      missingReceipt:
+        type: boolean
+      sitStartDate:
+        type: string
+        example: '2022-04-26'
+        format: date
+      sitEndDate:
+        type: string
+        example: '2018-05-26'
+        format: date
+    required:
+      - movingExpenseType
+      - description
+      - paidWithGTCC
+      - amount
+      - missingReceipt
   MoveDocumentStatus:
     type: string
     title: Document status
@@ -1571,6 +1575,8 @@ definitions:
         type: string
         format: uuid
         x-nullable: true
+      ppm_id:
+        $ref: '#/definitions/PpmID'
       certification_type:
         $ref: '#/definitions/SignedCertificationType'
     required:
@@ -1597,6 +1603,8 @@ definitions:
         type: string
         format: uuid
         x-nullable: true
+      ppm_id:
+        $ref: '#/definitions/PpmID'
       certification_type:
         $ref: '#/definitions/SignedCertificationTypeCreate'
     required:
@@ -2604,6 +2612,18 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      w2Address:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      finalIncentive:
+        description: >
+          The final calculated incentive for the PPM shipment. This does not
+          include **SIT** as it is a reimbursement.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+        readOnly: true
       sitExpected:
         type: boolean
         x-nullable: true
@@ -2984,12 +3004,129 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_PAYMENT_APPROVAL
       - PAYMENT_APPROVED
+  PPMAdvanceStatus:
+    type: string
+    title: PPM Advance Status
+    enum:
+      - APPROVED
+      - REJECTED
+      - EDITED
   SITLocationType:
     description: The list of SIT location types.
     type: string
     enum:
       - ORIGIN
       - DESTINATION
+  MovingExpenseType:
+    type: string
+    title: Moving Expense Type
+    enum:
+      - CONTRACTED_EXPENSE
+      - GAS
+      - OIL
+      - OTHER
+      - PACKING_MATERIALS
+      - RENTAL_EQUIPMENT
+      - STORAGE
+      - TOLLS
+      - WEIGHING_FEES
+    x-display-value:
+      CONTRACTED_EXPENSE: Contracted expense
+      GAS: Gas
+      OIL: Oil
+      OTHER: Other
+      PACKING_MATERIALS: Packing materials
+      STORAGE: Storage
+      RENTAL_EQUIPMENT: Rental equipment
+      TOLLS: Tolls
+      WEIGHING_FEES: Weighing fees
+  PPMDocumentStatus:
+    type: string
+    title: PPM document status
+    enum:
+      - APPROVED
+      - EXCLUDED
+      - REJECTED
+    x-display-value:
+      APPROVED: Approved
+      EXCLUDED: Excluded
+      REJECTED: Rejected
+  MovingExpense:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      ppmShipmentId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      documentId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      document:
+        type: object
+      movingExpenseType:
+        $ref: '#/definitions/MovingExpenseType'
+        x-nullable: true
+        x-omitempty: false
+      description:
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      paidWithGtcc:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      amount:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      missingReceipt:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      status:
+        $ref: '#/definitions/PPMDocumentStatus'
+        x-nullable: true
+        x-omitempty: false
+      reason:
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      sitStartDate:
+        type: string
+        example: '2022-04-26'
+        format: date
+        x-nullable: true
+        x-omitempty: false
+      sitEndDate:
+        type: string
+        example: '2018-05-26'
+        format: date
+        x-nullable: true
+        x-omitempty: false
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+      eTag:
+        type: string
+        readOnly: true
+    required:
+      - id
+      - createdAt
+      - updatedAt
+      - ppmShipmentId
+      - documentId
+      - document
   PPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service members
@@ -3016,6 +3153,11 @@ definitions:
         readOnly: true
       status:
         $ref: '#/definitions/PPMShipmentStatus'
+      w2Address:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      advanceStatus:
+        $ref: '#/definitions/PPMAdvanceStatus'
       expectedDepartureDate:
         description: |
           Date the customer expects to move.
@@ -3125,6 +3267,15 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      finalIncentive:
+        description: >
+          The final calculated incentive for the PPM shipment. This does not
+          include **SIT** as it is a reimbursement.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+        readOnly: true
       hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
@@ -3181,6 +3332,10 @@ definitions:
         items:
           $ref: '#/definitions/WeightTicket'
         type: array
+      movingExpense:
+        items:
+          $ref: '#/definitions/MovingExpense'
+        type: array
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"
@@ -3197,6 +3352,13 @@ definitions:
       - destinationPostalCode
       - sitExpected
       - eTag
+  PpmID:
+    description: |
+      The PPM Shipment ID to associate with the assigned certificate.
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    x-nullable: true
   NullableString:
     type: string
     x-go-type:
@@ -4970,6 +5132,92 @@ paths:
           description: not authorized to modify this move
         '500':
           description: server error
+  /ppm-shipments/{ppmShipmentId}/moving-expenses:
+    post:
+      summary: Creates moving expense document
+      description: Creates a moving expense document for the PPM shipment
+      operationId: createMovingExpense
+      tags:
+        - ppm
+      parameters:
+        - name: ppmShipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppm
+      responses:
+        '200':
+          description: returns new moving expense object
+          schema:
+            $ref: '#/definitions/MovingExpense'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}:
+    patch:
+      summary: Updates the moving expense
+      description: >-
+        Any fields sent in this request will be set on the moving expense
+        referenced
+      operationId: updateMovingExpense
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: ppmShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppm shipment
+        - in: path
+          name: movingExpenseId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the moving expense
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the
+            ETag header does not match the value of the resource on the server,
+            the server rejects the change with a `412 Precondition Failed`
+            error.
+        - in: body
+          name: updateMovingExpense
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMovingExpense'
+      responses:
+        '200':
+          description: returns an updated moving expense object
+          schema:
+            $ref: '#/definitions/MovingExpense'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/weight-ticket:
     post:
       summary: Creates a weight ticket document

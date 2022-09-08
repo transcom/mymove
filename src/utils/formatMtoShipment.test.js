@@ -422,7 +422,7 @@ describe('formatPpmShipmentForDisplay', () => {
       proGearWeight: 1000,
 
       estimatedIncentive: 400000,
-      advanceRequested: true,
+      hasRequestedAdvance: true,
       advanceAmountRequested: 200000,
     };
 
@@ -432,6 +432,7 @@ describe('formatPpmShipmentForDisplay', () => {
     expect(display.sitEstimatedWeight).toEqual('2750');
     expect(display.estimatedWeight).toEqual('9000');
     expect(display.proGearWeight).toEqual('1000');
+    expect(display.advanceRequested).toEqual(true);
     expect(display.advance).toEqual('2000');
     expect(display.counselorRemarks).toEqual('test remarks');
   });

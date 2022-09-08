@@ -15,20 +15,17 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/services"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/models/roles"
-
-	"github.com/gofrs/uuid"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/services"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -221,19 +218,17 @@ func userWithServicesCounselorRole(appCtx appcontext.AppContext) {
 	})
 }
 
-func userWithQAECSRRole(appCtx appcontext.AppContext) {
+func userWithQAECSRRole(appCtx appcontext.AppContext, userID uuid.UUID, email string) {
 	qaecsrRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaecsrRole)
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to find RoleTypeQAECSR in the DB: %w", err))
 	}
 
-	email := "qaecsr_role@office.mil"
-	qaecsrUUID := uuid.Must(uuid.FromString("2419b1d6-097f-4dc4-8171-8f858967b4db"))
 	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
 		User: models.User{
-			ID:            qaecsrUUID,
+			ID:            userID,
 			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
@@ -242,10 +237,9 @@ func userWithQAECSRRole(appCtx appcontext.AppContext) {
 	})
 	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("0e436f0c-6bbd-4024-91c8-ceb0d153ad81"),
 			Email:  email,
 			Active: true,
-			UserID: &qaecsrUUID,
+			UserID: &userID,
 		},
 		TransportationOffice: models.TransportationOffice{
 			Gbloc: "KKFA",
@@ -4073,7 +4067,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	userWithRoles(appCtx)
 	userWithTOORole(appCtx)
 	userWithTIORole(appCtx)
-	userWithQAECSRRole(appCtx)
+	userWithQAECSRRole(appCtx, uuid.Must(uuid.FromString("2419b1d6-097f-4dc4-8171-8f858967b4db")), "qaecsr_role@office.mil")
+	userWithQAECSRRole(appCtx, uuid.Must(uuid.FromString("7f45b6bc-1131-4c9a-85ef-24552979d28d")), "qaecsr_role2@office.mil")
 	userWithServicesCounselorRole(appCtx)
 	userWithTOOandTIORole(appCtx)
 	userWithTOOandTIOandQAECSRRole(appCtx)
@@ -4108,6 +4103,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	serviceMemberWithOrdersAndPPMMove06(appCtx, userUploader)
 	serviceMemberWithOrdersAndPPMMove07(appCtx, userUploader)
 	serviceMemberWithOrdersAndPPMMove08(appCtx, userUploader)
+	createMoveWithPPMShipmentReadyForFinalCloseout(appCtx, userUploader)
 
 	//destination type
 	hos := models.DestinationTypeHomeOfSelection
@@ -4186,10 +4182,17 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo5(appCtx, userUploader)
 	createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo6(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipment(appCtx, userUploader, moveRouter)
-	createApprovedMoveWithPPMEmptyAboutPage(appCtx, userUploader)
+	createApprovedMoveWithPPM2(appCtx, userUploader)
+	createApprovedMoveWithPPM3(appCtx, userUploader)
+	createApprovedMoveWithPPM4(appCtx, userUploader)
+	createApprovedMoveWithPPM5(appCtx, userUploader)
 	createApprovedMoveWithPPM(appCtx, userUploader)
+	createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
+	createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMADD")
+	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSCF")
+	createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx, userUploader, moveRouter, "PPMSIT")
 
 	// TIO
 	createNTSRMoveWithServiceItemsAndPaymentRequest(appCtx, userUploader, "NTSRT1")

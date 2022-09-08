@@ -9,7 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
@@ -93,9 +93,11 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
+		W2Address:                      Address(ppmShipment.W2Address),
 		SitExpected:                    ppmShipment.SITExpected,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
+		FinalIncentive:                 handlers.FmtCost(ppmShipment.FinalIncentive),
 		NetWeight:                      handlers.FmtPoundPtr(ppmShipment.NetWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
@@ -277,6 +279,46 @@ func PayloadForUploadModel(
 		uploadPayload.Status = tags["av-status"]
 	}
 	return uploadPayload
+}
+
+// MovingExpense payload
+func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpense) *internalmessages.MovingExpense {
+
+	document, err := PayloadForDocumentModel(storer, movingExpense.Document)
+	if err != nil {
+		return nil
+	}
+
+	payload := &internalmessages.MovingExpense{
+		ID:             *handlers.FmtUUID(movingExpense.ID),
+		PpmShipmentID:  *handlers.FmtUUID(movingExpense.PPMShipmentID),
+		DocumentID:     *handlers.FmtUUID(movingExpense.DocumentID),
+		Document:       document,
+		CreatedAt:      handlers.FmtDateTime(movingExpense.CreatedAt),
+		UpdatedAt:      handlers.FmtDateTime(movingExpense.UpdatedAt),
+		Description:    movingExpense.Description,
+		PaidWithGtcc:   movingExpense.PaidWithGTCC,
+		Amount:         handlers.FmtCost(movingExpense.Amount),
+		MissingReceipt: movingExpense.MissingReceipt,
+		Reason:         movingExpense.Reason,
+	}
+	if movingExpense.MovingExpenseType != nil {
+		payload.MovingExpenseType = internalmessages.MovingExpenseType(*movingExpense.MovingExpenseType)
+	}
+
+	if movingExpense.Status != nil {
+		payload.Status = internalmessages.PPMDocumentStatus(*movingExpense.Status)
+	}
+
+	if movingExpense.SITStartDate != nil {
+		payload.SitStartDate = handlers.FmtDatePtr(movingExpense.SITStartDate)
+	}
+
+	if movingExpense.SITEndDate != nil {
+		payload.SitEndDate = handlers.FmtDatePtr(movingExpense.SITEndDate)
+	}
+
+	return payload
 }
 
 func WeightTickets(storer storage.FileStorer, weightTickets models.WeightTickets) []*internalmessages.WeightTicket {

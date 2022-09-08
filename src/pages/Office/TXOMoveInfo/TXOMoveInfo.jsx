@@ -4,8 +4,10 @@ import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
 
+import { permissionTypes } from 'constants/permissions';
 import { qaeCSRRoutes, tioRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
+import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
@@ -19,9 +21,11 @@ const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestRevie
 const ReviewBillableWeight = lazy(() => import('pages/Office/ReviewBillableWeight/ReviewBillableWeight'));
 const CustomerSupportRemarks = lazy(() => import('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks'));
 const EvaluationReports = lazy(() => import('pages/Office/EvaluationReports/EvaluationReports'));
-const ShipmentEvaluationReport = lazy(() => import('pages/Office/ShipmentEvaluationReport/ShipmentEvaluationReport'));
+const EvaluationReport = lazy(() => import('pages/Office/EvaluationReport/EvaluationReport'));
+const EvaluationViolations = lazy(() => import('pages/Office/EvaluationViolations/EvaluationViolations'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
+const Forbidden = lazy(() => import('pages/Office/Forbidden/Forbidden'));
 
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
@@ -126,11 +130,17 @@ const TXOMoveInfo = () => {
           </Route>
 
           <Route path={qaeCSRRoutes.EVALUATION_REPORTS_PATH} exact>
-            <EvaluationReports />
+            <EvaluationReports customerInfo={customerData} grade={order.grade} />
           </Route>
 
-          <Route path={qaeCSRRoutes.SHIPMENT_EVALUATION_REPORT_PATH} exact>
-            <ShipmentEvaluationReport customerInfo={customerData} orders={order} />
+          <Route path={qaeCSRRoutes.EVALUATION_REPORT_PATH} exact>
+            <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
+              <EvaluationReport customerInfo={customerData} orders={order} />
+            </Restricted>
+          </Route>
+
+          <Route path={qaeCSRRoutes.EVALUATION_VIOLATIONS_PATH} exact>
+            <EvaluationViolations />
           </Route>
 
           <Route path="/moves/:moveCode/history" exact>

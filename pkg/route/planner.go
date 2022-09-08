@@ -135,45 +135,50 @@ func InitRoutePlanner(v *viper.Viper) Planner {
 }
 
 // InitHHGRoutePlanner creates a new HHG route planner that adheres to the Planner interface
-func InitHHGRoutePlanner(v *viper.Viper, tlsConfig *tls.Config) (Planner, error) {
-	tr := &http.Transport{TLSClientConfig: tlsConfig}
-	httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
-
-	dtodWSDL := v.GetString(cli.DTODApiWSDLFlag)
-	dtodURL := v.GetString(cli.DTODApiURLFlag)
-
-	soapClient, err := gosoap.SoapClient(dtodWSDL, httpClient)
+func InitHHGRoutePlanner(appCtx appcontext.AppContext, v *viper.Viper, tlsConfig *tls.Config) (Planner, error) {
+	dtodPlannerMileage, err := initDTODPlannerMileage(appCtx, v, tlsConfig, "HHG")
 	if err != nil {
-		return nil, fmt.Errorf("unable to create SOAP client: %w", err)
+		return nil, err
 	}
-	soapClient.URL = dtodURL
 
-	hhgPlanner := NewHHGPlanner(
-		soapClient,
-		v.GetString(cli.DTODApiUsernameFlag),
-		v.GetString(cli.DTODApiPasswordFlag))
-
-	return hhgPlanner, nil
+	return NewHHGPlanner(dtodPlannerMileage), nil
 }
 
-// InitDtodRoutePlanner creates a new DTOD route planner that adheres to the Planner interface
-func InitDtodRoutePlanner(v *viper.Viper, tlsConfig *tls.Config) (Planner, error) {
-	tr := &http.Transport{TLSClientConfig: tlsConfig}
-	httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
-
-	dtodWSDL := v.GetString(cli.DTODApiWSDLFlag)
-	dtodURL := v.GetString(cli.DTODApiURLFlag)
-
-	soapClient, err := gosoap.SoapClient(dtodWSDL, httpClient)
+// InitDTODRoutePlanner creates a new DTOD route planner that adheres to the Planner interface
+func InitDTODRoutePlanner(appCtx appcontext.AppContext, v *viper.Viper, tlsConfig *tls.Config) (Planner, error) {
+	dtodPlannerMileage, err := initDTODPlannerMileage(appCtx, v, tlsConfig, "DTOD")
 	if err != nil {
-		return nil, fmt.Errorf("unable to create SOAP client: %w", err)
+		return nil, err
 	}
-	soapClient.URL = dtodURL
 
-	dtodPlanner := NewDtodPlanner(
-		soapClient,
-		v.GetString(cli.DTODApiUsernameFlag),
-		v.GetString(cli.DTODApiPasswordFlag))
+	return NewDTODPlanner(dtodPlannerMileage), nil
+}
 
-	return dtodPlanner, nil
+func initDTODPlannerMileage(appCtx appcontext.AppContext, v *viper.Viper, tlsConfig *tls.Config, plannerType string) (DTODPlannerMileage, error) {
+	dtodUseMock := v.GetBool(cli.DTODUseMockFlag)
+
+	var dtodPlannerMileage DTODPlannerMileage
+	if dtodUseMock {
+		appCtx.Logger().Info(fmt.Sprintf("Using mocked DTOD for %s route planner", plannerType))
+		dtodPlannerMileage = NewMockDTODZip5Distance()
+	} else {
+		appCtx.Logger().Info(fmt.Sprintf("Using real DTOD for %s route planner", plannerType))
+		tr := &http.Transport{TLSClientConfig: tlsConfig}
+		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
+
+		dtodWSDL := v.GetString(cli.DTODApiWSDLFlag)
+		dtodURL := v.GetString(cli.DTODApiURLFlag)
+		dtodAPIUsername := v.GetString(cli.DTODApiUsernameFlag)
+		dtodAPIPassword := v.GetString(cli.DTODApiPasswordFlag)
+
+		soapClient, err := gosoap.SoapClient(dtodWSDL, httpClient)
+		if err != nil {
+			return nil, fmt.Errorf("unable to create SOAP client: %w", err)
+		}
+		soapClient.URL = dtodURL
+
+		dtodPlannerMileage = NewDTODZip5Distance(dtodAPIUsername, dtodAPIPassword, soapClient)
+	}
+
+	return dtodPlannerMileage, nil
 }

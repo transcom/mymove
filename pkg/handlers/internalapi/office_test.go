@@ -4,8 +4,6 @@ import (
 	"net/http/httptest"
 	"time"
 
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
@@ -13,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 

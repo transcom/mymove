@@ -17,14 +17,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gobuffalo/pop/v6"
-
 	"github.com/alexedwards/scs/redisstore"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
 	"github.com/pkg/errors"
@@ -514,13 +513,13 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	routePlanner := route.InitRoutePlanner(v)
 
 	// Create a secondary planner specifically for HHG.
-	hhgRoutePlanner, err := route.InitHHGRoutePlanner(v, tlsConfig)
+	hhgRoutePlanner, err := route.InitHHGRoutePlanner(appCtx, v, tlsConfig)
 	if err != nil {
 		appCtx.Logger().Fatal("Could not instantiate HHG route planner", zap.Error(err))
 	}
 
 	// Create a secondary planner specifically for DTOD.
-	dtodRoutePlanner, err := route.InitDtodRoutePlanner(v, tlsConfig)
+	dtodRoutePlanner, err := route.InitDTODRoutePlanner(appCtx, v, tlsConfig)
 	if err != nil {
 		appCtx.Logger().Fatal("Could not instantiate dtod route planner", zap.Error(err))
 	}

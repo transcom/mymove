@@ -12,16 +12,14 @@ package models_test
 import (
 	"time"
 
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {

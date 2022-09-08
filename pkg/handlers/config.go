@@ -35,7 +35,7 @@ type HandlerConfig interface {
 	NotificationSender() notifications.NotificationSender
 	Planner() route.Planner
 	HHGPlanner() route.Planner
-	DtodPlanner() route.Planner
+	DTODPlanner() route.Planner
 	CookieSecret() string
 	IWSPersonLookup() iws.PersonLookup
 	SendProductionInvoice() bool
@@ -236,8 +236,8 @@ func (c *Config) HHGPlanner() route.Planner {
 	return c.hhgPlanner
 }
 
-// DtodPlanner returns the DTOD planner for the current context
-func (c *Config) DtodPlanner() route.Planner {
+// DTODPlanner returns the DTOD planner for the current context
+func (c *Config) DTODPlanner() route.Planner {
 	return c.dtodPlanner
 }
 

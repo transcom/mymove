@@ -3,9 +3,8 @@ package ppmshipment
 import (
 	"fmt"
 
-	"github.com/stretchr/testify/mock"
-
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -76,7 +75,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment"),
-		).Return(nil, nil).Once()
+		).Return(nil, nil, nil).Once()
 
 		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
 
@@ -175,7 +174,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment"),
-		).Return(&estimatedIncentive, nil).Once()
+		).Return(&estimatedIncentive, nil, nil).Once()
 
 		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
 

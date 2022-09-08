@@ -88,6 +88,11 @@ type EvaluationReport struct {
 	// type
 	Type EvaluationReportType `json:"type,omitempty"`
 
+	// updated at
+	// Read Only: true
+	// Format: date-time
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+
 	// violations observed
 	ViolationsObserved *bool `json:"violationsObserved,omitempty"`
 }
@@ -145,6 +150,10 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -336,6 +345,18 @@ func (m *EvaluationReport) validateType(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *EvaluationReport) validateUpdatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.UpdatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validate this evaluation report based on the context it is used
 func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -373,6 +394,10 @@ func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.R
 	}
 
 	if err := m.contextValidateType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -483,6 +508,15 @@ func (m *EvaluationReport) contextValidateType(ctx context.Context, formats strf
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("type")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 

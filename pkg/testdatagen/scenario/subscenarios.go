@@ -111,6 +111,8 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createNeedsServicesCounselingWithoutCompletedOrders(appCtx, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION, models.MTOShipmentTypePPM, nil, "SCPPM1")
 		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
 		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMADD")
+		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSCF")
+		createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx, userUploader, moveRouter, "PPMSIT")
 		// Post-onboarding
 		createApprovedMoveWithPPM(appCtx, userUploader)
 		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo(appCtx, userUploader)
@@ -119,9 +121,12 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo4(appCtx, userUploader)
 		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo5(appCtx, userUploader)
 		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo6(appCtx, userUploader)
-		createApprovedMoveWithPPMEmptyAboutPage(appCtx, userUploader)
+		createApprovedMoveWithPPM2(appCtx, userUploader)
 		createApprovedMoveWithPPMWeightTicket(appCtx, userUploader)
 		createApprovedMoveWithPPMMovingExpense(appCtx, userUploader)
+		createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
+		createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
+		createMoveWithPPMShipmentReadyForFinalCloseout(appCtx, userUploader)
 	}
 }
 
@@ -479,6 +484,10 @@ func subScenarioPaymentRequestCalculations(appCtx appcontext.AppContext, userUpl
 		})
 		// Locator PARAMS
 		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter)
+		// Locator ORGSIT
+		createHHGWithOriginSITServiceItems(appCtx, primeUploader, moveRouter)
+		// Locator DSTSIT
+		createHHGWithDestinationSITServiceItems(appCtx, primeUploader, moveRouter)
 	}
 }
 

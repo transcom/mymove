@@ -4,17 +4,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
-
-	"github.com/gobuffalo/validate/v3"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/order"

@@ -21,6 +21,11 @@ properties:
     readOnly: true
   status:
     $ref: 'PPMShipmentStatus.yaml'
+  w2Address:
+    x-nullable: true
+    $ref: 'Address.yaml'
+  advanceStatus:
+    $ref: 'PPMAdvanceStatus.yaml'
   expectedDepartureDate:
     description: >
       Date the customer expects to move.
@@ -128,6 +133,14 @@ properties:
     format: cents
     x-nullable: true
     x-omitempty: false
+  finalIncentive:
+    description: >
+      The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
+    readOnly: true
   hasRequestedAdvance:
     description: >
       Indicates whether an advance has been requested for the PPM shipment.
@@ -182,6 +195,10 @@ properties:
   weightTickets:
     items:
       $ref: '../internal.yaml#/definitions/WeightTicket'
+    type: array
+  movingExpense:
+    items:
+      $ref: 'MovingExpense.yaml'
     type: array
   eTag:
     description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.

@@ -31,7 +31,9 @@ const ShipmentCustomerSIT = () => {
         <Grid row gap>
           <Grid col={12}>
             <FormGroup>
-              <Label className={styles.Label}>Does the customer plan to use SIT?</Label>
+              <Label className={styles.Label} htmlFor="sitExpected">
+                Does the customer plan to use SIT?
+              </Label>
               <Radio
                 id="sitExpectedYes"
                 label="Yes"

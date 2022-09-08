@@ -15,6 +15,9 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import ReviewItems from 'components/Customer/PPM/Closeout/ReviewItems/ReviewItems';
 import {
+  calculateTotalMovingExpensesAmount,
+  calculateTotalNetWeightForProGearWeightTickets,
+  calculateTotalNetWeightForWeightTickets,
   formatAboutYourPPMItem,
   formatExpenseItems,
   formatProGearItems,
@@ -26,7 +29,7 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { deleteWeightTicket } from 'services/internalApi';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
-import { hasCompleteWeightTickets } from 'utils/shipments';
+import { hasCompletedAllWeightTickets } from 'utils/shipments';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => (
   <div>
@@ -108,12 +111,9 @@ const Review = () => {
     handleDelete,
   );
 
-  const weightTicketsTotal = weightTickets?.reduce((prev, curr) => {
-    const weight = Number(curr.emptyWeight) && Number(curr.fullWeight) ? curr.fullWeight - curr.emptyWeight : 0;
-    return prev + weight;
-  }, 0);
+  const weightTicketsTotal = calculateTotalNetWeightForWeightTickets(weightTickets);
 
-  const canAdvance = hasCompleteWeightTickets(weightTickets);
+  const canAdvance = hasCompletedAllWeightTickets(weightTickets);
 
   const proGearContents = formatProGearItems(
     proGear,
@@ -122,13 +122,7 @@ const Review = () => {
     handleDelete,
   );
 
-  const proGearTotal = proGear?.reduce((prev, curr) => {
-    if (curr.constructedWeight) {
-      return prev + curr.constructedWeight;
-    }
-    const weight = Number(curr.emptyWeight) && Number(curr.fullWeight) ? curr.fullWeight - curr.emptyWeight : 0;
-    return prev + weight;
-  }, 0);
+  const proGearTotal = calculateTotalNetWeightForProGearWeightTickets(proGear);
 
   const expenseContents = formatExpenseItems(
     expenses,
@@ -140,10 +134,7 @@ const Review = () => {
     handleDelete,
   );
 
-  const expensesTotal = expenses?.reduce(
-    (prev, curr) => prev + (Number.isNaN(Number(curr.amount)) ? 0 : curr.amount),
-    0,
-  );
+  const expensesTotal = calculateTotalMovingExpensesAmount(expenses);
 
   return (
     <div className={classnames(ppmPageStyles.ppmPageStyle, styles.PPMReview)}>

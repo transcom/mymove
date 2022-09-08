@@ -43,18 +43,33 @@
 .evaluationReportDL {
   @include u-margin-left(0 !important);
   @include u-margin-right(0 !important);
+}
+
+.sideBySideContainer {
+  display: flex;
+  justify-content: space-between;
+  @include u-padding-left(1);
   dd {
-    @include u-width(106px);
     font-size: 13px;
+    width: 206px;
+    word-break: break-all;
   }
   dt {
     font-size: 13px;
   }
 }
 
-.evaluationReportDLRight {
-  @include u-padding-left(16px);
+.sidebySideItem {
+  flex-grow: 1;
 }
+
+.ppmRightLonerDataRow {
+  border-bottom-color: $base-lighter;
+  border-bottom-width: 1px !important;
+  border-bottom-style: solid;
+}
+
+
 
 
 

@@ -56,7 +56,7 @@ func (suite *GHCTestSuite) TestDTODTransitDistance() {
 	}
 
 	panicFunc := func() {
-		planner := NewHHGPlanner(&ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
+		planner := NewDTODPlanner(&ghcmocks.DTODPlannerMileage{})
 		planner.TransitDistance(suite.AppContextForTest(), &sourceAddress, &destinationAddress)
 	}
 	suite.Panics(panicFunc)
@@ -74,24 +74,24 @@ func (suite *GHCTestSuite) TestDTODLatLongTransitDistance() {
 	}
 
 	panicFunc := func() {
-		planner := NewDtodPlanner(&ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
+		planner := NewDTODPlanner(&ghcmocks.DTODPlannerMileage{})
 		planner.LatLongTransitDistance(suite.AppContextForTest(), sourceLatLong, destinationLatLong)
 	}
 	suite.Panics(panicFunc)
 }
 
-func (suite *GHCTestSuite) TestDtodZip5TransitDistanceLineHaul() {
+func (suite *GHCTestSuite) TestDTODZip5TransitDistanceLineHaul() {
 	sourceZip5 := "30907"
 	destinationZip5 := "78234"
 
 	panicFunc := func() {
-		planner := NewHHGPlanner(&ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
+		planner := NewDTODPlanner(&ghcmocks.DTODPlannerMileage{})
 		planner.Zip5TransitDistanceLineHaul(suite.AppContextForTest(), sourceZip5, destinationZip5)
 	}
 	suite.Panics(panicFunc)
 }
 
-func (suite *GHCTestSuite) TestDtodZipTransitDistance() {
+func (suite *GHCTestSuite) TestDTODZipTransitDistance() {
 	suite.T().Run("fake DTOD returns a distance", func(t *testing.T) {
 		testSoapClient := &ghcmocks.SoapCaller{}
 		testSoapClient.On("Call",
@@ -108,7 +108,9 @@ func (suite *GHCTestSuite) TestDtodZipTransitDistance() {
 				DistanceMiles: 150,
 			},
 		})
-		planner := NewDtodPlanner(testSoapClient, fakeUsername, fakePassword)
+
+		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient)
+		planner := NewDTODPlanner(plannerMileage)
 		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30301")
 		suite.NoError(err)
 		suite.Equal(150, distance)
@@ -121,7 +123,8 @@ func (suite *GHCTestSuite) TestDtodZipTransitDistance() {
 			mock.Anything,
 		).Return(soapResponseForDistance("150.33"), errors.New("some error"))
 
-		planner := NewDtodPlanner(testSoapClient, fakeUsername, fakePassword)
+		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient)
+		planner := NewDTODPlanner(plannerMileage)
 		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30901")
 		suite.Error(err)
 		suite.Equal(0, distance)
