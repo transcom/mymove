@@ -39,8 +39,10 @@ describe('EvaluationViolationsForm', () => {
     render(<EvaluationViolationsForm violations={[mockViolation]} />);
 
     await waitFor(() => {
-      // Check out heading
+      // Check out headings
       expect(screen.getByRole('heading', { name: 'Select violations', level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Serious incident', level: 3 })).toBeInTheDocument();
+      expect(screen.getByTestId('seriousIncidentLegend')).toHaveTextContent('Serious incident');
 
       // Violation Accordion is present
       expect(screen.getByRole('heading', { name: 'Category 1', level: 3 })).toBeInTheDocument();
@@ -52,6 +54,9 @@ describe('EvaluationViolationsForm', () => {
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save draft' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Review and submit' })).toBeInTheDocument();
+
+      // Conditionally shown textarea not shown by default
+      expect(screen.queryByText('Serious incident description')).not.toBeInTheDocument();
     });
   });
 

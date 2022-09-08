@@ -96,7 +96,9 @@ const EvaluationViolationsForm = ({ violations }) => {
                     <FormGroup>
                       <Fieldset>
                         <div className={styles.serious}>
-                          <legend className="usa-label">Serious incident</legend>
+                          <legend data-testid="seriousIncidentLegend" className="usa-label">
+                            Serious incident
+                          </legend>
                         </div>
                         <div className={styles.seriousIncident}>
                           <Field
