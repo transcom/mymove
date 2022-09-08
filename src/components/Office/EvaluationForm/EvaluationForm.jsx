@@ -106,9 +106,17 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
       }
     }
     // format the location if it's there
+    let locationDescription;
     let { evaluationLocation } = values;
     if (evaluationLocation) {
       evaluationLocation = values.evaluationLocation.toUpperCase();
+      if (evaluationLocation === 'OTHER') {
+        locationDescription = values.otherEvaluationLocation;
+      }
+    }
+
+    if (values.evaluationLocation === 'other') {
+      locationDescription = values.otherEvaluationLocation;
     }
     let evalMinutes;
     // calculate the minutes for evaluation length
@@ -129,10 +137,10 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
 
     const body = {
       location: evaluationLocation,
-      locationDescription: values.otherEvaluationLocation,
+      locationDescription,
       inspectionType,
       remarks: values.remarks,
-      // hard coded until violations work
+      // this is a yes or no boolean and not a list of the violations
       violationsObserved: violations,
       inspectionDate: formatDateForSwagger(values.inspectionDate),
       evaluationLengthMinutes: evalMinutes,
@@ -229,7 +237,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
       evaluationLocation: Yup.string().required(),
       violationsObserved: Yup.string().required(),
       remarks: Yup.string().required(),
-      other: Yup.string().when('evaluationLocation', {
+      otherEvaluationLocation: Yup.string().when('evaluationLocation', {
         is: 'other',
         then: Yup.string().required(),
       }),
