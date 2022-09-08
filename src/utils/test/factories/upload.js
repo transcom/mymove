@@ -1,18 +1,20 @@
 import { v4 } from 'uuid';
 
-const createUpload = ({ fileName, createdAtDate }) => {
+import { UPLOAD_SCAN_STATUS } from 'shared/constants';
+
+const createUpload = ({ fileName, createdAtDate = new Date() } = {}) => {
   const uploadId = v4();
-  const uploadCreateDate = createdAtDate || new Date();
+  const uploadCreateDate = createdAtDate.toISOString();
 
   return {
     id: uploadId,
     filename: fileName,
-    status: 'PROCESSING',
+    status: UPLOAD_SCAN_STATUS.PROCESSING,
     url: `/uploads/${uploadId}?contentType=application%2Fpdf`,
     content_type: 'application/pdf',
     bytes: 10596,
-    created_at: uploadCreateDate.toISOString(),
-    updated_at: uploadCreateDate.toISOString(),
+    created_at: uploadCreateDate,
+    updated_at: uploadCreateDate,
   };
 };
 

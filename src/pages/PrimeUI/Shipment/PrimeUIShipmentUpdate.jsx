@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { useHistory, useParams, withRouter } from 'react-router-dom';
 import { generatePath } from 'react-router';
 import { useMutation } from 'react-query';
-import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
+import { Alert, Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
@@ -14,7 +14,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { primeSimulatorRoutes } from 'constants/routes';
 import scrollToTop from 'shared/scrollToTop';
-import { updatePrimeMTOShipment } from 'services/primeApi';
+import { updatePrimeMTOShipment, updatePrimeMTOShipmentStatus } from 'services/primeApi';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
@@ -38,6 +38,50 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   const handleClose = () => {
     history.push(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
+
+  const [mutateMTOShipmentStatus] = useMutation(updatePrimeMTOShipmentStatus, {
+    onSuccess: (updatedMTOShipment) => {
+      mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
+        updatedMTOShipment;
+      setFlashMessage(`MSG_CANCELATION_SUCCESS${shipmentId}`, 'success', `Successfully canceled shipment`, '', true);
+      handleClose();
+    },
+    // TODO: This method is duplicated for now. Refactor if neccessary.
+    onError: (error) => {
+      const { response: { body } = {} } = error;
+
+      if (body) {
+        /*
+        {
+          "detail": "Invalid data found in input",
+          "instance":"00000000-0000-0000-0000-000000000000",
+          "title":"Validation Error",
+          "invalidFields": {
+            "primeEstimatedWeight":["the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight","Invalid Input."]
+          }
+        }
+         */
+        let invalidFieldsStr = '';
+        if (body.invalidFields) {
+          Object.keys(body.invalidFields).forEach((key) => {
+            const value = body.invalidFields[key];
+            invalidFieldsStr += `\n${key} - ${value && value.length > 0 ? value[0] : ''} ;`;
+          });
+        }
+        setErrorMessage({
+          title: `Prime API: ${body.title} `,
+          detail: `${body.detail}${invalidFieldsStr}\n\nPlease cancel and Update Shipment again`,
+        });
+      } else {
+        setErrorMessage({
+          title: 'Unexpected error',
+          detail: 'An unknown error has occurred, please check the state of the shipment and values',
+        });
+      }
+      scrollToTop();
+    },
+  });
+
   const [mutateMTOShipment] = useMutation(updatePrimeMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
@@ -100,6 +144,12 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
   const editablePickupAddress = isEmpty(reformatPrimeApiPickupAddress);
   const editableDestinationAddress = isEmpty(reformatPrimeApiDestinationAddress);
+
+  const onCancelShipmentClick = () => {
+    mutateMTOShipmentStatus({ mtoShipmentID: shipmentId, ifMatchETag: shipment.eTag }).then(() => {
+      /* console.info("It's done and canceled."); */
+    });
+  };
 
   const onSubmit = (values, { setSubmitting }) => {
     let body;
@@ -279,6 +329,9 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                   </Alert>
                 </div>
               )}
+              <Button type="button" onClick={onCancelShipmentClick} className="usa-button usa-button-secondary">
+                Cancel Shipment
+              </Button>
               <Formik
                 initialValues={initialValues}
                 onSubmit={onSubmit}

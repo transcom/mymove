@@ -11,7 +11,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { customerRoutes } from 'constants/routes';
 import { deleteWeightTicket } from 'services/internalApi';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
-import createBaseProGear from 'utils/test/factories/proGear';
+import { createBaseProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
 
 const mockMoveId = v4();
 const mockMTOShipmentId = v4();
@@ -116,7 +116,7 @@ const mockMTOShipmentWithProGear = {
     hasProGear: true,
     proGearWeight: 100,
     spouseProGearWeight: null,
-    proGear: [createBaseProGear()],
+    proGear: [createBaseProGearWeightTicket()],
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };

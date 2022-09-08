@@ -1,6 +1,7 @@
 import {
   navigateFromCloseoutReviewPageToProGearPage,
   setMobileViewport,
+  signInAndNavigateToPPMReviewPage,
   signInAndNavigateToWeightTicketPage,
 } from '../../../support/ppmCustomerShared';
 
@@ -21,7 +22,7 @@ describe('Progear', function () {
         setMobileViewport();
       }
 
-      signInAndNavigateToWeightTicketPage(userId);
+      signInAndNavigateToPPMReviewPage(userId);
       navigateFromCloseoutReviewPageToProGearPage();
       cy.get('[data-testid="selfProGear"]').should('not.be.checked');
       cy.get('[data-testid="spouseProGear"]').should('not.be.checked');

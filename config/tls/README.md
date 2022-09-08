@@ -7,7 +7,7 @@ A description of the certificates in this directory will helpful:
 | Name | Function |
 | --- | --- |
 | `api.demo.dp3.us.cert` | Certificate for api.demo.dp3.us |
-| `api.demo.dp3.us.p7b` | Certificate chain for api.demo.dp3.us (non-ATO) |
+| `api.demo.dp3.us.chain.der.p7b` | Certificate chain for api.demo.dp3.us (non-ATO) |
 | `api.loadtest.dp3.us.crt` | Certificate for api.loadtest.dp3.us |
 | `api.loadtest.dp3.us.chain.der.p7b` | Certificate chain for api.loadtest.dp3.us (non-ATO) |
 | `Certificates_PKCS7_v5.6_DoD.der.p7b` | |
