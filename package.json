@@ -159,6 +159,7 @@
     "happo-plugin-storybook": "^3.0.0",
     "happo.io": "^7.3.0",
     "jest-junit": "^14.0.1",
+    "js-yaml": "^4.1.0",
     "mime-types": "^2.1.35",
     "mockdate": "^3.0.5",
     "prettier": "2.7.1",
