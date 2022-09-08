@@ -1041,6 +1041,11 @@ jobs:
       - server_tests_step:
           application: app
       - run:
+          name: Ensure we save both the coverage baseline & the go-coverage text files before checking test coverage status
+          command: |
+            cp -v /tmp/coverage_baseline.txt ~/transcom/mymove/tmp/test-results/previous-coverage-baseline.txt
+            cp -v ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt ~/transcom/mymove/tmp/test-results/current-coverage.txt
+      - run:
           name: Ensure Test Coverage Increasing
           command: |
             ./scripts/ensure-go-test-coverage /tmp/coverage_baseline.txt tmp/test-results/gotest/app/go-coverage.txt
