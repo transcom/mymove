@@ -13,6 +13,12 @@ describe('when given a Create basic service item dimensions history record', () 
       width_thousandth_inches: 2000,
       type: 'CRATE',
     },
+    context: [
+      {
+        name: 'Domestic uncrating',
+        shipment_type: 'HHG',
+      },
+    ],
     eventName: o.createMTOServiceItem,
     tableName: t.mto_service_item_dimensions,
   };
@@ -21,6 +27,8 @@ describe('when given a Create basic service item dimensions history record', () 
     expect(result).toMatchObject(e);
     expect(result.getEventNameDisplay()).toEqual('Requested service item');
     expect(result.getDetailsLabeledDetails(item)).toMatchObject({
+      service_item_name: 'Domestic uncrating',
+      shipment_type: 'HHG',
       height_thousandth_inches: 1000,
       width_thousandth_inches: 2000,
       length_thousandth_inches: 3000,
