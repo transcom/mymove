@@ -29,9 +29,6 @@ jest.mock('react-router-dom', () => ({
     moveId: 'cc03c553-d317-46af-8b2d-3c9f899f6451',
     mtoShipmentId: '6b7a5769-4393-46fb-a4c4-d3f6ac7584c7',
   })),
-  useLocation: () => ({
-    search: 'tripNumber=2',
-  }),
 }));
 
 jest.mock('services/internalApi', () => ({
