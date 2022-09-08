@@ -109,3 +109,51 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
     return contents;
   });
 };
+
+export const calculateNetWeightForWeightTicket = (weightTicket) => {
+  if (
+    weightTicket.emptyWeight == null ||
+    weightTicket.fullWeight == null ||
+    Number.isNaN(Number(weightTicket.emptyWeight)) ||
+    Number.isNaN(Number(weightTicket.fullWeight))
+  ) {
+    return 0;
+  }
+
+  return weightTicket.fullWeight - weightTicket.emptyWeight;
+};
+
+export const calculateTotalNetWeightForWeightTickets = (weightTickets = []) => {
+  return weightTickets.reduce((prev, curr) => {
+    return prev + calculateNetWeightForWeightTicket(curr);
+  }, 0);
+};
+
+export const calculateNetWeightForProGearWeightTicket = (proGearWeightTicket) => {
+  if (proGearWeightTicket.constructedWeight != null && !Number.isNaN(Number(proGearWeightTicket.constructedWeight))) {
+    return proGearWeightTicket.constructedWeight;
+  }
+
+  if (
+    proGearWeightTicket.emptyWeight == null ||
+    proGearWeightTicket.fullWeight == null ||
+    Number.isNaN(Number(proGearWeightTicket.emptyWeight)) ||
+    Number.isNaN(Number(proGearWeightTicket.fullWeight))
+  ) {
+    return 0;
+  }
+
+  return proGearWeightTicket.fullWeight - proGearWeightTicket.emptyWeight;
+};
+
+export const calculateTotalNetWeightForProGearWeightTickets = (proGearWeightTickets = []) => {
+  return proGearWeightTickets.reduce((prev, curr) => {
+    return prev + calculateNetWeightForProGearWeightTicket(curr);
+  }, 0);
+};
+
+export const calculateTotalMovingExpensesAmount = (movingExpenses = []) => {
+  return movingExpenses.reduce((prev, curr) => {
+    return curr.amount && !Number.isNaN(Number(curr.amount)) ? prev + curr.amount : prev;
+  }, 0);
+};

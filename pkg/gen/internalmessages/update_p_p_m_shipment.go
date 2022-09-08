@@ -62,6 +62,11 @@ type UpdatePPMShipment struct {
 	// Format: date
 	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate,omitempty"`
 
+	// The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.
+	//
+	// Read Only: true
+	FinalIncentive *int64 `json:"finalIncentive"`
+
 	// Indicates whether PPM shipment has pro gear.
 	//
 	HasProGear *bool `json:"hasProGear,omitempty"`
@@ -102,6 +107,9 @@ type UpdatePPMShipment struct {
 
 	// spouse pro gear weight
 	SpouseProGearWeight *int64 `json:"spouseProGearWeight,omitempty"`
+
+	// w2 address
+	W2Address *Address `json:"w2Address,omitempty"`
 }
 
 // Validate validates this update p p m shipment
@@ -137,6 +145,10 @@ func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSecondaryPickupPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateW2Address(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -252,9 +264,32 @@ func (m *UpdatePPMShipment) validateSecondaryPickupPostalCode(formats strfmt.Reg
 	return nil
 }
 
+func (m *UpdatePPMShipment) validateW2Address(formats strfmt.Registry) error {
+	if swag.IsZero(m.W2Address) { // not required
+		return nil
+	}
+
+	if m.W2Address != nil {
+		if err := m.W2Address.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("w2Address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("w2Address")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update p p m shipment based on the context it is used
 func (m *UpdatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.contextValidateFinalIncentive(ctx, formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.contextValidateSecondaryDestinationPostalCode(ctx, formats); err != nil {
 		res = append(res, err)
@@ -264,9 +299,22 @@ func (m *UpdatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateW2Address(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *UpdatePPMShipment) contextValidateFinalIncentive(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "finalIncentive", "body", m.FinalIncentive); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -293,6 +341,22 @@ func (m *UpdatePPMShipment) contextValidateSecondaryPickupPostalCode(ctx context
 			return ce.ValidateName("secondaryPickupPostalCode")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *UpdatePPMShipment) contextValidateW2Address(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.W2Address != nil {
+		if err := m.W2Address.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("w2Address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("w2Address")
+			}
+			return err
+		}
 	}
 
 	return nil

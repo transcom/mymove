@@ -2600,6 +2600,39 @@ func init() {
         }
       }
     },
+    "/pws-violations": {
+      "get": {
+        "description": "Fetch the possible PWS violations for an evaluation report",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Fetch the possible PWS violations for an evaluation report",
+        "operationId": "getPWSViolations",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the PWS violations",
+            "schema": {
+              "$ref": "#/definitions/PWSViolations"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/counseling": {
       "get": {
         "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
@@ -6325,6 +6358,14 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -6464,6 +6505,10 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "weightTickets": {
           "type": "array",
           "items": {
@@ -6484,6 +6529,60 @@ func init() {
         "PAYMENT_APPROVED"
       ],
       "readOnly": true
+    },
+    "PWSViolation": {
+      "description": "A PWS violation for an evaluation report",
+      "type": "object",
+      "properties": {
+        "additionalDataElem": {
+          "type": "string",
+          "example": "QAE Observed Delivery Date"
+        },
+        "category": {
+          "type": "string",
+          "example": "Pre-Move Services"
+        },
+        "displayOrder": {
+          "type": "integer",
+          "example": 3
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isKpi": {
+          "type": "boolean",
+          "example": false
+        },
+        "paragraphNumber": {
+          "type": "string",
+          "example": "1.2.3.4.5"
+        },
+        "requirementStatement": {
+          "type": "string",
+          "example": "The contractor shall prepare and load property going into NTS in containers at residence for shipment to NTS."
+        },
+        "requirementSummary": {
+          "type": "string",
+          "example": "Provide a single point of contact (POC)"
+        },
+        "subCategory": {
+          "type": "string",
+          "example": "Weight Estimate"
+        },
+        "title": {
+          "type": "string",
+          "example": "Customer Support"
+        }
+      },
+      "readOnly": true
+    },
+    "PWSViolations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PWSViolation"
+      }
     },
     "PatchMTOServiceItemStatusPayload": {
       "properties": {
@@ -7631,6 +7730,10 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -11411,6 +11514,51 @@ func init() {
         }
       }
     },
+    "/pws-violations": {
+      "get": {
+        "description": "Fetch the possible PWS violations for an evaluation report",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Fetch the possible PWS violations for an evaluation report",
+        "operationId": "getPWSViolations",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the PWS violations",
+            "schema": {
+              "$ref": "#/definitions/PWSViolations"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/queues/counseling": {
       "get": {
         "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
@@ -15367,6 +15515,14 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "finalIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean",
@@ -15506,6 +15662,10 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "weightTickets": {
           "type": "array",
           "items": {
@@ -15526,6 +15686,60 @@ func init() {
         "PAYMENT_APPROVED"
       ],
       "readOnly": true
+    },
+    "PWSViolation": {
+      "description": "A PWS violation for an evaluation report",
+      "type": "object",
+      "properties": {
+        "additionalDataElem": {
+          "type": "string",
+          "example": "QAE Observed Delivery Date"
+        },
+        "category": {
+          "type": "string",
+          "example": "Pre-Move Services"
+        },
+        "displayOrder": {
+          "type": "integer",
+          "example": 3
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isKpi": {
+          "type": "boolean",
+          "example": false
+        },
+        "paragraphNumber": {
+          "type": "string",
+          "example": "1.2.3.4.5"
+        },
+        "requirementStatement": {
+          "type": "string",
+          "example": "The contractor shall prepare and load property going into NTS in containers at residence for shipment to NTS."
+        },
+        "requirementSummary": {
+          "type": "string",
+          "example": "Provide a single point of contact (POC)"
+        },
+        "subCategory": {
+          "type": "string",
+          "example": "Weight Estimate"
+        },
+        "title": {
+          "type": "string",
+          "example": "Customer Support"
+        }
+      },
+      "readOnly": true
+    },
+    "PWSViolations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PWSViolation"
+      }
     },
     "PatchMTOServiceItemStatusPayload": {
       "properties": {
@@ -16680,6 +16894,10 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "w2Address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         }
       }
     },

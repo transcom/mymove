@@ -10,7 +10,7 @@ export default {
   tableName: t.mto_service_item_dimensions,
   detailsType: d.LABELED,
   getEventNameDisplay: () => 'Requested service item',
-  getDetailsLabeledDetails: ({ changedValues }) => {
+  getDetailsLabeledDetails: ({ changedValues, context }) => {
     const {
       type,
       height_thousandth_inches: heightThousandthInches,
@@ -24,6 +24,8 @@ export default {
     const name = type === 'ITEM' ? 'item_size' : 'crate_size';
 
     const newChangedValues = {
+      shipment_type: context[0]?.shipment_type,
+      service_item_name: context[0]?.name,
       ...changedValues,
     };
     newChangedValues[name] = `${height}x${length}x${width} in`;

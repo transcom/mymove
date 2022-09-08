@@ -4103,6 +4103,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	serviceMemberWithOrdersAndPPMMove06(appCtx, userUploader)
 	serviceMemberWithOrdersAndPPMMove07(appCtx, userUploader)
 	serviceMemberWithOrdersAndPPMMove08(appCtx, userUploader)
+	createMoveWithPPMShipmentReadyForFinalCloseout(appCtx, userUploader)
 
 	//destination type
 	hos := models.DestinationTypeHomeOfSelection
@@ -4186,8 +4187,11 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createApprovedMoveWithPPM4(appCtx, userUploader)
 	createApprovedMoveWithPPM5(appCtx, userUploader)
 	createApprovedMoveWithPPM(appCtx, userUploader)
+	createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
+	createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMADD")
+	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSCF")
 	createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx, userUploader, moveRouter, "PPMSIT")
 
 	// TIO
