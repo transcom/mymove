@@ -48,7 +48,6 @@ type Assertions struct {
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
 	MovingExpense                            models.MovingExpense
-	MovingExpenseDocument                    models.MovingExpenseDocument
 	MTOAgent                                 models.MTOAgent
 	MTOServiceItem                           models.MTOServiceItem
 	MTOServiceItemCustomerContact            models.MTOServiceItemCustomerContact
