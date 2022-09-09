@@ -4,7 +4,6 @@ import { build, oneOf, perBuild } from '@jackfranklin/test-data-bot';
 import { fake, getInternalSpec } from 'utils/test/factories/base';
 
 export const ADDRESS_TRAITS = {
-  BLANK: 'blank',
   NO_COUNTRY: 'noCountry',
 };
 
@@ -31,16 +30,6 @@ export const addressFactory = build({
     [ADDRESS_FIELDS.COUNTRY]: 'US', // Likely change once we support more than just CONUS moves.
   },
   traits: {
-    [ADDRESS_TRAITS.BLANK]: {
-      overrides: {
-        [ADDRESS_FIELDS.STREET_ADDRESS_1]: '',
-        [ADDRESS_FIELDS.STREET_ADDRESS_2]: '',
-        [ADDRESS_FIELDS.CITY]: '',
-        [ADDRESS_FIELDS.STATE]: '',
-        [ADDRESS_FIELDS.POSTAL_CODE]: '',
-        [ADDRESS_FIELDS.COUNTRY]: '',
-      },
-    },
     [ADDRESS_TRAITS.NO_COUNTRY]: {
       postBuild: (address) => {
         delete address.country;
