@@ -46,7 +46,6 @@ type Assertions struct {
 	GHCDieselFuelPrice                       models.GHCDieselFuelPrice
 	Invoice                                  models.Invoice
 	Move                                     models.Move
-	MoveDocument                             models.MoveDocument
 	MovingExpense                            models.MovingExpense
 	MTOAgent                                 models.MTOAgent
 	MTOServiceItem                           models.MTOServiceItem
@@ -64,7 +63,6 @@ type Assertions struct {
 	PaymentServiceItem                       models.PaymentServiceItem
 	PaymentServiceItemParam                  models.PaymentServiceItemParam
 	PaymentServiceItemParams                 models.PaymentServiceItemParams
-	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	PickupAddress                            models.Address
 	PPMShipment                              models.PPMShipment
 	PrimeUpload                              models.PrimeUpload
@@ -112,7 +110,6 @@ type Assertions struct {
 	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
 	WeightTicket                             models.WeightTicket
-	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	Zip3Distance                             models.Zip3Distance
 }
 

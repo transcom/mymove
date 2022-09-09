@@ -37,8 +37,6 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		SubmittedAt:                &submittedAt,
 		UpdatedAt:                  time.Now(),
 		SelectedMoveType:           &hhgMoveType,
-		PersonallyProcuredMoves:    models.PersonallyProcuredMoves{},
-		MoveDocuments:              models.MoveDocuments{},
 		Status:                     models.MoveStatusAPPROVED,
 		SignedCertifications:       models.SignedCertifications{},
 		MTOServiceItems:            models.MTOServiceItems{},

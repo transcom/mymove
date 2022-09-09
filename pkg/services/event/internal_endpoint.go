@@ -73,15 +73,6 @@ const InternalApproveReimbursementEndpointKey = "Internal.ApproveReimbursement"
 // InternalShowOfficeOrdersEndpointKey is the key for the showOfficeOrders endpoint in internal
 const InternalShowOfficeOrdersEndpointKey = "Internal.ShowOfficeOrders"
 
-// InternalIndexMoveDocumentsEndpointKey is the key for the indexMoveDocuments endpoint in internal
-const InternalIndexMoveDocumentsEndpointKey = "Internal.IndexMoveDocuments"
-
-// InternalCreateGenericMoveDocumentEndpointKey is the key for the createGenericMoveDocument endpoint in internal
-const InternalCreateGenericMoveDocumentEndpointKey = "Internal.CreateGenericMoveDocument"
-
-// InternalUpdateMoveDocumentEndpointKey is the key for the updateMoveDocument endpoint in internal
-const InternalUpdateMoveDocumentEndpointKey = "Internal.UpdateMoveDocument"
-
 // InternalCreateMovingExpenseDocumentEndpointKey is the key for the createMovingExpenseDocument endpoint in internal
 const InternalCreateMovingExpenseDocumentEndpointKey = "Internal.CreateMovingExpenseDocument"
 
@@ -270,18 +261,6 @@ var internalEndpoints = EndpointMapType{
 	InternalShowOfficeOrdersEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "showOfficeOrders",
-	},
-	InternalIndexMoveDocumentsEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "indexMoveDocuments",
-	},
-	InternalCreateGenericMoveDocumentEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "createGenericMoveDocument",
-	},
-	InternalUpdateMoveDocumentEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "updateMoveDocument",
 	},
 	InternalCreateMovingExpenseDocumentEndpointKey: {
 		APIName:     InternalAPIName,
