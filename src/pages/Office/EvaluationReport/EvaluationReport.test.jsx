@@ -6,7 +6,7 @@ import ReactRouter from 'react-router';
 import EvaluationReport from './EvaluationReport';
 
 import { MockProviders } from 'testUtils';
-import { useEvaluationReportQueries } from 'hooks/queries';
+import { useEvaluationReportShipmentListQueries } from 'hooks/queries';
 
 const mockReportId = 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2';
 const mockMtoRefId = '6789-1234';
@@ -21,7 +21,7 @@ const mockOrders = {
 };
 
 jest.mock('hooks/queries', () => ({
-  useEvaluationReportQueries: jest.fn(),
+  useEvaluationReportShipmentListQueries: jest.fn(),
 }));
 
 const mockShipmentData = {
@@ -132,12 +132,12 @@ const mockCounselingData = {
 
 describe('EvaluationReport', () => {
   it('renders the page components for shipment report', async () => {
-    useEvaluationReportQueries.mockReturnValue(mockShipmentData);
+    useEvaluationReportShipmentListQueries.mockReturnValue(mockShipmentData);
     jest.spyOn(ReactRouter, 'useParams').mockReturnValue({ reportId: mockReportId });
 
     render(
       <MockProviders initialEntries={[`/moves/LR4T8V/evaluation-reports/${mockReportId}`]}>
-        <EvaluationReport customerInfo={mockCustomer} orders={mockOrders} />
+        <EvaluationReport customerInfo={mockCustomer} orders={mockOrders} grade={mockOrders.grade} />
       </MockProviders>,
     );
 
@@ -158,11 +158,11 @@ describe('EvaluationReport', () => {
   });
 
   it('renders the page components for counseling report', async () => {
-    useEvaluationReportQueries.mockReturnValue(mockCounselingData);
+    useEvaluationReportShipmentListQueries.mockReturnValue(mockCounselingData);
     jest.spyOn(ReactRouter, 'useParams').mockReturnValue({ reportId: mockReportId });
     render(
       <MockProviders initialEntries={[`/moves/LR4T8V/evaluation-reports/${mockReportId}`]}>
-        <EvaluationReport customerInfo={mockCustomer} orders={mockOrders} />
+        <EvaluationReport grade={mockOrders.grade} customerInfo={mockCustomer} />
       </MockProviders>,
     );
 
