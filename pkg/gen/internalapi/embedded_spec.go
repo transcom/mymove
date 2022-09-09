@@ -547,95 +547,6 @@ func init() {
         }
       }
     },
-    "/move_documents/{moveDocumentId}": {
-      "put": {
-        "description": "Update a move document with the given information",
-        "tags": [
-          "move_docs"
-        ],
-        "summary": "Updates a move document",
-        "operationId": "updateMoveDocument",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move document model",
-            "name": "moveDocumentId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "updateMoveDocument",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MoveDocumentPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated instance of move document",
-            "schema": {
-              "$ref": "#/definitions/MoveDocumentPayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "404": {
-            "description": "move document not found"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      },
-      "delete": {
-        "description": "Deletes a move document with the given information",
-        "tags": [
-          "move_docs"
-        ],
-        "summary": "Deletes a move document",
-        "operationId": "deleteMoveDocument",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move document model",
-            "name": "moveDocumentId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "deleted"
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/definitions/InvalidRequestResponsePayload"
-            }
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/moves/{moveId}": {
       "get": {
         "description": "Returns the given move",
@@ -872,89 +783,6 @@ func init() {
           },
           "500": {
             "description": "internal server error"
-          }
-        }
-      }
-    },
-    "/moves/{moveId}/move_documents": {
-      "get": {
-        "description": "Returns a list of all Move Documents associated with this move",
-        "tags": [
-          "move_docs"
-        ],
-        "summary": "Returns a list of all Move Documents associated with this move",
-        "operationId": "indexMoveDocuments",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns list of move douments",
-            "schema": {
-              "$ref": "#/definitions/MoveDocuments"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          }
-        }
-      },
-      "post": {
-        "description": "Created a move document with the given information",
-        "tags": [
-          "move_docs"
-        ],
-        "summary": "Creates a move document",
-        "operationId": "createGenericMoveDocument",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "createGenericMoveDocumentPayload",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CreateGenericMoveDocumentPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns new move document object",
-            "schema": {
-              "$ref": "#/definitions/MoveDocumentPayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "must be authenticated to use this endpoint"
-          },
-          "403": {
-            "description": "not authorized to modify this move"
-          },
-          "500": {
-            "description": "server error"
           }
         }
       }
@@ -1489,54 +1317,6 @@ func init() {
             "schema": {
               "$ref": "#/definitions/MovePayload"
             }
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/moves/{moveId}/weight_ticket": {
-      "post": {
-        "description": "Created a weight ticket document with the given information",
-        "tags": [
-          "move_docs"
-        ],
-        "summary": "Creates a weight ticket document",
-        "operationId": "createWeightTicketDocument",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "createWeightTicketDocument",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CreateWeightTicketDocumentsPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns new weight ticket document object",
-            "schema": {
-              "$ref": "#/definitions/MoveDocumentPayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "must be authenticated to use this endpoint"
-          },
-          "403": {
-            "description": "not authorized to modify this move"
           },
           "500": {
             "description": "server error"
@@ -2212,14 +1992,6 @@ func init() {
           {
             "type": "array",
             "items": {
-              "enum": [
-                "OTHER",
-                "WEIGHT_TICKET",
-                "STORAGE_EXPENSE",
-                "SHIPMENT_SUMMARY",
-                "EXPENSE",
-                "WEIGHT_TICKET_SET"
-              ],
               "type": "string"
             },
             "collectionFormat": "csv",
@@ -3388,43 +3160,6 @@ func init() {
         }
       }
     },
-    "CreateGenericMoveDocumentPayload": {
-      "type": "object",
-      "required": [
-        "upload_ids",
-        "title",
-        "move_document_type"
-      ],
-      "properties": {
-        "move_document_type": {
-          "$ref": "#/definitions/MoveDocumentType"
-        },
-        "notes": {
-          "type": "string",
-          "title": "Notes",
-          "x-nullable": true,
-          "example": "This document is good to go!"
-        },
-        "personally_procured_move_id": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "title": {
-          "type": "string",
-          "example": "very_useful_document.pdf"
-        },
-        "upload_ids": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
-        }
-      }
-    },
     "CreatePPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
@@ -4422,148 +4157,6 @@ func init() {
         }
       }
     },
-    "MoveDocumentPayload": {
-      "type": "object",
-      "required": [
-        "id",
-        "move_id",
-        "document",
-        "title",
-        "move_document_type",
-        "status"
-      ],
-      "properties": {
-        "document": {
-          "$ref": "#/definitions/DocumentPayload"
-        },
-        "empty_weight": {
-          "type": "integer",
-          "title": "Empty weight",
-          "x-formatting": "weight",
-          "x-nullable": true
-        },
-        "empty_weight_ticket_missing": {
-          "type": "boolean",
-          "title": "missing empty weight ticket",
-          "x-nullable": true
-        },
-        "full_weight": {
-          "type": "integer",
-          "title": "Full weight",
-          "x-formatting": "weight",
-          "x-nullable": true
-        },
-        "full_weight_ticket_missing": {
-          "type": "boolean",
-          "title": "missing full weight ticket",
-          "x-nullable": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "move_document_type": {
-          "$ref": "#/definitions/MoveDocumentType"
-        },
-        "move_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "moving_expense_type": {
-          "$ref": "#/definitions/MovingExpenseType"
-        },
-        "notes": {
-          "type": "string",
-          "title": "Notes",
-          "x-nullable": true,
-          "example": "This document is good to go!"
-        },
-        "payment_method": {
-          "type": "string",
-          "title": "Payment Method",
-          "enum": [
-            "OTHER",
-            "GTCC"
-          ],
-          "x-display-value": {
-            "GTCC": "GTCC",
-            "OTHER": "Other account"
-          }
-        },
-        "personally_procured_move_id": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "receipt_missing": {
-          "type": "boolean",
-          "title": "missing expense receipt",
-          "x-nullable": true
-        },
-        "requested_amount_cents": {
-          "description": "unit is cents",
-          "type": "integer",
-          "format": "cents",
-          "title": "Requested Amount",
-          "minimum": 1
-        },
-        "status": {
-          "$ref": "#/definitions/MoveDocumentStatus"
-        },
-        "storage_end_date": {
-          "type": "string",
-          "format": "date",
-          "title": "End date of storage for storage expenses",
-          "x-nullable": true,
-          "example": "2018-04-26"
-        },
-        "storage_start_date": {
-          "type": "string",
-          "format": "date",
-          "title": "Start date of storage for storage expenses",
-          "x-nullable": true,
-          "example": "2018-04-26"
-        },
-        "title": {
-          "type": "string",
-          "title": "Document title",
-          "example": "very_useful_document.pdf"
-        },
-        "trailer_ownership_missing": {
-          "type": "boolean",
-          "title": "missing trailer ownership documentation",
-          "x-nullable": true
-        },
-        "vehicle_make": {
-          "type": "string",
-          "title": "Vehicle make",
-          "x-nullable": true
-        },
-        "vehicle_model": {
-          "type": "string",
-          "title": "Vehicle model",
-          "x-nullable": true
-        },
-        "vehicle_nickname": {
-          "type": "string",
-          "title": "Nickname (ex. \"15-foot truck\")",
-          "x-nullable": true
-        },
-        "weight_ticket_date": {
-          "type": "string",
-          "format": "date",
-          "title": "Weight ticket date",
-          "x-nullable": true,
-          "example": "2018-04-26"
-        },
-        "weight_ticket_set_type": {
-          "$ref": "#/definitions/WeightTicketSetType"
-        }
-      }
-    },
     "MoveDocumentStatus": {
       "type": "string",
       "title": "Document status",
@@ -4578,33 +4171,6 @@ func init() {
         "EXCLUDE_FROM_CALCULATION": "Exclude from calculation",
         "HAS_ISSUE": "Has issue",
         "OK": "OK"
-      }
-    },
-    "MoveDocumentType": {
-      "type": "string",
-      "title": "Document type",
-      "enum": [
-        "OTHER",
-        "WEIGHT_TICKET",
-        "STORAGE_EXPENSE",
-        "SHIPMENT_SUMMARY",
-        "EXPENSE",
-        "WEIGHT_TICKET_SET"
-      ],
-      "x-display-value": {
-        "EXPENSE": "Expense",
-        "OTHER": "Other document type",
-        "SHIPMENT_SUMMARY": "Shipment summary",
-        "STORAGE_EXPENSE": "Storage expense receipt",
-        "WEIGHT_TICKET": "Weight ticket",
-        "WEIGHT_TICKET_SET": "Weight ticket set"
-      },
-      "example": "EXPENSE"
-    },
-    "MoveDocuments": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveDocumentPayload"
       }
     },
     "MovePayload": {
@@ -7763,95 +7329,6 @@ func init() {
         }
       }
     },
-    "/move_documents/{moveDocumentId}": {
-      "put": {
-        "description": "Update a move document with the given information",
-        "tags": [
-          "move_docs"
-        ],
-        "summary": "Updates a move document",
-        "operationId": "updateMoveDocument",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move document model",
-            "name": "moveDocumentId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "updateMoveDocument",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MoveDocumentPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated instance of move document",
-            "schema": {
-              "$ref": "#/definitions/MoveDocumentPayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "404": {
-            "description": "move document not found"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      },
-      "delete": {
-        "description": "Deletes a move document with the given information",
-        "tags": [
-          "move_docs"
-        ],
-        "summary": "Deletes a move document",
-        "operationId": "deleteMoveDocument",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move document model",
-            "name": "moveDocumentId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "deleted"
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/definitions/InvalidRequestResponsePayload"
-            }
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/moves/{moveId}": {
       "get": {
         "description": "Returns the given move",
@@ -8088,89 +7565,6 @@ func init() {
           },
           "500": {
             "description": "internal server error"
-          }
-        }
-      }
-    },
-    "/moves/{moveId}/move_documents": {
-      "get": {
-        "description": "Returns a list of all Move Documents associated with this move",
-        "tags": [
-          "move_docs"
-        ],
-        "summary": "Returns a list of all Move Documents associated with this move",
-        "operationId": "indexMoveDocuments",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns list of move douments",
-            "schema": {
-              "$ref": "#/definitions/MoveDocuments"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          }
-        }
-      },
-      "post": {
-        "description": "Created a move document with the given information",
-        "tags": [
-          "move_docs"
-        ],
-        "summary": "Creates a move document",
-        "operationId": "createGenericMoveDocument",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "createGenericMoveDocumentPayload",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CreateGenericMoveDocumentPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns new move document object",
-            "schema": {
-              "$ref": "#/definitions/MoveDocumentPayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "must be authenticated to use this endpoint"
-          },
-          "403": {
-            "description": "not authorized to modify this move"
-          },
-          "500": {
-            "description": "server error"
           }
         }
       }
@@ -8705,54 +8099,6 @@ func init() {
             "schema": {
               "$ref": "#/definitions/MovePayload"
             }
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/moves/{moveId}/weight_ticket": {
-      "post": {
-        "description": "Created a weight ticket document with the given information",
-        "tags": [
-          "move_docs"
-        ],
-        "summary": "Creates a weight ticket document",
-        "operationId": "createWeightTicketDocument",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "createWeightTicketDocument",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CreateWeightTicketDocumentsPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns new weight ticket document object",
-            "schema": {
-              "$ref": "#/definitions/MoveDocumentPayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "must be authenticated to use this endpoint"
-          },
-          "403": {
-            "description": "not authorized to modify this move"
           },
           "500": {
             "description": "server error"
@@ -9494,14 +8840,6 @@ func init() {
           {
             "type": "array",
             "items": {
-              "enum": [
-                "OTHER",
-                "WEIGHT_TICKET",
-                "STORAGE_EXPENSE",
-                "SHIPMENT_SUMMARY",
-                "EXPENSE",
-                "WEIGHT_TICKET_SET"
-              ],
               "type": "string"
             },
             "collectionFormat": "csv",
@@ -10748,43 +10086,6 @@ func init() {
         }
       }
     },
-    "CreateGenericMoveDocumentPayload": {
-      "type": "object",
-      "required": [
-        "upload_ids",
-        "title",
-        "move_document_type"
-      ],
-      "properties": {
-        "move_document_type": {
-          "$ref": "#/definitions/MoveDocumentType"
-        },
-        "notes": {
-          "type": "string",
-          "title": "Notes",
-          "x-nullable": true,
-          "example": "This document is good to go!"
-        },
-        "personally_procured_move_id": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "title": {
-          "type": "string",
-          "example": "very_useful_document.pdf"
-        },
-        "upload_ids": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
-        }
-      }
-    },
     "CreatePPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
@@ -11797,150 +11098,6 @@ func init() {
         }
       }
     },
-    "MoveDocumentPayload": {
-      "type": "object",
-      "required": [
-        "id",
-        "move_id",
-        "document",
-        "title",
-        "move_document_type",
-        "status"
-      ],
-      "properties": {
-        "document": {
-          "$ref": "#/definitions/DocumentPayload"
-        },
-        "empty_weight": {
-          "type": "integer",
-          "title": "Empty weight",
-          "minimum": 0,
-          "x-formatting": "weight",
-          "x-nullable": true
-        },
-        "empty_weight_ticket_missing": {
-          "type": "boolean",
-          "title": "missing empty weight ticket",
-          "x-nullable": true
-        },
-        "full_weight": {
-          "type": "integer",
-          "title": "Full weight",
-          "minimum": 0,
-          "x-formatting": "weight",
-          "x-nullable": true
-        },
-        "full_weight_ticket_missing": {
-          "type": "boolean",
-          "title": "missing full weight ticket",
-          "x-nullable": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "move_document_type": {
-          "$ref": "#/definitions/MoveDocumentType"
-        },
-        "move_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "moving_expense_type": {
-          "$ref": "#/definitions/MovingExpenseType"
-        },
-        "notes": {
-          "type": "string",
-          "title": "Notes",
-          "x-nullable": true,
-          "example": "This document is good to go!"
-        },
-        "payment_method": {
-          "type": "string",
-          "title": "Payment Method",
-          "enum": [
-            "OTHER",
-            "GTCC"
-          ],
-          "x-display-value": {
-            "GTCC": "GTCC",
-            "OTHER": "Other account"
-          }
-        },
-        "personally_procured_move_id": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "receipt_missing": {
-          "type": "boolean",
-          "title": "missing expense receipt",
-          "x-nullable": true
-        },
-        "requested_amount_cents": {
-          "description": "unit is cents",
-          "type": "integer",
-          "format": "cents",
-          "title": "Requested Amount",
-          "minimum": 1
-        },
-        "status": {
-          "$ref": "#/definitions/MoveDocumentStatus"
-        },
-        "storage_end_date": {
-          "type": "string",
-          "format": "date",
-          "title": "End date of storage for storage expenses",
-          "x-nullable": true,
-          "example": "2018-04-26"
-        },
-        "storage_start_date": {
-          "type": "string",
-          "format": "date",
-          "title": "Start date of storage for storage expenses",
-          "x-nullable": true,
-          "example": "2018-04-26"
-        },
-        "title": {
-          "type": "string",
-          "title": "Document title",
-          "example": "very_useful_document.pdf"
-        },
-        "trailer_ownership_missing": {
-          "type": "boolean",
-          "title": "missing trailer ownership documentation",
-          "x-nullable": true
-        },
-        "vehicle_make": {
-          "type": "string",
-          "title": "Vehicle make",
-          "x-nullable": true
-        },
-        "vehicle_model": {
-          "type": "string",
-          "title": "Vehicle model",
-          "x-nullable": true
-        },
-        "vehicle_nickname": {
-          "type": "string",
-          "title": "Nickname (ex. \"15-foot truck\")",
-          "x-nullable": true
-        },
-        "weight_ticket_date": {
-          "type": "string",
-          "format": "date",
-          "title": "Weight ticket date",
-          "x-nullable": true,
-          "example": "2018-04-26"
-        },
-        "weight_ticket_set_type": {
-          "$ref": "#/definitions/WeightTicketSetType"
-        }
-      }
-    },
     "MoveDocumentStatus": {
       "type": "string",
       "title": "Document status",
@@ -11955,33 +11112,6 @@ func init() {
         "EXCLUDE_FROM_CALCULATION": "Exclude from calculation",
         "HAS_ISSUE": "Has issue",
         "OK": "OK"
-      }
-    },
-    "MoveDocumentType": {
-      "type": "string",
-      "title": "Document type",
-      "enum": [
-        "OTHER",
-        "WEIGHT_TICKET",
-        "STORAGE_EXPENSE",
-        "SHIPMENT_SUMMARY",
-        "EXPENSE",
-        "WEIGHT_TICKET_SET"
-      ],
-      "x-display-value": {
-        "EXPENSE": "Expense",
-        "OTHER": "Other document type",
-        "SHIPMENT_SUMMARY": "Shipment summary",
-        "STORAGE_EXPENSE": "Storage expense receipt",
-        "WEIGHT_TICKET": "Weight ticket",
-        "WEIGHT_TICKET_SET": "Weight ticket set"
-      },
-      "example": "EXPENSE"
-    },
-    "MoveDocuments": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveDocumentPayload"
       }
     },
     "MovePayload": {

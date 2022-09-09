@@ -6,7 +6,6 @@ package ppm
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -92,12 +91,8 @@ func (o *CreatePPMAttachmentsParams) bindDocTypes(rawData []string, hasKey bool,
 	}
 
 	var docTypesIR []string
-	for i, docTypesIV := range docTypesIC {
+	for _, docTypesIV := range docTypesIC {
 		docTypesI := docTypesIV
-
-		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "docTypes", i), "query", docTypesI, []interface{}{"OTHER", "WEIGHT_TICKET", "STORAGE_EXPENSE", "SHIPMENT_SUMMARY", "EXPENSE", "WEIGHT_TICKET_SET"}, true); err != nil {
-			return err
-		}
 
 		docTypesIR = append(docTypesIR, docTypesI)
 	}

@@ -667,10 +667,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MovePayload'
-  MoveDocuments:
-    type: array
-    items:
-      $ref: '#/definitions/MoveDocumentPayload'
   WeightTicketSetType:
     type: string
     x-nullable: true
@@ -685,167 +681,6 @@ definitions:
       CAR_TRAILER: Car + Trailer
       BOX_TRUCK: Box truck
       PRO_GEAR: Pro-gear
-  MoveDocumentPayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      personally_procured_move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
-      document:
-        $ref: '#/definitions/DocumentPayload'
-      title:
-        type: string
-        example: very_useful_document.pdf
-        title: Document title
-      move_document_type:
-        $ref: '#/definitions/MoveDocumentType'
-      status:
-        $ref: '#/definitions/MoveDocumentStatus'
-      notes:
-        type: string
-        example: This document is good to go!
-        x-nullable: true
-        title: Notes
-      moving_expense_type:
-        $ref: 'definitions/MovingExpenseType.yaml'
-      requested_amount_cents:
-        type: integer
-        format: cents
-        minimum: 1
-        title: Requested Amount
-        description: unit is cents
-      payment_method:
-        type: string
-        title: Payment Method
-        enum:
-          - OTHER
-          - GTCC
-        x-display-value:
-          OTHER: Other account
-          GTCC: GTCC
-      receipt_missing:
-        title: missing expense receipt
-        type: boolean
-        x-nullable: true
-      weight_ticket_set_type:
-        $ref: '#/definitions/WeightTicketSetType'
-      vehicle_nickname:
-        type: string
-        title: Nickname (ex. "15-foot truck")
-        x-nullable: true
-      vehicle_make:
-        type: string
-        title: Vehicle make
-        x-nullable: true
-      vehicle_model:
-        type: string
-        title: Vehicle model
-        x-nullable: true
-      empty_weight:
-        title: Empty weight
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-formatting: weight
-      empty_weight_ticket_missing:
-        title: missing empty weight ticket
-        type: boolean
-        x-nullable: true
-      full_weight:
-        title: Full weight
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-formatting: weight
-      full_weight_ticket_missing:
-        title: missing full weight ticket
-        type: boolean
-        x-nullable: true
-      weight_ticket_date:
-        title: Weight ticket date
-        type: string
-        example: '2018-04-26'
-        format: date
-        x-nullable: true
-      trailer_ownership_missing:
-        title: missing trailer ownership documentation
-        type: boolean
-        x-nullable: true
-      storage_start_date:
-        type: string
-        format: date
-        title: Start date of storage for storage expenses
-        example: '2018-04-26'
-        x-nullable: true
-      storage_end_date:
-        type: string
-        format: date
-        title: End date of storage for storage expenses
-        example: '2018-04-26'
-        x-nullable: true
-    required:
-      - id
-      - move_id
-      - document
-      - title
-      - move_document_type
-      - status
-  CreateGenericMoveDocumentPayload:
-    type: object
-    properties:
-      personally_procured_move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
-      upload_ids:
-        type: array
-        items:
-          type: string
-          format: uuid
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      title:
-        type: string
-        example: very_useful_document.pdf
-      move_document_type:
-        $ref: '#/definitions/MoveDocumentType'
-      notes:
-        type: string
-        example: This document is good to go!
-        x-nullable: true
-        title: Notes
-    required:
-      - upload_ids
-      - title
-      - move_document_type
-  MoveDocumentType:
-    type: string
-    title: Document type
-    example: EXPENSE
-    enum: &MOVEDOCUMENTTYPE
-      - OTHER
-      - WEIGHT_TICKET
-      - STORAGE_EXPENSE
-      - SHIPMENT_SUMMARY
-      - EXPENSE
-      - WEIGHT_TICKET_SET
-    x-display-value:
-      OTHER: Other document type
-      WEIGHT_TICKET: Weight ticket
-      STORAGE_EXPENSE: Storage expense receipt
-      SHIPMENT_SUMMARY: Shipment summary
-      EXPENSE: Expense
-      WEIGHT_TICKET_SET: Weight ticket set
   UpdateMovingExpense:
     type: object
     properties:
@@ -3378,123 +3213,7 @@ paths:
         '404':
           description: move not found
         '500':
-          description: internal server error
-  /moves/{moveId}/move_documents:
-    get:
-      summary: Returns a list of all Move Documents associated with this move
-      description: Returns a list of all Move Documents associated with this move
-      operationId: indexMoveDocuments
-      tags:
-        - move_docs
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-      responses:
-        '200':
-          description: returns list of move douments
-          schema:
-            $ref: '#/definitions/MoveDocuments'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-    post:
-      summary: Creates a move document
-      description: Created a move document with the given information
-      operationId: createGenericMoveDocument
-      tags:
-        - move_docs
-      parameters:
-        - name: moveId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-        - in: body
-          name: createGenericMoveDocumentPayload
-          required: true
-          schema:
-            $ref: '#/definitions/CreateGenericMoveDocumentPayload'
-      responses:
-        '200':
-          description: returns new move document object
-          schema:
-            $ref: '#/definitions/MoveDocumentPayload'
-        '400':
-          description: invalid request
-        '401':
-          description: must be authenticated to use this endpoint
-        '403':
-          description: not authorized to modify this move
-        '500':
-          description: server error
-  /move_documents/{moveDocumentId}:
-    put:
-      summary: Updates a move document
-      description: Update a move document with the given information
-      operationId: updateMoveDocument
-      tags:
-        - move_docs
-      parameters:
-        - in: path
-          name: moveDocumentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move document model
-        - in: body
-          name: updateMoveDocument
-          required: true
-          schema:
-            $ref: '#/definitions/MoveDocumentPayload'
-      responses:
-        '200':
-          description: updated instance of move document
-          schema:
-            $ref: '#/definitions/MoveDocumentPayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: move document not found
-        '500':
-          description: internal server error
-    delete:
-      summary: Deletes a move document
-      description: Deletes a move document with the given information
-      operationId: deleteMoveDocument
-      tags:
-        - move_docs
-      parameters:
-        - in: path
-          name: moveDocumentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move document model
-      responses:
-        '204':
-          description: deleted
-        '400':
-          description: invalid request
-          schema:
-            $ref: '#/definitions/InvalidRequestResponsePayload'
-        '403':
-          description: not authorized
-        '404':
-          description: not found
-        '500':
-          description: server error
+          description: internal server error 
   /moves/{moveId}/approve:
     post:
       summary: Approves a move to proceed
@@ -3723,7 +3442,6 @@ paths:
           required: true
           items:
             type: string
-            enum: *MOVEDOCUMENTTYPE
           collectionFormat: csv
           description: Restrict the list to documents with matching docType.
       responses:
@@ -4343,38 +4061,6 @@ paths:
           description: user is not authorized
         '500':
           description: internal server error
-  /moves/{moveId}/weight_ticket:
-    post:
-      summary: Creates a weight ticket document
-      description: Created a weight ticket document with the given information
-      operationId: createWeightTicketDocument
-      tags:
-        - move_docs
-      parameters:
-        - name: moveId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-        - in: body
-          name: createWeightTicketDocument
-          required: true
-          schema:
-            $ref: '#/definitions/CreateWeightTicketDocumentsPayload'
-      responses:
-        '200':
-          description: returns new weight ticket document object
-          schema:
-            $ref: '#/definitions/MoveDocumentPayload'
-        '400':
-          description: invalid request
-        '401':
-          description: must be authenticated to use this endpoint
-        '403':
-          description: not authorized to modify this move
-        '500':
-          description: server error
   /ppm-shipments/{ppmShipmentId}/moving-expenses:
     post:
       summary: Creates moving expense document

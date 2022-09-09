@@ -15,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	move "github.com/transcom/mymove/pkg/services/move"
-	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	movingexpense "github.com/transcom/mymove/pkg/services/moving_expense"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
@@ -81,13 +80,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		moveRouter,
 	}
 	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{handlerConfig}
-
-	internalAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{handlerConfig}
-	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{handlerConfig,
-		movedocument.NewMoveDocumentUpdater(),
-	}
-	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{handlerConfig}
-	internalAPI.MoveDocsDeleteMoveDocumentHandler = DeleteMoveDocumentHandler{handlerConfig}
 
 	internalAPI.MoveDocsCreateWeightTicketDocumentHandler = CreateWeightTicketSetDocumentHandler{handlerConfig}
 

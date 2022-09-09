@@ -26,7 +26,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
-	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
@@ -79,9 +78,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		DocumentsCreateDocumentHandler: documents.CreateDocumentHandlerFunc(func(params documents.CreateDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation documents.CreateDocument has not yet been implemented")
 		}),
-		MoveDocsCreateGenericMoveDocumentHandler: move_docs.CreateGenericMoveDocumentHandlerFunc(func(params move_docs.CreateGenericMoveDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_docs.CreateGenericMoveDocument has not yet been implemented")
-		}),
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		}),
@@ -112,12 +108,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmCreateWeightTicketHandler: ppm.CreateWeightTicketHandlerFunc(func(params ppm.CreateWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreateWeightTicket has not yet been implemented")
 		}),
-		MoveDocsCreateWeightTicketDocumentHandler: move_docs.CreateWeightTicketDocumentHandlerFunc(func(params move_docs.CreateWeightTicketDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_docs.CreateWeightTicketDocument has not yet been implemented")
-		}),
-		MoveDocsDeleteMoveDocumentHandler: move_docs.DeleteMoveDocumentHandlerFunc(func(params move_docs.DeleteMoveDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_docs.DeleteMoveDocument has not yet been implemented")
-		}),
 		MtoShipmentDeleteShipmentHandler: mto_shipment.DeleteShipmentHandlerFunc(func(params mto_shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.DeleteShipment has not yet been implemented")
 		}),
@@ -129,9 +119,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		EntitlementsIndexEntitlementsHandler: entitlements.IndexEntitlementsHandlerFunc(func(params entitlements.IndexEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation entitlements.IndexEntitlements has not yet been implemented")
-		}),
-		MoveDocsIndexMoveDocumentsHandler: move_docs.IndexMoveDocumentsHandlerFunc(func(params move_docs.IndexMoveDocumentsParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_docs.IndexMoveDocuments has not yet been implemented")
 		}),
 		PpmIndexPersonallyProcuredMovesHandler: ppm.IndexPersonallyProcuredMovesHandlerFunc(func(params ppm.IndexPersonallyProcuredMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.IndexPersonallyProcuredMoves has not yet been implemented")
@@ -232,9 +219,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentUpdateMTOShipmentHandler: mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipment has not yet been implemented")
 		}),
-		MoveDocsUpdateMoveDocumentHandler: move_docs.UpdateMoveDocumentHandlerFunc(func(params move_docs.UpdateMoveDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_docs.UpdateMoveDocument has not yet been implemented")
-		}),
 		PpmUpdateMovingExpenseHandler: ppm.UpdateMovingExpenseHandlerFunc(func(params ppm.UpdateMovingExpenseParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateMovingExpense has not yet been implemented")
 		}),
@@ -312,8 +296,6 @@ type MymoveAPI struct {
 	OfficeCancelMoveHandler office.CancelMoveHandler
 	// DocumentsCreateDocumentHandler sets the operation handler for the create document operation
 	DocumentsCreateDocumentHandler documents.CreateDocumentHandler
-	// MoveDocsCreateGenericMoveDocumentHandler sets the operation handler for the create generic move document operation
-	MoveDocsCreateGenericMoveDocumentHandler move_docs.CreateGenericMoveDocumentHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// PpmCreateMovingExpenseHandler sets the operation handler for the create moving expense operation
@@ -334,10 +316,6 @@ type MymoveAPI struct {
 	UploadsCreateUploadHandler uploads.CreateUploadHandler
 	// PpmCreateWeightTicketHandler sets the operation handler for the create weight ticket operation
 	PpmCreateWeightTicketHandler ppm.CreateWeightTicketHandler
-	// MoveDocsCreateWeightTicketDocumentHandler sets the operation handler for the create weight ticket document operation
-	MoveDocsCreateWeightTicketDocumentHandler move_docs.CreateWeightTicketDocumentHandler
-	// MoveDocsDeleteMoveDocumentHandler sets the operation handler for the delete move document operation
-	MoveDocsDeleteMoveDocumentHandler move_docs.DeleteMoveDocumentHandler
 	// MtoShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
 	MtoShipmentDeleteShipmentHandler mto_shipment.DeleteShipmentHandler
 	// UploadsDeleteUploadHandler sets the operation handler for the delete upload operation
@@ -346,8 +324,6 @@ type MymoveAPI struct {
 	UploadsDeleteUploadsHandler uploads.DeleteUploadsHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
 	EntitlementsIndexEntitlementsHandler entitlements.IndexEntitlementsHandler
-	// MoveDocsIndexMoveDocumentsHandler sets the operation handler for the index move documents operation
-	MoveDocsIndexMoveDocumentsHandler move_docs.IndexMoveDocumentsHandler
 	// PpmIndexPersonallyProcuredMovesHandler sets the operation handler for the index personally procured moves operation
 	PpmIndexPersonallyProcuredMovesHandler ppm.IndexPersonallyProcuredMovesHandler
 	// BackupContactsIndexServiceMemberBackupContactsHandler sets the operation handler for the index service member backup contacts operation
@@ -414,8 +390,6 @@ type MymoveAPI struct {
 	PpmSubmitPersonallyProcuredMoveHandler ppm.SubmitPersonallyProcuredMoveHandler
 	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
 	MtoShipmentUpdateMTOShipmentHandler mto_shipment.UpdateMTOShipmentHandler
-	// MoveDocsUpdateMoveDocumentHandler sets the operation handler for the update move document operation
-	MoveDocsUpdateMoveDocumentHandler move_docs.UpdateMoveDocumentHandler
 	// PpmUpdateMovingExpenseHandler sets the operation handler for the update moving expense operation
 	PpmUpdateMovingExpenseHandler ppm.UpdateMovingExpenseHandler
 	// OrdersUpdateOrdersHandler sets the operation handler for the update orders operation
@@ -528,9 +502,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.DocumentsCreateDocumentHandler == nil {
 		unregistered = append(unregistered, "documents.CreateDocumentHandler")
 	}
-	if o.MoveDocsCreateGenericMoveDocumentHandler == nil {
-		unregistered = append(unregistered, "move_docs.CreateGenericMoveDocumentHandler")
-	}
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
 	}
@@ -561,12 +532,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.PpmCreateWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.CreateWeightTicketHandler")
 	}
-	if o.MoveDocsCreateWeightTicketDocumentHandler == nil {
-		unregistered = append(unregistered, "move_docs.CreateWeightTicketDocumentHandler")
-	}
-	if o.MoveDocsDeleteMoveDocumentHandler == nil {
-		unregistered = append(unregistered, "move_docs.DeleteMoveDocumentHandler")
-	}
 	if o.MtoShipmentDeleteShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.DeleteShipmentHandler")
 	}
@@ -578,9 +543,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.EntitlementsIndexEntitlementsHandler == nil {
 		unregistered = append(unregistered, "entitlements.IndexEntitlementsHandler")
-	}
-	if o.MoveDocsIndexMoveDocumentsHandler == nil {
-		unregistered = append(unregistered, "move_docs.IndexMoveDocumentsHandler")
 	}
 	if o.PpmIndexPersonallyProcuredMovesHandler == nil {
 		unregistered = append(unregistered, "ppm.IndexPersonallyProcuredMovesHandler")
@@ -680,9 +642,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoShipmentUpdateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentHandler")
-	}
-	if o.MoveDocsUpdateMoveDocumentHandler == nil {
-		unregistered = append(unregistered, "move_docs.UpdateMoveDocumentHandler")
 	}
 	if o.PpmUpdateMovingExpenseHandler == nil {
 		unregistered = append(unregistered, "ppm.UpdateMovingExpenseHandler")
@@ -820,10 +779,6 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/moves/{moveId}/move_documents"] = move_docs.NewCreateGenericMoveDocument(o.context, o.MoveDocsCreateGenericMoveDocumentHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
 	o.handlers["POST"]["/mto_shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -861,14 +816,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/weight-ticket"] = ppm.NewCreateWeightTicket(o.context, o.PpmCreateWeightTicketHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/moves/{moveId}/weight_ticket"] = move_docs.NewCreateWeightTicketDocument(o.context, o.MoveDocsCreateWeightTicketDocumentHandler)
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
-	}
-	o.handlers["DELETE"]["/move_documents/{moveDocumentId}"] = move_docs.NewDeleteMoveDocument(o.context, o.MoveDocsDeleteMoveDocumentHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
@@ -885,10 +832,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/entitlements"] = entitlements.NewIndexEntitlements(o.context, o.EntitlementsIndexEntitlementsHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/moves/{moveId}/move_documents"] = move_docs.NewIndexMoveDocuments(o.context, o.MoveDocsIndexMoveDocumentsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -1021,10 +964,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/mto-shipments/{mtoShipmentId}"] = mto_shipment.NewUpdateMTOShipment(o.context, o.MtoShipmentUpdateMTOShipmentHandler)
-	if o.handlers["PUT"] == nil {
-		o.handlers["PUT"] = make(map[string]http.Handler)
-	}
-	o.handlers["PUT"]["/move_documents/{moveDocumentId}"] = move_docs.NewUpdateMoveDocument(o.context, o.MoveDocsUpdateMoveDocumentHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

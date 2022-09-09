@@ -18,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
-	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
@@ -88,11 +87,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation documents.CreateDocument has not yet been implemented")
 		})
 	}
-	if api.MoveDocsCreateGenericMoveDocumentHandler == nil {
-		api.MoveDocsCreateGenericMoveDocumentHandler = move_docs.CreateGenericMoveDocumentHandlerFunc(func(params move_docs.CreateGenericMoveDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_docs.CreateGenericMoveDocument has not yet been implemented")
-		})
-	}
 	if api.MtoShipmentCreateMTOShipmentHandler == nil {
 		api.MtoShipmentCreateMTOShipmentHandler = mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
@@ -143,16 +137,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.CreateWeightTicket has not yet been implemented")
 		})
 	}
-	if api.MoveDocsCreateWeightTicketDocumentHandler == nil {
-		api.MoveDocsCreateWeightTicketDocumentHandler = move_docs.CreateWeightTicketDocumentHandlerFunc(func(params move_docs.CreateWeightTicketDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_docs.CreateWeightTicketDocument has not yet been implemented")
-		})
-	}
-	if api.MoveDocsDeleteMoveDocumentHandler == nil {
-		api.MoveDocsDeleteMoveDocumentHandler = move_docs.DeleteMoveDocumentHandlerFunc(func(params move_docs.DeleteMoveDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_docs.DeleteMoveDocument has not yet been implemented")
-		})
-	}
 	if api.MtoShipmentDeleteShipmentHandler == nil {
 		api.MtoShipmentDeleteShipmentHandler = mto_shipment.DeleteShipmentHandlerFunc(func(params mto_shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.DeleteShipment has not yet been implemented")
@@ -171,11 +155,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.EntitlementsIndexEntitlementsHandler == nil {
 		api.EntitlementsIndexEntitlementsHandler = entitlements.IndexEntitlementsHandlerFunc(func(params entitlements.IndexEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation entitlements.IndexEntitlements has not yet been implemented")
-		})
-	}
-	if api.MoveDocsIndexMoveDocumentsHandler == nil {
-		api.MoveDocsIndexMoveDocumentsHandler = move_docs.IndexMoveDocumentsHandlerFunc(func(params move_docs.IndexMoveDocumentsParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_docs.IndexMoveDocuments has not yet been implemented")
 		})
 	}
 	if api.PpmIndexPersonallyProcuredMovesHandler == nil {
@@ -341,11 +320,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.MtoShipmentUpdateMTOShipmentHandler == nil {
 		api.MtoShipmentUpdateMTOShipmentHandler = mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipment has not yet been implemented")
-		})
-	}
-	if api.MoveDocsUpdateMoveDocumentHandler == nil {
-		api.MoveDocsUpdateMoveDocumentHandler = move_docs.UpdateMoveDocumentHandlerFunc(func(params move_docs.UpdateMoveDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_docs.UpdateMoveDocument has not yet been implemented")
 		})
 	}
 	if api.PpmUpdateMovingExpenseHandler == nil {
