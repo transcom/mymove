@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { build } from '@jackfranklin/test-data-bot';
 
-import fake from 'utils/test/factories/base';
+import { fake } from 'utils/test/factories/base';
 
 export const BLANK_ADDRESS = 'blank';
 export const ADDRESS_WITHOUT_COUNTRY = 'omitCountry';
