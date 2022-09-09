@@ -1,23 +1,27 @@
 import { faker } from '@faker-js/faker';
 import { build, oneOf, perBuild } from '@jackfranklin/test-data-bot';
+import { v4 } from 'uuid';
 
 import { fake, getInternalSpec } from 'utils/test/factories/base';
 
 export const ADDRESS_TRAITS = {
-  NO_COUNTRY: 'noCountry',
+  ONLY_BASIC_ADDRESS: 'onlyBasicAddress',
 };
 
 export const ADDRESS_FIELDS = {
+  ID: 'id',
   STREET_ADDRESS_1: 'streetAddress1',
   STREET_ADDRESS_2: 'streetAddress2',
   CITY: 'city',
   STATE: 'state',
   POSTAL_CODE: 'postalCode',
   COUNTRY: 'country',
+  ETAG: 'eTag',
 };
 
 export const addressFactory = build({
   fields: {
+    [ADDRESS_FIELDS.ID]: perBuild(() => v4()),
     [ADDRESS_FIELDS.STREET_ADDRESS_1]: fake((f) => f.address.streetAddress()),
     [ADDRESS_FIELDS.STREET_ADDRESS_2]: fake((f) => f.address.secondaryAddress()),
     // left out streetAddress3 since we don't even let users input that line...
@@ -28,11 +32,15 @@ export const addressFactory = build({
     }),
     [ADDRESS_FIELDS.POSTAL_CODE]: '',
     [ADDRESS_FIELDS.COUNTRY]: 'US', // Likely change once we support more than just CONUS moves.
+    [ADDRESS_FIELDS.ETAG]: perBuild(() => window.btoa(new Date().toISOString())),
   },
   traits: {
-    [ADDRESS_TRAITS.NO_COUNTRY]: {
+    [ADDRESS_TRAITS.ONLY_BASIC_ADDRESS]: {
       postBuild: (address) => {
-        delete address.country;
+        const extraFields = [ADDRESS_FIELDS.ID, ADDRESS_FIELDS.COUNTRY, ADDRESS_FIELDS.ETAG];
+        extraFields.forEach((field) => {
+          delete address[field];
+        });
 
         return address;
       },

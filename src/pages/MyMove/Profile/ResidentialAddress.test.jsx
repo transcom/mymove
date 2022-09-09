@@ -77,7 +77,7 @@ describe('ResidentialAddress page', () => {
   });
 
   it('next button submits the form and goes to the Backup address step', async () => {
-    const fakeAddress = addressFactory({ traits: ADDRESS_TRAITS.NO_COUNTRY });
+    const fakeAddress = addressFactory({ traits: ADDRESS_TRAITS.ONLY_BASIC_ADDRESS });
 
     const expectedServiceMemberPayload = { ...props.serviceMember, residential_address: fakeAddress };
 
