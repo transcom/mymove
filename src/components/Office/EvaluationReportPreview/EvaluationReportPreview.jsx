@@ -10,6 +10,7 @@ import EvaluationReportShipmentDisplay from 'components/Office/EvaluationReportS
 import DataTable from 'components/DataTable';
 import DataTableWrapper from 'components/DataTableWrapper';
 import EvaluationReportList from 'components/Office/DefinitionLists/EvaluationReportList';
+import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 import { formatDateFromIso, formatQAReportID } from 'utils/formatters';
@@ -17,7 +18,7 @@ import { formatDate } from 'shared/dates';
 import { shipmentTypeLabels } from 'content/shipments';
 
 const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, customerInfo, grade }) => {
-  const reportType = evaluationReport.type;
+  const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
   let mtoShipmentsToShow;
 
   if (evaluationReport.shipmentID) {
@@ -65,7 +66,7 @@ const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, cus
       <div>
         <div className={styles.titleSection}>
           <div className={styles.pageHeader}>
-            <h1>{reportType === 'SHIPMENT' ? 'Shipment' : 'Move'} report</h1>
+            <h1>{`${isShipment ? 'Shipment' : 'Counseling'} report`}</h1>
             <div className={styles.pageHeaderDetails}>
               <h6>REPORT ID {formatQAReportID(evaluationReport.id)}</h6>
               <h6>MOVE CODE #{moveCode}</h6>
@@ -76,7 +77,7 @@ const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, cus
         <div className={styles.section}>
           <Grid row>
             <Grid col desktop={{ col: 8 }}>
-              <h2>Move information</h2>
+              <h2>{`${isShipment ? 'Shipment' : 'Report'} information`}</h2>
               {mtoShipmentsToShow &&
                 mtoShipmentsToShow.map((mtoShipment) => (
                   <div key={mtoShipment.id} className={styles.shipmentDisplayContainer}>
@@ -91,15 +92,15 @@ const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, cus
                 ))}
             </Grid>
             <Grid className={styles.qaeAndCustomerInfo} col desktop={{ col: 2 }}>
-              <DataTable columnHeaders={['Customer information']} dataRow={[customerInfoTableBody]} />
               <DataTable columnHeaders={['QAE']} dataRow={[officeUserInfoTableBody]} />
+              <DataTable columnHeaders={['Customer information']} dataRow={[customerInfoTableBody]} />
             </Grid>
           </Grid>
         </div>
       </div>
       <div className={styles.section}>
         <h2>Evaluation report</h2>
-        {reportType === 'SHIPMENT' && evaluationReport.location !== 'OTHER' && (
+        {isShipment && evaluationReport.location !== 'OTHER' && (
           <div className={styles.section}>
             <h3>Information</h3>
             <div className={styles.sideBySideDetails}>
@@ -137,10 +138,10 @@ const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, cus
             <EvaluationReportList evaluationReport={evaluationReport} />
           </div>
         )}
-        {(reportType === 'COUNSELING' || evaluationReport.location === 'OTHER') && (
+        {(!isShipment || evaluationReport.location === 'OTHER') && (
           <div className={styles.section}>
             <h3>Information</h3>
-            <DataTableWrapper className={classnames(styles.detailsRight, 'table--data-point-group')}>
+            <DataTableWrapper className={classnames(styles.counselingDetails, 'table--data-point-group')}>
               <DataTable
                 columnHeaders={['Inspection date', 'Report submission']}
                 dataRow={[

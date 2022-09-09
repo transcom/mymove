@@ -178,8 +178,8 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
 
   const modalTitle = (
-    <div>
-      <h3>Preview and submit {evaluationReport.type} report</h3>
+    <div className={styles.title}>
+      <h3>{`Preview and submit ${evaluationReport.type.toLowerCase()} report`}</h3>
       <p>Is all the information shown correct?</p>
     </div>
   );

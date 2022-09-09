@@ -10,4 +10,5 @@
 
 .titleSection {
   @include u-margin-top(4);
+  @include u-margin-right(0);
 }
