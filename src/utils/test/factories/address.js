@@ -6,6 +6,7 @@ import { fake, getInternalSpec } from 'utils/test/factories/base';
 
 export const ADDRESS_TRAITS = {
   ONLY_BASIC_ADDRESS: 'onlyBasicAddress',
+  ONLY_REQUIRED_FIELDS: 'onlyRequiredFields',
 };
 
 export const ADDRESS_FIELDS = {
@@ -40,6 +41,21 @@ export const addressFactory = build({
         const extraFields = [ADDRESS_FIELDS.ID, ADDRESS_FIELDS.COUNTRY, ADDRESS_FIELDS.ETAG];
         extraFields.forEach((field) => {
           delete address[field];
+        });
+
+        return address;
+      },
+    },
+    [ADDRESS_TRAITS.ONLY_REQUIRED_FIELDS]: {
+      postBuild: (address) => {
+        const spec = getInternalSpec();
+
+        const requiredFields = new Set(spec.definitions.Address.required);
+
+        Object.values(ADDRESS_FIELDS).forEach((field) => {
+          if (!requiredFields.has(field)) {
+            delete address[field];
+          }
         });
 
         return address;
