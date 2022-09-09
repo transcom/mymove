@@ -88,6 +88,7 @@
 .title {
   h3 {
     @include u-margin-bottom(1);
+    @include u-margin-top(0);
     font-size: 28px;
     line-height: 34px;
     @include u-color('base-darkest');
