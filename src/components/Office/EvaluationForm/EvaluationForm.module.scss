@@ -104,3 +104,9 @@
   color: $base-dark;
   @include u-margin-bottom(0);
 }
+
+.backIcon {
+  color: $link !important;
+  width: 16px;
+  height: 16px;
+}

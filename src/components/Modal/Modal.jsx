@@ -72,7 +72,7 @@ const ModalClose = ({ handleClick, className, buttonContent, ...buttonProps }) =
 ModalClose.propTypes = {
   handleClick: PropTypes.func.isRequired,
   className: PropTypes.string,
-  buttonContent: PropTypes.string,
+  buttonContent: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
 };
 
 ModalClose.defaultProps = {
@@ -101,7 +101,7 @@ const ModalSubmit = ({ handleClick, className, buttonContent, ...buttonProps }) 
 ModalSubmit.propTypes = {
   handleClick: PropTypes.func.isRequired,
   className: PropTypes.string,
-  buttonContent: PropTypes.string,
+  buttonContent: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
 };
 
 ModalSubmit.defaultProps = {

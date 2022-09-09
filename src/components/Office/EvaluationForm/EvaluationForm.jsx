@@ -7,6 +7,7 @@ import { useMutation, queryCache } from 'react-query';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import classnames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './EvaluationForm.module.scss';
 
@@ -186,7 +187,11 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
 
   const closeModalOptions = {
     handleClick: setIsSubmitModalOpen,
-    buttonContent: 'Back to evaluation form',
+    buttonContent: (
+      <>
+        <FontAwesomeIcon icon="chevron-left" className={styles.backIcon} /> Back to Evaluation form
+      </>
+    ),
   };
 
   const submitModalOptions = {

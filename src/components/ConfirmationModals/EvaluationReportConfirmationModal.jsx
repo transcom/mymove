@@ -58,10 +58,15 @@ export const EvaluationReportConfirmationModal = ({
           handleClick={() => closeModalOptions.handleClick()}
           buttonContent={closeModalOptions.buttonContent}
           data-testid="modalCloseButtonBottom"
+          className={styles.closeBtn}
         />
       )}
       {submitModalOptions && (
-        <ModalSubmit handleClick={submitModalOptions.handleClick} buttonContent={submitModalOptions.buttonContent} />
+        <ModalSubmit
+          handleClick={submitModalOptions.handleClick}
+          buttonContent={submitModalOptions.buttonContent}
+          className={styles.submitBtn}
+        />
       )}
     </ModalActions>
   </Modal>
@@ -77,7 +82,7 @@ EvaluationReportConfirmationModal.propTypes = {
   grade: PropTypes.string.isRequired,
   closeModalOptions: PropTypes.shape({
     handleClick: PropTypes.func,
-    buttonContent: PropTypes.string,
+    buttonContent: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]),
   }),
   submitModalOptions: PropTypes.shape({
     handleClick: PropTypes.func,

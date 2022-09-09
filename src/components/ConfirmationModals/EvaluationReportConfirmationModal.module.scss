@@ -5,10 +5,24 @@
   min-width: 1200px !important;
   overflow-y: auto;
   max-height: 90vh;
-  @include u-padding-bottom(5 !important);
+  @include u-padding-bottom(4 !important);
 }
 
 .titleSection {
   @include u-margin-top(4);
   @include u-margin-right(0);
+}
+
+.submitBtn {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.closeBtn {
+  justify-content: left;
+  position: relative !important;
+  font-weight: 700;
+  color: $link;
+  @include u-padding-left(0 !important);
 }
