@@ -28,6 +28,7 @@ const ViolationsAccordion = ({ violations, onChange, selected }) => {
       <div key={`${violation.id}-accordion-option`} className={styles.accordionOption}>
         <div className={styles.flex}>
           <Checkbox
+            data-testid="violation-checkbox"
             id={`${violation.id}-checkbox`}
             name={`${violation.paragraphNumber} ${violation.title}`}
             className={styles.checkbox}

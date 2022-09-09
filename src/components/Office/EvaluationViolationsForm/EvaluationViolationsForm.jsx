@@ -97,7 +97,7 @@ const EvaluationViolationsForm = ({ violations }) => {
               <Grid row>
                 <Grid col className={styles.claimDatePicker}>
                   <div>
-                    {kpiDates.includes('Observed Claim Response Date (Or None)') && (
+                    {kpiDates.includes('observedClaimDate') && (
                       <DatePickerInput
                         className={styles.datePicker}
                         label="Observed claims response date"
@@ -106,24 +106,20 @@ const EvaluationViolationsForm = ({ violations }) => {
                         showOptional
                       />
                     )}
-                    {kpiDates.includes('QAE Observed Pickup Date') && (
+                    {kpiDates.includes('observedPickupDate') && (
                       <DatePickerInput
                         label="Observed pickup date"
                         name="observedPickupDate"
                         hint="Enter the date you witnessed the pickup."
                       />
                     )}
-                    {kpiDates.includes(
-                      'QAE Observed Pickup Spread Start (Date); QAE Observed Pickup Spread End (Date)',
-                    ) && (
+                    {kpiDates.includes('observedPickupSpreadDates') && (
                       <DatePickerInput
                         label="Observed pickup spread start date"
                         name="observedpickupStartDateScheduling"
                       />
                     )}
-                    {kpiDates.includes(
-                      'QAE Observed Pickup Spread Start (Date); QAE Observed Pickup Spread End (Date)',
-                    ) && (
+                    {kpiDates.includes('observedPickupSpreadDates') && (
                       <DatePickerInput label="Observed pickup spread end date" name="observedpickupEndDateScheduling" />
                     )}
                   </div>
