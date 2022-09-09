@@ -22,16 +22,11 @@ func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
 
 	origStartDate := time.Date(2019, 05, 12, 0, 0, 0, 0, time.UTC)
 	origEndDate := time.Date(2019, 05, 15, 0, 0, 0, 0, time.UTC)
-	origDaysInStorage := int64(2)
+	// origDaysInStorage := int64(2)
 	origTotalSitCost := unit.Cents(1000)
-	ppm := testdatagen.MakePPM(suite.DB(),
-		testdatagen.Assertions{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{
-				DaysInStorage: &origDaysInStorage,
-				TotalSITCost:  &origTotalSitCost,
-			}})
-	move := ppm.Move
-	sm := ppm.Move.Orders.ServiceMember
+	ppm := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+	move := ppm.Shipment.MoveTaskOrder
+	sm := ppm.Shipment.MoveTaskOrder.Orders.ServiceMember
 	moveDocument := testdatagen.MakeMoveDocument(suite.DB(),
 		testdatagen.Assertions{
 			MoveDocument: models.MoveDocument{
@@ -46,15 +41,20 @@ func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
 				ServiceMember:   sm,
 			},
 		})
-	storageExpense := models.MovingExpenseDocument{
-		MoveDocumentID:       moveDocument.ID,
-		MoveDocument:         moveDocument,
-		MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
-		RequestedAmountCents: origTotalSitCost,
-		PaymentMethod:        "GTCC",
-		ReceiptMissing:       false,
-		StorageStartDate:     &origStartDate,
-		StorageEndDate:       &origEndDate,
+
+	expenseType := models.MovingExpenseReceiptTypeStorage
+	cost := origTotalSitCost
+	paidWithGTCC := false
+	missingReceipt := false
+	storageExpense := models.MovingExpense{
+		PPMShipmentID:     ppm.ID,
+		PPMShipment:       ppm,
+		MovingExpenseType: &expenseType,
+		Amount:            &cost,
+		PaidWithGTCC:      &paidWithGTCC,
+		MissingReceipt:    &missingReceipt,
+		SITStartDate:      &origStartDate,
+		SITEndDate:        &origEndDate,
 	}
 	verrs, err := suite.DB().ValidateAndCreate(&storageExpense)
 	suite.NoVerrs(verrs)
@@ -114,16 +114,10 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() 
 
 	origStartDate := time.Date(2019, 05, 12, 0, 0, 0, 0, time.UTC)
 	origEndDate := time.Date(2019, 05, 15, 0, 0, 0, 0, time.UTC)
-	daysInStorage := int64(2)
 	totalSitCost := unit.Cents(1000)
-	ppm := testdatagen.MakePPM(suite.DB(),
-		testdatagen.Assertions{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{
-				DaysInStorage: &daysInStorage,
-				TotalSITCost:  &totalSitCost,
-			}})
-	move := ppm.Move
-	sm := ppm.Move.Orders.ServiceMember
+	ppm := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+	move := ppm.Shipment.MoveTaskOrder
+	sm := ppm.Shipment.MoveTaskOrder.Orders.ServiceMember
 	moveDocument := testdatagen.MakeMoveDocument(suite.DB(),
 		testdatagen.Assertions{
 			MoveDocument: models.MoveDocument{
@@ -138,15 +132,20 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() 
 				ServiceMember:   sm,
 			},
 		})
-	storageExpense := models.MovingExpenseDocument{
-		MoveDocumentID:       moveDocument.ID,
-		MoveDocument:         moveDocument,
-		MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
-		RequestedAmountCents: totalSitCost,
-		PaymentMethod:        "GTCC",
-		ReceiptMissing:       false,
-		StorageStartDate:     &origStartDate,
-		StorageEndDate:       &origEndDate,
+
+	expenseType := models.MovingExpenseReceiptTypeStorage
+	cost := totalSitCost
+	paidWithGTCC := false
+	missingReceipt := false
+	storageExpense := models.MovingExpense{
+		PPMShipmentID:     ppm.ID,
+		PPMShipment:       ppm,
+		MovingExpenseType: &expenseType,
+		Amount:            &cost,
+		PaidWithGTCC:      &paidWithGTCC,
+		MissingReceipt:    &missingReceipt,
+		SITStartDate:      &origStartDate,
+		SITEndDate:        &origEndDate,
 	}
 	verrs, err := suite.DB().ValidateAndCreate(&storageExpense)
 	suite.NoVerrs(verrs)
@@ -208,9 +207,9 @@ func (suite *MoveDocumentServiceSuite) TestStorageDaysTotalCostMultipleReceipts(
 	endDateOne := time.Date(2019, 05, 15, 0, 0, 0, 0, time.UTC)
 	totalDaysOne := int64(endDateOne.Sub(startDateOne).Hours() / 24)
 	totalSitCostOne := unit.Cents(2000)
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	move := ppm.Move
-	sm := ppm.Move.Orders.ServiceMember
+	ppm := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+	move := ppm.Shipment.MoveTaskOrder
+	sm := ppm.Shipment.MoveTaskOrder.Orders.ServiceMember
 	moveDocumentOne := testdatagen.MakeMoveDocument(suite.DB(),
 		testdatagen.Assertions{
 			MoveDocument: models.MoveDocument{
@@ -225,15 +224,20 @@ func (suite *MoveDocumentServiceSuite) TestStorageDaysTotalCostMultipleReceipts(
 				ServiceMember:   sm,
 			},
 		})
-	storageExpenseOne := models.MovingExpenseDocument{
-		MoveDocumentID:       moveDocumentOne.ID,
-		MoveDocument:         moveDocumentOne,
-		MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
-		RequestedAmountCents: totalSitCostOne,
-		PaymentMethod:        "GTCC",
-		ReceiptMissing:       false,
-		StorageStartDate:     &startDateOne,
-		StorageEndDate:       &endDateOne,
+
+	expenseType := models.MovingExpenseReceiptTypeStorage
+	cost := totalSitCostOne
+	paidWithGTCC := false
+	missingReceipt := false
+	storageExpenseOne := models.MovingExpense{
+		PPMShipmentID:     ppm.ID,
+		PPMShipment:       ppm,
+		MovingExpenseType: &expenseType,
+		Amount:            &cost,
+		PaidWithGTCC:      &paidWithGTCC,
+		MissingReceipt:    &missingReceipt,
+		SITStartDate:      &startDateOne,
+		SITEndDate:        &endDateOne,
 	}
 	verrs, err := suite.DB().ValidateAndCreate(&storageExpenseOne)
 	suite.NoVerrs(verrs)
@@ -257,15 +261,17 @@ func (suite *MoveDocumentServiceSuite) TestStorageDaysTotalCostMultipleReceipts(
 				ServiceMember:   sm,
 			},
 		})
-	storageExpenseTwo := models.MovingExpenseDocument{
-		MoveDocumentID:       moveDocumentTwo.ID,
-		MoveDocument:         moveDocumentTwo,
-		MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
-		RequestedAmountCents: totalSitCostTwo,
-		PaymentMethod:        "GTCC",
-		ReceiptMissing:       false,
-		StorageStartDate:     &startDateTwo,
-		StorageEndDate:       &endDateTwo,
+
+	costTwo := totalSitCostTwo
+	storageExpenseTwo := models.MovingExpense{
+		PPMShipmentID:     ppm.ID,
+		PPMShipment:       ppm,
+		MovingExpenseType: &expenseType,
+		Amount:            &costTwo,
+		PaidWithGTCC:      &paidWithGTCC,
+		MissingReceipt:    &missingReceipt,
+		SITStartDate:      &startDateOne,
+		SITEndDate:        &endDateOne,
 	}
 	verrs, err = suite.DB().ValidateAndCreate(&storageExpenseTwo)
 	suite.NoVerrs(verrs)
@@ -331,16 +337,10 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysAfterManualOverride
 	origStartDate := time.Date(2019, 05, 12, 0, 0, 0, 0, time.UTC)
 	origEndDate := time.Date(2019, 05, 15, 0, 0, 0, 0, time.UTC)
 	// made up daysInStorage and totalSitCost (as if office user overrides)
-	daysInStorage := int64(4)
 	totalSitCost := unit.Cents(2000)
-	ppm := testdatagen.MakePPM(suite.DB(),
-		testdatagen.Assertions{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{
-				DaysInStorage: &daysInStorage,
-				TotalSITCost:  &totalSitCost,
-			}})
-	move := ppm.Move
-	sm := ppm.Move.Orders.ServiceMember
+	ppm := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{})
+	move := ppm.Shipment.MoveTaskOrder
+	sm := ppm.Shipment.MoveTaskOrder.Orders.ServiceMember
 	moveDocument := testdatagen.MakeMoveDocument(suite.DB(),
 		testdatagen.Assertions{
 			MoveDocument: models.MoveDocument{
@@ -355,15 +355,20 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysAfterManualOverride
 				ServiceMember:   sm,
 			},
 		})
-	storageExpense := models.MovingExpenseDocument{
-		MoveDocumentID:       moveDocument.ID,
-		MoveDocument:         moveDocument,
-		MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
-		RequestedAmountCents: totalSitCost,
-		PaymentMethod:        "GTCC",
-		ReceiptMissing:       false,
-		StorageStartDate:     &origStartDate,
-		StorageEndDate:       &origEndDate,
+
+	expenseType := models.MovingExpenseReceiptTypeStorage
+	cost := totalSitCost
+	paidWithGTCC := false
+	missingReceipt := false
+	storageExpense := models.MovingExpense{
+		PPMShipmentID:     ppm.ID,
+		PPMShipment:       ppm,
+		MovingExpenseType: &expenseType,
+		Amount:            &cost,
+		PaidWithGTCC:      &paidWithGTCC,
+		MissingReceipt:    &missingReceipt,
+		SITStartDate:      &origStartDate,
+		SITEndDate:        &origEndDate,
 	}
 	verrs, err := suite.DB().ValidateAndCreate(&storageExpense)
 	suite.NoVerrs(verrs)
