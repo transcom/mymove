@@ -17,7 +17,7 @@ import (
 // EvaluationReportList evaluation report list
 //
 // swagger:model EvaluationReportList
-type EvaluationReportList []*EvaluationReportListItem
+type EvaluationReportList []*EvaluationReport
 
 // Validate validates this evaluation report list
 func (m EvaluationReportList) Validate(formats strfmt.Registry) error {

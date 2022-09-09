@@ -334,6 +334,174 @@ func (suite *HandlerSuite) TestDeleteEvaluationReportHandler() {
 		suite.Assertions.IsType(&evaluationReportop.DeleteEvaluationReportNoContent{}, response)
 	})
 }
+
+func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
+	suite.Run("Successful save", func() {
+		updater := &mocks.EvaluationReportUpdater{}
+
+		reportID := uuid.Must(uuid.NewV4())
+		handlerConfig := suite.HandlerConfig()
+		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
+		requestUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+
+		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := evaluationReportop.SubmitEvaluationReportParams{
+			HTTPRequest: request,
+			IfMatch:     "",
+			ReportID:    *handlers.FmtUUID(reportID),
+		}
+
+		updater.On("SubmitEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("string"),
+		).Return(nil).Once()
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportNoContent{}, response)
+
+	})
+	suite.Run("Precondition failed", func() {
+		updater := &mocks.EvaluationReportUpdater{}
+
+		reportID := uuid.Must(uuid.NewV4())
+		handlerConfig := suite.HandlerConfig()
+		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
+		requestUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+
+		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := evaluationReportop.SubmitEvaluationReportParams{
+			HTTPRequest: request,
+			IfMatch:     "",
+			ReportID:    *handlers.FmtUUID(reportID),
+		}
+
+		updater.On("SubmitEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("string"),
+		).Return(apperror.NewPreconditionFailedError(reportID, nil)).Once()
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportPreconditionFailed{}, response)
+
+	})
+	suite.Run("Not found error", func() {
+		updater := &mocks.EvaluationReportUpdater{}
+
+		reportID := uuid.Must(uuid.NewV4())
+		handlerConfig := suite.HandlerConfig()
+		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
+		requestUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+
+		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := evaluationReportop.SubmitEvaluationReportParams{
+			HTTPRequest: request,
+			IfMatch:     "",
+			ReportID:    *handlers.FmtUUID(reportID),
+		}
+
+		updater.On("SubmitEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("string"),
+		).Return(apperror.NewNotFoundError(reportID, "message")).Once()
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportNotFound{}, response)
+	})
+	suite.Run("Invalid input", func() {
+		updater := &mocks.EvaluationReportUpdater{}
+
+		reportID := uuid.Must(uuid.NewV4())
+		handlerConfig := suite.HandlerConfig()
+		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
+		requestUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+
+		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := evaluationReportop.SubmitEvaluationReportParams{
+			HTTPRequest: request,
+			IfMatch:     "",
+			ReportID:    *handlers.FmtUUID(reportID),
+		}
+
+		updater.On("SubmitEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("string"),
+		).Return(apperror.NewInvalidInputError(reportID, nil, nil, "message")).Once()
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportUnprocessableEntity{}, response)
+	})
+	suite.Run("Forbidden error", func() {
+		updater := &mocks.EvaluationReportUpdater{}
+
+		reportID := uuid.Must(uuid.NewV4())
+		handlerConfig := suite.HandlerConfig()
+		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
+		requestUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+
+		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := evaluationReportop.SubmitEvaluationReportParams{
+			HTTPRequest: request,
+			IfMatch:     "",
+			ReportID:    *handlers.FmtUUID(reportID),
+		}
+
+		updater.On("SubmitEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("string"),
+		).Return(apperror.NewForbiddenError("message")).Once()
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportForbidden{}, response)
+	})
+	suite.Run("Internal server error", func() {
+		updater := &mocks.EvaluationReportUpdater{}
+
+		reportID := uuid.Must(uuid.NewV4())
+		handlerConfig := suite.HandlerConfig()
+		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
+		requestUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
+
+		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/submit", reportID), nil)
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := evaluationReportop.SubmitEvaluationReportParams{
+			HTTPRequest: request,
+			IfMatch:     "",
+			ReportID:    *handlers.FmtUUID(reportID),
+		}
+
+		updater.On("SubmitEvaluationReport",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("string"),
+		).Return(apperror.NewInternalServerError("message")).Once()
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&evaluationReportop.SubmitEvaluationReportInternalServerError{}, response)
+	})
+}
+
 func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 
 	suite.Run("Successful save", func() {

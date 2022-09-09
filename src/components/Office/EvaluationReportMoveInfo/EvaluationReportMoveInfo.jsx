@@ -1,4 +1,5 @@
 import React from 'react';
+import * as PropTypes from 'prop-types';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import 'styles/office.scss';
 
@@ -6,17 +7,16 @@ import evaluationReportStyles from './EvaluationReportMoveInfo.module.scss';
 
 import DataTable from 'components/DataTable';
 import { CustomerShape } from 'types';
-import { OrdersShape } from 'types/customerShapes';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 
-const EvaluationReportMoveInfo = ({ customerInfo, orders }) => {
+const EvaluationReportMoveInfo = ({ customerInfo, grade }) => {
   const customerInfoTableBody = (
     <>
       {customerInfo.last_name}, {customerInfo.first_name}
       <br />
       {customerInfo.phone}
       <br />
-      {ORDERS_RANK_OPTIONS[orders.grade]}
+      {ORDERS_RANK_OPTIONS[grade]}
       <br />
       {ORDERS_BRANCH_OPTIONS[customerInfo.agency] ? ORDERS_BRANCH_OPTIONS[customerInfo.agency] : customerInfo.agency}
     </>
@@ -49,7 +49,7 @@ const EvaluationReportMoveInfo = ({ customerInfo, orders }) => {
 
 EvaluationReportMoveInfo.propTypes = {
   customerInfo: CustomerShape.isRequired,
-  orders: OrdersShape.isRequired,
+  grade: PropTypes.string.isRequired,
 };
 
 export default EvaluationReportMoveInfo;
