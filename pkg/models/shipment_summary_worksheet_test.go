@@ -62,21 +62,8 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
 	// Save advance in reimbursements table by saving ppm
 	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
-	movedocuments := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
-			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   models.MoveDocumentStatusOK,
-			MoveDocumentType:         "EXPENSE",
-		},
-		Document: models.Document{
-			ServiceMemberID: serviceMemberID,
-			ServiceMember:   move.Orders.ServiceMember,
-		},
-	}
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
+	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
+	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
 
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
@@ -123,9 +110,9 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Require().Nil(err)
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
-	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
-	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
-	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
+	suite.Require().Len(ssd.MovingExpenses, 2)
+	suite.NotNil(ssd.MovingExpenses[0].ID)
+	suite.NotNil(ssd.MovingExpenses[1].ID)
 	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
 	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
 	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
@@ -172,35 +159,10 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
 	// Save advance in reimbursements table by saving ppm
 	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
-	movedocuments := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
-			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   models.MoveDocumentStatusOK,
-			MoveDocumentType:         "EXPENSE",
-		},
-		Document: models.Document{
-			ServiceMemberID: serviceMemberID,
-			ServiceMember:   move.Orders.ServiceMember,
-		},
-	}
-	movedocuments2 := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
-			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   models.MoveDocumentStatusEXCLUDEFROMCALCULATION,
-			MoveDocumentType:         "EXPENSE",
-		},
-		Document: models.Document{
-			ServiceMemberID: serviceMemberID,
-			ServiceMember:   move.Orders.ServiceMember,
-		},
-	}
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments2)
+
+	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
+	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
+	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
@@ -245,37 +207,14 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	// E_9 rank, no dependents, no spouse pro-gear
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
-	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
-	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
-	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
+	suite.Require().Len(ssd.MovingExpenses, 2)
+	suite.NotNil(ssd.MovingExpenses[0].ID)
+	suite.NotNil(ssd.MovingExpenses[1].ID)
 	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
 	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
 	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
 	suite.Equal(unit.Cents(1000), ssd.PersonallyProcuredMoves[0].Advance.RequestedAmount)
 	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
-}
-
-func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
-	moveID, _ := uuid.NewV4()
-	serviceMemberID, _ := uuid.NewV4()
-	moveType := models.SelectedMoveTypeHHG
-
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:               moveID,
-			SelectedMoveType: &moveType,
-		},
-	})
-	session := auth.Session{
-		UserID:          move.Orders.ServiceMember.UserID,
-		ServiceMemberID: serviceMemberID,
-		ApplicationName: auth.MilApp,
-	}
-
-	movingExpenses, err := models.FetchMovingExpensesShipmentSummaryWorksheet(move, suite.DB(), &session)
-
-	suite.Len(movingExpenses, 0)
-	suite.NoError(err)
 }
 
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
@@ -387,215 +326,6 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("$10.00", sswPage1.ActualObligationAdvance)
 }
 
-func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
-	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
-	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
-
-	order := models.Order{
-		IssueDate:         orderIssueDate,
-		OrdersType:        internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber:      models.StringPointer("012345"),
-		NewDutyLocationID: fortGordon.ID,
-		TAC:               models.StringPointer("NTA4"),
-		SAC:               models.StringPointer("SAC"),
-		HasDependents:     true,
-		SpouseHasProGear:  true,
-	}
-	movingExpenses := models.MovingExpenseDocuments{
-		{
-			MovingExpenseType:    "TOLLS",
-			RequestedAmountCents: unit.Cents(10000),
-			PaymentMethod:        "OTHER",
-		},
-		{
-			MovingExpenseType:    "GAS",
-			RequestedAmountCents: unit.Cents(10000),
-			PaymentMethod:        "OTHER",
-		},
-		{
-			MovingExpenseType:    "CONTRACTED_EXPENSE",
-			RequestedAmountCents: unit.Cents(20000),
-			PaymentMethod:        "GTCC",
-		},
-		{
-			MovingExpenseType:    "CONTRACTED_EXPENSE",
-			RequestedAmountCents: unit.Cents(10000),
-			PaymentMethod:        "GTCC",
-		},
-		{
-			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
-			RequestedAmountCents: unit.Cents(100000),
-			PaymentMethod:        "GTCC",
-		},
-		{
-			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
-			RequestedAmountCents: unit.Cents(20000),
-			PaymentMethod:        "GTCC",
-		},
-		{
-			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
-			RequestedAmountCents: unit.Cents(10000),
-			PaymentMethod:        "OTHER",
-		},
-	}
-
-	ssd := models.ShipmentSummaryFormData{
-		Order:                  order,
-		MovingExpenseDocuments: movingExpenses,
-	}
-	sswPage2, _ := models.FormatValuesShipmentSummaryWorksheetFormPage2(ssd)
-
-	suite.Equal("NTA4", sswPage2.TAC)
-	suite.Equal("SAC", sswPage2.SAC)
-
-	// fields w/ no expenses should format as $0.00
-	suite.Equal("$0.00", sswPage2.RentalEquipmentGTCCPaid.String())
-	suite.Equal("$0.00", sswPage2.PackingMaterialsGTCCPaid.String())
-
-	suite.Equal("$300.00", sswPage2.ContractedExpenseGTCCPaid.String())
-	suite.Equal("$300.00", sswPage2.TotalGTCCPaid.String())
-	suite.Equal("$300.00", sswPage2.TotalGTCCPaidRepeated.String())
-
-	suite.Equal("$100.00", sswPage2.TollsMemberPaid.String())
-	suite.Equal("$100.00", sswPage2.GasMemberPaid.String())
-	suite.Equal("$200.00", sswPage2.TotalMemberPaid.String())
-	suite.Equal("$200.00", sswPage2.TotalMemberPaidRepeated.String())
-	suite.Equal("$100.00", sswPage2.TotalMemberPaidSIT.String())
-	suite.Equal("$1,200.00", sswPage2.TotalGTCCPaidSIT.String())
-}
-
-func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
-	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
-	sm := models.ServiceMember{
-		FirstName: models.StringPointer("John"),
-		LastName:  models.StringPointer("Smith"),
-	}
-	movingExpenses := models.MovingExpenseDocuments{
-		{
-			MovingExpenseType:    models.MovingExpenseTypeOTHER,
-			RequestedAmountCents: unit.Cents(100000),
-			PaymentMethod:        "GTCC",
-		},
-		{
-			MovingExpenseType:    models.MovingExpenseTypeOTHER,
-			RequestedAmountCents: unit.Cents(20000),
-			PaymentMethod:        "GTCC",
-		},
-		{
-			MovingExpenseType:    models.MovingExpenseTypeOTHER,
-			RequestedAmountCents: unit.Cents(10000),
-			PaymentMethod:        "OTHER",
-		},
-	}
-	signature := models.SignedCertification{
-		Date: signatureDate,
-	}
-
-	ssd := models.ShipmentSummaryFormData{
-		ServiceMember:          sm,
-		SignedCertification:    signature,
-		MovingExpenseDocuments: movingExpenses,
-	}
-
-	sswPage3 := models.FormatValuesShipmentSummaryWorksheetFormPage3(ssd)
-
-	suite.Equal("$1,000.00\n\n$200.00\n\n$100.00", sswPage3.AmountsPaid)
-	suite.Equal("John Smith electronically signed", sswPage3.ServiceMemberSignature)
-	suite.Equal("26 Jan 2019 at 2:40pm", sswPage3.SignatureDate)
-}
-
-func (suite *ModelSuite) TestGroupExpenses() {
-	testCases := []struct {
-		input    models.MovingExpenseDocuments
-		expected map[string]float64
-	}{
-		{
-			models.MovingExpenseDocuments{
-				{
-					MovingExpenseType:    "TOLLS",
-					RequestedAmountCents: unit.Cents(10000),
-					PaymentMethod:        "GTCC",
-				},
-				{
-					MovingExpenseType:    "GAS",
-					RequestedAmountCents: unit.Cents(10000),
-					PaymentMethod:        "OTHER",
-				},
-				{
-					MovingExpenseType:    "GAS",
-					RequestedAmountCents: unit.Cents(20000),
-					PaymentMethod:        "OTHER",
-				},
-				{
-					MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
-					RequestedAmountCents: unit.Cents(20000),
-					PaymentMethod:        "GTCC",
-				},
-			},
-			map[string]float64{
-				"TollsGTCCPaid":    100,
-				"GasMemberPaid":    300,
-				"TotalMemberPaid":  300,
-				"TotalGTCCPaid":    100,
-				"TotalPaidNonSIT":  400,
-				"StorageGTCCPaid":  200,
-				"TotalGTCCPaidSIT": 200,
-				"TotalPaidSIT":     200,
-			},
-		},
-		{
-			models.MovingExpenseDocuments{
-				{
-					MovingExpenseType:    "PACKING_MATERIALS",
-					RequestedAmountCents: unit.Cents(10000),
-					PaymentMethod:        "GTCC",
-				},
-				{
-					MovingExpenseType:    "PACKING_MATERIALS",
-					RequestedAmountCents: unit.Cents(10000),
-					PaymentMethod:        "OTHER",
-				},
-				{
-					MovingExpenseType:    "WEIGHING_FEES",
-					RequestedAmountCents: unit.Cents(10000),
-					PaymentMethod:        "GTCC",
-				},
-				{
-					MovingExpenseType:    "WEIGHING_FEES",
-					RequestedAmountCents: unit.Cents(10000),
-					PaymentMethod:        "OTHER",
-				},
-				{
-					MovingExpenseType:    "WEIGHING_FEES",
-					RequestedAmountCents: unit.Cents(20000),
-					PaymentMethod:        "GTCC",
-				},
-				{
-					MovingExpenseType:    "GAS",
-					RequestedAmountCents: unit.Cents(20000),
-					PaymentMethod:        "OTHER",
-				},
-			},
-			map[string]float64{
-				"PackingMaterialsGTCCPaid":   100,
-				"PackingMaterialsMemberPaid": 100,
-				"WeighingFeesMemberPaid":     100,
-				"WeighingFeesGTCCPaid":       300,
-				"GasMemberPaid":              200,
-				"TotalMemberPaid":            400,
-				"TotalGTCCPaid":              400,
-				"TotalPaidNonSIT":            800,
-			},
-		},
-	}
-
-	for _, testCase := range testCases {
-		actual := models.SubTotalExpenses(testCase.input)
-		suite.Equal(testCase.expected, actual)
-	}
-
-}
-
 func (suite *ModelSuite) TestCalculatePPMEntitlementPPMGreaterThanRemainingEntitlement() {
 	ppmWeight := unit.Pound(1100)
 	totalEntitlement := unit.Pound(1000)
@@ -702,32 +432,6 @@ func (suite *ModelSuite) TestFormatShipmentNumberAndType() {
 	suite.Equal("01 - PPM\n\n02 - PPM", multiplePPMsFormatted.ShipmentNumberAndTypes)
 }
 
-func (suite *ModelSuite) TestFormatAllSITExpenses() {
-	startdate1 := time.Date(2019, 5, 12, 0, 0, 0, 0, time.UTC)
-	endDate1 := time.Date(2019, 5, 15, 0, 0, 0, 0, time.UTC)
-	startdate2 := time.Date(2019, 5, 15, 0, 0, 0, 0, time.UTC)
-	endDate2 := time.Date(2019, 5, 20, 0, 0, 0, 0, time.UTC)
-	sitExpenses := models.MovingExpenseDocuments{
-		{
-			MovingExpenseType: models.MovingExpenseTypeSTORAGE,
-			StorageStartDate:  &startdate1,
-			StorageEndDate:    &endDate1,
-		},
-		{
-			MovingExpenseType: models.MovingExpenseTypeSTORAGE,
-			StorageStartDate:  &startdate2,
-			StorageEndDate:    &endDate2,
-		},
-	}
-
-	formattedSitExpenses := models.FormatAllSITExpenses(sitExpenses)
-
-	suite.Equal("01 - PPM\n\n02 - PPM", formattedSitExpenses.NumberAndTypes)
-	suite.Equal("12-May-2019\n\n15-May-2019", formattedSitExpenses.EntryDates)
-	suite.Equal("15-May-2019\n\n20-May-2019", formattedSitExpenses.EndDates)
-	suite.Equal("3\n\n5", formattedSitExpenses.DaysInStorage)
-}
-
 func (suite *ModelSuite) TestFormatWeights() {
 	suite.Equal("0", models.FormatWeights(0))
 	suite.Equal("10", models.FormatWeights(10))
@@ -793,58 +497,6 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitl
 	suite.NoError(err)
 
 	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
-}
-
-func (suite *ModelSuite) TestFormatOtherExpenses() {
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	sm := ppm.Move.Orders.ServiceMember
-
-	assertions1 := testdatagen.Assertions{
-		MovingExpenseDocument: models.MovingExpenseDocument{
-			MovingExpenseType:    models.MovingExpenseTypeOTHER,
-			RequestedAmountCents: unit.Cents(2589),
-		},
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
-			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   "OK",
-			MoveDocumentType:         "EXPENSE",
-			Title:                    "The Bard",
-		},
-		Document: models.Document{
-			ServiceMemberID: sm.ID,
-			ServiceMember:   sm,
-		},
-	}
-
-	assertions2 := testdatagen.Assertions{
-		MovingExpenseDocument: models.MovingExpenseDocument{
-			MovingExpenseType:    models.MovingExpenseTypeOTHER,
-			RequestedAmountCents: unit.Cents(1439),
-		},
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
-			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   "OK",
-			MoveDocumentType:         "EXPENSE",
-			Title:                    "The Beedle",
-		},
-		Document: models.Document{
-			ServiceMemberID: sm.ID,
-			ServiceMember:   sm,
-		},
-	}
-
-	otherExpenseDocs := models.MovingExpenseDocuments{}
-	otherExpenseDocs = append(otherExpenseDocs, testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions1))
-	otherExpenseDocs = append(otherExpenseDocs, testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions2))
-
-	formattedOtherExpenses := models.FormatOtherExpenses(otherExpenseDocs)
-
-	suite.Equal("The Bard\n\nThe Beedle", formattedOtherExpenses.Descriptions)
-	suite.Equal("$25.89\n\n$14.39", formattedOtherExpenses.AmountsPaid)
 }
 
 func (suite *ModelSuite) TestFormatSignature() {

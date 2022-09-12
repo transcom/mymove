@@ -160,7 +160,7 @@ type ShipmentSummaryFormData struct {
 	PersonallyProcuredMoves PersonallyProcuredMoves
 	PreparationDate         time.Time
 	Obligations             Obligations
-	MovingExpenseDocuments  []MovingExpenseDocument
+	MovingExpenses          []MovingExpense
 	PPMRemainingEntitlement unit.Pound
 	SignedCertification     SignedCertification
 }
@@ -244,11 +244,6 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		weightAllotment = SSWGetEntitlement(rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
 	}
 
-	movingExpenses, err := FetchMovingExpensesShipmentSummaryWorksheet(move, db, session)
-	if err != nil {
-		return ShipmentSummaryFormData{}, err
-	}
-
 	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, weightAllotment.TotalWeight)
 	if err != nil {
 		return ShipmentSummaryFormData{}, err
@@ -271,7 +266,6 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
 		SignedCertification:     *signedCertification,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
-		MovingExpenseDocuments:  movingExpenses,
 	}
 	return ssd, nil
 }
@@ -334,20 +328,20 @@ func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) (u
 	}
 }
 
-// FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
-func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, session *auth.Session) ([]MovingExpenseDocument, error) {
-	var movingExpenseDocuments []MovingExpenseDocument
-	if len(move.PersonallyProcuredMoves) > 0 {
-		ppm := move.PersonallyProcuredMoves[0]
-		status := MoveDocumentStatusOK
-		moveDocuments, err := FetchMoveDocuments(db, session, ppm.ID, &status, MoveDocumentTypeEXPENSE, false)
-		if err != nil {
-			return movingExpenseDocuments, err
-		}
-		movingExpenseDocuments = FilterMovingExpenseDocuments(moveDocuments)
-	}
-	return movingExpenseDocuments, nil
-}
+// // FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
+// func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, session *auth.Session) ([]MovingExpenseDocument, error) {
+// 	var movingExpenseDocuments []MovingExpense
+// 	if len(move.PersonallyProcuredMoves) > 0 {
+// 		ppm := move.PersonallyProcuredMoves[0]
+// 		status := MoveDocumentStatusOK
+// 		moveDocuments, err := FetchMoveDocuments(db, session, ppm.ID, &status, MoveDocumentTypeEXPENSE, false)
+// 		if err != nil {
+// 			return movingExpenseDocuments, err
+// 		}
+// 		movingExpenseDocuments = FilterMovingExpenseDocuments(moveDocuments)
+// 	}
+// 	return movingExpenseDocuments, nil
+// }
 
 const (
 	controlledUnclassifiedInformationText = "CONTROLLED UNCLASSIFIED INFORMATION"
@@ -388,12 +382,6 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.ShipmentPickUpDates = formattedShipments.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
 	page1.ShipmentWeights = formattedShipments.ShipmentWeights
-
-	formattedSit := FormatAllSITExpenses(data.MovingExpenseDocuments)
-	page1.SITNumberAndTypes = formattedSit.NumberAndTypes
-	page1.SITEntryDates = formattedSit.EntryDates
-	page1.SITEndDates = formattedSit.EndDates
-	page1.SITDaysInStorage = formattedSit.DaysInStorage
 
 	maxObligations := data.Obligations.MaxObligation
 	page1.MaxObligationGCC100 = FormatDollars(maxObligations.GCC100())
@@ -461,16 +449,11 @@ func FormatRank(rank *ServiceMemberRank) string {
 
 // FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
 func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData) (ShipmentSummaryWorksheetPage2Values, error) {
-	var err error
 	page2 := ShipmentSummaryWorksheetPage2Values{}
 	page2.CUIBanner = controlledUnclassifiedInformationText
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
 	page2.PreparationDate = FormatDate(data.PreparationDate)
-	page2.FormattedMovingExpenses, err = FormatMovingExpenses(data.MovingExpenseDocuments)
-	if err != nil {
-		return page2, err
-	}
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
 	return page2, nil
@@ -481,26 +464,9 @@ func FormatValuesShipmentSummaryWorksheetFormPage3(data ShipmentSummaryFormData)
 	page3 := ShipmentSummaryWorksheetPage3Values{}
 	page3.CUIBanner = controlledUnclassifiedInformationText
 	page3.PreparationDate = FormatDate(data.PreparationDate)
-	page3.FormattedOtherExpenses = FormatOtherExpenses(data.MovingExpenseDocuments)
 	page3.ServiceMemberSignature = FormatSignature(data.ServiceMember)
 	page3.SignatureDate = FormatSignatureDate(data.SignedCertification)
 	return page3
-}
-
-// FormatOtherExpenses formats other expenses
-func FormatOtherExpenses(docs MovingExpenseDocuments) FormattedOtherExpenses {
-	var expenseDescriptions []string
-	var expenseAmounts []string
-	for _, doc := range docs {
-		if doc.MovingExpenseType == MovingExpenseTypeOTHER {
-			expenseDescriptions = append(expenseDescriptions, doc.MoveDocument.Title)
-			expenseAmounts = append(expenseAmounts, FormatDollars(float64(doc.RequestedAmountCents.ToDollarFloatNoRound())))
-		}
-	}
-	return FormattedOtherExpenses{
-		Descriptions: strings.Join(expenseDescriptions, "\n\n"),
-		AmountsPaid:  strings.Join(expenseAmounts, "\n\n"),
-	}
 }
 
 //FormatSignature formats a service member's signature for the Shipment Summary Worksheet
@@ -561,50 +527,18 @@ func FormatAllShipments(ppms PersonallyProcuredMoves) ShipmentSummaryWorkSheetSh
 	return formattedShipments
 }
 
-//FormatAllSITExpenses formats SIT line items for the Shipment Summary Worksheet
-func FormatAllSITExpenses(movingExpenseDocuments MovingExpenseDocuments) ShipmentSummaryWorkSheetSIT {
-	formattedShipments := ShipmentSummaryWorkSheetSIT{}
-	sitExpenses := FilterSITExpenses(movingExpenseDocuments)
-	totalSITExpenses := len(sitExpenses)
-	formattedShipmentNumberAndTypes := make([]string, totalSITExpenses)
-	formattedEntryDates := make([]string, totalSITExpenses)
-	formattedEndDates := make([]string, totalSITExpenses)
-	formattedDaysInStorage := make([]string, totalSITExpenses)
-
-	for i, sitExpense := range sitExpenses {
-		formattedShipmentNumberAndTypes[i] = FormatPPMNumberAndType(i)
-		if sitExpense.StorageStartDate != nil {
-			formattedEntryDates[i] = FormatDate(*sitExpense.StorageStartDate)
-		}
-		if sitExpense.StorageEndDate != nil {
-			formattedEndDates[i] = FormatDate(*sitExpense.StorageEndDate)
-		}
-		days, err := sitExpense.DaysInStorage()
-		if err == nil {
-			formattedDaysInStorage[i] = fmt.Sprintf("%d", days)
-		}
-	}
-
-	formattedShipments.NumberAndTypes = strings.Join(formattedShipmentNumberAndTypes, "\n\n")
-	formattedShipments.EntryDates = strings.Join(formattedEntryDates, "\n\n")
-	formattedShipments.EndDates = strings.Join(formattedEndDates, "\n\n")
-	formattedShipments.DaysInStorage = strings.Join(formattedDaysInStorage, "\n\n")
-
-	return formattedShipments
-}
-
 //FormatMovingExpenses formats moving expenses for Shipment Summary Worksheet
-func FormatMovingExpenses(movingExpenseDocuments MovingExpenseDocuments) (FormattedMovingExpenses, error) {
+func FormatMovingExpenses(movingExpenseDocuments MovingExpenses) (FormattedMovingExpenses, error) {
 	return SubTotalsMapToStruct(SubTotalExpenses(movingExpenseDocuments))
 }
 
 //SubTotalExpenses groups moving expenses by type and payment method
-func SubTotalExpenses(expenseDocuments MovingExpenseDocuments) map[string]float64 {
+func SubTotalExpenses(expenseDocuments MovingExpenses) map[string]float64 {
 	var expenseType string
 	totals := make(map[string]float64)
 	for _, expense := range expenseDocuments {
 		expenseType = getExpenseType(expense)
-		expenseDollarAmt := expense.RequestedAmountCents.ToDollarFloatNoRound()
+		expenseDollarAmt := expense.Amount.ToDollarFloatNoRound()
 		totals[expenseType] += expenseDollarAmt
 		addToGrandTotal(totals, expenseType, expenseDollarAmt)
 	}
@@ -639,11 +573,15 @@ func addToGrandTotal(totals map[string]float64, key string, expenseDollarAmt flo
 	}
 }
 
-func getExpenseType(expense MovingExpenseDocument) string {
-	expenseType := FormatEnum(string(expense.MovingExpenseType), "")
-	if expense.PaymentMethod == "GTCC" {
-		return fmt.Sprintf("%s%s", expenseType, "GTCCPaid")
+func getExpenseType(expense MovingExpense) string {
+	expenseType := FormatEnum(string(*expense.MovingExpenseType), "")
+	paidWithGTCC := expense.PaidWithGTCC
+	if paidWithGTCC != nil {
+		if *paidWithGTCC {
+			return fmt.Sprintf("%s%s", expenseType, "GTCCPaid")
+		}
 	}
+
 	return fmt.Sprintf("%s%s", expenseType, "MemberPaid")
 }
 
