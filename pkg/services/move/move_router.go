@@ -320,15 +320,6 @@ func (router moveRouter) Cancel(appCtx appcontext.AppContext, reason string, mov
 		move.CancelReason = &reason
 	}
 
-	// This will work only if you use the PPM in question rather than a var representing it
-	// i.e. you can't use _, ppm := range PPMs, has to be PPMS[i] as below
-	for i := range move.PersonallyProcuredMoves {
-		err := move.PersonallyProcuredMoves[i].Cancel()
-		if err != nil {
-			return err
-		}
-	}
-
 	// TODO: Orders can exist after related moves are canceled
 	err := move.Orders.Cancel()
 	if err != nil {

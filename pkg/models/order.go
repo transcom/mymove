@@ -100,23 +100,6 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 	transactionErr := db.Transaction(func(dbConnection *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
-		ppm, err := FetchPersonallyProcuredMoveByOrderID(db, order.ID)
-		if err != nil && err != ErrFetchNotFound {
-			responseError = err
-			return transactionError
-		}
-
-		if ppm.ID != uuid.Nil {
-			// If we're going to do this, we should check to see if the PMM postal code matches the postal code of the
-			// previous destination duty location.  Otherwise, we may be overwriting a home address postal code.
-			ppm.DestinationPostalCode = &order.NewDutyLocation.Address.PostalCode
-			if verrs, err := dbConnection.ValidateAndSave(ppm); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = err
-				return transactionError
-			}
-		}
-
 		if verrs, err := db.ValidateAndSave(order); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = err
@@ -165,7 +148,6 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"NewDutyLocation.TransportationOffice",
 		"UploadedOrders",
 		"UploadedAmendedOrders",
-		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement",
 		"OriginDutyLocation").

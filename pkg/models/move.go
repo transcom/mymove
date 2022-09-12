@@ -83,7 +83,6 @@ type Move struct {
 	OrdersID                     uuid.UUID                 `json:"orders_id" db:"orders_id"`
 	Orders                       Order                     `belongs_to:"orders" fk_id:"orders_id"`
 	SelectedMoveType             *SelectedMoveType         `json:"selected_move_type" db:"selected_move_type"`
-	PersonallyProcuredMoves      PersonallyProcuredMoves   `has_many:"personally_procured_moves" fk_id:"move_id" order_by:"created_at desc"`
 	Status                       MoveStatus                `json:"status" db:"status"`
 	SignedCertifications         SignedCertifications      `has_many:"signed_certifications" fk_id:"move_id" order_by:"created_at desc"`
 	CancelReason                 *string                   `json:"cancel_reason" db:"cancel_reason"`
@@ -185,62 +184,21 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	return &move, nil
 }
 
-// CreatePPM creates a new PPM associated with this move
-func (m Move) CreatePPM(db *pop.Connection,
-	weightEstimate *unit.Pound,
-	originalMoveDate *time.Time,
-	pickupPostalCode *string,
-	hasAdditionalPostalCode *bool,
-	additionalPickupPostalCode *string,
-	destinationPostalCode *string,
-	hasSit *bool,
-	daysInStorage *int64,
-	estimatedStorageReimbursement *string,
-	hasRequestedAdvance bool,
-	advance *Reimbursement) (*PersonallyProcuredMove, *validate.Errors, error) {
-
-	newPPM := PersonallyProcuredMove{
-		MoveID:                        m.ID,
-		Move:                          m,
-		WeightEstimate:                weightEstimate,
-		OriginalMoveDate:              originalMoveDate,
-		PickupPostalCode:              pickupPostalCode,
-		HasAdditionalPostalCode:       hasAdditionalPostalCode,
-		AdditionalPickupPostalCode:    additionalPickupPostalCode,
-		DestinationPostalCode:         destinationPostalCode,
-		HasSit:                        hasSit,
-		DaysInStorage:                 daysInStorage,
-		Status:                        PPMStatusDRAFT,
-		HasRequestedAdvance:           hasRequestedAdvance,
-		Advance:                       advance,
-		EstimatedStorageReimbursement: estimatedStorageReimbursement,
-	}
-
-	verrs, err := SavePersonallyProcuredMove(db, &newPPM)
-	if err != nil || verrs.HasAny() {
-		return nil, verrs, err
-	}
-
-	return &newPPM, verrs, nil
-}
-
 // CreateSignedCertification creates a new SignedCertification associated with this move
 func (m Move) CreateSignedCertification(db *pop.Connection,
 	submittingUserID uuid.UUID,
 	certificationText string,
 	signature string,
 	date time.Time,
-	ppmID *uuid.UUID,
 	certificationType *SignedCertificationType) (*SignedCertification, *validate.Errors, error) {
 
 	newSignedCertification := SignedCertification{
-		MoveID:                   m.ID,
-		PersonallyProcuredMoveID: ppmID,
-		CertificationType:        certificationType,
-		SubmittingUserID:         submittingUserID,
-		CertificationText:        certificationText,
-		Signature:                signature,
-		Date:                     date,
+		MoveID:            m.ID,
+		CertificationType: certificationType,
+		SubmittingUserID:  submittingUserID,
+		CertificationText: certificationText,
+		Signature:         signature,
+		Date:              date,
 	}
 
 	verrs, err := db.ValidateAndCreate(&newSignedCertification)
@@ -380,21 +338,6 @@ func generateReferenceIDHelper(db *pop.Connection) (string, error) {
 func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
-
-	for _, ppm := range move.PersonallyProcuredMoves {
-		copyOfPpm := ppm // Make copy to avoid implicit memory aliasing of items from a range statement.
-		if copyOfPpm.Advance != nil {
-			if verrs, err := db.ValidateAndSave(copyOfPpm.Advance); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error Saving Advance")
-			}
-		}
-
-		if verrs, err := db.ValidateAndSave(&copyOfPpm); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error Saving PPM")
-		}
-	}
 
 	if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
 		responseVErrors.Append(verrs)
