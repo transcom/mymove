@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import 'styles/office.scss';
 import { GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
@@ -9,16 +10,23 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import evaluationReportStyles from './EvaluationReport.module.scss';
 
 import EvaluationForm from 'components/Office/EvaluationForm/EvaluationForm';
-import { useEvaluationReportQueries } from 'hooks/queries';
+import { useEvaluationReportShipmentListQueries } from 'hooks/queries';
 import { CustomerShape } from 'types';
-import { OrdersShape } from 'types/customerShapes';
 import EvaluationReportShipmentInfo from 'components/Office/EvaluationReportShipmentInfo/EvaluationReportShipmentInfo';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const EvaluationReport = ({ customerInfo, orders }) => {
+const EvaluationReport = ({ customerInfo, grade }) => {
   const { reportId } = useParams();
-  const { evaluationReport, mtoShipments } = useEvaluationReportQueries(reportId);
+  const { evaluationReport, mtoShipments, isLoading, isError } = useEvaluationReportShipmentListQueries(reportId);
 
+  if (isLoading) {
+    return <LoadingPlaceholder />;
+  }
+  if (isError) {
+    return <SomethingWentWrong />;
+  }
   let mtoShipmentsToShow;
   if (evaluationReport.shipmentID && mtoShipments) {
     mtoShipmentsToShow = [mtoShipments.find((shipment) => shipment.id === evaluationReport.shipmentID)];
@@ -34,12 +42,17 @@ const EvaluationReport = ({ customerInfo, orders }) => {
         {mtoShipmentsToShow?.length > 0 && (
           <EvaluationReportShipmentInfo
             customerInfo={customerInfo}
-            orders={orders}
+            grade={grade}
             shipments={mtoShipmentsToShow}
             report={evaluationReport}
           />
         )}
-        <EvaluationForm evaluationReport={evaluationReport} />
+        <EvaluationForm
+          evaluationReport={evaluationReport}
+          grade={grade}
+          customerInfo={customerInfo}
+          mtoShipments={mtoShipments}
+        />
       </GridContainer>
     </div>
   );
@@ -47,7 +60,7 @@ const EvaluationReport = ({ customerInfo, orders }) => {
 
 EvaluationReport.propTypes = {
   customerInfo: CustomerShape.isRequired,
-  orders: OrdersShape.isRequired,
+  grade: PropTypes.string.isRequired,
 };
 
 export default EvaluationReport;

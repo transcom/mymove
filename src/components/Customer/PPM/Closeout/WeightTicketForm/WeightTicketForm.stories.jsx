@@ -37,7 +37,7 @@ Blank.args = {
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {},
   },
-  tripNumber: '1',
+  tripNumber: 1,
 };
 
 export const ExistingWeightTickets = Template.bind({});
@@ -93,7 +93,7 @@ ExistingWeightTickets.args = {
     ownsTrailer: false,
     trailerMeetsCriteria: false,
   },
-  tripNumber: '1',
+  tripNumber: 1,
 };
 
 export const MissingWeightTickets = Template.bind({});
@@ -141,7 +141,7 @@ MissingWeightTickets.args = {
     ownsTrailer: false,
     trailerMeetsCriteria: false,
   },
-  tripNumber: '1',
+  tripNumber: 1,
 };
 
 export const TrailerOwnership = Template.bind({});
@@ -207,5 +207,5 @@ TrailerOwnership.args = {
       ],
     },
   },
-  tripNumber: '1',
+  tripNumber: 1,
 };

@@ -1,4 +1,5 @@
 import { QAECSROfficeUserType } from '../../../support/constants';
+import { searchForAndNavigateToMove } from './qaeCSRIntegrationUtils';
 
 describe('QAE/CSR orders and allowances read only view', () => {
   before(() => {
@@ -19,18 +20,7 @@ describe('QAE/CSR orders and allowances read only view', () => {
 
   it('is able to see orders and form is read only', () => {
     const moveLocator = 'QAEHLP';
-    cy.get('input[name="searchText"]').as('moveCodeSearchInput');
-    cy.get('@moveCodeSearchInput').type(moveLocator).blur();
-    cy.get('button').contains('Search').click();
-    cy.wait(['@getSearchResults']);
-
-    cy.get('tbody > tr').as('results');
-    cy.get('@results').should('have.length', 1);
-    cy.get('@results').first().contains(moveLocator);
-
-    // click result to navigate to move details page
-    cy.get('@results').first().click();
-    cy.url().should('include', `/moves/${moveLocator}/details`);
+    searchForAndNavigateToMove(moveLocator);
 
     // Navigate to view orders page
     cy.get('[data-testid="view-orders"]').contains('View orders').click();
@@ -49,21 +39,7 @@ describe('QAE/CSR orders and allowances read only view', () => {
 
   it('is able to see allowances and the form is read only', () => {
     const moveLocator = 'QAEHLP';
-    cy.get('input[name="searchText"]').as('moveCodeSearchInput');
-    cy.get('@moveCodeSearchInput').type(moveLocator).blur();
-    cy.get('button').contains('Search').click();
-    cy.wait(['@getSearchResults']);
-
-    cy.get('tbody > tr').as('results');
-    cy.get('@results').should('have.length', 1);
-    cy.get('@results').first().contains(moveLocator);
-
-    // click result to navigate to move details page
-    cy.get('@results').first().click();
-    cy.url().should('include', `/moves/${moveLocator}/details`);
-
-    // Move Details page
-    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    searchForAndNavigateToMove(moveLocator);
 
     // Navigate to view allowances page
     cy.get('[data-testid="view-allowances"]').contains('View allowances').click();
