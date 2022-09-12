@@ -3,17 +3,16 @@ import { PropTypes } from 'prop-types';
 import { GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import styles from '../EvaluationReportTable/EvaluationReportContainer.module.scss';
-import 'styles/office.scss';
-
 import evaluationReportStyles from './EvaluationReportShipmentInfo.module.scss';
 
+import styles from 'components/Office/EvaluationReportPreview/EvaluationReportPreview.module.scss';
+import 'styles/office.scss';
 import DataTable from 'components/DataTable';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { shipmentTypeLabels } from 'content/shipments';
 import EvaluationReportShipmentDisplay from 'components/Office/EvaluationReportShipmentDisplay/EvaluationReportShipmentDisplay';
 
-const EvaluationReportShipmentInfo = ({ shipments, report, customerInfo, orders }) => {
+const EvaluationReportShipmentInfo = ({ shipments, report, customerInfo, grade }) => {
   const shipmentDisplayInfo = (shipment) => ({
     ...shipment,
     heading: shipmentTypeLabels[shipment.shipmentType],
@@ -28,7 +27,7 @@ const EvaluationReportShipmentInfo = ({ shipments, report, customerInfo, orders 
       <br />
       {customerInfo.phone}
       <br />
-      {ORDERS_RANK_OPTIONS[orders.grade]}
+      {ORDERS_RANK_OPTIONS[grade]}
       <br />
       {ORDERS_BRANCH_OPTIONS[customerInfo.agency] ? ORDERS_BRANCH_OPTIONS[customerInfo.agency] : customerInfo.agency}
     </>
@@ -80,7 +79,7 @@ EvaluationReportShipmentInfo.propTypes = {
   report: PropTypes.object.isRequired,
   shipments: PropTypes.arrayOf(PropTypes.object).isRequired,
   customerInfo: PropTypes.object.isRequired,
-  orders: PropTypes.object.isRequired,
+  grade: PropTypes.string.isRequired,
 };
 
 export default EvaluationReportShipmentInfo;

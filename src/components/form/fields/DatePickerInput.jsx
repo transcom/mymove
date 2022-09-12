@@ -13,9 +13,9 @@ import Hint from 'components/Hint';
 
 export const DatePickerInput = (props) => {
   const dateFormat = 'DD MMM YYYY';
-  const { label, name, id, className, renderInput, disabled, required, hint } = props;
+  const { label, name, id, className, renderInput, disabled, required, hint, disableErrorLabel } = props;
   const [field, meta, helpers] = useField(props);
-  const hasError = meta.touched && !!meta.error;
+  const hasError = disableErrorLabel ? false : meta.touched && !!meta.error;
 
   // Input elements need an ID prop to be associated with the label
   const inputId = useRef(id || `${name}_${uuidv4()}`);
@@ -61,6 +61,7 @@ DatePickerInput.propTypes = {
   disabled: PropTypes.bool,
   hint: PropTypes.string,
   required: PropTypes.bool,
+  disableErrorLabel: PropTypes.bool,
 };
 
 DatePickerInput.defaultProps = {
@@ -70,6 +71,7 @@ DatePickerInput.defaultProps = {
   disabled: false,
   required: false,
   hint: undefined,
+  disableErrorLabel: false,
 };
 
 export default DatePickerInput;

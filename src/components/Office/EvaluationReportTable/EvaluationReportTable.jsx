@@ -4,15 +4,13 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router';
 
-import { EvaluationReportShape } from '../../../types/evaluationReport';
-
 import styles from './EvaluationReportTable.module.scss';
-import EvaluationReportContainer from './EvaluationReportContainer';
 
+import ConnectedEvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 import { formatCustomerDate, formatEvaluationReportLocation, formatQAReportID } from 'utils/formatters';
-import { CustomerShape } from 'types';
+import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 
-const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, grade, shipmentId }) => {
+const EvaluationReportTable = ({ reports, shipments, emptyText, moveCode, customerInfo, grade }) => {
   const location = useLocation();
   const [isViewReportModalVisible, setIsViewReportModalVisible] = useState(false);
   const [reportToView, setReportToView] = useState(undefined);
@@ -20,6 +18,11 @@ const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, gra
   const handleViewReportClick = (report) => {
     setReportToView(report);
     setIsViewReportModalVisible(true);
+  };
+
+  // this handles the close button at the bottom of the view report modal
+  const toggleCloseModal = () => {
+    setIsViewReportModalVisible(!isViewReportModalVisible);
   };
 
   const row = (report) => {
@@ -65,14 +68,17 @@ const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, gra
   return (
     <div>
       {isViewReportModalVisible && reportToView && (
-        <EvaluationReportContainer
-          reportType={reportToView.type}
-          evaluationReportId={reportToView.id}
+        <ConnectedEvaluationReportConfirmationModal
+          isOpen={isViewReportModalVisible}
+          evaluationReport={reportToView}
           moveCode={moveCode}
           customerInfo={customerInfo}
           grade={grade}
-          shipmentId={shipmentId}
-          setIsModalVisible={setIsViewReportModalVisible}
+          mtoShipments={shipments}
+          closeModalOptions={{
+            handleClick: toggleCloseModal,
+            buttonContent: 'Close',
+          }}
         />
       )}
       <table className={styles.evaluationReportTable}>
@@ -99,12 +105,12 @@ EvaluationReportTable.propTypes = {
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
-  shipmentId: PropTypes.string,
+  shipments: PropTypes.arrayOf(ShipmentShape),
 };
 
 EvaluationReportTable.defaultProps = {
   reports: [],
-  shipmentId: '',
+  shipments: null,
 };
 
 export default EvaluationReportTable;
