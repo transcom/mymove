@@ -110,9 +110,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Require().Nil(err)
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
-	suite.Require().Len(ssd.MovingExpenses, 2)
-	suite.NotNil(ssd.MovingExpenses[0].ID)
-	suite.NotNil(ssd.MovingExpenses[1].ID)
 	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
 	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
 	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
@@ -207,9 +204,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	// E_9 rank, no dependents, no spouse pro-gear
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
-	suite.Require().Len(ssd.MovingExpenses, 2)
-	suite.NotNil(ssd.MovingExpenses[0].ID)
-	suite.NotNil(ssd.MovingExpenses[1].ID)
 	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
 	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
 	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)

@@ -46,18 +46,21 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithoutAssocia
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithoutAssociations() {
 	//model with deleted_at with no associations
-	expenseDocumentModel := testdatagen.MakeMovingExpenseDocument(suite.DB(), testdatagen.Assertions{
-		MovingExpenseDocument: models.MovingExpenseDocument{
-			MovingExpenseType:    models.MovingExpenseTypeCONTRACTEDEXPENSE,
-			PaymentMethod:        "GTCC",
-			RequestedAmountCents: unit.Cents(10000),
+	paidWithGTCC := false
+	amount := unit.Cents(10000)
+	contractExpense := models.MovingExpenseReceiptTypeContractedExpense
+	expenseModel := testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{
+		MovingExpense: models.MovingExpense{
+			MovingExpenseType: &contractExpense,
+			PaidWithGTCC:      &paidWithGTCC,
+			Amount:            &amount,
 		},
 	})
 
-	suite.MustSave(&expenseDocumentModel)
-	suite.Nil(expenseDocumentModel.DeletedAt)
+	suite.MustSave(&expenseModel)
+	suite.Nil(expenseModel.DeletedAt)
 
-	err := utilities.SoftDestroy(suite.DB(), &expenseDocumentModel)
+	err := utilities.SoftDestroy(suite.DB(), &expenseModel)
 	suite.NoError(err)
 }
 
@@ -72,48 +75,23 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithAssociatio
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssociations() {
 	// model with deleted_at with "has one" associations
-	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Status: models.PPMStatusPAYMENTREQUESTED,
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypePPM,
 		},
+		Stub: true,
 	})
-	move := ppm.Move
-	moveDoc := testdatagen.MakeMoveDocument(suite.DB(),
+	ppmShipment := testdatagen.MakePPMShipment(suite.DB(),
 		testdatagen.Assertions{
-			MoveDocument: models.MoveDocument{
-				MoveID:                   move.ID,
-				Move:                     move,
-				PersonallyProcuredMoveID: &ppm.ID,
-				MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
-				Status:                   models.MoveDocumentStatusOK,
-			},
+			MTOShipment: mtoShipment,
 		})
-	suite.MustSave(&moveDoc)
-	suite.Nil(moveDoc.DeletedAt)
+	suite.MustSave(&ppmShipment)
+	suite.Nil(ppmShipment.DeletedAt)
 
-	vehicleNickname := "My Car"
-	emptyWeight := unit.Pound(1000)
-	fullWeight := unit.Pound(2500)
-	weightTicketSetDocument := models.WeightTicketSetDocument{
-		MoveDocumentID:           moveDoc.ID,
-		MoveDocument:             moveDoc,
-		EmptyWeight:              &emptyWeight,
-		EmptyWeightTicketMissing: false,
-		FullWeight:               &fullWeight,
-		FullWeightTicketMissing:  false,
-		VehicleNickname:          &vehicleNickname,
-		WeightTicketSetType:      "CAR",
-		WeightTicketDate:         &testdatagen.NextValidMoveDate,
-		TrailerOwnershipMissing:  false,
-	}
-	suite.MustSave(&weightTicketSetDocument)
-	suite.Nil(weightTicketSetDocument.DeletedAt)
-
-	err := utilities.SoftDestroy(suite.DB(), &moveDoc)
+	err := utilities.SoftDestroy(suite.DB(), &ppmShipment)
 
 	suite.NoError(err)
-	suite.NotNil(moveDoc.DeletedAt)
-	suite.NotNil(moveDoc.WeightTicketSetDocument.DeletedAt)
+	suite.NotNil(ppmShipment.DeletedAt)
 }
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssociations() {

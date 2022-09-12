@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 
 	"github.com/stretchr/testify/mock"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"

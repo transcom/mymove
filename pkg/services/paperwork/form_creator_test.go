@@ -60,21 +60,8 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 		},
 	})
 
-	movedocuments := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
-			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   models.MoveDocumentStatusOK,
-			MoveDocumentType:         "EXPENSE",
-		},
-		Document: models.Document{
-			ServiceMemberID: serviceMemberID,
-			ServiceMember:   move.Orders.ServiceMember,
-		},
-	}
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
+	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
+	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
 
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
