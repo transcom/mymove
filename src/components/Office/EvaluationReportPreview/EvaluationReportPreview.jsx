@@ -17,7 +17,7 @@ import { formatDateFromIso, formatQAReportID } from 'utils/formatters';
 import { formatDate } from 'shared/dates';
 import { shipmentTypeLabels } from 'content/shipments';
 
-const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, customerInfo, grade }) => {
+const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, customerInfo, grade, bordered }) => {
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
   let mtoShipmentsToShow;
 
@@ -62,7 +62,7 @@ const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, cus
   };
 
   return (
-    <div className={styles.evaluationReportPreview} data-testid="EvaluationReportPreview">
+    <div className={bordered ? styles.bordered : styles.borderless} data-testid="EvaluationReportPreview">
       <div>
         <div className={styles.titleSection}>
           <div className={styles.pageHeader}>
@@ -173,10 +173,12 @@ EvaluationReportPreview.propTypes = {
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
+  bordered: PropTypes.bool,
 };
 
 EvaluationReportPreview.defaultProps = {
   mtoShipments: null,
+  bordered: false,
 };
 
 export default EvaluationReportPreview;

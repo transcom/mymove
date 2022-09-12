@@ -1,8 +1,12 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/colors';
 
-.evaluationReportPreview {
+.bordered {
   @include u-border-top('base-lighter');
+}
+
+.borderless {
+  margin-top: -32px;
 }
 
 .pageHeader {

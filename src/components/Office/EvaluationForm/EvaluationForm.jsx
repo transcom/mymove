@@ -185,20 +185,6 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
     </div>
   );
 
-  const closeModalOptions = {
-    handleClick: setIsSubmitModalOpen,
-    buttonContent: (
-      <>
-        <FontAwesomeIcon icon="chevron-left" className={styles.backIcon} /> Back to Evaluation form
-      </>
-    ),
-  };
-
-  const submitModalOptions = {
-    handleClick: submitReport,
-    buttonContent: 'Submit',
-  };
-
   const initialValues = {
     remarks: evaluationReport.remarks,
     inspectionDate: evaluationReport.inspectionDate,
@@ -284,6 +270,29 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
     hours[i] = { key: String(i), value: String(i) };
   }
 
+  const submitModalActions = (
+    <div className={styles.modalActions}>
+      <Button
+        type="button"
+        onClick={() => setIsSubmitModalOpen()}
+        aria-label="Back to Evaluation form"
+        unstyled
+        className={styles.closeModalBtn}
+      >
+        <FontAwesomeIcon icon="chevron-left" className={styles.backIcon} /> Back to Evaluation form
+      </Button>
+      <Button
+        type="submit"
+        onClick={submitReport}
+        data-testid="modalSubmitButton"
+        aria-label="Submit"
+        className={styles.submitModalBtn}
+      >
+        Submit
+      </Button>
+    </div>
+  );
+
   return (
     <>
       <ConnectedDeleteEvaluationReportConfirmationModal
@@ -300,8 +309,8 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
         customerInfo={customerInfo}
         grade={grade}
         mtoShipments={mtoShipments}
-        closeModalOptions={closeModalOptions}
-        submitModalOptions={submitModalOptions}
+        modalActions={submitModalActions}
+        bordered
       />
 
       <Formik
