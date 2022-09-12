@@ -84,7 +84,6 @@ type Move struct {
 	Orders                       Order                     `belongs_to:"orders" fk_id:"orders_id"`
 	SelectedMoveType             *SelectedMoveType         `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves      PersonallyProcuredMoves   `has_many:"personally_procured_moves" fk_id:"move_id" order_by:"created_at desc"`
-	MoveDocuments                MoveDocuments             `has_many:"move_documents" fk_id:"move_id" order_by:"created_at desc"`
 	Status                       MoveStatus                `json:"status" db:"status"`
 	SignedCertifications         SignedCertifications      `has_many:"signed_certifications" fk_id:"move_id" order_by:"created_at desc"`
 	CancelReason                 *string                   `json:"cancel_reason" db:"cancel_reason"`
