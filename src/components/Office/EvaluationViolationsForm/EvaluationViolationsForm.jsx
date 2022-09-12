@@ -76,9 +76,12 @@ const EvaluationViolationsForm = ({ violations }) => {
               {/* Selected Violations */}
               <Grid row>
                 <Grid col>
-                  <h3>
-                    Violations Selected ({(values.selectedViolations && values.selectedViolations.length) || '0'})
-                  </h3>
+                  <>
+                    <hr className={styles.divider} />
+                    <h3>
+                      Violations Selected ({(values.selectedViolations && values.selectedViolations.length) || '0'})
+                    </h3>
+                  </>
                   {values.selectedViolations?.map((violationId) => (
                     <SelectedViolation
                       violation={violations.find((v) => v.id === violationId)}
@@ -92,6 +95,7 @@ const EvaluationViolationsForm = ({ violations }) => {
               <Grid row>
                 <Grid col>
                   <div className={styles.incident}>
+                    <hr className={styles.divider} />
                     <h3 className={styles.siHeading}>Serious incident</h3>
                     <FormGroup>
                       <Fieldset>

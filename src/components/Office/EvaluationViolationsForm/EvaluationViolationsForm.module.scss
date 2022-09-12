@@ -83,3 +83,9 @@
   }
 }
 
+.divider {
+  @include u-color('base-lighter');
+  @include u-margin-top(4);
+  border: 1px solid;
+
+}
