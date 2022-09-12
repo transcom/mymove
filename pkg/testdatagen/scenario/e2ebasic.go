@@ -744,21 +744,7 @@ func serviceMemberWithPPMMoveWithPaymentRequested02(appCtx appcontext.AppContext
 		},
 		UserUploader: userUploader,
 	})
-	docAssertions := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm3.Move.ID,
-			Move:                     ppm3.Move,
-			PersonallyProcuredMoveID: &ppm3.ID,
-			Status:                   "AWAITING_REVIEW",
-			MoveDocumentType:         "WEIGHT_TICKET",
-		},
-		Document: models.Document{
-			ID:              uuid.FromStringOrNil("c26421b0-e4c3-446b-88f3-493bb25c1756"),
-			ServiceMemberID: ppm3.Move.Orders.ServiceMember.ID,
-			ServiceMember:   ppm3.Move.Orders.ServiceMember,
-		},
-	}
-	testdatagen.MakeMoveDocument(appCtx.DB(), docAssertions)
+
 	moveRouter.Submit(appCtx, &ppm3.Move)
 	moveRouter.Approve(appCtx, &ppm3.Move)
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
@@ -1203,19 +1189,6 @@ func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, u
 			OriginalMoveDate: &pastTime,
 		},
 		UserUploader: userUploader,
-	})
-
-	testdatagen.MakeMoveDocument(appCtx.DB(), testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm6.Move.ID,
-			Move:                     ppm6.Move,
-			PersonallyProcuredMoveID: &ppm6.ID,
-		},
-		Document: models.Document{
-			ID:              uuid.FromStringOrNil("c26421b6-e4c3-446b-88f3-493bb25c1756"),
-			ServiceMemberID: ppm6.Move.Orders.ServiceMember.ID,
-			ServiceMember:   ppm6.Move.Orders.ServiceMember,
-		},
 	})
 
 	moveRouter.Submit(appCtx, &ppm6.Move)

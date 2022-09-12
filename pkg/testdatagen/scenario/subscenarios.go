@@ -60,7 +60,6 @@ func subScenarioPPMOfficeQueue(appCtx appcontext.AppContext, userUploader *uploa
 		createPPMOfficeUser(appCtx)
 
 		// PPM Office Queue
-		createPPMWithAdvance(appCtx, userUploader, moveRouter)
 		createPPMWithNoAdvance(appCtx, userUploader, moveRouter)
 		createPPMWithPaymentRequest(appCtx, userUploader, moveRouter)
 		createCanceledPPM(appCtx, userUploader, moveRouter)
