@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 
 	"github.com/stretchr/testify/mock"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
@@ -15,13 +14,20 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 //
 // CREATE TEST
 //
+func (suite *HandlerSuite) createS3HandlerConfig() handlers.HandlerConfig {
+	handlerConfig := suite.HandlerConfig()
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	handlerConfig.SetFileStorer(fakeS3)
 
+	return handlerConfig
+}
 func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 	// Reusable objects
 	weightTicketCreator := weightticket.NewCustomerWeightTicketCreator()
