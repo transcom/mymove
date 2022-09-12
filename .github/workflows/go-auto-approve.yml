@@ -23,7 +23,7 @@ jobs:
         run: git checkout "$(echo ${{ github.head_ref }})"
         if: github.head_ref != '' && (github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]')
       - name: setup go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v3
         with:
           go-version: '1.18'
       - name: Tidy
