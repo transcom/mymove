@@ -39,14 +39,63 @@
   @include u-margin(0);
 }
 
+.incidentTextAreaLabel {
+  @include u-margin-bottom(1px);
+  @include u-margin-top(34px);
+  @include u-font-weight(700);
+  @include u-color('base-darker');
+  font-size: 13px;
+
+}
+
+.siHeading {
+  margin-bottom: 0 !important;
+}
+
+.usa-form-group {
+  @include u-margin-top(0);
+}
+
+.incident {
+
+  :global {
+    .usa-form-group {
+      @include u-margin-top(0);
+    }
+  }
+}
+
+.seriousIncident {
+  :global {
+    .usa-radio__label {
+      @include u-margin-top(1px);
+      @include u-margin-bottom(2);
+    }
+  }
+}
+
+.serious {
+  :global {
+    .usa-label {
+      @include u-margin-bottom(4px);
+    }
+  }
+}
+
 .claimDatePicker {
 
   :global {
     .usa-label {
       @include u-font-weight(700);
+
       @include u-color('base-darker');
     }
   }
 }
 
+.divider {
+  @include u-color('base-lighter');
+  @include u-margin-top(4);
+  border: 1px solid;
 
+}
