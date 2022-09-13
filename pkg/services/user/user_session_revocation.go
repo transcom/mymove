@@ -18,7 +18,7 @@ type userSessionRevocation struct {
 }
 
 // RevokeUserSession revokes the user's session
-func (o *userSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.UserUpdatePayload, sessionStore scs.Store) (*models.User, *validate.Errors, error) {
+func (o *userSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.UserUpdatePayload, sessionManagers [3]*scs.SessionManager) (*models.User, *validate.Errors, error) {
 	var foundUser models.User
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	err := o.builder.FetchOne(appCtx, &foundUser, filters)
@@ -27,7 +27,7 @@ func (o *userSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext, 
 		return nil, nil, err
 	}
 
-	redisErr := deleteSessionIDFromRedis(appCtx, foundUser, payload, sessionStore)
+	redisErr := deleteSessionIDFromRedis(appCtx, foundUser, payload, sessionManagers)
 	if redisErr != nil {
 		return nil, nil, redisErr
 	}
@@ -40,44 +40,47 @@ func NewUserSessionRevocation(builder userQueryBuilder) services.UserSessionRevo
 	return &userSessionRevocation{builder}
 }
 
-func deleteSessionIDFromRedis(appCtx appcontext.AppContext, user models.User, payload *adminmessages.UserUpdatePayload, sessionStore scs.Store) error {
-	var currentAdminSessionID, currentOfficeSessionID, currentMilSessionID string
-	userID := user.ID
+func revokeSession(appCtx appcontext.AppContext, sessionManager *scs.SessionManager, sessionID string, userID uuid.UUID) error {
+	_, exists, err := sessionManager.Store.Find(sessionID)
+
+	if err != nil {
+		appCtx.Logger().Error("Error looking up field in Redis for user ID", zap.String("cookie_name", sessionManager.Cookie.Name), zap.String("UserID", userID.String()), zap.Error(err))
+		return err
+	}
+
+	if !exists {
+		appCtx.Logger().Info("Not found in Redis; nothing to revoke", zap.String("cooke_name", sessionManager.Cookie.Name))
+	} else {
+		appCtx.Logger().Info("Found for user ID; deleting it from Redis", zap.String("cooke_name", sessionManager.Cookie.Name), zap.String("UserID", userID.String()))
+		err := sessionManager.Store.Delete(sessionID)
+		if err != nil {
+			appCtx.Logger().Error("Error deleting field from Redis for user ID", zap.String("cooke_name", sessionManager.Cookie.Name), zap.String("UserID", userID.String()), zap.Error(err))
+			return err
+		}
+	}
+	return nil
+}
+
+func deleteSessionIDFromRedis(appCtx appcontext.AppContext, user models.User, payload *adminmessages.UserUpdatePayload, sessionManagers [3]*scs.SessionManager) error {
 
 	if payload.RevokeAdminSession != nil && *payload.RevokeAdminSession {
-		currentAdminSessionID = user.CurrentAdminSessionID
+		err := revokeSession(appCtx, sessionManagers[1], user.CurrentAdminSessionID, user.ID)
+		if err != nil {
+			return err
+		}
 	}
 
 	if payload.RevokeOfficeSession != nil && *payload.RevokeOfficeSession {
-		currentOfficeSessionID = user.CurrentOfficeSessionID
+		err := revokeSession(appCtx, sessionManagers[2], user.CurrentOfficeSessionID, user.ID)
+		if err != nil {
+			return err
+		}
 	}
 
 	if payload.RevokeMilSession != nil && *payload.RevokeMilSession {
-		currentMilSessionID = user.CurrentMilSessionID
-	}
-
-	var sessionIDMap = map[string]string{
-		"adminSessionID":  currentAdminSessionID,
-		"officeSessionID": currentOfficeSessionID,
-		"milSessionID":    currentMilSessionID,
-	}
-
-	for field, sessionID := range sessionIDMap {
-		_, exists, err := sessionStore.Find(sessionID)
+		err := revokeSession(appCtx, sessionManagers[0], user.CurrentMilSessionID, user.ID)
 		if err != nil {
-			appCtx.Logger().Error("Error looking up field in Redis for user ID", zap.String("field", field), zap.String("UserID", userID.String()), zap.Error(err))
 			return err
-		}
-
-		if !exists {
-			appCtx.Logger().Info("Not found in Redis; nothing to revoke", zap.String("field", field))
-		} else {
-			appCtx.Logger().Info("Found for user ID; deleting it from Redis", zap.String("field", field), zap.String("UserID", userID.String()))
-			err := sessionStore.Delete(sessionID)
-			if err != nil {
-				appCtx.Logger().Error("Error deleting field from Redis for user ID", zap.String("field", field), zap.String("UserID", userID.String()), zap.Error(err))
-				return err
-			}
 		}
 	}
 

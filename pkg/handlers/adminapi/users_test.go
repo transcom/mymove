@@ -384,7 +384,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			params.User,
-			sessionManagers[0].Store,
+			sessionManagers,
 		).Return(nil, err, nil).Once()
 
 		handler := setupHandler()
@@ -492,7 +492,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			params.User,
-			sessionManagers[0].Store,
+			sessionManagers,
 		).Return(nil, err, nil).Once()
 
 		userUpdater.On("UpdateUser",

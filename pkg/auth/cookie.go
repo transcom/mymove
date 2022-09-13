@@ -57,16 +57,6 @@ func GetExpiryTimeFromMinutes(min int64) time.Time {
 	return time.Now().Add(time.Minute * time.Duration(min))
 }
 
-// GetCookie returns a cookie from a request
-func GetCookie(name string, r *http.Request) (*http.Cookie, error) {
-	for _, cookie := range r.Cookies() {
-		if cookie.Name == name {
-			return cookie, nil
-		}
-	}
-	return nil, errors.Errorf("Unable to find cookie: %s", name)
-}
-
 // DeleteCookie sends a delete request for the named cookie
 func DeleteCookie(w http.ResponseWriter, name string) {
 	c := http.Cookie{

@@ -17,7 +17,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/alexedwards/scs/redisstore"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
@@ -491,17 +490,11 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		appCtx.Logger().Fatal("Registering login provider", zap.Error(err))
 	}
 
-	redisEnabled := v.GetBool(cli.RedisEnabledFlag)
-	var sessionStore *redisstore.RedisStore
-	if redisEnabled {
-		sessionStore = redisstore.New(redisPool)
-	}
 	sessionIdleTimeout := time.Duration(v.GetInt(cli.SessionIdleTimeoutInMinutesFlag)) * time.Minute
 	sessionLifetime := time.Duration(v.GetInt(cli.SessionLifetimeInHoursFlag)) * time.Hour
 
 	useSecureCookie := !isDevOrTest
-	sessionManagers := auth.SetupSessionManagers(redisEnabled,
-		sessionStore, useSecureCookie,
+	sessionManagers := auth.SetupSessionManagers(redisPool, useSecureCookie,
 		sessionIdleTimeout, sessionLifetime)
 	routingConfig.AuthContext = authentication.NewAuthContext(appCtx.Logger(), loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
 

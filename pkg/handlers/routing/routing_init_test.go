@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
 
@@ -47,7 +46,7 @@ func (suite *RoutingSuite) setupRouting() *Config {
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetAppNames(appNames)
 
-	sessionManagers := auth.SetupSessionManagers(true, memstore.New(), false,
+	sessionManagers := auth.SetupSessionManagers(nil, false,
 		time.Duration(180), time.Duration(180))
 	handlerConfig.SetSessionManagers(sessionManagers)
 
