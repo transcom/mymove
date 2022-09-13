@@ -37,6 +37,7 @@ else
 fi
 
 gotest_args=("-count" "1")
+gotest_args+=("-race")
 if [ -n "${CIRCLECI+x}" ]; then
 	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
   gotest_args+=("-parallel" "4")
@@ -53,7 +54,7 @@ fi
 # Try to compile tests, but don't run them.
 if [[ "${DRY_RUN:-}" == "1" ]]; then
   echo "Compiling tests only, not running"
-  go test -race -run=nope "${gotest_args[@]}" "${package_list[@]}"
+  go test -run=nope "${gotest_args[@]}" "${package_list[@]}"
   exit 0
 fi
 
@@ -141,7 +142,7 @@ else
     gotest_args+=("-v")
   fi
   DB_NAME="${DB_NAME_TEST}" DB_PORT="${DB_PORT_TEST}" \
-         go test -race \
+         go test \
          "${gotest_args[@]}" \
          "${package_list[@]}" | tee "${test_output_file}"
 fi
