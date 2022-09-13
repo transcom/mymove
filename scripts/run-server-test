@@ -53,7 +53,7 @@ fi
 # Try to compile tests, but don't run them.
 if [[ "${DRY_RUN:-}" == "1" ]]; then
   echo "Compiling tests only, not running"
-  go test -run=nope "${gotest_args[@]}" "${package_list[@]}"
+  go test -race -run=nope "${gotest_args[@]}" "${package_list[@]}"
   exit 0
 fi
 
@@ -141,7 +141,7 @@ else
     gotest_args+=("-v")
   fi
   DB_NAME="${DB_NAME_TEST}" DB_PORT="${DB_PORT_TEST}" \
-         go test \
+         go test -race \
          "${gotest_args[@]}" \
          "${package_list[@]}" | tee "${test_output_file}"
 fi

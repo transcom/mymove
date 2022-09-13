@@ -266,7 +266,7 @@ bin/iws: cmd/iws
 PKG_GOSRC := $(wildcard pkg/**/*.go)
 
 bin/milmove: $(wildcard cmd/milmove/**/*.go) $(PKG_GOSRC)
-	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
+	go build -race -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 bin/milmove-tasks: $(wildcard cmd/milmove-tasks/**/*.go) $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
