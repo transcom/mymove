@@ -23,10 +23,6 @@ func NewMoveHistoryFetcher() services.MoveHistoryFetcher {
 
 //FetchMoveHistory retrieves a Move's history if it is visible for a given locator
 func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, params *services.FetchMoveHistoryParams) (*models.MoveHistory, int64, error) {
-	// dot, _ := dotsql.LoadFromFile("pkg/sql/move_history_fetcher.sql")
-	// queries := dot.QueryMap()
-	// rawQuery := queries["move_history_fetcher"]
-
 	rawQuery, queryErr := query.GetQueryString("move_history_fetcher")
 	if queryErr != nil {
 		return &models.MoveHistory{}, 0, queryErr
