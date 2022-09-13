@@ -4,16 +4,18 @@ import userEvent from '@testing-library/user-event';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
+import serviceMemberBuilder from 'utils/test/factories/serviceMember';
 
 const defaultProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
-  serviceMember: {
-    id: '123',
-    residential_address: {
-      postalCode: '90210',
+  serviceMember: serviceMemberBuilder({
+    overrides: {
+      residential_address: {
+        postalCode: '90210',
+      },
     },
-  },
+  }),
   destinationDutyLocation: {
     address: {
       postalCode: '94611',

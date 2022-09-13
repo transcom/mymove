@@ -3,6 +3,13 @@ import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import EstimatedWeightsProGearForm from 'components/Customer/PPM/Booking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm';
+import serviceMemberBuilder from 'utils/test/factories/serviceMember';
+import {
+  PRO_GEAR_WEIGHT,
+  PRO_GEAR_WEIGHT_SPOUSE,
+  TOTAL_WEIGHT_SELF,
+  TOTAL_WEIGHT_SELF_PLUS_DEPENDENTS,
+} from 'constants/weightEntitlements';
 
 const defaultProps = {
   onSubmit: jest.fn(),
@@ -10,15 +17,16 @@ const defaultProps = {
   orders: {
     has_dependents: true,
   },
-  serviceMember: {
-    id: '10',
-    weight_allotment: {
-      total_weight_self: 5000,
-      total_weight_self_plus_dependents: 7000,
-      pro_gear_weight: 2000,
-      pro_gear_weight_spouse: 500,
+  serviceMember: serviceMemberBuilder({
+    overrides: {
+      weight_allotment: {
+        [TOTAL_WEIGHT_SELF]: 5000,
+        [TOTAL_WEIGHT_SELF_PLUS_DEPENDENTS]: 7000,
+        [PRO_GEAR_WEIGHT]: 2000,
+        [PRO_GEAR_WEIGHT_SPOUSE]: 500,
+      },
     },
-  },
+  }),
   mtoShipment: {
     id: '123',
     ppmShipment: {

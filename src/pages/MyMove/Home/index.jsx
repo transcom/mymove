@@ -198,6 +198,8 @@ export class Home extends Component {
           <div className={styles.subheaderSubsection}>
             <dt>Weight allowance</dt>
             <dd>
+              {formatWeight(serviceMember.weight_allotment.total_weight_self_plus_dependents)}
+              {formatWeight(serviceMember.weight_allotment.total_weight_self)}
               {orders.has_dependents
                 ? formatWeight(serviceMember.weight_allotment.total_weight_self_plus_dependents)
                 : formatWeight(serviceMember.weight_allotment.total_weight_self)}
