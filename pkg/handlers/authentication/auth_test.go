@@ -153,8 +153,6 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 		IDToken:         fakeToken,
 		Hostname:        OfficeTestHost,
 	}
-	ctx := auth.SetSessionInRequestContext(req, &session)
-	req = req.WithContext(ctx)
 	sessionManagers := suite.SetupSessionManagers()
 	officeSession := sessionManagers[2]
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
@@ -162,6 +160,8 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	handler := officeSession.LoadAndSave(NewLogoutHandler(authContext, handlerConfig))
 
 	rr := httptest.NewRecorder()
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	req = req.WithContext(ctx)
 	handler.ServeHTTP(rr, req.WithContext(ctx))
 
 	if status := rr.Code; status != http.StatusOK {
@@ -180,6 +180,25 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	suite.Equal(strconv.Itoa(callbackPort), postRedirectURI.Port())
 	token := params["id_token_hint"][0]
 	suite.Equal(fakeToken, token, "handler id_token")
+
+	noIDTokenSession := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          user.ID,
+		IDToken:         "",
+		Hostname:        OfficeTestHost,
+	}
+	ctx = auth.SetSessionInRequestContext(req, &noIDTokenSession)
+	req = req.WithContext(ctx)
+	rr = httptest.NewRecorder()
+	handler.ServeHTTP(rr, req.WithContext(ctx))
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %d wanted %d", status, http.StatusOK)
+	}
+
+	redirectURI, err := url.Parse(rr.Body.String())
+	suite.NoError(err)
+	suite.Equal(OfficeTestHost, redirectURI.Hostname())
+	suite.Equal(strconv.Itoa(callbackPort), redirectURI.Port())
 }
 
 func (suite *AuthSuite) TestRequireAuthMiddleware() {
@@ -1261,4 +1280,9 @@ func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
 
 	suite.Equal(http.StatusTemporaryRedirect, rr.Code,
 		"handler returned wrong status code")
+	redirectURL, err := rr.Result().Location()
+	suite.NoError(err)
+	suite.Equal(OfficeTestHost, redirectURL.Hostname())
+	suite.Equal(strconv.Itoa(callbackPort), redirectURL.Port())
+	suite.Equal("/", redirectURL.EscapedPath())
 }

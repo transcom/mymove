@@ -6,8 +6,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/alexedwards/scs/redisstore"
 	"github.com/alexedwards/scs/v2"
+	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/gofrs/uuid"
+	"github.com/gomodule/redigo/redis"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 )
@@ -31,23 +34,33 @@ const (
 // SetupSessionManagers configures the session manager for each app: mil, admin,
 // and office. It's necessary to have separate session managers to allow users
 // to be signed in on multiple apps at the same time.
-func SetupSessionManagers(redisEnabled bool, sessionStore scs.Store, useSecureCookie bool, idleTimeout time.Duration, lifetime time.Duration) [3]*scs.SessionManager {
-	if !redisEnabled {
-		return [3]*scs.SessionManager{}
-	}
+func SetupSessionManagers(redisPool *redis.Pool, useSecureCookie bool, idleTimeout time.Duration, lifetime time.Duration) [3]*scs.SessionManager {
 	var milSession, adminSession, officeSession *scs.SessionManager
 	gob.Register(Session{})
 
+	// we need to ensure each session manager has its own store so
+	// that sessions don't leak between apps. If a redisPool is
+	// provided, we can use a prefix to ensure sessions are separated.
+	// If redis is not configured, this would be local testing of some
+	// kind in which case we can create a separate memory store for
+	// each app
+	newSessionStoreFn := func(prefix string) scs.Store {
+		if redisPool != nil {
+			return redisstore.NewWithPrefix(redisPool, prefix)
+		}
+		return memstore.New()
+	}
+
 	milSession = scs.New()
-	milSession.Store = sessionStore
+	milSession.Store = newSessionStoreFn("mil")
 	milSession.Cookie.Name = "mil_session_token"
 
 	adminSession = scs.New()
-	adminSession.Store = sessionStore
+	adminSession.Store = newSessionStoreFn("admin")
 	adminSession.Cookie.Name = "admin_session_token"
 
 	officeSession = scs.New()
-	officeSession.Store = sessionStore
+	officeSession.Store = newSessionStoreFn("office")
 	officeSession.Cookie.Name = "office_session_token"
 
 	// IdleTimeout controls the maximum length of time a session can be inactive
