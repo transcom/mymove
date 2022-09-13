@@ -134,7 +134,8 @@ func ApplicationName(hostname string, appnames ApplicationServername) (Applicati
 		}, fmt.Sprintf("%s is invalid", hostname))
 }
 
-func sessionManager(session Session, sessionManagers [3]*scs.SessionManager) *scs.SessionManager {
+func sessionManagerForApp(app Application, sessionManagers [3]*scs.SessionManager) *scs.SessionManager {
+	session := Session{ApplicationName: app}
 	if session.IsMilApp() {
 		return sessionManagers[0]
 	} else if session.IsAdminApp() {
@@ -158,28 +159,29 @@ func SessionCookieMiddleware(globalLogger *zap.Logger, appnames ApplicationServe
 			ctx := r.Context()
 			logger := logging.FromContext(ctx)
 
-			// Set up the new session object
-			session := Session{}
-
 			// Split the hostname from the port
 			hostname := strings.Split(r.Host, ":")[0]
-			appName, err := ApplicationName(hostname, appnames)
+			app, err := ApplicationName(hostname, appnames)
 			if err != nil {
 				logger.Error("Bad Hostname", zap.Error(err))
 				http.Error(w, http.StatusText(400), http.StatusBadRequest)
 				return
 			}
 
-			// Set more information on the session
-			session.ApplicationName = appName
-			session.Hostname = strings.ToLower(hostname)
+			sessionManager := sessionManagerForApp(app, sessionManagers)
 
-			sessionManager := sessionManager(session, sessionManagers)
-
-			existingSession := sessionManager.Get(r.Context(), "session")
-			if existingSession != nil {
-				logger.Info("Existing session found")
-				session = existingSession.(Session)
+			// The scs session manager Get call will return an empty
+			// Session if an existing one is not found in the store
+			obj := sessionManager.Get(r.Context(), "session")
+			session, ok := obj.(Session)
+			if ok {
+				logger.Info("Existing session", zap.Any("session", session))
+			} else {
+				session = Session{
+					ApplicationName: app,
+					Hostname:        strings.ToLower(hostname),
+				}
+				logger.Info("Creating new session", zap.Any("session", session))
 			}
 
 			// And update the cookie. May get over-ridden later
