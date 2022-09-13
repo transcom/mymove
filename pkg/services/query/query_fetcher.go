@@ -35,6 +35,6 @@ func GetQueryStringFromFile(filePath string, queryName string) (string, error) {
 // in a file with the same name.
 // Returns SQL query as a string.
 func GetQueryString(queryName string) (string, error) {
-	filePath := "pkg/sql/" + queryName + ".sql"
+	filePath := "pkg/services/query/sql_scripts/" + queryName + ".sql"
 	return GetQueryStringFromFile(filePath, queryName)
 }
