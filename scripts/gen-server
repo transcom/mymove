@@ -4,7 +4,7 @@ set -eu -o pipefail
 
 if [ "${CIRCLECI+x}" ]; then
   LOCAL_SWAGGER="/usr/local/bin/swagger"
-elif swagger version 2>/dev/null | grep -F -q -E 'version: v?0.29.0'; then
+elif swagger version 2>/dev/null | grep -F -q -E 'version: v?0.30.2'; then
   LOCAL_SWAGGER=$(which swagger)
 fi
 
@@ -13,7 +13,7 @@ if [ -n "${LOCAL_SWAGGER+x}" ]; then
   echo "Using local swagger"
 else
   # Locally we need to download the docker image to get the binary
-  image=milmove/circleci-docker:milmove-app-9ea16004ab38c5e43e715e09241515ec220b6067
+  image=milmove/circleci-docker:milmove-app-4f6db3042d680570a023b238652b4b3d60646c99
   docker pull -q "${image}"
 fi
 
