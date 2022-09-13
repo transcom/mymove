@@ -1,0 +1,13 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.evaluationReportModal {
+  min-width: 1200px !important;
+  overflow-y: auto;
+  max-height: 90vh;
+  @include u-padding-bottom(5 !important);
+}
+
+.titleSection {
+  @include u-margin-top(4);
+}

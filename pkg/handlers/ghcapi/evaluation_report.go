@@ -208,3 +208,44 @@ func (h SaveEvaluationReportHandler) Handle(params evaluationReportop.SaveEvalua
 			return evaluationReportop.NewSaveEvaluationReportNoContent(), nil
 		})
 }
+
+type SubmitEvaluationReportHandler struct {
+	handlers.HandlerConfig
+	services.EvaluationReportUpdater
+}
+
+func (h SubmitEvaluationReportHandler) Handle(params evaluationReportop.SubmitEvaluationReportParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			eTag := params.IfMatch
+			reportID, err := uuid.FromString(params.ReportID.String())
+			if err != nil {
+				return evaluationReportop.NewSubmitEvaluationReportUnprocessableEntity(), err
+			}
+			// get officeUserID from user session
+			var officeUserID uuid.UUID
+			if appCtx.Session() != nil {
+				officeUserID = appCtx.Session().OfficeUserID
+			}
+
+			err = h.SubmitEvaluationReport(appCtx, reportID, officeUserID, eTag)
+			if err != nil {
+				appCtx.Logger().Error("Error saving evaluation report: ", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return evaluationReportop.NewSubmitEvaluationReportNotFound(), err
+				case apperror.PreconditionFailedError:
+					return evaluationReportop.NewSubmitEvaluationReportPreconditionFailed(), err
+				case apperror.ForbiddenError:
+					return evaluationReportop.NewSubmitEvaluationReportForbidden(), err
+				case apperror.InvalidInputError:
+					return evaluationReportop.NewSubmitEvaluationReportUnprocessableEntity(), err
+				default:
+					return evaluationReportop.NewSubmitEvaluationReportInternalServerError(), err
+				}
+			}
+
+			return evaluationReportop.NewSubmitEvaluationReportNoContent(), nil
+		})
+}

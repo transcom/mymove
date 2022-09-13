@@ -57,6 +57,12 @@ describe('EvaluationViolationsForm', () => {
 
       // Conditionally shown textarea not shown by default
       expect(screen.queryByText('Serious incident description')).not.toBeInTheDocument();
+
+      // Date pickers should not be shown by default
+      expect(screen.queryByText('Observed claims response date')).not.toBeInTheDocument();
+      expect(screen.queryByText('Observed pickup date')).not.toBeInTheDocument();
+      expect(screen.queryByText('Observed pickup spread start date')).not.toBeInTheDocument();
+      expect(screen.queryByText('Observed pickup spread end date')).not.toBeInTheDocument();
     });
   });
 
@@ -92,6 +98,39 @@ describe('EvaluationViolationsForm', () => {
       expect(screen.getByRole('heading', { name: 'SubCategory of Category 1', level: 4 })).toBeInTheDocument();
       expect(screen.getByRole('heading', { name: 'Category 2', level: 3 })).toBeInTheDocument();
       expect(screen.getByRole('heading', { name: 'SubCategory of Category 2', level: 4 })).toBeInTheDocument();
+    });
+  });
+
+  it('renders conditional datepicker when kpi violation is selected', async () => {
+    const mockKpiViolation = [
+      {
+        additionalDataElem: 'observedPickupSpreadDates',
+        category: 'Pre-Move Services',
+        displayOrder: 7,
+        isKpi: true,
+        id: 'e1ee1719-a6d5-49b0-ad3b-c4dac0a3f16f',
+        paragraphNumber: '1.2.5.3.1',
+        requirementStatement: 'requirement statement 1',
+        requirementSummary: 'Schedule relocation using pickup spread rules',
+        subCategory: 'Counseling',
+        title: 'Scheduling Requirements',
+      },
+    ];
+
+    render(<EvaluationViolationsForm violations={mockKpiViolation} />);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Observed pickup spread start date')).not.toBeInTheDocument();
+      expect(screen.queryByText('Observed pickup spread end date')).not.toBeInTheDocument();
+    });
+    const checkbox = screen.getByTestId('violation-checkbox');
+    userEvent.click(checkbox);
+
+    await waitFor(() => {
+      // Date picker should be shown if corresponding item is checked
+      expect(screen.getByTestId('violation-checkbox')).toBeInTheDocument();
+      expect(screen.getByText('Observed pickup spread start date')).toBeInTheDocument();
+      expect(screen.getByText('Observed pickup spread end date')).toBeInTheDocument();
     });
   });
 

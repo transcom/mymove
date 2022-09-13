@@ -78,6 +78,16 @@
   :global {
     .usa-label {
       @include u-margin-bottom(4px);
+    }
+  }
+}
+
+.claimDatePicker {
+
+  :global {
+    .usa-label {
+      @include u-font-weight(700);
+
       @include u-color('base-darker');
     }
   }

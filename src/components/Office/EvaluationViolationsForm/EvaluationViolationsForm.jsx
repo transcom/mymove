@@ -9,6 +9,7 @@ import styles from './EvaluationViolationsForm.module.scss';
 import SelectedViolation from './SelectedViolation/SelectedViolation';
 
 import ViolationsAccordion from 'components/Office/ViolationsAccordion/ViolationsAccordion';
+import { DatePickerInput } from 'components/form/fields';
 
 const EvaluationViolationsForm = ({ violations }) => {
   const { moveCode, reportId } = useParams();
@@ -50,6 +51,11 @@ const EvaluationViolationsForm = ({ violations }) => {
             setFieldValue(fieldKey, [...prevSelectedViolations, id]);
           }
         };
+        let kpiItems = [];
+        if (values.selectedViolations) {
+          kpiItems = violations.filter((item) => values.selectedViolations.includes(item.id) && item.isKpi);
+        }
+        const kpiDates = [...new Set(kpiItems.map((item) => item.additionalDataElem))];
 
         return (
           <>
@@ -88,6 +94,38 @@ const EvaluationViolationsForm = ({ violations }) => {
                       unselectViolation={toggleSelectedViolation}
                     />
                   ))}
+                </Grid>
+              </Grid>
+
+              <Grid row>
+                <Grid col className={styles.claimDatePicker}>
+                  <div>
+                    {kpiDates.includes('observedClaimDate') && (
+                      <DatePickerInput
+                        className={styles.datePicker}
+                        label="Observed claims response date"
+                        name="observedClaimDate"
+                        hint="Only enter a date here if the claim has a response."
+                        showOptional
+                      />
+                    )}
+                    {kpiDates.includes('observedPickupDate') && (
+                      <DatePickerInput
+                        label="Observed pickup date"
+                        name="observedPickupDate"
+                        hint="Enter the date you witnessed the pickup."
+                      />
+                    )}
+                    {kpiDates.includes('observedPickupSpreadDates') && (
+                      <DatePickerInput
+                        label="Observed pickup spread start date"
+                        name="observedpickupStartDateScheduling"
+                      />
+                    )}
+                    {kpiDates.includes('observedPickupSpreadDates') && (
+                      <DatePickerInput label="Observed pickup spread end date" name="observedpickupEndDateScheduling" />
+                    )}
+                  </div>
                 </Grid>
               </Grid>
 

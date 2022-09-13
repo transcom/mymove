@@ -129,3 +129,29 @@ export function updatePrimeMTOShipmentReweigh({
     { schemaKey, normalize },
   );
 }
+
+// updatePrimeMTOShipmentStatus This function is used to by the Prime Simulator
+// to send a cancellation request to the Prime API.
+export function updatePrimeMTOShipmentStatus({
+  mtoShipmentID,
+  ifMatchETag,
+  normalize = false,
+  schemaKey = 'mtoShipment',
+}) {
+  const operationPath = 'mtoShipment.updateMTOShipmentStatus';
+  // Default body is defined here as we can only send a status of CANCELED at
+  // this time. See documentation here:
+  // https://transcom.github.io/mymove-docs/api/prime#tag/mtoShipment/operation/updateMTOShipmentStatus
+  const body = {
+    status: 'CANCELED',
+  };
+  return makePrimeSimulatorRequest(
+    operationPath,
+    {
+      mtoShipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
