@@ -42,7 +42,7 @@ func IsLoggedInMiddleware(globalLogger *zap.Logger) http.HandlerFunc {
 		}
 
 		session := auth.SessionFromRequestContext(r)
-		if session != nil && session.UserID != uuid.Nil {
+		if session != nil && !session.UserID.IsNil() {
 			data["isLoggedIn"] = true
 			logger.Info("Valid session, user logged in")
 		}
@@ -119,8 +119,13 @@ func UserAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.H
 			session := auth.SessionFromRequestContext(r)
 
 			// We must have a logged in session and a user
-			if session == nil || session.UserID == uuid.Nil {
-				logger.Error("unauthorized access, no session token or user id")
+			if session == nil {
+				logger.Error("unauthorized access, no session token")
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
+			if session.UserID.IsNil() {
+				logger.Error("unauthorized access, no userid")
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
@@ -196,6 +201,9 @@ func resetUserCurrentSessionID(appCtx appcontext.AppContext) error {
 
 func currentUser(appCtx appcontext.AppContext) (*models.User, error) {
 	userID := appCtx.Session().UserID
+	if userID.IsNil() {
+		return nil, errors.New("No current user")
+	}
 	user, err := models.GetUser(appCtx.DB(), userID)
 	if err != nil {
 		appCtx.Logger().Error("Getting the user", zap.String("user_id", appCtx.Session().UserID.String()), zap.Error(err))
