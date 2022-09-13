@@ -881,6 +881,30 @@ describe('ShipmentForm component', () => {
 
       expect(requiredAlerts[0]).toHaveTextContent('Required');
     });
+
+    it('marks amount requested input as min of $1 expected when conditionally displayed', async () => {
+      render(
+        <ShipmentForm {...defaultProps} isCreatePage={false} isAdvancePage selectedMoveType={SHIPMENT_OPTIONS.PPM} />,
+      );
+
+      const inputHasRequestedAdvance = screen.getByLabelText('Yes');
+
+      await userEvent.click(inputHasRequestedAdvance);
+
+      const advanceAmountRequested = screen.getByLabelText('Amount requested');
+
+      await userEvent.click(advanceAmountRequested);
+      await userEvent.type(advanceAmountRequested, '0');
+      await userEvent.tab();
+
+      await waitFor(() => {
+        expect(advanceAmountRequested).toHaveValue('0');
+
+        const requiredAlerts = screen.getAllByRole('alert');
+
+        expect(requiredAlerts[0]).toHaveTextContent('Enter an amount $1 or more.');
+      });
+    });
   });
 
   describe('creating a new PPM shipment', () => {
