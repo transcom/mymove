@@ -162,7 +162,7 @@ client_deps: .check_hosts.stamp .check_node_version.stamp .client_deps.stamp ## 
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
 
-.client_build.stamp: .check_node_version.stamp $(wildcard src/**/*)
+.client_build.stamp: .check_node_version.stamp $(shell find src -type f)
 	yarn build
 	touch .client_build.stamp
 
@@ -263,30 +263,30 @@ bin/health-checker: cmd/health-checker
 bin/iws: cmd/iws
 	go build -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
 
-PKG_GOSRC := $(wildcard pkg/**/*.go)
+PKG_GOSRC := $(shell find pkg -name '*.go')
 
-bin/milmove: $(wildcard cmd/milmove/**/*.go) $(PKG_GOSRC)
+bin/milmove: $(shell find cmd/milmove -name '*.go') $(PKG_GOSRC)
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
-bin/milmove-tasks: $(wildcard cmd/milmove-tasks/**/*.go) $(PKG_GOSRC)
+bin/milmove-tasks: $(shell find cmd/milmove-tasks -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin/prime-api-client: $(wildcard cmd/prime-api-client/**/*.go) $(PKG_GOSRC)
+bin/prime-api-client: $(shell find cmd/prime-api-client -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
 
-bin/webhook-client: $(wildcard cmd/webhook-client/**/*.go) $(PKG_GOSRC)
+bin/webhook-client: $(shell find cmd/webhook-client -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/webhook-client ./cmd/webhook-client
 
-bin/read-alb-logs: $(wildcard cmd/read-alb-logs/**/*.go) $(PKG_GOSRC)
+bin/read-alb-logs: $(shell find cmd/read-alb-logs -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
-bin/send-to-gex: $(wildcard cmd/send-to-gex/**/*.go) $(PKG_GOSRC)
+bin/send-to-gex: $(shell find cmd/send-to-gex -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
 
-bin/tls-checker: $(wildcard cmd/tls-checker/**/*.go) $(PKG_GOSRC)
+bin/tls-checker: $(shell find cmd/tls-checker -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
-bin/generate-payment-request-edi: $(wildcard cmd/generate-payment-request-edi/**/*.go) $(PKG_GOSRC)
+bin/generate-payment-request-edi: $(shell find cmd/generate-payment-request-edi -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
 
 pkg/assets/assets.go:
@@ -1141,6 +1141,10 @@ prune_volumes:  ## Prune docker volumes
 
 .PHONY: prune
 prune: prune_images prune_containers prune_volumes ## Prune docker containers, images, and volumes
+
+.PHONE: clean_server
+clean_server:
+	rm -f bin/milmove
 
 .PHONY: clean
 clean: ## Clean all generated files
