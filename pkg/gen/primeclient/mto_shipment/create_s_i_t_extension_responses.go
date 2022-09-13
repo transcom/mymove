@@ -81,7 +81,8 @@ func NewCreateSITExtensionCreated() *CreateSITExtensionCreated {
 	return &CreateSITExtensionCreated{}
 }
 
-/* CreateSITExtensionCreated describes a response with status code 201, with default header values.
+/*
+CreateSITExtensionCreated describes a response with status code 201, with default header values.
 
 Successfully created the sit extension request.
 */
@@ -89,9 +90,39 @@ type CreateSITExtensionCreated struct {
 	Payload *primemessages.SITExtension
 }
 
+// IsSuccess returns true when this create s i t extension created response has a 2xx status code
+func (o *CreateSITExtensionCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this create s i t extension created response has a 3xx status code
+func (o *CreateSITExtensionCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create s i t extension created response has a 4xx status code
+func (o *CreateSITExtensionCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create s i t extension created response has a 5xx status code
+func (o *CreateSITExtensionCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create s i t extension created response a status code equal to that given
+func (o *CreateSITExtensionCreated) IsCode(code int) bool {
+	return code == 201
+}
+
 func (o *CreateSITExtensionCreated) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionCreated  %+v", 201, o.Payload)
 }
+
+func (o *CreateSITExtensionCreated) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionCreated  %+v", 201, o.Payload)
+}
+
 func (o *CreateSITExtensionCreated) GetPayload() *primemessages.SITExtension {
 	return o.Payload
 }
@@ -113,7 +144,8 @@ func NewCreateSITExtensionBadRequest() *CreateSITExtensionBadRequest {
 	return &CreateSITExtensionBadRequest{}
 }
 
-/* CreateSITExtensionBadRequest describes a response with status code 400, with default header values.
+/*
+CreateSITExtensionBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -121,9 +153,39 @@ type CreateSITExtensionBadRequest struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create s i t extension bad request response has a 2xx status code
+func (o *CreateSITExtensionBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create s i t extension bad request response has a 3xx status code
+func (o *CreateSITExtensionBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create s i t extension bad request response has a 4xx status code
+func (o *CreateSITExtensionBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create s i t extension bad request response has a 5xx status code
+func (o *CreateSITExtensionBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create s i t extension bad request response a status code equal to that given
+func (o *CreateSITExtensionBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *CreateSITExtensionBadRequest) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *CreateSITExtensionBadRequest) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *CreateSITExtensionBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -145,7 +207,8 @@ func NewCreateSITExtensionUnauthorized() *CreateSITExtensionUnauthorized {
 	return &CreateSITExtensionUnauthorized{}
 }
 
-/* CreateSITExtensionUnauthorized describes a response with status code 401, with default header values.
+/*
+CreateSITExtensionUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -153,9 +216,39 @@ type CreateSITExtensionUnauthorized struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create s i t extension unauthorized response has a 2xx status code
+func (o *CreateSITExtensionUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create s i t extension unauthorized response has a 3xx status code
+func (o *CreateSITExtensionUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create s i t extension unauthorized response has a 4xx status code
+func (o *CreateSITExtensionUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create s i t extension unauthorized response has a 5xx status code
+func (o *CreateSITExtensionUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create s i t extension unauthorized response a status code equal to that given
+func (o *CreateSITExtensionUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *CreateSITExtensionUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *CreateSITExtensionUnauthorized) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *CreateSITExtensionUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -177,7 +270,8 @@ func NewCreateSITExtensionForbidden() *CreateSITExtensionForbidden {
 	return &CreateSITExtensionForbidden{}
 }
 
-/* CreateSITExtensionForbidden describes a response with status code 403, with default header values.
+/*
+CreateSITExtensionForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -185,9 +279,39 @@ type CreateSITExtensionForbidden struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create s i t extension forbidden response has a 2xx status code
+func (o *CreateSITExtensionForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create s i t extension forbidden response has a 3xx status code
+func (o *CreateSITExtensionForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create s i t extension forbidden response has a 4xx status code
+func (o *CreateSITExtensionForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create s i t extension forbidden response has a 5xx status code
+func (o *CreateSITExtensionForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create s i t extension forbidden response a status code equal to that given
+func (o *CreateSITExtensionForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *CreateSITExtensionForbidden) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionForbidden  %+v", 403, o.Payload)
 }
+
+func (o *CreateSITExtensionForbidden) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionForbidden  %+v", 403, o.Payload)
+}
+
 func (o *CreateSITExtensionForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -209,7 +333,8 @@ func NewCreateSITExtensionNotFound() *CreateSITExtensionNotFound {
 	return &CreateSITExtensionNotFound{}
 }
 
-/* CreateSITExtensionNotFound describes a response with status code 404, with default header values.
+/*
+CreateSITExtensionNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -217,9 +342,39 @@ type CreateSITExtensionNotFound struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create s i t extension not found response has a 2xx status code
+func (o *CreateSITExtensionNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create s i t extension not found response has a 3xx status code
+func (o *CreateSITExtensionNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create s i t extension not found response has a 4xx status code
+func (o *CreateSITExtensionNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create s i t extension not found response has a 5xx status code
+func (o *CreateSITExtensionNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create s i t extension not found response a status code equal to that given
+func (o *CreateSITExtensionNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *CreateSITExtensionNotFound) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionNotFound  %+v", 404, o.Payload)
 }
+
+func (o *CreateSITExtensionNotFound) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionNotFound  %+v", 404, o.Payload)
+}
+
 func (o *CreateSITExtensionNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -241,7 +396,8 @@ func NewCreateSITExtensionConflict() *CreateSITExtensionConflict {
 	return &CreateSITExtensionConflict{}
 }
 
-/* CreateSITExtensionConflict describes a response with status code 409, with default header values.
+/*
+CreateSITExtensionConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -249,9 +405,39 @@ type CreateSITExtensionConflict struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create s i t extension conflict response has a 2xx status code
+func (o *CreateSITExtensionConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create s i t extension conflict response has a 3xx status code
+func (o *CreateSITExtensionConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create s i t extension conflict response has a 4xx status code
+func (o *CreateSITExtensionConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create s i t extension conflict response has a 5xx status code
+func (o *CreateSITExtensionConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create s i t extension conflict response a status code equal to that given
+func (o *CreateSITExtensionConflict) IsCode(code int) bool {
+	return code == 409
+}
+
 func (o *CreateSITExtensionConflict) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionConflict  %+v", 409, o.Payload)
 }
+
+func (o *CreateSITExtensionConflict) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionConflict  %+v", 409, o.Payload)
+}
+
 func (o *CreateSITExtensionConflict) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -273,7 +459,8 @@ func NewCreateSITExtensionUnprocessableEntity() *CreateSITExtensionUnprocessable
 	return &CreateSITExtensionUnprocessableEntity{}
 }
 
-/* CreateSITExtensionUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+CreateSITExtensionUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -281,9 +468,39 @@ type CreateSITExtensionUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
 }
 
+// IsSuccess returns true when this create s i t extension unprocessable entity response has a 2xx status code
+func (o *CreateSITExtensionUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create s i t extension unprocessable entity response has a 3xx status code
+func (o *CreateSITExtensionUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create s i t extension unprocessable entity response has a 4xx status code
+func (o *CreateSITExtensionUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create s i t extension unprocessable entity response has a 5xx status code
+func (o *CreateSITExtensionUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create s i t extension unprocessable entity response a status code equal to that given
+func (o *CreateSITExtensionUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *CreateSITExtensionUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *CreateSITExtensionUnprocessableEntity) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *CreateSITExtensionUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -305,7 +522,8 @@ func NewCreateSITExtensionInternalServerError() *CreateSITExtensionInternalServe
 	return &CreateSITExtensionInternalServerError{}
 }
 
-/* CreateSITExtensionInternalServerError describes a response with status code 500, with default header values.
+/*
+CreateSITExtensionInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -313,9 +531,39 @@ type CreateSITExtensionInternalServerError struct {
 	Payload *primemessages.Error
 }
 
+// IsSuccess returns true when this create s i t extension internal server error response has a 2xx status code
+func (o *CreateSITExtensionInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create s i t extension internal server error response has a 3xx status code
+func (o *CreateSITExtensionInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create s i t extension internal server error response has a 4xx status code
+func (o *CreateSITExtensionInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create s i t extension internal server error response has a 5xx status code
+func (o *CreateSITExtensionInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this create s i t extension internal server error response a status code equal to that given
+func (o *CreateSITExtensionInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *CreateSITExtensionInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *CreateSITExtensionInternalServerError) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/sit-extensions][%d] createSITExtensionInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *CreateSITExtensionInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

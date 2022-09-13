@@ -29,12 +29,12 @@ func NewUpdateMovingExpense(ctx *middleware.Context, handler UpdateMovingExpense
 	return &UpdateMovingExpense{Context: ctx, Handler: handler}
 }
 
-/* UpdateMovingExpense swagger:route PATCH /ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId} ppm updateMovingExpense
+/*
+	UpdateMovingExpense swagger:route PATCH /ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId} ppm updateMovingExpense
 
-Updates the moving expense
+# Updates the moving expense
 
 Any fields sent in this request will be set on the moving expense referenced
-
 */
 type UpdateMovingExpense struct {
 	Context *middleware.Context

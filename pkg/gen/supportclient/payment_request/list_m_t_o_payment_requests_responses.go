@@ -69,7 +69,8 @@ func NewListMTOPaymentRequestsOK() *ListMTOPaymentRequestsOK {
 	return &ListMTOPaymentRequestsOK{}
 }
 
-/* ListMTOPaymentRequestsOK describes a response with status code 200, with default header values.
+/*
+ListMTOPaymentRequestsOK describes a response with status code 200, with default header values.
 
 Successfully retrieved payment requests associated with a given move task order
 */
@@ -77,9 +78,39 @@ type ListMTOPaymentRequestsOK struct {
 	Payload supportmessages.PaymentRequests
 }
 
+// IsSuccess returns true when this list m t o payment requests o k response has a 2xx status code
+func (o *ListMTOPaymentRequestsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list m t o payment requests o k response has a 3xx status code
+func (o *ListMTOPaymentRequestsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list m t o payment requests o k response has a 4xx status code
+func (o *ListMTOPaymentRequestsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list m t o payment requests o k response has a 5xx status code
+func (o *ListMTOPaymentRequestsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list m t o payment requests o k response a status code equal to that given
+func (o *ListMTOPaymentRequestsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ListMTOPaymentRequestsOK) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsOK  %+v", 200, o.Payload)
 }
+
+func (o *ListMTOPaymentRequestsOK) String() string {
+	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsOK  %+v", 200, o.Payload)
+}
+
 func (o *ListMTOPaymentRequestsOK) GetPayload() supportmessages.PaymentRequests {
 	return o.Payload
 }
@@ -99,7 +130,8 @@ func NewListMTOPaymentRequestsBadRequest() *ListMTOPaymentRequestsBadRequest {
 	return &ListMTOPaymentRequestsBadRequest{}
 }
 
-/* ListMTOPaymentRequestsBadRequest describes a response with status code 400, with default header values.
+/*
+ListMTOPaymentRequestsBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -107,9 +139,39 @@ type ListMTOPaymentRequestsBadRequest struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this list m t o payment requests bad request response has a 2xx status code
+func (o *ListMTOPaymentRequestsBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this list m t o payment requests bad request response has a 3xx status code
+func (o *ListMTOPaymentRequestsBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list m t o payment requests bad request response has a 4xx status code
+func (o *ListMTOPaymentRequestsBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this list m t o payment requests bad request response has a 5xx status code
+func (o *ListMTOPaymentRequestsBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list m t o payment requests bad request response a status code equal to that given
+func (o *ListMTOPaymentRequestsBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *ListMTOPaymentRequestsBadRequest) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *ListMTOPaymentRequestsBadRequest) String() string {
+	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *ListMTOPaymentRequestsBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -131,7 +193,8 @@ func NewListMTOPaymentRequestsUnauthorized() *ListMTOPaymentRequestsUnauthorized
 	return &ListMTOPaymentRequestsUnauthorized{}
 }
 
-/* ListMTOPaymentRequestsUnauthorized describes a response with status code 401, with default header values.
+/*
+ListMTOPaymentRequestsUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -139,9 +202,39 @@ type ListMTOPaymentRequestsUnauthorized struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this list m t o payment requests unauthorized response has a 2xx status code
+func (o *ListMTOPaymentRequestsUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this list m t o payment requests unauthorized response has a 3xx status code
+func (o *ListMTOPaymentRequestsUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list m t o payment requests unauthorized response has a 4xx status code
+func (o *ListMTOPaymentRequestsUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this list m t o payment requests unauthorized response has a 5xx status code
+func (o *ListMTOPaymentRequestsUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list m t o payment requests unauthorized response a status code equal to that given
+func (o *ListMTOPaymentRequestsUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *ListMTOPaymentRequestsUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *ListMTOPaymentRequestsUnauthorized) String() string {
+	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *ListMTOPaymentRequestsUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -163,7 +256,8 @@ func NewListMTOPaymentRequestsForbidden() *ListMTOPaymentRequestsForbidden {
 	return &ListMTOPaymentRequestsForbidden{}
 }
 
-/* ListMTOPaymentRequestsForbidden describes a response with status code 403, with default header values.
+/*
+ListMTOPaymentRequestsForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -171,9 +265,39 @@ type ListMTOPaymentRequestsForbidden struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this list m t o payment requests forbidden response has a 2xx status code
+func (o *ListMTOPaymentRequestsForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this list m t o payment requests forbidden response has a 3xx status code
+func (o *ListMTOPaymentRequestsForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list m t o payment requests forbidden response has a 4xx status code
+func (o *ListMTOPaymentRequestsForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this list m t o payment requests forbidden response has a 5xx status code
+func (o *ListMTOPaymentRequestsForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list m t o payment requests forbidden response a status code equal to that given
+func (o *ListMTOPaymentRequestsForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *ListMTOPaymentRequestsForbidden) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsForbidden  %+v", 403, o.Payload)
 }
+
+func (o *ListMTOPaymentRequestsForbidden) String() string {
+	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsForbidden  %+v", 403, o.Payload)
+}
+
 func (o *ListMTOPaymentRequestsForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -195,7 +319,8 @@ func NewListMTOPaymentRequestsNotFound() *ListMTOPaymentRequestsNotFound {
 	return &ListMTOPaymentRequestsNotFound{}
 }
 
-/* ListMTOPaymentRequestsNotFound describes a response with status code 404, with default header values.
+/*
+ListMTOPaymentRequestsNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -203,9 +328,39 @@ type ListMTOPaymentRequestsNotFound struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this list m t o payment requests not found response has a 2xx status code
+func (o *ListMTOPaymentRequestsNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this list m t o payment requests not found response has a 3xx status code
+func (o *ListMTOPaymentRequestsNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list m t o payment requests not found response has a 4xx status code
+func (o *ListMTOPaymentRequestsNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this list m t o payment requests not found response has a 5xx status code
+func (o *ListMTOPaymentRequestsNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list m t o payment requests not found response a status code equal to that given
+func (o *ListMTOPaymentRequestsNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *ListMTOPaymentRequestsNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsNotFound  %+v", 404, o.Payload)
 }
+
+func (o *ListMTOPaymentRequestsNotFound) String() string {
+	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsNotFound  %+v", 404, o.Payload)
+}
+
 func (o *ListMTOPaymentRequestsNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -227,7 +382,8 @@ func NewListMTOPaymentRequestsInternalServerError() *ListMTOPaymentRequestsInter
 	return &ListMTOPaymentRequestsInternalServerError{}
 }
 
-/* ListMTOPaymentRequestsInternalServerError describes a response with status code 500, with default header values.
+/*
+ListMTOPaymentRequestsInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -235,9 +391,39 @@ type ListMTOPaymentRequestsInternalServerError struct {
 	Payload *supportmessages.Error
 }
 
+// IsSuccess returns true when this list m t o payment requests internal server error response has a 2xx status code
+func (o *ListMTOPaymentRequestsInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this list m t o payment requests internal server error response has a 3xx status code
+func (o *ListMTOPaymentRequestsInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list m t o payment requests internal server error response has a 4xx status code
+func (o *ListMTOPaymentRequestsInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list m t o payment requests internal server error response has a 5xx status code
+func (o *ListMTOPaymentRequestsInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this list m t o payment requests internal server error response a status code equal to that given
+func (o *ListMTOPaymentRequestsInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *ListMTOPaymentRequestsInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *ListMTOPaymentRequestsInternalServerError) String() string {
+	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/payment-requests][%d] listMTOPaymentRequestsInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *ListMTOPaymentRequestsInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

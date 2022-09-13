@@ -29,7 +29,8 @@ func NewUpdateMTOPostCounselingInformation(ctx *middleware.Context, handler Upda
 	return &UpdateMTOPostCounselingInformation{Context: ctx, Handler: handler}
 }
 
-/* UpdateMTOPostCounselingInformation swagger:route PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info moveTaskOrder updateMTOPostCounselingInformation
+/*
+	UpdateMTOPostCounselingInformation swagger:route PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info moveTaskOrder updateMTOPostCounselingInformation
 
 updateMTOPostCounselingInformation
 
@@ -37,8 +38,6 @@ updateMTOPostCounselingInformation
 This endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.
 
 PPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).
-
-
 */
 type UpdateMTOPostCounselingInformation struct {
 	Context *middleware.Context

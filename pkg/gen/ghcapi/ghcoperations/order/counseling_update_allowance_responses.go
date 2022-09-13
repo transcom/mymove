@@ -16,7 +16,8 @@ import (
 // CounselingUpdateAllowanceOKCode is the HTTP code returned for type CounselingUpdateAllowanceOK
 const CounselingUpdateAllowanceOKCode int = 200
 
-/*CounselingUpdateAllowanceOK updated instance of allowance
+/*
+CounselingUpdateAllowanceOK updated instance of allowance
 
 swagger:response counselingUpdateAllowanceOK
 */
@@ -60,7 +61,8 @@ func (o *CounselingUpdateAllowanceOK) WriteResponse(rw http.ResponseWriter, prod
 // CounselingUpdateAllowanceForbiddenCode is the HTTP code returned for type CounselingUpdateAllowanceForbidden
 const CounselingUpdateAllowanceForbiddenCode int = 403
 
-/*CounselingUpdateAllowanceForbidden The request was denied
+/*
+CounselingUpdateAllowanceForbidden The request was denied
 
 swagger:response counselingUpdateAllowanceForbidden
 */
@@ -104,7 +106,8 @@ func (o *CounselingUpdateAllowanceForbidden) WriteResponse(rw http.ResponseWrite
 // CounselingUpdateAllowanceNotFoundCode is the HTTP code returned for type CounselingUpdateAllowanceNotFound
 const CounselingUpdateAllowanceNotFoundCode int = 404
 
-/*CounselingUpdateAllowanceNotFound The requested resource wasn't found
+/*
+CounselingUpdateAllowanceNotFound The requested resource wasn't found
 
 swagger:response counselingUpdateAllowanceNotFound
 */
@@ -148,7 +151,8 @@ func (o *CounselingUpdateAllowanceNotFound) WriteResponse(rw http.ResponseWriter
 // CounselingUpdateAllowancePreconditionFailedCode is the HTTP code returned for type CounselingUpdateAllowancePreconditionFailed
 const CounselingUpdateAllowancePreconditionFailedCode int = 412
 
-/*CounselingUpdateAllowancePreconditionFailed Precondition failed
+/*
+CounselingUpdateAllowancePreconditionFailed Precondition failed
 
 swagger:response counselingUpdateAllowancePreconditionFailed
 */
@@ -192,7 +196,8 @@ func (o *CounselingUpdateAllowancePreconditionFailed) WriteResponse(rw http.Resp
 // CounselingUpdateAllowanceUnprocessableEntityCode is the HTTP code returned for type CounselingUpdateAllowanceUnprocessableEntity
 const CounselingUpdateAllowanceUnprocessableEntityCode int = 422
 
-/*CounselingUpdateAllowanceUnprocessableEntity The payload was unprocessable.
+/*
+CounselingUpdateAllowanceUnprocessableEntity The payload was unprocessable.
 
 swagger:response counselingUpdateAllowanceUnprocessableEntity
 */
@@ -236,7 +241,8 @@ func (o *CounselingUpdateAllowanceUnprocessableEntity) WriteResponse(rw http.Res
 // CounselingUpdateAllowanceInternalServerErrorCode is the HTTP code returned for type CounselingUpdateAllowanceInternalServerError
 const CounselingUpdateAllowanceInternalServerErrorCode int = 500
 
-/*CounselingUpdateAllowanceInternalServerError A server error occurred
+/*
+CounselingUpdateAllowanceInternalServerError A server error occurred
 
 swagger:response counselingUpdateAllowanceInternalServerError
 */

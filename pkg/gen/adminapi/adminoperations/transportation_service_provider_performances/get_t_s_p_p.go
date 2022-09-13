@@ -29,12 +29,12 @@ func NewGetTSPP(ctx *middleware.Context, handler GetTSPPHandler) *GetTSPP {
 	return &GetTSPP{Context: ctx, Handler: handler}
 }
 
-/* GetTSPP swagger:route GET /transportation_service_provider_performances/{tsppId} transportation_service_provider_performances getTSPP
+/*
+	GetTSPP swagger:route GET /transportation_service_provider_performances/{tsppId} transportation_service_provider_performances getTSPP
 
-Fetch a specific tspp
+# Fetch a specific tspp
 
 Returns a single tspp
-
 */
 type GetTSPP struct {
 	Context *middleware.Context

@@ -29,12 +29,12 @@ func NewGetCustomerSupportRemarksForMove(ctx *middleware.Context, handler GetCus
 	return &GetCustomerSupportRemarksForMove{Context: ctx, Handler: handler}
 }
 
-/* GetCustomerSupportRemarksForMove swagger:route GET /moves/{locator}/customer-support-remarks customerSupportRemarks getCustomerSupportRemarksForMove
+/*
+	GetCustomerSupportRemarksForMove swagger:route GET /moves/{locator}/customer-support-remarks customerSupportRemarks getCustomerSupportRemarksForMove
 
 Fetches customer support remarks using the move code (locator).
 
 Fetches customer support remarks for a move
-
 */
 type GetCustomerSupportRemarksForMove struct {
 	Context *middleware.Context

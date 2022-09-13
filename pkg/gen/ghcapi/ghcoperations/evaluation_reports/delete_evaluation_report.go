@@ -29,12 +29,12 @@ func NewDeleteEvaluationReport(ctx *middleware.Context, handler DeleteEvaluation
 	return &DeleteEvaluationReport{Context: ctx, Handler: handler}
 }
 
-/* DeleteEvaluationReport swagger:route DELETE /evaluation-reports/{reportID} evaluationReports deleteEvaluationReport
+/*
+	DeleteEvaluationReport swagger:route DELETE /evaluation-reports/{reportID} evaluationReports deleteEvaluationReport
+
+# Soft deletes an evaluation report by ID
 
 Soft deletes an evaluation report by ID
-
-Soft deletes an evaluation report by ID
-
 */
 type DeleteEvaluationReport struct {
 	Context *middleware.Context

@@ -38,10 +38,9 @@ type ClientService interface {
 }
 
 /*
-  CreateWebhookNotification tests endpoint for creating webhook notifications
+CreateWebhookNotification tests endpoint for creating webhook notifications
 
-  This endpoint creates a webhook notification in the database. If the webhook client is running, it may send the notification soon after creation.
-
+This endpoint creates a webhook notification in the database. If the webhook client is running, it may send the notification soon after creation.
 */
 func (a *Client) CreateWebhookNotification(params *CreateWebhookNotificationParams, opts ...ClientOption) (*CreateWebhookNotificationCreated, error) {
 	// TODO: Validate the params before sending
@@ -79,10 +78,9 @@ func (a *Client) CreateWebhookNotification(params *CreateWebhookNotificationPara
 }
 
 /*
-  ReceiveWebhookNotification tests endpoint for receiving messages from our own webhook client
+ReceiveWebhookNotification tests endpoint for receiving messages from our own webhook client
 
-  This endpoint receives a notification that matches the webhook notification model. This is a test endpoint that represents a receiving server. In production, the Prime will set up a receiving endpoint. In testing, this server accepts notifications at this endpoint and simply responds with success and logs them. The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
-
+This endpoint receives a notification that matches the webhook notification model. This is a test endpoint that represents a receiving server. In production, the Prime will set up a receiving endpoint. In testing, this server accepts notifications at this endpoint and simply responds with success and logs them. The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
 */
 func (a *Client) ReceiveWebhookNotification(params *ReceiveWebhookNotificationParams, opts ...ClientOption) (*ReceiveWebhookNotificationOK, error) {
 	// TODO: Validate the params before sending

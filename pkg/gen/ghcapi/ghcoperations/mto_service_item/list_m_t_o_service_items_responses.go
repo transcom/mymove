@@ -16,7 +16,8 @@ import (
 // ListMTOServiceItemsOKCode is the HTTP code returned for type ListMTOServiceItemsOK
 const ListMTOServiceItemsOKCode int = 200
 
-/*ListMTOServiceItemsOK Successfully retrieved all line items for a move task order
+/*
+ListMTOServiceItemsOK Successfully retrieved all line items for a move task order
 
 swagger:response listMTOServiceItemsOK
 */
@@ -63,7 +64,8 @@ func (o *ListMTOServiceItemsOK) WriteResponse(rw http.ResponseWriter, producer r
 // ListMTOServiceItemsNotFoundCode is the HTTP code returned for type ListMTOServiceItemsNotFound
 const ListMTOServiceItemsNotFoundCode int = 404
 
-/*ListMTOServiceItemsNotFound The requested resource wasn't found
+/*
+ListMTOServiceItemsNotFound The requested resource wasn't found
 
 swagger:response listMTOServiceItemsNotFound
 */
@@ -107,7 +109,8 @@ func (o *ListMTOServiceItemsNotFound) WriteResponse(rw http.ResponseWriter, prod
 // ListMTOServiceItemsUnprocessableEntityCode is the HTTP code returned for type ListMTOServiceItemsUnprocessableEntity
 const ListMTOServiceItemsUnprocessableEntityCode int = 422
 
-/*ListMTOServiceItemsUnprocessableEntity The payload was unprocessable.
+/*
+ListMTOServiceItemsUnprocessableEntity The payload was unprocessable.
 
 swagger:response listMTOServiceItemsUnprocessableEntity
 */
@@ -151,7 +154,8 @@ func (o *ListMTOServiceItemsUnprocessableEntity) WriteResponse(rw http.ResponseW
 // ListMTOServiceItemsInternalServerErrorCode is the HTTP code returned for type ListMTOServiceItemsInternalServerError
 const ListMTOServiceItemsInternalServerErrorCode int = 500
 
-/*ListMTOServiceItemsInternalServerError A server error occurred
+/*
+ListMTOServiceItemsInternalServerError A server error occurred
 
 swagger:response listMTOServiceItemsInternalServerError
 */

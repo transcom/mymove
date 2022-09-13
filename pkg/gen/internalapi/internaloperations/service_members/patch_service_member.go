@@ -29,12 +29,12 @@ func NewPatchServiceMember(ctx *middleware.Context, handler PatchServiceMemberHa
 	return &PatchServiceMember{Context: ctx, Handler: handler}
 }
 
-/* PatchServiceMember swagger:route PATCH /service_members/{serviceMemberId} service_members patchServiceMember
+/*
+	PatchServiceMember swagger:route PATCH /service_members/{serviceMemberId} service_members patchServiceMember
 
-Patches the service member
+# Patches the service member
 
 Any fields sent in this request will be set on the service member referenced
-
 */
 type PatchServiceMember struct {
 	Context *middleware.Context

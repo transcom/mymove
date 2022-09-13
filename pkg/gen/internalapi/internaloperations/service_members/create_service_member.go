@@ -29,12 +29,12 @@ func NewCreateServiceMember(ctx *middleware.Context, handler CreateServiceMember
 	return &CreateServiceMember{Context: ctx, Handler: handler}
 }
 
-/* CreateServiceMember swagger:route POST /service_members service_members createServiceMember
+/*
+	CreateServiceMember swagger:route POST /service_members service_members createServiceMember
 
-Creates service member for a logged-in user
+# Creates service member for a logged-in user
 
 Creates an instance of a service member tied to a user
-
 */
 type CreateServiceMember struct {
 	Context *middleware.Context
