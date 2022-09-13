@@ -213,14 +213,14 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const recievingAgentFlags = getDisplayFlags('recievingAgent');
+  const receivingAgentFlags = getDisplayFlags('receivingAgent');
   const receivingAgentElement = !receivingAgent ? (
-    <div className={recievingAgentFlags.classes}>
+    <div className={receivingAgentFlags.classes}>
       <dt>Receiving agent</dt>
       <dd data-testid="RECEIVING_AGENT">—</dd>
     </div>
   ) : (
-    <div className={recievingAgentFlags.classes} key={`${receivingAgent.agentType}-${receivingAgent.email}`}>
+    <div className={receivingAgentFlags.classes} key={`${receivingAgent.agentType}-${receivingAgent.email}`}>
       <dt>Receiving agent</dt>
       <dd data-testid={receivingAgent.agentType}>{formatAgent(receivingAgent)}</dd>
     </div>
