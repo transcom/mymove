@@ -218,19 +218,17 @@ func userWithServicesCounselorRole(appCtx appcontext.AppContext) {
 	})
 }
 
-func userWithQAECSRRole(appCtx appcontext.AppContext) {
+func userWithQAECSRRole(appCtx appcontext.AppContext, userID uuid.UUID, email string) {
 	qaecsrRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaecsrRole)
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to find RoleTypeQAECSR in the DB: %w", err))
 	}
 
-	email := "qaecsr_role@office.mil"
-	qaecsrUUID := uuid.Must(uuid.FromString("2419b1d6-097f-4dc4-8171-8f858967b4db"))
 	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
 		User: models.User{
-			ID:            qaecsrUUID,
+			ID:            userID,
 			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
@@ -239,10 +237,9 @@ func userWithQAECSRRole(appCtx appcontext.AppContext) {
 	})
 	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("0e436f0c-6bbd-4024-91c8-ceb0d153ad81"),
 			Email:  email,
 			Active: true,
-			UserID: &qaecsrUUID,
+			UserID: &userID,
 		},
 		TransportationOffice: models.TransportationOffice{
 			Gbloc: "KKFA",
@@ -3964,7 +3961,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	userWithRoles(appCtx)
 	userWithTOORole(appCtx)
 	userWithTIORole(appCtx)
-	userWithQAECSRRole(appCtx)
+	userWithQAECSRRole(appCtx, uuid.Must(uuid.FromString("2419b1d6-097f-4dc4-8171-8f858967b4db")), "qaecsr_role@office.mil")
+	userWithQAECSRRole(appCtx, uuid.Must(uuid.FromString("7f45b6bc-1131-4c9a-85ef-24552979d28d")), "qaecsr_role2@office.mil")
 	userWithServicesCounselorRole(appCtx)
 	userWithTOOandTIORole(appCtx)
 	userWithTOOandTIOandQAECSRRole(appCtx)
