@@ -16,7 +16,8 @@ import (
 // ApproveShipmentOKCode is the HTTP code returned for type ApproveShipmentOK
 const ApproveShipmentOKCode int = 200
 
-/*ApproveShipmentOK Successfully approved the shipment
+/*
+ApproveShipmentOK Successfully approved the shipment
 
 swagger:response approveShipmentOK
 */
@@ -60,7 +61,8 @@ func (o *ApproveShipmentOK) WriteResponse(rw http.ResponseWriter, producer runti
 // ApproveShipmentForbiddenCode is the HTTP code returned for type ApproveShipmentForbidden
 const ApproveShipmentForbiddenCode int = 403
 
-/*ApproveShipmentForbidden The request was denied
+/*
+ApproveShipmentForbidden The request was denied
 
 swagger:response approveShipmentForbidden
 */
@@ -104,7 +106,8 @@ func (o *ApproveShipmentForbidden) WriteResponse(rw http.ResponseWriter, produce
 // ApproveShipmentNotFoundCode is the HTTP code returned for type ApproveShipmentNotFound
 const ApproveShipmentNotFoundCode int = 404
 
-/*ApproveShipmentNotFound The requested resource wasn't found
+/*
+ApproveShipmentNotFound The requested resource wasn't found
 
 swagger:response approveShipmentNotFound
 */
@@ -148,7 +151,8 @@ func (o *ApproveShipmentNotFound) WriteResponse(rw http.ResponseWriter, producer
 // ApproveShipmentConflictCode is the HTTP code returned for type ApproveShipmentConflict
 const ApproveShipmentConflictCode int = 409
 
-/*ApproveShipmentConflict Conflict error
+/*
+ApproveShipmentConflict Conflict error
 
 swagger:response approveShipmentConflict
 */
@@ -192,7 +196,8 @@ func (o *ApproveShipmentConflict) WriteResponse(rw http.ResponseWriter, producer
 // ApproveShipmentPreconditionFailedCode is the HTTP code returned for type ApproveShipmentPreconditionFailed
 const ApproveShipmentPreconditionFailedCode int = 412
 
-/*ApproveShipmentPreconditionFailed Precondition failed
+/*
+ApproveShipmentPreconditionFailed Precondition failed
 
 swagger:response approveShipmentPreconditionFailed
 */
@@ -236,7 +241,8 @@ func (o *ApproveShipmentPreconditionFailed) WriteResponse(rw http.ResponseWriter
 // ApproveShipmentUnprocessableEntityCode is the HTTP code returned for type ApproveShipmentUnprocessableEntity
 const ApproveShipmentUnprocessableEntityCode int = 422
 
-/*ApproveShipmentUnprocessableEntity The payload was unprocessable.
+/*
+ApproveShipmentUnprocessableEntity The payload was unprocessable.
 
 swagger:response approveShipmentUnprocessableEntity
 */
@@ -280,7 +286,8 @@ func (o *ApproveShipmentUnprocessableEntity) WriteResponse(rw http.ResponseWrite
 // ApproveShipmentInternalServerErrorCode is the HTTP code returned for type ApproveShipmentInternalServerError
 const ApproveShipmentInternalServerErrorCode int = 500
 
-/*ApproveShipmentInternalServerError A server error occurred
+/*
+ApproveShipmentInternalServerError A server error occurred
 
 swagger:response approveShipmentInternalServerError
 */

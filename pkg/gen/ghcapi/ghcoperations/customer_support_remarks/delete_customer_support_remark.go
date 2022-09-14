@@ -29,12 +29,12 @@ func NewDeleteCustomerSupportRemark(ctx *middleware.Context, handler DeleteCusto
 	return &DeleteCustomerSupportRemark{Context: ctx, Handler: handler}
 }
 
-/* DeleteCustomerSupportRemark swagger:route DELETE /customer-support-remarks/{customerSupportRemarkID} customerSupportRemarks deleteCustomerSupportRemark
+/*
+	DeleteCustomerSupportRemark swagger:route DELETE /customer-support-remarks/{customerSupportRemarkID} customerSupportRemarks deleteCustomerSupportRemark
+
+# Soft deletes a customer support remark by ID
 
 Soft deletes a customer support remark by ID
-
-Soft deletes a customer support remark by ID
-
 */
 type DeleteCustomerSupportRemark struct {
 	Context *middleware.Context

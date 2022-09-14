@@ -16,7 +16,8 @@ import (
 // UpdateBillableWeightOKCode is the HTTP code returned for type UpdateBillableWeightOK
 const UpdateBillableWeightOKCode int = 200
 
-/*UpdateBillableWeightOK updated Order
+/*
+UpdateBillableWeightOK updated Order
 
 swagger:response updateBillableWeightOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateBillableWeightOK) WriteResponse(rw http.ResponseWriter, producer 
 // UpdateBillableWeightForbiddenCode is the HTTP code returned for type UpdateBillableWeightForbidden
 const UpdateBillableWeightForbiddenCode int = 403
 
-/*UpdateBillableWeightForbidden The request was denied
+/*
+UpdateBillableWeightForbidden The request was denied
 
 swagger:response updateBillableWeightForbidden
 */
@@ -104,7 +106,8 @@ func (o *UpdateBillableWeightForbidden) WriteResponse(rw http.ResponseWriter, pr
 // UpdateBillableWeightNotFoundCode is the HTTP code returned for type UpdateBillableWeightNotFound
 const UpdateBillableWeightNotFoundCode int = 404
 
-/*UpdateBillableWeightNotFound The requested resource wasn't found
+/*
+UpdateBillableWeightNotFound The requested resource wasn't found
 
 swagger:response updateBillableWeightNotFound
 */
@@ -148,7 +151,8 @@ func (o *UpdateBillableWeightNotFound) WriteResponse(rw http.ResponseWriter, pro
 // UpdateBillableWeightPreconditionFailedCode is the HTTP code returned for type UpdateBillableWeightPreconditionFailed
 const UpdateBillableWeightPreconditionFailedCode int = 412
 
-/*UpdateBillableWeightPreconditionFailed Precondition failed
+/*
+UpdateBillableWeightPreconditionFailed Precondition failed
 
 swagger:response updateBillableWeightPreconditionFailed
 */
@@ -192,7 +196,8 @@ func (o *UpdateBillableWeightPreconditionFailed) WriteResponse(rw http.ResponseW
 // UpdateBillableWeightUnprocessableEntityCode is the HTTP code returned for type UpdateBillableWeightUnprocessableEntity
 const UpdateBillableWeightUnprocessableEntityCode int = 422
 
-/*UpdateBillableWeightUnprocessableEntity The payload was unprocessable.
+/*
+UpdateBillableWeightUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateBillableWeightUnprocessableEntity
 */
@@ -236,7 +241,8 @@ func (o *UpdateBillableWeightUnprocessableEntity) WriteResponse(rw http.Response
 // UpdateBillableWeightInternalServerErrorCode is the HTTP code returned for type UpdateBillableWeightInternalServerError
 const UpdateBillableWeightInternalServerErrorCode int = 500
 
-/*UpdateBillableWeightInternalServerError A server error occurred
+/*
+UpdateBillableWeightInternalServerError A server error occurred
 
 swagger:response updateBillableWeightInternalServerError
 */

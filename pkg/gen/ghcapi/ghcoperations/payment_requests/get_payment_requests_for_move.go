@@ -29,12 +29,12 @@ func NewGetPaymentRequestsForMove(ctx *middleware.Context, handler GetPaymentReq
 	return &GetPaymentRequestsForMove{Context: ctx, Handler: handler}
 }
 
-/* GetPaymentRequestsForMove swagger:route GET /moves/{locator}/payment-requests paymentRequests getPaymentRequestsForMove
+/*
+	GetPaymentRequestsForMove swagger:route GET /moves/{locator}/payment-requests paymentRequests getPaymentRequestsForMove
 
 Fetches payment requests using the move code (locator).
 
 Fetches payment requests for a move
-
 */
 type GetPaymentRequestsForMove struct {
 	Context *middleware.Context

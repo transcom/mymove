@@ -81,7 +81,8 @@ func NewCreateMTOServiceItemOK() *CreateMTOServiceItemOK {
 	return &CreateMTOServiceItemOK{}
 }
 
-/* CreateMTOServiceItemOK describes a response with status code 200, with default header values.
+/*
+CreateMTOServiceItemOK describes a response with status code 200, with default header values.
 
 Successfully created an MTO service item.
 */
@@ -89,9 +90,39 @@ type CreateMTOServiceItemOK struct {
 	Payload []primemessages.MTOServiceItem
 }
 
+// IsSuccess returns true when this create m t o service item o k response has a 2xx status code
+func (o *CreateMTOServiceItemOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this create m t o service item o k response has a 3xx status code
+func (o *CreateMTOServiceItemOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o service item o k response has a 4xx status code
+func (o *CreateMTOServiceItemOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create m t o service item o k response has a 5xx status code
+func (o *CreateMTOServiceItemOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o service item o k response a status code equal to that given
+func (o *CreateMTOServiceItemOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *CreateMTOServiceItemOK) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemOK  %+v", 200, o.Payload)
 }
+
+func (o *CreateMTOServiceItemOK) String() string {
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemOK  %+v", 200, o.Payload)
+}
+
 func (o *CreateMTOServiceItemOK) GetPayload() []primemessages.MTOServiceItem {
 	return o.Payload
 }
@@ -113,7 +144,8 @@ func NewCreateMTOServiceItemBadRequest() *CreateMTOServiceItemBadRequest {
 	return &CreateMTOServiceItemBadRequest{}
 }
 
-/* CreateMTOServiceItemBadRequest describes a response with status code 400, with default header values.
+/*
+CreateMTOServiceItemBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -121,9 +153,39 @@ type CreateMTOServiceItemBadRequest struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create m t o service item bad request response has a 2xx status code
+func (o *CreateMTOServiceItemBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o service item bad request response has a 3xx status code
+func (o *CreateMTOServiceItemBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o service item bad request response has a 4xx status code
+func (o *CreateMTOServiceItemBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o service item bad request response has a 5xx status code
+func (o *CreateMTOServiceItemBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o service item bad request response a status code equal to that given
+func (o *CreateMTOServiceItemBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *CreateMTOServiceItemBadRequest) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *CreateMTOServiceItemBadRequest) String() string {
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *CreateMTOServiceItemBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -145,7 +207,8 @@ func NewCreateMTOServiceItemUnauthorized() *CreateMTOServiceItemUnauthorized {
 	return &CreateMTOServiceItemUnauthorized{}
 }
 
-/* CreateMTOServiceItemUnauthorized describes a response with status code 401, with default header values.
+/*
+CreateMTOServiceItemUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -153,9 +216,39 @@ type CreateMTOServiceItemUnauthorized struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create m t o service item unauthorized response has a 2xx status code
+func (o *CreateMTOServiceItemUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o service item unauthorized response has a 3xx status code
+func (o *CreateMTOServiceItemUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o service item unauthorized response has a 4xx status code
+func (o *CreateMTOServiceItemUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o service item unauthorized response has a 5xx status code
+func (o *CreateMTOServiceItemUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o service item unauthorized response a status code equal to that given
+func (o *CreateMTOServiceItemUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *CreateMTOServiceItemUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *CreateMTOServiceItemUnauthorized) String() string {
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *CreateMTOServiceItemUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -177,7 +270,8 @@ func NewCreateMTOServiceItemForbidden() *CreateMTOServiceItemForbidden {
 	return &CreateMTOServiceItemForbidden{}
 }
 
-/* CreateMTOServiceItemForbidden describes a response with status code 403, with default header values.
+/*
+CreateMTOServiceItemForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -185,9 +279,39 @@ type CreateMTOServiceItemForbidden struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create m t o service item forbidden response has a 2xx status code
+func (o *CreateMTOServiceItemForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o service item forbidden response has a 3xx status code
+func (o *CreateMTOServiceItemForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o service item forbidden response has a 4xx status code
+func (o *CreateMTOServiceItemForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o service item forbidden response has a 5xx status code
+func (o *CreateMTOServiceItemForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o service item forbidden response a status code equal to that given
+func (o *CreateMTOServiceItemForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *CreateMTOServiceItemForbidden) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemForbidden  %+v", 403, o.Payload)
 }
+
+func (o *CreateMTOServiceItemForbidden) String() string {
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemForbidden  %+v", 403, o.Payload)
+}
+
 func (o *CreateMTOServiceItemForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -209,7 +333,8 @@ func NewCreateMTOServiceItemNotFound() *CreateMTOServiceItemNotFound {
 	return &CreateMTOServiceItemNotFound{}
 }
 
-/* CreateMTOServiceItemNotFound describes a response with status code 404, with default header values.
+/*
+CreateMTOServiceItemNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -217,9 +342,39 @@ type CreateMTOServiceItemNotFound struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create m t o service item not found response has a 2xx status code
+func (o *CreateMTOServiceItemNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o service item not found response has a 3xx status code
+func (o *CreateMTOServiceItemNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o service item not found response has a 4xx status code
+func (o *CreateMTOServiceItemNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o service item not found response has a 5xx status code
+func (o *CreateMTOServiceItemNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o service item not found response a status code equal to that given
+func (o *CreateMTOServiceItemNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *CreateMTOServiceItemNotFound) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemNotFound  %+v", 404, o.Payload)
 }
+
+func (o *CreateMTOServiceItemNotFound) String() string {
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemNotFound  %+v", 404, o.Payload)
+}
+
 func (o *CreateMTOServiceItemNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -241,7 +396,8 @@ func NewCreateMTOServiceItemConflict() *CreateMTOServiceItemConflict {
 	return &CreateMTOServiceItemConflict{}
 }
 
-/* CreateMTOServiceItemConflict describes a response with status code 409, with default header values.
+/*
+CreateMTOServiceItemConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -249,9 +405,39 @@ type CreateMTOServiceItemConflict struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create m t o service item conflict response has a 2xx status code
+func (o *CreateMTOServiceItemConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o service item conflict response has a 3xx status code
+func (o *CreateMTOServiceItemConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o service item conflict response has a 4xx status code
+func (o *CreateMTOServiceItemConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o service item conflict response has a 5xx status code
+func (o *CreateMTOServiceItemConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o service item conflict response a status code equal to that given
+func (o *CreateMTOServiceItemConflict) IsCode(code int) bool {
+	return code == 409
+}
+
 func (o *CreateMTOServiceItemConflict) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemConflict  %+v", 409, o.Payload)
 }
+
+func (o *CreateMTOServiceItemConflict) String() string {
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemConflict  %+v", 409, o.Payload)
+}
+
 func (o *CreateMTOServiceItemConflict) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -273,7 +459,8 @@ func NewCreateMTOServiceItemUnprocessableEntity() *CreateMTOServiceItemUnprocess
 	return &CreateMTOServiceItemUnprocessableEntity{}
 }
 
-/* CreateMTOServiceItemUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+CreateMTOServiceItemUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -281,9 +468,39 @@ type CreateMTOServiceItemUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
 }
 
+// IsSuccess returns true when this create m t o service item unprocessable entity response has a 2xx status code
+func (o *CreateMTOServiceItemUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o service item unprocessable entity response has a 3xx status code
+func (o *CreateMTOServiceItemUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o service item unprocessable entity response has a 4xx status code
+func (o *CreateMTOServiceItemUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o service item unprocessable entity response has a 5xx status code
+func (o *CreateMTOServiceItemUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o service item unprocessable entity response a status code equal to that given
+func (o *CreateMTOServiceItemUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *CreateMTOServiceItemUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *CreateMTOServiceItemUnprocessableEntity) String() string {
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *CreateMTOServiceItemUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -305,7 +522,8 @@ func NewCreateMTOServiceItemInternalServerError() *CreateMTOServiceItemInternalS
 	return &CreateMTOServiceItemInternalServerError{}
 }
 
-/* CreateMTOServiceItemInternalServerError describes a response with status code 500, with default header values.
+/*
+CreateMTOServiceItemInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -313,9 +531,39 @@ type CreateMTOServiceItemInternalServerError struct {
 	Payload *primemessages.Error
 }
 
+// IsSuccess returns true when this create m t o service item internal server error response has a 2xx status code
+func (o *CreateMTOServiceItemInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o service item internal server error response has a 3xx status code
+func (o *CreateMTOServiceItemInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o service item internal server error response has a 4xx status code
+func (o *CreateMTOServiceItemInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create m t o service item internal server error response has a 5xx status code
+func (o *CreateMTOServiceItemInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this create m t o service item internal server error response a status code equal to that given
+func (o *CreateMTOServiceItemInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *CreateMTOServiceItemInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *CreateMTOServiceItemInternalServerError) String() string {
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *CreateMTOServiceItemInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

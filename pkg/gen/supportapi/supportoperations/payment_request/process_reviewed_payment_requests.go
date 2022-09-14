@@ -29,7 +29,8 @@ func NewProcessReviewedPaymentRequests(ctx *middleware.Context, handler ProcessR
 	return &ProcessReviewedPaymentRequests{Context: ctx, Handler: handler}
 }
 
-/* ProcessReviewedPaymentRequests swagger:route PATCH /payment-requests/process-reviewed paymentRequest processReviewedPaymentRequests
+/*
+	ProcessReviewedPaymentRequests swagger:route PATCH /payment-requests/process-reviewed paymentRequest processReviewedPaymentRequests
 
 processReviewedPaymentRequests
 
@@ -37,8 +38,6 @@ Updates the status of reviewed payment requests and sends PRs to Syncada if
 the SendToSyncada flag is set
 
 This is a support endpoint and will not be available in production.
-
-
 */
 type ProcessReviewedPaymentRequests struct {
 	Context *middleware.Context

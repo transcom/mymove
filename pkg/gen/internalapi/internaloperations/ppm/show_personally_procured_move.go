@@ -29,12 +29,12 @@ func NewShowPersonallyProcuredMove(ctx *middleware.Context, handler ShowPersonal
 	return &ShowPersonallyProcuredMove{Context: ctx, Handler: handler}
 }
 
-/* ShowPersonallyProcuredMove swagger:route GET /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId} ppm showPersonallyProcuredMove
+/*
+	ShowPersonallyProcuredMove swagger:route GET /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId} ppm showPersonallyProcuredMove
+
+# Returns the given PPM
 
 Returns the given PPM
-
-Returns the given PPM
-
 */
 type ShowPersonallyProcuredMove struct {
 	Context *middleware.Context

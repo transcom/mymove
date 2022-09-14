@@ -16,7 +16,8 @@ import (
 // RequestPPMExpenseSummaryOKCode is the HTTP code returned for type RequestPPMExpenseSummaryOK
 const RequestPPMExpenseSummaryOKCode int = 200
 
-/*RequestPPMExpenseSummaryOK Successfully calculated expense summary
+/*
+RequestPPMExpenseSummaryOK Successfully calculated expense summary
 
 swagger:response requestPPMExpenseSummaryOK
 */
@@ -60,7 +61,8 @@ func (o *RequestPPMExpenseSummaryOK) WriteResponse(rw http.ResponseWriter, produ
 // RequestPPMExpenseSummaryBadRequestCode is the HTTP code returned for type RequestPPMExpenseSummaryBadRequest
 const RequestPPMExpenseSummaryBadRequestCode int = 400
 
-/*RequestPPMExpenseSummaryBadRequest invalid request
+/*
+RequestPPMExpenseSummaryBadRequest invalid request
 
 swagger:response requestPPMExpenseSummaryBadRequest
 */
@@ -84,7 +86,8 @@ func (o *RequestPPMExpenseSummaryBadRequest) WriteResponse(rw http.ResponseWrite
 // RequestPPMExpenseSummaryUnauthorizedCode is the HTTP code returned for type RequestPPMExpenseSummaryUnauthorized
 const RequestPPMExpenseSummaryUnauthorizedCode int = 401
 
-/*RequestPPMExpenseSummaryUnauthorized request requires user authentication
+/*
+RequestPPMExpenseSummaryUnauthorized request requires user authentication
 
 swagger:response requestPPMExpenseSummaryUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *RequestPPMExpenseSummaryUnauthorized) WriteResponse(rw http.ResponseWri
 // RequestPPMExpenseSummaryForbiddenCode is the HTTP code returned for type RequestPPMExpenseSummaryForbidden
 const RequestPPMExpenseSummaryForbiddenCode int = 403
 
-/*RequestPPMExpenseSummaryForbidden user is not authorized
+/*
+RequestPPMExpenseSummaryForbidden user is not authorized
 
 swagger:response requestPPMExpenseSummaryForbidden
 */
@@ -132,7 +136,8 @@ func (o *RequestPPMExpenseSummaryForbidden) WriteResponse(rw http.ResponseWriter
 // RequestPPMExpenseSummaryNotFoundCode is the HTTP code returned for type RequestPPMExpenseSummaryNotFound
 const RequestPPMExpenseSummaryNotFoundCode int = 404
 
-/*RequestPPMExpenseSummaryNotFound personally procured move not found
+/*
+RequestPPMExpenseSummaryNotFound personally procured move not found
 
 swagger:response requestPPMExpenseSummaryNotFound
 */
@@ -156,7 +161,8 @@ func (o *RequestPPMExpenseSummaryNotFound) WriteResponse(rw http.ResponseWriter,
 // RequestPPMExpenseSummaryInternalServerErrorCode is the HTTP code returned for type RequestPPMExpenseSummaryInternalServerError
 const RequestPPMExpenseSummaryInternalServerErrorCode int = 500
 
-/*RequestPPMExpenseSummaryInternalServerError server error
+/*
+RequestPPMExpenseSummaryInternalServerError server error
 
 swagger:response requestPPMExpenseSummaryInternalServerError
 */

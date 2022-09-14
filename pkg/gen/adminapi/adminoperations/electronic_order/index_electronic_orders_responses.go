@@ -16,7 +16,8 @@ import (
 // IndexElectronicOrdersOKCode is the HTTP code returned for type IndexElectronicOrdersOK
 const IndexElectronicOrdersOKCode int = 200
 
-/*IndexElectronicOrdersOK success
+/*
+IndexElectronicOrdersOK success
 
 swagger:response indexElectronicOrdersOK
 */
@@ -85,7 +86,8 @@ func (o *IndexElectronicOrdersOK) WriteResponse(rw http.ResponseWriter, producer
 // IndexElectronicOrdersBadRequestCode is the HTTP code returned for type IndexElectronicOrdersBadRequest
 const IndexElectronicOrdersBadRequestCode int = 400
 
-/*IndexElectronicOrdersBadRequest invalid request
+/*
+IndexElectronicOrdersBadRequest invalid request
 
 swagger:response indexElectronicOrdersBadRequest
 */
@@ -109,7 +111,8 @@ func (o *IndexElectronicOrdersBadRequest) WriteResponse(rw http.ResponseWriter, 
 // IndexElectronicOrdersUnauthorizedCode is the HTTP code returned for type IndexElectronicOrdersUnauthorized
 const IndexElectronicOrdersUnauthorizedCode int = 401
 
-/*IndexElectronicOrdersUnauthorized request requires user authentication
+/*
+IndexElectronicOrdersUnauthorized request requires user authentication
 
 swagger:response indexElectronicOrdersUnauthorized
 */
@@ -133,7 +136,8 @@ func (o *IndexElectronicOrdersUnauthorized) WriteResponse(rw http.ResponseWriter
 // IndexElectronicOrdersNotFoundCode is the HTTP code returned for type IndexElectronicOrdersNotFound
 const IndexElectronicOrdersNotFoundCode int = 404
 
-/*IndexElectronicOrdersNotFound not found
+/*
+IndexElectronicOrdersNotFound not found
 
 swagger:response indexElectronicOrdersNotFound
 */
@@ -157,7 +161,8 @@ func (o *IndexElectronicOrdersNotFound) WriteResponse(rw http.ResponseWriter, pr
 // IndexElectronicOrdersInternalServerErrorCode is the HTTP code returned for type IndexElectronicOrdersInternalServerError
 const IndexElectronicOrdersInternalServerErrorCode int = 500
 
-/*IndexElectronicOrdersInternalServerError server error
+/*
+IndexElectronicOrdersInternalServerError server error
 
 swagger:response indexElectronicOrdersInternalServerError
 */

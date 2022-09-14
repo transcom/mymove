@@ -29,12 +29,12 @@ func NewCreateOrders(ctx *middleware.Context, handler CreateOrdersHandler) *Crea
 	return &CreateOrders{Context: ctx, Handler: handler}
 }
 
-/* CreateOrders swagger:route POST /orders orders createOrders
+/*
+	CreateOrders swagger:route POST /orders orders createOrders
 
-Creates an orders model for a logged-in user
+# Creates an orders model for a logged-in user
 
 Creates an instance of orders tied to a service member
-
 */
 type CreateOrders struct {
 	Context *middleware.Context

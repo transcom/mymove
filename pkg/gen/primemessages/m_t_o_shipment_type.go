@@ -17,9 +17,9 @@ import (
 // MTOShipmentType Shipment Type
 //
 // The type of shipment.
-//   * `HHG` = Household goods move
-//   * `NTS` = Non-temporary storage
-//   * `UB` = Unaccompanied baggage
+//   - `HHG` = Household goods move
+//   - `NTS` = Non-temporary storage
+//   - `UB` = Unaccompanied baggage
 //
 // Example: HHG
 //

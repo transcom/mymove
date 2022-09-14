@@ -16,7 +16,8 @@ import (
 // GetPaymentRequestEDIOKCode is the HTTP code returned for type GetPaymentRequestEDIOK
 const GetPaymentRequestEDIOKCode int = 200
 
-/*GetPaymentRequestEDIOK Successfully retrieved payment requests associated with a given move task order
+/*
+GetPaymentRequestEDIOK Successfully retrieved payment requests associated with a given move task order
 
 swagger:response getPaymentRequestEDIOK
 */
@@ -60,7 +61,8 @@ func (o *GetPaymentRequestEDIOK) WriteResponse(rw http.ResponseWriter, producer 
 // GetPaymentRequestEDIBadRequestCode is the HTTP code returned for type GetPaymentRequestEDIBadRequest
 const GetPaymentRequestEDIBadRequestCode int = 400
 
-/*GetPaymentRequestEDIBadRequest The request payload is invalid.
+/*
+GetPaymentRequestEDIBadRequest The request payload is invalid.
 
 swagger:response getPaymentRequestEDIBadRequest
 */
@@ -104,7 +106,8 @@ func (o *GetPaymentRequestEDIBadRequest) WriteResponse(rw http.ResponseWriter, p
 // GetPaymentRequestEDIUnauthorizedCode is the HTTP code returned for type GetPaymentRequestEDIUnauthorized
 const GetPaymentRequestEDIUnauthorizedCode int = 401
 
-/*GetPaymentRequestEDIUnauthorized The request was denied.
+/*
+GetPaymentRequestEDIUnauthorized The request was denied.
 
 swagger:response getPaymentRequestEDIUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *GetPaymentRequestEDIUnauthorized) WriteResponse(rw http.ResponseWriter,
 // GetPaymentRequestEDIForbiddenCode is the HTTP code returned for type GetPaymentRequestEDIForbidden
 const GetPaymentRequestEDIForbiddenCode int = 403
 
-/*GetPaymentRequestEDIForbidden The request was denied.
+/*
+GetPaymentRequestEDIForbidden The request was denied.
 
 swagger:response getPaymentRequestEDIForbidden
 */
@@ -192,7 +196,8 @@ func (o *GetPaymentRequestEDIForbidden) WriteResponse(rw http.ResponseWriter, pr
 // GetPaymentRequestEDINotFoundCode is the HTTP code returned for type GetPaymentRequestEDINotFound
 const GetPaymentRequestEDINotFoundCode int = 404
 
-/*GetPaymentRequestEDINotFound The requested resource wasn't found.
+/*
+GetPaymentRequestEDINotFound The requested resource wasn't found.
 
 swagger:response getPaymentRequestEDINotFound
 */
@@ -236,7 +241,8 @@ func (o *GetPaymentRequestEDINotFound) WriteResponse(rw http.ResponseWriter, pro
 // GetPaymentRequestEDIConflictCode is the HTTP code returned for type GetPaymentRequestEDIConflict
 const GetPaymentRequestEDIConflictCode int = 409
 
-/*GetPaymentRequestEDIConflict There was a conflict with the request.
+/*
+GetPaymentRequestEDIConflict There was a conflict with the request.
 
 swagger:response getPaymentRequestEDIConflict
 */
@@ -280,7 +286,8 @@ func (o *GetPaymentRequestEDIConflict) WriteResponse(rw http.ResponseWriter, pro
 // GetPaymentRequestEDIUnprocessableEntityCode is the HTTP code returned for type GetPaymentRequestEDIUnprocessableEntity
 const GetPaymentRequestEDIUnprocessableEntityCode int = 422
 
-/*GetPaymentRequestEDIUnprocessableEntity The payload was unprocessable.
+/*
+GetPaymentRequestEDIUnprocessableEntity The payload was unprocessable.
 
 swagger:response getPaymentRequestEDIUnprocessableEntity
 */
@@ -324,7 +331,8 @@ func (o *GetPaymentRequestEDIUnprocessableEntity) WriteResponse(rw http.Response
 // GetPaymentRequestEDIInternalServerErrorCode is the HTTP code returned for type GetPaymentRequestEDIInternalServerError
 const GetPaymentRequestEDIInternalServerErrorCode int = 500
 
-/*GetPaymentRequestEDIInternalServerError A server error occurred.
+/*
+GetPaymentRequestEDIInternalServerError A server error occurred.
 
 swagger:response getPaymentRequestEDIInternalServerError
 */

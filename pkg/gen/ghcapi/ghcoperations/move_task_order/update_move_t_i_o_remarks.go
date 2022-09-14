@@ -29,10 +29,10 @@ func NewUpdateMoveTIORemarks(ctx *middleware.Context, handler UpdateMoveTIORemar
 	return &UpdateMoveTIORemarks{Context: ctx, Handler: handler}
 }
 
-/* UpdateMoveTIORemarks swagger:route PATCH /move-task-orders/{moveTaskOrderID}/tio-remarks moveTaskOrder updateMoveTIORemarks
+/*
+	UpdateMoveTIORemarks swagger:route PATCH /move-task-orders/{moveTaskOrderID}/tio-remarks moveTaskOrder updateMoveTIORemarks
 
 Changes move (move task order) billableWeightsReviewedAt field to a timestamp
-
 */
 type UpdateMoveTIORemarks struct {
 	Context *middleware.Context

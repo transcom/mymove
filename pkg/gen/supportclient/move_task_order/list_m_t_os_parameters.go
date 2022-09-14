@@ -53,10 +53,12 @@ func NewListMTOsParamsWithHTTPClient(client *http.Client) *ListMTOsParams {
 	}
 }
 
-/* ListMTOsParams contains all the parameters to send to the API endpoint
-   for the list m t os operation.
+/*
+ListMTOsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the list m t os operation.
+
+	Typically these are written to a http.Request.
 */
 type ListMTOsParams struct {
 

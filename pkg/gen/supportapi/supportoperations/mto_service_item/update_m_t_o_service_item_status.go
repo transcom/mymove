@@ -29,15 +29,14 @@ func NewUpdateMTOServiceItemStatus(ctx *middleware.Context, handler UpdateMTOSer
 	return &UpdateMTOServiceItemStatus{Context: ctx, Handler: handler}
 }
 
-/* UpdateMTOServiceItemStatus swagger:route PATCH /mto-service-items/{mtoServiceItemID}/status mtoServiceItem updateMTOServiceItemStatus
+/*
+	UpdateMTOServiceItemStatus swagger:route PATCH /mto-service-items/{mtoServiceItemID}/status mtoServiceItem updateMTOServiceItemStatus
 
 updateMTOServiceItemStatus
 
 Updates the status of a service item for a move to APPROVED or REJECTED. <br />
 <br />
 This is a support endpoint and will not be available in production.
-
-
 */
 type UpdateMTOServiceItemStatus struct {
 	Context *middleware.Context

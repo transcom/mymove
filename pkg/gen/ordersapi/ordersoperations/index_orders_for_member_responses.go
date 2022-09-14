@@ -16,7 +16,8 @@ import (
 // IndexOrdersForMemberOKCode is the HTTP code returned for type IndexOrdersForMemberOK
 const IndexOrdersForMemberOKCode int = 200
 
-/*IndexOrdersForMemberOK Successful
+/*
+IndexOrdersForMemberOK Successful
 
 swagger:response indexOrdersForMemberOK
 */
@@ -63,7 +64,8 @@ func (o *IndexOrdersForMemberOK) WriteResponse(rw http.ResponseWriter, producer 
 // IndexOrdersForMemberBadRequestCode is the HTTP code returned for type IndexOrdersForMemberBadRequest
 const IndexOrdersForMemberBadRequestCode int = 400
 
-/*IndexOrdersForMemberBadRequest Bad request
+/*
+IndexOrdersForMemberBadRequest Bad request
 
 swagger:response indexOrdersForMemberBadRequest
 */
@@ -87,7 +89,8 @@ func (o *IndexOrdersForMemberBadRequest) WriteResponse(rw http.ResponseWriter, p
 // IndexOrdersForMemberUnauthorizedCode is the HTTP code returned for type IndexOrdersForMemberUnauthorized
 const IndexOrdersForMemberUnauthorizedCode int = 401
 
-/*IndexOrdersForMemberUnauthorized must be authenticated to use this endpoint
+/*
+IndexOrdersForMemberUnauthorized must be authenticated to use this endpoint
 
 swagger:response indexOrdersForMemberUnauthorized
 */
@@ -111,7 +114,8 @@ func (o *IndexOrdersForMemberUnauthorized) WriteResponse(rw http.ResponseWriter,
 // IndexOrdersForMemberForbiddenCode is the HTTP code returned for type IndexOrdersForMemberForbidden
 const IndexOrdersForMemberForbiddenCode int = 403
 
-/*IndexOrdersForMemberForbidden Forbidden
+/*
+IndexOrdersForMemberForbidden Forbidden
 
 swagger:response indexOrdersForMemberForbidden
 */
@@ -135,7 +139,8 @@ func (o *IndexOrdersForMemberForbidden) WriteResponse(rw http.ResponseWriter, pr
 // IndexOrdersForMemberNotFoundCode is the HTTP code returned for type IndexOrdersForMemberNotFound
 const IndexOrdersForMemberNotFoundCode int = 404
 
-/*IndexOrdersForMemberNotFound No orders found
+/*
+IndexOrdersForMemberNotFound No orders found
 
 swagger:response indexOrdersForMemberNotFound
 */
@@ -159,7 +164,8 @@ func (o *IndexOrdersForMemberNotFound) WriteResponse(rw http.ResponseWriter, pro
 // IndexOrdersForMemberInternalServerErrorCode is the HTTP code returned for type IndexOrdersForMemberInternalServerError
 const IndexOrdersForMemberInternalServerErrorCode int = 500
 
-/*IndexOrdersForMemberInternalServerError Server error
+/*
+IndexOrdersForMemberInternalServerError Server error
 
 swagger:response indexOrdersForMemberInternalServerError
 */

@@ -29,12 +29,12 @@ func NewUpdateMoveTaskOrder(ctx *middleware.Context, handler UpdateMoveTaskOrder
 	return &UpdateMoveTaskOrder{Context: ctx, Handler: handler}
 }
 
-/* UpdateMoveTaskOrder swagger:route PATCH /move-task-orders/{moveTaskOrderID} moveTaskOrder updateMoveTaskOrder
+/*
+	UpdateMoveTaskOrder swagger:route PATCH /move-task-orders/{moveTaskOrderID} moveTaskOrder updateMoveTaskOrder
+
+# Updates a move by ID
 
 Updates a move by ID
-
-Updates a move by ID
-
 */
 type UpdateMoveTaskOrder struct {
 	Context *middleware.Context

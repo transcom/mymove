@@ -16,7 +16,8 @@ import (
 // IndexEntitlementsOKCode is the HTTP code returned for type IndexEntitlementsOK
 const IndexEntitlementsOKCode int = 200
 
-/*IndexEntitlementsOK List of weights allotted entitlement
+/*
+IndexEntitlementsOK List of weights allotted entitlement
 
 swagger:response indexEntitlementsOK
 */

@@ -81,7 +81,8 @@ func NewCreatePaymentRequestCreated() *CreatePaymentRequestCreated {
 	return &CreatePaymentRequestCreated{}
 }
 
-/* CreatePaymentRequestCreated describes a response with status code 201, with default header values.
+/*
+CreatePaymentRequestCreated describes a response with status code 201, with default header values.
 
 Successfully created a paymentRequest object.
 */
@@ -89,9 +90,39 @@ type CreatePaymentRequestCreated struct {
 	Payload *primemessages.PaymentRequest
 }
 
+// IsSuccess returns true when this create payment request created response has a 2xx status code
+func (o *CreatePaymentRequestCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this create payment request created response has a 3xx status code
+func (o *CreatePaymentRequestCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create payment request created response has a 4xx status code
+func (o *CreatePaymentRequestCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create payment request created response has a 5xx status code
+func (o *CreatePaymentRequestCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create payment request created response a status code equal to that given
+func (o *CreatePaymentRequestCreated) IsCode(code int) bool {
+	return code == 201
+}
+
 func (o *CreatePaymentRequestCreated) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestCreated  %+v", 201, o.Payload)
 }
+
+func (o *CreatePaymentRequestCreated) String() string {
+	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestCreated  %+v", 201, o.Payload)
+}
+
 func (o *CreatePaymentRequestCreated) GetPayload() *primemessages.PaymentRequest {
 	return o.Payload
 }
@@ -113,7 +144,8 @@ func NewCreatePaymentRequestBadRequest() *CreatePaymentRequestBadRequest {
 	return &CreatePaymentRequestBadRequest{}
 }
 
-/* CreatePaymentRequestBadRequest describes a response with status code 400, with default header values.
+/*
+CreatePaymentRequestBadRequest describes a response with status code 400, with default header values.
 
 Request payload is invalid.
 */
@@ -121,9 +153,39 @@ type CreatePaymentRequestBadRequest struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create payment request bad request response has a 2xx status code
+func (o *CreatePaymentRequestBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create payment request bad request response has a 3xx status code
+func (o *CreatePaymentRequestBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create payment request bad request response has a 4xx status code
+func (o *CreatePaymentRequestBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create payment request bad request response has a 5xx status code
+func (o *CreatePaymentRequestBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create payment request bad request response a status code equal to that given
+func (o *CreatePaymentRequestBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *CreatePaymentRequestBadRequest) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *CreatePaymentRequestBadRequest) String() string {
+	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *CreatePaymentRequestBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -145,7 +207,8 @@ func NewCreatePaymentRequestUnauthorized() *CreatePaymentRequestUnauthorized {
 	return &CreatePaymentRequestUnauthorized{}
 }
 
-/* CreatePaymentRequestUnauthorized describes a response with status code 401, with default header values.
+/*
+CreatePaymentRequestUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -153,9 +216,39 @@ type CreatePaymentRequestUnauthorized struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create payment request unauthorized response has a 2xx status code
+func (o *CreatePaymentRequestUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create payment request unauthorized response has a 3xx status code
+func (o *CreatePaymentRequestUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create payment request unauthorized response has a 4xx status code
+func (o *CreatePaymentRequestUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create payment request unauthorized response has a 5xx status code
+func (o *CreatePaymentRequestUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create payment request unauthorized response a status code equal to that given
+func (o *CreatePaymentRequestUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *CreatePaymentRequestUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *CreatePaymentRequestUnauthorized) String() string {
+	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *CreatePaymentRequestUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -177,7 +270,8 @@ func NewCreatePaymentRequestForbidden() *CreatePaymentRequestForbidden {
 	return &CreatePaymentRequestForbidden{}
 }
 
-/* CreatePaymentRequestForbidden describes a response with status code 403, with default header values.
+/*
+CreatePaymentRequestForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -185,9 +279,39 @@ type CreatePaymentRequestForbidden struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create payment request forbidden response has a 2xx status code
+func (o *CreatePaymentRequestForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create payment request forbidden response has a 3xx status code
+func (o *CreatePaymentRequestForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create payment request forbidden response has a 4xx status code
+func (o *CreatePaymentRequestForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create payment request forbidden response has a 5xx status code
+func (o *CreatePaymentRequestForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create payment request forbidden response a status code equal to that given
+func (o *CreatePaymentRequestForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *CreatePaymentRequestForbidden) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestForbidden  %+v", 403, o.Payload)
 }
+
+func (o *CreatePaymentRequestForbidden) String() string {
+	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestForbidden  %+v", 403, o.Payload)
+}
+
 func (o *CreatePaymentRequestForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -209,7 +333,8 @@ func NewCreatePaymentRequestNotFound() *CreatePaymentRequestNotFound {
 	return &CreatePaymentRequestNotFound{}
 }
 
-/* CreatePaymentRequestNotFound describes a response with status code 404, with default header values.
+/*
+CreatePaymentRequestNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -217,9 +342,39 @@ type CreatePaymentRequestNotFound struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create payment request not found response has a 2xx status code
+func (o *CreatePaymentRequestNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create payment request not found response has a 3xx status code
+func (o *CreatePaymentRequestNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create payment request not found response has a 4xx status code
+func (o *CreatePaymentRequestNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create payment request not found response has a 5xx status code
+func (o *CreatePaymentRequestNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create payment request not found response a status code equal to that given
+func (o *CreatePaymentRequestNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *CreatePaymentRequestNotFound) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestNotFound  %+v", 404, o.Payload)
 }
+
+func (o *CreatePaymentRequestNotFound) String() string {
+	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestNotFound  %+v", 404, o.Payload)
+}
+
 func (o *CreatePaymentRequestNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -241,7 +396,8 @@ func NewCreatePaymentRequestConflict() *CreatePaymentRequestConflict {
 	return &CreatePaymentRequestConflict{}
 }
 
-/* CreatePaymentRequestConflict describes a response with status code 409, with default header values.
+/*
+CreatePaymentRequestConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -249,9 +405,39 @@ type CreatePaymentRequestConflict struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create payment request conflict response has a 2xx status code
+func (o *CreatePaymentRequestConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create payment request conflict response has a 3xx status code
+func (o *CreatePaymentRequestConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create payment request conflict response has a 4xx status code
+func (o *CreatePaymentRequestConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create payment request conflict response has a 5xx status code
+func (o *CreatePaymentRequestConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create payment request conflict response a status code equal to that given
+func (o *CreatePaymentRequestConflict) IsCode(code int) bool {
+	return code == 409
+}
+
 func (o *CreatePaymentRequestConflict) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestConflict  %+v", 409, o.Payload)
 }
+
+func (o *CreatePaymentRequestConflict) String() string {
+	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestConflict  %+v", 409, o.Payload)
+}
+
 func (o *CreatePaymentRequestConflict) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -273,7 +459,8 @@ func NewCreatePaymentRequestUnprocessableEntity() *CreatePaymentRequestUnprocess
 	return &CreatePaymentRequestUnprocessableEntity{}
 }
 
-/* CreatePaymentRequestUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+CreatePaymentRequestUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -281,9 +468,39 @@ type CreatePaymentRequestUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
 }
 
+// IsSuccess returns true when this create payment request unprocessable entity response has a 2xx status code
+func (o *CreatePaymentRequestUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create payment request unprocessable entity response has a 3xx status code
+func (o *CreatePaymentRequestUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create payment request unprocessable entity response has a 4xx status code
+func (o *CreatePaymentRequestUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create payment request unprocessable entity response has a 5xx status code
+func (o *CreatePaymentRequestUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create payment request unprocessable entity response a status code equal to that given
+func (o *CreatePaymentRequestUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *CreatePaymentRequestUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *CreatePaymentRequestUnprocessableEntity) String() string {
+	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *CreatePaymentRequestUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -305,7 +522,8 @@ func NewCreatePaymentRequestInternalServerError() *CreatePaymentRequestInternalS
 	return &CreatePaymentRequestInternalServerError{}
 }
 
-/* CreatePaymentRequestInternalServerError describes a response with status code 500, with default header values.
+/*
+CreatePaymentRequestInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -313,9 +531,39 @@ type CreatePaymentRequestInternalServerError struct {
 	Payload *primemessages.Error
 }
 
+// IsSuccess returns true when this create payment request internal server error response has a 2xx status code
+func (o *CreatePaymentRequestInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create payment request internal server error response has a 3xx status code
+func (o *CreatePaymentRequestInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create payment request internal server error response has a 4xx status code
+func (o *CreatePaymentRequestInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create payment request internal server error response has a 5xx status code
+func (o *CreatePaymentRequestInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this create payment request internal server error response a status code equal to that given
+func (o *CreatePaymentRequestInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *CreatePaymentRequestInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *CreatePaymentRequestInternalServerError) String() string {
+	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *CreatePaymentRequestInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

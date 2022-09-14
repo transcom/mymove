@@ -36,12 +36,12 @@ type ClientService interface {
 }
 
 /*
-  UpdateMTOServiceItemStatus updates m t o service item status
+	UpdateMTOServiceItemStatus updates m t o service item status
 
-  Updates the status of a service item for a move to APPROVED or REJECTED. <br />
+	Updates the status of a service item for a move to APPROVED or REJECTED. <br />
+
 <br />
 This is a support endpoint and will not be available in production.
-
 */
 func (a *Client) UpdateMTOServiceItemStatus(params *UpdateMTOServiceItemStatusParams, opts ...ClientOption) (*UpdateMTOServiceItemStatusOK, error) {
 	// TODO: Validate the params before sending

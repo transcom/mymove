@@ -87,7 +87,8 @@ func NewUpdateMTOShipmentAddressOK() *UpdateMTOShipmentAddressOK {
 	return &UpdateMTOShipmentAddressOK{}
 }
 
-/* UpdateMTOShipmentAddressOK describes a response with status code 200, with default header values.
+/*
+UpdateMTOShipmentAddressOK describes a response with status code 200, with default header values.
 
 Successfully updated the address.
 */
@@ -95,9 +96,39 @@ type UpdateMTOShipmentAddressOK struct {
 	Payload *primemessages.Address
 }
 
+// IsSuccess returns true when this update m t o shipment address o k response has a 2xx status code
+func (o *UpdateMTOShipmentAddressOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this update m t o shipment address o k response has a 3xx status code
+func (o *UpdateMTOShipmentAddressOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment address o k response has a 4xx status code
+func (o *UpdateMTOShipmentAddressOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update m t o shipment address o k response has a 5xx status code
+func (o *UpdateMTOShipmentAddressOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment address o k response a status code equal to that given
+func (o *UpdateMTOShipmentAddressOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *UpdateMTOShipmentAddressOK) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressOK  %+v", 200, o.Payload)
 }
+
+func (o *UpdateMTOShipmentAddressOK) String() string {
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressOK  %+v", 200, o.Payload)
+}
+
 func (o *UpdateMTOShipmentAddressOK) GetPayload() *primemessages.Address {
 	return o.Payload
 }
@@ -119,7 +150,8 @@ func NewUpdateMTOShipmentAddressBadRequest() *UpdateMTOShipmentAddressBadRequest
 	return &UpdateMTOShipmentAddressBadRequest{}
 }
 
-/* UpdateMTOShipmentAddressBadRequest describes a response with status code 400, with default header values.
+/*
+UpdateMTOShipmentAddressBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -127,9 +159,39 @@ type UpdateMTOShipmentAddressBadRequest struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o shipment address bad request response has a 2xx status code
+func (o *UpdateMTOShipmentAddressBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment address bad request response has a 3xx status code
+func (o *UpdateMTOShipmentAddressBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment address bad request response has a 4xx status code
+func (o *UpdateMTOShipmentAddressBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o shipment address bad request response has a 5xx status code
+func (o *UpdateMTOShipmentAddressBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment address bad request response a status code equal to that given
+func (o *UpdateMTOShipmentAddressBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *UpdateMTOShipmentAddressBadRequest) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *UpdateMTOShipmentAddressBadRequest) String() string {
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *UpdateMTOShipmentAddressBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -151,7 +213,8 @@ func NewUpdateMTOShipmentAddressUnauthorized() *UpdateMTOShipmentAddressUnauthor
 	return &UpdateMTOShipmentAddressUnauthorized{}
 }
 
-/* UpdateMTOShipmentAddressUnauthorized describes a response with status code 401, with default header values.
+/*
+UpdateMTOShipmentAddressUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -159,9 +222,39 @@ type UpdateMTOShipmentAddressUnauthorized struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o shipment address unauthorized response has a 2xx status code
+func (o *UpdateMTOShipmentAddressUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment address unauthorized response has a 3xx status code
+func (o *UpdateMTOShipmentAddressUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment address unauthorized response has a 4xx status code
+func (o *UpdateMTOShipmentAddressUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o shipment address unauthorized response has a 5xx status code
+func (o *UpdateMTOShipmentAddressUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment address unauthorized response a status code equal to that given
+func (o *UpdateMTOShipmentAddressUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *UpdateMTOShipmentAddressUnauthorized) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *UpdateMTOShipmentAddressUnauthorized) String() string {
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *UpdateMTOShipmentAddressUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -183,7 +276,8 @@ func NewUpdateMTOShipmentAddressForbidden() *UpdateMTOShipmentAddressForbidden {
 	return &UpdateMTOShipmentAddressForbidden{}
 }
 
-/* UpdateMTOShipmentAddressForbidden describes a response with status code 403, with default header values.
+/*
+UpdateMTOShipmentAddressForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -191,9 +285,39 @@ type UpdateMTOShipmentAddressForbidden struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o shipment address forbidden response has a 2xx status code
+func (o *UpdateMTOShipmentAddressForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment address forbidden response has a 3xx status code
+func (o *UpdateMTOShipmentAddressForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment address forbidden response has a 4xx status code
+func (o *UpdateMTOShipmentAddressForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o shipment address forbidden response has a 5xx status code
+func (o *UpdateMTOShipmentAddressForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment address forbidden response a status code equal to that given
+func (o *UpdateMTOShipmentAddressForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *UpdateMTOShipmentAddressForbidden) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressForbidden  %+v", 403, o.Payload)
 }
+
+func (o *UpdateMTOShipmentAddressForbidden) String() string {
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressForbidden  %+v", 403, o.Payload)
+}
+
 func (o *UpdateMTOShipmentAddressForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -215,7 +339,8 @@ func NewUpdateMTOShipmentAddressNotFound() *UpdateMTOShipmentAddressNotFound {
 	return &UpdateMTOShipmentAddressNotFound{}
 }
 
-/* UpdateMTOShipmentAddressNotFound describes a response with status code 404, with default header values.
+/*
+UpdateMTOShipmentAddressNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -223,9 +348,39 @@ type UpdateMTOShipmentAddressNotFound struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o shipment address not found response has a 2xx status code
+func (o *UpdateMTOShipmentAddressNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment address not found response has a 3xx status code
+func (o *UpdateMTOShipmentAddressNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment address not found response has a 4xx status code
+func (o *UpdateMTOShipmentAddressNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o shipment address not found response has a 5xx status code
+func (o *UpdateMTOShipmentAddressNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment address not found response a status code equal to that given
+func (o *UpdateMTOShipmentAddressNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *UpdateMTOShipmentAddressNotFound) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressNotFound  %+v", 404, o.Payload)
 }
+
+func (o *UpdateMTOShipmentAddressNotFound) String() string {
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressNotFound  %+v", 404, o.Payload)
+}
+
 func (o *UpdateMTOShipmentAddressNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -247,7 +402,8 @@ func NewUpdateMTOShipmentAddressConflict() *UpdateMTOShipmentAddressConflict {
 	return &UpdateMTOShipmentAddressConflict{}
 }
 
-/* UpdateMTOShipmentAddressConflict describes a response with status code 409, with default header values.
+/*
+UpdateMTOShipmentAddressConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -255,9 +411,39 @@ type UpdateMTOShipmentAddressConflict struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o shipment address conflict response has a 2xx status code
+func (o *UpdateMTOShipmentAddressConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment address conflict response has a 3xx status code
+func (o *UpdateMTOShipmentAddressConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment address conflict response has a 4xx status code
+func (o *UpdateMTOShipmentAddressConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o shipment address conflict response has a 5xx status code
+func (o *UpdateMTOShipmentAddressConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment address conflict response a status code equal to that given
+func (o *UpdateMTOShipmentAddressConflict) IsCode(code int) bool {
+	return code == 409
+}
+
 func (o *UpdateMTOShipmentAddressConflict) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressConflict  %+v", 409, o.Payload)
 }
+
+func (o *UpdateMTOShipmentAddressConflict) String() string {
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressConflict  %+v", 409, o.Payload)
+}
+
 func (o *UpdateMTOShipmentAddressConflict) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -279,7 +465,8 @@ func NewUpdateMTOShipmentAddressPreconditionFailed() *UpdateMTOShipmentAddressPr
 	return &UpdateMTOShipmentAddressPreconditionFailed{}
 }
 
-/* UpdateMTOShipmentAddressPreconditionFailed describes a response with status code 412, with default header values.
+/*
+UpdateMTOShipmentAddressPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -287,9 +474,39 @@ type UpdateMTOShipmentAddressPreconditionFailed struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o shipment address precondition failed response has a 2xx status code
+func (o *UpdateMTOShipmentAddressPreconditionFailed) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment address precondition failed response has a 3xx status code
+func (o *UpdateMTOShipmentAddressPreconditionFailed) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment address precondition failed response has a 4xx status code
+func (o *UpdateMTOShipmentAddressPreconditionFailed) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o shipment address precondition failed response has a 5xx status code
+func (o *UpdateMTOShipmentAddressPreconditionFailed) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment address precondition failed response a status code equal to that given
+func (o *UpdateMTOShipmentAddressPreconditionFailed) IsCode(code int) bool {
+	return code == 412
+}
+
 func (o *UpdateMTOShipmentAddressPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressPreconditionFailed  %+v", 412, o.Payload)
 }
+
+func (o *UpdateMTOShipmentAddressPreconditionFailed) String() string {
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressPreconditionFailed  %+v", 412, o.Payload)
+}
+
 func (o *UpdateMTOShipmentAddressPreconditionFailed) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -311,7 +528,8 @@ func NewUpdateMTOShipmentAddressUnprocessableEntity() *UpdateMTOShipmentAddressU
 	return &UpdateMTOShipmentAddressUnprocessableEntity{}
 }
 
-/* UpdateMTOShipmentAddressUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+UpdateMTOShipmentAddressUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -319,9 +537,39 @@ type UpdateMTOShipmentAddressUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
 }
 
+// IsSuccess returns true when this update m t o shipment address unprocessable entity response has a 2xx status code
+func (o *UpdateMTOShipmentAddressUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment address unprocessable entity response has a 3xx status code
+func (o *UpdateMTOShipmentAddressUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment address unprocessable entity response has a 4xx status code
+func (o *UpdateMTOShipmentAddressUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o shipment address unprocessable entity response has a 5xx status code
+func (o *UpdateMTOShipmentAddressUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment address unprocessable entity response a status code equal to that given
+func (o *UpdateMTOShipmentAddressUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *UpdateMTOShipmentAddressUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *UpdateMTOShipmentAddressUnprocessableEntity) String() string {
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *UpdateMTOShipmentAddressUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -343,7 +591,8 @@ func NewUpdateMTOShipmentAddressInternalServerError() *UpdateMTOShipmentAddressI
 	return &UpdateMTOShipmentAddressInternalServerError{}
 }
 
-/* UpdateMTOShipmentAddressInternalServerError describes a response with status code 500, with default header values.
+/*
+UpdateMTOShipmentAddressInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -351,9 +600,39 @@ type UpdateMTOShipmentAddressInternalServerError struct {
 	Payload *primemessages.Error
 }
 
+// IsSuccess returns true when this update m t o shipment address internal server error response has a 2xx status code
+func (o *UpdateMTOShipmentAddressInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment address internal server error response has a 3xx status code
+func (o *UpdateMTOShipmentAddressInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment address internal server error response has a 4xx status code
+func (o *UpdateMTOShipmentAddressInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update m t o shipment address internal server error response has a 5xx status code
+func (o *UpdateMTOShipmentAddressInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this update m t o shipment address internal server error response a status code equal to that given
+func (o *UpdateMTOShipmentAddressInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *UpdateMTOShipmentAddressInternalServerError) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *UpdateMTOShipmentAddressInternalServerError) String() string {
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *UpdateMTOShipmentAddressInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }
