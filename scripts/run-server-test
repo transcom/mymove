@@ -36,8 +36,8 @@ else
   exit 1
 fi
 
-gotest_args=("-count" "1")
-gotest_args+=("-race")
+#gotest_args=("-count" "1")
+gotest_args=("-race")
 if [ -n "${CIRCLECI+x}" ]; then
 	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
   gotest_args+=("-parallel" "4")
