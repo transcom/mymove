@@ -23,7 +23,6 @@ const NTSShipmentInfoList = ({
   const {
     pickupAddress,
     secondaryPickupAddress,
-    agents,
     mtoAgents,
     counselorRemarks,
     customerRemarks,
@@ -222,16 +221,6 @@ const NTSShipmentInfoList = ({
     </div>
   );
 
-  const agentsElementFlags = getDisplayFlags('agents');
-  const agentsElement = agents
-    ? agents.map((agent) => (
-        <div className={agentsElementFlags.classes} key={`${agent.agentType}-${agent.email}`}>
-          <dt>{agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}</dt>
-          <dd data-testid="agent">{formatAgent(agent)}</dd>
-        </div>
-      ))
-    : null;
-
   const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
     <div className={counselorRemarksElementFlags.classes}>
@@ -263,7 +252,7 @@ const NTSShipmentInfoList = ({
       {requestedPickupDateElement}
       {pickupAddressElement}
       {showElement(secondaryPickupAddressElementFlags) && secondaryPickupAddressElement}
-      {showElement(agentsElementFlags) && agentsElement}
+      {showElement(releasingAgentFlags) && releasingAgentElement}
       {showElement(storageFacilityInfoElementFlags) && storageFacilityInfoElement}
       {showElement(serviceOrderNumberElementFlags) && serviceOrderNumberElement}
       {showElement(storageFacilityAddressElementFlags) && storageFacilityAddressElement}
