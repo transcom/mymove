@@ -77,6 +77,7 @@ func (suite *RoutingSuite) setupRouting() *Config {
 		ServePrimeSimulator: true,
 		ServeGHC:            true,
 		ServeDevlocalAuth:   true,
+		ServeOrders:         true,
 	}
 
 	return rConfig
