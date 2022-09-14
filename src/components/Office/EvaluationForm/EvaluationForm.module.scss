@@ -5,7 +5,7 @@
 .buttonContainer {
   @include u-padding(0);
   @include u-margin-bottom(115px);
-  max-width: 1200px;
+  width: 960px;
 }
 
 .buttonRow {
@@ -29,7 +29,8 @@
   @include u-padding-right(6);
   @include u-padding-left(6);
   @include u-margin-bottom(2);
-  max-width: 920px;
+  max-width: 960px;
+  width: 960px;
 }
 
 .durationPickers {
