@@ -25,7 +25,6 @@ const NTSRShipmentInfoList = ({
     destinationType,
     displayDestinationType,
     secondaryDeliveryAddress,
-    agents,
     mtoAgents,
     counselorRemarks,
     customerRemarks,
@@ -226,15 +225,6 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const agentsElement = agents
-    ? agents.map((agent) => (
-        <div className={styles.row} key={`${agent.agentType}-${agent.email}`}>
-          <dt>{agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}</dt>
-          <dd data-testid="agent">{formatAgent(agent)}</dd>
-        </div>
-      ))
-    : null;
-
   const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
     <div className={counselorRemarksElementFlags.classes}>
@@ -269,7 +259,7 @@ const NTSRShipmentInfoList = ({
       {destinationAddressElement}
       {displayDestinationType && destinationTypeElement}
       {isExpanded && secondaryDeliveryAddressElement}
-      {isExpanded && agentsElement}
+      {isExpanded && receivingAgentElement}
       {isExpanded && customerRemarksElement}
       {(isExpanded || counselorRemarksElementFlags.alwaysShow) && counselorRemarksElement}
       {(isExpanded || tacElementFlags.alwaysShow) && tacElement}
