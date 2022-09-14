@@ -187,69 +187,6 @@ func (suite *TransitTimeParserSuite) helperTestSetup() []XlsxDataSheetInfo {
 	return xlsxDataSheets
 }
 
-func (suite *TransitTimeParserSuite) Test_process() {
-
-	xlsxDataSheets := suite.helperTestSetup()
-
-	type args struct {
-		params     ParamConfig
-		sheetIndex int
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		{
-			name: "TC 2 run fake process & verify function 1, no error",
-			args: args{
-				params: ParamConfig{
-					RunTime: time.Now(),
-				},
-				sheetIndex: 0,
-			},
-			wantErr: false,
-		},
-		{
-			name: "TC 2 run fake process & verify function 2, no error",
-			args: args{
-				params: ParamConfig{
-					RunTime: time.Now(),
-				},
-				sheetIndex: 1,
-			},
-			wantErr: false,
-		},
-		{
-			name: "TC 3 run fake process & verify function 3, with error",
-			args: args{
-				params: ParamConfig{
-					RunTime: time.Now(),
-				},
-				sheetIndex: 2,
-			},
-			wantErr: true,
-		},
-		{
-			name: "TC 4 run fake process methods & verify function 4, with suffix",
-			args: args{
-				params: ParamConfig{
-					RunTime: time.Now(),
-				},
-				sheetIndex: 3,
-			},
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		suite.Run(tt.name, func() {
-			if err := process(suite.AppContextForTest(), xlsxDataSheets, tt.args.params, tt.args.sheetIndex, suite.tableFromSliceCreator); (err != nil) != tt.wantErr {
-				suite.T().Errorf("process() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
 func (suite *TransitTimeParserSuite) Test_getInt() {
 	type args struct {
 		from string
