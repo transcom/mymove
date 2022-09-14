@@ -34,7 +34,7 @@ const info = {
     state: 'TX',
     postalCode: '78234',
   },
-  agents: [
+  mtoAgents: [
     {
       agentType: 'RELEASING_AGENT',
       firstName: 'Jason',
@@ -119,7 +119,7 @@ export const NTSWithAllInfo = () => (
       serviceOrderNumber: info.serviceOrderNumber,
       pickupAddress: info.pickupAddress,
       secondaryPickupAddress: info.secondaryPickupAddress,
-      agents: info.agents,
+      mtoAgents: info.mtoAgents,
       counselorRemarks: info.counselorRemarks,
       customerRemarks: info.customerRemarks,
     }}
