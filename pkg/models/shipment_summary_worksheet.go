@@ -328,21 +328,6 @@ func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) (u
 	}
 }
 
-// // FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
-// func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, session *auth.Session) ([]MovingExpenseDocument, error) {
-// 	var movingExpenseDocuments []MovingExpense
-// 	if len(move.PersonallyProcuredMoves) > 0 {
-// 		ppm := move.PersonallyProcuredMoves[0]
-// 		status := MoveDocumentStatusOK
-// 		moveDocuments, err := FetchMoveDocuments(db, session, ppm.ID, &status, MoveDocumentTypeEXPENSE, false)
-// 		if err != nil {
-// 			return movingExpenseDocuments, err
-// 		}
-// 		movingExpenseDocuments = FilterMovingExpenseDocuments(moveDocuments)
-// 	}
-// 	return movingExpenseDocuments, nil
-// }
-
 const (
 	controlledUnclassifiedInformationText = "CONTROLLED UNCLASSIFIED INFORMATION"
 )
