@@ -1,21 +1,25 @@
-description: A personally procured move is a type of shipment that a service members moves themselves.
+description: A personally procured move is a type of shipment that a service member moves themselves.
 x-nullable: true
 properties:
   id:
+    description: Primary auto-generated unique identifier of the PPM shipment object
     example: 1f2270c7-7166-40ae-981e-b200ebdf3054
     format: uuid
     type: string
     readOnly: true
   shipmentId:
+    description: The id of the parent MTOShipment object
     example: 1f2270c7-7166-40ae-981e-b200ebdf3054
     format: uuid
     type: string
     readOnly: true
   createdAt:
+    description: Timestamp of when the PPM Shipment was initially created (UTC)
     format: date-time
     type: string
     readOnly: true
   updatedAt:
+    description: Timestamp of the last time a property of this object was updated (UTC)
     format: date-time
     type: string
     readOnly: true

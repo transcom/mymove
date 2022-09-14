@@ -2995,6 +2995,14 @@ definitions:
       - created_at
       - updated_at
   PPMShipmentStatus:
+    description: |
+      Status of the PPM Shipment:
+        * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.
+        * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.
+        * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.
+        * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.
+        * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
+        * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
     type: string
     readOnly: true
     enum:
@@ -3129,25 +3137,29 @@ definitions:
       - document
   PPMShipment:
     description: >-
-      A personally procured move is a type of shipment that a service members
+      A personally procured move is a type of shipment that a service member
       moves themselves.
     x-nullable: true
     properties:
       id:
+        description: Primary auto-generated unique identifier of the PPM shipment object
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
         readOnly: true
       shipmentId:
+        description: The id of the parent MTOShipment object
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
         readOnly: true
       createdAt:
+        description: Timestamp of when the PPM Shipment was initially created (UTC)
         format: date-time
         type: string
         readOnly: true
       updatedAt:
+        description: Timestamp of the last time a property of this object was updated (UTC)
         format: date-time
         type: string
         readOnly: true

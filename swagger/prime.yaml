@@ -1172,6 +1172,9 @@ definitions:
       - moveTaskOrderID
       - shipmentType
   CreatePPMShipment:
+    description: >-
+      Object containing the `PPM` shipmentType specific data, not used for other
+      shipment types.
     type: object
     properties:
       expectedDepartureDate:
@@ -2135,28 +2138,30 @@ definitions:
     description: |
       The type of shipment.
         * `HHG` = Household goods move
-        * `NTS` = Non-temporary storage
-        * `UB` = Unaccompanied baggage
+        * `HHG_INTO_NTS_DOMESTIC` = HHG into Non-temporary storage (NTS)
+        * `HHG_OUTOF_NTS_DOMESTIC` = HHG out of Non-temporary storage (NTS Release)
+        * `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
     type: string
     example: HHG
     enum:
+      - BOAT_HAUL_AWAY
+      - BOAT_TOW_AWAY
       - HHG
       - HHG_LONGHAUL_DOMESTIC
-      - HHG_SHORTHAUL_DOMESTIC
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
+      - HHG_SHORTHAUL_DOMESTIC
       - INTERNATIONAL_HHG
       - INTERNATIONAL_UB
       - MOTORHOME
-      - BOAT_HAUL_AWAY
-      - BOAT_TOW_AWAY
       - PPM
     x-display-value:
       HHG: Household goods move (HHG)
       HHG_LONGHAUL_DOMESTIC: Domestic Longhaul HHG
       HHG_SHORTHAUL_DOMESTIC: Domestic Shorthaul HHG
       HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
-      HHG_OUTOF_NTS_DOMESTIC: HHG out of Non-temporary storage (NTS)
+      HHG_OUTOF_NTS_DOMESTIC: HHG out of Non-temporary storage (NTS Release)
+      PPM: Personally Procured Move also known as Do It Yourself (DITY)
   Order:
     required:
       - orderNumber
@@ -2332,20 +2337,24 @@ definitions:
     x-nullable: true
     properties:
       id:
+        description: The primary unique identifier of this PPM shipment
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
         readOnly: true
       shipmentId:
+        description: The id of the parent MTOShipment record
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
         readOnly: true
       createdAt:
+        description: The timestamp of when the PPM shipment was created (UTC)
         format: date-time
         type: string
         readOnly: true
       updatedAt:
+        description: The timestamp of when any updates were last made to the PPM shipment
         format: date-time
         type: string
         readOnly: true
@@ -2353,20 +2362,27 @@ definitions:
         $ref: '#/definitions/PPMShipmentStatus'
       expectedDepartureDate:
         description: |
-          Date the customer expects to move.
+          Date the customer expects to begin their move.
         format: date
         type: string
       actualMoveDate:
+        description: The actual start date of when they began moving.
         format: date
         type: string
         x-nullable: true
         x-omitempty: false
       submittedAt:
+        description: >-
+          The timestamp of when the customer submitted their move to the
+          counselor.
         format: date-time
         type: string
         x-nullable: true
         x-omitempty: false
       reviewedAt:
+        description: >-
+          The timestamp of when the Service Counselor has reviewed all of the
+          closeout documents
         format: date-time
         type: string
         x-nullable: true
@@ -2802,6 +2818,7 @@ definitions:
       ppmShipment:
         $ref: '#/definitions/UpdatePPMShipment'
   UpdatePPMShipment:
+    description: The PPM specific fields of the shipment with values being changed
     type: object
     properties:
       expectedDepartureDate:
@@ -3305,6 +3322,14 @@ definitions:
         type: string
         readOnly: true
   PPMShipmentStatus:
+    description: |
+      Status of the PPM Shipment:
+        * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.
+        * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.
+        * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.
+        * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.
+        * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
+        * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
     type: string
     readOnly: true
     enum:
