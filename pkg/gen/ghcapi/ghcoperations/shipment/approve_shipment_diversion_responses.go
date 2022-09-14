@@ -16,7 +16,8 @@ import (
 // ApproveShipmentDiversionOKCode is the HTTP code returned for type ApproveShipmentDiversionOK
 const ApproveShipmentDiversionOKCode int = 200
 
-/*ApproveShipmentDiversionOK Successfully approved the shipment diversion
+/*
+ApproveShipmentDiversionOK Successfully approved the shipment diversion
 
 swagger:response approveShipmentDiversionOK
 */
@@ -60,7 +61,8 @@ func (o *ApproveShipmentDiversionOK) WriteResponse(rw http.ResponseWriter, produ
 // ApproveShipmentDiversionForbiddenCode is the HTTP code returned for type ApproveShipmentDiversionForbidden
 const ApproveShipmentDiversionForbiddenCode int = 403
 
-/*ApproveShipmentDiversionForbidden The request was denied
+/*
+ApproveShipmentDiversionForbidden The request was denied
 
 swagger:response approveShipmentDiversionForbidden
 */
@@ -104,7 +106,8 @@ func (o *ApproveShipmentDiversionForbidden) WriteResponse(rw http.ResponseWriter
 // ApproveShipmentDiversionNotFoundCode is the HTTP code returned for type ApproveShipmentDiversionNotFound
 const ApproveShipmentDiversionNotFoundCode int = 404
 
-/*ApproveShipmentDiversionNotFound The requested resource wasn't found
+/*
+ApproveShipmentDiversionNotFound The requested resource wasn't found
 
 swagger:response approveShipmentDiversionNotFound
 */
@@ -148,7 +151,8 @@ func (o *ApproveShipmentDiversionNotFound) WriteResponse(rw http.ResponseWriter,
 // ApproveShipmentDiversionConflictCode is the HTTP code returned for type ApproveShipmentDiversionConflict
 const ApproveShipmentDiversionConflictCode int = 409
 
-/*ApproveShipmentDiversionConflict Conflict error
+/*
+ApproveShipmentDiversionConflict Conflict error
 
 swagger:response approveShipmentDiversionConflict
 */
@@ -192,7 +196,8 @@ func (o *ApproveShipmentDiversionConflict) WriteResponse(rw http.ResponseWriter,
 // ApproveShipmentDiversionPreconditionFailedCode is the HTTP code returned for type ApproveShipmentDiversionPreconditionFailed
 const ApproveShipmentDiversionPreconditionFailedCode int = 412
 
-/*ApproveShipmentDiversionPreconditionFailed Precondition failed
+/*
+ApproveShipmentDiversionPreconditionFailed Precondition failed
 
 swagger:response approveShipmentDiversionPreconditionFailed
 */
@@ -236,7 +241,8 @@ func (o *ApproveShipmentDiversionPreconditionFailed) WriteResponse(rw http.Respo
 // ApproveShipmentDiversionUnprocessableEntityCode is the HTTP code returned for type ApproveShipmentDiversionUnprocessableEntity
 const ApproveShipmentDiversionUnprocessableEntityCode int = 422
 
-/*ApproveShipmentDiversionUnprocessableEntity The payload was unprocessable.
+/*
+ApproveShipmentDiversionUnprocessableEntity The payload was unprocessable.
 
 swagger:response approveShipmentDiversionUnprocessableEntity
 */
@@ -280,7 +286,8 @@ func (o *ApproveShipmentDiversionUnprocessableEntity) WriteResponse(rw http.Resp
 // ApproveShipmentDiversionInternalServerErrorCode is the HTTP code returned for type ApproveShipmentDiversionInternalServerError
 const ApproveShipmentDiversionInternalServerErrorCode int = 500
 
-/*ApproveShipmentDiversionInternalServerError A server error occurred
+/*
+ApproveShipmentDiversionInternalServerError A server error occurred
 
 swagger:response approveShipmentDiversionInternalServerError
 */

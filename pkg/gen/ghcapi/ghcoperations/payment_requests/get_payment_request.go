@@ -29,12 +29,12 @@ func NewGetPaymentRequest(ctx *middleware.Context, handler GetPaymentRequestHand
 	return &GetPaymentRequest{Context: ctx, Handler: handler}
 }
 
-/* GetPaymentRequest swagger:route GET /payment-requests/{paymentRequestID} paymentRequests getPaymentRequest
+/*
+	GetPaymentRequest swagger:route GET /payment-requests/{paymentRequestID} paymentRequests getPaymentRequest
 
-Fetches a payment request by id
+# Fetches a payment request by id
 
 Fetches an instance of a payment request by id
-
 */
 type GetPaymentRequest struct {
 	Context *middleware.Context

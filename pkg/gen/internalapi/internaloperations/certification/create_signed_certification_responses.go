@@ -16,7 +16,8 @@ import (
 // CreateSignedCertificationCreatedCode is the HTTP code returned for type CreateSignedCertificationCreated
 const CreateSignedCertificationCreatedCode int = 201
 
-/*CreateSignedCertificationCreated created instance of signed_certification
+/*
+CreateSignedCertificationCreated created instance of signed_certification
 
 swagger:response createSignedCertificationCreated
 */
@@ -60,7 +61,8 @@ func (o *CreateSignedCertificationCreated) WriteResponse(rw http.ResponseWriter,
 // CreateSignedCertificationBadRequestCode is the HTTP code returned for type CreateSignedCertificationBadRequest
 const CreateSignedCertificationBadRequestCode int = 400
 
-/*CreateSignedCertificationBadRequest invalid request
+/*
+CreateSignedCertificationBadRequest invalid request
 
 swagger:response createSignedCertificationBadRequest
 */
@@ -84,7 +86,8 @@ func (o *CreateSignedCertificationBadRequest) WriteResponse(rw http.ResponseWrit
 // CreateSignedCertificationUnauthorizedCode is the HTTP code returned for type CreateSignedCertificationUnauthorized
 const CreateSignedCertificationUnauthorizedCode int = 401
 
-/*CreateSignedCertificationUnauthorized request requires user authentication
+/*
+CreateSignedCertificationUnauthorized request requires user authentication
 
 swagger:response createSignedCertificationUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *CreateSignedCertificationUnauthorized) WriteResponse(rw http.ResponseWr
 // CreateSignedCertificationForbiddenCode is the HTTP code returned for type CreateSignedCertificationForbidden
 const CreateSignedCertificationForbiddenCode int = 403
 
-/*CreateSignedCertificationForbidden user is not authorized to sign for this move
+/*
+CreateSignedCertificationForbidden user is not authorized to sign for this move
 
 swagger:response createSignedCertificationForbidden
 */
@@ -132,7 +136,8 @@ func (o *CreateSignedCertificationForbidden) WriteResponse(rw http.ResponseWrite
 // CreateSignedCertificationNotFoundCode is the HTTP code returned for type CreateSignedCertificationNotFound
 const CreateSignedCertificationNotFoundCode int = 404
 
-/*CreateSignedCertificationNotFound move not found
+/*
+CreateSignedCertificationNotFound move not found
 
 swagger:response createSignedCertificationNotFound
 */
@@ -156,7 +161,8 @@ func (o *CreateSignedCertificationNotFound) WriteResponse(rw http.ResponseWriter
 // CreateSignedCertificationInternalServerErrorCode is the HTTP code returned for type CreateSignedCertificationInternalServerError
 const CreateSignedCertificationInternalServerErrorCode int = 500
 
-/*CreateSignedCertificationInternalServerError internal server error
+/*
+CreateSignedCertificationInternalServerError internal server error
 
 swagger:response createSignedCertificationInternalServerError
 */

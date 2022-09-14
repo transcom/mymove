@@ -54,10 +54,12 @@ func NewProcessReviewedPaymentRequestsParamsWithHTTPClient(client *http.Client) 
 	}
 }
 
-/* ProcessReviewedPaymentRequestsParams contains all the parameters to send to the API endpoint
-   for the process reviewed payment requests operation.
+/*
+ProcessReviewedPaymentRequestsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the process reviewed payment requests operation.
+
+	Typically these are written to a http.Request.
 */
 type ProcessReviewedPaymentRequestsParams struct {
 

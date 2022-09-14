@@ -29,12 +29,12 @@ func NewCreateMovingExpense(ctx *middleware.Context, handler CreateMovingExpense
 	return &CreateMovingExpense{Context: ctx, Handler: handler}
 }
 
-/* CreateMovingExpense swagger:route POST /ppm-shipments/{ppmShipmentId}/moving-expenses ppm createMovingExpense
+/*
+	CreateMovingExpense swagger:route POST /ppm-shipments/{ppmShipmentId}/moving-expenses ppm createMovingExpense
 
-Creates moving expense document
+# Creates moving expense document
 
 Creates a moving expense document for the PPM shipment
-
 */
 type CreateMovingExpense struct {
 	Context *middleware.Context

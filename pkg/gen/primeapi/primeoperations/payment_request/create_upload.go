@@ -29,7 +29,8 @@ func NewCreateUpload(ctx *middleware.Context, handler CreateUploadHandler) *Crea
 	return &CreateUpload{Context: ctx, Handler: handler}
 }
 
-/* CreateUpload swagger:route POST /payment-requests/{paymentRequestID}/uploads paymentRequest createUpload
+/*
+	CreateUpload swagger:route POST /payment-requests/{paymentRequestID}/uploads paymentRequest createUpload
 
 createUpload
 
@@ -39,8 +40,6 @@ This endpoint **uploads** a Proof of Service document for a PaymentRequest.
 The PaymentRequest should already exist.
 
 PaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.
-
-
 */
 type CreateUpload struct {
 	Context *middleware.Context

@@ -29,12 +29,12 @@ func NewDeleteUploads(ctx *middleware.Context, handler DeleteUploadsHandler) *De
 	return &DeleteUploads{Context: ctx, Handler: handler}
 }
 
-/* DeleteUploads swagger:route DELETE /uploads uploads deleteUploads
+/*
+	DeleteUploads swagger:route DELETE /uploads uploads deleteUploads
 
-Deletes a collection of uploads
+# Deletes a collection of uploads
 
 Uploads represent a single digital file, such as a JPEG or PDF.
-
 */
 type DeleteUploads struct {
 	Context *middleware.Context

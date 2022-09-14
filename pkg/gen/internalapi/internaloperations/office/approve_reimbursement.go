@@ -29,12 +29,12 @@ func NewApproveReimbursement(ctx *middleware.Context, handler ApproveReimburseme
 	return &ApproveReimbursement{Context: ctx, Handler: handler}
 }
 
-/* ApproveReimbursement swagger:route POST /reimbursement/{reimbursementId}/approve office approveReimbursement
+/*
+	ApproveReimbursement swagger:route POST /reimbursement/{reimbursementId}/approve office approveReimbursement
 
-Approves the reimbursement
+# Approves the reimbursement
 
 Sets the status of the reimbursement to APPROVED.
-
 */
 type ApproveReimbursement struct {
 	Context *middleware.Context

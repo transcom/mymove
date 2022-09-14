@@ -16,7 +16,8 @@ import (
 // SearchDutyLocationsOKCode is the HTTP code returned for type SearchDutyLocationsOK
 const SearchDutyLocationsOKCode int = 200
 
-/*SearchDutyLocationsOK the instance of the duty location
+/*
+SearchDutyLocationsOK the instance of the duty location
 
 swagger:response searchDutyLocationsOK
 */
@@ -63,7 +64,8 @@ func (o *SearchDutyLocationsOK) WriteResponse(rw http.ResponseWriter, producer r
 // SearchDutyLocationsBadRequestCode is the HTTP code returned for type SearchDutyLocationsBadRequest
 const SearchDutyLocationsBadRequestCode int = 400
 
-/*SearchDutyLocationsBadRequest invalid request
+/*
+SearchDutyLocationsBadRequest invalid request
 
 swagger:response searchDutyLocationsBadRequest
 */
@@ -87,7 +89,8 @@ func (o *SearchDutyLocationsBadRequest) WriteResponse(rw http.ResponseWriter, pr
 // SearchDutyLocationsUnauthorizedCode is the HTTP code returned for type SearchDutyLocationsUnauthorized
 const SearchDutyLocationsUnauthorizedCode int = 401
 
-/*SearchDutyLocationsUnauthorized request requires user authentication
+/*
+SearchDutyLocationsUnauthorized request requires user authentication
 
 swagger:response searchDutyLocationsUnauthorized
 */
@@ -111,7 +114,8 @@ func (o *SearchDutyLocationsUnauthorized) WriteResponse(rw http.ResponseWriter, 
 // SearchDutyLocationsForbiddenCode is the HTTP code returned for type SearchDutyLocationsForbidden
 const SearchDutyLocationsForbiddenCode int = 403
 
-/*SearchDutyLocationsForbidden user is not authorized
+/*
+SearchDutyLocationsForbidden user is not authorized
 
 swagger:response searchDutyLocationsForbidden
 */
@@ -135,7 +139,8 @@ func (o *SearchDutyLocationsForbidden) WriteResponse(rw http.ResponseWriter, pro
 // SearchDutyLocationsNotFoundCode is the HTTP code returned for type SearchDutyLocationsNotFound
 const SearchDutyLocationsNotFoundCode int = 404
 
-/*SearchDutyLocationsNotFound matching duty location not found
+/*
+SearchDutyLocationsNotFound matching duty location not found
 
 swagger:response searchDutyLocationsNotFound
 */
@@ -159,7 +164,8 @@ func (o *SearchDutyLocationsNotFound) WriteResponse(rw http.ResponseWriter, prod
 // SearchDutyLocationsInternalServerErrorCode is the HTTP code returned for type SearchDutyLocationsInternalServerError
 const SearchDutyLocationsInternalServerErrorCode int = 500
 
-/*SearchDutyLocationsInternalServerError internal server error
+/*
+SearchDutyLocationsInternalServerError internal server error
 
 swagger:response searchDutyLocationsInternalServerError
 */
