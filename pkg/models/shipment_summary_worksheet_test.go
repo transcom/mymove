@@ -62,6 +62,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
 	// Save advance in reimbursements table by saving ppm
 	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
+
 	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
 	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
 
@@ -318,6 +319,229 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("$4,750.00", sswPage1.ActualObligationGCC95)
 	suite.Equal("$300.00", sswPage1.ActualObligationSIT)
 	suite.Equal("$10.00", sswPage1.ActualObligationAdvance)
+}
+
+func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
+	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
+	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
+
+	order := models.Order{
+		IssueDate:         orderIssueDate,
+		OrdersType:        internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:      models.StringPointer("012345"),
+		NewDutyLocationID: fortGordon.ID,
+		TAC:               models.StringPointer("NTA4"),
+		SAC:               models.StringPointer("SAC"),
+		HasDependents:     true,
+		SpouseHasProGear:  true,
+	}
+	paidWithGTCC := false
+	tollExpense := models.MovingExpenseReceiptTypeTolls
+	oilExpense := models.MovingExpenseReceiptTypeOil
+	amount := unit.Cents(10000)
+	movingExpenses := models.MovingExpenses{
+		{
+			MovingExpenseType: &tollExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &tollExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &tollExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &tollExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+	}
+
+	ssd := models.ShipmentSummaryFormData{
+		Order:          order,
+		MovingExpenses: movingExpenses,
+	}
+	sswPage2, _ := models.FormatValuesShipmentSummaryWorksheetFormPage2(ssd)
+
+	suite.Equal("NTA4", sswPage2.TAC)
+	suite.Equal("SAC", sswPage2.SAC)
+
+	// fields w/ no expenses should format as $0.00
+	suite.Equal("$0.00", sswPage2.RentalEquipmentGTCCPaid.String())
+	suite.Equal("$0.00", sswPage2.PackingMaterialsGTCCPaid.String())
+
+	suite.Equal("$0.00", sswPage2.ContractedExpenseGTCCPaid.String())
+	suite.Equal("$0.00", sswPage2.TotalGTCCPaid.String())
+	suite.Equal("$0.00", sswPage2.TotalGTCCPaidRepeated.String())
+
+	suite.Equal("$0.00", sswPage2.TollsMemberPaid.String())
+	suite.Equal("$0.00", sswPage2.GasMemberPaid.String())
+	suite.Equal("$0.00", sswPage2.TotalMemberPaid.String())
+	suite.Equal("$0.00", sswPage2.TotalMemberPaidRepeated.String())
+	suite.Equal("$0.00", sswPage2.TotalMemberPaidSIT.String())
+	suite.Equal("$0.00", sswPage2.TotalGTCCPaidSIT.String())
+}
+
+func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
+	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
+	sm := models.ServiceMember{
+		FirstName: models.StringPointer("John"),
+		LastName:  models.StringPointer("Smith"),
+	}
+	paidWithGTCC := false
+	tollExpense := models.MovingExpenseReceiptTypeTolls
+	oilExpense := models.MovingExpenseReceiptTypeOil
+	amount := unit.Cents(10000)
+	movingExpenses := models.MovingExpenses{
+		{
+			MovingExpenseType: &tollExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &tollExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+	}
+	signature := models.SignedCertification{
+		Date: signatureDate,
+	}
+
+	ssd := models.ShipmentSummaryFormData{
+		ServiceMember:       sm,
+		SignedCertification: signature,
+		MovingExpenses:      movingExpenses,
+	}
+
+	sswPage3 := models.FormatValuesShipmentSummaryWorksheetFormPage3(ssd)
+
+	suite.Equal("", sswPage3.AmountsPaid)
+	suite.Equal("John Smith electronically signed", sswPage3.ServiceMemberSignature)
+	suite.Equal("26 Jan 2019 at 2:40pm", sswPage3.SignatureDate)
+}
+
+func (suite *ModelSuite) TestGroupExpenses() {
+	paidWithGTCC := false
+	tollExpense := models.MovingExpenseReceiptTypeTolls
+	oilExpense := models.MovingExpenseReceiptTypeOil
+	amount := unit.Cents(10000)
+	testCases := []struct {
+		input    models.MovingExpenses
+		expected map[string]float64
+	}{
+		{
+			models.MovingExpenses{
+				{
+					MovingExpenseType: &tollExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
+				},
+				{
+					MovingExpenseType: &oilExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
+				},
+				{
+					MovingExpenseType: &oilExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
+				},
+				{
+					MovingExpenseType: &oilExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
+				},
+				{
+					MovingExpenseType: &tollExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
+				},
+			},
+			map[string]float64{
+				"OilMemberPaid":   300,
+				"TollsMemberPaid": 200,
+				"TotalMemberPaid": 500,
+				"TotalPaidNonSIT": 500,
+			},
+		},
+		{
+			models.MovingExpenses{
+				{
+					MovingExpenseType: &tollExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
+				},
+				{
+					MovingExpenseType: &oilExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
+				},
+				{
+					MovingExpenseType: &oilExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
+				},
+				{
+					MovingExpenseType: &oilExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
+				},
+				{
+					MovingExpenseType: &tollExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
+				},
+			},
+			map[string]float64{
+				"OilMemberPaid":   300,
+				"TollsMemberPaid": 200,
+				"TotalMemberPaid": 500,
+				"TotalPaidNonSIT": 500,
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		actual := models.SubTotalExpenses(testCase.input)
+		suite.Equal(testCase.expected, actual)
+	}
+
 }
 
 func (suite *ModelSuite) TestCalculatePPMEntitlementPPMGreaterThanRemainingEntitlement() {
