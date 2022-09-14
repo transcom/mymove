@@ -8,7 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func MakeDevClientCert(db *pop.Connection, assertions Assertions) {
+func MakeDevClientCert(db *pop.Connection, assertions Assertions) models.ClientCert {
 	clientCert := models.ClientCert{
 		ID:                          uuid.Must(uuid.FromString("190b1e07-eef8-445a-9696-5a2b49ee488d")),
 		Sha256Digest:                "2c0c1fc67a294443292a9e71de0c71cc374fe310e8073f8cdc15510f6b0ef4db",
@@ -38,5 +38,7 @@ func MakeDevClientCert(db *pop.Connection, assertions Assertions) {
 		// client cert already exists; update existing client cert
 		mergeModels(existingCert, clientCert)
 		MustSave(db, existingCert)
+		return *existingCert
 	}
+	return clientCert
 }
