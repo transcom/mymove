@@ -2,21 +2,23 @@ package query
 
 import (
 	"fmt"
-	"strings"
+	"os"
+	"path"
 
 	"github.com/qustavo/dotsql"
 )
 
-// GetQueryStringFromFile accepts a file name and a query name,
+// GetQueryStringFromFile accepts a query name,
 // returns SQL query as a string
-func GetQueryStringFromFile(filePath string, queryName string) (string, error) {
-	isValidPath := strings.HasSuffix(filePath, ".sql")
-
-	if !isValidPath {
-		filePath += ".sql"
+func GetQueryString(queryName string) (string, error) {
+	sqlDir := "services/query/sql_scripts"
+	cwd, err := os.Getwd()
+	if err != nil {
+		panic(err)
 	}
 
-	dot, err := dotsql.LoadFromFile(filePath)
+	queryPath := path.Join(cwd, "..", "..", sqlDir, queryName+".sql")
+	dot, err := dotsql.LoadFromFile(queryPath)
 
 	if err != nil {
 		return "", err
@@ -29,12 +31,4 @@ func GetQueryStringFromFile(filePath string, queryName string) (string, error) {
 	}
 
 	return query, nil
-}
-
-// GetQueryString accepts a query name, and assumes that the query resides
-// in a file with the same name.
-// Returns SQL query as a string.
-func GetQueryString(queryName string) (string, error) {
-	filePath := "pkg/services/query/sql_scripts/" + queryName + ".sql"
-	return GetQueryStringFromFile(filePath, queryName)
 }
