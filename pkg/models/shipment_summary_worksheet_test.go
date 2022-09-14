@@ -118,6 +118,29 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
 }
 
+func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
+	moveID, _ := uuid.NewV4()
+	serviceMemberID, _ := uuid.NewV4()
+	moveType := models.SelectedMoveTypeHHG
+
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			ID:               moveID,
+			SelectedMoveType: &moveType,
+		},
+	})
+	session := auth.Session{
+		UserID:          move.Orders.ServiceMember.UserID,
+		ServiceMemberID: serviceMemberID,
+		ApplicationName: auth.MilApp,
+	}
+
+	movingExpenses, err := models.FetchMovingExpensesShipmentSummaryWorksheet(move, suite.DB(), &session)
+
+	suite.Len(movingExpenses, 0)
+	suite.NoError(err)
+}
+
 func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
@@ -158,9 +181,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	// Save advance in reimbursements table by saving ppm
 	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
 
-	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
-	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
-	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
@@ -210,6 +230,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
 	suite.Equal(unit.Cents(1000), ssd.PersonallyProcuredMoves[0].Advance.RequestedAmount)
 	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
+	suite.Require().Len(ssd.MovingExpenses, 0)
 }
 
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {

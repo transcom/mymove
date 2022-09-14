@@ -517,6 +517,14 @@ func FormatMovingExpenses(movingExpenseDocuments MovingExpenses) (FormattedMovin
 	return SubTotalsMapToStruct(SubTotalExpenses(movingExpenseDocuments))
 }
 
+// FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
+// TODO: update to create moving expense summary with the new moving expense model
+func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, session *auth.Session) ([]MovingExpense, error) {
+	var movingExpenseDocuments []MovingExpense
+
+	return movingExpenseDocuments, nil
+}
+
 //SubTotalExpenses groups moving expenses by type and payment method
 func SubTotalExpenses(expenseDocuments MovingExpenses) map[string]float64 {
 	var expenseType string
