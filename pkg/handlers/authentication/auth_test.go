@@ -38,6 +38,8 @@ const (
 	OrdersTestHost string = "orders.example.com"
 	// AdminTestHost
 	AdminTestHost string = "admin.example.com"
+	// PrimeTestHost
+	PrimeTestHost string = "prime.example.com"
 )
 
 // UserSessionCookieName is the key suffix at which we're storing our token cookie
@@ -1218,4 +1220,32 @@ func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
 	suite.Equal(OfficeTestHost, redirectURL.Hostname())
 	suite.Equal(strconv.Itoa(callbackPort), redirectURL.Port())
 	suite.Equal("/", redirectURL.EscapedPath())
+}
+
+func (suite *AuthSuite) TestAuthorizePrime() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	clientCert := testdatagen.MakeDevClientCert(suite.DB(), testdatagen.Assertions{
+		ClientCert: models.ClientCert{
+			UserID: user.ID,
+		},
+	})
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/prime/v1", PrimeTestHost), nil)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	middleware := PrimeAuthorizationMiddleware(suite.Logger())(handler)
+	rr := httptest.NewRecorder()
+
+	ctx := SetClientCertInRequestContext(req, &clientCert)
+	req = req.WithContext(ctx)
+	middleware.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusOK, rr.Code)
+
+	// no cert in request
+	rr = httptest.NewRecorder()
+	req = httptest.NewRequest("GET", fmt.Sprintf("http://%s/prime/v1", PrimeTestHost), nil)
+	middleware.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusUnauthorized, rr.Code)
 }
