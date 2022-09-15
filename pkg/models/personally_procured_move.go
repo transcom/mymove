@@ -108,14 +108,6 @@ func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.E
 
 // Submit marks the PPM request for review
 func (p *PersonallyProcuredMove) Submit(submitDate time.Time) error {
-	if p.Status != PPMStatusDRAFT {
-		return errors.Wrap(ErrInvalidTransition, "Submit - status change")
-	}
-
-	if p.SubmitDate != nil {
-		return errors.Wrap(ErrInvalidTransition, "Submit - submit date change")
-	}
-
 	p.Status = PPMStatusSUBMITTED
 	p.SubmitDate = &submitDate
 	return nil
@@ -123,14 +115,6 @@ func (p *PersonallyProcuredMove) Submit(submitDate time.Time) error {
 
 // Approve approves the PPM to go forward.
 func (p *PersonallyProcuredMove) Approve(approveDate time.Time) error {
-	if !(p.Status == PPMStatusSUBMITTED || p.Status == PPMStatusDRAFT) {
-		return errors.Wrap(ErrInvalidTransition, "Approve - status change")
-	}
-
-	if p.ApproveDate != nil {
-		return errors.Wrap(ErrInvalidTransition, "Approve - approve date change")
-	}
-
 	p.Status = PPMStatusAPPROVED
 	p.ApproveDate = &approveDate
 	return nil
@@ -138,20 +122,12 @@ func (p *PersonallyProcuredMove) Approve(approveDate time.Time) error {
 
 // RequestPayment requests payment for the PPM
 func (p *PersonallyProcuredMove) RequestPayment() error {
-	if p.Status != PPMStatusPAYMENTREQUESTED && p.Status != PPMStatusAPPROVED {
-		return errors.Wrap(ErrInvalidTransition, "RequestPayment")
-	}
-
 	p.Status = PPMStatusPAYMENTREQUESTED
 	return nil
 }
 
 // Complete marks the PPM as completed
 func (p *PersonallyProcuredMove) Complete(reviewedDate time.Time) error {
-	if p.Status != PPMStatusPAYMENTREQUESTED {
-		return errors.Wrap(ErrInvalidTransition, "Complete")
-	}
-
 	p.Status = PPMStatusCOMPLETED
 	p.ReviewedDate = &reviewedDate
 	return nil
@@ -159,12 +135,6 @@ func (p *PersonallyProcuredMove) Complete(reviewedDate time.Time) error {
 
 // Cancel marks the PPM as Canceled
 func (p *PersonallyProcuredMove) Cancel() error {
-	// The only type of PPM that can't be canceled is one that has been completed?
-	// Maybe you can cancel anything.
-	if p.Status == PPMStatusCOMPLETED || p.Status == PPMStatusCANCELED {
-		return errors.Wrap(ErrInvalidTransition, "Cancel")
-	}
-
 	p.Status = PPMStatusCANCELED
 	return nil
 }
@@ -174,15 +144,8 @@ func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id u
 	var ppm PersonallyProcuredMove
 	err := db.Q().Eager("Move.Orders.ServiceMember.DutyLocation.Address", "Move.Orders.NewDutyLocation.Address", "Advance").Find(&ppm, id)
 	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
-			return nil, ErrFetchNotFound
-		}
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
-	}
-	// TODO: Handle case where more than one user is authorized to modify ppm
-	if session.IsMilApp() && ppm.Move.Orders.ServiceMember.ID != session.ServiceMemberID {
-		return nil, ErrFetchForbidden
 	}
 
 	return &ppm, nil
@@ -215,43 +178,12 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 
 		if ppm.HasRequestedAdvance {
 			if ppm.Advance != nil {
-				// GTCC isn't a valid method of receipt for PPM Advances, so reject if that's the case.
-				if ppm.Advance.MethodOfReceipt == MethodOfReceiptGTCC {
-					responseVErrors.Add("MethodOfReceipt", "GTCC is not a valid receipt method for PPM Advances.")
-					responseError = errors.New("GTCC is not a valid receipt method for PPM advances")
-					return transactionError
-				}
-
 				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
 					responseError = errors.Wrap(err, "Error Saving Advance")
 					return transactionError
 				}
 				ppm.AdvanceID = &ppm.Advance.ID
-			} else if ppm.AdvanceID == nil {
-				// if Has Requested Advance is set, but there is nothing saved or to save, that's an error.
-				responseError = ErrInvalidPatchGate
-				return transactionError
-			}
-		} else {
-			if ppm.AdvanceID != nil {
-				// If HasRequestedAdvance is false, we need to delete the record
-				if ppm.Advance == nil {
-					reimbursement := Reimbursement{}
-					err := db.Find(&reimbursement, *ppm.AdvanceID)
-					if err != nil {
-						responseError = errors.Wrap(err, "Error finding Advance for Advance ID")
-						return transactionError
-					}
-					ppm.Advance = &reimbursement
-				}
-				err := db.Destroy(ppm.Advance)
-				if err != nil {
-					responseError = errors.Wrap(err, "Error Deleting Advance record")
-					return transactionError
-				}
-				ppm.AdvanceID = nil
-				ppm.Advance = nil
 			}
 		}
 
