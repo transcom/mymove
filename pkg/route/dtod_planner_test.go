@@ -92,7 +92,7 @@ func (suite *GHCTestSuite) TestDTODZip5TransitDistanceLineHaul() {
 }
 
 func (suite *GHCTestSuite) TestDTODZipTransitDistance() {
-	suite.T().Run("fake DTOD returns a distance", func(t *testing.T) {
+	suite.Run("fake DTOD returns a distance", func() {
 		testSoapClient := &ghcmocks.SoapCaller{}
 		testSoapClient.On("Call",
 			mock.Anything,
@@ -116,7 +116,7 @@ func (suite *GHCTestSuite) TestDTODZipTransitDistance() {
 		suite.Equal(150, distance)
 	})
 
-	suite.T().Run("fake DTOD returns an error", func(t *testing.T) {
+	suite.Run("fake DTOD returns an error", func() {
 		testSoapClient := &ghcmocks.SoapCaller{}
 		testSoapClient.On("Call",
 			mock.Anything,

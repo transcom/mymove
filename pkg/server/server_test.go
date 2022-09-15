@@ -50,7 +50,7 @@ func (suite *serverSuite) readFile(filename string) []byte {
 
 	contents, err := ioutil.ReadFile(filepath.Clean(filePath))
 	if err != nil {
-		suite.T().Fatalf("failed to read file %s: %s", filename, err)
+		suite.Fail("failed to read file %s: %s", filename, err)
 	}
 	return contents
 
@@ -294,7 +294,7 @@ func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
 func (suite *serverSuite) TestTLSConfigWithRequest() {
 	var versions = map[string]uint16{"1.2": tls.VersionTLS12, "1.3": tls.VersionTLS13}
 	for name, version := range versions {
-		suite.T().Run(fmt.Sprintf("TLS version %s", name), func(t *testing.T) {
+		suite.Run(fmt.Sprintf("TLS version %s", name), func() {
 			suite.testTLSConfigWithRequest(version)
 		})
 	}

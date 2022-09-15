@@ -98,6 +98,14 @@ const Shipment = ({ shipment, moveId, onDelete }) => {
         <dd>{shipment.actualPickupDate}</dd>
       </div>
       <div className={descriptionListStyles.row}>
+        <dt>Scheduled Delivery Date:</dt>
+        <dd>{shipment.scheduledDeliveryDate}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Actual Delivery Date:</dt>
+        <dd>{shipment.actualDeliveryDate}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
         <dt>Estimated Weight:</dt>
         <dd>{shipment.primeEstimatedWeight}</dd>
       </div>

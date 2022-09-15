@@ -10,8 +10,6 @@
 package route
 
 import (
-	"testing"
-
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 
@@ -72,7 +70,7 @@ func (suite *GHCTestSuite) TestZip5TransitDistanceLineHaul() {
 }
 
 func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
-	suite.T().Run("fake DTOD returns a distance", func(t *testing.T) {
+	suite.Run("fake DTOD returns a distance", func() {
 		testSoapClient := &ghcmocks.SoapCaller{}
 		testSoapClient.On("Call",
 			mock.Anything,
@@ -96,7 +94,7 @@ func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 		suite.Equal(150, distance)
 	})
 
-	suite.T().Run("fake DTOD returns an error", func(t *testing.T) {
+	suite.Run("fake DTOD returns an error", func() {
 		testSoapClient := &ghcmocks.SoapCaller{}
 		testSoapClient.On("Call",
 			mock.Anything,
