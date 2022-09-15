@@ -11,15 +11,14 @@ import (
 	"sync"
 	"time"
 
+	"github.com/DATA-DOG/go-txdb"
 	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // Anonymously import lib/pq driver so it's available to Pop
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
-
-	"github.com/DATA-DOG/go-txdb"
-	"github.com/jmoiron/sqlx"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
