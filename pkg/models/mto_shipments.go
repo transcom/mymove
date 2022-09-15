@@ -107,6 +107,8 @@ type MTOShipment struct {
 	FirstAvailableDeliveryDate       *time.Time        `db:"first_available_delivery_date"`
 	ActualPickupDate                 *time.Time        `db:"actual_pickup_date"`
 	RequiredDeliveryDate             *time.Time        `db:"required_delivery_date"`
+	ScheduledDeliveryDate            *time.Time        `db:"scheduled_delivery_date"`
+	ActualDeliveryDate               *time.Time        `db:"actual_delivery_date"`
 	CustomerRemarks                  *string           `db:"customer_remarks"`
 	CounselorRemarks                 *string           `db:"counselor_remarks"`
 	PickupAddress                    *Address          `belongs_to:"addresses" fk_id:"pickup_address_id"`

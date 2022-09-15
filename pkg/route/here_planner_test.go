@@ -108,7 +108,7 @@ func (suite *HereFullSuite) SetupTest() {
 	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
 	if len(geocodeEndpoint) == 0 || len(routingEndpoint) == 0 ||
 		len(testAppID) == 0 || len(testAppCode) == 0 {
-		suite.T().Fatal("You must set HERE_... environment variables to run this test")
+		suite.Fail("You must set HERE_... environment variables to run this test")
 	}
 
 	client := &http.Client{Timeout: time.Duration(15) * time.Second}

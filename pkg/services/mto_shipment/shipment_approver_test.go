@@ -133,7 +133,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		suite.Equal(models.MTOShipmentStatusApproved, fetchedShipment.Status)
 		suite.Equal(shipment.ID, fetchedShipment.ID)
 
-		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
+		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).Order("created_at asc").All(&serviceItems)
 		suite.NoError(err)
 
 		suite.Equal(6, len(serviceItems))
