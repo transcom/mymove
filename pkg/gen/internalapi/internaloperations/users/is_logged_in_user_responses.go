@@ -14,7 +14,8 @@ import (
 // IsLoggedInUserOKCode is the HTTP code returned for type IsLoggedInUserOK
 const IsLoggedInUserOKCode int = 200
 
-/*IsLoggedInUserOK Currently logged in user
+/*
+IsLoggedInUserOK Currently logged in user
 
 swagger:response isLoggedInUserOK
 */
@@ -58,7 +59,8 @@ func (o *IsLoggedInUserOK) WriteResponse(rw http.ResponseWriter, producer runtim
 // IsLoggedInUserBadRequestCode is the HTTP code returned for type IsLoggedInUserBadRequest
 const IsLoggedInUserBadRequestCode int = 400
 
-/*IsLoggedInUserBadRequest invalid request
+/*
+IsLoggedInUserBadRequest invalid request
 
 swagger:response isLoggedInUserBadRequest
 */
@@ -82,7 +84,8 @@ func (o *IsLoggedInUserBadRequest) WriteResponse(rw http.ResponseWriter, produce
 // IsLoggedInUserInternalServerErrorCode is the HTTP code returned for type IsLoggedInUserInternalServerError
 const IsLoggedInUserInternalServerErrorCode int = 500
 
-/*IsLoggedInUserInternalServerError server error
+/*
+IsLoggedInUserInternalServerError server error
 
 swagger:response isLoggedInUserInternalServerError
 */

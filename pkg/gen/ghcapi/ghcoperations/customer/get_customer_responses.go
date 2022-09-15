@@ -16,7 +16,8 @@ import (
 // GetCustomerOKCode is the HTTP code returned for type GetCustomerOK
 const GetCustomerOKCode int = 200
 
-/*GetCustomerOK Successfully retrieved information on an individual customer
+/*
+GetCustomerOK Successfully retrieved information on an individual customer
 
 swagger:response getCustomerOK
 */
@@ -60,7 +61,8 @@ func (o *GetCustomerOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 // GetCustomerBadRequestCode is the HTTP code returned for type GetCustomerBadRequest
 const GetCustomerBadRequestCode int = 400
 
-/*GetCustomerBadRequest The request payload is invalid
+/*
+GetCustomerBadRequest The request payload is invalid
 
 swagger:response getCustomerBadRequest
 */
@@ -104,7 +106,8 @@ func (o *GetCustomerBadRequest) WriteResponse(rw http.ResponseWriter, producer r
 // GetCustomerUnauthorizedCode is the HTTP code returned for type GetCustomerUnauthorized
 const GetCustomerUnauthorizedCode int = 401
 
-/*GetCustomerUnauthorized The request was denied
+/*
+GetCustomerUnauthorized The request was denied
 
 swagger:response getCustomerUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *GetCustomerUnauthorized) WriteResponse(rw http.ResponseWriter, producer
 // GetCustomerForbiddenCode is the HTTP code returned for type GetCustomerForbidden
 const GetCustomerForbiddenCode int = 403
 
-/*GetCustomerForbidden The request was denied
+/*
+GetCustomerForbidden The request was denied
 
 swagger:response getCustomerForbidden
 */
@@ -192,7 +196,8 @@ func (o *GetCustomerForbidden) WriteResponse(rw http.ResponseWriter, producer ru
 // GetCustomerNotFoundCode is the HTTP code returned for type GetCustomerNotFound
 const GetCustomerNotFoundCode int = 404
 
-/*GetCustomerNotFound The requested resource wasn't found
+/*
+GetCustomerNotFound The requested resource wasn't found
 
 swagger:response getCustomerNotFound
 */
@@ -236,7 +241,8 @@ func (o *GetCustomerNotFound) WriteResponse(rw http.ResponseWriter, producer run
 // GetCustomerInternalServerErrorCode is the HTTP code returned for type GetCustomerInternalServerError
 const GetCustomerInternalServerErrorCode int = 500
 
-/*GetCustomerInternalServerError A server error occurred
+/*
+GetCustomerInternalServerError A server error occurred
 
 swagger:response getCustomerInternalServerError
 */

@@ -16,7 +16,8 @@ import (
 // UpdateMaxBillableWeightAsTIOOKCode is the HTTP code returned for type UpdateMaxBillableWeightAsTIOOK
 const UpdateMaxBillableWeightAsTIOOKCode int = 200
 
-/*UpdateMaxBillableWeightAsTIOOK updated Order
+/*
+UpdateMaxBillableWeightAsTIOOK updated Order
 
 swagger:response updateMaxBillableWeightAsTIOOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateMaxBillableWeightAsTIOOK) WriteResponse(rw http.ResponseWriter, p
 // UpdateMaxBillableWeightAsTIOForbiddenCode is the HTTP code returned for type UpdateMaxBillableWeightAsTIOForbidden
 const UpdateMaxBillableWeightAsTIOForbiddenCode int = 403
 
-/*UpdateMaxBillableWeightAsTIOForbidden The request was denied
+/*
+UpdateMaxBillableWeightAsTIOForbidden The request was denied
 
 swagger:response updateMaxBillableWeightAsTIOForbidden
 */
@@ -104,7 +106,8 @@ func (o *UpdateMaxBillableWeightAsTIOForbidden) WriteResponse(rw http.ResponseWr
 // UpdateMaxBillableWeightAsTIONotFoundCode is the HTTP code returned for type UpdateMaxBillableWeightAsTIONotFound
 const UpdateMaxBillableWeightAsTIONotFoundCode int = 404
 
-/*UpdateMaxBillableWeightAsTIONotFound The requested resource wasn't found
+/*
+UpdateMaxBillableWeightAsTIONotFound The requested resource wasn't found
 
 swagger:response updateMaxBillableWeightAsTIONotFound
 */
@@ -148,7 +151,8 @@ func (o *UpdateMaxBillableWeightAsTIONotFound) WriteResponse(rw http.ResponseWri
 // UpdateMaxBillableWeightAsTIOPreconditionFailedCode is the HTTP code returned for type UpdateMaxBillableWeightAsTIOPreconditionFailed
 const UpdateMaxBillableWeightAsTIOPreconditionFailedCode int = 412
 
-/*UpdateMaxBillableWeightAsTIOPreconditionFailed Precondition failed
+/*
+UpdateMaxBillableWeightAsTIOPreconditionFailed Precondition failed
 
 swagger:response updateMaxBillableWeightAsTIOPreconditionFailed
 */
@@ -192,7 +196,8 @@ func (o *UpdateMaxBillableWeightAsTIOPreconditionFailed) WriteResponse(rw http.R
 // UpdateMaxBillableWeightAsTIOUnprocessableEntityCode is the HTTP code returned for type UpdateMaxBillableWeightAsTIOUnprocessableEntity
 const UpdateMaxBillableWeightAsTIOUnprocessableEntityCode int = 422
 
-/*UpdateMaxBillableWeightAsTIOUnprocessableEntity The payload was unprocessable.
+/*
+UpdateMaxBillableWeightAsTIOUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateMaxBillableWeightAsTIOUnprocessableEntity
 */
@@ -236,7 +241,8 @@ func (o *UpdateMaxBillableWeightAsTIOUnprocessableEntity) WriteResponse(rw http.
 // UpdateMaxBillableWeightAsTIOInternalServerErrorCode is the HTTP code returned for type UpdateMaxBillableWeightAsTIOInternalServerError
 const UpdateMaxBillableWeightAsTIOInternalServerErrorCode int = 500
 
-/*UpdateMaxBillableWeightAsTIOInternalServerError A server error occurred
+/*
+UpdateMaxBillableWeightAsTIOInternalServerError A server error occurred
 
 swagger:response updateMaxBillableWeightAsTIOInternalServerError
 */

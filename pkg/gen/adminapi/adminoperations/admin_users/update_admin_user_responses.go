@@ -16,7 +16,8 @@ import (
 // UpdateAdminUserOKCode is the HTTP code returned for type UpdateAdminUserOK
 const UpdateAdminUserOKCode int = 200
 
-/*UpdateAdminUserOK Successfully updated Admin User
+/*
+UpdateAdminUserOK Successfully updated Admin User
 
 swagger:response updateAdminUserOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateAdminUserOK) WriteResponse(rw http.ResponseWriter, producer runti
 // UpdateAdminUserBadRequestCode is the HTTP code returned for type UpdateAdminUserBadRequest
 const UpdateAdminUserBadRequestCode int = 400
 
-/*UpdateAdminUserBadRequest Invalid Request
+/*
+UpdateAdminUserBadRequest Invalid Request
 
 swagger:response updateAdminUserBadRequest
 */
@@ -84,7 +86,8 @@ func (o *UpdateAdminUserBadRequest) WriteResponse(rw http.ResponseWriter, produc
 // UpdateAdminUserUnauthorizedCode is the HTTP code returned for type UpdateAdminUserUnauthorized
 const UpdateAdminUserUnauthorizedCode int = 401
 
-/*UpdateAdminUserUnauthorized Must be authenticated to use this end point
+/*
+UpdateAdminUserUnauthorized Must be authenticated to use this end point
 
 swagger:response updateAdminUserUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *UpdateAdminUserUnauthorized) WriteResponse(rw http.ResponseWriter, prod
 // UpdateAdminUserForbiddenCode is the HTTP code returned for type UpdateAdminUserForbidden
 const UpdateAdminUserForbiddenCode int = 403
 
-/*UpdateAdminUserForbidden Not authorized to update an admin user
+/*
+UpdateAdminUserForbidden Not authorized to update an admin user
 
 swagger:response updateAdminUserForbidden
 */
@@ -132,7 +136,8 @@ func (o *UpdateAdminUserForbidden) WriteResponse(rw http.ResponseWriter, produce
 // UpdateAdminUserInternalServerErrorCode is the HTTP code returned for type UpdateAdminUserInternalServerError
 const UpdateAdminUserInternalServerErrorCode int = 500
 
-/*UpdateAdminUserInternalServerError Server error
+/*
+UpdateAdminUserInternalServerError Server error
 
 swagger:response updateAdminUserInternalServerError
 */

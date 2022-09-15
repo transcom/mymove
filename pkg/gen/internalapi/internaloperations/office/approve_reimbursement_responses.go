@@ -16,7 +16,8 @@ import (
 // ApproveReimbursementOKCode is the HTTP code returned for type ApproveReimbursementOK
 const ApproveReimbursementOKCode int = 200
 
-/*ApproveReimbursementOK updated instance of reimbursement
+/*
+ApproveReimbursementOK updated instance of reimbursement
 
 swagger:response approveReimbursementOK
 */
@@ -60,7 +61,8 @@ func (o *ApproveReimbursementOK) WriteResponse(rw http.ResponseWriter, producer 
 // ApproveReimbursementBadRequestCode is the HTTP code returned for type ApproveReimbursementBadRequest
 const ApproveReimbursementBadRequestCode int = 400
 
-/*ApproveReimbursementBadRequest invalid request
+/*
+ApproveReimbursementBadRequest invalid request
 
 swagger:response approveReimbursementBadRequest
 */
@@ -84,7 +86,8 @@ func (o *ApproveReimbursementBadRequest) WriteResponse(rw http.ResponseWriter, p
 // ApproveReimbursementUnauthorizedCode is the HTTP code returned for type ApproveReimbursementUnauthorized
 const ApproveReimbursementUnauthorizedCode int = 401
 
-/*ApproveReimbursementUnauthorized request requires user authentication
+/*
+ApproveReimbursementUnauthorized request requires user authentication
 
 swagger:response approveReimbursementUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *ApproveReimbursementUnauthorized) WriteResponse(rw http.ResponseWriter,
 // ApproveReimbursementForbiddenCode is the HTTP code returned for type ApproveReimbursementForbidden
 const ApproveReimbursementForbiddenCode int = 403
 
-/*ApproveReimbursementForbidden user is not authorized
+/*
+ApproveReimbursementForbidden user is not authorized
 
 swagger:response approveReimbursementForbidden
 */
@@ -132,7 +136,8 @@ func (o *ApproveReimbursementForbidden) WriteResponse(rw http.ResponseWriter, pr
 // ApproveReimbursementInternalServerErrorCode is the HTTP code returned for type ApproveReimbursementInternalServerError
 const ApproveReimbursementInternalServerErrorCode int = 500
 
-/*ApproveReimbursementInternalServerError internal server error
+/*
+ApproveReimbursementInternalServerError internal server error
 
 swagger:response approveReimbursementInternalServerError
 */

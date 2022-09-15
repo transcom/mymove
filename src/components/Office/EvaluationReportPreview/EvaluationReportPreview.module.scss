@@ -1,25 +1,16 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/colors';
 
-.evaluationReportContainer {
-  @include u-padding-top(0);
-  @include u-padding-x(2);
-  @include u-padding-bottom(3);
-  @include u-bg('white');
-  @include u-padding-left(3);
-  @include u-padding-right(3);
+.bordered {
+  @include u-border-top('base-lighter');
+}
 
-  :global .table--data-point-group {
-    @include u-margin-bottom(3);
-  }
-
-  :global .evaluationReport-heading {
-    @include u-margin-bottom(3);
-  }
+.borderless {
+  margin-top: -32px;
 }
 
 .pageHeader {
-  @include u-margin-y(3);
+  @include u-margin-y(4);
   display: flex;
   justify-content: space-between;
 
@@ -40,27 +31,6 @@
   text-align: right;
 }
 
-.evaluationReportModal {
-  min-width: 1200px !important;
-  overflow-y: auto;
-  max-height: 90vh;
-  @include u-padding-bottom(5 !important);
-  dd {
-    width: 164px;
-  }
-}
-
-.approvalClose {
-  @include u-float('right');
-  @include u-padding-right(0);
-  cursor: pointer;
-  svg {
-    width: 24px;
-    height: 24px;
-    color: $base;
-  }
-}
-
 .sideBySideDetails {
   display: flex;
   justify-content: space-between;
@@ -68,18 +38,27 @@
 
 .detailsRight {
   @include u-margin-left(2);
+  @include u-margin-bottom(3);
 }
 
 .detailsLeft {
   @include u-margin-right(2);
+  @include u-margin-bottom(3);
+}
+
+.counselingDetails {
+  @include u-margin-bottom(3);
 }
 
 .section {
-  @include u-margin-top(4);
+  @include u-margin-top(2);
   @include u-padding(4);
   @include u-radius('05');
   @include u-border('base-lighter');
   @include u-border('1px');
+  h2 {
+    @include u-margin(0);
+  }
   h3 {
     @include u-margin-top(1);
   }
@@ -87,12 +66,6 @@
 
 .shipmentDisplayContainer {
   @include u-margin-top(2);
-}
-
-.buttonsGroup {
-  display: flex;
-  justify-content: flex-end;
-  @include u-margin-top(5);
 }
 
 .qaeRemarks {
@@ -104,6 +77,6 @@
 }
 
 .qaeAndCustomerInfo {
-  @include u-margin-left(36px);
-  @include u-margin-top(68px);
+  @include u-margin-left(4);
+  @include u-margin-top(6);
 }

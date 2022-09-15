@@ -2,25 +2,25 @@
 
 // Package supportapi MilMove Support API
 //
-//  The Support API gives you programmatic access to support functionality useful
-//  for testing and debugging. **This API is not available in the Production
-//  environment**.
+//	The Support API gives you programmatic access to support functionality useful
+//	for testing and debugging. **This API is not available in the Production
+//	environment**.
 //
-//  All endpoints are located at `/support/v1/`.
+//	All endpoints are located at `/support/v1/`.
 //
-//  Schemes:
-//    http
-//  Host: localhost
-//  BasePath: /support/v1
-//  Version: 0.0.1
-//  License: MIT https://opensource.org/licenses/MIT
-//  Contact: <dp3@truss.works>
+//	Schemes:
+//	  http
+//	Host: localhost
+//	BasePath: /support/v1
+//	Version: 0.0.1
+//	License: MIT https://opensource.org/licenses/MIT
+//	Contact: <dp3@truss.works>
 //
-//  Consumes:
-//    - application/json
+//	Consumes:
+//	  - application/json
 //
-//  Produces:
-//    - application/json
+//	Produces:
+//	  - application/json
 //
 // swagger:meta
 package supportapi
