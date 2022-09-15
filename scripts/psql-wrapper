@@ -7,6 +7,9 @@ db_port="${DB_PORT:-5432}"
 
 command="${*:-}"
 
+# Determin if psql is installed in the path and fail with an error message
+# TODO: code to go here
+
 # nix-friendly option
 psql_exe=/usr/local/bin/psql
 if [ -n "${NIX_PROFILE+x}" ]; then
