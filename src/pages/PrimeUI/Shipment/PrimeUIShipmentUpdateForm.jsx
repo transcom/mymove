@@ -40,6 +40,8 @@ const PrimeUIShipmentUpdateForm = ({
       {formatDate(requestedPickupDate)}
       <DatePickerInput name="scheduledPickupDate" label="Scheduled pickup" />
       <DatePickerInput name="actualPickupDate" label="Actual pickup" />
+      <DatePickerInput name="scheduledDeliveryDate" label="Scheduled delivery" />
+      <DatePickerInput name="actualDeliveryDate" label="Actual delivery" />
       <h2 className={styles.sectionHeader}>Diversion</h2>
       <CheckboxField id="diversion" name="diversion" label="Diversion" />
       <h2 className={styles.sectionHeader}>Shipment Weights</h2>
