@@ -525,27 +525,9 @@ func SubTotalExpenses(expenseDocuments MovingExpenses) map[string]float64 {
 		expenseType = getExpenseType(expense)
 		expenseDollarAmt := expense.Amount.ToDollarFloatNoRound()
 		totals[expenseType] += expenseDollarAmt
-		addToGrandTotal(totals, expenseType, expenseDollarAmt)
+		// addToGrandTotal(totals, expenseType, expenseDollarAmt)
 	}
 	return totals
-}
-
-func addToGrandTotal(totals map[string]float64, key string, expenseDollarAmt float64) {
-	if strings.HasPrefix(key, "Storage") {
-		if strings.HasSuffix(key, "GTCCPaid") {
-			totals["TotalGTCCPaidSIT"] += expenseDollarAmt
-		} else {
-			totals["TotalMemberPaidSIT"] += expenseDollarAmt
-		}
-		totals["TotalPaidSIT"] += expenseDollarAmt
-	} else {
-		if strings.HasSuffix(key, "GTCCPaid") {
-			totals["TotalGTCCPaid"] += expenseDollarAmt
-		} else {
-			totals["TotalMemberPaid"] += expenseDollarAmt
-		}
-		totals["TotalPaidNonSIT"] += expenseDollarAmt
-	}
 }
 
 func getExpenseType(expense MovingExpense) string {
