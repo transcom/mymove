@@ -12,7 +12,8 @@
 
 .cardContainer {
   @include u-padding-bottom(40px);
-  max-width: 1200px;
+  max-width: 960px;
+  width: 960px;
   @include u-bg('white');
   @include u-radius('05');
   @include u-border('base-lighter');
@@ -29,5 +30,5 @@
 }
 
 .shipmentCardColumn {
-  width: 818px;
+  width: 602px;
 }
