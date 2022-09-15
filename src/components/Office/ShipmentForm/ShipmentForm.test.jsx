@@ -893,15 +893,12 @@ describe('ShipmentForm component', () => {
 
       const advanceAmountRequested = screen.getByLabelText('Amount requested');
 
-      await userEvent.click(advanceAmountRequested);
       await userEvent.type(advanceAmountRequested, '0');
-      await userEvent.tab();
+
+      expect(advanceAmountRequested).toHaveValue('0');
 
       await waitFor(() => {
-        expect(advanceAmountRequested).toHaveValue('0');
-
         const requiredAlerts = screen.getAllByRole('alert');
-
         expect(requiredAlerts[0]).toHaveTextContent('Enter an amount $1 or more.');
       });
     });

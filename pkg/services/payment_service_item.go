@@ -9,6 +9,7 @@ import (
 )
 
 // PaymentServiceItemStatusUpdater is the exported interface for updating a payment service item
+//
 //go:generate mockery --name PaymentServiceItemStatusUpdater --disable-version-string
 type PaymentServiceItemStatusUpdater interface {
 	UpdatePaymentServiceItemStatus(appCtx appcontext.AppContext, paymentServiceItemID uuid.UUID,

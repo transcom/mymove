@@ -20,13 +20,14 @@ type moveDocumentUpdater struct {
 	moveDocumentStatusUpdater
 }
 
-//Updater interface for individual document updaters
+// Updater interface for individual document updaters
+//
 //go:generate mockery --name Updater --disable-version-string
 type Updater interface {
 	Update(appCtx appcontext.AppContext, moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error)
 }
 
-//NewMoveDocumentUpdater create NewMoveDocumentUpdater including expected updaters
+// NewMoveDocumentUpdater create NewMoveDocumentUpdater including expected updaters
 func NewMoveDocumentUpdater() services.MoveDocumentUpdater {
 	mdsu := moveDocumentStatusUpdater{}
 	wtu := WeightTicketUpdater{mdsu}
@@ -42,7 +43,7 @@ func NewMoveDocumentUpdater() services.MoveDocumentUpdater {
 	}
 }
 
-//Update dispatches the various types of move documents to the appropriate Updater
+// Update dispatches the various types of move documents to the appropriate Updater
 func (m moveDocumentUpdater) Update(appCtx appcontext.AppContext, moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDocID uuid.UUID) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 
@@ -70,7 +71,7 @@ func (m moveDocumentUpdater) Update(appCtx appcontext.AppContext, moveDocumentPa
 type moveDocumentStatusUpdater struct {
 }
 
-//UpdateMoveDocumentStatus attempt to transition a move document from one status to another.
+// UpdateMoveDocumentStatus attempt to transition a move document from one status to another.
 // Returns and error if the status transition is invalid
 func (mds moveDocumentStatusUpdater) UpdateMoveDocumentStatus(appCtx appcontext.AppContext, moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()

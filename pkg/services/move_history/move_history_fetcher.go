@@ -20,7 +20,7 @@ func NewMoveHistoryFetcher() services.MoveHistoryFetcher {
 	return &moveHistoryFetcher{}
 }
 
-//FetchMoveHistory retrieves a Move's history if it is visible for a given locator
+// FetchMoveHistory retrieves a Move's history if it is visible for a given locator
 func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, params *services.FetchMoveHistoryParams) (*models.MoveHistory, int64, error) {
 	rawQuery := `WITH moves AS (
 		SELECT
