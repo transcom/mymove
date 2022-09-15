@@ -10,7 +10,6 @@ import (
 )
 
 // MoveDocumentUpdater is an interface for moveDocument implementation
-//
 //go:generate mockery --name MoveDocumentUpdater --disable-version-string
 type MoveDocumentUpdater interface {
 	Update(appCtx appcontext.AppContext, moveDocumentPayload *internalmessages.MoveDocumentPayload, moveID uuid.UUID) (*models.MoveDocument, *validate.Errors, error)
@@ -18,7 +17,6 @@ type MoveDocumentUpdater interface {
 }
 
 // MoveDocumentStatusUpdater is an interface for moveDocument implementation
-//
 //go:generate mockery --name MoveDocumentStatusUpdater --disable-version-string
 type MoveDocumentStatusUpdater interface {
 	UpdateMoveDocumentStatus(appCtx appcontext.AppContext, moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDocument *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error)

@@ -35,14 +35,14 @@ func (e *errInvalidHostname) Error() string {
 }
 
 // GorillaCSRFToken is the name of the base CSRF token
-// RA Summary: gosec - G101 - Password Management: Hardcoded Password
-// RA: This line was flagged because it detected use of the word "token"
-// RA: This line is used to identify the name of the token. GorillaCSRFToken is the name of the base CSRF token.
-// RA: This variable does not store an application token.
-// RA Developer Status: Mitigated
-// RA Validator Status: Mitigated
-// RA Validator: jneuner@mitre.org
-// RA Modified Severity: CAT III
+//RA Summary: gosec - G101 - Password Management: Hardcoded Password
+//RA: This line was flagged because it detected use of the word "token"
+//RA: This line is used to identify the name of the token. GorillaCSRFToken is the name of the base CSRF token.
+//RA: This variable does not store an application token.
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Validator: jneuner@mitre.org
+//RA Modified Severity: CAT III
 // #nosec G101
 const GorillaCSRFToken = "_gorilla_csrf"
 

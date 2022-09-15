@@ -17,13 +17,13 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-// ListMTOAgentsHandler is a struct for the handler.
+//ListMTOAgentsHandler is a struct for the handler.
 type ListMTOAgentsHandler struct {
 	handlers.HandlerConfig
 	services.ListFetcher
 }
 
-// Handle handles the handling for listing MTO Agents.
+//Handle handles the handling for listing MTO Agents.
 func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {

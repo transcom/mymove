@@ -1,10 +1,10 @@
-// RA Summary: gosec - errcheck - Unchecked return value
-// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-// RA: Functions with unchecked return values are used to set/unset environment variables needed for session creation in the unit test's local database
-// RA: Setting/unsetting of environment variables does not present any risks and are solely used for unit testing purposes
-// RA Developer Status: Mitigated
-// RA Validator Status: Mitigated
-// RA Modified Severity: N/A
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values are used to set/unset environment variables needed for session creation in the unit test's local database
+//RA: Setting/unsetting of environment variables does not present any risks and are solely used for unit testing purposes
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
 // nolint:errcheck
 package invoice
 

@@ -30,7 +30,6 @@ import (
 type StoreResult struct{}
 
 // FileStorer is the set of methods needed to store and retrieve objects.
-//
 //go:generate mockery --name FileStorer --disable-version-string
 type FileStorer interface {
 	Store(string, io.ReadSeeker, string, *string) (*StoreResult, error)

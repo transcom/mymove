@@ -343,7 +343,6 @@ func (router moveRouter) Cancel(appCtx appcontext.AppContext, reason string, mov
 // CompleteServiceCounseling sets the move status to:
 //   - "Service Counseling Completed" if a non-PPM move
 //   - "Approved" if a PPM-only move
-//
 // This makes the move available to the TOO.  This gets called when the Service Counselor is done
 // reviewing the move and submits it.
 func (router moveRouter) CompleteServiceCounseling(appCtx appcontext.AppContext, move *models.Move) error {

@@ -17,7 +17,7 @@ func NewPaymentRequestReviewedFetcher() services.PaymentRequestReviewedFetcher {
 	return &paymentRequestReviewedFetcher{}
 }
 
-// FetchReviewedPaymentRequest finds all payment request with status 'reviewed'
+//FetchReviewedPaymentRequest finds all payment request with status 'reviewed'
 func (p *paymentRequestReviewedFetcher) FetchReviewedPaymentRequest(appCtx appcontext.AppContext) (models.PaymentRequests, error) {
 	var reviewedPaymentRequests models.PaymentRequests
 	err := appCtx.DB().Q().

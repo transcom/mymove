@@ -391,7 +391,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 	return connection, nil
 }
 
-// testConnection tests the connection to determine successful ping
+//testConnection tests the connection to determine successful ping
 func testConnection(dbConnDetails *pop.ConnectionDetails, useIam bool, logger *zap.Logger) error {
 	// Copy connection info as we don't want to alter connection info
 	dbConnectionDetails := pop.ConnectionDetails{

@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/cmd/webhook-client/utils"
 )
 
-// WebhookRequest is the body of our request
+//WebhookRequest is the body of our request
 type WebhookRequest struct {
 	ID          string `json:"id"`
 	EventName   string `json:"eventName"`

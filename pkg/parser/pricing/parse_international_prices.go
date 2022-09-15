@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// same values used in each parse and verify function
+//same values used in each parse and verify function
 const feeColIndexStart int = 6  // start at column 6 to get the rates
 const feeRowIndexStart int = 10 // start at row 10 to get the rates
 const originPriceAreaIDColumn int = 2

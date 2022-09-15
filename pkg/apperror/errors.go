@@ -43,7 +43,7 @@ func (e PreconditionFailedError) Error() string {
 	return fmt.Sprintf("Precondition failed on update to object with ID: '%s'. The If-Match header value did not match the eTag for this record.", e.id.String())
 }
 
-// NotFoundError is returned when a given struct is not found
+//NotFoundError is returned when a given struct is not found
 type NotFoundError struct {
 	id      uuid.UUID
 	message string
@@ -115,7 +115,7 @@ func (b *BadDataError) Error() string {
 	return fmt.Sprintf("Data received from requester is bad: %s: %s", b.baseError.code, b.badDataMsg)
 }
 
-// InvalidInputError is returned when an update fails a validation rule
+//InvalidInputError is returned when an update fails a validation rule
 type InvalidInputError struct {
 	id               uuid.UUID
 	ValidationErrors *validate.Errors
@@ -177,7 +177,7 @@ func NewQueryError(objectType string, err error, msgOverride string) QueryError 
 	}
 }
 
-// InvalidCreateInputError is returned when an update fails a validation rule
+//InvalidCreateInputError is returned when an update fails a validation rule
 type InvalidCreateInputError struct {
 	ValidationErrors *validate.Errors
 	message          string
@@ -198,7 +198,7 @@ func (e InvalidCreateInputError) Error() string {
 	return fmt.Sprintf("Invalid input for ID: %s", e.ValidationErrors)
 }
 
-// ConflictError is returned when a given struct is not found
+//ConflictError is returned when a given struct is not found
 type ConflictError struct {
 	id      uuid.UUID
 	message string

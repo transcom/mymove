@@ -71,7 +71,7 @@ func checkSITExtensionPending() sitExtensionValidator {
 	})
 }
 
-// checks that the shipment associated with the reweigh is available to Prime
+//checks that the shipment associated with the reweigh is available to Prime
 func checkPrimeAvailability(checker services.MoveTaskOrderChecker) sitExtensionValidator {
 	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitExtension models.SITExtension, shipment *models.MTOShipment) error {
 		if shipment == nil {

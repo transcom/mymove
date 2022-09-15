@@ -18,7 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
-// GexSendError is returned when there is an error sending an EDI to GEX
+//GexSendError is returned when there is an error sending an EDI to GEX
 type GexSendError struct {
 	paymentRequestID uuid.UUID
 	err              error

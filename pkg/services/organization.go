@@ -11,7 +11,6 @@ type OrganizationFetcher interface {
 }
 
 // OrganizationListFetcher is the exported interface for fetching multiple organizations
-//
 //go:generate mockery --name OrganizationListFetcher --disable-version-string
 type OrganizationListFetcher interface {
 	FetchOrganizationList(appCtx appcontext.AppContext, filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.Organizations, error)

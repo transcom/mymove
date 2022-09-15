@@ -105,14 +105,12 @@ func zip3TransitDistanceHelper(appCtx appcontext.AppContext, planner Planner, so
 
 // SoapCaller provides an interface for the Call method of the gosoap Client so it can be mocked.
 // NOTE: Placing this in a separate package/directory to avoid a circular dependency from an existing mock.
-//
 //go:generate mockery --name SoapCaller --outpkg ghcmocks --output ./ghcmocks --disable-version-string
 type SoapCaller interface {
 	Call(m string, p gosoap.SoapParams) (res *gosoap.Response, err error)
 }
 
 // Planner is the interface needed by Handlers to be able to evaluate the distance to be used for move accounting
-//
 //go:generate mockery --name Planner --disable-version-string
 type Planner interface {
 	TransitDistance(appCtx appcontext.AppContext, source *models.Address, destination *models.Address) (int, error)

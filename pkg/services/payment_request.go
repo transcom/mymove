@@ -11,28 +11,24 @@ import (
 )
 
 // PaymentRequestCreator is the exported interface for creating a payment request
-//
 //go:generate mockery --name PaymentRequestCreator --disable-version-string
 type PaymentRequestCreator interface {
 	CreatePaymentRequestCheck(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error)
 }
 
 // PaymentRequestRecalculator is the exported interface for recalculating a payment request
-//
 //go:generate mockery --name PaymentRequestRecalculator --disable-version-string
 type PaymentRequestRecalculator interface {
 	RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error)
 }
 
 // PaymentRequestShipmentRecalculator is the exported interface for recalculating payment requests for a shipment
-//
 //go:generate mockery --name PaymentRequestShipmentRecalculator --disable-version-string
 type PaymentRequestShipmentRecalculator interface {
 	ShipmentRecalculatePaymentRequest(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.PaymentRequests, error)
 }
 
 // PaymentRequestListFetcher is the exported interface for fetching a list of payment requests
-//
 //go:generate mockery --name PaymentRequestListFetcher --disable-version-string
 type PaymentRequestListFetcher interface {
 	FetchPaymentRequestList(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *FetchPaymentRequestListParams) (*models.PaymentRequests, int, error)
@@ -40,35 +36,30 @@ type PaymentRequestListFetcher interface {
 }
 
 // PaymentRequestFetcher is the exported interface for fetching a payment request
-//
 //go:generate mockery --name PaymentRequestFetcher --disable-version-string
 type PaymentRequestFetcher interface {
 	FetchPaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (models.PaymentRequest, error)
 }
 
 // PaymentRequestReviewedFetcher is the exported interface for fetching all payment requests in 'reviewed' status
-//
 //go:generate mockery --name PaymentRequestReviewedFetcher --disable-version-string
 type PaymentRequestReviewedFetcher interface {
 	FetchReviewedPaymentRequest(appCtx appcontext.AppContext) (models.PaymentRequests, error)
 }
 
 // PaymentRequestStatusUpdater is the exported interface for updating the status of a payment request
-//
 //go:generate mockery --name PaymentRequestStatusUpdater --disable-version-string
 type PaymentRequestStatusUpdater interface {
 	UpdatePaymentRequestStatus(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error)
 }
 
 // PaymentRequestUploadCreator is the exported interface for creating a payment request upload
-//
 //go:generate mockery --name PaymentRequestUploadCreator --disable-version-string
 type PaymentRequestUploadCreator interface {
 	CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID, filename string) (*models.Upload, error)
 }
 
 // PaymentRequestReviewedProcessor is the exported interface for processing reviewed payment requests
-//
 //go:generate mockery --name PaymentRequestReviewedProcessor --disable-version-string
 type PaymentRequestReviewedProcessor interface {
 	ProcessReviewedPaymentRequest(appCtx appcontext.AppContext)
@@ -106,7 +97,6 @@ type ShipmentPaymentSITBalance struct {
 
 // ShipmentsPaymentSITBalance is the exported interface for returning SIT balances for all shipments of a payment
 // request
-//
 //go:generate mockery --name ShipmentsPaymentSITBalance --disable-version-string
 type ShipmentsPaymentSITBalance interface {
 	ListShipmentPaymentSITBalance(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) ([]ShipmentPaymentSITBalance, error)
