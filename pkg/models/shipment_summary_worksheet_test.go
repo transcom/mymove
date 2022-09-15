@@ -554,8 +554,6 @@ func (suite *ModelSuite) TestGroupExpenses() {
 			map[string]float64{
 				"OilMemberPaid":   300,
 				"TollsMemberPaid": 200,
-				"TotalMemberPaid": 500,
-				"TotalPaidNonSIT": 500,
 			},
 		},
 		{
@@ -589,8 +587,6 @@ func (suite *ModelSuite) TestGroupExpenses() {
 			map[string]float64{
 				"OilMemberPaid":   300,
 				"TollsMemberPaid": 200,
-				"TotalMemberPaid": 500,
-				"TotalPaidNonSIT": 500,
 			},
 		},
 	}
