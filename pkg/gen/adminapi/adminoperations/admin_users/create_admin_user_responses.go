@@ -16,7 +16,8 @@ import (
 // CreateAdminUserCreatedCode is the HTTP code returned for type CreateAdminUserCreated
 const CreateAdminUserCreatedCode int = 201
 
-/*CreateAdminUserCreated Successfully created Admin User
+/*
+CreateAdminUserCreated Successfully created Admin User
 
 swagger:response createAdminUserCreated
 */
@@ -60,7 +61,8 @@ func (o *CreateAdminUserCreated) WriteResponse(rw http.ResponseWriter, producer 
 // CreateAdminUserBadRequestCode is the HTTP code returned for type CreateAdminUserBadRequest
 const CreateAdminUserBadRequestCode int = 400
 
-/*CreateAdminUserBadRequest Invalid Request
+/*
+CreateAdminUserBadRequest Invalid Request
 
 swagger:response createAdminUserBadRequest
 */
@@ -84,7 +86,8 @@ func (o *CreateAdminUserBadRequest) WriteResponse(rw http.ResponseWriter, produc
 // CreateAdminUserUnauthorizedCode is the HTTP code returned for type CreateAdminUserUnauthorized
 const CreateAdminUserUnauthorizedCode int = 401
 
-/*CreateAdminUserUnauthorized Must be authenticated to use this end point
+/*
+CreateAdminUserUnauthorized Must be authenticated to use this end point
 
 swagger:response createAdminUserUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *CreateAdminUserUnauthorized) WriteResponse(rw http.ResponseWriter, prod
 // CreateAdminUserForbiddenCode is the HTTP code returned for type CreateAdminUserForbidden
 const CreateAdminUserForbiddenCode int = 403
 
-/*CreateAdminUserForbidden Not authorized to create an admin user
+/*
+CreateAdminUserForbidden Not authorized to create an admin user
 
 swagger:response createAdminUserForbidden
 */
@@ -132,7 +136,8 @@ func (o *CreateAdminUserForbidden) WriteResponse(rw http.ResponseWriter, produce
 // CreateAdminUserInternalServerErrorCode is the HTTP code returned for type CreateAdminUserInternalServerError
 const CreateAdminUserInternalServerErrorCode int = 500
 
-/*CreateAdminUserInternalServerError Server error
+/*
+CreateAdminUserInternalServerError Server error
 
 swagger:response createAdminUserInternalServerError
 */

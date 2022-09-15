@@ -16,7 +16,8 @@ import (
 // ListMTOPaymentRequestsOKCode is the HTTP code returned for type ListMTOPaymentRequestsOK
 const ListMTOPaymentRequestsOKCode int = 200
 
-/*ListMTOPaymentRequestsOK Successfully retrieved payment requests associated with a given move task order
+/*
+ListMTOPaymentRequestsOK Successfully retrieved payment requests associated with a given move task order
 
 swagger:response listMTOPaymentRequestsOK
 */
@@ -63,7 +64,8 @@ func (o *ListMTOPaymentRequestsOK) WriteResponse(rw http.ResponseWriter, produce
 // ListMTOPaymentRequestsBadRequestCode is the HTTP code returned for type ListMTOPaymentRequestsBadRequest
 const ListMTOPaymentRequestsBadRequestCode int = 400
 
-/*ListMTOPaymentRequestsBadRequest The request payload is invalid.
+/*
+ListMTOPaymentRequestsBadRequest The request payload is invalid.
 
 swagger:response listMTOPaymentRequestsBadRequest
 */
@@ -107,7 +109,8 @@ func (o *ListMTOPaymentRequestsBadRequest) WriteResponse(rw http.ResponseWriter,
 // ListMTOPaymentRequestsUnauthorizedCode is the HTTP code returned for type ListMTOPaymentRequestsUnauthorized
 const ListMTOPaymentRequestsUnauthorizedCode int = 401
 
-/*ListMTOPaymentRequestsUnauthorized The request was denied.
+/*
+ListMTOPaymentRequestsUnauthorized The request was denied.
 
 swagger:response listMTOPaymentRequestsUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *ListMTOPaymentRequestsUnauthorized) WriteResponse(rw http.ResponseWrite
 // ListMTOPaymentRequestsForbiddenCode is the HTTP code returned for type ListMTOPaymentRequestsForbidden
 const ListMTOPaymentRequestsForbiddenCode int = 403
 
-/*ListMTOPaymentRequestsForbidden The request was denied.
+/*
+ListMTOPaymentRequestsForbidden The request was denied.
 
 swagger:response listMTOPaymentRequestsForbidden
 */
@@ -195,7 +199,8 @@ func (o *ListMTOPaymentRequestsForbidden) WriteResponse(rw http.ResponseWriter, 
 // ListMTOPaymentRequestsNotFoundCode is the HTTP code returned for type ListMTOPaymentRequestsNotFound
 const ListMTOPaymentRequestsNotFoundCode int = 404
 
-/*ListMTOPaymentRequestsNotFound The requested resource wasn't found.
+/*
+ListMTOPaymentRequestsNotFound The requested resource wasn't found.
 
 swagger:response listMTOPaymentRequestsNotFound
 */
@@ -239,7 +244,8 @@ func (o *ListMTOPaymentRequestsNotFound) WriteResponse(rw http.ResponseWriter, p
 // ListMTOPaymentRequestsInternalServerErrorCode is the HTTP code returned for type ListMTOPaymentRequestsInternalServerError
 const ListMTOPaymentRequestsInternalServerErrorCode int = 500
 
-/*ListMTOPaymentRequestsInternalServerError A server error occurred.
+/*
+ListMTOPaymentRequestsInternalServerError A server error occurred.
 
 swagger:response listMTOPaymentRequestsInternalServerError
 */

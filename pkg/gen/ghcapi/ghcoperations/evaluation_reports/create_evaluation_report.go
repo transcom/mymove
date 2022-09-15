@@ -29,12 +29,12 @@ func NewCreateEvaluationReport(ctx *middleware.Context, handler CreateEvaluation
 	return &CreateEvaluationReport{Context: ctx, Handler: handler}
 }
 
-/* CreateEvaluationReport swagger:route POST /moves/{locator}/evaluation-reports evaluationReports createEvaluationReport
+/*
+	CreateEvaluationReport swagger:route POST /moves/{locator}/evaluation-reports evaluationReports createEvaluationReport
+
+# Creates an evaluation report
 
 Creates an evaluation report
-
-Creates an evaluation report
-
 */
 type CreateEvaluationReport struct {
 	Context *middleware.Context

@@ -16,7 +16,8 @@ import (
 // RejectShipmentOKCode is the HTTP code returned for type RejectShipmentOK
 const RejectShipmentOKCode int = 200
 
-/*RejectShipmentOK Successfully rejected the shipment
+/*
+RejectShipmentOK Successfully rejected the shipment
 
 swagger:response rejectShipmentOK
 */
@@ -60,7 +61,8 @@ func (o *RejectShipmentOK) WriteResponse(rw http.ResponseWriter, producer runtim
 // RejectShipmentForbiddenCode is the HTTP code returned for type RejectShipmentForbidden
 const RejectShipmentForbiddenCode int = 403
 
-/*RejectShipmentForbidden The request was denied
+/*
+RejectShipmentForbidden The request was denied
 
 swagger:response rejectShipmentForbidden
 */
@@ -104,7 +106,8 @@ func (o *RejectShipmentForbidden) WriteResponse(rw http.ResponseWriter, producer
 // RejectShipmentNotFoundCode is the HTTP code returned for type RejectShipmentNotFound
 const RejectShipmentNotFoundCode int = 404
 
-/*RejectShipmentNotFound The requested resource wasn't found
+/*
+RejectShipmentNotFound The requested resource wasn't found
 
 swagger:response rejectShipmentNotFound
 */
@@ -148,7 +151,8 @@ func (o *RejectShipmentNotFound) WriteResponse(rw http.ResponseWriter, producer 
 // RejectShipmentConflictCode is the HTTP code returned for type RejectShipmentConflict
 const RejectShipmentConflictCode int = 409
 
-/*RejectShipmentConflict Conflict error
+/*
+RejectShipmentConflict Conflict error
 
 swagger:response rejectShipmentConflict
 */
@@ -192,7 +196,8 @@ func (o *RejectShipmentConflict) WriteResponse(rw http.ResponseWriter, producer 
 // RejectShipmentPreconditionFailedCode is the HTTP code returned for type RejectShipmentPreconditionFailed
 const RejectShipmentPreconditionFailedCode int = 412
 
-/*RejectShipmentPreconditionFailed Precondition failed
+/*
+RejectShipmentPreconditionFailed Precondition failed
 
 swagger:response rejectShipmentPreconditionFailed
 */
@@ -236,7 +241,8 @@ func (o *RejectShipmentPreconditionFailed) WriteResponse(rw http.ResponseWriter,
 // RejectShipmentUnprocessableEntityCode is the HTTP code returned for type RejectShipmentUnprocessableEntity
 const RejectShipmentUnprocessableEntityCode int = 422
 
-/*RejectShipmentUnprocessableEntity The payload was unprocessable.
+/*
+RejectShipmentUnprocessableEntity The payload was unprocessable.
 
 swagger:response rejectShipmentUnprocessableEntity
 */
@@ -280,7 +286,8 @@ func (o *RejectShipmentUnprocessableEntity) WriteResponse(rw http.ResponseWriter
 // RejectShipmentInternalServerErrorCode is the HTTP code returned for type RejectShipmentInternalServerError
 const RejectShipmentInternalServerErrorCode int = 500
 
-/*RejectShipmentInternalServerError A server error occurred
+/*
+RejectShipmentInternalServerError A server error occurred
 
 swagger:response rejectShipmentInternalServerError
 */

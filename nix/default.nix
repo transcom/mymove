@@ -182,10 +182,10 @@ buildEnv {
     (import
       (builtins.fetchGit {
         # Descriptive name to make the store path easier to identify
-        name = "go-swagger-0.29.0";
+        name = "go-swagger-0.30.2";
         url = "https://github.com/NixOS/nixpkgs/";
         ref = "refs/heads/nixpkgs-unstable";
-        rev = "5efc8ca954272c4376ac929f4c5ffefcc20551d5";
+        rev = "a0b7e70db7a55088d3de0cc370a59f9fbcc906c3";
       })
       { }).go-swagger
 

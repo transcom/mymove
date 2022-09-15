@@ -29,12 +29,12 @@ func NewGetEvaluationReport(ctx *middleware.Context, handler GetEvaluationReport
 	return &GetEvaluationReport{Context: ctx, Handler: handler}
 }
 
-/* GetEvaluationReport swagger:route GET /evaluation-reports/{reportID} evaluationReports getEvaluationReport
+/*
+	GetEvaluationReport swagger:route GET /evaluation-reports/{reportID} evaluationReports getEvaluationReport
+
+# Gets an evaluation report by ID
 
 Gets an evaluation report by ID
-
-Gets an evaluation report by ID
-
 */
 type GetEvaluationReport struct {
 	Context *middleware.Context

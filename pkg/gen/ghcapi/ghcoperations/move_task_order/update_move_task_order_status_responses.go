@@ -16,7 +16,8 @@ import (
 // UpdateMoveTaskOrderStatusOKCode is the HTTP code returned for type UpdateMoveTaskOrderStatusOK
 const UpdateMoveTaskOrderStatusOKCode int = 200
 
-/*UpdateMoveTaskOrderStatusOK Successfully updated move task order status
+/*
+UpdateMoveTaskOrderStatusOK Successfully updated move task order status
 
 swagger:response updateMoveTaskOrderStatusOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateMoveTaskOrderStatusOK) WriteResponse(rw http.ResponseWriter, prod
 // UpdateMoveTaskOrderStatusBadRequestCode is the HTTP code returned for type UpdateMoveTaskOrderStatusBadRequest
 const UpdateMoveTaskOrderStatusBadRequestCode int = 400
 
-/*UpdateMoveTaskOrderStatusBadRequest The request payload is invalid
+/*
+UpdateMoveTaskOrderStatusBadRequest The request payload is invalid
 
 swagger:response updateMoveTaskOrderStatusBadRequest
 */
@@ -104,7 +106,8 @@ func (o *UpdateMoveTaskOrderStatusBadRequest) WriteResponse(rw http.ResponseWrit
 // UpdateMoveTaskOrderStatusUnauthorizedCode is the HTTP code returned for type UpdateMoveTaskOrderStatusUnauthorized
 const UpdateMoveTaskOrderStatusUnauthorizedCode int = 401
 
-/*UpdateMoveTaskOrderStatusUnauthorized The request was denied
+/*
+UpdateMoveTaskOrderStatusUnauthorized The request was denied
 
 swagger:response updateMoveTaskOrderStatusUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *UpdateMoveTaskOrderStatusUnauthorized) WriteResponse(rw http.ResponseWr
 // UpdateMoveTaskOrderStatusForbiddenCode is the HTTP code returned for type UpdateMoveTaskOrderStatusForbidden
 const UpdateMoveTaskOrderStatusForbiddenCode int = 403
 
-/*UpdateMoveTaskOrderStatusForbidden The request was denied
+/*
+UpdateMoveTaskOrderStatusForbidden The request was denied
 
 swagger:response updateMoveTaskOrderStatusForbidden
 */
@@ -192,7 +196,8 @@ func (o *UpdateMoveTaskOrderStatusForbidden) WriteResponse(rw http.ResponseWrite
 // UpdateMoveTaskOrderStatusNotFoundCode is the HTTP code returned for type UpdateMoveTaskOrderStatusNotFound
 const UpdateMoveTaskOrderStatusNotFoundCode int = 404
 
-/*UpdateMoveTaskOrderStatusNotFound The requested resource wasn't found
+/*
+UpdateMoveTaskOrderStatusNotFound The requested resource wasn't found
 
 swagger:response updateMoveTaskOrderStatusNotFound
 */
@@ -236,7 +241,8 @@ func (o *UpdateMoveTaskOrderStatusNotFound) WriteResponse(rw http.ResponseWriter
 // UpdateMoveTaskOrderStatusConflictCode is the HTTP code returned for type UpdateMoveTaskOrderStatusConflict
 const UpdateMoveTaskOrderStatusConflictCode int = 409
 
-/*UpdateMoveTaskOrderStatusConflict Conflict error
+/*
+UpdateMoveTaskOrderStatusConflict Conflict error
 
 swagger:response updateMoveTaskOrderStatusConflict
 */
@@ -280,7 +286,8 @@ func (o *UpdateMoveTaskOrderStatusConflict) WriteResponse(rw http.ResponseWriter
 // UpdateMoveTaskOrderStatusPreconditionFailedCode is the HTTP code returned for type UpdateMoveTaskOrderStatusPreconditionFailed
 const UpdateMoveTaskOrderStatusPreconditionFailedCode int = 412
 
-/*UpdateMoveTaskOrderStatusPreconditionFailed Precondition failed
+/*
+UpdateMoveTaskOrderStatusPreconditionFailed Precondition failed
 
 swagger:response updateMoveTaskOrderStatusPreconditionFailed
 */
@@ -324,7 +331,8 @@ func (o *UpdateMoveTaskOrderStatusPreconditionFailed) WriteResponse(rw http.Resp
 // UpdateMoveTaskOrderStatusUnprocessableEntityCode is the HTTP code returned for type UpdateMoveTaskOrderStatusUnprocessableEntity
 const UpdateMoveTaskOrderStatusUnprocessableEntityCode int = 422
 
-/*UpdateMoveTaskOrderStatusUnprocessableEntity The payload was unprocessable.
+/*
+UpdateMoveTaskOrderStatusUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateMoveTaskOrderStatusUnprocessableEntity
 */
@@ -368,7 +376,8 @@ func (o *UpdateMoveTaskOrderStatusUnprocessableEntity) WriteResponse(rw http.Res
 // UpdateMoveTaskOrderStatusInternalServerErrorCode is the HTTP code returned for type UpdateMoveTaskOrderStatusInternalServerError
 const UpdateMoveTaskOrderStatusInternalServerErrorCode int = 500
 
-/*UpdateMoveTaskOrderStatusInternalServerError A server error occurred
+/*
+UpdateMoveTaskOrderStatusInternalServerError A server error occurred
 
 swagger:response updateMoveTaskOrderStatusInternalServerError
 */

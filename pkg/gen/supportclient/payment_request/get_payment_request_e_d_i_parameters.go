@@ -52,10 +52,12 @@ func NewGetPaymentRequestEDIParamsWithHTTPClient(client *http.Client) *GetPaymen
 	}
 }
 
-/* GetPaymentRequestEDIParams contains all the parameters to send to the API endpoint
-   for the get payment request e d i operation.
+/*
+GetPaymentRequestEDIParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get payment request e d i operation.
+
+	Typically these are written to a http.Request.
 */
 type GetPaymentRequestEDIParams struct {
 

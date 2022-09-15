@@ -1,14 +1,15 @@
 import React from 'react';
-import { Grid, GridContainer, Button } from '@trussworks/react-uswds';
+import { Grid, GridContainer, Button, FormGroup, Radio, Fieldset, Textarea } from '@trussworks/react-uswds';
 import { useParams, useHistory } from 'react-router';
 import * as Yup from 'yup';
-import { Formik } from 'formik';
+import { Formik, Field } from 'formik';
 import classnames from 'classnames';
 
 import styles from './EvaluationViolationsForm.module.scss';
 import SelectedViolation from './SelectedViolation/SelectedViolation';
 
 import ViolationsAccordion from 'components/Office/ViolationsAccordion/ViolationsAccordion';
+import { DatePickerInput } from 'components/form/fields';
 
 const EvaluationViolationsForm = ({ violations }) => {
   const { moveCode, reportId } = useParams();
@@ -50,6 +51,11 @@ const EvaluationViolationsForm = ({ violations }) => {
             setFieldValue(fieldKey, [...prevSelectedViolations, id]);
           }
         };
+        let kpiItems = [];
+        if (values.selectedViolations) {
+          kpiItems = violations.filter((item) => values.selectedViolations.includes(item.id) && item.isKpi);
+        }
+        const kpiDates = [...new Set(kpiItems.map((item) => item.additionalDataElem))];
 
         return (
           <>
@@ -76,15 +82,97 @@ const EvaluationViolationsForm = ({ violations }) => {
               {/* Selected Violations */}
               <Grid row>
                 <Grid col>
-                  <h3>
-                    Violations Selected ({(values.selectedViolations && values.selectedViolations.length) || '0'})
-                  </h3>
+                  <>
+                    <hr className={styles.divider} />
+                    <h3>
+                      Violations Selected ({(values.selectedViolations && values.selectedViolations.length) || '0'})
+                    </h3>
+                  </>
                   {values.selectedViolations?.map((violationId) => (
                     <SelectedViolation
                       violation={violations.find((v) => v.id === violationId)}
                       unselectViolation={toggleSelectedViolation}
                     />
                   ))}
+                </Grid>
+              </Grid>
+
+              <Grid row>
+                <Grid col className={styles.claimDatePicker}>
+                  <div>
+                    {kpiDates.includes('observedClaimDate') && (
+                      <DatePickerInput
+                        className={styles.datePicker}
+                        label="Observed claims response date"
+                        name="observedClaimDate"
+                        hint="Only enter a date here if the claim has a response."
+                        showOptional
+                      />
+                    )}
+                    {kpiDates.includes('observedPickupDate') && (
+                      <DatePickerInput
+                        label="Observed pickup date"
+                        name="observedPickupDate"
+                        hint="Enter the date you witnessed the pickup."
+                      />
+                    )}
+                    {kpiDates.includes('observedPickupSpreadDates') && (
+                      <DatePickerInput
+                        label="Observed pickup spread start date"
+                        name="observedpickupStartDateScheduling"
+                      />
+                    )}
+                    {kpiDates.includes('observedPickupSpreadDates') && (
+                      <DatePickerInput label="Observed pickup spread end date" name="observedpickupEndDateScheduling" />
+                    )}
+                  </div>
+                </Grid>
+              </Grid>
+
+              {/* Serious incident */}
+              <Grid row>
+                <Grid col>
+                  <div className={styles.incident}>
+                    <hr className={styles.divider} />
+                    <h3 className={styles.siHeading}>Serious incident</h3>
+                    <FormGroup>
+                      <Fieldset>
+                        <div className={styles.serious}>
+                          <legend data-testid="seriousIncidentLegend" className="usa-label">
+                            Serious incident
+                          </legend>
+                        </div>
+                        <div className={styles.seriousIncident}>
+                          <Field
+                            as={Radio}
+                            label="No"
+                            id="no"
+                            name="seriousIncident"
+                            value="no"
+                            title="No"
+                            type="radio"
+                            checked={values.seriousIncident === 'no'}
+                          />
+                          <Field
+                            as={Radio}
+                            label="Yes"
+                            id="yes"
+                            name="seriousIncident"
+                            value="yes"
+                            title="Yes"
+                            type="radio"
+                            checked={values.seriousIncident === 'yes'}
+                          />
+                          {values.seriousIncident === 'yes' && (
+                            <>
+                              <p className={styles.incidentTextAreaLabel}>Serious incident description</p>
+                              <Field as={Textarea} name="yesSeriousIncident" />
+                            </>
+                          )}
+                        </div>
+                      </Fieldset>
+                    </FormGroup>
+                  </div>
                 </Grid>
               </Grid>
             </GridContainer>

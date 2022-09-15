@@ -16,7 +16,8 @@ import (
 // UpdateMoveTaskOrderOKCode is the HTTP code returned for type UpdateMoveTaskOrderOK
 const UpdateMoveTaskOrderOKCode int = 200
 
-/*UpdateMoveTaskOrderOK Successfully retrieved move task order
+/*
+UpdateMoveTaskOrderOK Successfully retrieved move task order
 
 swagger:response updateMoveTaskOrderOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateMoveTaskOrderOK) WriteResponse(rw http.ResponseWriter, producer r
 // UpdateMoveTaskOrderBadRequestCode is the HTTP code returned for type UpdateMoveTaskOrderBadRequest
 const UpdateMoveTaskOrderBadRequestCode int = 400
 
-/*UpdateMoveTaskOrderBadRequest The request payload is invalid
+/*
+UpdateMoveTaskOrderBadRequest The request payload is invalid
 
 swagger:response updateMoveTaskOrderBadRequest
 */
@@ -104,7 +106,8 @@ func (o *UpdateMoveTaskOrderBadRequest) WriteResponse(rw http.ResponseWriter, pr
 // UpdateMoveTaskOrderUnauthorizedCode is the HTTP code returned for type UpdateMoveTaskOrderUnauthorized
 const UpdateMoveTaskOrderUnauthorizedCode int = 401
 
-/*UpdateMoveTaskOrderUnauthorized The request was denied
+/*
+UpdateMoveTaskOrderUnauthorized The request was denied
 
 swagger:response updateMoveTaskOrderUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *UpdateMoveTaskOrderUnauthorized) WriteResponse(rw http.ResponseWriter, 
 // UpdateMoveTaskOrderForbiddenCode is the HTTP code returned for type UpdateMoveTaskOrderForbidden
 const UpdateMoveTaskOrderForbiddenCode int = 403
 
-/*UpdateMoveTaskOrderForbidden The request was denied
+/*
+UpdateMoveTaskOrderForbidden The request was denied
 
 swagger:response updateMoveTaskOrderForbidden
 */
@@ -192,7 +196,8 @@ func (o *UpdateMoveTaskOrderForbidden) WriteResponse(rw http.ResponseWriter, pro
 // UpdateMoveTaskOrderNotFoundCode is the HTTP code returned for type UpdateMoveTaskOrderNotFound
 const UpdateMoveTaskOrderNotFoundCode int = 404
 
-/*UpdateMoveTaskOrderNotFound The requested resource wasn't found
+/*
+UpdateMoveTaskOrderNotFound The requested resource wasn't found
 
 swagger:response updateMoveTaskOrderNotFound
 */
@@ -236,7 +241,8 @@ func (o *UpdateMoveTaskOrderNotFound) WriteResponse(rw http.ResponseWriter, prod
 // UpdateMoveTaskOrderPreconditionFailedCode is the HTTP code returned for type UpdateMoveTaskOrderPreconditionFailed
 const UpdateMoveTaskOrderPreconditionFailedCode int = 412
 
-/*UpdateMoveTaskOrderPreconditionFailed Precondition failed
+/*
+UpdateMoveTaskOrderPreconditionFailed Precondition failed
 
 swagger:response updateMoveTaskOrderPreconditionFailed
 */
@@ -280,7 +286,8 @@ func (o *UpdateMoveTaskOrderPreconditionFailed) WriteResponse(rw http.ResponseWr
 // UpdateMoveTaskOrderUnprocessableEntityCode is the HTTP code returned for type UpdateMoveTaskOrderUnprocessableEntity
 const UpdateMoveTaskOrderUnprocessableEntityCode int = 422
 
-/*UpdateMoveTaskOrderUnprocessableEntity The payload was unprocessable.
+/*
+UpdateMoveTaskOrderUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateMoveTaskOrderUnprocessableEntity
 */
@@ -324,7 +331,8 @@ func (o *UpdateMoveTaskOrderUnprocessableEntity) WriteResponse(rw http.ResponseW
 // UpdateMoveTaskOrderInternalServerErrorCode is the HTTP code returned for type UpdateMoveTaskOrderInternalServerError
 const UpdateMoveTaskOrderInternalServerErrorCode int = 500
 
-/*UpdateMoveTaskOrderInternalServerError A server error occurred
+/*
+UpdateMoveTaskOrderInternalServerError A server error occurred
 
 swagger:response updateMoveTaskOrderInternalServerError
 */

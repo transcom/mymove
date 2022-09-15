@@ -16,7 +16,8 @@ import (
 // GetShipmentOKCode is the HTTP code returned for type GetShipmentOK
 const GetShipmentOKCode int = 200
 
-/*GetShipmentOK Successfully fetched the shipment
+/*
+GetShipmentOK Successfully fetched the shipment
 
 swagger:response getShipmentOK
 */
@@ -60,7 +61,8 @@ func (o *GetShipmentOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 // GetShipmentBadRequestCode is the HTTP code returned for type GetShipmentBadRequest
 const GetShipmentBadRequestCode int = 400
 
-/*GetShipmentBadRequest The request payload is invalid
+/*
+GetShipmentBadRequest The request payload is invalid
 
 swagger:response getShipmentBadRequest
 */
@@ -104,7 +106,8 @@ func (o *GetShipmentBadRequest) WriteResponse(rw http.ResponseWriter, producer r
 // GetShipmentForbiddenCode is the HTTP code returned for type GetShipmentForbidden
 const GetShipmentForbiddenCode int = 403
 
-/*GetShipmentForbidden The request was denied
+/*
+GetShipmentForbidden The request was denied
 
 swagger:response getShipmentForbidden
 */
@@ -148,7 +151,8 @@ func (o *GetShipmentForbidden) WriteResponse(rw http.ResponseWriter, producer ru
 // GetShipmentNotFoundCode is the HTTP code returned for type GetShipmentNotFound
 const GetShipmentNotFoundCode int = 404
 
-/*GetShipmentNotFound The requested resource wasn't found
+/*
+GetShipmentNotFound The requested resource wasn't found
 
 swagger:response getShipmentNotFound
 */
@@ -192,7 +196,8 @@ func (o *GetShipmentNotFound) WriteResponse(rw http.ResponseWriter, producer run
 // GetShipmentUnprocessableEntityCode is the HTTP code returned for type GetShipmentUnprocessableEntity
 const GetShipmentUnprocessableEntityCode int = 422
 
-/*GetShipmentUnprocessableEntity The payload was unprocessable.
+/*
+GetShipmentUnprocessableEntity The payload was unprocessable.
 
 swagger:response getShipmentUnprocessableEntity
 */
@@ -236,7 +241,8 @@ func (o *GetShipmentUnprocessableEntity) WriteResponse(rw http.ResponseWriter, p
 // GetShipmentInternalServerErrorCode is the HTTP code returned for type GetShipmentInternalServerError
 const GetShipmentInternalServerErrorCode int = 500
 
-/*GetShipmentInternalServerError A server error occurred
+/*
+GetShipmentInternalServerError A server error occurred
 
 swagger:response getShipmentInternalServerError
 */

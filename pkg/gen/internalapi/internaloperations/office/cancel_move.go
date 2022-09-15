@@ -29,12 +29,12 @@ func NewCancelMove(ctx *middleware.Context, handler CancelMoveHandler) *CancelMo
 	return &CancelMove{Context: ctx, Handler: handler}
 }
 
-/* CancelMove swagger:route POST /moves/{moveId}/cancel office cancelMove
+/*
+	CancelMove swagger:route POST /moves/{moveId}/cancel office cancelMove
 
-Cancels a move
+# Cancels a move
 
 Cancels the basic details of a move. The status of the move will be updated to CANCELED
-
 */
 type CancelMove struct {
 	Context *middleware.Context

@@ -16,7 +16,8 @@ import (
 // GetMoveOKCode is the HTTP code returned for type GetMoveOK
 const GetMoveOKCode int = 200
 
-/*GetMoveOK Success
+/*
+GetMoveOK Success
 
 swagger:response getMoveOK
 */
@@ -60,7 +61,8 @@ func (o *GetMoveOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produ
 // GetMoveBadRequestCode is the HTTP code returned for type GetMoveBadRequest
 const GetMoveBadRequestCode int = 400
 
-/*GetMoveBadRequest Invalid request
+/*
+GetMoveBadRequest Invalid request
 
 swagger:response getMoveBadRequest
 */
@@ -84,7 +86,8 @@ func (o *GetMoveBadRequest) WriteResponse(rw http.ResponseWriter, producer runti
 // GetMoveUnauthorizedCode is the HTTP code returned for type GetMoveUnauthorized
 const GetMoveUnauthorizedCode int = 401
 
-/*GetMoveUnauthorized Must be authenticated to use this endpoint
+/*
+GetMoveUnauthorized Must be authenticated to use this endpoint
 
 swagger:response getMoveUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *GetMoveUnauthorized) WriteResponse(rw http.ResponseWriter, producer run
 // GetMoveNotFoundCode is the HTTP code returned for type GetMoveNotFound
 const GetMoveNotFoundCode int = 404
 
-/*GetMoveNotFound Move not found
+/*
+GetMoveNotFound Move not found
 
 swagger:response getMoveNotFound
 */
@@ -132,7 +136,8 @@ func (o *GetMoveNotFound) WriteResponse(rw http.ResponseWriter, producer runtime
 // GetMoveInternalServerErrorCode is the HTTP code returned for type GetMoveInternalServerError
 const GetMoveInternalServerErrorCode int = 500
 
-/*GetMoveInternalServerError Server error
+/*
+GetMoveInternalServerError Server error
 
 swagger:response getMoveInternalServerError
 */

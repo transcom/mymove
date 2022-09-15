@@ -10,7 +10,6 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -193,7 +192,7 @@ func UnmarshalMTOServiceItemSlice(reader io.Reader, consumer runtime.Consumer) (
 // UnmarshalMTOServiceItem unmarshals polymorphic MTOServiceItem
 func UnmarshalMTOServiceItem(reader io.Reader, consumer runtime.Consumer) (MTOServiceItem, error) {
 	// we need to read this twice, so first into a buffer
-	data, err := ioutil.ReadAll(reader)
+	data, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}
