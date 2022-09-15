@@ -16,7 +16,8 @@ import (
 // DeleteEvaluationReportNoContentCode is the HTTP code returned for type DeleteEvaluationReportNoContent
 const DeleteEvaluationReportNoContentCode int = 204
 
-/*DeleteEvaluationReportNoContent Successfully soft deleted the report
+/*
+DeleteEvaluationReportNoContent Successfully soft deleted the report
 
 swagger:response deleteEvaluationReportNoContent
 */
@@ -40,7 +41,8 @@ func (o *DeleteEvaluationReportNoContent) WriteResponse(rw http.ResponseWriter, 
 // DeleteEvaluationReportBadRequestCode is the HTTP code returned for type DeleteEvaluationReportBadRequest
 const DeleteEvaluationReportBadRequestCode int = 400
 
-/*DeleteEvaluationReportBadRequest The request payload is invalid
+/*
+DeleteEvaluationReportBadRequest The request payload is invalid
 
 swagger:response deleteEvaluationReportBadRequest
 */
@@ -84,7 +86,8 @@ func (o *DeleteEvaluationReportBadRequest) WriteResponse(rw http.ResponseWriter,
 // DeleteEvaluationReportForbiddenCode is the HTTP code returned for type DeleteEvaluationReportForbidden
 const DeleteEvaluationReportForbiddenCode int = 403
 
-/*DeleteEvaluationReportForbidden The request was denied
+/*
+DeleteEvaluationReportForbidden The request was denied
 
 swagger:response deleteEvaluationReportForbidden
 */
@@ -128,7 +131,8 @@ func (o *DeleteEvaluationReportForbidden) WriteResponse(rw http.ResponseWriter, 
 // DeleteEvaluationReportNotFoundCode is the HTTP code returned for type DeleteEvaluationReportNotFound
 const DeleteEvaluationReportNotFoundCode int = 404
 
-/*DeleteEvaluationReportNotFound The requested resource wasn't found
+/*
+DeleteEvaluationReportNotFound The requested resource wasn't found
 
 swagger:response deleteEvaluationReportNotFound
 */
@@ -172,7 +176,8 @@ func (o *DeleteEvaluationReportNotFound) WriteResponse(rw http.ResponseWriter, p
 // DeleteEvaluationReportConflictCode is the HTTP code returned for type DeleteEvaluationReportConflict
 const DeleteEvaluationReportConflictCode int = 409
 
-/*DeleteEvaluationReportConflict Conflict error
+/*
+DeleteEvaluationReportConflict Conflict error
 
 swagger:response deleteEvaluationReportConflict
 */
@@ -216,7 +221,8 @@ func (o *DeleteEvaluationReportConflict) WriteResponse(rw http.ResponseWriter, p
 // DeleteEvaluationReportUnprocessableEntityCode is the HTTP code returned for type DeleteEvaluationReportUnprocessableEntity
 const DeleteEvaluationReportUnprocessableEntityCode int = 422
 
-/*DeleteEvaluationReportUnprocessableEntity The payload was unprocessable.
+/*
+DeleteEvaluationReportUnprocessableEntity The payload was unprocessable.
 
 swagger:response deleteEvaluationReportUnprocessableEntity
 */
@@ -260,7 +266,8 @@ func (o *DeleteEvaluationReportUnprocessableEntity) WriteResponse(rw http.Respon
 // DeleteEvaluationReportInternalServerErrorCode is the HTTP code returned for type DeleteEvaluationReportInternalServerError
 const DeleteEvaluationReportInternalServerErrorCode int = 500
 
-/*DeleteEvaluationReportInternalServerError A server error occurred
+/*
+DeleteEvaluationReportInternalServerError A server error occurred
 
 swagger:response deleteEvaluationReportInternalServerError
 */

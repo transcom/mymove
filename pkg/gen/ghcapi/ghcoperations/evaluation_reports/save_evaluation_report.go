@@ -29,12 +29,12 @@ func NewSaveEvaluationReport(ctx *middleware.Context, handler SaveEvaluationRepo
 	return &SaveEvaluationReport{Context: ctx, Handler: handler}
 }
 
-/* SaveEvaluationReport swagger:route PUT /evaluation-reports/{reportID} evaluationReports saveEvaluationReport
+/*
+	SaveEvaluationReport swagger:route PUT /evaluation-reports/{reportID} evaluationReports saveEvaluationReport
+
+# Saves an evaluation report as a draft
 
 Saves an evaluation report as a draft
-
-Saves an evaluation report as a draft
-
 */
 type SaveEvaluationReport struct {
 	Context *middleware.Context

@@ -29,12 +29,12 @@ func NewShowServiceMember(ctx *middleware.Context, handler ShowServiceMemberHand
 	return &ShowServiceMember{Context: ctx, Handler: handler}
 }
 
-/* ShowServiceMember swagger:route GET /service_members/{serviceMemberId} service_members showServiceMember
+/*
+	ShowServiceMember swagger:route GET /service_members/{serviceMemberId} service_members showServiceMember
+
+# Returns the given service member
 
 Returns the given service member
-
-Returns the given service member
-
 */
 type ShowServiceMember struct {
 	Context *middleware.Context

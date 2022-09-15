@@ -16,7 +16,8 @@ import (
 // UpdateCustomerSupportRemarkForMoveOKCode is the HTTP code returned for type UpdateCustomerSupportRemarkForMoveOK
 const UpdateCustomerSupportRemarkForMoveOKCode int = 200
 
-/*UpdateCustomerSupportRemarkForMoveOK Successfully updated customer support remark
+/*
+UpdateCustomerSupportRemarkForMoveOK Successfully updated customer support remark
 
 swagger:response updateCustomerSupportRemarkForMoveOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateCustomerSupportRemarkForMoveOK) WriteResponse(rw http.ResponseWri
 // UpdateCustomerSupportRemarkForMoveBadRequestCode is the HTTP code returned for type UpdateCustomerSupportRemarkForMoveBadRequest
 const UpdateCustomerSupportRemarkForMoveBadRequestCode int = 400
 
-/*UpdateCustomerSupportRemarkForMoveBadRequest The request payload is invalid
+/*
+UpdateCustomerSupportRemarkForMoveBadRequest The request payload is invalid
 
 swagger:response updateCustomerSupportRemarkForMoveBadRequest
 */
@@ -104,7 +106,8 @@ func (o *UpdateCustomerSupportRemarkForMoveBadRequest) WriteResponse(rw http.Res
 // UpdateCustomerSupportRemarkForMoveForbiddenCode is the HTTP code returned for type UpdateCustomerSupportRemarkForMoveForbidden
 const UpdateCustomerSupportRemarkForMoveForbiddenCode int = 403
 
-/*UpdateCustomerSupportRemarkForMoveForbidden The request was denied
+/*
+UpdateCustomerSupportRemarkForMoveForbidden The request was denied
 
 swagger:response updateCustomerSupportRemarkForMoveForbidden
 */
@@ -148,7 +151,8 @@ func (o *UpdateCustomerSupportRemarkForMoveForbidden) WriteResponse(rw http.Resp
 // UpdateCustomerSupportRemarkForMoveNotFoundCode is the HTTP code returned for type UpdateCustomerSupportRemarkForMoveNotFound
 const UpdateCustomerSupportRemarkForMoveNotFoundCode int = 404
 
-/*UpdateCustomerSupportRemarkForMoveNotFound The requested resource wasn't found
+/*
+UpdateCustomerSupportRemarkForMoveNotFound The requested resource wasn't found
 
 swagger:response updateCustomerSupportRemarkForMoveNotFound
 */
@@ -192,7 +196,8 @@ func (o *UpdateCustomerSupportRemarkForMoveNotFound) WriteResponse(rw http.Respo
 // UpdateCustomerSupportRemarkForMoveUnprocessableEntityCode is the HTTP code returned for type UpdateCustomerSupportRemarkForMoveUnprocessableEntity
 const UpdateCustomerSupportRemarkForMoveUnprocessableEntityCode int = 422
 
-/*UpdateCustomerSupportRemarkForMoveUnprocessableEntity The payload was unprocessable.
+/*
+UpdateCustomerSupportRemarkForMoveUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateCustomerSupportRemarkForMoveUnprocessableEntity
 */
@@ -236,7 +241,8 @@ func (o *UpdateCustomerSupportRemarkForMoveUnprocessableEntity) WriteResponse(rw
 // UpdateCustomerSupportRemarkForMoveInternalServerErrorCode is the HTTP code returned for type UpdateCustomerSupportRemarkForMoveInternalServerError
 const UpdateCustomerSupportRemarkForMoveInternalServerErrorCode int = 500
 
-/*UpdateCustomerSupportRemarkForMoveInternalServerError A server error occurred
+/*
+UpdateCustomerSupportRemarkForMoveInternalServerError A server error occurred
 
 swagger:response updateCustomerSupportRemarkForMoveInternalServerError
 */

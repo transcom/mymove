@@ -29,12 +29,12 @@ func NewShowServiceMemberBackupContact(ctx *middleware.Context, handler ShowServ
 	return &ShowServiceMemberBackupContact{Context: ctx, Handler: handler}
 }
 
-/* ShowServiceMemberBackupContact swagger:route GET /backup_contacts/{backupContactId} backup_contacts showServiceMemberBackupContact
+/*
+	ShowServiceMemberBackupContact swagger:route GET /backup_contacts/{backupContactId} backup_contacts showServiceMemberBackupContact
+
+# Returns the given service member backup contact
 
 Returns the given service member backup contact
-
-Returns the given service member backup contact
-
 */
 type ShowServiceMemberBackupContact struct {
 	Context *middleware.Context

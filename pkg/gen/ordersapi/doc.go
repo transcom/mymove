@@ -2,23 +2,23 @@
 
 // Package ordersapi MilMove Orders API
 //
-//  The Orders API is a RESTful API that enables to submit, amend, and
-//  cancel orders for MilMove.
+//	The Orders API is a RESTful API that enables to submit, amend, and
+//	cancel orders for MilMove.
 //
-//  All endpoints are located under `/orders/v1`.
+//	All endpoints are located under `/orders/v1`.
 //
-//  Schemes:
-//    http
-//  Host: localhost
-//  BasePath: /orders/v1
-//  Version: 1.0.0
-//  License: MIT https://github.com/transcom/mymove/blob/master/LICENSE.md
+//	Schemes:
+//	  http
+//	Host: localhost
+//	BasePath: /orders/v1
+//	Version: 1.0.0
+//	License: MIT https://github.com/transcom/mymove/blob/master/LICENSE.md
 //
-//  Consumes:
-//    - application/json
+//	Consumes:
+//	  - application/json
 //
-//  Produces:
-//    - application/json
+//	Produces:
+//	  - application/json
 //
 // swagger:meta
 package ordersapi

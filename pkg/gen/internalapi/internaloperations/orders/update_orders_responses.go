@@ -16,7 +16,8 @@ import (
 // UpdateOrdersOKCode is the HTTP code returned for type UpdateOrdersOK
 const UpdateOrdersOKCode int = 200
 
-/*UpdateOrdersOK updated instance of orders
+/*
+UpdateOrdersOK updated instance of orders
 
 swagger:response updateOrdersOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateOrdersOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 // UpdateOrdersBadRequestCode is the HTTP code returned for type UpdateOrdersBadRequest
 const UpdateOrdersBadRequestCode int = 400
 
-/*UpdateOrdersBadRequest invalid request
+/*
+UpdateOrdersBadRequest invalid request
 
 swagger:response updateOrdersBadRequest
 */
@@ -84,7 +86,8 @@ func (o *UpdateOrdersBadRequest) WriteResponse(rw http.ResponseWriter, producer 
 // UpdateOrdersUnauthorizedCode is the HTTP code returned for type UpdateOrdersUnauthorized
 const UpdateOrdersUnauthorizedCode int = 401
 
-/*UpdateOrdersUnauthorized request requires user authentication
+/*
+UpdateOrdersUnauthorized request requires user authentication
 
 swagger:response updateOrdersUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *UpdateOrdersUnauthorized) WriteResponse(rw http.ResponseWriter, produce
 // UpdateOrdersForbiddenCode is the HTTP code returned for type UpdateOrdersForbidden
 const UpdateOrdersForbiddenCode int = 403
 
-/*UpdateOrdersForbidden user is not authorized
+/*
+UpdateOrdersForbidden user is not authorized
 
 swagger:response updateOrdersForbidden
 */
@@ -132,7 +136,8 @@ func (o *UpdateOrdersForbidden) WriteResponse(rw http.ResponseWriter, producer r
 // UpdateOrdersNotFoundCode is the HTTP code returned for type UpdateOrdersNotFound
 const UpdateOrdersNotFoundCode int = 404
 
-/*UpdateOrdersNotFound orders not found
+/*
+UpdateOrdersNotFound orders not found
 
 swagger:response updateOrdersNotFound
 */
@@ -156,7 +161,8 @@ func (o *UpdateOrdersNotFound) WriteResponse(rw http.ResponseWriter, producer ru
 // UpdateOrdersInternalServerErrorCode is the HTTP code returned for type UpdateOrdersInternalServerError
 const UpdateOrdersInternalServerErrorCode int = 500
 
-/*UpdateOrdersInternalServerError internal server error
+/*
+UpdateOrdersInternalServerError internal server error
 
 swagger:response updateOrdersInternalServerError
 */

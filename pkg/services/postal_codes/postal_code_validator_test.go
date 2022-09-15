@@ -41,23 +41,3 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode_InvalidPostalCo
 
 	suite.False(valid)
 }
-
-func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode_InvalidOriginPostalCode() {
-	postalCodeType := services.PostalCodeType("Origin")
-	postalCode := "11111"
-
-	validatePostalCode := NewPostalCodeValidator()
-	valid, _ := validatePostalCode.ValidatePostalCode(suite.AppContextForTest(), postalCode, postalCodeType)
-
-	suite.False(valid)
-}
-
-func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode_InvalidDestinationPostalCode() {
-	postalCodeType := services.PostalCodeType("Destination")
-	postalCode := "11111"
-
-	validatePostalCode := NewPostalCodeValidator()
-	valid, _ := validatePostalCode.ValidatePostalCode(suite.AppContextForTest(), postalCode, postalCodeType)
-
-	suite.False(valid)
-}

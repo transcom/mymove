@@ -16,7 +16,8 @@ import (
 // RequestPPMPaymentOKCode is the HTTP code returned for type RequestPPMPaymentOK
 const RequestPPMPaymentOKCode int = 200
 
-/*RequestPPMPaymentOK Sucesssfully requested payment
+/*
+RequestPPMPaymentOK Sucesssfully requested payment
 
 swagger:response requestPPMPaymentOK
 */
@@ -60,7 +61,8 @@ func (o *RequestPPMPaymentOK) WriteResponse(rw http.ResponseWriter, producer run
 // RequestPPMPaymentBadRequestCode is the HTTP code returned for type RequestPPMPaymentBadRequest
 const RequestPPMPaymentBadRequestCode int = 400
 
-/*RequestPPMPaymentBadRequest invalid request
+/*
+RequestPPMPaymentBadRequest invalid request
 
 swagger:response requestPPMPaymentBadRequest
 */
@@ -84,7 +86,8 @@ func (o *RequestPPMPaymentBadRequest) WriteResponse(rw http.ResponseWriter, prod
 // RequestPPMPaymentUnauthorizedCode is the HTTP code returned for type RequestPPMPaymentUnauthorized
 const RequestPPMPaymentUnauthorizedCode int = 401
 
-/*RequestPPMPaymentUnauthorized request requires user authentication
+/*
+RequestPPMPaymentUnauthorized request requires user authentication
 
 swagger:response requestPPMPaymentUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *RequestPPMPaymentUnauthorized) WriteResponse(rw http.ResponseWriter, pr
 // RequestPPMPaymentForbiddenCode is the HTTP code returned for type RequestPPMPaymentForbidden
 const RequestPPMPaymentForbiddenCode int = 403
 
-/*RequestPPMPaymentForbidden user is not authorized
+/*
+RequestPPMPaymentForbidden user is not authorized
 
 swagger:response requestPPMPaymentForbidden
 */
@@ -132,7 +136,8 @@ func (o *RequestPPMPaymentForbidden) WriteResponse(rw http.ResponseWriter, produ
 // RequestPPMPaymentNotFoundCode is the HTTP code returned for type RequestPPMPaymentNotFound
 const RequestPPMPaymentNotFoundCode int = 404
 
-/*RequestPPMPaymentNotFound move not found
+/*
+RequestPPMPaymentNotFound move not found
 
 swagger:response requestPPMPaymentNotFound
 */
@@ -156,7 +161,8 @@ func (o *RequestPPMPaymentNotFound) WriteResponse(rw http.ResponseWriter, produc
 // RequestPPMPaymentInternalServerErrorCode is the HTTP code returned for type RequestPPMPaymentInternalServerError
 const RequestPPMPaymentInternalServerErrorCode int = 500
 
-/*RequestPPMPaymentInternalServerError server error
+/*
+RequestPPMPaymentInternalServerError server error
 
 swagger:response requestPPMPaymentInternalServerError
 */

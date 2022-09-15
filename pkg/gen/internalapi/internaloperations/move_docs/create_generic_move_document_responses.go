@@ -16,7 +16,8 @@ import (
 // CreateGenericMoveDocumentOKCode is the HTTP code returned for type CreateGenericMoveDocumentOK
 const CreateGenericMoveDocumentOKCode int = 200
 
-/*CreateGenericMoveDocumentOK returns new move document object
+/*
+CreateGenericMoveDocumentOK returns new move document object
 
 swagger:response createGenericMoveDocumentOK
 */
@@ -60,7 +61,8 @@ func (o *CreateGenericMoveDocumentOK) WriteResponse(rw http.ResponseWriter, prod
 // CreateGenericMoveDocumentBadRequestCode is the HTTP code returned for type CreateGenericMoveDocumentBadRequest
 const CreateGenericMoveDocumentBadRequestCode int = 400
 
-/*CreateGenericMoveDocumentBadRequest invalid request
+/*
+CreateGenericMoveDocumentBadRequest invalid request
 
 swagger:response createGenericMoveDocumentBadRequest
 */
@@ -84,7 +86,8 @@ func (o *CreateGenericMoveDocumentBadRequest) WriteResponse(rw http.ResponseWrit
 // CreateGenericMoveDocumentUnauthorizedCode is the HTTP code returned for type CreateGenericMoveDocumentUnauthorized
 const CreateGenericMoveDocumentUnauthorizedCode int = 401
 
-/*CreateGenericMoveDocumentUnauthorized must be authenticated to use this endpoint
+/*
+CreateGenericMoveDocumentUnauthorized must be authenticated to use this endpoint
 
 swagger:response createGenericMoveDocumentUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *CreateGenericMoveDocumentUnauthorized) WriteResponse(rw http.ResponseWr
 // CreateGenericMoveDocumentForbiddenCode is the HTTP code returned for type CreateGenericMoveDocumentForbidden
 const CreateGenericMoveDocumentForbiddenCode int = 403
 
-/*CreateGenericMoveDocumentForbidden not authorized to modify this move
+/*
+CreateGenericMoveDocumentForbidden not authorized to modify this move
 
 swagger:response createGenericMoveDocumentForbidden
 */
@@ -132,7 +136,8 @@ func (o *CreateGenericMoveDocumentForbidden) WriteResponse(rw http.ResponseWrite
 // CreateGenericMoveDocumentInternalServerErrorCode is the HTTP code returned for type CreateGenericMoveDocumentInternalServerError
 const CreateGenericMoveDocumentInternalServerErrorCode int = 500
 
-/*CreateGenericMoveDocumentInternalServerError server error
+/*
+CreateGenericMoveDocumentInternalServerError server error
 
 swagger:response createGenericMoveDocumentInternalServerError
 */

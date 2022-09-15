@@ -29,12 +29,12 @@ func NewShowServiceMemberOrders(ctx *middleware.Context, handler ShowServiceMemb
 	return &ShowServiceMemberOrders{Context: ctx, Handler: handler}
 }
 
-/* ShowServiceMemberOrders swagger:route GET /service_members/{serviceMemberId}/current_orders service_members showServiceMemberOrders
+/*
+	ShowServiceMemberOrders swagger:route GET /service_members/{serviceMemberId}/current_orders service_members showServiceMemberOrders
 
-Returns the latest orders for a given service member
+# Returns the latest orders for a given service member
 
 Returns orders
-
 */
 type ShowServiceMemberOrders struct {
 	Context *middleware.Context

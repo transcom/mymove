@@ -16,7 +16,8 @@ import (
 // CreatePPMAttachmentsOKCode is the HTTP code returned for type CreatePPMAttachmentsOK
 const CreatePPMAttachmentsOKCode int = 200
 
-/*CreatePPMAttachmentsOK returns a PPM attachments upload
+/*
+CreatePPMAttachmentsOK returns a PPM attachments upload
 
 swagger:response createPPMAttachmentsOK
 */
@@ -60,7 +61,8 @@ func (o *CreatePPMAttachmentsOK) WriteResponse(rw http.ResponseWriter, producer 
 // CreatePPMAttachmentsBadRequestCode is the HTTP code returned for type CreatePPMAttachmentsBadRequest
 const CreatePPMAttachmentsBadRequestCode int = 400
 
-/*CreatePPMAttachmentsBadRequest invalid request
+/*
+CreatePPMAttachmentsBadRequest invalid request
 
 swagger:response createPPMAttachmentsBadRequest
 */
@@ -84,7 +86,8 @@ func (o *CreatePPMAttachmentsBadRequest) WriteResponse(rw http.ResponseWriter, p
 // CreatePPMAttachmentsUnauthorizedCode is the HTTP code returned for type CreatePPMAttachmentsUnauthorized
 const CreatePPMAttachmentsUnauthorizedCode int = 401
 
-/*CreatePPMAttachmentsUnauthorized must be authenticated to use this endpoint
+/*
+CreatePPMAttachmentsUnauthorized must be authenticated to use this endpoint
 
 swagger:response createPPMAttachmentsUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *CreatePPMAttachmentsUnauthorized) WriteResponse(rw http.ResponseWriter,
 // CreatePPMAttachmentsForbiddenCode is the HTTP code returned for type CreatePPMAttachmentsForbidden
 const CreatePPMAttachmentsForbiddenCode int = 403
 
-/*CreatePPMAttachmentsForbidden not authorized to perform this action
+/*
+CreatePPMAttachmentsForbidden not authorized to perform this action
 
 swagger:response createPPMAttachmentsForbidden
 */
@@ -132,7 +136,8 @@ func (o *CreatePPMAttachmentsForbidden) WriteResponse(rw http.ResponseWriter, pr
 // CreatePPMAttachmentsRequestEntityTooLargeCode is the HTTP code returned for type CreatePPMAttachmentsRequestEntityTooLarge
 const CreatePPMAttachmentsRequestEntityTooLargeCode int = 413
 
-/*CreatePPMAttachmentsRequestEntityTooLarge payload is too large
+/*
+CreatePPMAttachmentsRequestEntityTooLarge payload is too large
 
 swagger:response createPPMAttachmentsRequestEntityTooLarge
 */
@@ -156,7 +161,8 @@ func (o *CreatePPMAttachmentsRequestEntityTooLarge) WriteResponse(rw http.Respon
 // CreatePPMAttachmentsUnprocessableEntityCode is the HTTP code returned for type CreatePPMAttachmentsUnprocessableEntity
 const CreatePPMAttachmentsUnprocessableEntityCode int = 422
 
-/*CreatePPMAttachmentsUnprocessableEntity malformed PDF contained in uploads
+/*
+CreatePPMAttachmentsUnprocessableEntity malformed PDF contained in uploads
 
 swagger:response createPPMAttachmentsUnprocessableEntity
 */
@@ -180,7 +186,8 @@ func (o *CreatePPMAttachmentsUnprocessableEntity) WriteResponse(rw http.Response
 // CreatePPMAttachmentsFailedDependencyCode is the HTTP code returned for type CreatePPMAttachmentsFailedDependency
 const CreatePPMAttachmentsFailedDependencyCode int = 424
 
-/*CreatePPMAttachmentsFailedDependency no files to be processed into attachments PDF
+/*
+CreatePPMAttachmentsFailedDependency no files to be processed into attachments PDF
 
 swagger:response createPPMAttachmentsFailedDependency
 */
@@ -204,7 +211,8 @@ func (o *CreatePPMAttachmentsFailedDependency) WriteResponse(rw http.ResponseWri
 // CreatePPMAttachmentsInternalServerErrorCode is the HTTP code returned for type CreatePPMAttachmentsInternalServerError
 const CreatePPMAttachmentsInternalServerErrorCode int = 500
 
-/*CreatePPMAttachmentsInternalServerError server error
+/*
+CreatePPMAttachmentsInternalServerError server error
 
 swagger:response createPPMAttachmentsInternalServerError
 */

@@ -5,9 +5,11 @@
   min-width: 1200px !important;
   overflow-y: auto;
   max-height: 90vh;
-  @include u-padding-bottom(5 !important);
+  @include u-padding(4 !important);
+  @include u-margin-bottom(4 !important);
 }
 
 .titleSection {
   @include u-margin-top(4);
+  @include u-margin-right(0);
 }

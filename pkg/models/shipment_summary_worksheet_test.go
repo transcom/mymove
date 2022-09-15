@@ -118,6 +118,42 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
 }
 
+func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() {
+	//advanceID, _ := uuid.NewV4()
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
+	rank := models.ServiceMemberRankE9
+	moveType := models.SelectedMoveTypeHHGPPM
+
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &moveType,
+		},
+		Order: models.Order{
+			OrdersType:        ordersType,
+			NewDutyLocationID: fortGordon.ID,
+		},
+		ServiceMember: models.ServiceMember{
+			DutyLocationID: &yuma.ID,
+			Rank:           &rank,
+		},
+	})
+
+	moveID := uuid.Nil
+	serviceMemberID := move.Orders.ServiceMemberID
+
+	session := auth.Session{
+		UserID:          move.Orders.ServiceMember.UserID,
+		ServiceMemberID: serviceMemberID,
+		ApplicationName: auth.MilApp,
+	}
+
+	_, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
+
+	suite.Error(err)
+}
+
 func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
 	moveID, _ := uuid.NewV4()
 	serviceMemberID, _ := uuid.NewV4()
@@ -402,7 +438,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 		Order:          order,
 		MovingExpenses: movingExpenses,
 	}
-	sswPage2, _ := models.FormatValuesShipmentSummaryWorksheetFormPage2(ssd)
+	sswPage2 := models.FormatValuesShipmentSummaryWorksheetFormPage2(ssd)
 
 	suite.Equal("NTA4", sswPage2.TAC)
 	suite.Equal("SAC", sswPage2.SAC)

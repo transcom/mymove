@@ -75,7 +75,8 @@ func NewCreateMoveTaskOrderCreated() *CreateMoveTaskOrderCreated {
 	return &CreateMoveTaskOrderCreated{}
 }
 
-/* CreateMoveTaskOrderCreated describes a response with status code 201, with default header values.
+/*
+CreateMoveTaskOrderCreated describes a response with status code 201, with default header values.
 
 Successfully created MoveTaskOrder object.
 */
@@ -83,9 +84,39 @@ type CreateMoveTaskOrderCreated struct {
 	Payload *supportmessages.MoveTaskOrder
 }
 
+// IsSuccess returns true when this create move task order created response has a 2xx status code
+func (o *CreateMoveTaskOrderCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this create move task order created response has a 3xx status code
+func (o *CreateMoveTaskOrderCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create move task order created response has a 4xx status code
+func (o *CreateMoveTaskOrderCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create move task order created response has a 5xx status code
+func (o *CreateMoveTaskOrderCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create move task order created response a status code equal to that given
+func (o *CreateMoveTaskOrderCreated) IsCode(code int) bool {
+	return code == 201
+}
+
 func (o *CreateMoveTaskOrderCreated) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderCreated  %+v", 201, o.Payload)
 }
+
+func (o *CreateMoveTaskOrderCreated) String() string {
+	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderCreated  %+v", 201, o.Payload)
+}
+
 func (o *CreateMoveTaskOrderCreated) GetPayload() *supportmessages.MoveTaskOrder {
 	return o.Payload
 }
@@ -107,7 +138,8 @@ func NewCreateMoveTaskOrderBadRequest() *CreateMoveTaskOrderBadRequest {
 	return &CreateMoveTaskOrderBadRequest{}
 }
 
-/* CreateMoveTaskOrderBadRequest describes a response with status code 400, with default header values.
+/*
+CreateMoveTaskOrderBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -115,9 +147,39 @@ type CreateMoveTaskOrderBadRequest struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this create move task order bad request response has a 2xx status code
+func (o *CreateMoveTaskOrderBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create move task order bad request response has a 3xx status code
+func (o *CreateMoveTaskOrderBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create move task order bad request response has a 4xx status code
+func (o *CreateMoveTaskOrderBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create move task order bad request response has a 5xx status code
+func (o *CreateMoveTaskOrderBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create move task order bad request response a status code equal to that given
+func (o *CreateMoveTaskOrderBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *CreateMoveTaskOrderBadRequest) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *CreateMoveTaskOrderBadRequest) String() string {
+	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *CreateMoveTaskOrderBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -139,7 +201,8 @@ func NewCreateMoveTaskOrderUnauthorized() *CreateMoveTaskOrderUnauthorized {
 	return &CreateMoveTaskOrderUnauthorized{}
 }
 
-/* CreateMoveTaskOrderUnauthorized describes a response with status code 401, with default header values.
+/*
+CreateMoveTaskOrderUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -147,9 +210,39 @@ type CreateMoveTaskOrderUnauthorized struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this create move task order unauthorized response has a 2xx status code
+func (o *CreateMoveTaskOrderUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create move task order unauthorized response has a 3xx status code
+func (o *CreateMoveTaskOrderUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create move task order unauthorized response has a 4xx status code
+func (o *CreateMoveTaskOrderUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create move task order unauthorized response has a 5xx status code
+func (o *CreateMoveTaskOrderUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create move task order unauthorized response a status code equal to that given
+func (o *CreateMoveTaskOrderUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *CreateMoveTaskOrderUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *CreateMoveTaskOrderUnauthorized) String() string {
+	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *CreateMoveTaskOrderUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -171,7 +264,8 @@ func NewCreateMoveTaskOrderForbidden() *CreateMoveTaskOrderForbidden {
 	return &CreateMoveTaskOrderForbidden{}
 }
 
-/* CreateMoveTaskOrderForbidden describes a response with status code 403, with default header values.
+/*
+CreateMoveTaskOrderForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -179,9 +273,39 @@ type CreateMoveTaskOrderForbidden struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this create move task order forbidden response has a 2xx status code
+func (o *CreateMoveTaskOrderForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create move task order forbidden response has a 3xx status code
+func (o *CreateMoveTaskOrderForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create move task order forbidden response has a 4xx status code
+func (o *CreateMoveTaskOrderForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create move task order forbidden response has a 5xx status code
+func (o *CreateMoveTaskOrderForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create move task order forbidden response a status code equal to that given
+func (o *CreateMoveTaskOrderForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *CreateMoveTaskOrderForbidden) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderForbidden  %+v", 403, o.Payload)
 }
+
+func (o *CreateMoveTaskOrderForbidden) String() string {
+	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderForbidden  %+v", 403, o.Payload)
+}
+
 func (o *CreateMoveTaskOrderForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -203,7 +327,8 @@ func NewCreateMoveTaskOrderNotFound() *CreateMoveTaskOrderNotFound {
 	return &CreateMoveTaskOrderNotFound{}
 }
 
-/* CreateMoveTaskOrderNotFound describes a response with status code 404, with default header values.
+/*
+CreateMoveTaskOrderNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -211,9 +336,39 @@ type CreateMoveTaskOrderNotFound struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this create move task order not found response has a 2xx status code
+func (o *CreateMoveTaskOrderNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create move task order not found response has a 3xx status code
+func (o *CreateMoveTaskOrderNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create move task order not found response has a 4xx status code
+func (o *CreateMoveTaskOrderNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create move task order not found response has a 5xx status code
+func (o *CreateMoveTaskOrderNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create move task order not found response a status code equal to that given
+func (o *CreateMoveTaskOrderNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *CreateMoveTaskOrderNotFound) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderNotFound  %+v", 404, o.Payload)
 }
+
+func (o *CreateMoveTaskOrderNotFound) String() string {
+	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderNotFound  %+v", 404, o.Payload)
+}
+
 func (o *CreateMoveTaskOrderNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -235,7 +390,8 @@ func NewCreateMoveTaskOrderUnprocessableEntity() *CreateMoveTaskOrderUnprocessab
 	return &CreateMoveTaskOrderUnprocessableEntity{}
 }
 
-/* CreateMoveTaskOrderUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+CreateMoveTaskOrderUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -243,9 +399,39 @@ type CreateMoveTaskOrderUnprocessableEntity struct {
 	Payload *supportmessages.ValidationError
 }
 
+// IsSuccess returns true when this create move task order unprocessable entity response has a 2xx status code
+func (o *CreateMoveTaskOrderUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create move task order unprocessable entity response has a 3xx status code
+func (o *CreateMoveTaskOrderUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create move task order unprocessable entity response has a 4xx status code
+func (o *CreateMoveTaskOrderUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create move task order unprocessable entity response has a 5xx status code
+func (o *CreateMoveTaskOrderUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create move task order unprocessable entity response a status code equal to that given
+func (o *CreateMoveTaskOrderUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *CreateMoveTaskOrderUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *CreateMoveTaskOrderUnprocessableEntity) String() string {
+	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *CreateMoveTaskOrderUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -267,7 +453,8 @@ func NewCreateMoveTaskOrderInternalServerError() *CreateMoveTaskOrderInternalSer
 	return &CreateMoveTaskOrderInternalServerError{}
 }
 
-/* CreateMoveTaskOrderInternalServerError describes a response with status code 500, with default header values.
+/*
+CreateMoveTaskOrderInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -275,9 +462,39 @@ type CreateMoveTaskOrderInternalServerError struct {
 	Payload *supportmessages.Error
 }
 
+// IsSuccess returns true when this create move task order internal server error response has a 2xx status code
+func (o *CreateMoveTaskOrderInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create move task order internal server error response has a 3xx status code
+func (o *CreateMoveTaskOrderInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create move task order internal server error response has a 4xx status code
+func (o *CreateMoveTaskOrderInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create move task order internal server error response has a 5xx status code
+func (o *CreateMoveTaskOrderInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this create move task order internal server error response a status code equal to that given
+func (o *CreateMoveTaskOrderInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *CreateMoveTaskOrderInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *CreateMoveTaskOrderInternalServerError) String() string {
+	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *CreateMoveTaskOrderInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

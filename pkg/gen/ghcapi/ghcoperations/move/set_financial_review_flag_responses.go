@@ -16,7 +16,8 @@ import (
 // SetFinancialReviewFlagOKCode is the HTTP code returned for type SetFinancialReviewFlagOK
 const SetFinancialReviewFlagOKCode int = 200
 
-/*SetFinancialReviewFlagOK updated Move
+/*
+SetFinancialReviewFlagOK updated Move
 
 swagger:response setFinancialReviewFlagOK
 */
@@ -60,7 +61,8 @@ func (o *SetFinancialReviewFlagOK) WriteResponse(rw http.ResponseWriter, produce
 // SetFinancialReviewFlagForbiddenCode is the HTTP code returned for type SetFinancialReviewFlagForbidden
 const SetFinancialReviewFlagForbiddenCode int = 403
 
-/*SetFinancialReviewFlagForbidden The request was denied
+/*
+SetFinancialReviewFlagForbidden The request was denied
 
 swagger:response setFinancialReviewFlagForbidden
 */
@@ -104,7 +106,8 @@ func (o *SetFinancialReviewFlagForbidden) WriteResponse(rw http.ResponseWriter, 
 // SetFinancialReviewFlagNotFoundCode is the HTTP code returned for type SetFinancialReviewFlagNotFound
 const SetFinancialReviewFlagNotFoundCode int = 404
 
-/*SetFinancialReviewFlagNotFound The requested resource wasn't found
+/*
+SetFinancialReviewFlagNotFound The requested resource wasn't found
 
 swagger:response setFinancialReviewFlagNotFound
 */
@@ -148,7 +151,8 @@ func (o *SetFinancialReviewFlagNotFound) WriteResponse(rw http.ResponseWriter, p
 // SetFinancialReviewFlagPreconditionFailedCode is the HTTP code returned for type SetFinancialReviewFlagPreconditionFailed
 const SetFinancialReviewFlagPreconditionFailedCode int = 412
 
-/*SetFinancialReviewFlagPreconditionFailed Precondition failed
+/*
+SetFinancialReviewFlagPreconditionFailed Precondition failed
 
 swagger:response setFinancialReviewFlagPreconditionFailed
 */
@@ -192,7 +196,8 @@ func (o *SetFinancialReviewFlagPreconditionFailed) WriteResponse(rw http.Respons
 // SetFinancialReviewFlagUnprocessableEntityCode is the HTTP code returned for type SetFinancialReviewFlagUnprocessableEntity
 const SetFinancialReviewFlagUnprocessableEntityCode int = 422
 
-/*SetFinancialReviewFlagUnprocessableEntity The payload was unprocessable.
+/*
+SetFinancialReviewFlagUnprocessableEntity The payload was unprocessable.
 
 swagger:response setFinancialReviewFlagUnprocessableEntity
 */
@@ -236,7 +241,8 @@ func (o *SetFinancialReviewFlagUnprocessableEntity) WriteResponse(rw http.Respon
 // SetFinancialReviewFlagInternalServerErrorCode is the HTTP code returned for type SetFinancialReviewFlagInternalServerError
 const SetFinancialReviewFlagInternalServerErrorCode int = 500
 
-/*SetFinancialReviewFlagInternalServerError A server error occurred
+/*
+SetFinancialReviewFlagInternalServerError A server error occurred
 
 swagger:response setFinancialReviewFlagInternalServerError
 */

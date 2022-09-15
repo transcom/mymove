@@ -29,12 +29,12 @@ func NewGetEntitlements(ctx *middleware.Context, handler GetEntitlementsHandler)
 	return &GetEntitlements{Context: ctx, Handler: handler}
 }
 
-/* GetEntitlements swagger:route GET /move-task-orders/{moveTaskOrderID}/entitlements moveTaskOrder getEntitlements
+/*
+	GetEntitlements swagger:route GET /move-task-orders/{moveTaskOrderID}/entitlements moveTaskOrder getEntitlements
 
-Gets entitlements for a move by ID
+# Gets entitlements for a move by ID
 
 Gets entitlements
-
 */
 type GetEntitlements struct {
 	Context *middleware.Context

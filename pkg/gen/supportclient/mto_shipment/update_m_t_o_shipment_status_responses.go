@@ -87,7 +87,8 @@ func NewUpdateMTOShipmentStatusOK() *UpdateMTOShipmentStatusOK {
 	return &UpdateMTOShipmentStatusOK{}
 }
 
-/* UpdateMTOShipmentStatusOK describes a response with status code 200, with default header values.
+/*
+UpdateMTOShipmentStatusOK describes a response with status code 200, with default header values.
 
 Successfully updated the shipment's status.
 */
@@ -95,9 +96,39 @@ type UpdateMTOShipmentStatusOK struct {
 	Payload *supportmessages.MTOShipment
 }
 
+// IsSuccess returns true when this update m t o shipment status o k response has a 2xx status code
+func (o *UpdateMTOShipmentStatusOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this update m t o shipment status o k response has a 3xx status code
+func (o *UpdateMTOShipmentStatusOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment status o k response has a 4xx status code
+func (o *UpdateMTOShipmentStatusOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update m t o shipment status o k response has a 5xx status code
+func (o *UpdateMTOShipmentStatusOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment status o k response a status code equal to that given
+func (o *UpdateMTOShipmentStatusOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *UpdateMTOShipmentStatusOK) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusOK  %+v", 200, o.Payload)
 }
+
+func (o *UpdateMTOShipmentStatusOK) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusOK  %+v", 200, o.Payload)
+}
+
 func (o *UpdateMTOShipmentStatusOK) GetPayload() *supportmessages.MTOShipment {
 	return o.Payload
 }
@@ -119,7 +150,8 @@ func NewUpdateMTOShipmentStatusBadRequest() *UpdateMTOShipmentStatusBadRequest {
 	return &UpdateMTOShipmentStatusBadRequest{}
 }
 
-/* UpdateMTOShipmentStatusBadRequest describes a response with status code 400, with default header values.
+/*
+UpdateMTOShipmentStatusBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -127,9 +159,39 @@ type UpdateMTOShipmentStatusBadRequest struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o shipment status bad request response has a 2xx status code
+func (o *UpdateMTOShipmentStatusBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment status bad request response has a 3xx status code
+func (o *UpdateMTOShipmentStatusBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment status bad request response has a 4xx status code
+func (o *UpdateMTOShipmentStatusBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o shipment status bad request response has a 5xx status code
+func (o *UpdateMTOShipmentStatusBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment status bad request response a status code equal to that given
+func (o *UpdateMTOShipmentStatusBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *UpdateMTOShipmentStatusBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *UpdateMTOShipmentStatusBadRequest) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *UpdateMTOShipmentStatusBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -151,7 +213,8 @@ func NewUpdateMTOShipmentStatusUnauthorized() *UpdateMTOShipmentStatusUnauthoriz
 	return &UpdateMTOShipmentStatusUnauthorized{}
 }
 
-/* UpdateMTOShipmentStatusUnauthorized describes a response with status code 401, with default header values.
+/*
+UpdateMTOShipmentStatusUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -159,9 +222,39 @@ type UpdateMTOShipmentStatusUnauthorized struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o shipment status unauthorized response has a 2xx status code
+func (o *UpdateMTOShipmentStatusUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment status unauthorized response has a 3xx status code
+func (o *UpdateMTOShipmentStatusUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment status unauthorized response has a 4xx status code
+func (o *UpdateMTOShipmentStatusUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o shipment status unauthorized response has a 5xx status code
+func (o *UpdateMTOShipmentStatusUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment status unauthorized response a status code equal to that given
+func (o *UpdateMTOShipmentStatusUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *UpdateMTOShipmentStatusUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *UpdateMTOShipmentStatusUnauthorized) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *UpdateMTOShipmentStatusUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -183,7 +276,8 @@ func NewUpdateMTOShipmentStatusForbidden() *UpdateMTOShipmentStatusForbidden {
 	return &UpdateMTOShipmentStatusForbidden{}
 }
 
-/* UpdateMTOShipmentStatusForbidden describes a response with status code 403, with default header values.
+/*
+UpdateMTOShipmentStatusForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -191,9 +285,39 @@ type UpdateMTOShipmentStatusForbidden struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o shipment status forbidden response has a 2xx status code
+func (o *UpdateMTOShipmentStatusForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment status forbidden response has a 3xx status code
+func (o *UpdateMTOShipmentStatusForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment status forbidden response has a 4xx status code
+func (o *UpdateMTOShipmentStatusForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o shipment status forbidden response has a 5xx status code
+func (o *UpdateMTOShipmentStatusForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment status forbidden response a status code equal to that given
+func (o *UpdateMTOShipmentStatusForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *UpdateMTOShipmentStatusForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusForbidden  %+v", 403, o.Payload)
 }
+
+func (o *UpdateMTOShipmentStatusForbidden) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusForbidden  %+v", 403, o.Payload)
+}
+
 func (o *UpdateMTOShipmentStatusForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -215,7 +339,8 @@ func NewUpdateMTOShipmentStatusNotFound() *UpdateMTOShipmentStatusNotFound {
 	return &UpdateMTOShipmentStatusNotFound{}
 }
 
-/* UpdateMTOShipmentStatusNotFound describes a response with status code 404, with default header values.
+/*
+UpdateMTOShipmentStatusNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -223,9 +348,39 @@ type UpdateMTOShipmentStatusNotFound struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o shipment status not found response has a 2xx status code
+func (o *UpdateMTOShipmentStatusNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment status not found response has a 3xx status code
+func (o *UpdateMTOShipmentStatusNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment status not found response has a 4xx status code
+func (o *UpdateMTOShipmentStatusNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o shipment status not found response has a 5xx status code
+func (o *UpdateMTOShipmentStatusNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment status not found response a status code equal to that given
+func (o *UpdateMTOShipmentStatusNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *UpdateMTOShipmentStatusNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusNotFound  %+v", 404, o.Payload)
 }
+
+func (o *UpdateMTOShipmentStatusNotFound) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusNotFound  %+v", 404, o.Payload)
+}
+
 func (o *UpdateMTOShipmentStatusNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -247,7 +402,8 @@ func NewUpdateMTOShipmentStatusConflict() *UpdateMTOShipmentStatusConflict {
 	return &UpdateMTOShipmentStatusConflict{}
 }
 
-/* UpdateMTOShipmentStatusConflict describes a response with status code 409, with default header values.
+/*
+UpdateMTOShipmentStatusConflict describes a response with status code 409, with default header values.
 
 There was a conflict with the request.
 */
@@ -255,9 +411,39 @@ type UpdateMTOShipmentStatusConflict struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o shipment status conflict response has a 2xx status code
+func (o *UpdateMTOShipmentStatusConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment status conflict response has a 3xx status code
+func (o *UpdateMTOShipmentStatusConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment status conflict response has a 4xx status code
+func (o *UpdateMTOShipmentStatusConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o shipment status conflict response has a 5xx status code
+func (o *UpdateMTOShipmentStatusConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment status conflict response a status code equal to that given
+func (o *UpdateMTOShipmentStatusConflict) IsCode(code int) bool {
+	return code == 409
+}
+
 func (o *UpdateMTOShipmentStatusConflict) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusConflict  %+v", 409, o.Payload)
 }
+
+func (o *UpdateMTOShipmentStatusConflict) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusConflict  %+v", 409, o.Payload)
+}
+
 func (o *UpdateMTOShipmentStatusConflict) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -279,7 +465,8 @@ func NewUpdateMTOShipmentStatusPreconditionFailed() *UpdateMTOShipmentStatusPrec
 	return &UpdateMTOShipmentStatusPreconditionFailed{}
 }
 
-/* UpdateMTOShipmentStatusPreconditionFailed describes a response with status code 412, with default header values.
+/*
+UpdateMTOShipmentStatusPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -287,9 +474,39 @@ type UpdateMTOShipmentStatusPreconditionFailed struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o shipment status precondition failed response has a 2xx status code
+func (o *UpdateMTOShipmentStatusPreconditionFailed) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment status precondition failed response has a 3xx status code
+func (o *UpdateMTOShipmentStatusPreconditionFailed) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment status precondition failed response has a 4xx status code
+func (o *UpdateMTOShipmentStatusPreconditionFailed) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o shipment status precondition failed response has a 5xx status code
+func (o *UpdateMTOShipmentStatusPreconditionFailed) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment status precondition failed response a status code equal to that given
+func (o *UpdateMTOShipmentStatusPreconditionFailed) IsCode(code int) bool {
+	return code == 412
+}
+
 func (o *UpdateMTOShipmentStatusPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusPreconditionFailed  %+v", 412, o.Payload)
 }
+
+func (o *UpdateMTOShipmentStatusPreconditionFailed) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusPreconditionFailed  %+v", 412, o.Payload)
+}
+
 func (o *UpdateMTOShipmentStatusPreconditionFailed) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -311,7 +528,8 @@ func NewUpdateMTOShipmentStatusUnprocessableEntity() *UpdateMTOShipmentStatusUnp
 	return &UpdateMTOShipmentStatusUnprocessableEntity{}
 }
 
-/* UpdateMTOShipmentStatusUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+UpdateMTOShipmentStatusUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -319,9 +537,39 @@ type UpdateMTOShipmentStatusUnprocessableEntity struct {
 	Payload *supportmessages.ValidationError
 }
 
+// IsSuccess returns true when this update m t o shipment status unprocessable entity response has a 2xx status code
+func (o *UpdateMTOShipmentStatusUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment status unprocessable entity response has a 3xx status code
+func (o *UpdateMTOShipmentStatusUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment status unprocessable entity response has a 4xx status code
+func (o *UpdateMTOShipmentStatusUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o shipment status unprocessable entity response has a 5xx status code
+func (o *UpdateMTOShipmentStatusUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o shipment status unprocessable entity response a status code equal to that given
+func (o *UpdateMTOShipmentStatusUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *UpdateMTOShipmentStatusUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *UpdateMTOShipmentStatusUnprocessableEntity) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *UpdateMTOShipmentStatusUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -343,7 +591,8 @@ func NewUpdateMTOShipmentStatusInternalServerError() *UpdateMTOShipmentStatusInt
 	return &UpdateMTOShipmentStatusInternalServerError{}
 }
 
-/* UpdateMTOShipmentStatusInternalServerError describes a response with status code 500, with default header values.
+/*
+UpdateMTOShipmentStatusInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -351,9 +600,39 @@ type UpdateMTOShipmentStatusInternalServerError struct {
 	Payload *supportmessages.Error
 }
 
+// IsSuccess returns true when this update m t o shipment status internal server error response has a 2xx status code
+func (o *UpdateMTOShipmentStatusInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o shipment status internal server error response has a 3xx status code
+func (o *UpdateMTOShipmentStatusInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o shipment status internal server error response has a 4xx status code
+func (o *UpdateMTOShipmentStatusInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update m t o shipment status internal server error response has a 5xx status code
+func (o *UpdateMTOShipmentStatusInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this update m t o shipment status internal server error response a status code equal to that given
+func (o *UpdateMTOShipmentStatusInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *UpdateMTOShipmentStatusInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *UpdateMTOShipmentStatusInternalServerError) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *UpdateMTOShipmentStatusInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

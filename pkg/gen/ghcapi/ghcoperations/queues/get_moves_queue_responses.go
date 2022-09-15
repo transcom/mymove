@@ -16,7 +16,8 @@ import (
 // GetMovesQueueOKCode is the HTTP code returned for type GetMovesQueueOK
 const GetMovesQueueOKCode int = 200
 
-/*GetMovesQueueOK Successfully returned all moves matching the criteria
+/*
+GetMovesQueueOK Successfully returned all moves matching the criteria
 
 swagger:response getMovesQueueOK
 */
@@ -60,7 +61,8 @@ func (o *GetMovesQueueOK) WriteResponse(rw http.ResponseWriter, producer runtime
 // GetMovesQueueForbiddenCode is the HTTP code returned for type GetMovesQueueForbidden
 const GetMovesQueueForbiddenCode int = 403
 
-/*GetMovesQueueForbidden The request was denied
+/*
+GetMovesQueueForbidden The request was denied
 
 swagger:response getMovesQueueForbidden
 */
@@ -104,7 +106,8 @@ func (o *GetMovesQueueForbidden) WriteResponse(rw http.ResponseWriter, producer 
 // GetMovesQueueInternalServerErrorCode is the HTTP code returned for type GetMovesQueueInternalServerError
 const GetMovesQueueInternalServerErrorCode int = 500
 
-/*GetMovesQueueInternalServerError A server error occurred
+/*
+GetMovesQueueInternalServerError A server error occurred
 
 swagger:response getMovesQueueInternalServerError
 */

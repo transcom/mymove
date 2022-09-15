@@ -16,7 +16,8 @@ import (
 // PostRevisionToOrdersCreatedCode is the HTTP code returned for type PostRevisionToOrdersCreated
 const PostRevisionToOrdersCreatedCode int = 201
 
-/*PostRevisionToOrdersCreated Created
+/*
+PostRevisionToOrdersCreated Created
 
 swagger:response postRevisionToOrdersCreated
 */
@@ -60,7 +61,8 @@ func (o *PostRevisionToOrdersCreated) WriteResponse(rw http.ResponseWriter, prod
 // PostRevisionToOrdersBadRequestCode is the HTTP code returned for type PostRevisionToOrdersBadRequest
 const PostRevisionToOrdersBadRequestCode int = 400
 
-/*PostRevisionToOrdersBadRequest Invalid
+/*
+PostRevisionToOrdersBadRequest Invalid
 
 swagger:response postRevisionToOrdersBadRequest
 */
@@ -84,7 +86,8 @@ func (o *PostRevisionToOrdersBadRequest) WriteResponse(rw http.ResponseWriter, p
 // PostRevisionToOrdersUnauthorizedCode is the HTTP code returned for type PostRevisionToOrdersUnauthorized
 const PostRevisionToOrdersUnauthorizedCode int = 401
 
-/*PostRevisionToOrdersUnauthorized must be authenticated to use this endpoint
+/*
+PostRevisionToOrdersUnauthorized must be authenticated to use this endpoint
 
 swagger:response postRevisionToOrdersUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *PostRevisionToOrdersUnauthorized) WriteResponse(rw http.ResponseWriter,
 // PostRevisionToOrdersForbiddenCode is the HTTP code returned for type PostRevisionToOrdersForbidden
 const PostRevisionToOrdersForbiddenCode int = 403
 
-/*PostRevisionToOrdersForbidden Forbidden
+/*
+PostRevisionToOrdersForbidden Forbidden
 
 swagger:response postRevisionToOrdersForbidden
 */
@@ -132,7 +136,8 @@ func (o *PostRevisionToOrdersForbidden) WriteResponse(rw http.ResponseWriter, pr
 // PostRevisionToOrdersNotFoundCode is the HTTP code returned for type PostRevisionToOrdersNotFound
 const PostRevisionToOrdersNotFoundCode int = 404
 
-/*PostRevisionToOrdersNotFound Orders not found
+/*
+PostRevisionToOrdersNotFound Orders not found
 
 swagger:response postRevisionToOrdersNotFound
 */
@@ -156,7 +161,8 @@ func (o *PostRevisionToOrdersNotFound) WriteResponse(rw http.ResponseWriter, pro
 // PostRevisionToOrdersConflictCode is the HTTP code returned for type PostRevisionToOrdersConflict
 const PostRevisionToOrdersConflictCode int = 409
 
-/*PostRevisionToOrdersConflict Conflict
+/*
+PostRevisionToOrdersConflict Conflict
 
 swagger:response postRevisionToOrdersConflict
 */
@@ -180,7 +186,8 @@ func (o *PostRevisionToOrdersConflict) WriteResponse(rw http.ResponseWriter, pro
 // PostRevisionToOrdersInternalServerErrorCode is the HTTP code returned for type PostRevisionToOrdersInternalServerError
 const PostRevisionToOrdersInternalServerErrorCode int = 500
 
-/*PostRevisionToOrdersInternalServerError Server error
+/*
+PostRevisionToOrdersInternalServerError Server error
 
 swagger:response postRevisionToOrdersInternalServerError
 */

@@ -16,7 +16,8 @@ import (
 // IndexMovesOKCode is the HTTP code returned for type IndexMovesOK
 const IndexMovesOKCode int = 200
 
-/*IndexMovesOK success
+/*
+IndexMovesOK success
 
 swagger:response indexMovesOK
 */
@@ -85,7 +86,8 @@ func (o *IndexMovesOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 // IndexMovesBadRequestCode is the HTTP code returned for type IndexMovesBadRequest
 const IndexMovesBadRequestCode int = 400
 
-/*IndexMovesBadRequest invalid request
+/*
+IndexMovesBadRequest invalid request
 
 swagger:response indexMovesBadRequest
 */
@@ -109,7 +111,8 @@ func (o *IndexMovesBadRequest) WriteResponse(rw http.ResponseWriter, producer ru
 // IndexMovesUnauthorizedCode is the HTTP code returned for type IndexMovesUnauthorized
 const IndexMovesUnauthorizedCode int = 401
 
-/*IndexMovesUnauthorized request requires user authentication
+/*
+IndexMovesUnauthorized request requires user authentication
 
 swagger:response indexMovesUnauthorized
 */
@@ -133,7 +136,8 @@ func (o *IndexMovesUnauthorized) WriteResponse(rw http.ResponseWriter, producer 
 // IndexMovesNotFoundCode is the HTTP code returned for type IndexMovesNotFound
 const IndexMovesNotFoundCode int = 404
 
-/*IndexMovesNotFound not found
+/*
+IndexMovesNotFound not found
 
 swagger:response indexMovesNotFound
 */
@@ -157,7 +161,8 @@ func (o *IndexMovesNotFound) WriteResponse(rw http.ResponseWriter, producer runt
 // IndexMovesInternalServerErrorCode is the HTTP code returned for type IndexMovesInternalServerError
 const IndexMovesInternalServerErrorCode int = 500
 
-/*IndexMovesInternalServerError server error
+/*
+IndexMovesInternalServerError server error
 
 swagger:response indexMovesInternalServerError
 */

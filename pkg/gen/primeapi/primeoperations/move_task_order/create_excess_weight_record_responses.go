@@ -16,7 +16,8 @@ import (
 // CreateExcessWeightRecordCreatedCode is the HTTP code returned for type CreateExcessWeightRecordCreated
 const CreateExcessWeightRecordCreatedCode int = 201
 
-/*CreateExcessWeightRecordCreated Successfully uploaded the excess weight record file.
+/*
+CreateExcessWeightRecordCreated Successfully uploaded the excess weight record file.
 
 swagger:response createExcessWeightRecordCreated
 */
@@ -60,7 +61,8 @@ func (o *CreateExcessWeightRecordCreated) WriteResponse(rw http.ResponseWriter, 
 // CreateExcessWeightRecordUnauthorizedCode is the HTTP code returned for type CreateExcessWeightRecordUnauthorized
 const CreateExcessWeightRecordUnauthorizedCode int = 401
 
-/*CreateExcessWeightRecordUnauthorized The request was denied.
+/*
+CreateExcessWeightRecordUnauthorized The request was denied.
 
 swagger:response createExcessWeightRecordUnauthorized
 */
@@ -104,7 +106,8 @@ func (o *CreateExcessWeightRecordUnauthorized) WriteResponse(rw http.ResponseWri
 // CreateExcessWeightRecordForbiddenCode is the HTTP code returned for type CreateExcessWeightRecordForbidden
 const CreateExcessWeightRecordForbiddenCode int = 403
 
-/*CreateExcessWeightRecordForbidden The request was denied.
+/*
+CreateExcessWeightRecordForbidden The request was denied.
 
 swagger:response createExcessWeightRecordForbidden
 */
@@ -148,7 +151,8 @@ func (o *CreateExcessWeightRecordForbidden) WriteResponse(rw http.ResponseWriter
 // CreateExcessWeightRecordNotFoundCode is the HTTP code returned for type CreateExcessWeightRecordNotFound
 const CreateExcessWeightRecordNotFoundCode int = 404
 
-/*CreateExcessWeightRecordNotFound The requested resource wasn't found.
+/*
+CreateExcessWeightRecordNotFound The requested resource wasn't found.
 
 swagger:response createExcessWeightRecordNotFound
 */
@@ -192,7 +196,8 @@ func (o *CreateExcessWeightRecordNotFound) WriteResponse(rw http.ResponseWriter,
 // CreateExcessWeightRecordUnprocessableEntityCode is the HTTP code returned for type CreateExcessWeightRecordUnprocessableEntity
 const CreateExcessWeightRecordUnprocessableEntityCode int = 422
 
-/*CreateExcessWeightRecordUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
+/*
+CreateExcessWeightRecordUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response createExcessWeightRecordUnprocessableEntity
 */
@@ -236,7 +241,8 @@ func (o *CreateExcessWeightRecordUnprocessableEntity) WriteResponse(rw http.Resp
 // CreateExcessWeightRecordInternalServerErrorCode is the HTTP code returned for type CreateExcessWeightRecordInternalServerError
 const CreateExcessWeightRecordInternalServerErrorCode int = 500
 
-/*CreateExcessWeightRecordInternalServerError A server error occurred.
+/*
+CreateExcessWeightRecordInternalServerError A server error occurred.
 
 swagger:response createExcessWeightRecordInternalServerError
 */

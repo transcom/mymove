@@ -16,7 +16,8 @@ import (
 // ShowPPMSitEstimateOKCode is the HTTP code returned for type ShowPPMSitEstimateOK
 const ShowPPMSitEstimateOKCode int = 200
 
-/*ShowPPMSitEstimateOK show PPM SIT estimate
+/*
+ShowPPMSitEstimateOK show PPM SIT estimate
 
 swagger:response showPPMSitEstimateOK
 */
@@ -60,7 +61,8 @@ func (o *ShowPPMSitEstimateOK) WriteResponse(rw http.ResponseWriter, producer ru
 // ShowPPMSitEstimateBadRequestCode is the HTTP code returned for type ShowPPMSitEstimateBadRequest
 const ShowPPMSitEstimateBadRequestCode int = 400
 
-/*ShowPPMSitEstimateBadRequest invalid request
+/*
+ShowPPMSitEstimateBadRequest invalid request
 
 swagger:response showPPMSitEstimateBadRequest
 */
@@ -84,7 +86,8 @@ func (o *ShowPPMSitEstimateBadRequest) WriteResponse(rw http.ResponseWriter, pro
 // ShowPPMSitEstimateUnauthorizedCode is the HTTP code returned for type ShowPPMSitEstimateUnauthorized
 const ShowPPMSitEstimateUnauthorizedCode int = 401
 
-/*ShowPPMSitEstimateUnauthorized request requires user authentication
+/*
+ShowPPMSitEstimateUnauthorized request requires user authentication
 
 swagger:response showPPMSitEstimateUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *ShowPPMSitEstimateUnauthorized) WriteResponse(rw http.ResponseWriter, p
 // ShowPPMSitEstimateForbiddenCode is the HTTP code returned for type ShowPPMSitEstimateForbidden
 const ShowPPMSitEstimateForbiddenCode int = 403
 
-/*ShowPPMSitEstimateForbidden user is not authorized
+/*
+ShowPPMSitEstimateForbidden user is not authorized
 
 swagger:response showPPMSitEstimateForbidden
 */
@@ -132,7 +136,8 @@ func (o *ShowPPMSitEstimateForbidden) WriteResponse(rw http.ResponseWriter, prod
 // ShowPPMSitEstimateConflictCode is the HTTP code returned for type ShowPPMSitEstimateConflict
 const ShowPPMSitEstimateConflictCode int = 409
 
-/*ShowPPMSitEstimateConflict distance is less than 50 miles (no short haul moves)
+/*
+ShowPPMSitEstimateConflict distance is less than 50 miles (no short haul moves)
 
 swagger:response showPPMSitEstimateConflict
 */
@@ -156,7 +161,8 @@ func (o *ShowPPMSitEstimateConflict) WriteResponse(rw http.ResponseWriter, produ
 // ShowPPMSitEstimateUnprocessableEntityCode is the HTTP code returned for type ShowPPMSitEstimateUnprocessableEntity
 const ShowPPMSitEstimateUnprocessableEntityCode int = 422
 
-/*ShowPPMSitEstimateUnprocessableEntity the payload was unprocessable
+/*
+ShowPPMSitEstimateUnprocessableEntity the payload was unprocessable
 
 swagger:response showPPMSitEstimateUnprocessableEntity
 */
@@ -180,7 +186,8 @@ func (o *ShowPPMSitEstimateUnprocessableEntity) WriteResponse(rw http.ResponseWr
 // ShowPPMSitEstimateInternalServerErrorCode is the HTTP code returned for type ShowPPMSitEstimateInternalServerError
 const ShowPPMSitEstimateInternalServerErrorCode int = 500
 
-/*ShowPPMSitEstimateInternalServerError internal server error
+/*
+ShowPPMSitEstimateInternalServerError internal server error
 
 swagger:response showPPMSitEstimateInternalServerError
 */

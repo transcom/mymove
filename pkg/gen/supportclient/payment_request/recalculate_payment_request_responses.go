@@ -87,7 +87,8 @@ func NewRecalculatePaymentRequestCreated() *RecalculatePaymentRequestCreated {
 	return &RecalculatePaymentRequestCreated{}
 }
 
-/* RecalculatePaymentRequestCreated describes a response with status code 201, with default header values.
+/*
+RecalculatePaymentRequestCreated describes a response with status code 201, with default header values.
 
 The new payment request with recalculated pricing.
 */
@@ -95,9 +96,39 @@ type RecalculatePaymentRequestCreated struct {
 	Payload *supportmessages.PaymentRequest
 }
 
+// IsSuccess returns true when this recalculate payment request created response has a 2xx status code
+func (o *RecalculatePaymentRequestCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this recalculate payment request created response has a 3xx status code
+func (o *RecalculatePaymentRequestCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this recalculate payment request created response has a 4xx status code
+func (o *RecalculatePaymentRequestCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this recalculate payment request created response has a 5xx status code
+func (o *RecalculatePaymentRequestCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this recalculate payment request created response a status code equal to that given
+func (o *RecalculatePaymentRequestCreated) IsCode(code int) bool {
+	return code == 201
+}
+
 func (o *RecalculatePaymentRequestCreated) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestCreated  %+v", 201, o.Payload)
 }
+
+func (o *RecalculatePaymentRequestCreated) String() string {
+	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestCreated  %+v", 201, o.Payload)
+}
+
 func (o *RecalculatePaymentRequestCreated) GetPayload() *supportmessages.PaymentRequest {
 	return o.Payload
 }
@@ -119,7 +150,8 @@ func NewRecalculatePaymentRequestBadRequest() *RecalculatePaymentRequestBadReque
 	return &RecalculatePaymentRequestBadRequest{}
 }
 
-/* RecalculatePaymentRequestBadRequest describes a response with status code 400, with default header values.
+/*
+RecalculatePaymentRequestBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -127,9 +159,39 @@ type RecalculatePaymentRequestBadRequest struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this recalculate payment request bad request response has a 2xx status code
+func (o *RecalculatePaymentRequestBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this recalculate payment request bad request response has a 3xx status code
+func (o *RecalculatePaymentRequestBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this recalculate payment request bad request response has a 4xx status code
+func (o *RecalculatePaymentRequestBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this recalculate payment request bad request response has a 5xx status code
+func (o *RecalculatePaymentRequestBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this recalculate payment request bad request response a status code equal to that given
+func (o *RecalculatePaymentRequestBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *RecalculatePaymentRequestBadRequest) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *RecalculatePaymentRequestBadRequest) String() string {
+	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *RecalculatePaymentRequestBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -151,7 +213,8 @@ func NewRecalculatePaymentRequestUnauthorized() *RecalculatePaymentRequestUnauth
 	return &RecalculatePaymentRequestUnauthorized{}
 }
 
-/* RecalculatePaymentRequestUnauthorized describes a response with status code 401, with default header values.
+/*
+RecalculatePaymentRequestUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -159,9 +222,39 @@ type RecalculatePaymentRequestUnauthorized struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this recalculate payment request unauthorized response has a 2xx status code
+func (o *RecalculatePaymentRequestUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this recalculate payment request unauthorized response has a 3xx status code
+func (o *RecalculatePaymentRequestUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this recalculate payment request unauthorized response has a 4xx status code
+func (o *RecalculatePaymentRequestUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this recalculate payment request unauthorized response has a 5xx status code
+func (o *RecalculatePaymentRequestUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this recalculate payment request unauthorized response a status code equal to that given
+func (o *RecalculatePaymentRequestUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *RecalculatePaymentRequestUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *RecalculatePaymentRequestUnauthorized) String() string {
+	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *RecalculatePaymentRequestUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -183,7 +276,8 @@ func NewRecalculatePaymentRequestForbidden() *RecalculatePaymentRequestForbidden
 	return &RecalculatePaymentRequestForbidden{}
 }
 
-/* RecalculatePaymentRequestForbidden describes a response with status code 403, with default header values.
+/*
+RecalculatePaymentRequestForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -191,9 +285,39 @@ type RecalculatePaymentRequestForbidden struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this recalculate payment request forbidden response has a 2xx status code
+func (o *RecalculatePaymentRequestForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this recalculate payment request forbidden response has a 3xx status code
+func (o *RecalculatePaymentRequestForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this recalculate payment request forbidden response has a 4xx status code
+func (o *RecalculatePaymentRequestForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this recalculate payment request forbidden response has a 5xx status code
+func (o *RecalculatePaymentRequestForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this recalculate payment request forbidden response a status code equal to that given
+func (o *RecalculatePaymentRequestForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *RecalculatePaymentRequestForbidden) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestForbidden  %+v", 403, o.Payload)
 }
+
+func (o *RecalculatePaymentRequestForbidden) String() string {
+	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestForbidden  %+v", 403, o.Payload)
+}
+
 func (o *RecalculatePaymentRequestForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -215,7 +339,8 @@ func NewRecalculatePaymentRequestNotFound() *RecalculatePaymentRequestNotFound {
 	return &RecalculatePaymentRequestNotFound{}
 }
 
-/* RecalculatePaymentRequestNotFound describes a response with status code 404, with default header values.
+/*
+RecalculatePaymentRequestNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -223,9 +348,39 @@ type RecalculatePaymentRequestNotFound struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this recalculate payment request not found response has a 2xx status code
+func (o *RecalculatePaymentRequestNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this recalculate payment request not found response has a 3xx status code
+func (o *RecalculatePaymentRequestNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this recalculate payment request not found response has a 4xx status code
+func (o *RecalculatePaymentRequestNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this recalculate payment request not found response has a 5xx status code
+func (o *RecalculatePaymentRequestNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this recalculate payment request not found response a status code equal to that given
+func (o *RecalculatePaymentRequestNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *RecalculatePaymentRequestNotFound) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestNotFound  %+v", 404, o.Payload)
 }
+
+func (o *RecalculatePaymentRequestNotFound) String() string {
+	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestNotFound  %+v", 404, o.Payload)
+}
+
 func (o *RecalculatePaymentRequestNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -247,7 +402,8 @@ func NewRecalculatePaymentRequestConflict() *RecalculatePaymentRequestConflict {
 	return &RecalculatePaymentRequestConflict{}
 }
 
-/* RecalculatePaymentRequestConflict describes a response with status code 409, with default header values.
+/*
+RecalculatePaymentRequestConflict describes a response with status code 409, with default header values.
 
 There was a conflict with the request.
 */
@@ -255,9 +411,39 @@ type RecalculatePaymentRequestConflict struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this recalculate payment request conflict response has a 2xx status code
+func (o *RecalculatePaymentRequestConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this recalculate payment request conflict response has a 3xx status code
+func (o *RecalculatePaymentRequestConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this recalculate payment request conflict response has a 4xx status code
+func (o *RecalculatePaymentRequestConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this recalculate payment request conflict response has a 5xx status code
+func (o *RecalculatePaymentRequestConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this recalculate payment request conflict response a status code equal to that given
+func (o *RecalculatePaymentRequestConflict) IsCode(code int) bool {
+	return code == 409
+}
+
 func (o *RecalculatePaymentRequestConflict) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestConflict  %+v", 409, o.Payload)
 }
+
+func (o *RecalculatePaymentRequestConflict) String() string {
+	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestConflict  %+v", 409, o.Payload)
+}
+
 func (o *RecalculatePaymentRequestConflict) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -279,7 +465,8 @@ func NewRecalculatePaymentRequestPreconditionFailed() *RecalculatePaymentRequest
 	return &RecalculatePaymentRequestPreconditionFailed{}
 }
 
-/* RecalculatePaymentRequestPreconditionFailed describes a response with status code 412, with default header values.
+/*
+RecalculatePaymentRequestPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -287,9 +474,39 @@ type RecalculatePaymentRequestPreconditionFailed struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this recalculate payment request precondition failed response has a 2xx status code
+func (o *RecalculatePaymentRequestPreconditionFailed) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this recalculate payment request precondition failed response has a 3xx status code
+func (o *RecalculatePaymentRequestPreconditionFailed) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this recalculate payment request precondition failed response has a 4xx status code
+func (o *RecalculatePaymentRequestPreconditionFailed) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this recalculate payment request precondition failed response has a 5xx status code
+func (o *RecalculatePaymentRequestPreconditionFailed) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this recalculate payment request precondition failed response a status code equal to that given
+func (o *RecalculatePaymentRequestPreconditionFailed) IsCode(code int) bool {
+	return code == 412
+}
+
 func (o *RecalculatePaymentRequestPreconditionFailed) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestPreconditionFailed  %+v", 412, o.Payload)
 }
+
+func (o *RecalculatePaymentRequestPreconditionFailed) String() string {
+	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestPreconditionFailed  %+v", 412, o.Payload)
+}
+
 func (o *RecalculatePaymentRequestPreconditionFailed) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -311,7 +528,8 @@ func NewRecalculatePaymentRequestUnprocessableEntity() *RecalculatePaymentReques
 	return &RecalculatePaymentRequestUnprocessableEntity{}
 }
 
-/* RecalculatePaymentRequestUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+RecalculatePaymentRequestUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -319,9 +537,39 @@ type RecalculatePaymentRequestUnprocessableEntity struct {
 	Payload *supportmessages.ValidationError
 }
 
+// IsSuccess returns true when this recalculate payment request unprocessable entity response has a 2xx status code
+func (o *RecalculatePaymentRequestUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this recalculate payment request unprocessable entity response has a 3xx status code
+func (o *RecalculatePaymentRequestUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this recalculate payment request unprocessable entity response has a 4xx status code
+func (o *RecalculatePaymentRequestUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this recalculate payment request unprocessable entity response has a 5xx status code
+func (o *RecalculatePaymentRequestUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this recalculate payment request unprocessable entity response a status code equal to that given
+func (o *RecalculatePaymentRequestUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *RecalculatePaymentRequestUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *RecalculatePaymentRequestUnprocessableEntity) String() string {
+	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *RecalculatePaymentRequestUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -343,7 +591,8 @@ func NewRecalculatePaymentRequestInternalServerError() *RecalculatePaymentReques
 	return &RecalculatePaymentRequestInternalServerError{}
 }
 
-/* RecalculatePaymentRequestInternalServerError describes a response with status code 500, with default header values.
+/*
+RecalculatePaymentRequestInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -351,9 +600,39 @@ type RecalculatePaymentRequestInternalServerError struct {
 	Payload *supportmessages.Error
 }
 
+// IsSuccess returns true when this recalculate payment request internal server error response has a 2xx status code
+func (o *RecalculatePaymentRequestInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this recalculate payment request internal server error response has a 3xx status code
+func (o *RecalculatePaymentRequestInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this recalculate payment request internal server error response has a 4xx status code
+func (o *RecalculatePaymentRequestInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this recalculate payment request internal server error response has a 5xx status code
+func (o *RecalculatePaymentRequestInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this recalculate payment request internal server error response a status code equal to that given
+func (o *RecalculatePaymentRequestInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *RecalculatePaymentRequestInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *RecalculatePaymentRequestInternalServerError) String() string {
+	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/recalculate][%d] recalculatePaymentRequestInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *RecalculatePaymentRequestInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

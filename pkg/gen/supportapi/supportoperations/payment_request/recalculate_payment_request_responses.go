@@ -16,7 +16,8 @@ import (
 // RecalculatePaymentRequestCreatedCode is the HTTP code returned for type RecalculatePaymentRequestCreated
 const RecalculatePaymentRequestCreatedCode int = 201
 
-/*RecalculatePaymentRequestCreated The new payment request with recalculated pricing.
+/*
+RecalculatePaymentRequestCreated The new payment request with recalculated pricing.
 
 swagger:response recalculatePaymentRequestCreated
 */
@@ -60,7 +61,8 @@ func (o *RecalculatePaymentRequestCreated) WriteResponse(rw http.ResponseWriter,
 // RecalculatePaymentRequestBadRequestCode is the HTTP code returned for type RecalculatePaymentRequestBadRequest
 const RecalculatePaymentRequestBadRequestCode int = 400
 
-/*RecalculatePaymentRequestBadRequest The request payload is invalid.
+/*
+RecalculatePaymentRequestBadRequest The request payload is invalid.
 
 swagger:response recalculatePaymentRequestBadRequest
 */
@@ -104,7 +106,8 @@ func (o *RecalculatePaymentRequestBadRequest) WriteResponse(rw http.ResponseWrit
 // RecalculatePaymentRequestUnauthorizedCode is the HTTP code returned for type RecalculatePaymentRequestUnauthorized
 const RecalculatePaymentRequestUnauthorizedCode int = 401
 
-/*RecalculatePaymentRequestUnauthorized The request was denied.
+/*
+RecalculatePaymentRequestUnauthorized The request was denied.
 
 swagger:response recalculatePaymentRequestUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *RecalculatePaymentRequestUnauthorized) WriteResponse(rw http.ResponseWr
 // RecalculatePaymentRequestForbiddenCode is the HTTP code returned for type RecalculatePaymentRequestForbidden
 const RecalculatePaymentRequestForbiddenCode int = 403
 
-/*RecalculatePaymentRequestForbidden The request was denied.
+/*
+RecalculatePaymentRequestForbidden The request was denied.
 
 swagger:response recalculatePaymentRequestForbidden
 */
@@ -192,7 +196,8 @@ func (o *RecalculatePaymentRequestForbidden) WriteResponse(rw http.ResponseWrite
 // RecalculatePaymentRequestNotFoundCode is the HTTP code returned for type RecalculatePaymentRequestNotFound
 const RecalculatePaymentRequestNotFoundCode int = 404
 
-/*RecalculatePaymentRequestNotFound The requested resource wasn't found.
+/*
+RecalculatePaymentRequestNotFound The requested resource wasn't found.
 
 swagger:response recalculatePaymentRequestNotFound
 */
@@ -236,7 +241,8 @@ func (o *RecalculatePaymentRequestNotFound) WriteResponse(rw http.ResponseWriter
 // RecalculatePaymentRequestConflictCode is the HTTP code returned for type RecalculatePaymentRequestConflict
 const RecalculatePaymentRequestConflictCode int = 409
 
-/*RecalculatePaymentRequestConflict There was a conflict with the request.
+/*
+RecalculatePaymentRequestConflict There was a conflict with the request.
 
 swagger:response recalculatePaymentRequestConflict
 */
@@ -280,7 +286,8 @@ func (o *RecalculatePaymentRequestConflict) WriteResponse(rw http.ResponseWriter
 // RecalculatePaymentRequestPreconditionFailedCode is the HTTP code returned for type RecalculatePaymentRequestPreconditionFailed
 const RecalculatePaymentRequestPreconditionFailedCode int = 412
 
-/*RecalculatePaymentRequestPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+/*
+RecalculatePaymentRequestPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response recalculatePaymentRequestPreconditionFailed
 */
@@ -324,7 +331,8 @@ func (o *RecalculatePaymentRequestPreconditionFailed) WriteResponse(rw http.Resp
 // RecalculatePaymentRequestUnprocessableEntityCode is the HTTP code returned for type RecalculatePaymentRequestUnprocessableEntity
 const RecalculatePaymentRequestUnprocessableEntityCode int = 422
 
-/*RecalculatePaymentRequestUnprocessableEntity The payload was unprocessable.
+/*
+RecalculatePaymentRequestUnprocessableEntity The payload was unprocessable.
 
 swagger:response recalculatePaymentRequestUnprocessableEntity
 */
@@ -368,7 +376,8 @@ func (o *RecalculatePaymentRequestUnprocessableEntity) WriteResponse(rw http.Res
 // RecalculatePaymentRequestInternalServerErrorCode is the HTTP code returned for type RecalculatePaymentRequestInternalServerError
 const RecalculatePaymentRequestInternalServerErrorCode int = 500
 
-/*RecalculatePaymentRequestInternalServerError A server error occurred.
+/*
+RecalculatePaymentRequestInternalServerError A server error occurred.
 
 swagger:response recalculatePaymentRequestInternalServerError
 */
