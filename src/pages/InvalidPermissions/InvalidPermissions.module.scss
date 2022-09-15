@@ -1,0 +1,8 @@
+button.signInButton {
+  display: inline-flex;
+  width: 100%;
+}
+
+:global(.usa-button-group) {
+  justify-content: center;
+}
