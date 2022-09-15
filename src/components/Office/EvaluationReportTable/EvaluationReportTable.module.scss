@@ -45,7 +45,7 @@
     width: 100px;
   }
   .seriousIncidentColumn {
-  width: 118px;
+    width: 118px;
   }
   .viewReportColumn {
     width: 105px;
@@ -57,4 +57,15 @@
 
 .viewButton {
   padding: 0;
+}
+
+.closeModalBtn {
+  margin: 0;
+}
+
+.modalActions {
+  @include u-display('flex');
+  @include u-justify-content('justify-end');
+  @include u-margin-top(4 !important);
+  @include u-margin-x(0 !important);
 }

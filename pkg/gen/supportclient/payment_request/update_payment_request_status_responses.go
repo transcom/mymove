@@ -87,7 +87,8 @@ func NewUpdatePaymentRequestStatusOK() *UpdatePaymentRequestStatusOK {
 	return &UpdatePaymentRequestStatusOK{}
 }
 
-/* UpdatePaymentRequestStatusOK describes a response with status code 200, with default header values.
+/*
+UpdatePaymentRequestStatusOK describes a response with status code 200, with default header values.
 
 Successfully updated payment request status.
 */
@@ -95,9 +96,39 @@ type UpdatePaymentRequestStatusOK struct {
 	Payload *supportmessages.PaymentRequest
 }
 
+// IsSuccess returns true when this update payment request status o k response has a 2xx status code
+func (o *UpdatePaymentRequestStatusOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this update payment request status o k response has a 3xx status code
+func (o *UpdatePaymentRequestStatusOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update payment request status o k response has a 4xx status code
+func (o *UpdatePaymentRequestStatusOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update payment request status o k response has a 5xx status code
+func (o *UpdatePaymentRequestStatusOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update payment request status o k response a status code equal to that given
+func (o *UpdatePaymentRequestStatusOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *UpdatePaymentRequestStatusOK) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusOK  %+v", 200, o.Payload)
 }
+
+func (o *UpdatePaymentRequestStatusOK) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusOK  %+v", 200, o.Payload)
+}
+
 func (o *UpdatePaymentRequestStatusOK) GetPayload() *supportmessages.PaymentRequest {
 	return o.Payload
 }
@@ -119,7 +150,8 @@ func NewUpdatePaymentRequestStatusBadRequest() *UpdatePaymentRequestStatusBadReq
 	return &UpdatePaymentRequestStatusBadRequest{}
 }
 
-/* UpdatePaymentRequestStatusBadRequest describes a response with status code 400, with default header values.
+/*
+UpdatePaymentRequestStatusBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -127,9 +159,39 @@ type UpdatePaymentRequestStatusBadRequest struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update payment request status bad request response has a 2xx status code
+func (o *UpdatePaymentRequestStatusBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update payment request status bad request response has a 3xx status code
+func (o *UpdatePaymentRequestStatusBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update payment request status bad request response has a 4xx status code
+func (o *UpdatePaymentRequestStatusBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update payment request status bad request response has a 5xx status code
+func (o *UpdatePaymentRequestStatusBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update payment request status bad request response a status code equal to that given
+func (o *UpdatePaymentRequestStatusBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *UpdatePaymentRequestStatusBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *UpdatePaymentRequestStatusBadRequest) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *UpdatePaymentRequestStatusBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -151,7 +213,8 @@ func NewUpdatePaymentRequestStatusUnauthorized() *UpdatePaymentRequestStatusUnau
 	return &UpdatePaymentRequestStatusUnauthorized{}
 }
 
-/* UpdatePaymentRequestStatusUnauthorized describes a response with status code 401, with default header values.
+/*
+UpdatePaymentRequestStatusUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -159,9 +222,39 @@ type UpdatePaymentRequestStatusUnauthorized struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update payment request status unauthorized response has a 2xx status code
+func (o *UpdatePaymentRequestStatusUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update payment request status unauthorized response has a 3xx status code
+func (o *UpdatePaymentRequestStatusUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update payment request status unauthorized response has a 4xx status code
+func (o *UpdatePaymentRequestStatusUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update payment request status unauthorized response has a 5xx status code
+func (o *UpdatePaymentRequestStatusUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update payment request status unauthorized response a status code equal to that given
+func (o *UpdatePaymentRequestStatusUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *UpdatePaymentRequestStatusUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *UpdatePaymentRequestStatusUnauthorized) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *UpdatePaymentRequestStatusUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -183,7 +276,8 @@ func NewUpdatePaymentRequestStatusForbidden() *UpdatePaymentRequestStatusForbidd
 	return &UpdatePaymentRequestStatusForbidden{}
 }
 
-/* UpdatePaymentRequestStatusForbidden describes a response with status code 403, with default header values.
+/*
+UpdatePaymentRequestStatusForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -191,9 +285,39 @@ type UpdatePaymentRequestStatusForbidden struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update payment request status forbidden response has a 2xx status code
+func (o *UpdatePaymentRequestStatusForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update payment request status forbidden response has a 3xx status code
+func (o *UpdatePaymentRequestStatusForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update payment request status forbidden response has a 4xx status code
+func (o *UpdatePaymentRequestStatusForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update payment request status forbidden response has a 5xx status code
+func (o *UpdatePaymentRequestStatusForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update payment request status forbidden response a status code equal to that given
+func (o *UpdatePaymentRequestStatusForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *UpdatePaymentRequestStatusForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusForbidden  %+v", 403, o.Payload)
 }
+
+func (o *UpdatePaymentRequestStatusForbidden) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusForbidden  %+v", 403, o.Payload)
+}
+
 func (o *UpdatePaymentRequestStatusForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -215,7 +339,8 @@ func NewUpdatePaymentRequestStatusNotFound() *UpdatePaymentRequestStatusNotFound
 	return &UpdatePaymentRequestStatusNotFound{}
 }
 
-/* UpdatePaymentRequestStatusNotFound describes a response with status code 404, with default header values.
+/*
+UpdatePaymentRequestStatusNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -223,9 +348,39 @@ type UpdatePaymentRequestStatusNotFound struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update payment request status not found response has a 2xx status code
+func (o *UpdatePaymentRequestStatusNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update payment request status not found response has a 3xx status code
+func (o *UpdatePaymentRequestStatusNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update payment request status not found response has a 4xx status code
+func (o *UpdatePaymentRequestStatusNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update payment request status not found response has a 5xx status code
+func (o *UpdatePaymentRequestStatusNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update payment request status not found response a status code equal to that given
+func (o *UpdatePaymentRequestStatusNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *UpdatePaymentRequestStatusNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusNotFound  %+v", 404, o.Payload)
 }
+
+func (o *UpdatePaymentRequestStatusNotFound) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusNotFound  %+v", 404, o.Payload)
+}
+
 func (o *UpdatePaymentRequestStatusNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -247,7 +402,8 @@ func NewUpdatePaymentRequestStatusConflict() *UpdatePaymentRequestStatusConflict
 	return &UpdatePaymentRequestStatusConflict{}
 }
 
-/* UpdatePaymentRequestStatusConflict describes a response with status code 409, with default header values.
+/*
+UpdatePaymentRequestStatusConflict describes a response with status code 409, with default header values.
 
 There was a conflict with the request.
 */
@@ -255,9 +411,39 @@ type UpdatePaymentRequestStatusConflict struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update payment request status conflict response has a 2xx status code
+func (o *UpdatePaymentRequestStatusConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update payment request status conflict response has a 3xx status code
+func (o *UpdatePaymentRequestStatusConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update payment request status conflict response has a 4xx status code
+func (o *UpdatePaymentRequestStatusConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update payment request status conflict response has a 5xx status code
+func (o *UpdatePaymentRequestStatusConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update payment request status conflict response a status code equal to that given
+func (o *UpdatePaymentRequestStatusConflict) IsCode(code int) bool {
+	return code == 409
+}
+
 func (o *UpdatePaymentRequestStatusConflict) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusConflict  %+v", 409, o.Payload)
 }
+
+func (o *UpdatePaymentRequestStatusConflict) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusConflict  %+v", 409, o.Payload)
+}
+
 func (o *UpdatePaymentRequestStatusConflict) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -279,7 +465,8 @@ func NewUpdatePaymentRequestStatusPreconditionFailed() *UpdatePaymentRequestStat
 	return &UpdatePaymentRequestStatusPreconditionFailed{}
 }
 
-/* UpdatePaymentRequestStatusPreconditionFailed describes a response with status code 412, with default header values.
+/*
+UpdatePaymentRequestStatusPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -287,9 +474,39 @@ type UpdatePaymentRequestStatusPreconditionFailed struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update payment request status precondition failed response has a 2xx status code
+func (o *UpdatePaymentRequestStatusPreconditionFailed) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update payment request status precondition failed response has a 3xx status code
+func (o *UpdatePaymentRequestStatusPreconditionFailed) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update payment request status precondition failed response has a 4xx status code
+func (o *UpdatePaymentRequestStatusPreconditionFailed) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update payment request status precondition failed response has a 5xx status code
+func (o *UpdatePaymentRequestStatusPreconditionFailed) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update payment request status precondition failed response a status code equal to that given
+func (o *UpdatePaymentRequestStatusPreconditionFailed) IsCode(code int) bool {
+	return code == 412
+}
+
 func (o *UpdatePaymentRequestStatusPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusPreconditionFailed  %+v", 412, o.Payload)
 }
+
+func (o *UpdatePaymentRequestStatusPreconditionFailed) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusPreconditionFailed  %+v", 412, o.Payload)
+}
+
 func (o *UpdatePaymentRequestStatusPreconditionFailed) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -311,7 +528,8 @@ func NewUpdatePaymentRequestStatusUnprocessableEntity() *UpdatePaymentRequestSta
 	return &UpdatePaymentRequestStatusUnprocessableEntity{}
 }
 
-/* UpdatePaymentRequestStatusUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+UpdatePaymentRequestStatusUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -319,9 +537,39 @@ type UpdatePaymentRequestStatusUnprocessableEntity struct {
 	Payload *supportmessages.ValidationError
 }
 
+// IsSuccess returns true when this update payment request status unprocessable entity response has a 2xx status code
+func (o *UpdatePaymentRequestStatusUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update payment request status unprocessable entity response has a 3xx status code
+func (o *UpdatePaymentRequestStatusUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update payment request status unprocessable entity response has a 4xx status code
+func (o *UpdatePaymentRequestStatusUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update payment request status unprocessable entity response has a 5xx status code
+func (o *UpdatePaymentRequestStatusUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update payment request status unprocessable entity response a status code equal to that given
+func (o *UpdatePaymentRequestStatusUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *UpdatePaymentRequestStatusUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *UpdatePaymentRequestStatusUnprocessableEntity) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *UpdatePaymentRequestStatusUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -343,7 +591,8 @@ func NewUpdatePaymentRequestStatusInternalServerError() *UpdatePaymentRequestSta
 	return &UpdatePaymentRequestStatusInternalServerError{}
 }
 
-/* UpdatePaymentRequestStatusInternalServerError describes a response with status code 500, with default header values.
+/*
+UpdatePaymentRequestStatusInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -351,9 +600,39 @@ type UpdatePaymentRequestStatusInternalServerError struct {
 	Payload *supportmessages.Error
 }
 
+// IsSuccess returns true when this update payment request status internal server error response has a 2xx status code
+func (o *UpdatePaymentRequestStatusInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update payment request status internal server error response has a 3xx status code
+func (o *UpdatePaymentRequestStatusInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update payment request status internal server error response has a 4xx status code
+func (o *UpdatePaymentRequestStatusInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update payment request status internal server error response has a 5xx status code
+func (o *UpdatePaymentRequestStatusInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this update payment request status internal server error response a status code equal to that given
+func (o *UpdatePaymentRequestStatusInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *UpdatePaymentRequestStatusInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *UpdatePaymentRequestStatusInternalServerError) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *UpdatePaymentRequestStatusInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

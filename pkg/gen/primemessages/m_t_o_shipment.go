@@ -24,6 +24,10 @@ import (
 // swagger:model MTOShipment
 type MTOShipment struct {
 
+	// The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.
+	// Format: date
+	ActualDeliveryDate *strfmt.Date `json:"actualDeliveryDate"`
+
 	// The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.
 	// Format: date
 	ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
@@ -156,6 +160,10 @@ type MTOShipment struct {
 	// reweigh
 	Reweigh *Reweigh `json:"reweigh,omitempty"`
 
+	// The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.
+	// Format: date
+	ScheduledDeliveryDate *strfmt.Date `json:"scheduledDeliveryDate"`
+
 	// The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.
 	// Format: date
 	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
@@ -204,6 +212,8 @@ func (m *MTOShipment) SetMtoServiceItems(val []MTOServiceItem) {
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	var data struct {
+		ActualDeliveryDate *strfmt.Date `json:"actualDeliveryDate"`
+
 		ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
 
 		Agents MTOAgents `json:"agents,omitempty"`
@@ -258,6 +268,8 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		Reweigh *Reweigh `json:"reweigh,omitempty"`
 
+		ScheduledDeliveryDate *strfmt.Date `json:"scheduledDeliveryDate"`
+
 		ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
 		SecondaryDeliveryAddress struct {
@@ -296,6 +308,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	}
 
 	var result MTOShipment
+
+	// actualDeliveryDate
+	result.ActualDeliveryDate = data.ActualDeliveryDate
 
 	// actualPickupDate
 	result.ActualPickupDate = data.ActualPickupDate
@@ -372,6 +387,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	// reweigh
 	result.Reweigh = data.Reweigh
 
+	// scheduledDeliveryDate
+	result.ScheduledDeliveryDate = data.ScheduledDeliveryDate
+
 	// scheduledPickupDate
 	result.ScheduledPickupDate = data.ScheduledPickupDate
 
@@ -406,6 +424,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
+		ActualDeliveryDate *strfmt.Date `json:"actualDeliveryDate"`
+
 		ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
 
 		Agents MTOAgents `json:"agents,omitempty"`
@@ -458,6 +478,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		Reweigh *Reweigh `json:"reweigh,omitempty"`
 
+		ScheduledDeliveryDate *strfmt.Date `json:"scheduledDeliveryDate"`
+
 		ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
 		SecondaryDeliveryAddress struct {
@@ -478,6 +500,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 	}{
+
+		ActualDeliveryDate: m.ActualDeliveryDate,
 
 		ActualPickupDate: m.ActualPickupDate,
 
@@ -527,6 +551,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		Reweigh: m.Reweigh,
 
+		ScheduledDeliveryDate: m.ScheduledDeliveryDate,
+
 		ScheduledPickupDate: m.ScheduledPickupDate,
 
 		SecondaryDeliveryAddress: m.SecondaryDeliveryAddress,
@@ -562,6 +588,10 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 // Validate validates this m t o shipment
 func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateActualDeliveryDate(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateActualPickupDate(formats); err != nil {
 		res = append(res, err)
@@ -627,6 +657,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateScheduledDeliveryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateScheduledPickupDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -662,6 +696,18 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MTOShipment) validateActualDeliveryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ActualDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("actualDeliveryDate", "body", "date", m.ActualDeliveryDate.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -879,6 +925,18 @@ func (m *MTOShipment) validateReweigh(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateScheduledDeliveryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ScheduledDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("scheduledDeliveryDate", "body", "date", m.ScheduledDeliveryDate.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

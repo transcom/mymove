@@ -16,7 +16,8 @@ import (
 // RequestShipmentCancellationOKCode is the HTTP code returned for type RequestShipmentCancellationOK
 const RequestShipmentCancellationOKCode int = 200
 
-/*RequestShipmentCancellationOK Successfully requested the shipment cancellation
+/*
+RequestShipmentCancellationOK Successfully requested the shipment cancellation
 
 swagger:response requestShipmentCancellationOK
 */
@@ -60,7 +61,8 @@ func (o *RequestShipmentCancellationOK) WriteResponse(rw http.ResponseWriter, pr
 // RequestShipmentCancellationForbiddenCode is the HTTP code returned for type RequestShipmentCancellationForbidden
 const RequestShipmentCancellationForbiddenCode int = 403
 
-/*RequestShipmentCancellationForbidden The request was denied
+/*
+RequestShipmentCancellationForbidden The request was denied
 
 swagger:response requestShipmentCancellationForbidden
 */
@@ -104,7 +106,8 @@ func (o *RequestShipmentCancellationForbidden) WriteResponse(rw http.ResponseWri
 // RequestShipmentCancellationNotFoundCode is the HTTP code returned for type RequestShipmentCancellationNotFound
 const RequestShipmentCancellationNotFoundCode int = 404
 
-/*RequestShipmentCancellationNotFound The requested resource wasn't found
+/*
+RequestShipmentCancellationNotFound The requested resource wasn't found
 
 swagger:response requestShipmentCancellationNotFound
 */
@@ -148,7 +151,8 @@ func (o *RequestShipmentCancellationNotFound) WriteResponse(rw http.ResponseWrit
 // RequestShipmentCancellationConflictCode is the HTTP code returned for type RequestShipmentCancellationConflict
 const RequestShipmentCancellationConflictCode int = 409
 
-/*RequestShipmentCancellationConflict Conflict error
+/*
+RequestShipmentCancellationConflict Conflict error
 
 swagger:response requestShipmentCancellationConflict
 */
@@ -192,7 +196,8 @@ func (o *RequestShipmentCancellationConflict) WriteResponse(rw http.ResponseWrit
 // RequestShipmentCancellationPreconditionFailedCode is the HTTP code returned for type RequestShipmentCancellationPreconditionFailed
 const RequestShipmentCancellationPreconditionFailedCode int = 412
 
-/*RequestShipmentCancellationPreconditionFailed Precondition failed
+/*
+RequestShipmentCancellationPreconditionFailed Precondition failed
 
 swagger:response requestShipmentCancellationPreconditionFailed
 */
@@ -236,7 +241,8 @@ func (o *RequestShipmentCancellationPreconditionFailed) WriteResponse(rw http.Re
 // RequestShipmentCancellationUnprocessableEntityCode is the HTTP code returned for type RequestShipmentCancellationUnprocessableEntity
 const RequestShipmentCancellationUnprocessableEntityCode int = 422
 
-/*RequestShipmentCancellationUnprocessableEntity The payload was unprocessable.
+/*
+RequestShipmentCancellationUnprocessableEntity The payload was unprocessable.
 
 swagger:response requestShipmentCancellationUnprocessableEntity
 */
@@ -280,7 +286,8 @@ func (o *RequestShipmentCancellationUnprocessableEntity) WriteResponse(rw http.R
 // RequestShipmentCancellationInternalServerErrorCode is the HTTP code returned for type RequestShipmentCancellationInternalServerError
 const RequestShipmentCancellationInternalServerErrorCode int = 500
 
-/*RequestShipmentCancellationInternalServerError A server error occurred
+/*
+RequestShipmentCancellationInternalServerError A server error occurred
 
 swagger:response requestShipmentCancellationInternalServerError
 */

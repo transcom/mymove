@@ -43,3 +43,4 @@ export { default as updateMTOReviewedBillableWeightsAt } from './updateMTOReview
 export { default as uploadAmendedOrders } from './uploadAmendedOrders';
 export { default as updateMTOShipmentStatus } from './updateMTOShipmentStatus';
 export { default as updateMTOServiceItemMoveStatus } from './createMTOServiceItemUpdateMoveStatus';
+export { default as updateMoveEstimatedExcessWeight } from './updateMTOShipmentPrimeEstimatedExcessWeight';

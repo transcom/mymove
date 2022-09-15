@@ -29,12 +29,12 @@ func NewCreatePersonallyProcuredMove(ctx *middleware.Context, handler CreatePers
 	return &CreatePersonallyProcuredMove{Context: ctx, Handler: handler}
 }
 
-/* CreatePersonallyProcuredMove swagger:route POST /moves/{moveId}/personally_procured_move ppm createPersonallyProcuredMove
+/*
+	CreatePersonallyProcuredMove swagger:route POST /moves/{moveId}/personally_procured_move ppm createPersonallyProcuredMove
 
-Creates a new PPM for the given move
+# Creates a new PPM for the given move
 
 Create an instance of personally_procured_move tied to the move ID
-
 */
 type CreatePersonallyProcuredMove struct {
 	Context *middleware.Context

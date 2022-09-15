@@ -29,7 +29,8 @@ func NewUpdateMTOAgent(ctx *middleware.Context, handler UpdateMTOAgentHandler) *
 	return &UpdateMTOAgent{Context: ctx, Handler: handler}
 }
 
-/* UpdateMTOAgent swagger:route PUT /mto-shipments/{mtoShipmentID}/agents/{agentID} mtoShipment updateMTOAgent
+/*
+	UpdateMTOAgent swagger:route PUT /mto-shipments/{mtoShipmentID}/agents/{agentID} mtoShipment updateMTOAgent
 
 updateMTOAgent
 
@@ -43,8 +44,6 @@ The agent must be associated with the MTO shipment passed in the url.
 
 The shipment should be associated with an MTO that is available to the Prime.
 If the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.
-
-
 */
 type UpdateMTOAgent struct {
 	Context *middleware.Context

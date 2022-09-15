@@ -604,6 +604,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.EqualDatePtr(shipment.RequestedPickupDate, okPayload.RequestedPickupDate)
 		suite.EqualDatePtr(shipment.RequiredDeliveryDate, okPayload.RequiredDeliveryDate)
 		suite.EqualDatePtr(shipment.ScheduledPickupDate, okPayload.ScheduledPickupDate)
+		suite.EqualDatePtr(shipment.ActualDeliveryDate, okPayload.ActualDeliveryDate)
+		suite.EqualDatePtr(shipment.ScheduledDeliveryDate, okPayload.ScheduledDeliveryDate)
 
 		suite.EqualAddress(*shipment.PickupAddress, &okPayload.PickupAddress.Address, true)
 		suite.EqualAddress(*shipment.DestinationAddress, &okPayload.DestinationAddress.Address, true)

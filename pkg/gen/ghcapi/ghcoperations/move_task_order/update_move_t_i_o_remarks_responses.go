@@ -16,7 +16,8 @@ import (
 // UpdateMoveTIORemarksOKCode is the HTTP code returned for type UpdateMoveTIORemarksOK
 const UpdateMoveTIORemarksOKCode int = 200
 
-/*UpdateMoveTIORemarksOK Successfully updated move task order tioRemarks field
+/*
+UpdateMoveTIORemarksOK Successfully updated move task order tioRemarks field
 
 swagger:response updateMoveTIORemarksOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateMoveTIORemarksOK) WriteResponse(rw http.ResponseWriter, producer 
 // UpdateMoveTIORemarksBadRequestCode is the HTTP code returned for type UpdateMoveTIORemarksBadRequest
 const UpdateMoveTIORemarksBadRequestCode int = 400
 
-/*UpdateMoveTIORemarksBadRequest The request payload is invalid
+/*
+UpdateMoveTIORemarksBadRequest The request payload is invalid
 
 swagger:response updateMoveTIORemarksBadRequest
 */
@@ -104,7 +106,8 @@ func (o *UpdateMoveTIORemarksBadRequest) WriteResponse(rw http.ResponseWriter, p
 // UpdateMoveTIORemarksUnauthorizedCode is the HTTP code returned for type UpdateMoveTIORemarksUnauthorized
 const UpdateMoveTIORemarksUnauthorizedCode int = 401
 
-/*UpdateMoveTIORemarksUnauthorized The request was denied
+/*
+UpdateMoveTIORemarksUnauthorized The request was denied
 
 swagger:response updateMoveTIORemarksUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *UpdateMoveTIORemarksUnauthorized) WriteResponse(rw http.ResponseWriter,
 // UpdateMoveTIORemarksForbiddenCode is the HTTP code returned for type UpdateMoveTIORemarksForbidden
 const UpdateMoveTIORemarksForbiddenCode int = 403
 
-/*UpdateMoveTIORemarksForbidden The request was denied
+/*
+UpdateMoveTIORemarksForbidden The request was denied
 
 swagger:response updateMoveTIORemarksForbidden
 */
@@ -192,7 +196,8 @@ func (o *UpdateMoveTIORemarksForbidden) WriteResponse(rw http.ResponseWriter, pr
 // UpdateMoveTIORemarksNotFoundCode is the HTTP code returned for type UpdateMoveTIORemarksNotFound
 const UpdateMoveTIORemarksNotFoundCode int = 404
 
-/*UpdateMoveTIORemarksNotFound The requested resource wasn't found
+/*
+UpdateMoveTIORemarksNotFound The requested resource wasn't found
 
 swagger:response updateMoveTIORemarksNotFound
 */
@@ -236,7 +241,8 @@ func (o *UpdateMoveTIORemarksNotFound) WriteResponse(rw http.ResponseWriter, pro
 // UpdateMoveTIORemarksConflictCode is the HTTP code returned for type UpdateMoveTIORemarksConflict
 const UpdateMoveTIORemarksConflictCode int = 409
 
-/*UpdateMoveTIORemarksConflict Conflict error
+/*
+UpdateMoveTIORemarksConflict Conflict error
 
 swagger:response updateMoveTIORemarksConflict
 */
@@ -280,7 +286,8 @@ func (o *UpdateMoveTIORemarksConflict) WriteResponse(rw http.ResponseWriter, pro
 // UpdateMoveTIORemarksPreconditionFailedCode is the HTTP code returned for type UpdateMoveTIORemarksPreconditionFailed
 const UpdateMoveTIORemarksPreconditionFailedCode int = 412
 
-/*UpdateMoveTIORemarksPreconditionFailed Precondition failed
+/*
+UpdateMoveTIORemarksPreconditionFailed Precondition failed
 
 swagger:response updateMoveTIORemarksPreconditionFailed
 */
@@ -324,7 +331,8 @@ func (o *UpdateMoveTIORemarksPreconditionFailed) WriteResponse(rw http.ResponseW
 // UpdateMoveTIORemarksUnprocessableEntityCode is the HTTP code returned for type UpdateMoveTIORemarksUnprocessableEntity
 const UpdateMoveTIORemarksUnprocessableEntityCode int = 422
 
-/*UpdateMoveTIORemarksUnprocessableEntity The payload was unprocessable.
+/*
+UpdateMoveTIORemarksUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateMoveTIORemarksUnprocessableEntity
 */
@@ -368,7 +376,8 @@ func (o *UpdateMoveTIORemarksUnprocessableEntity) WriteResponse(rw http.Response
 // UpdateMoveTIORemarksInternalServerErrorCode is the HTTP code returned for type UpdateMoveTIORemarksInternalServerError
 const UpdateMoveTIORemarksInternalServerErrorCode int = 500
 
-/*UpdateMoveTIORemarksInternalServerError A server error occurred
+/*
+UpdateMoveTIORemarksInternalServerError A server error occurred
 
 swagger:response updateMoveTIORemarksInternalServerError
 */

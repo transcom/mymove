@@ -16,7 +16,8 @@ import (
 // MakeMoveTaskOrderAvailableOKCode is the HTTP code returned for type MakeMoveTaskOrderAvailableOK
 const MakeMoveTaskOrderAvailableOKCode int = 200
 
-/*MakeMoveTaskOrderAvailableOK Successfully made MTO available to Prime.
+/*
+MakeMoveTaskOrderAvailableOK Successfully made MTO available to Prime.
 
 swagger:response makeMoveTaskOrderAvailableOK
 */
@@ -60,7 +61,8 @@ func (o *MakeMoveTaskOrderAvailableOK) WriteResponse(rw http.ResponseWriter, pro
 // MakeMoveTaskOrderAvailableBadRequestCode is the HTTP code returned for type MakeMoveTaskOrderAvailableBadRequest
 const MakeMoveTaskOrderAvailableBadRequestCode int = 400
 
-/*MakeMoveTaskOrderAvailableBadRequest The request payload is invalid.
+/*
+MakeMoveTaskOrderAvailableBadRequest The request payload is invalid.
 
 swagger:response makeMoveTaskOrderAvailableBadRequest
 */
@@ -104,7 +106,8 @@ func (o *MakeMoveTaskOrderAvailableBadRequest) WriteResponse(rw http.ResponseWri
 // MakeMoveTaskOrderAvailableUnauthorizedCode is the HTTP code returned for type MakeMoveTaskOrderAvailableUnauthorized
 const MakeMoveTaskOrderAvailableUnauthorizedCode int = 401
 
-/*MakeMoveTaskOrderAvailableUnauthorized The request was denied.
+/*
+MakeMoveTaskOrderAvailableUnauthorized The request was denied.
 
 swagger:response makeMoveTaskOrderAvailableUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *MakeMoveTaskOrderAvailableUnauthorized) WriteResponse(rw http.ResponseW
 // MakeMoveTaskOrderAvailableForbiddenCode is the HTTP code returned for type MakeMoveTaskOrderAvailableForbidden
 const MakeMoveTaskOrderAvailableForbiddenCode int = 403
 
-/*MakeMoveTaskOrderAvailableForbidden The request was denied.
+/*
+MakeMoveTaskOrderAvailableForbidden The request was denied.
 
 swagger:response makeMoveTaskOrderAvailableForbidden
 */
@@ -192,7 +196,8 @@ func (o *MakeMoveTaskOrderAvailableForbidden) WriteResponse(rw http.ResponseWrit
 // MakeMoveTaskOrderAvailableNotFoundCode is the HTTP code returned for type MakeMoveTaskOrderAvailableNotFound
 const MakeMoveTaskOrderAvailableNotFoundCode int = 404
 
-/*MakeMoveTaskOrderAvailableNotFound The requested resource wasn't found.
+/*
+MakeMoveTaskOrderAvailableNotFound The requested resource wasn't found.
 
 swagger:response makeMoveTaskOrderAvailableNotFound
 */
@@ -236,7 +241,8 @@ func (o *MakeMoveTaskOrderAvailableNotFound) WriteResponse(rw http.ResponseWrite
 // MakeMoveTaskOrderAvailablePreconditionFailedCode is the HTTP code returned for type MakeMoveTaskOrderAvailablePreconditionFailed
 const MakeMoveTaskOrderAvailablePreconditionFailedCode int = 412
 
-/*MakeMoveTaskOrderAvailablePreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+/*
+MakeMoveTaskOrderAvailablePreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response makeMoveTaskOrderAvailablePreconditionFailed
 */
@@ -280,7 +286,8 @@ func (o *MakeMoveTaskOrderAvailablePreconditionFailed) WriteResponse(rw http.Res
 // MakeMoveTaskOrderAvailableUnprocessableEntityCode is the HTTP code returned for type MakeMoveTaskOrderAvailableUnprocessableEntity
 const MakeMoveTaskOrderAvailableUnprocessableEntityCode int = 422
 
-/*MakeMoveTaskOrderAvailableUnprocessableEntity The payload was unprocessable.
+/*
+MakeMoveTaskOrderAvailableUnprocessableEntity The payload was unprocessable.
 
 swagger:response makeMoveTaskOrderAvailableUnprocessableEntity
 */
@@ -324,7 +331,8 @@ func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) WriteResponse(rw http.Re
 // MakeMoveTaskOrderAvailableInternalServerErrorCode is the HTTP code returned for type MakeMoveTaskOrderAvailableInternalServerError
 const MakeMoveTaskOrderAvailableInternalServerErrorCode int = 500
 
-/*MakeMoveTaskOrderAvailableInternalServerError A server error occurred.
+/*
+MakeMoveTaskOrderAvailableInternalServerError A server error occurred.
 
 swagger:response makeMoveTaskOrderAvailableInternalServerError
 */

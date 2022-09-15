@@ -16,7 +16,8 @@ import (
 // PatchMoveCreatedCode is the HTTP code returned for type PatchMoveCreated
 const PatchMoveCreatedCode int = 201
 
-/*PatchMoveCreated updated instance of move
+/*
+PatchMoveCreated updated instance of move
 
 swagger:response patchMoveCreated
 */
@@ -60,7 +61,8 @@ func (o *PatchMoveCreated) WriteResponse(rw http.ResponseWriter, producer runtim
 // PatchMoveBadRequestCode is the HTTP code returned for type PatchMoveBadRequest
 const PatchMoveBadRequestCode int = 400
 
-/*PatchMoveBadRequest invalid request
+/*
+PatchMoveBadRequest invalid request
 
 swagger:response patchMoveBadRequest
 */
@@ -84,7 +86,8 @@ func (o *PatchMoveBadRequest) WriteResponse(rw http.ResponseWriter, producer run
 // PatchMoveUnauthorizedCode is the HTTP code returned for type PatchMoveUnauthorized
 const PatchMoveUnauthorizedCode int = 401
 
-/*PatchMoveUnauthorized request requires user authentication
+/*
+PatchMoveUnauthorized request requires user authentication
 
 swagger:response patchMoveUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *PatchMoveUnauthorized) WriteResponse(rw http.ResponseWriter, producer r
 // PatchMoveForbiddenCode is the HTTP code returned for type PatchMoveForbidden
 const PatchMoveForbiddenCode int = 403
 
-/*PatchMoveForbidden user is not authorized
+/*
+PatchMoveForbidden user is not authorized
 
 swagger:response patchMoveForbidden
 */
@@ -132,7 +136,8 @@ func (o *PatchMoveForbidden) WriteResponse(rw http.ResponseWriter, producer runt
 // PatchMoveNotFoundCode is the HTTP code returned for type PatchMoveNotFound
 const PatchMoveNotFoundCode int = 404
 
-/*PatchMoveNotFound move is not found
+/*
+PatchMoveNotFound move is not found
 
 swagger:response patchMoveNotFound
 */
@@ -156,7 +161,8 @@ func (o *PatchMoveNotFound) WriteResponse(rw http.ResponseWriter, producer runti
 // PatchMoveInternalServerErrorCode is the HTTP code returned for type PatchMoveInternalServerError
 const PatchMoveInternalServerErrorCode int = 500
 
-/*PatchMoveInternalServerError internal server error
+/*
+PatchMoveInternalServerError internal server error
 
 swagger:response patchMoveInternalServerError
 */

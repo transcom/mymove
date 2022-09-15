@@ -29,12 +29,12 @@ func NewRejectShipment(ctx *middleware.Context, handler RejectShipmentHandler) *
 	return &RejectShipment{Context: ctx, Handler: handler}
 }
 
-/* RejectShipment swagger:route POST /shipments/{shipmentID}/reject shipment rejectShipment
+/*
+	RejectShipment swagger:route POST /shipments/{shipmentID}/reject shipment rejectShipment
 
 rejects a shipment
 
 rejects a shipment
-
 */
 type RejectShipment struct {
 	Context *middleware.Context

@@ -16,7 +16,8 @@ import (
 // SaveEvaluationReportNoContentCode is the HTTP code returned for type SaveEvaluationReportNoContent
 const SaveEvaluationReportNoContentCode int = 204
 
-/*SaveEvaluationReportNoContent Successfully saved the report
+/*
+SaveEvaluationReportNoContent Successfully saved the report
 
 swagger:response saveEvaluationReportNoContent
 */
@@ -40,7 +41,8 @@ func (o *SaveEvaluationReportNoContent) WriteResponse(rw http.ResponseWriter, pr
 // SaveEvaluationReportBadRequestCode is the HTTP code returned for type SaveEvaluationReportBadRequest
 const SaveEvaluationReportBadRequestCode int = 400
 
-/*SaveEvaluationReportBadRequest The request payload is invalid
+/*
+SaveEvaluationReportBadRequest The request payload is invalid
 
 swagger:response saveEvaluationReportBadRequest
 */
@@ -84,7 +86,8 @@ func (o *SaveEvaluationReportBadRequest) WriteResponse(rw http.ResponseWriter, p
 // SaveEvaluationReportForbiddenCode is the HTTP code returned for type SaveEvaluationReportForbidden
 const SaveEvaluationReportForbiddenCode int = 403
 
-/*SaveEvaluationReportForbidden The request was denied
+/*
+SaveEvaluationReportForbidden The request was denied
 
 swagger:response saveEvaluationReportForbidden
 */
@@ -128,7 +131,8 @@ func (o *SaveEvaluationReportForbidden) WriteResponse(rw http.ResponseWriter, pr
 // SaveEvaluationReportNotFoundCode is the HTTP code returned for type SaveEvaluationReportNotFound
 const SaveEvaluationReportNotFoundCode int = 404
 
-/*SaveEvaluationReportNotFound The requested resource wasn't found
+/*
+SaveEvaluationReportNotFound The requested resource wasn't found
 
 swagger:response saveEvaluationReportNotFound
 */
@@ -172,7 +176,8 @@ func (o *SaveEvaluationReportNotFound) WriteResponse(rw http.ResponseWriter, pro
 // SaveEvaluationReportConflictCode is the HTTP code returned for type SaveEvaluationReportConflict
 const SaveEvaluationReportConflictCode int = 409
 
-/*SaveEvaluationReportConflict Conflict error
+/*
+SaveEvaluationReportConflict Conflict error
 
 swagger:response saveEvaluationReportConflict
 */
@@ -216,7 +221,8 @@ func (o *SaveEvaluationReportConflict) WriteResponse(rw http.ResponseWriter, pro
 // SaveEvaluationReportPreconditionFailedCode is the HTTP code returned for type SaveEvaluationReportPreconditionFailed
 const SaveEvaluationReportPreconditionFailedCode int = 412
 
-/*SaveEvaluationReportPreconditionFailed Precondition failed
+/*
+SaveEvaluationReportPreconditionFailed Precondition failed
 
 swagger:response saveEvaluationReportPreconditionFailed
 */
@@ -260,7 +266,8 @@ func (o *SaveEvaluationReportPreconditionFailed) WriteResponse(rw http.ResponseW
 // SaveEvaluationReportUnprocessableEntityCode is the HTTP code returned for type SaveEvaluationReportUnprocessableEntity
 const SaveEvaluationReportUnprocessableEntityCode int = 422
 
-/*SaveEvaluationReportUnprocessableEntity The payload was unprocessable.
+/*
+SaveEvaluationReportUnprocessableEntity The payload was unprocessable.
 
 swagger:response saveEvaluationReportUnprocessableEntity
 */
@@ -304,7 +311,8 @@ func (o *SaveEvaluationReportUnprocessableEntity) WriteResponse(rw http.Response
 // SaveEvaluationReportInternalServerErrorCode is the HTTP code returned for type SaveEvaluationReportInternalServerError
 const SaveEvaluationReportInternalServerErrorCode int = 500
 
-/*SaveEvaluationReportInternalServerError A server error occurred
+/*
+SaveEvaluationReportInternalServerError A server error occurred
 
 swagger:response saveEvaluationReportInternalServerError
 */

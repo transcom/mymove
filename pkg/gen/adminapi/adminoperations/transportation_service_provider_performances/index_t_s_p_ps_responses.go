@@ -16,7 +16,8 @@ import (
 // IndexTSPPsOKCode is the HTTP code returned for type IndexTSPPsOK
 const IndexTSPPsOKCode int = 200
 
-/*IndexTSPPsOK success
+/*
+IndexTSPPsOK success
 
 swagger:response indexTSPPsOK
 */
@@ -85,7 +86,8 @@ func (o *IndexTSPPsOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 // IndexTSPPsBadRequestCode is the HTTP code returned for type IndexTSPPsBadRequest
 const IndexTSPPsBadRequestCode int = 400
 
-/*IndexTSPPsBadRequest invalid request
+/*
+IndexTSPPsBadRequest invalid request
 
 swagger:response indexTSPPsBadRequest
 */
@@ -109,7 +111,8 @@ func (o *IndexTSPPsBadRequest) WriteResponse(rw http.ResponseWriter, producer ru
 // IndexTSPPsUnauthorizedCode is the HTTP code returned for type IndexTSPPsUnauthorized
 const IndexTSPPsUnauthorizedCode int = 401
 
-/*IndexTSPPsUnauthorized request requires user authentication
+/*
+IndexTSPPsUnauthorized request requires user authentication
 
 swagger:response indexTSPPsUnauthorized
 */
@@ -133,7 +136,8 @@ func (o *IndexTSPPsUnauthorized) WriteResponse(rw http.ResponseWriter, producer 
 // IndexTSPPsNotFoundCode is the HTTP code returned for type IndexTSPPsNotFound
 const IndexTSPPsNotFoundCode int = 404
 
-/*IndexTSPPsNotFound office not found
+/*
+IndexTSPPsNotFound office not found
 
 swagger:response indexTSPPsNotFound
 */
@@ -157,7 +161,8 @@ func (o *IndexTSPPsNotFound) WriteResponse(rw http.ResponseWriter, producer runt
 // IndexTSPPsInternalServerErrorCode is the HTTP code returned for type IndexTSPPsInternalServerError
 const IndexTSPPsInternalServerErrorCode int = 500
 
-/*IndexTSPPsInternalServerError server error
+/*
+IndexTSPPsInternalServerError server error
 
 swagger:response indexTSPPsInternalServerError
 */

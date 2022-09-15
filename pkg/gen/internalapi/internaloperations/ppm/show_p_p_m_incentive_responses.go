@@ -16,7 +16,8 @@ import (
 // ShowPPMIncentiveOKCode is the HTTP code returned for type ShowPPMIncentiveOK
 const ShowPPMIncentiveOKCode int = 200
 
-/*ShowPPMIncentiveOK Made calculation of PPM incentive
+/*
+ShowPPMIncentiveOK Made calculation of PPM incentive
 
 swagger:response showPPMIncentiveOK
 */
@@ -60,7 +61,8 @@ func (o *ShowPPMIncentiveOK) WriteResponse(rw http.ResponseWriter, producer runt
 // ShowPPMIncentiveBadRequestCode is the HTTP code returned for type ShowPPMIncentiveBadRequest
 const ShowPPMIncentiveBadRequestCode int = 400
 
-/*ShowPPMIncentiveBadRequest invalid request
+/*
+ShowPPMIncentiveBadRequest invalid request
 
 swagger:response showPPMIncentiveBadRequest
 */
@@ -84,7 +86,8 @@ func (o *ShowPPMIncentiveBadRequest) WriteResponse(rw http.ResponseWriter, produ
 // ShowPPMIncentiveUnauthorizedCode is the HTTP code returned for type ShowPPMIncentiveUnauthorized
 const ShowPPMIncentiveUnauthorizedCode int = 401
 
-/*ShowPPMIncentiveUnauthorized request requires user authentication
+/*
+ShowPPMIncentiveUnauthorized request requires user authentication
 
 swagger:response showPPMIncentiveUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *ShowPPMIncentiveUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 // ShowPPMIncentiveForbiddenCode is the HTTP code returned for type ShowPPMIncentiveForbidden
 const ShowPPMIncentiveForbiddenCode int = 403
 
-/*ShowPPMIncentiveForbidden user is not authorized
+/*
+ShowPPMIncentiveForbidden user is not authorized
 
 swagger:response showPPMIncentiveForbidden
 */
@@ -132,7 +136,8 @@ func (o *ShowPPMIncentiveForbidden) WriteResponse(rw http.ResponseWriter, produc
 // ShowPPMIncentiveConflictCode is the HTTP code returned for type ShowPPMIncentiveConflict
 const ShowPPMIncentiveConflictCode int = 409
 
-/*ShowPPMIncentiveConflict distance is less than 50 miles (no short haul moves)
+/*
+ShowPPMIncentiveConflict distance is less than 50 miles (no short haul moves)
 
 swagger:response showPPMIncentiveConflict
 */
@@ -156,7 +161,8 @@ func (o *ShowPPMIncentiveConflict) WriteResponse(rw http.ResponseWriter, produce
 // ShowPPMIncentiveInternalServerErrorCode is the HTTP code returned for type ShowPPMIncentiveInternalServerError
 const ShowPPMIncentiveInternalServerErrorCode int = 500
 
-/*ShowPPMIncentiveInternalServerError internal server error
+/*
+ShowPPMIncentiveInternalServerError internal server error
 
 swagger:response showPPMIncentiveInternalServerError
 */

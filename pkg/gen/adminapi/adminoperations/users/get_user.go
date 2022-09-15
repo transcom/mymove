@@ -29,12 +29,12 @@ func NewGetUser(ctx *middleware.Context, handler GetUserHandler) *GetUser {
 	return &GetUser{Context: ctx, Handler: handler}
 }
 
-/* GetUser swagger:route GET /users/{userId} users getUser
+/*
+	GetUser swagger:route GET /users/{userId} users getUser
 
-Get information about a user
+# Get information about a user
 
 Returns the given user and their sessions
-
 */
 type GetUser struct {
 	Context *middleware.Context

@@ -52,10 +52,12 @@ func NewGetMoveTaskOrderParamsWithHTTPClient(client *http.Client) *GetMoveTaskOr
 	}
 }
 
-/* GetMoveTaskOrderParams contains all the parameters to send to the API endpoint
-   for the get move task order operation.
+/*
+GetMoveTaskOrderParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get move task order operation.
+
+	Typically these are written to a http.Request.
 */
 type GetMoveTaskOrderParams struct {
 

@@ -29,10 +29,10 @@ func NewUpdateOfficeUser(ctx *middleware.Context, handler UpdateOfficeUserHandle
 	return &UpdateOfficeUser{Context: ctx, Handler: handler}
 }
 
-/* UpdateOfficeUser swagger:route PATCH /office_users/{officeUserId} office_users updateOfficeUser
+/*
+	UpdateOfficeUser swagger:route PATCH /office_users/{officeUserId} office_users updateOfficeUser
 
 Updates an office user
-
 */
 type UpdateOfficeUser struct {
 	Context *middleware.Context

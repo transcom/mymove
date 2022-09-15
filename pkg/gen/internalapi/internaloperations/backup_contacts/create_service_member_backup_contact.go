@@ -29,12 +29,12 @@ func NewCreateServiceMemberBackupContact(ctx *middleware.Context, handler Create
 	return &CreateServiceMemberBackupContact{Context: ctx, Handler: handler}
 }
 
-/* CreateServiceMemberBackupContact swagger:route POST /service_members/{serviceMemberId}/backup_contacts backup_contacts createServiceMemberBackupContact
+/*
+	CreateServiceMemberBackupContact swagger:route POST /service_members/{serviceMemberId}/backup_contacts backup_contacts createServiceMemberBackupContact
 
-Submits backup contact for a logged-in user
+# Submits backup contact for a logged-in user
 
 Creates an instance of a backup contact tied to a service member user
-
 */
 type CreateServiceMemberBackupContact struct {
 	Context *middleware.Context
