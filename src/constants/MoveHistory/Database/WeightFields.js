@@ -6,4 +6,5 @@ export default {
   pro_gear_weight_spouse: 'pro_gear_weight_spouse',
   prime_actual_weight: 'prime_actual_weight',
   required_medical_equipment_weight: 'required_medical_equipment_weight',
+  reweigh_weight: 'reweigh_weight',
 };

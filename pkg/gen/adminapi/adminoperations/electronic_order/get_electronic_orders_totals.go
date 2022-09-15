@@ -29,12 +29,12 @@ func NewGetElectronicOrdersTotals(ctx *middleware.Context, handler GetElectronic
 	return &GetElectronicOrdersTotals{Context: ctx, Handler: handler}
 }
 
-/* GetElectronicOrdersTotals swagger:route GET /electronic_orders/totals electronic_order getElectronicOrdersTotals
+/*
+	GetElectronicOrdersTotals swagger:route GET /electronic_orders/totals electronic_order getElectronicOrdersTotals
 
-Get total counts for the orders stored in MilMove
+# Get total counts for the orders stored in MilMove
 
 Returns a list of record counts for orders
-
 */
 type GetElectronicOrdersTotals struct {
 	Context *middleware.Context

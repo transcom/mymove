@@ -87,7 +87,8 @@ func NewHideNonFakeMoveTaskOrdersOK() *HideNonFakeMoveTaskOrdersOK {
 	return &HideNonFakeMoveTaskOrdersOK{}
 }
 
-/* HideNonFakeMoveTaskOrdersOK describes a response with status code 200, with default header values.
+/*
+HideNonFakeMoveTaskOrdersOK describes a response with status code 200, with default header values.
 
 Successfully hid MTOs.
 */
@@ -95,9 +96,39 @@ type HideNonFakeMoveTaskOrdersOK struct {
 	Payload *supportmessages.MTOHideMovesResponse
 }
 
+// IsSuccess returns true when this hide non fake move task orders o k response has a 2xx status code
+func (o *HideNonFakeMoveTaskOrdersOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this hide non fake move task orders o k response has a 3xx status code
+func (o *HideNonFakeMoveTaskOrdersOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this hide non fake move task orders o k response has a 4xx status code
+func (o *HideNonFakeMoveTaskOrdersOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this hide non fake move task orders o k response has a 5xx status code
+func (o *HideNonFakeMoveTaskOrdersOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this hide non fake move task orders o k response a status code equal to that given
+func (o *HideNonFakeMoveTaskOrdersOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *HideNonFakeMoveTaskOrdersOK) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersOK  %+v", 200, o.Payload)
 }
+
+func (o *HideNonFakeMoveTaskOrdersOK) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersOK  %+v", 200, o.Payload)
+}
+
 func (o *HideNonFakeMoveTaskOrdersOK) GetPayload() *supportmessages.MTOHideMovesResponse {
 	return o.Payload
 }
@@ -119,7 +150,8 @@ func NewHideNonFakeMoveTaskOrdersBadRequest() *HideNonFakeMoveTaskOrdersBadReque
 	return &HideNonFakeMoveTaskOrdersBadRequest{}
 }
 
-/* HideNonFakeMoveTaskOrdersBadRequest describes a response with status code 400, with default header values.
+/*
+HideNonFakeMoveTaskOrdersBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -127,9 +159,39 @@ type HideNonFakeMoveTaskOrdersBadRequest struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this hide non fake move task orders bad request response has a 2xx status code
+func (o *HideNonFakeMoveTaskOrdersBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this hide non fake move task orders bad request response has a 3xx status code
+func (o *HideNonFakeMoveTaskOrdersBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this hide non fake move task orders bad request response has a 4xx status code
+func (o *HideNonFakeMoveTaskOrdersBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this hide non fake move task orders bad request response has a 5xx status code
+func (o *HideNonFakeMoveTaskOrdersBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this hide non fake move task orders bad request response a status code equal to that given
+func (o *HideNonFakeMoveTaskOrdersBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *HideNonFakeMoveTaskOrdersBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *HideNonFakeMoveTaskOrdersBadRequest) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *HideNonFakeMoveTaskOrdersBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -151,7 +213,8 @@ func NewHideNonFakeMoveTaskOrdersUnauthorized() *HideNonFakeMoveTaskOrdersUnauth
 	return &HideNonFakeMoveTaskOrdersUnauthorized{}
 }
 
-/* HideNonFakeMoveTaskOrdersUnauthorized describes a response with status code 401, with default header values.
+/*
+HideNonFakeMoveTaskOrdersUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -159,9 +222,39 @@ type HideNonFakeMoveTaskOrdersUnauthorized struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this hide non fake move task orders unauthorized response has a 2xx status code
+func (o *HideNonFakeMoveTaskOrdersUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this hide non fake move task orders unauthorized response has a 3xx status code
+func (o *HideNonFakeMoveTaskOrdersUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this hide non fake move task orders unauthorized response has a 4xx status code
+func (o *HideNonFakeMoveTaskOrdersUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this hide non fake move task orders unauthorized response has a 5xx status code
+func (o *HideNonFakeMoveTaskOrdersUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this hide non fake move task orders unauthorized response a status code equal to that given
+func (o *HideNonFakeMoveTaskOrdersUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *HideNonFakeMoveTaskOrdersUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *HideNonFakeMoveTaskOrdersUnauthorized) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *HideNonFakeMoveTaskOrdersUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -183,7 +276,8 @@ func NewHideNonFakeMoveTaskOrdersForbidden() *HideNonFakeMoveTaskOrdersForbidden
 	return &HideNonFakeMoveTaskOrdersForbidden{}
 }
 
-/* HideNonFakeMoveTaskOrdersForbidden describes a response with status code 403, with default header values.
+/*
+HideNonFakeMoveTaskOrdersForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -191,9 +285,39 @@ type HideNonFakeMoveTaskOrdersForbidden struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this hide non fake move task orders forbidden response has a 2xx status code
+func (o *HideNonFakeMoveTaskOrdersForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this hide non fake move task orders forbidden response has a 3xx status code
+func (o *HideNonFakeMoveTaskOrdersForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this hide non fake move task orders forbidden response has a 4xx status code
+func (o *HideNonFakeMoveTaskOrdersForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this hide non fake move task orders forbidden response has a 5xx status code
+func (o *HideNonFakeMoveTaskOrdersForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this hide non fake move task orders forbidden response a status code equal to that given
+func (o *HideNonFakeMoveTaskOrdersForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *HideNonFakeMoveTaskOrdersForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersForbidden  %+v", 403, o.Payload)
 }
+
+func (o *HideNonFakeMoveTaskOrdersForbidden) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersForbidden  %+v", 403, o.Payload)
+}
+
 func (o *HideNonFakeMoveTaskOrdersForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -215,7 +339,8 @@ func NewHideNonFakeMoveTaskOrdersNotFound() *HideNonFakeMoveTaskOrdersNotFound {
 	return &HideNonFakeMoveTaskOrdersNotFound{}
 }
 
-/* HideNonFakeMoveTaskOrdersNotFound describes a response with status code 404, with default header values.
+/*
+HideNonFakeMoveTaskOrdersNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -223,9 +348,39 @@ type HideNonFakeMoveTaskOrdersNotFound struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this hide non fake move task orders not found response has a 2xx status code
+func (o *HideNonFakeMoveTaskOrdersNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this hide non fake move task orders not found response has a 3xx status code
+func (o *HideNonFakeMoveTaskOrdersNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this hide non fake move task orders not found response has a 4xx status code
+func (o *HideNonFakeMoveTaskOrdersNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this hide non fake move task orders not found response has a 5xx status code
+func (o *HideNonFakeMoveTaskOrdersNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this hide non fake move task orders not found response a status code equal to that given
+func (o *HideNonFakeMoveTaskOrdersNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *HideNonFakeMoveTaskOrdersNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersNotFound  %+v", 404, o.Payload)
 }
+
+func (o *HideNonFakeMoveTaskOrdersNotFound) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersNotFound  %+v", 404, o.Payload)
+}
+
 func (o *HideNonFakeMoveTaskOrdersNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -247,7 +402,8 @@ func NewHideNonFakeMoveTaskOrdersConflict() *HideNonFakeMoveTaskOrdersConflict {
 	return &HideNonFakeMoveTaskOrdersConflict{}
 }
 
-/* HideNonFakeMoveTaskOrdersConflict describes a response with status code 409, with default header values.
+/*
+HideNonFakeMoveTaskOrdersConflict describes a response with status code 409, with default header values.
 
 There was a conflict with the request.
 */
@@ -255,9 +411,39 @@ type HideNonFakeMoveTaskOrdersConflict struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this hide non fake move task orders conflict response has a 2xx status code
+func (o *HideNonFakeMoveTaskOrdersConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this hide non fake move task orders conflict response has a 3xx status code
+func (o *HideNonFakeMoveTaskOrdersConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this hide non fake move task orders conflict response has a 4xx status code
+func (o *HideNonFakeMoveTaskOrdersConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this hide non fake move task orders conflict response has a 5xx status code
+func (o *HideNonFakeMoveTaskOrdersConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this hide non fake move task orders conflict response a status code equal to that given
+func (o *HideNonFakeMoveTaskOrdersConflict) IsCode(code int) bool {
+	return code == 409
+}
+
 func (o *HideNonFakeMoveTaskOrdersConflict) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersConflict  %+v", 409, o.Payload)
 }
+
+func (o *HideNonFakeMoveTaskOrdersConflict) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersConflict  %+v", 409, o.Payload)
+}
+
 func (o *HideNonFakeMoveTaskOrdersConflict) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -279,7 +465,8 @@ func NewHideNonFakeMoveTaskOrdersPreconditionFailed() *HideNonFakeMoveTaskOrders
 	return &HideNonFakeMoveTaskOrdersPreconditionFailed{}
 }
 
-/* HideNonFakeMoveTaskOrdersPreconditionFailed describes a response with status code 412, with default header values.
+/*
+HideNonFakeMoveTaskOrdersPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -287,9 +474,39 @@ type HideNonFakeMoveTaskOrdersPreconditionFailed struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this hide non fake move task orders precondition failed response has a 2xx status code
+func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this hide non fake move task orders precondition failed response has a 3xx status code
+func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this hide non fake move task orders precondition failed response has a 4xx status code
+func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this hide non fake move task orders precondition failed response has a 5xx status code
+func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this hide non fake move task orders precondition failed response a status code equal to that given
+func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) IsCode(code int) bool {
+	return code == 412
+}
+
 func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersPreconditionFailed  %+v", 412, o.Payload)
 }
+
+func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersPreconditionFailed  %+v", 412, o.Payload)
+}
+
 func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -311,7 +528,8 @@ func NewHideNonFakeMoveTaskOrdersUnprocessableEntity() *HideNonFakeMoveTaskOrder
 	return &HideNonFakeMoveTaskOrdersUnprocessableEntity{}
 }
 
-/* HideNonFakeMoveTaskOrdersUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+HideNonFakeMoveTaskOrdersUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -319,9 +537,39 @@ type HideNonFakeMoveTaskOrdersUnprocessableEntity struct {
 	Payload *supportmessages.ValidationError
 }
 
+// IsSuccess returns true when this hide non fake move task orders unprocessable entity response has a 2xx status code
+func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this hide non fake move task orders unprocessable entity response has a 3xx status code
+func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this hide non fake move task orders unprocessable entity response has a 4xx status code
+func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this hide non fake move task orders unprocessable entity response has a 5xx status code
+func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this hide non fake move task orders unprocessable entity response a status code equal to that given
+func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -343,7 +591,8 @@ func NewHideNonFakeMoveTaskOrdersInternalServerError() *HideNonFakeMoveTaskOrder
 	return &HideNonFakeMoveTaskOrdersInternalServerError{}
 }
 
-/* HideNonFakeMoveTaskOrdersInternalServerError describes a response with status code 500, with default header values.
+/*
+HideNonFakeMoveTaskOrdersInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -351,9 +600,39 @@ type HideNonFakeMoveTaskOrdersInternalServerError struct {
 	Payload *supportmessages.Error
 }
 
+// IsSuccess returns true when this hide non fake move task orders internal server error response has a 2xx status code
+func (o *HideNonFakeMoveTaskOrdersInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this hide non fake move task orders internal server error response has a 3xx status code
+func (o *HideNonFakeMoveTaskOrdersInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this hide non fake move task orders internal server error response has a 4xx status code
+func (o *HideNonFakeMoveTaskOrdersInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this hide non fake move task orders internal server error response has a 5xx status code
+func (o *HideNonFakeMoveTaskOrdersInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this hide non fake move task orders internal server error response a status code equal to that given
+func (o *HideNonFakeMoveTaskOrdersInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *HideNonFakeMoveTaskOrdersInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *HideNonFakeMoveTaskOrdersInternalServerError) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *HideNonFakeMoveTaskOrdersInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

@@ -16,7 +16,8 @@ import (
 // CreateMovingExpenseDocumentOKCode is the HTTP code returned for type CreateMovingExpenseDocumentOK
 const CreateMovingExpenseDocumentOKCode int = 200
 
-/*CreateMovingExpenseDocumentOK returns new moving expense document object
+/*
+CreateMovingExpenseDocumentOK returns new moving expense document object
 
 swagger:response createMovingExpenseDocumentOK
 */
@@ -60,7 +61,8 @@ func (o *CreateMovingExpenseDocumentOK) WriteResponse(rw http.ResponseWriter, pr
 // CreateMovingExpenseDocumentBadRequestCode is the HTTP code returned for type CreateMovingExpenseDocumentBadRequest
 const CreateMovingExpenseDocumentBadRequestCode int = 400
 
-/*CreateMovingExpenseDocumentBadRequest invalid request
+/*
+CreateMovingExpenseDocumentBadRequest invalid request
 
 swagger:response createMovingExpenseDocumentBadRequest
 */
@@ -84,7 +86,8 @@ func (o *CreateMovingExpenseDocumentBadRequest) WriteResponse(rw http.ResponseWr
 // CreateMovingExpenseDocumentUnauthorizedCode is the HTTP code returned for type CreateMovingExpenseDocumentUnauthorized
 const CreateMovingExpenseDocumentUnauthorizedCode int = 401
 
-/*CreateMovingExpenseDocumentUnauthorized must be authenticated to use this endpoint
+/*
+CreateMovingExpenseDocumentUnauthorized must be authenticated to use this endpoint
 
 swagger:response createMovingExpenseDocumentUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *CreateMovingExpenseDocumentUnauthorized) WriteResponse(rw http.Response
 // CreateMovingExpenseDocumentForbiddenCode is the HTTP code returned for type CreateMovingExpenseDocumentForbidden
 const CreateMovingExpenseDocumentForbiddenCode int = 403
 
-/*CreateMovingExpenseDocumentForbidden not authorized to modify this move
+/*
+CreateMovingExpenseDocumentForbidden not authorized to modify this move
 
 swagger:response createMovingExpenseDocumentForbidden
 */
@@ -132,7 +136,8 @@ func (o *CreateMovingExpenseDocumentForbidden) WriteResponse(rw http.ResponseWri
 // CreateMovingExpenseDocumentInternalServerErrorCode is the HTTP code returned for type CreateMovingExpenseDocumentInternalServerError
 const CreateMovingExpenseDocumentInternalServerErrorCode int = 500
 
-/*CreateMovingExpenseDocumentInternalServerError server error
+/*
+CreateMovingExpenseDocumentInternalServerError server error
 
 swagger:response createMovingExpenseDocumentInternalServerError
 */

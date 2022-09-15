@@ -52,10 +52,12 @@ func NewHideNonFakeMoveTaskOrdersParamsWithHTTPClient(client *http.Client) *Hide
 	}
 }
 
-/* HideNonFakeMoveTaskOrdersParams contains all the parameters to send to the API endpoint
-   for the hide non fake move task orders operation.
+/*
+HideNonFakeMoveTaskOrdersParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the hide non fake move task orders operation.
+
+	Typically these are written to a http.Request.
 */
 type HideNonFakeMoveTaskOrdersParams struct {
 	timeout    time.Duration

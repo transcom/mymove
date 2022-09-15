@@ -54,10 +54,12 @@ func NewCreateWebhookNotificationParamsWithHTTPClient(client *http.Client) *Crea
 	}
 }
 
-/* CreateWebhookNotificationParams contains all the parameters to send to the API endpoint
-   for the create webhook notification operation.
+/*
+CreateWebhookNotificationParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the create webhook notification operation.
+
+	Typically these are written to a http.Request.
 */
 type CreateWebhookNotificationParams struct {
 

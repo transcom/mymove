@@ -1971,6 +1971,45 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/evaluation-reports/{reportID}/submit':
+    parameters:
+      - in: path
+        description: the evaluation report ID to be modified
+        name: reportID
+        required: true
+        type: string
+        format: uuid
+    post:
+      summary: Submits an evaluation report
+      description: Submits an evaluation report
+      operationId: submitEvaluationReport
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+      responses:
+        '204':
+          description: Successfully submitted an evaluation report with the provided ID
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.evaluationReport
   '/pws-violations':
     get:
       summary: Fetch the possible PWS violations for an evaluation report
@@ -4368,38 +4407,6 @@ definitions:
       - DESTINATION
       - OTHER
     x-nullable: true
-  EvaluationReportListItem:
-    type: object
-    description: An evaluation report
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      moveID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      shipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        x-nullable: true
-      type:
-        $ref: '#/definitions/EvaluationReportType'
-      location:
-        $ref: '#/definitions/EvaluationReportLocation'
-        x-nullable: true
-      violationsObserved:
-        type: boolean
-        x-nullable: true
-      seriousIncident:
-        type: boolean
-        x-nullable: true
-      submittedAt:
-        type: string
-        format: date-time
-        x-nullable: true
   EvaluationReportOfficeUser:
     type: object
     readOnly: true
@@ -4424,7 +4431,7 @@ definitions:
   EvaluationReportList:
     type: array
     items:
-      $ref: '#/definitions/EvaluationReportListItem'
+      $ref: '#/definitions/EvaluationReport'
   EvaluationReport:
     type: object
     description: An evaluation report

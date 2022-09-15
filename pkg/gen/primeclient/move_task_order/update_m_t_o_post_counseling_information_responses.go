@@ -81,7 +81,8 @@ func NewUpdateMTOPostCounselingInformationOK() *UpdateMTOPostCounselingInformati
 	return &UpdateMTOPostCounselingInformationOK{}
 }
 
-/* UpdateMTOPostCounselingInformationOK describes a response with status code 200, with default header values.
+/*
+UpdateMTOPostCounselingInformationOK describes a response with status code 200, with default header values.
 
 Successfully updated move task order with post counseling information.
 */
@@ -89,9 +90,39 @@ type UpdateMTOPostCounselingInformationOK struct {
 	Payload *primemessages.MoveTaskOrder
 }
 
+// IsSuccess returns true when this update m t o post counseling information o k response has a 2xx status code
+func (o *UpdateMTOPostCounselingInformationOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this update m t o post counseling information o k response has a 3xx status code
+func (o *UpdateMTOPostCounselingInformationOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o post counseling information o k response has a 4xx status code
+func (o *UpdateMTOPostCounselingInformationOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update m t o post counseling information o k response has a 5xx status code
+func (o *UpdateMTOPostCounselingInformationOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o post counseling information o k response a status code equal to that given
+func (o *UpdateMTOPostCounselingInformationOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *UpdateMTOPostCounselingInformationOK) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationOK  %+v", 200, o.Payload)
 }
+
+func (o *UpdateMTOPostCounselingInformationOK) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationOK  %+v", 200, o.Payload)
+}
+
 func (o *UpdateMTOPostCounselingInformationOK) GetPayload() *primemessages.MoveTaskOrder {
 	return o.Payload
 }
@@ -113,7 +144,8 @@ func NewUpdateMTOPostCounselingInformationUnauthorized() *UpdateMTOPostCounselin
 	return &UpdateMTOPostCounselingInformationUnauthorized{}
 }
 
-/* UpdateMTOPostCounselingInformationUnauthorized describes a response with status code 401, with default header values.
+/*
+UpdateMTOPostCounselingInformationUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -121,9 +153,39 @@ type UpdateMTOPostCounselingInformationUnauthorized struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o post counseling information unauthorized response has a 2xx status code
+func (o *UpdateMTOPostCounselingInformationUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o post counseling information unauthorized response has a 3xx status code
+func (o *UpdateMTOPostCounselingInformationUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o post counseling information unauthorized response has a 4xx status code
+func (o *UpdateMTOPostCounselingInformationUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o post counseling information unauthorized response has a 5xx status code
+func (o *UpdateMTOPostCounselingInformationUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o post counseling information unauthorized response a status code equal to that given
+func (o *UpdateMTOPostCounselingInformationUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *UpdateMTOPostCounselingInformationUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *UpdateMTOPostCounselingInformationUnauthorized) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *UpdateMTOPostCounselingInformationUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -145,7 +207,8 @@ func NewUpdateMTOPostCounselingInformationForbidden() *UpdateMTOPostCounselingIn
 	return &UpdateMTOPostCounselingInformationForbidden{}
 }
 
-/* UpdateMTOPostCounselingInformationForbidden describes a response with status code 403, with default header values.
+/*
+UpdateMTOPostCounselingInformationForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -153,9 +216,39 @@ type UpdateMTOPostCounselingInformationForbidden struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o post counseling information forbidden response has a 2xx status code
+func (o *UpdateMTOPostCounselingInformationForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o post counseling information forbidden response has a 3xx status code
+func (o *UpdateMTOPostCounselingInformationForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o post counseling information forbidden response has a 4xx status code
+func (o *UpdateMTOPostCounselingInformationForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o post counseling information forbidden response has a 5xx status code
+func (o *UpdateMTOPostCounselingInformationForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o post counseling information forbidden response a status code equal to that given
+func (o *UpdateMTOPostCounselingInformationForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *UpdateMTOPostCounselingInformationForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationForbidden  %+v", 403, o.Payload)
 }
+
+func (o *UpdateMTOPostCounselingInformationForbidden) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationForbidden  %+v", 403, o.Payload)
+}
+
 func (o *UpdateMTOPostCounselingInformationForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -177,7 +270,8 @@ func NewUpdateMTOPostCounselingInformationNotFound() *UpdateMTOPostCounselingInf
 	return &UpdateMTOPostCounselingInformationNotFound{}
 }
 
-/* UpdateMTOPostCounselingInformationNotFound describes a response with status code 404, with default header values.
+/*
+UpdateMTOPostCounselingInformationNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -185,9 +279,39 @@ type UpdateMTOPostCounselingInformationNotFound struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o post counseling information not found response has a 2xx status code
+func (o *UpdateMTOPostCounselingInformationNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o post counseling information not found response has a 3xx status code
+func (o *UpdateMTOPostCounselingInformationNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o post counseling information not found response has a 4xx status code
+func (o *UpdateMTOPostCounselingInformationNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o post counseling information not found response has a 5xx status code
+func (o *UpdateMTOPostCounselingInformationNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o post counseling information not found response a status code equal to that given
+func (o *UpdateMTOPostCounselingInformationNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *UpdateMTOPostCounselingInformationNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationNotFound  %+v", 404, o.Payload)
 }
+
+func (o *UpdateMTOPostCounselingInformationNotFound) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationNotFound  %+v", 404, o.Payload)
+}
+
 func (o *UpdateMTOPostCounselingInformationNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -209,7 +333,8 @@ func NewUpdateMTOPostCounselingInformationConflict() *UpdateMTOPostCounselingInf
 	return &UpdateMTOPostCounselingInformationConflict{}
 }
 
-/* UpdateMTOPostCounselingInformationConflict describes a response with status code 409, with default header values.
+/*
+UpdateMTOPostCounselingInformationConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -217,9 +342,39 @@ type UpdateMTOPostCounselingInformationConflict struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o post counseling information conflict response has a 2xx status code
+func (o *UpdateMTOPostCounselingInformationConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o post counseling information conflict response has a 3xx status code
+func (o *UpdateMTOPostCounselingInformationConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o post counseling information conflict response has a 4xx status code
+func (o *UpdateMTOPostCounselingInformationConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o post counseling information conflict response has a 5xx status code
+func (o *UpdateMTOPostCounselingInformationConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o post counseling information conflict response a status code equal to that given
+func (o *UpdateMTOPostCounselingInformationConflict) IsCode(code int) bool {
+	return code == 409
+}
+
 func (o *UpdateMTOPostCounselingInformationConflict) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationConflict  %+v", 409, o.Payload)
 }
+
+func (o *UpdateMTOPostCounselingInformationConflict) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationConflict  %+v", 409, o.Payload)
+}
+
 func (o *UpdateMTOPostCounselingInformationConflict) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -241,7 +396,8 @@ func NewUpdateMTOPostCounselingInformationPreconditionFailed() *UpdateMTOPostCou
 	return &UpdateMTOPostCounselingInformationPreconditionFailed{}
 }
 
-/* UpdateMTOPostCounselingInformationPreconditionFailed describes a response with status code 412, with default header values.
+/*
+UpdateMTOPostCounselingInformationPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -249,9 +405,39 @@ type UpdateMTOPostCounselingInformationPreconditionFailed struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o post counseling information precondition failed response has a 2xx status code
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o post counseling information precondition failed response has a 3xx status code
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o post counseling information precondition failed response has a 4xx status code
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o post counseling information precondition failed response has a 5xx status code
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o post counseling information precondition failed response a status code equal to that given
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) IsCode(code int) bool {
+	return code == 412
+}
+
 func (o *UpdateMTOPostCounselingInformationPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationPreconditionFailed  %+v", 412, o.Payload)
 }
+
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationPreconditionFailed  %+v", 412, o.Payload)
+}
+
 func (o *UpdateMTOPostCounselingInformationPreconditionFailed) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -273,7 +459,8 @@ func NewUpdateMTOPostCounselingInformationUnprocessableEntity() *UpdateMTOPostCo
 	return &UpdateMTOPostCounselingInformationUnprocessableEntity{}
 }
 
-/* UpdateMTOPostCounselingInformationUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+UpdateMTOPostCounselingInformationUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -281,9 +468,39 @@ type UpdateMTOPostCounselingInformationUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
 }
 
+// IsSuccess returns true when this update m t o post counseling information unprocessable entity response has a 2xx status code
+func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o post counseling information unprocessable entity response has a 3xx status code
+func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o post counseling information unprocessable entity response has a 4xx status code
+func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o post counseling information unprocessable entity response has a 5xx status code
+func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o post counseling information unprocessable entity response a status code equal to that given
+func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -305,7 +522,8 @@ func NewUpdateMTOPostCounselingInformationInternalServerError() *UpdateMTOPostCo
 	return &UpdateMTOPostCounselingInformationInternalServerError{}
 }
 
-/* UpdateMTOPostCounselingInformationInternalServerError describes a response with status code 500, with default header values.
+/*
+UpdateMTOPostCounselingInformationInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -313,9 +531,39 @@ type UpdateMTOPostCounselingInformationInternalServerError struct {
 	Payload *primemessages.Error
 }
 
+// IsSuccess returns true when this update m t o post counseling information internal server error response has a 2xx status code
+func (o *UpdateMTOPostCounselingInformationInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o post counseling information internal server error response has a 3xx status code
+func (o *UpdateMTOPostCounselingInformationInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o post counseling information internal server error response has a 4xx status code
+func (o *UpdateMTOPostCounselingInformationInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update m t o post counseling information internal server error response has a 5xx status code
+func (o *UpdateMTOPostCounselingInformationInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this update m t o post counseling information internal server error response a status code equal to that given
+func (o *UpdateMTOPostCounselingInformationInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *UpdateMTOPostCounselingInformationInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *UpdateMTOPostCounselingInformationInternalServerError) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *UpdateMTOPostCounselingInformationInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

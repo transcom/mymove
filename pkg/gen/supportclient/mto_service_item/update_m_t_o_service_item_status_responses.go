@@ -87,7 +87,8 @@ func NewUpdateMTOServiceItemStatusOK() *UpdateMTOServiceItemStatusOK {
 	return &UpdateMTOServiceItemStatusOK{}
 }
 
-/* UpdateMTOServiceItemStatusOK describes a response with status code 200, with default header values.
+/*
+UpdateMTOServiceItemStatusOK describes a response with status code 200, with default header values.
 
 Successfully updated service item status for a move task order.
 */
@@ -95,9 +96,39 @@ type UpdateMTOServiceItemStatusOK struct {
 	Payload supportmessages.MTOServiceItem
 }
 
+// IsSuccess returns true when this update m t o service item status o k response has a 2xx status code
+func (o *UpdateMTOServiceItemStatusOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this update m t o service item status o k response has a 3xx status code
+func (o *UpdateMTOServiceItemStatusOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o service item status o k response has a 4xx status code
+func (o *UpdateMTOServiceItemStatusOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update m t o service item status o k response has a 5xx status code
+func (o *UpdateMTOServiceItemStatusOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o service item status o k response a status code equal to that given
+func (o *UpdateMTOServiceItemStatusOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *UpdateMTOServiceItemStatusOK) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusOK  %+v", 200, o.Payload)
 }
+
+func (o *UpdateMTOServiceItemStatusOK) String() string {
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusOK  %+v", 200, o.Payload)
+}
+
 func (o *UpdateMTOServiceItemStatusOK) GetPayload() supportmessages.MTOServiceItem {
 	return o.Payload
 }
@@ -119,7 +150,8 @@ func NewUpdateMTOServiceItemStatusBadRequest() *UpdateMTOServiceItemStatusBadReq
 	return &UpdateMTOServiceItemStatusBadRequest{}
 }
 
-/* UpdateMTOServiceItemStatusBadRequest describes a response with status code 400, with default header values.
+/*
+UpdateMTOServiceItemStatusBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -127,9 +159,39 @@ type UpdateMTOServiceItemStatusBadRequest struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o service item status bad request response has a 2xx status code
+func (o *UpdateMTOServiceItemStatusBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o service item status bad request response has a 3xx status code
+func (o *UpdateMTOServiceItemStatusBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o service item status bad request response has a 4xx status code
+func (o *UpdateMTOServiceItemStatusBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o service item status bad request response has a 5xx status code
+func (o *UpdateMTOServiceItemStatusBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o service item status bad request response a status code equal to that given
+func (o *UpdateMTOServiceItemStatusBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *UpdateMTOServiceItemStatusBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *UpdateMTOServiceItemStatusBadRequest) String() string {
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *UpdateMTOServiceItemStatusBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -151,7 +213,8 @@ func NewUpdateMTOServiceItemStatusUnauthorized() *UpdateMTOServiceItemStatusUnau
 	return &UpdateMTOServiceItemStatusUnauthorized{}
 }
 
-/* UpdateMTOServiceItemStatusUnauthorized describes a response with status code 401, with default header values.
+/*
+UpdateMTOServiceItemStatusUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -159,9 +222,39 @@ type UpdateMTOServiceItemStatusUnauthorized struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o service item status unauthorized response has a 2xx status code
+func (o *UpdateMTOServiceItemStatusUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o service item status unauthorized response has a 3xx status code
+func (o *UpdateMTOServiceItemStatusUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o service item status unauthorized response has a 4xx status code
+func (o *UpdateMTOServiceItemStatusUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o service item status unauthorized response has a 5xx status code
+func (o *UpdateMTOServiceItemStatusUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o service item status unauthorized response a status code equal to that given
+func (o *UpdateMTOServiceItemStatusUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *UpdateMTOServiceItemStatusUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *UpdateMTOServiceItemStatusUnauthorized) String() string {
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *UpdateMTOServiceItemStatusUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -183,7 +276,8 @@ func NewUpdateMTOServiceItemStatusForbidden() *UpdateMTOServiceItemStatusForbidd
 	return &UpdateMTOServiceItemStatusForbidden{}
 }
 
-/* UpdateMTOServiceItemStatusForbidden describes a response with status code 403, with default header values.
+/*
+UpdateMTOServiceItemStatusForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -191,9 +285,39 @@ type UpdateMTOServiceItemStatusForbidden struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o service item status forbidden response has a 2xx status code
+func (o *UpdateMTOServiceItemStatusForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o service item status forbidden response has a 3xx status code
+func (o *UpdateMTOServiceItemStatusForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o service item status forbidden response has a 4xx status code
+func (o *UpdateMTOServiceItemStatusForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o service item status forbidden response has a 5xx status code
+func (o *UpdateMTOServiceItemStatusForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o service item status forbidden response a status code equal to that given
+func (o *UpdateMTOServiceItemStatusForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *UpdateMTOServiceItemStatusForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusForbidden  %+v", 403, o.Payload)
 }
+
+func (o *UpdateMTOServiceItemStatusForbidden) String() string {
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusForbidden  %+v", 403, o.Payload)
+}
+
 func (o *UpdateMTOServiceItemStatusForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -215,7 +339,8 @@ func NewUpdateMTOServiceItemStatusNotFound() *UpdateMTOServiceItemStatusNotFound
 	return &UpdateMTOServiceItemStatusNotFound{}
 }
 
-/* UpdateMTOServiceItemStatusNotFound describes a response with status code 404, with default header values.
+/*
+UpdateMTOServiceItemStatusNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -223,9 +348,39 @@ type UpdateMTOServiceItemStatusNotFound struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o service item status not found response has a 2xx status code
+func (o *UpdateMTOServiceItemStatusNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o service item status not found response has a 3xx status code
+func (o *UpdateMTOServiceItemStatusNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o service item status not found response has a 4xx status code
+func (o *UpdateMTOServiceItemStatusNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o service item status not found response has a 5xx status code
+func (o *UpdateMTOServiceItemStatusNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o service item status not found response a status code equal to that given
+func (o *UpdateMTOServiceItemStatusNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *UpdateMTOServiceItemStatusNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusNotFound  %+v", 404, o.Payload)
 }
+
+func (o *UpdateMTOServiceItemStatusNotFound) String() string {
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusNotFound  %+v", 404, o.Payload)
+}
+
 func (o *UpdateMTOServiceItemStatusNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -247,7 +402,8 @@ func NewUpdateMTOServiceItemStatusConflict() *UpdateMTOServiceItemStatusConflict
 	return &UpdateMTOServiceItemStatusConflict{}
 }
 
-/* UpdateMTOServiceItemStatusConflict describes a response with status code 409, with default header values.
+/*
+UpdateMTOServiceItemStatusConflict describes a response with status code 409, with default header values.
 
 There was a conflict with the request.
 */
@@ -255,9 +411,39 @@ type UpdateMTOServiceItemStatusConflict struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o service item status conflict response has a 2xx status code
+func (o *UpdateMTOServiceItemStatusConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o service item status conflict response has a 3xx status code
+func (o *UpdateMTOServiceItemStatusConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o service item status conflict response has a 4xx status code
+func (o *UpdateMTOServiceItemStatusConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o service item status conflict response has a 5xx status code
+func (o *UpdateMTOServiceItemStatusConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o service item status conflict response a status code equal to that given
+func (o *UpdateMTOServiceItemStatusConflict) IsCode(code int) bool {
+	return code == 409
+}
+
 func (o *UpdateMTOServiceItemStatusConflict) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusConflict  %+v", 409, o.Payload)
 }
+
+func (o *UpdateMTOServiceItemStatusConflict) String() string {
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusConflict  %+v", 409, o.Payload)
+}
+
 func (o *UpdateMTOServiceItemStatusConflict) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -279,7 +465,8 @@ func NewUpdateMTOServiceItemStatusPreconditionFailed() *UpdateMTOServiceItemStat
 	return &UpdateMTOServiceItemStatusPreconditionFailed{}
 }
 
-/* UpdateMTOServiceItemStatusPreconditionFailed describes a response with status code 412, with default header values.
+/*
+UpdateMTOServiceItemStatusPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -287,9 +474,39 @@ type UpdateMTOServiceItemStatusPreconditionFailed struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this update m t o service item status precondition failed response has a 2xx status code
+func (o *UpdateMTOServiceItemStatusPreconditionFailed) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o service item status precondition failed response has a 3xx status code
+func (o *UpdateMTOServiceItemStatusPreconditionFailed) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o service item status precondition failed response has a 4xx status code
+func (o *UpdateMTOServiceItemStatusPreconditionFailed) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o service item status precondition failed response has a 5xx status code
+func (o *UpdateMTOServiceItemStatusPreconditionFailed) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o service item status precondition failed response a status code equal to that given
+func (o *UpdateMTOServiceItemStatusPreconditionFailed) IsCode(code int) bool {
+	return code == 412
+}
+
 func (o *UpdateMTOServiceItemStatusPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusPreconditionFailed  %+v", 412, o.Payload)
 }
+
+func (o *UpdateMTOServiceItemStatusPreconditionFailed) String() string {
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusPreconditionFailed  %+v", 412, o.Payload)
+}
+
 func (o *UpdateMTOServiceItemStatusPreconditionFailed) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -311,7 +528,8 @@ func NewUpdateMTOServiceItemStatusUnprocessableEntity() *UpdateMTOServiceItemSta
 	return &UpdateMTOServiceItemStatusUnprocessableEntity{}
 }
 
-/* UpdateMTOServiceItemStatusUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+UpdateMTOServiceItemStatusUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -319,9 +537,39 @@ type UpdateMTOServiceItemStatusUnprocessableEntity struct {
 	Payload *supportmessages.ValidationError
 }
 
+// IsSuccess returns true when this update m t o service item status unprocessable entity response has a 2xx status code
+func (o *UpdateMTOServiceItemStatusUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o service item status unprocessable entity response has a 3xx status code
+func (o *UpdateMTOServiceItemStatusUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o service item status unprocessable entity response has a 4xx status code
+func (o *UpdateMTOServiceItemStatusUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update m t o service item status unprocessable entity response has a 5xx status code
+func (o *UpdateMTOServiceItemStatusUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update m t o service item status unprocessable entity response a status code equal to that given
+func (o *UpdateMTOServiceItemStatusUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *UpdateMTOServiceItemStatusUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *UpdateMTOServiceItemStatusUnprocessableEntity) String() string {
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *UpdateMTOServiceItemStatusUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -343,7 +591,8 @@ func NewUpdateMTOServiceItemStatusInternalServerError() *UpdateMTOServiceItemSta
 	return &UpdateMTOServiceItemStatusInternalServerError{}
 }
 
-/* UpdateMTOServiceItemStatusInternalServerError describes a response with status code 500, with default header values.
+/*
+UpdateMTOServiceItemStatusInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -351,9 +600,39 @@ type UpdateMTOServiceItemStatusInternalServerError struct {
 	Payload *supportmessages.Error
 }
 
+// IsSuccess returns true when this update m t o service item status internal server error response has a 2xx status code
+func (o *UpdateMTOServiceItemStatusInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update m t o service item status internal server error response has a 3xx status code
+func (o *UpdateMTOServiceItemStatusInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update m t o service item status internal server error response has a 4xx status code
+func (o *UpdateMTOServiceItemStatusInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update m t o service item status internal server error response has a 5xx status code
+func (o *UpdateMTOServiceItemStatusInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this update m t o service item status internal server error response a status code equal to that given
+func (o *UpdateMTOServiceItemStatusInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *UpdateMTOServiceItemStatusInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *UpdateMTOServiceItemStatusInternalServerError) String() string {
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *UpdateMTOServiceItemStatusInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

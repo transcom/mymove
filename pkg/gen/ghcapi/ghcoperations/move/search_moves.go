@@ -36,13 +36,12 @@ func NewSearchMoves(ctx *middleware.Context, handler SearchMovesHandler) *Search
 	return &SearchMoves{Context: ctx, Handler: handler}
 }
 
-/* SearchMoves swagger:route POST /moves/search move searchMoves
+/*
+	SearchMoves swagger:route POST /moves/search move searchMoves
 
-Search moves by locator, DOD ID, or customer name
+# Search moves by locator, DOD ID, or customer name
 
 Search moves by locator, DOD ID, or customer name. Used by QAE and CSR users.
-
-
 */
 type SearchMoves struct {
 	Context *middleware.Context

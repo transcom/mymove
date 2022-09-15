@@ -29,12 +29,12 @@ func NewSubmitAmendedOrders(ctx *middleware.Context, handler SubmitAmendedOrders
 	return &SubmitAmendedOrders{Context: ctx, Handler: handler}
 }
 
-/* SubmitAmendedOrders swagger:route POST /moves/{moveId}/submit_amended_orders moves submitAmendedOrders
+/*
+	SubmitAmendedOrders swagger:route POST /moves/{moveId}/submit_amended_orders moves submitAmendedOrders
 
-Submits amended orders for review
+# Submits amended orders for review
 
 Submits amended orders for review by the office. The status of the move will be updated to an appropriate status depending on whether it needs services counseling or not.
-
 */
 type SubmitAmendedOrders struct {
 	Context *middleware.Context

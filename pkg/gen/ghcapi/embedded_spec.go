@@ -552,6 +552,61 @@ func init() {
         }
       ]
     },
+    "/evaluation-reports/{reportID}/submit": {
+      "post": {
+        "description": "Submits an evaluation report",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Submits an evaluation report",
+        "operationId": "submitEvaluationReport",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully submitted an evaluation report with the provided ID"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "Gets a move",
@@ -4811,49 +4866,7 @@ func init() {
     "EvaluationReportList": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/EvaluationReportListItem"
-      }
-    },
-    "EvaluationReportListItem": {
-      "description": "An evaluation report",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "location": {
-          "x-nullable": true,
-          "$ref": "#/definitions/EvaluationReportLocation"
-        },
-        "moveID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "seriousIncident": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "shipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "submittedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
-        "type": {
-          "$ref": "#/definitions/EvaluationReportType"
-        },
-        "violationsObserved": {
-          "type": "boolean",
-          "x-nullable": true
-        }
+        "$ref": "#/definitions/EvaluationReport"
       }
     },
     "EvaluationReportLocation": {
@@ -8891,6 +8904,76 @@ func init() {
         },
         "x-permissions": [
           "delete.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/evaluation-reports/{reportID}/submit": {
+      "post": {
+        "description": "Submits an evaluation report",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Submits an evaluation report",
+        "operationId": "submitEvaluationReport",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully submitted an evaluation report with the provided ID"
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
         ]
       },
       "parameters": [
@@ -13968,49 +14051,7 @@ func init() {
     "EvaluationReportList": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/EvaluationReportListItem"
-      }
-    },
-    "EvaluationReportListItem": {
-      "description": "An evaluation report",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "location": {
-          "x-nullable": true,
-          "$ref": "#/definitions/EvaluationReportLocation"
-        },
-        "moveID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "seriousIncident": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "shipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "submittedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
-        "type": {
-          "$ref": "#/definitions/EvaluationReportType"
-        },
-        "violationsObserved": {
-          "type": "boolean",
-          "x-nullable": true
-        }
+        "$ref": "#/definitions/EvaluationReport"
       }
     },
     "EvaluationReportLocation": {

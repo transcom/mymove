@@ -81,7 +81,8 @@ func NewMakeMoveTaskOrderAvailableOK() *MakeMoveTaskOrderAvailableOK {
 	return &MakeMoveTaskOrderAvailableOK{}
 }
 
-/* MakeMoveTaskOrderAvailableOK describes a response with status code 200, with default header values.
+/*
+MakeMoveTaskOrderAvailableOK describes a response with status code 200, with default header values.
 
 Successfully made MTO available to Prime.
 */
@@ -89,9 +90,39 @@ type MakeMoveTaskOrderAvailableOK struct {
 	Payload *supportmessages.MoveTaskOrder
 }
 
+// IsSuccess returns true when this make move task order available o k response has a 2xx status code
+func (o *MakeMoveTaskOrderAvailableOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this make move task order available o k response has a 3xx status code
+func (o *MakeMoveTaskOrderAvailableOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this make move task order available o k response has a 4xx status code
+func (o *MakeMoveTaskOrderAvailableOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this make move task order available o k response has a 5xx status code
+func (o *MakeMoveTaskOrderAvailableOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this make move task order available o k response a status code equal to that given
+func (o *MakeMoveTaskOrderAvailableOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *MakeMoveTaskOrderAvailableOK) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableOK  %+v", 200, o.Payload)
 }
+
+func (o *MakeMoveTaskOrderAvailableOK) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableOK  %+v", 200, o.Payload)
+}
+
 func (o *MakeMoveTaskOrderAvailableOK) GetPayload() *supportmessages.MoveTaskOrder {
 	return o.Payload
 }
@@ -113,7 +144,8 @@ func NewMakeMoveTaskOrderAvailableBadRequest() *MakeMoveTaskOrderAvailableBadReq
 	return &MakeMoveTaskOrderAvailableBadRequest{}
 }
 
-/* MakeMoveTaskOrderAvailableBadRequest describes a response with status code 400, with default header values.
+/*
+MakeMoveTaskOrderAvailableBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -121,9 +153,39 @@ type MakeMoveTaskOrderAvailableBadRequest struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this make move task order available bad request response has a 2xx status code
+func (o *MakeMoveTaskOrderAvailableBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this make move task order available bad request response has a 3xx status code
+func (o *MakeMoveTaskOrderAvailableBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this make move task order available bad request response has a 4xx status code
+func (o *MakeMoveTaskOrderAvailableBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this make move task order available bad request response has a 5xx status code
+func (o *MakeMoveTaskOrderAvailableBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this make move task order available bad request response a status code equal to that given
+func (o *MakeMoveTaskOrderAvailableBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *MakeMoveTaskOrderAvailableBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *MakeMoveTaskOrderAvailableBadRequest) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *MakeMoveTaskOrderAvailableBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -145,7 +207,8 @@ func NewMakeMoveTaskOrderAvailableUnauthorized() *MakeMoveTaskOrderAvailableUnau
 	return &MakeMoveTaskOrderAvailableUnauthorized{}
 }
 
-/* MakeMoveTaskOrderAvailableUnauthorized describes a response with status code 401, with default header values.
+/*
+MakeMoveTaskOrderAvailableUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -153,9 +216,39 @@ type MakeMoveTaskOrderAvailableUnauthorized struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this make move task order available unauthorized response has a 2xx status code
+func (o *MakeMoveTaskOrderAvailableUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this make move task order available unauthorized response has a 3xx status code
+func (o *MakeMoveTaskOrderAvailableUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this make move task order available unauthorized response has a 4xx status code
+func (o *MakeMoveTaskOrderAvailableUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this make move task order available unauthorized response has a 5xx status code
+func (o *MakeMoveTaskOrderAvailableUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this make move task order available unauthorized response a status code equal to that given
+func (o *MakeMoveTaskOrderAvailableUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *MakeMoveTaskOrderAvailableUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *MakeMoveTaskOrderAvailableUnauthorized) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *MakeMoveTaskOrderAvailableUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -177,7 +270,8 @@ func NewMakeMoveTaskOrderAvailableForbidden() *MakeMoveTaskOrderAvailableForbidd
 	return &MakeMoveTaskOrderAvailableForbidden{}
 }
 
-/* MakeMoveTaskOrderAvailableForbidden describes a response with status code 403, with default header values.
+/*
+MakeMoveTaskOrderAvailableForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -185,9 +279,39 @@ type MakeMoveTaskOrderAvailableForbidden struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this make move task order available forbidden response has a 2xx status code
+func (o *MakeMoveTaskOrderAvailableForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this make move task order available forbidden response has a 3xx status code
+func (o *MakeMoveTaskOrderAvailableForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this make move task order available forbidden response has a 4xx status code
+func (o *MakeMoveTaskOrderAvailableForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this make move task order available forbidden response has a 5xx status code
+func (o *MakeMoveTaskOrderAvailableForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this make move task order available forbidden response a status code equal to that given
+func (o *MakeMoveTaskOrderAvailableForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *MakeMoveTaskOrderAvailableForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableForbidden  %+v", 403, o.Payload)
 }
+
+func (o *MakeMoveTaskOrderAvailableForbidden) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableForbidden  %+v", 403, o.Payload)
+}
+
 func (o *MakeMoveTaskOrderAvailableForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -209,7 +333,8 @@ func NewMakeMoveTaskOrderAvailableNotFound() *MakeMoveTaskOrderAvailableNotFound
 	return &MakeMoveTaskOrderAvailableNotFound{}
 }
 
-/* MakeMoveTaskOrderAvailableNotFound describes a response with status code 404, with default header values.
+/*
+MakeMoveTaskOrderAvailableNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -217,9 +342,39 @@ type MakeMoveTaskOrderAvailableNotFound struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this make move task order available not found response has a 2xx status code
+func (o *MakeMoveTaskOrderAvailableNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this make move task order available not found response has a 3xx status code
+func (o *MakeMoveTaskOrderAvailableNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this make move task order available not found response has a 4xx status code
+func (o *MakeMoveTaskOrderAvailableNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this make move task order available not found response has a 5xx status code
+func (o *MakeMoveTaskOrderAvailableNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this make move task order available not found response a status code equal to that given
+func (o *MakeMoveTaskOrderAvailableNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *MakeMoveTaskOrderAvailableNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableNotFound  %+v", 404, o.Payload)
 }
+
+func (o *MakeMoveTaskOrderAvailableNotFound) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableNotFound  %+v", 404, o.Payload)
+}
+
 func (o *MakeMoveTaskOrderAvailableNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -241,7 +396,8 @@ func NewMakeMoveTaskOrderAvailablePreconditionFailed() *MakeMoveTaskOrderAvailab
 	return &MakeMoveTaskOrderAvailablePreconditionFailed{}
 }
 
-/* MakeMoveTaskOrderAvailablePreconditionFailed describes a response with status code 412, with default header values.
+/*
+MakeMoveTaskOrderAvailablePreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -249,9 +405,39 @@ type MakeMoveTaskOrderAvailablePreconditionFailed struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this make move task order available precondition failed response has a 2xx status code
+func (o *MakeMoveTaskOrderAvailablePreconditionFailed) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this make move task order available precondition failed response has a 3xx status code
+func (o *MakeMoveTaskOrderAvailablePreconditionFailed) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this make move task order available precondition failed response has a 4xx status code
+func (o *MakeMoveTaskOrderAvailablePreconditionFailed) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this make move task order available precondition failed response has a 5xx status code
+func (o *MakeMoveTaskOrderAvailablePreconditionFailed) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this make move task order available precondition failed response a status code equal to that given
+func (o *MakeMoveTaskOrderAvailablePreconditionFailed) IsCode(code int) bool {
+	return code == 412
+}
+
 func (o *MakeMoveTaskOrderAvailablePreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailablePreconditionFailed  %+v", 412, o.Payload)
 }
+
+func (o *MakeMoveTaskOrderAvailablePreconditionFailed) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailablePreconditionFailed  %+v", 412, o.Payload)
+}
+
 func (o *MakeMoveTaskOrderAvailablePreconditionFailed) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -273,7 +459,8 @@ func NewMakeMoveTaskOrderAvailableUnprocessableEntity() *MakeMoveTaskOrderAvaila
 	return &MakeMoveTaskOrderAvailableUnprocessableEntity{}
 }
 
-/* MakeMoveTaskOrderAvailableUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+MakeMoveTaskOrderAvailableUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -281,9 +468,39 @@ type MakeMoveTaskOrderAvailableUnprocessableEntity struct {
 	Payload *supportmessages.ValidationError
 }
 
+// IsSuccess returns true when this make move task order available unprocessable entity response has a 2xx status code
+func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this make move task order available unprocessable entity response has a 3xx status code
+func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this make move task order available unprocessable entity response has a 4xx status code
+func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this make move task order available unprocessable entity response has a 5xx status code
+func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this make move task order available unprocessable entity response a status code equal to that given
+func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -305,7 +522,8 @@ func NewMakeMoveTaskOrderAvailableInternalServerError() *MakeMoveTaskOrderAvaila
 	return &MakeMoveTaskOrderAvailableInternalServerError{}
 }
 
-/* MakeMoveTaskOrderAvailableInternalServerError describes a response with status code 500, with default header values.
+/*
+MakeMoveTaskOrderAvailableInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -313,9 +531,39 @@ type MakeMoveTaskOrderAvailableInternalServerError struct {
 	Payload *supportmessages.Error
 }
 
+// IsSuccess returns true when this make move task order available internal server error response has a 2xx status code
+func (o *MakeMoveTaskOrderAvailableInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this make move task order available internal server error response has a 3xx status code
+func (o *MakeMoveTaskOrderAvailableInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this make move task order available internal server error response has a 4xx status code
+func (o *MakeMoveTaskOrderAvailableInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this make move task order available internal server error response has a 5xx status code
+func (o *MakeMoveTaskOrderAvailableInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this make move task order available internal server error response a status code equal to that given
+func (o *MakeMoveTaskOrderAvailableInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *MakeMoveTaskOrderAvailableInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *MakeMoveTaskOrderAvailableInternalServerError) String() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *MakeMoveTaskOrderAvailableInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

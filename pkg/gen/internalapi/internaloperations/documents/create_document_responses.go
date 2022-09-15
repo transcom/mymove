@@ -16,7 +16,8 @@ import (
 // CreateDocumentCreatedCode is the HTTP code returned for type CreateDocumentCreated
 const CreateDocumentCreatedCode int = 201
 
-/*CreateDocumentCreated created document
+/*
+CreateDocumentCreated created document
 
 swagger:response createDocumentCreated
 */
@@ -60,7 +61,8 @@ func (o *CreateDocumentCreated) WriteResponse(rw http.ResponseWriter, producer r
 // CreateDocumentBadRequestCode is the HTTP code returned for type CreateDocumentBadRequest
 const CreateDocumentBadRequestCode int = 400
 
-/*CreateDocumentBadRequest invalid request
+/*
+CreateDocumentBadRequest invalid request
 
 swagger:response createDocumentBadRequest
 */
@@ -84,7 +86,8 @@ func (o *CreateDocumentBadRequest) WriteResponse(rw http.ResponseWriter, produce
 // CreateDocumentInternalServerErrorCode is the HTTP code returned for type CreateDocumentInternalServerError
 const CreateDocumentInternalServerErrorCode int = 500
 
-/*CreateDocumentInternalServerError server error
+/*
+CreateDocumentInternalServerError server error
 
 swagger:response createDocumentInternalServerError
 */

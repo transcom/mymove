@@ -29,13 +29,12 @@ func NewCreateExcessWeightRecord(ctx *middleware.Context, handler CreateExcessWe
 	return &CreateExcessWeightRecord{Context: ctx, Handler: handler}
 }
 
-/* CreateExcessWeightRecord swagger:route POST /move-task-orders/{moveTaskOrderID}/excess-weight-record moveTaskOrder createExcessWeightRecord
+/*
+	CreateExcessWeightRecord swagger:route POST /move-task-orders/{moveTaskOrderID}/excess-weight-record moveTaskOrder createExcessWeightRecord
 
 createExcessWeightRecord
 
 Uploads an excess weight record, which is a document that proves that the movers or contractors have counseled the customer about their excess weight. Excess weight counseling should occur after the sum of the shipments for the customer's move crosses the excess weight alert threshold.
-
-
 */
 type CreateExcessWeightRecord struct {
 	Context *middleware.Context

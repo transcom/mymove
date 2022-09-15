@@ -16,7 +16,8 @@ import (
 // GetPWSViolationsOKCode is the HTTP code returned for type GetPWSViolationsOK
 const GetPWSViolationsOKCode int = 200
 
-/*GetPWSViolationsOK Successfully retrieved the PWS violations
+/*
+GetPWSViolationsOK Successfully retrieved the PWS violations
 
 swagger:response getPWSViolationsOK
 */
@@ -63,7 +64,8 @@ func (o *GetPWSViolationsOK) WriteResponse(rw http.ResponseWriter, producer runt
 // GetPWSViolationsBadRequestCode is the HTTP code returned for type GetPWSViolationsBadRequest
 const GetPWSViolationsBadRequestCode int = 400
 
-/*GetPWSViolationsBadRequest The request payload is invalid
+/*
+GetPWSViolationsBadRequest The request payload is invalid
 
 swagger:response getPWSViolationsBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetPWSViolationsBadRequest) WriteResponse(rw http.ResponseWriter, produ
 // GetPWSViolationsForbiddenCode is the HTTP code returned for type GetPWSViolationsForbidden
 const GetPWSViolationsForbiddenCode int = 403
 
-/*GetPWSViolationsForbidden The request was denied
+/*
+GetPWSViolationsForbidden The request was denied
 
 swagger:response getPWSViolationsForbidden
 */
@@ -151,7 +154,8 @@ func (o *GetPWSViolationsForbidden) WriteResponse(rw http.ResponseWriter, produc
 // GetPWSViolationsNotFoundCode is the HTTP code returned for type GetPWSViolationsNotFound
 const GetPWSViolationsNotFoundCode int = 404
 
-/*GetPWSViolationsNotFound The requested resource wasn't found
+/*
+GetPWSViolationsNotFound The requested resource wasn't found
 
 swagger:response getPWSViolationsNotFound
 */
@@ -195,7 +199,8 @@ func (o *GetPWSViolationsNotFound) WriteResponse(rw http.ResponseWriter, produce
 // GetPWSViolationsInternalServerErrorCode is the HTTP code returned for type GetPWSViolationsInternalServerError
 const GetPWSViolationsInternalServerErrorCode int = 500
 
-/*GetPWSViolationsInternalServerError A server error occurred
+/*
+GetPWSViolationsInternalServerError A server error occurred
 
 swagger:response getPWSViolationsInternalServerError
 */

@@ -16,7 +16,8 @@ import (
 // GetMoveOKCode is the HTTP code returned for type GetMoveOK
 const GetMoveOKCode int = 200
 
-/*GetMoveOK Successfully retrieved the individual move
+/*
+GetMoveOK Successfully retrieved the individual move
 
 swagger:response getMoveOK
 */
@@ -60,7 +61,8 @@ func (o *GetMoveOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produ
 // GetMoveBadRequestCode is the HTTP code returned for type GetMoveBadRequest
 const GetMoveBadRequestCode int = 400
 
-/*GetMoveBadRequest The request payload is invalid
+/*
+GetMoveBadRequest The request payload is invalid
 
 swagger:response getMoveBadRequest
 */
@@ -104,7 +106,8 @@ func (o *GetMoveBadRequest) WriteResponse(rw http.ResponseWriter, producer runti
 // GetMoveUnauthorizedCode is the HTTP code returned for type GetMoveUnauthorized
 const GetMoveUnauthorizedCode int = 401
 
-/*GetMoveUnauthorized The request was denied
+/*
+GetMoveUnauthorized The request was denied
 
 swagger:response getMoveUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *GetMoveUnauthorized) WriteResponse(rw http.ResponseWriter, producer run
 // GetMoveForbiddenCode is the HTTP code returned for type GetMoveForbidden
 const GetMoveForbiddenCode int = 403
 
-/*GetMoveForbidden The request was denied
+/*
+GetMoveForbidden The request was denied
 
 swagger:response getMoveForbidden
 */
@@ -192,7 +196,8 @@ func (o *GetMoveForbidden) WriteResponse(rw http.ResponseWriter, producer runtim
 // GetMoveNotFoundCode is the HTTP code returned for type GetMoveNotFound
 const GetMoveNotFoundCode int = 404
 
-/*GetMoveNotFound The requested resource wasn't found
+/*
+GetMoveNotFound The requested resource wasn't found
 
 swagger:response getMoveNotFound
 */
@@ -236,7 +241,8 @@ func (o *GetMoveNotFound) WriteResponse(rw http.ResponseWriter, producer runtime
 // GetMoveInternalServerErrorCode is the HTTP code returned for type GetMoveInternalServerError
 const GetMoveInternalServerErrorCode int = 500
 
-/*GetMoveInternalServerError A server error occurred
+/*
+GetMoveInternalServerError A server error occurred
 
 swagger:response getMoveInternalServerError
 */

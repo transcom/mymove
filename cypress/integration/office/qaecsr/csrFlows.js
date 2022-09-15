@@ -1,4 +1,5 @@
 import { QAECSROfficeUserType, TIOOfficeUserType } from '../../../support/constants';
+import { searchForAndNavigateToMove } from './qaeCSRIntegrationUtils';
 
 describe('Customer Support User Flows', () => {
   before(() => {
@@ -13,10 +14,9 @@ describe('Customer Support User Flows', () => {
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
     cy.intercept('**/ghc/v1/moves/**/customer-support-remarks').as('getCustomerSupportRemarks');
+    cy.intercept('**/ghc/v1/moves/search').as('getSearchResults');
 
-    // This user has multiple roles, which is the kind of user we use to test in staging.
-    // By using this type of user, we can catch bugs like the one fixed in PR 6706.
-    const userId = 'b264abd6-52fc-4e42-9e0f-173f7d217bc5';
+    const userId = '2419b1d6-097f-4dc4-8171-8f858967b4db';
     cy.apiSignInAsUser(userId, QAECSROfficeUserType);
   });
 
@@ -26,15 +26,7 @@ describe('Customer Support User Flows', () => {
     const moveLocator = 'TEST12';
     const testRemarkText = 'This is a test remark';
     const editString = '-edit';
-
-    // Moves queue (eventually will come via QAE/CSR move search)
-    cy.wait(2000);
-
-    cy.contains(moveLocator).click({ force: true });
-    cy.url().should('include', `/moves/${moveLocator}/details`);
-
-    // Move Details page
-    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    searchForAndNavigateToMove(moveLocator);
 
     // Go to Customer support remarks
     cy.contains('Customer support remarks').click();
@@ -121,15 +113,8 @@ describe('Customer Support User Flows', () => {
 
     // Changer user
     cy.contains('Sign out').click();
-    cy.apiSignInAsUser('3b2cc1b0-31a2-4d1b-874f-0591f9127374', TIOOfficeUserType);
-
-    // Manual wait added to ensure that the queue loads before checking for the corresponding row
-    // For some reason, this won't work properly on CircleCI with a named intercept wait
-    cy.wait(2000);
-
-    // Validate another user can not edit or delete the remark
-    cy.contains(moveLocator).click({ force: true });
-    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments']);
+    cy.apiSignInAsUser('7f45b6bc-1131-4c9a-85ef-24552979d28d', QAECSROfficeUserType);
+    searchForAndNavigateToMove(moveLocator);
 
     // Go to Customer support remarks
     cy.contains('Customer support remarks').click();

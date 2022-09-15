@@ -16,7 +16,8 @@ import (
 // IndexNotificationsOKCode is the HTTP code returned for type IndexNotificationsOK
 const IndexNotificationsOKCode int = 200
 
-/*IndexNotificationsOK success
+/*
+IndexNotificationsOK success
 
 swagger:response indexNotificationsOK
 */
@@ -85,7 +86,8 @@ func (o *IndexNotificationsOK) WriteResponse(rw http.ResponseWriter, producer ru
 // IndexNotificationsBadRequestCode is the HTTP code returned for type IndexNotificationsBadRequest
 const IndexNotificationsBadRequestCode int = 400
 
-/*IndexNotificationsBadRequest invalid request
+/*
+IndexNotificationsBadRequest invalid request
 
 swagger:response indexNotificationsBadRequest
 */
@@ -109,7 +111,8 @@ func (o *IndexNotificationsBadRequest) WriteResponse(rw http.ResponseWriter, pro
 // IndexNotificationsUnauthorizedCode is the HTTP code returned for type IndexNotificationsUnauthorized
 const IndexNotificationsUnauthorizedCode int = 401
 
-/*IndexNotificationsUnauthorized request requires user authentication
+/*
+IndexNotificationsUnauthorized request requires user authentication
 
 swagger:response indexNotificationsUnauthorized
 */
@@ -133,7 +136,8 @@ func (o *IndexNotificationsUnauthorized) WriteResponse(rw http.ResponseWriter, p
 // IndexNotificationsNotFoundCode is the HTTP code returned for type IndexNotificationsNotFound
 const IndexNotificationsNotFoundCode int = 404
 
-/*IndexNotificationsNotFound not found
+/*
+IndexNotificationsNotFound not found
 
 swagger:response indexNotificationsNotFound
 */
@@ -157,7 +161,8 @@ func (o *IndexNotificationsNotFound) WriteResponse(rw http.ResponseWriter, produ
 // IndexNotificationsInternalServerErrorCode is the HTTP code returned for type IndexNotificationsInternalServerError
 const IndexNotificationsInternalServerErrorCode int = 500
 
-/*IndexNotificationsInternalServerError server error
+/*
+IndexNotificationsInternalServerError server error
 
 swagger:response indexNotificationsInternalServerError
 */

@@ -16,7 +16,8 @@ import (
 // GetServicesCounselingQueueOKCode is the HTTP code returned for type GetServicesCounselingQueueOK
 const GetServicesCounselingQueueOKCode int = 200
 
-/*GetServicesCounselingQueueOK Successfully returned all moves matching the criteria
+/*
+GetServicesCounselingQueueOK Successfully returned all moves matching the criteria
 
 swagger:response getServicesCounselingQueueOK
 */
@@ -60,7 +61,8 @@ func (o *GetServicesCounselingQueueOK) WriteResponse(rw http.ResponseWriter, pro
 // GetServicesCounselingQueueForbiddenCode is the HTTP code returned for type GetServicesCounselingQueueForbidden
 const GetServicesCounselingQueueForbiddenCode int = 403
 
-/*GetServicesCounselingQueueForbidden The request was denied
+/*
+GetServicesCounselingQueueForbidden The request was denied
 
 swagger:response getServicesCounselingQueueForbidden
 */
@@ -104,7 +106,8 @@ func (o *GetServicesCounselingQueueForbidden) WriteResponse(rw http.ResponseWrit
 // GetServicesCounselingQueueInternalServerErrorCode is the HTTP code returned for type GetServicesCounselingQueueInternalServerError
 const GetServicesCounselingQueueInternalServerErrorCode int = 500
 
-/*GetServicesCounselingQueueInternalServerError A server error occurred
+/*
+GetServicesCounselingQueueInternalServerError A server error occurred
 
 swagger:response getServicesCounselingQueueInternalServerError
 */

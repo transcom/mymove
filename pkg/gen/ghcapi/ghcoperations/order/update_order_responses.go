@@ -16,7 +16,8 @@ import (
 // UpdateOrderOKCode is the HTTP code returned for type UpdateOrderOK
 const UpdateOrderOKCode int = 200
 
-/*UpdateOrderOK updated instance of orders
+/*
+UpdateOrderOK updated instance of orders
 
 swagger:response updateOrderOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateOrderOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 // UpdateOrderBadRequestCode is the HTTP code returned for type UpdateOrderBadRequest
 const UpdateOrderBadRequestCode int = 400
 
-/*UpdateOrderBadRequest The request payload is invalid
+/*
+UpdateOrderBadRequest The request payload is invalid
 
 swagger:response updateOrderBadRequest
 */
@@ -104,7 +106,8 @@ func (o *UpdateOrderBadRequest) WriteResponse(rw http.ResponseWriter, producer r
 // UpdateOrderForbiddenCode is the HTTP code returned for type UpdateOrderForbidden
 const UpdateOrderForbiddenCode int = 403
 
-/*UpdateOrderForbidden The request was denied
+/*
+UpdateOrderForbidden The request was denied
 
 swagger:response updateOrderForbidden
 */
@@ -148,7 +151,8 @@ func (o *UpdateOrderForbidden) WriteResponse(rw http.ResponseWriter, producer ru
 // UpdateOrderNotFoundCode is the HTTP code returned for type UpdateOrderNotFound
 const UpdateOrderNotFoundCode int = 404
 
-/*UpdateOrderNotFound The requested resource wasn't found
+/*
+UpdateOrderNotFound The requested resource wasn't found
 
 swagger:response updateOrderNotFound
 */
@@ -192,7 +196,8 @@ func (o *UpdateOrderNotFound) WriteResponse(rw http.ResponseWriter, producer run
 // UpdateOrderConflictCode is the HTTP code returned for type UpdateOrderConflict
 const UpdateOrderConflictCode int = 409
 
-/*UpdateOrderConflict Conflict error
+/*
+UpdateOrderConflict Conflict error
 
 swagger:response updateOrderConflict
 */
@@ -236,7 +241,8 @@ func (o *UpdateOrderConflict) WriteResponse(rw http.ResponseWriter, producer run
 // UpdateOrderPreconditionFailedCode is the HTTP code returned for type UpdateOrderPreconditionFailed
 const UpdateOrderPreconditionFailedCode int = 412
 
-/*UpdateOrderPreconditionFailed Precondition failed
+/*
+UpdateOrderPreconditionFailed Precondition failed
 
 swagger:response updateOrderPreconditionFailed
 */
@@ -280,7 +286,8 @@ func (o *UpdateOrderPreconditionFailed) WriteResponse(rw http.ResponseWriter, pr
 // UpdateOrderUnprocessableEntityCode is the HTTP code returned for type UpdateOrderUnprocessableEntity
 const UpdateOrderUnprocessableEntityCode int = 422
 
-/*UpdateOrderUnprocessableEntity The payload was unprocessable.
+/*
+UpdateOrderUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateOrderUnprocessableEntity
 */
@@ -324,7 +331,8 @@ func (o *UpdateOrderUnprocessableEntity) WriteResponse(rw http.ResponseWriter, p
 // UpdateOrderInternalServerErrorCode is the HTTP code returned for type UpdateOrderInternalServerError
 const UpdateOrderInternalServerErrorCode int = 500
 
-/*UpdateOrderInternalServerError A server error occurred
+/*
+UpdateOrderInternalServerError A server error occurred
 
 swagger:response updateOrderInternalServerError
 */

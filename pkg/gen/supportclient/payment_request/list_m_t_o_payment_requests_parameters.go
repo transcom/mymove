@@ -52,10 +52,12 @@ func NewListMTOPaymentRequestsParamsWithHTTPClient(client *http.Client) *ListMTO
 	}
 }
 
-/* ListMTOPaymentRequestsParams contains all the parameters to send to the API endpoint
-   for the list m t o payment requests operation.
+/*
+ListMTOPaymentRequestsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the list m t o payment requests operation.
+
+	Typically these are written to a http.Request.
 */
 type ListMTOPaymentRequestsParams struct {
 
