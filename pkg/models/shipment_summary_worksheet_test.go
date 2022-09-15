@@ -149,9 +149,10 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() 
 		ApplicationName: auth.MilApp,
 	}
 
-	_, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
+	emptySSD, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
 
 	suite.Error(err)
+	suite.Equal(emptySSD, models.ShipmentSummaryFormData{})
 }
 
 func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {

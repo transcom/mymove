@@ -8,7 +8,6 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
-	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -510,11 +509,6 @@ func FormatAllShipments(ppms PersonallyProcuredMoves) ShipmentSummaryWorkSheetSh
 	return formattedShipments
 }
 
-//FormatMovingExpenses formats moving expenses for Shipment Summary Worksheet
-func FormatMovingExpenses(movingExpenseDocuments MovingExpenses) (FormattedMovingExpenses, error) {
-	return SubTotalsMapToStruct(SubTotalExpenses(movingExpenseDocuments))
-}
-
 // FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
 // TODO: update to create moving expense summary with the new moving expense model
 func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, session *auth.Session) ([]MovingExpense, error) {
@@ -534,16 +528,6 @@ func SubTotalExpenses(expenseDocuments MovingExpenses) map[string]float64 {
 		addToGrandTotal(totals, expenseType, expenseDollarAmt)
 	}
 	return totals
-}
-
-// SubTotalsMapToStruct takes subtotal map and returns struct
-func SubTotalsMapToStruct(subTotals map[string]float64) (FormattedMovingExpenses, error) {
-	expenses := FormattedMovingExpenses{}
-	err := mapstructure.Decode(subTotals, &expenses)
-	if err != nil {
-		return FormattedMovingExpenses{}, err
-	}
-	return expenses, nil
 }
 
 func addToGrandTotal(totals map[string]float64, key string, expenseDollarAmt float64) {
