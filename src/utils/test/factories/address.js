@@ -1,7 +1,18 @@
 import { faker } from '@faker-js/faker';
-import { build } from '@jackfranklin/test-data-bot';
+import { build, oneOf, perBuild } from '@jackfranklin/test-data-bot';
 
-import fake from 'utils/test/factories/base';
+import { fake, getInternalSpec } from 'utils/test/factories/base';
+
+export const ADDRESS_FIELDS = {
+  ID: 'id',
+  STREET_ADDRESS_1: 'streetAddress1',
+  STREET_ADDRESS_2: 'streetAddress2',
+  CITY: 'city',
+  STATE: 'state',
+  POSTAL_CODE: 'postalCode',
+  COUNTRY: 'country',
+  ETAG: 'eTag',
+};
 
 const addressFactory = build({
   fields: {
@@ -9,7 +20,10 @@ const addressFactory = build({
     streetAddress2: fake((f) => f.address.secondaryAddress()),
     // left out streetAddress3 since we don't even let users input that line...
     city: fake((f) => f.address.city()),
-    state: fake((f) => f.address.stateAbbr()),
+    [ADDRESS_FIELDS.STATE]: perBuild(() => {
+      const spec = getInternalSpec();
+      return oneOf(...spec.definitions.Address.properties.state.enum).call();
+    }),
     country: 'US', // Likely change once we support more than just OCONUS moves.
   },
   postBuild: (address) => {
