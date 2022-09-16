@@ -55,18 +55,6 @@ func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyLocati
 	}
 }
 
-func subScenarioPPMOfficeQueue(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
-	return func() {
-		createPPMOfficeUser(appCtx)
-
-		// PPM Office Queue
-		createPPMWithNoAdvance(appCtx, userUploader, moveRouter)
-		createPPMWithPaymentRequest(appCtx, userUploader, moveRouter)
-		createCanceledPPM(appCtx, userUploader, moveRouter)
-		createPPMReadyToRequestPayment(appCtx, userUploader, moveRouter)
-	}
-}
-
 func subScenarioAdditionalPPMUsers(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		// Create additional PPM users for mymove tests
