@@ -8,17 +8,33 @@ import (
 	"github.com/qustavo/dotsql"
 )
 
-const sqlDir string = "services/query/sql_scripts"
+// getSQLScriptFilePath returns the path for the SQL scripts directory to be used
+// by the QueryFetcher package
+func getSQLScriptFilePath(fileName string) (string, error) {
+	sqlDir := "pkg/services/query/sql_scripts"
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	queryLocation := path.Join(cwd, sqlDir, fileName+".sql")
+
+	if queryLocation == cwd {
+		return "", fmt.Errorf("The SQL scripts directory was not found at %s", sqlDir)
+	}
+
+	return queryLocation, nil
+}
 
 // GetQueryStringFromFile accepts a query name,
 // returns SQL query as a string
 func GetQueryString(queryName string) (string, error) {
-	cwd, err := os.Getwd()
+	queryPath, err := getSQLScriptFilePath(queryName)
 	if err != nil {
 		panic(err)
 	}
 
-	queryPath := path.Join(cwd, "..", "..", sqlDir, queryName+".sql")
 	dot, err := dotsql.LoadFromFile(queryPath)
 
 	if err != nil {
@@ -28,7 +44,7 @@ func GetQueryString(queryName string) (string, error) {
 	query := queries[queryName]
 	if query == "" {
 		// return a new error
-		return "", fmt.Errorf("query is empty or does not exist")
+		return "", fmt.Errorf("The query is empty or does not exist. queryPath: %s", queryPath)
 	}
 
 	return query, nil
