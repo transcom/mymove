@@ -60,9 +60,6 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 		},
 	})
 
-	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
-	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
-
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,

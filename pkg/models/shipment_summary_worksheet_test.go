@@ -63,9 +63,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	// Save advance in reimbursements table by saving ppm
 	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
 
-	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
-	testdatagen.MakeMovingExpense(suite.DB(), testdatagen.Assertions{})
-
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
