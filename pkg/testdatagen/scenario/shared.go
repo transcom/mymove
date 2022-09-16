@@ -197,46 +197,6 @@ func makeMoveForOrders(appCtx appcontext.AppContext, orders models.Order, moveCo
 	return move
 }
 
-func createPPMOfficeUser(appCtx appcontext.AppContext) {
-	db := appCtx.DB()
-	email := "ppm_role@office.mil"
-	officeUser := models.OfficeUser{}
-	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
-	}
-	// no need to create
-	if officeUserExists {
-		return
-	}
-
-	/*
-	 * Basic user with office access
-	 */
-	ppmOfficeRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&ppmOfficeRole)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypePPMOfficeUsers in the DB: %w", err))
-	}
-
-	userID := uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b"))
-	loginGovUUID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            userID,
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-			Roles:         []roles.Role{ppmOfficeRole},
-		},
-		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
-			Email:  email,
-			Active: true,
-		},
-	})
-}
-
 func createServiceMemberWithOrdersButNoMoveType(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
 	/*

@@ -57,7 +57,6 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithoutAssociatio
 		},
 	})
 
-	suite.MustSave(&expenseModel)
 	suite.Nil(expenseModel.DeletedAt)
 
 	err := utilities.SoftDestroy(suite.DB(), &expenseModel)
@@ -85,7 +84,6 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssocia
 		testdatagen.Assertions{
 			MTOShipment: mtoShipment,
 		})
-	suite.MustSave(&ppmShipment)
 	suite.Nil(ppmShipment.DeletedAt)
 
 	err := utilities.SoftDestroy(suite.DB(), &ppmShipment)
