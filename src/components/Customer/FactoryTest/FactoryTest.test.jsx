@@ -6,7 +6,10 @@ const test = testFactory();
 
 const testWithOverriddenFieldViaOverride = testFactory({
   [BASE_FIELDS.OVERRIDES]: {
-    [TEST_FACTORY_FIELDS.DEFAULT]: 'overridden',
+    [TEST_FACTORY_FIELDS.DEFAULT]: 'overriddenByOverrides',
+    [TEST_FACTORY_FIELDS.SUBFACTORY]: {
+      [TEST_SUBFACTORY_FIELDS.FIELD_TO_OVERRIDE]: 'overriddenBySuboverrides',
+    },
   },
 });
 
@@ -35,7 +38,7 @@ describe('testFactory', () => {
     expect(test[TEST_FACTORY_FIELDS.SUBFACTORY][TEST_SUBFACTORY_FIELDS.FIELD_TO_OVERRIDE]).toBe('default');
   });
   it('has an overridden field', () => {
-    expect(testWithOverriddenFieldViaOverride[TEST_FACTORY_FIELDS.DEFAULT]).toBe('overridden');
+    expect(testWithOverriddenFieldViaOverride[TEST_FACTORY_FIELDS.DEFAULT]).toBe('overriddenByOverrides');
   });
   it('has an overridden fields by postBuild', () => {
     expect(test[TEST_FACTORY_FIELDS.POST_BUILD_TOUCHED_FIELD]).toBe('overridden');
@@ -53,5 +56,10 @@ describe('testFactory', () => {
   });
   it('has an overridden field by trait', () => {
     expect(testWithTrait[TEST_FACTORY_FIELDS.DEFAULT]).toBe('overriddenByTrait');
+  });
+  it('has an overridden field within a subfactory', () => {
+    expect(
+      testWithOverriddenFieldViaOverride[TEST_FACTORY_FIELDS.SUBFACTORY][TEST_SUBFACTORY_FIELDS.FIELD_TO_OVERRIDE],
+    ).toBe('overriddenBySuboverrides');
   });
 });

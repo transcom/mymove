@@ -18,7 +18,9 @@ const testFactory = (params) => {
   return baseFactory({
     fields: {
       [TEST_FACTORY_FIELDS.DEFAULT]: 'default',
-      [TEST_FACTORY_FIELDS.SUBFACTORY]: testSubfactory(),
+      [TEST_FACTORY_FIELDS.SUBFACTORY]: (subparams) => testSubfactory(subparams),
+      // this also works of course:
+      // [TEST_FACTORY_FIELDS.SUBFACTORY]: testSubfactory,
       [TEST_FACTORY_FIELDS.POST_BUILD_TOUCHED_FIELD]: 'default',
     },
     postBuild: (object) => {

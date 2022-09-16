@@ -69,15 +69,51 @@ const basePostBuild = (lazyOverrides, func = (o) => o) => {
   };
 };
 
+const applyOverrides = (fields, overrides) => {
+  const appliedFields = {};
+
+  Object.entries(fields).forEach(([field, value]) => {
+    let appliedValue;
+    switch (typeof value) {
+      case 'function':
+        // check if the overrides apply, if so apply them
+        if (overrides?.[field]) {
+          appliedValue = value({ overrides: overrides[field] });
+        } else {
+          appliedValue = value();
+        }
+        break;
+      case 'object':
+        if (overrides?.[field]) {
+          appliedValue = { [field]: applyOverrides(value, overrides[field]) };
+        } else {
+          appliedValue = value;
+        }
+        break;
+      // this only happens if there's an override at the top level
+      // appliedValue = {[field]: applyOverrides(value, overrides[field])};
+      default:
+        appliedValue = value;
+        break;
+    }
+    appliedFields[field] = appliedValue;
+  });
+
+  return appliedFields;
+};
+
 const baseFactory = (params) => {
   const { fields, postBuild, lazyOverrides, overrides, traits, useTraits } = params;
+
+  const appliedFields = applyOverrides(fields, overrides);
+
   // these will be initial overrides. you'll somehow need to iterate over the fields and pass these to subfactories' fields if there are any
   // const allOverrides = {
   //   ...overrides,
   // };
 
   const builder = build({
-    fields,
+    fields: appliedFields,
     postBuild: basePostBuild(lazyOverrides, postBuild),
     traits,
   });
