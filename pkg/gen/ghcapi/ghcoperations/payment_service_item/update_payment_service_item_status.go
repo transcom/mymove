@@ -29,12 +29,12 @@ func NewUpdatePaymentServiceItemStatus(ctx *middleware.Context, handler UpdatePa
 	return &UpdatePaymentServiceItemStatus{Context: ctx, Handler: handler}
 }
 
-/* UpdatePaymentServiceItemStatus swagger:route PATCH /move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status paymentServiceItem updatePaymentServiceItemStatus
+/*
+	UpdatePaymentServiceItemStatus swagger:route PATCH /move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status paymentServiceItem updatePaymentServiceItemStatus
 
-Change the status of a payment service item for a move by ID
+# Change the status of a payment service item for a move by ID
 
 Changes the status of a line item for a move by ID
-
 */
 type UpdatePaymentServiceItemStatus struct {
 	Context *middleware.Context

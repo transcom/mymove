@@ -16,7 +16,8 @@ import (
 // GetDocumentOKCode is the HTTP code returned for type GetDocumentOK
 const GetDocumentOKCode int = 200
 
-/*GetDocumentOK the requested document
+/*
+GetDocumentOK the requested document
 
 swagger:response getDocumentOK
 */
@@ -60,7 +61,8 @@ func (o *GetDocumentOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 // GetDocumentBadRequestCode is the HTTP code returned for type GetDocumentBadRequest
 const GetDocumentBadRequestCode int = 400
 
-/*GetDocumentBadRequest The request payload is invalid
+/*
+GetDocumentBadRequest The request payload is invalid
 
 swagger:response getDocumentBadRequest
 */
@@ -104,7 +106,8 @@ func (o *GetDocumentBadRequest) WriteResponse(rw http.ResponseWriter, producer r
 // GetDocumentUnauthorizedCode is the HTTP code returned for type GetDocumentUnauthorized
 const GetDocumentUnauthorizedCode int = 401
 
-/*GetDocumentUnauthorized The request was denied
+/*
+GetDocumentUnauthorized The request was denied
 
 swagger:response getDocumentUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *GetDocumentUnauthorized) WriteResponse(rw http.ResponseWriter, producer
 // GetDocumentForbiddenCode is the HTTP code returned for type GetDocumentForbidden
 const GetDocumentForbiddenCode int = 403
 
-/*GetDocumentForbidden The request was denied
+/*
+GetDocumentForbidden The request was denied
 
 swagger:response getDocumentForbidden
 */
@@ -192,7 +196,8 @@ func (o *GetDocumentForbidden) WriteResponse(rw http.ResponseWriter, producer ru
 // GetDocumentNotFoundCode is the HTTP code returned for type GetDocumentNotFound
 const GetDocumentNotFoundCode int = 404
 
-/*GetDocumentNotFound The requested resource wasn't found
+/*
+GetDocumentNotFound The requested resource wasn't found
 
 swagger:response getDocumentNotFound
 */
@@ -236,7 +241,8 @@ func (o *GetDocumentNotFound) WriteResponse(rw http.ResponseWriter, producer run
 // GetDocumentPreconditionFailedCode is the HTTP code returned for type GetDocumentPreconditionFailed
 const GetDocumentPreconditionFailedCode int = 412
 
-/*GetDocumentPreconditionFailed Precondition failed
+/*
+GetDocumentPreconditionFailed Precondition failed
 
 swagger:response getDocumentPreconditionFailed
 */
@@ -280,7 +286,8 @@ func (o *GetDocumentPreconditionFailed) WriteResponse(rw http.ResponseWriter, pr
 // GetDocumentUnprocessableEntityCode is the HTTP code returned for type GetDocumentUnprocessableEntity
 const GetDocumentUnprocessableEntityCode int = 422
 
-/*GetDocumentUnprocessableEntity The payload was unprocessable.
+/*
+GetDocumentUnprocessableEntity The payload was unprocessable.
 
 swagger:response getDocumentUnprocessableEntity
 */
@@ -324,7 +331,8 @@ func (o *GetDocumentUnprocessableEntity) WriteResponse(rw http.ResponseWriter, p
 // GetDocumentInternalServerErrorCode is the HTTP code returned for type GetDocumentInternalServerError
 const GetDocumentInternalServerErrorCode int = 500
 
-/*GetDocumentInternalServerError A server error occurred
+/*
+GetDocumentInternalServerError A server error occurred
 
 swagger:response getDocumentInternalServerError
 */

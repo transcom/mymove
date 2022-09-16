@@ -29,12 +29,12 @@ func NewCreateWeightTicketDocument(ctx *middleware.Context, handler CreateWeight
 	return &CreateWeightTicketDocument{Context: ctx, Handler: handler}
 }
 
-/* CreateWeightTicketDocument swagger:route POST /moves/{moveId}/weight_ticket move_docs createWeightTicketDocument
+/*
+	CreateWeightTicketDocument swagger:route POST /moves/{moveId}/weight_ticket move_docs createWeightTicketDocument
 
-Creates a weight ticket document
+# Creates a weight ticket document
 
 Created a weight ticket document with the given information
-
 */
 type CreateWeightTicketDocument struct {
 	Context *middleware.Context

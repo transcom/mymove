@@ -16,7 +16,8 @@ import (
 // ListMTOShipmentsOKCode is the HTTP code returned for type ListMTOShipmentsOK
 const ListMTOShipmentsOKCode int = 200
 
-/*ListMTOShipmentsOK Successfully retrieved all mto shipments for a move task order
+/*
+ListMTOShipmentsOK Successfully retrieved all mto shipments for a move task order
 
 swagger:response listMTOShipmentsOK
 */
@@ -63,7 +64,8 @@ func (o *ListMTOShipmentsOK) WriteResponse(rw http.ResponseWriter, producer runt
 // ListMTOShipmentsForbiddenCode is the HTTP code returned for type ListMTOShipmentsForbidden
 const ListMTOShipmentsForbiddenCode int = 403
 
-/*ListMTOShipmentsForbidden The request was denied
+/*
+ListMTOShipmentsForbidden The request was denied
 
 swagger:response listMTOShipmentsForbidden
 */
@@ -107,7 +109,8 @@ func (o *ListMTOShipmentsForbidden) WriteResponse(rw http.ResponseWriter, produc
 // ListMTOShipmentsNotFoundCode is the HTTP code returned for type ListMTOShipmentsNotFound
 const ListMTOShipmentsNotFoundCode int = 404
 
-/*ListMTOShipmentsNotFound The requested resource wasn't found
+/*
+ListMTOShipmentsNotFound The requested resource wasn't found
 
 swagger:response listMTOShipmentsNotFound
 */
@@ -151,7 +154,8 @@ func (o *ListMTOShipmentsNotFound) WriteResponse(rw http.ResponseWriter, produce
 // ListMTOShipmentsUnprocessableEntityCode is the HTTP code returned for type ListMTOShipmentsUnprocessableEntity
 const ListMTOShipmentsUnprocessableEntityCode int = 422
 
-/*ListMTOShipmentsUnprocessableEntity The payload was unprocessable.
+/*
+ListMTOShipmentsUnprocessableEntity The payload was unprocessable.
 
 swagger:response listMTOShipmentsUnprocessableEntity
 */
@@ -195,7 +199,8 @@ func (o *ListMTOShipmentsUnprocessableEntity) WriteResponse(rw http.ResponseWrit
 // ListMTOShipmentsInternalServerErrorCode is the HTTP code returned for type ListMTOShipmentsInternalServerError
 const ListMTOShipmentsInternalServerErrorCode int = 500
 
-/*ListMTOShipmentsInternalServerError A server error occurred
+/*
+ListMTOShipmentsInternalServerError A server error occurred
 
 swagger:response listMTOShipmentsInternalServerError
 */

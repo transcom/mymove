@@ -29,12 +29,12 @@ func NewIndexMoves(ctx *middleware.Context, handler IndexMovesHandler) *IndexMov
 	return &IndexMoves{Context: ctx, Handler: handler}
 }
 
-/* IndexMoves swagger:route GET /moves move indexMoves
+/*
+	IndexMoves swagger:route GET /moves move indexMoves
 
-List moves
+# List moves
 
 Returns a list of moves
-
 */
 type IndexMoves struct {
 	Context *middleware.Context

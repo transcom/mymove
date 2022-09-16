@@ -18,7 +18,6 @@ import (
 
 // UpdateMTOServiceItemShuttle Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.
 //
-//
 // swagger:model UpdateMTOServiceItemShuttle
 type UpdateMTOServiceItemShuttle struct {
 	idField strfmt.UUID

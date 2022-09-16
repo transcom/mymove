@@ -29,7 +29,8 @@ func NewCreateMTOShipment(ctx *middleware.Context, handler CreateMTOShipmentHand
 	return &CreateMTOShipment{Context: ctx, Handler: handler}
 }
 
-/* CreateMTOShipment swagger:route POST /mto_shipments mtoShipment createMTOShipment
+/*
+	CreateMTOShipment swagger:route POST /mto_shipments mtoShipment createMTOShipment
 
 createMTOShipment
 
@@ -43,8 +44,6 @@ Required fields include:
 Optional fields include:
 * Customer Remarks
 * Releasing / Receiving agents
-
-
 */
 type CreateMTOShipment struct {
 	Context *middleware.Context

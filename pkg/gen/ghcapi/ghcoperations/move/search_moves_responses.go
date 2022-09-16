@@ -16,7 +16,8 @@ import (
 // SearchMovesOKCode is the HTTP code returned for type SearchMovesOK
 const SearchMovesOKCode int = 200
 
-/*SearchMovesOK Successfully returned all moves matching the criteria
+/*
+SearchMovesOK Successfully returned all moves matching the criteria
 
 swagger:response searchMovesOK
 */
@@ -60,7 +61,8 @@ func (o *SearchMovesOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 // SearchMovesForbiddenCode is the HTTP code returned for type SearchMovesForbidden
 const SearchMovesForbiddenCode int = 403
 
-/*SearchMovesForbidden The request was denied
+/*
+SearchMovesForbidden The request was denied
 
 swagger:response searchMovesForbidden
 */
@@ -104,7 +106,8 @@ func (o *SearchMovesForbidden) WriteResponse(rw http.ResponseWriter, producer ru
 // SearchMovesInternalServerErrorCode is the HTTP code returned for type SearchMovesInternalServerError
 const SearchMovesInternalServerErrorCode int = 500
 
-/*SearchMovesInternalServerError A server error occurred
+/*
+SearchMovesInternalServerError A server error occurred
 
 swagger:response searchMovesInternalServerError
 */

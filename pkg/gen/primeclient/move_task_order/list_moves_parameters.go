@@ -52,10 +52,12 @@ func NewListMovesParamsWithHTTPClient(client *http.Client) *ListMovesParams {
 	}
 }
 
-/* ListMovesParams contains all the parameters to send to the API endpoint
-   for the list moves operation.
+/*
+ListMovesParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the list moves operation.
+
+	Typically these are written to a http.Request.
 */
 type ListMovesParams struct {
 

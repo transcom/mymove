@@ -29,12 +29,12 @@ func NewRequestPPMPayment(ctx *middleware.Context, handler RequestPPMPaymentHand
 	return &RequestPPMPayment{Context: ctx, Handler: handler}
 }
 
-/* RequestPPMPayment swagger:route POST /personally_procured_move/{personallyProcuredMoveId}/request_payment ppm requestPPMPayment
+/*
+	RequestPPMPayment swagger:route POST /personally_procured_move/{personallyProcuredMoveId}/request_payment ppm requestPPMPayment
 
 Moves the PPM and the move into the PAYMENT_REQUESTED state
 
 Moves the PPM and the move into the PAYMENT_REQUESTED state
-
 */
 type RequestPPMPayment struct {
 	Context *middleware.Context

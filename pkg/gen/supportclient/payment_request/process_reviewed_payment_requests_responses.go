@@ -75,7 +75,8 @@ func NewProcessReviewedPaymentRequestsOK() *ProcessReviewedPaymentRequestsOK {
 	return &ProcessReviewedPaymentRequestsOK{}
 }
 
-/* ProcessReviewedPaymentRequestsOK describes a response with status code 200, with default header values.
+/*
+ProcessReviewedPaymentRequestsOK describes a response with status code 200, with default header values.
 
 Successfully updated status of reviewed payment request and sent to Syncada if that flag is set
 */
@@ -83,9 +84,39 @@ type ProcessReviewedPaymentRequestsOK struct {
 	Payload supportmessages.PaymentRequests
 }
 
+// IsSuccess returns true when this process reviewed payment requests o k response has a 2xx status code
+func (o *ProcessReviewedPaymentRequestsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this process reviewed payment requests o k response has a 3xx status code
+func (o *ProcessReviewedPaymentRequestsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this process reviewed payment requests o k response has a 4xx status code
+func (o *ProcessReviewedPaymentRequestsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this process reviewed payment requests o k response has a 5xx status code
+func (o *ProcessReviewedPaymentRequestsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this process reviewed payment requests o k response a status code equal to that given
+func (o *ProcessReviewedPaymentRequestsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ProcessReviewedPaymentRequestsOK) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsOK  %+v", 200, o.Payload)
 }
+
+func (o *ProcessReviewedPaymentRequestsOK) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsOK  %+v", 200, o.Payload)
+}
+
 func (o *ProcessReviewedPaymentRequestsOK) GetPayload() supportmessages.PaymentRequests {
 	return o.Payload
 }
@@ -105,7 +136,8 @@ func NewProcessReviewedPaymentRequestsBadRequest() *ProcessReviewedPaymentReques
 	return &ProcessReviewedPaymentRequestsBadRequest{}
 }
 
-/* ProcessReviewedPaymentRequestsBadRequest describes a response with status code 400, with default header values.
+/*
+ProcessReviewedPaymentRequestsBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -113,9 +145,39 @@ type ProcessReviewedPaymentRequestsBadRequest struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this process reviewed payment requests bad request response has a 2xx status code
+func (o *ProcessReviewedPaymentRequestsBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this process reviewed payment requests bad request response has a 3xx status code
+func (o *ProcessReviewedPaymentRequestsBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this process reviewed payment requests bad request response has a 4xx status code
+func (o *ProcessReviewedPaymentRequestsBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this process reviewed payment requests bad request response has a 5xx status code
+func (o *ProcessReviewedPaymentRequestsBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this process reviewed payment requests bad request response a status code equal to that given
+func (o *ProcessReviewedPaymentRequestsBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *ProcessReviewedPaymentRequestsBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *ProcessReviewedPaymentRequestsBadRequest) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *ProcessReviewedPaymentRequestsBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -137,7 +199,8 @@ func NewProcessReviewedPaymentRequestsUnauthorized() *ProcessReviewedPaymentRequ
 	return &ProcessReviewedPaymentRequestsUnauthorized{}
 }
 
-/* ProcessReviewedPaymentRequestsUnauthorized describes a response with status code 401, with default header values.
+/*
+ProcessReviewedPaymentRequestsUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -145,9 +208,39 @@ type ProcessReviewedPaymentRequestsUnauthorized struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this process reviewed payment requests unauthorized response has a 2xx status code
+func (o *ProcessReviewedPaymentRequestsUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this process reviewed payment requests unauthorized response has a 3xx status code
+func (o *ProcessReviewedPaymentRequestsUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this process reviewed payment requests unauthorized response has a 4xx status code
+func (o *ProcessReviewedPaymentRequestsUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this process reviewed payment requests unauthorized response has a 5xx status code
+func (o *ProcessReviewedPaymentRequestsUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this process reviewed payment requests unauthorized response a status code equal to that given
+func (o *ProcessReviewedPaymentRequestsUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *ProcessReviewedPaymentRequestsUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *ProcessReviewedPaymentRequestsUnauthorized) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *ProcessReviewedPaymentRequestsUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -169,7 +262,8 @@ func NewProcessReviewedPaymentRequestsForbidden() *ProcessReviewedPaymentRequest
 	return &ProcessReviewedPaymentRequestsForbidden{}
 }
 
-/* ProcessReviewedPaymentRequestsForbidden describes a response with status code 403, with default header values.
+/*
+ProcessReviewedPaymentRequestsForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -177,9 +271,39 @@ type ProcessReviewedPaymentRequestsForbidden struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this process reviewed payment requests forbidden response has a 2xx status code
+func (o *ProcessReviewedPaymentRequestsForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this process reviewed payment requests forbidden response has a 3xx status code
+func (o *ProcessReviewedPaymentRequestsForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this process reviewed payment requests forbidden response has a 4xx status code
+func (o *ProcessReviewedPaymentRequestsForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this process reviewed payment requests forbidden response has a 5xx status code
+func (o *ProcessReviewedPaymentRequestsForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this process reviewed payment requests forbidden response a status code equal to that given
+func (o *ProcessReviewedPaymentRequestsForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *ProcessReviewedPaymentRequestsForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsForbidden  %+v", 403, o.Payload)
 }
+
+func (o *ProcessReviewedPaymentRequestsForbidden) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsForbidden  %+v", 403, o.Payload)
+}
+
 func (o *ProcessReviewedPaymentRequestsForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -201,7 +325,8 @@ func NewProcessReviewedPaymentRequestsNotFound() *ProcessReviewedPaymentRequests
 	return &ProcessReviewedPaymentRequestsNotFound{}
 }
 
-/* ProcessReviewedPaymentRequestsNotFound describes a response with status code 404, with default header values.
+/*
+ProcessReviewedPaymentRequestsNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -209,9 +334,39 @@ type ProcessReviewedPaymentRequestsNotFound struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this process reviewed payment requests not found response has a 2xx status code
+func (o *ProcessReviewedPaymentRequestsNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this process reviewed payment requests not found response has a 3xx status code
+func (o *ProcessReviewedPaymentRequestsNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this process reviewed payment requests not found response has a 4xx status code
+func (o *ProcessReviewedPaymentRequestsNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this process reviewed payment requests not found response has a 5xx status code
+func (o *ProcessReviewedPaymentRequestsNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this process reviewed payment requests not found response a status code equal to that given
+func (o *ProcessReviewedPaymentRequestsNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *ProcessReviewedPaymentRequestsNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsNotFound  %+v", 404, o.Payload)
 }
+
+func (o *ProcessReviewedPaymentRequestsNotFound) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsNotFound  %+v", 404, o.Payload)
+}
+
 func (o *ProcessReviewedPaymentRequestsNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -233,7 +388,8 @@ func NewProcessReviewedPaymentRequestsUnprocessableEntity() *ProcessReviewedPaym
 	return &ProcessReviewedPaymentRequestsUnprocessableEntity{}
 }
 
-/* ProcessReviewedPaymentRequestsUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+ProcessReviewedPaymentRequestsUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -241,9 +397,39 @@ type ProcessReviewedPaymentRequestsUnprocessableEntity struct {
 	Payload *supportmessages.ValidationError
 }
 
+// IsSuccess returns true when this process reviewed payment requests unprocessable entity response has a 2xx status code
+func (o *ProcessReviewedPaymentRequestsUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this process reviewed payment requests unprocessable entity response has a 3xx status code
+func (o *ProcessReviewedPaymentRequestsUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this process reviewed payment requests unprocessable entity response has a 4xx status code
+func (o *ProcessReviewedPaymentRequestsUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this process reviewed payment requests unprocessable entity response has a 5xx status code
+func (o *ProcessReviewedPaymentRequestsUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this process reviewed payment requests unprocessable entity response a status code equal to that given
+func (o *ProcessReviewedPaymentRequestsUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *ProcessReviewedPaymentRequestsUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *ProcessReviewedPaymentRequestsUnprocessableEntity) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *ProcessReviewedPaymentRequestsUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -265,7 +451,8 @@ func NewProcessReviewedPaymentRequestsInternalServerError() *ProcessReviewedPaym
 	return &ProcessReviewedPaymentRequestsInternalServerError{}
 }
 
-/* ProcessReviewedPaymentRequestsInternalServerError describes a response with status code 500, with default header values.
+/*
+ProcessReviewedPaymentRequestsInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -273,9 +460,39 @@ type ProcessReviewedPaymentRequestsInternalServerError struct {
 	Payload *supportmessages.Error
 }
 
+// IsSuccess returns true when this process reviewed payment requests internal server error response has a 2xx status code
+func (o *ProcessReviewedPaymentRequestsInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this process reviewed payment requests internal server error response has a 3xx status code
+func (o *ProcessReviewedPaymentRequestsInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this process reviewed payment requests internal server error response has a 4xx status code
+func (o *ProcessReviewedPaymentRequestsInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this process reviewed payment requests internal server error response has a 5xx status code
+func (o *ProcessReviewedPaymentRequestsInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this process reviewed payment requests internal server error response a status code equal to that given
+func (o *ProcessReviewedPaymentRequestsInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *ProcessReviewedPaymentRequestsInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *ProcessReviewedPaymentRequestsInternalServerError) String() string {
+	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *ProcessReviewedPaymentRequestsInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

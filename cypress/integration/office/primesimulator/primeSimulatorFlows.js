@@ -65,6 +65,12 @@ describe('Prime simulator user', () => {
     cy.url().should('include', `/simulator/moves/${moveID}/shipments/${shipmentID}`);
     cy.wait(['@getMove']);
 
+    const [scheduledDeliveryDate, formattedScheduledDeliveryDate] = formatRelativeDate(11);
+    cy.get('input[name="scheduledDeliveryDate"]').type(formattedScheduledDeliveryDate).blur();
+
+    const [actualDeliveryDate, formattedActualDeliveryDate] = formatRelativeDate(12);
+    cy.get('input[name="actualDeliveryDate"]').type(formattedActualDeliveryDate).blur();
+
     // there must be sufficient time prior to the pickup dates to update the estimated weight
     const [scheduledPickupDate, formattedScheduledPickupDate] = formatRelativeDate(11);
     cy.get('input[name="scheduledPickupDate"]').type(formattedScheduledPickupDate).blur();
@@ -91,6 +97,8 @@ describe('Prime simulator user', () => {
     // If you added another shipment to the move you would want to scope these with within()
     cy.contains('Scheduled Pickup Date').siblings().contains(formatNumericDate(scheduledPickupDate));
     cy.contains('Actual Pickup Date').siblings().contains(formatNumericDate(actualPickupDate));
+    cy.contains('Scheduled Delivery Date').siblings().contains(formatNumericDate(scheduledDeliveryDate));
+    cy.contains('Actual Delivery Date').siblings().contains(formatNumericDate(actualDeliveryDate));
 
     cy.contains('Estimated Weight').siblings().contains('7500');
     cy.contains('Actual Weight').siblings().contains('8000');

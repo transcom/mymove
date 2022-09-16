@@ -1,15 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import { useEvaluationReportQueries } from '../../../hooks/queries';
-
-import EvaluationReportContainer from './EvaluationReportContainer';
-
-jest.mock('hooks/queries', () => ({
-  useEvaluationReportQueries: jest.fn(),
-}));
-
-const setIsModalVisible = jest.fn();
+import EvaluationReportPreview from './EvaluationReportPreview';
 
 const mtoShipments = [
   {
@@ -249,23 +241,19 @@ const customerInfo = {
   userID: 'f4bbfcdf-ef66-4ce7-92f8-4c1bf507d596',
 };
 
-const viewReportReturn = { evaluationReport, mtoShipments };
-
 describe('Evaluation Report Container', () => {
   it('renders the sample text', async () => {
-    useEvaluationReportQueries.mockReturnValue(viewReportReturn);
-
     render(
-      <EvaluationReportContainer
-        evaluationReportId={evaluationReport.id}
+      <EvaluationReportPreview
+        evaluationReport={evaluationReport}
         grade="E_4"
-        setIsModalVisible={setIsModalVisible}
         moveCode="TEST123"
         customerInfo={customerInfo}
+        mtoShipments={mtoShipments}
       />,
     );
 
-    const evaluationReportContainer = await screen.findByTestId('EvaluationReportContainer');
+    const evaluationReportContainer = await screen.findByTestId('EvaluationReportPreview');
     expect(evaluationReportContainer).toBeInTheDocument();
     // shipment type rendered
     expect(await screen.findByText('HHG')).toBeInTheDocument();

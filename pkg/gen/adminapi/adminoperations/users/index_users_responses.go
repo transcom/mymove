@@ -16,7 +16,8 @@ import (
 // IndexUsersOKCode is the HTTP code returned for type IndexUsersOK
 const IndexUsersOKCode int = 200
 
-/*IndexUsersOK success
+/*
+IndexUsersOK success
 
 swagger:response indexUsersOK
 */
@@ -85,7 +86,8 @@ func (o *IndexUsersOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 // IndexUsersBadRequestCode is the HTTP code returned for type IndexUsersBadRequest
 const IndexUsersBadRequestCode int = 400
 
-/*IndexUsersBadRequest invalid request
+/*
+IndexUsersBadRequest invalid request
 
 swagger:response indexUsersBadRequest
 */
@@ -109,7 +111,8 @@ func (o *IndexUsersBadRequest) WriteResponse(rw http.ResponseWriter, producer ru
 // IndexUsersUnauthorizedCode is the HTTP code returned for type IndexUsersUnauthorized
 const IndexUsersUnauthorizedCode int = 401
 
-/*IndexUsersUnauthorized request requires user authentication
+/*
+IndexUsersUnauthorized request requires user authentication
 
 swagger:response indexUsersUnauthorized
 */
@@ -133,7 +136,8 @@ func (o *IndexUsersUnauthorized) WriteResponse(rw http.ResponseWriter, producer 
 // IndexUsersNotFoundCode is the HTTP code returned for type IndexUsersNotFound
 const IndexUsersNotFoundCode int = 404
 
-/*IndexUsersNotFound users not found
+/*
+IndexUsersNotFound users not found
 
 swagger:response indexUsersNotFound
 */
@@ -157,7 +161,8 @@ func (o *IndexUsersNotFound) WriteResponse(rw http.ResponseWriter, producer runt
 // IndexUsersInternalServerErrorCode is the HTTP code returned for type IndexUsersInternalServerError
 const IndexUsersInternalServerErrorCode int = 500
 
-/*IndexUsersInternalServerError server error
+/*
+IndexUsersInternalServerError server error
 
 swagger:response indexUsersInternalServerError
 */
