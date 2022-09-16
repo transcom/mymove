@@ -1005,6 +1005,7 @@ definitions:
       - empty_weight_ticket_missing
       - trailer_ownership_missing
   WeightTicket:
+    description: Vehicle and optional trailer information and weight documents used to move this PPM shipment.
     type: object
     properties:
       id:

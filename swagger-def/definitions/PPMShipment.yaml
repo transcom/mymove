@@ -19,7 +19,7 @@ properties:
     type: string
     readOnly: true
   updatedAt:
-    description: Timestamp of the last time a property of this object was updated (UTC)
+    description: Timestamp of when a property of this object was last updated (UTC)
     format: date-time
     type: string
     readOnly: true
@@ -32,38 +32,42 @@ properties:
     $ref: 'PPMAdvanceStatus.yaml'
   expectedDepartureDate:
     description: >
-      Date the customer expects to move.
+      Date the customer expects to begin their move.
     format: date
     type: string
   actualMoveDate:
+    description: The actual start date of when the PPM shipment left the origin.
     format: date
     type: string
     x-nullable: true
     x-omitempty: false
   submittedAt:
+    description: The timestamp of when the customer submitted their move to the counselor.
     format: date-time
     type: string
     x-nullable: true
     x-omitempty: false
   reviewedAt:
+    description: The timestamp of when the Service Counselor has reviewed all of the closeout documents.
     format: date-time
     type: string
     x-nullable: true
     x-omitempty: false
   approvedAt:
+    description: The timestamp of when the shipment was approved and the service member can begin their move.
     format: date-time
     type: string
     x-nullable: true
     x-omitempty: false
   pickupPostalCode:
-    description: zip code
+    description: The postal code of the origin location where goods are being moved from.
     format: zip
     type: string
     title: ZIP
     example: '90210'
     pattern: ^(\d{5})$
   secondaryPickupPostalCode:
-    format: zip
+    format: An optional secondary pickup location near the origin where additional goods exist.
     type: string
     title: ZIP
     example: '90210'
@@ -81,12 +85,14 @@ properties:
     x-nullable: true
     x-omitempty: false
   destinationPostalCode:
+    description: The postal code of the destination location where goods are being delivered to.
     format: zip
     type: string
     title: ZIP
     example: '90210'
     pattern: ^(\d{5})$
   secondaryDestinationPostalCode:
+    description: An optional secondary location near the destination where goods will be dropped off.
     format: zip
     type: string
     title: ZIP
@@ -105,34 +111,39 @@ properties:
     x-nullable: true
     x-omitempty: false
   sitExpected:
+    description: Captures whether the PPM is expected to need put into storage at the origin or destination.
     type: boolean
   estimatedWeight:
+    description: The estimated weight of the PPM shipment goods being moved.
     type: integer
     example: 4200
     x-nullable: true
     x-omitempty: false
   netWeight:
     description: >
-      The net weight of the shipment once it has been weight
+      The net weight of the shipment once it has been weighed.
     type: integer
     example: 4300
     x-nullable: true
     x-omitempty: false
   hasProGear:
     description: >
-      Indicates whether PPM shipment has pro gear.
+      Indicates whether PPM shipment has pro gear for themselves or their spouse.
     type: boolean
     x-nullable: true
     x-omitempty: false
   proGearWeight:
+    description: The estimated weight of the pro-gear being moved belonging to the service member.
     type: integer
     x-nullable: true
     x-omitempty: false
   spouseProGearWeight:
+    description: The estimated weight of the pro-gear being moved belonging to a spouse.
     type: integer
     x-nullable: true
     x-omitempty: false
   estimatedIncentive:
+    description: The estimated amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.
     type: integer
     format: cents
     x-nullable: true
@@ -153,7 +164,7 @@ properties:
     x-omitempty: false
   advanceAmountRequested:
     description: >
-      The amount requested for an advance, or null if no advance is requested
+      The amount requested as an advance by the service member up to a maximum percentage of the estimated incentive.
     type: integer
     format: cents
     x-nullable: true
@@ -177,30 +188,36 @@ properties:
       - x-nullable: true
       - x-omitempty: false
   sitEstimatedWeight:
+    description: The estimated weight of the goods being put into storage.
     type: integer
     example: 2000
     x-nullable: true
     x-omitempty: false
   sitEstimatedEntryDate:
+    description: The date that goods will first enter the storage location.
     format: date
     type: string
     x-nullable: true
     x-omitempty: false
   sitEstimatedDepartureDate:
+    description: The date that goods will exit the storage location.
     format: date
     type: string
     x-nullable: true
     x-omitempty: false
   sitEstimatedCost:
+    description: The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
     type: integer
     format: cents
     x-nullable: true
     x-omitempty: false
   weightTickets:
+    description: All weight ticket documentation records belonging to vehicles of this PPM shipment
     items:
       $ref: '../internal.yaml#/definitions/WeightTicket'
     type: array
   movingExpense:
+    description: All expense documentation receipt records of this PPM shipment.
     items:
       $ref: 'MovingExpense.yaml'
     type: array
