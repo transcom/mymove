@@ -452,6 +452,13 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 	return model
 }
 
+func ReportViolationFromUpdate(violation ghcmessages.ReportViolation) models.ReportViolation {
+	return models.ReportViolation{
+		ReportID:    uuid.FromStringOrNil(violation.ReportID.String()),
+		ViolationID: uuid.FromStringOrNil(violation.ViolationID.String()),
+	}
+}
+
 func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) *models.EvaluationReport {
 	if evaluationReport == nil {
 		return nil
@@ -479,6 +486,14 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 		location = &tempLocation
 	}
 
+	var violations models.ReportViolations
+	// if evaluationReport.Violations != nil {
+
+	for _, violation := range evaluationReport.Violations {
+		violations = append(violations, ReportViolationFromUpdate(*violation))
+	}
+	// }
+
 	model := models.EvaluationReport{
 		ID:                      uuid.FromStringOrNil(evaluationReport.ID.String()),
 		OfficeUser:              models.OfficeUser{},
@@ -496,8 +511,10 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 		ObservedDate:            (*time.Time)(evaluationReport.ObservedDate),
 		EvaluationLengthMinutes: evaluationLengthMinutes,
 		ViolationsObserved:      evaluationReport.ViolationsObserved,
+		Violations:              violations,
 		Remarks:                 evaluationReport.Remarks,
 		SubmittedAt:             handlers.FmtDateTimePtrToPopPtr(evaluationReport.SubmittedAt),
+		// models.ReportViolation(evaluationReport.Violations), // evaluationReport.Violations, // violations, //
 	}
 	return &model
 }

@@ -51,12 +51,34 @@ func (u evaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppCon
 	evaluationReport.MoveID = originalReport.MoveID
 	evaluationReport.ShipmentID = originalReport.ShipmentID
 	evaluationReport.Type = originalReport.Type
+
+	// TODO: Should this be in a transaction w/ the update to the report-violations table?
 	verrs, err := appCtx.DB().ValidateAndSave(evaluationReport)
 	if err != nil {
 		return err
 	}
 	if verrs.HasAny() {
 		return apperror.NewInvalidInputError(evaluationReport.ID, err, verrs, "")
+	}
+
+	// Need to update selected violations if there are any
+	// TODO: Drop all existing report_violations for this report?
+	if len(evaluationReport.Violations) > 0 {
+
+		for _, violation := range evaluationReport.Violations {
+			reportViolation := models.ReportViolation{
+				ReportID:    evaluationReport.ID,
+				ViolationID: violation.ViolationID,
+			}
+
+			verrs, err := appCtx.DB().ValidateAndSave(&reportViolation)
+			if err != nil {
+				return err
+			}
+			if verrs.HasAny() {
+				return apperror.NewInvalidInputError(evaluationReport.ID, err, verrs, "")
+			}
+		}
 	}
 	return nil
 }

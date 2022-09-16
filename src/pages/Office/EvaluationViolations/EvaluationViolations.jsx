@@ -23,7 +23,7 @@ const EvaluationViolations = () => {
       <GridContainer>
         <QaeReportHeader report={evaluationReport} />
 
-        <EvaluationViolationsForm violations={violations} />
+        <EvaluationViolationsForm violations={violations} evaluationReport={evaluationReport} />
       </GridContainer>
     </div>
   );

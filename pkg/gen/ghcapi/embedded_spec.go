@@ -4848,6 +4848,12 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "violations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ReportViolation"
+          }
+        },
         "violationsObserved": {
           "type": "boolean",
           "x-nullable": true
@@ -6973,6 +6979,30 @@ func init() {
         "rejectionReason": {
           "type": "string",
           "example": "MTO Shipment not good enough"
+        }
+      }
+    },
+    "ReportViolation": {
+      "description": "A violation for an evaluation report",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reportID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "violation": {
+          "$ref": "#/definitions/PWSViolation"
+        },
+        "violationID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         }
       }
     },
@@ -14033,6 +14063,12 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "violations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ReportViolation"
+          }
+        },
         "violationsObserved": {
           "type": "boolean",
           "x-nullable": true
@@ -16158,6 +16194,30 @@ func init() {
         "rejectionReason": {
           "type": "string",
           "example": "MTO Shipment not good enough"
+        }
+      }
+    },
+    "ReportViolation": {
+      "description": "A violation for an evaluation report",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reportID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "violation": {
+          "$ref": "#/definitions/PWSViolation"
+        },
+        "violationID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         }
       }
     },

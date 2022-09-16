@@ -121,6 +121,36 @@ func EvaluationReportOfficeUser(officeUser models.OfficeUser) ghcmessages.Evalua
 	return payload
 }
 
+func ReportViolations(violations models.ReportViolations) []*ghcmessages.ReportViolation {
+	payload := make([]*ghcmessages.ReportViolation, len(violations))
+	for i, v := range violations {
+		violation := v
+		payload[i] = ReportViolation(&violation)
+	}
+	return payload
+}
+
+func ReportViolation(violation *models.ReportViolation) *ghcmessages.ReportViolation {
+	// pwsViolation := PWSViolationItem(&violation.Violation)
+	payload := &ghcmessages.ReportViolation{
+		ID:          strfmt.UUID(violation.ID.String()),
+		ViolationID: strfmt.UUID(violation.ViolationID.String()),
+		ReportID:    strfmt.UUID(violation.ReportID.String()),
+		Violation:   PWSViolationItem(&violation.Violation),
+		// Violation:   pwsViolation,
+	}
+	return payload
+}
+
+// func PWSViolation(violation *models.PWSViolation) *ghcmessages.PWSViolation {
+// 	payload := &ghcmessages.PWSViolation{
+// 		ParagraphNumber: violation.ParagraphNumber,
+
+// 		AdditionalDataElem: violation.AdditionalDataElem,
+// 	}
+// 	return payload
+// }
+
 // EvaluationReport payload
 func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.EvaluationReport {
 	if evaluationReport == nil {
@@ -144,6 +174,10 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 
 	evaluationReportOfficeUserPayload := EvaluationReportOfficeUser(evaluationReport.OfficeUser)
 
+	println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ about to create payload", len(evaluationReport.Violations), evaluationReport.Violations)
+	evaluationReportViolationsPayload := ReportViolations(evaluationReport.Violations)
+
+	println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ Done creating payload", len(evaluationReport.Violations))
 	payload := &ghcmessages.EvaluationReport{
 		CreatedAt:               strfmt.DateTime(evaluationReport.CreatedAt),
 		EvaluationLengthMinutes: handlers.FmtIntPtrToInt64(evaluationReport.EvaluationLengthMinutes),
@@ -164,6 +198,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		OfficeUser:              &evaluationReportOfficeUserPayload,
 		ETag:                    etag.GenerateEtag(evaluationReport.UpdatedAt),
 		UpdatedAt:               strfmt.DateTime(evaluationReport.UpdatedAt),
+		Violations:              evaluationReportViolationsPayload,
 	}
 	return payload
 }

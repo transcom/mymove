@@ -4485,6 +4485,10 @@ definitions:
       violationsObserved:
         type: boolean
         x-nullable: true
+      violations:
+        type: array
+        items:
+          $ref: '#/definitions/ReportViolation'
       remarks:
         type: string
         x-nullable: true
@@ -4555,6 +4559,27 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/PWSViolation'
+  ReportViolation:
+    type: object
+    description: A violation for an evaluation report
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reportID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      # report:
+      #   $ref: '#/definitions/EvaluationReport'
+      violationID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      violation:
+        $ref: '#/definitions/PWSViolation'
+
 responses:
   InvalidRequest:
     description: The request payload is invalid

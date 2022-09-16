@@ -7,6 +7,7 @@ package ghcmessages
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -93,6 +94,9 @@ type EvaluationReport struct {
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 
+	// violations
+	Violations []*ReportViolation `json:"violations"`
+
 	// violations observed
 	ViolationsObserved *bool `json:"violationsObserved,omitempty"`
 }
@@ -154,6 +158,10 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateViolations(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -357,6 +365,32 @@ func (m *EvaluationReport) validateUpdatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *EvaluationReport) validateViolations(formats strfmt.Registry) error {
+	if swag.IsZero(m.Violations) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Violations); i++ {
+		if swag.IsZero(m.Violations[i]) { // not required
+			continue
+		}
+
+		if m.Violations[i] != nil {
+			if err := m.Violations[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("violations" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("violations" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // ContextValidate validate this evaluation report based on the context it is used
 func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -398,6 +432,10 @@ func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.R
 	}
 
 	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateViolations(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -518,6 +556,26 @@ func (m *EvaluationReport) contextValidateUpdatedAt(ctx context.Context, formats
 
 	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateViolations(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Violations); i++ {
+
+		if m.Violations[i] != nil {
+			if err := m.Violations[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("violations" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("violations" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

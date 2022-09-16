@@ -184,7 +184,7 @@ func (h SaveEvaluationReportHandler) Handle(params evaluationReportop.SaveEvalua
 			if appCtx.Session() != nil {
 				report.OfficeUserID = appCtx.Session().OfficeUserID
 			}
-
+			println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ In handler with report: ", report.Violations)
 			err := h.UpdateEvaluationReport(appCtx, report, appCtx.Session().OfficeUserID, eTag)
 			if err != nil {
 				appCtx.Logger().Error("Error saving evaluation report: ", zap.Error(err))
