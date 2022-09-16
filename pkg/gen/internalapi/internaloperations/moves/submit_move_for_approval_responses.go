@@ -16,7 +16,8 @@ import (
 // SubmitMoveForApprovalOKCode is the HTTP code returned for type SubmitMoveForApprovalOK
 const SubmitMoveForApprovalOKCode int = 200
 
-/*SubmitMoveForApprovalOK returns updated (submitted) move object
+/*
+SubmitMoveForApprovalOK returns updated (submitted) move object
 
 swagger:response submitMoveForApprovalOK
 */
@@ -60,7 +61,8 @@ func (o *SubmitMoveForApprovalOK) WriteResponse(rw http.ResponseWriter, producer
 // SubmitMoveForApprovalBadRequestCode is the HTTP code returned for type SubmitMoveForApprovalBadRequest
 const SubmitMoveForApprovalBadRequestCode int = 400
 
-/*SubmitMoveForApprovalBadRequest invalid request
+/*
+SubmitMoveForApprovalBadRequest invalid request
 
 swagger:response submitMoveForApprovalBadRequest
 */
@@ -84,7 +86,8 @@ func (o *SubmitMoveForApprovalBadRequest) WriteResponse(rw http.ResponseWriter, 
 // SubmitMoveForApprovalUnauthorizedCode is the HTTP code returned for type SubmitMoveForApprovalUnauthorized
 const SubmitMoveForApprovalUnauthorizedCode int = 401
 
-/*SubmitMoveForApprovalUnauthorized must be authenticated to use this endpoint
+/*
+SubmitMoveForApprovalUnauthorized must be authenticated to use this endpoint
 
 swagger:response submitMoveForApprovalUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *SubmitMoveForApprovalUnauthorized) WriteResponse(rw http.ResponseWriter
 // SubmitMoveForApprovalForbiddenCode is the HTTP code returned for type SubmitMoveForApprovalForbidden
 const SubmitMoveForApprovalForbiddenCode int = 403
 
-/*SubmitMoveForApprovalForbidden not authorized to approve this move
+/*
+SubmitMoveForApprovalForbidden not authorized to approve this move
 
 swagger:response submitMoveForApprovalForbidden
 */
@@ -132,7 +136,8 @@ func (o *SubmitMoveForApprovalForbidden) WriteResponse(rw http.ResponseWriter, p
 // SubmitMoveForApprovalConflictCode is the HTTP code returned for type SubmitMoveForApprovalConflict
 const SubmitMoveForApprovalConflictCode int = 409
 
-/*SubmitMoveForApprovalConflict the move is not in a state to be approved
+/*
+SubmitMoveForApprovalConflict the move is not in a state to be approved
 
 swagger:response submitMoveForApprovalConflict
 */
@@ -176,7 +181,8 @@ func (o *SubmitMoveForApprovalConflict) WriteResponse(rw http.ResponseWriter, pr
 // SubmitMoveForApprovalInternalServerErrorCode is the HTTP code returned for type SubmitMoveForApprovalInternalServerError
 const SubmitMoveForApprovalInternalServerErrorCode int = 500
 
-/*SubmitMoveForApprovalInternalServerError server error
+/*
+SubmitMoveForApprovalInternalServerError server error
 
 swagger:response submitMoveForApprovalInternalServerError
 */

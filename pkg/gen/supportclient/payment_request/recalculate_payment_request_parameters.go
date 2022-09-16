@@ -52,10 +52,12 @@ func NewRecalculatePaymentRequestParamsWithHTTPClient(client *http.Client) *Reca
 	}
 }
 
-/* RecalculatePaymentRequestParams contains all the parameters to send to the API endpoint
-   for the recalculate payment request operation.
+/*
+RecalculatePaymentRequestParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the recalculate payment request operation.
+
+	Typically these are written to a http.Request.
 */
 type RecalculatePaymentRequestParams struct {
 

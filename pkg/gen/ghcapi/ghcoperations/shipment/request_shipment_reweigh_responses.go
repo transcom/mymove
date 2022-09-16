@@ -16,7 +16,8 @@ import (
 // RequestShipmentReweighOKCode is the HTTP code returned for type RequestShipmentReweighOK
 const RequestShipmentReweighOKCode int = 200
 
-/*RequestShipmentReweighOK Successfully requested a reweigh of the shipment
+/*
+RequestShipmentReweighOK Successfully requested a reweigh of the shipment
 
 swagger:response requestShipmentReweighOK
 */
@@ -60,7 +61,8 @@ func (o *RequestShipmentReweighOK) WriteResponse(rw http.ResponseWriter, produce
 // RequestShipmentReweighForbiddenCode is the HTTP code returned for type RequestShipmentReweighForbidden
 const RequestShipmentReweighForbiddenCode int = 403
 
-/*RequestShipmentReweighForbidden The request was denied
+/*
+RequestShipmentReweighForbidden The request was denied
 
 swagger:response requestShipmentReweighForbidden
 */
@@ -104,7 +106,8 @@ func (o *RequestShipmentReweighForbidden) WriteResponse(rw http.ResponseWriter, 
 // RequestShipmentReweighNotFoundCode is the HTTP code returned for type RequestShipmentReweighNotFound
 const RequestShipmentReweighNotFoundCode int = 404
 
-/*RequestShipmentReweighNotFound The requested resource wasn't found
+/*
+RequestShipmentReweighNotFound The requested resource wasn't found
 
 swagger:response requestShipmentReweighNotFound
 */
@@ -148,7 +151,8 @@ func (o *RequestShipmentReweighNotFound) WriteResponse(rw http.ResponseWriter, p
 // RequestShipmentReweighConflictCode is the HTTP code returned for type RequestShipmentReweighConflict
 const RequestShipmentReweighConflictCode int = 409
 
-/*RequestShipmentReweighConflict Conflict error
+/*
+RequestShipmentReweighConflict Conflict error
 
 swagger:response requestShipmentReweighConflict
 */
@@ -192,7 +196,8 @@ func (o *RequestShipmentReweighConflict) WriteResponse(rw http.ResponseWriter, p
 // RequestShipmentReweighPreconditionFailedCode is the HTTP code returned for type RequestShipmentReweighPreconditionFailed
 const RequestShipmentReweighPreconditionFailedCode int = 412
 
-/*RequestShipmentReweighPreconditionFailed Precondition failed
+/*
+RequestShipmentReweighPreconditionFailed Precondition failed
 
 swagger:response requestShipmentReweighPreconditionFailed
 */
@@ -236,7 +241,8 @@ func (o *RequestShipmentReweighPreconditionFailed) WriteResponse(rw http.Respons
 // RequestShipmentReweighUnprocessableEntityCode is the HTTP code returned for type RequestShipmentReweighUnprocessableEntity
 const RequestShipmentReweighUnprocessableEntityCode int = 422
 
-/*RequestShipmentReweighUnprocessableEntity The payload was unprocessable.
+/*
+RequestShipmentReweighUnprocessableEntity The payload was unprocessable.
 
 swagger:response requestShipmentReweighUnprocessableEntity
 */
@@ -280,7 +286,8 @@ func (o *RequestShipmentReweighUnprocessableEntity) WriteResponse(rw http.Respon
 // RequestShipmentReweighInternalServerErrorCode is the HTTP code returned for type RequestShipmentReweighInternalServerError
 const RequestShipmentReweighInternalServerErrorCode int = 500
 
-/*RequestShipmentReweighInternalServerError A server error occurred
+/*
+RequestShipmentReweighInternalServerError A server error occurred
 
 swagger:response requestShipmentReweighInternalServerError
 */

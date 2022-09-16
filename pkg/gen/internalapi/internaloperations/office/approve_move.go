@@ -29,12 +29,12 @@ func NewApproveMove(ctx *middleware.Context, handler ApproveMoveHandler) *Approv
 	return &ApproveMove{Context: ctx, Handler: handler}
 }
 
-/* ApproveMove swagger:route POST /moves/{moveId}/approve office approveMove
+/*
+	ApproveMove swagger:route POST /moves/{moveId}/approve office approveMove
 
-Approves a move to proceed
+# Approves a move to proceed
 
 Approves the basic details of a move. The status of the move will be updated to APPROVED
-
 */
 type ApproveMove struct {
 	Context *middleware.Context

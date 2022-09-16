@@ -42,10 +42,9 @@ type ClientService interface {
 }
 
 /*
-  CreateExcessWeightRecord creates excess weight record
+CreateExcessWeightRecord creates excess weight record
 
-  Uploads an excess weight record, which is a document that proves that the movers or contractors have counseled the customer about their excess weight. Excess weight counseling should occur after the sum of the shipments for the customer's move crosses the excess weight alert threshold.
-
+Uploads an excess weight record, which is a document that proves that the movers or contractors have counseled the customer about their excess weight. Excess weight counseling should occur after the sum of the shipments for the customer's move crosses the excess weight alert threshold.
 */
 func (a *Client) CreateExcessWeightRecord(params *CreateExcessWeightRecordParams, opts ...ClientOption) (*CreateExcessWeightRecordCreated, error) {
 	// TODO: Validate the params before sending
@@ -83,13 +82,13 @@ func (a *Client) CreateExcessWeightRecord(params *CreateExcessWeightRecordParams
 }
 
 /*
-  GetMoveTaskOrder gets move task order
+	GetMoveTaskOrder gets move task order
 
-  ### Functionality
+	### Functionality
+
 This endpoint gets an individual MoveTaskOrder by ID.
 
 It will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
-
 */
 func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams, opts ...ClientOption) (*GetMoveTaskOrderOK, error) {
 	// TODO: Validate the params before sending
@@ -127,16 +126,16 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams, opts ...Client
 }
 
 /*
-  ListMoves lists moves
+	ListMoves lists moves
 
-  Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
+	Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
+
 list down to only the moves that have been updated since the provided timestamp. A move will be considered
 updated if the `updatedAt` timestamp on the move or on its orders, shipments, service items, or payment
 requests, is later than the provided date and time.
 
 **WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrimeAt` timestamp has
 been set, that move will always appear in this list.
-
 */
 func (a *Client) ListMoves(params *ListMovesParams, opts ...ClientOption) (*ListMovesOK, error) {
 	// TODO: Validate the params before sending
@@ -174,13 +173,13 @@ func (a *Client) ListMoves(params *ListMovesParams, opts ...ClientOption) (*List
 }
 
 /*
-  UpdateMTOPostCounselingInformation updates m t o post counseling information
+	UpdateMTOPostCounselingInformation updates m t o post counseling information
 
-  ### Functionality
+	### Functionality
+
 This endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.
 
 PPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).
-
 */
 func (a *Client) UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounselingInformationParams, opts ...ClientOption) (*UpdateMTOPostCounselingInformationOK, error) {
 	// TODO: Validate the params before sending

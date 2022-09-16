@@ -5,12 +5,135 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
+
+func (suite EvaluationReportSuite) TestSubmitEvaluationReport() {
+	updater := NewEvaluationReportUpdater()
+
+	suite.Run("Successful submission", func() {
+		// Create office user
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		// Create a report
+		inspectionType := models.EvaluationReportInspectionTypeVirtual
+		location := models.EvaluationReportLocationTypeOrigin
+		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
+			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
+				OfficeUserID:            officeUser.ID,
+				InspectionDate:          swag.Time(time.Now()),
+				InspectionType:          &inspectionType,
+				Location:                &location,
+				EvaluationLengthMinutes: swag.Int(160),
+				ViolationsObserved:      swag.Bool(false),
+				Remarks:                 swag.String("This is a remark."),
+			}})
+		// Generate an etag
+		eTag := etag.GenerateEtag(evaluationReport.UpdatedAt)
+		// Submit the report
+		err := updater.SubmitEvaluationReport(suite.AppContextForTest(), evaluationReport.ID, officeUser.ID, eTag)
+
+		suite.NoError(err)
+	})
+
+	suite.Run("Bad etag", func() {
+		// Create office user
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		// Create a report
+		inspectionType := models.EvaluationReportInspectionTypeVirtual
+		location := models.EvaluationReportLocationTypeOrigin
+		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
+			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
+				OfficeUserID:            officeUser.ID,
+				InspectionDate:          swag.Time(time.Now()),
+				InspectionType:          &inspectionType,
+				Location:                &location,
+				EvaluationLengthMinutes: swag.Int(160),
+				ViolationsObserved:      swag.Bool(false),
+				Remarks:                 swag.String("This is a remark."),
+			}})
+		// Generate an etag
+		eTag := ""
+		// Submit the report
+		err := updater.SubmitEvaluationReport(suite.AppContextForTest(), evaluationReport.ID, officeUser.ID, eTag)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
+	})
+
+	suite.Run("Missing required field", func() {
+		// Create office user
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		// Create a report
+		inspectionType := models.EvaluationReportInspectionTypeVirtual
+		location := models.EvaluationReportLocationTypeOrigin
+		// Missing inspection date
+		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
+			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
+				OfficeUserID:            officeUser.ID,
+				InspectionType:          &inspectionType,
+				Location:                &location,
+				EvaluationLengthMinutes: swag.Int(160),
+				ViolationsObserved:      swag.Bool(false),
+				Remarks:                 swag.String("This is a remark."),
+			}})
+		// Generate an etag
+		eTag := etag.GenerateEtag(evaluationReport.UpdatedAt)
+		// Submit the report
+		err := updater.SubmitEvaluationReport(suite.AppContextForTest(), evaluationReport.ID, officeUser.ID, eTag)
+		suite.Equal(models.ErrInvalidTransition, errors.Cause(err))
+	})
+
+	suite.Run("Missing location description for physical location", func() {
+		// Create office user
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		// Create a report
+		inspectionType := models.EvaluationReportInspectionTypeVirtual
+		location := models.EvaluationReportLocationTypeOther
+		// Missing location description
+		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
+			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
+				OfficeUserID:            officeUser.ID,
+				InspectionDate:          swag.Time(time.Now()),
+				InspectionType:          &inspectionType,
+				Location:                &location,
+				EvaluationLengthMinutes: swag.Int(160),
+				ViolationsObserved:      swag.Bool(false),
+				Remarks:                 swag.String("This is a remark."),
+			}})
+		// Generate an etag
+		eTag := etag.GenerateEtag(evaluationReport.UpdatedAt)
+		// Submit the report
+		err := updater.SubmitEvaluationReport(suite.AppContextForTest(), evaluationReport.ID, officeUser.ID, eTag)
+		suite.Equal(models.ErrInvalidTransition, errors.Cause(err))
+	})
+
+	suite.Run("Missing travel time on physical location", func() {
+		// Create office user
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+		// Create a report
+		inspectionType := models.EvaluationReportInspectionTypePhysical
+		location := models.EvaluationReportLocationTypeOrigin
+		// Missing travel time
+		evaluationReport := testdatagen.MakeEvaluationReport(suite.DB(),
+			testdatagen.Assertions{EvaluationReport: models.EvaluationReport{
+				OfficeUserID:            officeUser.ID,
+				InspectionDate:          swag.Time(time.Now()),
+				InspectionType:          &inspectionType,
+				Location:                &location,
+				EvaluationLengthMinutes: swag.Int(160),
+				ViolationsObserved:      swag.Bool(false),
+				Remarks:                 swag.String("This is a remark."),
+			}})
+		// Generate an etag
+		eTag := etag.GenerateEtag(evaluationReport.UpdatedAt)
+		// Submit the report
+		err := updater.SubmitEvaluationReport(suite.AppContextForTest(), evaluationReport.ID, officeUser.ID, eTag)
+		suite.Equal(models.ErrInvalidTransition, errors.Cause(err))
+	})
+}
 
 func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 	updater := NewEvaluationReportUpdater()

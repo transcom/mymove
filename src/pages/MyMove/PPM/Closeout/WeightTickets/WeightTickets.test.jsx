@@ -29,9 +29,6 @@ jest.mock('react-router-dom', () => ({
     moveId: 'cc03c553-d317-46af-8b2d-3c9f899f6451',
     mtoShipmentId: '6b7a5769-4393-46fb-a4c4-d3f6ac7584c7',
   })),
-  useLocation: () => ({
-    search: 'tripNumber=2',
-  }),
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -206,7 +203,7 @@ describe('Weight Tickets page', () => {
     expect(screen.getByText('You must upload at least one set of weight tickets to get paid for your PPM.'));
 
     // renders form content
-    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 2');
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 1');
   });
 
   it('replaces the router history with newly created weight ticket id', async () => {
@@ -236,7 +233,7 @@ describe('Weight Tickets page', () => {
 
   it('calls patch weight ticket with the appropriate payload', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
-    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 0 });
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 1 });
     patchWeightTicket.mockResolvedValue({});
 
     render(<WeightTickets />, { wrapper: MockProviders });
@@ -275,13 +272,13 @@ describe('Weight Tickets page', () => {
 
   it('displays an error if patchWeightTicket fails', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
-    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 0 });
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 4 });
     patchWeightTicket.mockRejectedValueOnce('an error occurred');
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 2');
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 5');
     });
     userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
     userEvent.type(screen.getByLabelText('Empty weight'), '4999');

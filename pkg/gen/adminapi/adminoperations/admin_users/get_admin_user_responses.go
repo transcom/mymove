@@ -16,7 +16,8 @@ import (
 // GetAdminUserOKCode is the HTTP code returned for type GetAdminUserOK
 const GetAdminUserOKCode int = 200
 
-/*GetAdminUserOK success
+/*
+GetAdminUserOK success
 
 swagger:response getAdminUserOK
 */
@@ -60,7 +61,8 @@ func (o *GetAdminUserOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 // GetAdminUserBadRequestCode is the HTTP code returned for type GetAdminUserBadRequest
 const GetAdminUserBadRequestCode int = 400
 
-/*GetAdminUserBadRequest invalid request
+/*
+GetAdminUserBadRequest invalid request
 
 swagger:response getAdminUserBadRequest
 */
@@ -84,7 +86,8 @@ func (o *GetAdminUserBadRequest) WriteResponse(rw http.ResponseWriter, producer 
 // GetAdminUserUnauthorizedCode is the HTTP code returned for type GetAdminUserUnauthorized
 const GetAdminUserUnauthorizedCode int = 401
 
-/*GetAdminUserUnauthorized request requires user authentication
+/*
+GetAdminUserUnauthorized request requires user authentication
 
 swagger:response getAdminUserUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *GetAdminUserUnauthorized) WriteResponse(rw http.ResponseWriter, produce
 // GetAdminUserNotFoundCode is the HTTP code returned for type GetAdminUserNotFound
 const GetAdminUserNotFoundCode int = 404
 
-/*GetAdminUserNotFound admin user not found
+/*
+GetAdminUserNotFound admin user not found
 
 swagger:response getAdminUserNotFound
 */
@@ -132,7 +136,8 @@ func (o *GetAdminUserNotFound) WriteResponse(rw http.ResponseWriter, producer ru
 // GetAdminUserInternalServerErrorCode is the HTTP code returned for type GetAdminUserInternalServerError
 const GetAdminUserInternalServerErrorCode int = 500
 
-/*GetAdminUserInternalServerError server error
+/*
+GetAdminUserInternalServerError server error
 
 swagger:response getAdminUserInternalServerError
 */

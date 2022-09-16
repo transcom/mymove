@@ -53,28 +53,63 @@ ModalTitle.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-export const ModalClose = ({ handleClick, className, ...buttonProps }) => (
-  <Button
-    type="button"
-    onClick={handleClick}
-    unstyled
-    className={classnames(styles.ModalClose, className)}
-    data-testid="modalCloseButton"
-    aria-label="Close"
-    {...buttonProps}
-  >
-    <FontAwesomeIcon icon="times" />
-  </Button>
-);
+const ModalClose = ({ handleClick, className, buttonContent, ...buttonProps }) => {
+  return (
+    <Button
+      type="button"
+      onClick={handleClick}
+      unstyled
+      className={classnames(styles.ModalClose, className)}
+      data-testid="modalCloseButton"
+      aria-label="Close"
+      {...buttonProps}
+    >
+      {buttonContent || <FontAwesomeIcon icon="times" />}
+    </Button>
+  );
+};
 
 ModalClose.propTypes = {
   handleClick: PropTypes.func.isRequired,
   className: PropTypes.string,
+  buttonContent: PropTypes.string,
 };
 
 ModalClose.defaultProps = {
   className: '',
+  buttonContent: null,
 };
+
+export { ModalClose };
+
+// TODO: default styling
+const ModalSubmit = ({ handleClick, className, buttonContent, ...buttonProps }) => {
+  return (
+    <Button
+      className={classnames(styles.ModalSubmit, className)}
+      type="submit"
+      onClick={handleClick}
+      data-testid="modalSubmitButton"
+      aria-label="Submit"
+      {...buttonProps}
+    >
+      {buttonContent || 'Submit'}
+    </Button>
+  );
+};
+
+ModalSubmit.propTypes = {
+  handleClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  buttonContent: PropTypes.string,
+};
+
+ModalSubmit.defaultProps = {
+  className: '',
+  buttonContent: null,
+};
+
+export { ModalSubmit };
 
 export const ModalActions = ({ children }) => <div className={styles.ModalActions}>{children}</div>;
 

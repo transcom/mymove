@@ -16,7 +16,8 @@ import (
 // CreateMoveTaskOrderCreatedCode is the HTTP code returned for type CreateMoveTaskOrderCreated
 const CreateMoveTaskOrderCreatedCode int = 201
 
-/*CreateMoveTaskOrderCreated Successfully created MoveTaskOrder object.
+/*
+CreateMoveTaskOrderCreated Successfully created MoveTaskOrder object.
 
 swagger:response createMoveTaskOrderCreated
 */
@@ -60,7 +61,8 @@ func (o *CreateMoveTaskOrderCreated) WriteResponse(rw http.ResponseWriter, produ
 // CreateMoveTaskOrderBadRequestCode is the HTTP code returned for type CreateMoveTaskOrderBadRequest
 const CreateMoveTaskOrderBadRequestCode int = 400
 
-/*CreateMoveTaskOrderBadRequest The request payload is invalid.
+/*
+CreateMoveTaskOrderBadRequest The request payload is invalid.
 
 swagger:response createMoveTaskOrderBadRequest
 */
@@ -104,7 +106,8 @@ func (o *CreateMoveTaskOrderBadRequest) WriteResponse(rw http.ResponseWriter, pr
 // CreateMoveTaskOrderUnauthorizedCode is the HTTP code returned for type CreateMoveTaskOrderUnauthorized
 const CreateMoveTaskOrderUnauthorizedCode int = 401
 
-/*CreateMoveTaskOrderUnauthorized The request was denied.
+/*
+CreateMoveTaskOrderUnauthorized The request was denied.
 
 swagger:response createMoveTaskOrderUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *CreateMoveTaskOrderUnauthorized) WriteResponse(rw http.ResponseWriter, 
 // CreateMoveTaskOrderForbiddenCode is the HTTP code returned for type CreateMoveTaskOrderForbidden
 const CreateMoveTaskOrderForbiddenCode int = 403
 
-/*CreateMoveTaskOrderForbidden The request was denied.
+/*
+CreateMoveTaskOrderForbidden The request was denied.
 
 swagger:response createMoveTaskOrderForbidden
 */
@@ -192,7 +196,8 @@ func (o *CreateMoveTaskOrderForbidden) WriteResponse(rw http.ResponseWriter, pro
 // CreateMoveTaskOrderNotFoundCode is the HTTP code returned for type CreateMoveTaskOrderNotFound
 const CreateMoveTaskOrderNotFoundCode int = 404
 
-/*CreateMoveTaskOrderNotFound The requested resource wasn't found.
+/*
+CreateMoveTaskOrderNotFound The requested resource wasn't found.
 
 swagger:response createMoveTaskOrderNotFound
 */
@@ -236,7 +241,8 @@ func (o *CreateMoveTaskOrderNotFound) WriteResponse(rw http.ResponseWriter, prod
 // CreateMoveTaskOrderUnprocessableEntityCode is the HTTP code returned for type CreateMoveTaskOrderUnprocessableEntity
 const CreateMoveTaskOrderUnprocessableEntityCode int = 422
 
-/*CreateMoveTaskOrderUnprocessableEntity The payload was unprocessable.
+/*
+CreateMoveTaskOrderUnprocessableEntity The payload was unprocessable.
 
 swagger:response createMoveTaskOrderUnprocessableEntity
 */
@@ -280,7 +286,8 @@ func (o *CreateMoveTaskOrderUnprocessableEntity) WriteResponse(rw http.ResponseW
 // CreateMoveTaskOrderInternalServerErrorCode is the HTTP code returned for type CreateMoveTaskOrderInternalServerError
 const CreateMoveTaskOrderInternalServerErrorCode int = 500
 
-/*CreateMoveTaskOrderInternalServerError A server error occurred.
+/*
+CreateMoveTaskOrderInternalServerError A server error occurred.
 
 swagger:response createMoveTaskOrderInternalServerError
 */

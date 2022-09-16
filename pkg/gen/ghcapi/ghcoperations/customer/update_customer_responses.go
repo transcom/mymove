@@ -16,7 +16,8 @@ import (
 // UpdateCustomerOKCode is the HTTP code returned for type UpdateCustomerOK
 const UpdateCustomerOKCode int = 200
 
-/*UpdateCustomerOK updated instance of orders
+/*
+UpdateCustomerOK updated instance of orders
 
 swagger:response updateCustomerOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateCustomerOK) WriteResponse(rw http.ResponseWriter, producer runtim
 // UpdateCustomerBadRequestCode is the HTTP code returned for type UpdateCustomerBadRequest
 const UpdateCustomerBadRequestCode int = 400
 
-/*UpdateCustomerBadRequest The request payload is invalid
+/*
+UpdateCustomerBadRequest The request payload is invalid
 
 swagger:response updateCustomerBadRequest
 */
@@ -104,7 +106,8 @@ func (o *UpdateCustomerBadRequest) WriteResponse(rw http.ResponseWriter, produce
 // UpdateCustomerUnauthorizedCode is the HTTP code returned for type UpdateCustomerUnauthorized
 const UpdateCustomerUnauthorizedCode int = 401
 
-/*UpdateCustomerUnauthorized The request was denied
+/*
+UpdateCustomerUnauthorized The request was denied
 
 swagger:response updateCustomerUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *UpdateCustomerUnauthorized) WriteResponse(rw http.ResponseWriter, produ
 // UpdateCustomerForbiddenCode is the HTTP code returned for type UpdateCustomerForbidden
 const UpdateCustomerForbiddenCode int = 403
 
-/*UpdateCustomerForbidden The request was denied
+/*
+UpdateCustomerForbidden The request was denied
 
 swagger:response updateCustomerForbidden
 */
@@ -192,7 +196,8 @@ func (o *UpdateCustomerForbidden) WriteResponse(rw http.ResponseWriter, producer
 // UpdateCustomerNotFoundCode is the HTTP code returned for type UpdateCustomerNotFound
 const UpdateCustomerNotFoundCode int = 404
 
-/*UpdateCustomerNotFound The requested resource wasn't found
+/*
+UpdateCustomerNotFound The requested resource wasn't found
 
 swagger:response updateCustomerNotFound
 */
@@ -236,7 +241,8 @@ func (o *UpdateCustomerNotFound) WriteResponse(rw http.ResponseWriter, producer 
 // UpdateCustomerPreconditionFailedCode is the HTTP code returned for type UpdateCustomerPreconditionFailed
 const UpdateCustomerPreconditionFailedCode int = 412
 
-/*UpdateCustomerPreconditionFailed Precondition failed
+/*
+UpdateCustomerPreconditionFailed Precondition failed
 
 swagger:response updateCustomerPreconditionFailed
 */
@@ -280,7 +286,8 @@ func (o *UpdateCustomerPreconditionFailed) WriteResponse(rw http.ResponseWriter,
 // UpdateCustomerUnprocessableEntityCode is the HTTP code returned for type UpdateCustomerUnprocessableEntity
 const UpdateCustomerUnprocessableEntityCode int = 422
 
-/*UpdateCustomerUnprocessableEntity The payload was unprocessable.
+/*
+UpdateCustomerUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateCustomerUnprocessableEntity
 */
@@ -324,7 +331,8 @@ func (o *UpdateCustomerUnprocessableEntity) WriteResponse(rw http.ResponseWriter
 // UpdateCustomerInternalServerErrorCode is the HTTP code returned for type UpdateCustomerInternalServerError
 const UpdateCustomerInternalServerErrorCode int = 500
 
-/*UpdateCustomerInternalServerError A server error occurred
+/*
+UpdateCustomerInternalServerError A server error occurred
 
 swagger:response updateCustomerInternalServerError
 */

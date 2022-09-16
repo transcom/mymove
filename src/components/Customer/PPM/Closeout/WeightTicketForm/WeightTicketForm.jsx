@@ -3,7 +3,7 @@ import React, { createRef } from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { Button, ErrorMessage, Form, FormGroup, Label, Link, Radio } from '@trussworks/react-uswds';
-import { string, bool, func, shape } from 'prop-types';
+import { string, bool, func, shape, number } from 'prop-types';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import styles from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm.module.scss';
@@ -422,7 +422,7 @@ const WeightTicketForm = ({
 
 WeightTicketForm.propTypes = {
   weightTicket: WeightTicketShape,
-  tripNumber: string,
+  tripNumber: number,
   onCreateUpload: func.isRequired,
   onUploadComplete: func.isRequired,
   onUploadDelete: func,
@@ -433,7 +433,7 @@ WeightTicketForm.propTypes = {
 WeightTicketForm.defaultProps = {
   weightTicket: undefined,
   onUploadDelete: undefined,
-  tripNumber: '1',
+  tripNumber: 1,
 };
 
 export default WeightTicketForm;

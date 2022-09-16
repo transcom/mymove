@@ -16,7 +16,8 @@ import (
 // ShowOrdersOKCode is the HTTP code returned for type ShowOrdersOK
 const ShowOrdersOKCode int = 200
 
-/*ShowOrdersOK the instance of the order
+/*
+ShowOrdersOK the instance of the order
 
 swagger:response showOrdersOK
 */
@@ -60,7 +61,8 @@ func (o *ShowOrdersOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 // ShowOrdersBadRequestCode is the HTTP code returned for type ShowOrdersBadRequest
 const ShowOrdersBadRequestCode int = 400
 
-/*ShowOrdersBadRequest invalid request
+/*
+ShowOrdersBadRequest invalid request
 
 swagger:response showOrdersBadRequest
 */
@@ -84,7 +86,8 @@ func (o *ShowOrdersBadRequest) WriteResponse(rw http.ResponseWriter, producer ru
 // ShowOrdersUnauthorizedCode is the HTTP code returned for type ShowOrdersUnauthorized
 const ShowOrdersUnauthorizedCode int = 401
 
-/*ShowOrdersUnauthorized request requires user authentication
+/*
+ShowOrdersUnauthorized request requires user authentication
 
 swagger:response showOrdersUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *ShowOrdersUnauthorized) WriteResponse(rw http.ResponseWriter, producer 
 // ShowOrdersForbiddenCode is the HTTP code returned for type ShowOrdersForbidden
 const ShowOrdersForbiddenCode int = 403
 
-/*ShowOrdersForbidden user is not authorized
+/*
+ShowOrdersForbidden user is not authorized
 
 swagger:response showOrdersForbidden
 */
@@ -132,7 +136,8 @@ func (o *ShowOrdersForbidden) WriteResponse(rw http.ResponseWriter, producer run
 // ShowOrdersNotFoundCode is the HTTP code returned for type ShowOrdersNotFound
 const ShowOrdersNotFoundCode int = 404
 
-/*ShowOrdersNotFound order is not found
+/*
+ShowOrdersNotFound order is not found
 
 swagger:response showOrdersNotFound
 */
@@ -156,7 +161,8 @@ func (o *ShowOrdersNotFound) WriteResponse(rw http.ResponseWriter, producer runt
 // ShowOrdersInternalServerErrorCode is the HTTP code returned for type ShowOrdersInternalServerError
 const ShowOrdersInternalServerErrorCode int = 500
 
-/*ShowOrdersInternalServerError internal server error
+/*
+ShowOrdersInternalServerError internal server error
 
 swagger:response showOrdersInternalServerError
 */

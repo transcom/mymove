@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { generatePath, useHistory, useParams, useLocation } from 'react-router-dom';
+import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
-import qs from 'query-string';
 
 import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
@@ -22,10 +21,6 @@ const WeightTickets = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { moveId, mtoShipmentId, weightTicketId } = useParams();
-
-  const { search } = useLocation();
-
-  const { tripNumber } = qs.parse(search);
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const { weightTicket: currentWeightTicket, index: currentIndex } = useSelector((state) =>
@@ -163,7 +158,7 @@ const WeightTickets = () => {
             </div>
             <WeightTicketForm
               weightTicket={currentWeightTicket}
-              tripNumber={tripNumber}
+              tripNumber={currentIndex + 1}
               onCreateUpload={handleCreateUpload}
               onUploadComplete={handleUploadComplete}
               onUploadDelete={handleUploadDelete}

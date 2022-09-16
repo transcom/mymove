@@ -29,12 +29,12 @@ func NewShowQueue(ctx *middleware.Context, handler ShowQueueHandler) *ShowQueue 
 	return &ShowQueue{Context: ctx, Handler: handler}
 }
 
-/* ShowQueue swagger:route GET /queues/{queueType} queues showQueue
+/*
+	ShowQueue swagger:route GET /queues/{queueType} queues showQueue
+
+# Show all moves in a queue
 
 Show all moves in a queue
-
-Show all moves in a queue
-
 */
 type ShowQueue struct {
 	Context *middleware.Context

@@ -29,12 +29,12 @@ func NewCreateMovingExpenseDocument(ctx *middleware.Context, handler CreateMovin
 	return &CreateMovingExpenseDocument{Context: ctx, Handler: handler}
 }
 
-/* CreateMovingExpenseDocument swagger:route POST /moves/{moveId}/moving_expense_documents move_docs createMovingExpenseDocument
+/*
+	CreateMovingExpenseDocument swagger:route POST /moves/{moveId}/moving_expense_documents move_docs createMovingExpenseDocument
 
-Creates a moving expense document
+# Creates a moving expense document
 
 Created a moving expense document with the given information
-
 */
 type CreateMovingExpenseDocument struct {
 	Context *middleware.Context

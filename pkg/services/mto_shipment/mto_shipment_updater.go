@@ -128,6 +128,14 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.ScheduledPickupDate = requestedUpdatedShipment.ScheduledPickupDate
 	}
 
+	if requestedUpdatedShipment.ActualDeliveryDate != nil {
+		dbShipment.ActualDeliveryDate = requestedUpdatedShipment.ActualDeliveryDate
+	}
+
+	if requestedUpdatedShipment.ScheduledDeliveryDate != nil {
+		dbShipment.ScheduledDeliveryDate = requestedUpdatedShipment.ScheduledDeliveryDate
+	}
+
 	if requestedUpdatedShipment.PrimeEstimatedWeight != nil {
 		now := time.Now()
 		dbShipment.PrimeEstimatedWeight = requestedUpdatedShipment.PrimeEstimatedWeight

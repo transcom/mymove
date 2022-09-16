@@ -29,12 +29,12 @@ func NewApproveShipment(ctx *middleware.Context, handler ApproveShipmentHandler)
 	return &ApproveShipment{Context: ctx, Handler: handler}
 }
 
-/* ApproveShipment swagger:route POST /shipments/{shipmentID}/approve shipment approveShipment
+/*
+	ApproveShipment swagger:route POST /shipments/{shipmentID}/approve shipment approveShipment
+
+# Approves a shipment
 
 Approves a shipment
-
-Approves a shipment
-
 */
 type ApproveShipment struct {
 	Context *middleware.Context

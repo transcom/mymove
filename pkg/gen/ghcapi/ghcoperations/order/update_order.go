@@ -29,12 +29,12 @@ func NewUpdateOrder(ctx *middleware.Context, handler UpdateOrderHandler) *Update
 	return &UpdateOrder{Context: ctx, Handler: handler}
 }
 
-/* UpdateOrder swagger:route PATCH /orders/{orderID} order updateOrder
+/*
+	UpdateOrder swagger:route PATCH /orders/{orderID} order updateOrder
 
-Updates an order
+# Updates an order
 
 All fields sent in this request will be set on the order referenced
-
 */
 type UpdateOrder struct {
 	Context *middleware.Context

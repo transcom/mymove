@@ -16,7 +16,8 @@ import (
 // UpdateWeightTicketOKCode is the HTTP code returned for type UpdateWeightTicketOK
 const UpdateWeightTicketOKCode int = 200
 
-/*UpdateWeightTicketOK returns an updated weight ticket object
+/*
+UpdateWeightTicketOK returns an updated weight ticket object
 
 swagger:response updateWeightTicketOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateWeightTicketOK) WriteResponse(rw http.ResponseWriter, producer ru
 // UpdateWeightTicketBadRequestCode is the HTTP code returned for type UpdateWeightTicketBadRequest
 const UpdateWeightTicketBadRequestCode int = 400
 
-/*UpdateWeightTicketBadRequest The request payload is invalid.
+/*
+UpdateWeightTicketBadRequest The request payload is invalid.
 
 swagger:response updateWeightTicketBadRequest
 */
@@ -104,7 +106,8 @@ func (o *UpdateWeightTicketBadRequest) WriteResponse(rw http.ResponseWriter, pro
 // UpdateWeightTicketUnauthorizedCode is the HTTP code returned for type UpdateWeightTicketUnauthorized
 const UpdateWeightTicketUnauthorizedCode int = 401
 
-/*UpdateWeightTicketUnauthorized The request was denied.
+/*
+UpdateWeightTicketUnauthorized The request was denied.
 
 swagger:response updateWeightTicketUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *UpdateWeightTicketUnauthorized) WriteResponse(rw http.ResponseWriter, p
 // UpdateWeightTicketForbiddenCode is the HTTP code returned for type UpdateWeightTicketForbidden
 const UpdateWeightTicketForbiddenCode int = 403
 
-/*UpdateWeightTicketForbidden The request was denied.
+/*
+UpdateWeightTicketForbidden The request was denied.
 
 swagger:response updateWeightTicketForbidden
 */
@@ -192,7 +196,8 @@ func (o *UpdateWeightTicketForbidden) WriteResponse(rw http.ResponseWriter, prod
 // UpdateWeightTicketNotFoundCode is the HTTP code returned for type UpdateWeightTicketNotFound
 const UpdateWeightTicketNotFoundCode int = 404
 
-/*UpdateWeightTicketNotFound The requested resource wasn't found.
+/*
+UpdateWeightTicketNotFound The requested resource wasn't found.
 
 swagger:response updateWeightTicketNotFound
 */
@@ -236,7 +241,8 @@ func (o *UpdateWeightTicketNotFound) WriteResponse(rw http.ResponseWriter, produ
 // UpdateWeightTicketPreconditionFailedCode is the HTTP code returned for type UpdateWeightTicketPreconditionFailed
 const UpdateWeightTicketPreconditionFailedCode int = 412
 
-/*UpdateWeightTicketPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+/*
+UpdateWeightTicketPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response updateWeightTicketPreconditionFailed
 */
@@ -280,7 +286,8 @@ func (o *UpdateWeightTicketPreconditionFailed) WriteResponse(rw http.ResponseWri
 // UpdateWeightTicketUnprocessableEntityCode is the HTTP code returned for type UpdateWeightTicketUnprocessableEntity
 const UpdateWeightTicketUnprocessableEntityCode int = 422
 
-/*UpdateWeightTicketUnprocessableEntity The payload was unprocessable.
+/*
+UpdateWeightTicketUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateWeightTicketUnprocessableEntity
 */
@@ -324,7 +331,8 @@ func (o *UpdateWeightTicketUnprocessableEntity) WriteResponse(rw http.ResponseWr
 // UpdateWeightTicketInternalServerErrorCode is the HTTP code returned for type UpdateWeightTicketInternalServerError
 const UpdateWeightTicketInternalServerErrorCode int = 500
 
-/*UpdateWeightTicketInternalServerError A server error occurred.
+/*
+UpdateWeightTicketInternalServerError A server error occurred.
 
 swagger:response updateWeightTicketInternalServerError
 */

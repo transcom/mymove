@@ -34,12 +34,12 @@ func NewIsLoggedInUser(ctx *middleware.Context, handler IsLoggedInUserHandler) *
 	return &IsLoggedInUser{Context: ctx, Handler: handler}
 }
 
-/* IsLoggedInUser swagger:route GET /users/is_logged_in users isLoggedInUser
+/*
+	IsLoggedInUser swagger:route GET /users/is_logged_in users isLoggedInUser
+
+# Returns boolean as to whether the user is logged in
 
 Returns boolean as to whether the user is logged in
-
-Returns boolean as to whether the user is logged in
-
 */
 type IsLoggedInUser struct {
 	Context *middleware.Context
