@@ -40,14 +40,16 @@ describe('testFactory', () => {
   it('has an overridden field', () => {
     expect(testWithOverriddenFieldViaOverride[TEST_FACTORY_FIELDS.DEFAULT]).toBe('overriddenByOverrides');
   });
-  it('has an overridden fields by postBuild', () => {
+  it('has overridden fields by postBuild', () => {
     expect(test[TEST_FACTORY_FIELDS.POST_BUILD_TOUCHED_FIELD]).toBe('overridden');
     expect(test[TEST_FACTORY_FIELDS.SUBFACTORY][TEST_SUBFACTORY_FIELDS.POST_BUILD_TOUCHED_FIELD]).toBe('overridden');
   });
-  it('has overridden fields by its lazy overrides', () => {
+  it('has an overridden field by its lazy overrides', () => {
     expect(testWithOverridenFieldByLazyOverrides[TEST_FACTORY_FIELDS.POST_BUILD_TOUCHED_FIELD]).toBe(
       'overriddenByLazyOverrides',
     );
+  });
+  it("has an overridden field by a subfactory's lazy overrides", () => {
     expect(
       testWithOverridenFieldByLazyOverrides[TEST_FACTORY_FIELDS.SUBFACTORY][
         TEST_SUBFACTORY_FIELDS.POST_BUILD_TOUCHED_FIELD
@@ -57,9 +59,12 @@ describe('testFactory', () => {
   it('has an overridden field by trait', () => {
     expect(testWithTrait[TEST_FACTORY_FIELDS.DEFAULT]).toBe('overriddenByTrait');
   });
-  it('has an overridden field within a subfactory', () => {
+  it("has an overridden field by a subfactory's overrides", () => {
     expect(
       testWithOverriddenFieldViaOverride[TEST_FACTORY_FIELDS.SUBFACTORY][TEST_SUBFACTORY_FIELDS.FIELD_TO_OVERRIDE],
     ).toBe('overriddenBySuboverrides');
+  });
+  it('converts a field set with snake_case to a field with camelCase', () => {
+    expect(test[TEST_FACTORY_FIELDS.CAMEL_CASE_FIELD]).toBe('caseFieldValue');
   });
 });

@@ -76,7 +76,6 @@ const applyOverrides = (fields, overrides) => {
     let appliedValue;
     switch (typeof value) {
       case 'function':
-        // check if the overrides apply, if so apply them
         if (overrides?.[field]) {
           appliedValue = value({ overrides: overrides[field] });
         } else {
@@ -90,8 +89,6 @@ const applyOverrides = (fields, overrides) => {
           appliedValue = value;
         }
         break;
-      // this only happens if there's an override at the top level
-      // appliedValue = {[field]: applyOverrides(value, overrides[field])};
       default:
         appliedValue = value;
         break;
@@ -102,18 +99,23 @@ const applyOverrides = (fields, overrides) => {
   return appliedFields;
 };
 
+const camelCaseFields = (fields) => {
+  const formattedFields = {};
+  Object.entries(fields).forEach(([field, value]) => {
+    const formattedField = _.camelCase(field);
+    formattedFields[formattedField] = value;
+  });
+  return formattedFields;
+};
+
 const baseFactory = (params) => {
   const { fields, postBuild, lazyOverrides, overrides, traits, useTraits } = params;
 
   const appliedFields = applyOverrides(fields, overrides);
-
-  // these will be initial overrides. you'll somehow need to iterate over the fields and pass these to subfactories' fields if there are any
-  // const allOverrides = {
-  //   ...overrides,
-  // };
+  const formattedFields = camelCaseFields(appliedFields);
 
   const builder = build({
-    fields: appliedFields,
+    fields: formattedFields,
     postBuild: basePostBuild(lazyOverrides, postBuild),
     traits,
   });

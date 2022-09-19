@@ -8,6 +8,8 @@ export const TEST_FACTORY_FIELDS = {
   DEFAULT: 'default',
   SUBFACTORY: 'subfactory',
   POST_BUILD_TOUCHED_FIELD: 'postBuildTouchedField',
+  SNAKE_CASE_FIELD: 'case_field',
+  CAMEL_CASE_FIELD: 'caseField',
 };
 
 export const TEST_FACTORY_TRAITS = {
@@ -22,6 +24,7 @@ const testFactory = (params) => {
       // this also works of course:
       // [TEST_FACTORY_FIELDS.SUBFACTORY]: testSubfactory,
       [TEST_FACTORY_FIELDS.POST_BUILD_TOUCHED_FIELD]: 'default',
+      [TEST_FACTORY_FIELDS.SNAKE_CASE_FIELD]: 'caseFieldValue',
     },
     postBuild: (object) => {
       object[TEST_SUBFACTORY_FIELDS.POST_BUILD_TOUCHED_FIELD] = 'overridden';
