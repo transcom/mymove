@@ -1043,10 +1043,10 @@ jobs:
       - run:
           name: Ensure we save both the coverage baseline & the go-coverage text files before checking test coverage status
           command: |
-            if [ -f /tmp/coverage_baseline.txt ]; then
+            if [ -r /tmp/coverage_baseline.txt ]; then
               cp -v /tmp/coverage_baseline.txt ~/transcom/mymove/tmp/test-results/previous-coverage-baseline.txt
             fi
-            if [ -f ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt ]; then
+            if [ -r ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt ]; then
               cp -v ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt ~/transcom/mymove/tmp/test-results/current-coverage.txt
             fi
       - run:
