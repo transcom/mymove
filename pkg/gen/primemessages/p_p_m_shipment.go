@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// PPMShipment A personally procured move is a type of shipment that a service members moves themselves.
+// PPMShipment A personally procured move is a type of shipment that a service member moves themselves.
 //
 // swagger:model PPMShipment
 type PPMShipment struct {
@@ -27,7 +27,7 @@ type PPMShipment struct {
 	// Pattern: ^(\d{5})$
 	ActualDestinationPostalCode *string `json:"actualDestinationPostalCode"`
 
-	// actual move date
+	// The actual start date of when the PPM shipment left the origin.
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actualMoveDate"`
 
@@ -43,15 +43,15 @@ type PPMShipment struct {
 	//
 	AdvanceAmountReceived *int64 `json:"advanceAmountReceived"`
 
-	// The amount requested for an advance, or null if no advance is requested
+	// The amount requested as an advance by the service member up to a maximum percentage of the estimated incentive.
 	//
 	AdvanceAmountRequested *int64 `json:"advanceAmountRequested"`
 
-	// approved at
+	// The timestamp of when the shipment was approved and the service member can begin their move.
 	// Format: date-time
 	ApprovedAt *strfmt.DateTime `json:"approvedAt"`
 
-	// created at
+	// The timestamp of when the PPM shipment was created (UTC)
 	// Required: true
 	// Read Only: true
 	// Format: date-time
@@ -68,14 +68,14 @@ type PPMShipment struct {
 	// Read Only: true
 	ETag string `json:"eTag"`
 
-	// estimated incentive
+	// The estimated amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.
 	EstimatedIncentive *int64 `json:"estimatedIncentive"`
 
 	// estimated weight
 	// Example: 4200
 	EstimatedWeight *int64 `json:"estimatedWeight"`
 
-	// Date the customer expects to move.
+	// Date the customer expects to begin their move.
 	//
 	// Required: true
 	// Format: date
@@ -93,7 +93,7 @@ type PPMShipment struct {
 	//
 	HasRequestedAdvance *bool `json:"hasRequestedAdvance"`
 
-	// id
+	// The primary unique identifier of this PPM shipment
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
 	// Read Only: true
@@ -107,7 +107,7 @@ type PPMShipment struct {
 
 	// ZIP
 	//
-	// zip code
+	// The postal code of the origin location where goods are being moved from.
 	// Example: 90210
 	// Required: true
 	// Pattern: ^(\d{5})$
@@ -116,7 +116,7 @@ type PPMShipment struct {
 	// pro gear weight
 	ProGearWeight *int64 `json:"proGearWeight"`
 
-	// reviewed at
+	// The timestamp of when the Service Counselor has reviewed all of the closeout documents.
 	// Format: date-time
 	ReviewedAt *strfmt.DateTime `json:"reviewedAt"`
 
@@ -130,25 +130,25 @@ type PPMShipment struct {
 	// Pattern: ^(\d{5})$
 	SecondaryPickupPostalCode *string `json:"secondaryPickupPostalCode"`
 
-	// shipment Id
+	// The id of the parent MTOShipment record
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
 	// Read Only: true
 	// Format: uuid
 	ShipmentID strfmt.UUID `json:"shipmentId"`
 
-	// sit estimated cost
+	// The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
 	SitEstimatedCost *int64 `json:"sitEstimatedCost"`
 
-	// sit estimated departure date
+	// The date that goods will exit the storage location.
 	// Format: date
 	SitEstimatedDepartureDate *strfmt.Date `json:"sitEstimatedDepartureDate"`
 
-	// sit estimated entry date
+	// The date that goods will first enter the storage location.
 	// Format: date
 	SitEstimatedEntryDate *strfmt.Date `json:"sitEstimatedEntryDate"`
 
-	// sit estimated weight
+	// The estimated weight of the goods being put into storage.
 	// Example: 2000
 	SitEstimatedWeight *int64 `json:"sitEstimatedWeight"`
 
@@ -166,11 +166,11 @@ type PPMShipment struct {
 	// Required: true
 	Status PPMShipmentStatus `json:"status"`
 
-	// submitted at
+	// The timestamp of when the customer submitted their move to the counselor.
 	// Format: date-time
 	SubmittedAt *strfmt.DateTime `json:"submittedAt"`
 
-	// updated at
+	// The timestamp of when a property of this object was last updated (UTC)
 	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`

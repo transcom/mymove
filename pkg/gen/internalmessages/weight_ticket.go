@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// WeightTicket weight ticket
+// WeightTicket Vehicle and optional trailer information and weight documents used to move this PPM shipment.
 //
 // swagger:model WeightTicket
 type WeightTicket struct {

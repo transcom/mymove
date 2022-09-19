@@ -5941,6 +5941,7 @@ func init() {
       }
     },
     "MovingExpense": {
+      "description": "Expense information and receipts of costs incurred that can be reimbursed while moving a PPM shipment.",
       "type": "object",
       "required": [
         "id",
@@ -5952,39 +5953,47 @@ func init() {
       ],
       "properties": {
         "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
         },
         "createdAt": {
+          "description": "Timestamp the moving expense object was initially created in the system",
           "type": "string",
           "format": "date-time"
         },
         "description": {
+          "description": "A brief description of the expense",
           "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
         "document": {
+          "description": "The Document object that contains all file uploads for this expense",
           "type": "object"
         },
         "documentId": {
+          "description": "The id of the Document that contains all file uploads for this expense",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
         "id": {
+          "description": "Unique primary identifier of the Moving Expense object",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "missingReceipt": {
+          "description": "Indicates if the service member is missing the receipt with the proof of expense amount",
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -5995,22 +6004,26 @@ func init() {
           "$ref": "#/definitions/MovingExpenseType"
         },
         "paidWithGtcc": {
+          "description": "Indicates if the service member used their government issued card to pay for the expense",
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
         },
         "ppmShipmentId": {
+          "description": "The PPM Shipment id that this moving expense belongs to",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
+          "description": "The reason the services counselor has excluded or rejected the moving expense",
           "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
         "sitEndDate": {
+          "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -6018,6 +6031,7 @@ func init() {
           "example": "2018-05-26"
         },
         "sitStartDate": {
+          "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -6030,6 +6044,7 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "updatedAt": {
+          "description": "Timestamp when a property of this moving expense object was last modified",
           "type": "string",
           "format": "date-time"
         }
@@ -6262,7 +6277,7 @@ func init() {
       }
     },
     "PPMShipment": {
-      "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
         "id",
         "shipmentId",
@@ -6286,6 +6301,7 @@ func init() {
           "example": "90210"
         },
         "actualMoveDate": {
+          "description": "The actual start date of when the PPM shipment left the origin.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -6309,7 +6325,7 @@ func init() {
           "x-omitempty": false
         },
         "advanceAmountRequested": {
-          "description": "The amount requested for an advance, or null if no advance is requested\n",
+          "description": "The amount requested as an advance by the service member up to a maximum percentage of the estimated incentive.\n",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
@@ -6319,17 +6335,20 @@ func init() {
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "approvedAt": {
+          "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
         },
         "createdAt": {
+          "description": "Timestamp of when the PPM Shipment was initially created (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
         },
         "destinationPostalCode": {
+          "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -6342,19 +6361,21 @@ func init() {
           "readOnly": true
         },
         "estimatedIncentive": {
+          "description": "The estimated amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
         "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
           "example": 4200
         },
         "expectedDepartureDate": {
-          "description": "Date the customer expects to move.\n",
+          "description": "Date the customer expects to begin their move.\n",
           "type": "string",
           "format": "date"
         },
@@ -6367,7 +6388,7 @@ func init() {
           "readOnly": true
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -6385,26 +6406,28 @@ func init() {
           "x-omitempty": false
         },
         "id": {
+          "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "movingExpense": {
+          "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/MovingExpense"
           }
         },
         "netWeight": {
-          "description": "The net weight of the shipment once it has been weight\n",
+          "description": "The net weight of the shipment once it has been weighed.\n",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
           "example": 4300
         },
         "pickupPostalCode": {
-          "description": "zip code",
+          "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -6412,17 +6435,20 @@ func init() {
           "example": "90210"
         },
         "proGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
         },
         "reviewedAt": {
+          "description": "The timestamp of when the Service Counselor has reviewed all of the closeout documents.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
         },
         "secondaryDestinationPostalCode": {
+          "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -6433,7 +6459,7 @@ func init() {
         },
         "secondaryPickupPostalCode": {
           "type": "string",
-          "format": "zip",
+          "format": "An optional secondary pickup location near the origin where additional goods exist.",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
@@ -6441,36 +6467,42 @@ func init() {
           "example": "90210"
         },
         "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "sitEstimatedCost": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
         "sitEstimatedDepartureDate": {
+          "description": "The date that goods will exit the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
         },
         "sitEstimatedEntryDate": {
+          "description": "The date that goods will first enter the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
         },
         "sitEstimatedWeight": {
+          "description": "The estimated weight of the goods being put into storage.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
           "example": 2000
         },
         "sitExpected": {
+          "description": "Captures whether the PPM is expected to need put into storage at the origin or destination.",
           "type": "boolean"
         },
         "sitLocation": {
@@ -6487,6 +6519,7 @@ func init() {
           ]
         },
         "spouseProGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -6495,12 +6528,14 @@ func init() {
           "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
+          "description": "The timestamp of when the customer submitted their move to the counselor.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
         },
         "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
@@ -6510,6 +6545,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "weightTickets": {
+          "description": "All weight ticket documentation records belonging to vehicles of this PPM shipment",
           "type": "array",
           "items": {
             "$ref": "#/definitions/WeightTicket"
@@ -6519,6 +6555,7 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
@@ -7974,6 +8011,7 @@ func init() {
       }
     },
     "WeightTicket": {
+      "description": "Vehicle and optional trailer information and weight documents used to move this PPM shipment.",
       "type": "object",
       "required": [
         "ppmShipmentId",
@@ -15098,6 +15136,7 @@ func init() {
       }
     },
     "MovingExpense": {
+      "description": "Expense information and receipts of costs incurred that can be reimbursed while moving a PPM shipment.",
       "type": "object",
       "required": [
         "id",
@@ -15109,39 +15148,47 @@ func init() {
       ],
       "properties": {
         "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
         },
         "createdAt": {
+          "description": "Timestamp the moving expense object was initially created in the system",
           "type": "string",
           "format": "date-time"
         },
         "description": {
+          "description": "A brief description of the expense",
           "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
         "document": {
+          "description": "The Document object that contains all file uploads for this expense",
           "type": "object"
         },
         "documentId": {
+          "description": "The id of the Document that contains all file uploads for this expense",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
         "id": {
+          "description": "Unique primary identifier of the Moving Expense object",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "missingReceipt": {
+          "description": "Indicates if the service member is missing the receipt with the proof of expense amount",
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -15152,22 +15199,26 @@ func init() {
           "$ref": "#/definitions/MovingExpenseType"
         },
         "paidWithGtcc": {
+          "description": "Indicates if the service member used their government issued card to pay for the expense",
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
         },
         "ppmShipmentId": {
+          "description": "The PPM Shipment id that this moving expense belongs to",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
+          "description": "The reason the services counselor has excluded or rejected the moving expense",
           "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
         "sitEndDate": {
+          "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -15175,6 +15226,7 @@ func init() {
           "example": "2018-05-26"
         },
         "sitStartDate": {
+          "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -15187,6 +15239,7 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "updatedAt": {
+          "description": "Timestamp when a property of this moving expense object was last modified",
           "type": "string",
           "format": "date-time"
         }
@@ -15419,7 +15472,7 @@ func init() {
       }
     },
     "PPMShipment": {
-      "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
         "id",
         "shipmentId",
@@ -15443,6 +15496,7 @@ func init() {
           "example": "90210"
         },
         "actualMoveDate": {
+          "description": "The actual start date of when the PPM shipment left the origin.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -15466,7 +15520,7 @@ func init() {
           "x-omitempty": false
         },
         "advanceAmountRequested": {
-          "description": "The amount requested for an advance, or null if no advance is requested\n",
+          "description": "The amount requested as an advance by the service member up to a maximum percentage of the estimated incentive.\n",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
@@ -15476,17 +15530,20 @@ func init() {
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
         "approvedAt": {
+          "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
         },
         "createdAt": {
+          "description": "Timestamp of when the PPM Shipment was initially created (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
         },
         "destinationPostalCode": {
+          "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -15499,19 +15556,21 @@ func init() {
           "readOnly": true
         },
         "estimatedIncentive": {
+          "description": "The estimated amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
         "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
           "example": 4200
         },
         "expectedDepartureDate": {
-          "description": "Date the customer expects to move.\n",
+          "description": "Date the customer expects to begin their move.\n",
           "type": "string",
           "format": "date"
         },
@@ -15524,7 +15583,7 @@ func init() {
           "readOnly": true
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -15542,26 +15601,28 @@ func init() {
           "x-omitempty": false
         },
         "id": {
+          "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "movingExpense": {
+          "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/MovingExpense"
           }
         },
         "netWeight": {
-          "description": "The net weight of the shipment once it has been weight\n",
+          "description": "The net weight of the shipment once it has been weighed.\n",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
           "example": 4300
         },
         "pickupPostalCode": {
-          "description": "zip code",
+          "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -15569,17 +15630,20 @@ func init() {
           "example": "90210"
         },
         "proGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
         },
         "reviewedAt": {
+          "description": "The timestamp of when the Service Counselor has reviewed all of the closeout documents.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
         },
         "secondaryDestinationPostalCode": {
+          "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -15590,7 +15654,7 @@ func init() {
         },
         "secondaryPickupPostalCode": {
           "type": "string",
-          "format": "zip",
+          "format": "An optional secondary pickup location near the origin where additional goods exist.",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
@@ -15598,36 +15662,42 @@ func init() {
           "example": "90210"
         },
         "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "sitEstimatedCost": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
         "sitEstimatedDepartureDate": {
+          "description": "The date that goods will exit the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
         },
         "sitEstimatedEntryDate": {
+          "description": "The date that goods will first enter the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
         },
         "sitEstimatedWeight": {
+          "description": "The estimated weight of the goods being put into storage.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
           "example": 2000
         },
         "sitExpected": {
+          "description": "Captures whether the PPM is expected to need put into storage at the origin or destination.",
           "type": "boolean"
         },
         "sitLocation": {
@@ -15644,6 +15714,7 @@ func init() {
           ]
         },
         "spouseProGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -15652,12 +15723,14 @@ func init() {
           "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
+          "description": "The timestamp of when the customer submitted their move to the counselor.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
         },
         "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
@@ -15667,6 +15740,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "weightTickets": {
+          "description": "All weight ticket documentation records belonging to vehicles of this PPM shipment",
           "type": "array",
           "items": {
             "$ref": "#/definitions/WeightTicket"
@@ -15676,6 +15750,7 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
@@ -17141,6 +17216,7 @@ func init() {
       "type": "object"
     },
     "WeightTicket": {
+      "description": "Vehicle and optional trailer information and weight documents used to move this PPM shipment.",
       "type": "object",
       "required": [
         "ppmShipmentId",

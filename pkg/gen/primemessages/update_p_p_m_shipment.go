@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// UpdatePPMShipment update p p m shipment
+// UpdatePPMShipment The PPM specific fields of the shipment with values being changed
 //
 // swagger:model UpdatePPMShipment
 type UpdatePPMShipment struct {
