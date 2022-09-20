@@ -279,6 +279,59 @@ paths:
           name: body
           schema:
             $ref: '#/definitions/CreateMTOShipment'
+          x-examples:
+            application/json:
+              hhg:
+                summary: HHG
+                value:
+                  moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
+                  shipmentType: HHG
+                  requestedPickupDate: '2022-12-31'
+                  pickupAddress:
+                    streetAddress1: 204 South Prospect Lane
+                    city: Muldraugh
+                    state: KY
+                    postalCode: '40155'
+              nts:
+                summary: NTS
+                value:
+                  moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
+                  shipmentType: HHG_INTO_NTS_DOMESTIC
+                  requestedPickupDate: '2022-12-31'
+                  pickupAddress:
+                    streetAddress1: 204 South Prospect Lane
+                    city: Muldraugh
+                    state: KY
+                    postalCode: '40155'
+                  agents:
+                    - firstName: Edgar
+                      lastName: Taylor
+                      email: edgar.taylor@example.com
+                      phone: 555-555-5555
+                      agentType: RELEASING_AGENT
+              nts-r:
+                summary: NTS Release
+                value:
+                  moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
+                  shipmentType: HHG_OUTOF_NTS_DOMESTIC
+                  agents:
+                    - firstName: Edgar
+                      lastName: Taylor
+                      email: edgar.taylor@example.com
+                      phone: 555-555-5555
+                      agentType: RECEIVING_AGENT
+              ppm:
+                summary: PPM
+                value:
+                  moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
+                  shipmentType: PPM
+                  ppmShipment:
+                    pickupPostalCode: '90210'
+                    destinationPostalCode: '10001'
+                    expectedDepartureDate: '2022-10-01'
+                    estimatedWeight: 4999
+                    hasProGear: false
+                    sitExpected: false
       responses:
         '200':
           description: Successfully created a MTO shipment.
@@ -343,6 +396,55 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/UpdateMTOShipment'
+          x-examples:
+            application/json:
+              hhg:
+                summary: HHG
+                value:
+                  scheduledPickupDate: '2022-12-30'
+                  actualPickupDate: '2022-12-29'
+                  firstAvailableDeliveryDate: '2023-01-04'
+                  primeEstimatedWeight: 4250
+                  primeActualWeight: 4500
+                  destinationAddress:
+                    streetAddress1: 6622 Airport Way S
+                    streetAddress2: '#1430'
+                    city: Great Bend
+                    state: NY
+                    postalCode: '13643'
+                  pointOfContact: peyton.wing@example.com
+              nts:
+                summary: NTS
+                value:
+                  moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
+                  scheduledPickupDate: '2022-12-30'
+                  actualPickupDate: '2022-12-29'
+                  estimatedWeight: 4250
+                  actualWeight: 4500
+                  counselorRemarks: Beware of dogs on property
+              nts-r:
+                summary: NTS Release
+                value:
+                  moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
+                  ntsRecordedWeight: 4500
+                  destinationAddress:
+                    streetAddress1: 812 S 129th Street
+                    city: San Antonio
+                    state: TX
+                    postalCode: '78245'
+              ppm:
+                summary: PPM
+                value:
+                  moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
+                  ppmShipment:
+                    hasProGear: true
+                    proGearWeight: 830
+                    spouseProGearWeight: 366
+                    sitExpected: true
+                    sitLocation: DESTINATION
+                    sitEstimatedWeight: 1760
+                    sitEstimatedEntryDate: '2022-10-06'
+                    sitEstimatedDepartureDate: '2022-10-13'
         - $ref: '#/parameters/ifMatch'
       responses:
         '200':
@@ -1171,6 +1273,11 @@ definitions:
     required:
       - moveTaskOrderID
       - shipmentType
+    x-examples:
+      application/json:
+        ppm:
+          moveTaskOrderID: 1111-2222-3333-4444
+          shipmentType: PPM
   CreatePPMShipment:
     description: >-
       Creation object containing the `PPM` shipmentType specific data, not used

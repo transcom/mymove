@@ -373,6 +373,78 @@ func init() {
         "operationId": "createMTOShipment",
         "parameters": [
           {
+            "x-examples": {
+              "application/json": {
+                "hhg": {
+                  "summary": "HHG",
+                  "value": {
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "pickupAddress": {
+                      "city": "Muldraugh",
+                      "postalCode": "40155",
+                      "state": "KY",
+                      "streetAddress1": "204 South Prospect Lane"
+                    },
+                    "requestedPickupDate": "2022-12-31",
+                    "shipmentType": "HHG"
+                  }
+                },
+                "nts": {
+                  "summary": "NTS",
+                  "value": {
+                    "agents": [
+                      {
+                        "agentType": "RELEASING_AGENT",
+                        "email": "edgar.taylor@example.com",
+                        "firstName": "Edgar",
+                        "lastName": "Taylor",
+                        "phone": "555-555-5555"
+                      }
+                    ],
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "pickupAddress": {
+                      "city": "Muldraugh",
+                      "postalCode": "40155",
+                      "state": "KY",
+                      "streetAddress1": "204 South Prospect Lane"
+                    },
+                    "requestedPickupDate": "2022-12-31",
+                    "shipmentType": "HHG_INTO_NTS_DOMESTIC"
+                  }
+                },
+                "nts-r": {
+                  "summary": "NTS Release",
+                  "value": {
+                    "agents": [
+                      {
+                        "agentType": "RECEIVING_AGENT",
+                        "email": "edgar.taylor@example.com",
+                        "firstName": "Edgar",
+                        "lastName": "Taylor",
+                        "phone": "555-555-5555"
+                      }
+                    ],
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "shipmentType": "HHG_OUTOF_NTS_DOMESTIC"
+                  }
+                },
+                "ppm": {
+                  "summary": "PPM",
+                  "value": {
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "ppmShipment": {
+                      "destinationPostalCode": "10001",
+                      "estimatedWeight": 4999,
+                      "expectedDepartureDate": "2022-10-01",
+                      "hasProGear": false,
+                      "pickupPostalCode": "90210",
+                      "sitExpected": false
+                    },
+                    "shipmentType": "PPM"
+                  }
+                }
+              }
+            },
             "name": "body",
             "in": "body",
             "schema": {
@@ -470,6 +542,68 @@ func init() {
             "required": true
           },
           {
+            "x-examples": {
+              "application/json": {
+                "hhg": {
+                  "summary": "HHG",
+                  "value": {
+                    "actualPickupDate": "2022-12-29",
+                    "destinationAddress": {
+                      "city": "Great Bend",
+                      "postalCode": "13643",
+                      "state": "NY",
+                      "streetAddress1": "6622 Airport Way S",
+                      "streetAddress2": "#1430"
+                    },
+                    "firstAvailableDeliveryDate": "2023-01-04",
+                    "pointOfContact": "peyton.wing@example.com",
+                    "primeActualWeight": 4500,
+                    "primeEstimatedWeight": 4250,
+                    "scheduledPickupDate": "2022-12-30"
+                  }
+                },
+                "nts": {
+                  "summary": "NTS",
+                  "value": {
+                    "actualPickupDate": "2022-12-29",
+                    "actualWeight": 4500,
+                    "counselorRemarks": "Beware of dogs on property",
+                    "estimatedWeight": 4250,
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "scheduledPickupDate": "2022-12-30"
+                  }
+                },
+                "nts-r": {
+                  "summary": "NTS Release",
+                  "value": {
+                    "destinationAddress": {
+                      "city": "San Antonio",
+                      "postalCode": "78245",
+                      "state": "TX",
+                      "streetAddress1": "812 S 129th Street"
+                    },
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "ntsRecordedWeight": 4500
+                  }
+                },
+                "ppm": {
+                  "summary": "PPM",
+                  "value": {
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "ppmShipment": {
+                      "hasProGear": true,
+                      "proGearWeight": 830,
+                      "sitEstimatedDepartureDate": "2022-10-13",
+                      "sitEstimatedEntryDate": "2022-10-06",
+                      "sitEstimatedWeight": 1760,
+                      "sitExpected": true,
+                      "sitLocation": "DESTINATION",
+                      "spouseProGearWeight": 366
+                    }
+                  }
+                }
+              }
+            },
             "name": "body",
             "in": "body",
             "required": true,
@@ -1317,6 +1451,14 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        }
+      },
+      "x-examples": {
+        "application/json": {
+          "ppm": {
+            "moveTaskOrderID": "1111-2222-3333-4444",
+            "shipmentType": "PPM"
+          }
         }
       }
     },
@@ -4335,6 +4477,78 @@ func init() {
         "operationId": "createMTOShipment",
         "parameters": [
           {
+            "x-examples": {
+              "application/json": {
+                "hhg": {
+                  "summary": "HHG",
+                  "value": {
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "pickupAddress": {
+                      "city": "Muldraugh",
+                      "postalCode": "40155",
+                      "state": "KY",
+                      "streetAddress1": "204 South Prospect Lane"
+                    },
+                    "requestedPickupDate": "2022-12-31",
+                    "shipmentType": "HHG"
+                  }
+                },
+                "nts": {
+                  "summary": "NTS",
+                  "value": {
+                    "agents": [
+                      {
+                        "agentType": "RELEASING_AGENT",
+                        "email": "edgar.taylor@example.com",
+                        "firstName": "Edgar",
+                        "lastName": "Taylor",
+                        "phone": "555-555-5555"
+                      }
+                    ],
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "pickupAddress": {
+                      "city": "Muldraugh",
+                      "postalCode": "40155",
+                      "state": "KY",
+                      "streetAddress1": "204 South Prospect Lane"
+                    },
+                    "requestedPickupDate": "2022-12-31",
+                    "shipmentType": "HHG_INTO_NTS_DOMESTIC"
+                  }
+                },
+                "nts-r": {
+                  "summary": "NTS Release",
+                  "value": {
+                    "agents": [
+                      {
+                        "agentType": "RECEIVING_AGENT",
+                        "email": "edgar.taylor@example.com",
+                        "firstName": "Edgar",
+                        "lastName": "Taylor",
+                        "phone": "555-555-5555"
+                      }
+                    ],
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "shipmentType": "HHG_OUTOF_NTS_DOMESTIC"
+                  }
+                },
+                "ppm": {
+                  "summary": "PPM",
+                  "value": {
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "ppmShipment": {
+                      "destinationPostalCode": "10001",
+                      "estimatedWeight": 4999,
+                      "expectedDepartureDate": "2022-10-01",
+                      "hasProGear": false,
+                      "pickupPostalCode": "90210",
+                      "sitExpected": false
+                    },
+                    "shipmentType": "PPM"
+                  }
+                }
+              }
+            },
             "name": "body",
             "in": "body",
             "schema": {
@@ -4462,6 +4676,68 @@ func init() {
             "required": true
           },
           {
+            "x-examples": {
+              "application/json": {
+                "hhg": {
+                  "summary": "HHG",
+                  "value": {
+                    "actualPickupDate": "2022-12-29",
+                    "destinationAddress": {
+                      "city": "Great Bend",
+                      "postalCode": "13643",
+                      "state": "NY",
+                      "streetAddress1": "6622 Airport Way S",
+                      "streetAddress2": "#1430"
+                    },
+                    "firstAvailableDeliveryDate": "2023-01-04",
+                    "pointOfContact": "peyton.wing@example.com",
+                    "primeActualWeight": 4500,
+                    "primeEstimatedWeight": 4250,
+                    "scheduledPickupDate": "2022-12-30"
+                  }
+                },
+                "nts": {
+                  "summary": "NTS",
+                  "value": {
+                    "actualPickupDate": "2022-12-29",
+                    "actualWeight": 4500,
+                    "counselorRemarks": "Beware of dogs on property",
+                    "estimatedWeight": 4250,
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "scheduledPickupDate": "2022-12-30"
+                  }
+                },
+                "nts-r": {
+                  "summary": "NTS Release",
+                  "value": {
+                    "destinationAddress": {
+                      "city": "San Antonio",
+                      "postalCode": "78245",
+                      "state": "TX",
+                      "streetAddress1": "812 S 129th Street"
+                    },
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "ntsRecordedWeight": 4500
+                  }
+                },
+                "ppm": {
+                  "summary": "PPM",
+                  "value": {
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "ppmShipment": {
+                      "hasProGear": true,
+                      "proGearWeight": 830,
+                      "sitEstimatedDepartureDate": "2022-10-13",
+                      "sitEstimatedEntryDate": "2022-10-06",
+                      "sitEstimatedWeight": 1760,
+                      "sitExpected": true,
+                      "sitLocation": "DESTINATION",
+                      "spouseProGearWeight": 366
+                    }
+                  }
+                }
+              }
+            },
             "name": "body",
             "in": "body",
             "required": true,
@@ -5517,6 +5793,14 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        }
+      },
+      "x-examples": {
+        "application/json": {
+          "ppm": {
+            "moveTaskOrderID": "1111-2222-3333-4444",
+            "shipmentType": "PPM"
+          }
         }
       }
     },
