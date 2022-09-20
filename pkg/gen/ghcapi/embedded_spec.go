@@ -3054,6 +3054,98 @@ func init() {
         }
       }
     },
+    "/report-violations/{reportID}": {
+      "get": {
+        "description": "Fetch the report violations for an evaluation report",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "reportViolations"
+        ],
+        "summary": "Fetch the report violations for an evaluation report",
+        "operationId": "getReportViolationsByReportID",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the report violations",
+            "schema": {
+              "$ref": "#/definitions/ReportViolations"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "post": {
+        "description": "Associate violations with an evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "reportViolations"
+        ],
+        "summary": "Associate violations with an evaluation report",
+        "operationId": "associateReportViolations",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/AssociateReportViolations"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully saved the report violations"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "create.reportViolation"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID that has associated violations",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/shipments/{shipmentID}": {
       "get": {
         "description": "fetches a shipment by ID",
@@ -3999,6 +4091,19 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "Approved for three weeks rather than requested 45 days"
+        }
+      }
+    },
+    "AssociateReportViolations": {
+      "description": "A list of PWS violation string ids to associate with an evaluation report",
+      "type": "object",
+      "properties": {
+        "violations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
         }
       }
     },
@@ -6974,6 +7079,36 @@ func init() {
           "type": "string",
           "example": "MTO Shipment not good enough"
         }
+      }
+    },
+    "ReportViolation": {
+      "description": "An object associating violations to evaluation reports",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reportID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "violation": {
+          "$ref": "#/definitions/PWSViolation"
+        },
+        "violationID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "ReportViolations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ReportViolation"
       }
     },
     "Reweigh": {
@@ -12026,6 +12161,128 @@ func init() {
         }
       }
     },
+    "/report-violations/{reportID}": {
+      "get": {
+        "description": "Fetch the report violations for an evaluation report",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "reportViolations"
+        ],
+        "summary": "Fetch the report violations for an evaluation report",
+        "operationId": "getReportViolationsByReportID",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the report violations",
+            "schema": {
+              "$ref": "#/definitions/ReportViolations"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Associate violations with an evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "reportViolations"
+        ],
+        "summary": "Associate violations with an evaluation report",
+        "operationId": "associateReportViolations",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/AssociateReportViolations"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully saved the report violations"
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "create.reportViolation"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID that has associated violations",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/shipments/{shipmentID}": {
       "get": {
         "description": "fetches a shipment by ID",
@@ -13178,6 +13435,19 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "Approved for three weeks rather than requested 45 days"
+        }
+      }
+    },
+    "AssociateReportViolations": {
+      "description": "A list of PWS violation string ids to associate with an evaluation report",
+      "type": "object",
+      "properties": {
+        "violations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
         }
       }
     },
@@ -16159,6 +16429,36 @@ func init() {
           "type": "string",
           "example": "MTO Shipment not good enough"
         }
+      }
+    },
+    "ReportViolation": {
+      "description": "An object associating violations to evaluation reports",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reportID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "violation": {
+          "$ref": "#/definitions/PWSViolation"
+        },
+        "violationID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "ReportViolations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ReportViolation"
       }
     },
     "Reweigh": {
