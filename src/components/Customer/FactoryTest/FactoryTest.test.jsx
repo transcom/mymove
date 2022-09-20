@@ -1,6 +1,8 @@
 import { BASE_FIELDS } from 'utils/test/factories/base';
 import testFactory, { TEST_FACTORY_FIELDS } from 'utils/test/factories/discovery/factory';
 import { TEST_SUBFACTORY_FIELDS } from 'utils/test/factories/discovery/subfactory';
+import dutyLocationFactory, { DUTY_LOCATION_FIELDS } from 'utils/test/factories/dutyLocation';
+import { ADDRESS_FIELDS } from 'utils/test/factories/address';
 
 const test = testFactory();
 
@@ -14,22 +16,25 @@ const testWithOverriddenFieldViaOverride = testFactory({
 });
 
 const testWithOverridenFieldByLazyOverrides = testFactory({
-  [BASE_FIELDS.LAZY_OVERRIDES]: [
-    {
-      [BASE_FIELDS.LAZY_OVERRIDES_FIELD_PATH]: [TEST_FACTORY_FIELDS.POST_BUILD_TOUCHED_FIELD],
-      [BASE_FIELDS.LAZY_OVERRIDES_VALUE]: 'overriddenByLazyOverrides',
+  [BASE_FIELDS.LAZY_OVERRIDES]: {
+    [TEST_FACTORY_FIELDS.POST_BUILD_TOUCHED_FIELD]: 'overriddenByLazyOverrides',
+    [TEST_FACTORY_FIELDS.SUBFACTORY]: {
+      [TEST_SUBFACTORY_FIELDS.POST_BUILD_TOUCHED_FIELD]: 'overriddenByLazyOverrides',
     },
-    {
-      [BASE_FIELDS.LAZY_OVERRIDES_FIELD_PATH]: [
-        TEST_FACTORY_FIELDS.SUBFACTORY,
-        TEST_SUBFACTORY_FIELDS.POST_BUILD_TOUCHED_FIELD,
-      ],
-      [BASE_FIELDS.LAZY_OVERRIDES_VALUE]: 'overriddenByLazyOverrides',
-    },
-  ],
+  },
 });
 
 const testWithTrait = testFactory({ useTraits: ['testTrait'] });
+
+const dutyLocationStreetAddressOverrideValue = '123 Main St.';
+
+const dutyLocation = dutyLocationFactory({
+  [BASE_FIELDS.OVERRIDES]: {
+    [DUTY_LOCATION_FIELDS.ADDRESS]: {
+      [ADDRESS_FIELDS.STREET_ADDRESS_1]: dutyLocationStreetAddressOverrideValue,
+    },
+  },
+});
 
 describe('testFactory', () => {
   it('has correct default values', () => {
@@ -64,7 +69,17 @@ describe('testFactory', () => {
       testWithOverriddenFieldViaOverride[TEST_FACTORY_FIELDS.SUBFACTORY][TEST_SUBFACTORY_FIELDS.FIELD_TO_OVERRIDE],
     ).toBe('overriddenBySuboverrides');
   });
+  it('maintains subfactory values that were not overridden', () => {
+    expect(testWithOverriddenFieldViaOverride[TEST_FACTORY_FIELDS.SUBFACTORY][TEST_SUBFACTORY_FIELDS.DEFAULT]).toBe(
+      'default',
+    );
+  });
   it('converts a field set with snake_case to a field with camelCase', () => {
     expect(test[TEST_FACTORY_FIELDS.CAMEL_CASE_FIELD]).toBe('caseFieldValue');
+  });
+  it("overrides a dutyLocation's address's street address", () => {
+    expect(dutyLocation[DUTY_LOCATION_FIELDS.ADDRESS][ADDRESS_FIELDS.STREET_ADDRESS_1]).toBe(
+      dutyLocationStreetAddressOverrideValue,
+    );
   });
 });

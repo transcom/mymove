@@ -55,24 +55,9 @@ const BASE_FIELDS = {
   TRAITS: 'traits',
 };
 
-const applyLazyOverrides = (object, lazyOverrides = []) => {
-  lazyOverrides.forEach(({ fieldPath, value }) => {
-    _.set(object, fieldPath, value);
-  });
-};
-
-const basePostBuild = (lazyOverrides, func = (o) => o) => {
-  return (object) => {
-    func(object);
-    applyLazyOverrides(object, lazyOverrides);
-    return object;
-  };
-};
-
-const applyOverrides = (fields, overrides) => {
-  const appliedFields = {};
-
-  Object.entries(fields).forEach(([field, value]) => {
+const applyOverrides = (object, overrides) => {
+  const appliedFields = object;
+  Object.entries(object).forEach(([field, value]) => {
     let appliedValue;
     switch (typeof value) {
       case 'function':
@@ -83,20 +68,33 @@ const applyOverrides = (fields, overrides) => {
         }
         break;
       case 'object':
-        if (overrides?.[field]) {
-          appliedValue = { [field]: applyOverrides(value, overrides[field]) };
+        if (overrides[field]) {
+          appliedValue = applyOverrides(value, overrides[field]);
         } else {
           appliedValue = value;
         }
         break;
       default:
-        appliedValue = value;
+        if (overrides && overrides[field]) {
+          appliedValue = overrides[field];
+        } else {
+          appliedValue = value;
+        }
         break;
     }
     appliedFields[field] = appliedValue;
   });
-
   return appliedFields;
+};
+
+const basePostBuild = (lazyOverrides, func = (o) => o) => {
+  return (object) => {
+    func(object);
+    if (lazyOverrides) {
+      applyOverrides(object, lazyOverrides);
+    }
+    return object;
+  };
 };
 
 const camelCaseFields = (fields) => {
@@ -123,4 +121,4 @@ const baseFactory = (params) => {
   return builder({ overrides, traits: useTraits });
 };
 
-export { BASE_FIELDS, baseFactory, basePostBuild, fake, getInternalSpec, getGHCSpec, applyLazyOverrides };
+export { BASE_FIELDS, baseFactory, basePostBuild, fake, getInternalSpec, getGHCSpec };
