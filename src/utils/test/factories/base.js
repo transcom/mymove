@@ -118,7 +118,7 @@ const baseFactory = (params) => {
     traits,
   });
 
-  return builder({ overrides, traits: useTraits });
+  return builder({ traits: useTraits });
 };
 
 export { BASE_FIELDS, baseFactory, basePostBuild, fake, getInternalSpec, getGHCSpec };
