@@ -68,15 +68,20 @@
   @include u-margin-top(2);
 }
 
-.qaeRemarks {
+.qaeRemarks, .violationsRemarks  {
   width: 75%;
 }
 
-.qaeRemarksLabel {
+.qaeRemarksLabel, .violationsLabel  {
   width: 25%;
 }
 
 .qaeAndCustomerInfo {
   @include u-margin-left(4);
   @include u-margin-top(6);
+}
+
+.violationsRemarks {
+  @include u-margin-top(2);
+  @include u-margin-left(2);
 }

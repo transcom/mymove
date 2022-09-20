@@ -23,7 +23,7 @@ import { formatDateForSwagger } from 'shared/dates';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 
-const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade }) => {
+const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, customerInfo, grade }) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
   const location = useLocation();
@@ -305,6 +305,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
         isOpen={isSubmitModalOpen}
         modalTitle={modalTitle}
         evaluationReport={evaluationReport}
+        reportViolations={reportViolations}
         moveCode={moveCode}
         customerInfo={customerInfo}
         grade={grade}

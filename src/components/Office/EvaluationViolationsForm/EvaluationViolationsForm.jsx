@@ -4,37 +4,16 @@ import { useParams, useHistory } from 'react-router';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
 import classnames from 'classnames';
-import { useMutation, queryCache } from 'react-query';
 
 import styles from './EvaluationViolationsForm.module.scss';
 import SelectedViolation from './SelectedViolation/SelectedViolation';
 
-import { EVALUATION_REPORT } from 'constants/queryKeys';
 import ViolationsAccordion from 'components/Office/ViolationsAccordion/ViolationsAccordion';
-import { saveEvaluationReport, associateReportViolations } from 'services/ghcApi';
 import { DatePickerInput } from 'components/form/fields';
-import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 
-const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolations }) => {
+const EvaluationViolationsForm = ({ violations }) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
-
-  const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
-    onError: (error) => {
-      const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
-    },
-    onSuccess: () => {
-      queryCache.refetchQueries([EVALUATION_REPORT, reportId]).then();
-    },
-  });
-
-  const [mutateReportViolations] = useMutation(associateReportViolations, {
-    onError: (error) => {
-      const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
-    },
-  });
 
   const handleBackToEvalForm = () => {
     // TODO: Save as draft before rerouting
@@ -49,32 +28,9 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
   const categories = [...new Set(violations.map((item) => item.category))];
   const validationSchema = Yup.object().shape({});
 
-  const saveDraft = async (values) => {
-    const { createdAt, updatedAt, shipmentID, id, moveID, moveReferenceID, ...existingReportFields } = evaluationReport;
-    const body = {
-      ...existingReportFields,
-      // TODO: Add serious incident and date fields that are on the form
-    };
-    const { eTag } = evaluationReport;
-    await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
-
-    // Also need to update any violations that were selected
-    await mutateReportViolations({ reportID: reportId, body: { violations: values.selectedViolations } });
-  };
-
-  const handleSaveDraft = async (values) => {
-    await saveDraft(values);
-
-    history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
-  };
-
-  const initialValues = {
-    selectedViolations: reportViolations ? reportViolations.map((violation) => violation.violationID) : [],
-  };
-
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={{}}
       enableReinitialize
       onSubmit={() => {}}
       validationSchema={validationSchema}
@@ -136,7 +92,6 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                     <SelectedViolation
                       violation={violations.find((v) => v.id === violationId)}
                       unselectViolation={toggleSelectedViolation}
-                      key={`${violationId}-selected`}
                     />
                   ))}
                 </Grid>
@@ -238,12 +193,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                     <Button className="usa-button--unstyled" type="button" onClick={cancelForViolations}>
                       Cancel
                     </Button>
-                    <Button
-                      data-testid="saveDraft"
-                      type="button"
-                      className="usa-button--secondary"
-                      onClick={() => handleSaveDraft(values)}
-                    >
+                    <Button data-testid="saveDraft" type="submit" className="usa-button--secondary">
                       Save draft
                     </Button>
                     <Button disabled>Review and submit</Button>
