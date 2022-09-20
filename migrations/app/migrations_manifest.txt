@@ -752,3 +752,4 @@
 20220902182104_app_demo_cert_migration.up.sql
 20220908163100_app_exp_cert_migration.up.sql
 20220909181518_update_pws_violations_table_additionaldataelem.up.sql
+20220919160852_create_report_violations_table.up.sql
