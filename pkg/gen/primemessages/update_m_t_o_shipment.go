@@ -19,6 +19,10 @@ import (
 // swagger:model UpdateMTOShipment
 type UpdateMTOShipment struct {
 
+	// The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.
+	// Format: date
+	ActualDeliveryDate *strfmt.Date `json:"actualDeliveryDate"`
+
 	// The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.
 	// Format: date
 	ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
@@ -75,6 +79,10 @@ type UpdateMTOShipment struct {
 	// Example: 4500
 	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
+	// The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.
+	// Format: date
+	ScheduledDeliveryDate *strfmt.Date `json:"scheduledDeliveryDate"`
+
 	// The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.
 	// Format: date
 	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
@@ -100,6 +108,10 @@ type UpdateMTOShipment struct {
 func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateActualDeliveryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateActualPickupDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -121,6 +133,10 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePpmShipment(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateScheduledDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -147,6 +163,18 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *UpdateMTOShipment) validateActualDeliveryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ActualDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("actualDeliveryDate", "body", "date", m.ActualDeliveryDate.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -223,6 +251,18 @@ func (m *UpdateMTOShipment) validatePpmShipment(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) validateScheduledDeliveryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ScheduledDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("scheduledDeliveryDate", "body", "date", m.ScheduledDeliveryDate.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
