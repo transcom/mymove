@@ -30,14 +30,14 @@ func (h AssociateReportViolationsHandler) Handle(params reportViolationop.Associ
 
 			var reportViolations models.ReportViolations
 			for _, violation := range params.Body.Violations {
-				violatinoID, err := uuid.FromString(violation.String())
+				violationID, err := uuid.FromString(violation.String())
 				if err != nil {
-					appCtx.Logger().Error(fmt.Sprintf("Error parsing violation id: %s", violatinoID.String()), zap.Error(err))
+					appCtx.Logger().Error(fmt.Sprintf("Error parsing violation id: %s", violationID.String()), zap.Error(err))
 					return reportViolationop.NewAssociateReportViolationsInternalServerError(), err
 				}
 				reportViolation := models.ReportViolation{
 					ReportID:    reportID,
-					ViolationID: violatinoID,
+					ViolationID: violationID,
 				}
 				reportViolations = append(reportViolations, reportViolation)
 			}
