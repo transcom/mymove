@@ -82,6 +82,16 @@
 }
 
 .violationsRemarks {
-  @include u-margin-top(2);
-  @include u-margin-left(2);
+
+}
+
+div > h5 {
+  padding-left: 18px;
+  margin-left: 20px;
+  margin-top: 8px !important;
+  margin-bottom: 4px !important;
+}
+
+div > p {
+  padding-bottom: 6px;
 }

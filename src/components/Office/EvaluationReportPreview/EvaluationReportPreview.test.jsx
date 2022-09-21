@@ -254,6 +254,11 @@ describe('Evaluation Report Container', () => {
     );
 
     const evaluationReportContainer = await screen.findByTestId('EvaluationReportPreview');
+    expect(screen.getByTestId('violationsObserved')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Violations', level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Information', level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'QAE remarks', level: 3 })).toBeInTheDocument();
+    expect(screen.getByText('Evaluation remarks')).toBeInTheDocument();
     expect(evaluationReportContainer).toBeInTheDocument();
     // shipment type rendered
     expect(await screen.findByText('HHG')).toBeInTheDocument();

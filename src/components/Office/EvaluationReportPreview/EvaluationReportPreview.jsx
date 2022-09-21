@@ -168,12 +168,13 @@ const EvaluationReportPreview = ({
           <dl className={descriptionListStyles.descriptionList}>
             <div className={classnames(descriptionListStyles.row)}>
               <dt data-testid="violationsObserved" className={styles.violationsLabel}>
-                Violations Observed
+                Violations observed
               </dt>
               {hasViolations ? (
                 <dd className={styles.violationsRemarks}>
                   {reportViolations.map((reportViolation) => (
                     <SelectedViolation
+                      className={styles.violationsList}
                       key={`${reportViolation.id}-violation`}
                       violation={reportViolation.violation}
                       isReadOnly
@@ -181,7 +182,7 @@ const EvaluationReportPreview = ({
                   ))}
                 </dd>
               ) : (
-                <dd>No</dd>
+                <dd className={styles.violationsRemarks}>No</dd>
               )}
             </div>
             {hasViolations && (
@@ -193,10 +194,7 @@ const EvaluationReportPreview = ({
                 {showIncidentDescription === 'yes' && (
                   <div className={classnames(descriptionListStyles.row)}>
                     <dt className={styles.violationsLabel}>Serious incident description</dt>
-                    <dd className={styles.violationsRemarks}>
-                      yesincident descriptionincident descriptionincident descriptionincident descriptionincident
-                      descriptionincident description
-                    </dd>
+                    <dd className={styles.violationsRemarks}>This is an incident description</dd>
                   </div>
                 )}
               </>
