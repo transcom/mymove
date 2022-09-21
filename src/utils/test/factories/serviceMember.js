@@ -7,12 +7,11 @@ import addressFactory from 'utils/test/factories/address';
 import fake from 'utils/test/factories/base';
 import { ORDERS_RANK_OPTIONS } from 'constants/orders';
 import WEIGHT_ENTITLEMENTS from 'constants/weightEntitlements';
+import { phoneHelper } from 'utils/test/factories/helpers';
 
 export const HAS_CURRENT_LOCATION = 'hasCurrentLocation';
 export const HAS_BACKUP_MAILING_ADDRESS = 'hasBackupMailingAddress';
 export const HAS_BACKUP_CONTACTS = 'hasBackupContacts';
-
-export const PHONE_FORMAT = '###-###-####';
 
 const serviceMemberBuilder = build({
   fields: {
@@ -23,8 +22,8 @@ const serviceMemberBuilder = build({
     first_name: fake((f) => f.name.firstName()),
     middle_name: fake((f) => f.name.middleName()),
     last_name: fake((f) => f.name.lastName()),
-    telephone: fake((f) => f.phone.number(PHONE_FORMAT)),
-    secondary_telephone: fake((f) => f.phone.number(PHONE_FORMAT)),
+    telephone: phoneHelper,
+    secondary_telephone: phoneHelper,
     email_is_preferred: fake((f) => f.datatype.boolean()),
     phone_is_preferred: fake((f) => f.datatype.boolean()),
     residential_address: addressFactory(),

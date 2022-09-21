@@ -48,6 +48,7 @@ const getGHCSpec = () => {
 };
 
 const BASE_FIELDS = {
+  FIELDS: 'fields',
   OVERRIDES: 'overrides',
   LAZY_OVERRIDES: 'lazyOverrides',
   LAZY_OVERRIDES_FIELD_PATH: 'fieldPath',
@@ -68,7 +69,7 @@ const applyOverrides = (object, overrides) => {
         }
         break;
       case 'object':
-        if (overrides[field]) {
+        if (overrides?.[field]) {
           appliedValue = applyOverrides(value, overrides[field]);
         } else {
           appliedValue = value;
