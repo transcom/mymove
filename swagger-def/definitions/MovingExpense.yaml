@@ -70,11 +70,11 @@ properties:
     x-nullable: true
     x-omitempty: false
   createdAt:
-    description: Timestamp the moving expense object was initially created in the system
+    description: Timestamp the moving expense object was initially created in the system (UTC)
     type: string
     format: date-time
   updatedAt:
-    description: Timestamp when a property of this moving expense object was last modified
+    description: Timestamp when a property of this moving expense object was last modified (UTC)
     type: string
     format: date-time
   eTag:

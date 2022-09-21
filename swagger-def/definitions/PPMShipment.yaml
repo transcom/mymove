@@ -111,7 +111,10 @@ properties:
     x-nullable: true
     x-omitempty: false
   sitExpected:
-    description: Captures whether the PPM is expected to need put into storage at the origin or destination.
+    description: |
+      Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.
+
+      Must be set to `true` when providing `sitLocation`, `sitEstimatedWeight`, `sitEstimatedEntryDate`, and `sitEstimatedDepartureDate` values to calculate the `sitEstimatedCost`.
     type: boolean
   estimatedWeight:
     description: The estimated weight of the PPM shipment goods being moved.

@@ -4860,7 +4860,7 @@ func init() {
           "x-omitempty": false
         },
         "createdAt": {
-          "description": "Timestamp the moving expense object was initially created in the system",
+          "description": "Timestamp the moving expense object was initially created in the system (UTC)",
           "type": "string",
           "format": "date-time"
         },
@@ -4945,7 +4945,7 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "updatedAt": {
-          "description": "Timestamp when a property of this moving expense object was last modified",
+          "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
           "format": "date-time"
         }
@@ -5501,7 +5501,7 @@ func init() {
           "example": 2000
         },
         "sitExpected": {
-          "description": "Captures whether the PPM is expected to need put into storage at the origin or destination.",
+          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
           "type": "boolean"
         },
         "sitLocation": {
@@ -12275,7 +12275,7 @@ func init() {
           "x-omitempty": false
         },
         "createdAt": {
-          "description": "Timestamp the moving expense object was initially created in the system",
+          "description": "Timestamp the moving expense object was initially created in the system (UTC)",
           "type": "string",
           "format": "date-time"
         },
@@ -12360,7 +12360,7 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "updatedAt": {
-          "description": "Timestamp when a property of this moving expense object was last modified",
+          "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
           "format": "date-time"
         }
@@ -12916,7 +12916,7 @@ func init() {
           "example": 2000
         },
         "sitExpected": {
-          "description": "Captures whether the PPM is expected to need put into storage at the origin or destination.",
+          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
           "type": "boolean"
         },
         "sitLocation": {

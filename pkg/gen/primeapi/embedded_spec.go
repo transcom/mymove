@@ -1537,7 +1537,7 @@ func init() {
           "example": 2000
         },
         "sitExpected": {
-          "description": "Captures whether the PPM is expected to require being put into storage at the origin or destination.",
+          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
           "type": "boolean"
         },
         "sitLocation": {
@@ -2922,7 +2922,7 @@ func init() {
           "example": 2000
         },
         "sitExpected": {
-          "description": "Captures whether the PPM is expected to require being put into storage at the origin or destination.",
+          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
           "type": "boolean"
         },
         "sitLocation": {
@@ -3827,7 +3827,7 @@ func init() {
           "example": 2000
         },
         "sitExpected": {
-          "description": "Captures whether the PPM is expected to require being put into storage at the origin or destination.",
+          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
           "type": "boolean",
           "x-nullable": true
         },
@@ -5903,7 +5903,7 @@ func init() {
           "example": 2000
         },
         "sitExpected": {
-          "description": "Captures whether the PPM is expected to require being put into storage at the origin or destination.",
+          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
           "type": "boolean"
         },
         "sitLocation": {
@@ -7288,7 +7288,7 @@ func init() {
           "example": 2000
         },
         "sitExpected": {
-          "description": "Captures whether the PPM is expected to require being put into storage at the origin or destination.",
+          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
           "type": "boolean"
         },
         "sitLocation": {
@@ -8196,7 +8196,7 @@ func init() {
           "example": 2000
         },
         "sitExpected": {
-          "description": "Captures whether the PPM is expected to require being put into storage at the origin or destination.",
+          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
           "type": "boolean",
           "x-nullable": true
         },

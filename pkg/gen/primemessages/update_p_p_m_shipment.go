@@ -69,7 +69,10 @@ type UpdatePPMShipment struct {
 	// Example: 2000
 	SitEstimatedWeight *int64 `json:"sitEstimatedWeight,omitempty"`
 
-	// Captures whether the PPM is expected to require being put into storage at the origin or destination.
+	// Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.
+	//
+	// Must be set to `true` when providing `sitLocation`, `sitEstimatedWeight`, `sitEstimatedEntryDate`, and `sitEstimatedDepartureDate` values to calculate the `sitEstimatedCost`.
+	//
 	SitExpected *bool `json:"sitExpected,omitempty"`
 
 	// sit location

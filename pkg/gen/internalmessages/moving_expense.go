@@ -22,7 +22,7 @@ type MovingExpense struct {
 	// The total amount of the expense as indicated on the receipt
 	Amount *int64 `json:"amount"`
 
-	// Timestamp the moving expense object was initially created in the system
+	// Timestamp the moving expense object was initially created in the system (UTC)
 	// Required: true
 	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"createdAt"`
@@ -84,7 +84,7 @@ type MovingExpense struct {
 	// status
 	Status PPMDocumentStatus `json:"status,omitempty"`
 
-	// Timestamp when a property of this moving expense object was last modified
+	// Timestamp when a property of this moving expense object was last modified (UTC)
 	// Required: true
 	// Format: date-time
 	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
