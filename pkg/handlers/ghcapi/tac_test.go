@@ -6,18 +6,13 @@ import (
 	"strings"
 
 	tacop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestTacValidation() {
-	var user models.OfficeUser
-
-	suite.PreloadData(func() {
-		user = testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
-	})
 
 	suite.Run("TAC validation", func() {
+		user := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
 		transportationAccountingCode := testdatagen.MakeDefaultTransportationAccountingCode(suite.DB())
 		tests := []struct {
 			tacCode string
