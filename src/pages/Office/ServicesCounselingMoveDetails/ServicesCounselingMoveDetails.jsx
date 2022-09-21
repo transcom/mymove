@@ -45,7 +45,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const [alertType, setAlertType] = useState('success');
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
-  const errorMessage = useState();
 
   const { order, move, mtoShipments, isLoading, isError } = useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
@@ -298,7 +297,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
           />
         )}
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
-          <ScrollToTop otherDep={errorMessage} />
+          <ScrollToTop otherDeps={[alertMessage, infoSavedAlert]} />
           <Grid row className={scMoveDetailsStyles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
