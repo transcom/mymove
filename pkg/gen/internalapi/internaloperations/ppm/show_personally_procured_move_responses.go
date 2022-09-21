@@ -16,7 +16,8 @@ import (
 // ShowPersonallyProcuredMoveOKCode is the HTTP code returned for type ShowPersonallyProcuredMoveOK
 const ShowPersonallyProcuredMoveOKCode int = 200
 
-/*ShowPersonallyProcuredMoveOK the instance of personally_procured_move
+/*
+ShowPersonallyProcuredMoveOK the instance of personally_procured_move
 
 swagger:response showPersonallyProcuredMoveOK
 */
@@ -63,7 +64,8 @@ func (o *ShowPersonallyProcuredMoveOK) WriteResponse(rw http.ResponseWriter, pro
 // ShowPersonallyProcuredMoveBadRequestCode is the HTTP code returned for type ShowPersonallyProcuredMoveBadRequest
 const ShowPersonallyProcuredMoveBadRequestCode int = 400
 
-/*ShowPersonallyProcuredMoveBadRequest invalid request
+/*
+ShowPersonallyProcuredMoveBadRequest invalid request
 
 swagger:response showPersonallyProcuredMoveBadRequest
 */
@@ -87,7 +89,8 @@ func (o *ShowPersonallyProcuredMoveBadRequest) WriteResponse(rw http.ResponseWri
 // ShowPersonallyProcuredMoveUnauthorizedCode is the HTTP code returned for type ShowPersonallyProcuredMoveUnauthorized
 const ShowPersonallyProcuredMoveUnauthorizedCode int = 401
 
-/*ShowPersonallyProcuredMoveUnauthorized request requires user authentication
+/*
+ShowPersonallyProcuredMoveUnauthorized request requires user authentication
 
 swagger:response showPersonallyProcuredMoveUnauthorized
 */
@@ -111,7 +114,8 @@ func (o *ShowPersonallyProcuredMoveUnauthorized) WriteResponse(rw http.ResponseW
 // ShowPersonallyProcuredMoveForbiddenCode is the HTTP code returned for type ShowPersonallyProcuredMoveForbidden
 const ShowPersonallyProcuredMoveForbiddenCode int = 403
 
-/*ShowPersonallyProcuredMoveForbidden user is not authorized
+/*
+ShowPersonallyProcuredMoveForbidden user is not authorized
 
 swagger:response showPersonallyProcuredMoveForbidden
 */

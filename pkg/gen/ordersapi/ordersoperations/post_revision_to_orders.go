@@ -29,9 +29,10 @@ func NewPostRevisionToOrders(ctx *middleware.Context, handler PostRevisionToOrde
 	return &PostRevisionToOrders{Context: ctx, Handler: handler}
 }
 
-/* PostRevisionToOrders swagger:route POST /orders/{uuid} postRevisionToOrders
+/*
+	PostRevisionToOrders swagger:route POST /orders/{uuid} postRevisionToOrders
 
-Make an amendment to or cancel an existing set of orders by UUID
+# Make an amendment to or cancel an existing set of orders by UUID
 
 Creates a Revision of a set of orders. The Orders to be amended or canceled must already exist with the supplied UUID.
 ## Amendment requirements
@@ -40,7 +41,6 @@ The `seqNum` in the supplied Revision must be unique among all Revisions in thes
 Users of this endpoint must have permission to write Orders for the `issuer` associated with the Orders that were originally POST'd to the `orders` endpoint. If not, this endpoint will return `403 Forbidden`.
 The UUID must match an existing set of Orders. Otherwise, this endpoint will return `404 Not Found`.
 If amending existing Orders, the supplied seqNum must be unique. If it has already been used, this endpoint will return `409 Conflict`.
-
 */
 type PostRevisionToOrders struct {
 	Context *middleware.Context

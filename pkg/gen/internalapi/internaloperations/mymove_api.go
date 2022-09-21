@@ -88,9 +88,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmCreateMovingExpenseHandler: ppm.CreateMovingExpenseHandlerFunc(func(params ppm.CreateMovingExpenseParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreateMovingExpense has not yet been implemented")
 		}),
-		MoveDocsCreateMovingExpenseDocumentHandler: move_docs.CreateMovingExpenseDocumentHandlerFunc(func(params move_docs.CreateMovingExpenseDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_docs.CreateMovingExpenseDocument has not yet been implemented")
-		}),
 		OrdersCreateOrdersHandler: orders.CreateOrdersHandlerFunc(func(params orders.CreateOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.CreateOrders has not yet been implemented")
 		}),
@@ -262,7 +259,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 	}
 }
 
-/*MymoveAPI The Internal API is a RESTful API that enables the Customer application for
+/*
+MymoveAPI The Internal API is a RESTful API that enables the Customer application for
 MilMove.
 
 All endpoints are located under `/internal`.
@@ -321,8 +319,6 @@ type MymoveAPI struct {
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// PpmCreateMovingExpenseHandler sets the operation handler for the create moving expense operation
 	PpmCreateMovingExpenseHandler ppm.CreateMovingExpenseHandler
-	// MoveDocsCreateMovingExpenseDocumentHandler sets the operation handler for the create moving expense document operation
-	MoveDocsCreateMovingExpenseDocumentHandler move_docs.CreateMovingExpenseDocumentHandler
 	// OrdersCreateOrdersHandler sets the operation handler for the create orders operation
 	OrdersCreateOrdersHandler orders.CreateOrdersHandler
 	// PpmCreatePPMAttachmentsHandler sets the operation handler for the create p p m attachments operation
@@ -541,9 +537,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmCreateMovingExpenseHandler == nil {
 		unregistered = append(unregistered, "ppm.CreateMovingExpenseHandler")
-	}
-	if o.MoveDocsCreateMovingExpenseDocumentHandler == nil {
-		unregistered = append(unregistered, "move_docs.CreateMovingExpenseDocumentHandler")
 	}
 	if o.OrdersCreateOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.CreateOrdersHandler")
@@ -837,10 +830,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/moving-expenses"] = ppm.NewCreateMovingExpense(o.context, o.PpmCreateMovingExpenseHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/moves/{moveId}/moving_expense_documents"] = move_docs.NewCreateMovingExpenseDocument(o.context, o.MoveDocsCreateMovingExpenseDocumentHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

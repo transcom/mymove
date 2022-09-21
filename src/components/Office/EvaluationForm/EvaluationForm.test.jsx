@@ -21,11 +21,75 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
+const evaluationReportCounseling = {
+  type: 'COUNSELING',
+};
+
+const evaluationReportShipment = {
+  type: 'SHIPMENT',
+};
+
+const mockEvaluationReport = {
+  createdAt: '2022-09-07T15:17:37.484Z',
+  eTag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
+  evaluationLengthMinutes: 240,
+  id: '6739d7fc-6067-4e84-996d-f4f70b8ec6fd',
+  inspectionDate: '2022-09-08',
+  inspectionType: 'DATA_REVIEW',
+  location: 'ORIGIN',
+  moveID: '551dd01f-90cf-44d6-addb-ff919433dd61',
+  moveReferenceID: '4118-8295',
+  officeUser: {
+    email: 'qae_csr_role@office.mil',
+    firstName: 'Leo',
+    id: 'ef4f6d1f-4ac3-4159-a364-5403e7d958ff',
+    lastName: 'Spaceman',
+    phone: '415-555-1212',
+  },
+  remarks: 'test',
+  shipmentID: '319e0751-1337-4ed9-b4b5-a15d4e6d272c',
+  type: 'SHIPMENT',
+  updatedAt: '2022-09-07T18:06:37.864Z',
+  violationsObserved: false,
+};
+
+const customerInfo = {
+  agency: 'ARMY',
+  backup_contact: { email: 'email@example.com', name: 'name', phone: '555-555-5555' },
+  current_address: {
+    city: 'Beverly Hills',
+    country: 'US',
+    eTag: 'MjAyMi0wOC0xNVQxNjoxMToyNi4zMzIwOTFa',
+    id: '28f11990-7ced-4d01-87ad-b16f2c86ea83',
+    postalCode: '90210',
+    state: 'CA',
+    streetAddress1: '123 Any Street',
+    streetAddress2: 'P.O. Box 12345',
+    streetAddress3: 'c/o Some Person',
+  },
+  dodID: '5052247544',
+  eTag: 'MjAyMi0wOC0xNVQxNjoxMToyNi4zNTkzNFo=',
+  email: 'leo_spaceman_sm@example.com',
+  first_name: 'Leo',
+  id: 'ea557b1f-2660-4d6b-89a0-fb1b5efd2113',
+  last_name: 'Spacemen',
+  phone: '555-555-5555',
+  userID: 'f4bbfcdf-ef66-4ce7-92f8-4c1bf507d596',
+};
+
+const grade = 'E_4';
+const moveCode = 'FAKEIT';
+
 describe('EvaluationForm', () => {
   it('renders the form components', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <EvaluationForm />
+        <EvaluationForm
+          evaluationReport={evaluationReportCounseling}
+          customerInfo={customerInfo}
+          grade={grade}
+          moveCode={moveCode}
+        />
       </MockProviders>,
     );
 
@@ -65,9 +129,10 @@ describe('EvaluationForm', () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
         <EvaluationForm
-          evaluationReport={{
-            type: 'SHIPMENT',
-          }}
+          evaluationReport={evaluationReportShipment}
+          customerInfo={customerInfo}
+          grade={grade}
+          moveCode={moveCode}
         />
       </MockProviders>,
     );
@@ -125,7 +190,12 @@ describe('EvaluationForm', () => {
   it('displays the delete confirmation on cancel', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <EvaluationForm />
+        <EvaluationForm
+          evaluationReport={evaluationReportCounseling}
+          customerInfo={customerInfo}
+          grade={grade}
+          moveCode={moveCode}
+        />
       </MockProviders>,
     );
 
@@ -142,7 +212,12 @@ describe('EvaluationForm', () => {
   it('updates the submit button when there are violations', async () => {
     render(
       <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <EvaluationForm />
+        <EvaluationForm
+          evaluationReport={mockEvaluationReport}
+          customerInfo={customerInfo}
+          grade={grade}
+          moveCode={moveCode}
+        />
       </MockProviders>,
     );
 
@@ -155,7 +230,6 @@ describe('EvaluationForm', () => {
       userEvent.click(screen.getByTestId('yesViolationsRadioOption'));
 
       expect(screen.getByRole('button', { name: 'Next: select violations' })).toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'Review and submit' })).not.toBeInTheDocument();
       expect(
         screen.getByText('You will select the specific PWS paragraphs violated on the next screen.'),
       ).toBeInTheDocument();
@@ -167,18 +241,17 @@ describe('EvaluationForm', () => {
     expect(mockSaveEvaluationReport).toHaveBeenCalledTimes(1);
     expect(mockSaveEvaluationReport).toHaveBeenCalledWith({
       body: {
-        evaluationLengthMinutes: undefined,
-        inspectionDate: undefined,
-        inspectionType: undefined,
-        location: undefined,
+        evaluationLengthMinutes: mockEvaluationReport.evaluationLengthMinutes,
+        inspectionDate: mockEvaluationReport.inspectionDate,
+        inspectionType: mockEvaluationReport.inspectionType,
+        location: mockEvaluationReport.location,
         locationDescription: undefined,
         observedDate: undefined,
-        remarks: undefined,
+        remarks: mockEvaluationReport.remarks,
         travelTimeMinutes: undefined,
         violationsObserved: true,
       },
-      ifMatchETag: undefined,
-      reportID: undefined,
+      ifMatchETag: mockEvaluationReport.eTag,
     });
   });
 });

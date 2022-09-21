@@ -238,6 +238,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 		ActualPickupDate:           handlers.FmtDatePtrToPopPtr(mtoShipment.ActualPickupDate),
 		FirstAvailableDeliveryDate: handlers.FmtDatePtrToPopPtr(mtoShipment.FirstAvailableDeliveryDate),
 		ScheduledPickupDate:        handlers.FmtDatePtrToPopPtr(mtoShipment.ScheduledPickupDate),
+		ActualDeliveryDate:         handlers.FmtDatePtrToPopPtr(mtoShipment.ActualDeliveryDate),
+		ScheduledDeliveryDate:      handlers.FmtDatePtrToPopPtr(mtoShipment.ScheduledDeliveryDate),
 		ShipmentType:               models.MTOShipmentType(mtoShipment.ShipmentType),
 		Diversion:                  mtoShipment.Diversion,
 		CounselorRemarks:           mtoShipment.CounselorRemarks,

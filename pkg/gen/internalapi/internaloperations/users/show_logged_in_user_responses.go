@@ -16,7 +16,8 @@ import (
 // ShowLoggedInUserOKCode is the HTTP code returned for type ShowLoggedInUserOK
 const ShowLoggedInUserOKCode int = 200
 
-/*ShowLoggedInUserOK Currently logged in user
+/*
+ShowLoggedInUserOK Currently logged in user
 
 swagger:response showLoggedInUserOK
 */
@@ -60,7 +61,8 @@ func (o *ShowLoggedInUserOK) WriteResponse(rw http.ResponseWriter, producer runt
 // ShowLoggedInUserBadRequestCode is the HTTP code returned for type ShowLoggedInUserBadRequest
 const ShowLoggedInUserBadRequestCode int = 400
 
-/*ShowLoggedInUserBadRequest invalid request
+/*
+ShowLoggedInUserBadRequest invalid request
 
 swagger:response showLoggedInUserBadRequest
 */
@@ -84,7 +86,8 @@ func (o *ShowLoggedInUserBadRequest) WriteResponse(rw http.ResponseWriter, produ
 // ShowLoggedInUserUnauthorizedCode is the HTTP code returned for type ShowLoggedInUserUnauthorized
 const ShowLoggedInUserUnauthorizedCode int = 401
 
-/*ShowLoggedInUserUnauthorized request requires user authentication
+/*
+ShowLoggedInUserUnauthorized request requires user authentication
 
 swagger:response showLoggedInUserUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *ShowLoggedInUserUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 // ShowLoggedInUserInternalServerErrorCode is the HTTP code returned for type ShowLoggedInUserInternalServerError
 const ShowLoggedInUserInternalServerErrorCode int = 500
 
-/*ShowLoggedInUserInternalServerError server error
+/*
+ShowLoggedInUserInternalServerError server error
 
 swagger:response showLoggedInUserInternalServerError
 */

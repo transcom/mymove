@@ -2306,6 +2306,13 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualDeliveryDate": {
+          "description": "The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "actualPickupDate": {
           "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
@@ -2457,6 +2464,13 @@ func init() {
         },
         "reweigh": {
           "$ref": "#/definitions/Reweigh"
+        },
+        "scheduledDeliveryDate": {
+          "description": "The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
@@ -3605,6 +3619,13 @@ func init() {
     },
     "UpdateMTOShipment": {
       "properties": {
+        "actualDeliveryDate": {
+          "description": "The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "actualPickupDate": {
           "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
@@ -3670,6 +3691,13 @@ func init() {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
           "example": 4500
+        },
+        "scheduledDeliveryDate": {
+          "description": "The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
@@ -6644,6 +6672,13 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualDeliveryDate": {
+          "description": "The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "actualPickupDate": {
           "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
@@ -6795,6 +6830,13 @@ func init() {
         },
         "reweigh": {
           "$ref": "#/definitions/Reweigh"
+        },
+        "scheduledDeliveryDate": {
+          "description": "The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
@@ -7946,6 +7988,13 @@ func init() {
     },
     "UpdateMTOShipment": {
       "properties": {
+        "actualDeliveryDate": {
+          "description": "The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "actualPickupDate": {
           "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
@@ -8011,6 +8060,13 @@ func init() {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
           "example": 4500
+        },
+        "scheduledDeliveryDate": {
+          "description": "The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",

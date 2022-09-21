@@ -29,12 +29,12 @@ func NewGetMove(ctx *middleware.Context, handler GetMoveHandler) *GetMove {
 	return &GetMove{Context: ctx, Handler: handler}
 }
 
-/* GetMove swagger:route GET /moves/{moveID} move getMove
+/*
+	GetMove swagger:route GET /moves/{moveID} move getMove
 
-Get information about a move
+# Get information about a move
 
 Returns the given move and its relevant info
-
 */
 type GetMove struct {
 	Context *middleware.Context

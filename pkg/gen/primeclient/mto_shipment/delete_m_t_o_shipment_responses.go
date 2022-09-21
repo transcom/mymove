@@ -75,14 +75,44 @@ func NewDeleteMTOShipmentNoContent() *DeleteMTOShipmentNoContent {
 	return &DeleteMTOShipmentNoContent{}
 }
 
-/* DeleteMTOShipmentNoContent describes a response with status code 204, with default header values.
+/*
+DeleteMTOShipmentNoContent describes a response with status code 204, with default header values.
 
 Successfully deleted the MTO shipment.
 */
 type DeleteMTOShipmentNoContent struct {
 }
 
+// IsSuccess returns true when this delete m t o shipment no content response has a 2xx status code
+func (o *DeleteMTOShipmentNoContent) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this delete m t o shipment no content response has a 3xx status code
+func (o *DeleteMTOShipmentNoContent) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete m t o shipment no content response has a 4xx status code
+func (o *DeleteMTOShipmentNoContent) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this delete m t o shipment no content response has a 5xx status code
+func (o *DeleteMTOShipmentNoContent) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete m t o shipment no content response a status code equal to that given
+func (o *DeleteMTOShipmentNoContent) IsCode(code int) bool {
+	return code == 204
+}
+
 func (o *DeleteMTOShipmentNoContent) Error() string {
+	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentNoContent ", 204)
+}
+
+func (o *DeleteMTOShipmentNoContent) String() string {
 	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentNoContent ", 204)
 }
 
@@ -96,7 +126,8 @@ func NewDeleteMTOShipmentBadRequest() *DeleteMTOShipmentBadRequest {
 	return &DeleteMTOShipmentBadRequest{}
 }
 
-/* DeleteMTOShipmentBadRequest describes a response with status code 400, with default header values.
+/*
+DeleteMTOShipmentBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -104,9 +135,39 @@ type DeleteMTOShipmentBadRequest struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this delete m t o shipment bad request response has a 2xx status code
+func (o *DeleteMTOShipmentBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete m t o shipment bad request response has a 3xx status code
+func (o *DeleteMTOShipmentBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete m t o shipment bad request response has a 4xx status code
+func (o *DeleteMTOShipmentBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete m t o shipment bad request response has a 5xx status code
+func (o *DeleteMTOShipmentBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete m t o shipment bad request response a status code equal to that given
+func (o *DeleteMTOShipmentBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *DeleteMTOShipmentBadRequest) Error() string {
 	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *DeleteMTOShipmentBadRequest) String() string {
+	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *DeleteMTOShipmentBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -128,7 +189,8 @@ func NewDeleteMTOShipmentForbidden() *DeleteMTOShipmentForbidden {
 	return &DeleteMTOShipmentForbidden{}
 }
 
-/* DeleteMTOShipmentForbidden describes a response with status code 403, with default header values.
+/*
+DeleteMTOShipmentForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -136,9 +198,39 @@ type DeleteMTOShipmentForbidden struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this delete m t o shipment forbidden response has a 2xx status code
+func (o *DeleteMTOShipmentForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete m t o shipment forbidden response has a 3xx status code
+func (o *DeleteMTOShipmentForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete m t o shipment forbidden response has a 4xx status code
+func (o *DeleteMTOShipmentForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete m t o shipment forbidden response has a 5xx status code
+func (o *DeleteMTOShipmentForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete m t o shipment forbidden response a status code equal to that given
+func (o *DeleteMTOShipmentForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *DeleteMTOShipmentForbidden) Error() string {
 	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentForbidden  %+v", 403, o.Payload)
 }
+
+func (o *DeleteMTOShipmentForbidden) String() string {
+	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentForbidden  %+v", 403, o.Payload)
+}
+
 func (o *DeleteMTOShipmentForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -160,7 +252,8 @@ func NewDeleteMTOShipmentNotFound() *DeleteMTOShipmentNotFound {
 	return &DeleteMTOShipmentNotFound{}
 }
 
-/* DeleteMTOShipmentNotFound describes a response with status code 404, with default header values.
+/*
+DeleteMTOShipmentNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -168,9 +261,39 @@ type DeleteMTOShipmentNotFound struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this delete m t o shipment not found response has a 2xx status code
+func (o *DeleteMTOShipmentNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete m t o shipment not found response has a 3xx status code
+func (o *DeleteMTOShipmentNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete m t o shipment not found response has a 4xx status code
+func (o *DeleteMTOShipmentNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete m t o shipment not found response has a 5xx status code
+func (o *DeleteMTOShipmentNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete m t o shipment not found response a status code equal to that given
+func (o *DeleteMTOShipmentNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *DeleteMTOShipmentNotFound) Error() string {
 	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentNotFound  %+v", 404, o.Payload)
 }
+
+func (o *DeleteMTOShipmentNotFound) String() string {
+	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentNotFound  %+v", 404, o.Payload)
+}
+
 func (o *DeleteMTOShipmentNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -192,7 +315,8 @@ func NewDeleteMTOShipmentConflict() *DeleteMTOShipmentConflict {
 	return &DeleteMTOShipmentConflict{}
 }
 
-/* DeleteMTOShipmentConflict describes a response with status code 409, with default header values.
+/*
+DeleteMTOShipmentConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -200,9 +324,39 @@ type DeleteMTOShipmentConflict struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this delete m t o shipment conflict response has a 2xx status code
+func (o *DeleteMTOShipmentConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete m t o shipment conflict response has a 3xx status code
+func (o *DeleteMTOShipmentConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete m t o shipment conflict response has a 4xx status code
+func (o *DeleteMTOShipmentConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete m t o shipment conflict response has a 5xx status code
+func (o *DeleteMTOShipmentConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete m t o shipment conflict response a status code equal to that given
+func (o *DeleteMTOShipmentConflict) IsCode(code int) bool {
+	return code == 409
+}
+
 func (o *DeleteMTOShipmentConflict) Error() string {
 	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentConflict  %+v", 409, o.Payload)
 }
+
+func (o *DeleteMTOShipmentConflict) String() string {
+	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentConflict  %+v", 409, o.Payload)
+}
+
 func (o *DeleteMTOShipmentConflict) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -224,7 +378,8 @@ func NewDeleteMTOShipmentUnprocessableEntity() *DeleteMTOShipmentUnprocessableEn
 	return &DeleteMTOShipmentUnprocessableEntity{}
 }
 
-/* DeleteMTOShipmentUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+DeleteMTOShipmentUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -232,9 +387,39 @@ type DeleteMTOShipmentUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
 }
 
+// IsSuccess returns true when this delete m t o shipment unprocessable entity response has a 2xx status code
+func (o *DeleteMTOShipmentUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete m t o shipment unprocessable entity response has a 3xx status code
+func (o *DeleteMTOShipmentUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete m t o shipment unprocessable entity response has a 4xx status code
+func (o *DeleteMTOShipmentUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete m t o shipment unprocessable entity response has a 5xx status code
+func (o *DeleteMTOShipmentUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete m t o shipment unprocessable entity response a status code equal to that given
+func (o *DeleteMTOShipmentUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *DeleteMTOShipmentUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *DeleteMTOShipmentUnprocessableEntity) String() string {
+	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *DeleteMTOShipmentUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -256,7 +441,8 @@ func NewDeleteMTOShipmentInternalServerError() *DeleteMTOShipmentInternalServerE
 	return &DeleteMTOShipmentInternalServerError{}
 }
 
-/* DeleteMTOShipmentInternalServerError describes a response with status code 500, with default header values.
+/*
+DeleteMTOShipmentInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -264,9 +450,39 @@ type DeleteMTOShipmentInternalServerError struct {
 	Payload *primemessages.Error
 }
 
+// IsSuccess returns true when this delete m t o shipment internal server error response has a 2xx status code
+func (o *DeleteMTOShipmentInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete m t o shipment internal server error response has a 3xx status code
+func (o *DeleteMTOShipmentInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete m t o shipment internal server error response has a 4xx status code
+func (o *DeleteMTOShipmentInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this delete m t o shipment internal server error response has a 5xx status code
+func (o *DeleteMTOShipmentInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this delete m t o shipment internal server error response a status code equal to that given
+func (o *DeleteMTOShipmentInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *DeleteMTOShipmentInternalServerError) Error() string {
 	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *DeleteMTOShipmentInternalServerError) String() string {
+	return fmt.Sprintf("[DELETE /mto-shipments/{mtoShipmentID}][%d] deleteMTOShipmentInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *DeleteMTOShipmentInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

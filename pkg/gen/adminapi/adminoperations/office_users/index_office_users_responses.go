@@ -16,7 +16,8 @@ import (
 // IndexOfficeUsersOKCode is the HTTP code returned for type IndexOfficeUsersOK
 const IndexOfficeUsersOKCode int = 200
 
-/*IndexOfficeUsersOK success
+/*
+IndexOfficeUsersOK success
 
 swagger:response indexOfficeUsersOK
 */
@@ -85,7 +86,8 @@ func (o *IndexOfficeUsersOK) WriteResponse(rw http.ResponseWriter, producer runt
 // IndexOfficeUsersBadRequestCode is the HTTP code returned for type IndexOfficeUsersBadRequest
 const IndexOfficeUsersBadRequestCode int = 400
 
-/*IndexOfficeUsersBadRequest invalid request
+/*
+IndexOfficeUsersBadRequest invalid request
 
 swagger:response indexOfficeUsersBadRequest
 */
@@ -109,7 +111,8 @@ func (o *IndexOfficeUsersBadRequest) WriteResponse(rw http.ResponseWriter, produ
 // IndexOfficeUsersUnauthorizedCode is the HTTP code returned for type IndexOfficeUsersUnauthorized
 const IndexOfficeUsersUnauthorizedCode int = 401
 
-/*IndexOfficeUsersUnauthorized request requires user authentication
+/*
+IndexOfficeUsersUnauthorized request requires user authentication
 
 swagger:response indexOfficeUsersUnauthorized
 */
@@ -133,7 +136,8 @@ func (o *IndexOfficeUsersUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 // IndexOfficeUsersNotFoundCode is the HTTP code returned for type IndexOfficeUsersNotFound
 const IndexOfficeUsersNotFoundCode int = 404
 
-/*IndexOfficeUsersNotFound office not found
+/*
+IndexOfficeUsersNotFound office not found
 
 swagger:response indexOfficeUsersNotFound
 */
@@ -157,7 +161,8 @@ func (o *IndexOfficeUsersNotFound) WriteResponse(rw http.ResponseWriter, produce
 // IndexOfficeUsersInternalServerErrorCode is the HTTP code returned for type IndexOfficeUsersInternalServerError
 const IndexOfficeUsersInternalServerErrorCode int = 500
 
-/*IndexOfficeUsersInternalServerError server error
+/*
+IndexOfficeUsersInternalServerError server error
 
 swagger:response indexOfficeUsersInternalServerError
 */

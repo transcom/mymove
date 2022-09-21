@@ -3,44 +3,69 @@ import * as PropTypes from 'prop-types';
 import 'styles/office.scss';
 import { GridContainer, Grid, Button, Radio, FormGroup, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
 import { useParams, useHistory, useLocation } from 'react-router';
-import { useMutation } from 'react-query';
+import { useMutation, queryCache } from 'react-query';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import classnames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './EvaluationForm.module.scss';
 
+import { EVALUATION_REPORT } from 'constants/queryKeys';
+import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
+import ConnectedEvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
-import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
-import { deleteEvaluationReport, saveEvaluationReport } from 'services/ghcApi';
+import { deleteEvaluationReport, saveEvaluationReport, submitEvaluationReport } from 'services/ghcApi';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { formatDateForSwagger } from 'shared/dates';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
+import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 
-const EvaluationForm = ({ evaluationReport }) => {
+const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade }) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
   const location = useLocation();
 
-  const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
-
-  const [isDeleteModelOpen, setIsDeleteModelOpen] = useState(false);
-
   const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport);
+  const [submitEvaluationReportMutation] = useMutation(submitEvaluationReport, {
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+    onSuccess: () => {
+      // Reroute back to eval report page, include flag to show success alert
+      history.push(`/moves/${moveCode}/evaluation-reports`, { showSubmitSuccess: true });
+    },
+  });
 
-  const toggleCancelModel = () => {
-    setIsDeleteModelOpen(!isDeleteModelOpen);
+  const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+    onSuccess: () => {
+      queryCache.refetchQueries([EVALUATION_REPORT, reportId]).then();
+    },
+  });
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+
+  // whether or not the delete report modal is displaying
+  const toggleDeleteReportModal = () => {
+    setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
+  // cancel report updates but don't delete, just re-route back to reports page
   const cancelForUpdatedReport = () => {
     history.push(`/moves/${moveCode}/evaluation-reports`);
   };
 
-  const cancelReport = async () => {
+  const deleteReport = async () => {
     // Close the modal
-    setIsDeleteModelOpen(!isDeleteModelOpen);
+    setIsDeleteModalOpen(!isDeleteModalOpen);
 
     // Mark as deleted in database
     await deleteEvaluationReportMutation(reportId);
@@ -49,12 +74,14 @@ const EvaluationForm = ({ evaluationReport }) => {
     history.push(`/moves/${moveCode}/evaluation-reports`, { showDeleteSuccess: true });
   };
 
-  const [mutateEvaluationReport] = useMutation(saveEvaluationReport, {
-    onError: (error) => {
-      const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
-    },
-  });
+  // passed to the confrimation modal
+  const submitReport = async () => {
+    // close the modal
+    setIsSubmitModalOpen(!isSubmitModalOpen);
+
+    // mark as submitted in the DB
+    await submitEvaluationReportMutation({ reportID: reportId, ifMatchETag: evaluationReport.eTag });
+  };
 
   const convertToMinutes = (hours, minutes) => {
     return Number(hours || 0) * 60 + Number(minutes || 0);
@@ -80,9 +107,17 @@ const EvaluationForm = ({ evaluationReport }) => {
       }
     }
     // format the location if it's there
+    let locationDescription;
     let { evaluationLocation } = values;
     if (evaluationLocation) {
       evaluationLocation = values.evaluationLocation.toUpperCase();
+      if (evaluationLocation === 'OTHER') {
+        locationDescription = values.otherEvaluationLocation;
+      }
+    }
+
+    if (values.evaluationLocation === 'other') {
+      locationDescription = values.otherEvaluationLocation;
     }
     let evalMinutes;
     // calculate the minutes for evaluation length
@@ -103,10 +138,10 @@ const EvaluationForm = ({ evaluationReport }) => {
 
     const body = {
       location: evaluationLocation,
-      locationDescription: values.otherEvaluationLocation,
+      locationDescription,
       inspectionType,
       remarks: values.remarks,
-      // hard coded until violations work
+      // this is a yes or no boolean and not a list of the violations
       violationsObserved: violations,
       inspectionDate: formatDateForSwagger(values.inspectionDate),
       evaluationLengthMinutes: evalMinutes,
@@ -117,10 +152,21 @@ const EvaluationForm = ({ evaluationReport }) => {
     await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
   };
 
-  const handleSubmitSaveDraft = async (values) => {
+  const handleSaveDraft = async (values) => {
     await saveDraft(values);
 
     history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
+  };
+
+  // Review and Submit button
+  // Saves report changes
+  // displays report preview ahead of final submission
+  const handlePreviewReport = async (values) => {
+    // save updates
+    await saveDraft(values);
+
+    // open the modal to submit
+    setIsSubmitModalOpen(!isSubmitModalOpen);
   };
 
   const handleSelectViolations = async (values) => {
@@ -130,11 +176,21 @@ const EvaluationForm = ({ evaluationReport }) => {
     history.push(`${location.pathname}/violations`);
   };
 
+  const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
+
+  const modalTitle = (
+    <div className={styles.title}>
+      <h3>{`Preview and submit ${evaluationReport.type.toLowerCase()} report`}</h3>
+      <p>Is all the information shown correct?</p>
+    </div>
+  );
+
   const initialValues = {
     remarks: evaluationReport.remarks,
     inspectionDate: evaluationReport.inspectionDate,
     observedDate: evaluationReport.observedDate,
   };
+
   if (evaluationReport.location) {
     initialValues.evaluationLocation = evaluationReport.location.toLowerCase();
   }
@@ -165,7 +221,42 @@ const EvaluationForm = ({ evaluationReport }) => {
     initialValues.violationsObserved = evaluationReport.violationsObserved ? 'yes' : 'no';
   }
 
-  const validationSchema = Yup.object().shape({});
+  const validationSchema = Yup.object().shape(
+    {
+      inspectionDate: Yup.date().required(),
+      evaluationType: Yup.string().required(),
+      evaluationLocation: Yup.string().required(),
+      violationsObserved: Yup.string().required(),
+      remarks: Yup.string().required(),
+      otherEvaluationLocation: Yup.string().when('evaluationLocation', {
+        is: 'other',
+        then: Yup.string().required(),
+      }),
+      hour: Yup.string().when('evaluationType', {
+        is: 'physical',
+        then: Yup.string().when('minute', {
+          is: (minute) => !minute,
+          then: Yup.string().required(),
+        }),
+      }),
+      minute: Yup.string().when('evaluationType', {
+        is: 'physical',
+        then: Yup.string().when('hour', {
+          is: (hour) => !hour,
+          then: Yup.string().required(),
+        }),
+      }),
+      evalLengthHour: Yup.string().when('evalLengthMinute', {
+        is: (evalLengthMinute) => !evalLengthMinute,
+        then: Yup.string().required(),
+      }),
+      evalLengthMinute: Yup.string().when('evalLengthHour', {
+        is: (evalLengthHour) => !evalLengthHour,
+        then: Yup.string().required(),
+      }),
+    },
+    ['evalLengthMinute', 'evalLengthHour'],
+  );
 
   const minutes = [
     { key: '0', value: '0' },
@@ -179,21 +270,57 @@ const EvaluationForm = ({ evaluationReport }) => {
     hours[i] = { key: String(i), value: String(i) };
   }
 
+  const submitModalActions = (
+    <div className={styles.modalActions}>
+      <Button
+        type="button"
+        onClick={() => setIsSubmitModalOpen()}
+        aria-label="Back to Evaluation form"
+        unstyled
+        className={styles.closeModalBtn}
+      >
+        <FontAwesomeIcon icon="chevron-left" className={styles.backIcon} /> Back to Evaluation form
+      </Button>
+      <Button
+        type="submit"
+        onClick={submitReport}
+        data-testid="modalSubmitButton"
+        aria-label="Submit"
+        className={styles.submitModalBtn}
+      >
+        Submit
+      </Button>
+    </div>
+  );
+
   return (
     <>
       <ConnectedDeleteEvaluationReportConfirmationModal
-        isOpen={isDeleteModelOpen}
-        closeModal={toggleCancelModel}
-        submitModal={cancelReport}
+        isOpen={isDeleteModalOpen}
+        closeModal={toggleDeleteReportModal}
+        submitModal={deleteReport}
       />
+      <ConnectedEvaluationReportConfirmationModal
+        modalTopRightClose={setIsSubmitModalOpen}
+        isOpen={isSubmitModalOpen}
+        modalTitle={modalTitle}
+        evaluationReport={evaluationReport}
+        moveCode={moveCode}
+        customerInfo={customerInfo}
+        grade={grade}
+        mtoShipments={mtoShipments}
+        modalActions={submitModalActions}
+        bordered
+      />
+
       <Formik
         initialValues={initialValues}
         enableReinitialize
-        onSubmit={handleSubmitSaveDraft}
+        onSubmit={handlePreviewReport}
         validationSchema={validationSchema}
         validateOnMount
       >
-        {({ values, setFieldValue }) => {
+        {({ values, setFieldValue, isValid }) => {
           const showObservedDeliveryDate =
             values.evaluationType === 'physical' && values.evaluationLocation === 'destination' && isShipment;
           const showObservedPickupDate =
@@ -206,7 +333,7 @@ const EvaluationForm = ({ evaluationReport }) => {
                   <Grid col>
                     <h2>Evaluation form</h2>
                     <h3>Evaluation information</h3>
-                    <DatePickerInput label="Date of inspection" name="inspectionDate" />
+                    <DatePickerInput label="Date of inspection" name="inspectionDate" disableErrorLabel />
                     <FormGroup>
                       <Fieldset className={styles.radioGroup}>
                         <legend className="usa-label">Evaluation type</legend>
@@ -255,6 +382,7 @@ const EvaluationForm = ({ evaluationReport }) => {
                               onChange={(e) => {
                                 setFieldValue('hour', e.target.value);
                               }}
+                              disableErrorLabel
                               options={hours}
                             />
                           </div>
@@ -267,6 +395,7 @@ const EvaluationForm = ({ evaluationReport }) => {
                               onChange={(e) => {
                                 setFieldValue('minute', e.target.value);
                               }}
+                              disableErrorLabel
                               options={minutes}
                             />
                           </div>
@@ -345,6 +474,7 @@ const EvaluationForm = ({ evaluationReport }) => {
                             onChange={(e) => {
                               setFieldValue('evalLengthHour', e.target.value);
                             }}
+                            disableErrorLabel
                             options={hours}
                           />
                         </div>
@@ -357,6 +487,7 @@ const EvaluationForm = ({ evaluationReport }) => {
                             onChange={(e) => {
                               setFieldValue('evalLengthMinute', e.target.value);
                             }}
+                            disableErrorLabel
                             options={minutes}
                           />
                         </div>
@@ -422,7 +553,7 @@ const EvaluationForm = ({ evaluationReport }) => {
                   <Grid col>
                     <div className={styles.buttonRow}>
                       {evaluationReport.updatedAt === evaluationReport.createdAt && (
-                        <Button className="usa-button--unstyled" onClick={toggleCancelModel} type="button">
+                        <Button className="usa-button--unstyled" onClick={toggleDeleteReportModal} type="button">
                           Cancel
                         </Button>
                       )}
@@ -436,15 +567,22 @@ const EvaluationForm = ({ evaluationReport }) => {
                           Cancel
                         </Button>
                       )}
-                      <Button data-testid="saveDraft" type="submit" className="usa-button--secondary">
+                      <Button
+                        data-testid="saveDraft"
+                        type="button"
+                        className="usa-button--secondary"
+                        onClick={() => handleSaveDraft(values)}
+                      >
                         Save draft
                       </Button>
                       {values.violationsObserved === 'yes' ? (
-                        <Button onClick={() => handleSelectViolations(values)} type="button">
+                        <Button disabled={!isValid} onClick={() => handleSelectViolations(values)} type="button">
                           Next: select violations
                         </Button>
                       ) : (
-                        <Button disabled={!values.violationsObserved}>Review and submit</Button>
+                        <Button disabled={!isValid} type="button" onClick={() => handlePreviewReport(values)}>
+                          Review and submit
+                        </Button>
                       )}
                     </div>
                   </Grid>
@@ -459,11 +597,14 @@ const EvaluationForm = ({ evaluationReport }) => {
 };
 
 EvaluationForm.propTypes = {
-  evaluationReport: PropTypes.object,
+  evaluationReport: EvaluationReportShape.isRequired,
+  mtoShipments: PropTypes.arrayOf(ShipmentShape),
+  customerInfo: CustomerShape.isRequired,
+  grade: PropTypes.string.isRequired,
 };
 
 EvaluationForm.defaultProps = {
-  evaluationReport: {},
+  mtoShipments: null,
 };
 
 export default EvaluationForm;

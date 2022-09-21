@@ -846,68 +846,6 @@ definitions:
       SHIPMENT_SUMMARY: Shipment summary
       EXPENSE: Expense
       WEIGHT_TICKET_SET: Weight ticket set
-  CreateMovingExpenseDocumentPayload:
-    type: object
-    properties:
-      personally_procured_move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
-      upload_ids:
-        type: array
-        items:
-          type: string
-          format: uuid
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      title:
-        type: string
-        example: very_useful_document.pdf
-      moving_expense_type:
-        $ref: 'definitions/MovingExpenseType.yaml'
-      move_document_type:
-        $ref: '#/definitions/MoveDocumentType'
-      requested_amount_cents:
-        type: integer
-        format: cents
-        minimum: 1
-        title: Requested Amount
-        description: unit is cents
-      payment_method:
-        type: string
-        title: Method of Payment
-        enum:
-          - OTHER
-          - GTCC
-        x-display-value:
-          OTHER: Other payment method
-          GTCC: GTCC
-      receipt_missing:
-        title: missing expense receipt
-        type: boolean
-      notes:
-        type: string
-        example: This document is good to go!
-        x-nullable: true
-        title: Notes
-      storage_start_date:
-        type: string
-        format: date
-        title: Start date of storage for storage expenses
-        example: '2018-04-26'
-        x-nullable: true
-      storage_end_date:
-        type: string
-        format: date
-        title: End date of storage for storage expenses
-        example: '2018-04-26'
-        x-nullable: true
-    required:
-      - title
-      - move_document_type
-      - moving_expense_type
-      - requested_amount_cents
-      - payment_method
   UpdateMovingExpense:
     type: object
     properties:
@@ -3556,38 +3494,6 @@ paths:
           description: not authorized
         '404':
           description: not found
-        '500':
-          description: server error
-  /moves/{moveId}/moving_expense_documents:
-    post:
-      summary: Creates a moving expense document
-      description: Created a moving expense document with the given information
-      operationId: createMovingExpenseDocument
-      tags:
-        - move_docs
-      parameters:
-        - name: moveId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-        - in: body
-          name: createMovingExpenseDocumentPayload
-          required: true
-          schema:
-            $ref: '#/definitions/CreateMovingExpenseDocumentPayload'
-      responses:
-        '200':
-          description: returns new moving expense document object
-          schema:
-            $ref: '#/definitions/MoveDocumentPayload'
-        '400':
-          description: invalid request
-        '401':
-          description: must be authenticated to use this endpoint
-        '403':
-          description: not authorized to modify this move
         '500':
           description: server error
   /moves/{moveId}/approve:

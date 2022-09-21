@@ -32,6 +32,13 @@
     }
   }
 
+  .noBorder {
+    dd,
+    dt {
+      @include u-border(0);
+    }
+  }
+
   .rowWithVisualCue::before {
     @include u-margin-y(0.5);
 
@@ -45,7 +52,7 @@
     @include u-margin-right(2px);
 
     outline-color: $mm-gold;
-    content: "";
+    content: '';
   }
 }
 

@@ -218,19 +218,17 @@ func userWithServicesCounselorRole(appCtx appcontext.AppContext) {
 	})
 }
 
-func userWithQAECSRRole(appCtx appcontext.AppContext) {
+func userWithQAECSRRole(appCtx appcontext.AppContext, userID uuid.UUID, email string) {
 	qaecsrRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaecsrRole)
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to find RoleTypeQAECSR in the DB: %w", err))
 	}
 
-	email := "qaecsr_role@office.mil"
-	qaecsrUUID := uuid.Must(uuid.FromString("2419b1d6-097f-4dc4-8171-8f858967b4db"))
 	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
 		User: models.User{
-			ID:            qaecsrUUID,
+			ID:            userID,
 			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
@@ -239,10 +237,9 @@ func userWithQAECSRRole(appCtx appcontext.AppContext) {
 	})
 	testdatagen.MakeOfficeUser(appCtx.DB(), testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
-			ID:     uuid.FromStringOrNil("0e436f0c-6bbd-4024-91c8-ceb0d153ad81"),
 			Email:  email,
 			Active: true,
-			UserID: &qaecsrUUID,
+			UserID: &userID,
 		},
 		TransportationOffice: models.TransportationOffice{
 			Gbloc: "KKFA",
@@ -744,21 +741,7 @@ func serviceMemberWithPPMMoveWithPaymentRequested02(appCtx appcontext.AppContext
 		},
 		UserUploader: userUploader,
 	})
-	docAssertions := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm3.Move.ID,
-			Move:                     ppm3.Move,
-			PersonallyProcuredMoveID: &ppm3.ID,
-			Status:                   "AWAITING_REVIEW",
-			MoveDocumentType:         "WEIGHT_TICKET",
-		},
-		Document: models.Document{
-			ID:              uuid.FromStringOrNil("c26421b0-e4c3-446b-88f3-493bb25c1756"),
-			ServiceMemberID: ppm3.Move.Orders.ServiceMember.ID,
-			ServiceMember:   ppm3.Move.Orders.ServiceMember,
-		},
-	}
-	testdatagen.MakeMoveDocument(appCtx.DB(), docAssertions)
+
 	moveRouter.Submit(appCtx, &ppm3.Move)
 	moveRouter.Approve(appCtx, &ppm3.Move)
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
@@ -769,85 +752,6 @@ func serviceMemberWithPPMMoveWithPaymentRequested02(appCtx appcontext.AppContext
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
-}
-
-func serviceMemberWithPPMMoveWithPaymentRequested03(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
-	email := "ppm.excludecalculations.expenses"
-	uuidStr := "4f092d53-9005-4371-814d-0c88e970d2f7"
-	loginGovID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-	// Date picked essentialy at random, but needs to be within TestYear
-	originalMoveDate := time.Date(testdatagen.TestYear, time.December, 10, 23, 0, 0, 0, time.UTC)
-	actualMoveDate := time.Date(testdatagen.TestYear, time.December, 11, 10, 0, 0, 0, time.UTC)
-	moveTypeDetail := internalmessages.OrdersTypeDetailPCSTDY
-	assertions := testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("350f0450-1cb8-4aa8-8a85-2d0f45899447"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("PPM"),
-			LastName:      models.StringPointer("Payment Requested"),
-			Edipi:         models.StringPointer("5427033988"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		// These values should be populated for an approved move
-		Order: models.Order{
-			OrdersNumber:        models.StringPointer("12345"),
-			OrdersTypeDetail:    &moveTypeDetail,
-			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("E19A"),
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("687e3ee4-62ff-44b3-a5cb-73338c9fdf95"),
-			Locator: "PMTRVW",
-		},
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			ID:               uuid.FromStringOrNil("38c4fc15-062f-4325-bceb-13ea167001da"),
-			OriginalMoveDate: &originalMoveDate,
-			ActualMoveDate:   &actualMoveDate,
-		},
-		UserUploader: userUploader,
-	}
-	ppmExcludedCalculations := testdatagen.MakePPM(appCtx.DB(), assertions)
-
-	moveRouter.Submit(appCtx, &ppmExcludedCalculations.Move)
-	moveRouter.Approve(appCtx, &ppmExcludedCalculations.Move)
-	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
-	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].RequestPayment()
-	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmExcludedCalculations.Move)
-	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
-	}
-
-	testdatagen.MakeMoveDocument(appCtx.DB(), testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppmExcludedCalculations.Move.ID,
-			Move:                     ppmExcludedCalculations.Move,
-			MoveDocumentType:         models.MoveDocumentTypeEXPENSE,
-			Status:                   models.MoveDocumentStatusAWAITINGREVIEW,
-			PersonallyProcuredMoveID: &assertions.PersonallyProcuredMove.ID,
-			Title:                    "Expense Document",
-			ID:                       uuid.FromStringOrNil("02021626-20ee-4c65-9194-87e6455f385e"),
-		},
-	})
-
-	testdatagen.MakeMovingExpenseDocument(appCtx.DB(), testdatagen.Assertions{
-		MovingExpenseDocument: models.MovingExpenseDocument{
-			MoveDocumentID:       uuid.FromStringOrNil("02021626-20ee-4c65-9194-87e6455f385e"),
-			MovingExpenseType:    models.MovingExpenseTypeCONTRACTEDEXPENSE,
-			PaymentMethod:        "GTCC",
-			RequestedAmountCents: unit.Cents(10000),
-		},
-	})
-
 }
 
 func aCanceledPPMMove(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
@@ -1282,19 +1186,6 @@ func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, u
 			OriginalMoveDate: &pastTime,
 		},
 		UserUploader: userUploader,
-	})
-
-	testdatagen.MakeMoveDocument(appCtx.DB(), testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm6.Move.ID,
-			Move:                     ppm6.Move,
-			PersonallyProcuredMoveID: &ppm6.ID,
-		},
-		Document: models.Document{
-			ID:              uuid.FromStringOrNil("c26421b6-e4c3-446b-88f3-493bb25c1756"),
-			ServiceMemberID: ppm6.Move.Orders.ServiceMember.ID,
-			ServiceMember:   ppm6.Move.Orders.ServiceMember,
-		},
 	})
 
 	moveRouter.Submit(appCtx, &ppm6.Move)
@@ -4070,7 +3961,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	userWithRoles(appCtx)
 	userWithTOORole(appCtx)
 	userWithTIORole(appCtx)
-	userWithQAECSRRole(appCtx)
+	userWithQAECSRRole(appCtx, uuid.Must(uuid.FromString("2419b1d6-097f-4dc4-8171-8f858967b4db")), "qaecsr_role@office.mil")
+	userWithQAECSRRole(appCtx, uuid.Must(uuid.FromString("7f45b6bc-1131-4c9a-85ef-24552979d28d")), "qaecsr_role2@office.mil")
 	userWithServicesCounselorRole(appCtx)
 	userWithTOOandTIORole(appCtx)
 	userWithTOOandTIOandQAECSRRole(appCtx)
@@ -4086,7 +3978,6 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	serviceMemberWithPPMInProgress(appCtx, userUploader, moveRouter)
 	serviceMemberWithPPMMoveWithPaymentRequested01(appCtx, userUploader, moveRouter)
 	serviceMemberWithPPMMoveWithPaymentRequested02(appCtx, userUploader, moveRouter)
-	serviceMemberWithPPMMoveWithPaymentRequested03(appCtx, userUploader, moveRouter)
 	aCanceledPPMMove(appCtx, userUploader, moveRouter)
 	serviceMemberWithOrdersAndAMoveNoMoveType(appCtx, userUploader)
 	serviceMemberWithOrdersAndAMovePPMandHHG(appCtx, userUploader, moveRouter)

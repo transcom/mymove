@@ -1,4 +1,5 @@
 import React from 'react';
+import classnames from 'classnames';
 
 import { formatEvaluationReportLocation } from '../../../utils/formatters';
 
@@ -23,7 +24,7 @@ const EvaluationReportList = ({ evaluationReport }) => {
   return (
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
-        <div className={descriptionListStyles.row}>
+        <div className={classnames(descriptionListStyles.row, descriptionListStyles.noBorder)}>
           <dt>Evaluation type</dt>
           <dd>{capitalizeFirstLetterOnly(evaluationReport.type)}</dd>
         </div>

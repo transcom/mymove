@@ -51,7 +51,8 @@ func NewCreateWebhookNotificationCreated() *CreateWebhookNotificationCreated {
 	return &CreateWebhookNotificationCreated{}
 }
 
-/* CreateWebhookNotificationCreated describes a response with status code 201, with default header values.
+/*
+CreateWebhookNotificationCreated describes a response with status code 201, with default header values.
 
 Successful creation
 */
@@ -59,9 +60,39 @@ type CreateWebhookNotificationCreated struct {
 	Payload *supportmessages.WebhookNotification
 }
 
+// IsSuccess returns true when this create webhook notification created response has a 2xx status code
+func (o *CreateWebhookNotificationCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this create webhook notification created response has a 3xx status code
+func (o *CreateWebhookNotificationCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create webhook notification created response has a 4xx status code
+func (o *CreateWebhookNotificationCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create webhook notification created response has a 5xx status code
+func (o *CreateWebhookNotificationCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create webhook notification created response a status code equal to that given
+func (o *CreateWebhookNotificationCreated) IsCode(code int) bool {
+	return code == 201
+}
+
 func (o *CreateWebhookNotificationCreated) Error() string {
 	return fmt.Sprintf("[POST /webhook-notifications][%d] createWebhookNotificationCreated  %+v", 201, o.Payload)
 }
+
+func (o *CreateWebhookNotificationCreated) String() string {
+	return fmt.Sprintf("[POST /webhook-notifications][%d] createWebhookNotificationCreated  %+v", 201, o.Payload)
+}
+
 func (o *CreateWebhookNotificationCreated) GetPayload() *supportmessages.WebhookNotification {
 	return o.Payload
 }
@@ -83,7 +114,8 @@ func NewCreateWebhookNotificationUnprocessableEntity() *CreateWebhookNotificatio
 	return &CreateWebhookNotificationUnprocessableEntity{}
 }
 
-/* CreateWebhookNotificationUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+CreateWebhookNotificationUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -91,9 +123,39 @@ type CreateWebhookNotificationUnprocessableEntity struct {
 	Payload *supportmessages.ValidationError
 }
 
+// IsSuccess returns true when this create webhook notification unprocessable entity response has a 2xx status code
+func (o *CreateWebhookNotificationUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create webhook notification unprocessable entity response has a 3xx status code
+func (o *CreateWebhookNotificationUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create webhook notification unprocessable entity response has a 4xx status code
+func (o *CreateWebhookNotificationUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create webhook notification unprocessable entity response has a 5xx status code
+func (o *CreateWebhookNotificationUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create webhook notification unprocessable entity response a status code equal to that given
+func (o *CreateWebhookNotificationUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *CreateWebhookNotificationUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /webhook-notifications][%d] createWebhookNotificationUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *CreateWebhookNotificationUnprocessableEntity) String() string {
+	return fmt.Sprintf("[POST /webhook-notifications][%d] createWebhookNotificationUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *CreateWebhookNotificationUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -115,7 +177,8 @@ func NewCreateWebhookNotificationInternalServerError() *CreateWebhookNotificatio
 	return &CreateWebhookNotificationInternalServerError{}
 }
 
-/* CreateWebhookNotificationInternalServerError describes a response with status code 500, with default header values.
+/*
+CreateWebhookNotificationInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -123,9 +186,39 @@ type CreateWebhookNotificationInternalServerError struct {
 	Payload *supportmessages.Error
 }
 
+// IsSuccess returns true when this create webhook notification internal server error response has a 2xx status code
+func (o *CreateWebhookNotificationInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create webhook notification internal server error response has a 3xx status code
+func (o *CreateWebhookNotificationInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create webhook notification internal server error response has a 4xx status code
+func (o *CreateWebhookNotificationInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create webhook notification internal server error response has a 5xx status code
+func (o *CreateWebhookNotificationInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this create webhook notification internal server error response a status code equal to that given
+func (o *CreateWebhookNotificationInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *CreateWebhookNotificationInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /webhook-notifications][%d] createWebhookNotificationInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *CreateWebhookNotificationInternalServerError) String() string {
+	return fmt.Sprintf("[POST /webhook-notifications][%d] createWebhookNotificationInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *CreateWebhookNotificationInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

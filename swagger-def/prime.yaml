@@ -1848,6 +1848,18 @@ definitions:
         readOnly: true
         x-omitempty: false
         x-nullable: true
+      scheduledDeliveryDate:
+        description: The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.
+        format: date
+        type: string
+        x-omitempty: false
+        x-nullable: true
+      actualDeliveryDate:
+        description: The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.
+        format: date
+        type: string
+        x-omitempty: false
+        x-nullable: true
       primeEstimatedWeight:
         description: >
           The estimated weight of this shipment, determined by the movers during the pre-move survey.
@@ -2567,6 +2579,18 @@ definitions:
         description: >
           The date the Prime provides to the customer as the first possible delivery date so that they can plan their
           travel accordingly.
+        format: date
+        type: string
+        x-omitempty: false
+        x-nullable: true
+      scheduledDeliveryDate:
+        description: The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.
+        format: date
+        type: string
+        x-omitempty: false
+        x-nullable: true
+      actualDeliveryDate:
+        description: The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.
         format: date
         type: string
         x-omitempty: false

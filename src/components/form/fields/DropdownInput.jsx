@@ -10,9 +10,9 @@ import { DropdownArrayOf } from 'types/form';
 import './DropdownInput.module.scss';
 
 export const DropdownInput = (props) => {
-  const { id, name, label, options, showDropdownPlaceholderText, isDisabled, ...inputProps } = props;
+  const { id, name, label, options, showDropdownPlaceholderText, isDisabled, disableErrorLabel, ...inputProps } = props;
   const [field, meta] = useField(props);
-  const hasError = meta.touched && !!meta.error;
+  const hasError = disableErrorLabel ? false : meta.touched && !!meta.error;
 
   // Input elements need an ID prop to be associated with the label
   const inputId = useRef(id || `${name}_${uuidv4()}`);
@@ -51,12 +51,14 @@ DropdownInput.propTypes = {
   options: DropdownArrayOf.isRequired,
   showDropdownPlaceholderText: PropTypes.bool,
   isDisabled: PropTypes.bool,
+  disableErrorLabel: PropTypes.bool,
 };
 
 DropdownInput.defaultProps = {
   id: undefined,
   showDropdownPlaceholderText: true,
   isDisabled: false,
+  disableErrorLabel: false,
 };
 
 export default DropdownInput;

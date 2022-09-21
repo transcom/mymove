@@ -16,6 +16,20 @@ type EvaluationReportUpdater struct {
 	mock.Mock
 }
 
+// SubmitEvaluationReport provides a mock function with given fields: appCtx, evaluationReportID, officeUserID, eTag
+func (_m *EvaluationReportUpdater) SubmitEvaluationReport(appCtx appcontext.AppContext, evaluationReportID uuid.UUID, officeUserID uuid.UUID, eTag string) error {
+	ret := _m.Called(appCtx, evaluationReportID, officeUserID, eTag)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, string) error); ok {
+		r0 = rf(appCtx, evaluationReportID, officeUserID, eTag)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // UpdateEvaluationReport provides a mock function with given fields: appCtx, evaluationReport, officeUserID, eTag
 func (_m *EvaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppContext, evaluationReport *models.EvaluationReport, officeUserID uuid.UUID, eTag string) error {
 	ret := _m.Called(appCtx, evaluationReport, officeUserID, eTag)

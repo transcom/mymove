@@ -63,7 +63,8 @@ func NewReceiveWebhookNotificationOK() *ReceiveWebhookNotificationOK {
 	return &ReceiveWebhookNotificationOK{}
 }
 
-/* ReceiveWebhookNotificationOK describes a response with status code 200, with default header values.
+/*
+ReceiveWebhookNotificationOK describes a response with status code 200, with default header values.
 
 Received notification
 */
@@ -71,9 +72,39 @@ type ReceiveWebhookNotificationOK struct {
 	Payload *supportmessages.WebhookNotification
 }
 
+// IsSuccess returns true when this receive webhook notification o k response has a 2xx status code
+func (o *ReceiveWebhookNotificationOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this receive webhook notification o k response has a 3xx status code
+func (o *ReceiveWebhookNotificationOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this receive webhook notification o k response has a 4xx status code
+func (o *ReceiveWebhookNotificationOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this receive webhook notification o k response has a 5xx status code
+func (o *ReceiveWebhookNotificationOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this receive webhook notification o k response a status code equal to that given
+func (o *ReceiveWebhookNotificationOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ReceiveWebhookNotificationOK) Error() string {
 	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationOK  %+v", 200, o.Payload)
 }
+
+func (o *ReceiveWebhookNotificationOK) String() string {
+	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationOK  %+v", 200, o.Payload)
+}
+
 func (o *ReceiveWebhookNotificationOK) GetPayload() *supportmessages.WebhookNotification {
 	return o.Payload
 }
@@ -95,7 +126,8 @@ func NewReceiveWebhookNotificationBadRequest() *ReceiveWebhookNotificationBadReq
 	return &ReceiveWebhookNotificationBadRequest{}
 }
 
-/* ReceiveWebhookNotificationBadRequest describes a response with status code 400, with default header values.
+/*
+ReceiveWebhookNotificationBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -103,9 +135,39 @@ type ReceiveWebhookNotificationBadRequest struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this receive webhook notification bad request response has a 2xx status code
+func (o *ReceiveWebhookNotificationBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this receive webhook notification bad request response has a 3xx status code
+func (o *ReceiveWebhookNotificationBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this receive webhook notification bad request response has a 4xx status code
+func (o *ReceiveWebhookNotificationBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this receive webhook notification bad request response has a 5xx status code
+func (o *ReceiveWebhookNotificationBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this receive webhook notification bad request response a status code equal to that given
+func (o *ReceiveWebhookNotificationBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *ReceiveWebhookNotificationBadRequest) Error() string {
 	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *ReceiveWebhookNotificationBadRequest) String() string {
+	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *ReceiveWebhookNotificationBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -127,7 +189,8 @@ func NewReceiveWebhookNotificationUnauthorized() *ReceiveWebhookNotificationUnau
 	return &ReceiveWebhookNotificationUnauthorized{}
 }
 
-/* ReceiveWebhookNotificationUnauthorized describes a response with status code 401, with default header values.
+/*
+ReceiveWebhookNotificationUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -135,9 +198,39 @@ type ReceiveWebhookNotificationUnauthorized struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this receive webhook notification unauthorized response has a 2xx status code
+func (o *ReceiveWebhookNotificationUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this receive webhook notification unauthorized response has a 3xx status code
+func (o *ReceiveWebhookNotificationUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this receive webhook notification unauthorized response has a 4xx status code
+func (o *ReceiveWebhookNotificationUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this receive webhook notification unauthorized response has a 5xx status code
+func (o *ReceiveWebhookNotificationUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this receive webhook notification unauthorized response a status code equal to that given
+func (o *ReceiveWebhookNotificationUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *ReceiveWebhookNotificationUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *ReceiveWebhookNotificationUnauthorized) String() string {
+	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *ReceiveWebhookNotificationUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -159,7 +252,8 @@ func NewReceiveWebhookNotificationForbidden() *ReceiveWebhookNotificationForbidd
 	return &ReceiveWebhookNotificationForbidden{}
 }
 
-/* ReceiveWebhookNotificationForbidden describes a response with status code 403, with default header values.
+/*
+ReceiveWebhookNotificationForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -167,9 +261,39 @@ type ReceiveWebhookNotificationForbidden struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this receive webhook notification forbidden response has a 2xx status code
+func (o *ReceiveWebhookNotificationForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this receive webhook notification forbidden response has a 3xx status code
+func (o *ReceiveWebhookNotificationForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this receive webhook notification forbidden response has a 4xx status code
+func (o *ReceiveWebhookNotificationForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this receive webhook notification forbidden response has a 5xx status code
+func (o *ReceiveWebhookNotificationForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this receive webhook notification forbidden response a status code equal to that given
+func (o *ReceiveWebhookNotificationForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *ReceiveWebhookNotificationForbidden) Error() string {
 	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationForbidden  %+v", 403, o.Payload)
 }
+
+func (o *ReceiveWebhookNotificationForbidden) String() string {
+	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationForbidden  %+v", 403, o.Payload)
+}
+
 func (o *ReceiveWebhookNotificationForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -191,7 +315,8 @@ func NewReceiveWebhookNotificationInternalServerError() *ReceiveWebhookNotificat
 	return &ReceiveWebhookNotificationInternalServerError{}
 }
 
-/* ReceiveWebhookNotificationInternalServerError describes a response with status code 500, with default header values.
+/*
+ReceiveWebhookNotificationInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -199,9 +324,39 @@ type ReceiveWebhookNotificationInternalServerError struct {
 	Payload *supportmessages.Error
 }
 
+// IsSuccess returns true when this receive webhook notification internal server error response has a 2xx status code
+func (o *ReceiveWebhookNotificationInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this receive webhook notification internal server error response has a 3xx status code
+func (o *ReceiveWebhookNotificationInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this receive webhook notification internal server error response has a 4xx status code
+func (o *ReceiveWebhookNotificationInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this receive webhook notification internal server error response has a 5xx status code
+func (o *ReceiveWebhookNotificationInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this receive webhook notification internal server error response a status code equal to that given
+func (o *ReceiveWebhookNotificationInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *ReceiveWebhookNotificationInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *ReceiveWebhookNotificationInternalServerError) String() string {
+	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *ReceiveWebhookNotificationInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

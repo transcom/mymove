@@ -81,7 +81,8 @@ func NewCreateMTOAgentOK() *CreateMTOAgentOK {
 	return &CreateMTOAgentOK{}
 }
 
-/* CreateMTOAgentOK describes a response with status code 200, with default header values.
+/*
+CreateMTOAgentOK describes a response with status code 200, with default header values.
 
 Successfully added the agent.
 */
@@ -89,9 +90,39 @@ type CreateMTOAgentOK struct {
 	Payload *primemessages.MTOAgent
 }
 
+// IsSuccess returns true when this create m t o agent o k response has a 2xx status code
+func (o *CreateMTOAgentOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this create m t o agent o k response has a 3xx status code
+func (o *CreateMTOAgentOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o agent o k response has a 4xx status code
+func (o *CreateMTOAgentOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create m t o agent o k response has a 5xx status code
+func (o *CreateMTOAgentOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o agent o k response a status code equal to that given
+func (o *CreateMTOAgentOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *CreateMTOAgentOK) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentOK  %+v", 200, o.Payload)
 }
+
+func (o *CreateMTOAgentOK) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentOK  %+v", 200, o.Payload)
+}
+
 func (o *CreateMTOAgentOK) GetPayload() *primemessages.MTOAgent {
 	return o.Payload
 }
@@ -113,7 +144,8 @@ func NewCreateMTOAgentBadRequest() *CreateMTOAgentBadRequest {
 	return &CreateMTOAgentBadRequest{}
 }
 
-/* CreateMTOAgentBadRequest describes a response with status code 400, with default header values.
+/*
+CreateMTOAgentBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -121,9 +153,39 @@ type CreateMTOAgentBadRequest struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create m t o agent bad request response has a 2xx status code
+func (o *CreateMTOAgentBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o agent bad request response has a 3xx status code
+func (o *CreateMTOAgentBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o agent bad request response has a 4xx status code
+func (o *CreateMTOAgentBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o agent bad request response has a 5xx status code
+func (o *CreateMTOAgentBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o agent bad request response a status code equal to that given
+func (o *CreateMTOAgentBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *CreateMTOAgentBadRequest) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *CreateMTOAgentBadRequest) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *CreateMTOAgentBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -145,7 +207,8 @@ func NewCreateMTOAgentUnauthorized() *CreateMTOAgentUnauthorized {
 	return &CreateMTOAgentUnauthorized{}
 }
 
-/* CreateMTOAgentUnauthorized describes a response with status code 401, with default header values.
+/*
+CreateMTOAgentUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -153,9 +216,39 @@ type CreateMTOAgentUnauthorized struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create m t o agent unauthorized response has a 2xx status code
+func (o *CreateMTOAgentUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o agent unauthorized response has a 3xx status code
+func (o *CreateMTOAgentUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o agent unauthorized response has a 4xx status code
+func (o *CreateMTOAgentUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o agent unauthorized response has a 5xx status code
+func (o *CreateMTOAgentUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o agent unauthorized response a status code equal to that given
+func (o *CreateMTOAgentUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *CreateMTOAgentUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *CreateMTOAgentUnauthorized) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *CreateMTOAgentUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -177,7 +270,8 @@ func NewCreateMTOAgentForbidden() *CreateMTOAgentForbidden {
 	return &CreateMTOAgentForbidden{}
 }
 
-/* CreateMTOAgentForbidden describes a response with status code 403, with default header values.
+/*
+CreateMTOAgentForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -185,9 +279,39 @@ type CreateMTOAgentForbidden struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create m t o agent forbidden response has a 2xx status code
+func (o *CreateMTOAgentForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o agent forbidden response has a 3xx status code
+func (o *CreateMTOAgentForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o agent forbidden response has a 4xx status code
+func (o *CreateMTOAgentForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o agent forbidden response has a 5xx status code
+func (o *CreateMTOAgentForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o agent forbidden response a status code equal to that given
+func (o *CreateMTOAgentForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *CreateMTOAgentForbidden) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentForbidden  %+v", 403, o.Payload)
 }
+
+func (o *CreateMTOAgentForbidden) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentForbidden  %+v", 403, o.Payload)
+}
+
 func (o *CreateMTOAgentForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -209,7 +333,8 @@ func NewCreateMTOAgentNotFound() *CreateMTOAgentNotFound {
 	return &CreateMTOAgentNotFound{}
 }
 
-/* CreateMTOAgentNotFound describes a response with status code 404, with default header values.
+/*
+CreateMTOAgentNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -217,9 +342,39 @@ type CreateMTOAgentNotFound struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create m t o agent not found response has a 2xx status code
+func (o *CreateMTOAgentNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o agent not found response has a 3xx status code
+func (o *CreateMTOAgentNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o agent not found response has a 4xx status code
+func (o *CreateMTOAgentNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o agent not found response has a 5xx status code
+func (o *CreateMTOAgentNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o agent not found response a status code equal to that given
+func (o *CreateMTOAgentNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *CreateMTOAgentNotFound) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentNotFound  %+v", 404, o.Payload)
 }
+
+func (o *CreateMTOAgentNotFound) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentNotFound  %+v", 404, o.Payload)
+}
+
 func (o *CreateMTOAgentNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -241,7 +396,8 @@ func NewCreateMTOAgentConflict() *CreateMTOAgentConflict {
 	return &CreateMTOAgentConflict{}
 }
 
-/* CreateMTOAgentConflict describes a response with status code 409, with default header values.
+/*
+CreateMTOAgentConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -249,9 +405,39 @@ type CreateMTOAgentConflict struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create m t o agent conflict response has a 2xx status code
+func (o *CreateMTOAgentConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o agent conflict response has a 3xx status code
+func (o *CreateMTOAgentConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o agent conflict response has a 4xx status code
+func (o *CreateMTOAgentConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o agent conflict response has a 5xx status code
+func (o *CreateMTOAgentConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o agent conflict response a status code equal to that given
+func (o *CreateMTOAgentConflict) IsCode(code int) bool {
+	return code == 409
+}
+
 func (o *CreateMTOAgentConflict) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentConflict  %+v", 409, o.Payload)
 }
+
+func (o *CreateMTOAgentConflict) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentConflict  %+v", 409, o.Payload)
+}
+
 func (o *CreateMTOAgentConflict) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -273,7 +459,8 @@ func NewCreateMTOAgentUnprocessableEntity() *CreateMTOAgentUnprocessableEntity {
 	return &CreateMTOAgentUnprocessableEntity{}
 }
 
-/* CreateMTOAgentUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+CreateMTOAgentUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -281,9 +468,39 @@ type CreateMTOAgentUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
 }
 
+// IsSuccess returns true when this create m t o agent unprocessable entity response has a 2xx status code
+func (o *CreateMTOAgentUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o agent unprocessable entity response has a 3xx status code
+func (o *CreateMTOAgentUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o agent unprocessable entity response has a 4xx status code
+func (o *CreateMTOAgentUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o agent unprocessable entity response has a 5xx status code
+func (o *CreateMTOAgentUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o agent unprocessable entity response a status code equal to that given
+func (o *CreateMTOAgentUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *CreateMTOAgentUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *CreateMTOAgentUnprocessableEntity) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *CreateMTOAgentUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -305,7 +522,8 @@ func NewCreateMTOAgentInternalServerError() *CreateMTOAgentInternalServerError {
 	return &CreateMTOAgentInternalServerError{}
 }
 
-/* CreateMTOAgentInternalServerError describes a response with status code 500, with default header values.
+/*
+CreateMTOAgentInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -313,9 +531,39 @@ type CreateMTOAgentInternalServerError struct {
 	Payload *primemessages.Error
 }
 
+// IsSuccess returns true when this create m t o agent internal server error response has a 2xx status code
+func (o *CreateMTOAgentInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o agent internal server error response has a 3xx status code
+func (o *CreateMTOAgentInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o agent internal server error response has a 4xx status code
+func (o *CreateMTOAgentInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create m t o agent internal server error response has a 5xx status code
+func (o *CreateMTOAgentInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this create m t o agent internal server error response a status code equal to that given
+func (o *CreateMTOAgentInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *CreateMTOAgentInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *CreateMTOAgentInternalServerError) String() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *CreateMTOAgentInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

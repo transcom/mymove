@@ -69,7 +69,8 @@ func NewListMTOsOK() *ListMTOsOK {
 	return &ListMTOsOK{}
 }
 
-/* ListMTOsOK describes a response with status code 200, with default header values.
+/*
+ListMTOsOK describes a response with status code 200, with default header values.
 
 Successfully retrieved all move task orders.
 */
@@ -77,9 +78,39 @@ type ListMTOsOK struct {
 	Payload supportmessages.MoveTaskOrders
 }
 
+// IsSuccess returns true when this list m t os o k response has a 2xx status code
+func (o *ListMTOsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list m t os o k response has a 3xx status code
+func (o *ListMTOsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list m t os o k response has a 4xx status code
+func (o *ListMTOsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list m t os o k response has a 5xx status code
+func (o *ListMTOsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list m t os o k response a status code equal to that given
+func (o *ListMTOsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ListMTOsOK) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsOK  %+v", 200, o.Payload)
 }
+
+func (o *ListMTOsOK) String() string {
+	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsOK  %+v", 200, o.Payload)
+}
+
 func (o *ListMTOsOK) GetPayload() supportmessages.MoveTaskOrders {
 	return o.Payload
 }
@@ -99,7 +130,8 @@ func NewListMTOsBadRequest() *ListMTOsBadRequest {
 	return &ListMTOsBadRequest{}
 }
 
-/* ListMTOsBadRequest describes a response with status code 400, with default header values.
+/*
+ListMTOsBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -107,9 +139,39 @@ type ListMTOsBadRequest struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this list m t os bad request response has a 2xx status code
+func (o *ListMTOsBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this list m t os bad request response has a 3xx status code
+func (o *ListMTOsBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list m t os bad request response has a 4xx status code
+func (o *ListMTOsBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this list m t os bad request response has a 5xx status code
+func (o *ListMTOsBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list m t os bad request response a status code equal to that given
+func (o *ListMTOsBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *ListMTOsBadRequest) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *ListMTOsBadRequest) String() string {
+	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *ListMTOsBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -131,7 +193,8 @@ func NewListMTOsUnauthorized() *ListMTOsUnauthorized {
 	return &ListMTOsUnauthorized{}
 }
 
-/* ListMTOsUnauthorized describes a response with status code 401, with default header values.
+/*
+ListMTOsUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -139,9 +202,39 @@ type ListMTOsUnauthorized struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this list m t os unauthorized response has a 2xx status code
+func (o *ListMTOsUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this list m t os unauthorized response has a 3xx status code
+func (o *ListMTOsUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list m t os unauthorized response has a 4xx status code
+func (o *ListMTOsUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this list m t os unauthorized response has a 5xx status code
+func (o *ListMTOsUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list m t os unauthorized response a status code equal to that given
+func (o *ListMTOsUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *ListMTOsUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *ListMTOsUnauthorized) String() string {
+	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *ListMTOsUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -163,7 +256,8 @@ func NewListMTOsForbidden() *ListMTOsForbidden {
 	return &ListMTOsForbidden{}
 }
 
-/* ListMTOsForbidden describes a response with status code 403, with default header values.
+/*
+ListMTOsForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -171,9 +265,39 @@ type ListMTOsForbidden struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this list m t os forbidden response has a 2xx status code
+func (o *ListMTOsForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this list m t os forbidden response has a 3xx status code
+func (o *ListMTOsForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list m t os forbidden response has a 4xx status code
+func (o *ListMTOsForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this list m t os forbidden response has a 5xx status code
+func (o *ListMTOsForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list m t os forbidden response a status code equal to that given
+func (o *ListMTOsForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *ListMTOsForbidden) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsForbidden  %+v", 403, o.Payload)
 }
+
+func (o *ListMTOsForbidden) String() string {
+	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsForbidden  %+v", 403, o.Payload)
+}
+
 func (o *ListMTOsForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -195,7 +319,8 @@ func NewListMTOsNotFound() *ListMTOsNotFound {
 	return &ListMTOsNotFound{}
 }
 
-/* ListMTOsNotFound describes a response with status code 404, with default header values.
+/*
+ListMTOsNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -203,9 +328,39 @@ type ListMTOsNotFound struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this list m t os not found response has a 2xx status code
+func (o *ListMTOsNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this list m t os not found response has a 3xx status code
+func (o *ListMTOsNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list m t os not found response has a 4xx status code
+func (o *ListMTOsNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this list m t os not found response has a 5xx status code
+func (o *ListMTOsNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list m t os not found response a status code equal to that given
+func (o *ListMTOsNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *ListMTOsNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsNotFound  %+v", 404, o.Payload)
 }
+
+func (o *ListMTOsNotFound) String() string {
+	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsNotFound  %+v", 404, o.Payload)
+}
+
 func (o *ListMTOsNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -227,7 +382,8 @@ func NewListMTOsInternalServerError() *ListMTOsInternalServerError {
 	return &ListMTOsInternalServerError{}
 }
 
-/* ListMTOsInternalServerError describes a response with status code 500, with default header values.
+/*
+ListMTOsInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -235,9 +391,39 @@ type ListMTOsInternalServerError struct {
 	Payload *supportmessages.Error
 }
 
+// IsSuccess returns true when this list m t os internal server error response has a 2xx status code
+func (o *ListMTOsInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this list m t os internal server error response has a 3xx status code
+func (o *ListMTOsInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list m t os internal server error response has a 4xx status code
+func (o *ListMTOsInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list m t os internal server error response has a 5xx status code
+func (o *ListMTOsInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this list m t os internal server error response a status code equal to that given
+func (o *ListMTOsInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *ListMTOsInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *ListMTOsInternalServerError) String() string {
+	return fmt.Sprintf("[GET /move-task-orders][%d] listMTOsInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *ListMTOsInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

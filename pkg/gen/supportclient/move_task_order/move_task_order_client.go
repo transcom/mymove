@@ -44,9 +44,10 @@ type ClientService interface {
 }
 
 /*
-  CreateMoveTaskOrder creates move task order
+	CreateMoveTaskOrder creates move task order
 
-  Creates an instance of moveTaskOrder.
+	Creates an instance of moveTaskOrder.
+
 Currently this will also create a number of nested objects but not all.
 It will currently create
 * MoveTaskOrder
@@ -59,7 +60,6 @@ It will not create addresses, duty stations, shipments, payment requests or serv
 origin duty station ID, and an uploaded orders ID to be passed into the request.
 
 This is a support endpoint and will not be available in production.
-
 */
 func (a *Client) CreateMoveTaskOrder(params *CreateMoveTaskOrderParams, opts ...ClientOption) (*CreateMoveTaskOrderCreated, error) {
 	// TODO: Validate the params before sending
@@ -97,15 +97,15 @@ func (a *Client) CreateMoveTaskOrder(params *CreateMoveTaskOrderParams, opts ...
 }
 
 /*
-  GetMoveTaskOrder gets move task order
+	GetMoveTaskOrder gets move task order
 
-  ### Functionality
+	### Functionality
+
 This endpoint gets an individual MoveTaskOrder by ID.
 
 It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
 
 This is a support endpoint and is not available in production.
-
 */
 func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams, opts ...ClientOption) (*GetMoveTaskOrderOK, error) {
 	// TODO: Validate the params before sending
@@ -143,12 +143,12 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams, opts ...Client
 }
 
 /*
-  HideNonFakeMoveTaskOrders hides non fake move task orders
+	HideNonFakeMoveTaskOrders hides non fake move task orders
 
-  Updates move task order without fake user data `show` to false. No request body required. <br />
+	Updates move task order without fake user data `show` to false. No request body required. <br />
+
 <br />
 This is a support endpoint and will not be available in production.
-
 */
 func (a *Client) HideNonFakeMoveTaskOrders(params *HideNonFakeMoveTaskOrdersParams, opts ...ClientOption) (*HideNonFakeMoveTaskOrdersOK, error) {
 	// TODO: Validate the params before sending
@@ -186,13 +186,13 @@ func (a *Client) HideNonFakeMoveTaskOrders(params *HideNonFakeMoveTaskOrdersPara
 }
 
 /*
-  ListMTOs lists m t os
+	ListMTOs lists m t os
 
-  ### Functionality
+	### Functionality
+
 This endpoint lists all MoveTaskOrders regardless of whether or not they have been made available to Prime.
 
 It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
-
 */
 func (a *Client) ListMTOs(params *ListMTOsParams, opts ...ClientOption) (*ListMTOsOK, error) {
 	// TODO: Validate the params before sending
@@ -230,12 +230,12 @@ func (a *Client) ListMTOs(params *ListMTOsParams, opts ...ClientOption) (*ListMT
 }
 
 /*
-  MakeMoveTaskOrderAvailable makes move task order available
+	MakeMoveTaskOrderAvailable makes move task order available
 
-  Updates move task order `availableToPrimeAt` to make it available to prime. No request body required. <br />
+	Updates move task order `availableToPrimeAt` to make it available to prime. No request body required. <br />
+
 <br />
 This is a support endpoint and will not be available in production.
-
 */
 func (a *Client) MakeMoveTaskOrderAvailable(params *MakeMoveTaskOrderAvailableParams, opts ...ClientOption) (*MakeMoveTaskOrderAvailableOK, error) {
 	// TODO: Validate the params before sending
