@@ -27,7 +27,7 @@ type CreatePPMShipment struct {
 	// Pattern: ^(\d{5})$
 	DestinationPostalCode *string `json:"destinationPostalCode"`
 
-	// The estimated weight of the PPM shipment goods being moved.
+	// The estimated weight of the PPM shipment goods being moved in pounds.
 	// Example: 4200
 	// Required: true
 	EstimatedWeight *int64 `json:"estimatedWeight"`
@@ -43,15 +43,13 @@ type CreatePPMShipment struct {
 	// Required: true
 	HasProGear *bool `json:"hasProGear"`
 
-	// ZIP
-	//
 	// The postal code of the origin location where goods are being moved from.
 	// Example: 90210
 	// Required: true
 	// Pattern: ^(\d{5})$
 	PickupPostalCode *string `json:"pickupPostalCode"`
 
-	// The estimated weight of the pro-gear being moved belonging to the service member.
+	// The estimated weight of the pro-gear being moved belonging to the service member in pounds.
 	ProGearWeight *int64 `json:"proGearWeight,omitempty"`
 
 	// ZIP
@@ -76,18 +74,18 @@ type CreatePPMShipment struct {
 	// Format: date
 	SitEstimatedEntryDate *strfmt.Date `json:"sitEstimatedEntryDate,omitempty"`
 
-	// The estimated weight of the goods being put into storage.
+	// The estimated weight of the goods being put into storage in pounds.
 	// Example: 2000
 	SitEstimatedWeight *int64 `json:"sitEstimatedWeight,omitempty"`
 
-	// Captures whether the PPM is expected to need put into storage at the origin or destination.
+	// Captures whether the PPM is expected to require being put into storage at the origin or destination.
 	// Required: true
 	SitExpected *bool `json:"sitExpected"`
 
 	// sit location
 	SitLocation *SITLocationType `json:"sitLocation,omitempty"`
 
-	// The estimated weight of the pro-gear being moved belonging to a spouse.
+	// The estimated weight of the pro-gear being moved belonging to a spouse in pounds.
 	SpouseProGearWeight *int64 `json:"spouseProGearWeight,omitempty"`
 }
 

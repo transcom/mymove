@@ -1452,14 +1452,6 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         }
-      },
-      "x-examples": {
-        "application/json": {
-          "ppm": {
-            "moveTaskOrderID": "1111-2222-3333-4444",
-            "shipmentType": "PPM"
-          }
-        }
       }
     },
     "CreatePPMShipment": {
@@ -1483,7 +1475,7 @@ func init() {
           "example": "90210"
         },
         "estimatedWeight": {
-          "description": "The estimated weight of the PPM shipment goods being moved.",
+          "description": "The estimated weight of the PPM shipment goods being moved in pounds.",
           "type": "integer",
           "example": 4200
         },
@@ -1500,12 +1492,11 @@ func init() {
           "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
         "proGearWeight": {
-          "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
           "type": "integer",
           "x-nullable": true
         },
@@ -1540,13 +1531,13 @@ func init() {
           "x-nullable": true
         },
         "sitEstimatedWeight": {
-          "description": "The estimated weight of the goods being put into storage.",
+          "description": "The estimated weight of the goods being put into storage in pounds.",
           "type": "integer",
           "x-nullable": true,
           "example": 2000
         },
         "sitExpected": {
-          "description": "Captures whether the PPM is expected to need put into storage at the origin or destination.",
+          "description": "Captures whether the PPM is expected to require being put into storage at the origin or destination.",
           "type": "boolean"
         },
         "sitLocation": {
@@ -1560,7 +1551,7 @@ func init() {
           ]
         },
         "spouseProGearWeight": {
-          "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true
         }
@@ -2760,7 +2751,7 @@ func init() {
           "x-omitempty": false
         },
         "advanceAmountRequested": {
-          "description": "The amount requested as an advance by the service member up to a maximum percentage of the estimated incentive.\n",
+          "description": "The amount requested as an advance by the service member, up to a maximum percentage of the estimated incentive.\n",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
@@ -2780,9 +2771,9 @@ func init() {
           "readOnly": true
         },
         "destinationPostalCode": {
+          "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
@@ -2799,18 +2790,19 @@ func init() {
           "x-omitempty": false
         },
         "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
           "example": 4200
         },
         "expectedDepartureDate": {
-          "description": "Date the customer expects to begin their move.\n",
+          "description": "Date the customer expects to begin moving from their origin.\n",
           "type": "string",
           "format": "date"
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -2850,6 +2842,7 @@ func init() {
           "example": "90210"
         },
         "proGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -2862,18 +2855,18 @@ func init() {
           "x-omitempty": false
         },
         "secondaryDestinationPostalCode": {
+          "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
+          "description": "An optional secondary pickup location near the origin where additional goods exist.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "x-omitempty": false,
@@ -2908,13 +2901,14 @@ func init() {
           "x-omitempty": false
         },
         "sitEstimatedWeight": {
-          "description": "The estimated weight of the goods being put into storage.",
+          "description": "The estimated weight of the goods being put into storage in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
           "example": 2000
         },
         "sitExpected": {
+          "description": "Captures whether the PPM is expected to require being put into storage at the origin or destination.",
           "type": "boolean"
         },
         "sitLocation": {
@@ -2931,6 +2925,7 @@ func init() {
           ]
         },
         "spouseProGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -3731,6 +3726,7 @@ func init() {
       "type": "object",
       "properties": {
         "destinationPostalCode": {
+          "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -3739,72 +3735,71 @@ func init() {
           "example": "90210"
         },
         "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved.",
           "type": "integer",
           "x-nullable": true,
           "example": 4200
         },
         "expectedDepartureDate": {
-          "description": "Date the customer expects to move.\n",
+          "description": "Date the customer expects to begin moving from their origin.\n",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
           "x-nullable": true
         },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed\n",
-          "type": "integer",
-          "x-nullable": true,
-          "example": 4300
-        },
         "pickupPostalCode": {
-          "description": "zip code",
+          "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "example": "90210"
         },
         "proGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
           "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
+          "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
+          "description": "An optional secondary pickup location near the origin where additional goods exist.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "example": "90210"
         },
         "sitEstimatedDepartureDate": {
+          "description": "The date that goods will exit the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitEstimatedEntryDate": {
+          "description": "The date that goods will first enter the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitEstimatedWeight": {
+          "description": "The estimated weight of the goods being put into storage.",
           "type": "integer",
           "x-nullable": true,
           "example": 2000
         },
         "sitExpected": {
+          "description": "Captures whether the PPM is expected to require being put into storage at the origin or destination.",
           "type": "boolean",
           "x-nullable": true
         },
@@ -3819,6 +3814,7 @@ func init() {
           ]
         },
         "spouseProGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
           "type": "integer",
           "x-nullable": true
         }
@@ -5794,14 +5790,6 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         }
-      },
-      "x-examples": {
-        "application/json": {
-          "ppm": {
-            "moveTaskOrderID": "1111-2222-3333-4444",
-            "shipmentType": "PPM"
-          }
-        }
       }
     },
     "CreatePPMShipment": {
@@ -5825,7 +5813,7 @@ func init() {
           "example": "90210"
         },
         "estimatedWeight": {
-          "description": "The estimated weight of the PPM shipment goods being moved.",
+          "description": "The estimated weight of the PPM shipment goods being moved in pounds.",
           "type": "integer",
           "example": 4200
         },
@@ -5842,12 +5830,11 @@ func init() {
           "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
         "proGearWeight": {
-          "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
           "type": "integer",
           "x-nullable": true
         },
@@ -5882,13 +5869,13 @@ func init() {
           "x-nullable": true
         },
         "sitEstimatedWeight": {
-          "description": "The estimated weight of the goods being put into storage.",
+          "description": "The estimated weight of the goods being put into storage in pounds.",
           "type": "integer",
           "x-nullable": true,
           "example": 2000
         },
         "sitExpected": {
-          "description": "Captures whether the PPM is expected to need put into storage at the origin or destination.",
+          "description": "Captures whether the PPM is expected to require being put into storage at the origin or destination.",
           "type": "boolean"
         },
         "sitLocation": {
@@ -5902,7 +5889,7 @@ func init() {
           ]
         },
         "spouseProGearWeight": {
-          "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true
         }
@@ -7102,7 +7089,7 @@ func init() {
           "x-omitempty": false
         },
         "advanceAmountRequested": {
-          "description": "The amount requested as an advance by the service member up to a maximum percentage of the estimated incentive.\n",
+          "description": "The amount requested as an advance by the service member, up to a maximum percentage of the estimated incentive.\n",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
@@ -7122,9 +7109,9 @@ func init() {
           "readOnly": true
         },
         "destinationPostalCode": {
+          "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
@@ -7141,18 +7128,19 @@ func init() {
           "x-omitempty": false
         },
         "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
           "example": 4200
         },
         "expectedDepartureDate": {
-          "description": "Date the customer expects to begin their move.\n",
+          "description": "Date the customer expects to begin moving from their origin.\n",
           "type": "string",
           "format": "date"
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -7192,6 +7180,7 @@ func init() {
           "example": "90210"
         },
         "proGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -7204,18 +7193,18 @@ func init() {
           "x-omitempty": false
         },
         "secondaryDestinationPostalCode": {
+          "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
+          "description": "An optional secondary pickup location near the origin where additional goods exist.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "x-omitempty": false,
@@ -7250,13 +7239,14 @@ func init() {
           "x-omitempty": false
         },
         "sitEstimatedWeight": {
-          "description": "The estimated weight of the goods being put into storage.",
+          "description": "The estimated weight of the goods being put into storage in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
           "example": 2000
         },
         "sitExpected": {
+          "description": "Captures whether the PPM is expected to require being put into storage at the origin or destination.",
           "type": "boolean"
         },
         "sitLocation": {
@@ -7273,6 +7263,7 @@ func init() {
           ]
         },
         "spouseProGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -8076,6 +8067,7 @@ func init() {
       "type": "object",
       "properties": {
         "destinationPostalCode": {
+          "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -8084,72 +8076,71 @@ func init() {
           "example": "90210"
         },
         "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved.",
           "type": "integer",
           "x-nullable": true,
           "example": 4200
         },
         "expectedDepartureDate": {
-          "description": "Date the customer expects to move.\n",
+          "description": "Date the customer expects to begin moving from their origin.\n",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
           "x-nullable": true
         },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed\n",
-          "type": "integer",
-          "x-nullable": true,
-          "example": 4300
-        },
         "pickupPostalCode": {
-          "description": "zip code",
+          "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "example": "90210"
         },
         "proGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
           "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
+          "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
+          "description": "An optional secondary pickup location near the origin where additional goods exist.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "example": "90210"
         },
         "sitEstimatedDepartureDate": {
+          "description": "The date that goods will exit the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitEstimatedEntryDate": {
+          "description": "The date that goods will first enter the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitEstimatedWeight": {
+          "description": "The estimated weight of the goods being put into storage.",
           "type": "integer",
           "x-nullable": true,
           "example": 2000
         },
         "sitExpected": {
+          "description": "Captures whether the PPM is expected to require being put into storage at the origin or destination.",
           "type": "boolean",
           "x-nullable": true
         },
@@ -8164,6 +8155,7 @@ func init() {
           ]
         },
         "spouseProGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
           "type": "integer",
           "x-nullable": true
         }

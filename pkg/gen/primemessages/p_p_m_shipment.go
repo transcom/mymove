@@ -43,7 +43,7 @@ type PPMShipment struct {
 	//
 	AdvanceAmountReceived *int64 `json:"advanceAmountReceived"`
 
-	// The amount requested as an advance by the service member up to a maximum percentage of the estimated incentive.
+	// The amount requested as an advance by the service member, up to a maximum percentage of the estimated incentive.
 	//
 	AdvanceAmountRequested *int64 `json:"advanceAmountRequested"`
 
@@ -57,7 +57,7 @@ type PPMShipment struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt"`
 
-	// ZIP
+	// The postal code of the destination location where goods are being delivered to.
 	// Example: 90210
 	// Required: true
 	// Pattern: ^(\d{5})$
@@ -71,17 +71,17 @@ type PPMShipment struct {
 	// The estimated amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.
 	EstimatedIncentive *int64 `json:"estimatedIncentive"`
 
-	// estimated weight
+	// The estimated weight of the PPM shipment goods being moved in pounds.
 	// Example: 4200
 	EstimatedWeight *int64 `json:"estimatedWeight"`
 
-	// Date the customer expects to begin their move.
+	// Date the customer expects to begin moving from their origin.
 	//
 	// Required: true
 	// Format: date
 	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate"`
 
-	// Indicates whether PPM shipment has pro gear.
+	// Indicates whether PPM shipment has pro gear for themselves or their spouse.
 	//
 	HasProGear *bool `json:"hasProGear"`
 
@@ -113,19 +113,19 @@ type PPMShipment struct {
 	// Pattern: ^(\d{5})$
 	PickupPostalCode *string `json:"pickupPostalCode"`
 
-	// pro gear weight
+	// The estimated weight of the pro-gear being moved belonging to the service member in pounds.
 	ProGearWeight *int64 `json:"proGearWeight"`
 
 	// The timestamp of when the Service Counselor has reviewed all of the closeout documents.
 	// Format: date-time
 	ReviewedAt *strfmt.DateTime `json:"reviewedAt"`
 
-	// ZIP
+	// An optional secondary location near the destination where goods will be dropped off.
 	// Example: 90210
 	// Pattern: ^(\d{5})$
 	SecondaryDestinationPostalCode *string `json:"secondaryDestinationPostalCode"`
 
-	// ZIP
+	// An optional secondary pickup location near the origin where additional goods exist.
 	// Example: 90210
 	// Pattern: ^(\d{5})$
 	SecondaryPickupPostalCode *string `json:"secondaryPickupPostalCode"`
@@ -148,18 +148,18 @@ type PPMShipment struct {
 	// Format: date
 	SitEstimatedEntryDate *strfmt.Date `json:"sitEstimatedEntryDate"`
 
-	// The estimated weight of the goods being put into storage.
+	// The estimated weight of the goods being put into storage in pounds.
 	// Example: 2000
 	SitEstimatedWeight *int64 `json:"sitEstimatedWeight"`
 
-	// sit expected
+	// Captures whether the PPM is expected to require being put into storage at the origin or destination.
 	// Required: true
 	SitExpected *bool `json:"sitExpected"`
 
 	// sit location
 	SitLocation *SITLocationType `json:"sitLocation,omitempty"`
 
-	// spouse pro gear weight
+	// The estimated weight of the pro-gear being moved belonging to a spouse in pounds.
 	SpouseProGearWeight *int64 `json:"spouseProGearWeight"`
 
 	// status
