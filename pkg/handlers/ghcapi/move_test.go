@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"time"
 
@@ -26,7 +27,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 	ordersID := uuid.Must(uuid.NewV4())
 	var move models.Move
 	var requestUser models.User
-	suite.PreloadData(func() {
+	setupTestData := func() {
 		move = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status:             models.MoveStatusAPPROVED,
@@ -35,18 +36,11 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 				Orders:             models.Order{ID: ordersID},
 			},
 		})
-
 		requestUser = testdatagen.MakeStubbedUser(suite.DB())
-	})
-
-	req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
-	params := moveops.GetMoveParams{
-		HTTPRequest: req,
-		Locator:     move.Locator,
 	}
 
 	suite.Run("Successful move fetch", func() {
+		setupTestData()
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
@@ -59,6 +53,13 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			move.Locator,
 			mock.Anything,
 		).Return(&move, nil)
+
+		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+		params := moveops.GetMoveParams{
+			HTTPRequest: req,
+			Locator:     move.Locator,
+		}
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveOK{}, response)
@@ -79,18 +80,22 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 	})
 
 	suite.Run("Unsuccessful move fetch - empty string bad request", func() {
+		setupTestData()
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
 			HandlerConfig: suite.HandlerConfig(),
 			MoveFetcher:   &mockFetcher,
 		}
+		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		response := handler.Handle(moveops.GetMoveParams{HTTPRequest: req, Locator: ""})
 		suite.IsType(&moveops.GetMoveBadRequest{}, response)
 	})
 
 	suite.Run("Unsuccessful move fetch - locator not found", func() {
+		setupTestData()
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
@@ -103,12 +108,19 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			move.Locator,
 			mock.Anything,
 		).Return(&models.Move{}, apperror.NotFoundError{})
+		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+		params := moveops.GetMoveParams{
+			HTTPRequest: req,
+			Locator:     move.Locator,
+		}
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveNotFound{}, response)
 	})
 
 	suite.Run("Unsuccessful move fetch - internal server error", func() {
+		setupTestData()
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
@@ -122,6 +134,13 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			mock.Anything,
 		).Return(&models.Move{}, apperror.QueryError{})
 
+		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+		params := moveops.GetMoveParams{
+			HTTPRequest: req,
+			Locator:     move.Locator,
+		}
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveInternalServerError{}, response)
 	})
@@ -131,13 +150,15 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 	var requestUser models.User
-	suite.PreloadData(func() {
+	setupTestData := func() *http.Request {
 		requestUser = testdatagen.MakeStubbedUser(suite.DB())
-	})
-	req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
+		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+		return req
 
+	}
 	suite.Run("Successful move search by locator", func() {
+		req := setupTestData()
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		moves := models.Moves{move}
 
@@ -180,6 +201,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 	})
 
 	suite.Run("Successful move search by DoD ID", func() {
+		req := setupTestData()
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		moves := models.Moves{move}
 
@@ -217,25 +239,18 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 	var move models.Move
 	var requestUser models.User
-	suite.PreloadData(func() {
+	setupTestData := func() (*http.Request, models.Move) {
 		move = testdatagen.MakeDefaultMove(suite.DB())
 		requestUser = testdatagen.MakeStubbedUser(suite.DB())
-	})
-	req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
+		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+		return req, move
+	}
 	defaultRemarks := "destination address is on the moon"
 	fakeEtag := ""
-	params := moveops.SetFinancialReviewFlagParams{
-		HTTPRequest: req,
-		IfMatch:     &fakeEtag,
-		Body: moveops.SetFinancialReviewFlagBody{
-			Remarks:       &defaultRemarks,
-			FlagForReview: swag.Bool(true),
-		},
-		MoveID: *handlers.FmtUUID(move.ID),
-	}
 
 	suite.Run("Successful flag setting to true", func() {
+		req, move := setupTestData()
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
 			HandlerConfig:                 suite.HandlerConfig(),
@@ -249,11 +264,21 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			&defaultRemarks,
 		).Return(&move, nil)
 
+		params := moveops.SetFinancialReviewFlagParams{
+			HTTPRequest: req,
+			IfMatch:     &fakeEtag,
+			Body: moveops.SetFinancialReviewFlagBody{
+				Remarks:       &defaultRemarks,
+				FlagForReview: swag.Bool(true),
+			},
+			MoveID: *handlers.FmtUUID(move.ID),
+		}
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SetFinancialReviewFlagOK{}, response)
 	})
 
 	suite.Run("Unsuccessful flag - missing remarks", func() {
+		req, move := setupTestData()
 		paramsNilRemarks := moveops.SetFinancialReviewFlagParams{
 			HTTPRequest: req,
 			IfMatch:     &fakeEtag,
@@ -267,11 +292,11 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			HandlerConfig:                 suite.HandlerConfig(),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
-
 		response := handler.Handle(paramsNilRemarks)
 		suite.IsType(&moveops.SetFinancialReviewFlagUnprocessableEntity{}, response)
 	})
 	suite.Run("Unsuccessful flag - move not found", func() {
+		req, move := setupTestData()
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
 			HandlerConfig:                 suite.HandlerConfig(),
@@ -285,10 +310,21 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			&defaultRemarks,
 		).Return(&models.Move{}, apperror.NotFoundError{})
 
+		params := moveops.SetFinancialReviewFlagParams{
+			HTTPRequest: req,
+			IfMatch:     &fakeEtag,
+			Body: moveops.SetFinancialReviewFlagBody{
+				Remarks:       &defaultRemarks,
+				FlagForReview: swag.Bool(true),
+			},
+			MoveID: *handlers.FmtUUID(move.ID),
+		}
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SetFinancialReviewFlagNotFound{}, response)
 	})
 	suite.Run("Unsuccessful flag - internal server error", func() {
+		req, move := setupTestData()
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
 			HandlerConfig:                 suite.HandlerConfig(),
@@ -302,11 +338,22 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			&defaultRemarks,
 		).Return(&models.Move{}, apperror.QueryError{})
 
+		params := moveops.SetFinancialReviewFlagParams{
+			HTTPRequest: req,
+			IfMatch:     &fakeEtag,
+			Body: moveops.SetFinancialReviewFlagBody{
+				Remarks:       &defaultRemarks,
+				FlagForReview: swag.Bool(true),
+			},
+			MoveID: *handlers.FmtUUID(move.ID),
+		}
+
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SetFinancialReviewFlagInternalServerError{}, response)
 	})
 
 	suite.Run("Unsuccessful flag - bad etag", func() {
+		req, move := setupTestData()
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
 			HandlerConfig:                 suite.HandlerConfig(),
@@ -319,6 +366,16 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 			mock.AnythingOfType("bool"),
 			&defaultRemarks,
 		).Return(&models.Move{}, apperror.PreconditionFailedError{})
+
+		params := moveops.SetFinancialReviewFlagParams{
+			HTTPRequest: req,
+			IfMatch:     &fakeEtag,
+			Body: moveops.SetFinancialReviewFlagBody{
+				Remarks:       &defaultRemarks,
+				FlagForReview: swag.Bool(true),
+			},
+			MoveID: *handlers.FmtUUID(move.ID),
+		}
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.SetFinancialReviewFlagPreconditionFailed{}, response)

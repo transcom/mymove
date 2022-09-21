@@ -134,12 +134,9 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 
 	now := time.Now()
 	fakeFileStorer := test.NewFakeS3Storage(true)
-	var upload models.Upload
-	suite.PreloadData(func() {
-		upload = testdatagen.MakeStubbedUpload(suite.DB(), testdatagen.Assertions{})
-	})
 
 	suite.Run("Success - all data populated", func() {
+		upload := testdatagen.MakeStubbedUpload(suite.DB(), testdatagen.Assertions{})
 		move := models.Move{
 			ID:                         id,
 			ExcessWeightQualifiedAt:    &now,

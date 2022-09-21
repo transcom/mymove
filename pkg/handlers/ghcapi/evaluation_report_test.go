@@ -226,10 +226,6 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 
 	var officeUser models.OfficeUser
 
-	suite.PreloadData(func() {
-		officeUser = testdatagen.MakeDefaultOfficeUser(suite.DB())
-	})
-
 	suite.Run("Successful POST", func() {
 
 		handlerConfig := suite.HandlerConfig()

@@ -225,15 +225,14 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	paymentRequestID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
 	officeUserUUID, _ := uuid.NewV4()
-	var officeUser models.OfficeUser
 
-	suite.PreloadData(func() {
-		officeUser = testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true, OfficeUser: models.OfficeUser{ID: officeUserUUID}})
+	setupTestData := func() models.OfficeUser {
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true, OfficeUser: models.OfficeUser{ID: officeUserUUID}})
 		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 			RoleType: roles.RoleTypeTIO,
 		})
-
-	})
+		return officeUser
+	}
 	paymentRequest := models.PaymentRequest{
 		ID:        paymentRequestID,
 		IsFinal:   false,
@@ -245,6 +244,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 
 	suite.Run("successful status update of payment request", func() {
+		officeUser := setupTestData()
 		pendingPaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
@@ -276,6 +276,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.Run("successful status update of rejected payment request", func() {
+		officeUser := setupTestData()
 		pendingPaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
@@ -307,6 +308,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.Run("prevent handler from updating payment request status to unapproved statuses", func() {
+		officeUser := setupTestData()
 		nonApprovedPRStatuses := [...]ghcmessages.PaymentRequestStatus{
 			ghcmessages.PaymentRequestStatusSENTTOGEX,
 			ghcmessages.PaymentRequestStatusRECEIVEDBYGEX,
@@ -343,6 +345,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.Run("failed status update of payment request - forbidden", func() {
+		officeUser := setupTestData()
 		officeUserTOO := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 			RoleType: roles.RoleTypeTOO,
@@ -378,6 +381,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.Run("successful status update of prime-available payment request", func() {
+		officeUser := setupTestData()
 		availableMove := testdatagen.MakeAvailableMove(suite.DB())
 		availablePaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			Move: availableMove,
@@ -418,6 +422,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.Run("unsuccessful status update of payment request (500)", func() {
+		officeUser := setupTestData()
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything, mock.Anything).Return(nil, errors.New("Something bad happened")).Once()
@@ -448,6 +453,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.Run("unsuccessful status update of payment request, not found (404)", func() {
+		officeUser := setupTestData()
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything, mock.Anything).Return(nil, apperror.NewNotFoundError(paymentRequest.ID, "")).Once()
@@ -478,6 +484,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.Run("unsuccessful status update of payment request, precondition failed (412)", func() {
+		officeUser := setupTestData()
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything, mock.Anything).Return(nil, apperror.PreconditionFailedError{}).Once()
@@ -508,6 +515,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.Run("unsuccessful status update of payment request, validation errors (422)", func() {
+		officeUser := setupTestData()
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything, mock.Anything).Return(nil, apperror.NewInvalidInputError(paymentRequestID, nil, nil, "")).Once()
@@ -539,13 +547,15 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 }
 
 func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
-	var officeUserTIO models.OfficeUser
 
-	suite.PreloadData(func() {
-		officeUserTIO = testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-	})
+	setupTestData := func() models.OfficeUser {
+		officeUserTIO := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		return officeUserTIO
+	}
 
 	suite.Run("successful response of the shipments SIT Balance handler", func() {
+		officeUserTIO := setupTestData()
+
 		now := time.Now()
 
 		reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
@@ -741,6 +751,7 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 	})
 
 	suite.Run("returns 404 not found when payment request does not exist", func() {
+		officeUserTIO := setupTestData()
 		paymentRequestID := uuid.Must(uuid.NewV4())
 
 		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/%s/shipments-payment-sit-balance", paymentRequestID.String()), nil)

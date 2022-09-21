@@ -47,6 +47,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator)
 	mockCreator := mocks.ShipmentCreator{}
 
+	var pickupAddress primemessages.Address
+	var destinationAddress primemessages.Address
+
 	setupTestData := func() (CreateMTOShipmentHandler, models.Move) {
 
 		move := testdatagen.MakeAvailableMove(suite.DB())
@@ -55,14 +58,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentCreator,
 			mtoChecker,
 		}
-		return handler, move
 
-	}
-
-	var pickupAddress primemessages.Address
-	var destinationAddress primemessages.Address
-
-	suite.PreloadData(func() {
 		// Make stubbed addresses just to collect address data for payload
 		newAddress := testdatagen.MakeStubbedAddress(suite.DB())
 		pickupAddress = primemessages.Address{
@@ -84,7 +80,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress2: newAddress.StreetAddress2,
 			StreetAddress3: newAddress.StreetAddress3,
 		}
-	})
+		return handler, move
+
+	}
 
 	suite.Run("Successful POST - Integration Test", func() {
 		// Under Test: CreateMTOShipment handler code

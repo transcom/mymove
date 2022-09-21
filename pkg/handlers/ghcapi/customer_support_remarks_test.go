@@ -79,12 +79,9 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 	var move models.Move
 	var officeUser models.OfficeUser
 
-	suite.PreloadData(func() {
+	suite.Run("Successful POST", func() {
 		move = testdatagen.MakeDefaultMove(suite.DB())
 		officeUser = testdatagen.MakeDefaultOfficeUser(suite.DB())
-	})
-
-	suite.Run("Successful POST", func() {
 		handlerConfig := suite.HandlerConfig()
 
 		creator := &mocks.CustomerSupportRemarksCreator{}
@@ -121,6 +118,8 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 	})
 
 	suite.Run("unsuccessful POST", func() {
+		move = testdatagen.MakeDefaultMove(suite.DB())
+
 		handlerConfig := suite.HandlerConfig()
 
 		creator := &mocks.CustomerSupportRemarksCreator{}
