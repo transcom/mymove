@@ -18,7 +18,7 @@ BEGIN
   IF NOT EXISTS (
     SELECT -- SELECT list can stay empty for this
     FROM   pg_catalog.pg_roles
-    WHERE  rolname = 'rdssuperuser') THEN
+    WHERE  rolname = 'rds_superuser') THEN
     ALTER USER dms_crud WITH PASSWORD 'mysecretpassword';
   END IF;
 END
