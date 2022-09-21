@@ -1,0 +1,17 @@
+@import 'shared/styles/_basics.scss';
+
+.notFound {
+  @include u-padding-top(6);
+
+  .goBack {
+    @include u-padding(0);
+    justify-content: start;
+    display: inline;
+    width: auto;
+  }
+  :global {
+    .usa-button--unstyled {
+      text-decoration: underline;
+    }
+  }
+}
