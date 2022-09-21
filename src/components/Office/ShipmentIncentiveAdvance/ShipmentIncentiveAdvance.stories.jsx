@@ -64,7 +64,7 @@ export const advanceRequested = () => {
   );
 };
 
-export const advanceRequestedWithError = () => {
+export const advanceRequestedWithMaxAmountError = () => {
   const estimatedIncentive = 1111111;
 
   const validationSchema = Yup.object().shape({
@@ -76,6 +76,26 @@ export const advanceRequestedWithError = () => {
 
   return (
     <Formik validationSchema={validationSchema} initialValues={{ advanceRequested: true, advance: '7000' }}>
+      {() => {
+        return (
+          <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
+            <ShipmentIncentiveAdvance estimatedIncentive={estimatedIncentive} />
+          </Form>
+        );
+      }}
+    </Formik>
+  );
+};
+
+export const advanceRequestedWithMinAmountError = () => {
+  const estimatedIncentive = 1111111;
+
+  const validationSchema = Yup.object().shape({
+    advance: Yup.number().min(1, `Enter an amount $1 or more.`),
+  });
+
+  return (
+    <Formik validationSchema={validationSchema} initialValues={{ advanceRequested: true, advance: '0' }}>
       {() => {
         return (
           <Form className={formStyles.form} style={{ maxWidth: 'none' }}>
