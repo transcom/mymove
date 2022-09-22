@@ -189,7 +189,7 @@ const EvaluationReportPreview = ({
               <>
                 <div className={classnames(descriptionListStyles.row)}>
                   <dt className={styles.violationsLabel}>Serious incident</dt>
-                  <dd className={styles.violationsRemarks}>yes</dd>
+                  <dd className={styles.violationsRemarks}>{showIncidentDescription}</dd>
                 </div>
                 {showIncidentDescription === 'yes' && (
                   <div className={classnames(descriptionListStyles.row)}>

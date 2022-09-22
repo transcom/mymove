@@ -258,6 +258,8 @@ describe('Evaluation Report Container', () => {
     expect(screen.getByRole('heading', { name: 'Violations', level: 3 })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Information', level: 3 })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'QAE remarks', level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Move information', level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Evaluation report', level: 2 })).toBeInTheDocument();
     expect(screen.getByText('Evaluation remarks')).toBeInTheDocument();
     expect(evaluationReportContainer).toBeInTheDocument();
     // shipment type rendered
