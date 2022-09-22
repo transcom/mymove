@@ -503,7 +503,7 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	originalY := d.pdf.GetY()
 	layout := PickShipmentCardLayout(shipment.ShipmentType)
 	vals := FormatValuesShipment(shipment)
-	stripeHeight := 2.0
+	stripeHeight := pxToMM(9.0)
 	addressHeight := 10.0
 	tableRowHeight := 10.0
 	//estimatedHeight := stripeHeight + headingMargin + headingHeight + headingBottomMargin + addressHeight + tableRowHeight + len(layout)
@@ -541,8 +541,9 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	d.pdf.SetFontStyle("")
 	if shipment.UsesExternalVendor {
 		d.setFillColorBaseLight()
-		vendorTagWidth := d.pdf.GetStringWidth("EXTERNAL VENDOR") + 2*d.pdf.GetCellMargin()
-		d.pdf.CellFormat(vendorTagWidth, headingHeight, "EXTERNAL VENDOR", "", 0, "LM", true, 0, "")
+		const externalVendorText = "EXTERNAL VENDOR"
+		vendorTagWidth := d.pdf.GetStringWidth(externalVendorText) + 2*d.pdf.GetCellMargin()
+		d.pdf.CellFormat(vendorTagWidth, headingHeight, externalVendorText, "", 0, "LM", true, 0, "")
 
 	}
 	// heading - shipment ID
@@ -570,7 +571,7 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 			leftAddressLabel = "PICKUP ADDRESS"
 			rightAddressLabel = vals.StorageFacilityName
 		}
-		d.sideBySideAddress(tableX, vals.PickupAddress, leftAddressLabel, rightX, vals.DeliveryAddress, rightAddressLabel)
+		d.sideBySideAddress(gap, tableX, vals.PickupAddress, leftAddressLabel, rightX, vals.DeliveryAddress, rightAddressLabel)
 		d.addVerticalSpace(pxToMM(12.0))
 	}
 	err := d.twoColumnTable(tableX, d.pdf.GetY(), tableWidth, layout, vals)
@@ -604,32 +605,31 @@ func (d *DynamicFormFiller) setHHGStripeColor(shipmentType models.MTOShipmentTyp
 	d.pdf.SetDrawColor(r, g, b)
 	d.pdf.SetFillColor(r, g, b)
 }
-func (d *DynamicFormFiller) sideBySideAddress(leftAddressX float64, leftAddress string, leftAddressLabel string, rightAddressX float64, rightAddress string, rightAddressLabel string) {
+func (d *DynamicFormFiller) sideBySideAddress(gap float64, leftAddressX float64, leftAddress string, leftAddressLabel string, rightAddressX float64, rightAddress string, rightAddressLabel string) {
 	d.pdf.SetFontUnitSize(pxToMM(15.0))
 	addressY := d.pdf.GetY()
 	startY := d.pdf.GetY()
 	d.pdf.SetX(leftAddressX)
 	d.setTextColorBaseDark()
+	addressWidth := rightAddressX - leftAddressX - gap
 	if leftAddressLabel != "" {
-		// TODO width calc here not quite right doesnt take into account gap
-		d.pdf.CellFormat(rightAddressX-leftAddressX, pxToMM(18.0), leftAddressLabel, "", 1, "LT", false, 0, "")
+		d.pdf.CellFormat(addressWidth, pxToMM(18.0), leftAddressLabel, "", 1, "LT", false, 0, "")
 		addressY = d.pdf.GetY() + pxToMM(8.0)
 	}
 	if rightAddressLabel != "" {
-		// TODO width calc here not quite right doesnt take into account gap
 		d.pdf.MoveTo(rightAddressX, startY)
-		d.pdf.CellFormat(rightAddressX-leftAddressX, pxToMM(18.0), rightAddressLabel, "", 1, "LT", false, 0, "")
+		d.pdf.CellFormat(addressWidth, pxToMM(18.0), rightAddressLabel, "", 1, "LT", false, 0, "")
 		addressY = math.Max(addressY, d.pdf.GetY()+pxToMM(8.0))
 	}
 	d.pdf.MoveTo(leftAddressX, addressY)
 	d.setTextColorBaseDarkest()
-	d.pdf.CellFormat(rightAddressX-leftAddressX, pxToMM(18.0), leftAddress, "", 1, "LT", false, 0, "")
+	d.pdf.CellFormat(addressWidth, pxToMM(18.0), leftAddress, "", 1, "LT", false, 0, "")
 	leftY := d.pdf.GetY()
 	d.pdf.MoveTo(rightAddressX-pxToMM(20.0), addressY)
 	d.drawArrow()
 
 	d.pdf.MoveTo(rightAddressX, addressY)
-	d.pdf.CellFormat(rightAddressX-leftAddressX, pxToMM(18.0), rightAddress, "", 1, "LT", false, 0, "")
+	d.pdf.CellFormat(addressWidth, pxToMM(18.0), rightAddress, "", 1, "LT", false, 0, "")
 	addressY = math.Max(leftY, d.pdf.GetY())
 	d.pdf.SetY(addressY)
 }
@@ -657,7 +657,7 @@ func (d *DynamicFormFiller) twoColumnTable(x float64, y float64, w float64, layo
 	for i, row := range layout {
 		err := d.twoColumnTableRow(x, gap, labelWidth, valueWidth, row, data)
 		if err != nil {
-			return fmt.Errorf("twoColumnTableRow %w", err)
+			return err
 		}
 		if i < len(layout)-1 {
 			d.setBorderColor()
