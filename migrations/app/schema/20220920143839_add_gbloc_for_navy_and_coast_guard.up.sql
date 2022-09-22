@@ -1,6 +1,6 @@
 INSERT INTO addresses
     (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country)
-    VALUES ('8b71dfaa-f607-4187-bc2a-8547e74736e5', 'P.O. Box 4102', NULL, 'Chesapeake', 'VA', '23327', now(), now(), 'United States');
+    VALUES ('8b71dfaa-f607-4187-bc2a-8547e74736e5', 'N/A', 'P.O. Box 4102', 'Chesapeake', 'VA', '23327', now(), now(), 'United States');
 INSERT INTO transportation_offices
     (id, name, gbloc, address_id, latitude, longitude, created_at, updated_at)
 	VALUES ('6598f143-9451-4635-b921-94a4f86f9ed1', 'USCG FINANCE CENTER PPM', 'USCG', '8b71dfaa-f607-4187-bc2a-8547e74736e5', 36.7769709, -76.2448384, now(), now());
