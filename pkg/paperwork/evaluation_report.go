@@ -60,6 +60,16 @@ type ShipmentValues struct {
 	ExternalVendor        bool
 }
 
+type ContactInformationValues struct {
+	CustomerFullName    string
+	CustomerPhone       string
+	CustomerRank        string
+	CustomerAffiliation string
+	QAEFullName         string
+	QAEPhone            string
+	QAEEmail            string
+}
+
 var PPMShipmentCardLayout = []TableRow{
 	{
 		LeftFieldName:  "PPMOriginZIP",
@@ -279,6 +289,37 @@ func FormatValuesShipment(shipment models.MTOShipment) ShipmentValues {
 		vals.RequiredDeliveryDate = shipment.RequiredDeliveryDate.Format(dateFormat)
 	}
 	return vals
+}
+
+// TODO we might be able to change the returns here to strings
+// TODO the function that uses this doesnt care about any of the indivual fields, it just joins them
+func FormatContactInformationValues(customer models.ServiceMember, qae models.OfficeUser) ContactInformationValues {
+	contactInfo := ContactInformationValues{
+		QAEPhone:    qae.Telephone,
+		QAEEmail:    qae.Email,
+		QAEFullName: fmt.Sprintf("%s, %s", qae.LastName, qae.FirstName),
+	}
+	if customer.Telephone != nil {
+		contactInfo.CustomerPhone = *customer.Telephone
+	}
+	if customer.Rank != nil {
+		contactInfo.CustomerRank = rankDisplayValue[*customer.Rank]
+	}
+	if customer.Affiliation != nil {
+		contactInfo.CustomerAffiliation = customer.Affiliation.String()
+	}
+
+	customerFirstName := ""
+	if customer.FirstName != nil {
+		customerFirstName = *customer.FirstName
+	}
+	customerLastName := ""
+	if customer.LastName != nil {
+		customerLastName = *customer.LastName
+	}
+	contactInfo.CustomerFullName = fmt.Sprintf("%s, %s", customerLastName, customerFirstName)
+
+	return contactInfo
 }
 
 func PickShipmentCardLayout(shipmentType models.MTOShipmentType) []TableRow {

@@ -267,10 +267,7 @@ func (d *DynamicFormFiller) CreateShipmentReport(report models.EvaluationReport,
 		return err
 	}
 
-	err = d.contactInformation(customer, report.OfficeUser)
-	if err != nil {
-		return err
-	}
+	d.contactInformation(customer, report.OfficeUser)
 
 	err = d.shipmentCard(shipment)
 	if err != nil {
@@ -315,10 +312,7 @@ func (d *DynamicFormFiller) CreateCounselingReport(report models.EvaluationRepor
 		return err
 	}
 
-	err = d.contactInformation(customer, report.OfficeUser)
-	if err != nil {
-		return err
-	}
+	d.contactInformation(customer, report.OfficeUser)
 
 	for _, shipment := range shipments {
 		// TODO decide whether to do a page break or add vertical space
@@ -548,38 +542,14 @@ func (d *DynamicFormFiller) violation(violation models.PWSViolation) error {
 	return nil
 }
 
-// TODO I think we should have a struct for all of these
-func (d *DynamicFormFiller) contactInformation(customer models.ServiceMember, officeUser models.OfficeUser) error {
-	customerPhone := ""
-	if customer.Telephone != nil {
-		customerPhone = *customer.Telephone
-	}
-	customerRank := ""
-	if customer.Rank != nil {
-		customerRank = rankDisplayValue[*customer.Rank]
-	}
-	customerAffiliation := ""
-	if customer.Affiliation != nil {
-		customerAffiliation = customer.Affiliation.String()
-	}
-
-	customerFirstName := ""
-	if customer.FirstName != nil {
-		customerFirstName = *customer.FirstName
-	}
-	customerLastName := ""
-	if customer.LastName != nil {
-		customerLastName = *customer.LastName
-	}
-	customerFullName := fmt.Sprintf("%s, %s", customerLastName, customerFirstName)
-
-	qaeFullName := fmt.Sprintf("%s, %s", officeUser.LastName, officeUser.FirstName)
+func (d *DynamicFormFiller) contactInformation(customer models.ServiceMember, officeUser models.OfficeUser) {
+	contactInfo := FormatContactInformationValues(customer, officeUser)
 
 	gap := pxToMM(16.0)
 	columnWidth := -d.startX + (letterWidthMm-gap)/2.0
 	textHeight := pxToMM(21.0)
-	customerContactText := strings.Join([]string{customerFullName, customerPhone, customerRank, customerAffiliation}, "\n")
-	qaeContactText := strings.Join([]string{qaeFullName, officeUser.Telephone, officeUser.Email}, "\n")
+	customerContactText := strings.Join([]string{contactInfo.CustomerFullName, contactInfo.CustomerPhone, contactInfo.CustomerRank, contactInfo.CustomerAffiliation}, "\n")
+	qaeContactText := strings.Join([]string{contactInfo.QAEFullName, contactInfo.QAEPhone, contactInfo.QAEEmail}, "\n")
 
 	d.pdf.SetFontStyle("B")
 	d.pdf.SetFontUnitSize(pxToMM(15.0))
@@ -598,8 +568,6 @@ func (d *DynamicFormFiller) contactInformation(customer models.ServiceMember, of
 
 	bottomMargin := pxToMM(36.0)
 	d.pdf.MoveTo(d.startX, endY+bottomMargin)
-
-	return nil
 }
 
 /*
