@@ -39,8 +39,8 @@
     "ra-data-simple-rest": "^4.3.2",
     "ra-language-english": "^4.2.7",
     "react": "^17.0.1",
-    "react-admin": "^3.19.11",
-    "react-admin-import-csv": "^1.0.33",
+    "react-admin": "^4.3.3",
+    "react-admin-import-csv": "^4.0.0",
     "react-app-polyfill": "^3.0.0",
     "react-day-picker": "=7.4.10",
     "react-dom": "^17.0.1",
@@ -113,7 +113,8 @@
     "build-storybook": "build-storybook",
     "happo": "happo",
     "happo-ci-github-actions": "happo-ci-github-actions",
-    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts"
+    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts",
+    "jest-preview": "jest-preview"
   },
   "version": "0.1.0",
   "devDependencies": {
@@ -156,6 +157,7 @@
     "happo-plugin-storybook": "^3.0.0",
     "happo.io": "^7.3.0",
     "jest-junit": "^14.0.1",
+    "jest-preview": "^0.3.1",
     "mime-types": "^2.1.35",
     "mockdate": "^3.0.5",
     "prettier": "2.7.1",
