@@ -6,15 +6,12 @@ import (
 	"io"
 	"math"
 	"reflect"
-	"strconv"
 	"strings"
-	"time"
 
 	"github.com/jung-kurt/gofpdf"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/assets"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -40,53 +37,17 @@ type TableRow struct {
 	RightLabel     string
 }
 
-// TODO we can probably strip out some of this stuff
 func getField(fieldName string, data interface{}) (string, error) {
 	fmt.Println("getField", fieldName)
 	r := reflect.ValueOf(data)
 	val := reflect.Indirect(r).FieldByName(fieldName).Interface()
-	displayValue := ""
+
 	switch v := val.(type) {
 	case string:
-		displayValue = v
-	case int64:
-		displayValue = strconv.FormatInt(v, 10)
-	case time.Time:
-		displayValue = v.Format(dateFormat)
-	case *time.Time:
-		displayValue = v.Format(dateFormat)
-	case models.ServiceMemberRank:
-		displayValue = rankDisplayValue[v]
-	case *models.ServiceMemberRank:
-		if v != nil {
-			displayValue = rankDisplayValue[*v]
-		}
-	case internalmessages.Affiliation:
-		displayValue = affiliationDisplayValue[v]
-	case *internalmessages.Affiliation:
-		if v != nil {
-			displayValue = affiliationDisplayValue[*v]
-		}
-	case internalmessages.DeptIndicator:
-		displayValue = deptIndDisplayValue[v]
-	case *internalmessages.DeptIndicator:
-		if v != nil {
-			displayValue = "DI: " + deptIndDisplayValue[*v]
-		}
-	case models.Address:
-		displayValue = v.Format()
-	case *models.Address:
-		if v != nil {
-			displayValue = v.Format()
-		}
-	case fmt.Stringer:
-		displayValue = v.String()
+		return v, nil
 	default:
-		// TODO: error out?
-		fmt.Println(v)
-		return "ERR", fmt.Errorf("err")
+		return "", fmt.Errorf("only string type is supported")
 	}
-	return displayValue, nil
 }
 
 type DynamicFormFiller struct {
@@ -102,10 +63,8 @@ func loadFont(pdf *gofpdf.Fpdf, family string, style string, path string) error 
 		return nil
 	}
 	pdf.AddUTF8FontFromBytes(family, style, font)
-	if pdf.Error() != nil {
-		fmt.Println("Problem loading font!!!!")
-	}
-	return nil
+
+	return pdf.Error()
 }
 
 func NewDynamicFormFiller() *DynamicFormFiller {
@@ -150,7 +109,7 @@ func (d *DynamicFormFiller) loadArrowImage() error {
 
 	// After the image is registered, we can use its name to draw it
 	d.pdf.RegisterImageOptionsReader(arrowImageName, opt, arrowImage)
-	return nil
+	return d.pdf.Error()
 }
 
 // Output outputs the form to the provided file
@@ -159,10 +118,7 @@ func (d *DynamicFormFiller) Output(output io.Writer) error {
 	return d.pdf.Output(output)
 }
 func (d *DynamicFormFiller) ViolationsSection(violations models.PWSViolations) error {
-	err := d.subsectionHeading(fmt.Sprintf("Violations observed (%d)", len(violations)))
-	if err != nil {
-		return err
-	}
+	d.subsectionHeading(fmt.Sprintf("Violations observed (%d)", len(violations)))
 
 	kpis := map[string]bool{}
 	for _, violation := range violations {
@@ -179,10 +135,7 @@ func (d *DynamicFormFiller) ViolationsSection(violations models.PWSViolations) e
 		if d.pdf.GetY() > 270 {
 			d.addPage()
 		}
-		err = d.violation(violation)
-		if err != nil {
-			return err
-		}
+		d.violation(violation)
 		d.addVerticalSpace(pxToMM(16.0))
 	}
 
@@ -193,7 +146,7 @@ func (d *DynamicFormFiller) ViolationsSection(violations models.PWSViolations) e
 				allKPIs = append(allKPIs, kpi)
 			}
 		}
-		err = d.subsection("Additional data for KPIs", allKPIs, map[string]string{
+		err := d.subsection("Additional data for KPIs", allKPIs, map[string]string{
 			"ObservedPickupSpreadStartDate": "Observed pickup start dates",
 			"ObservedPickupSpreadEndDate":   "Observed pickup end dates",
 			"ObservedClaimDate":             "Observed claims response date",
@@ -209,12 +162,10 @@ func (d *DynamicFormFiller) ViolationsSection(violations models.PWSViolations) e
 		if err != nil {
 			return err
 		}
-
 	}
-
 	return nil
-
 }
+
 func (d *DynamicFormFiller) InspectionInformationSection(report models.EvaluationReport, violations models.PWSViolations) error {
 	inspectionInfo := FormatValuesInspectionInformation(report, violations)
 
@@ -256,17 +207,11 @@ func (d *DynamicFormFiller) CreateShipmentReport(report models.EvaluationReport,
 	err := d.loadArrowImage()
 	if err != nil {
 		return err
-
 	}
-	// TODO do i want to be checking every return for errors or check the PDF object for errors at the end?
-	d.reportID = fmt.Sprintf("QA-%s", strings.ToUpper(report.ID.String()[:5])) // TODO uppercase
+	d.reportID = fmt.Sprintf("QA-%s", strings.ToUpper(report.ID.String()[:5]))
+
 	d.addPage()
-
-	err = d.reportHeading("Shipment report", d.reportID, report.Move.Locator, *report.Move.ReferenceID)
-	if err != nil {
-		return err
-	}
-
+	d.reportHeading("Shipment report", d.reportID, report.Move.Locator, *report.Move.ReferenceID)
 	d.contactInformation(customer, report.OfficeUser)
 
 	err = d.shipmentCard(shipment)
@@ -280,37 +225,28 @@ func (d *DynamicFormFiller) CreateShipmentReport(report models.EvaluationReport,
 	}
 
 	d.addPage()
-	err = d.sectionHeading("Violations", pxToMM(56.0))
-	if err != nil {
-		return err
-	}
+	d.sectionHeading("Violations", pxToMM(56.0))
 
 	err = d.ViolationsSection(violations)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return d.pdf.Error()
 }
 func (d *DynamicFormFiller) CreateCounselingReport(report models.EvaluationReport, violations models.PWSViolations, shipments models.MTOShipments, customer models.ServiceMember) error {
 	// TODO do i want to be checking every return for errors or check the PDF object for errors at the end?
 	err := d.loadArrowImage()
 	if err != nil {
 		return err
-
 	}
 
 	d.reportID = fmt.Sprintf("QA-%s", strings.ToUpper(report.ID.String()[:5]))
 	d.addPage()
 
-	err = d.reportHeading("Counseling report", d.reportID, report.Move.Locator, *report.Move.ReferenceID)
-	if err != nil {
-		return err
-	}
-	err = d.sectionHeading("Move information", pxToMM(18.0))
-	if err != nil {
-		return err
-	}
+	d.reportHeading("Counseling report", d.reportID, report.Move.Locator, *report.Move.ReferenceID)
+
+	d.sectionHeading("Move information", pxToMM(18.0))
 
 	d.contactInformation(customer, report.OfficeUser)
 
@@ -323,32 +259,24 @@ func (d *DynamicFormFiller) CreateCounselingReport(report models.EvaluationRepor
 	}
 
 	d.addPage()
-	err = d.sectionHeading("Evaluation report", pxToMM(56.0))
-	if err != nil {
-		return err
-	}
+	d.sectionHeading("Evaluation report", pxToMM(56.0))
 	err = d.InspectionInformationSection(report, violations)
 	if err != nil {
 		return err
 	}
 
 	d.addPage()
-
-	err = d.sectionHeading("Violations", pxToMM(56.0))
-	if err != nil {
-		return err
-	}
+	d.sectionHeading("Violations", pxToMM(56.0))
 
 	err = d.ViolationsSection(violations)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return d.pdf.Error()
 }
 func (d *DynamicFormFiller) addPage() {
 	d.pdf.AddPage()
-	//err := d.reportPageHeader()
 	// skip over header spot
 	d.addVerticalSpace(pxToMM(13.0 + 34.0 + 40.0))
 }
@@ -374,7 +302,7 @@ func (d *DynamicFormFiller) reportPageHeader() {
 	d.pdf.SetFontStyle("")
 }
 
-func (d *DynamicFormFiller) reportHeading(text string, reportID string, moveCode string, mtoReferenceID string) error {
+func (d *DynamicFormFiller) reportHeading(text string, reportID string, moveCode string, mtoReferenceID string) {
 	//d.pdf.SetFontSize(30.0) // 40px
 	d.pdf.SetFontUnitSize(pxToMM(40.0))
 	d.setTextColorBaseDarkest()
@@ -397,7 +325,6 @@ func (d *DynamicFormFiller) reportHeading(text string, reportID string, moveCode
 	d.pdf.CellFormat(idsWidth, height/3.0, fmt.Sprintf("MTO REFERENCE ID #%s", mtoReferenceID), "", 1, "RM", false, 0, "")
 	d.pdf.MoveTo(headingX, headingY+height)
 	d.addVerticalSpace(bottomMargin)
-	return nil
 }
 func (d *DynamicFormFiller) setTextColorBaseDark() {
 	d.pdf.SetTextColor(86, 92, 101)
@@ -420,7 +347,7 @@ func (d *DynamicFormFiller) setBorderColor() {
 	d.pdf.SetDrawColor(borderR, borderG, borderB)
 }
 
-func (d *DynamicFormFiller) sectionHeading(text string, bottomMargin float64) error {
+func (d *DynamicFormFiller) sectionHeading(text string, bottomMargin float64) {
 	//bottomMargin := pxToMM(56.0)
 	d.pdf.SetFontStyle("B")
 	d.setTextColorBaseDarkest()
@@ -433,8 +360,6 @@ func (d *DynamicFormFiller) sectionHeading(text string, bottomMargin float64) er
 	d.pdf.SetFontSize(fontSize)
 
 	d.addVerticalSpace(bottomMargin)
-
-	return nil
 }
 
 // TODO would love a better name for this
@@ -445,10 +370,7 @@ func (d *DynamicFormFiller) sectionHeading(text string, bottomMargin float64) er
 
 func (d *DynamicFormFiller) subsection(heading string, fieldOrder []string, fieldLabels map[string]string, data interface{}) error {
 	bottomMargin := pxToMM(40.0)
-	err := d.subsectionHeading(heading)
-	if err != nil {
-		return err
-	}
+	d.subsectionHeading(heading)
 	for _, field := range fieldOrder {
 		labelText, found := fieldLabels[field]
 		if !found {
@@ -463,10 +385,7 @@ func (d *DynamicFormFiller) subsection(heading string, fieldOrder []string, fiel
 			if d.pdf.GetY()+pxToMM(40.0) > 279.4 {
 				d.addPage()
 			}
-			err = d.subsectionRow(labelText, fieldValue)
-			if err != nil {
-				return err
-			}
+			d.subsectionRow(labelText, fieldValue)
 		}
 	}
 	d.addVerticalSpace(bottomMargin)
@@ -474,7 +393,7 @@ func (d *DynamicFormFiller) subsection(heading string, fieldOrder []string, fiel
 	return nil
 }
 
-func (d *DynamicFormFiller) subsectionHeading(heading string) error {
+func (d *DynamicFormFiller) subsectionHeading(heading string) {
 	topMargin := pxToMM(16.0)
 	bottomMargin := pxToMM(24.0)
 
@@ -490,10 +409,8 @@ func (d *DynamicFormFiller) subsectionHeading(heading string) error {
 	d.pdf.SetFontSize(fontSize)
 
 	d.addVerticalSpace(bottomMargin)
-
-	return nil
 }
-func (d *DynamicFormFiller) subsectionRow(key string, value string) error {
+func (d *DynamicFormFiller) subsectionRow(key string, value string) {
 	d.pdf.SetX(d.startX)
 	d.setTextColorBaseDarkest()
 	d.pdf.SetFontStyle("B")
@@ -524,10 +441,11 @@ func (d *DynamicFormFiller) subsectionRow(key string, value string) error {
 	valueY := d.pdf.GetY()
 	endY := math.Max(math.Max(labelY, valueY), y+minFieldHeight)
 	d.pdf.SetY(endY)
-
-	return nil
 }
-func (d *DynamicFormFiller) violation(violation models.PWSViolation) error {
+
+func (d *DynamicFormFiller) violation(violation models.PWSViolation) {
+	// - 1.2.3 Violation Title
+	//   Requirement summary
 	height := pxToMM(18.0)
 	bulletWidth := pxToMM(22.0)
 	d.pdf.SetX(d.startX)
@@ -539,7 +457,6 @@ func (d *DynamicFormFiller) violation(violation models.PWSViolation) error {
 	d.pdf.SetX(d.startX + bulletWidth)
 	d.pdf.SetFontStyle("")
 	d.pdf.CellFormat(letterWidthMm-2.0*d.startX, height, violation.RequirementSummary, "", 1, "LM", false, 0, "")
-	return nil
 }
 
 func (d *DynamicFormFiller) contactInformation(customer models.ServiceMember, officeUser models.OfficeUser) {
@@ -653,10 +570,7 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 			leftAddressLabel = "PICKUP ADDRESS"
 			rightAddressLabel = vals.StorageFacilityName
 		}
-		err := d.sideBySideAddress(tableX, vals.PickupAddress, leftAddressLabel, rightX, vals.DeliveryAddress, rightAddressLabel)
-		if err != nil {
-			return err
-		}
+		d.sideBySideAddress(tableX, vals.PickupAddress, leftAddressLabel, rightX, vals.DeliveryAddress, rightAddressLabel)
 		d.pdf.SetY(d.pdf.GetY() + pxToMM(12.0))
 	}
 	err := d.twoColumnTable(tableX, d.pdf.GetY(), tableWidth, layout, vals)
@@ -690,7 +604,7 @@ func (d *DynamicFormFiller) setHHGStripeColor(shipmentType models.MTOShipmentTyp
 	d.pdf.SetDrawColor(r, g, b)
 	d.pdf.SetFillColor(r, g, b)
 }
-func (d *DynamicFormFiller) sideBySideAddress(leftAddressX float64, leftAddress string, leftAddressLabel string, rightAddressX float64, rightAddress string, rightAddressLabel string) error {
+func (d *DynamicFormFiller) sideBySideAddress(leftAddressX float64, leftAddress string, leftAddressLabel string, rightAddressX float64, rightAddress string, rightAddressLabel string) {
 	d.pdf.SetFontUnitSize(pxToMM(15.0))
 	addressY := d.pdf.GetY()
 	startY := d.pdf.GetY()
@@ -718,7 +632,6 @@ func (d *DynamicFormFiller) sideBySideAddress(leftAddressX float64, leftAddress 
 	d.pdf.CellFormat(rightAddressX-leftAddressX, pxToMM(18.0), rightAddress, "", 1, "LT", false, 0, "")
 	addressY = math.Max(leftY, d.pdf.GetY())
 	d.pdf.SetY(addressY)
-	return nil
 }
 func (d *DynamicFormFiller) formatShipmentType(shipmentType models.MTOShipmentType) string {
 	if shipmentType == models.MTOShipmentTypePPM {
@@ -800,11 +713,11 @@ func (d *DynamicFormFiller) drawArrow() {
 	d.pdf.Image(arrowImageName, d.pdf.GetX(), d.pdf.GetY(), pxToMM(20.0), 0.0, flow, arrowImageFormat, imageLink, imageLinkURL)
 }
 
-// this must only be run at the end
+// Loop through all pages and add headings. This must be done at the end because it uses the number of pages
 func (d *DynamicFormFiller) addPageHeaders() {
 	numPages := d.pdf.PageCount()
 	for i := 1; i <= numPages; i++ {
 		d.pdf.SetPage(i)
-		d.reportPageHeader() // TODO err handling?
+		d.reportPageHeader()
 	}
 }
