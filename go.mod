@@ -7,7 +7,7 @@ require (
 	github.com/XSAM/otelsql v0.16.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20220216073957-c252878bcf5a
 	github.com/alexedwards/scs/v2 v2.5.0
-	github.com/aws/aws-sdk-go v1.44.78
+	github.com/aws/aws-sdk-go v1.44.103
 	github.com/benbjohnson/clock v1.3.0
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/disintegration/imaging v1.6.2
@@ -44,7 +44,6 @@ require (
 	github.com/lib/pq v1.10.6
 	github.com/luna-duclos/instrumentedsql v1.1.3
 	github.com/markbates/goth v1.73.0
-	github.com/mitchellh/mapstructure v1.5.0
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
@@ -161,6 +160,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.18 // indirect
 	github.com/miekg/pkcs11 v1.0.3 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
