@@ -146,13 +146,7 @@ func (d *DynamicFormFiller) ViolationsSection(violations models.PWSViolations) e
 				allKPIs = append(allKPIs, kpi)
 			}
 		}
-		err := d.subsection("Additional data for KPIs", allKPIs, map[string]string{
-			"ObservedPickupSpreadStartDate": "Observed pickup start dates",
-			"ObservedPickupSpreadEndDate":   "Observed pickup end dates",
-			"ObservedClaimDate":             "Observed claims response date",
-			"ObservedPickupDate":            "Observed pickup date",
-			"ObservedDeliveryDate":          "Observed delivery date",
-		}, AdditionalKPIData{
+		err := d.subsection("Additional data for KPIs", allKPIs, KPIFieldLabels, AdditionalKPIData{
 			ObservedPickupSpreadStartDate: "?",
 			ObservedPickupSpreadEndDate:   "?",
 			ObservedClaimDate:             "?",
@@ -169,35 +163,17 @@ func (d *DynamicFormFiller) ViolationsSection(violations models.PWSViolations) e
 func (d *DynamicFormFiller) InspectionInformationSection(report models.EvaluationReport, violations models.PWSViolations) error {
 	inspectionInfo := FormatValuesInspectionInformation(report, violations)
 
-	err := d.subsection("Inspection information", []string{
-		"DateOfInspection",
-		"ReportSubmission",
-		"EvaluationType",
-		"TravelTimeToEvaluation",
-		"EvaluationLocation",
-		"ObservedPickupDate",
-		"ObservedDeliveryDate",
-		"EvaluationLength",
-	}, map[string]string{
-		"DateOfInspection":       "Date of inspection",
-		"ReportSubmission":       "Report submission",
-		"EvaluationType":         "Evaluation type",
-		"TravelTimeToEvaluation": "Travel time to evaluation",
-		"EvaluationLocation":     "Evaluation location",
-		"ObservedPickupDate":     "Observed pickup date",
-		"ObservedDeliveryDate":   "Observed delivery date",
-		"EvaluationLength":       "Evaluation length",
-	}, inspectionInfo)
+	err := d.subsection("Inspection information", InspectionInformationFields, InspectionInformationFieldLabels, inspectionInfo)
 	if err != nil {
 		return err
 	}
 
-	err = d.subsection("Violations", []string{"ViolationsObserved", "SeriousIncident", "SeriousIncidentDescription"}, map[string]string{"ViolationsObserved": "Violations observed", "SeriousIncident": "Serious incident", "SeriousIncidentDescription": "Serious incident description"}, inspectionInfo)
+	err = d.subsection("Violations", ViolationsFields, ViolationsFieldLabels, inspectionInfo)
 	if err != nil {
 		return err
 	}
 
-	err = d.subsection("QAE remarks", []string{"QAERemarks"}, map[string]string{"QAERemarks": "Evaluation remarks"}, inspectionInfo)
+	err = d.subsection("QAE remarks", QAERemarksFields, QAERemarksFieldLabels, inspectionInfo)
 	if err != nil {
 		return err
 	}
@@ -235,7 +211,6 @@ func (d *DynamicFormFiller) CreateShipmentReport(report models.EvaluationReport,
 	return d.pdf.Error()
 }
 func (d *DynamicFormFiller) CreateCounselingReport(report models.EvaluationReport, violations models.PWSViolations, shipments models.MTOShipments, customer models.ServiceMember) error {
-	// TODO do i want to be checking every return for errors or check the PDF object for errors at the end?
 	err := d.loadArrowImage()
 	if err != nil {
 		return err
@@ -245,9 +220,7 @@ func (d *DynamicFormFiller) CreateCounselingReport(report models.EvaluationRepor
 	d.addPage()
 
 	d.reportHeading("Counseling report", d.reportID, report.Move.Locator, *report.Move.ReferenceID)
-
 	d.sectionHeading("Move information", pxToMM(18.0))
-
 	d.contactInformation(customer, report.OfficeUser)
 
 	for _, shipment := range shipments {
@@ -277,7 +250,7 @@ func (d *DynamicFormFiller) CreateCounselingReport(report models.EvaluationRepor
 }
 func (d *DynamicFormFiller) addPage() {
 	d.pdf.AddPage()
-	// skip over header spot
+	// skip over header spot, which will be filled in after the report is complete
 	d.addVerticalSpace(pxToMM(13.0 + 34.0 + 40.0))
 }
 
@@ -297,7 +270,6 @@ func (d *DynamicFormFiller) reportPageHeader() {
 	d.setTextColorBaseDarker()
 	d.pdf.SetFontStyle("B")
 	d.pdf.CellFormat(-d.startX+letterWidthMm/2.0, textHeight, fmt.Sprintf("Report #%s", d.reportID), "", 0, "LM", false, 0, "")
-	//d.pdf.CellFormat(-d.startX +letterWidthMm/ 2.0, textHeight, fmt.Sprintf("Page %d of {nb}", d.pdf.PageNo()), "", 1, "RM", false, 0, "")
 	d.pdf.CellFormat(0.0, textHeight, fmt.Sprintf("Page %d of %d", d.pdf.PageNo(), d.pdf.PageCount()), "", 1, "RM", false, 0, "")
 	d.pdf.SetFontStyle("")
 }
@@ -313,9 +285,12 @@ func (d *DynamicFormFiller) reportHeading(text string, reportID string, moveCode
 	bottomMargin := pxToMM(43.0)
 	rightMargin := d.startX
 	idsWidth := letterWidthMm - headingX - headingWidth - rightMargin
+
+	// Heading (left aligned)
 	d.pdf.MoveTo(headingX, headingY)
 	d.pdf.CellFormat(headingWidth, height, text, "", 0, "LM", false, 0, "")
 
+	// Report ID/Move Code/MTO reference ID (right aligned)
 	d.pdf.SetFontUnitSize(pxToMM(13.0))
 	d.setTextColorBaseDark()
 	d.pdf.CellFormat(idsWidth, height/3.0, fmt.Sprintf("REPORT ID #%s", reportID), "", 1, "RM", false, 0, "")
@@ -348,11 +323,9 @@ func (d *DynamicFormFiller) setBorderColor() {
 }
 
 func (d *DynamicFormFiller) sectionHeading(text string, bottomMargin float64) {
-	//bottomMargin := pxToMM(56.0)
 	d.pdf.SetFontStyle("B")
 	d.setTextColorBaseDarkest()
-	//d.pdf.SetFontSize(21.0) // 28px
-	d.pdf.SetFontUnitSize(pxToMM(28.0)) // 28px
+	d.pdf.SetFontUnitSize(pxToMM(28.0))
 
 	d.pdf.SetX(d.startX)
 	d.pdf.CellFormat(0.0, 10.0, text, "", 1, "LT", false, 0, "")
@@ -396,19 +369,17 @@ func (d *DynamicFormFiller) subsection(heading string, fieldOrder []string, fiel
 func (d *DynamicFormFiller) subsectionHeading(heading string) {
 	topMargin := pxToMM(16.0)
 	bottomMargin := pxToMM(24.0)
-
-	d.addVerticalSpace(topMargin)
-
 	d.pdf.SetFontStyle("B")
 	d.setTextColorBaseDarkest()
-	//d.pdf.SetFontSize(17.0) // 28px
-	d.pdf.SetFontUnitSize(pxToMM(28.0)) // 28px
+	d.pdf.SetFontUnitSize(pxToMM(28.0))
+	d.addVerticalSpace(topMargin)
 	d.pdf.SetX(d.startX)
 	d.pdf.CellFormat(0.0, 10.0, heading, "", 1, "LT", false, 0, "")
+	d.addVerticalSpace(bottomMargin)
+
+	// Reset font
 	d.pdf.SetFontStyle("")
 	d.pdf.SetFontSize(fontSize)
-
-	d.addVerticalSpace(bottomMargin)
 }
 func (d *DynamicFormFiller) subsectionRow(key string, value string) {
 	d.pdf.SetX(d.startX)
@@ -420,10 +391,9 @@ func (d *DynamicFormFiller) subsectionRow(key string, value string) {
 	valueWidth := letterWidthMm - 2.0*d.startX - labelWidth
 	textLineHeight := pxToMM(18.0)
 	minFieldHeight := pxToMM(40.0)
-	//margin := pxToMM(12.0)
 	// TODO if i get any multiline things I might want to do LT with a smaller box
-	// todo might even make sense to have a different functio nfor multiline stuff
-	// todo and then have taht in the config object
+	// todo might even make sense to have a different function for multiline stuff
+	// todo and then have that in the config object
 
 	y := d.pdf.GetY()
 	d.pdf.SetFontUnitSize(pxToMM(15.0))
@@ -497,7 +467,7 @@ func (d *DynamicFormFiller) contactInformation(customer models.ServiceMember, of
 | Requested pickup date 20 May 2022      Requested delivery date 29 May 2022 |
 | ---------------------------------      ----------------------------------- |
 | .....                                                                      |
-|____________________________________________________________________________|
+'.__________________________________________________________________________.'
 */
 func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	originalY := d.pdf.GetY()
@@ -512,7 +482,7 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	fmt.Println(vals.ShipmentType)
 	fmt.Println("----------------------")
 	fmt.Println("## start Y", d.pdf.GetY(), "estimated card height", estimatedHeight, "total", d.pdf.GetY()+estimatedHeight)
-	if d.pdf.GetY()+estimatedHeight > 279.4 {
+	if d.pdf.GetY()+estimatedHeight > 279.4 { // todo
 		fmt.Println("BREAKING PAGE")
 		d.addPage()
 		fmt.Println("page starting Y", d.pdf.GetY())

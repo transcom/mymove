@@ -12,6 +12,14 @@ const (
 	dateFormat                            = "02 January 2006"
 )
 
+var KPIFieldLabels = map[string]string{
+	"ObservedPickupSpreadStartDate": "Observed pickup start dates",
+	"ObservedPickupSpreadEndDate":   "Observed pickup end dates",
+	"ObservedClaimDate":             "Observed claims response date",
+	"ObservedPickupDate":            "Observed pickup date",
+	"ObservedDeliveryDate":          "Observed delivery date",
+}
+
 type AdditionalKPIData struct {
 	ObservedPickupSpreadStartDate string
 	ObservedPickupSpreadEndDate   string
@@ -33,6 +41,38 @@ type InspectionInformationValues struct {
 	SeriousIncident            string
 	SeriousIncidentDescription string
 }
+
+var InspectionInformationFields = []string{
+	"DateOfInspection",
+	"ReportSubmission",
+	"EvaluationType",
+	"TravelTimeToEvaluation",
+	"EvaluationLocation",
+	"ObservedPickupDate",
+	"ObservedDeliveryDate",
+	"EvaluationLength",
+}
+var InspectionInformationFieldLabels = map[string]string{
+	"DateOfInspection":       "Date of inspection",
+	"ReportSubmission":       "Report submission",
+	"EvaluationType":         "Evaluation type",
+	"TravelTimeToEvaluation": "Travel time to evaluation",
+	"EvaluationLocation":     "Evaluation location",
+	"ObservedPickupDate":     "Observed pickup date",
+	"ObservedDeliveryDate":   "Observed delivery date",
+	"EvaluationLength":       "Evaluation length",
+}
+
+var ViolationsFields = []string{"ViolationsObserved", "SeriousIncident", "SeriousIncidentDescription"}
+var ViolationsFieldLabels = map[string]string{
+	"ViolationsObserved":         "Violations observed",
+	"SeriousIncident":            "Serious incident",
+	"SeriousIncidentDescription": "Serious incident description",
+}
+
+var QAERemarksFields = []string{"QAERemarks"}
+var QAERemarksFieldLabels = map[string]string{"QAERemarks": "Evaluation remarks"}
+
 type ShipmentValues struct {
 	ShipmentID            string
 	ShipmentType          string
