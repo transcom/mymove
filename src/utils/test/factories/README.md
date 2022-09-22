@@ -124,6 +124,14 @@ export const gblocHelper = (f) => f.random.alpha({ count: 4, casing: 'upper' });
 }
 ```
 
+Note: passing a factory function to `fake()` is an antipattern. Factories handle their own uniqueness constraints. Set the factory function directly as the property.
+
+```javascript
+[BASE_FIELDS.FIELDS]: {
+  [OBJECT_FIELDS.ADDRESS]: (addressParams) => addressFactory(addressParams)
+}
+```
+
 ### Creating generators with swagger-codegen
 
 It's possible to generate JSON from the Swagger schema for use in factories with swagger-codegen. For example, you might want to get a list of states already defined in Swagger. To generate JSON from the internal.yaml, run

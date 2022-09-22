@@ -36,6 +36,8 @@ const dutyLocation = dutyLocationFactory({
   },
 });
 
+const dutyLocation2 = dutyLocationFactory();
+
 describe('testFactory', () => {
   it('has correct default values', () => {
     expect(test[TEST_FACTORY_FIELDS.DEFAULT]).toBe('default');
@@ -80,6 +82,11 @@ describe('testFactory', () => {
   it("overrides a dutyLocation's address's street address", () => {
     expect(dutyLocation[DUTY_LOCATION_FIELDS.ADDRESS][ADDRESS_FIELDS.STREET_ADDRESS_1]).toBe(
       dutyLocationStreetAddressOverrideValue,
+    );
+  });
+  it('generates unique values for subfactories by default', () => {
+    expect(dutyLocation[DUTY_LOCATION_FIELDS.ADDRESS][ADDRESS_FIELDS.ID]).not.toBe(
+      dutyLocation2[DUTY_LOCATION_FIELDS.ADDRESS][ADDRESS_FIELDS.ID],
     );
   });
 });
