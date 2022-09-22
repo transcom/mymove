@@ -5,11 +5,27 @@ import userEvent from '@testing-library/user-event';
 import { Summary } from 'components/Customer/Review/Summary/Summary';
 import { MOVE_STATUSES } from 'shared/constants';
 import { renderWithRouter } from 'testUtils';
-import serviceMemberBuilder from 'utils/test/factories/serviceMember';
-
-const serviceMember = serviceMemberBuilder();
 
 const testProps = {
+  serviceMember: {
+    id: '666',
+    current_location: {
+      name: 'Test Duty Location',
+    },
+    residential_address: {
+      city: 'New York',
+      postalCode: '10001',
+      state: 'NY',
+      streetAddress1: '123 Main St',
+    },
+    affiliation: 'Navy',
+    edipi: '123567890',
+    personal_email: 'test@email.com',
+    first_name: 'Tester',
+    last_name: 'Testing',
+    rank: 'RANK',
+    telephone: '123-555-7890',
+  },
   currentOrders: {
     orders_type: 'PERMANENT_CHANGE_OF_STATION',
     has_dependents: false,
@@ -29,7 +45,7 @@ const testProps = {
       },
     },
     report_by_date: '2020-08-31',
-    service_member_id: serviceMember.id,
+    service_member_id: '666',
     spouse_has_pro_gear: false,
     status: MOVE_STATUSES.DRAFT,
     uploaded_orders: {
@@ -45,7 +61,7 @@ const testProps = {
     id: '123',
     locator: 'CXVV3F',
     selected_move_type: 'HHG',
-    service_member_id: serviceMember.id,
+    service_member_id: '666',
     status: MOVE_STATUSES.DRAFT,
   },
   selectedMoveType: 'HHG',
@@ -85,7 +101,6 @@ const testProps = {
   showLoggedInUser: jest.fn(),
   updateShipmentList: jest.fn(),
   setMsg: jest.fn(),
-  serviceMember,
 };
 
 describe('Summary page', () => {

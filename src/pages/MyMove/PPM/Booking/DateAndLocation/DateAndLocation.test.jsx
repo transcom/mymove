@@ -7,7 +7,6 @@ import DateAndLocation from 'pages/MyMove/PPM/Booking/DateAndLocation/DateAndLoc
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
-import serviceMemberBuilder from 'utils/test/factories/serviceMember';
 
 const mockPush = jest.fn();
 
@@ -44,7 +43,12 @@ jest.mock('react-redux', () => ({
 }));
 
 const defaultProps = {
-  serviceMember: serviceMemberBuilder(),
+  serviceMember: {
+    id: '8',
+    residential_address: {
+      postalCode: '20001',
+    },
+  },
   destinationDutyLocation: {
     address: {
       postalCode: '10002',

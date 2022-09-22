@@ -6,7 +6,6 @@ import { EditContactInfo } from './EditContactInfo';
 
 import { patchBackupContact, patchServiceMember } from 'services/internalApi';
 import { customerRoutes } from 'constants/routes';
-import serviceMemberBuilder from 'utils/test/factories/serviceMember';
 
 const mockPush = jest.fn();
 
@@ -37,7 +36,28 @@ describe('EditContactInfo page', () => {
         permission: 'NONE',
       },
     ],
-    serviceMember: serviceMemberBuilder(),
+    serviceMember: {
+      id: 'testServiceMemberID',
+      telephone: '915-555-2945',
+      secondary_telephone: '',
+      personal_email: 'test@example.com',
+      email_is_preferred: true,
+      phone_is_preferred: false,
+      residential_address: {
+        streetAddress1: '148 S East St',
+        streetAddress2: '',
+        city: 'Fake City',
+        state: 'TX',
+        postalCode: '79936',
+      },
+      backup_mailing_address: {
+        streetAddress1: '10642 N Second Ave',
+        streetAddress2: '',
+        city: 'Fake City',
+        state: 'TX',
+        postalCode: '79936',
+      },
+    },
     setFlashMessage: jest.fn(),
     updateBackupContact: jest.fn(),
     updateServiceMember: jest.fn(),

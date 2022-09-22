@@ -18,8 +18,6 @@ import { formatCustomerDate } from 'utils/formatters';
 import { MockProviders, setUpProvidersWithHistory } from 'testUtils';
 import createUpload from 'utils/test/factories/upload';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
-import serviceMemberBuilder from 'utils/test/factories/serviceMember';
-import { TOTAL_WEIGHT_SELF, TOTAL_WEIGHT_SELF_PLUS_DEPENDENTS } from 'constants/weightEntitlements';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -28,20 +26,19 @@ jest.mock('containers/FlashMessage/FlashMessage', () => {
 });
 
 const defaultProps = {
-  serviceMember: serviceMemberBuilder({
-    overrides: {
-      current_location: {
-        transportation_office: {
-          name: 'Test Transportation Office Name',
-          phone_lines: ['555-555-5555'],
-        },
-      },
-      weight_allotment: {
-        [TOTAL_WEIGHT_SELF]: 8000,
-        [TOTAL_WEIGHT_SELF_PLUS_DEPENDENTS]: 11000,
+  serviceMember: {
+    id: v4(),
+    current_location: {
+      transportation_office: {
+        name: 'Test Transportation Office Name',
+        phone_lines: ['555-555-5555'],
       },
     },
-  }),
+    weight_allotment: {
+      total_weight_self: 8000,
+      total_weight_self_plus_dependents: 11000,
+    },
+  },
   showLoggedInUser: jest.fn(),
   createServiceMember: jest.fn(),
   getSignedCertification: jest.fn(),

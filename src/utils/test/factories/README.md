@@ -116,6 +116,6 @@ Use traits by setting the `useTraits` key to an array of traits. Traits are appl
 
 ### Naming mock data
 
-Because sure to prefix your test data with `mock`. Without the prefix, jest will complain about out-of-scope variables.
+Be sure to prefix your test data with `mock`. Without the prefix, jest will complain about out-of-scope variables.
 
 `const mockObject = objectFactory()`

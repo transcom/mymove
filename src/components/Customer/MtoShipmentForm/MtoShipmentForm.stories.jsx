@@ -7,7 +7,6 @@ import MtoShipmentForm from './MtoShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { history, store } from 'shared/store';
-import { TOTAL_WEIGHT_SELF } from 'constants/weightEntitlements';
 
 const defaultProps = {
   pageList: ['page1', 'anotherPage/:foo/:bar'],
@@ -38,7 +37,7 @@ const defaultProps = {
   },
   serviceMember: {
     weight_allotment: {
-      [TOTAL_WEIGHT_SELF]: 5000,
+      total_weight_self: 5000,
     },
   },
   orders: {

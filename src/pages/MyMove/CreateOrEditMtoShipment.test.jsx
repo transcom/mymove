@@ -6,7 +6,6 @@ import { CreateOrEditMtoShipment } from './CreateOrEditMtoShipment';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
-import serviceMemberBuilder from 'utils/test/factories/serviceMember';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -49,7 +48,15 @@ const defaultProps = {
   selectedMoveType: '',
   mtoShipment: {},
   currentResidence: {},
-  serviceMember: serviceMemberBuilder(),
+  serviceMember: {
+    id: '1234',
+    weight_allotment: {
+      total_weight_self: 5000,
+      total_weight_self_plus_dependents: 7500,
+      pro_gear_weight: 2000,
+      pro_gear_weight_spouse: 500,
+    },
+  },
   orders: {
     new_duty_location: {
       address: {

@@ -5,8 +5,6 @@ import userEvent from '@testing-library/user-event';
 import { EditOrders } from './EditOrders';
 
 import { patchOrders } from 'services/internalApi';
-import serviceMemberBuilder from 'utils/test/factories/serviceMember';
-import { TOTAL_WEIGHT_SELF, TOTAL_WEIGHT_SELF_PLUS_DEPENDENTS } from 'constants/weightEntitlements';
 
 const mockPush = jest.fn();
 const mockGoBack = jest.fn();
@@ -31,14 +29,32 @@ jest.mock('services/internalApi', () => ({
 describe('EditOrders Page', () => {
   const testProps = {
     moveIsApproved: false,
-    serviceMember: serviceMemberBuilder({
-      overrides: {
-        weight_allotment: {
-          [TOTAL_WEIGHT_SELF]: 5000,
-          [TOTAL_WEIGHT_SELF_PLUS_DEPENDENTS]: 8000,
+    serviceMember: {
+      id: 'id123',
+      current_location: {
+        address: {
+          city: 'Fort Bragg',
+          country: 'United States',
+          id: 'f1ee4cea-6b23-4971-9947-efb51294ed32',
+          postalCode: '29310',
+          state: 'NC',
+          streetAddress1: '',
         },
+        address_id: 'f1ee4cea-6b23-4971-9947-efb51294ed32',
+        affiliation: 'ARMY',
+        created_at: '2020-10-19T17:01:16.114Z',
+        id: 'dca78766-e76b-4c6d-ba82-81b50ca824b9"',
+        name: 'Fort Bragg',
+        updated_at: '2020-10-19T17:01:16.114Z',
       },
-    }),
+      rank: 'E_2',
+      weight_allotment: {
+        total_weight_self: 5000,
+        total_weight_self_plus_dependents: 8000,
+        pro_gear_weight: 2000,
+        pro_gear_weight_spouse: 500,
+      },
+    },
     setFlashMessage: jest.fn(),
     updateOrders: jest.fn(),
     currentOrders: {
