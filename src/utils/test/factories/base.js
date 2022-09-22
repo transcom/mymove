@@ -53,6 +53,7 @@ const BASE_FIELDS = {
   LAZY_OVERRIDES: 'lazyOverrides',
   LAZY_OVERRIDES_FIELD_PATH: 'fieldPath',
   LAZY_OVERRIDES_VALUE: 'value',
+  POST_BUILD: 'postBuild',
   TRAITS: 'traits',
 };
 
