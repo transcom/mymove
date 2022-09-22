@@ -9,5 +9,20 @@ INSERT INTO addresses
     (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country)
     VALUES ('1829f066-09ca-41ec-8f0b-b69a2018ef0b', '1968 GILBERT STREET', 'SUITE 600', 'Norfolk', 'VA', '23511', now(), now(), 'United States');
 INSERT INTO transportation_offices
-    (id, name, gbloc, address_id, latitude, longitude, created_at, updated_at)
-	VALUES ('83d25227-e27d-4c56-8e71-1ff464f47128', 'PPM Processing (NAVY)', 'NAVY', '1829f066-09ca-41ec-8f0b-b69a2018ef0b', 36.9472035, -76.3298629, now(), now());
+    (id, name, gbloc, address_id, latitude, longitude, hours, created_at, updated_at)
+	VALUES ('83d25227-e27d-4c56-8e71-1ff464f47128', 'PPM Processing (NAVY)', 'NAVY', '1829f066-09ca-41ec-8f0b-b69a2018ef0b', 36.9472035, -76.3298629, '7:30 am to 4:00 pm Eastern Time', now(), now());
+
+--
+-- Data for Name: office_phone_lines; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+-- Add phone line for coast guard
+INSERT INTO public.office_phone_lines VALUES ('00315e86-315f-4418-9995-ee5229bdc80e', '6598f143-9451-4635-b921-94a4f86f9ed1', '1-800-941-3337', NULL, false, 'voice', now(), now());
+-- Add phone lines for navy
+INSERT INTO public.office_phone_lines VALUES ('a3f34514-395d-4709-a776-5dd9b8da2146', '83d25227-e27d-4c56-8e71-1ff464f47128', '855-444-6683', NULL, false, 'voice', now(), now());
+INSERT INTO public.office_phone_lines VALUES ('33c1f796-93e2-4376-ae2d-e9d052eee0b2', '83d25227-e27d-4c56-8e71-1ff464f47128', '757-443-5412', NULL, false, 'voice', now(), now());
+INSERT INTO public.office_phone_lines VALUES ('06a504ff-03fd-43cf-9de8-da22a321c55d', '83d25227-e27d-4c56-8e71-1ff464f47128', '312-646-5412', NULL, true, 'voice', now(), now());
+--
+-- Data for Name: office_emails; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+-- Add email for navy
+INSERT INTO public.office_emails VALUES('23b37629-9f54-4ac3-9b3b-c9ea44b30713', '83d25227-e27d-4c56-8e71-1ff464f47128', 'hhg_audit_ppm_claims.fct@navy.mil', NULL,  now(), now())
