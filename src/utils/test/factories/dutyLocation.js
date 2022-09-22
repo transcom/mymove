@@ -25,7 +25,7 @@ const dutyLocationFactory = (params) => {
       [DUTY_LOCATION_FIELDS.TRANSPORTATION_OFFICE]: fake((toParams) => transportationOfficeFactory(toParams)),
       [DUTY_LOCATION_FIELDS.CREATED_AT]: fake(helpers.createdAtHelper),
     },
-    postBuild: (dutyLocation) => {
+    [BASE_FIELDS.POST_BUILD]: (dutyLocation) => {
       dutyLocation[DUTY_LOCATION_FIELDS.ADDRESS_ID] = dutyLocation.address.id;
       dutyLocation[DUTY_LOCATION_FIELDS.TRANSPORTATION_OFFICE_ID] = dutyLocation.transportationOffice.id;
       dutyLocation[DUTY_LOCATION_FIELDS.UPDATED_AT] = helpers.updatedAtFromCreatedAt(dutyLocation.createdAt);

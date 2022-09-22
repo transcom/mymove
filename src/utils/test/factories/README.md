@@ -16,11 +16,11 @@ Export your factory by default.
 
 ### Build and post-build
 
-Factories generate data in two phases, the build and the post-build. Most values can be generated in the build phase. Use postBuild when the value of one field should be generated contingent upon the value of another.
+Factories generate data in two phases, the build and the post-build. Most values can be generated in the build phase. Use postBuild when the value of one field should be based on the value of another generated value.
 
 ### Fields
 
-The fields object defines the structure and values of the object your factory will return. Values of this object can be literals, functions, or another object containing either.
+The fields object defines the structure and values of the object your factory will return. This happens at build time. Values of this object can be literals, functions, or another object containing either.
 
 ```javascript
   [BASE_OBJECT.FIELDS]: {
@@ -88,6 +88,64 @@ The postBuild function can be used to set values on the object based on other ge
 }
 ```
 
+### To fake() or not to fake()
+
+When declaring fields, the function that returns their values will usually be wrapped in `fake()`, which is a wrapper for test-data-bot's `perBuild()` function.
+
+```javascript
+  [BASE_FIELDS.FIELDS]: {
+    [OBJECT_FIELDS.STATE]: fake(getRandomState)
+  }
+```
+
+This ensures that for successive calls to the same generator, unique values are generated.
+
+Note that `fake()` can only be used in the build phase. It is out-of-scope post-build. In the post-build phase, just call a function directly.
+
+```javascript
+  [BASE_FIELDS.POST_BUILD]: (object) => {
+    [OBJECT_FIELDS.POSTAL_CODE]: getPostalCodeFromState(object.state)
+  }
+```
+
+### Basic generators and Helpers
+
+We use [faker](https://github.com/faker-js/faker) to generate basic data.
+
+A number of helpers are also available for generating common data types that are not directly available from faker. A simple example is GBLOCs, which simply generators four capital letters:
+
+```javascript
+// helpers.js
+export const gblocHelper = (f) => f.random.alpha({ count: 4, casing: 'upper' });
+
+// factory.js
+[BASE_FIELDS.FIELDS]: {
+  [OBJECT_FIELDS.GBLOC]: fake(gblocHelper),
+}
+```
+
+### Creating generators with swagger-codegen
+
+It's possible to generate JSON from the Swagger schema for use in factories with swagger-codegen. For example, you might want to get a list of states already defined in Swagger. To generate JSON from the internal.yaml, run
+
+```bash
+
+docker run -it -v ${PWD}:/local "parsertongue/swagger-codegen-cli:latest" generate \
+-i /local/swagger/internal.yaml \
+-l javascript \
+-o /local/src/utils/test/swagger-client/internal \
+-DmodelDocs=false -DmodelTests=false -DapiDocs=false -DapiTests=false
+
+```
+
+The `stateHelper` is then defined by importing this spec:
+
+```javascript
+const spec = getInternalSpec();
+
+export const stateHelper = () => oneOf(...spec.definitions.Address.properties.state.enum).call();
+```
+
 ## Using a factory for mocking test data
 
 A factory can be used simply by calling it, which will return its default configuration.
@@ -98,12 +156,24 @@ A number of options are available to pass when a factory is called.
 
 ### Overrides
 
-These are values set explicity on your object. The key is available via `BASE_FIELDS`:
+Overrides explicitly set values on an object at build time. The key is available via `BASE_FIELDS`:
 
 ```javascript
 {
   [BASE_FIELDS.OVERRIDES]: {
     [MY_OBJECT_FIELDS.FIELD]: 'my value to override',
+  }
+}
+```
+
+### Lazy overrides
+
+Lazy overrides explicitly set values on an object at postBuild time, taking precedent over any set at build time.
+
+```javascript
+{
+  [BASE_FIELDS.LAZY_OVERRIDES]: {
+    [MY_OBJECT_FIELDS.FIELD]: 'my higher priority value',
   }
 }
 ```
