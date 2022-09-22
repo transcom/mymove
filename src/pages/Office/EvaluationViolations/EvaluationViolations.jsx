@@ -8,14 +8,14 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import evaluationViolationsStyles from './EvaluationViolations.module.scss';
 
-import { useEvaluationReportQueries, usePWSViolationsQueries } from 'hooks/queries';
+import { useEvaluationReportShipmentListQueries, usePWSViolationsQueries } from 'hooks/queries';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
 import EvaluationViolationsForm from 'components/Office/EvaluationViolationsForm/EvaluationViolationsForm';
 
-const EvaluationViolations = () => {
+const EvaluationViolations = (customerInfo, grade) => {
   const { reportId } = useParams();
 
-  const { evaluationReport, reportViolations } = useEvaluationReportQueries(reportId);
+  const { evaluationReport, reportViolations, mtoShipments } = useEvaluationReportShipmentListQueries(reportId);
   const { violations } = usePWSViolationsQueries();
 
   return (
@@ -27,6 +27,9 @@ const EvaluationViolations = () => {
           violations={violations}
           evaluationReport={evaluationReport}
           reportViolations={reportViolations}
+          customerInfo={customerInfo}
+          grade={grade}
+          mtoShipments={mtoShipments}
         />
       </GridContainer>
     </div>

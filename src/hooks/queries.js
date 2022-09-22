@@ -385,10 +385,24 @@ export const useEvaluationReportShipmentListQueries = (reportID) => {
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
     enabled: !!moveId,
   });
-  const { isLoading, isError, isSuccess } = getQueriesStatus([viewEvaluationReportQuery, mtoShipmentQuery]);
+
+  const { data: reportViolations, ...reportViolationsQuery } = useQuery(
+    [REPORT_VIOLATIONS, reportID],
+    getReportViolationsByReportID,
+    {
+      enabled: !!reportID,
+    },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([
+    viewEvaluationReportQuery,
+    mtoShipmentQuery,
+    reportViolationsQuery,
+  ]);
   return {
     evaluationReport,
     mtoShipments,
+    reportViolations,
     isLoading,
     isError,
     isSuccess,
