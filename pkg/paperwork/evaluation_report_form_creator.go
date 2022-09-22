@@ -551,7 +551,7 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	shipmentIDWidth := ((d.startX + cardWidth) - d.pdf.GetX()) - pxToMM(8.0)
 	d.pdf.SetFontUnitSize(pxToMM(13.0))
 	d.pdf.CellFormat(shipmentIDWidth, headingHeight, "Shipment ID: "+vals.ShipmentID, "", 0, "RM", false, 0, "")
-	d.pdf.SetY(d.pdf.GetY() + headingHeight + headingBottomMargin)
+	d.addVerticalSpace(headingHeight + headingBottomMargin)
 
 	tableHMargin := pxToMM(12.0)
 	tableWidth := cardWidth - 2.0*tableHMargin
@@ -571,7 +571,7 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 			rightAddressLabel = vals.StorageFacilityName
 		}
 		d.sideBySideAddress(tableX, vals.PickupAddress, leftAddressLabel, rightX, vals.DeliveryAddress, rightAddressLabel)
-		d.pdf.SetY(d.pdf.GetY() + pxToMM(12.0))
+		d.addVerticalSpace(pxToMM(12.0))
 	}
 	err := d.twoColumnTable(tableX, d.pdf.GetY(), tableWidth, layout, vals)
 	if err != nil {
@@ -580,7 +580,7 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	d.pdf.RoundedRect(d.startX, startY, cardWidth, d.pdf.GetY()-startY, 1.0, "34", "D")
 	shipmentCardBottomMargin := pxToMM(16.0)
 	fmt.Println(">> ACTUAL HEIGHT", d.pdf.GetY()-originalY)
-	d.pdf.SetY(d.pdf.GetY() + shipmentCardBottomMargin)
+	d.addVerticalSpace(shipmentCardBottomMargin)
 	return nil
 }
 func (d *DynamicFormFiller) setHHGStripeColor(shipmentType models.MTOShipmentType) {
@@ -663,10 +663,10 @@ func (d *DynamicFormFiller) twoColumnTable(x float64, y float64, w float64, layo
 			d.setBorderColor()
 			d.pdf.Line(x, d.pdf.GetY(), x+labelWidth+valueWidth, d.pdf.GetY())
 			d.pdf.Line(x+labelWidth+valueWidth+gap, d.pdf.GetY(), x+gap+2.0*(labelWidth+valueWidth), d.pdf.GetY())
-			d.pdf.SetY(d.pdf.GetY() + 1.0)
+			d.addVerticalSpace(1.0)
 		}
 	}
-	d.pdf.SetY(d.pdf.GetY() + 2.0)
+	d.addVerticalSpace(2.0)
 	return nil
 }
 
