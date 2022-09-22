@@ -17,7 +17,7 @@ INSERT INTO addresses
     VALUES ('e975ea3d-a7bf-4c2d-a4a5-4250e3d0b1cf', '814 Radford BLVD', 'STE 20262', 'Albany', 'GA', '31704', now(), now(), 'United States');
 INSERT INTO transportation_offices
     (id, name, gbloc, address_id, latitude, longitude, created_at, updated_at)
-	VALUES ('aed72dfd-41cf-4111-9131-f27066aa9e88', 'PPM Processing (USMC)', 'USMC', 'e975ea3d-a7bf-4c2d-a4a5-4250e3d0b1cf', 31.546592, -84.0498875, now(), now());
+	VALUES ('aed72dfd-41cf-4111-9131-f27066aa9e88', 'PPM Processing (USMC)', 'TVCB', 'e975ea3d-a7bf-4c2d-a4a5-4250e3d0b1cf', 31.546592, -84.0498875, now(), now());
 
 --
 -- Data for Name: office_phone_lines; Type: TABLE DATA; Schema: public; Owner: postgres
