@@ -3,7 +3,7 @@ package ghcapi
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -12,7 +12,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/assets"
 	evaluationReportop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	moveop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -122,9 +121,11 @@ func (h GetCounselingEvaluationReportsHandler) Handle(params moveop.GetMoveCouns
 type DownloadEvaluationReportHandler struct {
 	handlers.HandlerConfig
 	services.EvaluationReportFetcher
+	services.MTOShipmentFetcher
+	services.OrderFetcher
 }
 
-// Handle is the handler for fetching an evaluation report by ID
+// Handle is the handler for downloading an evaluation report by ID as a PDF
 func (h DownloadEvaluationReportHandler) Handle(params evaluationReportop.DownloadEvaluationReportParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -148,27 +149,61 @@ func (h DownloadEvaluationReportHandler) Handle(params evaluationReportop.Downlo
 			if err != nil {
 				return handleError(err)
 			}
-			page1Data := paperwork.FormatValuesEvaluationReportPage1(*evaluationReport)
-			formFiller := paperwork.NewFormFiller()
-			page1Layout := paperwork.EvaluationReportPage1Layout
-			page1Template, err := assets.Asset(page1Layout.TemplateImagePath)
-			if err != nil {
-				appCtx.Logger().Error("Error reading page 1 template file", zap.String("asset", page1Layout.TemplateImagePath), zap.Error(err))
-				return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
+			if evaluationReport.Move.OrdersID == uuid.Nil {
+				return handleError(fmt.Errorf("orders not found"))
 			}
-			page1Reader := bytes.NewReader(page1Template)
-			err = formFiller.AppendPage(page1Reader, page1Layout.FieldsLayout, page1Data)
+			orders, err := h.OrderFetcher.FetchOrder(appCtx, evaluationReport.Move.OrdersID)
+			if err != nil {
+				return handleError(err)
+			}
+			customer, err := models.FetchServiceMember(appCtx.DB(), orders.ServiceMemberID)
+			if err != nil {
+				return handleError(err)
+			}
+			violations := models.PWSViolations{}
+			err = appCtx.DB().All(&violations)
+			if err != nil {
+				return handleError(err)
+			}
+
+			formFiller := paperwork.NewDynamicFormFiller()
+			// possibly this logic should be in the form filler
+			if evaluationReport.Type == models.EvaluationReportTypeCounseling {
+				shipments, shipmentErr := h.ListMTOShipments(appCtx, evaluationReport.MoveID)
+				if shipmentErr != nil {
+					return handleError(shipmentErr)
+				}
+				err = formFiller.CreateCounselingReport(*evaluationReport, violations, shipments, customer)
+				if err != nil {
+					return handleError(err)
+				}
+			} else {
+				shipment, shipmentErr := h.GetShipment(appCtx, *evaluationReport.ShipmentID, "MTOAgents",
+					"PickupAddress",
+					"SecondaryPickupAddress",
+					"DestinationAddress",
+					"StorageFacility.Address",
+				)
+				if shipmentErr != nil {
+					return handleError(shipmentErr)
+				}
+				err = formFiller.CreateShipmentReport(*evaluationReport, violations, *shipment, customer)
+				if err != nil {
+					return handleError(err)
+				}
+			}
 			if err != nil {
 				appCtx.Logger().Error("Error appending page 1 to PDF", zap.Error(err))
 				return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
 			}
+
 			buf := new(bytes.Buffer)
 			err = formFiller.Output(buf)
 			if err != nil {
 				appCtx.Logger().Error("Error writing out PDF", zap.Error(err))
 				return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
 			}
-			payload := ioutil.NopCloser(buf)
+			payload := io.NopCloser(buf)
 			filename := fmt.Sprintf("inline; filename=\"evalreport-%s-%s.pdf\"", evaluationReport.ID, time.Now().Format("01-02-2006"))
 			return evaluationReportop.NewDownloadEvaluationReportOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})

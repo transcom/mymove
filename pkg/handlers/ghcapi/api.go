@@ -99,6 +99,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.EvaluationReportsDownloadEvaluationReportHandler = DownloadEvaluationReportHandler{
 		HandlerConfig:           handlerConfig,
 		EvaluationReportFetcher: evaluationreport.NewEvaluationReportFetcher(),
+		MTOShipmentFetcher:      mtoshipment.NewMTOShipmentFetcher(),
+		OrderFetcher:            order.NewOrderFetcher(),
 	}
 
 	ghcAPI.EvaluationReportsDeleteEvaluationReportHandler = DeleteEvaluationReportHandler{
