@@ -75,10 +75,19 @@ const EvaluationReportTable = ({ reports, shipments, emptyText, moveCode, custom
           customerInfo={customerInfo}
           grade={grade}
           mtoShipments={shipments}
-          closeModalOptions={{
-            handleClick: toggleCloseModal,
-            buttonContent: 'Close',
-          }}
+          modalActions={
+            <div className={styles.modalActions}>
+              <Button
+                type="button"
+                onClick={toggleCloseModal}
+                aria-label="Close"
+                secondary
+                className={styles.closeModalBtn}
+              >
+                Close
+              </Button>
+            </div>
+          }
         />
       )}
       <table className={styles.evaluationReportTable}>

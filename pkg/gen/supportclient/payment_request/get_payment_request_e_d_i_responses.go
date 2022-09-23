@@ -81,7 +81,8 @@ func NewGetPaymentRequestEDIOK() *GetPaymentRequestEDIOK {
 	return &GetPaymentRequestEDIOK{}
 }
 
-/* GetPaymentRequestEDIOK describes a response with status code 200, with default header values.
+/*
+GetPaymentRequestEDIOK describes a response with status code 200, with default header values.
 
 Successfully retrieved payment requests associated with a given move task order
 */
@@ -89,9 +90,39 @@ type GetPaymentRequestEDIOK struct {
 	Payload *supportmessages.PaymentRequestEDI
 }
 
+// IsSuccess returns true when this get payment request e d i o k response has a 2xx status code
+func (o *GetPaymentRequestEDIOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get payment request e d i o k response has a 3xx status code
+func (o *GetPaymentRequestEDIOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get payment request e d i o k response has a 4xx status code
+func (o *GetPaymentRequestEDIOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get payment request e d i o k response has a 5xx status code
+func (o *GetPaymentRequestEDIOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get payment request e d i o k response a status code equal to that given
+func (o *GetPaymentRequestEDIOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetPaymentRequestEDIOK) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIOK  %+v", 200, o.Payload)
 }
+
+func (o *GetPaymentRequestEDIOK) String() string {
+	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIOK  %+v", 200, o.Payload)
+}
+
 func (o *GetPaymentRequestEDIOK) GetPayload() *supportmessages.PaymentRequestEDI {
 	return o.Payload
 }
@@ -113,7 +144,8 @@ func NewGetPaymentRequestEDIBadRequest() *GetPaymentRequestEDIBadRequest {
 	return &GetPaymentRequestEDIBadRequest{}
 }
 
-/* GetPaymentRequestEDIBadRequest describes a response with status code 400, with default header values.
+/*
+GetPaymentRequestEDIBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -121,9 +153,39 @@ type GetPaymentRequestEDIBadRequest struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this get payment request e d i bad request response has a 2xx status code
+func (o *GetPaymentRequestEDIBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get payment request e d i bad request response has a 3xx status code
+func (o *GetPaymentRequestEDIBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get payment request e d i bad request response has a 4xx status code
+func (o *GetPaymentRequestEDIBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get payment request e d i bad request response has a 5xx status code
+func (o *GetPaymentRequestEDIBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get payment request e d i bad request response a status code equal to that given
+func (o *GetPaymentRequestEDIBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *GetPaymentRequestEDIBadRequest) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *GetPaymentRequestEDIBadRequest) String() string {
+	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *GetPaymentRequestEDIBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -145,7 +207,8 @@ func NewGetPaymentRequestEDIUnauthorized() *GetPaymentRequestEDIUnauthorized {
 	return &GetPaymentRequestEDIUnauthorized{}
 }
 
-/* GetPaymentRequestEDIUnauthorized describes a response with status code 401, with default header values.
+/*
+GetPaymentRequestEDIUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -153,9 +216,39 @@ type GetPaymentRequestEDIUnauthorized struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this get payment request e d i unauthorized response has a 2xx status code
+func (o *GetPaymentRequestEDIUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get payment request e d i unauthorized response has a 3xx status code
+func (o *GetPaymentRequestEDIUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get payment request e d i unauthorized response has a 4xx status code
+func (o *GetPaymentRequestEDIUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get payment request e d i unauthorized response has a 5xx status code
+func (o *GetPaymentRequestEDIUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get payment request e d i unauthorized response a status code equal to that given
+func (o *GetPaymentRequestEDIUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *GetPaymentRequestEDIUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *GetPaymentRequestEDIUnauthorized) String() string {
+	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *GetPaymentRequestEDIUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -177,7 +270,8 @@ func NewGetPaymentRequestEDIForbidden() *GetPaymentRequestEDIForbidden {
 	return &GetPaymentRequestEDIForbidden{}
 }
 
-/* GetPaymentRequestEDIForbidden describes a response with status code 403, with default header values.
+/*
+GetPaymentRequestEDIForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -185,9 +279,39 @@ type GetPaymentRequestEDIForbidden struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this get payment request e d i forbidden response has a 2xx status code
+func (o *GetPaymentRequestEDIForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get payment request e d i forbidden response has a 3xx status code
+func (o *GetPaymentRequestEDIForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get payment request e d i forbidden response has a 4xx status code
+func (o *GetPaymentRequestEDIForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get payment request e d i forbidden response has a 5xx status code
+func (o *GetPaymentRequestEDIForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get payment request e d i forbidden response a status code equal to that given
+func (o *GetPaymentRequestEDIForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *GetPaymentRequestEDIForbidden) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIForbidden  %+v", 403, o.Payload)
 }
+
+func (o *GetPaymentRequestEDIForbidden) String() string {
+	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIForbidden  %+v", 403, o.Payload)
+}
+
 func (o *GetPaymentRequestEDIForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -209,7 +333,8 @@ func NewGetPaymentRequestEDINotFound() *GetPaymentRequestEDINotFound {
 	return &GetPaymentRequestEDINotFound{}
 }
 
-/* GetPaymentRequestEDINotFound describes a response with status code 404, with default header values.
+/*
+GetPaymentRequestEDINotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -217,9 +342,39 @@ type GetPaymentRequestEDINotFound struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this get payment request e d i not found response has a 2xx status code
+func (o *GetPaymentRequestEDINotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get payment request e d i not found response has a 3xx status code
+func (o *GetPaymentRequestEDINotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get payment request e d i not found response has a 4xx status code
+func (o *GetPaymentRequestEDINotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get payment request e d i not found response has a 5xx status code
+func (o *GetPaymentRequestEDINotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get payment request e d i not found response a status code equal to that given
+func (o *GetPaymentRequestEDINotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *GetPaymentRequestEDINotFound) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDINotFound  %+v", 404, o.Payload)
 }
+
+func (o *GetPaymentRequestEDINotFound) String() string {
+	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDINotFound  %+v", 404, o.Payload)
+}
+
 func (o *GetPaymentRequestEDINotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -241,7 +396,8 @@ func NewGetPaymentRequestEDIConflict() *GetPaymentRequestEDIConflict {
 	return &GetPaymentRequestEDIConflict{}
 }
 
-/* GetPaymentRequestEDIConflict describes a response with status code 409, with default header values.
+/*
+GetPaymentRequestEDIConflict describes a response with status code 409, with default header values.
 
 There was a conflict with the request.
 */
@@ -249,9 +405,39 @@ type GetPaymentRequestEDIConflict struct {
 	Payload *supportmessages.ClientError
 }
 
+// IsSuccess returns true when this get payment request e d i conflict response has a 2xx status code
+func (o *GetPaymentRequestEDIConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get payment request e d i conflict response has a 3xx status code
+func (o *GetPaymentRequestEDIConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get payment request e d i conflict response has a 4xx status code
+func (o *GetPaymentRequestEDIConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get payment request e d i conflict response has a 5xx status code
+func (o *GetPaymentRequestEDIConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get payment request e d i conflict response a status code equal to that given
+func (o *GetPaymentRequestEDIConflict) IsCode(code int) bool {
+	return code == 409
+}
+
 func (o *GetPaymentRequestEDIConflict) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIConflict  %+v", 409, o.Payload)
 }
+
+func (o *GetPaymentRequestEDIConflict) String() string {
+	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIConflict  %+v", 409, o.Payload)
+}
+
 func (o *GetPaymentRequestEDIConflict) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -273,7 +459,8 @@ func NewGetPaymentRequestEDIUnprocessableEntity() *GetPaymentRequestEDIUnprocess
 	return &GetPaymentRequestEDIUnprocessableEntity{}
 }
 
-/* GetPaymentRequestEDIUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+GetPaymentRequestEDIUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -281,9 +468,39 @@ type GetPaymentRequestEDIUnprocessableEntity struct {
 	Payload *supportmessages.ValidationError
 }
 
+// IsSuccess returns true when this get payment request e d i unprocessable entity response has a 2xx status code
+func (o *GetPaymentRequestEDIUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get payment request e d i unprocessable entity response has a 3xx status code
+func (o *GetPaymentRequestEDIUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get payment request e d i unprocessable entity response has a 4xx status code
+func (o *GetPaymentRequestEDIUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get payment request e d i unprocessable entity response has a 5xx status code
+func (o *GetPaymentRequestEDIUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get payment request e d i unprocessable entity response a status code equal to that given
+func (o *GetPaymentRequestEDIUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *GetPaymentRequestEDIUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *GetPaymentRequestEDIUnprocessableEntity) String() string {
+	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *GetPaymentRequestEDIUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -305,7 +522,8 @@ func NewGetPaymentRequestEDIInternalServerError() *GetPaymentRequestEDIInternalS
 	return &GetPaymentRequestEDIInternalServerError{}
 }
 
-/* GetPaymentRequestEDIInternalServerError describes a response with status code 500, with default header values.
+/*
+GetPaymentRequestEDIInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -313,9 +531,39 @@ type GetPaymentRequestEDIInternalServerError struct {
 	Payload *supportmessages.Error
 }
 
+// IsSuccess returns true when this get payment request e d i internal server error response has a 2xx status code
+func (o *GetPaymentRequestEDIInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get payment request e d i internal server error response has a 3xx status code
+func (o *GetPaymentRequestEDIInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get payment request e d i internal server error response has a 4xx status code
+func (o *GetPaymentRequestEDIInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get payment request e d i internal server error response has a 5xx status code
+func (o *GetPaymentRequestEDIInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this get payment request e d i internal server error response a status code equal to that given
+func (o *GetPaymentRequestEDIInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *GetPaymentRequestEDIInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *GetPaymentRequestEDIInternalServerError) String() string {
+	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *GetPaymentRequestEDIInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

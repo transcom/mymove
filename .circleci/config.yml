@@ -13,7 +13,7 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-9ea16004ab38c5e43e715e09241515ec220b6067
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-43ddd5780f0dfd2d5c90e0123793b513f62f7a24
 
   # the cypress image to use
   cypress: &cypress milmove/circleci-docker:milmove-cypress-f678d1c6a5e2085f733f5408b7affd628f9f3576
@@ -1043,8 +1043,12 @@ jobs:
       - run:
           name: Ensure we save both the coverage baseline & the go-coverage text files before checking test coverage status
           command: |
-            cp -v /tmp/coverage_baseline.txt ~/transcom/mymove/tmp/test-results/previous-coverage-baseline.txt
-            cp -v ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt ~/transcom/mymove/tmp/test-results/current-coverage.txt
+            if [ -r /tmp/coverage_baseline.txt ]; then
+              cp -v /tmp/coverage_baseline.txt ~/transcom/mymove/tmp/test-results/previous-coverage-baseline.txt
+            fi
+            if [ -r ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt ]; then
+              cp -v ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt ~/transcom/mymove/tmp/test-results/current-coverage.txt
+            fi
       - run:
           name: Ensure Test Coverage Increasing
           command: |

@@ -29,12 +29,12 @@ func NewUpdateCustomer(ctx *middleware.Context, handler UpdateCustomerHandler) *
 	return &UpdateCustomer{Context: ctx, Handler: handler}
 }
 
-/* UpdateCustomer swagger:route PATCH /customer/{customerID} customer updateCustomer
+/*
+	UpdateCustomer swagger:route PATCH /customer/{customerID} customer updateCustomer
 
-Updates customer info
+# Updates customer info
 
 Updates customer info by ID
-
 */
 type UpdateCustomer struct {
 	Context *middleware.Context

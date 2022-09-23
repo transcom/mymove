@@ -29,15 +29,15 @@ func NewGetOrders(ctx *middleware.Context, handler GetOrdersHandler) *GetOrders 
 	return &GetOrders{Context: ctx, Handler: handler}
 }
 
-/* GetOrders swagger:route GET /orders/{uuid} getOrders
+/*
+	GetOrders swagger:route GET /orders/{uuid} getOrders
 
-Retrieve a set of Orders and all of its Revisions by UUID
+# Retrieve a set of Orders and all of its Revisions by UUID
 
 Gets Orders with the supplied UUID.
 ## Errors
 Users of this endpoint must have permission to read Orders for the `issuer` associated with the Orders. If not, this endpoint will return `403 Forbidden`.
 The UUID must match an existing set of Orders. Otherwise, this endpoint will return `404 Not Found`.
-
 */
 type GetOrders struct {
 	Context *middleware.Context

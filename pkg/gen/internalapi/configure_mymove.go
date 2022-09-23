@@ -103,11 +103,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.CreateMovingExpense has not yet been implemented")
 		})
 	}
-	if api.MoveDocsCreateMovingExpenseDocumentHandler == nil {
-		api.MoveDocsCreateMovingExpenseDocumentHandler = move_docs.CreateMovingExpenseDocumentHandlerFunc(func(params move_docs.CreateMovingExpenseDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_docs.CreateMovingExpenseDocument has not yet been implemented")
-		})
-	}
 	if api.OrdersCreateOrdersHandler == nil {
 		api.OrdersCreateOrdersHandler = orders.CreateOrdersHandlerFunc(func(params orders.CreateOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.CreateOrders has not yet been implemented")

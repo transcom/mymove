@@ -29,12 +29,12 @@ func NewUpdateCustomerSupportRemarkForMove(ctx *middleware.Context, handler Upda
 	return &UpdateCustomerSupportRemarkForMove{Context: ctx, Handler: handler}
 }
 
-/* UpdateCustomerSupportRemarkForMove swagger:route PATCH /customer-support-remarks/{customerSupportRemarkID} customerSupportRemarks updateCustomerSupportRemarkForMove
+/*
+	UpdateCustomerSupportRemarkForMove swagger:route PATCH /customer-support-remarks/{customerSupportRemarkID} customerSupportRemarks updateCustomerSupportRemarkForMove
+
+# Updates a customer support remark for a move
 
 Updates a customer support remark for a move
-
-Updates a customer support remark for a move
-
 */
 type UpdateCustomerSupportRemarkForMove struct {
 	Context *middleware.Context

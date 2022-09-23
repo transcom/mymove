@@ -52,9 +52,10 @@ type ClientService interface {
 }
 
 /*
-  CreateMTOAgent creates m t o agent
+	CreateMTOAgent creates m t o agent
 
-  ### Functionality
+	### Functionality
+
 This endpoint is used to **create** and add agents for an existing MTO Shipment. Only the fields being modified need to be sent in the request body.
 
 ### Errors
@@ -64,7 +65,6 @@ The agent must be associated with the MTO shipment passed in the url.
 
 The shipment should be associated with an MTO that is available to the Pime.
 If the caller requests a new agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.
-
 */
 func (a *Client) CreateMTOAgent(params *CreateMTOAgentParams, opts ...ClientOption) (*CreateMTOAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -102,16 +102,16 @@ func (a *Client) CreateMTOAgent(params *CreateMTOAgentParams, opts ...ClientOpti
 }
 
 /*
-  CreateMTOShipment creates m t o shipment
+	CreateMTOShipment creates m t o shipment
 
-  Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a
+	Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a
+
 need for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must
 approve it before the contractor can proceed with billing.
 
 **WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to
 one of their moves. Otherwise, the Prime can fetch the related move using the
 [getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status `"APPROVED"`.
-
 */
 func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams, opts ...ClientOption) (*CreateMTOShipmentOK, error) {
 	// TODO: Validate the params before sending
@@ -149,13 +149,13 @@ func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams, opts ...Clie
 }
 
 /*
-  CreateSITExtension creates s i t extension
+	CreateSITExtension creates s i t extension
 
-  ### Functionality
+	### Functionality
+
 This endpoint creates a storage in transit (SIT) extension request for a shipment. A SIT extension request is a request an
 increase in the shipment day allowance for the number of days a shipment is allowed to be in SIT. The total SIT day allowance
 includes time spent in both origin and destination SIT.
-
 */
 func (a *Client) CreateSITExtension(params *CreateSITExtensionParams, opts ...ClientOption) (*CreateSITExtensionCreated, error) {
 	// TODO: Validate the params before sending
@@ -193,16 +193,16 @@ func (a *Client) CreateSITExtension(params *CreateSITExtensionParams, opts ...Cl
 }
 
 /*
-  DeleteMTOShipment deletes m t o shipment
+	DeleteMTOShipment deletes m t o shipment
 
-  ### Functionality
+	### Functionality
+
 This endpoint deletes an individual shipment by ID.
 
 ### Errors
 * The mtoShipment should be associated with an MTO that is available to prime.
 * The mtoShipment must be a PPM shipment.
 * Counseling should not have already been completed for the associated MTO.
-
 */
 func (a *Client) DeleteMTOShipment(params *DeleteMTOShipmentParams, opts ...ClientOption) (*DeleteMTOShipmentNoContent, error) {
 	// TODO: Validate the params before sending
@@ -240,9 +240,10 @@ func (a *Client) DeleteMTOShipment(params *DeleteMTOShipmentParams, opts ...Clie
 }
 
 /*
-  UpdateMTOAgent updates m t o agent
+	UpdateMTOAgent updates m t o agent
 
-  ### Functionality
+	### Functionality
+
 This endpoint is used to **update** the agents for an MTO Shipment. Only the fields being modified need to be sent in the request body.
 
 ### Errors:
@@ -252,7 +253,6 @@ The agent must be associated with the MTO shipment passed in the url.
 
 The shipment should be associated with an MTO that is available to the Prime.
 If the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.
-
 */
 func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams, opts ...ClientOption) (*UpdateMTOAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -290,9 +290,9 @@ func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams, opts ...ClientOpti
 }
 
 /*
-  UpdateMTOShipment updates m t o shipment
+	UpdateMTOShipment updates m t o shipment
 
-  Updates an existing shipment for a move.
+	Updates an existing shipment for a move.
 
 Note that there are some restrictions on nested objects:
 
@@ -303,7 +303,6 @@ Note that there are some restrictions on nested objects:
 These restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.
 
 Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
-
 */
 func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...ClientOption) (*UpdateMTOShipmentOK, error) {
 	// TODO: Validate the params before sending
@@ -341,9 +340,10 @@ func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...Clie
 }
 
 /*
-  UpdateMTOShipmentAddress updates m t o shipment address
+	UpdateMTOShipmentAddress updates m t o shipment address
 
-  ### Functionality
+	### Functionality
+
 This endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.
 Therefore a complete address should be sent in the request.
 
@@ -357,7 +357,6 @@ If it is not, caller will receive a **Conflict** Error.
 
 The mtoShipment should be associated with an MTO that is available to prime.
 If the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.
-
 */
 func (a *Client) UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams, opts ...ClientOption) (*UpdateMTOShipmentAddressOK, error) {
 	// TODO: Validate the params before sending
@@ -395,12 +394,12 @@ func (a *Client) UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams
 }
 
 /*
-  UpdateMTOShipmentStatus updates m t o shipment status
+	UpdateMTOShipmentStatus updates m t o shipment status
 
-  ### Functionality
+	### Functionality
+
 This endpoint should be used by the Prime to confirm the cancellation of a shipment. It allows the shipment
 status to be changed to "CANCELED." Currently, the Prime cannot update the shipment to any other status.
-
 */
 func (a *Client) UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams, opts ...ClientOption) (*UpdateMTOShipmentStatusOK, error) {
 	// TODO: Validate the params before sending
@@ -438,16 +437,16 @@ func (a *Client) UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams, 
 }
 
 /*
-  UpdateReweigh updates reweigh
+	UpdateReweigh updates reweigh
 
-  ### Functionality
+	### Functionality
+
 This endpoint can be used to update a reweigh with a new weight or to provide the reason why a reweigh did not occur.
 Only one of weight or verificationReason should be sent in the request body.
 
 A reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.
 A reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,
 so not all shipments will have a reweigh weight.
-
 */
 func (a *Client) UpdateReweigh(params *UpdateReweighParams, opts ...ClientOption) (*UpdateReweighOK, error) {
 	// TODO: Validate the params before sending

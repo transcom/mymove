@@ -16,7 +16,8 @@ import (
 // ShowMoveDatesSummaryOKCode is the HTTP code returned for type ShowMoveDatesSummaryOK
 const ShowMoveDatesSummaryOKCode int = 200
 
-/*ShowMoveDatesSummaryOK List of projected move-related dates
+/*
+ShowMoveDatesSummaryOK List of projected move-related dates
 
 swagger:response showMoveDatesSummaryOK
 */
@@ -60,7 +61,8 @@ func (o *ShowMoveDatesSummaryOK) WriteResponse(rw http.ResponseWriter, producer 
 // ShowMoveDatesSummaryBadRequestCode is the HTTP code returned for type ShowMoveDatesSummaryBadRequest
 const ShowMoveDatesSummaryBadRequestCode int = 400
 
-/*ShowMoveDatesSummaryBadRequest invalid request
+/*
+ShowMoveDatesSummaryBadRequest invalid request
 
 swagger:response showMoveDatesSummaryBadRequest
 */
@@ -84,7 +86,8 @@ func (o *ShowMoveDatesSummaryBadRequest) WriteResponse(rw http.ResponseWriter, p
 // ShowMoveDatesSummaryUnauthorizedCode is the HTTP code returned for type ShowMoveDatesSummaryUnauthorized
 const ShowMoveDatesSummaryUnauthorizedCode int = 401
 
-/*ShowMoveDatesSummaryUnauthorized request requires user authentication
+/*
+ShowMoveDatesSummaryUnauthorized request requires user authentication
 
 swagger:response showMoveDatesSummaryUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *ShowMoveDatesSummaryUnauthorized) WriteResponse(rw http.ResponseWriter,
 // ShowMoveDatesSummaryForbiddenCode is the HTTP code returned for type ShowMoveDatesSummaryForbidden
 const ShowMoveDatesSummaryForbiddenCode int = 403
 
-/*ShowMoveDatesSummaryForbidden user is not authorized
+/*
+ShowMoveDatesSummaryForbidden user is not authorized
 
 swagger:response showMoveDatesSummaryForbidden
 */
@@ -132,7 +136,8 @@ func (o *ShowMoveDatesSummaryForbidden) WriteResponse(rw http.ResponseWriter, pr
 // ShowMoveDatesSummaryInternalServerErrorCode is the HTTP code returned for type ShowMoveDatesSummaryInternalServerError
 const ShowMoveDatesSummaryInternalServerErrorCode int = 500
 
-/*ShowMoveDatesSummaryInternalServerError internal server error
+/*
+ShowMoveDatesSummaryInternalServerError internal server error
 
 swagger:response showMoveDatesSummaryInternalServerError
 */

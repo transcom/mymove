@@ -1,7 +1,6 @@
 package ghcdieselfuelprice
 
 import (
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -9,7 +8,11 @@ import (
 )
 
 func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceStorer() {
-	suite.T().Run("run storer for new publication date", func(t *testing.T) {
+	suite.Run("run storer for new publication date", func() {
+		// Under test: RunStorer function (creates or updates fuel price data for a specific publication date)
+		// Mocked: None
+		// Set up: Create a fuel price object for 20200622 and try to store it
+		// Expected outcome: fuel price is stored
 		dieselFuelPriceInfo := DieselFuelPriceInfo{
 			dieselFuelPriceData: dieselFuelPriceData{
 				publicationDate: "20200622",
@@ -29,7 +32,20 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceStorer() {
 		suite.Equal(unit.Millicents(265900), ghcDieselFuelPrice.FuelPriceInMillicents)
 	})
 
-	suite.T().Run("run storer for existing publication date", func(t *testing.T) {
+	suite.Run("run storer for existing publication date", func() {
+		// Under test: RunStorer function (creates or updates fuel price data for a specific publication date)
+		// Mocked: None
+		// Set up: Create a fuel price object for 20200622 then try to update it
+		// Expected outcome: fuel price is updated
+		dieselFuelPriceInfo := DieselFuelPriceInfo{
+			dieselFuelPriceData: dieselFuelPriceData{
+				publicationDate: "20200622",
+				price:           2.659,
+			},
+		}
+		err := dieselFuelPriceInfo.RunStorer(suite.AppContextForTest())
+		suite.NoError(err)
+
 		updatedDieselFuelPriceInfo := DieselFuelPriceInfo{
 			dieselFuelPriceData: dieselFuelPriceData{
 				publicationDate: "20200622",
@@ -37,7 +53,7 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceStorer() {
 			},
 		}
 
-		err := updatedDieselFuelPriceInfo.RunStorer(suite.AppContextForTest())
+		err = updatedDieselFuelPriceInfo.RunStorer(suite.AppContextForTest())
 		suite.NoError(err)
 
 		var ghcDieselFuelPrice models.GHCDieselFuelPrice

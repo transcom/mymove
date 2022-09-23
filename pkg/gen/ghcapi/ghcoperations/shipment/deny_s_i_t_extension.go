@@ -29,12 +29,12 @@ func NewDenySITExtension(ctx *middleware.Context, handler DenySITExtensionHandle
 	return &DenySITExtension{Context: ctx, Handler: handler}
 }
 
-/* DenySITExtension swagger:route PATCH /shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny shipment sitExtension denySITExtension
+/*
+	DenySITExtension swagger:route PATCH /shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny shipment sitExtension denySITExtension
+
+# Denies a SIT extension
 
 Denies a SIT extension
-
-Denies a SIT extension
-
 */
 type DenySITExtension struct {
 	Context *middleware.Context

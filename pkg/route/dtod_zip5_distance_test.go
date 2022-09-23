@@ -2,7 +2,6 @@ package route
 
 import (
 	"fmt"
-	"testing"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
@@ -78,7 +77,7 @@ func (suite *GHCTestSuite) TestDTODZip5DistanceFake() {
 	}
 
 	for _, test := range tests {
-		suite.T().Run("fake call to DTOD: "+test.name, func(t *testing.T) {
+		suite.Run("fake call to DTOD: "+test.name, func() {
 			var soapError error
 			if test.responseError {
 				soapError = errors.New("some error")

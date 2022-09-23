@@ -72,6 +72,7 @@ const ppmShipmentSchema = ({
         (estimatedIncentive * 0.6) / 100,
         `Enter an amount that is less than or equal to the maximum advance (${getFormattedMaxAdvancePercentage()} of estimated incentive)`,
       )
+      .min(1, 'Enter an amount $1 or more.')
       .when('advanceRequested', {
         is: true,
         then: (schema) => schema.required('Required'),

@@ -29,12 +29,12 @@ func NewUpdateMoveDocument(ctx *middleware.Context, handler UpdateMoveDocumentHa
 	return &UpdateMoveDocument{Context: ctx, Handler: handler}
 }
 
-/* UpdateMoveDocument swagger:route PUT /move_documents/{moveDocumentId} move_docs updateMoveDocument
+/*
+	UpdateMoveDocument swagger:route PUT /move_documents/{moveDocumentId} move_docs updateMoveDocument
 
-Updates a move document
+# Updates a move document
 
 Update a move document with the given information
-
 */
 type UpdateMoveDocument struct {
 	Context *middleware.Context
