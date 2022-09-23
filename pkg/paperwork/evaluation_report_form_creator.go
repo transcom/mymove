@@ -38,7 +38,6 @@ type TableRow struct {
 }
 
 func getField(fieldName string, data interface{}) (string, error) {
-	fmt.Println("getField", fieldName)
 	r := reflect.ValueOf(data)
 	val := reflect.Indirect(r).FieldByName(fieldName).Interface()
 
@@ -59,8 +58,7 @@ type DynamicFormFiller struct {
 func loadFont(pdf *gofpdf.Fpdf, family string, style string, path string) error {
 	font, err := assets.Asset(path)
 	if err != nil {
-		fmt.Println("Problem reading font from assets!!!!", err)
-		return nil
+		return err
 	}
 	pdf.AddUTF8FontFromBytes(family, style, font)
 
@@ -351,7 +349,6 @@ func (d *DynamicFormFiller) subsection(heading string, fieldOrder []string, fiel
 		}
 		fieldValue, err := getField(field, data)
 		if err != nil {
-			fmt.Println("can't find", field, data)
 			return err
 		}
 		if fieldValue != "" {
@@ -381,6 +378,7 @@ func (d *DynamicFormFiller) subsectionHeading(heading string) {
 	d.pdf.SetFontStyle("")
 	d.pdf.SetFontSize(fontSize)
 }
+
 func (d *DynamicFormFiller) subsectionRow(key string, value string) {
 	d.pdf.SetX(d.startX)
 	d.setTextColorBaseDarkest()
@@ -470,7 +468,6 @@ func (d *DynamicFormFiller) contactInformation(customer models.ServiceMember, of
 '.__________________________________________________________________________.'
 */
 func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
-	originalY := d.pdf.GetY()
 	layout := PickShipmentCardLayout(shipment.ShipmentType)
 	vals := FormatValuesShipment(shipment)
 	stripeHeight := pxToMM(9.0)
@@ -478,14 +475,8 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	tableRowHeight := 10.0
 	//estimatedHeight := stripeHeight + headingMargin + headingHeight + headingBottomMargin + addressHeight + tableRowHeight + len(layout)
 	estimatedHeight := stripeHeight + 5.0 + 5.0 + 5.0 + addressHeight + tableRowHeight + float64(len(layout))
-	fmt.Println("----------------------")
-	fmt.Println(vals.ShipmentType)
-	fmt.Println("----------------------")
-	fmt.Println("## start Y", d.pdf.GetY(), "estimated card height", estimatedHeight, "total", d.pdf.GetY()+estimatedHeight)
 	if d.pdf.GetY()+estimatedHeight > 279.4 { // todo
-		fmt.Println("BREAKING PAGE")
 		d.addPage()
-		fmt.Println("page starting Y", d.pdf.GetY())
 	}
 
 	cardWidth := letterWidthMm - 2*d.startX
@@ -550,10 +541,10 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	}
 	d.pdf.RoundedRect(d.startX, startY, cardWidth, d.pdf.GetY()-startY, 1.0, "34", "D")
 	shipmentCardBottomMargin := pxToMM(16.0)
-	fmt.Println(">> ACTUAL HEIGHT", d.pdf.GetY()-originalY)
 	d.addVerticalSpace(shipmentCardBottomMargin)
 	return nil
 }
+
 func (d *DynamicFormFiller) setHHGStripeColor(shipmentType models.MTOShipmentType) {
 	r := 0
 	g := 150
@@ -575,6 +566,7 @@ func (d *DynamicFormFiller) setHHGStripeColor(shipmentType models.MTOShipmentTyp
 	d.pdf.SetDrawColor(r, g, b)
 	d.pdf.SetFillColor(r, g, b)
 }
+
 func (d *DynamicFormFiller) sideBySideAddress(gap float64, leftAddressX float64, leftAddress string, leftAddressLabel string, rightAddressX float64, rightAddress string, rightAddressLabel string) {
 	d.pdf.SetFontUnitSize(pxToMM(15.0))
 	addressY := d.pdf.GetY()
@@ -603,6 +595,7 @@ func (d *DynamicFormFiller) sideBySideAddress(gap float64, leftAddressX float64,
 	addressY = math.Max(leftY, d.pdf.GetY())
 	d.pdf.SetY(addressY)
 }
+
 func (d *DynamicFormFiller) formatShipmentType(shipmentType models.MTOShipmentType) string {
 	if shipmentType == models.MTOShipmentTypePPM {
 		return "PPM"
@@ -641,7 +634,6 @@ func (d *DynamicFormFiller) twoColumnTable(x float64, y float64, w float64, layo
 }
 
 func (d *DynamicFormFiller) twoColumnTableRow(x float64, gap float64, labelWidth float64, valueWidth float64, row TableRow, data interface{}) error {
-	fmt.Println("drawing two columns at ", x, d.pdf.GetY(), row)
 	rowStartY := d.pdf.GetY()
 
 	leftVal, err := getField(row.LeftFieldName, data)
@@ -655,7 +647,6 @@ func (d *DynamicFormFiller) twoColumnTableRow(x float64, gap float64, labelWidth
 	}
 	d.pdf.SetY(rowStartY)
 	rightVal, err := getField(row.RightFieldName, data)
-	fmt.Println("left", leftVal, "right", rightVal)
 	if err != nil {
 		return err
 	}
@@ -669,12 +660,10 @@ func (d *DynamicFormFiller) twoColumnTableRow(x float64, gap float64, labelWidth
 func (d *DynamicFormFiller) tableColumn(x float64, labelWidth float64, valueWidth float64, label string, value string) {
 	lineHeight := 5.0 // TODO this shadows a global
 	d.pdf.SetX(x)
-	fmt.Println("x", d.pdf.GetX(), "y", d.pdf.GetY(), label, value)
 	d.pdf.SetFontStyle("B")
 	d.setTextColorBaseDarker()
 	d.pdf.CellFormat(labelWidth, 10.0, label, "", 0, "LT", false, 0, "")
 	d.pdf.SetFontStyle("")
-	fmt.Println("x", d.pdf.GetX(), "y", d.pdf.GetY(), value)
 	d.setTextColorBaseDarkest()
 	d.pdf.MultiCell(valueWidth, lineHeight, value, "", "LT", false)
 }
