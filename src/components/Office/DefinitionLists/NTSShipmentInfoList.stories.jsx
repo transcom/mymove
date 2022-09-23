@@ -3,7 +3,7 @@ import React from 'react';
 import NTSShipmentInfoList from './NTSShipmentInfoList';
 
 export default {
-  title: 'Office Components/Shipment Info List',
+  title: 'Office Components/NTS Shipment Info List',
   component: NTSShipmentInfoList,
 };
 
