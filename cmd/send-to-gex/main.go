@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -105,7 +105,7 @@ func main() {
 		}
 	}()
 
-	edi, err := ioutil.ReadAll(file)
+	edi, err := io.ReadAll(file)
 	if err != nil {
 		log.Fatal(err)
 	}
