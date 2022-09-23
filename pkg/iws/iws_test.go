@@ -12,9 +12,6 @@ type iwsSuite struct {
 	testingsuite.BaseTestSuite
 }
 
-func (suite *iwsSuite) SetupSuite() {
-}
-
 func TestIwsSuite(t *testing.T) {
 	suite.Run(t, new(iwsSuite))
 }

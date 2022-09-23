@@ -14,69 +14,69 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MovingExpense moving expense
+// MovingExpense Expense information and receipts of costs incurred that can be reimbursed while moving a PPM shipment.
 //
 // swagger:model MovingExpense
 type MovingExpense struct {
 
-	// amount
+	// The total amount of the expense as indicated on the receipt
 	Amount *int64 `json:"amount"`
 
-	// created at
+	// Timestamp the moving expense object was initially created in the system (UTC)
 	// Required: true
 	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
-	// description
+	// A brief description of the expense
 	Description *string `json:"description"`
 
-	// document
+	// The Document object that contains all file uploads for this expense
 	// Required: true
 	Document interface{} `json:"document"`
 
-	// document Id
+	// The id of the Document that contains all file uploads for this expense
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Read Only: true
 	// Format: uuid
 	DocumentID strfmt.UUID `json:"documentId"`
 
-	// e tag
+	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
-	// id
+	// Unique primary identifier of the Moving Expense object
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
 
-	// missing receipt
+	// Indicates if the service member is missing the receipt with the proof of expense amount
 	MissingReceipt *bool `json:"missingReceipt"`
 
 	// moving expense type
 	MovingExpenseType MovingExpenseType `json:"movingExpenseType,omitempty"`
 
-	// paid with gtcc
+	// Indicates if the service member used their government issued card to pay for the expense
 	PaidWithGtcc *bool `json:"paidWithGtcc"`
 
-	// ppm shipment Id
+	// The PPM Shipment id that this moving expense belongs to
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Read Only: true
 	// Format: uuid
 	PpmShipmentID strfmt.UUID `json:"ppmShipmentId"`
 
-	// reason
+	// The reason the services counselor has excluded or rejected the moving expense
 	Reason *string `json:"reason"`
 
-	// sit end date
+	// The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
 	// Example: 2018-05-26
 	// Format: date
 	SitEndDate *strfmt.Date `json:"sitEndDate"`
 
-	// sit start date
+	// The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
 	// Example: 2022-04-26
 	// Format: date
 	SitStartDate *strfmt.Date `json:"sitStartDate"`
@@ -84,7 +84,7 @@ type MovingExpense struct {
 	// status
 	Status PPMDocumentStatus `json:"status,omitempty"`
 
-	// updated at
+	// Timestamp when a property of this moving expense object was last modified (UTC)
 	// Required: true
 	// Format: date-time
 	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
