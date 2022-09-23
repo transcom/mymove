@@ -20,8 +20,10 @@ const (
 	boldFontPath    = "pkg/paperwork/formtemplates/PublicSans-Bold.ttf"
 	arrowImagePath  = "pkg/paperwork/formtemplates/arrowright.png"
 	// We can figure this out at runtime, but it adds complexity
-	arrowImageFormat = "png"
-	arrowImageName   = "arrowright"
+	arrowImageFormat   = "png"
+	arrowImageName     = "arrowright"
+	pageHeightMm       = 279.4
+	pageBottomMarginMm = 10.0
 )
 
 // TODO do we want to keep this or inline it?
@@ -128,10 +130,6 @@ func (d *DynamicFormFiller) ViolationsSection(violations models.PWSViolations) e
 				elementName := violation.AdditionalDataElem
 				kpis[strings.ToUpper(elementName[0:1])+elementName[1:]] = true
 			}
-		}
-		// TODO decide whether to do a page break or add vertical space
-		if d.pdf.GetY() > 270 {
-			d.addPage()
 		}
 		d.violation(violation)
 		d.addVerticalSpace(pxToMM(16.0))
@@ -352,9 +350,6 @@ func (d *DynamicFormFiller) subsection(heading string, fieldOrder []string, fiel
 			return err
 		}
 		if fieldValue != "" {
-			if d.pdf.GetY()+pxToMM(40.0) > 279.4 {
-				d.addPage()
-			}
 			d.subsectionRow(labelText, fieldValue)
 		}
 	}
@@ -393,15 +388,23 @@ func (d *DynamicFormFiller) subsectionRow(key string, value string) {
 	// todo might even make sense to have a different function for multiline stuff
 	// todo and then have that in the config object
 
-	y := d.pdf.GetY()
+	needToLineWrap := d.pdf.GetStringWidth(value) > valueWidth-2*d.pdf.GetCellMargin()
+	estimatedHeight := minFieldHeight
+	if needToLineWrap {
+		estimatedHeight = math.Ceil(d.pdf.GetStringWidth(value)/(valueWidth-2*d.pdf.GetCellMargin())) * textLineHeight
+	}
+	if d.pdf.GetY()+estimatedHeight > pageHeightMm-pageBottomMarginMm {
+		d.addPage()
+	}
 	d.pdf.SetFontUnitSize(pxToMM(15.0))
+	y := d.pdf.GetY()
 	// TODO if we have any forms labels that need to wrap
 	d.pdf.CellFormat(labelWidth, minFieldHeight, key, "T", 0, "LM", false, 0, "")
 	//d.pdf.MultiCell(labelWidth, textLineHeight, key, "T",  "LM", false)
 	labelY := d.pdf.GetY()
 	d.pdf.SetFontStyle("")
 	d.pdf.MoveTo(d.startX+labelWidth, y)
-	if d.pdf.GetStringWidth(value) > valueWidth-2*d.pdf.GetCellMargin() {
+	if needToLineWrap {
 		d.pdf.MultiCell(valueWidth, textLineHeight, value, "T", "LM", false)
 	} else {
 		d.pdf.CellFormat(valueWidth, minFieldHeight, value, "T", 1, "LM", false, 0, "")
@@ -420,6 +423,10 @@ func (d *DynamicFormFiller) violation(violation models.PWSViolation) {
 	d.pdf.SetFontUnitSize(pxToMM(13.0)) // 28px
 	d.pdf.SetFontStyle("B")
 
+	totalHeight := 2 * height
+	if d.pdf.GetY()+totalHeight > pageHeightMm-pageBottomMarginMm {
+		d.addPage()
+	}
 	d.pdf.CellFormat(bulletWidth, height, "•", "", 0, "RM", false, 0, "")
 	d.pdf.CellFormat(letterWidthMm-2.0*d.startX-bulletWidth, height, violation.ParagraphNumber+" "+violation.Title, "", 1, "LM", false, 0, "")
 	d.pdf.SetX(d.startX + bulletWidth)
@@ -475,7 +482,7 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	tableRowHeight := 10.0
 	//estimatedHeight := stripeHeight + headingMargin + headingHeight + headingBottomMargin + addressHeight + tableRowHeight + len(layout)
 	estimatedHeight := stripeHeight + 5.0 + 5.0 + 5.0 + addressHeight + tableRowHeight + float64(len(layout))
-	if d.pdf.GetY()+estimatedHeight > 279.4 { // todo
+	if d.pdf.GetY()+estimatedHeight > pageHeightMm-pageBottomMarginMm {
 		d.addPage()
 	}
 
