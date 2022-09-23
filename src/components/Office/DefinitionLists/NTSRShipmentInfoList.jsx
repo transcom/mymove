@@ -52,6 +52,10 @@ const NTSRShipmentInfoList = ({
   });
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
 
+  const showElement = (elementFlags) => {
+    return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
+  };
+
   const storageFacilityAddressElementFlags = getDisplayFlags('storageFacility');
   const storageFacilityAddressElement = (
     <div className={storageFacilityAddressElementFlags.classes}>
@@ -251,9 +255,9 @@ const NTSRShipmentInfoList = ({
       )}
       data-testid="nts-release-shipment-info-list"
     >
-      {(isExpanded || ntsRecordedWeightElementFlags.alwaysShow) && ntsRecordedWeightElement}
-      {(isExpanded || storageFacilityInfoElementFlags.alwaysShow) && storageFacilityInfoElement}
-      {(isExpanded || serviceOrderNumberElementFlags.alwaysShow) && serviceOrderNumberElement}
+      {showElement(ntsRecordedWeightElementFlags) && ntsRecordedWeightElement}
+      {showElement(storageFacilityInfoElementFlags) && storageFacilityInfoElement}
+      {showElement(serviceOrderNumberElementFlags) && serviceOrderNumberElement}
       {storageFacilityAddressElement}
       {requestedDeliveryDateElement}
       {destinationAddressElement}
@@ -261,9 +265,9 @@ const NTSRShipmentInfoList = ({
       {isExpanded && secondaryDeliveryAddressElement}
       {isExpanded && receivingAgentElement}
       {isExpanded && customerRemarksElement}
-      {(isExpanded || counselorRemarksElementFlags.alwaysShow) && counselorRemarksElement}
-      {(isExpanded || tacElementFlags.alwaysShow) && tacElement}
-      {(isExpanded || sacElementFlags.alwaysShow) && sacElement}
+      {showElement(counselorRemarksElementFlags) && counselorRemarksElement}
+      {showElement(tacElementFlags) && tacElement}
+      {showElement(sacElementFlags) && sacElement}
     </dl>
   );
 
