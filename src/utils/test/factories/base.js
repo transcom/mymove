@@ -51,8 +51,6 @@ const BASE_FIELDS = {
   FIELDS: 'fields',
   OVERRIDES: 'overrides',
   LAZY_OVERRIDES: 'lazyOverrides',
-  LAZY_OVERRIDES_FIELD_PATH: 'fieldPath',
-  LAZY_OVERRIDES_VALUE: 'value',
   POST_BUILD: 'postBuild',
   TRAITS: 'traits',
 };
@@ -64,7 +62,7 @@ const applyOverrides = (object, overrides) => {
     switch (typeof value) {
       case 'function':
         if (overrides?.[field]) {
-          appliedValue = value({ overrides: overrides[field] });
+          appliedValue = value({ [BASE_FIELDS.OVERRIDES]: overrides[field] });
         } else {
           appliedValue = value();
         }
@@ -115,12 +113,12 @@ const baseFactory = (params) => {
   const formattedFields = camelCaseFields(appliedFields);
 
   const builder = build({
-    fields: formattedFields,
-    postBuild: basePostBuild(lazyOverrides, postBuild),
-    traits,
+    [BASE_FIELDS.FIELDS]: formattedFields,
+    [BASE_FIELDS.POST_BUILD]: basePostBuild(lazyOverrides, postBuild),
+    [BASE_FIELDS.TRAITS]: traits,
   });
 
-  return builder({ traits: useTraits });
+  return builder({ [BASE_FIELDS.TRAITS]: useTraits });
 };
 
 export { BASE_FIELDS, baseFactory, basePostBuild, fake, getInternalSpec, getGHCSpec };

@@ -21,7 +21,7 @@ const dutyLocationFactory = (params) => {
       [DUTY_LOCATION_FIELDS.ID]: fake(helpers.idHelper),
       [DUTY_LOCATION_FIELDS.ADDRESS]: (addressParams) => addressFactory(addressParams),
       [DUTY_LOCATION_FIELDS.AFFILIATION]: fake(helpers.agencyHelper),
-      [DUTY_LOCATION_FIELDS.NAME]: fake((f) => `${f.lorem.words(Math.random(4) + 1)} AFB`),
+      [DUTY_LOCATION_FIELDS.NAME]: fake((f) => `${f.lorem.words(Math.random() * 4 + 1)} AFB`),
       [DUTY_LOCATION_FIELDS.TRANSPORTATION_OFFICE]: (toParams) => transportationOfficeFactory(toParams),
       [DUTY_LOCATION_FIELDS.CREATED_AT]: fake(helpers.createdAtHelper),
     },

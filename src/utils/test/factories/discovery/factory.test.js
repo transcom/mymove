@@ -1,5 +1,5 @@
 import { BASE_FIELDS } from 'utils/test/factories/base';
-import testFactory, { TEST_FACTORY_FIELDS } from 'utils/test/factories/discovery/factory';
+import testFactory, { TEST_FACTORY_FIELDS, TEST_FACTORY_TRAITS } from 'utils/test/factories/discovery/factory';
 import { TEST_SUBFACTORY_FIELDS } from 'utils/test/factories/discovery/subfactory';
 import dutyLocationFactory, { DUTY_LOCATION_FIELDS } from 'utils/test/factories/dutyLocation';
 import { ADDRESS_FIELDS } from 'utils/test/factories/address';
@@ -24,7 +24,7 @@ const testWithOverridenFieldByLazyOverrides = testFactory({
   },
 });
 
-const testWithTrait = testFactory({ useTraits: ['testTrait'] });
+const testWithTrait = testFactory({ useTraits: [TEST_FACTORY_TRAITS.TEST_TRAIT] });
 
 const dutyLocationStreetAddressOverrideValue = '123 Main St.';
 

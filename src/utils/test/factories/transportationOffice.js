@@ -14,7 +14,7 @@ export const TRANSPORTATION_OFFICE_FIELDS = {
 
 const transportationOfficeFactory = (params) => {
   const getPhoneLines = () => {
-    const numberOfLines = Math.random(4);
+    const numberOfLines = Math.floor(Math.random() * 4);
     const lines = [];
     for (let i = 0; i < numberOfLines; i += 1) {
       lines.push(fake(phoneHelper));
