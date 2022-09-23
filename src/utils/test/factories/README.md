@@ -108,6 +108,14 @@ Note that `fake()` can only be used in the build phase. It is out-of-scope post-
   }
 ```
 
+Note: passing a factory function to `fake()` is an antipattern. Factories handle their own uniqueness constraints. Set the factory function directly as the property.
+
+```javascript
+[BASE_FIELDS.FIELDS]: {
+  [OBJECT_FIELDS.ADDRESS]: (addressParams) => addressFactory(addressParams)
+}
+```
+
 ### Basic generators and Helpers
 
 We use [faker](https://github.com/faker-js/faker) to generate basic data.
@@ -124,29 +132,11 @@ export const gblocHelper = (f) => f.random.alpha({ count: 4, casing: 'upper' });
 }
 ```
 
-Note: passing a factory function to `fake()` is an antipattern. Factories handle their own uniqueness constraints. Set the factory function directly as the property.
+### Importing configuration from swagger yaml files
 
-```javascript
-[BASE_FIELDS.FIELDS]: {
-  [OBJECT_FIELDS.ADDRESS]: (addressParams) => addressFactory(addressParams)
-}
-```
+We use js-yaml to import specs from swagger yaml files. This can be useful for importing a set of available values that have already been defined in swagger.
 
-### Creating generators with swagger-codegen
-
-It's possible to generate JSON from the Swagger schema for use in factories with swagger-codegen. For example, you might want to get a list of states already defined in Swagger. To generate JSON from the internal.yaml, run
-
-```sh
-
-docker run -it -v ${PWD}:/local "parsertongue/swagger-codegen-cli:latest" generate \
--i /local/swagger/internal.yaml \
--l javascript \
--o /local/src/utils/test/swagger-client/internal \
--DmodelDocs=false -DmodelTests=false -DapiDocs=false -DapiTests=false
-
-```
-
-The `stateHelper` is then defined by importing this spec:
+For example, the `stateHelper` imports the set of states defined in the `internal.yml`:
 
 ```javascript
 const spec = getInternalSpec();
@@ -174,6 +164,12 @@ Overrides explicitly set values on an object at build time. The key is available
 }
 ```
 
+### Traits
+
+Use traits by setting the `useTraits` key to an array of traits. Traits are applied in order, overriding any default values, before postBuild is executed.
+
+`{ [BASE_FIELDS.USE_TRAITS]: [MY_OBJECT_TRAITS.TRAIT_1, MY_OBJECT_TRAITS.TRAIT_2] }`
+
 ### Lazy overrides
 
 Lazy overrides explicitly set values on an object at postBuild time, taking precedent over any set at build time.
@@ -186,11 +182,13 @@ Lazy overrides explicitly set values on an object at postBuild time, taking prec
 }
 ```
 
-### Traits
+### Field customization precedence
 
-Use traits by setting the `useTraits` key to an array of traits. Traits are applied in order, overriding any default values, before postBuild is executed.
+The order of precedence of field customizations is:
 
-`{ [BASE_FIELDS.USE_TRAITS]: [MY_OBJECT_TRAITS.TRAIT_1, MY_OBJECT_TRAITS.TRAIT_2] }`
+defaults < overrides < traits < lazy overrides
+
+So, setting a value via a trait takes precedence over setting a value on the same field with an override, etc.
 
 ### Naming mock data
 
