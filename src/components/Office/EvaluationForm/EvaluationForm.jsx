@@ -127,7 +127,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
     }
 
     let travelMinutes;
-    if (values.minute || values.hour) {
+    if (values.minute >= 0 || values.hour >= 0) {
       travelMinutes = convertToMinutes(values.hour, values.minute);
     }
 
@@ -211,7 +211,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
     initialValues.evalLengthHour = hours;
   }
 
-  if (evaluationReport.travelTimeMinutes) {
+  if (evaluationReport.travelTimeMinutes >= 0) {
     const { hours, minutes } = convertToHoursAndMinutes(evaluationReport.travelTimeMinutes);
     initialValues.minute = minutes;
     initialValues.hour = hours;
