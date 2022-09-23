@@ -47,6 +47,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator)
 	mockCreator := mocks.ShipmentCreator{}
 
+	var pickupAddress primemessages.Address
+	var destinationAddress primemessages.Address
+
 	setupTestData := func() (CreateMTOShipmentHandler, models.Move) {
 
 		move := testdatagen.MakeAvailableMove(suite.DB())
@@ -55,30 +58,30 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentCreator,
 			mtoChecker,
 		}
+
+		// Make stubbed addresses just to collect address data for payload
+		newAddress := testdatagen.MakeStubbedAddress(suite.DB())
+		pickupAddress = primemessages.Address{
+			City:           &newAddress.City,
+			Country:        newAddress.Country,
+			PostalCode:     &newAddress.PostalCode,
+			State:          &newAddress.State,
+			StreetAddress1: &newAddress.StreetAddress1,
+			StreetAddress2: newAddress.StreetAddress2,
+			StreetAddress3: newAddress.StreetAddress3,
+		}
+		newAddress = testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+		destinationAddress = primemessages.Address{
+			City:           &newAddress.City,
+			Country:        newAddress.Country,
+			PostalCode:     &newAddress.PostalCode,
+			State:          &newAddress.State,
+			StreetAddress1: &newAddress.StreetAddress1,
+			StreetAddress2: newAddress.StreetAddress2,
+			StreetAddress3: newAddress.StreetAddress3,
+		}
 		return handler, move
 
-	}
-
-	// Make stubbed addresses just to collect address data for payload
-	newAddress := testdatagen.MakeStubbedAddress(suite.DB())
-	pickupAddress := primemessages.Address{
-		City:           &newAddress.City,
-		Country:        newAddress.Country,
-		PostalCode:     &newAddress.PostalCode,
-		State:          &newAddress.State,
-		StreetAddress1: &newAddress.StreetAddress1,
-		StreetAddress2: newAddress.StreetAddress2,
-		StreetAddress3: newAddress.StreetAddress3,
-	}
-	newAddress = testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
-	destinationAddress := primemessages.Address{
-		City:           &newAddress.City,
-		Country:        newAddress.Country,
-		PostalCode:     &newAddress.PostalCode,
-		State:          &newAddress.State,
-		StreetAddress1: &newAddress.StreetAddress1,
-		StreetAddress2: newAddress.StreetAddress2,
-		StreetAddress3: newAddress.StreetAddress3,
 	}
 
 	suite.Run("Successful POST - Integration Test", func() {
@@ -712,7 +715,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		sitEstimatedEntryDate := expectedDepartureDate.AddDate(0, 0, 5)
 		sitEstimatedDepartureDate := sitEstimatedEntryDate.AddDate(0, 0, 20)
 		estimatedWeight := unit.Pound(3000)
-		netWeight := unit.Pound(3500)
 		proGearWeight := unit.Pound(300)
 		spouseProGearWeight := unit.Pound(200)
 		estimatedIncentive := 654321
@@ -738,7 +740,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					SitEstimatedDepartureDate:      handlers.FmtDatePtr(&sitEstimatedDepartureDate),
 					SitLocation:                    &sitLocation,
 					EstimatedWeight:                handlers.FmtPoundPtr(&estimatedWeight),
-					NetWeight:                      handlers.FmtPoundPtr(&netWeight),
 					HasProGear:                     &hasProGear,
 					ProGearWeight:                  handlers.FmtPoundPtr(&proGearWeight),
 					SpouseProGearWeight:            handlers.FmtPoundPtr(&spouseProGearWeight),
@@ -771,7 +772,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(handlers.FmtDate(sitEstimatedEntryDate), updatedShipment.PpmShipment.SitEstimatedEntryDate)
 		suite.Equal(handlers.FmtDate(sitEstimatedDepartureDate), updatedShipment.PpmShipment.SitEstimatedDepartureDate)
 		suite.Equal(handlers.FmtPoundPtr(&estimatedWeight), updatedShipment.PpmShipment.EstimatedWeight)
-		suite.Equal(handlers.FmtPoundPtr(&netWeight), updatedShipment.PpmShipment.NetWeight)
 		suite.Equal(int64(estimatedIncentive), *updatedShipment.PpmShipment.EstimatedIncentive)
 		suite.Equal(int64(sitEstimatedCost), *updatedShipment.PpmShipment.SitEstimatedCost)
 		suite.Equal(handlers.FmtBool(hasProGear), updatedShipment.PpmShipment.HasProGear)

@@ -2,6 +2,7 @@ import Enzyme from 'enzyme';
 import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
 import 'jest-canvas-mock';
 import '@testing-library/jest-dom';
+import { jestPreviewConfigure } from 'jest-preview';
 
 import './icons';
 
@@ -16,3 +17,7 @@ global.performance = {
     return Date.now();
   },
 };
+
+jestPreviewConfigure({
+  autoPreview: false,
+});

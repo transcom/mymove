@@ -23,9 +23,10 @@ func NewMoveHistoryFetcher() services.MoveHistoryFetcher {
 
 //FetchMoveHistory retrieves a Move's history if it is visible for a given locator
 func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, params *services.FetchMoveHistoryParams) (*models.MoveHistory, int64, error) {
-	rawQuery, queryErr := query.GetQueryString("move_history_fetcher")
-	if queryErr != nil {
-		return &models.MoveHistory{}, 0, queryErr
+	rawQuery, qerr := query.GetSQLQueryByName("move_history_fetcher")
+
+	if qerr != nil {
+		return &models.MoveHistory{}, 0, apperror.NewQueryError("AuditHistory", qerr, "")
 	}
 
 	audits := &models.AuditHistories{}
