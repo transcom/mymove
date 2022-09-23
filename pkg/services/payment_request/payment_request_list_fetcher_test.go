@@ -14,12 +14,10 @@ import (
 )
 
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
-	paymentRequestListFetcher := NewPaymentRequestListFetcher()
-	var paymentRequest models.PaymentRequest
-	var officeUser models.OfficeUser
+	suite.Run("Only returns visible (where Move.Show is not false) payment requests matching office user GBLOC", func() {
+		paymentRequestListFetcher := NewPaymentRequestListFetcher()
 
-	suite.PreloadData(func() {
-		officeUser = testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 		expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{Locator: "ABC123"},
@@ -31,7 +29,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 			officeUser.TransportationOffice.Gbloc)
 
 		// We need a payment request with a move that has a shipment that's within the GBLOC
-		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
 				MoveTaskOrderID: expectedMove.ID,
 				MoveTaskOrder:   expectedMove,
@@ -44,9 +42,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
 				Show: swag.Bool(false),
 			},
 		})
-	})
 
-	suite.Run("Only returns visible (where Move.Show is not false) payment requests matching office user GBLOC", func() {
 		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(suite.AppContextForTest(), officeUser.ID, "ABC123")
 
 		suite.NoError(err)
