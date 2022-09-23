@@ -35,6 +35,11 @@ describe('ConnectedCustomerApp tests', () => {
       const { queryByText } = renderRoute('/accessibility');
       expect(queryByText('508 Compliance')).toBeInTheDocument();
     });
+
+    it('renders the page not found route', () => {
+      renderRoute('/pageNotFound');
+      expect(screen.queryByText('Page not found')).toBeInTheDocument();
+    });
   });
 
   describe('with GHC/HHG feature flags turned off', () => {

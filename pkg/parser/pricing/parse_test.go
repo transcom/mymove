@@ -2,7 +2,6 @@ package pricing
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -384,10 +383,10 @@ func (suite *PricingParserSuite) Test_removeFirstDollarSign() {
 
 func (suite *PricingParserSuite) helperTestExpectedFileOutput(goldenFilename string, currentOutputFilename string) {
 	expected := filepath.Join("fixtures", goldenFilename) // relative path
-	expectedBytes, err := ioutil.ReadFile(filepath.Clean(expected))
+	expectedBytes, err := os.ReadFile(filepath.Clean(expected))
 	suite.NoErrorf(err, "error loading expected CSV file output fixture <%s>", expected)
 
-	currentBytes, err := ioutil.ReadFile(filepath.Clean(currentOutputFilename)) // relative path
+	currentBytes, err := os.ReadFile(filepath.Clean(currentOutputFilename)) // relative path
 	suite.NoErrorf(err, "error loading current/new output file <%s>", currentOutputFilename)
 
 	suite.Equal(string(expectedBytes), string(currentBytes))
