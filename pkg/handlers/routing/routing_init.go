@@ -149,7 +149,6 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		routingConfig.GitBranch, routingConfig.GitCommit)
 	site.HandleFunc("/health", healthHandler).Methods("GET")
 
-	site.Handle("/static", http.NotFoundHandler()).Methods("GET")
 	staticMux := site.PathPrefix("/static/").Subrouter()
 	staticMux.Use(middleware.ValidMethodsStatic(appCtx.Logger()))
 	staticMux.Use(middleware.RequestLogger(appCtx.Logger()))
@@ -158,7 +157,6 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	}
 	staticMux.PathPrefix("/").Handler(clientHandler).Methods("GET", "HEAD")
 
-	site.Handle("/downloads", http.NotFoundHandler()).Methods("GET")
 	downloadMux := site.PathPrefix("/downloads/").Subrouter()
 	downloadMux.Use(middleware.ValidMethodsStatic(appCtx.Logger()))
 	downloadMux.Use(middleware.RequestLogger(appCtx.Logger()))

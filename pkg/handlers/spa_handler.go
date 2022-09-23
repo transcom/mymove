@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/transcom/mymove/pkg/logging"
 )
@@ -40,6 +41,11 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// if we failed to get the absolute path respond with a 400 bad request
 		// and stop
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if strings.HasSuffix(r.URL.Path, "/") {
+		http.NotFound(w, r)
 		return
 	}
 
