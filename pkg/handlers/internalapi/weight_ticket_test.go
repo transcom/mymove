@@ -21,7 +21,6 @@ import (
 //
 // CREATE TEST
 //
-
 func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 	// Reusable objects
 	weightTicketCreator := weightticket.NewCustomerWeightTicketCreator()

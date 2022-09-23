@@ -5,4 +5,18 @@ set -eu -o pipefail
 db_password="mysecretpassword"
 db_port="${DB_PORT:-5432}"
 
-exec /usr/local/bin/pg_dump postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}" -s | tee -a migrations/schema.sql
+# nix-friendly option
+if [ -n "${NIX_PROFILE+x}" ]; then
+  pg_dump_exe="/nix/var/nix/profiles/per-user/${LOGNAME}/mymove/bin/pg_dump"
+else
+  # Check if Homebrew is installed and fail with an error message if it isn't
+  # for some reason.
+  { type -p brew > /dev/null; } 2>&1 || \
+      echo "You must have Homebrew installed to run this script."
+
+  # Determine the path of `pg_dump` by leveraging the Homebrew path reported by
+  # the prefix flag.
+  pg_dump_exe="$(brew --prefix)/bin/pg_dump"
+fi
+
+exec "${pg_dump_exe}" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}" -s | tee -a migrations/schema.sql
