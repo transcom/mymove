@@ -115,7 +115,7 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestSubmit() {
-	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+
 	shipmentRouter := NewShipmentRouter()
 
 	validStatuses := []struct {
@@ -126,6 +126,7 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 	}
 	for _, validStatus := range validStatuses {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
+			shipment := testdatagen.MakeStubbedShipment(suite.DB())
 			shipment.Status = validStatus.status
 
 			err := shipmentRouter.Submit(suite.AppContextForTest(), &shipment)
@@ -148,6 +149,7 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 	}
 	for _, invalidStatus := range invalidStatuses {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
+			shipment := testdatagen.MakeStubbedShipment(suite.DB())
 			shipment.Status = invalidStatus.status
 
 			err := shipmentRouter.Submit(suite.AppContextForTest(), &shipment)
@@ -161,7 +163,7 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestCancel() {
-	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+
 	shipmentRouter := NewShipmentRouter()
 
 	validStatuses := []struct {
@@ -172,6 +174,7 @@ func (suite *MTOShipmentServiceSuite) TestCancel() {
 	}
 	for _, validStatus := range validStatuses {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
+			shipment := testdatagen.MakeStubbedShipment(suite.DB())
 			shipment.Status = validStatus.status
 
 			err := shipmentRouter.Cancel(suite.AppContextForTest(), &shipment)
@@ -194,6 +197,7 @@ func (suite *MTOShipmentServiceSuite) TestCancel() {
 	}
 	for _, invalidStatus := range invalidStatuses {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
+			shipment := testdatagen.MakeStubbedShipment(suite.DB())
 			shipment.Status = invalidStatus.status
 
 			err := shipmentRouter.Cancel(suite.AppContextForTest(), &shipment)
@@ -207,7 +211,7 @@ func (suite *MTOShipmentServiceSuite) TestCancel() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestReject() {
-	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+
 	shipmentRouter := NewShipmentRouter()
 	rejectionReason := "reason"
 
@@ -219,6 +223,7 @@ func (suite *MTOShipmentServiceSuite) TestReject() {
 	}
 	for _, validStatus := range validStatuses {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
+			shipment := testdatagen.MakeStubbedShipment(suite.DB())
 			shipment.Status = validStatus.status
 
 			err := shipmentRouter.Reject(suite.AppContextForTest(), &shipment, &rejectionReason)
@@ -242,6 +247,7 @@ func (suite *MTOShipmentServiceSuite) TestReject() {
 	}
 	for _, invalidStatus := range invalidStatuses {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
+			shipment := testdatagen.MakeStubbedShipment(suite.DB())
 			shipment.Status = invalidStatus.status
 
 			err := shipmentRouter.Reject(suite.AppContextForTest(), &shipment, &rejectionReason)
@@ -255,7 +261,7 @@ func (suite *MTOShipmentServiceSuite) TestReject() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
-	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+
 	shipmentRouter := NewShipmentRouter()
 
 	validStatuses := []struct {
@@ -266,6 +272,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 	}
 	for _, validStatus := range validStatuses {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
+			shipment := testdatagen.MakeStubbedShipment(suite.DB())
 			shipment.Status = validStatus.status
 
 			err := shipmentRouter.RequestDiversion(suite.AppContextForTest(), &shipment)
@@ -288,6 +295,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 	}
 	for _, invalidStatus := range invalidStatuses {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
+			shipment := testdatagen.MakeStubbedShipment(suite.DB())
 			shipment.Status = invalidStatus.status
 
 			err := shipmentRouter.RequestDiversion(suite.AppContextForTest(), &shipment)
@@ -301,10 +309,11 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
-	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+
 	shipmentRouter := NewShipmentRouter()
 
 	suite.Run("fails when the Diversion field is false", func() {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
 
 		suite.Error(err)
@@ -320,6 +329,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 	}
 	for _, validStatus := range validStatuses {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
+			shipment := testdatagen.MakeStubbedShipment(suite.DB())
 			shipment.Status = validStatus.status
 			shipment.Diversion = true
 
@@ -343,6 +353,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 	}
 	for _, invalidStatus := range invalidStatuses {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
+			shipment := testdatagen.MakeStubbedShipment(suite.DB())
 			shipment.Status = invalidStatus.status
 			shipment.Diversion = true
 
@@ -357,12 +368,14 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveDiversionUsesExternal() {
-	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+
 	shipmentRouter := NewShipmentRouter()
-	shipment.UsesExternalVendor = true
-	shipment.Diversion = true
 
 	suite.Run("fails when the UsesExternal field is true", func() {
+
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		shipment.UsesExternalVendor = true
+		shipment.Diversion = true
 		err := shipmentRouter.ApproveDiversion(suite.AppContextForTest(), &shipment)
 
 		suite.Error(err)
@@ -372,7 +385,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversionUsesExternal() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
-	shipment := testdatagen.MakeStubbedShipment(suite.DB())
+
 	shipmentRouter := NewShipmentRouter()
 
 	validStatuses := []struct {
@@ -383,7 +396,10 @@ func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
 	}
 	for _, validStatus := range validStatuses {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
+			shipment := testdatagen.MakeStubbedShipment(suite.DB())
 			shipment.Status = validStatus.status
+			shipment.UsesExternalVendor = true
+			shipment.Diversion = true
 
 			err := shipmentRouter.RequestCancellation(suite.AppContextForTest(), &shipment)
 
@@ -405,6 +421,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
 	}
 	for _, invalidStatus := range invalidStatuses {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
+			shipment := testdatagen.MakeStubbedShipment(suite.DB())
 			shipment.Status = invalidStatus.status
 
 			err := shipmentRouter.RequestCancellation(suite.AppContextForTest(), &shipment)

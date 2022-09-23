@@ -65,11 +65,10 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 	params := movetaskorderops.HideNonFakeMoveTaskOrdersParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := suite.HandlerConfig()
 
 	suite.Run("successfully hide fake moves", func() {
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
-			handlerConfig,
+			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderHider(),
 		}
 		var moves models.Moves
@@ -104,7 +103,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		}
 		mockHider := &mocks.MoveTaskOrderHider{}
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
-			handlerConfig,
+			suite.HandlerConfig(),
 			mockHider,
 		}
 
@@ -132,7 +131,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 
 		mockHider := &mocks.MoveTaskOrderHider{}
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
-			handlerConfig,
+			suite.HandlerConfig(),
 			mockHider,
 		}
 		mockHider.On("Hide",

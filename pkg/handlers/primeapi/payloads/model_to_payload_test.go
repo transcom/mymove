@@ -38,7 +38,6 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		UpdatedAt:                  time.Now(),
 		SelectedMoveType:           &hhgMoveType,
 		PersonallyProcuredMoves:    models.PersonallyProcuredMoves{},
-		MoveDocuments:              models.MoveDocuments{},
 		Status:                     models.MoveStatusAPPROVED,
 		SignedCertifications:       models.SignedCertifications{},
 		MTOServiceItems:            models.MTOServiceItems{},
@@ -134,9 +133,9 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 
 	now := time.Now()
 	fakeFileStorer := test.NewFakeS3Storage(true)
-	upload := testdatagen.MakeStubbedUpload(suite.DB(), testdatagen.Assertions{})
 
 	suite.Run("Success - all data populated", func() {
+		upload := testdatagen.MakeStubbedUpload(suite.DB(), testdatagen.Assertions{})
 		move := models.Move{
 			ID:                         id,
 			ExcessWeightQualifiedAt:    &now,

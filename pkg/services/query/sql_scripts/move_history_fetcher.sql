@@ -1,4 +1,3 @@
--- name: move_history_fetcher
 WITH moves AS (
 		SELECT
 			moves.*
