@@ -217,6 +217,24 @@ const evaluationReport = {
   violationsObserved: false,
 };
 
+// create violation test data for reportViolations
+const reportViolations = [
+  {
+    id: 'c441ba57-8c2f-4e54-861c-852e5fc5b89f',
+    reportID: '7d7180cd-f286-495d-a518-0d503e4cdc1f',
+    violation: {
+      category: 'Physical Move Services',
+      id: '1b9630a4-9400-424c-a05a-caa44be49a98',
+      paragraphNumber: '1.2.6.16',
+      requirementStatement: 'requirement statement',
+      requirementSummary: 'requirement summary',
+      subCategory: 'Storage',
+      title: 'Storage',
+    },
+    violationID: '1b9630a4-9400-424c-a05a-caa44be49a98',
+  },
+];
+
 const customerInfo = {
   agency: 'ARMY',
   backup_contact: { email: 'email@example.com', name: 'name', phone: '555-555-5555' },
@@ -250,6 +268,7 @@ describe('Evaluation Report Container', () => {
         moveCode="TEST123"
         customerInfo={customerInfo}
         mtoShipments={mtoShipments}
+        reportViolations={reportViolations}
       />,
     );
 
@@ -261,7 +280,11 @@ describe('Evaluation Report Container', () => {
     expect(screen.getByRole('heading', { name: 'Move information', level: 2 })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Evaluation report', level: 2 })).toBeInTheDocument();
     expect(screen.getByText('Evaluation remarks')).toBeInTheDocument();
+    expect(screen.getByText('1.2.6.16 Storage')).toBeInTheDocument();
+    expect(screen.getByText('Serious incident')).toBeInTheDocument();
+    expect(screen.getByText('requirement summary')).toBeInTheDocument();
     expect(evaluationReportContainer).toBeInTheDocument();
+
     // shipment type rendered
     expect(await screen.findByText('HHG')).toBeInTheDocument();
     // Title

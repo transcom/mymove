@@ -218,6 +218,7 @@ const EvaluationReportPreview = ({
 EvaluationReportPreview.propTypes = {
   evaluationReport: EvaluationReportShape.isRequired,
   mtoShipments: PropTypes.arrayOf(ShipmentShape),
+  reportViolations: PropTypes.arrayOf(Object),
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
@@ -225,6 +226,7 @@ EvaluationReportPreview.propTypes = {
 
 EvaluationReportPreview.defaultProps = {
   mtoShipments: null,
+  reportViolations: null,
 };
 
 export default EvaluationReportPreview;
