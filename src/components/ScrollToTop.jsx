@@ -4,7 +4,7 @@
 
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-// TODO: Make this function only take otherDeps, but change uses everywhere else
+
 export default function ScrollToTop({ otherDep = null }) {
   const { pathname } = useLocation();
 
