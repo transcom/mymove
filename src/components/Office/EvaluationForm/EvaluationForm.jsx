@@ -121,7 +121,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
     }
     let evalMinutes;
     // calculate the minutes for evaluation length
-    if (values.evalLengthHour || values.evalLengthMinute) {
+    if (values.evalLengthHour >= 0 || values.evalLengthMinute >= 0) {
       // convert hours to minutes and add to minutes
       evalMinutes = convertToMinutes(values.evalLengthHour, values.evalLengthMinute);
     }
@@ -205,7 +205,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
       initialValues.evaluationType = evaluationReport.inspectionType.toLowerCase();
     }
   }
-  if (evaluationReport.evaluationLengthMinutes) {
+  if (evaluationReport.evaluationLengthMinutes >= 0) {
     const { hours, minutes } = convertToHoursAndMinutes(evaluationReport.evaluationLengthMinutes);
     initialValues.evalLengthMinute = minutes;
     initialValues.evalLengthHour = hours;
