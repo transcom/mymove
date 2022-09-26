@@ -261,6 +261,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			assertions,
 		)
 
+		paymentServiceItems = models.PaymentServiceItems{}
 		paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dnpk, dupk, ddfsit, ddasit, dofsit, doasit, doshut, ddshut, dcrt, ducrt, dddsit, dopsit)
 
 		serviceMember = testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
