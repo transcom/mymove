@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useHistory, useLocation } from 'react-router-dom';
 import { Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
@@ -15,8 +15,8 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import Alert from 'shared/Alert';
 import { CustomerShape } from 'types';
-import { createCounselingEvaluationReport } from 'services/ghcApi';
-import { COUNSELING_EVALUATION_REPORTS } from 'constants/queryKeys';
+import { createCounselingEvaluationReport, deleteEvaluationReport } from 'services/ghcApi';
+import { COUNSELING_EVALUATION_REPORTS, SHIPMENT_EVALUATION_REPORTS } from 'constants/queryKeys';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
@@ -25,9 +25,35 @@ const EvaluationReports = ({ customerInfo, grade }) => {
   const { moveCode } = useParams();
   const location = useLocation();
   const history = useHistory();
+  const [reportToDelete, setReportToDelete] = useState(undefined);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const { shipmentEvaluationReports, counselingEvaluationReports, shipments, isLoading, isError } =
     useEvaluationReportsQueries(moveCode);
+
+  const [deleteEvaluationReportMutation] = useMutation(deleteEvaluationReport);
+
+  const deleteReport = async () => {
+    // Close the modal
+    setIsDeleteModalOpen(!isDeleteModalOpen);
+
+    const reportID = reportToDelete.id;
+
+    // Mark as deleted in database
+    await deleteEvaluationReportMutation(reportID, {
+      onError: (error) => {
+        const errorMsg = error?.response?.body;
+        milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      },
+      onSuccess: () => {
+        // Reroute back to eval report page, include flag to show success alert
+        history.push(`/moves/${moveCode}/evaluation-reports`, { showDeleteSuccess: true });
+        queryCache
+          .refetchQueries([COUNSELING_EVALUATION_REPORTS])
+          .then(queryCache.refetchQueries(SHIPMENT_EVALUATION_REPORTS).then());
+      },
+    });
+  };
 
   const [createCounselingEvaluationReportMutation] = useMutation(createCounselingEvaluationReport, {
     onSuccess: () => {
@@ -58,7 +84,12 @@ const EvaluationReports = ({ customerInfo, grade }) => {
       <GridContainer>
         {location.state?.showDeleteSuccess && (
           <div className={evaluationReportsStyles.alert}>
-            <Alert type="success">Your report has been canceled</Alert>
+            <Alert type="success">Your report has been deleted</Alert>
+          </div>
+        )}
+        {location.state?.showCancelledSuccess && (
+          <div className={evaluationReportsStyles.alert}>
+            <Alert type="success">Your report has been cancelled</Alert>
           </div>
         )}
         {location.state?.showSaveDraftSuccess && (
@@ -89,6 +120,10 @@ const EvaluationReports = ({ customerInfo, grade }) => {
               grade={grade}
               shipments={shipments}
               emptyText="No QAE reports have been submitted for counseling."
+              setReportToDelete={setReportToDelete}
+              setIsDeleteModalOpen={setIsDeleteModalOpen}
+              isDeleteModalOpen={isDeleteModalOpen}
+              deleteReport={deleteReport}
             />
           </Grid>
         </GridContainer>
@@ -101,6 +136,10 @@ const EvaluationReports = ({ customerInfo, grade }) => {
               customerInfo={customerInfo}
               grade={grade}
               emptyText="No QAE reports have been submitted for this shipment"
+              setReportToDelete={setReportToDelete}
+              setIsDeleteModalOpen={setIsDeleteModalOpen}
+              isDeleteModalOpen={isDeleteModalOpen}
+              deleteReport={deleteReport}
             />
           </Grid>
         </GridContainer>

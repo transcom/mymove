@@ -71,7 +71,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
     await deleteEvaluationReportMutation(reportId);
 
     // Reroute back to eval report page, include flag to know to show alert
-    history.push(`/moves/${moveCode}/evaluation-reports`, { showDeleteSuccess: true });
+    history.push(`/moves/${moveCode}/evaluation-reports`, { showCancelledSuccess: true });
   };
 
   // passed to the confrimation modal
