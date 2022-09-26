@@ -8,13 +8,21 @@ db_port="${DB_PORT:-5432}"
 command="${*:-}"
 
 # nix-friendly option
-psql_exe=/usr/local/bin/psql
 if [ -n "${NIX_PROFILE+x}" ]; then
   psql_exe="/nix/var/nix/profiles/per-user/${LOGNAME}/mymove/bin/psql"
+else
+  # Check if Homebrew is installed and fail with an error message if it isn't for
+  # some reason.
+  { type -p brew > /dev/null; } 2>&1 || \
+      echo "You must have Homebrew installed to run this script."
+
+  # Determine the path of `psql` by leveraging the Homebrew path reported by the
+  # prefix flag.
+  psql_exe="$(brew --prefix)/bin/psql"
 fi
 
 if [ -n "${command[*]}" ]; then
-  exec  "$psql_exe" --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}" -c "${command}"
+  exec "$psql_exe" --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}" -c "${command}"
 else
   exec "$psql_exe"  --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}"
 fi

@@ -1,11 +1,11 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
-//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
-//RA: in which this would be considered a risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
+// RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
+// RA: in which this would be considered a risk
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package paperwork
 
@@ -59,22 +59,6 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 			HasRequestedAdvance: true,
 		},
 	})
-
-	movedocuments := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
-			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   models.MoveDocumentStatusOK,
-			MoveDocumentType:         "EXPENSE",
-		},
-		Document: models.Document{
-			ServiceMemberID: serviceMemberID,
-			ServiceMember:   move.Orders.ServiceMember,
-		},
-	}
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
 
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,

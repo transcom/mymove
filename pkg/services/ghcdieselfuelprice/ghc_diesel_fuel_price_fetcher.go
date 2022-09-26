@@ -3,7 +3,7 @@ package ghcdieselfuelprice
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -45,7 +45,7 @@ func FetchEIAData(finalEIAAPIURL string) (EIAData, error) {
 
 	eiaData.responseStatusCode = response.StatusCode
 
-	responseBody, err := ioutil.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		return eiaData, fmt.Errorf("unable to read response body from EIA Open Data API: %w", err)
 	}

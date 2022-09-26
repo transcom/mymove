@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -297,7 +297,7 @@ func initializeLogger(v *viper.Viper) (*zap.Logger, func()) {
 		if httpGetErr != nil {
 			logger.Error(errors.Wrap(httpGetErr, "could not fetch task metadata").Error())
 		} else {
-			body, readAllErr := ioutil.ReadAll(resp.Body)
+			body, readAllErr := io.ReadAll(resp.Body)
 			if readAllErr != nil {
 				logger.Error(errors.Wrap(readAllErr, "could not read task metadata").Error())
 			} else {
@@ -403,7 +403,7 @@ func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Conf
 	if useDevlocalAuthCA {
 		appCtx.Logger().Info("Adding devlocal CA to root CAs")
 		devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
-		devlocalCa, readFileErr := ioutil.ReadFile(filepath.Clean(devlocalCAPath))
+		devlocalCa, readFileErr := os.ReadFile(filepath.Clean(devlocalCAPath))
 		if readFileErr != nil {
 			appCtx.Logger().Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
 		} else {

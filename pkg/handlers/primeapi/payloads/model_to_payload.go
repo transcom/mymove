@@ -443,6 +443,8 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		RequestedPickupDate:              handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
 		RequiredDeliveryDate:             handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate),
 		ScheduledPickupDate:              handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate),
+		ScheduledDeliveryDate:            handlers.FmtDatePtr(mtoShipment.ScheduledDeliveryDate),
+		ActualDeliveryDate:               handlers.FmtDatePtr(mtoShipment.ActualDeliveryDate),
 		Agents:                           *MTOAgents(&mtoShipment.MTOAgents),
 		SitExtensions:                    *SITExtensions(&mtoShipment.SITExtensions),
 		Reweigh:                          Reweigh(mtoShipment.Reweigh),

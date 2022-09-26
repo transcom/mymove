@@ -128,6 +128,14 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.ScheduledPickupDate = requestedUpdatedShipment.ScheduledPickupDate
 	}
 
+	if requestedUpdatedShipment.ActualDeliveryDate != nil {
+		dbShipment.ActualDeliveryDate = requestedUpdatedShipment.ActualDeliveryDate
+	}
+
+	if requestedUpdatedShipment.ScheduledDeliveryDate != nil {
+		dbShipment.ScheduledDeliveryDate = requestedUpdatedShipment.ScheduledDeliveryDate
+	}
+
 	if requestedUpdatedShipment.PrimeEstimatedWeight != nil {
 		now := time.Now()
 		dbShipment.PrimeEstimatedWeight = requestedUpdatedShipment.PrimeEstimatedWeight
@@ -260,7 +268,7 @@ func (e StaleIdentifierError) Error() string {
 	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
 }
 
-//UpdateMTOShipment updates the mto shipment
+// UpdateMTOShipment updates the mto shipment
 func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	eagerAssociations := []string{"MoveTaskOrder",
 		"PickupAddress",

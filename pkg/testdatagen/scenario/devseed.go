@@ -1,11 +1,11 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
-//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
-//RA: in which this would be considered a risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
+// RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
+// RA: in which this would be considered a risk
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package scenario
 
@@ -51,7 +51,6 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 		"payment_request_calculations": subScenarioPaymentRequestCalculations(appCtx, userUploader, primeUploader, moveRouter),
 		"ppm_customer_flow":            subScenarioPPMCustomerFlow(appCtx, userUploader, moveRouter),
 		"ppm_and_hhg":                  subScenarioPPMAndHHG(appCtx, userUploader, moveRouter),
-		"ppm_office_queue":             subScenarioPPMOfficeQueue(appCtx, userUploader, moveRouter),
 		"prime_user_and_client_cert":   subScenarioPrimeUserAndClientCert(appCtx, userUploader),
 		"shipment_hhg_cancelled":       subScenarioShipmentHHGCancelled(appCtx, allDutyLocations, originDutyLocationsInGBLOC),
 		"txo_queues":                   subScenarioTXOQueues(appCtx, userUploader),
