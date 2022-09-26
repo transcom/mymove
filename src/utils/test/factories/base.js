@@ -49,14 +49,16 @@ const applyOverrides = (object, overrides) => {
     let appliedValue;
     switch (typeof value) {
       case 'function':
-        if (overrides?.[field]) {
+        if (overrides && overrides[field]) {
           appliedValue = value({ [BASE_FIELDS.OVERRIDES]: overrides[field] });
+          // overrides are delegated to the function; don't handle them here:
+          delete overrides[field];
         } else {
           appliedValue = value();
         }
         break;
       case 'object':
-        if (overrides?.[field]) {
+        if (overrides && overrides[field]) {
           appliedValue = applyOverrides(value, overrides[field]);
         } else {
           appliedValue = value;
@@ -105,8 +107,7 @@ const baseFactory = (params) => {
     [BASE_FIELDS.POST_BUILD]: basePostBuild(lazyOverrides, postBuild),
     [BASE_FIELDS.TRAITS]: traits,
   });
-
-  return builder({ [BASE_FIELDS.TRAITS]: useTraits });
+  return builder({ [BASE_FIELDS.TRAITS]: useTraits, overrides });
 };
 
 export { BASE_FIELDS, baseFactory, basePostBuild, fake, getInternalSpec, getGHCSpec };
