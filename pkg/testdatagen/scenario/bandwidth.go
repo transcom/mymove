@@ -2,7 +2,6 @@ package scenario
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -269,7 +268,7 @@ func filesInBandwidthTestDirectory(fileNames *[]string) []string {
 
 	dirName := path.Join(cwd, "pkg/testdatagen/testdata/bandwidth_test_docs")
 
-	files, err := ioutil.ReadDir(dirName)
+	files, err := os.ReadDir(dirName)
 	if err != nil {
 		log.Fatalf("failed opening directory: %s", err)
 	}

@@ -3,7 +3,7 @@ package internalapi
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -366,7 +366,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
 			}
 
-			payload := ioutil.NopCloser(buf)
+			payload := io.NopCloser(buf)
 			filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
 
 			return moveop.NewShowShipmentSummaryWorksheetOK().WithContentDisposition(filename).WithPayload(payload), nil

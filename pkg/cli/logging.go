@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -130,7 +130,7 @@ func CheckOutboundIP(appCtx appcontext.AppContext) {
 		appCtx.Logger().Error("Error fetching outbound IP: %w", zap.Error(err))
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		appCtx.Logger().Error("Error parsing body: %w", zap.Error(err))
 	}
