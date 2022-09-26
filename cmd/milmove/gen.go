@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -79,7 +78,7 @@ func writeEmptyFile(migrationPath, filename string) error {
 	}
 	path := filepath.Join(migrationPath, filename)
 
-	err := ioutil.WriteFile(path, []byte{}, 0600)
+	err := os.WriteFile(path, []byte{}, 0600)
 	if err != nil {
 		return errors.Wrap(err, "could not write new migration file")
 	}
