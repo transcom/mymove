@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -109,11 +108,11 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	// verify that the images are in the pdf by extracting them and checking their checksums
 	file, err := afero.ReadAll(aferoFile)
 	suite.FatalNil(err)
-	tmpDir, err := ioutil.TempDir("", "images")
+	tmpDir, err := os.MkdirTemp("", "images")
 	suite.FatalNil(err)
-	f, err := ioutil.TempFile(tmpDir, "")
+	f, err := os.CreateTemp(tmpDir, "")
 	suite.FatalNil(err)
-	err = ioutil.WriteFile(f.Name(), file, os.ModePerm)
+	err = os.WriteFile(f.Name(), file, os.ModePerm)
 	suite.FatalNil(err)
 	err = api.ExtractImages(f, tmpDir, []string{"-2"}, generator.pdfConfig)
 	suite.FatalNil(err)
@@ -121,7 +120,7 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	suite.FatalNil(err)
 
 	checksums := make([]string, 2)
-	files, err := ioutil.ReadDir(tmpDir)
+	files, err := os.ReadDir(tmpDir)
 	suite.FatalNil(err)
 
 	suite.Equal(2, len(files), "did not find 2 images")
