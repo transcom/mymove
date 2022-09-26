@@ -334,8 +334,7 @@ func getOrCreateUpload(db *pop.Connection, upload models.UserUpload, assertions 
 //
 // Usage example:
 //
-//     emptyDocument := GetOrCreateDocumentWithUploads(db, assertions.WeightTicket.EmptyDocument, assertions)
-//
+//	emptyDocument := GetOrCreateDocumentWithUploads(db, assertions.WeightTicket.EmptyDocument, assertions)
 func GetOrCreateDocumentWithUploads(db *pop.Connection, document models.Document, assertions Assertions) models.Document {
 	// hang on to UserUploads, if any, for later
 	userUploads := document.UserUploads
