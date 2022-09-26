@@ -28,14 +28,14 @@ import (
 const charset = "abcdefghijklmnopqrstuvwxyz" +
 	"0123456789"
 
-//RA Summary: gosec - G404 - Insecure random number source (rand)
-//RA: gosec detected use of the insecure package math/rand rather than the more secure cryptographically secure pseudo-random number generator crypto/rand.
-//RA: This particular usage is mitigated by sourcing the seed from crypto/rand in order to create the new random number using math/rand.
-//RA: Second, as part of the testing suite, the need for a secure random number here is not necessary.
-//RA Developer Status: Mitigated
-//RA Validator: jneuner@mitre.org
-//RA Validator Status: Mitigated
-//RA Modified Severity: CAT III
+// RA Summary: gosec - G404 - Insecure random number source (rand)
+// RA: gosec detected use of the insecure package math/rand rather than the more secure cryptographically secure pseudo-random number generator crypto/rand.
+// RA: This particular usage is mitigated by sourcing the seed from crypto/rand in order to create the new random number using math/rand.
+// RA: Second, as part of the testing suite, the need for a secure random number here is not necessary.
+// RA Developer Status: Mitigated
+// RA Validator: jneuner@mitre.org
+// RA Validator Status: Mitigated
+// RA Modified Severity: CAT III
 // #nosec G404
 var seededRand = rand.New(random.NewCryptoSeededSource())
 
