@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/transcom/mymove/pkg/logging"
 )
@@ -43,6 +44,11 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if strings.HasSuffix(r.URL.Path, "/") {
+		http.NotFound(w, r)
+		return
+	}
+
 	// prepend the path with the path to the static directory
 	path = filepath.Join(h.staticPath, path)
 
@@ -59,8 +65,8 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// return error, do not return the static dir
-	http.NotFound(w, r)
+	// otherwise, use http.FileServer to serve the static dir
+	http.FileServer(http.Dir(h.staticPath)).ServeHTTP(w, r)
 }
 
 // NewFileHandler serves up a single file
