@@ -22,7 +22,7 @@ require (
 	github.com/go-openapi/strfmt v0.21.3
 	github.com/go-openapi/swag v0.22.3
 	github.com/go-openapi/validate v0.22.0
-	github.com/go-playground/validator/v10 v10.11.0
+	github.com/go-playground/validator/v10 v10.11.1
 	github.com/gobuffalo/envy v1.10.1
 	github.com/gobuffalo/fizz v1.14.2
 	github.com/gobuffalo/flect v0.2.5
