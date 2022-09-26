@@ -408,7 +408,7 @@ export const useEvaluationReportQueries = (reportID) => {
     enabled: !!shipmentID,
   });
 
-  const { data: reportViolations, ...reportViolationsQuery } = useQuery(
+  const { data: reportViolations = [], ...reportViolationsQuery } = useQuery(
     [REPORT_VIOLATIONS, reportID],
     getReportViolationsByReportID,
     {
