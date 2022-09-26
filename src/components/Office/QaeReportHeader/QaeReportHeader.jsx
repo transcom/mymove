@@ -1,10 +1,10 @@
 import React from 'react';
-import { PropTypes } from 'prop-types';
 import { useParams } from 'react-router-dom';
 
 import { formatQAReportID } from 'utils/formatters';
 import styles from 'pages/Office/TXOMoveInfo/TXOTab.module.scss';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
+import { EvaluationReportShape } from 'types';
 
 const QaeReportHeader = ({ report }) => {
   const { moveCode } = useParams();
@@ -29,7 +29,11 @@ const QaeReportHeader = ({ report }) => {
 };
 
 QaeReportHeader.propTypes = {
-  report: PropTypes.object.isRequired,
+  report: EvaluationReportShape,
+};
+
+QaeReportHeader.defaultProps = {
+  report: null,
 };
 
 export default QaeReportHeader;

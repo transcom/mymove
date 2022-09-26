@@ -1,4 +1,5 @@
 import React from 'react';
+import * as PropTypes from 'prop-types';
 import { Grid, GridContainer, Button, FormGroup, Radio, Fieldset, Textarea } from '@trussworks/react-uswds';
 import { useParams, useHistory } from 'react-router';
 import * as Yup from 'yup';
@@ -14,6 +15,7 @@ import ViolationsAccordion from 'components/Office/ViolationsAccordion/Violation
 import { saveEvaluationReport, associateReportViolations } from 'services/ghcApi';
 import { DatePickerInput } from 'components/form/fields';
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
+import { EvaluationReportShape, ReportViolationShape, PWSViolationShape } from 'types';
 
 const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolations }) => {
   const { moveCode, reportId } = useParams();
@@ -259,3 +261,9 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
 };
 
 export default EvaluationViolationsForm;
+
+EvaluationViolationsForm.propTypes = {
+  violations: PropTypes.arrayOf(PWSViolationShape).isRequired,
+  evaluationReport: EvaluationReportShape.isRequired,
+  reportViolations: PropTypes.arrayOf(ReportViolationShape).isRequired,
+};
