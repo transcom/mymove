@@ -25,7 +25,7 @@ const addressFactory = build({
     [ADDRESS_FIELDS.CITY]: fake((f) => f.address.city()),
 
     [ADDRESS_FIELDS.STATE]: fake(stateHelper),
-    [ADDRESS_FIELDS.COUNTRY]: 'US', // Likely change once we support more than just OCONUS moves.
+    [ADDRESS_FIELDS.COUNTRY]: 'US', // Likely change once we support more than just OCONUS moves: JIRA ticket MB-13996
   },
   postBuild: (address) => {
     address.postalCode = faker.address.zipCodeByState(address.state);
