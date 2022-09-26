@@ -1,7 +1,11 @@
-@import 'shared/styles/_basics.scss';
+@import 'shared/styles/_basics';
 
 .notFound {
   @include u-padding-top(6);
+
+  h1 {
+    font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+  }
 
   .goBack {
     @include u-padding(0);
