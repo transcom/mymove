@@ -89,7 +89,9 @@ const basePostBuild = (lazyOverrides, func = (o) => o) => {
 const camelCaseFields = (fields) => {
   const formattedFields = {};
   Object.entries(fields).forEach(([field, value]) => {
-    const formattedField = field.toLowerCase().replace(/([_][a-z])/g, (group) => group.toUpperCase().replace('_', ''));
+    const formattedField = field.replace(/([-_][a-z])/gi, ($1) => {
+      return $1.toUpperCase().replace('-', '').replace('_', '');
+    });
     formattedFields[formattedField] = value;
   });
   return formattedFields;

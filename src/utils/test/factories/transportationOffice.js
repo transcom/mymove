@@ -25,7 +25,7 @@ const transportationOfficeFactory = (params) => {
     [BASE_FIELDS.FIELDS]: {
       [TRANSPORTATION_OFFICE_FIELDS.ID]: fake(idHelper),
       [TRANSPORTATION_OFFICE_FIELDS.NAME]: fake(placeNameHelper),
-      [TRANSPORTATION_OFFICE_FIELDS.ADDRESS]: fake((addressParams) => addressFactory(addressParams)),
+      [TRANSPORTATION_OFFICE_FIELDS.ADDRESS]: (addressParams) => addressFactory(addressParams),
       [TRANSPORTATION_OFFICE_FIELDS.PHONE_LINES]: getPhoneLines,
       [TRANSPORTATION_OFFICE_FIELDS.GBLOC]: fake(gblocHelper),
       [TRANSPORTATION_OFFICE_FIELDS.LATITUDE]: fake((f) => f.address.latitude()),
