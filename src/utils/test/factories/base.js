@@ -27,24 +27,12 @@ const loadSpec = (fileName) => {
   return yaml.load(fs.readFileSync(yamlPath, 'utf8'));
 };
 
-let internalSpec = null;
-
 const getInternalSpec = () => {
-  if (!internalSpec) {
-    internalSpec = loadSpec('internal.yaml');
-  }
-
-  return internalSpec;
+  return loadSpec('internal.yaml');
 };
 
-let ghcSpec = null;
-
 const getGHCSpec = () => {
-  if (!ghcSpec) {
-    ghcSpec = loadSpec('ghc.yaml');
-  }
-
-  return ghcSpec;
+  return loadSpec('ghc.yaml');
 };
 
 const BASE_FIELDS = {
