@@ -206,6 +206,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		Eager("MTOServiceItem.ReService", "MTOServiceItem.MTOShipment").
 		Where("payment_request_id = ?", paymentRequest.ID).
 		Where("status = ?", models.PaymentServiceItemStatusApproved).
+		Order("created_at").
 		All(&paymentServiceItems)
 	if err != nil {
 		switch err {
