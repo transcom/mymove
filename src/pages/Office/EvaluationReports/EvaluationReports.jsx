@@ -87,9 +87,9 @@ const EvaluationReports = ({ customerInfo, grade }) => {
             <Alert type="success">Your report has been deleted</Alert>
           </div>
         )}
-        {location.state?.showCancelledSuccess && (
+        {location.state?.showCanceledSuccess && (
           <div className={evaluationReportsStyles.alert}>
-            <Alert type="success">Your report has been cancelled</Alert>
+            <Alert type="success">Your report has been canceled</Alert>
           </div>
         )}
         {location.state?.showSaveDraftSuccess && (
