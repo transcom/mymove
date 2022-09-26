@@ -5,7 +5,6 @@ import process from 'process';
 import { faker } from '@faker-js/faker';
 import { build, perBuild } from '@jackfranklin/test-data-bot';
 import yaml from 'js-yaml';
-import { _ } from 'lodash';
 
 faker.setLocale('en_US');
 
@@ -90,7 +89,7 @@ const basePostBuild = (lazyOverrides, func = (o) => o) => {
 const camelCaseFields = (fields) => {
   const formattedFields = {};
   Object.entries(fields).forEach(([field, value]) => {
-    const formattedField = _.camelCase(field);
+    const formattedField = field.toLowerCase().replace(/([_][a-z])/g, (group) => group.toUpperCase().replace('_', ''));
     formattedFields[formattedField] = value;
   });
   return formattedFields;
