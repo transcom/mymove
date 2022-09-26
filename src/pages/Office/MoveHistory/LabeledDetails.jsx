@@ -8,7 +8,7 @@ import fieldMappings from 'constants/MoveHistory/Database/FieldMappings';
 import weightFields from 'constants/MoveHistory/Database/WeightFields';
 import { shipmentTypes } from 'constants/shipments';
 import { HistoryLogRecordShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
-import optionFields from 'constants/MoveHistory/Database/Orders';
+import optionFields from 'constants/MoveHistory/Database/OptionFields';
 import { formatCustomerDate } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
