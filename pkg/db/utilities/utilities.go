@@ -138,8 +138,9 @@ func GetHasManyForeignKeyAssociations(model interface{}) []interface{} {
 // If you are filtering on a join table(s) or need to disambiguate multiple tables with deleted_at columns, then you
 // will need to pass in the model(s) so we can derive the real table names:
 // db.Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).
-//     Join("mto_shipments", "mto_shipments.move_id = moves.id").
-//     All(&moves)
+//
+//	Join("mto_shipments", "mto_shipments.move_id = moves.id").
+//	All(&moves)
 //
 // You won't be able to use this if you have given your table name(s) an alias, so just fall back to a normal where.
 // You also cannot combine Scopes with RawQuery, which disregards any Join, Where, Scope, or Eager that may have been

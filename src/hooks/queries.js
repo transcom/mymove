@@ -21,6 +21,7 @@ import {
   searchMoves,
   getEvaluationReportByID,
   getPWSViolations,
+  getReportViolationsByReportID,
   getMTOShipmentByID,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
@@ -49,6 +50,7 @@ import {
   COUNSELING_EVALUATION_REPORTS,
   EVALUATION_REPORT,
   PWS_VIOLATIONS,
+  REPORT_VIOLATIONS,
   MTO_SHIPMENT,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
@@ -406,10 +408,23 @@ export const useEvaluationReportQueries = (reportID) => {
     enabled: !!shipmentID,
   });
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([shipmentEvaluationReportQuery, mtoShipmentQuery]);
+  const { data: reportViolations = [], ...reportViolationsQuery } = useQuery(
+    [REPORT_VIOLATIONS, reportID],
+    getReportViolationsByReportID,
+    {
+      enabled: !!reportID,
+    },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([
+    shipmentEvaluationReportQuery,
+    mtoShipmentQuery,
+    reportViolationsQuery,
+  ]);
   return {
     evaluationReport,
     mtoShipment,
+    reportViolations,
     isLoading,
     isError,
     isSuccess,

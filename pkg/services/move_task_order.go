@@ -20,18 +20,21 @@ type HiddenMove struct {
 type HiddenMoves []HiddenMove
 
 // MoveTaskOrderHider is the service object interface for Hide
+//
 //go:generate mockery --name MoveTaskOrderHider --disable-version-string
 type MoveTaskOrderHider interface {
 	Hide(appCtx appcontext.AppContext) (HiddenMoves, error)
 }
 
 // MoveTaskOrderCreator is the service object interface for CreateMoveTaskOrder
+//
 //go:generate mockery --name MoveTaskOrderCreator --disable-version-string
 type MoveTaskOrderCreator interface {
 	CreateMoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) (*models.Move, *validate.Errors, error)
 }
 
 // MoveTaskOrderFetcher is the service object interface for FetchMoveTaskOrder
+//
 //go:generate mockery --name MoveTaskOrderFetcher --disable-version-string
 type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (*models.Move, error)
@@ -39,7 +42,8 @@ type MoveTaskOrderFetcher interface {
 	ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
 }
 
-//MoveTaskOrderUpdater is the service object interface for updating fields of a MoveTaskOrder
+// MoveTaskOrderUpdater is the service object interface for updating fields of a MoveTaskOrder
+//
 //go:generate mockery --name MoveTaskOrderUpdater --disable-version-string
 type MoveTaskOrderUpdater interface {
 	MakeAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error)
@@ -50,7 +54,8 @@ type MoveTaskOrderUpdater interface {
 	ShowHide(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, show *bool) (*models.Move, error)
 }
 
-//MoveTaskOrderChecker is the service object interface for checking if a MoveTaskOrder is in a certain state
+// MoveTaskOrderChecker is the service object interface for checking if a MoveTaskOrder is in a certain state
+//
 //go:generate mockery --name MoveTaskOrderChecker --disable-version-string
 type MoveTaskOrderChecker interface {
 	MTOAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (bool, error)
