@@ -242,7 +242,7 @@ func (f *EvaluationReportFormFiller) inspectionInformationSection(report models.
 }
 
 func (f *EvaluationReportFormFiller) addVerticalSpace(dy float64) {
-	f.pdf.SetY(f.pdf.GetY() + dy)
+	f.pdf.MoveTo(f.pdf.GetX(), f.pdf.GetY()+dy)
 }
 
 func (f *EvaluationReportFormFiller) reportPageHeader() {
@@ -660,14 +660,15 @@ func (f *EvaluationReportFormFiller) twoColumnTableRow(x float64, gap float64, l
 
 // tableColumn draws one side of a two-column table row
 func (f *EvaluationReportFormFiller) tableColumn(x float64, labelWidth float64, valueWidth float64, label string, value string) {
-	lineHeight := 5.0 // TODO this shadows a global
-	f.pdf.SetX(x)
+	textVerticalMargin := pxToMM(12.0)
+	f.pdf.MoveTo(x, f.pdf.GetY()+textVerticalMargin)
 	f.pdf.SetFontStyle("B")
 	f.setTextColorBaseDarker()
 	f.pdf.CellFormat(labelWidth, pxToMM(42.0), label, "", 0, "LT", false, 0, "")
 	f.pdf.SetFontStyle("")
 	f.setTextColorBaseDarkest()
-	f.pdf.MultiCell(valueWidth, lineHeight, value, "", "LT", false)
+	f.pdf.MultiCell(valueWidth, pxToMM(18.0), value, "", "LT", false)
+	f.addVerticalSpace(textVerticalMargin)
 }
 
 // drawArrow draws an image of an arrow. loadArrowImage MUST be called before this.
