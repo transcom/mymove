@@ -397,16 +397,11 @@ func (d *DynamicFormFiller) subsectionRow(key string, value string) {
 	if needToLineWrapLabel {
 		estimatedHeight = math.Max(estimatedHeight, math.Ceil(d.pdf.GetStringWidth(key)/(labelWidth-2*d.pdf.GetCellMargin()))*textLineHeight)
 	}
-	if needToLineWrapValue {
-		fmt.Println("estimated height", estimatedHeight, key)
-	}
 	if d.pdf.GetY()+estimatedHeight > pageHeightMm-pageBottomMarginMm {
-		fmt.Println("adding page")
 		d.pdf.AddPage()
 	}
 	d.pdf.SetFontUnitSize(textFontSize)
 	y := d.pdf.GetY()
-	startPage := d.pdf.PageNo()
 
 	if needToLineWrapLabel {
 		d.pdf.MultiCell(labelWidth, textLineHeight, key, "T", "LM", false)
@@ -419,17 +414,11 @@ func (d *DynamicFormFiller) subsectionRow(key string, value string) {
 	d.pdf.MoveTo(pageSideMarginMm+labelWidth, y)
 	if needToLineWrapValue {
 		d.pdf.MultiCell(valueWidth, textLineHeight, value, "T", "LM", false)
-		fmt.Println("after wrapped value, y=", d.pdf.GetY(), "page=", d.pdf.PageNo())
 	} else {
 		d.pdf.CellFormat(valueWidth, minFieldHeight, value, "T", 1, "LM", false, 0, "")
 	}
 	valueY := d.pdf.GetY()
 	endY := math.Max(math.Max(labelY, valueY), y+minFieldHeight)
-	actualHeight := endY - y
-	if d.pdf.PageNo() != startPage {
-		actualHeight = (pageHeightMm - y - pageBottomMarginMm) + float64(d.pdf.PageNo()-startPage-1)*pageHeightMm + endY - pageTopMarginMm
-	}
-	fmt.Println("start y", y, "startPage", startPage, "end y", endY, "actual height", actualHeight, "end page", d.pdf.PageNo())
 	d.pdf.SetY(endY)
 	d.pdf.SetAutoPageBreak(false, pageBottomMarginMm)
 }
