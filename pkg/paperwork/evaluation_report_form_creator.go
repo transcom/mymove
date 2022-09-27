@@ -250,9 +250,9 @@ func (f *EvaluationReportFormFiller) reportPageHeader() {
 	textHeight := pxToMM(34.0)
 
 	f.pdf.MoveTo(0.0, 0.0)
-	f.pdf.SetTextColor(255, 255, 255)
+	f.pdf.SetTextColor(162, 214, 61)
 	f.pdf.SetFillColor(0, 0, 0)
-	f.pdf.SetFontUnitSize(textSmallFontSize) // 28px
+	f.pdf.SetFontUnitSize(textSmallFontSize)
 	f.pdf.CellFormat(letterWidthMm, stripeHeight, controlledUnclassifiedInformationText, "", 1, "CM", true, 0, "")
 	f.setTextColorBaseDarker()
 	f.pdf.SetFontStyle("B")
@@ -262,7 +262,6 @@ func (f *EvaluationReportFormFiller) reportPageHeader() {
 }
 
 func (f *EvaluationReportFormFiller) reportHeading(text string, reportID string, moveCode string, mtoReferenceID string) {
-	//f.pdf.SetFontSize(30.0) // 40px
 	f.pdf.SetFontUnitSize(reportHeadingFontSize)
 	f.setTextColorBaseDarkest()
 	headingY := f.pdf.GetY()
