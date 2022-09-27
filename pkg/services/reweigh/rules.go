@@ -85,7 +85,7 @@ func checkRequiredFields() reweighValidator {
 	})
 }
 
-//checks that the shipment associated with the reweigh is available to Prime
+// checks that the shipment associated with the reweigh is available to Prime
 func checkPrimeAvailability(checker services.MoveTaskOrderChecker) reweighValidator {
 	return reweighValidatorFunc(func(appCtx appcontext.AppContext, newReweigh models.Reweigh, oldReweigh *models.Reweigh, shipment *models.MTOShipment) error {
 		if shipment == nil {
