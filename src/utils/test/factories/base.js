@@ -21,7 +21,7 @@ const loadSpec = (fileName) => {
   // RA: In this case, this doesn't contain user input and serves to be able to grab the local swagger files.
   // RA Developer Status: Mitigated
   // RA Validator Status: Mitigated
-  //RA Validator: leodis.f.scott.civ@mail.mil
+  // RA Validator: leodis.f.scott.civ@mail.mil
   // RA Modified Severity: CAT III
   /* eslint-disable-next-line security/detect-non-literal-fs-filename */
   return yaml.load(fs.readFileSync(yamlPath, 'utf8'));
@@ -88,16 +88,30 @@ const applyOverrides = (fields, overrides) => {
   return appliedFields;
 };
 
-const basePostBuild = (lazyOverrides, func = (o) => o) => {
-  return (object) => {
-    func(object);
+/**
+ * basePostBuild takes an object of lazyOverrides and an optional function, and returns a function that:
+ * - takes an object of fields
+ * - applies the function to that object
+ * - calls applyOverrides on that object, with lazyOverrides
+ * - returns the object
+ * This function is meant to serve as a wrapper for test-data-bot's postBuild(), with the additional ability to apply lazy overrides.
+ * @param {*} lazyOverrides - An object containing overrides and their values
+ * @param {*} postBuild - A function to apply to the fields before overrides are applied. No-op by default.
+ */
+const basePostBuild = (lazyOverrides, postBuild = (o) => o) => {
+  return (fields) => {
+    postBuild(fields);
     if (lazyOverrides) {
-      applyOverrides(object, lazyOverrides);
+      applyOverrides(fields, lazyOverrides);
     }
-    return object;
+    return fields;
   };
 };
 
+/**
+ * camelCaseFields takes an object of fields and replaces its snake_cased or kebab-cased keys with camelCased keys.
+ * @param {*} fields - An object of fields
+ */
 const camelCaseFields = (fields) => {
   const formattedFields = {};
   Object.entries(fields).forEach(([field, value]) => {
@@ -109,6 +123,11 @@ const camelCaseFields = (fields) => {
   return formattedFields;
 };
 
+/**
+ * baseFactory takes a set of params, applies overrides to fields, camelCases the fields, constructs a factory capable of applying lazy overrides, and then calls that factory, applying any traits.
+ * This function is meant to serve as a wrapper for test-data-bot's build(), with the additional ability to camelCase fields and apply lazy overrides.
+ * @param {*} params - An object optionally containing fields, postBuild, lazyOverrides, overrides, traits, and useTraits keys
+ */
 const baseFactory = (params) => {
   const { fields, postBuild, lazyOverrides, overrides, traits, useTraits } = params;
 
