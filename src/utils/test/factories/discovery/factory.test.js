@@ -1,3 +1,4 @@
+// Please do not delete. This file and the others in this directory are meant to preserve the integrity of our factory logic.
 import { BASE_FIELDS } from 'utils/test/factories/base';
 import testFactory, { TEST_FACTORY_FIELDS, TEST_FACTORY_TRAITS } from 'utils/test/factories/discovery/factory';
 import { TEST_SUBFACTORY_FIELDS } from 'utils/test/factories/discovery/subfactory';

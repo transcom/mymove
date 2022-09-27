@@ -1,3 +1,4 @@
+// Please do not delete. This file and the others in this directory are meant to preserve the integrity of our factory logic.
 import { perBuild } from '@jackfranklin/test-data-bot';
 
 import testSubfactory, { TEST_SUBFACTORY_FIELDS } from './subfactory';
