@@ -37,7 +37,7 @@ const createCompleteMovingExpense = ({ serviceMemberId, creationDate } = {}, fie
     movingExpenseType: expenseTypes.PACKING_MATERIALS,
     description: 'Medium and large boxes',
     paidWithGtcc: false,
-    amount: '7500',
+    amount: 7500,
     missingReceipt: false,
     ...fieldOverrides,
   };
