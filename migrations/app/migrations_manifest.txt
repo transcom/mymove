@@ -757,3 +757,4 @@
 20220919160852_create_report_violations_table.up.sql
 20220920143839_add_gbloc_for_navy_and_coast_guard.up.sql
 20220923135119_app_loadtest_cert_migration.up.sql
+20220926162626_add_additional_eval_report_fields.up.sql

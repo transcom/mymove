@@ -4917,7 +4917,27 @@ func init() {
           "x-nullable": true,
           "readOnly": true
         },
+        "observedClaimsResponseDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "observedDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupSpreadEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupSpreadStartDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -4926,6 +4946,14 @@ func init() {
           "$ref": "#/definitions/EvaluationReportOfficeUser"
         },
         "remarks": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "seriousIncident": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "seriousIncidentDesc": {
           "type": "string",
           "x-nullable": true
         },
@@ -14304,7 +14332,27 @@ func init() {
           "x-nullable": true,
           "readOnly": true
         },
+        "observedClaimsResponseDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "observedDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupSpreadEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupSpreadStartDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -14313,6 +14361,14 @@ func init() {
           "$ref": "#/definitions/EvaluationReportOfficeUser"
         },
         "remarks": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "seriousIncident": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "seriousIncidentDesc": {
           "type": "string",
           "x-nullable": true
         },
