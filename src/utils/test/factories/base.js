@@ -45,33 +45,35 @@ const BASE_FIELDS = {
 const applyOverrides = (object, overrides) => {
   const appliedFields = object;
   Object.entries(object).forEach(([field, value]) => {
-    let appliedValue;
     switch (typeof value) {
       case 'function':
         if (overrides && overrides[field]) {
-          appliedValue = value({ [BASE_FIELDS.OVERRIDES]: overrides[field] });
-          // overrides are delegated to the function; don't handle them here:
-          delete overrides[field];
+          appliedFields[field] = value({ [BASE_FIELDS.OVERRIDES]: overrides[field] });
         } else {
-          appliedValue = value();
+          appliedFields[field] = value();
         }
         break;
       case 'object':
         if (overrides && overrides[field]) {
-          appliedValue = applyOverrides(value, overrides[field]);
-        } else {
-          appliedValue = value;
+          if (typeof value.call === 'function' && value.generatorType === 'perBuild') {
+            // we're in a perBuild function; just replace the value
+            if (typeof overrides[field] === 'function') {
+              appliedFields[field] = overrides[field]();
+            } else {
+              appliedFields[field] = overrides[field];
+            }
+          } else {
+            // apply this function's logic to nested values
+            appliedFields[field] = applyOverrides(value, overrides[field]);
+          }
         }
         break;
       default:
         if (overrides && overrides[field]) {
-          appliedValue = overrides[field];
-        } else {
-          appliedValue = value;
+          appliedFields[field] = overrides[field];
         }
         break;
     }
-    appliedFields[field] = appliedValue;
   });
   return appliedFields;
 };
@@ -108,7 +110,7 @@ const baseFactory = (params) => {
     [BASE_FIELDS.POST_BUILD]: basePostBuild(lazyOverrides, postBuild),
     [BASE_FIELDS.TRAITS]: traits,
   });
-  return builder({ [BASE_FIELDS.TRAITS]: useTraits, overrides });
+  return builder({ [BASE_FIELDS.TRAITS]: useTraits });
 };
 
 export { BASE_FIELDS, baseFactory, basePostBuild, fake, getInternalSpec, getGHCSpec };
