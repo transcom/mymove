@@ -303,6 +303,35 @@ WITH moves AS (
 		JOIN reweighs ON reweighs.id = audit_history.object_id
 			AND audit_history."table_name" = 'reweighs'
 	),
+	service_members AS (
+		SELECT
+			service_members.*
+		FROM
+			service_members
+		WHERE
+			service_members.id = (
+				SELECT
+					orders.service_member_id
+				FROM
+					orders
+						WHERE
+						orders.id = (
+							SELECT
+							moves.orders_id
+							FROM
+							moves
+							)
+					)
+	),
+	service_members_logs as (
+		SELECT audit_history.*,
+			NULL AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN service_members ON service_members.id = audit_history.object_id
+			AND audit_history."table_name" = 'service_members'
+	),
 	combined_logs AS (
 		SELECT
 			*
@@ -368,6 +397,11 @@ WITH moves AS (
 			*
 		FROM
 			move_logs
+		UNION ALL
+		SELECT
+		 	*
+		FROM
+			service_members_logs
 	) SELECT DISTINCT
 		combined_logs.*,
 		COALESCE(office_users.first_name, prime_user_first_name) AS session_user_first_name,
