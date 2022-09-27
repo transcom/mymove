@@ -210,7 +210,7 @@ func formatDuration(minutes int) string {
 	remainingMinutes := minutes % 60
 	return fmt.Sprintf("%d hr %d min", hours, remainingMinutes)
 }
-func FormatValuesInspectionInformation(report models.EvaluationReport, violations models.PWSViolations) InspectionInformationValues {
+func FormatValuesInspectionInformation(report models.EvaluationReport) InspectionInformationValues {
 	inspectionInfo := InspectionInformationValues{}
 	if report.InspectionDate != nil {
 		inspectionInfo.DateOfInspection = report.InspectionDate.Format(dateFormat)

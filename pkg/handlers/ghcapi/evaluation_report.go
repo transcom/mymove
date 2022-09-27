@@ -123,6 +123,7 @@ type DownloadEvaluationReportHandler struct {
 	services.EvaluationReportFetcher
 	services.MTOShipmentFetcher
 	services.OrderFetcher
+	services.ReportViolationFetcher
 }
 
 // Handle is the handler for downloading an evaluation report by ID as a PDF
@@ -160,8 +161,7 @@ func (h DownloadEvaluationReportHandler) Handle(params evaluationReportop.Downlo
 			if err != nil {
 				return handleError(err)
 			}
-			violations := models.PWSViolations{}
-			err = appCtx.DB().All(&violations)
+			violations, err := h.FetchReportViolationsByReportID(appCtx, reportID)
 			if err != nil {
 				return handleError(err)
 			}
