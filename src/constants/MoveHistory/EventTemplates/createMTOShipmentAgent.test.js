@@ -19,7 +19,22 @@ describe('when given an mto shipment agents insert with mto agents table history
     context: [{ shipment_type: 'HHG' }],
   };
 
-  it('correctly matches the insert mto shipment agent event for releasing agents', () => {
+  const item2 = {
+    action: 'INSERT',
+    eventName: o.createMTOShipment,
+    tableName: 'mto_agents',
+    detailsType: d.LABELED,
+    changedValues: {
+      email: 'catalina@email.com',
+      first_name: 'Catalina',
+      last_name: 'Washington',
+      phone: '999-999-9999',
+      agent_type: 'RELEASING_AGENT',
+    },
+    context: [{ shipment_type: 'HHG' }],
+  };
+
+  it('correctly matches the insert mto shipment agent event for releasing agents when shipment updated', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(e);
     // expect to have formatted the agent correctly
@@ -39,7 +54,27 @@ describe('when given an mto shipment agents insert with mto agents table history
     });
   });
 
-  it('correctly matches the insert mto shipment agent event for receiving agents', () => {
+  it('correctly matches the insert mto shipment agent event for releasing agents when shipment created', () => {
+    const result = getTemplate(item2);
+    expect(result).toMatchObject(e);
+    // expect to have formatted the agent correctly
+    expect(
+      result.getDetailsLabeledDetails({
+        changedValues: item2.changedValues,
+        context: item2.context,
+      }),
+    ).toEqual({
+      releasing_agent: 'Catalina Washington, 999-999-9999, catalina@email.com',
+      email: 'catalina@email.com',
+      first_name: 'Catalina',
+      last_name: 'Washington',
+      phone: '999-999-9999',
+      agent_type: 'RELEASING_AGENT',
+      shipment_type: 'HHG',
+    });
+  });
+
+  it('correctly matches the insert mto shipment agent event for receiving agents when shipment updated', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(e);
     // expect to have formatted the agent correctly
@@ -54,6 +89,26 @@ describe('when given an mto shipment agents insert with mto agents table history
       first_name: 'Grace',
       last_name: 'Griffin',
       phone: '555-555-5555',
+      agent_type: 'RECEIVING_AGENT',
+      shipment_type: 'HHG',
+    });
+  });
+
+  it('correctly matches the insert mto shipment agent event for receiving agents when shipment created', () => {
+    const result = getTemplate(item2);
+    expect(result).toMatchObject(e);
+    // expect to have formatted the agent correctly
+    expect(
+      result.getDetailsLabeledDetails({
+        changedValues: { ...item2.changedValues, agent_type: 'RECEIVING_AGENT' },
+        context: item2.context,
+      }),
+    ).toEqual({
+      receiving_agent: 'Catalina Washington, 999-999-9999, catalina@email.com',
+      email: 'catalina@email.com',
+      first_name: 'Catalina',
+      last_name: 'Washington',
+      phone: '999-999-9999',
       agent_type: 'RECEIVING_AGENT',
       shipment_type: 'HHG',
     });

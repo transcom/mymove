@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 )
@@ -75,6 +76,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ShipmentApproveShipmentDiversionHandler == nil {
 		api.ShipmentApproveShipmentDiversionHandler = shipment.ApproveShipmentDiversionHandlerFunc(func(params shipment.ApproveShipmentDiversionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ApproveShipmentDiversion has not yet been implemented")
+		})
+	}
+	if api.ReportViolationsAssociateReportViolationsHandler == nil {
+		api.ReportViolationsAssociateReportViolationsHandler = report_violations.AssociateReportViolationsHandlerFunc(func(params report_violations.AssociateReportViolationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation report_violations.AssociateReportViolations has not yet been implemented")
 		})
 	}
 	if api.OrderCounselingUpdateAllowanceHandler == nil {
@@ -215,6 +221,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.QueuesGetPaymentRequestsQueueHandler == nil {
 		api.QueuesGetPaymentRequestsQueueHandler = queues.GetPaymentRequestsQueueHandlerFunc(func(params queues.GetPaymentRequestsQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetPaymentRequestsQueue has not yet been implemented")
+		})
+	}
+	if api.ReportViolationsGetReportViolationsByReportIDHandler == nil {
+		api.ReportViolationsGetReportViolationsByReportIDHandler = report_violations.GetReportViolationsByReportIDHandlerFunc(func(params report_violations.GetReportViolationsByReportIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation report_violations.GetReportViolationsByReportID has not yet been implemented")
 		})
 	}
 	if api.QueuesGetServicesCounselingQueueHandler == nil {
