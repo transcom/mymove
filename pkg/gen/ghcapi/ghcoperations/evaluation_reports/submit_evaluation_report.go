@@ -29,12 +29,12 @@ func NewSubmitEvaluationReport(ctx *middleware.Context, handler SubmitEvaluation
 	return &SubmitEvaluationReport{Context: ctx, Handler: handler}
 }
 
-/*
-	SubmitEvaluationReport swagger:route POST /evaluation-reports/{reportID}/submit evaluationReports submitEvaluationReport
-
-# Submits an evaluation report
+/* SubmitEvaluationReport swagger:route POST /evaluation-reports/{reportID}/submit evaluationReports submitEvaluationReport
 
 Submits an evaluation report
+
+Submits an evaluation report
+
 */
 type SubmitEvaluationReport struct {
 	Context *middleware.Context

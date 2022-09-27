@@ -84,7 +84,6 @@ type Move struct {
 	Orders                       Order                     `belongs_to:"orders" fk_id:"orders_id"`
 	SelectedMoveType             *SelectedMoveType         `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves      PersonallyProcuredMoves   `has_many:"personally_procured_moves" fk_id:"move_id" order_by:"created_at desc"`
-	MoveDocuments                MoveDocuments             `has_many:"move_documents" fk_id:"move_id" order_by:"created_at desc"`
 	Status                       MoveStatus                `json:"status" db:"status"`
 	SignedCertifications         SignedCertifications      `has_many:"signed_certifications" fk_id:"move_id" order_by:"created_at desc"`
 	CancelReason                 *string                   `json:"cancel_reason" db:"cancel_reason"`
@@ -154,7 +153,6 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"SignedCertifications",
 		"Orders.ServiceMember",
 		"Orders.UploadedAmendedOrders",
-		"MoveDocuments.Document",
 	).Where("show = TRUE").Find(&move, id)
 
 	if err != nil {
@@ -179,195 +177,12 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 
 	move.MTOShipments = shipments
 
-	// Eager loading of nested has_many associations is broken
-	for i, moveDoc := range move.MoveDocuments {
-		err := db.Load(&moveDoc.Document, "UserUploads.Upload")
-		if err != nil {
-			return nil, err
-		}
-		move.MoveDocuments[i] = moveDoc
-	}
-
 	// Ensure that the logged-in user is authorized to access this move
 	if session.IsMilApp() && move.Orders.ServiceMember.ID != session.ServiceMemberID {
 		return nil, ErrFetchForbidden
 	}
 
 	return &move, nil
-}
-
-func (m Move) createMoveDocumentWithoutTransaction(
-	db *pop.Connection,
-	userUploads UserUploads,
-	modelID *uuid.UUID,
-	moveDocumentType MoveDocumentType,
-	title string,
-	notes *string,
-	moveType SelectedMoveType) (*MoveDocument, *validate.Errors, error) {
-
-	var responseError error
-	responseVErrors := validate.NewErrors()
-
-	// Make a generic Document
-	newDoc := Document{
-		ServiceMemberID: m.Orders.ServiceMemberID,
-		UserUploads:     userUploads,
-	}
-	newDocVerrs, newDocErr := db.ValidateAndCreate(&newDoc)
-	if newDocErr != nil || newDocVerrs.HasAny() {
-		responseVErrors.Append(newDocVerrs)
-		responseError = errors.Wrap(newDocErr, "Error creating document for move document")
-		return nil, responseVErrors, responseError
-	}
-
-	// Associate uploads to the new document
-	for _, upload := range userUploads {
-		copyOfUpload := upload // Make copy to avoid implicit memory aliasing of items from a range statement.
-		copyOfUpload.DocumentID = &newDoc.ID
-		verrs, err := db.ValidateAndUpdate(&copyOfUpload)
-		if err != nil || verrs.HasAny() {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error updating upload")
-			return nil, responseVErrors, responseError
-		}
-	}
-
-	var newMoveDocument *MoveDocument
-	if moveType == SelectedMoveTypeHHG {
-		newMoveDocument = &MoveDocument{
-			Move:             m,
-			MoveID:           m.ID,
-			Document:         newDoc,
-			DocumentID:       newDoc.ID,
-			MoveDocumentType: moveDocumentType,
-			Title:            title,
-			Status:           MoveDocumentStatusAWAITINGREVIEW,
-		}
-	} else {
-		// Finally create the MoveDocument to tie it to the Move
-		newMoveDocument = &MoveDocument{
-			Move:                     m,
-			MoveID:                   m.ID,
-			Document:                 newDoc,
-			DocumentID:               newDoc.ID,
-			PersonallyProcuredMoveID: modelID,
-			MoveDocumentType:         moveDocumentType,
-			Title:                    title,
-			Status:                   MoveDocumentStatusAWAITINGREVIEW,
-			Notes:                    notes,
-		}
-	}
-
-	verrs, err := db.ValidateAndCreate(newMoveDocument)
-	if err != nil || verrs.HasAny() {
-		responseVErrors.Append(verrs)
-		responseError = errors.Wrap(err, "Error creating move document")
-		return nil, responseVErrors, responseError
-	}
-
-	return newMoveDocument, responseVErrors, nil
-}
-
-// CreateMoveDocument creates a move document associated to a move & ppm or shipment
-func (m Move) CreateMoveDocument(
-	db *pop.Connection,
-	userUploads UserUploads,
-	modelID *uuid.UUID,
-	moveDocumentType MoveDocumentType,
-	title string,
-	notes *string,
-	moveType SelectedMoveType) (*MoveDocument, *validate.Errors, error) {
-
-	var newMoveDocument *MoveDocument
-	var responseError error
-	responseVErrors := validate.NewErrors()
-
-	transactionErr := db.Transaction(func(db *pop.Connection) error {
-		transactionError := errors.New("Rollback The transaction")
-
-		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
-			db,
-			userUploads,
-			modelID,
-			moveDocumentType,
-			title,
-			notes,
-			moveType)
-
-		if responseVErrors.HasAny() || responseError != nil {
-			return transactionError
-		}
-
-		return nil
-
-	})
-
-	if transactionErr != nil {
-		return nil, responseVErrors, responseError
-	}
-
-	return newMoveDocument, responseVErrors, responseError
-}
-
-// CreateMovingExpenseDocument creates a moving expense document associated to a move and move document
-func (m Move) CreateMovingExpenseDocument(
-	db *pop.Connection,
-	userUploads UserUploads,
-	personallyProcuredMoveID *uuid.UUID,
-	moveDocumentType MoveDocumentType,
-	title string,
-	notes *string,
-	expenseDocument MovingExpenseDocument,
-	moveType SelectedMoveType,
-) (*MovingExpenseDocument, *validate.Errors, error) {
-
-	var newMovingExpenseDocument *MovingExpenseDocument
-	var responseError error
-	responseVErrors := validate.NewErrors()
-
-	transactionErr := db.Transaction(func(db *pop.Connection) error {
-		transactionError := errors.New("Rollback The transaction")
-
-		var newMoveDocument *MoveDocument
-		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
-			db,
-			userUploads,
-			personallyProcuredMoveID,
-			moveDocumentType,
-			title,
-			notes,
-			moveType)
-		if responseVErrors.HasAny() || responseError != nil {
-			return transactionError
-		}
-
-		// Finally, create the MovingExpenseDocument
-		newMovingExpenseDocument = &MovingExpenseDocument{
-			MoveDocumentID:       newMoveDocument.ID,
-			MoveDocument:         *newMoveDocument,
-			MovingExpenseType:    expenseDocument.MovingExpenseType,
-			RequestedAmountCents: expenseDocument.RequestedAmountCents,
-			PaymentMethod:        expenseDocument.PaymentMethod,
-			ReceiptMissing:       expenseDocument.ReceiptMissing,
-			StorageStartDate:     expenseDocument.StorageStartDate,
-			StorageEndDate:       expenseDocument.StorageEndDate,
-		}
-		verrs, err := db.ValidateAndCreate(newMovingExpenseDocument)
-		if err != nil || verrs.HasAny() {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error creating moving expense document")
-			newMovingExpenseDocument = nil
-			return transactionError
-		}
-
-		return nil
-	})
-
-	if transactionErr != nil {
-		return nil, responseVErrors, transactionErr
-	}
-
-	return newMovingExpenseDocument, responseVErrors, responseError
 }
 
 // CreatePPM creates a new PPM associated with this move

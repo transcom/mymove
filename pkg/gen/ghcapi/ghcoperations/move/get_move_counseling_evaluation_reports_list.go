@@ -29,12 +29,12 @@ func NewGetMoveCounselingEvaluationReportsList(ctx *middleware.Context, handler 
 	return &GetMoveCounselingEvaluationReportsList{Context: ctx, Handler: handler}
 }
 
-/*
-	GetMoveCounselingEvaluationReportsList swagger:route GET /moves/{moveID}/counseling-evaluation-reports-list move getMoveCounselingEvaluationReportsList
-
-# Returns counseling evaluation reports for the specified move that are visible to the current office user
+/* GetMoveCounselingEvaluationReportsList swagger:route GET /moves/{moveID}/counseling-evaluation-reports-list move getMoveCounselingEvaluationReportsList
 
 Returns counseling evaluation reports for the specified move that are visible to the current office user
+
+Returns counseling evaluation reports for the specified move that are visible to the current office user
+
 */
 type GetMoveCounselingEvaluationReportsList struct {
 	Context *middleware.Context

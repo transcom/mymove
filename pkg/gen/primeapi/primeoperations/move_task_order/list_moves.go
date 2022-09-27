@@ -29,8 +29,7 @@ func NewListMoves(ctx *middleware.Context, handler ListMovesHandler) *ListMoves 
 	return &ListMoves{Context: ctx, Handler: handler}
 }
 
-/*
-	ListMoves swagger:route GET /moves moveTaskOrder listMoves
+/* ListMoves swagger:route GET /moves moveTaskOrder listMoves
 
 listMoves
 
@@ -41,6 +40,8 @@ requests, is later than the provided date and time.
 
 **WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrimeAt` timestamp has
 been set, that move will always appear in this list.
+
+
 */
 type ListMoves struct {
 	Context *middleware.Context

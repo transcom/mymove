@@ -29,8 +29,7 @@ func NewCreateSITExtension(ctx *middleware.Context, handler CreateSITExtensionHa
 	return &CreateSITExtension{Context: ctx, Handler: handler}
 }
 
-/*
-	CreateSITExtension swagger:route POST /mto-shipments/{mtoShipmentID}/sit-extensions mtoShipment createSITExtension
+/* CreateSITExtension swagger:route POST /mto-shipments/{mtoShipmentID}/sit-extensions mtoShipment createSITExtension
 
 createSITExtension
 
@@ -38,6 +37,8 @@ createSITExtension
 This endpoint creates a storage in transit (SIT) extension request for a shipment. A SIT extension request is a request an
 increase in the shipment day allowance for the number of days a shipment is allowed to be in SIT. The total SIT day allowance
 includes time spent in both origin and destination SIT.
+
+
 */
 type CreateSITExtension struct {
 	Context *middleware.Context

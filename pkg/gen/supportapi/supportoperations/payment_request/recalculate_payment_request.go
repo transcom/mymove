@@ -29,8 +29,7 @@ func NewRecalculatePaymentRequest(ctx *middleware.Context, handler RecalculatePa
 	return &RecalculatePaymentRequest{Context: ctx, Handler: handler}
 }
 
-/*
-	RecalculatePaymentRequest swagger:route POST /payment-requests/{paymentRequestID}/recalculate paymentRequest recalculatePaymentRequest
+/* RecalculatePaymentRequest swagger:route POST /payment-requests/{paymentRequestID}/recalculate paymentRequest recalculatePaymentRequest
 
 recalculatePaymentRequest
 
@@ -39,6 +38,8 @@ items but is priced based on the current inputs (weights, dates, etc.). The prev
 request is then deprecated. A link is made between the new and existing payment requests.
 
 This is a support endpoint and will not be available in production.
+
+
 */
 type RecalculatePaymentRequest struct {
 	Context *middleware.Context

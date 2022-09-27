@@ -16,8 +16,7 @@ import (
 // GetMTOServiceItemOKCode is the HTTP code returned for type GetMTOServiceItemOK
 const GetMTOServiceItemOKCode int = 200
 
-/*
-GetMTOServiceItemOK Successfully retrieved a line item for a move task order by ID
+/*GetMTOServiceItemOK Successfully retrieved a line item for a move task order by ID
 
 swagger:response getMTOServiceItemOK
 */
@@ -61,8 +60,7 @@ func (o *GetMTOServiceItemOK) WriteResponse(rw http.ResponseWriter, producer run
 // GetMTOServiceItemBadRequestCode is the HTTP code returned for type GetMTOServiceItemBadRequest
 const GetMTOServiceItemBadRequestCode int = 400
 
-/*
-GetMTOServiceItemBadRequest The request payload is invalid
+/*GetMTOServiceItemBadRequest The request payload is invalid
 
 swagger:response getMTOServiceItemBadRequest
 */
@@ -106,8 +104,7 @@ func (o *GetMTOServiceItemBadRequest) WriteResponse(rw http.ResponseWriter, prod
 // GetMTOServiceItemUnauthorizedCode is the HTTP code returned for type GetMTOServiceItemUnauthorized
 const GetMTOServiceItemUnauthorizedCode int = 401
 
-/*
-GetMTOServiceItemUnauthorized The request was denied
+/*GetMTOServiceItemUnauthorized The request was denied
 
 swagger:response getMTOServiceItemUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *GetMTOServiceItemUnauthorized) WriteResponse(rw http.ResponseWriter, pr
 // GetMTOServiceItemForbiddenCode is the HTTP code returned for type GetMTOServiceItemForbidden
 const GetMTOServiceItemForbiddenCode int = 403
 
-/*
-GetMTOServiceItemForbidden The request was denied
+/*GetMTOServiceItemForbidden The request was denied
 
 swagger:response getMTOServiceItemForbidden
 */
@@ -196,8 +192,7 @@ func (o *GetMTOServiceItemForbidden) WriteResponse(rw http.ResponseWriter, produ
 // GetMTOServiceItemNotFoundCode is the HTTP code returned for type GetMTOServiceItemNotFound
 const GetMTOServiceItemNotFoundCode int = 404
 
-/*
-GetMTOServiceItemNotFound The requested resource wasn't found
+/*GetMTOServiceItemNotFound The requested resource wasn't found
 
 swagger:response getMTOServiceItemNotFound
 */
@@ -241,8 +236,7 @@ func (o *GetMTOServiceItemNotFound) WriteResponse(rw http.ResponseWriter, produc
 // GetMTOServiceItemInternalServerErrorCode is the HTTP code returned for type GetMTOServiceItemInternalServerError
 const GetMTOServiceItemInternalServerErrorCode int = 500
 
-/*
-GetMTOServiceItemInternalServerError A server error occurred
+/*GetMTOServiceItemInternalServerError A server error occurred
 
 swagger:response getMTOServiceItemInternalServerError
 */

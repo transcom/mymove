@@ -29,12 +29,12 @@ func NewSubmitPersonallyProcuredMove(ctx *middleware.Context, handler SubmitPers
 	return &SubmitPersonallyProcuredMove{Context: ctx, Handler: handler}
 }
 
-/*
-	SubmitPersonallyProcuredMove swagger:route POST /personally_procured_move/{personallyProcuredMoveId}/submit ppm submitPersonallyProcuredMove
+/* SubmitPersonallyProcuredMove swagger:route POST /personally_procured_move/{personallyProcuredMoveId}/submit ppm submitPersonallyProcuredMove
 
-# Submits a PPM for approval
+Submits a PPM for approval
 
 Submits a PPM for approval by the office. The status of the PPM will be updated to SUBMITTED
+
 */
 type SubmitPersonallyProcuredMove struct {
 	Context *middleware.Context

@@ -16,8 +16,7 @@ import (
 // GetPaymentRequestsQueueOKCode is the HTTP code returned for type GetPaymentRequestsQueueOK
 const GetPaymentRequestsQueueOKCode int = 200
 
-/*
-GetPaymentRequestsQueueOK Successfully returned all moves matching the criteria
+/*GetPaymentRequestsQueueOK Successfully returned all moves matching the criteria
 
 swagger:response getPaymentRequestsQueueOK
 */
@@ -61,8 +60,7 @@ func (o *GetPaymentRequestsQueueOK) WriteResponse(rw http.ResponseWriter, produc
 // GetPaymentRequestsQueueForbiddenCode is the HTTP code returned for type GetPaymentRequestsQueueForbidden
 const GetPaymentRequestsQueueForbiddenCode int = 403
 
-/*
-GetPaymentRequestsQueueForbidden The request was denied
+/*GetPaymentRequestsQueueForbidden The request was denied
 
 swagger:response getPaymentRequestsQueueForbidden
 */
@@ -106,8 +104,7 @@ func (o *GetPaymentRequestsQueueForbidden) WriteResponse(rw http.ResponseWriter,
 // GetPaymentRequestsQueueInternalServerErrorCode is the HTTP code returned for type GetPaymentRequestsQueueInternalServerError
 const GetPaymentRequestsQueueInternalServerErrorCode int = 500
 
-/*
-GetPaymentRequestsQueueInternalServerError A server error occurred
+/*GetPaymentRequestsQueueInternalServerError A server error occurred
 
 swagger:response getPaymentRequestsQueueInternalServerError
 */

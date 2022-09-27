@@ -75,8 +75,7 @@ func NewCreateMoveTaskOrderCreated() *CreateMoveTaskOrderCreated {
 	return &CreateMoveTaskOrderCreated{}
 }
 
-/*
-CreateMoveTaskOrderCreated describes a response with status code 201, with default header values.
+/* CreateMoveTaskOrderCreated describes a response with status code 201, with default header values.
 
 Successfully created MoveTaskOrder object.
 */
@@ -138,8 +137,7 @@ func NewCreateMoveTaskOrderBadRequest() *CreateMoveTaskOrderBadRequest {
 	return &CreateMoveTaskOrderBadRequest{}
 }
 
-/*
-CreateMoveTaskOrderBadRequest describes a response with status code 400, with default header values.
+/* CreateMoveTaskOrderBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -201,8 +199,7 @@ func NewCreateMoveTaskOrderUnauthorized() *CreateMoveTaskOrderUnauthorized {
 	return &CreateMoveTaskOrderUnauthorized{}
 }
 
-/*
-CreateMoveTaskOrderUnauthorized describes a response with status code 401, with default header values.
+/* CreateMoveTaskOrderUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -264,8 +261,7 @@ func NewCreateMoveTaskOrderForbidden() *CreateMoveTaskOrderForbidden {
 	return &CreateMoveTaskOrderForbidden{}
 }
 
-/*
-CreateMoveTaskOrderForbidden describes a response with status code 403, with default header values.
+/* CreateMoveTaskOrderForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -327,8 +323,7 @@ func NewCreateMoveTaskOrderNotFound() *CreateMoveTaskOrderNotFound {
 	return &CreateMoveTaskOrderNotFound{}
 }
 
-/*
-CreateMoveTaskOrderNotFound describes a response with status code 404, with default header values.
+/* CreateMoveTaskOrderNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -390,8 +385,7 @@ func NewCreateMoveTaskOrderUnprocessableEntity() *CreateMoveTaskOrderUnprocessab
 	return &CreateMoveTaskOrderUnprocessableEntity{}
 }
 
-/*
-CreateMoveTaskOrderUnprocessableEntity describes a response with status code 422, with default header values.
+/* CreateMoveTaskOrderUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -453,8 +447,7 @@ func NewCreateMoveTaskOrderInternalServerError() *CreateMoveTaskOrderInternalSer
 	return &CreateMoveTaskOrderInternalServerError{}
 }
 
-/*
-CreateMoveTaskOrderInternalServerError describes a response with status code 500, with default header values.
+/* CreateMoveTaskOrderInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

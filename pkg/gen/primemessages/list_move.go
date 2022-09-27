@@ -17,6 +17,7 @@ import (
 
 // ListMove An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.
 //
+//
 // swagger:model ListMove
 type ListMove struct {
 

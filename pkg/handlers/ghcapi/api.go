@@ -26,6 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	pwsviolation "github.com/transcom/mymove/pkg/services/pws_violation"
 	"github.com/transcom/mymove/pkg/services/query"
+	reportviolation "github.com/transcom/mymove/pkg/services/report_violation"
 )
 
 // NewGhcAPIHandler returns a handler for the GHC API
@@ -391,6 +392,16 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.EvaluationReportsGetPWSViolationsHandler = GetPWSViolationsHandler{
 		handlerConfig,
 		pwsviolation.NewPWSViolationsFetcher(),
+	}
+
+	ghcAPI.ReportViolationsAssociateReportViolationsHandler = AssociateReportViolationsHandler{
+		handlerConfig,
+		reportviolation.NewReportViolationCreator(),
+	}
+
+	ghcAPI.ReportViolationsGetReportViolationsByReportIDHandler = GetReportViolationsHandler{
+		handlerConfig,
+		reportviolation.NewReportViolationFetcher(),
 	}
 
 	return ghcAPI

@@ -16,8 +16,7 @@ import (
 // IndexPersonallyProcuredMovesOKCode is the HTTP code returned for type IndexPersonallyProcuredMovesOK
 const IndexPersonallyProcuredMovesOKCode int = 200
 
-/*
-IndexPersonallyProcuredMovesOK returns list of personally_procured_move
+/*IndexPersonallyProcuredMovesOK returns list of personally_procured_move
 
 swagger:response indexPersonallyProcuredMovesOK
 */
@@ -64,8 +63,7 @@ func (o *IndexPersonallyProcuredMovesOK) WriteResponse(rw http.ResponseWriter, p
 // IndexPersonallyProcuredMovesBadRequestCode is the HTTP code returned for type IndexPersonallyProcuredMovesBadRequest
 const IndexPersonallyProcuredMovesBadRequestCode int = 400
 
-/*
-IndexPersonallyProcuredMovesBadRequest invalid request
+/*IndexPersonallyProcuredMovesBadRequest invalid request
 
 swagger:response indexPersonallyProcuredMovesBadRequest
 */
@@ -89,8 +87,7 @@ func (o *IndexPersonallyProcuredMovesBadRequest) WriteResponse(rw http.ResponseW
 // IndexPersonallyProcuredMovesUnauthorizedCode is the HTTP code returned for type IndexPersonallyProcuredMovesUnauthorized
 const IndexPersonallyProcuredMovesUnauthorizedCode int = 401
 
-/*
-IndexPersonallyProcuredMovesUnauthorized request requires user authentication
+/*IndexPersonallyProcuredMovesUnauthorized request requires user authentication
 
 swagger:response indexPersonallyProcuredMovesUnauthorized
 */
@@ -114,8 +111,7 @@ func (o *IndexPersonallyProcuredMovesUnauthorized) WriteResponse(rw http.Respons
 // IndexPersonallyProcuredMovesForbiddenCode is the HTTP code returned for type IndexPersonallyProcuredMovesForbidden
 const IndexPersonallyProcuredMovesForbiddenCode int = 403
 
-/*
-IndexPersonallyProcuredMovesForbidden user is not authorized
+/*IndexPersonallyProcuredMovesForbidden user is not authorized
 
 swagger:response indexPersonallyProcuredMovesForbidden
 */

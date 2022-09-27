@@ -16,8 +16,7 @@ import (
 // ListMovesOKCode is the HTTP code returned for type ListMovesOK
 const ListMovesOKCode int = 200
 
-/*
-ListMovesOK Successfully retrieved moves. A successful fetch might still return zero moves.
+/*ListMovesOK Successfully retrieved moves. A successful fetch might still return zero moves.
 
 swagger:response listMovesOK
 */
@@ -64,8 +63,7 @@ func (o *ListMovesOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 // ListMovesUnauthorizedCode is the HTTP code returned for type ListMovesUnauthorized
 const ListMovesUnauthorizedCode int = 401
 
-/*
-ListMovesUnauthorized The request was denied.
+/*ListMovesUnauthorized The request was denied.
 
 swagger:response listMovesUnauthorized
 */
@@ -109,8 +107,7 @@ func (o *ListMovesUnauthorized) WriteResponse(rw http.ResponseWriter, producer r
 // ListMovesForbiddenCode is the HTTP code returned for type ListMovesForbidden
 const ListMovesForbiddenCode int = 403
 
-/*
-ListMovesForbidden The request was denied.
+/*ListMovesForbidden The request was denied.
 
 swagger:response listMovesForbidden
 */
@@ -154,8 +151,7 @@ func (o *ListMovesForbidden) WriteResponse(rw http.ResponseWriter, producer runt
 // ListMovesInternalServerErrorCode is the HTTP code returned for type ListMovesInternalServerError
 const ListMovesInternalServerErrorCode int = 500
 
-/*
-ListMovesInternalServerError A server error occurred.
+/*ListMovesInternalServerError A server error occurred.
 
 swagger:response listMovesInternalServerError
 */

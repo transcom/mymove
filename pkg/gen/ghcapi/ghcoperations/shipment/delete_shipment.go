@@ -29,12 +29,12 @@ func NewDeleteShipment(ctx *middleware.Context, handler DeleteShipmentHandler) *
 	return &DeleteShipment{Context: ctx, Handler: handler}
 }
 
-/*
-	DeleteShipment swagger:route DELETE /shipments/{shipmentID} shipment deleteShipment
-
-# Soft deletes a shipment by ID
+/* DeleteShipment swagger:route DELETE /shipments/{shipmentID} shipment deleteShipment
 
 Soft deletes a shipment by ID
+
+Soft deletes a shipment by ID
+
 */
 type DeleteShipment struct {
 	Context *middleware.Context

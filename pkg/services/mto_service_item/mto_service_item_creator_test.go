@@ -1,11 +1,11 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
-//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
-//RA: in a unit test, then there is no risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+// RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+// RA: in a unit test, then there is no risk
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package mtoserviceitem
 
@@ -920,24 +920,24 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCreateDOFSIT() {
-	// Set up data to use for all Origin SIT Service Item tests
-	move := testdatagen.MakeAvailableMove(suite.DB())
-	move.Status = models.MoveStatusAPPROVED
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move,
-	})
-
-	reServiceDOFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDOFSIT,
-		},
-	})
 
 	sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
 	sitPostalCode := "99999"
 	reason := "lorem ipsum"
 
 	suite.Run("Fail to create DOFSIT service item due to missing SITOriginHHGActualAddress", func() {
+		// Set up data to use for all Origin SIT Service Item tests
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		move.Status = models.MoveStatusAPPROVED
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+
+		reServiceDOFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
+		})
 
 		serviceItemDOFSIT := models.MTOServiceItem{
 			MoveTaskOrder:   move,

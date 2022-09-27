@@ -29,12 +29,12 @@ func NewGetShipment(ctx *middleware.Context, handler GetShipmentHandler) *GetShi
 	return &GetShipment{Context: ctx, Handler: handler}
 }
 
-/*
-	GetShipment swagger:route GET /shipments/{shipmentID} mtoShipment getShipment
+/* GetShipment swagger:route GET /shipments/{shipmentID} mtoShipment getShipment
 
 fetches a shipment by ID
 
 fetches a shipment by ID
+
 */
 type GetShipment struct {
 	Context *middleware.Context

@@ -16,8 +16,7 @@ import (
 // CreateWeightTicketOKCode is the HTTP code returned for type CreateWeightTicketOK
 const CreateWeightTicketOKCode int = 200
 
-/*
-CreateWeightTicketOK returns new weight ticket object
+/*CreateWeightTicketOK returns new weight ticket object
 
 swagger:response createWeightTicketOK
 */
@@ -61,8 +60,7 @@ func (o *CreateWeightTicketOK) WriteResponse(rw http.ResponseWriter, producer ru
 // CreateWeightTicketBadRequestCode is the HTTP code returned for type CreateWeightTicketBadRequest
 const CreateWeightTicketBadRequestCode int = 400
 
-/*
-CreateWeightTicketBadRequest The request payload is invalid.
+/*CreateWeightTicketBadRequest The request payload is invalid.
 
 swagger:response createWeightTicketBadRequest
 */
@@ -106,8 +104,7 @@ func (o *CreateWeightTicketBadRequest) WriteResponse(rw http.ResponseWriter, pro
 // CreateWeightTicketUnauthorizedCode is the HTTP code returned for type CreateWeightTicketUnauthorized
 const CreateWeightTicketUnauthorizedCode int = 401
 
-/*
-CreateWeightTicketUnauthorized The request was denied.
+/*CreateWeightTicketUnauthorized The request was denied.
 
 swagger:response createWeightTicketUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *CreateWeightTicketUnauthorized) WriteResponse(rw http.ResponseWriter, p
 // CreateWeightTicketForbiddenCode is the HTTP code returned for type CreateWeightTicketForbidden
 const CreateWeightTicketForbiddenCode int = 403
 
-/*
-CreateWeightTicketForbidden The request was denied.
+/*CreateWeightTicketForbidden The request was denied.
 
 swagger:response createWeightTicketForbidden
 */
@@ -196,8 +192,7 @@ func (o *CreateWeightTicketForbidden) WriteResponse(rw http.ResponseWriter, prod
 // CreateWeightTicketNotFoundCode is the HTTP code returned for type CreateWeightTicketNotFound
 const CreateWeightTicketNotFoundCode int = 404
 
-/*
-CreateWeightTicketNotFound The requested resource wasn't found.
+/*CreateWeightTicketNotFound The requested resource wasn't found.
 
 swagger:response createWeightTicketNotFound
 */
@@ -241,8 +236,7 @@ func (o *CreateWeightTicketNotFound) WriteResponse(rw http.ResponseWriter, produ
 // CreateWeightTicketUnprocessableEntityCode is the HTTP code returned for type CreateWeightTicketUnprocessableEntity
 const CreateWeightTicketUnprocessableEntityCode int = 422
 
-/*
-CreateWeightTicketUnprocessableEntity The payload was unprocessable.
+/*CreateWeightTicketUnprocessableEntity The payload was unprocessable.
 
 swagger:response createWeightTicketUnprocessableEntity
 */
@@ -286,8 +280,7 @@ func (o *CreateWeightTicketUnprocessableEntity) WriteResponse(rw http.ResponseWr
 // CreateWeightTicketInternalServerErrorCode is the HTTP code returned for type CreateWeightTicketInternalServerError
 const CreateWeightTicketInternalServerErrorCode int = 500
 
-/*
-CreateWeightTicketInternalServerError A server error occurred.
+/*CreateWeightTicketInternalServerError A server error occurred.
 
 swagger:response createWeightTicketInternalServerError
 */

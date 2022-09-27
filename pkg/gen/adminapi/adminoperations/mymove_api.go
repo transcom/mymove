@@ -135,8 +135,7 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 	}
 }
 
-/*
-MymoveAPI The Admin API is a RESTful API that enables the Admin application for MilMove.
+/*MymoveAPI The Admin API is a RESTful API that enables the Admin application for MilMove.
 
 All endpoints are located under `/admin/v1`.
 */

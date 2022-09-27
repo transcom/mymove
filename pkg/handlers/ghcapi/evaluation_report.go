@@ -55,7 +55,7 @@ type CreateEvaluationReportHandler struct {
 	services.EvaluationReportCreator
 }
 
-//Handle is the handler for creating an evaluation report
+// Handle is the handler for creating an evaluation report
 func (h CreateEvaluationReportHandler) Handle(params evaluationReportop.CreateEvaluationReportParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {

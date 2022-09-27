@@ -29,12 +29,12 @@ func NewUpdateMTOServiceItem(ctx *middleware.Context, handler UpdateMTOServiceIt
 	return &UpdateMTOServiceItem{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdateMTOServiceItem swagger:route PATCH /move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID} mtoServiceItem updateMTOServiceItem
-
-# Updates a service item by ID for a move by ID
+/* UpdateMTOServiceItem swagger:route PATCH /move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID} mtoServiceItem updateMTOServiceItem
 
 Updates a service item by ID for a move by ID
+
+Updates a service item by ID for a move by ID
+
 */
 type UpdateMTOServiceItem struct {
 	Context *middleware.Context

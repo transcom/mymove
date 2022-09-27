@@ -2066,6 +2066,71 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  '/report-violations/{reportID}':
+    parameters:
+      - in: path
+        description: the evaluation report ID that has associated violations
+        name: reportID
+        required: true
+        type: string
+        format: uuid
+    get:
+      summary: Fetch the report violations for an evaluation report
+      description: Fetch the report violations for an evaluation report
+      operationId: getReportViolationsByReportID
+      tags:
+        - reportViolations
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully retrieved the report violations
+          schema:
+            $ref: '#/definitions/ReportViolations'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+    post:
+      summary: Associate violations with an evaluation report
+      description: >-
+        Associate violations with an evaluation report. This will overwrite any
+        existing report-violations associations for the report and replace them
+        with the newly provided ones.  An empty array will remove all violation
+        associations for a given report.
+      operationId: associateReportViolations
+      tags:
+        - reportViolations
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/AssociateReportViolations'
+      responses:
+        '204':
+          description: Successfully saved the report violations
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      x-permissions:
+        - create.reportViolation
   '/moves/{locator}/payment-requests':
     parameters:
       - description: move code to identify a move for payment requests
@@ -4589,6 +4654,39 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/PWSViolation'
+  AssociateReportViolations:
+    type: object
+    description: A list of PWS violation string ids to associate with an evaluation report
+    properties:
+      violations:
+        type: array
+        items:
+          type: string
+          format: uuid
+  ReportViolation:
+    type: object
+    description: An object associating violations to evaluation reports
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reportID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      # report:
+      #   $ref: '#/definitions/EvaluationReport'
+      violationID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      violation:
+        $ref: '#/definitions/PWSViolation'
+  ReportViolations:
+    type: array
+    items:
+      $ref: '#/definitions/ReportViolation'
 responses:
   InvalidRequest:
     description: The request payload is invalid

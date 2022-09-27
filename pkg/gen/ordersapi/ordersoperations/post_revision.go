@@ -29,8 +29,7 @@ func NewPostRevision(ctx *middleware.Context, handler PostRevisionHandler) *Post
 	return &PostRevision{Context: ctx, Handler: handler}
 }
 
-/*
-	PostRevision swagger:route POST /orders postRevision
+/* PostRevision swagger:route POST /orders postRevision
 
 Submit a new set of orders, make an amendment to an existing set of orders, or cancel a set of orders.
 
@@ -50,6 +49,8 @@ Users of this endpoint must have permission to write Orders for the specified `i
 If SSN instead of EDIPI is provided to identify the member, and DMDC's Identity Web Services does not return an EDIPI for that SSN, then this endpoint will return `404 Not Found`.
 If amending existing Orders, the supplied seqNum must be unique when compared to existing Revisions in those Orders. If it has already been used, this endpoint will return `409 Conflict`.
 If amending existing Orders, the supplied memberId, as an EDIPI, or as an EDIPI retrieved from DMDC by SSN, must match the EDIPI in the existing Orders. If the EDIPIs do not match, this endpoint will return `409 Conflict`.
+
+
 */
 type PostRevision struct {
 	Context *middleware.Context

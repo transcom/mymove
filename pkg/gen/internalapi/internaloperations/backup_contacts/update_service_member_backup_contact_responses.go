@@ -16,8 +16,7 @@ import (
 // UpdateServiceMemberBackupContactCreatedCode is the HTTP code returned for type UpdateServiceMemberBackupContactCreated
 const UpdateServiceMemberBackupContactCreatedCode int = 201
 
-/*
-UpdateServiceMemberBackupContactCreated updated instance of backup contact
+/*UpdateServiceMemberBackupContactCreated updated instance of backup contact
 
 swagger:response updateServiceMemberBackupContactCreated
 */
@@ -61,8 +60,7 @@ func (o *UpdateServiceMemberBackupContactCreated) WriteResponse(rw http.Response
 // UpdateServiceMemberBackupContactBadRequestCode is the HTTP code returned for type UpdateServiceMemberBackupContactBadRequest
 const UpdateServiceMemberBackupContactBadRequestCode int = 400
 
-/*
-UpdateServiceMemberBackupContactBadRequest invalid request
+/*UpdateServiceMemberBackupContactBadRequest invalid request
 
 swagger:response updateServiceMemberBackupContactBadRequest
 */
@@ -86,8 +84,7 @@ func (o *UpdateServiceMemberBackupContactBadRequest) WriteResponse(rw http.Respo
 // UpdateServiceMemberBackupContactUnauthorizedCode is the HTTP code returned for type UpdateServiceMemberBackupContactUnauthorized
 const UpdateServiceMemberBackupContactUnauthorizedCode int = 401
 
-/*
-UpdateServiceMemberBackupContactUnauthorized request requires user authentication
+/*UpdateServiceMemberBackupContactUnauthorized request requires user authentication
 
 swagger:response updateServiceMemberBackupContactUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *UpdateServiceMemberBackupContactUnauthorized) WriteResponse(rw http.Res
 // UpdateServiceMemberBackupContactForbiddenCode is the HTTP code returned for type UpdateServiceMemberBackupContactForbidden
 const UpdateServiceMemberBackupContactForbiddenCode int = 403
 
-/*
-UpdateServiceMemberBackupContactForbidden user is not authorized
+/*UpdateServiceMemberBackupContactForbidden user is not authorized
 
 swagger:response updateServiceMemberBackupContactForbidden
 */
@@ -136,8 +132,7 @@ func (o *UpdateServiceMemberBackupContactForbidden) WriteResponse(rw http.Respon
 // UpdateServiceMemberBackupContactNotFoundCode is the HTTP code returned for type UpdateServiceMemberBackupContactNotFound
 const UpdateServiceMemberBackupContactNotFoundCode int = 404
 
-/*
-UpdateServiceMemberBackupContactNotFound backup contact not found
+/*UpdateServiceMemberBackupContactNotFound backup contact not found
 
 swagger:response updateServiceMemberBackupContactNotFound
 */
@@ -161,8 +156,7 @@ func (o *UpdateServiceMemberBackupContactNotFound) WriteResponse(rw http.Respons
 // UpdateServiceMemberBackupContactInternalServerErrorCode is the HTTP code returned for type UpdateServiceMemberBackupContactInternalServerError
 const UpdateServiceMemberBackupContactInternalServerErrorCode int = 500
 
-/*
-UpdateServiceMemberBackupContactInternalServerError internal server error
+/*UpdateServiceMemberBackupContactInternalServerError internal server error
 
 swagger:response updateServiceMemberBackupContactInternalServerError
 */

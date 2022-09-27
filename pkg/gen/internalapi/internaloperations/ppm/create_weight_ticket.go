@@ -29,12 +29,12 @@ func NewCreateWeightTicket(ctx *middleware.Context, handler CreateWeightTicketHa
 	return &CreateWeightTicket{Context: ctx, Handler: handler}
 }
 
-/*
-	CreateWeightTicket swagger:route POST /ppm-shipments/{ppmShipmentId}/weight-ticket ppm createWeightTicket
+/* CreateWeightTicket swagger:route POST /ppm-shipments/{ppmShipmentId}/weight-ticket ppm createWeightTicket
 
-# Creates a weight ticket document
+Creates a weight ticket document
 
 Created a weight ticket document with the given information
+
 */
 type CreateWeightTicket struct {
 	Context *middleware.Context

@@ -16,8 +16,7 @@ import (
 // DeleteUploadNoContentCode is the HTTP code returned for type DeleteUploadNoContent
 const DeleteUploadNoContentCode int = 204
 
-/*
-DeleteUploadNoContent deleted
+/*DeleteUploadNoContent deleted
 
 swagger:response deleteUploadNoContent
 */
@@ -41,8 +40,7 @@ func (o *DeleteUploadNoContent) WriteResponse(rw http.ResponseWriter, producer r
 // DeleteUploadBadRequestCode is the HTTP code returned for type DeleteUploadBadRequest
 const DeleteUploadBadRequestCode int = 400
 
-/*
-DeleteUploadBadRequest invalid request
+/*DeleteUploadBadRequest invalid request
 
 swagger:response deleteUploadBadRequest
 */
@@ -86,8 +84,7 @@ func (o *DeleteUploadBadRequest) WriteResponse(rw http.ResponseWriter, producer 
 // DeleteUploadForbiddenCode is the HTTP code returned for type DeleteUploadForbidden
 const DeleteUploadForbiddenCode int = 403
 
-/*
-DeleteUploadForbidden not authorized
+/*DeleteUploadForbidden not authorized
 
 swagger:response deleteUploadForbidden
 */
@@ -111,8 +108,7 @@ func (o *DeleteUploadForbidden) WriteResponse(rw http.ResponseWriter, producer r
 // DeleteUploadNotFoundCode is the HTTP code returned for type DeleteUploadNotFound
 const DeleteUploadNotFoundCode int = 404
 
-/*
-DeleteUploadNotFound not found
+/*DeleteUploadNotFound not found
 
 swagger:response deleteUploadNotFound
 */
@@ -136,8 +132,7 @@ func (o *DeleteUploadNotFound) WriteResponse(rw http.ResponseWriter, producer ru
 // DeleteUploadInternalServerErrorCode is the HTTP code returned for type DeleteUploadInternalServerError
 const DeleteUploadInternalServerErrorCode int = 500
 
-/*
-DeleteUploadInternalServerError server error
+/*DeleteUploadInternalServerError server error
 
 swagger:response deleteUploadInternalServerError
 */

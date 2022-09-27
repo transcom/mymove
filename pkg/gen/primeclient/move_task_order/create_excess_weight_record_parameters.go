@@ -52,12 +52,10 @@ func NewCreateExcessWeightRecordParamsWithHTTPClient(client *http.Client) *Creat
 	}
 }
 
-/*
-CreateExcessWeightRecordParams contains all the parameters to send to the API endpoint
+/* CreateExcessWeightRecordParams contains all the parameters to send to the API endpoint
+   for the create excess weight record operation.
 
-	for the create excess weight record operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type CreateExcessWeightRecordParams struct {
 

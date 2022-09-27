@@ -16,8 +16,7 @@ import (
 // ShowServiceMemberOKCode is the HTTP code returned for type ShowServiceMemberOK
 const ShowServiceMemberOKCode int = 200
 
-/*
-ShowServiceMemberOK the instance of the service member
+/*ShowServiceMemberOK the instance of the service member
 
 swagger:response showServiceMemberOK
 */
@@ -61,8 +60,7 @@ func (o *ShowServiceMemberOK) WriteResponse(rw http.ResponseWriter, producer run
 // ShowServiceMemberBadRequestCode is the HTTP code returned for type ShowServiceMemberBadRequest
 const ShowServiceMemberBadRequestCode int = 400
 
-/*
-ShowServiceMemberBadRequest invalid request
+/*ShowServiceMemberBadRequest invalid request
 
 swagger:response showServiceMemberBadRequest
 */
@@ -86,8 +84,7 @@ func (o *ShowServiceMemberBadRequest) WriteResponse(rw http.ResponseWriter, prod
 // ShowServiceMemberUnauthorizedCode is the HTTP code returned for type ShowServiceMemberUnauthorized
 const ShowServiceMemberUnauthorizedCode int = 401
 
-/*
-ShowServiceMemberUnauthorized request requires user authentication
+/*ShowServiceMemberUnauthorized request requires user authentication
 
 swagger:response showServiceMemberUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *ShowServiceMemberUnauthorized) WriteResponse(rw http.ResponseWriter, pr
 // ShowServiceMemberForbiddenCode is the HTTP code returned for type ShowServiceMemberForbidden
 const ShowServiceMemberForbiddenCode int = 403
 
-/*
-ShowServiceMemberForbidden user is not authorized
+/*ShowServiceMemberForbidden user is not authorized
 
 swagger:response showServiceMemberForbidden
 */
@@ -136,8 +132,7 @@ func (o *ShowServiceMemberForbidden) WriteResponse(rw http.ResponseWriter, produ
 // ShowServiceMemberNotFoundCode is the HTTP code returned for type ShowServiceMemberNotFound
 const ShowServiceMemberNotFoundCode int = 404
 
-/*
-ShowServiceMemberNotFound service member not found
+/*ShowServiceMemberNotFound service member not found
 
 swagger:response showServiceMemberNotFound
 */
@@ -161,8 +156,7 @@ func (o *ShowServiceMemberNotFound) WriteResponse(rw http.ResponseWriter, produc
 // ShowServiceMemberInternalServerErrorCode is the HTTP code returned for type ShowServiceMemberInternalServerError
 const ShowServiceMemberInternalServerErrorCode int = 500
 
-/*
-ShowServiceMemberInternalServerError internal server error
+/*ShowServiceMemberInternalServerError internal server error
 
 swagger:response showServiceMemberInternalServerError
 */

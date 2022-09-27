@@ -9,7 +9,6 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"io/ioutil"
 	"log"
 	"os"
 	"reflect"
@@ -216,7 +215,7 @@ func main() {
 	// Track if we have found at least one issue
 	fail := false
 
-	files, dirErr := ioutil.ReadDir("./pkg/models")
+	files, dirErr := os.ReadDir("./pkg/models")
 	if dirErr != nil {
 		logger.Fatal("reading directory", zap.Error(dirErr))
 	}

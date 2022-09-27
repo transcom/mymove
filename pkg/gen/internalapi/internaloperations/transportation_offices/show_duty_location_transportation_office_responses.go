@@ -16,8 +16,7 @@ import (
 // ShowDutyLocationTransportationOfficeOKCode is the HTTP code returned for type ShowDutyLocationTransportationOfficeOK
 const ShowDutyLocationTransportationOfficeOKCode int = 200
 
-/*
-ShowDutyLocationTransportationOfficeOK the instance of the transportation office for a duty location
+/*ShowDutyLocationTransportationOfficeOK the instance of the transportation office for a duty location
 
 swagger:response showDutyLocationTransportationOfficeOK
 */
@@ -61,8 +60,7 @@ func (o *ShowDutyLocationTransportationOfficeOK) WriteResponse(rw http.ResponseW
 // ShowDutyLocationTransportationOfficeBadRequestCode is the HTTP code returned for type ShowDutyLocationTransportationOfficeBadRequest
 const ShowDutyLocationTransportationOfficeBadRequestCode int = 400
 
-/*
-ShowDutyLocationTransportationOfficeBadRequest invalid request
+/*ShowDutyLocationTransportationOfficeBadRequest invalid request
 
 swagger:response showDutyLocationTransportationOfficeBadRequest
 */
@@ -86,8 +84,7 @@ func (o *ShowDutyLocationTransportationOfficeBadRequest) WriteResponse(rw http.R
 // ShowDutyLocationTransportationOfficeUnauthorizedCode is the HTTP code returned for type ShowDutyLocationTransportationOfficeUnauthorized
 const ShowDutyLocationTransportationOfficeUnauthorizedCode int = 401
 
-/*
-ShowDutyLocationTransportationOfficeUnauthorized request requires user authentication
+/*ShowDutyLocationTransportationOfficeUnauthorized request requires user authentication
 
 swagger:response showDutyLocationTransportationOfficeUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *ShowDutyLocationTransportationOfficeUnauthorized) WriteResponse(rw http
 // ShowDutyLocationTransportationOfficeForbiddenCode is the HTTP code returned for type ShowDutyLocationTransportationOfficeForbidden
 const ShowDutyLocationTransportationOfficeForbiddenCode int = 403
 
-/*
-ShowDutyLocationTransportationOfficeForbidden user is not authorized
+/*ShowDutyLocationTransportationOfficeForbidden user is not authorized
 
 swagger:response showDutyLocationTransportationOfficeForbidden
 */
@@ -136,8 +132,7 @@ func (o *ShowDutyLocationTransportationOfficeForbidden) WriteResponse(rw http.Re
 // ShowDutyLocationTransportationOfficeNotFoundCode is the HTTP code returned for type ShowDutyLocationTransportationOfficeNotFound
 const ShowDutyLocationTransportationOfficeNotFoundCode int = 404
 
-/*
-ShowDutyLocationTransportationOfficeNotFound transportation office not found
+/*ShowDutyLocationTransportationOfficeNotFound transportation office not found
 
 swagger:response showDutyLocationTransportationOfficeNotFound
 */
@@ -161,8 +156,7 @@ func (o *ShowDutyLocationTransportationOfficeNotFound) WriteResponse(rw http.Res
 // ShowDutyLocationTransportationOfficeInternalServerErrorCode is the HTTP code returned for type ShowDutyLocationTransportationOfficeInternalServerError
 const ShowDutyLocationTransportationOfficeInternalServerErrorCode int = 500
 
-/*
-ShowDutyLocationTransportationOfficeInternalServerError internal server error
+/*ShowDutyLocationTransportationOfficeInternalServerError internal server error
 
 swagger:response showDutyLocationTransportationOfficeInternalServerError
 */

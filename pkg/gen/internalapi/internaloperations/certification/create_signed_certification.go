@@ -29,12 +29,12 @@ func NewCreateSignedCertification(ctx *middleware.Context, handler CreateSignedC
 	return &CreateSignedCertification{Context: ctx, Handler: handler}
 }
 
-/*
-	CreateSignedCertification swagger:route POST /moves/{moveId}/signed_certifications certification createSignedCertification
+/* CreateSignedCertification swagger:route POST /moves/{moveId}/signed_certifications certification createSignedCertification
 
-# Submits signed certification for the given move ID
+Submits signed certification for the given move ID
 
 Create an instance of signed_certification tied to the move ID
+
 */
 type CreateSignedCertification struct {
 	Context *middleware.Context

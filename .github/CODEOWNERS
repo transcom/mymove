@@ -15,6 +15,10 @@
 # Migrations are where database schema changes are made and we want them reviewed by people working on our database guidelines
 /migrations/ @transcom/truss-db
 
+# These are raw SQL files that are embedded in the project after ADR 0073 Use
+# Templates for SQL Queries
+/pkg/services/query/sql_scripts/ @transcom/truss-db
+
 # Require design / frontend reviews on Storybook
 /src/stories/ @transcom/truss-design
 *.stories.jsx @transcom/truss-design
@@ -39,7 +43,7 @@ src/pages/PrimeUI/
 
 
 # Require security group to review changes to configs that may affect cATO static analysis compliancy
-.golangci.yaml @transcom/Truss-IS3
+.golangci.yml @transcom/Truss-IS3
 .pre-commit-config.yaml @transcom/Truss-IS3
 .eslintrc.js @transcom/Truss-IS3
 /eslint-plugin-ato/ @transcom/Truss-IS3

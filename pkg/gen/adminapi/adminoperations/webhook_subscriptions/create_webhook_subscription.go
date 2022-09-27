@@ -29,12 +29,12 @@ func NewCreateWebhookSubscription(ctx *middleware.Context, handler CreateWebhook
 	return &CreateWebhookSubscription{Context: ctx, Handler: handler}
 }
 
-/*
-	CreateWebhookSubscription swagger:route POST /webhook_subscriptions webhook_subscriptions createWebhookSubscription
+/* CreateWebhookSubscription swagger:route POST /webhook_subscriptions webhook_subscriptions createWebhookSubscription
 
 create a webhook subscription
 
 creates and returns a webhook subscription
+
 */
 type CreateWebhookSubscription struct {
 	Context *middleware.Context

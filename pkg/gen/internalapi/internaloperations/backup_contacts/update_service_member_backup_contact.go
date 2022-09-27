@@ -29,12 +29,12 @@ func NewUpdateServiceMemberBackupContact(ctx *middleware.Context, handler Update
 	return &UpdateServiceMemberBackupContact{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdateServiceMemberBackupContact swagger:route PUT /backup_contacts/{backupContactId} backup_contacts updateServiceMemberBackupContact
+/* UpdateServiceMemberBackupContact swagger:route PUT /backup_contacts/{backupContactId} backup_contacts updateServiceMemberBackupContact
 
-# Updates a service member backup contact
+Updates a service member backup contact
 
 Any fields sent in this request will be set on the backup contact referenced
+
 */
 type UpdateServiceMemberBackupContact struct {
 	Context *middleware.Context

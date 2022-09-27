@@ -16,8 +16,7 @@ import (
 // UpdatePaymentServiceItemStatusOKCode is the HTTP code returned for type UpdatePaymentServiceItemStatusOK
 const UpdatePaymentServiceItemStatusOKCode int = 200
 
-/*
-UpdatePaymentServiceItemStatusOK Successfully updated status for a line item for a move task order by ID
+/*UpdatePaymentServiceItemStatusOK Successfully updated status for a line item for a move task order by ID
 
 swagger:response updatePaymentServiceItemStatusOK
 */
@@ -61,8 +60,7 @@ func (o *UpdatePaymentServiceItemStatusOK) WriteResponse(rw http.ResponseWriter,
 // UpdatePaymentServiceItemStatusBadRequestCode is the HTTP code returned for type UpdatePaymentServiceItemStatusBadRequest
 const UpdatePaymentServiceItemStatusBadRequestCode int = 400
 
-/*
-UpdatePaymentServiceItemStatusBadRequest The request payload is invalid
+/*UpdatePaymentServiceItemStatusBadRequest The request payload is invalid
 
 swagger:response updatePaymentServiceItemStatusBadRequest
 */
@@ -106,8 +104,7 @@ func (o *UpdatePaymentServiceItemStatusBadRequest) WriteResponse(rw http.Respons
 // UpdatePaymentServiceItemStatusUnauthorizedCode is the HTTP code returned for type UpdatePaymentServiceItemStatusUnauthorized
 const UpdatePaymentServiceItemStatusUnauthorizedCode int = 401
 
-/*
-UpdatePaymentServiceItemStatusUnauthorized The request was denied
+/*UpdatePaymentServiceItemStatusUnauthorized The request was denied
 
 swagger:response updatePaymentServiceItemStatusUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *UpdatePaymentServiceItemStatusUnauthorized) WriteResponse(rw http.Respo
 // UpdatePaymentServiceItemStatusForbiddenCode is the HTTP code returned for type UpdatePaymentServiceItemStatusForbidden
 const UpdatePaymentServiceItemStatusForbiddenCode int = 403
 
-/*
-UpdatePaymentServiceItemStatusForbidden The request was denied
+/*UpdatePaymentServiceItemStatusForbidden The request was denied
 
 swagger:response updatePaymentServiceItemStatusForbidden
 */
@@ -196,8 +192,7 @@ func (o *UpdatePaymentServiceItemStatusForbidden) WriteResponse(rw http.Response
 // UpdatePaymentServiceItemStatusNotFoundCode is the HTTP code returned for type UpdatePaymentServiceItemStatusNotFound
 const UpdatePaymentServiceItemStatusNotFoundCode int = 404
 
-/*
-UpdatePaymentServiceItemStatusNotFound The requested resource wasn't found
+/*UpdatePaymentServiceItemStatusNotFound The requested resource wasn't found
 
 swagger:response updatePaymentServiceItemStatusNotFound
 */
@@ -241,8 +236,7 @@ func (o *UpdatePaymentServiceItemStatusNotFound) WriteResponse(rw http.ResponseW
 // UpdatePaymentServiceItemStatusPreconditionFailedCode is the HTTP code returned for type UpdatePaymentServiceItemStatusPreconditionFailed
 const UpdatePaymentServiceItemStatusPreconditionFailedCode int = 412
 
-/*
-UpdatePaymentServiceItemStatusPreconditionFailed Precondition failed
+/*UpdatePaymentServiceItemStatusPreconditionFailed Precondition failed
 
 swagger:response updatePaymentServiceItemStatusPreconditionFailed
 */
@@ -286,8 +280,7 @@ func (o *UpdatePaymentServiceItemStatusPreconditionFailed) WriteResponse(rw http
 // UpdatePaymentServiceItemStatusUnprocessableEntityCode is the HTTP code returned for type UpdatePaymentServiceItemStatusUnprocessableEntity
 const UpdatePaymentServiceItemStatusUnprocessableEntityCode int = 422
 
-/*
-UpdatePaymentServiceItemStatusUnprocessableEntity The payload was unprocessable.
+/*UpdatePaymentServiceItemStatusUnprocessableEntity The payload was unprocessable.
 
 swagger:response updatePaymentServiceItemStatusUnprocessableEntity
 */
@@ -331,8 +324,7 @@ func (o *UpdatePaymentServiceItemStatusUnprocessableEntity) WriteResponse(rw htt
 // UpdatePaymentServiceItemStatusInternalServerErrorCode is the HTTP code returned for type UpdatePaymentServiceItemStatusInternalServerError
 const UpdatePaymentServiceItemStatusInternalServerErrorCode int = 500
 
-/*
-UpdatePaymentServiceItemStatusInternalServerError A server error occurred
+/*UpdatePaymentServiceItemStatusInternalServerError A server error occurred
 
 swagger:response updatePaymentServiceItemStatusInternalServerError
 */

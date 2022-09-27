@@ -15,7 +15,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// PPMShipment A personally procured move is a type of shipment that a service members moves themselves.
+// PPMShipment A personally procured move is a type of shipment that a service member moves themselves.
 //
 // swagger:model PPMShipment
 type PPMShipment struct {
@@ -28,7 +28,7 @@ type PPMShipment struct {
 	// Pattern: ^(\d{5})$
 	ActualDestinationPostalCode *string `json:"actualDestinationPostalCode"`
 
-	// actual move date
+	// The actual start date of when the PPM shipment left the origin.
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actualMoveDate"`
 
@@ -44,24 +44,26 @@ type PPMShipment struct {
 	//
 	AdvanceAmountReceived *int64 `json:"advanceAmountReceived"`
 
-	// The amount requested for an advance, or null if no advance is requested
+	// The amount requested as an advance by the service member up to a maximum percentage of the estimated incentive.
 	//
 	AdvanceAmountRequested *int64 `json:"advanceAmountRequested"`
 
 	// advance status
 	AdvanceStatus PPMAdvanceStatus `json:"advanceStatus,omitempty"`
 
-	// approved at
+	// The timestamp of when the shipment was approved and the service member can begin their move.
 	// Format: date-time
 	ApprovedAt *strfmt.DateTime `json:"approvedAt"`
 
-	// created at
+	// Timestamp of when the PPM Shipment was initially created (UTC)
 	// Required: true
 	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt"`
 
 	// ZIP
+	//
+	// The postal code of the destination location where goods are being delivered to.
 	// Example: 90210
 	// Required: true
 	// Pattern: ^(\d{5})$
@@ -72,14 +74,14 @@ type PPMShipment struct {
 	// Read Only: true
 	ETag string `json:"eTag"`
 
-	// estimated incentive
+	// The estimated amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.
 	EstimatedIncentive *int64 `json:"estimatedIncentive"`
 
-	// estimated weight
+	// The estimated weight of the PPM shipment goods being moved.
 	// Example: 4200
 	EstimatedWeight *int64 `json:"estimatedWeight"`
 
-	// Date the customer expects to move.
+	// Date the customer expects to begin their move.
 	//
 	// Required: true
 	// Format: date
@@ -90,7 +92,7 @@ type PPMShipment struct {
 	// Read Only: true
 	FinalIncentive *int64 `json:"finalIncentive"`
 
-	// Indicates whether PPM shipment has pro gear.
+	// Indicates whether PPM shipment has pro gear for themselves or their spouse.
 	//
 	HasProGear *bool `json:"hasProGear"`
 
@@ -102,37 +104,39 @@ type PPMShipment struct {
 	//
 	HasRequestedAdvance *bool `json:"hasRequestedAdvance"`
 
-	// id
+	// Primary auto-generated unique identifier of the PPM shipment object
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
 
-	// moving expense
+	// All expense documentation receipt records of this PPM shipment.
 	MovingExpense []*MovingExpense `json:"movingExpense"`
 
-	// The net weight of the shipment once it has been weight
+	// The net weight of the shipment once it has been weighed.
 	//
 	// Example: 4300
 	NetWeight *int64 `json:"netWeight"`
 
 	// ZIP
 	//
-	// zip code
+	// The postal code of the origin location where goods are being moved from.
 	// Example: 90210
 	// Required: true
 	// Pattern: ^(\d{5})$
 	PickupPostalCode *string `json:"pickupPostalCode"`
 
-	// pro gear weight
+	// The estimated weight of the pro-gear being moved belonging to the service member.
 	ProGearWeight *int64 `json:"proGearWeight"`
 
-	// reviewed at
+	// The timestamp of when the Service Counselor has reviewed all of the closeout documents.
 	// Format: date-time
 	ReviewedAt *strfmt.DateTime `json:"reviewedAt"`
 
 	// ZIP
+	//
+	// An optional secondary location near the destination where goods will be dropped off.
 	// Example: 90210
 	// Pattern: ^(\d{5})$
 	SecondaryDestinationPostalCode *string `json:"secondaryDestinationPostalCode"`
@@ -142,47 +146,50 @@ type PPMShipment struct {
 	// Pattern: ^(\d{5})$
 	SecondaryPickupPostalCode *string `json:"secondaryPickupPostalCode"`
 
-	// shipment Id
+	// The id of the parent MTOShipment object
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
 	// Read Only: true
 	// Format: uuid
 	ShipmentID strfmt.UUID `json:"shipmentId"`
 
-	// sit estimated cost
+	// The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
 	SitEstimatedCost *int64 `json:"sitEstimatedCost"`
 
-	// sit estimated departure date
+	// The date that goods will exit the storage location.
 	// Format: date
 	SitEstimatedDepartureDate *strfmt.Date `json:"sitEstimatedDepartureDate"`
 
-	// sit estimated entry date
+	// The date that goods will first enter the storage location.
 	// Format: date
 	SitEstimatedEntryDate *strfmt.Date `json:"sitEstimatedEntryDate"`
 
-	// sit estimated weight
+	// The estimated weight of the goods being put into storage.
 	// Example: 2000
 	SitEstimatedWeight *int64 `json:"sitEstimatedWeight"`
 
-	// sit expected
+	// Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.
+	//
+	// Must be set to `true` when providing `sitLocation`, `sitEstimatedWeight`, `sitEstimatedEntryDate`, and `sitEstimatedDepartureDate` values to calculate the `sitEstimatedCost`.
+	//
 	// Required: true
 	SitExpected *bool `json:"sitExpected"`
 
 	// sit location
 	SitLocation *SITLocationType `json:"sitLocation,omitempty"`
 
-	// spouse pro gear weight
+	// The estimated weight of the pro-gear being moved belonging to a spouse.
 	SpouseProGearWeight *int64 `json:"spouseProGearWeight"`
 
 	// status
 	// Required: true
 	Status PPMShipmentStatus `json:"status"`
 
-	// submitted at
+	// The timestamp of when the customer submitted their move to the counselor.
 	// Format: date-time
 	SubmittedAt *strfmt.DateTime `json:"submittedAt"`
 
-	// updated at
+	// Timestamp of when a property of this object was last updated (UTC)
 	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
@@ -190,7 +197,7 @@ type PPMShipment struct {
 	// w2 address
 	W2Address *Address `json:"w2Address,omitempty"`
 
-	// weight tickets
+	// All weight ticket documentation records belonging to vehicles of this PPM shipment
 	WeightTickets []*WeightTicket `json:"weightTickets"`
 }
 

@@ -29,12 +29,13 @@ func NewGetPaymentRequestsQueue(ctx *middleware.Context, handler GetPaymentReque
 	return &GetPaymentRequestsQueue{Context: ctx, Handler: handler}
 }
 
-/*
-	GetPaymentRequestsQueue swagger:route GET /queues/payment-requests queues getPaymentRequestsQueue
+/* GetPaymentRequestsQueue swagger:route GET /queues/payment-requests queues getPaymentRequestsQueue
 
-# Gets queued list of all payment requests by GBLOC origin
+Gets queued list of all payment requests by GBLOC origin
 
 An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty location.
+
+
 */
 type GetPaymentRequestsQueue struct {
 	Context *middleware.Context

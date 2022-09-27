@@ -16,8 +16,7 @@ import (
 // UpdateMTOAgentOKCode is the HTTP code returned for type UpdateMTOAgentOK
 const UpdateMTOAgentOKCode int = 200
 
-/*
-UpdateMTOAgentOK Successfully updated the agent.
+/*UpdateMTOAgentOK Successfully updated the agent.
 
 swagger:response updateMTOAgentOK
 */
@@ -61,8 +60,7 @@ func (o *UpdateMTOAgentOK) WriteResponse(rw http.ResponseWriter, producer runtim
 // UpdateMTOAgentBadRequestCode is the HTTP code returned for type UpdateMTOAgentBadRequest
 const UpdateMTOAgentBadRequestCode int = 400
 
-/*
-UpdateMTOAgentBadRequest The request payload is invalid.
+/*UpdateMTOAgentBadRequest The request payload is invalid.
 
 swagger:response updateMTOAgentBadRequest
 */
@@ -106,8 +104,7 @@ func (o *UpdateMTOAgentBadRequest) WriteResponse(rw http.ResponseWriter, produce
 // UpdateMTOAgentUnauthorizedCode is the HTTP code returned for type UpdateMTOAgentUnauthorized
 const UpdateMTOAgentUnauthorizedCode int = 401
 
-/*
-UpdateMTOAgentUnauthorized The request was denied.
+/*UpdateMTOAgentUnauthorized The request was denied.
 
 swagger:response updateMTOAgentUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *UpdateMTOAgentUnauthorized) WriteResponse(rw http.ResponseWriter, produ
 // UpdateMTOAgentForbiddenCode is the HTTP code returned for type UpdateMTOAgentForbidden
 const UpdateMTOAgentForbiddenCode int = 403
 
-/*
-UpdateMTOAgentForbidden The request was denied.
+/*UpdateMTOAgentForbidden The request was denied.
 
 swagger:response updateMTOAgentForbidden
 */
@@ -196,8 +192,7 @@ func (o *UpdateMTOAgentForbidden) WriteResponse(rw http.ResponseWriter, producer
 // UpdateMTOAgentNotFoundCode is the HTTP code returned for type UpdateMTOAgentNotFound
 const UpdateMTOAgentNotFoundCode int = 404
 
-/*
-UpdateMTOAgentNotFound The requested resource wasn't found.
+/*UpdateMTOAgentNotFound The requested resource wasn't found.
 
 swagger:response updateMTOAgentNotFound
 */
@@ -241,8 +236,7 @@ func (o *UpdateMTOAgentNotFound) WriteResponse(rw http.ResponseWriter, producer 
 // UpdateMTOAgentPreconditionFailedCode is the HTTP code returned for type UpdateMTOAgentPreconditionFailed
 const UpdateMTOAgentPreconditionFailedCode int = 412
 
-/*
-UpdateMTOAgentPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+/*UpdateMTOAgentPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response updateMTOAgentPreconditionFailed
 */
@@ -286,8 +280,7 @@ func (o *UpdateMTOAgentPreconditionFailed) WriteResponse(rw http.ResponseWriter,
 // UpdateMTOAgentUnprocessableEntityCode is the HTTP code returned for type UpdateMTOAgentUnprocessableEntity
 const UpdateMTOAgentUnprocessableEntityCode int = 422
 
-/*
-UpdateMTOAgentUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
+/*UpdateMTOAgentUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response updateMTOAgentUnprocessableEntity
 */
@@ -331,8 +324,7 @@ func (o *UpdateMTOAgentUnprocessableEntity) WriteResponse(rw http.ResponseWriter
 // UpdateMTOAgentInternalServerErrorCode is the HTTP code returned for type UpdateMTOAgentInternalServerError
 const UpdateMTOAgentInternalServerErrorCode int = 500
 
-/*
-UpdateMTOAgentInternalServerError A server error occurred.
+/*UpdateMTOAgentInternalServerError A server error occurred.
 
 swagger:response updateMTOAgentInternalServerError
 */

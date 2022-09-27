@@ -16,8 +16,7 @@ import (
 // UploadAmendedOrdersCreatedCode is the HTTP code returned for type UploadAmendedOrdersCreated
 const UploadAmendedOrdersCreatedCode int = 201
 
-/*
-UploadAmendedOrdersCreated created upload
+/*UploadAmendedOrdersCreated created upload
 
 swagger:response uploadAmendedOrdersCreated
 */
@@ -61,8 +60,7 @@ func (o *UploadAmendedOrdersCreated) WriteResponse(rw http.ResponseWriter, produ
 // UploadAmendedOrdersBadRequestCode is the HTTP code returned for type UploadAmendedOrdersBadRequest
 const UploadAmendedOrdersBadRequestCode int = 400
 
-/*
-UploadAmendedOrdersBadRequest invalid request
+/*UploadAmendedOrdersBadRequest invalid request
 
 swagger:response uploadAmendedOrdersBadRequest
 */
@@ -106,8 +104,7 @@ func (o *UploadAmendedOrdersBadRequest) WriteResponse(rw http.ResponseWriter, pr
 // UploadAmendedOrdersForbiddenCode is the HTTP code returned for type UploadAmendedOrdersForbidden
 const UploadAmendedOrdersForbiddenCode int = 403
 
-/*
-UploadAmendedOrdersForbidden not authorized
+/*UploadAmendedOrdersForbidden not authorized
 
 swagger:response uploadAmendedOrdersForbidden
 */
@@ -131,8 +128,7 @@ func (o *UploadAmendedOrdersForbidden) WriteResponse(rw http.ResponseWriter, pro
 // UploadAmendedOrdersNotFoundCode is the HTTP code returned for type UploadAmendedOrdersNotFound
 const UploadAmendedOrdersNotFoundCode int = 404
 
-/*
-UploadAmendedOrdersNotFound not found
+/*UploadAmendedOrdersNotFound not found
 
 swagger:response uploadAmendedOrdersNotFound
 */
@@ -156,8 +152,7 @@ func (o *UploadAmendedOrdersNotFound) WriteResponse(rw http.ResponseWriter, prod
 // UploadAmendedOrdersRequestEntityTooLargeCode is the HTTP code returned for type UploadAmendedOrdersRequestEntityTooLarge
 const UploadAmendedOrdersRequestEntityTooLargeCode int = 413
 
-/*
-UploadAmendedOrdersRequestEntityTooLarge payload is too large
+/*UploadAmendedOrdersRequestEntityTooLarge payload is too large
 
 swagger:response uploadAmendedOrdersRequestEntityTooLarge
 */
@@ -181,8 +176,7 @@ func (o *UploadAmendedOrdersRequestEntityTooLarge) WriteResponse(rw http.Respons
 // UploadAmendedOrdersInternalServerErrorCode is the HTTP code returned for type UploadAmendedOrdersInternalServerError
 const UploadAmendedOrdersInternalServerErrorCode int = 500
 
-/*
-UploadAmendedOrdersInternalServerError server error
+/*UploadAmendedOrdersInternalServerError server error
 
 swagger:response uploadAmendedOrdersInternalServerError
 */

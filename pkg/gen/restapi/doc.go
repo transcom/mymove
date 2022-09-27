@@ -2,19 +2,19 @@
 
 // Package restapi my.move.mil
 //
-//	The public API for my.move.mil. This is a work in-progress, and is not a final product. We will be continuously updating this site based on feedback.
-//	Schemes:
-//	  http
-//	Host: localhost
-//	BasePath: /api/v1
-//	Version: 0.0.1
-//	License: MIT https://github.com/transcom/mymove/blob/master/LICENSE.md
+//  The public API for my.move.mil. This is a work in-progress, and is not a final product. We will be continuously updating this site based on feedback.
+//  Schemes:
+//    http
+//  Host: localhost
+//  BasePath: /api/v1
+//  Version: 0.0.1
+//  License: MIT https://github.com/transcom/mymove/blob/master/LICENSE.md
 //
-//	Consumes:
-//	  - application/json
+//  Consumes:
+//    - application/json
 //
-//	Produces:
-//	  - application/json
+//  Produces:
+//    - application/json
 //
 // swagger:meta
 package restapi

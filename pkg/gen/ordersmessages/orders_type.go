@@ -15,22 +15,23 @@ import (
 )
 
 // OrdersType The common types fit into the acronym ASTRO-U.
-//   - **A**ccession - Joining the military
-//   - **S**eparation / Retirement - Leaving the military
-//   - **T**raining
-//   - **R**otational
-//   - **O**perational
-//   - **U**nit Move - When an entire unit is reassigned to another installation, often as a deployment
+//   * **A**ccession - Joining the military
+//   * **S**eparation / Retirement - Leaving the military
+//   * **T**raining
+//   * **R**otational
+//   * **O**perational
+//   * **U**nit Move - When an entire unit is reassigned to another installation, often as a deployment
 //
 // As of this writing, none of the branches of service distinguish between
 // separation and retirement Orders in their systems, even though the NTS
 // entitlement lasts longer for retirement.
 //
 // Consequences of this field include
-//   - NTS entitlements are different between Orders types.
-//   - Deadlines to create a shipment associated with Orders differs by Orders type.
-//   - Accession, separation, and retirement moves currently require the
+//   * NTS entitlements are different between Orders types.
+//   * Deadlines to create a shipment associated with Orders differs by Orders type.
+//   * Accession, separation, and retirement moves currently require the
 //     member to go through in-person counseling at the TMO / PPPO.
+//
 //
 // swagger:model OrdersType
 type OrdersType string
