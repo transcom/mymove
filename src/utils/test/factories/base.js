@@ -20,8 +20,9 @@ const loadSpec = (fileName) => {
   // RA: system.
   // RA: In this case, this doesn't contain user input and serves to be able to grab the local swagger files.
   // RA Developer Status: Mitigated
-  // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-  // RA Modified Severity:
+  // RA Validator Status: Mitigated
+  //RA Validator: leodis.f.scott.civ@mail.mil
+  // RA Modified Severity: CAT III
   /* eslint-disable-next-line security/detect-non-literal-fs-filename */
   return yaml.load(fs.readFileSync(yamlPath, 'utf8'));
 };
