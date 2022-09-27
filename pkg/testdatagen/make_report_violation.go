@@ -21,7 +21,6 @@ func MakeReportViolation(db *pop.Connection, assertions Assertions) models.Repor
 
 	reportViolation := models.ReportViolation{
 		ID:          uuid.Must(uuid.NewV4()),
-		Report:      report,
 		ReportID:    report.ID,
 		Violation:   violation,
 		ViolationID: violation.ID,
