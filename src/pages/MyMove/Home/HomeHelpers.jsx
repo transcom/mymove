@@ -117,3 +117,16 @@ export const HelperAmendedOrders = () => (
     </p>
   </Helper>
 );
+
+export const HelperPPMCloseoutSubmitted = () => (
+  <Helper title="Someone will review all of your PPM documentation">
+    <p>
+      If your documentation is clear and valid, you’ll be able to download a payment packet. You can submit that packet
+      to your Finance office to finalize your acutal incentive amount and request payment.
+    </p>
+    <p>
+      If any documentation is unclear or inaccurate, the counselor will send it back for you to edit. When you are done
+      editing, you will submit it again and a counselor will review your changes.
+    </p>
+  </Helper>
+);
