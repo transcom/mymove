@@ -42,9 +42,18 @@ const BASE_FIELDS = {
   TRAITS: 'traits',
 };
 
-const applyOverrides = (object, overrides) => {
-  const appliedFields = object;
-  Object.entries(object).forEach(([field, value]) => {
+/**
+ * applyOverrides takes an object of fields and an object of overrides and recursively applies the overrides where their structure matches the fields'.
+ * e.g. fields.field.subfield will be overridden by fields.field.subfield if the latter exists.
+ * If an override does not exist, and the field's value is a function, it's called.
+ * Otherwise, the field's value is unaffected.
+ * The return value is the fields object with the overrides applied.
+ * @param {*} fields - An object containing fields and their values
+ * @param {*} overrides - An object containing values to override for their corresponding fields
+ */
+const applyOverrides = (fields, overrides) => {
+  const appliedFields = fields;
+  Object.entries(fields).forEach(([field, value]) => {
     switch (typeof value) {
       case 'function':
         if (overrides && overrides[field]) {
