@@ -22,10 +22,11 @@ const (
 	// We can figure this out at runtime, but it adds complexity
 	arrowImageFormat          = "png"
 	arrowImageName            = "arrowright"
+	mmPerPixel                = (letterWidthMm / 1204)
 	pageHeightMm              = 279.4
 	pageBottomMarginMm        = 10.0
 	pageTopMarginMm           = 14.0
-	mmPerPixel                = (letterWidthMm / 1204)
+	pageSideMarginMm          = 48.0 * mmPerPixel
 	reportHeadingFontSize     = 40.0 * mmPerPixel
 	sectionHeadingFontSize    = 28.0 * mmPerPixel
 	subsectionHeadingFontSize = 22.0 * mmPerPixel
@@ -76,8 +77,7 @@ func loadFont(pdf *gofpdf.Fpdf, family string, style string, path string) error 
 
 func NewDynamicFormFiller() *DynamicFormFiller {
 	pdf := gofpdf.New(pageOrientation, distanceUnit, pageSize, fontDir)
-	pdf.SetMargins(pxToMM(48.0), pageTopMarginMm, pxToMM(48.0))
-	//pdf.SetFont(fontFamily, fontStyle, fontSize)
+	pdf.SetMargins(pageSideMarginMm, pageTopMarginMm, pageSideMarginMm)
 	pdf.SetAutoPageBreak(false, pageBottomMarginMm)
 	pdf.AliasNbPages("")
 
