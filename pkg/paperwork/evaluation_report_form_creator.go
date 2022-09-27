@@ -118,7 +118,7 @@ func (f *EvaluationReportFormFiller) Output(output io.Writer) error {
 	f.addPageHeaders()
 	return f.pdf.Output(output)
 }
-func (f *EvaluationReportFormFiller) ViolationsSection(violations models.PWSViolations) error {
+func (f *EvaluationReportFormFiller) violationsSection(violations models.PWSViolations) error {
 	f.subsectionHeading(fmt.Sprintf("Violations observed (%d)", len(violations)))
 
 	kpis := map[string]bool{}
@@ -157,7 +157,7 @@ func (f *EvaluationReportFormFiller) ViolationsSection(violations models.PWSViol
 	return nil
 }
 
-func (f *EvaluationReportFormFiller) InspectionInformationSection(report models.EvaluationReport, violations models.PWSViolations) error {
+func (f *EvaluationReportFormFiller) inspectionInformationSection(report models.EvaluationReport, violations models.PWSViolations) error {
 	inspectionInfo := FormatValuesInspectionInformation(report, violations)
 
 	err := f.subsection("Inspection information", InspectionInformationFields, InspectionInformationFieldLabels, inspectionInfo)
@@ -192,7 +192,7 @@ func (f *EvaluationReportFormFiller) CreateShipmentReport(report models.Evaluati
 		return fmt.Errorf("draw shipment card error %w", err)
 	}
 
-	err = f.InspectionInformationSection(report, violations)
+	err = f.inspectionInformationSection(report, violations)
 	if err != nil {
 		return err
 	}
@@ -200,7 +200,7 @@ func (f *EvaluationReportFormFiller) CreateShipmentReport(report models.Evaluati
 	f.pdf.AddPage()
 	f.sectionHeading("Violations", pxToMM(56.0))
 
-	err = f.ViolationsSection(violations)
+	err = f.violationsSection(violations)
 	if err != nil {
 		return err
 	}
@@ -229,7 +229,7 @@ func (f *EvaluationReportFormFiller) CreateCounselingReport(report models.Evalua
 
 	f.pdf.AddPage()
 	f.sectionHeading("Evaluation report", pxToMM(56.0))
-	err = f.InspectionInformationSection(report, violations)
+	err = f.inspectionInformationSection(report, violations)
 	if err != nil {
 		return err
 	}
@@ -237,7 +237,7 @@ func (f *EvaluationReportFormFiller) CreateCounselingReport(report models.Evalua
 	f.pdf.AddPage()
 	f.sectionHeading("Violations", pxToMM(56.0))
 
-	err = f.ViolationsSection(violations)
+	err = f.violationsSection(violations)
 	if err != nil {
 		return err
 	}
