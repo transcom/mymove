@@ -314,7 +314,7 @@ func (f *EvaluationReportFormFiller) sectionHeading(text string, bottomMargin fl
 	f.pdf.SetFontUnitSize(sectionHeadingFontSize)
 
 	f.pdf.SetX(pageSideMarginMm)
-	f.pdf.CellFormat(0.0, 10.0, text, "", 1, "LT", false, 0, "")
+	f.pdf.CellFormat(0.0, pxToMM(34.0), text, "", 1, "LT", false, 0, "")
 	f.pdf.SetFontStyle("")
 	f.pdf.SetFontSize(fontSize)
 
@@ -665,7 +665,7 @@ func (f *EvaluationReportFormFiller) tableColumn(x float64, labelWidth float64, 
 	f.pdf.SetX(x)
 	f.pdf.SetFontStyle("B")
 	f.setTextColorBaseDarker()
-	f.pdf.CellFormat(labelWidth, 10.0, label, "", 0, "LT", false, 0, "")
+	f.pdf.CellFormat(labelWidth, pxToMM(42.0), label, "", 0, "LT", false, 0, "")
 	f.pdf.SetFontStyle("")
 	f.setTextColorBaseDarkest()
 	f.pdf.MultiCell(valueWidth, lineHeight, value, "", "LT", false)
