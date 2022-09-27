@@ -15,7 +15,7 @@ import EvaluationViolationsForm from 'components/Office/EvaluationViolationsForm
 const EvaluationViolations = () => {
   const { reportId } = useParams();
 
-  const { evaluationReport } = useEvaluationReportQueries(reportId);
+  const { evaluationReport, reportViolations } = useEvaluationReportQueries(reportId);
   const { violations } = usePWSViolationsQueries();
 
   return (
@@ -23,7 +23,11 @@ const EvaluationViolations = () => {
       <GridContainer>
         <QaeReportHeader report={evaluationReport} />
 
-        <EvaluationViolationsForm violations={violations} />
+        <EvaluationViolationsForm
+          violations={violations}
+          evaluationReport={evaluationReport}
+          reportViolations={reportViolations}
+        />
       </GridContainer>
     </div>
   );
