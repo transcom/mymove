@@ -185,7 +185,13 @@ func (f *EvaluationReportFormFiller) loadArrowImage() error {
 
 // Output outputs the form to the provided file
 func (f *EvaluationReportFormFiller) Output(output io.Writer) error {
-	f.addPageHeaders()
+	// Loop through all pages and add headings. This must be done right before output
+	// because we need to be able to calculate the number of pages to show "Page X of Y"
+	numPages := f.pdf.PageCount()
+	for i := 1; i <= numPages; i++ {
+		f.pdf.SetPage(i)
+		f.reportPageHeader()
+	}
 	return f.pdf.Output(output)
 }
 func (f *EvaluationReportFormFiller) violationsSection(violations models.PWSViolations) error {
@@ -679,13 +685,4 @@ func (f *EvaluationReportFormFiller) tableColumn(x float64, labelWidth float64, 
 
 func (f *EvaluationReportFormFiller) drawArrow() {
 	f.pdf.Image(arrowImageName, f.pdf.GetX(), f.pdf.GetY(), pxToMM(20.0), 0.0, flow, arrowImageFormat, imageLink, imageLinkURL)
-}
-
-// Loop through all pages and add headings. This must be done at the end because it uses the number of pages
-func (f *EvaluationReportFormFiller) addPageHeaders() {
-	numPages := f.pdf.PageCount()
-	for i := 1; i <= numPages; i++ {
-		f.pdf.SetPage(i)
-		f.reportPageHeader()
-	}
 }
