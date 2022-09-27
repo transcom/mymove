@@ -24,13 +24,5 @@ describe('When a service counselor updates shipping allowances', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(updateAllowanceCounseling);
     expect(result.getEventNameDisplay()).toMatch(item.eventNameDisplay);
-    expect(result.getDetailsLabeledDetails(item)).toMatchObject({
-      dependents_authorized: 'false',
-      organizational_clothing_and_individual_equipment: 'false',
-      pro_gear_weight: '1999',
-      pro_gear_weight_spouse: '49g',
-      required_medical_equipment_weight: '99g',
-      storage_in_transit: 'gg',
-    });
   });
 });

@@ -9,7 +9,4 @@ export default {
   tableName: t.entitlements,
   detailsType: d.LABELED,
   getEventNameDisplay: () => 'Updated allowances',
-  getDetailsLabeledDetails: (historyRecord) => {
-    return { ...historyRecord.changedValues };
-  },
 };
