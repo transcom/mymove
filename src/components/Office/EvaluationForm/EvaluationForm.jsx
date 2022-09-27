@@ -96,6 +96,8 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
   };
 
   const saveDraft = async (values) => {
+    const { createdAt, updatedAt, shipmentID, id, moveID, moveReferenceID, ...existingReportFields } = evaluationReport;
+
     // format the inspection type if its there
     const { evaluationType } = values;
     let inspectionType;
@@ -137,6 +139,7 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
     }
 
     const body = {
+      ...existingReportFields,
       location: evaluationLocation,
       locationDescription,
       inspectionType,
