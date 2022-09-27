@@ -20,11 +20,17 @@ const (
 	boldFontPath    = "pkg/paperwork/formtemplates/PublicSans-Bold.ttf"
 	arrowImagePath  = "pkg/paperwork/formtemplates/arrowright.png"
 	// We can figure this out at runtime, but it adds complexity
-	arrowImageFormat   = "png"
-	arrowImageName     = "arrowright"
-	pageHeightMm       = 279.4
-	pageBottomMarginMm = 10.0
-	pageTopMarginMm    = 14.0
+	arrowImageFormat          = "png"
+	arrowImageName            = "arrowright"
+	pageHeightMm              = 279.4
+	pageBottomMarginMm        = 10.0
+	pageTopMarginMm           = 14.0
+	mmPerPixel                = (letterWidthMm / 1204)
+	reportHeadingFontSize     = 40.0 * mmPerPixel
+	sectionHeadingFontSize    = 28.0 * mmPerPixel
+	subsectionHeadingFontSize = 22.0 * mmPerPixel
+	textFontSize              = 15.0 * mmPerPixel
+	textSmallFontSize         = 13.0 * mmPerPixel
 )
 
 // TODO do we want to keep this or inline it?
@@ -256,7 +262,7 @@ func (d *DynamicFormFiller) reportPageHeader() {
 	d.pdf.MoveTo(0.0, 0.0)
 	d.pdf.SetTextColor(255, 255, 255)
 	d.pdf.SetFillColor(0, 0, 0)
-	d.pdf.SetFontUnitSize(pxToMM(13.0)) // 28px
+	d.pdf.SetFontUnitSize(textSmallFontSize) // 28px
 	d.pdf.CellFormat(letterWidthMm, stripeHeight, controlledUnclassifiedInformationText, "", 1, "CM", true, 0, "")
 	d.setTextColorBaseDarker()
 	d.pdf.SetFontStyle("B")
@@ -267,7 +273,7 @@ func (d *DynamicFormFiller) reportPageHeader() {
 
 func (d *DynamicFormFiller) reportHeading(text string, reportID string, moveCode string, mtoReferenceID string) {
 	//d.pdf.SetFontSize(30.0) // 40px
-	d.pdf.SetFontUnitSize(pxToMM(40.0))
+	d.pdf.SetFontUnitSize(reportHeadingFontSize)
 	d.setTextColorBaseDarkest()
 	headingX := d.startX
 	headingY := d.pdf.GetY()
@@ -282,7 +288,7 @@ func (d *DynamicFormFiller) reportHeading(text string, reportID string, moveCode
 	d.pdf.CellFormat(headingWidth, height, text, "", 0, "LM", false, 0, "")
 
 	// Report ID/Move Code/MTO reference ID (right aligned)
-	d.pdf.SetFontUnitSize(pxToMM(13.0))
+	d.pdf.SetFontUnitSize(textSmallFontSize)
 	d.setTextColorBaseDark()
 	d.pdf.CellFormat(idsWidth, height/3.0, fmt.Sprintf("REPORT ID #%s", reportID), "", 1, "RM", false, 0, "")
 	d.pdf.SetX(headingX + headingWidth)
@@ -316,7 +322,7 @@ func (d *DynamicFormFiller) setBorderColor() {
 func (d *DynamicFormFiller) sectionHeading(text string, bottomMargin float64) {
 	d.pdf.SetFontStyle("B")
 	d.setTextColorBaseDarkest()
-	d.pdf.SetFontUnitSize(pxToMM(28.0))
+	d.pdf.SetFontUnitSize(sectionHeadingFontSize)
 
 	d.pdf.SetX(d.startX)
 	d.pdf.CellFormat(0.0, 10.0, text, "", 1, "LT", false, 0, "")
@@ -358,7 +364,7 @@ func (d *DynamicFormFiller) subsectionHeading(heading string) {
 	bottomMargin := pxToMM(24.0)
 	d.pdf.SetFontStyle("B")
 	d.setTextColorBaseDarkest()
-	d.pdf.SetFontUnitSize(pxToMM(28.0))
+	d.pdf.SetFontUnitSize(subsectionHeadingFontSize)
 	d.addVerticalSpace(topMargin)
 	d.pdf.SetX(d.startX)
 	d.pdf.CellFormat(0.0, 10.0, heading, "", 1, "LT", false, 0, "")
@@ -404,7 +410,7 @@ func (d *DynamicFormFiller) subsectionRow(key string, value string) {
 		fmt.Println("adding page")
 		d.pdf.AddPage()
 	}
-	d.pdf.SetFontUnitSize(pxToMM(15.0))
+	d.pdf.SetFontUnitSize(textFontSize)
 	y := d.pdf.GetY()
 	startPage := d.pdf.PageNo()
 
@@ -440,7 +446,7 @@ func (d *DynamicFormFiller) violation(violation models.PWSViolation) {
 	height := pxToMM(18.0)
 	bulletWidth := pxToMM(22.0)
 	d.pdf.SetX(d.startX)
-	d.pdf.SetFontUnitSize(pxToMM(13.0)) // 28px
+	d.pdf.SetFontUnitSize(textSmallFontSize)
 	d.pdf.SetFontStyle("B")
 
 	totalHeight := 2 * height
@@ -464,7 +470,7 @@ func (d *DynamicFormFiller) contactInformation(customer models.ServiceMember, of
 	qaeContactText := strings.Join([]string{contactInfo.QAEFullName, contactInfo.QAEPhone, contactInfo.QAEEmail}, "\n")
 
 	d.pdf.SetFontStyle("B")
-	d.pdf.SetFontUnitSize(pxToMM(15.0))
+	d.pdf.SetFontUnitSize(textFontSize)
 	d.setTextColorBaseDarkest()
 	d.setBorderColor()
 	d.pdf.SetX(d.startX)
@@ -524,7 +530,7 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	d.pdf.SetFontStyle("B")
 	shipmentTypeText := d.formatShipmentType(shipment.ShipmentType)
 
-	d.pdf.SetFontUnitSize(pxToMM(15.0))
+	d.pdf.SetFontUnitSize(textFontSize)
 	d.pdf.CellFormat(d.pdf.GetStringWidth(shipmentTypeText)+2*d.pdf.GetCellMargin(), headingHeight, shipmentTypeText, "", 0, "LM", false, 0, "")
 	d.pdf.SetFontStyle("")
 	if shipment.UsesExternalVendor {
@@ -538,7 +544,7 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	d.setTextColorBaseDark()
 	// pagewidth - x - margin
 	shipmentIDWidth := ((d.startX + cardWidth) - d.pdf.GetX()) - pxToMM(8.0)
-	d.pdf.SetFontUnitSize(pxToMM(13.0))
+	d.pdf.SetFontUnitSize(textSmallFontSize)
 	d.pdf.CellFormat(shipmentIDWidth, headingHeight, "Shipment ID: "+vals.ShipmentID, "", 0, "RM", false, 0, "")
 	d.addVerticalSpace(headingHeight + headingBottomMargin)
 
@@ -595,7 +601,7 @@ func (d *DynamicFormFiller) setHHGStripeColor(shipmentType models.MTOShipmentTyp
 }
 
 func (d *DynamicFormFiller) sideBySideAddress(gap float64, leftAddressX float64, leftAddress string, leftAddressLabel string, rightAddressX float64, rightAddress string, rightAddressLabel string) {
-	d.pdf.SetFontUnitSize(pxToMM(15.0))
+	d.pdf.SetFontUnitSize(textFontSize)
 	addressY := d.pdf.GetY()
 	startY := d.pdf.GetY()
 	d.pdf.SetX(leftAddressX)
@@ -642,7 +648,7 @@ func (d *DynamicFormFiller) twoColumnTable(x float64, y float64, w float64, layo
 	labelWidth := 0.3 * columnWidth
 	valueWidth := 0.7 * columnWidth
 	d.pdf.SetY(y)
-	d.pdf.SetFontUnitSize(pxToMM(13.0))
+	d.pdf.SetFontUnitSize(textSmallFontSize)
 
 	for i, row := range layout {
 		err := d.twoColumnTableRow(x, gap, labelWidth, valueWidth, row, data)
