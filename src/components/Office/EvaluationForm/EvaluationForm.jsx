@@ -138,10 +138,6 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
       violations = values.violationsObserved === 'yes';
     }
 
-    if (inspectionType !== 'PHYSICAL') {
-      travelMinutes = undefined;
-    }
-
     const body = {
       location: evaluationLocation,
       locationDescription,
