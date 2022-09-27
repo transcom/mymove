@@ -75,7 +75,7 @@ func loadFont(pdf *gofpdf.Fpdf, family string, style string, path string) error 
 	return pdf.Error()
 }
 
-func NewDynamicFormFiller() *DynamicFormFiller {
+func NewDynamicFormFiller() (*DynamicFormFiller, error) {
 	pdf := gofpdf.New(pageOrientation, distanceUnit, pageSize, fontDir)
 	pdf.SetMargins(pageSideMarginMm, pageTopMarginMm, pageSideMarginMm)
 	pdf.SetAutoPageBreak(false, pageBottomMarginMm)
@@ -83,22 +83,18 @@ func NewDynamicFormFiller() *DynamicFormFiller {
 
 	err := loadFont(pdf, "PublicSans", "", regularFontPath)
 	if err != nil {
-		// TODO if we cant load our fonts maybe we fallback to helvetica? or do we just fail?
-		fmt.Println("error loading font", err)
-		return nil
+		return nil, err
 	}
 	err = loadFont(pdf, "PublicSans", "B", boldFontPath)
 	if err != nil {
-		// TODO
-		fmt.Println("error loading bold font", err)
-		return nil
+		return nil, err
 	}
 	pdf.SetFont("PublicSans", fontStyle, fontSize)
 
 	return &DynamicFormFiller{
 		pdf:    pdf,
-		startX: pxToMM(48.0),
-	}
+		startX: pageSideMarginMm,
+	}, nil
 }
 
 func (d *DynamicFormFiller) loadArrowImage() error {

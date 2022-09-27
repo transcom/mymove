@@ -166,7 +166,10 @@ func (h DownloadEvaluationReportHandler) Handle(params evaluationReportop.Downlo
 				return handleError(err)
 			}
 
-			formFiller := paperwork.NewDynamicFormFiller()
+			formFiller, err := paperwork.NewDynamicFormFiller()
+			if err != nil {
+				return handleError(err)
+			}
 			// possibly this logic should be in the form filler
 			if evaluationReport.Type == models.EvaluationReportTypeCounseling {
 				shipments, shipmentErr := h.ListMTOShipments(appCtx, evaluationReport.MoveID)
