@@ -127,13 +127,19 @@ const EvaluationForm = ({ evaluationReport, mtoShipments, customerInfo, grade })
     }
 
     let travelMinutes;
-    if (values.minute || values.hour) {
-      travelMinutes = convertToMinutes(values.hour, values.minute);
+    if (inspectionType === 'PHYSICAL') {
+      if (values.minute || values.hour) {
+        travelMinutes = convertToMinutes(values.hour, values.minute);
+      }
     }
 
     let violations;
     if (values.violationsObserved) {
       violations = values.violationsObserved === 'yes';
+    }
+
+    if (inspectionType !== 'PHYSICAL') {
+      travelMinutes = undefined;
     }
 
     const body = {
