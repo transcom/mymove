@@ -165,24 +165,6 @@ func (f *EvaluationReportFormFiller) CreateCounselingReport(report models.Evalua
 	return f.pdf.Error()
 }
 
-func (f *EvaluationReportFormFiller) loadArrowImage() error {
-	// load image from assets
-	arrow, err := assets.Asset(arrowImagePath)
-	if err != nil {
-		return errors.Wrap(err, "could not load image asset")
-	}
-	arrowImage := bytes.NewReader(arrow)
-
-	opt := gofpdf.ImageOptions{
-		ImageType: arrowImageFormat,
-		ReadDpi:   true,
-	}
-
-	// After the image is registered, we can use its name to draw it
-	f.pdf.RegisterImageOptionsReader(arrowImageName, opt, arrowImage)
-	return f.pdf.Error()
-}
-
 // Output outputs the form to the provided file
 func (f *EvaluationReportFormFiller) Output(output io.Writer) error {
 	// Loop through all pages and add headings. This must be done right before output
@@ -683,6 +665,25 @@ func (f *EvaluationReportFormFiller) tableColumn(x float64, labelWidth float64, 
 	f.pdf.MultiCell(valueWidth, lineHeight, value, "", "LT", false)
 }
 
+// drawArrow draws an image of an arrow. loadArrowImage MUST be called before this.
 func (f *EvaluationReportFormFiller) drawArrow() {
 	f.pdf.Image(arrowImageName, f.pdf.GetX(), f.pdf.GetY(), pxToMM(20.0), 0.0, flow, arrowImageFormat, imageLink, imageLinkURL)
+}
+
+func (f *EvaluationReportFormFiller) loadArrowImage() error {
+	// load image from assets
+	arrow, err := assets.Asset(arrowImagePath)
+	if err != nil {
+		return errors.Wrap(err, "could not load image asset")
+	}
+	arrowImage := bytes.NewReader(arrow)
+
+	opt := gofpdf.ImageOptions{
+		ImageType: arrowImageFormat,
+		ReadDpi:   true,
+	}
+
+	// After the image is registered, we can use its name to draw it
+	f.pdf.RegisterImageOptionsReader(arrowImageName, opt, arrowImage)
+	return f.pdf.Error()
 }
