@@ -24,6 +24,7 @@ const (
 	arrowImageName     = "arrowright"
 	pageHeightMm       = 279.4
 	pageBottomMarginMm = 10.0
+	pageTopMarginMm    = 14.0
 )
 
 // TODO do we want to keep this or inline it?
@@ -69,9 +70,9 @@ func loadFont(pdf *gofpdf.Fpdf, family string, style string, path string) error 
 
 func NewDynamicFormFiller() *DynamicFormFiller {
 	pdf := gofpdf.New(pageOrientation, distanceUnit, pageSize, fontDir)
-	pdf.SetMargins(pxToMM(48.0), 0, pxToMM(48.0))
+	pdf.SetMargins(pxToMM(48.0), pageTopMarginMm, pxToMM(48.0))
 	//pdf.SetFont(fontFamily, fontStyle, fontSize)
-	pdf.SetAutoPageBreak(false, 0)
+	pdf.SetAutoPageBreak(false, pageBottomMarginMm)
 	pdf.AliasNbPages("")
 
 	err := loadFont(pdf, "PublicSans", "", regularFontPath)
@@ -182,7 +183,7 @@ func (d *DynamicFormFiller) CreateShipmentReport(report models.EvaluationReport,
 	}
 	d.reportID = fmt.Sprintf("QA-%s", strings.ToUpper(report.ID.String()[:5]))
 
-	d.addPage()
+	d.pdf.AddPage()
 	d.reportHeading("Shipment report", d.reportID, report.Move.Locator, *report.Move.ReferenceID)
 	d.contactInformation(customer, report.OfficeUser)
 
@@ -196,7 +197,7 @@ func (d *DynamicFormFiller) CreateShipmentReport(report models.EvaluationReport,
 		return err
 	}
 
-	d.addPage()
+	d.pdf.AddPage()
 	d.sectionHeading("Violations", pxToMM(56.0))
 
 	err = d.ViolationsSection(violations)
@@ -213,28 +214,27 @@ func (d *DynamicFormFiller) CreateCounselingReport(report models.EvaluationRepor
 	}
 
 	d.reportID = fmt.Sprintf("QA-%s", strings.ToUpper(report.ID.String()[:5]))
-	d.addPage()
+	d.pdf.AddPage()
 
 	d.reportHeading("Counseling report", d.reportID, report.Move.Locator, *report.Move.ReferenceID)
 	d.sectionHeading("Move information", pxToMM(18.0))
 	d.contactInformation(customer, report.OfficeUser)
 
 	for _, shipment := range shipments {
-		// TODO decide whether to do a page break or add vertical space
 		err = d.shipmentCard(shipment)
 		if err != nil {
 			return fmt.Errorf("draw shipment card error %w", err)
 		}
 	}
 
-	d.addPage()
+	d.pdf.AddPage()
 	d.sectionHeading("Evaluation report", pxToMM(56.0))
 	err = d.InspectionInformationSection(report, violations)
 	if err != nil {
 		return err
 	}
 
-	d.addPage()
+	d.pdf.AddPage()
 	d.sectionHeading("Violations", pxToMM(56.0))
 
 	err = d.ViolationsSection(violations)
@@ -243,11 +243,6 @@ func (d *DynamicFormFiller) CreateCounselingReport(report models.EvaluationRepor
 	}
 
 	return d.pdf.Error()
-}
-func (d *DynamicFormFiller) addPage() {
-	d.pdf.AddPage()
-	// skip over header spot, which will be filled in after the report is complete
-	d.addVerticalSpace(pxToMM(13.0 + 34.0 + 40.0))
 }
 
 func (d *DynamicFormFiller) addVerticalSpace(dy float64) {
@@ -374,6 +369,7 @@ func (d *DynamicFormFiller) subsectionHeading(heading string) {
 	d.pdf.SetFontSize(fontSize)
 }
 
+// Assumptions: we wont have long enough labels to want auto page break
 func (d *DynamicFormFiller) subsectionRow(key string, value string) {
 	d.pdf.SetX(d.startX)
 	d.setTextColorBaseDarkest()
@@ -384,34 +380,58 @@ func (d *DynamicFormFiller) subsectionRow(key string, value string) {
 	valueWidth := letterWidthMm - 2.0*d.startX - labelWidth
 	textLineHeight := pxToMM(18.0)
 	minFieldHeight := pxToMM(40.0)
-	// TODO if i get any multiline things I might want to do LT with a smaller box
-	// todo might even make sense to have a different function for multiline stuff
-	// todo and then have that in the config object
 
-	needToLineWrap := d.pdf.GetStringWidth(value) > valueWidth-2*d.pdf.GetCellMargin()
+	// If the text is long, or contains line breaks, we will want to display across multiple lines
+	needToLineWrapValue := d.pdf.GetStringWidth(value) > valueWidth-2*d.pdf.GetCellMargin() || strings.Contains(value, "\n")
+	// I'm assuming that we will not have line breaks in labels
+	needToLineWrapLabel := d.pdf.GetStringWidth(key) > labelWidth-2*d.pdf.GetCellMargin()
 	estimatedHeight := minFieldHeight
-	if needToLineWrap {
+	// TODO the estimated height calculation is not quite right, it diverges for really long text.
+	// using AutoPageBreak prevents this from being an issue, but it is weird.
+	if needToLineWrapValue {
+		// Auto page break doesnt work super well for us in other places in the document because we have lines that
+		// should be kept together, but here, for a potentially large block of paragraphy text, it works great.
+		d.pdf.SetAutoPageBreak(true, pageBottomMarginMm)
 		estimatedHeight = math.Ceil(d.pdf.GetStringWidth(value)/(valueWidth-2*d.pdf.GetCellMargin())) * textLineHeight
 	}
+	if needToLineWrapLabel {
+		estimatedHeight = math.Max(estimatedHeight, math.Ceil(d.pdf.GetStringWidth(key)/(labelWidth-2*d.pdf.GetCellMargin()))*textLineHeight)
+	}
+	if needToLineWrapValue {
+		fmt.Println("estimated height", estimatedHeight, key)
+	}
 	if d.pdf.GetY()+estimatedHeight > pageHeightMm-pageBottomMarginMm {
-		d.addPage()
+		fmt.Println("adding page")
+		d.pdf.AddPage()
 	}
 	d.pdf.SetFontUnitSize(pxToMM(15.0))
 	y := d.pdf.GetY()
-	// TODO if we have any forms labels that need to wrap
-	d.pdf.CellFormat(labelWidth, minFieldHeight, key, "T", 0, "LM", false, 0, "")
-	//d.pdf.MultiCell(labelWidth, textLineHeight, key, "T",  "LM", false)
+	startPage := d.pdf.PageNo()
+
+	if needToLineWrapLabel {
+		d.pdf.MultiCell(labelWidth, textLineHeight, key, "T", "LM", false)
+	} else {
+		d.pdf.CellFormat(labelWidth, minFieldHeight, key, "T", 0, "LM", false, 0, "")
+	}
+
 	labelY := d.pdf.GetY()
 	d.pdf.SetFontStyle("")
 	d.pdf.MoveTo(d.startX+labelWidth, y)
-	if needToLineWrap {
+	if needToLineWrapValue {
 		d.pdf.MultiCell(valueWidth, textLineHeight, value, "T", "LM", false)
+		fmt.Println("after wrapped value, y=", d.pdf.GetY(), "page=", d.pdf.PageNo())
 	} else {
 		d.pdf.CellFormat(valueWidth, minFieldHeight, value, "T", 1, "LM", false, 0, "")
 	}
 	valueY := d.pdf.GetY()
 	endY := math.Max(math.Max(labelY, valueY), y+minFieldHeight)
+	actualHeight := endY - y
+	if d.pdf.PageNo() != startPage {
+		actualHeight = (pageHeightMm - y - pageBottomMarginMm) + float64(d.pdf.PageNo()-startPage-1)*pageHeightMm + endY - pageTopMarginMm
+	}
+	fmt.Println("start y", y, "startPage", startPage, "end y", endY, "actual height", actualHeight, "end page", d.pdf.PageNo())
 	d.pdf.SetY(endY)
+	d.pdf.SetAutoPageBreak(false, pageBottomMarginMm)
 }
 
 func (d *DynamicFormFiller) violation(violation models.PWSViolation) {
@@ -425,7 +445,7 @@ func (d *DynamicFormFiller) violation(violation models.PWSViolation) {
 
 	totalHeight := 2 * height
 	if d.pdf.GetY()+totalHeight > pageHeightMm-pageBottomMarginMm {
-		d.addPage()
+		d.pdf.AddPage()
 	}
 	d.pdf.CellFormat(bulletWidth, height, "•", "", 0, "RM", false, 0, "")
 	d.pdf.CellFormat(letterWidthMm-2.0*d.startX-bulletWidth, height, violation.ParagraphNumber+" "+violation.Title, "", 1, "LM", false, 0, "")
@@ -483,7 +503,7 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	//estimatedHeight := stripeHeight + headingMargin + headingHeight + headingBottomMargin + addressHeight + tableRowHeight + len(layout)
 	estimatedHeight := stripeHeight + 5.0 + 5.0 + 5.0 + addressHeight + tableRowHeight + float64(len(layout))
 	if d.pdf.GetY()+estimatedHeight > pageHeightMm-pageBottomMarginMm {
-		d.addPage()
+		d.pdf.AddPage()
 	}
 
 	cardWidth := letterWidthMm - 2*d.startX
