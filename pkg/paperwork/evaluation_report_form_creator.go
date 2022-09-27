@@ -95,6 +95,76 @@ func NewEvaluationReportFormFiller() (*EvaluationReportFormFiller, error) {
 	}, nil
 }
 
+func (f *EvaluationReportFormFiller) CreateShipmentReport(report models.EvaluationReport, violations models.PWSViolations, shipment models.MTOShipment, customer models.ServiceMember) error {
+	err := f.loadArrowImage()
+	if err != nil {
+		return err
+	}
+	f.reportID = fmt.Sprintf("QA-%s", strings.ToUpper(report.ID.String()[:5]))
+
+	f.pdf.AddPage()
+	f.reportHeading("Shipment report", f.reportID, report.Move.Locator, *report.Move.ReferenceID)
+	f.contactInformation(customer, report.OfficeUser)
+
+	err = f.shipmentCard(shipment)
+	if err != nil {
+		return fmt.Errorf("draw shipment card error %w", err)
+	}
+
+	err = f.inspectionInformationSection(report, violations)
+	if err != nil {
+		return err
+	}
+
+	f.pdf.AddPage()
+	f.sectionHeading("Violations", pxToMM(56.0))
+
+	err = f.violationsSection(violations)
+	if err != nil {
+		return err
+	}
+
+	return f.pdf.Error()
+}
+
+func (f *EvaluationReportFormFiller) CreateCounselingReport(report models.EvaluationReport, violations models.PWSViolations, shipments models.MTOShipments, customer models.ServiceMember) error {
+	err := f.loadArrowImage()
+	if err != nil {
+		return err
+	}
+
+	f.reportID = fmt.Sprintf("QA-%s", strings.ToUpper(report.ID.String()[:5]))
+	f.pdf.AddPage()
+
+	f.reportHeading("Counseling report", f.reportID, report.Move.Locator, *report.Move.ReferenceID)
+	f.sectionHeading("Move information", pxToMM(18.0))
+	f.contactInformation(customer, report.OfficeUser)
+
+	for _, shipment := range shipments {
+		err = f.shipmentCard(shipment)
+		if err != nil {
+			return fmt.Errorf("draw shipment card error %w", err)
+		}
+	}
+
+	f.pdf.AddPage()
+	f.sectionHeading("Evaluation report", pxToMM(56.0))
+	err = f.inspectionInformationSection(report, violations)
+	if err != nil {
+		return err
+	}
+
+	f.pdf.AddPage()
+	f.sectionHeading("Violations", pxToMM(56.0))
+
+	err = f.violationsSection(violations)
+	if err != nil {
+		return err
+	}
+
+	return f.pdf.Error()
+}
+
 func (f *EvaluationReportFormFiller) loadArrowImage() error {
 	// load image from assets
 	arrow, err := assets.Asset(arrowImagePath)
@@ -175,74 +245,6 @@ func (f *EvaluationReportFormFiller) inspectionInformationSection(report models.
 		return err
 	}
 	return nil
-}
-func (f *EvaluationReportFormFiller) CreateShipmentReport(report models.EvaluationReport, violations models.PWSViolations, shipment models.MTOShipment, customer models.ServiceMember) error {
-	err := f.loadArrowImage()
-	if err != nil {
-		return err
-	}
-	f.reportID = fmt.Sprintf("QA-%s", strings.ToUpper(report.ID.String()[:5]))
-
-	f.pdf.AddPage()
-	f.reportHeading("Shipment report", f.reportID, report.Move.Locator, *report.Move.ReferenceID)
-	f.contactInformation(customer, report.OfficeUser)
-
-	err = f.shipmentCard(shipment)
-	if err != nil {
-		return fmt.Errorf("draw shipment card error %w", err)
-	}
-
-	err = f.inspectionInformationSection(report, violations)
-	if err != nil {
-		return err
-	}
-
-	f.pdf.AddPage()
-	f.sectionHeading("Violations", pxToMM(56.0))
-
-	err = f.violationsSection(violations)
-	if err != nil {
-		return err
-	}
-
-	return f.pdf.Error()
-}
-func (f *EvaluationReportFormFiller) CreateCounselingReport(report models.EvaluationReport, violations models.PWSViolations, shipments models.MTOShipments, customer models.ServiceMember) error {
-	err := f.loadArrowImage()
-	if err != nil {
-		return err
-	}
-
-	f.reportID = fmt.Sprintf("QA-%s", strings.ToUpper(report.ID.String()[:5]))
-	f.pdf.AddPage()
-
-	f.reportHeading("Counseling report", f.reportID, report.Move.Locator, *report.Move.ReferenceID)
-	f.sectionHeading("Move information", pxToMM(18.0))
-	f.contactInformation(customer, report.OfficeUser)
-
-	for _, shipment := range shipments {
-		err = f.shipmentCard(shipment)
-		if err != nil {
-			return fmt.Errorf("draw shipment card error %w", err)
-		}
-	}
-
-	f.pdf.AddPage()
-	f.sectionHeading("Evaluation report", pxToMM(56.0))
-	err = f.inspectionInformationSection(report, violations)
-	if err != nil {
-		return err
-	}
-
-	f.pdf.AddPage()
-	f.sectionHeading("Violations", pxToMM(56.0))
-
-	err = f.violationsSection(violations)
-	if err != nil {
-		return err
-	}
-
-	return f.pdf.Error()
 }
 
 func (f *EvaluationReportFormFiller) addVerticalSpace(dy float64) {
