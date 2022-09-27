@@ -59,6 +59,10 @@ describe('EvaluationReportTable', () => {
           moveCode="FAKEIT"
           grade="E_4"
           customerInfo={customerInfo}
+          deleteReport={jest.fn()}
+          setReportToDelete={jest.fn()}
+          setIsDeleteModalOpen={jest.fn()}
+          isDeleteModalOpen={false}
         />
       </MockProviders>,
     );
@@ -79,6 +83,10 @@ describe('EvaluationReportTable', () => {
           moveCode="FAKEIT"
           grade="E_4"
           customerInfo={customerInfo}
+          deleteReport={jest.fn()}
+          setReportToDelete={jest.fn()}
+          setIsDeleteModalOpen={jest.fn()}
+          isDeleteModalOpen={false}
         />
       </MockProviders>,
     );
@@ -93,7 +101,7 @@ describe('EvaluationReportTable', () => {
 
     expect(screen.getByText('#QA-1F9D1')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Edit report' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
   });
   it('renders table with a submitted report', () => {
     render(
@@ -105,6 +113,10 @@ describe('EvaluationReportTable', () => {
           moveCode="FAKEIT"
           grade="E_4"
           customerInfo={customerInfo}
+          deleteReport={jest.fn()}
+          setReportToDelete={jest.fn()}
+          setIsDeleteModalOpen={jest.fn()}
+          isDeleteModalOpen={false}
         />
       </MockProviders>,
     );
