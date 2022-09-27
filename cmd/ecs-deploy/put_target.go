@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -152,7 +152,7 @@ func putTargetFunction(cmd *cobra.Command, args []string) error {
 	verbose := cli.LogLevelIsDebug(v)
 	if !verbose {
 		// Disable any logging that isn't attached to the logger unless using the verbose flag
-		log.SetOutput(ioutil.Discard)
+		log.SetOutput(io.Discard)
 		log.SetFlags(0)
 
 		// Remove the flags for the logger

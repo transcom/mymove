@@ -3,7 +3,7 @@ package fuelprice
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"math"
 	"net/http"
@@ -135,7 +135,7 @@ func FetchFuelPriceData(url string) (resultData EiaData, err error) {
 		return resultData, errors.Wrap(err, "Error with EIA Open Data fuel prices GET request")
 	}
 
-	response, err := ioutil.ReadAll(resp.Body)
+	response, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return resultData, errors.Wrap(err, "Unable to read response body from eia.gov")
 	}

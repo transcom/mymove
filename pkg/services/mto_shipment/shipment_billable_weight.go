@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-//shipmentBillableWeightCalculator handles the db connection
+// shipmentBillableWeightCalculator handles the db connection
 type shipmentBillableWeightCalculator struct {
 }
 

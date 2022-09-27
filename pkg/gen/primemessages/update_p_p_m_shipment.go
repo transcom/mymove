@@ -14,73 +14,71 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// UpdatePPMShipment update p p m shipment
+// UpdatePPMShipment The PPM specific fields of the shipment with values being changed
 //
 // swagger:model UpdatePPMShipment
 type UpdatePPMShipment struct {
 
 	// ZIP
+	//
+	// The postal code of the destination location where goods are being delivered to.
 	// Example: 90210
 	// Pattern: ^(\d{5})$
 	DestinationPostalCode *string `json:"destinationPostalCode,omitempty"`
 
-	// estimated weight
+	// The estimated weight of the PPM shipment goods being moved.
 	// Example: 4200
 	EstimatedWeight *int64 `json:"estimatedWeight,omitempty"`
 
-	// Date the customer expects to move.
+	// Date the customer expects to begin moving from their origin.
 	//
 	// Format: date
 	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate,omitempty"`
 
-	// Indicates whether PPM shipment has pro gear.
+	// Indicates whether PPM shipment has pro gear for themselves or their spouse.
 	//
 	HasProGear *bool `json:"hasProGear,omitempty"`
 
-	// The net weight of the shipment once it has been weighed
-	//
-	// Example: 4300
-	NetWeight *int64 `json:"netWeight,omitempty"`
-
-	// ZIP
-	//
-	// zip code
+	// The postal code of the origin location where goods are being moved from.
 	// Example: 90210
 	// Pattern: ^(\d{5})$
 	PickupPostalCode *string `json:"pickupPostalCode,omitempty"`
 
-	// pro gear weight
+	// The estimated weight of the pro-gear being moved belonging to the service member.
 	ProGearWeight *int64 `json:"proGearWeight,omitempty"`
 
-	// ZIP
+	// An optional secondary location near the destination where goods will be dropped off.
 	// Example: 90210
 	// Pattern: ^(\d{5})$
 	SecondaryDestinationPostalCode *string `json:"secondaryDestinationPostalCode,omitempty"`
 
-	// ZIP
+	// An optional secondary pickup location near the origin where additional goods exist.
 	// Example: 90210
 	// Pattern: ^(\d{5})$
 	SecondaryPickupPostalCode *string `json:"secondaryPickupPostalCode,omitempty"`
 
-	// sit estimated departure date
+	// The date that goods will exit the storage location.
 	// Format: date
 	SitEstimatedDepartureDate *strfmt.Date `json:"sitEstimatedDepartureDate,omitempty"`
 
-	// sit estimated entry date
+	// The date that goods will first enter the storage location.
 	// Format: date
 	SitEstimatedEntryDate *strfmt.Date `json:"sitEstimatedEntryDate,omitempty"`
 
-	// sit estimated weight
+	// The estimated weight of the goods being put into storage.
 	// Example: 2000
 	SitEstimatedWeight *int64 `json:"sitEstimatedWeight,omitempty"`
 
-	// sit expected
+	// Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.
+	//
+	// Must be set to `true` when providing `sitLocation`, `sitEstimatedWeight`, `sitEstimatedEntryDate`, and `sitEstimatedDepartureDate` values to calculate the `sitEstimatedCost`.
+	//
 	SitExpected *bool `json:"sitExpected,omitempty"`
 
 	// sit location
 	SitLocation *SITLocationType `json:"sitLocation,omitempty"`
 
-	// spouse pro gear weight
+	// The estimated weight of the pro-gear being moved belonging to a spouse.
 	SpouseProGearWeight *int64 `json:"spouseProGearWeight,omitempty"`
 }
 
