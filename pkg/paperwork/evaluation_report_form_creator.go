@@ -269,27 +269,26 @@ func (d *DynamicFormFiller) reportHeading(text string, reportID string, moveCode
 	//d.pdf.SetFontSize(30.0) // 40px
 	d.pdf.SetFontUnitSize(reportHeadingFontSize)
 	d.setTextColorBaseDarkest()
-	headingX := pageSideMarginMm
 	headingY := d.pdf.GetY()
 	headingWidth := 100.0
 	height := pxToMM(70.0)
 	bottomMargin := pxToMM(43.0)
 	rightMargin := pageSideMarginMm
-	idsWidth := letterWidthMm - headingX - headingWidth - rightMargin
+	idsWidth := letterWidthMm - pageSideMarginMm - headingWidth - rightMargin
 
 	// Heading (left aligned)
-	d.pdf.MoveTo(headingX, headingY)
+	d.pdf.MoveTo(pageSideMarginMm, headingY)
 	d.pdf.CellFormat(headingWidth, height, text, "", 0, "LM", false, 0, "")
 
 	// Report ID/Move Code/MTO reference ID (right aligned)
 	d.pdf.SetFontUnitSize(textSmallFontSize)
 	d.setTextColorBaseDark()
 	d.pdf.CellFormat(idsWidth, height/3.0, fmt.Sprintf("REPORT ID #%s", reportID), "", 1, "RM", false, 0, "")
-	d.pdf.SetX(headingX + headingWidth)
+	d.pdf.SetX(pageSideMarginMm + headingWidth)
 	d.pdf.CellFormat(idsWidth, height/3.0, fmt.Sprintf("MOVE CODE #%s", moveCode), "", 1, "RM", false, 0, "")
-	d.pdf.SetX(headingX + headingWidth)
+	d.pdf.SetX(pageSideMarginMm + headingWidth)
 	d.pdf.CellFormat(idsWidth, height/3.0, fmt.Sprintf("MTO REFERENCE ID #%s", mtoReferenceID), "", 1, "RM", false, 0, "")
-	d.pdf.MoveTo(headingX, headingY+height)
+	d.pdf.MoveTo(pageSideMarginMm, headingY+height)
 	d.addVerticalSpace(bottomMargin)
 }
 func (d *DynamicFormFiller) setTextColorBaseDark() {
@@ -325,12 +324,6 @@ func (d *DynamicFormFiller) sectionHeading(text string, bottomMargin float64) {
 
 	d.addVerticalSpace(bottomMargin)
 }
-
-// TODO would love a better name for this
-// TODO also how do i send the data in?
-// TODO - [{key,value},...]
-// TODO - map key -> value (but then how do i order?)
-// TODO - list of keys, map of key to key text, struct with keys that match
 
 func (d *DynamicFormFiller) subsection(heading string, fieldOrder []string, fieldLabels map[string]string, data interface{}) error {
 	bottomMargin := pxToMM(40.0)
@@ -443,6 +436,7 @@ func (d *DynamicFormFiller) violation(violation models.PWSViolation) {
 	d.pdf.CellFormat(letterWidthMm-2.0*pageSideMarginMm, height, violation.RequirementSummary, "", 1, "LM", false, 0, "")
 }
 
+// contactInformation displays side by side contact info for customer and QAE users
 func (d *DynamicFormFiller) contactInformation(customer models.ServiceMember, officeUser models.OfficeUser) {
 	contactInfo := FormatContactInformationValues(customer, officeUser)
 
@@ -486,11 +480,13 @@ func (d *DynamicFormFiller) contactInformation(customer models.ServiceMember, of
 func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	layout := PickShipmentCardLayout(shipment.ShipmentType)
 	vals := FormatValuesShipment(shipment)
+	headingMargin := 2.0
+	headingHeight := 5.0
+	headingBottomMargin := pxToMM(18.0)
 	stripeHeight := pxToMM(9.0)
 	addressHeight := 10.0
 	tableRowHeight := 10.0
-	//estimatedHeight := stripeHeight + headingMargin + headingHeight + headingBottomMargin + addressHeight + tableRowHeight + len(layout)
-	estimatedHeight := stripeHeight + 5.0 + 5.0 + 5.0 + addressHeight + tableRowHeight + float64(len(layout))
+	estimatedHeight := stripeHeight + headingMargin + headingHeight + headingBottomMargin + addressHeight + tableRowHeight + float64(len(layout))
 	if d.pdf.GetY()+estimatedHeight > pageHeightMm-pageBottomMarginMm {
 		d.pdf.AddPage()
 	}
@@ -500,15 +496,10 @@ func (d *DynamicFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	d.pdf.Rect(pageSideMarginMm, d.pdf.GetY(), cardWidth, stripeHeight, "DF")
 	startY := d.pdf.GetY() + stripeHeight
 
-	headingMargin := 2.0
 	headingX := pageSideMarginMm + pxToMM(8.0)
 	headingY := startY + headingMargin
-	headingHeight := 5.0
 	shipmentTypeX := headingX
-	headingBottomMargin := pxToMM(18.0)
 
-	// in/72 px * 25.4mm/in * 18px (25.4/72) = 6.35
-	// 1204px / 8.5in = 141.65px/in * in/25.4mm = 5.576px/mm
 	d.pdf.MoveTo(shipmentTypeX, headingY)
 	d.pdf.SetFontStyle("B")
 	shipmentTypeText := d.formatShipmentType(shipment.ShipmentType)
