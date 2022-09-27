@@ -140,7 +140,7 @@ export const ExpenseShape = shape({
   id: string,
   ppmShipmentId: string,
   description: string,
-  expenseType: oneOf(Object.values(expenseTypesArr)),
+  movingExpenseType: oneOf(expenseTypesArr),
   missingReceipt: bool,
   receiptDocumentId: string,
   receiptDocument: DocumentShape,

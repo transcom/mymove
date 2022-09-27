@@ -12,7 +12,7 @@ import (
 // MTOAgentType represents the type label for move task order agent
 type MTOAgentType string
 
-//Constants for the MTOAgentType
+// Constants for the MTOAgentType
 const (
 	MTOAgentReleasing MTOAgentType = "RELEASING_AGENT"
 	MTOAgentReceiving MTOAgentType = "RECEIVING_AGENT"
@@ -33,10 +33,10 @@ type MTOAgent struct {
 	DeletedAt     *time.Time   `db:"deleted_at"`
 }
 
-//MTOAgents is a collection of MTOAgent
+// MTOAgents is a collection of MTOAgent
 type MTOAgents []MTOAgent
 
-//Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (m *MTOAgent) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MTOShipmentID, Name: "MTOShipmentID"})
@@ -63,7 +63,7 @@ func (m *MTOAgent) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(vs...), nil
 }
 
-//TableName overrides the table name used by Pop.
+// TableName overrides the table name used by Pop.
 func (m MTOAgent) TableName() string {
 	return "mto_agents"
 }

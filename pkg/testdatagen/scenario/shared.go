@@ -1084,6 +1084,19 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, userUp
 	}
 	testdatagen.MakeWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
 	testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
+
+	storageExpenseType := models.MovingExpenseReceiptTypeStorage
+	storageExpenseAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		MovingExpense: models.MovingExpense{
+			MovingExpenseType: &storageExpenseType,
+			Description:       models.StringPointer("Storage R Us monthly rental unit"),
+			SITStartDate:      models.TimePointer(time.Now()),
+			SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+		},
+	}
+	testdatagen.MakeMovingExpense(appCtx.DB(), storageExpenseAssertions)
 }
 
 func createApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -6323,7 +6336,7 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 }
 
 /*
-	Create Needs Service Counseling - pass in orders with all required information, shipment type, destination type, locator
+Create Needs Service Counseling - pass in orders with all required information, shipment type, destination type, locator
 */
 func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) {
 	db := appCtx.DB()
@@ -6390,7 +6403,7 @@ func createNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 }
 
 /*
-	Create Needs Service Counseling without all required order information
+Create Needs Service Counseling without all required order information
 */
 func createNeedsServicesCounselingWithoutCompletedOrders(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) {
 	db := appCtx.DB()

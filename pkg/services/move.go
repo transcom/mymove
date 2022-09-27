@@ -11,6 +11,7 @@ import (
 )
 
 // MoveListFetcher is the exported interface for fetching multiple moves
+//
 //go:generate mockery --name MoveListFetcher --disable-version-string
 type MoveListFetcher interface {
 	FetchMoveList(appCtx appcontext.AppContext, filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.Moves, error)
@@ -18,6 +19,7 @@ type MoveListFetcher interface {
 }
 
 // MoveFetcher is the exported interface for fetching a move by locator
+//
 //go:generate mockery --name MoveFetcher --disable-version-string
 type MoveFetcher interface {
 	FetchMove(appCtx appcontext.AppContext, locator string, searchParams *MoveFetcherParams) (*models.Move, error)
@@ -35,6 +37,7 @@ type MoveFetcherParams struct {
 }
 
 // MoveRouter is the exported interface for routing moves at different stages
+//
 //go:generate mockery --name MoveRouter --disable-version-string
 type MoveRouter interface {
 	Approve(appCtx appcontext.AppContext, move *models.Move) error
@@ -46,6 +49,7 @@ type MoveRouter interface {
 }
 
 // MoveWeights is the exported interface for flagging a move with an excess weight risk
+//
 //go:generate mockery --name MoveWeights --disable-version-string
 type MoveWeights interface {
 	CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error)
@@ -53,6 +57,7 @@ type MoveWeights interface {
 }
 
 // MoveExcessWeightUploader is the exported interface for uploading an excess weight document for a move
+//
 //go:generate mockery --name MoveExcessWeightUploader --disable-version-string
 type MoveExcessWeightUploader interface {
 	CreateExcessWeightUpload(
@@ -65,6 +70,7 @@ type MoveExcessWeightUploader interface {
 }
 
 // MoveFinancialReviewFlagSetter is the exported interface for flagging a move for financial review
+//
 //go:generate mockery --name MoveFinancialReviewFlagSetter --disable-version-string
 type MoveFinancialReviewFlagSetter interface {
 	SetFinancialReviewFlag(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string, flagForReview bool, remarks *string) (*models.Move, error)

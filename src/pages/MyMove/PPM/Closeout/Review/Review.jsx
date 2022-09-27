@@ -66,7 +66,7 @@ const Review = () => {
 
   const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
   const proGear = mtoShipment?.ppmShipment?.proGear;
-  const expenses = mtoShipment?.ppmShipment?.expenses;
+  const expenses = mtoShipment?.ppmShipment?.movingExpenses;
 
   if (!mtoShipment) {
     return <LoadingPlaceholder />;

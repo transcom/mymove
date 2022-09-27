@@ -6425,7 +6425,7 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "movingExpense": {
+        "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
           "items": {
@@ -15648,7 +15648,7 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "movingExpense": {
+        "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
           "items": {

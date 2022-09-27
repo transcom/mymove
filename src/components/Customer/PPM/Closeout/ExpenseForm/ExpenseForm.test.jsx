@@ -14,7 +14,7 @@ const defaultProps = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    expenseType: expenseTypes.PACKING_MATERIALS,
+    movingExpenseType: expenseTypes.PACKING_MATERIALS,
   },
   receiptNumber: '1',
   onCreateUpload: jest.fn(),
@@ -28,7 +28,7 @@ const missingReceiptProps = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    expenseType: expenseTypes.PACKING_MATERIALS,
+    movingExpenseType: expenseTypes.PACKING_MATERIALS,
     description: 'bubble wrap',
     missingReceipt: true,
   },
@@ -44,7 +44,7 @@ const expenseRequiredProps = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    expenseType: expenseTypes.PACKING_MATERIALS,
+    movingExpenseType: expenseTypes.PACKING_MATERIALS,
     description: 'bubble wrap',
     missingReceipt: false,
     paidWithGTCC: false,
@@ -68,7 +68,7 @@ const sitExpenseProps = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    expenseType: expenseTypes.STORAGE,
+    movingExpenseType: expenseTypes.STORAGE,
     description: '10x10 storage pod',
     missingReceipt: false,
     paidWithGTCC: false,
