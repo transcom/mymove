@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 
 import { idHelper, stateHelper } from './helpers';
 
-import { baseFactory, BASE_FIELDS, fake } from 'utils/test/factories/base';
+import { baseFactory, BASE_FIELDS, fake, getInternalSpec } from 'utils/test/factories/base';
 
 export const ADDRESS_FIELDS = {
   ID: 'id',
@@ -13,6 +13,10 @@ export const ADDRESS_FIELDS = {
   POSTAL_CODE: 'postalCode',
   COUNTRY: 'country',
   ETAG: 'eTag',
+};
+
+export const ADDRESS_TRAITS = {
+  ONLY_REQUIRED_FIELDS: 'onlyRequiredFields',
 };
 
 const addressFactory = (params) => {
@@ -30,6 +34,23 @@ const addressFactory = (params) => {
       address.postalCode = faker.address.zipCodeByState(address.state);
 
       return address;
+    },
+    [BASE_FIELDS.TRAITS]: {
+      [ADDRESS_TRAITS.ONLY_REQUIRED_FIELDS]: {
+        postBuild: (address) => {
+          const spec = getInternalSpec();
+
+          const requiredFields = new Set(spec.definitions.Address.required);
+
+          Object.values(ADDRESS_FIELDS).forEach((field) => {
+            if (!requiredFields.has(field)) {
+              delete address[field];
+            }
+          });
+
+          return address;
+        },
+      },
     },
     ...params,
   });
