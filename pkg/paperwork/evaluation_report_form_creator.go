@@ -47,6 +47,7 @@ type TableRow struct {
 	RightLabel     string
 }
 
+// getField gets a value from a struct based on the string value of the field name
 func getField(fieldName string, data interface{}) (string, error) {
 	r := reflect.ValueOf(data)
 	val := reflect.Indirect(r).FieldByName(fieldName).Interface()
@@ -116,12 +117,14 @@ func (f *EvaluationReportFormFiller) CreateShipmentReport(report models.Evaluati
 		return err
 	}
 
-	f.pdf.AddPage()
-	f.sectionHeading("Violations", pxToMM(56.0))
+	if len(violations) != 0 {
+		f.pdf.AddPage()
+		f.sectionHeading("Violations", pxToMM(56.0))
 
-	err = f.violationsSection(violations)
-	if err != nil {
-		return err
+		err = f.violationsSection(violations)
+		if err != nil {
+			return err
+		}
 	}
 
 	return f.pdf.Error()
@@ -154,12 +157,14 @@ func (f *EvaluationReportFormFiller) CreateCounselingReport(report models.Evalua
 		return err
 	}
 
-	f.pdf.AddPage()
-	f.sectionHeading("Violations", pxToMM(56.0))
+	if len(violations) != 0 {
+		f.pdf.AddPage()
+		f.sectionHeading("Violations", pxToMM(56.0))
 
-	err = f.violationsSection(violations)
-	if err != nil {
-		return err
+		err = f.violationsSection(violations)
+		if err != nil {
+			return err
+		}
 	}
 
 	return f.pdf.Error()
@@ -345,7 +350,7 @@ func (f *EvaluationReportFormFiller) subsectionHeading(heading string) {
 	f.pdf.SetFontUnitSize(subsectionHeadingFontSize)
 	f.addVerticalSpace(topMargin)
 	f.pdf.SetX(pageSideMarginMm)
-	f.pdf.CellFormat(0.0, 10.0, heading, "", 1, "LT", false, 0, "")
+	f.pdf.CellFormat(0.0, pxToMM(26.0), heading, "", 1, "LT", false, 0, "")
 	f.addVerticalSpace(bottomMargin)
 
 	// Reset font
