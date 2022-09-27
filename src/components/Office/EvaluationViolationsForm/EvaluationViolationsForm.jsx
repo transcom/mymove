@@ -53,7 +53,20 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
   const validationSchema = Yup.object().shape({});
 
   const saveDraft = async (values) => {
-    const { createdAt, updatedAt, shipmentID, id, moveID, moveReferenceID, ...existingReportFields } = evaluationReport;
+    // pull out fields we dont want to save/update
+    const {
+      createdAt,
+      updatedAt,
+      shipmentID,
+      id,
+      moveID,
+      moveReferenceID,
+      type,
+      officeUser,
+      reportID,
+      eTag,
+      ...existingReportFields
+    } = evaluationReport;
 
     let seriousIncident;
     if (values.seriousIncident) {
@@ -69,7 +82,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
       observedPickupSpreadStartDate: formatDateForSwagger(values.observedPickupSpreadStartDate),
       observedPickupSpreadEndDate: formatDateForSwagger(values.observedPickupSpreadEndDate),
     };
-    const { eTag } = evaluationReport;
+
     await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
 
     // Also need to update any violations that were selected
