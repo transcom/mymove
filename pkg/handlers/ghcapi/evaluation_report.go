@@ -166,7 +166,7 @@ func (h DownloadEvaluationReportHandler) Handle(params evaluationReportop.Downlo
 				return handleError(err)
 			}
 
-			formFiller, err := paperwork.NewDynamicFormFiller()
+			formFiller, err := paperwork.NewEvaluationReportFormFiller()
 			if err != nil {
 				return handleError(err)
 			}
