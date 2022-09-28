@@ -37,23 +37,6 @@ const EvaluationReportTable = ({
     setReportToView(report);
     setIsViewReportModalVisible(true);
   };
-  // Taken from https://mathiasbynens.github.io/rel-noopener/
-  // tl;dr-- opening content in target _blank can leave parent window open to malicious code
-  // below is a safer way to open content in a new tab
-  function safeOpenInNewTab(url) {
-    if (url) {
-      const win = window.open();
-      // win can be null if a pop-up blocker is used
-      if (win) {
-        win.opener = null;
-        win.location = url;
-      }
-    }
-  }
-
-  const handleDownloadReportClick = (reportID) => {
-    return safeOpenInNewTab(`/ghc/v1/evaluation-reports/${reportID}/download`);
-  };
 
   // this handles the close button at the bottom of the view report modal
   const toggleCloseModal = () => {
@@ -85,7 +68,9 @@ const EvaluationReportTable = ({
         </td>
         {report.submittedAt && (
           <td className={styles.downloadColumn}>
-            <Button onClick={() => handleDownloadReportClick(report.id)}>Download</Button>
+            <a href={`/ghc/v1/evaluation-reports/${report.id}/download`} target="_blank" rel="noopener noreferrer">
+              Download
+            </a>
           </td>
         )}
         {!report.submittedAt && (
