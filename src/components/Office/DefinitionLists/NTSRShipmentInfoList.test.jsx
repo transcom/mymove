@@ -36,7 +36,7 @@ const shipment = {
     state: 'TX',
     postalCode: '78234',
   },
-  agents: [
+  mtoAgents: [
     {
       agentType: 'RECEIVING_AGENT',
       firstName: 'Kate',
@@ -63,7 +63,7 @@ describe('NTSR Shipment Info List renders all fields when provided and expanded'
     ['storageFacilityAddress', shipment.storageFacility.address.streetAddress1],
     ['destinationAddress', shipment.destinationAddress.streetAddress1],
     ['secondaryDeliveryAddress', shipment.secondaryDeliveryAddress.streetAddress1],
-    ['agent', shipment.agents[0].email, { exact: false }],
+    ['receivingAgent', shipment.mtoAgents[0].email, { exact: false }],
     ['counselorRemarks', shipment.counselorRemarks],
     ['customerRemarks', shipment.customerRemarks],
     ['tacType', '1234 (HHG)'],
@@ -138,7 +138,7 @@ describe('NTSR Shipment Info List collapsed view', () => {
     expect(screen.queryByTestId('storageFacility')).toBeNull();
     expect(screen.queryByTestId('serviceOrderNumber')).toBeNull();
     expect(screen.queryByTestId('secondaryDeliveryAddress')).toBeNull();
-    expect(screen.queryByTestId('agent')).toBeNull();
+    expect(screen.queryByTestId('receivingAgent')).toBeNull();
     expect(screen.getByTestId('counselorRemarks')).toBeInTheDocument();
   });
 });
