@@ -599,13 +599,13 @@ func (f *EvaluationReportFormFiller) sideBySideAddress(gap float64, leftAddressX
 	}
 	f.pdf.MoveTo(leftAddressX, addressY)
 	f.setTextColorBaseDarkest()
-	f.pdf.CellFormat(addressWidth, addressHeight, leftAddress, "", 1, "LT", false, 0, "")
+	f.pdf.MultiCell(addressWidth, addressHeight, leftAddress, "", "LT", false)
 	leftY := f.pdf.GetY()
 	f.pdf.MoveTo(leftAddressX+addressWidth, addressY)
 	f.drawArrow(gap)
 
 	f.pdf.MoveTo(rightAddressX, addressY)
-	f.pdf.CellFormat(addressWidth, addressHeight, rightAddress, "", 1, "LT", false, 0, "")
+	f.pdf.MultiCell(addressWidth, addressHeight, rightAddress, "", "LT", false)
 	addressY = math.Max(leftY, f.pdf.GetY())
 	f.pdf.SetY(addressY)
 }
