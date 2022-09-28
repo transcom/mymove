@@ -258,7 +258,7 @@ const NTSRShipmentInfoList = ({
       {destinationAddressElement}
       {displayDestinationType && destinationTypeElement}
       {isExpanded && secondaryDeliveryAddressElement}
-      {isExpanded && receivingAgentElement}
+      {showElement(receivingAgentFlags) && receivingAgentElement}
       {isExpanded && customerRemarksElement}
       {showElement(counselorRemarksElementFlags) && counselorRemarksElement}
       {showElement(tacElementFlags) && tacElement}
