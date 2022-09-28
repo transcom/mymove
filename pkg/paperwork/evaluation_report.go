@@ -355,18 +355,10 @@ func FormatContactInformationValues(customer models.ServiceMember, qae models.Of
 		contactInfo.CustomerRank = rankDisplayValue[*customer.Rank]
 	}
 	if customer.Affiliation != nil {
-		contactInfo.CustomerAffiliation = customer.Affiliation.String()
+		contactInfo.CustomerAffiliation = serviceMemberAffiliationDisplayValue[*customer.Affiliation]
 	}
 
-	customerFirstName := ""
-	if customer.FirstName != nil {
-		customerFirstName = *customer.FirstName
-	}
-	customerLastName := ""
-	if customer.LastName != nil {
-		customerLastName = *customer.LastName
-	}
-	contactInfo.CustomerFullName = fmt.Sprintf("%s, %s", customerLastName, customerFirstName)
+	contactInfo.CustomerFullName = customer.ReverseNameLineFormat()
 
 	return contactInfo
 }
