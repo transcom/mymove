@@ -206,6 +206,24 @@ describe('EvaluationViolationsForm', () => {
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledTimes(1);
       expect(mockSaveEvaluationReport).toHaveBeenCalledTimes(1);
+      expect(mockSaveEvaluationReport).toHaveBeenCalledWith({
+        body: {
+          evaluationLengthMinutes: 240,
+          inspectionDate: '2022-09-08',
+          inspectionType: 'DATA_REVIEW',
+          location: 'A12345',
+          observedClaimsResponseDate: undefined,
+          observedPickupDate: undefined,
+          observedPickupSpreadEndDate: undefined,
+          observedPickupSpreadStartDate: undefined,
+          remarks: 'test',
+          seriousIncident: undefined,
+          seriousIncidentDesc: undefined,
+          violationsObserved: true,
+        },
+        ifMatchETag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
+        reportID: 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2',
+      });
       expect(mockAssociateReportViolations).toHaveBeenCalledTimes(1);
       expect(mockPush).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports`, {
         showSaveDraftSuccess: true,
