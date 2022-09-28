@@ -76,7 +76,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
     const body = {
       ...existingReportFields,
       seriousIncident,
-      seriousIncidentDesc: seriousIncident ? values.seriousIncidentDesc : null,
+      seriousIncidentDesc: seriousIncident === false ? null : values.seriousIncidentDesc,
       observedClaimsResponseDate: formatDateForSwagger(values.observedClaimsResponseDate),
       observedPickupDate: formatDateForSwagger(values.observedPickupDate),
       observedPickupSpreadStartDate: formatDateForSwagger(values.observedPickupSpreadStartDate),
