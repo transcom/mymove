@@ -20,7 +20,7 @@ import { selectMTOShipmentById } from 'store/entities/selectors';
 const FinalCloseout = () => {
   const history = useHistory();
   const dispatch = useDispatch();
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState(null);
   const { mtoShipmentId } = useParams();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));

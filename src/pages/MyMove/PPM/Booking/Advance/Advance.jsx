@@ -18,7 +18,7 @@ import { matchesOrdersType } from 'utils/orders';
 import { ORDERS_TYPE } from 'constants/orders';
 
 const Advance = () => {
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState(null);
   const history = useHistory();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const dispatch = useDispatch();

@@ -16,7 +16,7 @@ import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/
 import { updateMTOShipment } from 'store/entities/actions';
 
 const WeightTickets = () => {
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const dispatch = useDispatch();
   const history = useHistory();

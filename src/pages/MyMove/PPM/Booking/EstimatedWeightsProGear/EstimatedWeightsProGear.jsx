@@ -19,7 +19,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
 const EstimatedWeightsProGear = () => {
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState(null);
   const history = useHistory();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const dispatch = useDispatch();

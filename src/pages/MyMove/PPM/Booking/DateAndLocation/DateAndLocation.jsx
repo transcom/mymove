@@ -19,7 +19,7 @@ import { ShipmentShape } from 'types/shipment';
 import { validatePostalCode } from 'utils/validation';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }) => {
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState(null);
   const history = useHistory();
   const { moveId, shipmentNumber } = useParams();
   const dispatch = useDispatch();

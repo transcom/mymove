@@ -18,7 +18,7 @@ import { updateMTOShipment } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 const About = () => {
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const history = useHistory();
   const { moveId, mtoShipmentId } = useParams();
