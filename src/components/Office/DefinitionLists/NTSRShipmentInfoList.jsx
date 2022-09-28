@@ -220,7 +220,7 @@ const NTSRShipmentInfoList = ({
   const receivingAgentElement = (
     <div className={receivingAgentFlags.classes} key={`${receivingAgent.agentType}-${receivingAgent.email}`}>
       <dt>Receiving agent</dt>
-      <dd data-testid="receivingAgent">{receivingAgent ? formatAgent(receivingAgent) : '-'}</dd>
+      <dd data-testid="receivingAgent">{receivingAgent ? formatAgent(receivingAgent) : '—'}</dd>
     </div>
   );
 
