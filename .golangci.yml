@@ -18,7 +18,7 @@ linters-settings:
         - github.com/gobuffalo/validate:
             recommendations:
               - github.com/gobuffalo/validate/v3
-            reason: "MilMove is now on Pop v5, do not use older versions of this module"
+            reason: "MilMove is now on Pop v6, do not use older versions of this module"
         - github.com/gobuffalo/pop:
             recommendations:
               - github.com/gobuffalo/pop/v6
@@ -35,38 +35,30 @@ linters-settings:
     check-shadowing: true
 linters:
   enable:
-    - deadcode
     - errcheck
     - gci
     - gofmt
     - goimports
     - gomodguard
     - gosec
+    - gosimple
     - govet
     - ineffassign
     - revive
     - staticcheck
-    - structcheck
     - typecheck
-    - varcheck
+    - unused
   fast: false
 issues:
   fix: true
 run:
   # timeout for analysis, e.g. 30s, 5m, default is 1m
-  deadline: 8m
+  timeout: 8m
   concurrency: 1
   issues-exit-code: 1
   tests: true
   skip-dirs:
     - pkg/assets
     - pkg/gen
-    - mocks
+    - .*mocks # also cover custom mocks directories like "ghcmocks"
   skip-dirs-use-default: true
-  # Setting this to 1.17 for now instead of letting golangci-lint auto-detect 1.18 since golangci-lint turns off
-  # several linters we use due to 1.18 compatibility issues. Once those are sorted out in later versions of
-  # golangci-lint and the corresponding linters, we should be able to remove this line. We may also experience linter
-  # issues if we start using generics before then. Follow https://github.com/golangci/golangci-lint/issues/2649 for
-  # more info. To see which of our linters are turned off, remove this line and run `pre-commit run -a --verbose
-  # golangci-lint`.
-  go: '1.17'

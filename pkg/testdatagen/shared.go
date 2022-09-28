@@ -77,6 +77,8 @@ type Assertions struct {
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	ReDomesticServiceAreaPrice               models.ReDomesticServiceAreaPrice
 	Reimbursement                            models.Reimbursement
+	Report                                   models.EvaluationReport
+	ReportViolation                          models.ReportViolation
 	ReRateArea                               models.ReRateArea
 	ReService                                models.ReService
 	Reweigh                                  models.Reweigh
@@ -108,6 +110,7 @@ type Assertions struct {
 	UsersRoles                               models.UsersRoles
 	UserUpload                               models.UserUpload
 	UserUploader                             *uploader.UserUploader
+	Violation                                models.PWSViolation
 	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
 	WeightTicket                             models.WeightTicket

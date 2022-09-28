@@ -388,6 +388,15 @@ func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Conf
 		appCtx.Logger().Fatal("Failed to initialize DOD certificates", zap.Error(err))
 	}
 	appCtx.Logger().Debug("Server DOD Key Pair Loaded")
+	// RA Summary: staticcheck - SA1019 - Using a deprecated function, variable, constant or field
+	// RA: Linter is flagging: rootCAs.Subjects is deprecated: if s was returned by SystemCertPool, Subjects will not include the system roots.
+	// RA: Why code valuable: It allows us to log the root CA subjects that are being trusted.
+	// RA: Mitigation: The deprecation notes this is a problem when reading SystemCertPool, but we do not use this here and are building our own cert pool instead.
+	// RA Developer Status: Mitigated
+	// RA Validator Status: Mitigated
+	// RA Validator: leodis.f.scott.civ@mail.mil
+	// RA Modified Severity: CAT III
+	// nolint:staticcheck
 	appCtx.Logger().Debug("Trusted Certificate Authorities", zap.Any("subjects", rootCAs.Subjects()))
 
 	useDevlocalAuthCA := stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview, cli.EnvironmentLoadtest}, v.GetString(cli.EnvironmentFlag))

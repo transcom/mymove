@@ -9,6 +9,47 @@ import { MockProviders } from 'testUtils';
 
 const mockMoveCode = 'A12345';
 const mockReportId = 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2';
+const mockViolationID = '9cdc8dc3-6cf4-46fb-b272-1468ef40796f';
+const mockViolation = {
+  category: 'Category 1',
+  displayOrder: 1,
+  id: mockViolationID,
+  paragraphNumber: '1.2.3',
+  requirementStatement: 'Test requirement statement for violation 1',
+  requirementSummary: 'Test requirement summary for violation 1',
+  subCategory: 'SubCategory 1',
+  title: 'Title for violation 1',
+};
+
+const mockEvaluationReport = {
+  createdAt: '2022-09-07T15:17:37.484Z',
+  eTag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
+  evaluationLengthMinutes: 240,
+  inspectionDate: '2022-09-08',
+  inspectionType: 'DATA_REVIEW',
+  location: mockMoveCode,
+  moveID: '551dd01f-90cf-44d6-addb-ff919433dd61',
+  moveReferenceID: '4118-8295',
+  officeUser: {
+    email: 'qae_csr_role@office.mil',
+    firstName: 'Leo',
+    id: 'ef4f6d1f-4ac3-4159-a364-5403e7d958ff',
+    lastName: 'Spaceman',
+    phone: '415-555-1212',
+  },
+  remarks: 'test',
+  shipmentID: '319e0751-1337-4ed9-b4b5-a15d4e6d272c',
+  type: 'SHIPMENT',
+  updatedAt: '2022-09-07T18:06:37.864Z',
+  violationsObserved: true,
+};
+
+const mockReportViolation = {
+  id: 'f3e2c135-336d-440d-a6d5-f404474f6ef3',
+  reportId: mockReportId,
+  violationId: mockViolationID,
+  violations: [mockViolation],
+};
 
 const mockPush = jest.fn();
 jest.mock('react-router', () => ({
@@ -19,24 +60,35 @@ jest.mock('react-router', () => ({
   useParams: jest.fn().mockReturnValue({ moveCode: 'A12345', reportId: 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2' }),
 }));
 
+const mockSaveEvaluationReport = jest.fn();
+const mockAssociateReportViolations = jest.fn();
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  saveEvaluationReport: (options) => mockSaveEvaluationReport(options),
+  associateReportViolations: (options) => mockAssociateReportViolations(options),
+}));
+
+const renderForm = (props) => {
+  const defaultProps = {
+    evaluationReport: mockEvaluationReport,
+    reportViolations: [mockReportViolation],
+    violations: [mockViolation],
+  };
+
+  return render(
+    <MockProviders initialEntries={[`/moves/${mockMoveCode}/evaluation-reports/${mockReportId}`]}>
+      <EvaluationViolationsForm {...defaultProps} {...props} />
+    </MockProviders>,
+  );
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
 describe('EvaluationViolationsForm', () => {
   it('renders the form content', async () => {
-    const mockViolation = {
-      category: 'Category 1',
-      displayOrder: 1,
-      id: '9cdc8dc3-6cf4-46fb-b272-1468ef40796f',
-      paragraphNumber: '1.2.3',
-      requirementStatement: 'Test requirement statement for violation 1',
-      requirementSummary: 'Test requirement summary for violation 1',
-      subCategory: 'SubCategory 1',
-      title: 'Title for violation 1',
-    };
-
-    render(<EvaluationViolationsForm violations={[mockViolation]} />);
+    renderForm();
 
     await waitFor(() => {
       // Check out headings
@@ -90,7 +142,7 @@ describe('EvaluationViolationsForm', () => {
       },
     ];
 
-    render(<EvaluationViolationsForm violations={mockTwoCategoryViolations} />);
+    renderForm({ violations: mockTwoCategoryViolations });
 
     // Content for each category is present
     await waitFor(() => {
@@ -117,7 +169,7 @@ describe('EvaluationViolationsForm', () => {
       },
     ];
 
-    render(<EvaluationViolationsForm violations={mockKpiViolation} />);
+    renderForm({ violations: mockKpiViolation });
 
     await waitFor(() => {
       expect(screen.queryByText('Observed pickup spread start date')).not.toBeInTheDocument();
@@ -135,17 +187,29 @@ describe('EvaluationViolationsForm', () => {
   });
 
   it('re-routes back to the eval report', async () => {
-    render(
-      <MockProviders initialEntries={[`/moves/${mockMoveCode}/evaluation-reports/${mockReportId}`]}>
-        <EvaluationViolationsForm violations={[]} />
-      </MockProviders>,
-    );
-
+    renderForm();
     // Click back button
     await userEvent.click(await screen.findByRole('button', { name: '< Back to Evaluation form' }));
 
     // Verify that we re-route back to the eval report
     expect(mockPush).toHaveBeenCalledTimes(1);
     expect(mockPush).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports/${mockReportId}`);
+  });
+
+  it('can save a draft and reroute back to the eval reports', async () => {
+    renderForm();
+
+    // Click save draft button
+    await userEvent.click(await screen.findByRole('button', { name: 'Save draft' }));
+
+    // Verify that report was saved, violations re-associated with report, and page rerouted
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledTimes(1);
+      expect(mockSaveEvaluationReport).toHaveBeenCalledTimes(1);
+      expect(mockAssociateReportViolations).toHaveBeenCalledTimes(1);
+      expect(mockPush).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports`, {
+        showSaveDraftSuccess: true,
+      });
+    });
   });
 });

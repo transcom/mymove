@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const EditButton = ({ label, ...props }) => (
   /* eslint-disable-next-line react/jsx-props-no-spreading */
-  <Button icon {...props}>
+  <Button {...props}>
     <span className="icon">
       <FontAwesomeIcon icon="pen" />
     </span>
@@ -23,7 +23,7 @@ EditButton.propTypes = {
 
 export const DocsButton = ({ label, ...props }) => (
   /* eslint-disable-next-line react/jsx-props-no-spreading */
-  <Button icon {...props}>
+  <Button {...props}>
     <span className="icon">
       <FontAwesomeIcon icon="file" />
     </span>
