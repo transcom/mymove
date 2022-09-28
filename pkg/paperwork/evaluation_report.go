@@ -210,6 +210,12 @@ func formatDuration(minutes int) string {
 	remainingMinutes := minutes % 60
 	return fmt.Sprintf("%d hr %d min", hours, remainingMinutes)
 }
+
+func formatEnum(e string) string {
+	withSpaces := strings.ReplaceAll(e, "_", " ")
+	return strings.ToUpper(withSpaces[:1]) + strings.ToLower(withSpaces[1:])
+}
+
 func FormatValuesInspectionInformation(report models.EvaluationReport) InspectionInformationValues {
 	inspectionInfo := InspectionInformationValues{}
 	if report.InspectionDate != nil {
@@ -219,13 +225,16 @@ func FormatValuesInspectionInformation(report models.EvaluationReport) Inspectio
 		inspectionInfo.ReportSubmission = report.SubmittedAt.Format(dateFormat)
 	}
 	if report.InspectionType != nil {
-		inspectionInfo.EvaluationType = string(*report.InspectionType)
+		inspectionInfo.EvaluationType = formatEnum(string(*report.InspectionType))
 	}
 	if report.TravelTimeMinutes != nil {
 		inspectionInfo.TravelTimeToEvaluation = formatDuration(*report.TravelTimeMinutes)
 	}
 	if report.Location != nil {
-		inspectionInfo.EvaluationLocation = string(*report.Location)
+		inspectionInfo.EvaluationLocation = formatEnum(string(*report.Location))
+		if *report.Location == models.EvaluationReportLocationTypeOther && report.LocationDescription != nil {
+			inspectionInfo.EvaluationLocation += "\n" + *report.LocationDescription
+		}
 		if report.ObservedDate != nil {
 			if *report.Location == models.EvaluationReportLocationTypeOrigin {
 				inspectionInfo.ObservedPickupDate = report.ObservedDate.String()
