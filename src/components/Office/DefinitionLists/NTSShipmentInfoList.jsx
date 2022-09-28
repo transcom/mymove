@@ -193,15 +193,10 @@ const NTSShipmentInfoList = ({
   );
 
   const releasingAgentFlags = getDisplayFlags('releasingAgent');
-  const releasingAgentElement = !releasingAgent ? (
-    <div className={releasingAgentFlags.classes}>
-      <dt>Releasing agent</dt>
-      <dd data-testid="RELEASING_AGENT">—</dd>
-    </div>
-  ) : (
+  const releasingAgentElement = (
     <div className={releasingAgentFlags.classes} key={`${releasingAgent.agentType}-${releasingAgent.email}`}>
       <dt>Releasing agent</dt>
-      <dd data-testid={releasingAgent.agentType}>{formatAgent(releasingAgent)}</dd>
+      <dd data-testid="releasingAgent">{releasingAgent ? formatAgent(releasingAgent) : '—'}</dd>
     </div>
   );
 
