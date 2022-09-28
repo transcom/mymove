@@ -28,8 +28,16 @@ const EvaluationReportPreview = ({
 }) => {
   const reportType = evaluationReport.type;
   let mtoShipmentsToShow;
-  const showIncidentDescription = 'yes';
+  const showIncidentDescription = evaluationReport.SeriousIncident;
+  let seriousIncident = '';
   const hasViolations = reportViolations && reportViolations.length > 0;
+  const incidentDescription = evaluationReport.SeriousIncidentDesc;
+
+  if (showIncidentDescription) {
+    seriousIncident = 'yes';
+  } else {
+    seriousIncident = 'no';
+  }
 
   if (evaluationReport.shipmentID) {
     mtoShipmentsToShow = [mtoShipments.find((shipment) => shipment.id === evaluationReport.shipmentID)];
@@ -189,12 +197,12 @@ const EvaluationReportPreview = ({
               <>
                 <div className={classnames(descriptionListStyles.row)}>
                   <dt className={styles.violationsLabel}>Serious incident</dt>
-                  <dd className={styles.violationsRemarks}>{showIncidentDescription}</dd>
+                  <dd className={styles.violationsRemarks}>{seriousIncident}</dd>
                 </div>
-                {showIncidentDescription === 'yes' && (
+                {showIncidentDescription && (
                   <div className={classnames(descriptionListStyles.row)}>
                     <dt className={styles.violationsLabel}>Serious incident description</dt>
-                    <dd className={styles.violationsRemarks}>This is an incident description</dd>
+                    <dd className={styles.violationsRemarks}>{incidentDescription}</dd>
                   </div>
                 )}
               </>
