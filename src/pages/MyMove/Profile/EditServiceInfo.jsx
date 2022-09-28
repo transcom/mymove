@@ -4,7 +4,6 @@ import { GridContainer, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
-import ScrollToTop from 'components/ScrollToTop';
 import ServiceInfoForm from 'components/Customer/ServiceInfoForm/ServiceInfoForm';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
@@ -95,7 +94,6 @@ export const EditServiceInfo = ({
 
   return (
     <GridContainer>
-      <ScrollToTop />
       {serverError && (
         <Alert type="error" headingLevel="h4" heading="An error occurred">
           {serverError}

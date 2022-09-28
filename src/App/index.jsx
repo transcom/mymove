@@ -14,6 +14,7 @@ import '../icons';
 import 'shared/shared.css';
 import './index.css';
 import MarkerIO from 'components/ThirdParty/MarkerIO';
+import ScrollToTop from 'components/ScrollToTop';
 
 const Office = lazy(() => import('pages/Office'));
 const MyMove = lazy(() => import('scenes/MyMove'));
@@ -54,6 +55,7 @@ const App = () => {
             <AppContext.Provider value={officeContext}>
               <ConnectedRouter history={history}>
                 <Suspense fallback={<LoadingPlaceholder />}>
+                  <ScrollToTop />
                   <Office />
                   {flags.markerIO && <MarkerIO />}
                 </Suspense>
@@ -69,6 +71,7 @@ const App = () => {
     return (
       <AppContext.Provider value={adminContext}>
         <Suspense fallback={<LoadingPlaceholder />}>
+          <ScrollToTop />
           <SystemAdmin />
         </Suspense>
       </AppContext.Provider>
@@ -81,6 +84,7 @@ const App = () => {
       <AppContext.Provider value={myMoveContext}>
         <ConnectedRouter history={history}>
           <Suspense fallback={<LoadingPlaceholder />}>
+            <ScrollToTop />
             <MyMove />
             {flags.markerIO && <MarkerIO />}
           </Suspense>

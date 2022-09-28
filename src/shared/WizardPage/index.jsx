@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { push } from 'connected-react-router';
 
-import ScrollToTop from 'components/ScrollToTop';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Alert from 'shared/Alert';
 import generatePath from './generatePath';
@@ -64,7 +63,6 @@ export class WizardPage extends Component {
 
     return (
       <div className="grid-container usa-prose">
-        <ScrollToTop />
         {error && (
           <div className="grid-row">
             <div className="desktop:grid-col-8 desktop:grid-offset-2 error-message">
