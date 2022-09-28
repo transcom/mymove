@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -142,7 +142,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		if httpGetErr != nil {
 			logger.Error(errors.Wrap(httpGetErr, "could not fetch task metadata").Error())
 		} else {
-			body, readAllErr := ioutil.ReadAll(resp.Body)
+			body, readAllErr := io.ReadAll(resp.Body)
 			if readAllErr != nil {
 				logger.Error(errors.Wrap(readAllErr, "could not read task metadata").Error())
 			} else {

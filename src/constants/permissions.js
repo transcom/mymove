@@ -15,4 +15,5 @@ export const permissionTypes = {
   updateMTOServiceItem: 'update.MTOServiceItem',
   createEvaluationReport: 'create.evaluationReport',
   updateEvaluationReport: 'update.evaluationReport',
+  createReportViolation: 'create.reportViolation',
 };

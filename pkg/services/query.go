@@ -2,6 +2,7 @@ package services
 
 // QueryFilter is an interface to allow passing filter values into query interfaces
 // Ex `FetchMany` takes a list of filters
+//
 //go:generate mockery --name QueryFilter --disable-version-string
 type QueryFilter interface {
 	Column() string
@@ -14,6 +15,7 @@ type QueryFilter interface {
 type NewQueryFilter func(column string, comparator string, value interface{}) QueryFilter
 
 // QueryAssociation is an interface to allow passing association values into query interfaces
+//
 //go:generate mockery --name QueryAssociation --disable-version-string
 type QueryAssociation interface {
 	Field() string
@@ -24,6 +26,7 @@ type QueryAssociation interface {
 type NewQueryAssociation func(field string) QueryAssociation
 
 // QueryAssociations is an interface to allow
+//
 //go:generate mockery --name QueryAssociations --disable-version-string
 type QueryAssociations interface {
 	StringGetAssociations() []string

@@ -21,3 +21,4 @@ export const SHIPMENT_EVALUATION_REPORTS = 'shipmentEvaluationReports';
 export const COUNSELING_EVALUATION_REPORTS = 'counselingEvaluationReports';
 export const EVALUATION_REPORT = 'evaluationReport';
 export const PWS_VIOLATIONS = 'pwsViolations';
+export const REPORT_VIOLATIONS = 'reportViolations';

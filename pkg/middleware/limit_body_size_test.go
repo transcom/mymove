@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -12,7 +12,7 @@ func (suite *testSuite) TestLimitBodySizeValid() {
 	rr := httptest.NewRecorder()
 	suite.do(mw, suite.reflect, rr, httptest.NewRequest("GET", testURL, strings.NewReader("foobar")))
 	suite.Equal(http.StatusOK, rr.Code, errStatusCode) // check status code
-	body, err := ioutil.ReadAll(rr.Body)
+	body, err := io.ReadAll(rr.Body)
 	suite.NoError(err)                           // check that you could read full body
 	suite.Equal("foobar", string(body), errBody) // check body
 }
@@ -22,7 +22,7 @@ func (suite *testSuite) TestLimitBodySizeInvalid() {
 	rr := httptest.NewRecorder()
 	suite.do(mw, suite.reflect, rr, httptest.NewRequest("GET", testURL, strings.NewReader("foobar")))
 	suite.Equal(http.StatusBadRequest, rr.Code, errStatusCode) // check status code
-	body, err := ioutil.ReadAll(rr.Body)
+	body, err := io.ReadAll(rr.Body)
 	suite.NoError(err)                                                              // check that you could read full body
 	suite.Equal(http.StatusText(http.StatusBadRequest)+"\n", string(body), errBody) // check body
 }

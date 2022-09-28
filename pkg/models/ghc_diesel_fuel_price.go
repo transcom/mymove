@@ -28,7 +28,7 @@ func (g *GHCDieselFuelPrice) Validate(tx *pop.Connection) (*validate.Errors, err
 	), nil
 }
 
-//TableName overrides the table name used by Pop.
+// TableName overrides the table name used by Pop.
 func (g GHCDieselFuelPrice) TableName() string {
 	return "ghc_diesel_fuel_prices"
 }

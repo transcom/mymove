@@ -1,6 +1,7 @@
 package services
 
 // QueryOrder describes the "order by" clause in a sql query
+//
 //go:generate mockery --name QueryOrder --disable-version-string
 type QueryOrder interface {
 	Column() *string

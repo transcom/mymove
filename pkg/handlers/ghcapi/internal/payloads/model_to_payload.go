@@ -110,6 +110,15 @@ func EvaluationReportList(evaluationReports models.EvaluationReports) ghcmessage
 	return payload
 }
 
+func ReportViolations(reportViolations models.ReportViolations) ghcmessages.ReportViolations {
+	payload := make(ghcmessages.ReportViolations, len(reportViolations))
+	for i, v := range reportViolations {
+		reportViolation := v
+		payload[i] = ReportViolation(&reportViolation)
+	}
+	return payload
+}
+
 func EvaluationReportOfficeUser(officeUser models.OfficeUser) ghcmessages.EvaluationReportOfficeUser {
 	payload := ghcmessages.EvaluationReportOfficeUser{
 		Email:     officeUser.Email,
@@ -197,6 +206,23 @@ func PWSViolations(violations models.PWSViolations) ghcmessages.PWSViolations {
 	for i, v := range violations {
 		violation := v
 		payload[i] = PWSViolationItem(&violation)
+	}
+	return payload
+}
+
+func ReportViolation(reportViolation *models.ReportViolation) *ghcmessages.ReportViolation {
+	if reportViolation == nil {
+		return nil
+	}
+	id := *handlers.FmtUUID(reportViolation.ID)
+	violationID := *handlers.FmtUUID(reportViolation.ViolationID)
+	reportID := *handlers.FmtUUID(reportViolation.ReportID)
+
+	payload := &ghcmessages.ReportViolation{
+		ID:          id,
+		ViolationID: violationID,
+		ReportID:    reportID,
+		Violation:   PWSViolationItem(&reportViolation.Violation),
 	}
 	return payload
 }
