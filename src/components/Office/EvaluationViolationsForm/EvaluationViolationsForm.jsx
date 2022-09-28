@@ -106,11 +106,11 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
     const initialValues = {
       selectedViolations,
       seriousIncident,
-      seriousIncidentDesc: evaluationReport.seriousIncidentDesc,
-      observedClaimsResponseDate: evaluationReport.observedClaimsResponseDate,
-      observedPickupDate: evaluationReport.observedPickupDate,
-      observedPickupSpreadStartDate: evaluationReport.observedPickupSpreadStartDate,
-      observedPickupSpreadEndDate: evaluationReport.observedPickupSpreadEndDate,
+      seriousIncidentDesc: evaluationReport?.seriousIncidentDesc,
+      observedClaimsResponseDate: evaluationReport?.observedClaimsResponseDate,
+      observedPickupDate: evaluationReport?.observedPickupDate,
+      observedPickupSpreadStartDate: evaluationReport?.observedPickupSpreadStartDate,
+      observedPickupSpreadEndDate: evaluationReport?.observedPickupSpreadEndDate,
     };
 
     return initialValues;
