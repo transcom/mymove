@@ -2,6 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import classnames from 'classnames';
+
+import styles from './W2AddressForm.module.scss';
 
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -17,7 +20,7 @@ const W2AddressForm = ({ formFieldsName, initialValues, validators }) => {
 
   return (
     <Formik initialValues={initialValues} validateOnChange={false} validateOnMount validationSchema={validationSchema}>
-      <Form className={formStyles.form}>
+      <Form className={classnames(formStyles.form, styles.W2AddressForm)}>
         <SectionWrapper className={formStyles.formSection}>
           <h2>W-2 address</h2>
           <p>What is the address on your W-2?</p>
