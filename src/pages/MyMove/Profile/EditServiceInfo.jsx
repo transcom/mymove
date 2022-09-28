@@ -16,6 +16,7 @@ import {
 import { generalRoutes, customerRoutes } from 'constants/routes';
 import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import { formatWeight } from 'utils/formatters';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
 export const EditServiceInfo = ({
   serviceMember,
@@ -94,6 +95,7 @@ export const EditServiceInfo = ({
 
   return (
     <GridContainer>
+      <NotificationScrollToTop dependency={serverError} />
       {serverError && (
         <Alert type="error" headingLevel="h4" heading="An error occurred">
           {serverError}
