@@ -5609,6 +5609,18 @@ definitions:
       proofOfTrailerOwnershipDocument:
         title: Proof of Trailer Ownership Document
         $ref: '#/definitions/definitions-DocumentPayload'
+      status:
+        type: string
+        enum:
+          - APPROVE
+          - EXCLUDE
+          - REJECT
+        x-nullable: true
+        x-omitempty: false
+      reason:
+        type: string
+        x-nullable: true
+        x-omitempty: false
       eTag:
         type: string
         readOnly: true
