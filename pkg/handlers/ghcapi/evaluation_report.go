@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -151,15 +152,14 @@ func (h DownloadEvaluationReportHandler) Handle(params evaluationReportop.Downlo
 				return handleError(err)
 			}
 			if evaluationReport.Move.OrdersID == uuid.Nil {
-				return handleError(fmt.Errorf("orders not found"))
+				return handleError(apperror.NewNotFoundError(uuid.Nil, "Missing orders on move"))
 			}
 			orders, err := h.OrderFetcher.FetchOrder(appCtx, evaluationReport.Move.OrdersID)
 			if err != nil {
 				return handleError(err)
 			}
-			customer, err := models.FetchServiceMember(appCtx.DB(), orders.ServiceMemberID)
-			if err != nil {
-				return handleError(err)
+			if orders == nil {
+				return handleError(apperror.NewNotFoundError(evaluationReport.Move.OrdersID, "Orders"))
 			}
 			violations, err := h.FetchReportViolationsByReportID(appCtx, reportID)
 			if err != nil {
@@ -176,7 +176,7 @@ func (h DownloadEvaluationReportHandler) Handle(params evaluationReportop.Downlo
 				if shipmentErr != nil {
 					return handleError(shipmentErr)
 				}
-				err = formFiller.CreateCounselingReport(*evaluationReport, violations, shipments, customer)
+				err = formFiller.CreateCounselingReport(*evaluationReport, violations, shipments, orders.ServiceMember)
 				if err != nil {
 					return handleError(err)
 				}
@@ -190,13 +190,13 @@ func (h DownloadEvaluationReportHandler) Handle(params evaluationReportop.Downlo
 				if shipmentErr != nil {
 					return handleError(shipmentErr)
 				}
-				err = formFiller.CreateShipmentReport(*evaluationReport, violations, *shipment, customer)
+				err = formFiller.CreateShipmentReport(*evaluationReport, violations, *shipment, orders.ServiceMember)
 				if err != nil {
 					return handleError(err)
 				}
 			}
 			if err != nil {
-				appCtx.Logger().Error("Error appending page 1 to PDF", zap.Error(err))
+				appCtx.Logger().Error("Error creating PDF", zap.Error(err))
 				return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
 			}
 
@@ -207,7 +207,7 @@ func (h DownloadEvaluationReportHandler) Handle(params evaluationReportop.Downlo
 				return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
 			}
 			payload := io.NopCloser(buf)
-			filename := fmt.Sprintf("inline; filename=\"evalreport-%s-%s.pdf\"", evaluationReport.ID, time.Now().Format("01-02-2006"))
+			filename := fmt.Sprintf("inline; filename=\"%s QA-%s %s.pdf\"", *orders.ServiceMember.LastName, strings.ToUpper(evaluationReport.ID.String()[:5]), time.Now().Format("01-02-2006"))
 			return evaluationReportop.NewDownloadEvaluationReportOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
 }
