@@ -19,7 +19,7 @@ type functionalGroupCounter struct {
 	ts        []transactionSetCounter
 }
 
-// 	ISA > FGs > TSs > OTI|TED
+// ISA > FGs > TSs > OTI|TED
 type counterData struct {
 	fgCounter int
 	fg        []functionalGroupCounter

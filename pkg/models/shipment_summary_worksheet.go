@@ -104,7 +104,7 @@ func (d Dollar) String() string {
 	return p.Sprintf("$%.2f", d)
 }
 
-//FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
+// FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
 type FormattedMovingExpenses struct {
 	ContractedExpenseMemberPaid Dollar
 	ContractedExpenseGTCCPaid   Dollar
@@ -267,7 +267,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	return ssd, nil
 }
 
-//SSWMaxWeightEntitlement weight allotment for the shipment summary worksheet.
+// SSWMaxWeightEntitlement weight allotment for the shipment summary worksheet.
 type SSWMaxWeightEntitlement struct {
 	Entitlement   unit.Pound
 	ProGear       unit.Pound
@@ -390,7 +390,7 @@ func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
 	return FormatDollars(0)
 }
 
-//FormatRank formats the service member's rank for Shipment Summary Worksheet
+// FormatRank formats the service member's rank for Shipment Summary Worksheet
 func FormatRank(rank *ServiceMemberRank) string {
 	var rankDisplayValue = map[ServiceMemberRank]string{
 		ServiceMemberRankE1:                      "E-1",
@@ -451,7 +451,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage3(data ShipmentSummaryFormData)
 	return page3
 }
 
-//FormatSignature formats a service member's signature for the Shipment Summary Worksheet
+// FormatSignature formats a service member's signature for the Shipment Summary Worksheet
 func FormatSignature(sm ServiceMember) string {
 	first := derefStringTypes(sm.FirstName)
 	last := derefStringTypes(sm.LastName)
@@ -466,12 +466,12 @@ func FormatSignatureDate(signature SignedCertification) string {
 	return dt
 }
 
-//FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
+// FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
 func FormatLocation(dutyLocation DutyLocation) string {
 	return fmt.Sprintf("%s, %s %s", dutyLocation.Name, dutyLocation.Address.State, dutyLocation.Address.PostalCode)
 }
 
-//FormatServiceMemberFullName formats ServiceMember full name for Shipment Summary Worksheet
+// FormatServiceMemberFullName formats ServiceMember full name for Shipment Summary Worksheet
 func FormatServiceMemberFullName(serviceMember ServiceMember) string {
 	lastName := derefStringTypes(serviceMember.LastName)
 	suffix := derefStringTypes(serviceMember.Suffix)
@@ -483,7 +483,7 @@ func FormatServiceMemberFullName(serviceMember ServiceMember) string {
 	return strings.TrimSpace(fmt.Sprintf("%s, %s %s", lastName, firstName, middleName))
 }
 
-//FormatAllShipments formats Shipment line items for the Shipment Summary Worksheet
+// FormatAllShipments formats Shipment line items for the Shipment Summary Worksheet
 func FormatAllShipments(ppms PersonallyProcuredMoves) ShipmentSummaryWorkSheetShipments {
 	totalShipments := len(ppms)
 	formattedShipments := ShipmentSummaryWorkSheetShipments{}
@@ -517,7 +517,7 @@ func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, 
 	return movingExpenseDocuments, nil
 }
 
-//SubTotalExpenses groups moving expenses by type and payment method
+// SubTotalExpenses groups moving expenses by type and payment method
 func SubTotalExpenses(expenseDocuments MovingExpenses) map[string]float64 {
 	var expenseType string
 	totals := make(map[string]float64)
@@ -542,7 +542,7 @@ func getExpenseType(expense MovingExpense) string {
 	return fmt.Sprintf("%s%s", expenseType, "MemberPaid")
 }
 
-//FormatCurrentPPMStatus formats FormatCurrentPPMStatus for the Shipment Summary Worksheet
+// FormatCurrentPPMStatus formats FormatCurrentPPMStatus for the Shipment Summary Worksheet
 func FormatCurrentPPMStatus(ppm PersonallyProcuredMove) string {
 	if ppm.Status == "PAYMENT_REQUESTED" {
 		return "At destination"
@@ -550,12 +550,12 @@ func FormatCurrentPPMStatus(ppm PersonallyProcuredMove) string {
 	return FormatEnum(string(ppm.Status), " ")
 }
 
-//FormatPPMNumberAndType formats FormatShipmentNumberAndType for the Shipment Summary Worksheet
+// FormatPPMNumberAndType formats FormatShipmentNumberAndType for the Shipment Summary Worksheet
 func FormatPPMNumberAndType(i int) string {
 	return fmt.Sprintf("%02d - PPM", i+1)
 }
 
-//FormatPPMWeight formats a ppms NetWeight for the Shipment Summary Worksheet
+// FormatPPMWeight formats a ppms NetWeight for the Shipment Summary Worksheet
 func FormatPPMWeight(ppm PersonallyProcuredMove) string {
 	if ppm.NetWeight != nil {
 		wtg := FormatWeights(unit.Pound(*ppm.NetWeight))
@@ -564,7 +564,7 @@ func FormatPPMWeight(ppm PersonallyProcuredMove) string {
 	return ""
 }
 
-//FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
+// FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
 func FormatPPMPickupDate(ppm PersonallyProcuredMove) string {
 	if ppm.OriginalMoveDate != nil {
 		return FormatDate(*ppm.OriginalMoveDate)
@@ -572,14 +572,14 @@ func FormatPPMPickupDate(ppm PersonallyProcuredMove) string {
 	return ""
 }
 
-//FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
+// FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
 func FormatOrdersTypeAndOrdersNumber(order Order) string {
 	issuingBranch := FormatOrdersType(order)
 	ordersNumber := derefStringTypes(order.OrdersNumber)
 	return fmt.Sprintf("%s/%s", issuingBranch, ordersNumber)
 }
 
-//FormatServiceMemberAffiliation formats ServiceMemberAffiliation in human friendly format
+// FormatServiceMemberAffiliation formats ServiceMemberAffiliation in human friendly format
 func FormatServiceMemberAffiliation(affiliation *ServiceMemberAffiliation) string {
 	if affiliation != nil {
 		return FormatEnum(string(*affiliation), " ")
@@ -587,7 +587,7 @@ func FormatServiceMemberAffiliation(affiliation *ServiceMemberAffiliation) strin
 	return ""
 }
 
-//FormatOrdersType formats OrdersType for Shipment Summary Worksheet
+// FormatOrdersType formats OrdersType for Shipment Summary Worksheet
 func FormatOrdersType(order Order) string {
 	switch order.OrdersType {
 	case internalmessages.OrdersTypePERMANENTCHANGEOFSTATION:
@@ -597,26 +597,26 @@ func FormatOrdersType(order Order) string {
 	}
 }
 
-//FormatDate formats Dates for Shipment Summary Worksheet
+// FormatDate formats Dates for Shipment Summary Worksheet
 func FormatDate(date time.Time) string {
 	dateLayout := "02-Jan-2006"
 	return date.Format(dateLayout)
 }
 
-//FormatEnum titlecases string const types (e.g. THIS_CONSTANT -> This Constant)
-//outSep specifies the character to use for rejoining the string
+// FormatEnum titlecases string const types (e.g. THIS_CONSTANT -> This Constant)
+// outSep specifies the character to use for rejoining the string
 func FormatEnum(s string, outSep string) string {
 	words := strings.Replace(strings.ToLower(s), "_", " ", -1)
 	return strings.Replace(cases.Title(language.English).String(words), " ", outSep, -1)
 }
 
-//FormatWeights formats a unit.Pound using 000s separator
+// FormatWeights formats a unit.Pound using 000s separator
 func FormatWeights(wtg unit.Pound) string {
 	p := message.NewPrinter(language.English)
 	return p.Sprintf("%d", wtg)
 }
 
-//FormatDollars formats an int using 000s separator
+// FormatDollars formats an int using 000s separator
 func FormatDollars(dollars float64) string {
 	p := message.NewPrinter(language.English)
 	return p.Sprintf("$%.2f", dollars)

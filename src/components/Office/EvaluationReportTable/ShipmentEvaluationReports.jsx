@@ -8,7 +8,17 @@ import styles from './ShipmentEvaluationReports.module.scss';
 
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 
-const ShipmentEvaluationReports = ({ shipments, reports, moveCode, customerInfo, grade }) => {
+const ShipmentEvaluationReports = ({
+  shipments,
+  reports,
+  moveCode,
+  customerInfo,
+  grade,
+  setReportToDelete,
+  setIsDeleteModalOpen,
+  deleteReport,
+  isDeleteModalOpen,
+}) => {
   const sortedShipments = shipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
 
   const shipmentRows = sortedShipments.map((shipment) => {
@@ -22,6 +32,10 @@ const ShipmentEvaluationReports = ({ shipments, reports, moveCode, customerInfo,
           grade={grade}
           shipments={[shipment]}
           emptyText="No QAE reports have been submitted for this shipment."
+          setReportToDelete={setReportToDelete}
+          setIsDeleteModalOpen={setIsDeleteModalOpen}
+          isDeleteModalOpen={isDeleteModalOpen}
+          deleteReport={deleteReport}
         />
       </div>
     );
