@@ -616,7 +616,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			landingQuery.Add("error", "UNKNOWN_ERROR")
 		}
 		landingURL.RawQuery = landingQuery.Encode()
-		http.Redirect(w, r, landingURL.String(), http.StatusPermanentRedirect)
+		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 		appCtx.Logger().Info("User redirected from login.gov", zap.String("landingURL", landingURL.String()))
 
 		return
