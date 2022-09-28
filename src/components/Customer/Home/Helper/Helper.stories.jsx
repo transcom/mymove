@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { MemoryRouter } from 'react-router';
 import { text, array } from '@storybook/addon-knobs';
 
 import Helper from './index';
@@ -10,6 +11,8 @@ import {
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
   HelperAmendedOrders,
+  HelperApprovedMove,
+  HelperPPMCloseoutSubmitted,
 } from 'pages/MyMove/Home/HomeHelpers';
 
 const title = 'Next step: Add your orders';
@@ -51,3 +54,9 @@ export const NeedsShipment = () => <HelperNeedsShipment />;
 export const NeedsSubmitMove = () => <HelperNeedsSubmitMove />;
 export const SubmittedMove = () => <HelperSubmittedMove />;
 export const AmendedOrders = () => <HelperAmendedOrders />;
+export const ApprovedMove = () => (
+  <MemoryRouter>
+    <HelperApprovedMove />
+  </MemoryRouter>
+);
+export const PPMCloseoutSubmitted = () => <HelperPPMCloseoutSubmitted />;
