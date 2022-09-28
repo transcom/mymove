@@ -9,7 +9,7 @@ import EditContactInfoForm, {
   backupContactName,
   residentialAddressName,
 } from 'components/Customer/EditContactInfoForm/EditContactInfoForm';
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { customerRoutes } from 'constants/routes';
 import { getResponseError, patchBackupContact, patchServiceMember } from 'services/internalApi';
 import {
@@ -131,7 +131,7 @@ export const EditContactInfo = ({
 
   return (
     <GridContainer>
-      <ScrollToTop otherDep={serverError} />
+      <NotificationScrollToTop dependency={serverError} />
 
       {serverError && (
         <Grid row>

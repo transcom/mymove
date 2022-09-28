@@ -16,7 +16,7 @@ import {
   selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
 const EstimatedWeightsProGear = () => {
   const [errorMessage, setErrorMessage] = useState();
@@ -66,7 +66,7 @@ const EstimatedWeightsProGear = () => {
 
   return (
     <div className={ppmPageStyles.ppmPageStyle}>
-      <ScrollToTop otherDep={errorMessage} />
+      <NotificationScrollToTop dependency={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

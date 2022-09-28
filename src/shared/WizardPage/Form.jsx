@@ -12,7 +12,7 @@ import generatePath from './generatePath';
 import './index.css';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import styles from 'components/Customer/WizardNavigation/WizardNavigation.module.scss';
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
 import { beforeTransition, getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage } from './utils';
 
@@ -85,7 +85,7 @@ export class WizardFormPage extends Component {
     const hideBackBtn = isFirstPage(pageList, pageKey);
     return (
       <div className="grid-container usa-prose">
-        <ScrollToTop otherDep={serverError} />
+        <NotificationScrollToTop dependency={serverError} />
         {serverError && (
           <div className="grid-row">
             <div className="desktop:grid-col-8 desktop:grid-offset-2 error-message">

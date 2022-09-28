@@ -4,7 +4,7 @@ import { GridContainer, Alert } from '@trussworks/react-uswds';
 import { Provider } from 'react-redux';
 
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { configureStore, history } from 'shared/store';
 import { setFlashMessage } from 'store/flash/actions';
@@ -64,7 +64,7 @@ describe('FlashGridContainer component', () => {
 
     const container = wrapper.find('div[data-testid="test-alert"]');
     expect(container.exists()).toBe(true);
-    expect(container.childAt(0).type()).toEqual(ScrollToTop);
+    expect(container.childAt(0).type()).toEqual(NotificationScrollToTop);
     expect(container.childAt(1).type()).toEqual(ConnectedFlashMessage);
     expect(container.childAt(2).type()).toEqual('p');
 
@@ -82,7 +82,6 @@ describe('FlashGridContainer component', () => {
         </FlashGridContainer>
       </Provider>,
     );
-
     // ScrollToTop should fire at the initial mount
     expect(global.scrollTo).toHaveBeenCalledTimes(1);
 
