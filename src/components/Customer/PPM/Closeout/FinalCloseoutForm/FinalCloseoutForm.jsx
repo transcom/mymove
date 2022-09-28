@@ -4,6 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 
 import styles from './FinalCloseoutForm.module.scss';
 
+import W2AddressForm from 'components/Customer/PPM/Closeout/W2AddressForm/W2AddressForm';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import { formatCents, formatWeight } from 'utils/formatters';
@@ -24,6 +25,17 @@ const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
 
   const isValid = false;
   const isSubmitting = true;
+
+  const formFieldsName = 'w2_address';
+  const initialValues = {
+    [formFieldsName]: {
+      streetAddress1: '',
+      streetAddress2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+    },
+  };
 
   return (
     <div className={styles.FinalCloseoutForm}>
@@ -81,6 +93,8 @@ const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
           operating expenses.)
         </p>
       </div>
+
+      <W2AddressForm formFieldsName={formFieldsName} initialValues={initialValues} />
 
       <div className={ppmStyles.buttonContainer}>
         <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
