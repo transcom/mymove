@@ -366,11 +366,12 @@ func (f *EvaluationReportFormFiller) subsectionRow(key string, value string) {
 	f.pdf.SetCellMargin(pxToMM(8.0))
 	f.setBorderColor()
 	labelWidth := pxToMM(200.0)
+	valueWidth := letterWidthMm - 2.0*pageSideMarginMm - labelWidth
 	textLineHeight := pxToMM(18.0)
 	minFieldHeight := pxToMM(40.0)
 
 	// If the text is long, or contains line breaks, we will want to display across multiple lines
-	needToLineWrapValue := f.pdf.GetStringWidth(value) > widthFill-2*f.pdf.GetCellMargin() || strings.Contains(value, "\n")
+	needToLineWrapValue := f.pdf.GetStringWidth(value) > valueWidth-2*f.pdf.GetCellMargin() || strings.Contains(value, "\n")
 	// I'm assuming that we will not have line breaks in labels
 	needToLineWrapLabel := f.pdf.GetStringWidth(key) > labelWidth-2*f.pdf.GetCellMargin()
 	estimatedHeight := minFieldHeight
@@ -391,19 +392,26 @@ func (f *EvaluationReportFormFiller) subsectionRow(key string, value string) {
 	f.pdf.SetFontUnitSize(textFontSize)
 	y := f.pdf.GetY()
 
+	// border line
+	f.pdf.Line(f.pdf.GetX(), y, f.pdf.GetX()+letterWidthMm-2.0*pageSideMarginMm, y)
+
 	if needToLineWrapLabel {
-		f.pdf.MultiCell(labelWidth, textLineHeight, key, "T", "LM", false)
+		f.addVerticalSpace(pxToMM(12.0))
+		f.pdf.MultiCell(labelWidth, textLineHeight, key, "", "LM", false)
+		f.addVerticalSpace(pxToMM(12.0))
 	} else {
-		f.pdf.CellFormat(labelWidth, minFieldHeight, key, "T", 0, "LM", false, 0, "")
+		f.pdf.CellFormat(labelWidth, minFieldHeight, key, "", 0, "LM", false, 0, "")
 	}
 
 	labelY := f.pdf.GetY()
 	f.pdf.SetFontStyle("")
 	f.pdf.MoveTo(pageSideMarginMm+labelWidth, y)
 	if needToLineWrapValue {
-		f.pdf.MultiCell(widthFill, textLineHeight, value, "T", "LM", false)
+		f.addVerticalSpace(pxToMM(12.0))
+		f.pdf.MultiCell(widthFill, textLineHeight, value, "", "LM", false)
+		f.addVerticalSpace(pxToMM(12.0))
 	} else {
-		f.pdf.CellFormat(widthFill, minFieldHeight, value, "T", 1, "LM", false, 0, "")
+		f.pdf.CellFormat(widthFill, minFieldHeight, value, "", 1, "LM", false, 0, "")
 	}
 	valueY := f.pdf.GetY()
 	endY := math.Max(math.Max(labelY, valueY), y+minFieldHeight)
