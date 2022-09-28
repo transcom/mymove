@@ -490,9 +490,10 @@ func (f *EvaluationReportFormFiller) shipmentCard(shipment models.MTOShipment) e
 	headingHeight := 5.0
 	headingBottomMargin := pxToMM(18.0)
 	stripeHeight := pxToMM(9.0)
-	addressHeight := 10.0
-	tableRowHeight := 10.0
-	estimatedHeight := stripeHeight + headingMargin + headingHeight + headingBottomMargin + addressHeight + tableRowHeight + float64(len(layout))
+	// Rough overestimates of subcomponent heights used to guess whether we should page break
+	addressHeight := pxToMM(8.0) + 2.0*pxToMM(18.0)
+	tableRowHeight := pxToMM(2.0*12.0 + 42.0)
+	estimatedHeight := stripeHeight + headingMargin + headingHeight + headingBottomMargin + addressHeight + tableRowHeight*float64(len(layout))
 	if f.pdf.GetY()+estimatedHeight > pageHeightMm-pageBottomMarginMm {
 		f.pdf.AddPage()
 	}
@@ -504,9 +505,7 @@ func (f *EvaluationReportFormFiller) shipmentCard(shipment models.MTOShipment) e
 
 	headingX := pageSideMarginMm + pxToMM(8.0)
 	headingY := startY + headingMargin
-	shipmentTypeX := headingX
-
-	f.pdf.MoveTo(shipmentTypeX, headingY)
+	f.pdf.MoveTo(headingX, headingY)
 	f.pdf.SetFontStyle("B")
 	shipmentTypeText := f.formatShipmentType(shipment.ShipmentType)
 
