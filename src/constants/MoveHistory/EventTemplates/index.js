@@ -14,6 +14,7 @@ export { default as createPaymentRequestReweighUpdate } from './createPaymentReq
 export { default as createPaymentRequestShipmentUpdate } from './createPaymentRequestShipmentUpdate';
 export { default as createReweighRequestWeightUpdate } from './createReweighRequestWeightUpdate';
 export { default as createStandardServiceItem } from './createStandardServiceItem';
+export { default as deleteShipment } from './deleteShipment';
 export { default as proofOfServiceDocUpload } from './proofOfServiceDocUpload';
 export { default as requestShipmentCancellation } from './requestShipmentCancellation';
 export { default as requestShipmentDiversion } from './requestShipmentDiversion';
