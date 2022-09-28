@@ -18,9 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-//
 // CREATE TEST
-//
 func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 	// Reusable objects
 	weightTicketCreator := weightticket.NewCustomerWeightTicketCreator()

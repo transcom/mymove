@@ -83,6 +83,14 @@ export async function submitEvaluationReport({ reportID, ifMatchETag }) {
   );
 }
 
+export async function associateReportViolations({ reportID, body }) {
+  return makeGHCRequest('reportViolations.associateReportViolations', { reportID, body }, { normalize: false });
+}
+
+export async function getReportViolationsByReportID(key, reportID) {
+  return makeGHCRequest('reportViolations.getReportViolationsByReportID', { reportID }, { normalize: false });
+}
+
 export async function getMoveHistory(key, { moveCode, currentPage = 1, currentPageSize = 20 }) {
   return makeGHCRequest(
     'move.getMoveHistory',

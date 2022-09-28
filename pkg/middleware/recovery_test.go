@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 
@@ -29,7 +29,7 @@ func (suite *testSuite) TestRecoveryPanic() {
 	rr := httptest.NewRecorder()
 	suite.do(mw, suite.panic, rr, httptest.NewRequest("GET", testURL, nil))
 	suite.Equal(http.StatusInternalServerError, rr.Code, errStatusCode) // check status code
-	body, err := ioutil.ReadAll(rr.Body)
+	body, err := io.ReadAll(rr.Body)
 	suite.NoError(err) // check that you could read full body
 	var response recoveryError
 	err = json.Unmarshal(body, &response)

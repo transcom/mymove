@@ -4,6 +4,10 @@ import { Button } from '@trussworks/react-uswds';
 import styles from './SelectedViolation.module.scss';
 
 const SelectedViolation = ({ violation, unselectViolation }) => {
+  if (!violation) {
+    return null;
+  }
+
   return (
     <div key={`${violation.id}-violation`} className={styles.violation}>
       <div className={styles.grow}>

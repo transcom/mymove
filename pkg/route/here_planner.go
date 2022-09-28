@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"net/http"
 
@@ -102,7 +101,7 @@ func (p *herePlanner) getAddressLatLong(appCtx appcontext.AppContext, responses 
 		appCtx.Logger().Error("Getting response from HERE.", zap.Error(err), zap.Object("address", address))
 		latLongResponse.err = errors.Wrap(err, "calling HERE")
 	} else if resp.StatusCode != 200 {
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			appCtx.Logger().Info("Got non-200 response from HERE. Unable to read response body.", zap.Int("http_status", resp.StatusCode), zap.Object("address", address))
 		} else {
@@ -171,7 +170,7 @@ func (p *herePlanner) LatLongTransitDistance(appCtx appcontext.AppContext, sourc
 		appCtx.Logger().Error("Getting route response from HERE.", zap.Error(err))
 		return 0, NewUnknownRoutingError(resp.StatusCode, source, dest)
 	} else if resp.StatusCode != 200 {
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			appCtx.Logger().Info("Got non-200 response from HERE. Unable to read response body.", zap.Int("http_status", resp.StatusCode))
 		} else {
