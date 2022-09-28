@@ -47,7 +47,7 @@ const expenseRequiredProps = {
     movingExpenseType: expenseTypes.PACKING_MATERIALS,
     description: 'bubble wrap',
     missingReceipt: false,
-    paidWithGTCC: false,
+    paidWithGtcc: false,
     amount: 60000,
     document: {
       uploads: [
@@ -71,7 +71,7 @@ const sitExpenseProps = {
     movingExpenseType: expenseTypes.STORAGE,
     description: '10x10 storage pod',
     missingReceipt: false,
-    paidWithGTCC: false,
+    paidWithGtcc: false,
     amount: 16099,
     sitStartDate: '2022-09-24',
     sitEndDate: '2022-12-26',

@@ -56,7 +56,7 @@ ExistingExpenses.args = {
     expenseType: expenseTypes.PACKING_MATERIALS,
     description: 'bubble wrap',
     missingReceipt: false,
-    paidWithGTCC: false,
+    paidWithGtcc: false,
     amount: 60000,
     receiptDocument: {
       uploads: [
@@ -90,7 +90,7 @@ SITExpenses.args = {
     expenseType: expenseTypes.STORAGE,
     description: '10x10 storage pod',
     missingReceipt: false,
-    paidWithGTCC: false,
+    paidWithGtcc: false,
     amount: 160097,
     sitStartDate: '2022-09-23',
     sitEndDate: '2022-12-25',

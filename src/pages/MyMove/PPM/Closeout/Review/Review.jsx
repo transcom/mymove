@@ -189,7 +189,7 @@ const Review = () => {
                 emptyMessage="No pro-gear weight documented."
               />
               <ReviewItems
-                className={styles.reviewItems}
+                className={classnames(styles.reviewItems, 'reviewExpenses')}
                 heading={
                   <>
                     <h3>Expenses</h3>

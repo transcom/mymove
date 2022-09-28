@@ -54,13 +54,13 @@ const ExpenseForm = ({
   onUploadComplete,
   onUploadDelete,
 }) => {
-  const { movingExpenseType, description, paidWithGTCC, amount, missingReceipt, document, sitStartDate, sitEndDate } =
+  const { movingExpenseType, description, paidWithGtcc, amount, missingReceipt, document, sitStartDate, sitEndDate } =
     expense || {};
 
   const initialValues = {
     expenseType: movingExpenseType || '',
     description: description || '',
-    paidWithGTCC: paidWithGTCC ? 'true' : 'false',
+    paidWithGTCC: paidWithGtcc ? 'true' : 'false',
     amount: amount ? `${formatCents(amount)}` : '',
     missingReceipt: !!missingReceipt,
     receiptDocument: document?.uploads || [],
