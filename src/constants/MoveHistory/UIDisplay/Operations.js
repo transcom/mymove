@@ -10,27 +10,28 @@ export default {
   createPaymentRequest: 'createPaymentRequest', // prime.yaml
   createUpload: 'createUpload',
   deleteShipment: 'deleteShipment',
-  requestShipmentReweigh: 'requestShipmentReweigh',
   requestShipmentCancellation: 'requestShipmentCancellation', // ghc.yaml
   requestShipmentDiversion: 'requestShipmentDiversion', // ghc.yaml
+  requestShipmentReweigh: 'requestShipmentReweigh',
   setFinancialReviewFlag: 'setFinancialReviewFlag', // ghc.yaml
   submitAmendedOrders: 'submitAmendedOrders', // internal.yaml
   submitMoveForApproval: 'submitMoveForApproval', // internal.yaml
   updateAllowance: 'updateAllowance', // ghc.yaml
-  updateOrder: 'updateOrder', // ghc.yaml
-  updateOrders: 'updateOrders', // internal.yaml
+  updateBillableWeight: 'updateBillableWeight', // ghc.yaml
+  updateBillableWeightAsTIO: 'updateMaxBillableWeightAsTIO',
   updateMoveTaskOrder: 'updateMoveTaskOrder', // ghc.yaml
   updateMoveTaskOrderStatus: 'updateMoveTaskOrderStatus', // ghc.yaml
+  updateMTOReviewedBillableWeightsAt: 'UpdateMTOReviewedBillableWeightsAt',
   updateMTOServiceItemStatus: 'updateMTOServiceItemStatus', // ghc.yaml
   updateMTOServiceItem: 'updateMTOServiceItem', // ghc.yaml
   updateMTOShipment: 'updateMTOShipment', // ghc.yaml internal.yaml prime.yaml
   updateMTOShipmentAddress: 'updateMTOShipmentAddress', // prime.yaml
-  uploadAmendedOrders: 'uploadAmendedOrders', // internal.yaml
-  updateBillableWeight: 'updateBillableWeight', // ghc.yaml
-  updateBillableWeightAsTIO: 'updateMaxBillableWeightAsTIO',
+  updateMTOShipmentStatus: 'updateMTOShipmentStatus',
+  updateMTOStatusServiceCounselingCompleted: 'updateMTOStatusServiceCounselingCompleted',
+  updateOrder: 'updateOrder', // ghc.yaml
+  updateOrders: 'updateOrders', // internal.yaml
   updatePaymentRequestStatus: 'updatePaymentRequestStatus',
   updateReweigh: 'updateReweigh',
   updateServiceItemStatus: 'updateMTOServiceItemStatus',
-  updateMTOReviewedBillableWeightsAt: 'UpdateMTOReviewedBillableWeightsAt',
-  updateMTOShipmentStatus: 'updateMTOShipmentStatus',
+  uploadAmendedOrders: 'uploadAmendedOrders', // internal.yaml
 };
