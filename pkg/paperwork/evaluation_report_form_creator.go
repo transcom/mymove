@@ -679,6 +679,9 @@ func (f *EvaluationReportFormFiller) tableColumn(x float64, labelWidth float64, 
 	f.pdf.CellFormat(labelWidth, pxToMM(42.0), label, "", 0, "LT", false, 0, "")
 	f.pdf.SetFontStyle("")
 	f.setTextColorBaseDarkest()
+	if value == "" {
+		value = "-"
+	}
 	f.pdf.MultiCell(valueWidth, pxToMM(18.0), value, "", "LT", false)
 	f.addVerticalSpace(textVerticalMargin)
 }
