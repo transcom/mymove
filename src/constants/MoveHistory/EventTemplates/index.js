@@ -45,3 +45,4 @@ export { default as updateMTOShipmentStatus } from './updateMTOShipmentStatus';
 export { default as updateMTOServiceItemMoveStatus } from './createMTOServiceItemUpdateMoveStatus';
 export { default as updateMoveEstimatedExcessWeight } from './updateMTOShipmentPrimeEstimatedExcessWeight';
 export { default as updateAllowanceCounseling } from './updateAllowanceCounseling';
+export { default as updateAllowanceServiceMemberBranch } from './updateAllowanceServiceMemberBranch';
