@@ -32,6 +32,9 @@ const (
 	subsectionHeadingFontSize = 22.0 * mmPerPixel
 	textFontSize              = 15.0 * mmPerPixel
 	textSmallFontSize         = 13.0 * mmPerPixel
+
+	// fpdf interprets a width of zero as "fill all the space up to the right margin"
+	widthFill = 0.0
 )
 
 // TODO do we want to keep this or inline it?
@@ -257,7 +260,7 @@ func (f *EvaluationReportFormFiller) reportPageHeader() {
 	f.setTextColorBaseDarker()
 	f.pdf.SetFontStyle("B")
 	f.pdf.CellFormat(-pageSideMarginMm+letterWidthMm/2.0, textHeight, fmt.Sprintf("Report #%s", f.reportID), "", 0, "LM", false, 0, "")
-	f.pdf.CellFormat(0.0, textHeight, fmt.Sprintf("Page %d of %d", f.pdf.PageNo(), f.pdf.PageCount()), "", 1, "RM", false, 0, "")
+	f.pdf.CellFormat(widthFill, textHeight, fmt.Sprintf("Page %d of %d", f.pdf.PageNo(), f.pdf.PageCount()), "", 1, "RM", false, 0, "")
 	f.pdf.SetFontStyle("")
 }
 
@@ -268,8 +271,6 @@ func (f *EvaluationReportFormFiller) reportHeading(text string, reportID string,
 	headingWidth := 100.0
 	height := pxToMM(70.0)
 	bottomMargin := pxToMM(43.0)
-	rightMargin := pageSideMarginMm
-	idsWidth := letterWidthMm - pageSideMarginMm - headingWidth - rightMargin
 
 	// Heading (left aligned)
 	f.pdf.MoveTo(pageSideMarginMm, headingY)
@@ -278,11 +279,11 @@ func (f *EvaluationReportFormFiller) reportHeading(text string, reportID string,
 	// Report ID/Move Code/MTO reference ID (right aligned)
 	f.pdf.SetFontUnitSize(textSmallFontSize)
 	f.setTextColorBaseDark()
-	f.pdf.CellFormat(idsWidth, height/3.0, fmt.Sprintf("REPORT ID #%s", reportID), "", 1, "RM", false, 0, "")
+	f.pdf.CellFormat(widthFill, height/3.0, fmt.Sprintf("REPORT ID #%s", reportID), "", 1, "RM", false, 0, "")
 	f.pdf.SetX(pageSideMarginMm + headingWidth)
-	f.pdf.CellFormat(idsWidth, height/3.0, fmt.Sprintf("MOVE CODE #%s", moveCode), "", 1, "RM", false, 0, "")
+	f.pdf.CellFormat(widthFill, height/3.0, fmt.Sprintf("MOVE CODE #%s", moveCode), "", 1, "RM", false, 0, "")
 	f.pdf.SetX(pageSideMarginMm + headingWidth)
-	f.pdf.CellFormat(idsWidth, height/3.0, fmt.Sprintf("MTO REFERENCE ID #%s", mtoReferenceID), "", 1, "RM", false, 0, "")
+	f.pdf.CellFormat(widthFill, height/3.0, fmt.Sprintf("MTO REFERENCE ID #%s", mtoReferenceID), "", 1, "RM", false, 0, "")
 	f.pdf.MoveTo(pageSideMarginMm, headingY+height)
 	f.addVerticalSpace(bottomMargin)
 }
@@ -313,7 +314,7 @@ func (f *EvaluationReportFormFiller) sectionHeading(text string, bottomMargin fl
 	f.pdf.SetFontUnitSize(sectionHeadingFontSize)
 
 	f.pdf.SetX(pageSideMarginMm)
-	f.pdf.CellFormat(0.0, pxToMM(34.0), text, "", 1, "LT", false, 0, "")
+	f.pdf.CellFormat(widthFill, pxToMM(34.0), text, "", 1, "LT", false, 0, "")
 	f.pdf.SetFontStyle("")
 	f.pdf.SetFontSize(fontSize)
 
@@ -349,7 +350,7 @@ func (f *EvaluationReportFormFiller) subsectionHeading(heading string) {
 	f.pdf.SetFontUnitSize(subsectionHeadingFontSize)
 	f.addVerticalSpace(topMargin)
 	f.pdf.SetX(pageSideMarginMm)
-	f.pdf.CellFormat(0.0, pxToMM(26.0), heading, "", 1, "LT", false, 0, "")
+	f.pdf.CellFormat(widthFill, pxToMM(26.0), heading, "", 1, "LT", false, 0, "")
 	f.addVerticalSpace(bottomMargin)
 
 	// Reset font
@@ -365,12 +366,11 @@ func (f *EvaluationReportFormFiller) subsectionRow(key string, value string) {
 	f.pdf.SetCellMargin(pxToMM(8.0))
 	f.setBorderColor()
 	labelWidth := pxToMM(200.0)
-	valueWidth := letterWidthMm - 2.0*pageSideMarginMm - labelWidth
 	textLineHeight := pxToMM(18.0)
 	minFieldHeight := pxToMM(40.0)
 
 	// If the text is long, or contains line breaks, we will want to display across multiple lines
-	needToLineWrapValue := f.pdf.GetStringWidth(value) > valueWidth-2*f.pdf.GetCellMargin() || strings.Contains(value, "\n")
+	needToLineWrapValue := f.pdf.GetStringWidth(value) > widthFill-2*f.pdf.GetCellMargin() || strings.Contains(value, "\n")
 	// I'm assuming that we will not have line breaks in labels
 	needToLineWrapLabel := f.pdf.GetStringWidth(key) > labelWidth-2*f.pdf.GetCellMargin()
 	estimatedHeight := minFieldHeight
@@ -380,7 +380,7 @@ func (f *EvaluationReportFormFiller) subsectionRow(key string, value string) {
 		// Auto page break doesnt work super well for us in other places in the document because we have lines that
 		// should be kept together, but here, for a potentially large block of paragraphy text, it works great.
 		f.pdf.SetAutoPageBreak(true, pageBottomMarginMm)
-		estimatedHeight = math.Ceil(f.pdf.GetStringWidth(value)/(valueWidth-2*f.pdf.GetCellMargin())) * textLineHeight
+		estimatedHeight = math.Ceil(f.pdf.GetStringWidth(value)/(widthFill-2*f.pdf.GetCellMargin())) * textLineHeight
 	}
 	if needToLineWrapLabel {
 		estimatedHeight = math.Max(estimatedHeight, math.Ceil(f.pdf.GetStringWidth(key)/(labelWidth-2*f.pdf.GetCellMargin()))*textLineHeight)
@@ -401,9 +401,9 @@ func (f *EvaluationReportFormFiller) subsectionRow(key string, value string) {
 	f.pdf.SetFontStyle("")
 	f.pdf.MoveTo(pageSideMarginMm+labelWidth, y)
 	if needToLineWrapValue {
-		f.pdf.MultiCell(valueWidth, textLineHeight, value, "T", "LM", false)
+		f.pdf.MultiCell(widthFill, textLineHeight, value, "T", "LM", false)
 	} else {
-		f.pdf.CellFormat(valueWidth, minFieldHeight, value, "T", 1, "LM", false, 0, "")
+		f.pdf.CellFormat(widthFill, minFieldHeight, value, "T", 1, "LM", false, 0, "")
 	}
 	valueY := f.pdf.GetY()
 	endY := math.Max(math.Max(labelY, valueY), y+minFieldHeight)
@@ -411,9 +411,8 @@ func (f *EvaluationReportFormFiller) subsectionRow(key string, value string) {
 	f.pdf.SetAutoPageBreak(false, pageBottomMarginMm)
 }
 
+// violation displays a PWS requirement that was violated
 func (f *EvaluationReportFormFiller) violation(violation models.PWSViolation) {
-	// - 1.2.3 Violation Title
-	//   Requirement summary
 	height := pxToMM(18.0)
 	bulletWidth := pxToMM(22.0)
 	f.pdf.SetX(pageSideMarginMm)
@@ -424,11 +423,15 @@ func (f *EvaluationReportFormFiller) violation(violation models.PWSViolation) {
 	if f.pdf.GetY()+totalHeight > pageHeightMm-pageBottomMarginMm {
 		f.pdf.AddPage()
 	}
+	// bullet point
 	f.pdf.CellFormat(bulletWidth, height, "•", "", 0, "RM", false, 0, "")
-	f.pdf.CellFormat(letterWidthMm-2.0*pageSideMarginMm-bulletWidth, height, violation.ParagraphNumber+" "+violation.Title, "", 1, "LM", false, 0, "")
+	// paragraph number and title
+	f.pdf.CellFormat(widthFill, height, violation.ParagraphNumber+" "+violation.Title, "", 1, "LM", false, 0, "")
+
+	// requirement summary
 	f.pdf.SetX(pageSideMarginMm + bulletWidth)
 	f.pdf.SetFontStyle("")
-	f.pdf.CellFormat(letterWidthMm-2.0*pageSideMarginMm, height, violation.RequirementSummary, "", 1, "LM", false, 0, "")
+	f.pdf.CellFormat(widthFill, height, violation.RequirementSummary, "", 1, "LM", false, 0, "")
 }
 
 // contactInformation displays side by side contact info for customer and QAE users
@@ -676,6 +679,9 @@ func (f *EvaluationReportFormFiller) drawArrow() {
 	f.pdf.Image(arrowImageName, f.pdf.GetX(), f.pdf.GetY(), pxToMM(20.0), 0.0, flow, arrowImageFormat, imageLink, imageLinkURL)
 }
 
+// loadArrowImage loads a specific image into the PDF. This needs to be called once
+// before we try to draw the image. If these reports ever require more than this one
+// image, we should make this more generic.
 func (f *EvaluationReportFormFiller) loadArrowImage() error {
 	// load image from assets
 	arrow, err := assets.Asset(arrowImagePath)
