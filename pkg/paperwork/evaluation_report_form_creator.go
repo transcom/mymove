@@ -486,8 +486,8 @@ func (f *EvaluationReportFormFiller) contactInformation(customer models.ServiceM
 func (f *EvaluationReportFormFiller) shipmentCard(shipment models.MTOShipment) error {
 	layout := PickShipmentCardLayout(shipment.ShipmentType)
 	vals := FormatValuesShipment(shipment)
-	headingMargin := 2.0
-	headingHeight := 5.0
+	headingMargin := pxToMM(12.0)
+	headingHeight := pxToMM(21.0)
 	headingBottomMargin := pxToMM(18.0)
 	stripeHeight := pxToMM(9.0)
 	// Rough overestimates of subcomponent heights used to guess whether we should page break
@@ -530,8 +530,9 @@ func (f *EvaluationReportFormFiller) shipmentCard(shipment models.MTOShipment) e
 	tableHMargin := pxToMM(12.0)
 	tableWidth := cardWidth - 2.0*tableHMargin
 	tableX := pageSideMarginMm + tableHMargin
+	// Display pickup and destination addresses for non-PPM shipments
 	if shipment.ShipmentType != models.MTOShipmentTypePPM {
-		gap := 2.0
+		gap := pxToMM(48.0)
 		labelWidth := 0.3 * ((tableWidth - gap) / 2.0)
 		valueWidth := 0.7 * ((tableWidth - gap) / 2.0)
 		rightX := tableX + labelWidth + valueWidth + gap
@@ -581,29 +582,30 @@ func (f *EvaluationReportFormFiller) setHHGStripeColor(shipmentType models.MTOSh
 
 func (f *EvaluationReportFormFiller) sideBySideAddress(gap float64, leftAddressX float64, leftAddress string, leftAddressLabel string, rightAddressX float64, rightAddress string, rightAddressLabel string) {
 	f.pdf.SetFontUnitSize(textFontSize)
+	addressHeight := pxToMM(18.0)
 	addressY := f.pdf.GetY()
 	startY := f.pdf.GetY()
 	f.pdf.SetX(leftAddressX)
 	f.setTextColorBaseDark()
 	addressWidth := rightAddressX - leftAddressX - gap
 	if leftAddressLabel != "" {
-		f.pdf.CellFormat(addressWidth, pxToMM(18.0), leftAddressLabel, "", 1, "LT", false, 0, "")
+		f.pdf.CellFormat(addressWidth, addressHeight, leftAddressLabel, "", 1, "LT", false, 0, "")
 		addressY = f.pdf.GetY() + pxToMM(8.0)
 	}
 	if rightAddressLabel != "" {
 		f.pdf.MoveTo(rightAddressX, startY)
-		f.pdf.CellFormat(addressWidth, pxToMM(18.0), rightAddressLabel, "", 1, "LT", false, 0, "")
+		f.pdf.CellFormat(addressWidth, addressHeight, rightAddressLabel, "", 1, "LT", false, 0, "")
 		addressY = math.Max(addressY, f.pdf.GetY()+pxToMM(8.0))
 	}
 	f.pdf.MoveTo(leftAddressX, addressY)
 	f.setTextColorBaseDarkest()
-	f.pdf.CellFormat(addressWidth, pxToMM(18.0), leftAddress, "", 1, "LT", false, 0, "")
+	f.pdf.CellFormat(addressWidth, addressHeight, leftAddress, "", 1, "LT", false, 0, "")
 	leftY := f.pdf.GetY()
-	f.pdf.MoveTo(rightAddressX-pxToMM(20.0), addressY)
-	f.drawArrow()
+	f.pdf.MoveTo(leftAddressX+addressWidth, addressY)
+	f.drawArrow(gap)
 
 	f.pdf.MoveTo(rightAddressX, addressY)
-	f.pdf.CellFormat(addressWidth, pxToMM(18.0), rightAddress, "", 1, "LT", false, 0, "")
+	f.pdf.CellFormat(addressWidth, addressHeight, rightAddress, "", 1, "LT", false, 0, "")
 	addressY = math.Max(leftY, f.pdf.GetY())
 	f.pdf.SetY(addressY)
 }
@@ -682,8 +684,10 @@ func (f *EvaluationReportFormFiller) tableColumn(x float64, labelWidth float64, 
 }
 
 // drawArrow draws an image of an arrow. loadArrowImage MUST be called before this.
-func (f *EvaluationReportFormFiller) drawArrow() {
-	f.pdf.Image(arrowImageName, f.pdf.GetX(), f.pdf.GetY(), pxToMM(20.0), 0.0, flow, arrowImageFormat, imageLink, imageLinkURL)
+func (f *EvaluationReportFormFiller) drawArrow(width float64) {
+	arrowWidth := pxToMM(13.33)
+	centerX := f.pdf.GetX() + (width-arrowWidth)/2.0
+	f.pdf.Image(arrowImageName, centerX, f.pdf.GetY(), arrowWidth, 0.0, flow, arrowImageFormat, imageLink, imageLinkURL)
 }
 
 // loadArrowImage loads a specific image into the PDF. This needs to be called once
