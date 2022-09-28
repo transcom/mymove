@@ -758,3 +758,4 @@
 20220920143839_add_gbloc_for_navy_and_coast_guard.up.sql
 20220923135119_app_loadtest_cert_migration.up.sql
 20220927000358_add_status_and_reason_to_weight_ticket.up.sql
+20220927210523_remove-gidjin-cac.up.sql

@@ -43,7 +43,7 @@ src/pages/PrimeUI/
 
 
 # Require security group to review changes to configs that may affect cATO static analysis compliancy
-.golangci.yaml @transcom/Truss-IS3
+.golangci.yml @transcom/Truss-IS3
 .pre-commit-config.yaml @transcom/Truss-IS3
 .eslintrc.js @transcom/Truss-IS3
 /eslint-plugin-ato/ @transcom/Truss-IS3

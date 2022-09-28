@@ -104,7 +104,7 @@ describe('EvaluationReports', () => {
         </MockProviders>,
       );
 
-      const alert = await screen.getByText(/Your report has been canceled/);
+      const alert = await screen.getByText(/Your report has been deleted/);
       expect(alert).toBeInTheDocument();
     });
   });
