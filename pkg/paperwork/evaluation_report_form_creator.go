@@ -165,7 +165,6 @@ func (f *EvaluationReportFormFiller) CreateCounselingReport(report models.Evalua
 			return err
 		}
 	}
-
 	return f.pdf.Error()
 }
 
@@ -339,12 +338,12 @@ func (f *EvaluationReportFormFiller) shipmentCard(shipment models.MTOShipment) e
 	}
 	err := f.twoColumnTable(tableX, f.pdf.GetY(), tableWidth, layout, vals)
 	if err != nil {
-		return fmt.Errorf("TwoColumnTable %w", err)
+		return err
 	}
 	f.pdf.RoundedRect(pageSideMarginMm, startY, cardWidth, f.pdf.GetY()-startY, 1.0, "34", "D")
 	shipmentCardBottomMargin := pxToMM(16.0)
 	f.addVerticalSpace(shipmentCardBottomMargin)
-	return nil
+	return f.pdf.Error()
 }
 
 // inspectionInformationSection draws the Inspection Information section of the report
@@ -365,7 +364,7 @@ func (f *EvaluationReportFormFiller) inspectionInformationSection(report models.
 	if err != nil {
 		return err
 	}
-	return nil
+	return f.pdf.Error()
 }
 
 // violationsSection draws the violations section of the report, which lists all PWS violations and
@@ -407,7 +406,7 @@ func (f *EvaluationReportFormFiller) violationsSection(violations models.ReportV
 			return err
 		}
 	}
-	return nil
+	return f.pdf.Error()
 }
 
 func (f *EvaluationReportFormFiller) sectionHeading(text string, bottomMargin float64) {
@@ -442,7 +441,7 @@ func (f *EvaluationReportFormFiller) subsection(heading string, fieldOrder []str
 	}
 	f.addVerticalSpace(bottomMargin)
 
-	return nil
+	return f.pdf.Error()
 }
 
 func (f *EvaluationReportFormFiller) subsectionHeading(heading string) {
@@ -612,7 +611,7 @@ func (f *EvaluationReportFormFiller) twoColumnTable(x float64, y float64, w floa
 		}
 	}
 	f.addVerticalSpace(2.0)
-	return nil
+	return f.pdf.Error()
 }
 
 func (f *EvaluationReportFormFiller) twoColumnTableRow(x float64, gap float64, labelWidth float64, valueWidth float64, row TableRow, data interface{}) error {
@@ -625,6 +624,7 @@ func (f *EvaluationReportFormFiller) twoColumnTableRow(x float64, gap float64, l
 	f.tableColumn(x, labelWidth, valueWidth, row.LeftLabel, leftVal)
 	leftValY := f.pdf.GetY()
 	if row.RightFieldName == "" {
+		// Skip drawing right field if it doesn't exist
 		return nil
 	}
 	f.pdf.SetY(rowStartY)
@@ -635,7 +635,7 @@ func (f *EvaluationReportFormFiller) twoColumnTableRow(x float64, gap float64, l
 	f.tableColumn(x+labelWidth+valueWidth+gap, labelWidth, valueWidth, row.RightLabel, rightVal)
 	rightValY := f.pdf.GetY()
 	f.pdf.SetY(math.Max(leftValY, rightValY))
-	return nil
+	return f.pdf.Error()
 }
 
 // tableColumn draws one side of a two-column table row
