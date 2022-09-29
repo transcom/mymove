@@ -17507,10 +17507,10 @@ react-final-form@^6.5.7:
   dependencies:
     "@babel/runtime" "^7.15.4"
 
-react-idle-timer@^5.4.1:
-  version "5.4.1"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-5.4.1.tgz#4f05e5d2a41656e78fb78a30a4bc232d3964b8f5"
-  integrity sha512-Pn0ede5OBeUxkIdnGevKAcVtdMnzRzFgBI6k2DC3gDbDCqRSePblxKH6Lbb0ncLzwaw9hnZfe3/Z8Bj1HA8khA==
+react-idle-timer@^5.4.2:
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-5.4.2.tgz#69e20044cf2ecc421aef99cd82298c526d8acf37"
+  integrity sha512-ofCS/qpFjm6ZguEyePvtf9YMDnLj7zZfeLXRWGRpsC6Ga47H4dm7EvoUW8MsozGEGy8zCvPK0Sk6YuAnwLEzRQ==
 
 react-imask@^6.4.2:
   version "6.4.2"
@@ -19714,10 +19714,10 @@ swagger-client@^3.18.5:
     traverse "~0.6.6"
     url "~0.11.0"
 
-swagger-ui-dist@^4.14.0:
-  version "4.14.0"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.14.0.tgz#e34d807464eb84578c43902e393084a1a6fbda52"
-  integrity sha512-TBzhheU15s+o54Cgk9qxuYcZMiqSm/SkvKnapoGHOF66kz0Y5aGjpzj5BT/vpBbn6rTPJ9tUYXQxuDWfsjiGMw==
+swagger-ui-dist@^4.14.1:
+  version "4.14.1"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.14.1.tgz#a08209042f47918d95179cdbb2286d3cfa2aba02"
+  integrity sha512-GjK581G3ZMOw1vLiQyMV+XHXSE4F83/2E48Y8Cs+X+25QHegwPu/83+GDCls3htPZvEOr0IG+oVljhMyuRy1kA==
 
 symbol-tree@^3.2.4:
   version "3.2.4"
