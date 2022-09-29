@@ -114,6 +114,7 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
 		createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
 		createMoveWithPPMShipmentReadyForFinalCloseout(appCtx, userUploader)
+		createApprovedMoveWithPPMCloseoutComplete(appCtx, userUploader)
 	}
 }
 

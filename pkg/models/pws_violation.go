@@ -25,6 +25,6 @@ type PWSViolation struct {
 
 type PWSViolations []PWSViolation
 
-func (p PWSViolations) TableName() string {
+func (p PWSViolation) TableName() string {
 	return "pws_violations"
 }

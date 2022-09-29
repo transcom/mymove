@@ -42,4 +42,12 @@ describe('SelectedViolation', () => {
     expect(mockUnselectViolation).toHaveBeenCalledTimes(1);
     expect(mockUnselectViolation).toHaveBeenCalledWith(mockViolation.id);
   });
+
+  it('does not render anything when there is no violation', async () => {
+    render(<SelectedViolation violation={null} unselectViolation={mockUnselectViolation} />);
+
+    expect(screen.queryByRole('heading', { name: '1.2.3 Title for violation 1', level: 5 })).not.toBeInTheDocument();
+    expect(screen.queryByText(mockViolation.requirementSummary)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
+  });
 });
