@@ -38,6 +38,8 @@ const (
 
 	// fpdf interprets a width of zero as "fill all the space up to the right margin"
 	widthFill = 0.0
+	moveRight = 0
+	moveDown  = 1
 )
 
 // pxToMM converts pixels (design units) to millimeters (pdf units)
@@ -103,7 +105,8 @@ func (f *EvaluationReportFormFiller) CreateShipmentReport(report models.Evaluati
 	f.reportID = fmt.Sprintf("QA-%s", strings.ToUpper(report.ID.String()[:5]))
 
 	f.pdf.AddPage()
-	f.reportHeading("Shipment report", f.reportID, report.Move.Locator, *report.Move.ReferenceID)
+	seriousIncident := false // TODO get from report once it becomes available
+	f.reportHeading("Shipment report", seriousIncident, f.reportID, report.Move.Locator, *report.Move.ReferenceID)
 	f.contactInformation(customer, report.OfficeUser)
 
 	err = f.shipmentCard(shipment)
@@ -138,7 +141,8 @@ func (f *EvaluationReportFormFiller) CreateCounselingReport(report models.Evalua
 	f.reportID = fmt.Sprintf("QA-%s", strings.ToUpper(report.ID.String()[:5]))
 	f.pdf.AddPage()
 
-	f.reportHeading("Counseling report", f.reportID, report.Move.Locator, *report.Move.ReferenceID)
+	seriousIncident := true // TODO get from report once it becomes available
+	f.reportHeading("Counseling report", seriousIncident, f.reportID, report.Move.Locator, *report.Move.ReferenceID)
 	f.sectionHeading("Move information", pxToMM(18.0))
 	f.contactInformation(customer, report.OfficeUser)
 
@@ -192,11 +196,11 @@ func (f *EvaluationReportFormFiller) reportPageHeader() {
 	f.pdf.SetTextColor(162, 214, 61)
 	f.pdf.SetFillColor(0, 0, 0)
 	f.pdf.SetFontUnitSize(textSmallFontSize)
-	f.pdf.CellFormat(letterWidthMm, stripeHeight, controlledUnclassifiedInformationText, "", 1, "CM", true, 0, "")
+	f.pdf.CellFormat(letterWidthMm, stripeHeight, controlledUnclassifiedInformationText, "", moveDown, "CM", true, 0, "")
 	f.setTextColorBaseDarker()
 	f.pdf.SetFontStyle("B")
-	f.pdf.CellFormat(-pageSideMarginMm+letterWidthMm/2.0, textHeight, fmt.Sprintf("Report #%s", f.reportID), "", 0, "LM", false, 0, "")
-	f.pdf.CellFormat(widthFill, textHeight, fmt.Sprintf("Page %d of %d", f.pdf.PageNo(), f.pdf.PageCount()), "", 1, "RM", false, 0, "")
+	f.pdf.CellFormat(-pageSideMarginMm+letterWidthMm/2.0, textHeight, fmt.Sprintf("Report #%s", f.reportID), "", moveRight, "LM", false, 0, "")
+	f.pdf.CellFormat(widthFill, textHeight, fmt.Sprintf("Page %d of %d", f.pdf.PageNo(), f.pdf.PageCount()), "", moveDown, "RM", false, 0, "")
 	f.pdf.SetFontStyle("")
 }
 
@@ -206,28 +210,44 @@ func (f *EvaluationReportFormFiller) reportPageHeader() {
 //	                                         REPORT ID #QA-12345
 //	Counseling report                          MOVE CODE #ABC123
 //	                                 MTO REFERENCE ID #1234-5678
-func (f *EvaluationReportFormFiller) reportHeading(text string, reportID string, moveCode string, mtoReferenceID string) {
+func (f *EvaluationReportFormFiller) reportHeading(text string, seriousIncident bool, reportID string, moveCode string, mtoReferenceID string) {
+	headingY := f.pdf.GetY()
+	if seriousIncident {
+		f.seriousIncidentFlag()
+	}
 	f.pdf.SetFontUnitSize(reportHeadingFontSize)
 	f.setTextColorBaseDarkest()
-	headingY := f.pdf.GetY()
 	headingWidth := pxToMM(900)
 	height := pxToMM(70.0)
 	bottomMargin := pxToMM(43.0)
 
 	// Heading (left aligned)
-	f.pdf.MoveTo(pageSideMarginMm, headingY)
-	f.pdf.CellFormat(headingWidth, height, text, "", 0, "LM", false, 0, "")
+	f.pdf.SetX(pageSideMarginMm)
+	if seriousIncident {
+		f.pdf.CellFormat(headingWidth, reportHeadingFontSize+pxToMM(16.0), text, "", moveRight, "LM", false, 0, "")
+		f.pdf.MoveTo(f.pdf.GetX(), headingY)
+	} else {
+		f.pdf.CellFormat(headingWidth, height, text, "", moveRight, "LM", false, 0, "")
+	}
 
 	// Report ID/Move Code/MTO reference ID (right aligned)
 	f.pdf.SetFontUnitSize(textSmallFontSize)
 	f.setTextColorBaseDark()
-	f.pdf.CellFormat(widthFill, height/3.0, fmt.Sprintf("REPORT ID #%s", reportID), "", 1, "RM", false, 0, "")
+	f.pdf.CellFormat(widthFill, height/3.0, fmt.Sprintf("REPORT ID #%s", reportID), "", moveDown, "RM", false, 0, "")
 	f.pdf.SetX(pageSideMarginMm + headingWidth)
-	f.pdf.CellFormat(widthFill, height/3.0, fmt.Sprintf("MOVE CODE #%s", moveCode), "", 1, "RM", false, 0, "")
+	f.pdf.CellFormat(widthFill, height/3.0, fmt.Sprintf("MOVE CODE #%s", moveCode), "", moveDown, "RM", false, 0, "")
 	f.pdf.SetX(pageSideMarginMm + headingWidth)
-	f.pdf.CellFormat(widthFill, height/3.0, fmt.Sprintf("MTO REFERENCE ID #%s", mtoReferenceID), "", 1, "RM", false, 0, "")
+	f.pdf.CellFormat(widthFill, height/3.0, fmt.Sprintf("MTO REFERENCE ID #%s", mtoReferenceID), "", moveDown, "RM", false, 0, "")
 	f.pdf.MoveTo(pageSideMarginMm, headingY+height)
 	f.addVerticalSpace(bottomMargin)
+}
+
+func (f *EvaluationReportFormFiller) seriousIncidentFlag() {
+	f.setErrorFlagColors()
+	// bump the tag over so the left edge of the bubble lines up with the left edge
+	// of text below it
+	f.pdf.SetX(f.pdf.GetX() + f.pdf.GetCellMargin())
+	f.drawTag("SERIOUS INCIDENT", moveDown)
 }
 
 // contactInformation displays side by side contact info for customer and QAE users
@@ -245,9 +265,9 @@ func (f *EvaluationReportFormFiller) contactInformation(customer models.ServiceM
 	f.setTextColorBaseDarkest()
 	f.setBorderColor()
 	f.pdf.SetX(pageSideMarginMm)
-	f.pdf.CellFormat(columnWidth, textHeight, "Customer information", "B", 0, "LM", false, 0, "")
+	f.pdf.CellFormat(columnWidth, textHeight, "Customer information", "B", moveRight, "LM", false, 0, "")
 	f.pdf.SetX(pageSideMarginMm + columnWidth + gap)
-	f.pdf.CellFormat(columnWidth, textHeight, "QAE", "B", 1, "LM", false, 0, "")
+	f.pdf.CellFormat(columnWidth, textHeight, "QAE", "B", moveDown, "LM", false, 0, "")
 	f.pdf.SetFontStyle("")
 	contentY := f.pdf.GetY()
 	f.pdf.MultiCell(columnWidth, textHeight, customerContactText, "", "LM", false)
@@ -300,20 +320,17 @@ func (f *EvaluationReportFormFiller) shipmentCard(shipment models.MTOShipment) e
 	shipmentTypeText := f.formatShipmentType(shipment.ShipmentType)
 
 	f.pdf.SetFontUnitSize(textFontSize)
-	f.pdf.CellFormat(f.pdf.GetStringWidth(shipmentTypeText)+2*f.pdf.GetCellMargin(), headingHeight, shipmentTypeText, "", 0, "LM", false, 0, "")
+	f.pdf.CellFormat(f.pdf.GetStringWidth(shipmentTypeText)+2*f.pdf.GetCellMargin(), headingHeight, shipmentTypeText, "", moveRight, "LM", false, 0, "")
 	f.pdf.SetFontStyle("")
 	if shipment.UsesExternalVendor {
 		f.setFillColorBaseLight()
-		const externalVendorText = "EXTERNAL VENDOR"
-		vendorTagWidth := f.pdf.GetStringWidth(externalVendorText) + 2*f.pdf.GetCellMargin()
-		f.pdf.CellFormat(vendorTagWidth, headingHeight, externalVendorText, "", 0, "LM", true, 0, "")
-
+		f.drawTag("EXTERNAL VENDOR", moveRight)
 	}
 	// heading - shipment ID (right aligned)
 	f.setTextColorBaseDark()
 	shipmentIDWidth := ((pageSideMarginMm + cardWidth) - f.pdf.GetX()) - pxToMM(8.0)
 	f.pdf.SetFontUnitSize(textSmallFontSize)
-	f.pdf.CellFormat(shipmentIDWidth, headingHeight, "Shipment ID: "+vals.ShipmentID, "", 0, "RM", false, 0, "")
+	f.pdf.CellFormat(shipmentIDWidth, headingHeight, "Shipment ID: "+vals.ShipmentID, "", moveRight, "RM", false, 0, "")
 	f.addVerticalSpace(headingHeight + headingBottomMargin)
 
 	tableHMargin := pxToMM(12.0)
@@ -419,7 +436,7 @@ func (f *EvaluationReportFormFiller) sectionHeading(text string, bottomMargin fl
 	f.pdf.SetFontUnitSize(sectionHeadingFontSize)
 
 	f.pdf.SetX(pageSideMarginMm)
-	f.pdf.CellFormat(widthFill, pxToMM(34.0), text, "", 1, "LT", false, 0, "")
+	f.pdf.CellFormat(widthFill, pxToMM(34.0), text, "", moveDown, "LT", false, 0, "")
 	f.pdf.SetFontStyle("")
 	f.pdf.SetFontSize(fontSize)
 
@@ -456,7 +473,7 @@ func (f *EvaluationReportFormFiller) subsectionHeading(heading string) {
 	f.pdf.SetFontUnitSize(subsectionHeadingFontSize)
 	f.addVerticalSpace(topMargin)
 	f.pdf.SetX(pageSideMarginMm)
-	f.pdf.CellFormat(widthFill, pxToMM(26.0), heading, "", 1, "LT", false, 0, "")
+	f.pdf.CellFormat(widthFill, pxToMM(26.0), heading, "", moveDown, "LT", false, 0, "")
 	f.addVerticalSpace(bottomMargin)
 
 	// Reset font
@@ -505,7 +522,7 @@ func (f *EvaluationReportFormFiller) subsectionRow(key string, value string) {
 		f.pdf.MultiCell(labelWidth, textLineHeight, key, "", "LM", false)
 		f.addVerticalSpace(fieldInternalPadding)
 	} else {
-		f.pdf.CellFormat(labelWidth, minFieldHeight, key, "", 0, "LM", false, 0, "")
+		f.pdf.CellFormat(labelWidth, minFieldHeight, key, "", moveRight, "LM", false, 0, "")
 	}
 
 	labelY := f.pdf.GetY()
@@ -516,7 +533,7 @@ func (f *EvaluationReportFormFiller) subsectionRow(key string, value string) {
 		f.pdf.MultiCell(widthFill, textLineHeight, value, "", "LM", false)
 		f.addVerticalSpace(fieldInternalPadding)
 	} else {
-		f.pdf.CellFormat(widthFill, minFieldHeight, value, "", 1, "LM", false, 0, "")
+		f.pdf.CellFormat(widthFill, minFieldHeight, value, "", moveDown, "LM", false, 0, "")
 	}
 	valueY := f.pdf.GetY()
 	// Figure out where our tallest text field stopped, so we can make sure the next
@@ -539,14 +556,14 @@ func (f *EvaluationReportFormFiller) violation(violation models.PWSViolation) {
 		f.pdf.AddPage()
 	}
 	// bullet point
-	f.pdf.CellFormat(bulletWidth, height, "•", "", 0, "RM", false, 0, "")
+	f.pdf.CellFormat(bulletWidth, height, "•", "", moveRight, "RM", false, 0, "")
 	// paragraph number and title
-	f.pdf.CellFormat(widthFill, height, violation.ParagraphNumber+" "+violation.Title, "", 1, "LM", false, 0, "")
+	f.pdf.CellFormat(widthFill, height, violation.ParagraphNumber+" "+violation.Title, "", moveDown, "LM", false, 0, "")
 
 	// requirement summary
 	f.pdf.SetX(pageSideMarginMm + bulletWidth)
 	f.pdf.SetFontStyle("")
-	f.pdf.CellFormat(widthFill, height, violation.RequirementSummary, "", 1, "LM", false, 0, "")
+	f.pdf.CellFormat(widthFill, height, violation.RequirementSummary, "", moveDown, "LM", false, 0, "")
 }
 
 // sideBySideAddress draws a pickup address and a delivery address in one line for a shipment card
@@ -559,12 +576,12 @@ func (f *EvaluationReportFormFiller) sideBySideAddress(gap float64, leftAddressX
 	f.setTextColorBaseDark()
 	addressWidth := rightAddressX - leftAddressX - gap
 	if leftAddressLabel != "" {
-		f.pdf.CellFormat(addressWidth, addressHeight, leftAddressLabel, "", 1, "LT", false, 0, "")
+		f.pdf.CellFormat(addressWidth, addressHeight, leftAddressLabel, "", moveDown, "LT", false, 0, "")
 		addressY = f.pdf.GetY() + pxToMM(8.0)
 	}
 	if rightAddressLabel != "" {
 		f.pdf.MoveTo(rightAddressX, startY)
-		f.pdf.CellFormat(addressWidth, addressHeight, rightAddressLabel, "", 1, "LT", false, 0, "")
+		f.pdf.CellFormat(addressWidth, addressHeight, rightAddressLabel, "", moveDown, "LT", false, 0, "")
 		addressY = math.Max(addressY, f.pdf.GetY()+pxToMM(8.0))
 	}
 	f.pdf.MoveTo(leftAddressX, addressY)
@@ -649,7 +666,7 @@ func (f *EvaluationReportFormFiller) tableColumn(x float64, labelWidth float64, 
 	f.pdf.MoveTo(x, f.pdf.GetY()+textVerticalMargin)
 	f.pdf.SetFontStyle("B")
 	f.setTextColorBaseDarker()
-	f.pdf.CellFormat(labelWidth, pxToMM(42.0), label, "", 0, "LT", false, 0, "")
+	f.pdf.CellFormat(labelWidth, pxToMM(42.0), label, "", moveRight, "LT", false, 0, "")
 	f.pdf.SetFontStyle("")
 	f.setTextColorBaseDarkest()
 	if value == "" {
@@ -668,6 +685,32 @@ func (f *EvaluationReportFormFiller) drawArrow(width float64) {
 	arrowWidth := pxToMM(13.33)
 	centerX := f.pdf.GetX() + (width-arrowWidth)/2.0
 	f.pdf.Image(arrowImageName, centerX, f.pdf.GetY(), arrowWidth, 0.0, flow, arrowImageFormat, imageLink, imageLinkURL)
+}
+
+// drawTag draws text on top of a rounded rectangle
+// text color and fill color should be set before calling this function
+// If ln is 0, the pdf cursor will move to the right after drawing
+// If ln is 1, the pdf cursor will move to the next line
+func (f *EvaluationReportFormFiller) drawTag(text string, ln int) {
+	tagFontSize := pxToMM(16.0)
+	f.pdf.SetFontUnitSize(tagFontSize)
+	f.pdf.SetFontStyle("")
+
+	sidePadding := pxToMM(8.0)
+	topPadding := pxToMM(5.0)
+	bottomPadding := pxToMM(3.0)
+	textWidth := f.pdf.GetStringWidth(text) + 2*sidePadding
+	height := tagFontSize + bottomPadding + topPadding
+	startX, startY := f.pdf.GetXY()
+	// moving the rectangle up by 3px and the text down 2px gives us a top padding of 5px and
+	// makes the tag line up well if it's drawn on the same line as other text.
+	f.pdf.RoundedRect(startX, startY-pxToMM(3.0), textWidth, height, pxToMM(2.0), "1234", "F")
+	f.pdf.MoveTo(startX, startY+pxToMM(2.0))
+	f.pdf.CellFormat(textWidth, tagFontSize, text, "", ln, "CM", false, 0, "")
+	if ln == moveRight {
+		// if we're moving right, we have to reset Y so other text will line up with stuff that came before this tag
+		f.pdf.SetXY(f.pdf.GetX(), startY)
+	}
 }
 
 // loadArrowImage loads a specific image into the PDF. This needs to be called once
@@ -709,6 +752,11 @@ func (f *EvaluationReportFormFiller) setFillColorBaseLight() {
 
 func (f *EvaluationReportFormFiller) setBorderColor() {
 	f.pdf.SetDrawColor(220, 222, 224)
+}
+
+func (f *EvaluationReportFormFiller) setErrorFlagColors() {
+	f.pdf.SetTextColor(255, 255, 255)
+	f.pdf.SetFillColor(181, 9, 9)
 }
 
 func (f *EvaluationReportFormFiller) setHHGStripeColor(shipmentType models.MTOShipmentType) {
