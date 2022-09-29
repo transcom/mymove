@@ -79,51 +79,6 @@ func (o *DownloadEvaluationReportOK) WriteResponse(rw http.ResponseWriter, produ
 	}
 }
 
-// DownloadEvaluationReportBadRequestCode is the HTTP code returned for type DownloadEvaluationReportBadRequest
-const DownloadEvaluationReportBadRequestCode int = 400
-
-/*
-DownloadEvaluationReportBadRequest The request payload is invalid
-
-swagger:response downloadEvaluationReportBadRequest
-*/
-type DownloadEvaluationReportBadRequest struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *ghcmessages.Error `json:"body,omitempty"`
-}
-
-// NewDownloadEvaluationReportBadRequest creates DownloadEvaluationReportBadRequest with default headers values
-func NewDownloadEvaluationReportBadRequest() *DownloadEvaluationReportBadRequest {
-
-	return &DownloadEvaluationReportBadRequest{}
-}
-
-// WithPayload adds the payload to the download evaluation report bad request response
-func (o *DownloadEvaluationReportBadRequest) WithPayload(payload *ghcmessages.Error) *DownloadEvaluationReportBadRequest {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the download evaluation report bad request response
-func (o *DownloadEvaluationReportBadRequest) SetPayload(payload *ghcmessages.Error) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *DownloadEvaluationReportBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(400)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
 // DownloadEvaluationReportForbiddenCode is the HTTP code returned for type DownloadEvaluationReportForbidden
 const DownloadEvaluationReportForbiddenCode int = 403
 

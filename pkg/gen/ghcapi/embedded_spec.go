@@ -577,9 +577,6 @@ func init() {
               }
             }
           },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
           "403": {
             "$ref": "#/responses/PermissionDenied"
           },
@@ -9163,12 +9160,6 @@ func init() {
                 "type": "string",
                 "description": "File name to download"
               }
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
             }
           },
           "403": {

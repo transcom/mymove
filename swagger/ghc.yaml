@@ -1942,8 +1942,6 @@ paths:
           schema:
             format: binary
             type: file
-        '400':
-          $ref: '#/responses/InvalidRequest'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
