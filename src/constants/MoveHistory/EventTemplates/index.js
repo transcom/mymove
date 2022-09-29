@@ -44,3 +44,4 @@ export { default as uploadAmendedOrders } from './uploadAmendedOrders';
 export { default as updateMTOShipmentStatus } from './updateMTOShipmentStatus';
 export { default as updateMTOServiceItemMoveStatus } from './createMTOServiceItemUpdateMoveStatus';
 export { default as updateMoveEstimatedExcessWeight } from './updateMTOShipmentPrimeEstimatedExcessWeight';
+export { default as updateMTOStatusServiceCounselingCompleted } from './updateMTOStatusServiceCounselingCompleted';
