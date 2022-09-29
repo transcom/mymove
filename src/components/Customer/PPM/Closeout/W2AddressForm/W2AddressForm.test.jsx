@@ -24,7 +24,7 @@ describe('W2AddressForm component', () => {
     const { getByLabelText } = render(<W2AddressForm {...testProps} />);
 
     await waitFor(() => {
-      expect(getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
 
       expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
 
