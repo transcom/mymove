@@ -167,6 +167,7 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 	if err != nil {
 		return nil, err
 	} else if len(identities) == 0 {
+		// TODO This seems to be where we end up on first login
 		return nil, ErrFetchNotFound
 	}
 	identity := &identities[0]

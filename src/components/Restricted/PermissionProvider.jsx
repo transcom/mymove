@@ -8,6 +8,7 @@ const PermissionProvider = ({ permissions, currentUserId, children }) => {
   const isAllowedTo = useMemo(
     () => ({
       isAllowedTo: (permission, userId) => {
+        // console.log('isAllowedTo', permission, permissions);
         // If access is restricted to specific permissions, is the permission available for the current user?
         const permissionGranted = !permission || permissions.filter((p) => p === permission).length > 0;
 

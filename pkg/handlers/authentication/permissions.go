@@ -63,6 +63,7 @@ func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) []str
 	userRoles, err := getRolesForUser(appCtx, userID)
 	// if there's an error looking up roles return an empty permission array
 	if err != nil {
+		appCtx.Logger().Error("😡 failed to lookup roles!", zap.Error(err))
 		return userPermissions
 	}
 
@@ -95,7 +96,7 @@ func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]roles.Ro
 		return nil, err
 	}
 
-	logger.Info("User has the following roles: ", zap.Any("user roles", userRoleTypes))
+	logger.Info("🐢 User has the following roles: ", zap.Any("user roles", userRoleTypes))
 
 	return userRoleTypes, nil
 }
