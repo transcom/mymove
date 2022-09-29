@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
@@ -118,8 +119,9 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 			}
 
 			// Create customer user role for new service member
-			_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, newServiceMember.ID, []roles.RoleType{roles.RoleTypeCustomer})
+			_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, newServiceMember.UserID, []roles.RoleType{roles.RoleTypeCustomer})
 			if err != nil {
+				appCtx.Logger().Error("Error updating user roles", zap.Error(err))
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
