@@ -31,7 +31,7 @@ type DownloadEvaluationReportParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*the evaluation report ID to be modified
+	/*the evaluation report ID to be downloaded
 	  Required: true
 	  In: path
 	*/

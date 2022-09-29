@@ -32,9 +32,9 @@ func NewDownloadEvaluationReport(ctx *middleware.Context, handler DownloadEvalua
 /*
 	DownloadEvaluationReport swagger:route GET /evaluation-reports/{reportID}/download evaluationReports downloadEvaluationReport
 
-# Gets a pdf
+# Downloads an evaluation report as a PDF
 
-Gets an evaluation report by ID
+Downloads an evaluation report as a PDF
 */
 type DownloadEvaluationReport struct {
 	Context *middleware.Context

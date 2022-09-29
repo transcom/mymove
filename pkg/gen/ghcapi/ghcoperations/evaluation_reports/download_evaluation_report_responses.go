@@ -18,7 +18,7 @@ import (
 const DownloadEvaluationReportOKCode int = 200
 
 /*
-DownloadEvaluationReportOK Pre-filled worksheet PDF
+DownloadEvaluationReportOK Evaluation report PDF
 
 swagger:response downloadEvaluationReportOK
 */

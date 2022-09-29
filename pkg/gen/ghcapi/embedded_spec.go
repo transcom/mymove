@@ -554,18 +554,18 @@ func init() {
     },
     "/evaluation-reports/{reportID}/download": {
       "get": {
-        "description": "Gets an evaluation report by ID",
+        "description": "Downloads an evaluation report as a PDF",
         "produces": [
           "application/pdf"
         ],
         "tags": [
           "evaluationReports"
         ],
-        "summary": "Gets a pdf",
+        "summary": "Downloads an evaluation report as a PDF",
         "operationId": "downloadEvaluationReport",
         "responses": {
           "200": {
-            "description": "Pre-filled worksheet PDF",
+            "description": "Evaluation report PDF",
             "schema": {
               "type": "file",
               "format": "binary"
@@ -595,7 +595,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "the evaluation report ID to be modified",
+          "description": "the evaluation report ID to be downloaded",
           "name": "reportID",
           "in": "path",
           "required": true
@@ -9142,18 +9142,18 @@ func init() {
     },
     "/evaluation-reports/{reportID}/download": {
       "get": {
-        "description": "Gets an evaluation report by ID",
+        "description": "Downloads an evaluation report as a PDF",
         "produces": [
           "application/pdf"
         ],
         "tags": [
           "evaluationReports"
         ],
-        "summary": "Gets a pdf",
+        "summary": "Downloads an evaluation report as a PDF",
         "operationId": "downloadEvaluationReport",
         "responses": {
           "200": {
-            "description": "Pre-filled worksheet PDF",
+            "description": "Evaluation report PDF",
             "schema": {
               "type": "file",
               "format": "binary"
@@ -9195,7 +9195,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "the evaluation report ID to be modified",
+          "description": "the evaluation report ID to be downloaded",
           "name": "reportID",
           "in": "path",
           "required": true

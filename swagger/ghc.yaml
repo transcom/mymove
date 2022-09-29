@@ -1919,14 +1919,14 @@ paths:
   /evaluation-reports/{reportID}/download:
     parameters:
       - in: path
-        description: the evaluation report ID to be modified
+        description: the evaluation report ID to be downloaded
         name: reportID
         required: true
         type: string
         format: uuid
     get:
-      summary: Gets a pdf
-      description: Gets an evaluation report by ID
+      summary: Downloads an evaluation report as a PDF
+      description: Downloads an evaluation report as a PDF
       operationId: downloadEvaluationReport
       tags:
         - evaluationReports
@@ -1938,7 +1938,7 @@ paths:
             Content-Disposition:
               type: string
               description: File name to download
-          description: Pre-filled worksheet PDF
+          description: Evaluation report PDF
           schema:
             format: binary
             type: file
