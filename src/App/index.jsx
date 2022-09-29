@@ -71,7 +71,6 @@ const App = () => {
     return (
       <AppContext.Provider value={adminContext}>
         <Suspense fallback={<LoadingPlaceholder />}>
-          <ScrollToTop />
           <SystemAdmin />
         </Suspense>
       </AppContext.Provider>
