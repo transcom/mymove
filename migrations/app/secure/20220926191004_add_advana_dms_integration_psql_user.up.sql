@@ -57,23 +57,17 @@
 
 -- SET ROLE master;
 --
--- CREATE ROLE dms_export WITH LOGIN NOINHERIT;
---
--- GRANT rds_superuser TO dms_export;
---
--- RESET ROLE;
---
---
--- SET ROLE master;
---
 -- IF NOT EXISTS (
 -- 	SELECT -- SELECT list can stay empty for this
 -- 	FROM   pg_catalog.pg_roles
 -- 	WHERE  rolname = 'rds_superuser') THEN
--- 	ALTER USER dms_export WITH PASSWORD 'mysecretpassword';
+--
+-- 		CREATE ROLE dms_export WITH LOGIN NOINHERIT;
+-- 		GRANT rds_superuser TO dms_export;
+--
 -- END IF;
 --
--- RESET ROLE
+-- ALTER USER dms_export WITH PASSWORD 'mysecretpassword';
 --
 -- -- Modify existing tables and sequences.
 -- GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO dms_export;
@@ -86,6 +80,7 @@
 -- ALTER DEFAULT PRIVILEGES GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO dms_export;
 -- ALTER DEFAULT PRIVILEGES GRANT USAGE, UPDATE ON SEQUENCES TO dms_export;
 --
+-- RESET ROLE;
 --
 
 -- ███████╗██████╗  ██████╗ ███╗   ███╗    ████████╗██╗  ██╗███████╗
