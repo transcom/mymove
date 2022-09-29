@@ -21,7 +21,7 @@ type AssociateReportViolationsHandler struct {
 	services.ReportViolationsCreator
 }
 
-//Handle is the handler for associating violations with reports
+// Handle is the handler for associating violations with reports
 func (h AssociateReportViolationsHandler) Handle(params reportViolationop.AssociateReportViolationsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {

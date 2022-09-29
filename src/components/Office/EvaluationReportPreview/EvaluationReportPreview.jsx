@@ -8,6 +8,7 @@ import SelectedViolation from '../EvaluationViolationsForm/SelectedViolation/Sel
 import styles from './EvaluationReportPreview.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
+import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
 import EvaluationReportShipmentDisplay from 'components/Office/EvaluationReportShipmentDisplay/EvaluationReportShipmentDisplay';
 import DataTable from 'components/DataTable';
 import DataTableWrapper from 'components/DataTableWrapper';
@@ -26,19 +27,11 @@ const EvaluationReportPreview = ({
   customerInfo,
   grade,
 }) => {
-  const reportType = evaluationReport.type;
-  let mtoShipmentsToShow;
-  const showIncidentDescription = evaluationReport.SeriousIncident;
-  let seriousIncident = '';
+  const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
   const hasViolations = reportViolations && reportViolations.length > 0;
-  const incidentDescription = evaluationReport.SeriousIncidentDesc;
+  const showIncidentDescription = evaluationReport?.seriousIncident;
 
-  if (showIncidentDescription) {
-    seriousIncident = 'yes';
-  } else {
-    seriousIncident = 'no';
-  }
-
+  let mtoShipmentsToShow;
   if (evaluationReport.shipmentID) {
     mtoShipmentsToShow = [mtoShipments.find((shipment) => shipment.id === evaluationReport.shipmentID)];
   } else {
@@ -84,7 +77,7 @@ const EvaluationReportPreview = ({
       <div>
         <div className={styles.titleSection}>
           <div className={styles.pageHeader}>
-            <h1>{reportType === 'SHIPMENT' ? 'Shipment' : 'Move'} report</h1>
+            <h1>{`${isShipment ? 'Shipment' : 'Counseling'} report`}</h1>
             <div className={styles.pageHeaderDetails}>
               <h6>REPORT ID {formatQAReportID(evaluationReport.id)}</h6>
               <h6>MOVE CODE #{moveCode}</h6>
@@ -118,7 +111,7 @@ const EvaluationReportPreview = ({
       </div>
       <div className={styles.section}>
         <h2>Evaluation report</h2>
-        {reportType === 'SHIPMENT' && evaluationReport.location !== 'OTHER' && (
+        {isShipment && evaluationReport.location !== 'OTHER' && (
           <div className={styles.section}>
             <h3>Information</h3>
             <div className={styles.sideBySideDetails}>
@@ -156,7 +149,7 @@ const EvaluationReportPreview = ({
             <EvaluationReportList evaluationReport={evaluationReport} />
           </div>
         )}
-        {(reportType === 'COUNSELING' || evaluationReport.location === 'OTHER') && (
+        {(!isShipment === 'COUNSELING' || evaluationReport.location === 'OTHER') && (
           <div className={styles.section}>
             <h3>Information</h3>
             <DataTableWrapper className={classnames(styles.detailsRight, 'table--data-point-group')}>
@@ -197,12 +190,12 @@ const EvaluationReportPreview = ({
               <>
                 <div className={classnames(descriptionListStyles.row)}>
                   <dt className={styles.violationsLabel}>Serious incident</dt>
-                  <dd className={styles.violationsRemarks}>{seriousIncident}</dd>
+                  <dd className={styles.violationsRemarks}>{showIncidentDescription ? 'yes' : 'no'}</dd>
                 </div>
                 {showIncidentDescription && (
                   <div className={classnames(descriptionListStyles.row)}>
                     <dt className={styles.violationsLabel}>Serious incident description</dt>
-                    <dd className={styles.violationsRemarks}>{incidentDescription}</dd>
+                    <dd className={styles.violationsRemarks}>{evaluationReport?.seriousIncidentDesc}</dd>
                   </div>
                 )}
               </>
