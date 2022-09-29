@@ -12,13 +12,13 @@ const (
 	dateFormat                            = "02 January 2006"
 )
 
-var KPIFieldLabels = map[string]string{
-	"ObservedPickupSpreadStartDate": "Observed pickup start dates",
-	"ObservedPickupSpreadEndDate":   "Observed pickup end dates",
-	"ObservedClaimDate":             "Observed claims response date",
-	"ObservedPickupDate":            "Observed pickup date",
-	"ObservedDeliveryDate":          "Observed delivery date",
-}
+// The following data structures are set up for EvaluationReportFormFiller.subsection
+// For every subsection in a report, we need:
+// - a struct to hold the formatted values to put in the report
+// - An array of all the field names in the order that they should be displayed
+// - A map that matches up the field name used in the struct with the field name to display in the report
+// We use reflection to look the string field names up in the struct.
+// This is inspired by a pattern used for ShipmentSummaryWorksheet
 
 type AdditionalKPIData struct {
 	ObservedPickupSpreadStartDate string
@@ -27,6 +27,15 @@ type AdditionalKPIData struct {
 	ObservedPickupDate            string
 	ObservedDeliveryDate          string
 }
+
+var KPIFieldLabels = map[string]string{
+	"ObservedPickupSpreadStartDate": "Observed pickup start dates",
+	"ObservedPickupSpreadEndDate":   "Observed pickup end dates",
+	"ObservedClaimDate":             "Observed claims response date",
+	"ObservedPickupDate":            "Observed pickup date",
+	"ObservedDeliveryDate":          "Observed delivery date",
+}
+
 type InspectionInformationValues struct {
 	DateOfInspection           string
 	ReportSubmission           string
@@ -63,7 +72,12 @@ var InspectionInformationFieldLabels = map[string]string{
 	"EvaluationLength":       "Evaluation length",
 }
 
-var ViolationsFields = []string{"ViolationsObserved", "SeriousIncident", "SeriousIncidentDescription"}
+var ViolationsFields = []string{
+	"ViolationsObserved",
+	"SeriousIncident",
+	"SeriousIncidentDescription",
+}
+
 var ViolationsFieldLabels = map[string]string{
 	"ViolationsObserved":         "Violations observed",
 	"SeriousIncident":            "Serious incident",
@@ -73,6 +87,18 @@ var ViolationsFieldLabels = map[string]string{
 var QAERemarksFields = []string{"QAERemarks"}
 var QAERemarksFieldLabels = map[string]string{"QAERemarks": "Evaluation remarks"}
 
+// ContactInformationValues holds formatted customer and QAE contact information
+type ContactInformationValues struct {
+	CustomerFullName    string
+	CustomerPhone       string
+	CustomerRank        string
+	CustomerAffiliation string
+	QAEFullName         string
+	QAEPhone            string
+	QAEEmail            string
+}
+
+// ShipmentValues holds formatted values to put in a shipment card
 type ShipmentValues struct {
 	ShipmentID            string
 	ShipmentType          string
@@ -100,15 +126,19 @@ type ShipmentValues struct {
 	ExternalVendor        bool
 }
 
-type ContactInformationValues struct {
-	CustomerFullName    string
-	CustomerPhone       string
-	CustomerRank        string
-	CustomerAffiliation string
-	QAEFullName         string
-	QAEPhone            string
-	QAEEmail            string
+// TableRow is used to express the layout of one row of a shipment card
+// Each row of the shipment card has two side by side key,value pairs
+// The *FieldName properties are used to look up the values in a struct
+// The *Label properties contain the label to display in the form
+type TableRow struct {
+	LeftFieldName  string
+	LeftLabel      string
+	RightFieldName string
+	RightLabel     string
 }
+
+// Arrays of TableRow express the layout of a shipment card for a particular kind of shipment.
+// They tell us which fields are included, and in what order.
 
 var PPMShipmentCardLayout = []TableRow{
 	{
@@ -205,15 +235,25 @@ var NTSRShipmentCardLayout = []TableRow{
 	},
 }
 
-func formatDuration(minutes int) string {
-	hours := minutes / 60
-	remainingMinutes := minutes % 60
-	return fmt.Sprintf("%d hr %d min", hours, remainingMinutes)
-}
-
-func formatEnum(e string) string {
-	withSpaces := strings.ReplaceAll(e, "_", " ")
-	return strings.ToUpper(withSpaces[:1]) + strings.ToLower(withSpaces[1:])
+func PickShipmentCardLayout(shipmentType models.MTOShipmentType) []TableRow {
+	switch shipmentType {
+	case models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGLongHaulDom, models.MTOShipmentTypeHHGShortHaulDom:
+		return HHGShipmentCardLayout
+	case models.MTOShipmentTypePPM:
+		return PPMShipmentCardLayout
+	case models.MTOShipmentTypeHHGIntoNTSDom:
+		return NTSShipmentCardLayout
+	case models.MTOShipmentTypeHHGOutOfNTSDom:
+		return NTSRShipmentCardLayout
+	case models.MTOShipmentTypeMotorhome:
+		return []TableRow{}
+	case models.MTOShipmentTypeBoatHaulAway:
+		return []TableRow{}
+	case models.MTOShipmentTypeBoatTowAway:
+		return []TableRow{}
+	default:
+		return []TableRow{}
+	}
 }
 
 func FormatValuesInspectionInformation(report models.EvaluationReport) InspectionInformationValues {
@@ -265,27 +305,17 @@ func FormatValuesInspectionInformation(report models.EvaluationReport) Inspectio
 	return inspectionInfo
 }
 
-func formatSingleLineAddress(address models.Address) string {
-	return strings.Join([]string{address.StreetAddress1, address.City, address.State, address.PostalCode}, ", ")
+func formatDuration(minutes int) string {
+	hours := minutes / 60
+	remainingMinutes := minutes % 60
+	return fmt.Sprintf("%d hr %d min", hours, remainingMinutes)
 }
 
-func formatMTOAgentInfo(agent models.MTOAgent) string {
-	var lastName, firstName, phone, email string
-	if agent.LastName != nil {
-		lastName = *agent.LastName
-	}
-	if agent.FirstName != nil {
-		firstName = *agent.FirstName
-	}
-	if agent.Phone != nil {
-		phone = *agent.Phone
-	}
-	if agent.Email != nil {
-		email = *agent.Email
-	}
-	contactInfo := fmt.Sprintf("%s, %s\n%s\n%s", lastName, firstName, phone, email)
-	return contactInfo
+func formatEnum(e string) string {
+	withSpaces := strings.ReplaceAll(e, "_", " ")
+	return strings.ToUpper(withSpaces[:1]) + strings.ToLower(withSpaces[1:])
 }
+
 func FormatValuesShipment(shipment models.MTOShipment) ShipmentValues {
 	vals := ShipmentValues{
 		ShipmentID:   strings.ToUpper(shipment.ID.String()[:5]),
@@ -338,8 +368,35 @@ func FormatValuesShipment(shipment models.MTOShipment) ShipmentValues {
 	return vals
 }
 
+func formatSingleLineAddress(address models.Address) string {
+	return strings.Join([]string{
+		address.StreetAddress1,
+		address.City,
+		address.State,
+		address.PostalCode,
+	}, ", ")
+}
+
+func formatMTOAgentInfo(agent models.MTOAgent) string {
+	var lastName, firstName, phone, email string
+	if agent.LastName != nil {
+		lastName = *agent.LastName
+	}
+	if agent.FirstName != nil {
+		firstName = *agent.FirstName
+	}
+	if agent.Phone != nil {
+		phone = *agent.Phone
+	}
+	if agent.Email != nil {
+		email = *agent.Email
+	}
+	contactInfo := fmt.Sprintf("%s, %s\n%s\n%s", lastName, firstName, phone, email)
+	return contactInfo
+}
+
 // TODO we might be able to change the returns here to strings
-// TODO the function that uses this doesnt care about any of the indivual fields, it just joins them
+// TODO the function that uses this doesnt care about any of the individual fields, it just joins them
 func FormatContactInformationValues(customer models.ServiceMember, qae models.OfficeUser) ContactInformationValues {
 	contactInfo := ContactInformationValues{
 		QAEPhone:    qae.Telephone,
@@ -359,25 +416,4 @@ func FormatContactInformationValues(customer models.ServiceMember, qae models.Of
 	contactInfo.CustomerFullName = customer.ReverseNameLineFormat()
 
 	return contactInfo
-}
-
-func PickShipmentCardLayout(shipmentType models.MTOShipmentType) []TableRow {
-	switch shipmentType {
-	case models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGLongHaulDom, models.MTOShipmentTypeHHGShortHaulDom:
-		return HHGShipmentCardLayout
-	case models.MTOShipmentTypePPM:
-		return PPMShipmentCardLayout
-	case models.MTOShipmentTypeHHGIntoNTSDom:
-		return NTSShipmentCardLayout
-	case models.MTOShipmentTypeHHGOutOfNTSDom:
-		return NTSRShipmentCardLayout
-	case models.MTOShipmentTypeMotorhome:
-		return []TableRow{}
-	case models.MTOShipmentTypeBoatHaulAway:
-		return []TableRow{}
-	case models.MTOShipmentTypeBoatTowAway:
-		return []TableRow{}
-	default:
-		return []TableRow{}
-	}
 }

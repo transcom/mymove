@@ -43,13 +43,6 @@ func pxToMM(px float64) float64 {
 	return (letterWidthMm / 1204) * px
 }
 
-type TableRow struct {
-	LeftFieldName  string
-	LeftLabel      string
-	RightFieldName string
-	RightLabel     string
-}
-
 // getField gets a value from a struct based on the string value of the field name
 func getField(fieldName string, data interface{}) (string, error) {
 	r := reflect.ValueOf(data)
