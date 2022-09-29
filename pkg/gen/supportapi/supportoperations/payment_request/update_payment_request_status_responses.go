@@ -16,8 +16,7 @@ import (
 // UpdatePaymentRequestStatusOKCode is the HTTP code returned for type UpdatePaymentRequestStatusOK
 const UpdatePaymentRequestStatusOKCode int = 200
 
-/*
-UpdatePaymentRequestStatusOK Successfully updated payment request status.
+/*UpdatePaymentRequestStatusOK Successfully updated payment request status.
 
 swagger:response updatePaymentRequestStatusOK
 */
@@ -61,8 +60,7 @@ func (o *UpdatePaymentRequestStatusOK) WriteResponse(rw http.ResponseWriter, pro
 // UpdatePaymentRequestStatusBadRequestCode is the HTTP code returned for type UpdatePaymentRequestStatusBadRequest
 const UpdatePaymentRequestStatusBadRequestCode int = 400
 
-/*
-UpdatePaymentRequestStatusBadRequest The request payload is invalid.
+/*UpdatePaymentRequestStatusBadRequest The request payload is invalid.
 
 swagger:response updatePaymentRequestStatusBadRequest
 */
@@ -106,8 +104,7 @@ func (o *UpdatePaymentRequestStatusBadRequest) WriteResponse(rw http.ResponseWri
 // UpdatePaymentRequestStatusUnauthorizedCode is the HTTP code returned for type UpdatePaymentRequestStatusUnauthorized
 const UpdatePaymentRequestStatusUnauthorizedCode int = 401
 
-/*
-UpdatePaymentRequestStatusUnauthorized The request was denied.
+/*UpdatePaymentRequestStatusUnauthorized The request was denied.
 
 swagger:response updatePaymentRequestStatusUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *UpdatePaymentRequestStatusUnauthorized) WriteResponse(rw http.ResponseW
 // UpdatePaymentRequestStatusForbiddenCode is the HTTP code returned for type UpdatePaymentRequestStatusForbidden
 const UpdatePaymentRequestStatusForbiddenCode int = 403
 
-/*
-UpdatePaymentRequestStatusForbidden The request was denied.
+/*UpdatePaymentRequestStatusForbidden The request was denied.
 
 swagger:response updatePaymentRequestStatusForbidden
 */
@@ -196,8 +192,7 @@ func (o *UpdatePaymentRequestStatusForbidden) WriteResponse(rw http.ResponseWrit
 // UpdatePaymentRequestStatusNotFoundCode is the HTTP code returned for type UpdatePaymentRequestStatusNotFound
 const UpdatePaymentRequestStatusNotFoundCode int = 404
 
-/*
-UpdatePaymentRequestStatusNotFound The requested resource wasn't found.
+/*UpdatePaymentRequestStatusNotFound The requested resource wasn't found.
 
 swagger:response updatePaymentRequestStatusNotFound
 */
@@ -241,8 +236,7 @@ func (o *UpdatePaymentRequestStatusNotFound) WriteResponse(rw http.ResponseWrite
 // UpdatePaymentRequestStatusConflictCode is the HTTP code returned for type UpdatePaymentRequestStatusConflict
 const UpdatePaymentRequestStatusConflictCode int = 409
 
-/*
-UpdatePaymentRequestStatusConflict There was a conflict with the request.
+/*UpdatePaymentRequestStatusConflict There was a conflict with the request.
 
 swagger:response updatePaymentRequestStatusConflict
 */
@@ -286,8 +280,7 @@ func (o *UpdatePaymentRequestStatusConflict) WriteResponse(rw http.ResponseWrite
 // UpdatePaymentRequestStatusPreconditionFailedCode is the HTTP code returned for type UpdatePaymentRequestStatusPreconditionFailed
 const UpdatePaymentRequestStatusPreconditionFailedCode int = 412
 
-/*
-UpdatePaymentRequestStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+/*UpdatePaymentRequestStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response updatePaymentRequestStatusPreconditionFailed
 */
@@ -331,8 +324,7 @@ func (o *UpdatePaymentRequestStatusPreconditionFailed) WriteResponse(rw http.Res
 // UpdatePaymentRequestStatusUnprocessableEntityCode is the HTTP code returned for type UpdatePaymentRequestStatusUnprocessableEntity
 const UpdatePaymentRequestStatusUnprocessableEntityCode int = 422
 
-/*
-UpdatePaymentRequestStatusUnprocessableEntity The payload was unprocessable.
+/*UpdatePaymentRequestStatusUnprocessableEntity The payload was unprocessable.
 
 swagger:response updatePaymentRequestStatusUnprocessableEntity
 */
@@ -376,8 +368,7 @@ func (o *UpdatePaymentRequestStatusUnprocessableEntity) WriteResponse(rw http.Re
 // UpdatePaymentRequestStatusInternalServerErrorCode is the HTTP code returned for type UpdatePaymentRequestStatusInternalServerError
 const UpdatePaymentRequestStatusInternalServerErrorCode int = 500
 
-/*
-UpdatePaymentRequestStatusInternalServerError A server error occurred.
+/*UpdatePaymentRequestStatusInternalServerError A server error occurred.
 
 swagger:response updatePaymentRequestStatusInternalServerError
 */

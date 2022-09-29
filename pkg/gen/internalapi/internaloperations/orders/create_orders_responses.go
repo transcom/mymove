@@ -16,8 +16,7 @@ import (
 // CreateOrdersCreatedCode is the HTTP code returned for type CreateOrdersCreated
 const CreateOrdersCreatedCode int = 201
 
-/*
-CreateOrdersCreated created instance of orders
+/*CreateOrdersCreated created instance of orders
 
 swagger:response createOrdersCreated
 */
@@ -61,8 +60,7 @@ func (o *CreateOrdersCreated) WriteResponse(rw http.ResponseWriter, producer run
 // CreateOrdersBadRequestCode is the HTTP code returned for type CreateOrdersBadRequest
 const CreateOrdersBadRequestCode int = 400
 
-/*
-CreateOrdersBadRequest invalid request
+/*CreateOrdersBadRequest invalid request
 
 swagger:response createOrdersBadRequest
 */
@@ -86,8 +84,7 @@ func (o *CreateOrdersBadRequest) WriteResponse(rw http.ResponseWriter, producer 
 // CreateOrdersUnauthorizedCode is the HTTP code returned for type CreateOrdersUnauthorized
 const CreateOrdersUnauthorizedCode int = 401
 
-/*
-CreateOrdersUnauthorized request requires user authentication
+/*CreateOrdersUnauthorized request requires user authentication
 
 swagger:response createOrdersUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *CreateOrdersUnauthorized) WriteResponse(rw http.ResponseWriter, produce
 // CreateOrdersForbiddenCode is the HTTP code returned for type CreateOrdersForbidden
 const CreateOrdersForbiddenCode int = 403
 
-/*
-CreateOrdersForbidden user is not authorized
+/*CreateOrdersForbidden user is not authorized
 
 swagger:response createOrdersForbidden
 */
@@ -136,8 +132,7 @@ func (o *CreateOrdersForbidden) WriteResponse(rw http.ResponseWriter, producer r
 // CreateOrdersInternalServerErrorCode is the HTTP code returned for type CreateOrdersInternalServerError
 const CreateOrdersInternalServerErrorCode int = 500
 
-/*
-CreateOrdersInternalServerError internal server error
+/*CreateOrdersInternalServerError internal server error
 
 swagger:response createOrdersInternalServerError
 */

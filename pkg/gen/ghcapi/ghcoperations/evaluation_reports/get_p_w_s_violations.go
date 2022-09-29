@@ -29,12 +29,12 @@ func NewGetPWSViolations(ctx *middleware.Context, handler GetPWSViolationsHandle
 	return &GetPWSViolations{Context: ctx, Handler: handler}
 }
 
-/*
-	GetPWSViolations swagger:route GET /pws-violations evaluationReports getPWSViolations
-
-# Fetch the possible PWS violations for an evaluation report
+/* GetPWSViolations swagger:route GET /pws-violations evaluationReports getPWSViolations
 
 Fetch the possible PWS violations for an evaluation report
+
+Fetch the possible PWS violations for an evaluation report
+
 */
 type GetPWSViolations struct {
 	Context *middleware.Context

@@ -54,12 +54,10 @@ func NewCreateMTOServiceItemParamsWithHTTPClient(client *http.Client) *CreateMTO
 	}
 }
 
-/*
-CreateMTOServiceItemParams contains all the parameters to send to the API endpoint
+/* CreateMTOServiceItemParams contains all the parameters to send to the API endpoint
+   for the create m t o service item operation.
 
-	for the create m t o service item operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type CreateMTOServiceItemParams struct {
 

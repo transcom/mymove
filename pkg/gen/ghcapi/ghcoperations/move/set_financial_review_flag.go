@@ -34,12 +34,12 @@ func NewSetFinancialReviewFlag(ctx *middleware.Context, handler SetFinancialRevi
 	return &SetFinancialReviewFlag{Context: ctx, Handler: handler}
 }
 
-/*
-	SetFinancialReviewFlag swagger:route POST /moves/{moveID}/financial-review-flag move setFinancialReviewFlag
+/* SetFinancialReviewFlag swagger:route POST /moves/{moveID}/financial-review-flag move setFinancialReviewFlag
 
-# Flags a move for financial office review
+Flags a move for financial office review
 
 This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.
+
 */
 type SetFinancialReviewFlag struct {
 	Context *middleware.Context

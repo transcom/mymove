@@ -16,8 +16,7 @@ import (
 // ShowQueueOKCode is the HTTP code returned for type ShowQueueOK
 const ShowQueueOKCode int = 200
 
-/*
-ShowQueueOK list all moves in the specified queue
+/*ShowQueueOK list all moves in the specified queue
 
 swagger:response showQueueOK
 */
@@ -64,8 +63,7 @@ func (o *ShowQueueOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 // ShowQueueBadRequestCode is the HTTP code returned for type ShowQueueBadRequest
 const ShowQueueBadRequestCode int = 400
 
-/*
-ShowQueueBadRequest invalid request
+/*ShowQueueBadRequest invalid request
 
 swagger:response showQueueBadRequest
 */
@@ -89,8 +87,7 @@ func (o *ShowQueueBadRequest) WriteResponse(rw http.ResponseWriter, producer run
 // ShowQueueUnauthorizedCode is the HTTP code returned for type ShowQueueUnauthorized
 const ShowQueueUnauthorizedCode int = 401
 
-/*
-ShowQueueUnauthorized request requires user authentication
+/*ShowQueueUnauthorized request requires user authentication
 
 swagger:response showQueueUnauthorized
 */
@@ -114,8 +111,7 @@ func (o *ShowQueueUnauthorized) WriteResponse(rw http.ResponseWriter, producer r
 // ShowQueueForbiddenCode is the HTTP code returned for type ShowQueueForbidden
 const ShowQueueForbiddenCode int = 403
 
-/*
-ShowQueueForbidden user is not authorized to access this queue
+/*ShowQueueForbidden user is not authorized to access this queue
 
 swagger:response showQueueForbidden
 */
@@ -139,8 +135,7 @@ func (o *ShowQueueForbidden) WriteResponse(rw http.ResponseWriter, producer runt
 // ShowQueueNotFoundCode is the HTTP code returned for type ShowQueueNotFound
 const ShowQueueNotFoundCode int = 404
 
-/*
-ShowQueueNotFound move queue item is not found
+/*ShowQueueNotFound move queue item is not found
 
 swagger:response showQueueNotFound
 */

@@ -29,12 +29,12 @@ func NewUpdateBillableWeight(ctx *middleware.Context, handler UpdateBillableWeig
 	return &UpdateBillableWeight{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdateBillableWeight swagger:route PATCH /orders/{orderID}/update-billable-weight order updateBillableWeight
+/* UpdateBillableWeight swagger:route PATCH /orders/{orderID}/update-billable-weight order updateBillableWeight
 
-# Updates the max billable weight
+Updates the max billable weight
 
 Updates the DBAuthorizedWeight attribute for the Order Entitlements=
+
 */
 type UpdateBillableWeight struct {
 	Context *middleware.Context

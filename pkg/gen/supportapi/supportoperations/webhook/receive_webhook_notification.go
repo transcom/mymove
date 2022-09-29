@@ -29,12 +29,13 @@ func NewReceiveWebhookNotification(ctx *middleware.Context, handler ReceiveWebho
 	return &ReceiveWebhookNotification{Context: ctx, Handler: handler}
 }
 
-/*
-	ReceiveWebhookNotification swagger:route POST /webhook-notify webhook receiveWebhookNotification
+/* ReceiveWebhookNotification swagger:route POST /webhook-notify webhook receiveWebhookNotification
 
-# Test endpoint for receiving messages from our own webhook-client
+Test endpoint for receiving messages from our own webhook-client
 
 This endpoint receives a notification that matches the webhook notification model. This is a test endpoint that represents a receiving server. In production, the Prime will set up a receiving endpoint. In testing, this server accepts notifications at this endpoint and simply responds with success and logs them. The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
+
+
 */
 type ReceiveWebhookNotification struct {
 	Context *middleware.Context

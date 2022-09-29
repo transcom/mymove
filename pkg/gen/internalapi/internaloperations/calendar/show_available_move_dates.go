@@ -29,12 +29,12 @@ func NewShowAvailableMoveDates(ctx *middleware.Context, handler ShowAvailableMov
 	return &ShowAvailableMoveDates{Context: ctx, Handler: handler}
 }
 
-/*
-	ShowAvailableMoveDates swagger:route GET /calendar/available_move_dates calendar showAvailableMoveDates
-
-# Returns available dates for the move calendar
+/* ShowAvailableMoveDates swagger:route GET /calendar/available_move_dates calendar showAvailableMoveDates
 
 Returns available dates for the move calendar
+
+Returns available dates for the move calendar
+
 */
 type ShowAvailableMoveDates struct {
 	Context *middleware.Context

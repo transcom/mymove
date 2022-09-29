@@ -29,15 +29,15 @@ func NewGetOrdersByIssuerAndOrdersNum(ctx *middleware.Context, handler GetOrders
 	return &GetOrdersByIssuerAndOrdersNum{Context: ctx, Handler: handler}
 }
 
-/*
-	GetOrdersByIssuerAndOrdersNum swagger:route GET /issuers/{issuer}/orders/{ordersNum} getOrdersByIssuerAndOrdersNum
+/* GetOrdersByIssuerAndOrdersNum swagger:route GET /issuers/{issuer}/orders/{ordersNum} getOrdersByIssuerAndOrdersNum
 
-# Retrieve orders by issuer and orders number
+Retrieve orders by issuer and orders number
 
 Return Orders with the provided issuer and orders number.
 # Errors
 Users of this endpoint must have permission to read Orders for the specified issuer. Otherwise, this endpoint will return `403 Forbidden`.
 If there are no Orders with the specified orders number from the specified issuer, then this endpoint will return `404 Not Found`.
+
 */
 type GetOrdersByIssuerAndOrdersNum struct {
 	Context *middleware.Context

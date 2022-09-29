@@ -29,12 +29,12 @@ func NewCreateDocument(ctx *middleware.Context, handler CreateDocumentHandler) *
 	return &CreateDocument{Context: ctx, Handler: handler}
 }
 
-/*
-	CreateDocument swagger:route POST /documents documents createDocument
+/* CreateDocument swagger:route POST /documents documents createDocument
 
-# Create a new document
+Create a new document
 
 Documents represent a physical artifact such as a scanned document or a PDF file
+
 */
 type CreateDocument struct {
 	Context *middleware.Context

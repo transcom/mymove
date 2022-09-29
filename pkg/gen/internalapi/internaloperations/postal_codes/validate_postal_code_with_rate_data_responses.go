@@ -16,8 +16,7 @@ import (
 // ValidatePostalCodeWithRateDataOKCode is the HTTP code returned for type ValidatePostalCodeWithRateDataOK
 const ValidatePostalCodeWithRateDataOKCode int = 200
 
-/*
-ValidatePostalCodeWithRateDataOK postal_code is valid or invalid
+/*ValidatePostalCodeWithRateDataOK postal_code is valid or invalid
 
 swagger:response validatePostalCodeWithRateDataOK
 */
@@ -61,8 +60,7 @@ func (o *ValidatePostalCodeWithRateDataOK) WriteResponse(rw http.ResponseWriter,
 // ValidatePostalCodeWithRateDataBadRequestCode is the HTTP code returned for type ValidatePostalCodeWithRateDataBadRequest
 const ValidatePostalCodeWithRateDataBadRequestCode int = 400
 
-/*
-ValidatePostalCodeWithRateDataBadRequest invalid request
+/*ValidatePostalCodeWithRateDataBadRequest invalid request
 
 swagger:response validatePostalCodeWithRateDataBadRequest
 */
@@ -86,8 +84,7 @@ func (o *ValidatePostalCodeWithRateDataBadRequest) WriteResponse(rw http.Respons
 // ValidatePostalCodeWithRateDataUnauthorizedCode is the HTTP code returned for type ValidatePostalCodeWithRateDataUnauthorized
 const ValidatePostalCodeWithRateDataUnauthorizedCode int = 401
 
-/*
-ValidatePostalCodeWithRateDataUnauthorized must be authenticated to use this endpoint
+/*ValidatePostalCodeWithRateDataUnauthorized must be authenticated to use this endpoint
 
 swagger:response validatePostalCodeWithRateDataUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *ValidatePostalCodeWithRateDataUnauthorized) WriteResponse(rw http.Respo
 // ValidatePostalCodeWithRateDataForbiddenCode is the HTTP code returned for type ValidatePostalCodeWithRateDataForbidden
 const ValidatePostalCodeWithRateDataForbiddenCode int = 403
 
-/*
-ValidatePostalCodeWithRateDataForbidden user is not authorized
+/*ValidatePostalCodeWithRateDataForbidden user is not authorized
 
 swagger:response validatePostalCodeWithRateDataForbidden
 */
@@ -136,8 +132,7 @@ func (o *ValidatePostalCodeWithRateDataForbidden) WriteResponse(rw http.Response
 // ValidatePostalCodeWithRateDataInternalServerErrorCode is the HTTP code returned for type ValidatePostalCodeWithRateDataInternalServerError
 const ValidatePostalCodeWithRateDataInternalServerErrorCode int = 500
 
-/*
-ValidatePostalCodeWithRateDataInternalServerError server error
+/*ValidatePostalCodeWithRateDataInternalServerError server error
 
 swagger:response validatePostalCodeWithRateDataInternalServerError
 */

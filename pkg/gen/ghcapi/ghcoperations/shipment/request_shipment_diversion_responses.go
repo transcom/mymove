@@ -16,8 +16,7 @@ import (
 // RequestShipmentDiversionOKCode is the HTTP code returned for type RequestShipmentDiversionOK
 const RequestShipmentDiversionOKCode int = 200
 
-/*
-RequestShipmentDiversionOK Successfully requested the shipment diversion
+/*RequestShipmentDiversionOK Successfully requested the shipment diversion
 
 swagger:response requestShipmentDiversionOK
 */
@@ -61,8 +60,7 @@ func (o *RequestShipmentDiversionOK) WriteResponse(rw http.ResponseWriter, produ
 // RequestShipmentDiversionForbiddenCode is the HTTP code returned for type RequestShipmentDiversionForbidden
 const RequestShipmentDiversionForbiddenCode int = 403
 
-/*
-RequestShipmentDiversionForbidden The request was denied
+/*RequestShipmentDiversionForbidden The request was denied
 
 swagger:response requestShipmentDiversionForbidden
 */
@@ -106,8 +104,7 @@ func (o *RequestShipmentDiversionForbidden) WriteResponse(rw http.ResponseWriter
 // RequestShipmentDiversionNotFoundCode is the HTTP code returned for type RequestShipmentDiversionNotFound
 const RequestShipmentDiversionNotFoundCode int = 404
 
-/*
-RequestShipmentDiversionNotFound The requested resource wasn't found
+/*RequestShipmentDiversionNotFound The requested resource wasn't found
 
 swagger:response requestShipmentDiversionNotFound
 */
@@ -151,8 +148,7 @@ func (o *RequestShipmentDiversionNotFound) WriteResponse(rw http.ResponseWriter,
 // RequestShipmentDiversionConflictCode is the HTTP code returned for type RequestShipmentDiversionConflict
 const RequestShipmentDiversionConflictCode int = 409
 
-/*
-RequestShipmentDiversionConflict Conflict error
+/*RequestShipmentDiversionConflict Conflict error
 
 swagger:response requestShipmentDiversionConflict
 */
@@ -196,8 +192,7 @@ func (o *RequestShipmentDiversionConflict) WriteResponse(rw http.ResponseWriter,
 // RequestShipmentDiversionPreconditionFailedCode is the HTTP code returned for type RequestShipmentDiversionPreconditionFailed
 const RequestShipmentDiversionPreconditionFailedCode int = 412
 
-/*
-RequestShipmentDiversionPreconditionFailed Precondition failed
+/*RequestShipmentDiversionPreconditionFailed Precondition failed
 
 swagger:response requestShipmentDiversionPreconditionFailed
 */
@@ -241,8 +236,7 @@ func (o *RequestShipmentDiversionPreconditionFailed) WriteResponse(rw http.Respo
 // RequestShipmentDiversionUnprocessableEntityCode is the HTTP code returned for type RequestShipmentDiversionUnprocessableEntity
 const RequestShipmentDiversionUnprocessableEntityCode int = 422
 
-/*
-RequestShipmentDiversionUnprocessableEntity The payload was unprocessable.
+/*RequestShipmentDiversionUnprocessableEntity The payload was unprocessable.
 
 swagger:response requestShipmentDiversionUnprocessableEntity
 */
@@ -286,8 +280,7 @@ func (o *RequestShipmentDiversionUnprocessableEntity) WriteResponse(rw http.Resp
 // RequestShipmentDiversionInternalServerErrorCode is the HTTP code returned for type RequestShipmentDiversionInternalServerError
 const RequestShipmentDiversionInternalServerErrorCode int = 500
 
-/*
-RequestShipmentDiversionInternalServerError A server error occurred
+/*RequestShipmentDiversionInternalServerError A server error occurred
 
 swagger:response requestShipmentDiversionInternalServerError
 */

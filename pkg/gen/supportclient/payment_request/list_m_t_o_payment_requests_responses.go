@@ -69,8 +69,7 @@ func NewListMTOPaymentRequestsOK() *ListMTOPaymentRequestsOK {
 	return &ListMTOPaymentRequestsOK{}
 }
 
-/*
-ListMTOPaymentRequestsOK describes a response with status code 200, with default header values.
+/* ListMTOPaymentRequestsOK describes a response with status code 200, with default header values.
 
 Successfully retrieved payment requests associated with a given move task order
 */
@@ -130,8 +129,7 @@ func NewListMTOPaymentRequestsBadRequest() *ListMTOPaymentRequestsBadRequest {
 	return &ListMTOPaymentRequestsBadRequest{}
 }
 
-/*
-ListMTOPaymentRequestsBadRequest describes a response with status code 400, with default header values.
+/* ListMTOPaymentRequestsBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -193,8 +191,7 @@ func NewListMTOPaymentRequestsUnauthorized() *ListMTOPaymentRequestsUnauthorized
 	return &ListMTOPaymentRequestsUnauthorized{}
 }
 
-/*
-ListMTOPaymentRequestsUnauthorized describes a response with status code 401, with default header values.
+/* ListMTOPaymentRequestsUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -256,8 +253,7 @@ func NewListMTOPaymentRequestsForbidden() *ListMTOPaymentRequestsForbidden {
 	return &ListMTOPaymentRequestsForbidden{}
 }
 
-/*
-ListMTOPaymentRequestsForbidden describes a response with status code 403, with default header values.
+/* ListMTOPaymentRequestsForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -319,8 +315,7 @@ func NewListMTOPaymentRequestsNotFound() *ListMTOPaymentRequestsNotFound {
 	return &ListMTOPaymentRequestsNotFound{}
 }
 
-/*
-ListMTOPaymentRequestsNotFound describes a response with status code 404, with default header values.
+/* ListMTOPaymentRequestsNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -382,8 +377,7 @@ func NewListMTOPaymentRequestsInternalServerError() *ListMTOPaymentRequestsInter
 	return &ListMTOPaymentRequestsInternalServerError{}
 }
 
-/*
-ListMTOPaymentRequestsInternalServerError describes a response with status code 500, with default header values.
+/* ListMTOPaymentRequestsInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

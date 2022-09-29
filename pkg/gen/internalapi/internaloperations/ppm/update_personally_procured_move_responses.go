@@ -16,8 +16,7 @@ import (
 // UpdatePersonallyProcuredMoveOKCode is the HTTP code returned for type UpdatePersonallyProcuredMoveOK
 const UpdatePersonallyProcuredMoveOKCode int = 200
 
-/*
-UpdatePersonallyProcuredMoveOK updated instance of personally_procured_move
+/*UpdatePersonallyProcuredMoveOK updated instance of personally_procured_move
 
 swagger:response updatePersonallyProcuredMoveOK
 */
@@ -61,8 +60,7 @@ func (o *UpdatePersonallyProcuredMoveOK) WriteResponse(rw http.ResponseWriter, p
 // UpdatePersonallyProcuredMoveBadRequestCode is the HTTP code returned for type UpdatePersonallyProcuredMoveBadRequest
 const UpdatePersonallyProcuredMoveBadRequestCode int = 400
 
-/*
-UpdatePersonallyProcuredMoveBadRequest invalid request
+/*UpdatePersonallyProcuredMoveBadRequest invalid request
 
 swagger:response updatePersonallyProcuredMoveBadRequest
 */
@@ -86,8 +84,7 @@ func (o *UpdatePersonallyProcuredMoveBadRequest) WriteResponse(rw http.ResponseW
 // UpdatePersonallyProcuredMoveUnauthorizedCode is the HTTP code returned for type UpdatePersonallyProcuredMoveUnauthorized
 const UpdatePersonallyProcuredMoveUnauthorizedCode int = 401
 
-/*
-UpdatePersonallyProcuredMoveUnauthorized request requires user authentication
+/*UpdatePersonallyProcuredMoveUnauthorized request requires user authentication
 
 swagger:response updatePersonallyProcuredMoveUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *UpdatePersonallyProcuredMoveUnauthorized) WriteResponse(rw http.Respons
 // UpdatePersonallyProcuredMoveForbiddenCode is the HTTP code returned for type UpdatePersonallyProcuredMoveForbidden
 const UpdatePersonallyProcuredMoveForbiddenCode int = 403
 
-/*
-UpdatePersonallyProcuredMoveForbidden user is not authorized
+/*UpdatePersonallyProcuredMoveForbidden user is not authorized
 
 swagger:response updatePersonallyProcuredMoveForbidden
 */
@@ -136,8 +132,7 @@ func (o *UpdatePersonallyProcuredMoveForbidden) WriteResponse(rw http.ResponseWr
 // UpdatePersonallyProcuredMoveInternalServerErrorCode is the HTTP code returned for type UpdatePersonallyProcuredMoveInternalServerError
 const UpdatePersonallyProcuredMoveInternalServerErrorCode int = 500
 
-/*
-UpdatePersonallyProcuredMoveInternalServerError internal server error
+/*UpdatePersonallyProcuredMoveInternalServerError internal server error
 
 swagger:response updatePersonallyProcuredMoveInternalServerError
 */

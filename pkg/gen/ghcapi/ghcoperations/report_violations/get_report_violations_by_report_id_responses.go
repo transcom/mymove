@@ -16,8 +16,7 @@ import (
 // GetReportViolationsByReportIDOKCode is the HTTP code returned for type GetReportViolationsByReportIDOK
 const GetReportViolationsByReportIDOKCode int = 200
 
-/*
-GetReportViolationsByReportIDOK Successfully retrieved the report violations
+/*GetReportViolationsByReportIDOK Successfully retrieved the report violations
 
 swagger:response getReportViolationsByReportIdOK
 */
@@ -64,8 +63,7 @@ func (o *GetReportViolationsByReportIDOK) WriteResponse(rw http.ResponseWriter, 
 // GetReportViolationsByReportIDBadRequestCode is the HTTP code returned for type GetReportViolationsByReportIDBadRequest
 const GetReportViolationsByReportIDBadRequestCode int = 400
 
-/*
-GetReportViolationsByReportIDBadRequest The request payload is invalid
+/*GetReportViolationsByReportIDBadRequest The request payload is invalid
 
 swagger:response getReportViolationsByReportIdBadRequest
 */
@@ -109,8 +107,7 @@ func (o *GetReportViolationsByReportIDBadRequest) WriteResponse(rw http.Response
 // GetReportViolationsByReportIDForbiddenCode is the HTTP code returned for type GetReportViolationsByReportIDForbidden
 const GetReportViolationsByReportIDForbiddenCode int = 403
 
-/*
-GetReportViolationsByReportIDForbidden The request was denied
+/*GetReportViolationsByReportIDForbidden The request was denied
 
 swagger:response getReportViolationsByReportIdForbidden
 */
@@ -154,8 +151,7 @@ func (o *GetReportViolationsByReportIDForbidden) WriteResponse(rw http.ResponseW
 // GetReportViolationsByReportIDNotFoundCode is the HTTP code returned for type GetReportViolationsByReportIDNotFound
 const GetReportViolationsByReportIDNotFoundCode int = 404
 
-/*
-GetReportViolationsByReportIDNotFound The requested resource wasn't found
+/*GetReportViolationsByReportIDNotFound The requested resource wasn't found
 
 swagger:response getReportViolationsByReportIdNotFound
 */
@@ -199,8 +195,7 @@ func (o *GetReportViolationsByReportIDNotFound) WriteResponse(rw http.ResponseWr
 // GetReportViolationsByReportIDInternalServerErrorCode is the HTTP code returned for type GetReportViolationsByReportIDInternalServerError
 const GetReportViolationsByReportIDInternalServerErrorCode int = 500
 
-/*
-GetReportViolationsByReportIDInternalServerError A server error occurred
+/*GetReportViolationsByReportIDInternalServerError A server error occurred
 
 swagger:response getReportViolationsByReportIdInternalServerError
 */

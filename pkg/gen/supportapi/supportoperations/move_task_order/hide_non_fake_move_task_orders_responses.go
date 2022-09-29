@@ -16,8 +16,7 @@ import (
 // HideNonFakeMoveTaskOrdersOKCode is the HTTP code returned for type HideNonFakeMoveTaskOrdersOK
 const HideNonFakeMoveTaskOrdersOKCode int = 200
 
-/*
-HideNonFakeMoveTaskOrdersOK Successfully hid MTOs.
+/*HideNonFakeMoveTaskOrdersOK Successfully hid MTOs.
 
 swagger:response hideNonFakeMoveTaskOrdersOK
 */
@@ -61,8 +60,7 @@ func (o *HideNonFakeMoveTaskOrdersOK) WriteResponse(rw http.ResponseWriter, prod
 // HideNonFakeMoveTaskOrdersBadRequestCode is the HTTP code returned for type HideNonFakeMoveTaskOrdersBadRequest
 const HideNonFakeMoveTaskOrdersBadRequestCode int = 400
 
-/*
-HideNonFakeMoveTaskOrdersBadRequest The request payload is invalid.
+/*HideNonFakeMoveTaskOrdersBadRequest The request payload is invalid.
 
 swagger:response hideNonFakeMoveTaskOrdersBadRequest
 */
@@ -106,8 +104,7 @@ func (o *HideNonFakeMoveTaskOrdersBadRequest) WriteResponse(rw http.ResponseWrit
 // HideNonFakeMoveTaskOrdersUnauthorizedCode is the HTTP code returned for type HideNonFakeMoveTaskOrdersUnauthorized
 const HideNonFakeMoveTaskOrdersUnauthorizedCode int = 401
 
-/*
-HideNonFakeMoveTaskOrdersUnauthorized The request was denied.
+/*HideNonFakeMoveTaskOrdersUnauthorized The request was denied.
 
 swagger:response hideNonFakeMoveTaskOrdersUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *HideNonFakeMoveTaskOrdersUnauthorized) WriteResponse(rw http.ResponseWr
 // HideNonFakeMoveTaskOrdersForbiddenCode is the HTTP code returned for type HideNonFakeMoveTaskOrdersForbidden
 const HideNonFakeMoveTaskOrdersForbiddenCode int = 403
 
-/*
-HideNonFakeMoveTaskOrdersForbidden The request was denied.
+/*HideNonFakeMoveTaskOrdersForbidden The request was denied.
 
 swagger:response hideNonFakeMoveTaskOrdersForbidden
 */
@@ -196,8 +192,7 @@ func (o *HideNonFakeMoveTaskOrdersForbidden) WriteResponse(rw http.ResponseWrite
 // HideNonFakeMoveTaskOrdersNotFoundCode is the HTTP code returned for type HideNonFakeMoveTaskOrdersNotFound
 const HideNonFakeMoveTaskOrdersNotFoundCode int = 404
 
-/*
-HideNonFakeMoveTaskOrdersNotFound The requested resource wasn't found.
+/*HideNonFakeMoveTaskOrdersNotFound The requested resource wasn't found.
 
 swagger:response hideNonFakeMoveTaskOrdersNotFound
 */
@@ -241,8 +236,7 @@ func (o *HideNonFakeMoveTaskOrdersNotFound) WriteResponse(rw http.ResponseWriter
 // HideNonFakeMoveTaskOrdersConflictCode is the HTTP code returned for type HideNonFakeMoveTaskOrdersConflict
 const HideNonFakeMoveTaskOrdersConflictCode int = 409
 
-/*
-HideNonFakeMoveTaskOrdersConflict There was a conflict with the request.
+/*HideNonFakeMoveTaskOrdersConflict There was a conflict with the request.
 
 swagger:response hideNonFakeMoveTaskOrdersConflict
 */
@@ -286,8 +280,7 @@ func (o *HideNonFakeMoveTaskOrdersConflict) WriteResponse(rw http.ResponseWriter
 // HideNonFakeMoveTaskOrdersPreconditionFailedCode is the HTTP code returned for type HideNonFakeMoveTaskOrdersPreconditionFailed
 const HideNonFakeMoveTaskOrdersPreconditionFailedCode int = 412
 
-/*
-HideNonFakeMoveTaskOrdersPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+/*HideNonFakeMoveTaskOrdersPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response hideNonFakeMoveTaskOrdersPreconditionFailed
 */
@@ -331,8 +324,7 @@ func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) WriteResponse(rw http.Resp
 // HideNonFakeMoveTaskOrdersUnprocessableEntityCode is the HTTP code returned for type HideNonFakeMoveTaskOrdersUnprocessableEntity
 const HideNonFakeMoveTaskOrdersUnprocessableEntityCode int = 422
 
-/*
-HideNonFakeMoveTaskOrdersUnprocessableEntity The payload was unprocessable.
+/*HideNonFakeMoveTaskOrdersUnprocessableEntity The payload was unprocessable.
 
 swagger:response hideNonFakeMoveTaskOrdersUnprocessableEntity
 */
@@ -376,8 +368,7 @@ func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) WriteResponse(rw http.Res
 // HideNonFakeMoveTaskOrdersInternalServerErrorCode is the HTTP code returned for type HideNonFakeMoveTaskOrdersInternalServerError
 const HideNonFakeMoveTaskOrdersInternalServerErrorCode int = 500
 
-/*
-HideNonFakeMoveTaskOrdersInternalServerError A server error occurred.
+/*HideNonFakeMoveTaskOrdersInternalServerError A server error occurred.
 
 swagger:response hideNonFakeMoveTaskOrdersInternalServerError
 */

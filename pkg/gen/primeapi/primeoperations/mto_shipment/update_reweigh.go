@@ -29,8 +29,7 @@ func NewUpdateReweigh(ctx *middleware.Context, handler UpdateReweighHandler) *Up
 	return &UpdateReweigh{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdateReweigh swagger:route PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID} mtoShipment updateReweigh
+/* UpdateReweigh swagger:route PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID} mtoShipment updateReweigh
 
 updateReweigh
 
@@ -41,6 +40,8 @@ Only one of weight or verificationReason should be sent in the request body.
 A reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.
 A reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,
 so not all shipments will have a reweigh weight.
+
+
 */
 type UpdateReweigh struct {
 	Context *middleware.Context
