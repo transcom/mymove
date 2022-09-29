@@ -142,10 +142,10 @@ export const ExpenseShape = shape({
   description: string,
   movingExpenseType: oneOf(expenseTypesArr),
   missingReceipt: bool,
-  receiptDocumentId: string,
-  receiptDocument: DocumentShape,
+  documentId: string,
+  document: DocumentShape,
   amount: number,
-  paidWithGTCC: bool,
+  paidWithGtcc: bool,
   sitStartDate: string,
   sitEndDate: string,
 });
