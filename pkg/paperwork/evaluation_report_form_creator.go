@@ -27,8 +27,8 @@ const (
 	// The designs for this report are 1204px wide. This lets us convert pixel sizes to millimeter sizes
 	mmPerPixel                = (letterWidthMm / 1204)
 	pageHeightMm              = 279.4
-	pageBottomMarginMm        = 10.0
-	pageTopMarginMm           = 14.0
+	pageBottomMarginMm        = 52 * mmPerPixel
+	pageTopMarginMm           = 90 * mmPerPixel
 	pageSideMarginMm          = 48.0 * mmPerPixel
 	reportHeadingFontSize     = 40.0 * mmPerPixel
 	sectionHeadingFontSize    = 28.0 * mmPerPixel
@@ -210,7 +210,7 @@ func (f *EvaluationReportFormFiller) reportHeading(text string, reportID string,
 	f.pdf.SetFontUnitSize(reportHeadingFontSize)
 	f.setTextColorBaseDarkest()
 	headingY := f.pdf.GetY()
-	headingWidth := 100.0
+	headingWidth := pxToMM(900)
 	height := pxToMM(70.0)
 	bottomMargin := pxToMM(43.0)
 
@@ -286,11 +286,13 @@ func (f *EvaluationReportFormFiller) shipmentCard(shipment models.MTOShipment) e
 		f.pdf.AddPage()
 	}
 
+	// Colored stripe at top of card
 	cardWidth := letterWidthMm - 2*pageSideMarginMm
 	f.setHHGStripeColor(shipment.ShipmentType)
 	f.pdf.Rect(pageSideMarginMm, f.pdf.GetY(), cardWidth, stripeHeight, "DF")
 	startY := f.pdf.GetY() + stripeHeight
 
+	// Shipment type (HHG, PPM, NTS, ...)
 	headingX := pageSideMarginMm + pxToMM(8.0)
 	headingY := startY + headingMargin
 	f.pdf.MoveTo(headingX, headingY)
@@ -307,9 +309,8 @@ func (f *EvaluationReportFormFiller) shipmentCard(shipment models.MTOShipment) e
 		f.pdf.CellFormat(vendorTagWidth, headingHeight, externalVendorText, "", 0, "LM", true, 0, "")
 
 	}
-	// heading - shipment ID
+	// heading - shipment ID (right aligned)
 	f.setTextColorBaseDark()
-	// pagewidth - x - margin
 	shipmentIDWidth := ((pageSideMarginMm + cardWidth) - f.pdf.GetX()) - pxToMM(8.0)
 	f.pdf.SetFontUnitSize(textSmallFontSize)
 	f.pdf.CellFormat(shipmentIDWidth, headingHeight, "Shipment ID: "+vals.ShipmentID, "", 0, "RM", false, 0, "")
@@ -340,6 +341,8 @@ func (f *EvaluationReportFormFiller) shipmentCard(shipment models.MTOShipment) e
 	if err != nil {
 		return err
 	}
+
+	// Draw a border around the entire shipment card
 	f.pdf.RoundedRect(pageSideMarginMm, startY, cardWidth, f.pdf.GetY()-startY, 1.0, "34", "D")
 	shipmentCardBottomMargin := pxToMM(16.0)
 	f.addVerticalSpace(shipmentCardBottomMargin)
@@ -376,6 +379,7 @@ func (f *EvaluationReportFormFiller) violationsSection(violations models.ReportV
 	for _, reportViolation := range violations {
 		violation := reportViolation.Violation
 		if violation.IsKpi {
+			// Save all the KPI fields that we'll need to display after the violations
 			if violation.AdditionalDataElem == "observedPickupSpreadDates" {
 				kpis["ObservedPickupSpreadStartDate"] = true
 				kpis["ObservedPickupSpreadEndDate"] = true
@@ -495,10 +499,11 @@ func (f *EvaluationReportFormFiller) subsectionRow(key string, value string) {
 	// border line
 	f.pdf.Line(f.pdf.GetX(), y, f.pdf.GetX()+letterWidthMm-2.0*pageSideMarginMm, y)
 
+	fieldInternalPadding := pxToMM(12.0)
 	if needToLineWrapLabel {
-		f.addVerticalSpace(pxToMM(12.0))
+		f.addVerticalSpace(fieldInternalPadding)
 		f.pdf.MultiCell(labelWidth, textLineHeight, key, "", "LM", false)
-		f.addVerticalSpace(pxToMM(12.0))
+		f.addVerticalSpace(fieldInternalPadding)
 	} else {
 		f.pdf.CellFormat(labelWidth, minFieldHeight, key, "", 0, "LM", false, 0, "")
 	}
@@ -507,9 +512,9 @@ func (f *EvaluationReportFormFiller) subsectionRow(key string, value string) {
 	f.pdf.SetFontStyle("")
 	f.pdf.MoveTo(pageSideMarginMm+labelWidth, y)
 	if needToLineWrapValue {
-		f.addVerticalSpace(pxToMM(12.0))
+		f.addVerticalSpace(fieldInternalPadding)
 		f.pdf.MultiCell(widthFill, textLineHeight, value, "", "LM", false)
-		f.addVerticalSpace(pxToMM(12.0))
+		f.addVerticalSpace(fieldInternalPadding)
 	} else {
 		f.pdf.CellFormat(widthFill, minFieldHeight, value, "", 1, "LM", false, 0, "")
 	}
