@@ -19,9 +19,12 @@ const (
 	regularFontPath = "pkg/paperwork/formtemplates/PublicSans-Regular.ttf"
 	boldFontPath    = "pkg/paperwork/formtemplates/PublicSans-Bold.ttf"
 	arrowImagePath  = "pkg/paperwork/formtemplates/arrowright.png"
-	// We can figure this out at runtime, but it adds complexity
-	arrowImageFormat          = "png"
-	arrowImageName            = "arrowright"
+	// We can figure the image format out at runtime, but it makes the code more complicated.
+	// If this form ever uses more images, it would probably make more sense to do that.
+	arrowImageFormat = "png"
+	arrowImageName   = "arrowright"
+
+	// The designs for this report are 1204px wide. This lets us convert pixel sizes to millimeter sizes
 	mmPerPixel                = (letterWidthMm / 1204)
 	pageHeightMm              = 279.4
 	pageBottomMarginMm        = 10.0
@@ -37,10 +40,9 @@ const (
 	widthFill = 0.0
 )
 
-// TODO do we want to keep this or inline it?
+// pxToMM converts pixels (design units) to millimeters (pdf units)
 func pxToMM(px float64) float64 {
-	// 1204px is the px width of the designs
-	return (letterWidthMm / 1204) * px
+	return mmPerPixel * px
 }
 
 // getField gets a value from a struct based on the string value of the field name
@@ -56,11 +58,6 @@ func getField(fieldName string, data interface{}) (string, error) {
 	}
 }
 
-type EvaluationReportFormFiller struct {
-	pdf      *gofpdf.Fpdf
-	reportID string
-}
-
 func loadFont(pdf *gofpdf.Fpdf, family string, style string, path string) error {
 	font, err := assets.Asset(path)
 	if err != nil {
@@ -69,6 +66,12 @@ func loadFont(pdf *gofpdf.Fpdf, family string, style string, path string) error 
 	pdf.AddUTF8FontFromBytes(family, style, font)
 
 	return pdf.Error()
+}
+
+// EvaluationReportFormFiller is used to create counseling and shipment evaluation reports
+type EvaluationReportFormFiller struct {
+	pdf      *gofpdf.Fpdf
+	reportID string
 }
 
 func NewEvaluationReportFormFiller() (*EvaluationReportFormFiller, error) {
@@ -177,70 +180,11 @@ func (f *EvaluationReportFormFiller) Output(output io.Writer) error {
 	}
 	return f.pdf.Output(output)
 }
-func (f *EvaluationReportFormFiller) violationsSection(violations models.ReportViolations) error {
-	f.subsectionHeading(fmt.Sprintf("Violations observed (%d)", len(violations)))
 
-	kpis := map[string]bool{}
-	for _, reportViolation := range violations {
-		violation := reportViolation.Violation
-		if violation.IsKpi {
-			if violation.AdditionalDataElem == "observedPickupSpreadDates" {
-				kpis["ObservedPickupSpreadStartDate"] = true
-				kpis["ObservedPickupSpreadEndDate"] = true
-			} else {
-				elementName := violation.AdditionalDataElem
-				kpis[strings.ToUpper(elementName[0:1])+elementName[1:]] = true
-			}
-		}
-		f.violation(violation)
-		f.addVerticalSpace(pxToMM(16.0))
-	}
-
-	if len(kpis) > 0 {
-		allKPIs := []string{}
-		for kpi, present := range kpis {
-			if present {
-				allKPIs = append(allKPIs, kpi)
-			}
-		}
-		err := f.subsection("Additional data for KPIs", allKPIs, KPIFieldLabels, AdditionalKPIData{
-			ObservedPickupSpreadStartDate: "?",
-			ObservedPickupSpreadEndDate:   "?",
-			ObservedClaimDate:             "?",
-			ObservedPickupDate:            "?",
-			ObservedDeliveryDate:          "?",
-		})
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (f *EvaluationReportFormFiller) inspectionInformationSection(report models.EvaluationReport) error {
-	inspectionInfo := FormatValuesInspectionInformation(report)
-
-	err := f.subsection("Inspection information", InspectionInformationFields, InspectionInformationFieldLabels, inspectionInfo)
-	if err != nil {
-		return err
-	}
-
-	err = f.subsection("Violations", ViolationsFields, ViolationsFieldLabels, inspectionInfo)
-	if err != nil {
-		return err
-	}
-
-	err = f.subsection("QAE remarks", QAERemarksFields, QAERemarksFieldLabels, inspectionInfo)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (f *EvaluationReportFormFiller) addVerticalSpace(dy float64) {
-	f.pdf.MoveTo(f.pdf.GetX(), f.pdf.GetY()+dy)
-}
-
+// reportPageHeader draws the header at the top of every page
+// It looks a bit like this:
+// ####### CONTROLLED UNCLASSIFIED INFORMATION #######
+// Report #QA-12345                        Page 1 of 3
 func (f *EvaluationReportFormFiller) reportPageHeader() {
 	stripeHeight := pxToMM(18.0)
 	textHeight := pxToMM(34.0)
@@ -257,6 +201,12 @@ func (f *EvaluationReportFormFiller) reportPageHeader() {
 	f.pdf.SetFontStyle("")
 }
 
+// reportHeading draws the heading at the beginning of a report
+// It looks a bit like this:
+//
+//	                                         REPORT ID #QA-12345
+//	Counseling report                          MOVE CODE #ABC123
+//	                                 MTO REFERENCE ID #1234-5678
 func (f *EvaluationReportFormFiller) reportHeading(text string, reportID string, moveCode string, mtoReferenceID string) {
 	f.pdf.SetFontUnitSize(reportHeadingFontSize)
 	f.setTextColorBaseDarkest()
@@ -279,160 +229,6 @@ func (f *EvaluationReportFormFiller) reportHeading(text string, reportID string,
 	f.pdf.CellFormat(widthFill, height/3.0, fmt.Sprintf("MTO REFERENCE ID #%s", mtoReferenceID), "", 1, "RM", false, 0, "")
 	f.pdf.MoveTo(pageSideMarginMm, headingY+height)
 	f.addVerticalSpace(bottomMargin)
-}
-func (f *EvaluationReportFormFiller) setTextColorBaseDark() {
-	f.pdf.SetTextColor(86, 92, 101)
-}
-func (f *EvaluationReportFormFiller) setTextColorBaseDarker() {
-	f.pdf.SetTextColor(61, 69, 81)
-}
-func (f *EvaluationReportFormFiller) setTextColorBaseDarkest() {
-	f.pdf.SetTextColor(23, 23, 23)
-}
-func (f *EvaluationReportFormFiller) setFillColorBaseLight() {
-	f.pdf.SetFillColor(169, 174, 177)
-}
-
-func (f *EvaluationReportFormFiller) setBorderColor() {
-	borderR := 220
-	borderG := 222
-	borderB := 224
-
-	f.pdf.SetDrawColor(borderR, borderG, borderB)
-}
-
-func (f *EvaluationReportFormFiller) sectionHeading(text string, bottomMargin float64) {
-	f.pdf.SetFontStyle("B")
-	f.setTextColorBaseDarkest()
-	f.pdf.SetFontUnitSize(sectionHeadingFontSize)
-
-	f.pdf.SetX(pageSideMarginMm)
-	f.pdf.CellFormat(widthFill, pxToMM(34.0), text, "", 1, "LT", false, 0, "")
-	f.pdf.SetFontStyle("")
-	f.pdf.SetFontSize(fontSize)
-
-	f.addVerticalSpace(bottomMargin)
-}
-
-func (f *EvaluationReportFormFiller) subsection(heading string, fieldOrder []string, fieldLabels map[string]string, data interface{}) error {
-	bottomMargin := pxToMM(40.0)
-	f.subsectionHeading(heading)
-	for _, field := range fieldOrder {
-		labelText, found := fieldLabels[field]
-		if !found {
-			return fmt.Errorf("not found %s", field)
-		}
-		fieldValue, err := getField(field, data)
-		if err != nil {
-			return err
-		}
-		if fieldValue != "" {
-			f.subsectionRow(labelText, fieldValue)
-		}
-	}
-	f.addVerticalSpace(bottomMargin)
-
-	return nil
-}
-
-func (f *EvaluationReportFormFiller) subsectionHeading(heading string) {
-	topMargin := pxToMM(16.0)
-	bottomMargin := pxToMM(24.0)
-	f.pdf.SetFontStyle("B")
-	f.setTextColorBaseDarkest()
-	f.pdf.SetFontUnitSize(subsectionHeadingFontSize)
-	f.addVerticalSpace(topMargin)
-	f.pdf.SetX(pageSideMarginMm)
-	f.pdf.CellFormat(widthFill, pxToMM(26.0), heading, "", 1, "LT", false, 0, "")
-	f.addVerticalSpace(bottomMargin)
-
-	// Reset font
-	f.pdf.SetFontStyle("")
-	f.pdf.SetFontSize(fontSize)
-}
-
-// Assumptions: we wont have long enough labels to want auto page break
-func (f *EvaluationReportFormFiller) subsectionRow(key string, value string) {
-	f.pdf.SetX(pageSideMarginMm)
-	f.setTextColorBaseDarkest()
-	f.pdf.SetFontStyle("B")
-	f.pdf.SetCellMargin(pxToMM(8.0))
-	f.setBorderColor()
-	labelWidth := pxToMM(200.0)
-	valueWidth := letterWidthMm - 2.0*pageSideMarginMm - labelWidth
-	textLineHeight := pxToMM(18.0)
-	minFieldHeight := pxToMM(40.0)
-
-	// If the text is long, or contains line breaks, we will want to display across multiple lines
-	needToLineWrapValue := f.pdf.GetStringWidth(value) > valueWidth-2*f.pdf.GetCellMargin() || strings.Contains(value, "\n")
-	// I'm assuming that we will not have line breaks in labels
-	needToLineWrapLabel := f.pdf.GetStringWidth(key) > labelWidth-2*f.pdf.GetCellMargin()
-	estimatedHeight := minFieldHeight
-	// TODO the estimated height calculation is not quite right, it diverges for really long text.
-	// using AutoPageBreak prevents this from being an issue, but it is weird.
-	if needToLineWrapValue {
-		// Auto page break doesnt work super well for us in other places in the document because we have lines that
-		// should be kept together, but here, for a potentially large block of paragraphy text, it works great.
-		f.pdf.SetAutoPageBreak(true, pageBottomMarginMm)
-		estimatedHeight = math.Ceil(f.pdf.GetStringWidth(value)/(widthFill-2*f.pdf.GetCellMargin())) * textLineHeight
-	}
-	if needToLineWrapLabel {
-		estimatedHeight = math.Max(estimatedHeight, math.Ceil(f.pdf.GetStringWidth(key)/(labelWidth-2*f.pdf.GetCellMargin()))*textLineHeight)
-	}
-	if f.pdf.GetY()+estimatedHeight > pageHeightMm-pageBottomMarginMm {
-		f.pdf.AddPage()
-	}
-	f.pdf.SetFontUnitSize(textFontSize)
-	y := f.pdf.GetY()
-
-	// border line
-	f.pdf.Line(f.pdf.GetX(), y, f.pdf.GetX()+letterWidthMm-2.0*pageSideMarginMm, y)
-
-	if needToLineWrapLabel {
-		f.addVerticalSpace(pxToMM(12.0))
-		f.pdf.MultiCell(labelWidth, textLineHeight, key, "", "LM", false)
-		f.addVerticalSpace(pxToMM(12.0))
-	} else {
-		f.pdf.CellFormat(labelWidth, minFieldHeight, key, "", 0, "LM", false, 0, "")
-	}
-
-	labelY := f.pdf.GetY()
-	f.pdf.SetFontStyle("")
-	f.pdf.MoveTo(pageSideMarginMm+labelWidth, y)
-	if needToLineWrapValue {
-		f.addVerticalSpace(pxToMM(12.0))
-		f.pdf.MultiCell(widthFill, textLineHeight, value, "", "LM", false)
-		f.addVerticalSpace(pxToMM(12.0))
-	} else {
-		f.pdf.CellFormat(widthFill, minFieldHeight, value, "", 1, "LM", false, 0, "")
-	}
-	valueY := f.pdf.GetY()
-	endY := math.Max(math.Max(labelY, valueY), y+minFieldHeight)
-	f.pdf.SetY(endY)
-	f.pdf.SetAutoPageBreak(false, pageBottomMarginMm)
-}
-
-// violation displays a PWS requirement that was violated
-func (f *EvaluationReportFormFiller) violation(violation models.PWSViolation) {
-	height := pxToMM(18.0)
-	bulletWidth := pxToMM(22.0)
-	f.pdf.SetX(pageSideMarginMm)
-	f.pdf.SetFontUnitSize(textSmallFontSize)
-	f.pdf.SetFontStyle("B")
-
-	totalHeight := 2 * height
-	if f.pdf.GetY()+totalHeight > pageHeightMm-pageBottomMarginMm {
-		f.pdf.AddPage()
-	}
-	// bullet point
-	f.pdf.CellFormat(bulletWidth, height, "•", "", 0, "RM", false, 0, "")
-	// paragraph number and title
-	f.pdf.CellFormat(widthFill, height, violation.ParagraphNumber+" "+violation.Title, "", 1, "LM", false, 0, "")
-
-	// requirement summary
-	f.pdf.SetX(pageSideMarginMm + bulletWidth)
-	f.pdf.SetFontStyle("")
-	f.pdf.CellFormat(widthFill, height, violation.RequirementSummary, "", 1, "LM", false, 0, "")
 }
 
 // contactInformation displays side by side contact info for customer and QAE users
@@ -551,28 +347,205 @@ func (f *EvaluationReportFormFiller) shipmentCard(shipment models.MTOShipment) e
 	return nil
 }
 
-func (f *EvaluationReportFormFiller) setHHGStripeColor(shipmentType models.MTOShipmentType) {
-	r := 0
-	g := 150
-	b := 244
+// inspectionInformationSection draws the Inspection Information section of the report
+func (f *EvaluationReportFormFiller) inspectionInformationSection(report models.EvaluationReport) error {
+	inspectionInfo := FormatValuesInspectionInformation(report)
 
-	if strings.Contains(string(shipmentType), "PPM") {
-		r = 230
-		g = 199
-		b = 76
-	} else if strings.Contains(string(shipmentType), "NTS") {
-		r = 129
-		g = 104
-		b = 179
-	} else if strings.Contains(string(shipmentType), "HHG") {
-		r = 0
-		g = 150
-		b = 244
+	err := f.subsection("Inspection information", InspectionInformationFields, InspectionInformationFieldLabels, inspectionInfo)
+	if err != nil {
+		return err
 	}
-	f.pdf.SetDrawColor(r, g, b)
-	f.pdf.SetFillColor(r, g, b)
+
+	err = f.subsection("Violations", ViolationsFields, ViolationsFieldLabels, inspectionInfo)
+	if err != nil {
+		return err
+	}
+
+	err = f.subsection("QAE remarks", QAERemarksFields, QAERemarksFieldLabels, inspectionInfo)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
+// violationsSection draws the violations section of the report, which lists all PWS violations and
+// associated KPIs
+func (f *EvaluationReportFormFiller) violationsSection(violations models.ReportViolations) error {
+	f.subsectionHeading(fmt.Sprintf("Violations observed (%d)", len(violations)))
+
+	kpis := map[string]bool{}
+	for _, reportViolation := range violations {
+		violation := reportViolation.Violation
+		if violation.IsKpi {
+			if violation.AdditionalDataElem == "observedPickupSpreadDates" {
+				kpis["ObservedPickupSpreadStartDate"] = true
+				kpis["ObservedPickupSpreadEndDate"] = true
+			} else {
+				elementName := violation.AdditionalDataElem
+				kpis[strings.ToUpper(elementName[0:1])+elementName[1:]] = true
+			}
+		}
+		f.violation(violation)
+		f.addVerticalSpace(pxToMM(16.0))
+	}
+
+	if len(kpis) > 0 {
+		allKPIs := []string{}
+		for kpi, present := range kpis {
+			if present {
+				allKPIs = append(allKPIs, kpi)
+			}
+		}
+		err := f.subsection("Additional data for KPIs", allKPIs, KPIFieldLabels, AdditionalKPIData{
+			ObservedPickupSpreadStartDate: "?",
+			ObservedPickupSpreadEndDate:   "?",
+			ObservedClaimDate:             "?",
+			ObservedPickupDate:            "?",
+			ObservedDeliveryDate:          "?",
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (f *EvaluationReportFormFiller) sectionHeading(text string, bottomMargin float64) {
+	f.pdf.SetFontStyle("B")
+	f.setTextColorBaseDarkest()
+	f.pdf.SetFontUnitSize(sectionHeadingFontSize)
+
+	f.pdf.SetX(pageSideMarginMm)
+	f.pdf.CellFormat(widthFill, pxToMM(34.0), text, "", 1, "LT", false, 0, "")
+	f.pdf.SetFontStyle("")
+	f.pdf.SetFontSize(fontSize)
+
+	f.addVerticalSpace(bottomMargin)
+}
+
+// subsection draws a heading and a series of fields
+func (f *EvaluationReportFormFiller) subsection(heading string, fieldOrder []string, fieldLabels map[string]string, data interface{}) error {
+	bottomMargin := pxToMM(40.0)
+	f.subsectionHeading(heading)
+	for _, field := range fieldOrder {
+		labelText, found := fieldLabels[field]
+		if !found {
+			return fmt.Errorf("not found %s", field)
+		}
+		fieldValue, err := getField(field, data)
+		if err != nil {
+			return err
+		}
+		if fieldValue != "" {
+			f.subsectionRow(labelText, fieldValue)
+		}
+	}
+	f.addVerticalSpace(bottomMargin)
+
+	return nil
+}
+
+func (f *EvaluationReportFormFiller) subsectionHeading(heading string) {
+	topMargin := pxToMM(16.0)
+	bottomMargin := pxToMM(24.0)
+	f.pdf.SetFontStyle("B")
+	f.setTextColorBaseDarkest()
+	f.pdf.SetFontUnitSize(subsectionHeadingFontSize)
+	f.addVerticalSpace(topMargin)
+	f.pdf.SetX(pageSideMarginMm)
+	f.pdf.CellFormat(widthFill, pxToMM(26.0), heading, "", 1, "LT", false, 0, "")
+	f.addVerticalSpace(bottomMargin)
+
+	// Reset font
+	f.pdf.SetFontStyle("")
+	f.pdf.SetFontSize(fontSize)
+}
+
+// subsectionRow draws one field label and value
+func (f *EvaluationReportFormFiller) subsectionRow(key string, value string) {
+	f.pdf.SetX(pageSideMarginMm)
+	f.setTextColorBaseDarkest()
+	f.pdf.SetFontStyle("B")
+	f.pdf.SetFontUnitSize(textFontSize)
+	f.pdf.SetCellMargin(pxToMM(8.0))
+	f.setBorderColor()
+	labelWidth := pxToMM(200.0)
+	valueWidth := letterWidthMm - 2.0*pageSideMarginMm - labelWidth
+	textLineHeight := pxToMM(18.0)
+	minFieldHeight := pxToMM(40.0)
+
+	// If the text is long, or contains line breaks, we will want to display across multiple lines
+	needToLineWrapValue := f.pdf.GetStringWidth(value) > valueWidth-2*f.pdf.GetCellMargin() || strings.Contains(value, "\n")
+	// I'm assuming that we will not have line breaks in labels
+	needToLineWrapLabel := f.pdf.GetStringWidth(key) > labelWidth-2*f.pdf.GetCellMargin()
+	estimatedHeight := minFieldHeight
+	if needToLineWrapValue {
+		// Auto page break doesnt work super well for us in other places in the document because we have lines that
+		// should be kept together, but here, for a potentially large block of paragraphy text, it works great.
+		f.pdf.SetAutoPageBreak(true, pageBottomMarginMm)
+		estimatedHeight = math.Ceil(f.pdf.GetStringWidth(value)/(widthFill-2*f.pdf.GetCellMargin())) * textLineHeight
+	}
+	if needToLineWrapLabel {
+		estimatedHeight = math.Max(estimatedHeight, math.Ceil(f.pdf.GetStringWidth(key)/(labelWidth-2*f.pdf.GetCellMargin()))*textLineHeight)
+	}
+	if f.pdf.GetY()+estimatedHeight > pageHeightMm-pageBottomMarginMm {
+		f.pdf.AddPage()
+	}
+	y := f.pdf.GetY()
+
+	// border line
+	f.pdf.Line(f.pdf.GetX(), y, f.pdf.GetX()+letterWidthMm-2.0*pageSideMarginMm, y)
+
+	if needToLineWrapLabel {
+		f.addVerticalSpace(pxToMM(12.0))
+		f.pdf.MultiCell(labelWidth, textLineHeight, key, "", "LM", false)
+		f.addVerticalSpace(pxToMM(12.0))
+	} else {
+		f.pdf.CellFormat(labelWidth, minFieldHeight, key, "", 0, "LM", false, 0, "")
+	}
+
+	labelY := f.pdf.GetY()
+	f.pdf.SetFontStyle("")
+	f.pdf.MoveTo(pageSideMarginMm+labelWidth, y)
+	if needToLineWrapValue {
+		f.addVerticalSpace(pxToMM(12.0))
+		f.pdf.MultiCell(widthFill, textLineHeight, value, "", "LM", false)
+		f.addVerticalSpace(pxToMM(12.0))
+	} else {
+		f.pdf.CellFormat(widthFill, minFieldHeight, value, "", 1, "LM", false, 0, "")
+	}
+	valueY := f.pdf.GetY()
+	// Figure out where our tallest text field stopped, so we can make sure the next
+	// element gets drawn below it
+	endY := math.Max(math.Max(labelY, valueY), y+minFieldHeight)
+	f.pdf.SetY(endY)
+	f.pdf.SetAutoPageBreak(false, pageBottomMarginMm)
+}
+
+// violation displays a PWS requirement that was violated
+func (f *EvaluationReportFormFiller) violation(violation models.PWSViolation) {
+	height := pxToMM(18.0)
+	bulletWidth := pxToMM(22.0)
+	f.pdf.SetX(pageSideMarginMm)
+	f.pdf.SetFontUnitSize(textSmallFontSize)
+	f.pdf.SetFontStyle("B")
+
+	totalHeight := 2 * height
+	if f.pdf.GetY()+totalHeight > pageHeightMm-pageBottomMarginMm {
+		f.pdf.AddPage()
+	}
+	// bullet point
+	f.pdf.CellFormat(bulletWidth, height, "•", "", 0, "RM", false, 0, "")
+	// paragraph number and title
+	f.pdf.CellFormat(widthFill, height, violation.ParagraphNumber+" "+violation.Title, "", 1, "LM", false, 0, "")
+
+	// requirement summary
+	f.pdf.SetX(pageSideMarginMm + bulletWidth)
+	f.pdf.SetFontStyle("")
+	f.pdf.CellFormat(widthFill, height, violation.RequirementSummary, "", 1, "LM", false, 0, "")
+}
+
+// sideBySideAddress draws a pickup address and a delivery address in one line for a shipment card
 func (f *EvaluationReportFormFiller) sideBySideAddress(gap float64, leftAddressX float64, leftAddress string, leftAddressLabel string, rightAddressX float64, rightAddress string, rightAddressLabel string) {
 	f.pdf.SetFontUnitSize(textFontSize)
 	addressHeight := pxToMM(18.0)
@@ -616,6 +589,8 @@ func (f *EvaluationReportFormFiller) formatShipmentType(shipmentType models.MTOS
 	return string(shipmentType)
 }
 
+// twoColumnTable is used to display fields within a shipment card
+// typically, the left-hand fields are related to pickup and the right-hand fields are related to delivery
 func (f *EvaluationReportFormFiller) twoColumnTable(x float64, y float64, w float64, layout []TableRow, data interface{}) error {
 	gap := pxToMM(28.0)
 	columnWidth := (w - gap) / 2.0
@@ -679,6 +654,10 @@ func (f *EvaluationReportFormFiller) tableColumn(x float64, labelWidth float64, 
 	f.addVerticalSpace(textVerticalMargin)
 }
 
+func (f *EvaluationReportFormFiller) addVerticalSpace(dy float64) {
+	f.pdf.MoveTo(f.pdf.GetX(), f.pdf.GetY()+dy)
+}
+
 // drawArrow draws an image of an arrow. loadArrowImage MUST be called before this.
 func (f *EvaluationReportFormFiller) drawArrow(width float64) {
 	arrowWidth := pxToMM(13.33)
@@ -705,4 +684,46 @@ func (f *EvaluationReportFormFiller) loadArrowImage() error {
 	// After the image is registered, we can use its name to draw it
 	f.pdf.RegisterImageOptionsReader(arrowImageName, opt, arrowImage)
 	return f.pdf.Error()
+}
+
+func (f *EvaluationReportFormFiller) setTextColorBaseDark() {
+	f.pdf.SetTextColor(86, 92, 101)
+}
+
+func (f *EvaluationReportFormFiller) setTextColorBaseDarker() {
+	f.pdf.SetTextColor(61, 69, 81)
+}
+
+func (f *EvaluationReportFormFiller) setTextColorBaseDarkest() {
+	f.pdf.SetTextColor(23, 23, 23)
+}
+
+func (f *EvaluationReportFormFiller) setFillColorBaseLight() {
+	f.pdf.SetFillColor(169, 174, 177)
+}
+
+func (f *EvaluationReportFormFiller) setBorderColor() {
+	f.pdf.SetDrawColor(220, 222, 224)
+}
+
+func (f *EvaluationReportFormFiller) setHHGStripeColor(shipmentType models.MTOShipmentType) {
+	r := 0
+	g := 150
+	b := 244
+
+	if strings.Contains(string(shipmentType), "PPM") {
+		r = 230
+		g = 199
+		b = 76
+	} else if strings.Contains(string(shipmentType), "NTS") {
+		r = 129
+		g = 104
+		b = 179
+	} else if strings.Contains(string(shipmentType), "HHG") {
+		r = 0
+		g = 150
+		b = 244
+	}
+	f.pdf.SetDrawColor(r, g, b)
+	f.pdf.SetFillColor(r, g, b)
 }
