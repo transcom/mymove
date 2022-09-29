@@ -275,7 +275,6 @@ describe('Evaluation Report Container', () => {
     const evaluationReportContainer = await screen.findByTestId('EvaluationReportPreview');
     expect(screen.getByTestId('violationsObserved')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Violations', level: 3 })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Information', level: 3 })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'QAE remarks', level: 3 })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Move information', level: 2 })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Evaluation report', level: 2 })).toBeInTheDocument();
