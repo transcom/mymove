@@ -16,7 +16,8 @@ import (
 // GetPaymentRequestsForMoveOKCode is the HTTP code returned for type GetPaymentRequestsForMoveOK
 const GetPaymentRequestsForMoveOKCode int = 200
 
-/*GetPaymentRequestsForMoveOK Successfully retrieved all line items for a move task order
+/*
+GetPaymentRequestsForMoveOK Successfully retrieved all line items for a move task order
 
 swagger:response getPaymentRequestsForMoveOK
 */
@@ -63,7 +64,8 @@ func (o *GetPaymentRequestsForMoveOK) WriteResponse(rw http.ResponseWriter, prod
 // GetPaymentRequestsForMoveForbiddenCode is the HTTP code returned for type GetPaymentRequestsForMoveForbidden
 const GetPaymentRequestsForMoveForbiddenCode int = 403
 
-/*GetPaymentRequestsForMoveForbidden The request was denied
+/*
+GetPaymentRequestsForMoveForbidden The request was denied
 
 swagger:response getPaymentRequestsForMoveForbidden
 */
@@ -107,7 +109,8 @@ func (o *GetPaymentRequestsForMoveForbidden) WriteResponse(rw http.ResponseWrite
 // GetPaymentRequestsForMoveNotFoundCode is the HTTP code returned for type GetPaymentRequestsForMoveNotFound
 const GetPaymentRequestsForMoveNotFoundCode int = 404
 
-/*GetPaymentRequestsForMoveNotFound The requested resource wasn't found
+/*
+GetPaymentRequestsForMoveNotFound The requested resource wasn't found
 
 swagger:response getPaymentRequestsForMoveNotFound
 */
@@ -151,7 +154,8 @@ func (o *GetPaymentRequestsForMoveNotFound) WriteResponse(rw http.ResponseWriter
 // GetPaymentRequestsForMoveUnprocessableEntityCode is the HTTP code returned for type GetPaymentRequestsForMoveUnprocessableEntity
 const GetPaymentRequestsForMoveUnprocessableEntityCode int = 422
 
-/*GetPaymentRequestsForMoveUnprocessableEntity The payload was unprocessable.
+/*
+GetPaymentRequestsForMoveUnprocessableEntity The payload was unprocessable.
 
 swagger:response getPaymentRequestsForMoveUnprocessableEntity
 */
@@ -195,7 +199,8 @@ func (o *GetPaymentRequestsForMoveUnprocessableEntity) WriteResponse(rw http.Res
 // GetPaymentRequestsForMoveInternalServerErrorCode is the HTTP code returned for type GetPaymentRequestsForMoveInternalServerError
 const GetPaymentRequestsForMoveInternalServerErrorCode int = 500
 
-/*GetPaymentRequestsForMoveInternalServerError A server error occurred
+/*
+GetPaymentRequestsForMoveInternalServerError A server error occurred
 
 swagger:response getPaymentRequestsForMoveInternalServerError
 */

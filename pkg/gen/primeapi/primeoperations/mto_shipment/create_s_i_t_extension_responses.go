@@ -16,7 +16,8 @@ import (
 // CreateSITExtensionCreatedCode is the HTTP code returned for type CreateSITExtensionCreated
 const CreateSITExtensionCreatedCode int = 201
 
-/*CreateSITExtensionCreated Successfully created the sit extension request.
+/*
+CreateSITExtensionCreated Successfully created the sit extension request.
 
 swagger:response createSITExtensionCreated
 */
@@ -60,7 +61,8 @@ func (o *CreateSITExtensionCreated) WriteResponse(rw http.ResponseWriter, produc
 // CreateSITExtensionBadRequestCode is the HTTP code returned for type CreateSITExtensionBadRequest
 const CreateSITExtensionBadRequestCode int = 400
 
-/*CreateSITExtensionBadRequest The request payload is invalid.
+/*
+CreateSITExtensionBadRequest The request payload is invalid.
 
 swagger:response createSITExtensionBadRequest
 */
@@ -104,7 +106,8 @@ func (o *CreateSITExtensionBadRequest) WriteResponse(rw http.ResponseWriter, pro
 // CreateSITExtensionUnauthorizedCode is the HTTP code returned for type CreateSITExtensionUnauthorized
 const CreateSITExtensionUnauthorizedCode int = 401
 
-/*CreateSITExtensionUnauthorized The request was denied.
+/*
+CreateSITExtensionUnauthorized The request was denied.
 
 swagger:response createSITExtensionUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *CreateSITExtensionUnauthorized) WriteResponse(rw http.ResponseWriter, p
 // CreateSITExtensionForbiddenCode is the HTTP code returned for type CreateSITExtensionForbidden
 const CreateSITExtensionForbiddenCode int = 403
 
-/*CreateSITExtensionForbidden The request was denied.
+/*
+CreateSITExtensionForbidden The request was denied.
 
 swagger:response createSITExtensionForbidden
 */
@@ -192,7 +196,8 @@ func (o *CreateSITExtensionForbidden) WriteResponse(rw http.ResponseWriter, prod
 // CreateSITExtensionNotFoundCode is the HTTP code returned for type CreateSITExtensionNotFound
 const CreateSITExtensionNotFoundCode int = 404
 
-/*CreateSITExtensionNotFound The requested resource wasn't found.
+/*
+CreateSITExtensionNotFound The requested resource wasn't found.
 
 swagger:response createSITExtensionNotFound
 */
@@ -236,7 +241,8 @@ func (o *CreateSITExtensionNotFound) WriteResponse(rw http.ResponseWriter, produ
 // CreateSITExtensionConflictCode is the HTTP code returned for type CreateSITExtensionConflict
 const CreateSITExtensionConflictCode int = 409
 
-/*CreateSITExtensionConflict The request could not be processed because of conflict in the current state of the resource.
+/*
+CreateSITExtensionConflict The request could not be processed because of conflict in the current state of the resource.
 
 swagger:response createSITExtensionConflict
 */
@@ -280,7 +286,8 @@ func (o *CreateSITExtensionConflict) WriteResponse(rw http.ResponseWriter, produ
 // CreateSITExtensionUnprocessableEntityCode is the HTTP code returned for type CreateSITExtensionUnprocessableEntity
 const CreateSITExtensionUnprocessableEntityCode int = 422
 
-/*CreateSITExtensionUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
+/*
+CreateSITExtensionUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response createSITExtensionUnprocessableEntity
 */
@@ -324,7 +331,8 @@ func (o *CreateSITExtensionUnprocessableEntity) WriteResponse(rw http.ResponseWr
 // CreateSITExtensionInternalServerErrorCode is the HTTP code returned for type CreateSITExtensionInternalServerError
 const CreateSITExtensionInternalServerErrorCode int = 500
 
-/*CreateSITExtensionInternalServerError A server error occurred.
+/*
+CreateSITExtensionInternalServerError A server error occurred.
 
 swagger:response createSITExtensionInternalServerError
 */

@@ -29,12 +29,12 @@ func NewShowLoggedInUser(ctx *middleware.Context, handler ShowLoggedInUserHandle
 	return &ShowLoggedInUser{Context: ctx, Handler: handler}
 }
 
-/* ShowLoggedInUser swagger:route GET /users/logged_in users showLoggedInUser
+/*
+	ShowLoggedInUser swagger:route GET /users/logged_in users showLoggedInUser
+
+# Returns the user info for the currently logged in user
 
 Returns the user info for the currently logged in user
-
-Returns the user info for the currently logged in user
-
 */
 type ShowLoggedInUser struct {
 	Context *middleware.Context

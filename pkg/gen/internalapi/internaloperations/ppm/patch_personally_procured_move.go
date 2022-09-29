@@ -29,12 +29,12 @@ func NewPatchPersonallyProcuredMove(ctx *middleware.Context, handler PatchPerson
 	return &PatchPersonallyProcuredMove{Context: ctx, Handler: handler}
 }
 
-/* PatchPersonallyProcuredMove swagger:route PATCH /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId} ppm patchPersonallyProcuredMove
+/*
+	PatchPersonallyProcuredMove swagger:route PATCH /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId} ppm patchPersonallyProcuredMove
 
-Patches the PPM
+# Patches the PPM
 
 Any fields sent in this request will be set on the PPM referenced
-
 */
 type PatchPersonallyProcuredMove struct {
 	Context *middleware.Context

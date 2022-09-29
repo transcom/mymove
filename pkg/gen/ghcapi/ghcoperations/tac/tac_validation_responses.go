@@ -16,7 +16,8 @@ import (
 // TacValidationOKCode is the HTTP code returned for type TacValidationOK
 const TacValidationOKCode int = 200
 
-/*TacValidationOK Successfully retrieved validation status
+/*
+TacValidationOK Successfully retrieved validation status
 
 swagger:response tacValidationOK
 */
@@ -60,7 +61,8 @@ func (o *TacValidationOK) WriteResponse(rw http.ResponseWriter, producer runtime
 // TacValidationBadRequestCode is the HTTP code returned for type TacValidationBadRequest
 const TacValidationBadRequestCode int = 400
 
-/*TacValidationBadRequest The request payload is invalid
+/*
+TacValidationBadRequest The request payload is invalid
 
 swagger:response tacValidationBadRequest
 */
@@ -104,7 +106,8 @@ func (o *TacValidationBadRequest) WriteResponse(rw http.ResponseWriter, producer
 // TacValidationUnauthorizedCode is the HTTP code returned for type TacValidationUnauthorized
 const TacValidationUnauthorizedCode int = 401
 
-/*TacValidationUnauthorized The request was denied
+/*
+TacValidationUnauthorized The request was denied
 
 swagger:response tacValidationUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *TacValidationUnauthorized) WriteResponse(rw http.ResponseWriter, produc
 // TacValidationForbiddenCode is the HTTP code returned for type TacValidationForbidden
 const TacValidationForbiddenCode int = 403
 
-/*TacValidationForbidden The request was denied
+/*
+TacValidationForbidden The request was denied
 
 swagger:response tacValidationForbidden
 */
@@ -192,7 +196,8 @@ func (o *TacValidationForbidden) WriteResponse(rw http.ResponseWriter, producer 
 // TacValidationNotFoundCode is the HTTP code returned for type TacValidationNotFound
 const TacValidationNotFoundCode int = 404
 
-/*TacValidationNotFound The requested resource wasn't found
+/*
+TacValidationNotFound The requested resource wasn't found
 
 swagger:response tacValidationNotFound
 */
@@ -236,7 +241,8 @@ func (o *TacValidationNotFound) WriteResponse(rw http.ResponseWriter, producer r
 // TacValidationInternalServerErrorCode is the HTTP code returned for type TacValidationInternalServerError
 const TacValidationInternalServerErrorCode int = 500
 
-/*TacValidationInternalServerError A server error occurred
+/*
+TacValidationInternalServerError A server error occurred
 
 swagger:response tacValidationInternalServerError
 */

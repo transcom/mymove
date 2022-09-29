@@ -16,7 +16,8 @@ import (
 // CreateMTOServiceItemOKCode is the HTTP code returned for type CreateMTOServiceItemOK
 const CreateMTOServiceItemOKCode int = 200
 
-/*CreateMTOServiceItemOK Successfully created an MTO service item.
+/*
+CreateMTOServiceItemOK Successfully created an MTO service item.
 
 swagger:response createMTOServiceItemOK
 */
@@ -63,7 +64,8 @@ func (o *CreateMTOServiceItemOK) WriteResponse(rw http.ResponseWriter, producer 
 // CreateMTOServiceItemBadRequestCode is the HTTP code returned for type CreateMTOServiceItemBadRequest
 const CreateMTOServiceItemBadRequestCode int = 400
 
-/*CreateMTOServiceItemBadRequest The request payload is invalid.
+/*
+CreateMTOServiceItemBadRequest The request payload is invalid.
 
 swagger:response createMTOServiceItemBadRequest
 */
@@ -107,7 +109,8 @@ func (o *CreateMTOServiceItemBadRequest) WriteResponse(rw http.ResponseWriter, p
 // CreateMTOServiceItemUnauthorizedCode is the HTTP code returned for type CreateMTOServiceItemUnauthorized
 const CreateMTOServiceItemUnauthorizedCode int = 401
 
-/*CreateMTOServiceItemUnauthorized The request was denied.
+/*
+CreateMTOServiceItemUnauthorized The request was denied.
 
 swagger:response createMTOServiceItemUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *CreateMTOServiceItemUnauthorized) WriteResponse(rw http.ResponseWriter,
 // CreateMTOServiceItemForbiddenCode is the HTTP code returned for type CreateMTOServiceItemForbidden
 const CreateMTOServiceItemForbiddenCode int = 403
 
-/*CreateMTOServiceItemForbidden The request was denied.
+/*
+CreateMTOServiceItemForbidden The request was denied.
 
 swagger:response createMTOServiceItemForbidden
 */
@@ -195,7 +199,8 @@ func (o *CreateMTOServiceItemForbidden) WriteResponse(rw http.ResponseWriter, pr
 // CreateMTOServiceItemNotFoundCode is the HTTP code returned for type CreateMTOServiceItemNotFound
 const CreateMTOServiceItemNotFoundCode int = 404
 
-/*CreateMTOServiceItemNotFound The requested resource wasn't found.
+/*
+CreateMTOServiceItemNotFound The requested resource wasn't found.
 
 swagger:response createMTOServiceItemNotFound
 */
@@ -239,7 +244,8 @@ func (o *CreateMTOServiceItemNotFound) WriteResponse(rw http.ResponseWriter, pro
 // CreateMTOServiceItemConflictCode is the HTTP code returned for type CreateMTOServiceItemConflict
 const CreateMTOServiceItemConflictCode int = 409
 
-/*CreateMTOServiceItemConflict The request could not be processed because of conflict in the current state of the resource.
+/*
+CreateMTOServiceItemConflict The request could not be processed because of conflict in the current state of the resource.
 
 swagger:response createMTOServiceItemConflict
 */
@@ -283,7 +289,8 @@ func (o *CreateMTOServiceItemConflict) WriteResponse(rw http.ResponseWriter, pro
 // CreateMTOServiceItemUnprocessableEntityCode is the HTTP code returned for type CreateMTOServiceItemUnprocessableEntity
 const CreateMTOServiceItemUnprocessableEntityCode int = 422
 
-/*CreateMTOServiceItemUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
+/*
+CreateMTOServiceItemUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response createMTOServiceItemUnprocessableEntity
 */
@@ -327,7 +334,8 @@ func (o *CreateMTOServiceItemUnprocessableEntity) WriteResponse(rw http.Response
 // CreateMTOServiceItemInternalServerErrorCode is the HTTP code returned for type CreateMTOServiceItemInternalServerError
 const CreateMTOServiceItemInternalServerErrorCode int = 500
 
-/*CreateMTOServiceItemInternalServerError A server error occurred.
+/*
+CreateMTOServiceItemInternalServerError A server error occurred.
 
 swagger:response createMTOServiceItemInternalServerError
 */

@@ -54,10 +54,12 @@ func NewCreateMoveTaskOrderParamsWithHTTPClient(client *http.Client) *CreateMove
 	}
 }
 
-/* CreateMoveTaskOrderParams contains all the parameters to send to the API endpoint
-   for the create move task order operation.
+/*
+CreateMoveTaskOrderParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the create move task order operation.
+
+	Typically these are written to a http.Request.
 */
 type CreateMoveTaskOrderParams struct {
 

@@ -16,7 +16,8 @@ import (
 // GetOrdersByIssuerAndOrdersNumOKCode is the HTTP code returned for type GetOrdersByIssuerAndOrdersNumOK
 const GetOrdersByIssuerAndOrdersNumOKCode int = 200
 
-/*GetOrdersByIssuerAndOrdersNumOK Successful
+/*
+GetOrdersByIssuerAndOrdersNumOK Successful
 
 swagger:response getOrdersByIssuerAndOrdersNumOK
 */
@@ -60,7 +61,8 @@ func (o *GetOrdersByIssuerAndOrdersNumOK) WriteResponse(rw http.ResponseWriter, 
 // GetOrdersByIssuerAndOrdersNumBadRequestCode is the HTTP code returned for type GetOrdersByIssuerAndOrdersNumBadRequest
 const GetOrdersByIssuerAndOrdersNumBadRequestCode int = 400
 
-/*GetOrdersByIssuerAndOrdersNumBadRequest Invalid
+/*
+GetOrdersByIssuerAndOrdersNumBadRequest Invalid
 
 swagger:response getOrdersByIssuerAndOrdersNumBadRequest
 */
@@ -84,7 +86,8 @@ func (o *GetOrdersByIssuerAndOrdersNumBadRequest) WriteResponse(rw http.Response
 // GetOrdersByIssuerAndOrdersNumUnauthorizedCode is the HTTP code returned for type GetOrdersByIssuerAndOrdersNumUnauthorized
 const GetOrdersByIssuerAndOrdersNumUnauthorizedCode int = 401
 
-/*GetOrdersByIssuerAndOrdersNumUnauthorized must be authenticated to use this endpoint
+/*
+GetOrdersByIssuerAndOrdersNumUnauthorized must be authenticated to use this endpoint
 
 swagger:response getOrdersByIssuerAndOrdersNumUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *GetOrdersByIssuerAndOrdersNumUnauthorized) WriteResponse(rw http.Respon
 // GetOrdersByIssuerAndOrdersNumForbiddenCode is the HTTP code returned for type GetOrdersByIssuerAndOrdersNumForbidden
 const GetOrdersByIssuerAndOrdersNumForbiddenCode int = 403
 
-/*GetOrdersByIssuerAndOrdersNumForbidden Forbidden
+/*
+GetOrdersByIssuerAndOrdersNumForbidden Forbidden
 
 swagger:response getOrdersByIssuerAndOrdersNumForbidden
 */
@@ -132,7 +136,8 @@ func (o *GetOrdersByIssuerAndOrdersNumForbidden) WriteResponse(rw http.ResponseW
 // GetOrdersByIssuerAndOrdersNumNotFoundCode is the HTTP code returned for type GetOrdersByIssuerAndOrdersNumNotFound
 const GetOrdersByIssuerAndOrdersNumNotFoundCode int = 404
 
-/*GetOrdersByIssuerAndOrdersNumNotFound Orders not found
+/*
+GetOrdersByIssuerAndOrdersNumNotFound Orders not found
 
 swagger:response getOrdersByIssuerAndOrdersNumNotFound
 */
@@ -156,7 +161,8 @@ func (o *GetOrdersByIssuerAndOrdersNumNotFound) WriteResponse(rw http.ResponseWr
 // GetOrdersByIssuerAndOrdersNumInternalServerErrorCode is the HTTP code returned for type GetOrdersByIssuerAndOrdersNumInternalServerError
 const GetOrdersByIssuerAndOrdersNumInternalServerErrorCode int = 500
 
-/*GetOrdersByIssuerAndOrdersNumInternalServerError Server error
+/*
+GetOrdersByIssuerAndOrdersNumInternalServerError Server error
 
 swagger:response getOrdersByIssuerAndOrdersNumInternalServerError
 */

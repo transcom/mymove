@@ -16,7 +16,8 @@ import (
 // UpdateMTOShipmentStatusOKCode is the HTTP code returned for type UpdateMTOShipmentStatusOK
 const UpdateMTOShipmentStatusOKCode int = 200
 
-/*UpdateMTOShipmentStatusOK Successfully updated the shipment's status.
+/*
+UpdateMTOShipmentStatusOK Successfully updated the shipment's status.
 
 swagger:response updateMTOShipmentStatusOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateMTOShipmentStatusOK) WriteResponse(rw http.ResponseWriter, produc
 // UpdateMTOShipmentStatusBadRequestCode is the HTTP code returned for type UpdateMTOShipmentStatusBadRequest
 const UpdateMTOShipmentStatusBadRequestCode int = 400
 
-/*UpdateMTOShipmentStatusBadRequest The request payload is invalid.
+/*
+UpdateMTOShipmentStatusBadRequest The request payload is invalid.
 
 swagger:response updateMTOShipmentStatusBadRequest
 */
@@ -104,7 +106,8 @@ func (o *UpdateMTOShipmentStatusBadRequest) WriteResponse(rw http.ResponseWriter
 // UpdateMTOShipmentStatusUnauthorizedCode is the HTTP code returned for type UpdateMTOShipmentStatusUnauthorized
 const UpdateMTOShipmentStatusUnauthorizedCode int = 401
 
-/*UpdateMTOShipmentStatusUnauthorized The request was denied.
+/*
+UpdateMTOShipmentStatusUnauthorized The request was denied.
 
 swagger:response updateMTOShipmentStatusUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *UpdateMTOShipmentStatusUnauthorized) WriteResponse(rw http.ResponseWrit
 // UpdateMTOShipmentStatusForbiddenCode is the HTTP code returned for type UpdateMTOShipmentStatusForbidden
 const UpdateMTOShipmentStatusForbiddenCode int = 403
 
-/*UpdateMTOShipmentStatusForbidden The request was denied.
+/*
+UpdateMTOShipmentStatusForbidden The request was denied.
 
 swagger:response updateMTOShipmentStatusForbidden
 */
@@ -192,7 +196,8 @@ func (o *UpdateMTOShipmentStatusForbidden) WriteResponse(rw http.ResponseWriter,
 // UpdateMTOShipmentStatusNotFoundCode is the HTTP code returned for type UpdateMTOShipmentStatusNotFound
 const UpdateMTOShipmentStatusNotFoundCode int = 404
 
-/*UpdateMTOShipmentStatusNotFound The requested resource wasn't found.
+/*
+UpdateMTOShipmentStatusNotFound The requested resource wasn't found.
 
 swagger:response updateMTOShipmentStatusNotFound
 */
@@ -236,7 +241,8 @@ func (o *UpdateMTOShipmentStatusNotFound) WriteResponse(rw http.ResponseWriter, 
 // UpdateMTOShipmentStatusConflictCode is the HTTP code returned for type UpdateMTOShipmentStatusConflict
 const UpdateMTOShipmentStatusConflictCode int = 409
 
-/*UpdateMTOShipmentStatusConflict The request could not be processed because of conflict in the current state of the resource.
+/*
+UpdateMTOShipmentStatusConflict The request could not be processed because of conflict in the current state of the resource.
 
 swagger:response updateMTOShipmentStatusConflict
 */
@@ -280,7 +286,8 @@ func (o *UpdateMTOShipmentStatusConflict) WriteResponse(rw http.ResponseWriter, 
 // UpdateMTOShipmentStatusPreconditionFailedCode is the HTTP code returned for type UpdateMTOShipmentStatusPreconditionFailed
 const UpdateMTOShipmentStatusPreconditionFailedCode int = 412
 
-/*UpdateMTOShipmentStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+/*
+UpdateMTOShipmentStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response updateMTOShipmentStatusPreconditionFailed
 */
@@ -324,7 +331,8 @@ func (o *UpdateMTOShipmentStatusPreconditionFailed) WriteResponse(rw http.Respon
 // UpdateMTOShipmentStatusUnprocessableEntityCode is the HTTP code returned for type UpdateMTOShipmentStatusUnprocessableEntity
 const UpdateMTOShipmentStatusUnprocessableEntityCode int = 422
 
-/*UpdateMTOShipmentStatusUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
+/*
+UpdateMTOShipmentStatusUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response updateMTOShipmentStatusUnprocessableEntity
 */
@@ -368,7 +376,8 @@ func (o *UpdateMTOShipmentStatusUnprocessableEntity) WriteResponse(rw http.Respo
 // UpdateMTOShipmentStatusInternalServerErrorCode is the HTTP code returned for type UpdateMTOShipmentStatusInternalServerError
 const UpdateMTOShipmentStatusInternalServerErrorCode int = 500
 
-/*UpdateMTOShipmentStatusInternalServerError A server error occurred.
+/*
+UpdateMTOShipmentStatusInternalServerError A server error occurred.
 
 swagger:response updateMTOShipmentStatusInternalServerError
 */

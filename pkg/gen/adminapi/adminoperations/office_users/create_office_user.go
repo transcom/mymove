@@ -29,12 +29,12 @@ func NewCreateOfficeUser(ctx *middleware.Context, handler CreateOfficeUserHandle
 	return &CreateOfficeUser{Context: ctx, Handler: handler}
 }
 
-/* CreateOfficeUser swagger:route POST /office_users office_users createOfficeUser
+/*
+	CreateOfficeUser swagger:route POST /office_users office_users createOfficeUser
 
 create an office user
 
 creates and returns an office user record
-
 */
 type CreateOfficeUser struct {
 	Context *middleware.Context

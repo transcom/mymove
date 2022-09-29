@@ -52,10 +52,12 @@ func NewDeleteMTOShipmentParamsWithHTTPClient(client *http.Client) *DeleteMTOShi
 	}
 }
 
-/* DeleteMTOShipmentParams contains all the parameters to send to the API endpoint
-   for the delete m t o shipment operation.
+/*
+DeleteMTOShipmentParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the delete m t o shipment operation.
+
+	Typically these are written to a http.Request.
 */
 type DeleteMTOShipmentParams struct {
 

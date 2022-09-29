@@ -16,7 +16,8 @@ import (
 // IndexTSPsOKCode is the HTTP code returned for type IndexTSPsOK
 const IndexTSPsOKCode int = 200
 
-/*IndexTSPsOK list of TSPs
+/*
+IndexTSPsOK list of TSPs
 
 swagger:response indexTSPsOK
 */
@@ -63,7 +64,8 @@ func (o *IndexTSPsOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 // IndexTSPsBadRequestCode is the HTTP code returned for type IndexTSPsBadRequest
 const IndexTSPsBadRequestCode int = 400
 
-/*IndexTSPsBadRequest invalid request
+/*
+IndexTSPsBadRequest invalid request
 
 swagger:response indexTSPsBadRequest
 */
@@ -87,7 +89,8 @@ func (o *IndexTSPsBadRequest) WriteResponse(rw http.ResponseWriter, producer run
 // IndexTSPsUnauthorizedCode is the HTTP code returned for type IndexTSPsUnauthorized
 const IndexTSPsUnauthorizedCode int = 401
 
-/*IndexTSPsUnauthorized must be authenticated to access this endpoint
+/*
+IndexTSPsUnauthorized must be authenticated to access this endpoint
 
 swagger:response indexTSPsUnauthorized
 */
@@ -111,7 +114,8 @@ func (o *IndexTSPsUnauthorized) WriteResponse(rw http.ResponseWriter, producer r
 // IndexTSPsInternalServerErrorCode is the HTTP code returned for type IndexTSPsInternalServerError
 const IndexTSPsInternalServerErrorCode int = 500
 
-/*IndexTSPsInternalServerError server error
+/*
+IndexTSPsInternalServerError server error
 
 swagger:response indexTSPsInternalServerError
 */
