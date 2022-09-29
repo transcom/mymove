@@ -297,7 +297,6 @@ func FormatValuesShipment(shipment models.MTOShipment) ShipmentValues {
 		vals.PPMDepartureDate = shipment.PPMShipment.ExpectedDepartureDate.Format(dateFormat)
 	}
 	if shipment.StorageFacility != nil || shipment.StorageFacilityID != nil {
-		fmt.Println("storage facility", shipment.StorageFacility)
 		vals.StorageFacility = fmt.Sprintf("%s\n%s", *shipment.StorageFacility.Phone, *shipment.StorageFacility.Email)
 		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
 			vals.PickupAddress = formatSingleLineAddress(shipment.StorageFacility.Address)
@@ -310,7 +309,6 @@ func FormatValuesShipment(shipment models.MTOShipment) ShipmentValues {
 	vals.ExternalVendor = shipment.UsesExternalVendor
 
 	for _, agent := range shipment.MTOAgents {
-		fmt.Println("found an agent", agent)
 		contactInfo := formatMTOAgentInfo(agent)
 		if agent.MTOAgentType == models.MTOAgentReleasing {
 			vals.ReleasingAgent = contactInfo
