@@ -87,8 +87,7 @@ func NewUpdateMTOShipmentStatusOK() *UpdateMTOShipmentStatusOK {
 	return &UpdateMTOShipmentStatusOK{}
 }
 
-/*
-UpdateMTOShipmentStatusOK describes a response with status code 200, with default header values.
+/* UpdateMTOShipmentStatusOK describes a response with status code 200, with default header values.
 
 Successfully updated the shipment's status.
 */
@@ -150,8 +149,7 @@ func NewUpdateMTOShipmentStatusBadRequest() *UpdateMTOShipmentStatusBadRequest {
 	return &UpdateMTOShipmentStatusBadRequest{}
 }
 
-/*
-UpdateMTOShipmentStatusBadRequest describes a response with status code 400, with default header values.
+/* UpdateMTOShipmentStatusBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -213,8 +211,7 @@ func NewUpdateMTOShipmentStatusUnauthorized() *UpdateMTOShipmentStatusUnauthoriz
 	return &UpdateMTOShipmentStatusUnauthorized{}
 }
 
-/*
-UpdateMTOShipmentStatusUnauthorized describes a response with status code 401, with default header values.
+/* UpdateMTOShipmentStatusUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -276,8 +273,7 @@ func NewUpdateMTOShipmentStatusForbidden() *UpdateMTOShipmentStatusForbidden {
 	return &UpdateMTOShipmentStatusForbidden{}
 }
 
-/*
-UpdateMTOShipmentStatusForbidden describes a response with status code 403, with default header values.
+/* UpdateMTOShipmentStatusForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -339,8 +335,7 @@ func NewUpdateMTOShipmentStatusNotFound() *UpdateMTOShipmentStatusNotFound {
 	return &UpdateMTOShipmentStatusNotFound{}
 }
 
-/*
-UpdateMTOShipmentStatusNotFound describes a response with status code 404, with default header values.
+/* UpdateMTOShipmentStatusNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -402,8 +397,7 @@ func NewUpdateMTOShipmentStatusConflict() *UpdateMTOShipmentStatusConflict {
 	return &UpdateMTOShipmentStatusConflict{}
 }
 
-/*
-UpdateMTOShipmentStatusConflict describes a response with status code 409, with default header values.
+/* UpdateMTOShipmentStatusConflict describes a response with status code 409, with default header values.
 
 There was a conflict with the request.
 */
@@ -465,8 +459,7 @@ func NewUpdateMTOShipmentStatusPreconditionFailed() *UpdateMTOShipmentStatusPrec
 	return &UpdateMTOShipmentStatusPreconditionFailed{}
 }
 
-/*
-UpdateMTOShipmentStatusPreconditionFailed describes a response with status code 412, with default header values.
+/* UpdateMTOShipmentStatusPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -528,8 +521,7 @@ func NewUpdateMTOShipmentStatusUnprocessableEntity() *UpdateMTOShipmentStatusUnp
 	return &UpdateMTOShipmentStatusUnprocessableEntity{}
 }
 
-/*
-UpdateMTOShipmentStatusUnprocessableEntity describes a response with status code 422, with default header values.
+/* UpdateMTOShipmentStatusUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -591,8 +583,7 @@ func NewUpdateMTOShipmentStatusInternalServerError() *UpdateMTOShipmentStatusInt
 	return &UpdateMTOShipmentStatusInternalServerError{}
 }
 
-/*
-UpdateMTOShipmentStatusInternalServerError describes a response with status code 500, with default header values.
+/* UpdateMTOShipmentStatusInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

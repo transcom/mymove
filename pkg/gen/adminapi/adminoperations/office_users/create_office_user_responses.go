@@ -16,8 +16,7 @@ import (
 // CreateOfficeUserCreatedCode is the HTTP code returned for type CreateOfficeUserCreated
 const CreateOfficeUserCreatedCode int = 201
 
-/*
-CreateOfficeUserCreated Successfully created Office User
+/*CreateOfficeUserCreated Successfully created Office User
 
 swagger:response createOfficeUserCreated
 */
@@ -61,8 +60,7 @@ func (o *CreateOfficeUserCreated) WriteResponse(rw http.ResponseWriter, producer
 // CreateOfficeUserUnprocessableEntityCode is the HTTP code returned for type CreateOfficeUserUnprocessableEntity
 const CreateOfficeUserUnprocessableEntityCode int = 422
 
-/*
-CreateOfficeUserUnprocessableEntity validation error
+/*CreateOfficeUserUnprocessableEntity validation error
 
 swagger:response createOfficeUserUnprocessableEntity
 */
@@ -106,8 +104,7 @@ func (o *CreateOfficeUserUnprocessableEntity) WriteResponse(rw http.ResponseWrit
 // CreateOfficeUserInternalServerErrorCode is the HTTP code returned for type CreateOfficeUserInternalServerError
 const CreateOfficeUserInternalServerErrorCode int = 500
 
-/*
-CreateOfficeUserInternalServerError internal server error
+/*CreateOfficeUserInternalServerError internal server error
 
 swagger:response createOfficeUserInternalServerError
 */

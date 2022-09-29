@@ -29,12 +29,12 @@ func NewUploadAmendedOrders(ctx *middleware.Context, handler UploadAmendedOrders
 	return &UploadAmendedOrders{Context: ctx, Handler: handler}
 }
 
-/*
-	UploadAmendedOrders swagger:route PATCH /orders/{ordersId}/upload_amended_orders orders uploadAmendedOrders
-
-# Patch the amended orders for a given order
+/* UploadAmendedOrders swagger:route PATCH /orders/{ordersId}/upload_amended_orders orders uploadAmendedOrders
 
 Patch the amended orders for a given order
+
+Patch the amended orders for a given order
+
 */
 type UploadAmendedOrders struct {
 	Context *middleware.Context

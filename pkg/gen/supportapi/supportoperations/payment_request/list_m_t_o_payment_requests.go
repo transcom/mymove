@@ -29,8 +29,7 @@ func NewListMTOPaymentRequests(ctx *middleware.Context, handler ListMTOPaymentRe
 	return &ListMTOPaymentRequests{Context: ctx, Handler: handler}
 }
 
-/*
-	ListMTOPaymentRequests swagger:route GET /move-task-orders/{moveTaskOrderID}/payment-requests paymentRequest listMTOPaymentRequests
+/* ListMTOPaymentRequests swagger:route GET /move-task-orders/{moveTaskOrderID}/payment-requests paymentRequest listMTOPaymentRequests
 
 listMTOPaymentRequests
 
@@ -39,6 +38,8 @@ listMTOPaymentRequests
 This endpoint lists all PaymentRequests associated with a given MoveTaskOrder.
 
 This is a support endpoint and is not available in production.
+
+
 */
 type ListMTOPaymentRequests struct {
 	Context *middleware.Context

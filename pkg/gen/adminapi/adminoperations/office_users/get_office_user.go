@@ -29,12 +29,12 @@ func NewGetOfficeUser(ctx *middleware.Context, handler GetOfficeUserHandler) *Ge
 	return &GetOfficeUser{Context: ctx, Handler: handler}
 }
 
-/*
-	GetOfficeUser swagger:route GET /office_users/{officeUserId} office_users getOfficeUser
+/* GetOfficeUser swagger:route GET /office_users/{officeUserId} office_users getOfficeUser
 
-# Get an office user
+Get an office user
 
 Returns the given office user
+
 */
 type GetOfficeUser struct {
 	Context *middleware.Context

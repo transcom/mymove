@@ -29,12 +29,12 @@ func NewPatchMove(ctx *middleware.Context, handler PatchMoveHandler) *PatchMove 
 	return &PatchMove{Context: ctx, Handler: handler}
 }
 
-/*
-	PatchMove swagger:route PATCH /moves/{moveId} moves patchMove
+/* PatchMove swagger:route PATCH /moves/{moveId} moves patchMove
 
-# Patches the move
+Patches the move
 
 Any fields sent in this request will be set on the move referenced
+
 */
 type PatchMove struct {
 	Context *middleware.Context

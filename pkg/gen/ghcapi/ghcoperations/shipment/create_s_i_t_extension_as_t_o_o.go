@@ -29,12 +29,12 @@ func NewCreateSITExtensionAsTOO(ctx *middleware.Context, handler CreateSITExtens
 	return &CreateSITExtensionAsTOO{Context: ctx, Handler: handler}
 }
 
-/*
-	CreateSITExtensionAsTOO swagger:route POST /shipments/{shipmentID}/sit-extensions/ shipment sitExtension createSITExtensionAsTOO
+/* CreateSITExtensionAsTOO swagger:route POST /shipments/{shipmentID}/sit-extensions/ shipment sitExtension createSITExtensionAsTOO
 
-# Create an approved SIT extension
+Create an approved SIT extension
 
 TOO can creates an already-approved SIT extension on behalf of a customer
+
 */
 type CreateSITExtensionAsTOO struct {
 	Context *middleware.Context

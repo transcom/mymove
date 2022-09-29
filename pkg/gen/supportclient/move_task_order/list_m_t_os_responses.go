@@ -69,8 +69,7 @@ func NewListMTOsOK() *ListMTOsOK {
 	return &ListMTOsOK{}
 }
 
-/*
-ListMTOsOK describes a response with status code 200, with default header values.
+/* ListMTOsOK describes a response with status code 200, with default header values.
 
 Successfully retrieved all move task orders.
 */
@@ -130,8 +129,7 @@ func NewListMTOsBadRequest() *ListMTOsBadRequest {
 	return &ListMTOsBadRequest{}
 }
 
-/*
-ListMTOsBadRequest describes a response with status code 400, with default header values.
+/* ListMTOsBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -193,8 +191,7 @@ func NewListMTOsUnauthorized() *ListMTOsUnauthorized {
 	return &ListMTOsUnauthorized{}
 }
 
-/*
-ListMTOsUnauthorized describes a response with status code 401, with default header values.
+/* ListMTOsUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -256,8 +253,7 @@ func NewListMTOsForbidden() *ListMTOsForbidden {
 	return &ListMTOsForbidden{}
 }
 
-/*
-ListMTOsForbidden describes a response with status code 403, with default header values.
+/* ListMTOsForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -319,8 +315,7 @@ func NewListMTOsNotFound() *ListMTOsNotFound {
 	return &ListMTOsNotFound{}
 }
 
-/*
-ListMTOsNotFound describes a response with status code 404, with default header values.
+/* ListMTOsNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -382,8 +377,7 @@ func NewListMTOsInternalServerError() *ListMTOsInternalServerError {
 	return &ListMTOsInternalServerError{}
 }
 
-/*
-ListMTOsInternalServerError describes a response with status code 500, with default header values.
+/* ListMTOsInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

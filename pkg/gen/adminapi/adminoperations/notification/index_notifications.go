@@ -29,12 +29,12 @@ func NewIndexNotifications(ctx *middleware.Context, handler IndexNotificationsHa
 	return &IndexNotifications{Context: ctx, Handler: handler}
 }
 
-/*
-	IndexNotifications swagger:route GET /notifications notification indexNotifications
+/* IndexNotifications swagger:route GET /notifications notification indexNotifications
 
-# List notifications
+List notifications
 
 Returns a list of notifications that have been sent to service members
+
 */
 type IndexNotifications struct {
 	Context *middleware.Context

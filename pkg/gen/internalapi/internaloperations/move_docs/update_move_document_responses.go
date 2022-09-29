@@ -16,8 +16,7 @@ import (
 // UpdateMoveDocumentOKCode is the HTTP code returned for type UpdateMoveDocumentOK
 const UpdateMoveDocumentOKCode int = 200
 
-/*
-UpdateMoveDocumentOK updated instance of move document
+/*UpdateMoveDocumentOK updated instance of move document
 
 swagger:response updateMoveDocumentOK
 */
@@ -61,8 +60,7 @@ func (o *UpdateMoveDocumentOK) WriteResponse(rw http.ResponseWriter, producer ru
 // UpdateMoveDocumentBadRequestCode is the HTTP code returned for type UpdateMoveDocumentBadRequest
 const UpdateMoveDocumentBadRequestCode int = 400
 
-/*
-UpdateMoveDocumentBadRequest invalid request
+/*UpdateMoveDocumentBadRequest invalid request
 
 swagger:response updateMoveDocumentBadRequest
 */
@@ -86,8 +84,7 @@ func (o *UpdateMoveDocumentBadRequest) WriteResponse(rw http.ResponseWriter, pro
 // UpdateMoveDocumentUnauthorizedCode is the HTTP code returned for type UpdateMoveDocumentUnauthorized
 const UpdateMoveDocumentUnauthorizedCode int = 401
 
-/*
-UpdateMoveDocumentUnauthorized request requires user authentication
+/*UpdateMoveDocumentUnauthorized request requires user authentication
 
 swagger:response updateMoveDocumentUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *UpdateMoveDocumentUnauthorized) WriteResponse(rw http.ResponseWriter, p
 // UpdateMoveDocumentForbiddenCode is the HTTP code returned for type UpdateMoveDocumentForbidden
 const UpdateMoveDocumentForbiddenCode int = 403
 
-/*
-UpdateMoveDocumentForbidden user is not authorized
+/*UpdateMoveDocumentForbidden user is not authorized
 
 swagger:response updateMoveDocumentForbidden
 */
@@ -136,8 +132,7 @@ func (o *UpdateMoveDocumentForbidden) WriteResponse(rw http.ResponseWriter, prod
 // UpdateMoveDocumentNotFoundCode is the HTTP code returned for type UpdateMoveDocumentNotFound
 const UpdateMoveDocumentNotFoundCode int = 404
 
-/*
-UpdateMoveDocumentNotFound move document not found
+/*UpdateMoveDocumentNotFound move document not found
 
 swagger:response updateMoveDocumentNotFound
 */
@@ -161,8 +156,7 @@ func (o *UpdateMoveDocumentNotFound) WriteResponse(rw http.ResponseWriter, produ
 // UpdateMoveDocumentInternalServerErrorCode is the HTTP code returned for type UpdateMoveDocumentInternalServerError
 const UpdateMoveDocumentInternalServerErrorCode int = 500
 
-/*
-UpdateMoveDocumentInternalServerError internal server error
+/*UpdateMoveDocumentInternalServerError internal server error
 
 swagger:response updateMoveDocumentInternalServerError
 */

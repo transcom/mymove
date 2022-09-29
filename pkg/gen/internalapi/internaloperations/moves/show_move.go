@@ -29,12 +29,12 @@ func NewShowMove(ctx *middleware.Context, handler ShowMoveHandler) *ShowMove {
 	return &ShowMove{Context: ctx, Handler: handler}
 }
 
-/*
-	ShowMove swagger:route GET /moves/{moveId} moves showMove
-
-# Returns the given move
+/* ShowMove swagger:route GET /moves/{moveId} moves showMove
 
 Returns the given move
+
+Returns the given move
+
 */
 type ShowMove struct {
 	Context *middleware.Context

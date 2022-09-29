@@ -29,12 +29,12 @@ func NewGetDocument(ctx *middleware.Context, handler GetDocumentHandler) *GetDoc
 	return &GetDocument{Context: ctx, Handler: handler}
 }
 
-/*
-	GetDocument swagger:route GET /documents/{documentId} ghcDocuments getDocument
+/* GetDocument swagger:route GET /documents/{documentId} ghcDocuments getDocument
 
-# Returns a document
+Returns a document
 
 Returns a document and its uploads
+
 */
 type GetDocument struct {
 	Context *middleware.Context

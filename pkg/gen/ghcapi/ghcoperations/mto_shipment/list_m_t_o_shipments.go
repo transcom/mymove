@@ -29,12 +29,12 @@ func NewListMTOShipments(ctx *middleware.Context, handler ListMTOShipmentsHandle
 	return &ListMTOShipments{Context: ctx, Handler: handler}
 }
 
-/*
-	ListMTOShipments swagger:route GET /move_task_orders/{moveTaskOrderID}/mto_shipments mtoShipment listMTOShipments
-
-# Gets all shipments for a move task order
+/* ListMTOShipments swagger:route GET /move_task_orders/{moveTaskOrderID}/mto_shipments mtoShipment listMTOShipments
 
 Gets all shipments for a move task order
+
+Gets all shipments for a move task order
+
 */
 type ListMTOShipments struct {
 	Context *middleware.Context

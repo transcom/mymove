@@ -29,12 +29,12 @@ func NewShowOfficeOrders(ctx *middleware.Context, handler ShowOfficeOrdersHandle
 	return &ShowOfficeOrders{Context: ctx, Handler: handler}
 }
 
-/*
-	ShowOfficeOrders swagger:route GET /moves/{moveId}/orders office showOfficeOrders
-
-# Returns orders information for a move for office use
+/* ShowOfficeOrders swagger:route GET /moves/{moveId}/orders office showOfficeOrders
 
 Returns orders information for a move for office use
+
+Returns orders information for a move for office use
+
 */
 type ShowOfficeOrders struct {
 	Context *middleware.Context

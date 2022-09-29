@@ -29,8 +29,7 @@ func NewUpdateMTOShipment(ctx *middleware.Context, handler UpdateMTOShipmentHand
 	return &UpdateMTOShipment{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdateMTOShipment swagger:route PATCH /mto-shipments/{mtoShipmentID} mtoShipment updateMTOShipment
+/* UpdateMTOShipment swagger:route PATCH /mto-shipments/{mtoShipmentID} mtoShipment updateMTOShipment
 
 updateMTOShipment
 
@@ -45,6 +44,8 @@ Note that there are some restrictions on nested objects:
 These restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.
 
 Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
+
+
 */
 type UpdateMTOShipment struct {
 	Context *middleware.Context

@@ -16,8 +16,7 @@ import (
 // SubmitEvaluationReportNoContentCode is the HTTP code returned for type SubmitEvaluationReportNoContent
 const SubmitEvaluationReportNoContentCode int = 204
 
-/*
-SubmitEvaluationReportNoContent Successfully submitted an evaluation report with the provided ID
+/*SubmitEvaluationReportNoContent Successfully submitted an evaluation report with the provided ID
 
 swagger:response submitEvaluationReportNoContent
 */
@@ -41,8 +40,7 @@ func (o *SubmitEvaluationReportNoContent) WriteResponse(rw http.ResponseWriter, 
 // SubmitEvaluationReportForbiddenCode is the HTTP code returned for type SubmitEvaluationReportForbidden
 const SubmitEvaluationReportForbiddenCode int = 403
 
-/*
-SubmitEvaluationReportForbidden The request was denied
+/*SubmitEvaluationReportForbidden The request was denied
 
 swagger:response submitEvaluationReportForbidden
 */
@@ -86,8 +84,7 @@ func (o *SubmitEvaluationReportForbidden) WriteResponse(rw http.ResponseWriter, 
 // SubmitEvaluationReportNotFoundCode is the HTTP code returned for type SubmitEvaluationReportNotFound
 const SubmitEvaluationReportNotFoundCode int = 404
 
-/*
-SubmitEvaluationReportNotFound The requested resource wasn't found
+/*SubmitEvaluationReportNotFound The requested resource wasn't found
 
 swagger:response submitEvaluationReportNotFound
 */
@@ -131,8 +128,7 @@ func (o *SubmitEvaluationReportNotFound) WriteResponse(rw http.ResponseWriter, p
 // SubmitEvaluationReportPreconditionFailedCode is the HTTP code returned for type SubmitEvaluationReportPreconditionFailed
 const SubmitEvaluationReportPreconditionFailedCode int = 412
 
-/*
-SubmitEvaluationReportPreconditionFailed Precondition failed
+/*SubmitEvaluationReportPreconditionFailed Precondition failed
 
 swagger:response submitEvaluationReportPreconditionFailed
 */
@@ -176,8 +172,7 @@ func (o *SubmitEvaluationReportPreconditionFailed) WriteResponse(rw http.Respons
 // SubmitEvaluationReportUnprocessableEntityCode is the HTTP code returned for type SubmitEvaluationReportUnprocessableEntity
 const SubmitEvaluationReportUnprocessableEntityCode int = 422
 
-/*
-SubmitEvaluationReportUnprocessableEntity The payload was unprocessable.
+/*SubmitEvaluationReportUnprocessableEntity The payload was unprocessable.
 
 swagger:response submitEvaluationReportUnprocessableEntity
 */
@@ -221,8 +216,7 @@ func (o *SubmitEvaluationReportUnprocessableEntity) WriteResponse(rw http.Respon
 // SubmitEvaluationReportInternalServerErrorCode is the HTTP code returned for type SubmitEvaluationReportInternalServerError
 const SubmitEvaluationReportInternalServerErrorCode int = 500
 
-/*
-SubmitEvaluationReportInternalServerError A server error occurred
+/*SubmitEvaluationReportInternalServerError A server error occurred
 
 swagger:response submitEvaluationReportInternalServerError
 */

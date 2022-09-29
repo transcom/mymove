@@ -63,8 +63,7 @@ func NewReceiveWebhookNotificationOK() *ReceiveWebhookNotificationOK {
 	return &ReceiveWebhookNotificationOK{}
 }
 
-/*
-ReceiveWebhookNotificationOK describes a response with status code 200, with default header values.
+/* ReceiveWebhookNotificationOK describes a response with status code 200, with default header values.
 
 Received notification
 */
@@ -126,8 +125,7 @@ func NewReceiveWebhookNotificationBadRequest() *ReceiveWebhookNotificationBadReq
 	return &ReceiveWebhookNotificationBadRequest{}
 }
 
-/*
-ReceiveWebhookNotificationBadRequest describes a response with status code 400, with default header values.
+/* ReceiveWebhookNotificationBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -189,8 +187,7 @@ func NewReceiveWebhookNotificationUnauthorized() *ReceiveWebhookNotificationUnau
 	return &ReceiveWebhookNotificationUnauthorized{}
 }
 
-/*
-ReceiveWebhookNotificationUnauthorized describes a response with status code 401, with default header values.
+/* ReceiveWebhookNotificationUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -252,8 +249,7 @@ func NewReceiveWebhookNotificationForbidden() *ReceiveWebhookNotificationForbidd
 	return &ReceiveWebhookNotificationForbidden{}
 }
 
-/*
-ReceiveWebhookNotificationForbidden describes a response with status code 403, with default header values.
+/* ReceiveWebhookNotificationForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -315,8 +311,7 @@ func NewReceiveWebhookNotificationInternalServerError() *ReceiveWebhookNotificat
 	return &ReceiveWebhookNotificationInternalServerError{}
 }
 
-/*
-ReceiveWebhookNotificationInternalServerError describes a response with status code 500, with default header values.
+/* ReceiveWebhookNotificationInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

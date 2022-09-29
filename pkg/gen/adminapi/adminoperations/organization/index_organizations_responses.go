@@ -16,8 +16,7 @@ import (
 // IndexOrganizationsOKCode is the HTTP code returned for type IndexOrganizationsOK
 const IndexOrganizationsOKCode int = 200
 
-/*
-IndexOrganizationsOK success
+/*IndexOrganizationsOK success
 
 swagger:response indexOrganizationsOK
 */
@@ -86,8 +85,7 @@ func (o *IndexOrganizationsOK) WriteResponse(rw http.ResponseWriter, producer ru
 // IndexOrganizationsBadRequestCode is the HTTP code returned for type IndexOrganizationsBadRequest
 const IndexOrganizationsBadRequestCode int = 400
 
-/*
-IndexOrganizationsBadRequest invalid request
+/*IndexOrganizationsBadRequest invalid request
 
 swagger:response indexOrganizationsBadRequest
 */
@@ -111,8 +109,7 @@ func (o *IndexOrganizationsBadRequest) WriteResponse(rw http.ResponseWriter, pro
 // IndexOrganizationsUnauthorizedCode is the HTTP code returned for type IndexOrganizationsUnauthorized
 const IndexOrganizationsUnauthorizedCode int = 401
 
-/*
-IndexOrganizationsUnauthorized request requires user authentication
+/*IndexOrganizationsUnauthorized request requires user authentication
 
 swagger:response indexOrganizationsUnauthorized
 */
@@ -136,8 +133,7 @@ func (o *IndexOrganizationsUnauthorized) WriteResponse(rw http.ResponseWriter, p
 // IndexOrganizationsNotFoundCode is the HTTP code returned for type IndexOrganizationsNotFound
 const IndexOrganizationsNotFoundCode int = 404
 
-/*
-IndexOrganizationsNotFound not found
+/*IndexOrganizationsNotFound not found
 
 swagger:response indexOrganizationsNotFound
 */
@@ -161,8 +157,7 @@ func (o *IndexOrganizationsNotFound) WriteResponse(rw http.ResponseWriter, produ
 // IndexOrganizationsInternalServerErrorCode is the HTTP code returned for type IndexOrganizationsInternalServerError
 const IndexOrganizationsInternalServerErrorCode int = 500
 
-/*
-IndexOrganizationsInternalServerError server error
+/*IndexOrganizationsInternalServerError server error
 
 swagger:response indexOrganizationsInternalServerError
 */

@@ -29,12 +29,12 @@ func NewGetReportViolationsByReportID(ctx *middleware.Context, handler GetReport
 	return &GetReportViolationsByReportID{Context: ctx, Handler: handler}
 }
 
-/*
-	GetReportViolationsByReportID swagger:route GET /report-violations/{reportID} reportViolations getReportViolationsByReportId
-
-# Fetch the report violations for an evaluation report
+/* GetReportViolationsByReportID swagger:route GET /report-violations/{reportID} reportViolations getReportViolationsByReportId
 
 Fetch the report violations for an evaluation report
+
+Fetch the report violations for an evaluation report
+
 */
 type GetReportViolationsByReportID struct {
 	Context *middleware.Context

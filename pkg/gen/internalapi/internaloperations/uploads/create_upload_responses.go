@@ -16,8 +16,7 @@ import (
 // CreateUploadCreatedCode is the HTTP code returned for type CreateUploadCreated
 const CreateUploadCreatedCode int = 201
 
-/*
-CreateUploadCreated created upload
+/*CreateUploadCreated created upload
 
 swagger:response createUploadCreated
 */
@@ -61,8 +60,7 @@ func (o *CreateUploadCreated) WriteResponse(rw http.ResponseWriter, producer run
 // CreateUploadBadRequestCode is the HTTP code returned for type CreateUploadBadRequest
 const CreateUploadBadRequestCode int = 400
 
-/*
-CreateUploadBadRequest invalid request
+/*CreateUploadBadRequest invalid request
 
 swagger:response createUploadBadRequest
 */
@@ -106,8 +104,7 @@ func (o *CreateUploadBadRequest) WriteResponse(rw http.ResponseWriter, producer 
 // CreateUploadForbiddenCode is the HTTP code returned for type CreateUploadForbidden
 const CreateUploadForbiddenCode int = 403
 
-/*
-CreateUploadForbidden not authorized
+/*CreateUploadForbidden not authorized
 
 swagger:response createUploadForbidden
 */
@@ -131,8 +128,7 @@ func (o *CreateUploadForbidden) WriteResponse(rw http.ResponseWriter, producer r
 // CreateUploadNotFoundCode is the HTTP code returned for type CreateUploadNotFound
 const CreateUploadNotFoundCode int = 404
 
-/*
-CreateUploadNotFound not found
+/*CreateUploadNotFound not found
 
 swagger:response createUploadNotFound
 */
@@ -156,8 +152,7 @@ func (o *CreateUploadNotFound) WriteResponse(rw http.ResponseWriter, producer ru
 // CreateUploadRequestEntityTooLargeCode is the HTTP code returned for type CreateUploadRequestEntityTooLarge
 const CreateUploadRequestEntityTooLargeCode int = 413
 
-/*
-CreateUploadRequestEntityTooLarge payload is too large
+/*CreateUploadRequestEntityTooLarge payload is too large
 
 swagger:response createUploadRequestEntityTooLarge
 */
@@ -181,8 +176,7 @@ func (o *CreateUploadRequestEntityTooLarge) WriteResponse(rw http.ResponseWriter
 // CreateUploadInternalServerErrorCode is the HTTP code returned for type CreateUploadInternalServerError
 const CreateUploadInternalServerErrorCode int = 500
 
-/*
-CreateUploadInternalServerError server error
+/*CreateUploadInternalServerError server error
 
 swagger:response createUploadInternalServerError
 */

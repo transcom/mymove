@@ -29,12 +29,12 @@ func NewCreateUpload(ctx *middleware.Context, handler CreateUploadHandler) *Crea
 	return &CreateUpload{Context: ctx, Handler: handler}
 }
 
-/*
-	CreateUpload swagger:route POST /uploads uploads createUpload
+/* CreateUpload swagger:route POST /uploads uploads createUpload
 
-# Create a new upload
+Create a new upload
 
 Uploads represent a single digital file, such as a JPEG or PDF.
+
 */
 type CreateUpload struct {
 	Context *middleware.Context

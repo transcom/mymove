@@ -16,8 +16,7 @@ import (
 // CreateWebhookNotificationCreatedCode is the HTTP code returned for type CreateWebhookNotificationCreated
 const CreateWebhookNotificationCreatedCode int = 201
 
-/*
-CreateWebhookNotificationCreated Successful creation
+/*CreateWebhookNotificationCreated Successful creation
 
 swagger:response createWebhookNotificationCreated
 */
@@ -61,8 +60,7 @@ func (o *CreateWebhookNotificationCreated) WriteResponse(rw http.ResponseWriter,
 // CreateWebhookNotificationUnprocessableEntityCode is the HTTP code returned for type CreateWebhookNotificationUnprocessableEntity
 const CreateWebhookNotificationUnprocessableEntityCode int = 422
 
-/*
-CreateWebhookNotificationUnprocessableEntity The payload was unprocessable.
+/*CreateWebhookNotificationUnprocessableEntity The payload was unprocessable.
 
 swagger:response createWebhookNotificationUnprocessableEntity
 */
@@ -106,8 +104,7 @@ func (o *CreateWebhookNotificationUnprocessableEntity) WriteResponse(rw http.Res
 // CreateWebhookNotificationInternalServerErrorCode is the HTTP code returned for type CreateWebhookNotificationInternalServerError
 const CreateWebhookNotificationInternalServerErrorCode int = 500
 
-/*
-CreateWebhookNotificationInternalServerError A server error occurred.
+/*CreateWebhookNotificationInternalServerError A server error occurred.
 
 swagger:response createWebhookNotificationInternalServerError
 */

@@ -16,8 +16,7 @@ import (
 // UpdateUserOKCode is the HTTP code returned for type UpdateUserOK
 const UpdateUserOKCode int = 200
 
-/*
-UpdateUserOK Successfully updated User
+/*UpdateUserOK Successfully updated User
 
 swagger:response updateUserOK
 */
@@ -61,8 +60,7 @@ func (o *UpdateUserOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 // UpdateUserBadRequestCode is the HTTP code returned for type UpdateUserBadRequest
 const UpdateUserBadRequestCode int = 400
 
-/*
-UpdateUserBadRequest Invalid Request
+/*UpdateUserBadRequest Invalid Request
 
 swagger:response updateUserBadRequest
 */
@@ -86,8 +84,7 @@ func (o *UpdateUserBadRequest) WriteResponse(rw http.ResponseWriter, producer ru
 // UpdateUserUnauthorizedCode is the HTTP code returned for type UpdateUserUnauthorized
 const UpdateUserUnauthorizedCode int = 401
 
-/*
-UpdateUserUnauthorized Must be authenticated to use this end point
+/*UpdateUserUnauthorized Must be authenticated to use this end point
 
 swagger:response updateUserUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *UpdateUserUnauthorized) WriteResponse(rw http.ResponseWriter, producer 
 // UpdateUserForbiddenCode is the HTTP code returned for type UpdateUserForbidden
 const UpdateUserForbiddenCode int = 403
 
-/*
-UpdateUserForbidden Not authorized to update this user
+/*UpdateUserForbidden Not authorized to update this user
 
 swagger:response updateUserForbidden
 */
@@ -136,8 +132,7 @@ func (o *UpdateUserForbidden) WriteResponse(rw http.ResponseWriter, producer run
 // UpdateUserNotFoundCode is the HTTP code returned for type UpdateUserNotFound
 const UpdateUserNotFoundCode int = 404
 
-/*
-UpdateUserNotFound Not found
+/*UpdateUserNotFound Not found
 
 swagger:response updateUserNotFound
 */
@@ -161,8 +156,7 @@ func (o *UpdateUserNotFound) WriteResponse(rw http.ResponseWriter, producer runt
 // UpdateUserUnprocessableEntityCode is the HTTP code returned for type UpdateUserUnprocessableEntity
 const UpdateUserUnprocessableEntityCode int = 422
 
-/*
-UpdateUserUnprocessableEntity Validation error
+/*UpdateUserUnprocessableEntity Validation error
 
 swagger:response updateUserUnprocessableEntity
 */
@@ -206,8 +200,7 @@ func (o *UpdateUserUnprocessableEntity) WriteResponse(rw http.ResponseWriter, pr
 // UpdateUserInternalServerErrorCode is the HTTP code returned for type UpdateUserInternalServerError
 const UpdateUserInternalServerErrorCode int = 500
 
-/*
-UpdateUserInternalServerError Server error
+/*UpdateUserInternalServerError Server error
 
 swagger:response updateUserInternalServerError
 */

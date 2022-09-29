@@ -29,12 +29,12 @@ func NewApproveSITExtension(ctx *middleware.Context, handler ApproveSITExtension
 	return &ApproveSITExtension{Context: ctx, Handler: handler}
 }
 
-/*
-	ApproveSITExtension swagger:route PATCH /shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve shipment sitExtension approveSITExtension
-
-# Approves a SIT extension
+/* ApproveSITExtension swagger:route PATCH /shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve shipment sitExtension approveSITExtension
 
 Approves a SIT extension
+
+Approves a SIT extension
+
 */
 type ApproveSITExtension struct {
 	Context *middleware.Context

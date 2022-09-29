@@ -29,12 +29,12 @@ func NewAssociateReportViolations(ctx *middleware.Context, handler AssociateRepo
 	return &AssociateReportViolations{Context: ctx, Handler: handler}
 }
 
-/*
-	AssociateReportViolations swagger:route POST /report-violations/{reportID} reportViolations associateReportViolations
+/* AssociateReportViolations swagger:route POST /report-violations/{reportID} reportViolations associateReportViolations
 
-# Associate violations with an evaluation report
+Associate violations with an evaluation report
 
 Associate violations with an evaluation report. This will overwrite any existing report-violations associations for the report and replace them with the newly provided ones.  An empty array will remove all violation associations for a given report.
+
 */
 type AssociateReportViolations struct {
 	Context *middleware.Context

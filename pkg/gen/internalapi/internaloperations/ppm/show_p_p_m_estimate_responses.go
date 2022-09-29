@@ -16,8 +16,7 @@ import (
 // ShowPPMEstimateOKCode is the HTTP code returned for type ShowPPMEstimateOK
 const ShowPPMEstimateOKCode int = 200
 
-/*
-ShowPPMEstimateOK Made estimate of PPM cost range
+/*ShowPPMEstimateOK Made estimate of PPM cost range
 
 swagger:response showPPMEstimateOK
 */
@@ -61,8 +60,7 @@ func (o *ShowPPMEstimateOK) WriteResponse(rw http.ResponseWriter, producer runti
 // ShowPPMEstimateBadRequestCode is the HTTP code returned for type ShowPPMEstimateBadRequest
 const ShowPPMEstimateBadRequestCode int = 400
 
-/*
-ShowPPMEstimateBadRequest invalid request
+/*ShowPPMEstimateBadRequest invalid request
 
 swagger:response showPPMEstimateBadRequest
 */
@@ -86,8 +84,7 @@ func (o *ShowPPMEstimateBadRequest) WriteResponse(rw http.ResponseWriter, produc
 // ShowPPMEstimateUnauthorizedCode is the HTTP code returned for type ShowPPMEstimateUnauthorized
 const ShowPPMEstimateUnauthorizedCode int = 401
 
-/*
-ShowPPMEstimateUnauthorized request requires user authentication
+/*ShowPPMEstimateUnauthorized request requires user authentication
 
 swagger:response showPPMEstimateUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *ShowPPMEstimateUnauthorized) WriteResponse(rw http.ResponseWriter, prod
 // ShowPPMEstimateForbiddenCode is the HTTP code returned for type ShowPPMEstimateForbidden
 const ShowPPMEstimateForbiddenCode int = 403
 
-/*
-ShowPPMEstimateForbidden user is not authorized
+/*ShowPPMEstimateForbidden user is not authorized
 
 swagger:response showPPMEstimateForbidden
 */
@@ -136,8 +132,7 @@ func (o *ShowPPMEstimateForbidden) WriteResponse(rw http.ResponseWriter, produce
 // ShowPPMEstimateNotFoundCode is the HTTP code returned for type ShowPPMEstimateNotFound
 const ShowPPMEstimateNotFoundCode int = 404
 
-/*
-ShowPPMEstimateNotFound ppm discount not found for provided postal codes and original move date
+/*ShowPPMEstimateNotFound ppm discount not found for provided postal codes and original move date
 
 swagger:response showPPMEstimateNotFound
 */
@@ -161,8 +156,7 @@ func (o *ShowPPMEstimateNotFound) WriteResponse(rw http.ResponseWriter, producer
 // ShowPPMEstimateConflictCode is the HTTP code returned for type ShowPPMEstimateConflict
 const ShowPPMEstimateConflictCode int = 409
 
-/*
-ShowPPMEstimateConflict distance is less than 50 miles (no short haul moves)
+/*ShowPPMEstimateConflict distance is less than 50 miles (no short haul moves)
 
 swagger:response showPPMEstimateConflict
 */
@@ -186,8 +180,7 @@ func (o *ShowPPMEstimateConflict) WriteResponse(rw http.ResponseWriter, producer
 // ShowPPMEstimateUnprocessableEntityCode is the HTTP code returned for type ShowPPMEstimateUnprocessableEntity
 const ShowPPMEstimateUnprocessableEntityCode int = 422
 
-/*
-ShowPPMEstimateUnprocessableEntity cannot process request with given information
+/*ShowPPMEstimateUnprocessableEntity cannot process request with given information
 
 swagger:response showPPMEstimateUnprocessableEntity
 */
@@ -211,8 +204,7 @@ func (o *ShowPPMEstimateUnprocessableEntity) WriteResponse(rw http.ResponseWrite
 // ShowPPMEstimateInternalServerErrorCode is the HTTP code returned for type ShowPPMEstimateInternalServerError
 const ShowPPMEstimateInternalServerErrorCode int = 500
 
-/*
-ShowPPMEstimateInternalServerError internal server error
+/*ShowPPMEstimateInternalServerError internal server error
 
 swagger:response showPPMEstimateInternalServerError
 */

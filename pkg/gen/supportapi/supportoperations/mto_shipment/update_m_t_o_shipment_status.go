@@ -29,12 +29,13 @@ func NewUpdateMTOShipmentStatus(ctx *middleware.Context, handler UpdateMTOShipme
 	return &UpdateMTOShipmentStatus{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdateMTOShipmentStatus swagger:route PATCH /mto-shipments/{mtoShipmentID}/status mtoShipment updateMTOShipmentStatus
+/* UpdateMTOShipmentStatus swagger:route PATCH /mto-shipments/{mtoShipmentID}/status mtoShipment updateMTOShipmentStatus
 
 updateMTOShipmentStatus
 
 Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, `rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in `rejectionReason` is required. <br /> <br /> This is a support endpoint and will not be available in production.
+
+
 */
 type UpdateMTOShipmentStatus struct {
 	Context *middleware.Context

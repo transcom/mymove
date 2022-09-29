@@ -29,8 +29,7 @@ func NewGetMoveTaskOrder(ctx *middleware.Context, handler GetMoveTaskOrderHandle
 	return &GetMoveTaskOrder{Context: ctx, Handler: handler}
 }
 
-/*
-	GetMoveTaskOrder swagger:route GET /move-task-orders/{moveID} moveTaskOrder getMoveTaskOrder
+/* GetMoveTaskOrder swagger:route GET /move-task-orders/{moveID} moveTaskOrder getMoveTaskOrder
 
 getMoveTaskOrder
 
@@ -38,6 +37,8 @@ getMoveTaskOrder
 This endpoint gets an individual MoveTaskOrder by ID.
 
 It will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+
+
 */
 type GetMoveTaskOrder struct {
 	Context *middleware.Context

@@ -29,8 +29,7 @@ func NewCreateMoveTaskOrder(ctx *middleware.Context, handler CreateMoveTaskOrder
 	return &CreateMoveTaskOrder{Context: ctx, Handler: handler}
 }
 
-/*
-	CreateMoveTaskOrder swagger:route POST /move-task-orders moveTaskOrder createMoveTaskOrder
+/* CreateMoveTaskOrder swagger:route POST /move-task-orders moveTaskOrder createMoveTaskOrder
 
 createMoveTaskOrder
 
@@ -47,6 +46,8 @@ It will not create addresses, duty stations, shipments, payment requests or serv
 origin duty station ID, and an uploaded orders ID to be passed into the request.
 
 This is a support endpoint and will not be available in production.
+
+
 */
 type CreateMoveTaskOrder struct {
 	Context *middleware.Context

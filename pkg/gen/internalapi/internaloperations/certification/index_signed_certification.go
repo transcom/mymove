@@ -29,12 +29,12 @@ func NewIndexSignedCertification(ctx *middleware.Context, handler IndexSignedCer
 	return &IndexSignedCertification{Context: ctx, Handler: handler}
 }
 
-/*
-	IndexSignedCertification swagger:route GET /moves/{moveId}/signed_certifications certification indexSignedCertification
+/* IndexSignedCertification swagger:route GET /moves/{moveId}/signed_certifications certification indexSignedCertification
 
 gets the signed certifications for the given move ID
 
 returns a list of all signed_certifications associated with the move ID
+
 */
 type IndexSignedCertification struct {
 	Context *middleware.Context

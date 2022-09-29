@@ -29,12 +29,12 @@ func NewIndexServiceMemberBackupContacts(ctx *middleware.Context, handler IndexS
 	return &IndexServiceMemberBackupContacts{Context: ctx, Handler: handler}
 }
 
-/*
-	IndexServiceMemberBackupContacts swagger:route GET /service_members/{serviceMemberId}/backup_contacts backup_contacts indexServiceMemberBackupContacts
-
-# List all service member backup contacts
+/* IndexServiceMemberBackupContacts swagger:route GET /service_members/{serviceMemberId}/backup_contacts backup_contacts indexServiceMemberBackupContacts
 
 List all service member backup contacts
+
+List all service member backup contacts
+
 */
 type IndexServiceMemberBackupContacts struct {
 	Context *middleware.Context

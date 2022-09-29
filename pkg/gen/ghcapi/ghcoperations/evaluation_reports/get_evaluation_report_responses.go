@@ -16,8 +16,7 @@ import (
 // GetEvaluationReportOKCode is the HTTP code returned for type GetEvaluationReportOK
 const GetEvaluationReportOKCode int = 200
 
-/*
-GetEvaluationReportOK Successfully got the report
+/*GetEvaluationReportOK Successfully got the report
 
 swagger:response getEvaluationReportOK
 */
@@ -61,8 +60,7 @@ func (o *GetEvaluationReportOK) WriteResponse(rw http.ResponseWriter, producer r
 // GetEvaluationReportBadRequestCode is the HTTP code returned for type GetEvaluationReportBadRequest
 const GetEvaluationReportBadRequestCode int = 400
 
-/*
-GetEvaluationReportBadRequest The request payload is invalid
+/*GetEvaluationReportBadRequest The request payload is invalid
 
 swagger:response getEvaluationReportBadRequest
 */
@@ -106,8 +104,7 @@ func (o *GetEvaluationReportBadRequest) WriteResponse(rw http.ResponseWriter, pr
 // GetEvaluationReportForbiddenCode is the HTTP code returned for type GetEvaluationReportForbidden
 const GetEvaluationReportForbiddenCode int = 403
 
-/*
-GetEvaluationReportForbidden The request was denied
+/*GetEvaluationReportForbidden The request was denied
 
 swagger:response getEvaluationReportForbidden
 */
@@ -151,8 +148,7 @@ func (o *GetEvaluationReportForbidden) WriteResponse(rw http.ResponseWriter, pro
 // GetEvaluationReportNotFoundCode is the HTTP code returned for type GetEvaluationReportNotFound
 const GetEvaluationReportNotFoundCode int = 404
 
-/*
-GetEvaluationReportNotFound The requested resource wasn't found
+/*GetEvaluationReportNotFound The requested resource wasn't found
 
 swagger:response getEvaluationReportNotFound
 */
@@ -196,8 +192,7 @@ func (o *GetEvaluationReportNotFound) WriteResponse(rw http.ResponseWriter, prod
 // GetEvaluationReportInternalServerErrorCode is the HTTP code returned for type GetEvaluationReportInternalServerError
 const GetEvaluationReportInternalServerErrorCode int = 500
 
-/*
-GetEvaluationReportInternalServerError A server error occurred
+/*GetEvaluationReportInternalServerError A server error occurred
 
 swagger:response getEvaluationReportInternalServerError
 */

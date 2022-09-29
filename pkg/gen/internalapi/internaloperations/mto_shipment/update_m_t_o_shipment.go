@@ -29,8 +29,7 @@ func NewUpdateMTOShipment(ctx *middleware.Context, handler UpdateMTOShipmentHand
 	return &UpdateMTOShipment{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdateMTOShipment swagger:route PATCH /mto-shipments/{mtoShipmentId} mtoShipment updateMTOShipment
+/* UpdateMTOShipment swagger:route PATCH /mto-shipments/{mtoShipmentId} mtoShipment updateMTOShipment
 
 updateMTOShipment
 
@@ -49,6 +48,8 @@ Optional fields include:
 * Delivery Address
 * Customer Remarks
 * Releasing / Receiving agents
+
+
 */
 type UpdateMTOShipment struct {
 	Context *middleware.Context

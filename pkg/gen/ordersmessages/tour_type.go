@@ -18,6 +18,7 @@ import (
 //
 // If omitted, assume accompanied.
 //
+//
 // swagger:model TourType
 type TourType string
 

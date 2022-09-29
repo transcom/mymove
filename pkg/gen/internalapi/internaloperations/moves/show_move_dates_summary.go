@@ -29,12 +29,12 @@ func NewShowMoveDatesSummary(ctx *middleware.Context, handler ShowMoveDatesSumma
 	return &ShowMoveDatesSummary{Context: ctx, Handler: handler}
 }
 
-/*
-	ShowMoveDatesSummary swagger:route GET /moves/{moveId}/move_dates_summary moves showMoveDatesSummary
-
-# Returns projected move-related dates for a given move date
+/* ShowMoveDatesSummary swagger:route GET /moves/{moveId}/move_dates_summary moves showMoveDatesSummary
 
 Returns projected move-related dates for a given move date
+
+Returns projected move-related dates for a given move date
+
 */
 type ShowMoveDatesSummary struct {
 	Context *middleware.Context

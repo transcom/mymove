@@ -29,12 +29,12 @@ func NewUpdateMTOStatusServiceCounselingCompleted(ctx *middleware.Context, handl
 	return &UpdateMTOStatusServiceCounselingCompleted{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdateMTOStatusServiceCounselingCompleted swagger:route PATCH /move-task-orders/{moveTaskOrderID}/status/service-counseling-completed moveTaskOrder updateMTOStatusServiceCounselingCompleted
-
-# Changes move (move task order) status to service counseling completed
+/* UpdateMTOStatusServiceCounselingCompleted swagger:route PATCH /move-task-orders/{moveTaskOrderID}/status/service-counseling-completed moveTaskOrder updateMTOStatusServiceCounselingCompleted
 
 Changes move (move task order) status to service counseling completed
+
+Changes move (move task order) status to service counseling completed
+
 */
 type UpdateMTOStatusServiceCounselingCompleted struct {
 	Context *middleware.Context

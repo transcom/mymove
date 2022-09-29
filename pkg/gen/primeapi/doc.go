@@ -2,26 +2,26 @@
 
 // Package primeapi MilMove Prime API
 //
-//	The Prime API is a RESTful API that enables the Prime contractor to request
-//	information about upcoming moves, update the details and status of those moves,
-//	and make payment requests. It uses Mutual TLS for authentication procedures.
+//  The Prime API is a RESTful API that enables the Prime contractor to request
+//  information about upcoming moves, update the details and status of those moves,
+//  and make payment requests. It uses Mutual TLS for authentication procedures.
 //
-//	All endpoints are located at `/prime/v1/`.
+//  All endpoints are located at `/prime/v1/`.
 //
-//	Schemes:
-//	  http
-//	Host: localhost
-//	BasePath: /prime/v1
-//	Version: 0.0.1
-//	License: MIT https://opensource.org/licenses/MIT
-//	Contact: <dp3@truss.works>
+//  Schemes:
+//    http
+//  Host: localhost
+//  BasePath: /prime/v1
+//  Version: 0.0.1
+//  License: MIT https://opensource.org/licenses/MIT
+//  Contact: <dp3@truss.works>
 //
-//	Consumes:
-//	  - application/json
-//	  - multipart/form-data
+//  Consumes:
+//    - application/json
+//    - multipart/form-data
 //
-//	Produces:
-//	  - application/json
+//  Produces:
+//    - application/json
 //
 // swagger:meta
 package primeapi

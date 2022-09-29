@@ -16,8 +16,7 @@ import (
 // ShowServiceMemberBackupContactOKCode is the HTTP code returned for type ShowServiceMemberBackupContactOK
 const ShowServiceMemberBackupContactOKCode int = 200
 
-/*
-ShowServiceMemberBackupContactOK the instance of the service member backup contact
+/*ShowServiceMemberBackupContactOK the instance of the service member backup contact
 
 swagger:response showServiceMemberBackupContactOK
 */
@@ -61,8 +60,7 @@ func (o *ShowServiceMemberBackupContactOK) WriteResponse(rw http.ResponseWriter,
 // ShowServiceMemberBackupContactBadRequestCode is the HTTP code returned for type ShowServiceMemberBackupContactBadRequest
 const ShowServiceMemberBackupContactBadRequestCode int = 400
 
-/*
-ShowServiceMemberBackupContactBadRequest invalid request
+/*ShowServiceMemberBackupContactBadRequest invalid request
 
 swagger:response showServiceMemberBackupContactBadRequest
 */
@@ -86,8 +84,7 @@ func (o *ShowServiceMemberBackupContactBadRequest) WriteResponse(rw http.Respons
 // ShowServiceMemberBackupContactUnauthorizedCode is the HTTP code returned for type ShowServiceMemberBackupContactUnauthorized
 const ShowServiceMemberBackupContactUnauthorizedCode int = 401
 
-/*
-ShowServiceMemberBackupContactUnauthorized request requires user authentication
+/*ShowServiceMemberBackupContactUnauthorized request requires user authentication
 
 swagger:response showServiceMemberBackupContactUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *ShowServiceMemberBackupContactUnauthorized) WriteResponse(rw http.Respo
 // ShowServiceMemberBackupContactForbiddenCode is the HTTP code returned for type ShowServiceMemberBackupContactForbidden
 const ShowServiceMemberBackupContactForbiddenCode int = 403
 
-/*
-ShowServiceMemberBackupContactForbidden user is not authorized
+/*ShowServiceMemberBackupContactForbidden user is not authorized
 
 swagger:response showServiceMemberBackupContactForbidden
 */
@@ -136,8 +132,7 @@ func (o *ShowServiceMemberBackupContactForbidden) WriteResponse(rw http.Response
 // ShowServiceMemberBackupContactNotFoundCode is the HTTP code returned for type ShowServiceMemberBackupContactNotFound
 const ShowServiceMemberBackupContactNotFoundCode int = 404
 
-/*
-ShowServiceMemberBackupContactNotFound backup contact not found
+/*ShowServiceMemberBackupContactNotFound backup contact not found
 
 swagger:response showServiceMemberBackupContactNotFound
 */
@@ -161,8 +156,7 @@ func (o *ShowServiceMemberBackupContactNotFound) WriteResponse(rw http.ResponseW
 // ShowServiceMemberBackupContactInternalServerErrorCode is the HTTP code returned for type ShowServiceMemberBackupContactInternalServerError
 const ShowServiceMemberBackupContactInternalServerErrorCode int = 500
 
-/*
-ShowServiceMemberBackupContactInternalServerError internal server error
+/*ShowServiceMemberBackupContactInternalServerError internal server error
 
 swagger:response showServiceMemberBackupContactInternalServerError
 */

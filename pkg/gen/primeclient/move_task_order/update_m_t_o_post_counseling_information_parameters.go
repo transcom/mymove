@@ -52,12 +52,10 @@ func NewUpdateMTOPostCounselingInformationParamsWithHTTPClient(client *http.Clie
 	}
 }
 
-/*
-UpdateMTOPostCounselingInformationParams contains all the parameters to send to the API endpoint
+/* UpdateMTOPostCounselingInformationParams contains all the parameters to send to the API endpoint
+   for the update m t o post counseling information operation.
 
-	for the update m t o post counseling information operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type UpdateMTOPostCounselingInformationParams struct {
 

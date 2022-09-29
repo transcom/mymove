@@ -29,12 +29,12 @@ func NewRequestPPMExpenseSummary(ctx *middleware.Context, handler RequestPPMExpe
 	return &RequestPPMExpenseSummary{Context: ctx, Handler: handler}
 }
 
-/*
-	RequestPPMExpenseSummary swagger:route GET /personally_procured_move/{personallyProcuredMoveId}/expense_summary ppm requestPPMExpenseSummary
+/* RequestPPMExpenseSummary swagger:route GET /personally_procured_move/{personallyProcuredMoveId}/expense_summary ppm requestPPMExpenseSummary
 
-# Returns an expense summary organized by expense type
+Returns an expense summary organized by expense type
 
 Calculates and returns an expense summary organized by expense type
+
 */
 type RequestPPMExpenseSummary struct {
 	Context *middleware.Context

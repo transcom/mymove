@@ -16,8 +16,7 @@ import (
 // UpdateReweighOKCode is the HTTP code returned for type UpdateReweighOK
 const UpdateReweighOKCode int = 200
 
-/*
-UpdateReweighOK Successfully updated the reweigh.
+/*UpdateReweighOK Successfully updated the reweigh.
 
 swagger:response updateReweighOK
 */
@@ -61,8 +60,7 @@ func (o *UpdateReweighOK) WriteResponse(rw http.ResponseWriter, producer runtime
 // UpdateReweighBadRequestCode is the HTTP code returned for type UpdateReweighBadRequest
 const UpdateReweighBadRequestCode int = 400
 
-/*
-UpdateReweighBadRequest The request payload is invalid.
+/*UpdateReweighBadRequest The request payload is invalid.
 
 swagger:response updateReweighBadRequest
 */
@@ -106,8 +104,7 @@ func (o *UpdateReweighBadRequest) WriteResponse(rw http.ResponseWriter, producer
 // UpdateReweighUnauthorizedCode is the HTTP code returned for type UpdateReweighUnauthorized
 const UpdateReweighUnauthorizedCode int = 401
 
-/*
-UpdateReweighUnauthorized The request was denied.
+/*UpdateReweighUnauthorized The request was denied.
 
 swagger:response updateReweighUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *UpdateReweighUnauthorized) WriteResponse(rw http.ResponseWriter, produc
 // UpdateReweighForbiddenCode is the HTTP code returned for type UpdateReweighForbidden
 const UpdateReweighForbiddenCode int = 403
 
-/*
-UpdateReweighForbidden The request was denied.
+/*UpdateReweighForbidden The request was denied.
 
 swagger:response updateReweighForbidden
 */
@@ -196,8 +192,7 @@ func (o *UpdateReweighForbidden) WriteResponse(rw http.ResponseWriter, producer 
 // UpdateReweighNotFoundCode is the HTTP code returned for type UpdateReweighNotFound
 const UpdateReweighNotFoundCode int = 404
 
-/*
-UpdateReweighNotFound The requested resource wasn't found.
+/*UpdateReweighNotFound The requested resource wasn't found.
 
 swagger:response updateReweighNotFound
 */
@@ -241,8 +236,7 @@ func (o *UpdateReweighNotFound) WriteResponse(rw http.ResponseWriter, producer r
 // UpdateReweighConflictCode is the HTTP code returned for type UpdateReweighConflict
 const UpdateReweighConflictCode int = 409
 
-/*
-UpdateReweighConflict The request could not be processed because of conflict in the current state of the resource.
+/*UpdateReweighConflict The request could not be processed because of conflict in the current state of the resource.
 
 swagger:response updateReweighConflict
 */
@@ -286,8 +280,7 @@ func (o *UpdateReweighConflict) WriteResponse(rw http.ResponseWriter, producer r
 // UpdateReweighPreconditionFailedCode is the HTTP code returned for type UpdateReweighPreconditionFailed
 const UpdateReweighPreconditionFailedCode int = 412
 
-/*
-UpdateReweighPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+/*UpdateReweighPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response updateReweighPreconditionFailed
 */
@@ -331,8 +324,7 @@ func (o *UpdateReweighPreconditionFailed) WriteResponse(rw http.ResponseWriter, 
 // UpdateReweighUnprocessableEntityCode is the HTTP code returned for type UpdateReweighUnprocessableEntity
 const UpdateReweighUnprocessableEntityCode int = 422
 
-/*
-UpdateReweighUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
+/*UpdateReweighUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response updateReweighUnprocessableEntity
 */
@@ -376,8 +368,7 @@ func (o *UpdateReweighUnprocessableEntity) WriteResponse(rw http.ResponseWriter,
 // UpdateReweighInternalServerErrorCode is the HTTP code returned for type UpdateReweighInternalServerError
 const UpdateReweighInternalServerErrorCode int = 500
 
-/*
-UpdateReweighInternalServerError A server error occurred.
+/*UpdateReweighInternalServerError A server error occurred.
 
 swagger:response updateReweighInternalServerError
 */
