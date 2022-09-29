@@ -36,6 +36,7 @@ import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import ScrollToTop from 'components/ScrollToTop';
 
 const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCount }) => {
   const { moveCode } = useParams();
@@ -272,7 +273,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   };
 
   const allShipmentsDeleted = mtoShipments.every((shipment) => !!shipment.deletedAt);
-
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
@@ -297,6 +297,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
           />
         )}
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
+          <ScrollToTop otherDep={alertMessage || infoSavedAlert} />
           <Grid row className={scMoveDetailsStyles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>

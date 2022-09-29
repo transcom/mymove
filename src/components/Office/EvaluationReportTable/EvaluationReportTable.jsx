@@ -7,13 +7,31 @@ import { useLocation } from 'react-router';
 import styles from './EvaluationReportTable.module.scss';
 
 import ConnectedEvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
+import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
 import { formatCustomerDate, formatEvaluationReportLocation, formatQAReportID } from 'utils/formatters';
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 
-const EvaluationReportTable = ({ reports, shipments, emptyText, moveCode, customerInfo, grade }) => {
+const EvaluationReportTable = ({
+  reports,
+  shipments,
+  emptyText,
+  moveCode,
+  customerInfo,
+  grade,
+  setReportToDelete,
+  setIsDeleteModalOpen,
+  deleteReport,
+  isDeleteModalOpen,
+}) => {
   const location = useLocation();
   const [isViewReportModalVisible, setIsViewReportModalVisible] = useState(false);
   const [reportToView, setReportToView] = useState(undefined);
+
+  // whether or not the delete report modal is displaying
+  const toggleDeleteReportModal = (reportID) => {
+    setReportToDelete(reports.find((report) => report.id === reportID));
+    setIsDeleteModalOpen(!isDeleteModalOpen);
+  };
 
   const handleViewReportClick = (report) => {
     setReportToView(report);
@@ -48,9 +66,18 @@ const EvaluationReportTable = ({ reports, shipments, emptyText, moveCode, custom
           )}
           {!report.submittedAt && <a href={`${location.pathname}/${report.id}`}>Edit report</a>}
         </td>
-        <td className={styles.downloadColumn}>
-          <a href={`${location}/evaluation-reports/${report.id}/download`}>Download</a>
-        </td>
+        {report.submittedAt && (
+          <td className={styles.downloadColumn}>
+            <a href={`${location}/evaluation-reports/${report.id}/download`}>Download</a>
+          </td>
+        )}
+        {!report.submittedAt && (
+          <td className={styles.downloadColumn}>
+            <Button className="usa-button--unstyled" onClick={() => toggleDeleteReportModal(report.id)}>
+              Delete
+            </Button>
+          </td>
+        )}
       </tr>
     );
   };
@@ -67,6 +94,12 @@ const EvaluationReportTable = ({ reports, shipments, emptyText, moveCode, custom
 
   return (
     <div>
+      <ConnectedDeleteEvaluationReportConfirmationModal
+        isOpen={isDeleteModalOpen}
+        closeModal={toggleDeleteReportModal}
+        submitModal={deleteReport}
+        isDeleteFromTable
+      />
       {isViewReportModalVisible && reportToView && (
         <ConnectedEvaluationReportConfirmationModal
           isOpen={isViewReportModalVisible}
@@ -115,6 +148,10 @@ EvaluationReportTable.propTypes = {
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
   shipments: PropTypes.arrayOf(ShipmentShape),
+  setIsDeleteModalOpen: PropTypes.func.isRequired,
+  setReportToDelete: PropTypes.func.isRequired,
+  deleteReport: PropTypes.func.isRequired,
+  isDeleteModalOpen: PropTypes.bool.isRequired,
 };
 
 EvaluationReportTable.defaultProps = {

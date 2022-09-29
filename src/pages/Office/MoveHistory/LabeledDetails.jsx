@@ -8,7 +8,7 @@ import fieldMappings from 'constants/MoveHistory/Database/FieldMappings';
 import weightFields from 'constants/MoveHistory/Database/WeightFields';
 import { shipmentTypes } from 'constants/shipments';
 import { HistoryLogRecordShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
-import optionFields from 'constants/MoveHistory/Database/Orders';
+import optionFields from 'constants/MoveHistory/Database/OptionFields';
 import { formatCustomerDate } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
@@ -40,6 +40,7 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
   }
 
   // Check for shipment_type to use it as a header for the row
+  // TODO: [ MB-12182 ] This will include a shipment ID label in the future
   if ('shipment_type' in changedValuesToUse) {
     shipmentDisplay = shipmentTypes[changedValuesToUse.shipment_type];
     shipmentDisplay += ' shipment';

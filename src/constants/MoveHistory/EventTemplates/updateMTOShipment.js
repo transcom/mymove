@@ -12,6 +12,7 @@ export default {
   getDetailsLabeledDetails: (historyRecord) => {
     return {
       shipment_type: historyRecord.oldValues.shipment_type,
+      // TODO: [ MB-12182 ] This will include a shipment ID label in the future
       ...historyRecord.changedValues,
     };
   },

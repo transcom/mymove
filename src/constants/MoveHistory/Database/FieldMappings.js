@@ -57,6 +57,7 @@ export default {
   first_available_delivery_time: 'First available delivery time',
   second_available_delivery_time: 'Second available delivery time',
   reweigh_weight: 'Reweigh weight',
+  destination_address_type: 'Destination type',
   affiliation: 'Branch',
   rank: 'Rank',
 };

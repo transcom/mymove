@@ -36,6 +36,7 @@ describe('LabeledDetails', () => {
         grade: 'E_1',
         actual_pickup_date: '2022-01-01',
         prime_actual_weight: '100 lbs',
+        destination_address_type: 'HOME_OF_SELECTION',
         affiliation: 'COAST_GUARD',
       },
     };
@@ -66,6 +67,7 @@ describe('LabeledDetails', () => {
       ['Dept. indicator', ': Air Force'],
       ['Departure date', ': 01 Jan 2022'],
       ['Shipment weight', ': 100 lbs'],
+      ['Destination type', ': Home of selection (HOS)'],
       ['Branch', ': Coast Guard'],
     ])('it renders %s%s', (displayName, value) => {
       render(<LabeledDetails historyRecord={historyRecord} />);
