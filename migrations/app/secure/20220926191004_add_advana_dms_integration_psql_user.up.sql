@@ -80,8 +80,6 @@
 -- ALTER DEFAULT PRIVILEGES GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO dms_export;
 -- ALTER DEFAULT PRIVILEGES GRANT USAGE, UPDATE ON SEQUENCES TO dms_export;
 --
--- RESET ROLE;
---
 
 -- ███████╗██████╗  ██████╗ ███╗   ███╗    ████████╗██╗  ██╗███████╗
 -- ██╔════╝██╔══██╗██╔═══██╗████╗ ████║    ╚══██╔══╝██║  ██║██╔════╝
@@ -106,7 +104,7 @@
 --
 -- README: Taken from this link here: https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.PostgreSQL.html#CHAP_Source.PostgreSQL.RDSPostgreSQL.NonMasterUser
 --
--- create table public.awsdms_ddl_audit
+-- CREATE TABLE public.awsdms_ddl_audit
 -- (
 --   c_key    bigserial primary key,
 --   c_time   timestamp,    -- Informational
@@ -117,7 +115,7 @@
 --   c_name   varchar(64),  -- For future use - TG_OBJECTNAME
 --   c_schema varchar(64),  -- For future use - TG_SCHEMANAME. For now - holds current_schema
 --   c_ddlqry  text         -- The DDL query associated with the current DDL event
--- )
+-- );
 --
 --
 -- CREATE OR REPLACE FUNCTION public.awsdms_intercept_ddl()
@@ -127,23 +125,25 @@
 --   AS $$
 --   declare _qry text;
 -- BEGIN
---   if (tg_tag='CREATE TABLE' or tg_tag='ALTER TABLE' or tg_tag='DROP TABLE') then
+--   if (tg_tag='CREATE TABLE' or tg_tag='ALTER TABLE' or tg_tag='DROP TABLE') THEN
 --          SELECT current_query() into _qry;
---          insert into public.awsdms_ddl_audit
+--          INSERT INTO public.awsdms_ddl_audit
 --          values
 --          (
 --          default,current_timestamp,current_user,cast(TXID_CURRENT()as varchar(16)),tg_tag,0,'',current_schema,_qry
 --          );
---          delete from public.awsdms_ddl_audit;
+--          DELETE FROM public.awsdms_ddl_audit;
 -- end if;
 -- END;
 -- $$;
 --
 -- --- This needs to be run as the dms_export
 -- CREATE EVENT TRIGGER awsdms_intercept_ddl ON ddl_command_end
--- EXECUTE PROCEDURE public.awsdms_intercept_ddl();
+-- 	EXECUTE PROCEDURE public.awsdms_intercept_ddl();
 --
 --
 -- --- All users and roles need access to the events
 -- GRANT ALL ON public.awsdms_ddl_audit TO public;
 -- GRANT ALL ON public.awsdms_ddl_audit_c_key_seq TO public;
+--
+-- RESET ROLE;
