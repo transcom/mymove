@@ -19,7 +19,7 @@ func NewPaymentRequestFetcher() services.PaymentRequestFetcher {
 	return &paymentRequestFetcher{}
 }
 
-//FetchPaymentRequest finds the payment request by id
+// FetchPaymentRequest finds the payment request by id
 func (p *paymentRequestFetcher) FetchPaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (models.PaymentRequest, error) {
 	var paymentRequest models.PaymentRequest
 
