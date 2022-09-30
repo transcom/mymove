@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 )
 
@@ -20,23 +22,27 @@ func NewCustomFileSystem(fs http.FileSystem, appCtx appcontext.AppContext) Custo
 }
 
 func (cfs CustomFileSystem) Open(path string) (http.File, error) {
-	f, err := cfs.fs.Open(path)
+	f, openErr := cfs.fs.Open(path)
 	logger := cfs.appCtx.Logger()
-	logger.Info("Using CustomFileSystem for " + path)
-	if err != nil {
-		return nil, err
+	logger.Debug("Using CustomFileSystem for " + path)
+
+	if openErr != nil {
+		logger.Error("Error with opening", zap.Error(openErr))
+		return nil, openErr
 	}
 
 	s, _ := f.Stat()
 	if s.IsDir() {
 		index := filepath.Join(path, "index.html")
-		if _, err := cfs.fs.Open(index); err != nil {
+		if _, indexOpenErr := cfs.fs.Open(index); indexOpenErr != nil {
 			closeErr := f.Close()
 			if closeErr != nil {
+				logger.Error("Unable to close ", zap.Error(closeErr))
 				return nil, closeErr
 			}
 
-			return nil, err
+			logger.Error("Unable to open index.html in the directory", zap.Error(indexOpenErr))
+			return nil, indexOpenErr
 		}
 	}
 
