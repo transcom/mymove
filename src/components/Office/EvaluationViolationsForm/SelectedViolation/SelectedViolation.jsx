@@ -3,7 +3,7 @@ import { Button } from '@trussworks/react-uswds';
 
 import styles from './SelectedViolation.module.scss';
 
-const SelectedViolation = ({ violation, unselectViolation }) => {
+const SelectedViolation = ({ violation, unselectViolation, isReadOnly }) => {
   if (!violation) {
     return null;
   }
@@ -16,9 +16,11 @@ const SelectedViolation = ({ violation, unselectViolation }) => {
           <small> {violation.requirementSummary}</small>
         </p>
       </div>
-      <Button type="button" unstyled onClick={() => unselectViolation(violation.id)} role="button">
-        Remove
-      </Button>
+      {!isReadOnly && (
+        <Button type="button" unstyled onClick={() => unselectViolation(violation.id)} role="button">
+          Remove
+        </Button>
+      )}
     </div>
   );
 };

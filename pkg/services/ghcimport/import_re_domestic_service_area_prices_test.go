@@ -1,8 +1,6 @@
 package ghcimport
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgerrcode"
 
@@ -16,7 +14,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPrices() 
 		ContractCode: testContractCode,
 	}
 
-	suite.T().Run("import success", func(t *testing.T) {
+	setupTestData := func() {
 		// Prerequisite tables must be loaded.
 		err := gre.importREContract(suite.AppContextForTest())
 		suite.NoError(err)
@@ -29,26 +27,27 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPrices() 
 
 		err = gre.importREDomesticServiceAreaPrices(suite.AppContextForTest())
 		suite.NoError(err)
+	}
+
+	suite.Run("import success", func() {
+		setupTestData()
 		suite.helperVerifyDomesticServiceAreaPrices()
 
 		// Spot check domestic service area prices for one row
 		suite.helperCheckDomesticServiceAreaPriceValue()
 	})
 
-	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
+	suite.Run("run a second time; should fail immediately due to constraint violation", func() {
+		setupTestData()
 		err := gre.importREDomesticServiceAreaPrices(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_domestic_service_area_prices_unique_key"))
 		}
-
-		// Check to see if anything else changed
-		suite.helperVerifyDomesticServiceAreaPrices()
-		suite.helperCheckDomesticServiceAreaPriceValue()
 	})
 }
 
 func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPricesFailures() {
-	suite.T().Run("stage_domestic_service_area_prices table missing", func(t *testing.T) {
+	suite.Run("stage_domestic_service_area_prices table missing", func() {
 		renameQuery := "ALTER TABLE stage_domestic_service_area_prices RENAME TO missing_stage_domestic_service_area_prices"
 		renameErr := suite.DB().RawQuery(renameQuery).Exec()
 		suite.NoError(renameErr)
@@ -65,10 +64,6 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPricesFai
 		if suite.Error(err) {
 			suite.True(dberr.IsDBError(err, pgerrcode.UndefinedTable))
 		}
-
-		renameQuery = "ALTER TABLE missing_stage_domestic_service_area_prices RENAME TO stage_domestic_service_area_prices"
-		renameErr = suite.DB().RawQuery(renameQuery).Exec()
-		suite.NoError(renameErr)
 	})
 }
 
