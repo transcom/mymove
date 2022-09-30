@@ -4,7 +4,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
@@ -12,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
@@ -66,7 +64,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 // CreateServiceMemberHandler creates a new service member via POST /serviceMember
 type CreateServiceMemberHandler struct {
 	handlers.HandlerConfig
-	services.UserRoleAssociator
+	services.ServiceMemberAssociator
 }
 
 // Handle ... creates a new ServiceMember from a request payload
@@ -113,15 +111,8 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 				DutyLocation:         dutyLocation,
 				DutyLocationID:       dutyLocationID,
 			}
-			smVerrs, err := models.SaveServiceMember(appCtx, &newServiceMember)
+			smVerrs, err := h.CreateServiceMember(appCtx, newServiceMember)
 			if smVerrs.HasAny() || err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			// Create customer user role for new service member
-			_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, newServiceMember.UserID, []roles.RoleType{roles.RoleTypeCustomer})
-			if err != nil {
-				appCtx.Logger().Error("Error updating user roles", zap.Error(err))
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 

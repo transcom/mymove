@@ -23,7 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
-	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
+	servicemembers "github.com/transcom/mymove/pkg/services/service_members"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -96,7 +96,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	}
 	handler := CreateServiceMemberHandler{
 		suite.HandlerConfig(),
-		usersroles.NewUsersRolesCreator(),
+		servicemembers.NewServiceMemberCreator(),
 	}
 	response := handler.Handle(params)
 
@@ -161,7 +161,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 
 	handler := CreateServiceMemberHandler{
 		suite.HandlerConfig(),
-		usersroles.NewUsersRolesCreator(),
+		servicemembers.NewServiceMemberCreator(),
 	}
 	response := handler.Handle(params)
 
