@@ -213,7 +213,6 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		Locator: "ABC123",
 	}
 	suite.setupRateEngineTest()
-	t := suite.T()
 
 	engine := NewRateEngine(move)
 
@@ -226,7 +225,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		1, unit.DiscountRate(.6), unit.DiscountRate(.5))
 
 	if err != nil {
-		t.Fatalf("failed to calculate ppm charge: %s", err)
+		suite.Fail("failed to calculate ppm charge: %s", err)
 	}
 
 	// PPMs estimates are being hardcoded because we are not loading tariff400ng data
