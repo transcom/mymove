@@ -4,7 +4,7 @@ import { object, text } from '@storybook/addon-knobs';
 import ShipmentInfoList from './ShipmentInfoList';
 
 export default {
-  title: 'Office Components/Shipment Info List',
+  title: 'Office Components/HHG Shipment Info List',
   component: ShipmentInfoList,
 };
 
