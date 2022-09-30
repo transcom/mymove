@@ -36,10 +36,92 @@ const (
 	AdminApp Application = "admin"
 )
 
+// IsOfficeApp returns true if the application is the office app
+func (a Application) IsOfficeApp() bool {
+	return a == OfficeApp
+}
+
+// IsMilApp returns true if the application is the mil app
+func (a Application) IsMilApp() bool {
+	return a == MilApp
+}
+
+// IsAdminApp returns true if the application is the admin app
+func (a Application) IsAdminApp() bool {
+	return a == AdminApp
+}
+
+type SessionManager interface {
+	Get(context.Context, string) interface{}
+	Put(context.Context, string, interface{})
+	Destroy(context.Context) error
+	RenewToken(context.Context) error
+	Commit(context.Context) (string, time.Time, error)
+	Load(context.Context, string) (context.Context, error)
+	LoadAndSave(http.Handler) http.Handler
+	Store() scs.Store
+}
+
+type ScsSessionManagerWrapper struct {
+	ScsSessionManager *scs.SessionManager
+}
+
+func (s ScsSessionManagerWrapper) Get(ctx context.Context, key string) interface{} {
+	return s.ScsSessionManager.Get(ctx, key)
+}
+
+func (s ScsSessionManagerWrapper) Put(ctx context.Context, key string, val interface{}) {
+	s.ScsSessionManager.Put(ctx, key, val)
+}
+
+func (s ScsSessionManagerWrapper) Destroy(ctx context.Context) error {
+	return s.ScsSessionManager.Destroy(ctx)
+}
+
+func (s ScsSessionManagerWrapper) RenewToken(ctx context.Context) error {
+	return s.ScsSessionManager.RenewToken(ctx)
+}
+
+func (s ScsSessionManagerWrapper) Commit(ctx context.Context) (string, time.Time, error) {
+	return s.ScsSessionManager.Commit(ctx)
+}
+
+func (s ScsSessionManagerWrapper) Load(ctx context.Context, token string) (context.Context, error) {
+	return s.ScsSessionManager.Load(ctx, token)
+}
+
+func (s ScsSessionManagerWrapper) LoadAndSave(next http.Handler) http.Handler {
+	return s.ScsSessionManager.LoadAndSave(next)
+}
+
+func (s ScsSessionManagerWrapper) Store() scs.Store {
+	return s.ScsSessionManager.Store
+}
+
+type AppSessionManagers struct {
+	Mil    SessionManager
+	Office SessionManager
+	Admin  SessionManager
+}
+
+// sessionManagerForSession returns the appropriate session manager
+// for the session
+func (a AppSessionManagers) SessionManagerForApplication(app Application) SessionManager {
+	if app.IsMilApp() {
+		return a.Mil
+	} else if app.IsAdminApp() {
+		return a.Admin
+	} else if app.IsOfficeApp() {
+		return a.Office
+	}
+
+	return nil
+}
+
 // SetupSessionManagers configures the session manager for each app: mil, admin,
 // and office. It's necessary to have separate session managers to allow users
 // to be signed in on multiple apps at the same time.
-func SetupSessionManagers(redisPool *redis.Pool, useSecureCookie bool, idleTimeout time.Duration, lifetime time.Duration) [3]*scs.SessionManager {
+func SetupSessionManagers(redisPool *redis.Pool, useSecureCookie bool, idleTimeout time.Duration, lifetime time.Duration) AppSessionManagers {
 	var milSession, adminSession, officeSession *scs.SessionManager
 	gob.Register(Session{})
 
@@ -101,22 +183,32 @@ func SetupSessionManagers(redisPool *redis.Pool, useSecureCookie bool, idleTimeo
 		officeSession.Cookie.Secure = true
 	}
 
-	return [3]*scs.SessionManager{milSession, adminSession, officeSession}
+	return AppSessionManagers{
+		Mil: ScsSessionManagerWrapper{
+			ScsSessionManager: milSession,
+		},
+		Office: ScsSessionManagerWrapper{
+			ScsSessionManager: officeSession,
+		},
+		Admin: ScsSessionManagerWrapper{
+			ScsSessionManager: adminSession,
+		},
+	}
 }
 
 // IsOfficeApp returns true iff the request is for the office.move.mil host
 func (s *Session) IsOfficeApp() bool {
-	return s.ApplicationName == OfficeApp
+	return s.ApplicationName.IsOfficeApp()
 }
 
 // IsMilApp returns true iff the request is for the my.move.mil host
 func (s *Session) IsMilApp() bool {
-	return s.ApplicationName == MilApp
+	return s.ApplicationName.IsMilApp()
 }
 
 // IsAdminApp returns true iff the request is for the admin.move.mil host
 func (s *Session) IsAdminApp() bool {
-	return s.ApplicationName == AdminApp
+	return s.ApplicationName.IsAdminApp()
 }
 
 // Session stores information about the currently logged in session
@@ -139,7 +231,7 @@ type Session struct {
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data
 func SetSessionInRequestContext(r *http.Request, session *Session) context.Context {
-	return context.WithValue(r.Context(), sessionContextKey, session)
+	return SetSessionInContext(r.Context(), session)
 }
 
 // SetSessionInContext modifies the context to add the session data.
@@ -198,7 +290,7 @@ func (s *Session) IsProgramAdmin() bool {
 	return s.IsAdminUser() && s.AdminUserRole == role
 }
 
-func SessionIDMiddleware(appnames ApplicationServername, sessionManagers [3]*scs.SessionManager) func(next http.Handler) http.Handler {
+func SessionIDMiddleware(appnames ApplicationServername, sessionManagers AppSessionManagers) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -209,11 +301,14 @@ func SessionIDMiddleware(appnames ApplicationServername, sessionManagers [3]*scs
 			// a prime session. We won't have a sessionManager in
 			// that case, so we won't add a sessionID to the context
 			if err == nil {
-				sessionManager := sessionManagerForApp(app, sessionManagers)
+				sessionManager := sessionManagers.SessionManagerForApplication(app)
 				if sessionManager != nil {
-					cookie, err := r.Cookie(sessionManager.Cookie.Name)
-					if err == nil {
-						ctx = setSessionIDInContext(ctx, cookie.Value)
+					wrapper, ok := sessionManager.(ScsSessionManagerWrapper)
+					if ok {
+						cookie, err := r.Cookie(wrapper.ScsSessionManager.Cookie.Name)
+						if err == nil {
+							ctx = setSessionIDInContext(ctx, cookie.Value)
+						}
 					}
 				}
 			}

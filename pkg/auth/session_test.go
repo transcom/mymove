@@ -32,7 +32,6 @@ func (suite *authSuite) TestSetupSessionManagers() {
 		sessionManagers := SetupSessionManagers(
 			pool, useSecureCookie, idleTimeout, lifetime,
 		)
-		milSessionManager := sessionManagers[0]
 		ctx := context.Background()
 		fakeSession := &Session{
 			Hostname: "fake",
@@ -40,28 +39,26 @@ func (suite *authSuite) TestSetupSessionManagers() {
 
 		// make sure we can store and load from redis without error
 		fakeToken := "fake_token"
-		ctx, err := milSessionManager.Load(ctx, fakeToken)
+		ctx, err := sessionManagers.Mil.Load(ctx, fakeToken)
 		suite.NoError(err)
-		sessionToken, _, err := milSessionManager.Commit(ctx)
+		sessionToken, _, err := sessionManagers.Mil.Commit(ctx)
 		suite.NoError(err)
-		milSessionManager.Put(ctx, "session", fakeSession)
-		_, err = milSessionManager.Load(ctx, "session")
+		sessionManagers.Mil.Put(ctx, "session", fakeSession)
+		_, err = sessionManagers.Mil.Load(ctx, "session")
 		suite.NoError(err)
 
 		// make sure all stores are unique
 		// before the change to use a separate redis prefix for each
 		// session manager, this test would fail
-		_, found, err := milSessionManager.Store.Find(sessionToken)
+		_, found, err := sessionManagers.Mil.Store().Find(sessionToken)
 		suite.NoError(err)
 		suite.True(found)
 
-		adminSessionManager := sessionManagers[1]
-		_, found, err = adminSessionManager.Store.Find(sessionToken)
+		_, found, err = sessionManagers.Admin.Store().Find(sessionToken)
 		suite.NoError(err)
 		suite.False(found)
 
-		officeSessionManager := sessionManagers[2]
-		_, found, err = officeSessionManager.Store.Find(sessionToken)
+		_, found, err = sessionManagers.Office.Store().Find(sessionToken)
 		suite.NoError(err)
 		suite.False(found)
 	})
@@ -70,15 +67,11 @@ func (suite *authSuite) TestSetupSessionManagers() {
 		sessionManagers := SetupSessionManagers(
 			nil, useSecureCookie, idleTimeout, lifetime,
 		)
-		milSession := sessionManagers[0]
-		adminSession := sessionManagers[1]
-		officeSession := sessionManagers[2]
-
-		_, ok := milSession.Store.(*memstore.MemStore)
+		_, ok := sessionManagers.Mil.Store().(*memstore.MemStore)
 		suite.Require().True(ok)
-		_, ok = adminSession.Store.(*memstore.MemStore)
+		_, ok = sessionManagers.Admin.Store().(*memstore.MemStore)
 		suite.Require().True(ok)
-		_, ok = officeSession.Store.(*memstore.MemStore)
+		_, ok = sessionManagers.Office.Store().(*memstore.MemStore)
 		suite.Require().True(ok)
 	})
 
@@ -86,9 +79,9 @@ func (suite *authSuite) TestSetupSessionManagers() {
 		sessionManagers := SetupSessionManagers(
 			nil, useSecureCookie, idleTimeout, lifetime,
 		)
-		milSession := sessionManagers[0]
-		adminSession := sessionManagers[1]
-		officeSession := sessionManagers[2]
+		milSession := sessionManagers.Mil.(ScsSessionManagerWrapper).ScsSessionManager
+		adminSession := sessionManagers.Admin.(ScsSessionManagerWrapper).ScsSessionManager
+		officeSession := sessionManagers.Office.(ScsSessionManagerWrapper).ScsSessionManager
 
 		suite.Equal("mil_session_token", milSession.Cookie.Name)
 		suite.Equal("admin_session_token", adminSession.Cookie.Name)
@@ -99,9 +92,9 @@ func (suite *authSuite) TestSetupSessionManagers() {
 		sessionManagers := SetupSessionManagers(
 			nil, useSecureCookie, idleTimeout, lifetime,
 		)
-		milSession := sessionManagers[0]
-		adminSession := sessionManagers[1]
-		officeSession := sessionManagers[2]
+		milSession := sessionManagers.Mil.(ScsSessionManagerWrapper).ScsSessionManager
+		adminSession := sessionManagers.Admin.(ScsSessionManagerWrapper).ScsSessionManager
+		officeSession := sessionManagers.Office.(ScsSessionManagerWrapper).ScsSessionManager
 
 		suite.Equal(useSecureCookie, milSession.Cookie.Secure)
 		suite.Equal(useSecureCookie, adminSession.Cookie.Secure)
@@ -112,9 +105,9 @@ func (suite *authSuite) TestSetupSessionManagers() {
 		sessionManagers := SetupSessionManagers(
 			nil, useSecureCookie, idleTimeout, lifetime,
 		)
-		milSession := sessionManagers[0]
-		adminSession := sessionManagers[1]
-		officeSession := sessionManagers[2]
+		milSession := sessionManagers.Mil.(ScsSessionManagerWrapper).ScsSessionManager
+		adminSession := sessionManagers.Admin.(ScsSessionManagerWrapper).ScsSessionManager
+		officeSession := sessionManagers.Office.(ScsSessionManagerWrapper).ScsSessionManager
 
 		suite.Equal(idleTimeout, milSession.IdleTimeout)
 		suite.Equal(idleTimeout, adminSession.IdleTimeout)
@@ -125,9 +118,9 @@ func (suite *authSuite) TestSetupSessionManagers() {
 		sessionManagers := SetupSessionManagers(
 			nil, useSecureCookie, idleTimeout, lifetime,
 		)
-		milSession := sessionManagers[0]
-		adminSession := sessionManagers[1]
-		officeSession := sessionManagers[2]
+		milSession := sessionManagers.Mil.(ScsSessionManagerWrapper).ScsSessionManager
+		adminSession := sessionManagers.Admin.(ScsSessionManagerWrapper).ScsSessionManager
+		officeSession := sessionManagers.Office.(ScsSessionManagerWrapper).ScsSessionManager
 
 		suite.Equal(lifetime, milSession.Lifetime)
 		suite.Equal(lifetime, adminSession.Lifetime)
@@ -138,9 +131,9 @@ func (suite *authSuite) TestSetupSessionManagers() {
 		sessionManagers := SetupSessionManagers(
 			nil, useSecureCookie, idleTimeout, lifetime,
 		)
-		milSession := sessionManagers[0]
-		adminSession := sessionManagers[1]
-		officeSession := sessionManagers[2]
+		milSession := sessionManagers.Mil.(ScsSessionManagerWrapper).ScsSessionManager
+		adminSession := sessionManagers.Admin.(ScsSessionManagerWrapper).ScsSessionManager
+		officeSession := sessionManagers.Office.(ScsSessionManagerWrapper).ScsSessionManager
 
 		suite.Equal("/", milSession.Cookie.Path)
 		suite.Equal("/", adminSession.Cookie.Path)
@@ -151,9 +144,9 @@ func (suite *authSuite) TestSetupSessionManagers() {
 		sessionManagers := SetupSessionManagers(
 			nil, useSecureCookie, idleTimeout, lifetime,
 		)
-		milSession := sessionManagers[0]
-		adminSession := sessionManagers[1]
-		officeSession := sessionManagers[2]
+		milSession := sessionManagers.Mil.(ScsSessionManagerWrapper).ScsSessionManager
+		adminSession := sessionManagers.Admin.(ScsSessionManagerWrapper).ScsSessionManager
+		officeSession := sessionManagers.Office.(ScsSessionManagerWrapper).ScsSessionManager
 
 		suite.Equal(false, milSession.Cookie.Persist)
 		suite.Equal(false, adminSession.Cookie.Persist)

@@ -273,7 +273,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 					appCtx,
 					*updatedOfficeUser.UserID,
 					&revokeOfficeSessionPayload,
-					h.GetSessionManagers(),
+					h.SessionManagers(),
 				)
 
 				if revokeErr != nil {
