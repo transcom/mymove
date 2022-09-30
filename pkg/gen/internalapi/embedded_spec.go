@@ -4919,9 +4919,7 @@ func init() {
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the moving expense",
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false
+          "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "sitEndDate": {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -5242,7 +5240,6 @@ func init() {
       }
     },
     "PPMDocumentStatusReason": {
-      "description": "The reason the services counselor has excluded or rejected the weight ticket.",
       "type": "string",
       "x-nullable": true,
       "x-omitempty": false
@@ -7197,6 +7194,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
+          "description": "The reason the services counselor has excluded or rejected the weight ticket.",
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {
@@ -12348,9 +12346,7 @@ func init() {
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the moving expense",
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false
+          "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "sitEndDate": {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -12671,7 +12667,6 @@ func init() {
       }
     },
     "PPMDocumentStatusReason": {
-      "description": "The reason the services counselor has excluded or rejected the weight ticket.",
       "type": "string",
       "x-nullable": true,
       "x-omitempty": false
@@ -14640,6 +14635,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
+          "description": "The reason the services counselor has excluded or rejected the weight ticket.",
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {

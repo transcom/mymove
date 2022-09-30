@@ -300,7 +300,6 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		PaidWithGtcc:   movingExpense.PaidWithGTCC,
 		Amount:         handlers.FmtCost(movingExpense.Amount),
 		MissingReceipt: movingExpense.MissingReceipt,
-		Reason:         movingExpense.Reason,
 	}
 	if movingExpense.MovingExpenseType != nil {
 		payload.MovingExpenseType = internalmessages.MovingExpenseType(*movingExpense.MovingExpenseType)
@@ -308,6 +307,11 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 
 	if movingExpense.Status != nil {
 		payload.Status = internalmessages.PPMDocumentStatus(*movingExpense.Status)
+	}
+
+	if movingExpense.Reason != nil {
+		reason := internalmessages.PPMDocumentStatusReason(*movingExpense.Reason)
+		payload.Reason = &reason
 	}
 
 	if movingExpense.SITStartDate != nil {
@@ -373,7 +377,8 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 	}
 
 	if weightTicket.Reason != nil {
-		payload.Reason = internalmessages.PPMDocumentStatusReason(*weightTicket.Reason)
+		reason := internalmessages.PPMDocumentStatusReason(*weightTicket.Reason)
+		payload.Reason = &reason
 	}
 
 	return payload

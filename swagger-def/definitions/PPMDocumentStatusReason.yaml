@@ -1,4 +1,3 @@
-description: The reason the services counselor has excluded or rejected the weight ticket.
 type: string
 x-nullable: true
 x-omitempty: false

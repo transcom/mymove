@@ -11,7 +11,7 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// PPMDocumentStatusReason The reason the services counselor has excluded or rejected the weight ticket.
+// PPMDocumentStatusReason p p m document status reason
 //
 // swagger:model PPMDocumentStatusReason
 type PPMDocumentStatusReason string

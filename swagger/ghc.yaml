@@ -5539,9 +5539,6 @@ definitions:
       EXCLUDED: Excluded
       REJECTED: Rejected
   PPMDocumentStatusReason:
-    description: >-
-      The reason the services counselor has excluded or rejected the weight
-      ticket.
     type: string
     x-nullable: true
     x-omitempty: false
@@ -5632,6 +5629,9 @@ definitions:
         x-nullable: true
         x-omitempty: false
       reason:
+        description: >-
+          The reason the services counselor has excluded or rejected the weight
+          ticket.
         $ref: '#/definitions/PPMDocumentStatusReason'
       eTag:
         type: string
@@ -5732,9 +5732,7 @@ definitions:
         description: >-
           The reason the services counselor has excluded or rejected the moving
           expense
-        type: string
-        x-nullable: true
-        x-omitempty: false
+        $ref: '#/definitions/PPMDocumentStatusReason'
       sitStartDate:
         description: >-
           The date the shipment entered storage, applicable for the `STORAGE`

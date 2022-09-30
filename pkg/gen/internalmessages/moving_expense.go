@@ -69,7 +69,7 @@ type MovingExpense struct {
 	PpmShipmentID strfmt.UUID `json:"ppmShipmentId"`
 
 	// The reason the services counselor has excluded or rejected the moving expense
-	Reason *string `json:"reason"`
+	Reason *PPMDocumentStatusReason `json:"reason"`
 
 	// The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
 	// Example: 2018-05-26
@@ -115,6 +115,10 @@ func (m *MovingExpense) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePpmShipmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -218,6 +222,25 @@ func (m *MovingExpense) validatePpmShipmentID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MovingExpense) validateReason(formats strfmt.Registry) error {
+	if swag.IsZero(m.Reason) { // not required
+		return nil
+	}
+
+	if m.Reason != nil {
+		if err := m.Reason.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("reason")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("reason")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MovingExpense) validateSitEndDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.SitEndDate) { // not required
 		return nil
@@ -296,6 +319,10 @@ func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Regi
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateReason(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -351,6 +378,22 @@ func (m *MovingExpense) contextValidatePpmShipmentID(ctx context.Context, format
 
 	if err := validate.ReadOnly(ctx, "ppmShipmentId", "body", strfmt.UUID(m.PpmShipmentID)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) contextValidateReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Reason != nil {
+		if err := m.Reason.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("reason")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("reason")
+			}
+			return err
+		}
 	}
 
 	return nil
