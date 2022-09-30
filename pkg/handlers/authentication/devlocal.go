@@ -17,7 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	servicemembers "github.com/transcom/mymove/pkg/services/service_members"
+	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 )
 
 const (
@@ -439,9 +439,15 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		newServiceMember := models.ServiceMember{
 			UserID: user.ID,
 		}
-		smVerrs, smErr := servicemembers.NewServiceMemberCreator().CreateServiceMember(appCtx, newServiceMember)
+		smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
 		if smVerrs.HasAny() || smErr != nil {
 			appCtx.Logger().Error("Error creating service member for user", zap.Error(smErr))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		}
+
+		_, err = usersroles.NewUsersRolesCreator().UpdateUserRoles(appCtx, newServiceMember.UserID, []roles.RoleType{roles.RoleTypeCustomer})
+		if err != nil {
+			appCtx.Logger().Error("Error updating user roles", zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		}
 	case PPMOfficeUserType:

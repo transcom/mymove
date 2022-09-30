@@ -23,7 +23,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
-	servicemembers "github.com/transcom/mymove/pkg/services/service_members"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -94,10 +93,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 		CreateServiceMemberPayload: &newServiceMemberPayload,
 		HTTPRequest:                req,
 	}
-	handler := CreateServiceMemberHandler{
-		suite.HandlerConfig(),
-		servicemembers.NewServiceMemberCreator(),
-	}
+	handler := CreateServiceMemberHandler{suite.HandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.CookieUpdateResponder{}, response)
@@ -159,10 +155,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 		HTTPRequest:                req,
 	}
 
-	handler := CreateServiceMemberHandler{
-		suite.HandlerConfig(),
-		servicemembers.NewServiceMemberCreator(),
-	}
+	handler := CreateServiceMemberHandler{suite.HandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.CookieUpdateResponder{}, response)
