@@ -490,13 +490,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		appCtx.Logger().Fatal("Registering login provider", zap.Error(err))
 	}
 
-	sessionIdleTimeout := time.Duration(v.GetInt(cli.SessionIdleTimeoutInMinutesFlag)) * time.Minute
-	sessionLifetime := time.Duration(v.GetInt(cli.SessionLifetimeInHoursFlag)) * time.Hour
-
-	useSecureCookie := !isDevOrTest
-	sessionManagers := auth.SetupSessionManagers(redisPool, useSecureCookie,
-		sessionIdleTimeout, sessionLifetime)
-	routingConfig.AuthContext = authentication.NewAuthContext(appCtx.Logger(), loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
+	routingConfig.AuthContext = authentication.NewAuthContext(appCtx.Logger(), loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 
 	// Email
 	notificationSender, err := notifications.InitEmail(v, awsSession, appCtx.Logger())
@@ -577,6 +571,13 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		routingConfig.LocalStorageWebRoot = v.GetString(cli.LocalStorageWebRootFlag)
 	}
 
+	sessionIdleTimeout := time.Duration(v.GetInt(cli.SessionIdleTimeoutInMinutesFlag)) * time.Minute
+	sessionLifetime := time.Duration(v.GetInt(cli.SessionLifetimeInHoursFlag)) * time.Hour
+
+	useSecureCookie := !isDevOrTest
+	sessionManagers := auth.SetupSessionManagers(redisPool, useSecureCookie,
+		sessionIdleTimeout, sessionLifetime)
+
 	routingConfig.HandlerConfig = handlers.NewHandlerConfig(
 		appCtx.DB(),
 		appCtx.Logger(),
@@ -592,8 +593,8 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		icnSequencer,
 		useSecureCookie,
 		appNames,
-		[]handlers.FeatureFlag{},
 		sessionManagers,
+		[]handlers.FeatureFlag{},
 	)
 
 	initializeRouteOptions(v, routingConfig)

@@ -262,18 +262,16 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type devlocalAuthHandler struct {
 	Context
 	handlers.HandlerConfig
-	appnames auth.ApplicationServername
 }
 
 // AssignUserHandler logs a user in directly
 type AssignUserHandler devlocalAuthHandler
 
 // NewAssignUserHandler creates a new AssignUserHandler
-func NewAssignUserHandler(ac Context, hc handlers.HandlerConfig, appnames auth.ApplicationServername) AssignUserHandler {
+func NewAssignUserHandler(ac Context, hc handlers.HandlerConfig) AssignUserHandler {
 	handler := AssignUserHandler{
 		Context:       ac,
 		HandlerConfig: hc,
-		appnames:      appnames,
 	}
 	return handler
 }
@@ -326,11 +324,10 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateUserHandler devlocalAuthHandler
 
 // NewCreateUserHandler creates a new CreateUserHandler
-func NewCreateUserHandler(ac Context, hc handlers.HandlerConfig, appnames auth.ApplicationServername) CreateUserHandler {
+func NewCreateUserHandler(ac Context, hc handlers.HandlerConfig) CreateUserHandler {
 	handler := CreateUserHandler{
 		Context:       ac,
 		HandlerConfig: hc,
-		appnames:      appnames,
 	}
 	return handler
 }
@@ -356,11 +353,10 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateAndLoginUserHandler devlocalAuthHandler
 
 // NewCreateAndLoginUserHandler creates a new CreateAndLoginUserHandler
-func NewCreateAndLoginUserHandler(ac Context, hc handlers.HandlerConfig, appnames auth.ApplicationServername) CreateAndLoginUserHandler {
+func NewCreateAndLoginUserHandler(ac Context, hc handlers.HandlerConfig) CreateAndLoginUserHandler {
 	handler := CreateAndLoginUserHandler{
 		Context:       ac,
 		HandlerConfig: hc,
-		appnames:      appnames,
 	}
 	return handler
 }
@@ -925,16 +921,16 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	switch userType {
 	case PPMOfficeUserType, TOOOfficeUserType, TIOOfficeUserType, ServicesCounselorOfficeUserType, PrimeSimulatorOfficeUserType, QaeCsrOfficeUserType:
 		session.ApplicationName = auth.OfficeApp
-		session.Hostname = h.appnames.OfficeServername
+		session.Hostname = h.AppNames().OfficeServername
 		active = userIdentity.Active || (userIdentity.OfficeActive != nil && *userIdentity.OfficeActive)
 	case AdminUserType:
 		session.ApplicationName = auth.AdminApp
-		session.Hostname = h.appnames.AdminServername
+		session.Hostname = h.AppNames().AdminServername
 		session.AdminUserID = *userIdentity.AdminUserID
 		session.AdminUserRole = userIdentity.AdminUserRole.String()
 	default:
 		session.ApplicationName = auth.MilApp
-		session.Hostname = h.appnames.MilServername
+		session.Hostname = h.AppNames().MilServername
 	}
 
 	// If the user is active they should be denied a session
@@ -959,7 +955,26 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	session.LastName = userIdentity.LastName()
 	session.Middle = userIdentity.Middle()
 
-	h.sessionManager(session).Put(r.Context(), "session", session)
+	sessionManager := h.SessionManagers().
+		SessionManagerForApplication(session.ApplicationName)
+	if sessionManager == nil {
+		appCtx.Logger().Error("Cannot determine session manager for session", zap.String("session.ApplicationName", string(session.ApplicationName)))
+		return nil, errors.New("Cannot determine session manager")
+	}
+
+	// DREW DEBUG
+	// ctx, err := sessionManager.Load(r.Context(), session.IDToken)
+	// if err != nil {
+	// 	appCtx.Logger().Error("Cannot load session from context", zap.Error(err))
+	// 	return nil, err
+	// }
+	// _, _, err = sessionManager.Commit(ctx)
+	// if err != nil {
+	// 	appCtx.Logger().Error("Cannot commit session to context", zap.Error(err))
+	// 	return nil, err
+	// }
+
+	sessionManager.Put(r.Context(), "session", session)
 	// Writing out the session cookie logs in the user
 	appCtx.Logger().Info("logged in", zap.Any("session", session))
 	return session, nil

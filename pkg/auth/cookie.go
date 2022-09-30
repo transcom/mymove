@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alexedwards/scs/v2"
 	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -124,22 +123,9 @@ func ApplicationName(hostname string, appnames ApplicationServername) (Applicati
 		}, fmt.Sprintf("%s is invalid", hostname))
 }
 
-func sessionManagerForApp(app Application, sessionManagers [3]*scs.SessionManager) *scs.SessionManager {
-	session := Session{ApplicationName: app}
-	if session.IsMilApp() {
-		return sessionManagers[0]
-	} else if session.IsAdminApp() {
-		return sessionManagers[1]
-	} else if session.IsOfficeApp() {
-		return sessionManagers[2]
-	}
-
-	return nil
-}
-
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
-func SessionCookieMiddleware(globalLogger *zap.Logger, appnames ApplicationServername, sessionManagers [3]*scs.SessionManager) func(next http.Handler) http.Handler {
-	globalLogger.Info("Creating session",
+func SessionCookieMiddleware(globalLogger *zap.Logger, appnames ApplicationServername, sessionManagers AppSessionManagers) func(next http.Handler) http.Handler {
+	globalLogger.Info("Creating session middleware",
 		zap.String("milServername", appnames.MilServername),
 		zap.String("officeServername", appnames.OfficeServername),
 		zap.String("adminServername", appnames.AdminServername))
@@ -158,7 +144,7 @@ func SessionCookieMiddleware(globalLogger *zap.Logger, appnames ApplicationServe
 				return
 			}
 
-			sessionManager := sessionManagerForApp(app, sessionManagers)
+			sessionManager := sessionManagers.SessionManagerForApplication(app)
 
 			// The scs session manager Get call will return an empty
 			// Session if an existing one is not found in the store

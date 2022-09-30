@@ -10,8 +10,6 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/alexedwards/scs/v2"
-	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -24,6 +22,29 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
 )
+
+const (
+	// OfficeTestHost
+	OfficeTestHost string = "office.example.com"
+	// MilTestHost
+	MilTestHost string = "mil.example.com"
+	// OrdersTestHost
+	OrdersTestHost string = "orders.example.com"
+	// AdminTestHost
+	AdminTestHost string = "admin.example.com"
+	// PrimeTestHost
+	PrimeTestHost string = "prime.example.com"
+)
+
+// ApplicationTestServername is a collection of the test servernames
+func ApplicationTestServername() auth.ApplicationServername {
+	return auth.ApplicationServername{
+		MilServername:    MilTestHost,
+		OfficeServername: OfficeTestHost,
+		OrdersServername: OrdersTestHost,
+		AdminServername:  AdminTestHost,
+	}
+}
 
 // BaseHandlerTestSuite abstracts the common methods needed for handler tests
 type BaseHandlerTestSuite struct {
@@ -46,27 +67,16 @@ func NewBaseHandlerTestSuite(sender notifications.NotificationSender, packageNam
 // HandlerConfig interface, so overrides can be made to the config
 func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
 	return &Config{
-		db:     suite.DB(),
-		logger: suite.Logger(),
+		db:              suite.DB(),
+		logger:          suite.Logger(),
+		appNames:        ApplicationTestServername(),
+		sessionManagers: setupSessionManagers(),
 	}
 }
 
-func (suite *BaseHandlerTestSuite) SetupSessionManagers() [3]*scs.SessionManager {
-	var milSession, adminSession, officeSession *scs.SessionManager
-	store := memstore.New()
-	milSession = scs.New()
-	milSession.Store = store
-	milSession.Cookie.Name = "mil_session_token"
-
-	adminSession = scs.New()
-	adminSession.Store = store
-	adminSession.Cookie.Name = "admin_session_token"
-
-	officeSession = scs.New()
-	officeSession.Store = store
-	officeSession.Cookie.Name = "office_session_token"
-
-	return [3]*scs.SessionManager{milSession, adminSession, officeSession}
+func setupSessionManagers() auth.AppSessionManagers {
+	return auth.SetupSessionManagers(nil, false, time.Duration(180*time.Second),
+		time.Duration(180*time.Second))
 }
 
 // TestFilesToClose returns the list of files needed to close at the end of tests
