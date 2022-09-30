@@ -1,8 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function NotificationScrollToTop({ dependency }) {
+  const isMounted = useRef(false);
+
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (isMounted.current) {
+      window.scrollTo(0, 0);
+    } else {
+      isMounted.current = true;
+    }
   }, [dependency]);
 
   return null;
