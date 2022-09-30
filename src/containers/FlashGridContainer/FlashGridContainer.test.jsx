@@ -82,18 +82,18 @@ describe('FlashGridContainer component', () => {
         </FlashGridContainer>
       </Provider>,
     );
-    // ScrollToTop should fire at the initial mount
-    expect(global.scrollTo).toHaveBeenCalledTimes(1);
+    // ScrollToTop should not fire at the initial mount
+    expect(global.scrollTo).toHaveBeenCalledTimes(0);
 
     mockStore.store.dispatch(setFlashMessage('TEST_SUCCESS_FLASH', 'success', 'This is a successful message!'));
 
     // Re-render after changing state with new message and ScrollToTop should fire again
     wrapper.mount();
-    expect(global.scrollTo).toHaveBeenCalledTimes(2);
+    expect(global.scrollTo).toHaveBeenCalledTimes(1);
 
     // Re-render without changing the message state and ScrollToTop should NOT fire
     wrapper.mount();
-    expect(global.scrollTo).toHaveBeenCalledTimes(2);
+    expect(global.scrollTo).toHaveBeenCalledTimes(1);
   });
 
   it('clears the alert if a new element is focused (in and out) and does not scroll', () => {});
