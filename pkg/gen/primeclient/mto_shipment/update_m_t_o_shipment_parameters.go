@@ -54,10 +54,12 @@ func NewUpdateMTOShipmentParamsWithHTTPClient(client *http.Client) *UpdateMTOShi
 	}
 }
 
-/* UpdateMTOShipmentParams contains all the parameters to send to the API endpoint
-   for the update m t o shipment operation.
+/*
+UpdateMTOShipmentParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the update m t o shipment operation.
+
+	Typically these are written to a http.Request.
 */
 type UpdateMTOShipmentParams struct {
 

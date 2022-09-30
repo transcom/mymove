@@ -29,12 +29,12 @@ func NewUpdateAllowance(ctx *middleware.Context, handler UpdateAllowanceHandler)
 	return &UpdateAllowance{Context: ctx, Handler: handler}
 }
 
-/* UpdateAllowance swagger:route PATCH /orders/{orderID}/allowances order updateAllowance
+/*
+	UpdateAllowance swagger:route PATCH /orders/{orderID}/allowances order updateAllowance
 
 Updates an allowance (Orders with Entitlements)
 
 All fields sent in this request will be set on the order referenced
-
 */
 type UpdateAllowance struct {
 	Context *middleware.Context

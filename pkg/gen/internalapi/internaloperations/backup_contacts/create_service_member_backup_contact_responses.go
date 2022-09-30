@@ -16,7 +16,8 @@ import (
 // CreateServiceMemberBackupContactCreatedCode is the HTTP code returned for type CreateServiceMemberBackupContactCreated
 const CreateServiceMemberBackupContactCreatedCode int = 201
 
-/*CreateServiceMemberBackupContactCreated created instance of service member backup contact
+/*
+CreateServiceMemberBackupContactCreated created instance of service member backup contact
 
 swagger:response createServiceMemberBackupContactCreated
 */
@@ -60,7 +61,8 @@ func (o *CreateServiceMemberBackupContactCreated) WriteResponse(rw http.Response
 // CreateServiceMemberBackupContactBadRequestCode is the HTTP code returned for type CreateServiceMemberBackupContactBadRequest
 const CreateServiceMemberBackupContactBadRequestCode int = 400
 
-/*CreateServiceMemberBackupContactBadRequest invalid request
+/*
+CreateServiceMemberBackupContactBadRequest invalid request
 
 swagger:response createServiceMemberBackupContactBadRequest
 */
@@ -84,7 +86,8 @@ func (o *CreateServiceMemberBackupContactBadRequest) WriteResponse(rw http.Respo
 // CreateServiceMemberBackupContactUnauthorizedCode is the HTTP code returned for type CreateServiceMemberBackupContactUnauthorized
 const CreateServiceMemberBackupContactUnauthorizedCode int = 401
 
-/*CreateServiceMemberBackupContactUnauthorized request requires user authentication
+/*
+CreateServiceMemberBackupContactUnauthorized request requires user authentication
 
 swagger:response createServiceMemberBackupContactUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *CreateServiceMemberBackupContactUnauthorized) WriteResponse(rw http.Res
 // CreateServiceMemberBackupContactForbiddenCode is the HTTP code returned for type CreateServiceMemberBackupContactForbidden
 const CreateServiceMemberBackupContactForbiddenCode int = 403
 
-/*CreateServiceMemberBackupContactForbidden user is not authorized to create this backup contact
+/*
+CreateServiceMemberBackupContactForbidden user is not authorized to create this backup contact
 
 swagger:response createServiceMemberBackupContactForbidden
 */
@@ -132,7 +136,8 @@ func (o *CreateServiceMemberBackupContactForbidden) WriteResponse(rw http.Respon
 // CreateServiceMemberBackupContactNotFoundCode is the HTTP code returned for type CreateServiceMemberBackupContactNotFound
 const CreateServiceMemberBackupContactNotFoundCode int = 404
 
-/*CreateServiceMemberBackupContactNotFound contact not found
+/*
+CreateServiceMemberBackupContactNotFound contact not found
 
 swagger:response createServiceMemberBackupContactNotFound
 */
@@ -156,7 +161,8 @@ func (o *CreateServiceMemberBackupContactNotFound) WriteResponse(rw http.Respons
 // CreateServiceMemberBackupContactInternalServerErrorCode is the HTTP code returned for type CreateServiceMemberBackupContactInternalServerError
 const CreateServiceMemberBackupContactInternalServerErrorCode int = 500
 
-/*CreateServiceMemberBackupContactInternalServerError internal server error
+/*
+CreateServiceMemberBackupContactInternalServerError internal server error
 
 swagger:response createServiceMemberBackupContactInternalServerError
 */

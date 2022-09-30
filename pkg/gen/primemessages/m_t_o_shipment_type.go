@@ -17,10 +17,10 @@ import (
 // MTOShipmentType Shipment Type
 //
 // The type of shipment.
-//   * `HHG` = Household goods move
-//   * `HHG_INTO_NTS_DOMESTIC` = HHG into Non-temporary storage (NTS)
-//   * `HHG_OUTOF_NTS_DOMESTIC` = HHG out of Non-temporary storage (NTS Release)
-//   * `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
+//   - `HHG` = Household goods move
+//   - `HHG_INTO_NTS_DOMESTIC` = HHG into Non-temporary storage (NTS)
+//   - `HHG_OUTOF_NTS_DOMESTIC` = HHG out of Non-temporary storage (NTS Release)
+//   - `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
 //
 // Example: HHG
 //

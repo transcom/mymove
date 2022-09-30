@@ -51,7 +51,8 @@ func NewCreateWebhookNotificationCreated() *CreateWebhookNotificationCreated {
 	return &CreateWebhookNotificationCreated{}
 }
 
-/* CreateWebhookNotificationCreated describes a response with status code 201, with default header values.
+/*
+CreateWebhookNotificationCreated describes a response with status code 201, with default header values.
 
 Successful creation
 */
@@ -113,7 +114,8 @@ func NewCreateWebhookNotificationUnprocessableEntity() *CreateWebhookNotificatio
 	return &CreateWebhookNotificationUnprocessableEntity{}
 }
 
-/* CreateWebhookNotificationUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+CreateWebhookNotificationUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -175,7 +177,8 @@ func NewCreateWebhookNotificationInternalServerError() *CreateWebhookNotificatio
 	return &CreateWebhookNotificationInternalServerError{}
 }
 
-/* CreateWebhookNotificationInternalServerError describes a response with status code 500, with default header values.
+/*
+CreateWebhookNotificationInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

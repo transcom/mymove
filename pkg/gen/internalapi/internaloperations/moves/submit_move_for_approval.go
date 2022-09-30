@@ -29,12 +29,12 @@ func NewSubmitMoveForApproval(ctx *middleware.Context, handler SubmitMoveForAppr
 	return &SubmitMoveForApproval{Context: ctx, Handler: handler}
 }
 
-/* SubmitMoveForApproval swagger:route POST /moves/{moveId}/submit moves submitMoveForApproval
+/*
+	SubmitMoveForApproval swagger:route POST /moves/{moveId}/submit moves submitMoveForApproval
 
-Submits a move for approval
+# Submits a move for approval
 
 Submits a move for approval by the office. The status of the move will be updated to SUBMITTED
-
 */
 type SubmitMoveForApproval struct {
 	Context *middleware.Context

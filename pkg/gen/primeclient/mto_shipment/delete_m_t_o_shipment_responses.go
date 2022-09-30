@@ -75,7 +75,8 @@ func NewDeleteMTOShipmentNoContent() *DeleteMTOShipmentNoContent {
 	return &DeleteMTOShipmentNoContent{}
 }
 
-/* DeleteMTOShipmentNoContent describes a response with status code 204, with default header values.
+/*
+DeleteMTOShipmentNoContent describes a response with status code 204, with default header values.
 
 Successfully deleted the MTO shipment.
 */
@@ -125,7 +126,8 @@ func NewDeleteMTOShipmentBadRequest() *DeleteMTOShipmentBadRequest {
 	return &DeleteMTOShipmentBadRequest{}
 }
 
-/* DeleteMTOShipmentBadRequest describes a response with status code 400, with default header values.
+/*
+DeleteMTOShipmentBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -187,7 +189,8 @@ func NewDeleteMTOShipmentForbidden() *DeleteMTOShipmentForbidden {
 	return &DeleteMTOShipmentForbidden{}
 }
 
-/* DeleteMTOShipmentForbidden describes a response with status code 403, with default header values.
+/*
+DeleteMTOShipmentForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -249,7 +252,8 @@ func NewDeleteMTOShipmentNotFound() *DeleteMTOShipmentNotFound {
 	return &DeleteMTOShipmentNotFound{}
 }
 
-/* DeleteMTOShipmentNotFound describes a response with status code 404, with default header values.
+/*
+DeleteMTOShipmentNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -311,7 +315,8 @@ func NewDeleteMTOShipmentConflict() *DeleteMTOShipmentConflict {
 	return &DeleteMTOShipmentConflict{}
 }
 
-/* DeleteMTOShipmentConflict describes a response with status code 409, with default header values.
+/*
+DeleteMTOShipmentConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -373,7 +378,8 @@ func NewDeleteMTOShipmentUnprocessableEntity() *DeleteMTOShipmentUnprocessableEn
 	return &DeleteMTOShipmentUnprocessableEntity{}
 }
 
-/* DeleteMTOShipmentUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+DeleteMTOShipmentUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -435,7 +441,8 @@ func NewDeleteMTOShipmentInternalServerError() *DeleteMTOShipmentInternalServerE
 	return &DeleteMTOShipmentInternalServerError{}
 }
 
-/* DeleteMTOShipmentInternalServerError describes a response with status code 500, with default header values.
+/*
+DeleteMTOShipmentInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

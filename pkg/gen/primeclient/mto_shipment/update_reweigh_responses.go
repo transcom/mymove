@@ -87,7 +87,8 @@ func NewUpdateReweighOK() *UpdateReweighOK {
 	return &UpdateReweighOK{}
 }
 
-/* UpdateReweighOK describes a response with status code 200, with default header values.
+/*
+UpdateReweighOK describes a response with status code 200, with default header values.
 
 Successfully updated the reweigh.
 */
@@ -149,7 +150,8 @@ func NewUpdateReweighBadRequest() *UpdateReweighBadRequest {
 	return &UpdateReweighBadRequest{}
 }
 
-/* UpdateReweighBadRequest describes a response with status code 400, with default header values.
+/*
+UpdateReweighBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -211,7 +213,8 @@ func NewUpdateReweighUnauthorized() *UpdateReweighUnauthorized {
 	return &UpdateReweighUnauthorized{}
 }
 
-/* UpdateReweighUnauthorized describes a response with status code 401, with default header values.
+/*
+UpdateReweighUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -273,7 +276,8 @@ func NewUpdateReweighForbidden() *UpdateReweighForbidden {
 	return &UpdateReweighForbidden{}
 }
 
-/* UpdateReweighForbidden describes a response with status code 403, with default header values.
+/*
+UpdateReweighForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -335,7 +339,8 @@ func NewUpdateReweighNotFound() *UpdateReweighNotFound {
 	return &UpdateReweighNotFound{}
 }
 
-/* UpdateReweighNotFound describes a response with status code 404, with default header values.
+/*
+UpdateReweighNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -397,7 +402,8 @@ func NewUpdateReweighConflict() *UpdateReweighConflict {
 	return &UpdateReweighConflict{}
 }
 
-/* UpdateReweighConflict describes a response with status code 409, with default header values.
+/*
+UpdateReweighConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -459,7 +465,8 @@ func NewUpdateReweighPreconditionFailed() *UpdateReweighPreconditionFailed {
 	return &UpdateReweighPreconditionFailed{}
 }
 
-/* UpdateReweighPreconditionFailed describes a response with status code 412, with default header values.
+/*
+UpdateReweighPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -521,7 +528,8 @@ func NewUpdateReweighUnprocessableEntity() *UpdateReweighUnprocessableEntity {
 	return &UpdateReweighUnprocessableEntity{}
 }
 
-/* UpdateReweighUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+UpdateReweighUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -583,7 +591,8 @@ func NewUpdateReweighInternalServerError() *UpdateReweighInternalServerError {
 	return &UpdateReweighInternalServerError{}
 }
 
-/* UpdateReweighInternalServerError describes a response with status code 500, with default header values.
+/*
+UpdateReweighInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

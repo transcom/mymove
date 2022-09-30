@@ -29,12 +29,12 @@ func NewShowDocument(ctx *middleware.Context, handler ShowDocumentHandler) *Show
 	return &ShowDocument{Context: ctx, Handler: handler}
 }
 
-/* ShowDocument swagger:route GET /documents/{documentId} documents showDocument
+/*
+	ShowDocument swagger:route GET /documents/{documentId} documents showDocument
 
-Returns a document
+# Returns a document
 
 Returns a document and its uploads
-
 */
 type ShowDocument struct {
 	Context *middleware.Context

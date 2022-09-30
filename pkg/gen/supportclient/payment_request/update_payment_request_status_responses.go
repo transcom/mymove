@@ -87,7 +87,8 @@ func NewUpdatePaymentRequestStatusOK() *UpdatePaymentRequestStatusOK {
 	return &UpdatePaymentRequestStatusOK{}
 }
 
-/* UpdatePaymentRequestStatusOK describes a response with status code 200, with default header values.
+/*
+UpdatePaymentRequestStatusOK describes a response with status code 200, with default header values.
 
 Successfully updated payment request status.
 */
@@ -149,7 +150,8 @@ func NewUpdatePaymentRequestStatusBadRequest() *UpdatePaymentRequestStatusBadReq
 	return &UpdatePaymentRequestStatusBadRequest{}
 }
 
-/* UpdatePaymentRequestStatusBadRequest describes a response with status code 400, with default header values.
+/*
+UpdatePaymentRequestStatusBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -211,7 +213,8 @@ func NewUpdatePaymentRequestStatusUnauthorized() *UpdatePaymentRequestStatusUnau
 	return &UpdatePaymentRequestStatusUnauthorized{}
 }
 
-/* UpdatePaymentRequestStatusUnauthorized describes a response with status code 401, with default header values.
+/*
+UpdatePaymentRequestStatusUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -273,7 +276,8 @@ func NewUpdatePaymentRequestStatusForbidden() *UpdatePaymentRequestStatusForbidd
 	return &UpdatePaymentRequestStatusForbidden{}
 }
 
-/* UpdatePaymentRequestStatusForbidden describes a response with status code 403, with default header values.
+/*
+UpdatePaymentRequestStatusForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -335,7 +339,8 @@ func NewUpdatePaymentRequestStatusNotFound() *UpdatePaymentRequestStatusNotFound
 	return &UpdatePaymentRequestStatusNotFound{}
 }
 
-/* UpdatePaymentRequestStatusNotFound describes a response with status code 404, with default header values.
+/*
+UpdatePaymentRequestStatusNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -397,7 +402,8 @@ func NewUpdatePaymentRequestStatusConflict() *UpdatePaymentRequestStatusConflict
 	return &UpdatePaymentRequestStatusConflict{}
 }
 
-/* UpdatePaymentRequestStatusConflict describes a response with status code 409, with default header values.
+/*
+UpdatePaymentRequestStatusConflict describes a response with status code 409, with default header values.
 
 There was a conflict with the request.
 */
@@ -459,7 +465,8 @@ func NewUpdatePaymentRequestStatusPreconditionFailed() *UpdatePaymentRequestStat
 	return &UpdatePaymentRequestStatusPreconditionFailed{}
 }
 
-/* UpdatePaymentRequestStatusPreconditionFailed describes a response with status code 412, with default header values.
+/*
+UpdatePaymentRequestStatusPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -521,7 +528,8 @@ func NewUpdatePaymentRequestStatusUnprocessableEntity() *UpdatePaymentRequestSta
 	return &UpdatePaymentRequestStatusUnprocessableEntity{}
 }
 
-/* UpdatePaymentRequestStatusUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+UpdatePaymentRequestStatusUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -583,7 +591,8 @@ func NewUpdatePaymentRequestStatusInternalServerError() *UpdatePaymentRequestSta
 	return &UpdatePaymentRequestStatusInternalServerError{}
 }
 
-/* UpdatePaymentRequestStatusInternalServerError describes a response with status code 500, with default header values.
+/*
+UpdatePaymentRequestStatusInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

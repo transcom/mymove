@@ -16,7 +16,8 @@ import (
 // ShowMoveOKCode is the HTTP code returned for type ShowMoveOK
 const ShowMoveOKCode int = 200
 
-/*ShowMoveOK the instance of the move
+/*
+ShowMoveOK the instance of the move
 
 swagger:response showMoveOK
 */
@@ -60,7 +61,8 @@ func (o *ShowMoveOK) WriteResponse(rw http.ResponseWriter, producer runtime.Prod
 // ShowMoveBadRequestCode is the HTTP code returned for type ShowMoveBadRequest
 const ShowMoveBadRequestCode int = 400
 
-/*ShowMoveBadRequest invalid request
+/*
+ShowMoveBadRequest invalid request
 
 swagger:response showMoveBadRequest
 */
@@ -84,7 +86,8 @@ func (o *ShowMoveBadRequest) WriteResponse(rw http.ResponseWriter, producer runt
 // ShowMoveUnauthorizedCode is the HTTP code returned for type ShowMoveUnauthorized
 const ShowMoveUnauthorizedCode int = 401
 
-/*ShowMoveUnauthorized request requires user authentication
+/*
+ShowMoveUnauthorized request requires user authentication
 
 swagger:response showMoveUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *ShowMoveUnauthorized) WriteResponse(rw http.ResponseWriter, producer ru
 // ShowMoveForbiddenCode is the HTTP code returned for type ShowMoveForbidden
 const ShowMoveForbiddenCode int = 403
 
-/*ShowMoveForbidden user is not authorized
+/*
+ShowMoveForbidden user is not authorized
 
 swagger:response showMoveForbidden
 */
@@ -132,7 +136,8 @@ func (o *ShowMoveForbidden) WriteResponse(rw http.ResponseWriter, producer runti
 // ShowMoveNotFoundCode is the HTTP code returned for type ShowMoveNotFound
 const ShowMoveNotFoundCode int = 404
 
-/*ShowMoveNotFound move is not found
+/*
+ShowMoveNotFound move is not found
 
 swagger:response showMoveNotFound
 */
@@ -156,7 +161,8 @@ func (o *ShowMoveNotFound) WriteResponse(rw http.ResponseWriter, producer runtim
 // ShowMoveInternalServerErrorCode is the HTTP code returned for type ShowMoveInternalServerError
 const ShowMoveInternalServerErrorCode int = 500
 
-/*ShowMoveInternalServerError internal server error
+/*
+ShowMoveInternalServerError internal server error
 
 swagger:response showMoveInternalServerError
 */
