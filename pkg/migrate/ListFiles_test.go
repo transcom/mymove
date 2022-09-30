@@ -44,12 +44,12 @@ func TestListFilesForS3WithInvalidClient(t *testing.T) {
 	assert.Error(t, expectedErr, err)
 }
 
-//mock interface
+// mock interface
 type mockS3Client struct {
 	s3iface.S3API
 }
 
-//mock function
+// mock function
 func (m *mockS3Client) ListObjects(input *s3.ListObjectsInput) (*s3.ListObjectsOutput, error) {
 	// mock response/functionality
 	var files []*s3.Object

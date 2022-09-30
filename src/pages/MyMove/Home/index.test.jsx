@@ -18,6 +18,7 @@ import { formatCustomerDate } from 'utils/formatters';
 import { MockProviders, setUpProvidersWithHistory } from 'testUtils';
 import createUpload from 'utils/test/factories/upload';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
+import { createApprovedPPMShipment, createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -662,10 +663,24 @@ describe('Home component', () => {
   describe('if the user has submitted a move with a ppm shipment that has been approved', () => {
     const props = {
       ...defaultProps,
-      move: { ...defaultProps.move, status: MOVE_STATUSES.SUBMITTED, submitted_at: new Date().toISOString() },
+      move: { ...defaultProps.move, status: MOVE_STATUSES.APPROVED, submitted_at: new Date().toISOString() },
       orders,
       uploadedOrderDocuments,
     };
+
+    it('it will render the correct helper text', () => {
+      const propsForApprovedShipment = {
+        ...props,
+        mtoShipments: [createApprovedPPMShipment()],
+      };
+
+      render(
+        <MockProviders>
+          <Home {...propsForApprovedShipment} />
+        </MockProviders>,
+      );
+      expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Your move is in progress');
+    });
 
     describe('then when the Upload PPM Documents button is clicked', () => {
       const ppmShipmentWithMultipleIncompleteWeightTickets = {
@@ -760,6 +775,33 @@ describe('Home component', () => {
           expect(memoryHistory.location.pathname).toEqual(expectedRoute);
         });
       });
+    });
+  });
+
+  describe('if PPM closeout is complete', () => {
+    // MB-13354: verify if this data (specifically move status) needs to be updated to align with the actual data post closeout
+    const props = {
+      ...defaultProps,
+      move: { ...defaultProps.move, status: MOVE_STATUSES.APPROVED, submitted_at: new Date().toISOString() },
+      orders,
+      uploadedOrderDocuments,
+    };
+    it('will render the correct helper text', () => {
+      const propsForCloseoutCompleteShipment = {
+        ...props,
+        mtoShipments: [
+          createPPMShipmentWithFinalIncentive({ ppmShipment: { status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL } }),
+        ],
+      };
+
+      render(
+        <MockProviders>
+          <Home {...propsForCloseoutCompleteShipment} />
+        </MockProviders>,
+      );
+      expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(
+        'Someone will review all of your PPM documentation',
+      );
     });
   });
 });

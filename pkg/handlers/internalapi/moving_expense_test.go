@@ -18,9 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-//
-//CREATE TEST
-//
+// CREATE TEST
 func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 	// Reusable objects
 	movingExpenseCreator := movingexpenseservice.NewMovingExpenseCreator()

@@ -26,7 +26,7 @@ type functionalGroupCounter struct {
 	ts        []transactionSetCounter
 }
 
-// 	ISA > FGs > TSs > FGR > TSRs > DSs
+// ISA > FGs > TSs > FGR > TSRs > DSs
 type counterData struct {
 	fgCounter int
 	fg        []functionalGroupCounter

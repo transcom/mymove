@@ -460,7 +460,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.IsType(&edisegment.N3{}, destAddress)
 		n3 := *destAddress
 		suite.Equal(address.StreetAddress1, n3.AddressInformation1)
-		suite.Equal(*address.StreetAddress2, n3.AddressInformation2)
+		if address.StreetAddress2 == nil {
+			suite.Empty(n3.AddressInformation2)
+		} else {
+			suite.Equal(*address.StreetAddress2, n3.AddressInformation2)
+		}
 		// city state info
 		n4 := result.Header.DestinationPostalDetails
 		suite.IsType(edisegment.N4{}, n4)

@@ -4,6 +4,7 @@ import {
   ORDERS_TYPE_DETAILS_OPTIONS,
   ORDERS_TYPE_OPTIONS,
 } from 'constants/orders';
+import { shipmentDestinationTypes } from 'constants/shipments';
 
 // This is to map the human-readable text to the options
 export default {
@@ -11,4 +12,5 @@ export default {
   ...ORDERS_TYPE_DETAILS_OPTIONS,
   ...ORDERS_TYPE_OPTIONS,
   ...ORDERS_RANK_OPTIONS,
+  ...shipmentDestinationTypes,
 };

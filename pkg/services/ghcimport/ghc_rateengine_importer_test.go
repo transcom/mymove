@@ -1,7 +1,6 @@
 package ghcimport
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -38,7 +37,7 @@ func (suite *GHCRateEngineImportSuite) helperLoadSQLFixture(fileName string) {
 	_, err := os.Stat(path)
 	suite.NoError(err)
 
-	c, ioErr := ioutil.ReadFile(filepath.Clean(path))
+	c, ioErr := os.ReadFile(filepath.Clean(path))
 	suite.NoError(ioErr)
 
 	sql := string(c)

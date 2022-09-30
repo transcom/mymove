@@ -47,6 +47,7 @@ import ExpensesLanding from 'scenes/Moves/Ppm/ExpensesLanding';
 import ExpensesUpload from 'scenes/Moves/Ppm/ExpensesUpload';
 import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
+import NotFound from 'components/NotFound/NotFound';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
@@ -95,18 +96,6 @@ export class CustomerApp extends Component {
       info,
     });
   }
-
-  noMatch = () => (
-    <div className="usa-grid">
-      <div className="grid-container usa-prose">
-        <h1>Page not found</h1>
-        <p>Looks like you've followed a broken link or entered a URL that doesn't exist on this site.</p>
-        <button className="usa-button" onClick={this.props.goBack}>
-          Go Back
-        </button>
-      </div>
-    </div>
-  );
 
   render() {
     const props = this.props;
@@ -244,7 +233,7 @@ export class CustomerApp extends Component {
                   </Route>
 
                   {/* 404 */}
-                  <Route component={this.noMatch} />
+                  <Route render={(routeProps) => <NotFound {...routeProps} handleOnClick={this.props.goBack} />} />
                 </Switch>
               )}
             </main>

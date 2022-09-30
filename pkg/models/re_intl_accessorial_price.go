@@ -11,14 +11,14 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-//Market represents the market for an international move
+// Market represents the market for an international move
 type Market string
 
 func (m Market) String() string {
 	return string(m)
 }
 
-//This lists available markets for international accessorial pricing
+// This lists available markets for international accessorial pricing
 const (
 	MarketConus  Market = "C"
 	MarketOconus Market = "O"
