@@ -368,7 +368,12 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
+		Status:                            internalmessages.PPMDocumentStatus(*weightTicket.Status),
 		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
+	}
+
+	if weightTicket.Reason != nil {
+		payload.Reason = internalmessages.PPMDocumentStatusReason(*weightTicket.Reason)
 	}
 
 	return payload
