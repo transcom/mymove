@@ -4535,6 +4535,9 @@ definitions:
       location:
         $ref: '#/definitions/EvaluationReportLocation'
         x-nullable: true
+      ReportViolations:
+        $ref: '#/definitions/ReportViolations'
+        x-nullable: true
       locationDescription:
         type: string
         example: 'Route 66 at crash inspection site 3'

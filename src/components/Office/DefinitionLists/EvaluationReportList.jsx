@@ -36,13 +36,13 @@ const EvaluationReportList = ({ evaluationReport }) => {
             {evaluationReport.locationDescription || ''}
           </dd>
         </div>
-        {evaluationReport.travelTimeMinutes && (
+        {evaluationReport.travelTimeMinutes >= 0 && (
           <div className={descriptionListStyles.row}>
             <dt>Travel time to inspection</dt>
             <dd>{convertToHoursAndMinutes(evaluationReport.travelTimeMinutes)}</dd>
           </div>
         )}
-        {evaluationReport.evaluationLengthMinutes && (
+        {evaluationReport.evaluationLengthMinutes >= 0 && (
           <div className={descriptionListStyles.row}>
             <dt>Evaluation length</dt>
             <dd>{convertToHoursAndMinutes(evaluationReport.evaluationLengthMinutes)}</dd>

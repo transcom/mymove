@@ -60,6 +60,7 @@ type EvaluationReport struct {
 	DeletedAt                     *time.Time                      `db:"deleted_at"`
 	CreatedAt                     time.Time                       `json:"created_at" db:"created_at"`
 	UpdatedAt                     time.Time                       `json:"updated_at" db:"updated_at"`
+	ReportViolations              ReportViolations                `json:"report_violation,omitempty" fk_id:"report_id" has_many:"report_violation"`
 }
 
 // EvaluationReports is not required by pop and may be deleted

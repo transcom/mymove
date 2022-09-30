@@ -108,6 +108,7 @@ const EvaluationReportTable = ({
           customerInfo={customerInfo}
           grade={grade}
           mtoShipments={shipments}
+          reportViolations={reportToView.ReportViolations}
           modalActions={
             <div className={styles.modalActions}>
               <Button

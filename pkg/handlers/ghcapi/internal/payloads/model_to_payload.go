@@ -179,6 +179,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		ObservedPickupSpreadEndDate:   handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadEndDate),
 		ETag:                          etag.GenerateEtag(evaluationReport.UpdatedAt),
 		UpdatedAt:                     strfmt.DateTime(evaluationReport.UpdatedAt),
+		ReportViolations:              ReportViolations(evaluationReport.ReportViolations),
 	}
 	return payload
 }
