@@ -4870,6 +4870,10 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
+        "ReportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -14256,6 +14260,10 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
+        "ReportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",

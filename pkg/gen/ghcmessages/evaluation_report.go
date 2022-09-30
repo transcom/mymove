@@ -19,6 +19,9 @@ import (
 // swagger:model EvaluationReport
 type EvaluationReport struct {
 
+	// report violations
+	ReportViolations ReportViolations `json:"ReportViolations,omitempty"`
+
 	// created at
 	// Read Only: true
 	// Format: date-time
@@ -101,6 +104,10 @@ type EvaluationReport struct {
 func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateReportViolations(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -160,6 +167,23 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *EvaluationReport) validateReportViolations(formats strfmt.Registry) error {
+	if swag.IsZero(m.ReportViolations) { // not required
+		return nil
+	}
+
+	if err := m.ReportViolations.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ReportViolations")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ReportViolations")
+		}
+		return err
+	}
+
 	return nil
 }
 
@@ -361,6 +385,10 @@ func (m *EvaluationReport) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateReportViolations(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -404,6 +432,20 @@ func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.R
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateReportViolations(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ReportViolations.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ReportViolations")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ReportViolations")
+		}
+		return err
+	}
+
 	return nil
 }
 
