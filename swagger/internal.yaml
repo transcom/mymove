@@ -1026,17 +1026,11 @@ definitions:
         title: Proof of Trailer Ownership Document
         $ref: '#/definitions/DocumentPayload'
       status:
-        type: string
-        enum:
-          - APPROVE
-          - EXCLUDE
-          - REJECT
+        $ref: '#/definitions/PPMDocumentStatus'
         x-nullable: true
         x-omitempty: false
       reason:
-        type: string
-        x-nullable: true
-        x-omitempty: false
+        $ref: '#/definitions/PPMDocumentStatusReason'
       eTag:
         type: string
         readOnly: true
@@ -2978,6 +2972,24 @@ definitions:
     enum:
       - ORIGIN
       - DESTINATION
+  PPMDocumentStatus:
+    type: string
+    title: PPM document status
+    enum:
+      - APPROVED
+      - EXCLUDED
+      - REJECTED
+    x-display-value:
+      APPROVED: Approved
+      EXCLUDED: Excluded
+      REJECTED: Rejected
+  PPMDocumentStatusReason:
+    description: >-
+      The reason the services counselor has excluded or rejected the weight
+      ticket.
+    type: string
+    x-nullable: true
+    x-omitempty: false
   MovingExpenseType:
     type: string
     title: Moving Expense Type
@@ -3001,17 +3013,6 @@ definitions:
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
       WEIGHING_FEES: Weighing fees
-  PPMDocumentStatus:
-    type: string
-    title: PPM document status
-    enum:
-      - APPROVED
-      - EXCLUDED
-      - REJECTED
-    x-display-value:
-      APPROVED: Approved
-      EXCLUDED: Excluded
-      REJECTED: Rejected
   MovingExpense:
     description: >-
       Expense information and receipts of costs incurred that can be reimbursed

@@ -5241,6 +5241,12 @@ func init() {
         "REJECTED": "Rejected"
       }
     },
+    "PPMDocumentStatusReason": {
+      "description": "The reason the services counselor has excluded or rejected the weight ticket.",
+      "type": "string",
+      "x-nullable": true,
+      "x-omitempty": false
+    },
     "PPMEstimateRange": {
       "type": "object",
       "required": [
@@ -7189,6 +7195,14 @@ func init() {
           "title": "Trailer Document ID",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "$ref": "#/definitions/PPMDocumentStatusReason"
+        },
+        "status": {
+          "x-nullable": true,
+          "x-omitempty": false,
+          "$ref": "#/definitions/PPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
           "type": "boolean",
@@ -12656,6 +12670,12 @@ func init() {
         "REJECTED": "Rejected"
       }
     },
+    "PPMDocumentStatusReason": {
+      "description": "The reason the services counselor has excluded or rejected the weight ticket.",
+      "type": "string",
+      "x-nullable": true,
+      "x-omitempty": false
+    },
     "PPMEstimateRange": {
       "type": "object",
       "required": [
@@ -14618,6 +14638,14 @@ func init() {
           "title": "Trailer Document ID",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "$ref": "#/definitions/PPMDocumentStatusReason"
+        },
+        "status": {
+          "x-nullable": true,
+          "x-omitempty": false,
+          "$ref": "#/definitions/PPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
           "type": "boolean",

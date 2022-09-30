@@ -1023,17 +1023,11 @@ definitions:
         title: Proof of Trailer Ownership Document
         $ref: '#/definitions/DocumentPayload'
       status:
-        type: string
-        enum:
-          - APPROVE
-          - EXCLUDE
-          - REJECT
+        $ref: 'definitions/PPMDocumentStatus.yaml'
         x-nullable: true
         x-omitempty: false
       reason:
-        type: string
-        x-nullable: true
-        x-omitempty: false
+        $ref: 'definitions/PPMDocumentStatusReason.yaml'
       eTag:
         type: string
         readOnly: true
