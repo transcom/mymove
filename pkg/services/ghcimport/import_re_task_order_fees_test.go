@@ -1,8 +1,6 @@
 package ghcimport
 
 import (
-	"testing"
-
 	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/db/dberr"
@@ -16,7 +14,7 @@ func (suite *GHCRateEngineImportSuite) Test_importRETaskOrderFees() {
 		ContractStartDate: testContractStartDate,
 	}
 
-	suite.T().Run("import success", func(t *testing.T) {
+	setupTestData := func() {
 		// Prerequisite tables must be loaded.
 		err := gre.importREContract(suite.AppContextForTest())
 		suite.NoError(err)
@@ -29,19 +27,20 @@ func (suite *GHCRateEngineImportSuite) Test_importRETaskOrderFees() {
 
 		err = gre.importRETaskOrderFees(suite.AppContextForTest())
 		suite.NoError(err)
+	}
+
+	suite.Run("import success", func() {
+		setupTestData()
 		suite.helperVerifyTaskOrderFees()
 		suite.helperCheckTaskOrderFees()
 	})
 
-	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
+	suite.Run("run a second time; should fail immediately due to constraint violation", func() {
+		setupTestData()
 		err := gre.importRETaskOrderFees(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_task_order_fees_unique_key"))
 		}
-
-		// Check to see if anything else changed
-		suite.helperVerifyTaskOrderFees()
-		suite.helperCheckTaskOrderFees()
 	})
 }
 

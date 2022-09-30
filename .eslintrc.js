@@ -51,6 +51,20 @@ module.exports = {
         'newlines-between': 'always',
       },
     ],
+    'import/no-extraneous-dependencies': [
+      'error',
+      {
+        devDependencies: [
+          '**/*.stories.js*',
+          // '**/*.stories.js',
+          '**/*.test.js*',
+          // '**/*.test.jsx',
+          '**/setupTests.js',
+          '**/testUtils.jsx',
+          '**/test/factories/**',
+        ],
+      },
+    ],
     'you-dont-need-lodash-underscore/capitalize': 'off',
     'you-dont-need-lodash-underscore/clone': 'off',
     'you-dont-need-lodash-underscore/cloneDeep': 'off',
@@ -69,7 +83,6 @@ module.exports = {
     {
       files: ['*.stories.js', '*.stories.jsx', 'setupTests.js'],
       rules: {
-        'import/no-extraneous-dependencies': 'off',
         'react/jsx-props-no-spreading': 'off',
         'react/destructuring-assignment': 'off',
       },
@@ -78,6 +91,12 @@ module.exports = {
       files: ['*.test.jsx', 'testUtils.jsx'],
       rules: {
         'react/jsx-props-no-spreading': 'off',
+      },
+    },
+    {
+      files: ['src/utils/test/factories/**'],
+      rules: {
+        'no-param-reassign': ['error', { props: false }],
       },
     },
   ],

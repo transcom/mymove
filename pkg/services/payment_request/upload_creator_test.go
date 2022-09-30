@@ -11,7 +11,6 @@ package paymentrequest
 import (
 	"fmt"
 	"os"
-	"testing"
 
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -22,30 +21,38 @@ import (
 )
 
 func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
-	contractor := testdatagen.MakeDefaultContractor(suite.DB())
-
-	fakeS3 := test.NewFakeS3Storage(true)
-	paymentRequestID, err := uuid.FromString("9b873071-149f-43c2-8971-e93348ebc5e3")
-	suite.NoError(err)
+	var fakeS3 *test.FakeS3Storage
+	var contractor models.Contractor
+	var testFile *os.File
+	var paymentRequest models.PaymentRequest
 
 	moveTaskOrderID, err := uuid.FromString("cc4523e2-e418-48cc-804e-57a507fff093")
 	suite.NoError(err)
 
-	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{ID: moveTaskOrderID},
-	})
+	setupTestData := func() {
+		contractor = testdatagen.MakeDefaultContractor(suite.DB())
 
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
-		PaymentRequest: models.PaymentRequest{
-			ID: paymentRequestID,
-		},
-	})
+		fakeS3 = test.NewFakeS3Storage(true)
+		paymentRequestID, err := uuid.FromString("9b873071-149f-43c2-8971-e93348ebc5e3")
+		suite.NoError(err)
 
-	testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
-	suite.NoError(err)
+		moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{ID: moveTaskOrderID},
+		})
 
-	suite.T().Run("PrimeUpload is created successfully", func(t *testing.T) {
+		paymentRequest = testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: moveTaskOrder,
+			PaymentRequest: models.PaymentRequest{
+				ID: paymentRequestID,
+			},
+		})
+
+		testFile, err = os.Open("../../testdatagen/testdata/test.pdf")
+		suite.NoError(err)
+	}
+
+	suite.Run("PrimeUpload is created successfully", func() {
+		setupTestData()
 		uploadCreator := NewPaymentRequestUploadCreator(fakeS3)
 		upload, err := uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf")
 
@@ -71,17 +78,22 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 }
 
 func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
-	contractor := testdatagen.MakeDefaultContractor(suite.DB())
-	fakeS3 := test.NewFakeS3Storage(true)
-	testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	var contractor models.Contractor
 
-	suite.T().Run("invalid payment request ID", func(t *testing.T) {
+	fakeS3 := test.NewFakeS3Storage(true)
+
+	setupTestData := func() {
+		contractor = testdatagen.MakeDefaultContractor(suite.DB())
+		testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	}
+
+	suite.Run("invalid payment request ID", func() {
+		setupTestData()
 		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)
-
 		defer func() {
 			if closeErr := testFile.Close(); closeErr != nil {
-				t.Error("Failed to close file", zap.Error(closeErr))
+				suite.T().Error("Failed to close file", zap.Error(closeErr))
 			}
 		}()
 
@@ -90,13 +102,13 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 		suite.Error(err)
 	})
 
-	suite.T().Run("invalid user ID", func(t *testing.T) {
+	suite.Run("invalid user ID", func() {
+		setupTestData()
 		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)
-
 		defer func() {
 			if closeErr := testFile.Close(); closeErr != nil {
-				t.Error("Failed to close file", zap.Error(closeErr))
+				suite.T().Error("Failed to close file", zap.Error(closeErr))
 			}
 		}()
 
@@ -106,7 +118,8 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 		suite.Error(err)
 	})
 
-	suite.T().Run("invalid file type", func(t *testing.T) {
+	suite.Run("invalid file type", func() {
+		setupTestData()
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		uploadCreator := NewPaymentRequestUploadCreator(fakeS3)
 		wrongTypeFile, err := os.Open("../../testdatagen/testdata/test.txt")
@@ -114,7 +127,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 
 		defer func() {
 			if closeErr := wrongTypeFile.Close(); closeErr != nil {
-				t.Error("Failed to close file", zap.Error(closeErr))
+				suite.T().Error("Failed to close file", zap.Error(closeErr))
 			}
 		}()
 

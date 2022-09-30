@@ -4,6 +4,11 @@ import userEvent from '@testing-library/user-event';
 
 import CurrentDutyLocationForm from './CurrentDutyLocationForm';
 
+import dutyLocationFactory from 'utils/test/factories/dutyLocation';
+
+const mockDutyLocation = dutyLocationFactory();
+const mockDutyLocation2 = dutyLocationFactory();
+
 describe('CurrentDutyLocationForm component', () => {
   it('renders the form input', async () => {
     const { getByLabelText } = render(
@@ -42,19 +47,9 @@ describe('CurrentDutyLocationForm component', () => {
         onSubmit={onSubmit}
         onBack={jest.fn()}
         initialValues={{
-          current_location: {
-            address: {
-              city: 'Los Angeles',
-              state: 'CA',
-              postalCode: '90245',
-            },
-            name: 'Los Angeles AFB',
-            id: 'testId',
-          },
+          current_location: mockDutyLocation,
         }}
-        newDutyLocation={{
-          id: 'testId',
-        }}
+        newDutyLocation={mockDutyLocation}
       />,
     );
     const submitBtn = getByRole('button', { name: 'Next' });
@@ -75,16 +70,9 @@ describe('CurrentDutyLocationForm component', () => {
         onSubmit={onSubmit}
         onBack={jest.fn()}
         initialValues={{
-          current_location: {
-            address: {
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '92104',
-            },
-            id: 'testId',
-          },
+          current_location: mockDutyLocation,
         }}
-        newDutyLocation={{ id: 'test' }}
+        newDutyLocation={mockDutyLocation2}
       />,
     );
     const submitBtn = getByRole('button', { name: 'Next' });

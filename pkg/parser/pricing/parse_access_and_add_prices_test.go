@@ -2,7 +2,6 @@ package pricing
 
 import (
 	"strconv"
-	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -24,7 +23,7 @@ func (suite *PricingParserSuite) Test_parseDomesticMoveAccessorialPrices() {
 		RunVerify:    true,
 	}
 
-	suite.T().Run("parse sheet and check csv", func(t *testing.T) {
+	suite.Run("parse sheet and check csv", func() {
 		slice, err := parseDomesticMoveAccessorialPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseDomesticMoveAccessorialPrices function failed")
 
@@ -36,7 +35,7 @@ func (suite *PricingParserSuite) Test_parseDomesticMoveAccessorialPrices() {
 		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 	})
 
-	suite.T().Run("try parse wrong sheet index", func(t *testing.T) {
+	suite.Run("try parse wrong sheet index", func() {
 		_, err := parseDomesticMoveAccessorialPrices(suite.AppContextForTest(), params, sheetIndex-1)
 		if suite.Error(err, "parseDomesticMoveAccessorialPrices function failed") {
 			suite.Equal("parseDomesticMoveAccessorialPrices expected to process sheet 17, but received sheetIndex 16", err.Error())
@@ -60,7 +59,7 @@ func (suite *PricingParserSuite) Test_parseInternationalMoveAccessorialPrices() 
 		RunVerify:    true,
 	}
 
-	suite.T().Run("parse sheet and check csv", func(t *testing.T) {
+	suite.Run("parse sheet and check csv", func() {
 		slice, err := parseInternationalMoveAccessorialPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseInternationalMoveAccessorialPrices function failed")
 
@@ -72,7 +71,7 @@ func (suite *PricingParserSuite) Test_parseInternationalMoveAccessorialPrices() 
 		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 	})
 
-	suite.T().Run("try parse wrong sheet index", func(t *testing.T) {
+	suite.Run("try parse wrong sheet index", func() {
 		_, err := parseInternationalMoveAccessorialPrices(suite.AppContextForTest(), params, sheetIndex-1)
 		if suite.Error(err, "parseInternationalMoveAccessorialPrices function failed") {
 			suite.Equal("parseInternationalMoveAccessorialPrices expected to process sheet 17, but received sheetIndex 16", err.Error())
@@ -96,7 +95,7 @@ func (suite *PricingParserSuite) Test_parseDomesticInternationalAdditionalPrices
 		RunVerify:    true,
 	}
 
-	suite.T().Run("parse sheet and check csv", func(t *testing.T) {
+	suite.Run("parse sheet and check csv", func() {
 		slice, err := parseDomesticInternationalAdditionalPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseDomesticInternationalAdditionalPrices function failed")
 
@@ -108,7 +107,7 @@ func (suite *PricingParserSuite) Test_parseDomesticInternationalAdditionalPrices
 		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 	})
 
-	suite.T().Run("try parse wrong sheet index", func(t *testing.T) {
+	suite.Run("try parse wrong sheet index", func() {
 		_, err := parseDomesticInternationalAdditionalPrices(suite.AppContextForTest(), params, sheetIndex-1)
 		if suite.Error(err, "parseDomesticInternationalAdditionalPrices function failed") {
 			suite.Equal("parseDomesticInternationalAdditionalPrices expected to process sheet 17, but received sheetIndex 16", err.Error())
@@ -131,12 +130,12 @@ func (suite *PricingParserSuite) Test_verifyAccessAndAddPrices() {
 		RunVerify:    true,
 	}
 
-	suite.T().Run("verify good sheet", func(t *testing.T) {
+	suite.Run("verify good sheet", func() {
 		err := verifyAccessAndAddPrices(params, sheetIndex)
 		suite.NoError(err, "verifyAccessAndAddPrices function failed")
 	})
 
-	suite.T().Run("verify wrong sheet", func(t *testing.T) {
+	suite.Run("verify wrong sheet", func() {
 		err := verifyAccessAndAddPrices(params, sheetIndex-2)
 		if suite.Error(err, "verifyAccessAndAddPrices function failed") {
 			suite.Equal("verifyAccessAndAddPrices expected to process sheet 17, but received sheetIndex 15", err.Error())
