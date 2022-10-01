@@ -149,7 +149,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		routingConfig.GitBranch, routingConfig.GitCommit)
 	site.HandleFunc("/health", healthHandler).Methods("GET")
 
-	staticCustomFileSystem := middleware.NewCustomFileSystem(http.Dir(routingConfig.BuildRoot+"/static/"), appCtx)
+	staticCustomFileSystem := middleware.NewCustomFileSystem(http.Dir(path.Join(routingConfig.BuildRoot, "static")), appCtx)
 	staticFileServer := http.FileServer(staticCustomFileSystem)
 	staticHandler := http.StripPrefix("/static", staticFileServer)
 
@@ -161,7 +161,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	}
 	staticMux.PathPrefix("/").Handler(staticHandler).Methods("GET", "HEAD")
 
-	downloadsCustomFileSystem := middleware.NewCustomFileSystem(http.Dir(routingConfig.BuildRoot+"/downloads/"), appCtx)
+	downloadsCustomFileSystem := middleware.NewCustomFileSystem(http.Dir(path.Join(routingConfig.BuildRoot, "downloads")), appCtx)
 	downloadsFileServer := http.FileServer(downloadsCustomFileSystem)
 	downloadsHandler := http.StripPrefix("/downloads", downloadsFileServer)
 
