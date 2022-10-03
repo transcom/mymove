@@ -5534,6 +5534,8 @@ definitions:
       - APPROVED
       - EXCLUDED
       - REJECTED
+    x-nullable: true
+    x-omitempty: false
     x-display-value:
       APPROVED: Approved
       EXCLUDED: Excluded
@@ -5626,8 +5628,6 @@ definitions:
         $ref: '#/definitions/definitions-DocumentPayload'
       status:
         $ref: '#/definitions/PPMDocumentStatus'
-        x-nullable: true
-        x-omitempty: false
       reason:
         description: >-
           The reason the services counselor has excluded or rejected the weight
@@ -5726,8 +5726,6 @@ definitions:
         x-omitempty: false
       status:
         $ref: '#/definitions/PPMDocumentStatus'
-        x-nullable: true
-        x-omitempty: false
       reason:
         description: >-
           The reason the services counselor has excluded or rejected the moving
