@@ -18,6 +18,7 @@ import { saveEvaluationReport, associateReportViolations, submitEvaluationReport
 import { DatePickerInput } from 'components/form/fields';
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { EvaluationReportShape, ReportViolationShape, PWSViolationShape } from 'types';
+import { formatDateForSwagger } from 'shared/dates';
 
 const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolations, customerInfo, mtoShipments }) => {
   const { moveCode, reportId } = useParams();
@@ -106,12 +107,36 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
   const validationSchema = Yup.object().shape({});
 
   const saveDraft = async (values) => {
-    const { createdAt, updatedAt, shipmentID, id, moveID, moveReferenceID, ...existingReportFields } = evaluationReport;
+    // pull out fields we dont want to save/update
+    const {
+      createdAt,
+      updatedAt,
+      shipmentID,
+      id,
+      moveID,
+      moveReferenceID,
+      type,
+      officeUser,
+      reportID,
+      eTag,
+      ...existingReportFields
+    } = evaluationReport;
+
+    let seriousIncident;
+    if (values.seriousIncident) {
+      seriousIncident = values.seriousIncident === 'yes';
+    }
+
     const body = {
       ...existingReportFields,
-      // TODO: Add serious incident and date fields that are on the form
+      seriousIncident,
+      seriousIncidentDesc: seriousIncident === false ? null : values.seriousIncidentDesc,
+      observedClaimsResponseDate: formatDateForSwagger(values.observedClaimsResponseDate),
+      observedPickupDate: formatDateForSwagger(values.observedPickupDate),
+      observedPickupSpreadStartDate: formatDateForSwagger(values.observedPickupSpreadStartDate),
+      observedPickupSpreadEndDate: formatDateForSwagger(values.observedPickupSpreadEndDate),
     };
-    const { eTag } = evaluationReport;
+
     await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
 
     // Also need to update any violations that were selected
@@ -124,10 +149,26 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
     history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
   };
 
-  const initialValues = {
-    selectedViolations: reportViolations ? reportViolations.map((violation) => violation.violationID) : [],
-  };
+  const getInitialValues = () => {
+    const selectedViolations = reportViolations ? reportViolations.map((violation) => violation.violationID) : [];
 
+    let seriousIncident;
+    if (evaluationReport && Object.hasOwn(evaluationReport, 'seriousIncident')) {
+      seriousIncident = evaluationReport.seriousIncident ? 'yes' : 'no';
+    }
+
+    const initialValues = {
+      selectedViolations,
+      seriousIncident,
+      seriousIncidentDesc: evaluationReport?.seriousIncidentDesc,
+      observedClaimsResponseDate: evaluationReport?.observedClaimsResponseDate,
+      observedPickupDate: evaluationReport?.observedPickupDate,
+      observedPickupSpreadStartDate: evaluationReport?.observedPickupSpreadStartDate,
+      observedPickupSpreadEndDate: evaluationReport?.observedPickupSpreadEndDate,
+    };
+
+    return initialValues;
+  };
   // Review and Submit button
   // Saves report changes
   // displays report preview ahead of final submission
@@ -155,7 +196,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
         bordered
       />
       <Formik
-        initialValues={initialValues}
+        initialValues={getInitialValues()}
         enableReinitialize
         onSubmit={handlePreviewReport}
         validationSchema={validationSchema}
@@ -230,7 +271,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                         <DatePickerInput
                           className={styles.datePicker}
                           label="Observed claims response date"
-                          name="observedClaimDate"
+                          name="observedClaimsResponseDate"
                           hint="Only enter a date here if the claim has a response."
                           showOptional
                         />
@@ -245,14 +286,11 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                       {kpiDates.includes('observedPickupSpreadDates') && (
                         <DatePickerInput
                           label="Observed pickup spread start date"
-                          name="observedpickupStartDateScheduling"
+                          name="observedPickupSpreadStartDate"
                         />
                       )}
                       {kpiDates.includes('observedPickupSpreadDates') && (
-                        <DatePickerInput
-                          label="Observed pickup spread end date"
-                          name="observedpickupEndDateScheduling"
-                        />
+                        <DatePickerInput label="Observed pickup spread end date" name="observedPickupSpreadEndDate" />
                       )}
                     </div>
                   </Grid>
