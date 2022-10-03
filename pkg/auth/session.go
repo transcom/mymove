@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/gob"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/alexedwards/scs/redisstore"
@@ -18,6 +19,10 @@ import (
 type authSessionKey string
 
 const sessionContextKey authSessionKey = "session"
+
+type sessionIDKey string
+
+const sessionIDContextKey sessionIDKey = "sessionID"
 
 // Application describes the application name
 type Application string
@@ -232,6 +237,17 @@ func SetSessionInContext(ctx context.Context, session *Session) context.Context 
 	return context.WithValue(ctx, sessionContextKey, session)
 }
 
+func setSessionIDInContext(ctx context.Context, sessionID string) context.Context {
+	return context.WithValue(ctx, sessionIDContextKey, sessionID)
+}
+
+func SessionIDFromContext(ctx context.Context) string {
+	if sessionID, ok := ctx.Value(sessionIDContextKey).(string); ok {
+		return sessionID
+	}
+	return ""
+}
+
 // SessionFromRequestContext gets the reference to the Session stored in the request.Context()
 func SessionFromRequestContext(r *http.Request) *Session {
 	return SessionFromContext(r.Context())
@@ -270,4 +286,26 @@ func (s *Session) IsSystemAdmin() bool {
 func (s *Session) IsProgramAdmin() bool {
 	role := "PROGRAM_ADMIN"
 	return s.IsAdminUser() && s.AdminUserRole == role
+}
+
+func SessionIDMiddleware(sessionManagers AppSessionManagers, appnames ApplicationServername) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			// Split the hostname from the port
+			hostname := strings.Split(r.Host, ":")[0]
+			app, err := ApplicationName(hostname, appnames)
+			if err == nil {
+				sessionManager := sessionManagers.SessionManagerForApplication(app)
+				scs, ok := sessionManager.(ScsSessionManagerWrapper)
+				if ok {
+					cookie, err := r.Cookie(scs.ScsSessionManager.Cookie.Name)
+					if err == nil {
+						ctx = setSessionIDInContext(ctx, cookie.Value)
+					}
+				}
+			}
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
 }

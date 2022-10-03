@@ -237,6 +237,7 @@ func authenticateUser(ctx context.Context, appCtx appcontext.AppContext, session
 		appCtx.Logger().Error("Failed to write new user session to store", zap.Error(err))
 		return err
 	}
+	appCtx.Logger().Info("User authenticated with new session", zap.String("new_session_id", sessionID))
 	sessionManager.Put(ctx, "session", appCtx.Session())
 
 	user, err := currentUser(appCtx)
