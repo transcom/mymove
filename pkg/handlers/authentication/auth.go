@@ -680,8 +680,6 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
 		return
 	}
-	// TODO I think this is missing from authorizeUnknownUser, just not sure where
-	// TODO to put it yet
 	appCtx.Session().Roles = append(appCtx.Session().Roles, userIdentity.Roles...)
 	appCtx.Session().Permissions = getPermissionsForUser(appCtx, userIdentity.ID)
 
@@ -805,22 +803,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
-		appCtx.Logger().Debug("🐢 Office user found", zap.String("user_id", officeUser.User.ID.String()))
 		user = &officeUser.User
-		permissions := getPermissionsForUser(appCtx, user.ID)
-		if len(permissions) == 0 {
-			appCtx.Logger().Error("😡 no permissions for user")
-		}
-		var otherRoles roles.Roles
-		roleError := appCtx.DB().RawQuery(`SELECT * FROM roles
-									WHERE id in (select role_id from users_roles
-										where deleted_at is null and user_id = ?)`, user.ID).All(&otherRoles)
-		if roleError != nil {
-			appCtx.Logger().Error("role error", zap.Error(roleError))
-		}
-		appCtx.Session().Roles = append(appCtx.Session().Roles, otherRoles...)
-		appCtx.Session().Permissions = getPermissionsForUser(appCtx, user.ID)
-		appCtx.Logger().Debug("🐢 hopefully we got the right stuff this time")
 	}
 
 	var adminUser models.AdminUser
@@ -903,6 +886,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 	}
 
 	appCtx.Session().Roles = append(appCtx.Session().Roles, user.Roles...)
+	appCtx.Session().Permissions = getPermissionsForUser(appCtx, user.ID)
 
 	sessionManager := h.sessionManager(appCtx.Session())
 	authError := authenticateUser(r.Context(), appCtx, sessionManager)
