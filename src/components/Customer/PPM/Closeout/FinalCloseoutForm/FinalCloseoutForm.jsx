@@ -1,10 +1,12 @@
 import React from 'react';
-import { func } from 'prop-types';
+import { PropTypes, func } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import classnames from 'classnames';
 
 import styles from './FinalCloseoutForm.module.scss';
 
-import W2AddressForm from 'components/Customer/PPM/Closeout/W2AddressForm/W2AddressForm';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import { formatCents, formatWeight } from 'utils/formatters';
@@ -13,8 +15,14 @@ import {
   calculateTotalNetWeightForProGearWeightTickets,
   calculateTotalNetWeightForWeightTickets,
 } from 'utils/ppmCloseout';
+import { AddressFields } from 'components/form/AddressFields/AddressFields';
+import SectionWrapper from 'components/Customer/SectionWrapper';
+import { Form } from 'components/form/Form';
+import formStyles from 'styles/form.module.scss';
+import { requiredAddressSchema } from 'utils/validation';
+import { W2AddressShape } from 'types/address';
 
-const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
+const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit, validators }) => {
   const totalNetWeight = calculateTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
 
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
@@ -27,13 +35,16 @@ const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
   const isSubmitting = true;
 
   const formFieldsName = 'w2_address';
+  const validationSchema = Yup.object().shape({
+    [formFieldsName]: requiredAddressSchema.required(),
+  });
   const initialValues = {
     [formFieldsName]: {
-      streetAddress1: '',
-      streetAddress2: '',
-      city: '',
-      state: '',
-      postalCode: '',
+      streetAddress1: mtoShipment?.ppmShipment?.w2Address?.streetAddress1 || '',
+      streetAddress2: mtoShipment?.ppmShipment?.w2Address?.streetAddress2 || '',
+      city: mtoShipment?.ppmShipment?.w2Address?.city || '',
+      state: mtoShipment?.ppmShipment?.w2Address?.state || '',
+      postalCode: mtoShipment?.ppmShipment?.w2Address?.postalCode || '',
     },
   };
 
@@ -94,7 +105,24 @@ const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
         </p>
       </div>
 
-      <W2AddressForm formFieldsName={formFieldsName} initialValues={initialValues} />
+      <Formik
+        initialValues={initialValues}
+        validateOnChange={false}
+        validateOnMount
+        validationSchema={validationSchema}
+      >
+        <Form className={classnames(formStyles.form, styles.W2AddressForm)}>
+          <SectionWrapper className={formStyles.formSection}>
+            <h2>W-2 address</h2>
+            <p>What is the address on your W-2?</p>
+            <AddressFields
+              name={formFieldsName}
+              validators={validators}
+              className={classnames(styles.FinalCloseoutForm, styles.AddressFieldSet)}
+            />
+          </SectionWrapper>
+        </Form>
+      </Formik>
 
       <div className={ppmStyles.buttonContainer}>
         <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
@@ -112,6 +140,19 @@ FinalCloseoutForm.prototypes = {
   mtoShipment: ShipmentShape.isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
+  formFieldsName: PropTypes.string.isRequired,
+  initialValues: W2AddressShape.isRequired,
+  validators: PropTypes.shape({
+    streetAddress1: PropTypes.func,
+    streetAddress2: PropTypes.func,
+    city: PropTypes.func,
+    state: PropTypes.func,
+    postalCode: PropTypes.func,
+  }),
+};
+
+FinalCloseoutForm.defaultProps = {
+  validators: {},
 };
 
 export default FinalCloseoutForm;

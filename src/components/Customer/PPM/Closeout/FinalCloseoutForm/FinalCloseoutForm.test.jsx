@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { v4 } from 'uuid';
 
@@ -16,6 +16,18 @@ beforeEach(() => {
 const defaultProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
+};
+
+const testProps = {
+  initialValues: {
+    w2_address: {
+      streetAddress1: '',
+      streetAddress2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+    },
+  },
 };
 
 describe('FinalCloseoutForm component', () => {
@@ -113,4 +125,48 @@ describe('FinalCloseoutForm component', () => {
 
     expect(screen.getByRole('button', { name: 'Submit PPM Documentation' })).toBeDisabled();
   });
+
+  it('renders the W2 Address form inputs', async () => {
+    const mtoShipment = createPPMShipmentWithFinalIncentive();
+    const { getByLabelText } = render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} {...testProps} />);
+
+    await waitFor(() => {
+      expect(getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
+
+      expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
+
+      expect(getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
+
+      expect(getByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
+
+      expect(getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
+    });
+  });
+
+  it('passes custom validators to W2 Address form fields', async () => {
+    const mtoShipment = createPPMShipmentWithFinalIncentive();
+    const postalCodeValidator = jest.fn().mockImplementation(() => undefined);
+
+    const { findByLabelText } = render(
+      <FinalCloseoutForm
+        mtoShipment={mtoShipment}
+        {...defaultProps}
+        {...testProps}
+        validators={{ postalCode: postalCodeValidator }}
+      />,
+    );
+
+    const postalCodeInput = await findByLabelText('ZIP');
+
+    const postalCode = '99999';
+
+    userEvent.type(postalCodeInput, postalCode);
+    userEvent.tab();
+
+    await waitFor(() => {
+      expect(postalCodeValidator).toHaveBeenCalledWith(postalCode);
+    });
+  });
+
+  afterEach(jest.resetAllMocks);
 });

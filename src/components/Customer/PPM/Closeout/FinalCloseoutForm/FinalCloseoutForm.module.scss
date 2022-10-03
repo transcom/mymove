@@ -75,3 +75,14 @@
     }
   }
 }
+
+.W2AddressForm {
+  p {
+    @include u-margin-bottom(0);
+    @include u-margin-top(0);
+  }
+
+  .AddressFieldSet > :global(.usa-form-group:first-of-type .usa-label) {
+    @include u-margin-top(0);
+  }
+}
