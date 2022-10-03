@@ -94,7 +94,7 @@ ErrorDatesAndLocation.play = async ({ canvasElement }) => {
   const canvas = within(canvasElement);
 
   await waitFor(() => {
-    expect(canvas.getByRole('button', { name: 'Save & Continue' })).not.toHaveAttribute('disabled');
+    expect(canvas.getByRole('button', { name: 'Save & Continue' })).not.toHaveProperty('disabled', true);
   });
 
   await userEvent.click(canvas.getByRole('button', { name: 'Save & Continue' }));
