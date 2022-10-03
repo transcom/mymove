@@ -304,24 +304,11 @@ WITH moves AS (
 			AND audit_history."table_name" = 'reweighs'
 	),
 	service_members AS (
-		SELECT
-			service_members.*
+		SELECT service_members.*
 		FROM
 			service_members
 		WHERE
-			service_members.id = (
-				SELECT
-					orders.service_member_id
-				FROM
-					orders
-						WHERE
-						orders.id = (
-							SELECT
-							moves.orders_id
-							FROM
-							moves
-							)
-					)
+			service_members.id = (SELECT service_member_id FROM orders)
 	),
 	service_members_logs as (
 		SELECT audit_history.*,
