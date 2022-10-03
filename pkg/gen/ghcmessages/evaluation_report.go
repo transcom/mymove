@@ -64,15 +64,37 @@ type EvaluationReport struct {
 	// Read Only: true
 	MoveReferenceID *string `json:"moveReferenceID,omitempty"`
 
+	// observed claims response date
+	// Format: date
+	ObservedClaimsResponseDate *strfmt.Date `json:"observedClaimsResponseDate,omitempty"`
+
 	// observed date
 	// Format: date
 	ObservedDate *strfmt.Date `json:"observedDate,omitempty"`
+
+	// observed pickup date
+	// Format: date
+	ObservedPickupDate *strfmt.Date `json:"observedPickupDate,omitempty"`
+
+	// observed pickup spread end date
+	// Format: date
+	ObservedPickupSpreadEndDate *strfmt.Date `json:"observedPickupSpreadEndDate,omitempty"`
+
+	// observed pickup spread start date
+	// Format: date
+	ObservedPickupSpreadStartDate *strfmt.Date `json:"observedPickupSpreadStartDate,omitempty"`
 
 	// office user
 	OfficeUser *EvaluationReportOfficeUser `json:"officeUser,omitempty"`
 
 	// remarks
 	Remarks *string `json:"remarks,omitempty"`
+
+	// serious incident
+	SeriousIncident *bool `json:"seriousIncident,omitempty"`
+
+	// serious incident desc
+	SeriousIncidentDesc *string `json:"seriousIncidentDesc,omitempty"`
 
 	// shipment ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -136,7 +158,23 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateObservedClaimsResponseDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateObservedDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateObservedPickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateObservedPickupSpreadEndDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateObservedPickupSpreadStartDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -285,12 +323,60 @@ func (m *EvaluationReport) validateMoveID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *EvaluationReport) validateObservedClaimsResponseDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObservedClaimsResponseDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observedClaimsResponseDate", "body", "date", m.ObservedClaimsResponseDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *EvaluationReport) validateObservedDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ObservedDate) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("observedDate", "body", "date", m.ObservedDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateObservedPickupDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObservedPickupDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observedPickupDate", "body", "date", m.ObservedPickupDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateObservedPickupSpreadEndDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObservedPickupSpreadEndDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observedPickupSpreadEndDate", "body", "date", m.ObservedPickupSpreadEndDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateObservedPickupSpreadStartDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObservedPickupSpreadStartDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observedPickupSpreadStartDate", "body", "date", m.ObservedPickupSpreadStartDate.String(), formats); err != nil {
 		return err
 	}
 

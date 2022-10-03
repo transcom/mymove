@@ -96,6 +96,21 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
   };
 
   const saveDraft = async (values) => {
+    // pull out fields we dont want to save/update
+    const {
+      createdAt,
+      updatedAt,
+      shipmentID,
+      id,
+      moveID,
+      moveReferenceID,
+      type,
+      officeUser,
+      reportID,
+      eTag,
+      ...existingReportFields
+    } = evaluationReport;
+
     // format the inspection type if its there
     const { evaluationType } = values;
     let inspectionType;
@@ -137,6 +152,7 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
     }
 
     const body = {
+      ...existingReportFields,
       location: evaluationLocation,
       locationDescription,
       inspectionType,
@@ -148,7 +164,7 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
       travelTimeMinutes: travelMinutes,
       observedDate: formatDateForSwagger(values.observedDate),
     };
-    const { eTag } = evaluationReport;
+
     await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
   };
 
