@@ -106,18 +106,18 @@ const FinalCloseoutForm = ({ mtoShipment, onBack }) => {
         {({ isValid, isSubmitting, handleSubmit }) => {
           return (
             <>
-              <div className={classnames(ppmStyles.formContainer)}>
-                <Form className={classnames(formStyles.form, ppmStyles.form, styles.W2AddressForm)}>
-                  <SectionWrapper className={classnames(formStyles.formSection, ppmStyles.sectionWrapper)}>
-                    <h2>W-2 address</h2>
-                    <p>What is the address on your W-2?</p>
-                    <AddressFields
-                      name={formFieldsName}
-                      className={classnames(styles.FinalCloseoutForm, styles.AddressFieldSet)}
-                    />
-                  </SectionWrapper>
-                </Form>
-              </div>
+              {/* <div className={classnames(ppmStyles.formContainer)}> */}
+              <Form className={classnames(formStyles.form, ppmStyles.form, styles.W2AddressForm)}>
+                <SectionWrapper className={classnames(formStyles.formSection, ppmStyles.sectionWrapper)}>
+                  <h2>W-2 address</h2>
+                  <p>What is the address on your W-2?</p>
+                  <AddressFields
+                    name={formFieldsName}
+                    className={classnames(styles.FinalCloseoutForm, styles.AddressFieldSet)}
+                  />
+                </SectionWrapper>
+              </Form>
+              {/* </div> */}
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Finish Later
