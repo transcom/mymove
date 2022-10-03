@@ -2,7 +2,7 @@ import React from 'react';
 import { expect } from '@storybook/jest';
 import { action } from '@storybook/addon-actions';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
-import { within, userEvent } from '@storybook/testing-library';
+import { within, userEvent, waitFor } from '@storybook/testing-library';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
@@ -93,7 +93,9 @@ ErrorDatesAndLocation.args = {
 ErrorDatesAndLocation.play = async ({ canvasElement }) => {
   const canvas = within(canvasElement);
 
-  await expect(canvas.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+  await waitFor(() => {
+    expect(canvas.getByRole('button', { name: 'Save & Continue' })).not.toHaveAttribute('disabled');
+  });
 
   await userEvent.click(canvas.getByRole('button', { name: 'Save & Continue' }));
 };
