@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './EvaluationViolationsForm.module.scss';
 import SelectedViolation from './SelectedViolation/SelectedViolation';
 
-import { EVALUATION_REPORT } from 'constants/queryKeys';
+import { EVALUATION_REPORT, REPORT_VIOLATIONS } from 'constants/queryKeys';
 import ViolationsAccordion from 'components/Office/ViolationsAccordion/ViolationsAccordion';
 import ConnectedEvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 import { saveEvaluationReport, associateReportViolations, submitEvaluationReport } from 'services/ghcApi';
@@ -49,6 +49,9 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
     onError: (error) => {
       const errorMsg = error?.response?.body;
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+    },
+    onSuccess: () => {
+      queryCache.refetchQueries([REPORT_VIOLATIONS, reportId]).then();
     },
   });
 
@@ -169,6 +172,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
 
     return initialValues;
   };
+
   // Review and Submit button
   // Saves report changes
   // displays report preview ahead of final submission
