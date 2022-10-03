@@ -29,7 +29,7 @@ func (f *evaluationReportFetcher) FetchEvaluationReports(appCtx appcontext.AppCo
 
 	err := appCtx.DB().
 		Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload("Move", "OfficeUser").
+		EagerPreload("Move", "OfficeUser", "ReportViolations", "ReportViolations.Violation").
 		Where("move_id = ?", moveID).
 		Where("type = ?", reportType).
 		Where("(submitted_at IS NOT NULL OR office_user_id = ?)", officeUserID).

@@ -1,8 +1,6 @@
 package ghcimport
 
 import (
-	"testing"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -18,7 +16,7 @@ func (suite *GHCRateEngineImportSuite) Test_stringToInteger() {
 		{"not a number", "2A", 0, true},
 	}
 	for _, test := range tests {
-		suite.T().Run(test.name, func(t *testing.T) {
+		suite.Run(test.name, func() {
 			result, err := stringToInteger(test.input)
 			suite.Equal(test.expected, result)
 			if test.shouldError {
@@ -42,7 +40,7 @@ func (suite *GHCRateEngineImportSuite) Test_cleanServiceAreaNumber() {
 		{"not a number", "B3", "", true},
 	}
 	for _, test := range tests {
-		suite.T().Run(test.name, func(t *testing.T) {
+		suite.Run(test.name, func() {
 			result, err := cleanServiceAreaNumber(test.input)
 			suite.Equal(test.expected, result)
 			if test.shouldError {
@@ -66,7 +64,7 @@ func (suite *GHCRateEngineImportSuite) Test_cleanZip3() {
 		{"not a number", "30L", "", true},
 	}
 	for _, test := range tests {
-		suite.T().Run(test.name, func(t *testing.T) {
+		suite.Run(test.name, func() {
 			result, err := cleanZip3(test.input)
 			suite.Equal(test.expected, result)
 			if test.shouldError {
@@ -92,7 +90,7 @@ func (suite *GHCRateEngineImportSuite) Test_isPeakPeriod() {
 		{"invalid period", "Non-Peak", false, true},
 	}
 	for _, test := range tests {
-		suite.T().Run(test.name, func(t *testing.T) {
+		suite.Run(test.name, func() {
 			result, err := isPeakPeriod(test.input)
 			suite.Equal(test.expected, result)
 			if test.shouldError {
@@ -123,7 +121,7 @@ func (suite *GHCRateEngineImportSuite) Test_getPriceParts() {
 		{"empty string", "", 4, 0, 0, true},
 	}
 	for _, test := range tests {
-		suite.T().Run(test.name, func(t *testing.T) {
+		suite.Run(test.name, func() {
 			integerPart, fractionalPart, err := getPriceParts(test.rawPrice, test.decimalPlaces)
 			suite.Equal(test.expectedIntegerPart, integerPart)
 			suite.Equal(test.expectedFractionalPart, fractionalPart)
@@ -154,7 +152,7 @@ func (suite *GHCRateEngineImportSuite) Test_priceToMillicents() {
 		{"not a number", "3.53X", 0, true},
 	}
 	for _, test := range tests {
-		suite.T().Run(test.name, func(t *testing.T) {
+		suite.Run(test.name, func() {
 			result, err := priceToMillicents(test.input)
 			suite.Equal(test.expected, result)
 			if test.shouldError {
@@ -183,7 +181,7 @@ func (suite *GHCRateEngineImportSuite) Test_priceToCents() {
 		{"not a number", "3.5X", 0, true},
 	}
 	for _, test := range tests {
-		suite.T().Run(test.name, func(t *testing.T) {
+		suite.Run(test.name, func() {
 			result, err := priceToCents(test.input)
 			suite.Equal(test.expected, result)
 			if test.shouldError {
@@ -208,7 +206,7 @@ func (suite *GHCRateEngineImportSuite) Test_getMarket() {
 	}
 
 	for _, test := range tests {
-		suite.T().Run(test.name, func(t *testing.T) {
+		suite.Run(test.name, func() {
 			result, err := getMarket(test.input)
 			suite.Equal(test.expected, result)
 			if test.shouldError {
