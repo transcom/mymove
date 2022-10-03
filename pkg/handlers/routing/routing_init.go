@@ -122,6 +122,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
+	site.Use(auth.SessionIDMiddleware(routingConfig.HandlerConfig.AppNames(), routingConfig.HandlerConfig.GetSessionManagers()))
 	site.Use(middleware.Trace(appCtx.Logger())) // injects trace id into the context
 	site.Use(middleware.ContextLogger("milmove_trace_id", appCtx.Logger()))
 	site.Use(middleware.Recovery(appCtx.Logger()))
