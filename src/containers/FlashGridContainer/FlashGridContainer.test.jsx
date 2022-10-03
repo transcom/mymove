@@ -87,7 +87,7 @@ describe('FlashGridContainer component', () => {
 
     mockStore.store.dispatch(setFlashMessage('TEST_SUCCESS_FLASH', 'success', 'This is a successful message!'));
 
-    // Re-render after changing state with new message and ScrollToTop should fire again
+    // Re-render after changing state with new message and ScrollToTop should fire for the first time
     wrapper.mount();
     expect(global.scrollTo).toHaveBeenCalledTimes(1);
 
