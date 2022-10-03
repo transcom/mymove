@@ -347,3 +347,10 @@ export function navigateFromCloseoutReviewPageToProGearPage() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
   });
 }
+
+export function navigateFromCloseoutReviewPageToExpensesPage() {
+  cy.get('a.usa-button').contains('Add Expense').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+  });
+}

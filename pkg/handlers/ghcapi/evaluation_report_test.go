@@ -516,10 +516,25 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		request := httptest.NewRequest("PUT", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 
+		now := strfmt.Date(time.Now())
 		params := evaluationReportop.SaveEvaluationReportParams{
 			HTTPRequest: request,
 			Body: &ghcmessages.EvaluationReport{
-				Remarks: swag.String("new remarks"),
+				EvaluationLengthMinutes:       handlers.FmtInt64(45),
+				InspectionDate:                &now,
+				InspectionType:                ghcmessages.EvaluationReportInspectionTypePHYSICAL.Pointer().Pointer(),
+				Location:                      ghcmessages.EvaluationReportLocationORIGIN.Pointer(),
+				LocationDescription:           swag.String("location description"),
+				ObservedClaimsResponseDate:    handlers.FmtDate(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)),
+				ObservedDate:                  handlers.FmtDate(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)),
+				ObservedPickupDate:            handlers.FmtDate(time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC)),
+				ObservedPickupSpreadStartDate: handlers.FmtDate(time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC)),
+				ObservedPickupSpreadEndDate:   handlers.FmtDate(time.Date(2020, 2, 5, 0, 0, 0, 0, time.UTC)),
+				Remarks:                       swag.String("new remarks"),
+				SeriousIncident:               handlers.FmtBool(true),
+				SeriousIncidentDesc:           swag.String("serious incident description"),
+				TravelTimeMinutes:             handlers.FmtInt64(30),
+				ViolationsObserved:            handlers.FmtBool(true),
 			},
 			ReportID: *handlers.FmtUUID(reportID),
 		}

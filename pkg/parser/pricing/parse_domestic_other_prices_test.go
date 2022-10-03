@@ -2,7 +2,6 @@ package pricing
 
 import (
 	"strconv"
-	"testing"
 	"time"
 )
 
@@ -23,7 +22,7 @@ func (suite *PricingParserSuite) Test_parseDomesticOtherPrices() {
 		RunVerify:    true,
 	}
 
-	suite.T().Run("parseDomesticOtherPricesPack", func(t *testing.T) {
+	suite.Run("parseDomesticOtherPricesPack", func() {
 		slice, err := parseDomesticOtherPricesPack(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseDomesticOtherPricesPack function failed")
 
@@ -35,7 +34,7 @@ func (suite *PricingParserSuite) Test_parseDomesticOtherPrices() {
 		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 	})
 
-	suite.T().Run("parseDomesticOtherPricesSit", func(t *testing.T) {
+	suite.Run("parseDomesticOtherPricesSit", func() {
 		slice, err := parseDomesticOtherPricesSit(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseDomesticOtherPricesSit function failed")
 
@@ -62,12 +61,12 @@ func (suite *PricingParserSuite) Test_verifyDomesticOtherPrices() {
 		RunVerify:    true,
 	}
 
-	suite.T().Run("verifyDomesticOtherPrices success", func(t *testing.T) {
+	suite.Run("verifyDomesticOtherPrices success", func() {
 		err := verifyDomesticOtherPrices(params, sheetIndex)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("verifyDomesticOtherPrices with invalid sheetIndex", func(t *testing.T) {
+	suite.Run("verifyDomesticOtherPrices with invalid sheetIndex", func() {
 		err := verifyDomesticOtherPrices(params, 7)
 		if suite.Error(err) {
 			suite.Equal("verifyDomesticOtherPrices expected to process sheet 8, but received sheetIndex 7", err.Error())

@@ -66,7 +66,7 @@ const Review = () => {
 
   const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
   const proGear = mtoShipment?.ppmShipment?.proGear;
-  const expenses = mtoShipment?.ppmShipment?.expenses;
+  const expenses = mtoShipment?.ppmShipment?.movingExpenses;
 
   if (!mtoShipment) {
     return <LoadingPlaceholder />;
@@ -189,7 +189,7 @@ const Review = () => {
                 emptyMessage="No pro-gear weight documented."
               />
               <ReviewItems
-                className={styles.reviewItems}
+                className={classnames(styles.reviewItems, 'reviewExpenses')}
                 heading={
                   <>
                     <h3>Expenses</h3>

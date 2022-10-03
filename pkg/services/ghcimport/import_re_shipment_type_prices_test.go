@@ -1,8 +1,6 @@
 package ghcimport
 
 import (
-	"testing"
-
 	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/db/dberr"
@@ -14,7 +12,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREShipmentTypePrices() {
 		ContractCode: testContractCode,
 	}
 
-	suite.T().Run("import success", func(t *testing.T) {
+	setupTestData := func() {
 		// Prerequisite tables must be loaded.
 		err := gre.importREContract(suite.AppContextForTest())
 		suite.NoError(err)
@@ -24,19 +22,20 @@ func (suite *GHCRateEngineImportSuite) Test_importREShipmentTypePrices() {
 
 		err = gre.importREShipmentTypePrices(suite.AppContextForTest())
 		suite.NoError(err)
+	}
+
+	suite.Run("import success", func() {
+		setupTestData()
 		suite.helperVerifyShipmentTypePrices()
 		suite.helperCheckShipmentTypePrices()
 	})
 
-	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
+	suite.Run("run a second time; should fail immediately due to constraint violation", func() {
+		setupTestData()
 		err := gre.importREShipmentTypePrices(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_shipment_type_prices_unique_key"))
 		}
-
-		// Check to see if anything else changed
-		suite.helperVerifyShipmentTypePrices()
-		suite.helperCheckShipmentTypePrices()
 	})
 }
 

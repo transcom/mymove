@@ -2,7 +2,6 @@ package ghcimport
 
 import (
 	"fmt"
-	"testing"
 
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgerrcode"
@@ -17,7 +16,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPrices() {
 		ContractCode: testContractCode,
 	}
 
-	suite.T().Run("import success", func(t *testing.T) {
+	setupTestData := func() {
 		// Prerequisite tables must be loaded.
 		err := gre.importREContract(suite.AppContextForTest())
 		suite.NoError(err)
@@ -27,20 +26,20 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPrices() {
 
 		err = gre.importREDomesticOtherPrices(suite.AppContextForTest())
 		suite.NoError(err)
+	}
 
+	suite.Run("import success", func() {
+		setupTestData()
 		suite.helperVerifyDomesticOtherPrices()
 		suite.helperCheckDomesticOtherPriceValue()
 	})
 
-	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
+	suite.Run("run a second time; should fail immediately due to constraint violation", func() {
+		setupTestData()
 		err := gre.importREDomesticOtherPrices(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_domestic_other_prices_unique_key"))
 		}
-
-		// Check to see if anything else changed
-		suite.helperVerifyDomesticOtherPrices()
-		suite.helperCheckDomesticOtherPriceValue()
 	})
 }
 
@@ -48,36 +47,35 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPricesFailures(
 	gre := &GHCRateEngineImporter{
 		ContractCode: testContractCode,
 	}
+	setupTestData := func() {
+		err := gre.importREContract(suite.AppContextForTest())
+		suite.NoError(err)
+		suite.NotNil(gre.ContractID)
 
-	err := gre.importREContract(suite.AppContextForTest())
-	suite.NoError(err)
-	suite.NotNil(gre.ContractID)
+		err = gre.loadServiceMap(suite.AppContextForTest())
+		suite.NoError(err)
+	}
 
-	err = gre.loadServiceMap(suite.AppContextForTest())
-	suite.NoError(err)
-
-	suite.T().Run("stage_domestic_other_sit_prices table missing", func(t *testing.T) {
+	suite.Run("stage_domestic_other_sit_prices table missing", func() {
+		setupTestData()
 		renameQuery := "ALTER TABLE stage_domestic_other_sit_prices RENAME TO missing_stage_domestic_other_sit_prices"
 		renameErr := suite.DB().RawQuery(renameQuery).Exec()
 		suite.NoError(renameErr)
 
-		err = gre.importREDomesticOtherPrices(suite.AppContextForTest())
+		err := gre.importREDomesticOtherPrices(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBError(err, pgerrcode.UndefinedTable))
 		}
-
-		renameQuery = "ALTER TABLE missing_stage_domestic_other_sit_prices RENAME TO stage_domestic_other_sit_prices"
-		renameErr = suite.DB().RawQuery(renameQuery).Exec()
-		suite.NoError(renameErr)
 	})
 
-	suite.T().Run("stage_domestic_other_pack_prices table missing", func(t *testing.T) {
+	suite.Run("stage_domestic_other_pack_prices table missing", func() {
+		setupTestData()
 		// drop a staging table that we are depending on to do import
 		dropQuery := fmt.Sprintf("DROP TABLE IF EXISTS %s;", "stage_domestic_other_pack_prices")
 		dropErr := suite.DB().RawQuery(dropQuery).Exec()
 		suite.NoError(dropErr)
 
-		err = gre.importREDomesticOtherPrices(suite.AppContextForTest())
+		err := gre.importREDomesticOtherPrices(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBError(err, pgerrcode.UndefinedTable))
 		}

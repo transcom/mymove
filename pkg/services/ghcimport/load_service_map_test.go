@@ -1,8 +1,6 @@
 package ghcimport
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -13,7 +11,7 @@ func (suite *GHCRateEngineImportSuite) Test_loadServiceMap() {
 		ContractCode: testContractCode,
 	}
 
-	suite.T().Run("load success", func(t *testing.T) {
+	suite.Run("load success", func() {
 		err := gre.loadServiceMap(suite.AppContextForTest())
 		suite.NoError(err)
 
