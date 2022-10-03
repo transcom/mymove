@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/approveShipment';
+import e from 'constants/MoveHistory/EventTemplates/ApproveShipment/approveShipment';
 
 describe('when given an Approved shipment history record', () => {
   const item = {
