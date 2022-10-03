@@ -126,7 +126,8 @@ func (f *EvaluationReportFormFiller) CreateShipmentReport(report models.Evaluati
 		f.pdf.AddPage()
 		f.sectionHeading("Violations", pxToMM(56.0))
 
-		err = f.violationsSection(violations)
+		additionalKPIData := FormatAdditionalKPIValues(report)
+		err = f.violationsSection(violations, additionalKPIData)
 		if err != nil {
 			return err
 		}
@@ -170,7 +171,8 @@ func (f *EvaluationReportFormFiller) CreateCounselingReport(report models.Evalua
 		f.pdf.AddPage()
 		f.sectionHeading("Violations", pxToMM(56.0))
 
-		err = f.violationsSection(violations)
+		additionalKPIData := FormatAdditionalKPIValues(report)
+		err = f.violationsSection(violations, additionalKPIData)
 		if err != nil {
 			return err
 		}
@@ -395,7 +397,7 @@ func (f *EvaluationReportFormFiller) inspectionInformationSection(report models.
 
 // violationsSection draws the violations section of the report, which lists all PWS violations and
 // associated KPIs
-func (f *EvaluationReportFormFiller) violationsSection(violations models.ReportViolations) error {
+func (f *EvaluationReportFormFiller) violationsSection(violations models.ReportViolations, additionalKPIData AdditionalKPIData) error {
 	f.subsectionHeading(fmt.Sprintf("Violations observed (%d)", len(violations)))
 
 	kpis := map[string]bool{}
@@ -422,13 +424,7 @@ func (f *EvaluationReportFormFiller) violationsSection(violations models.ReportV
 				allKPIs = append(allKPIs, kpi)
 			}
 		}
-		err := f.subsection("Additional data for KPIs", allKPIs, KPIFieldLabels, AdditionalKPIData{
-			ObservedPickupSpreadStartDate: "?",
-			ObservedPickupSpreadEndDate:   "?",
-			ObservedClaimDate:             "?",
-			ObservedPickupDate:            "?",
-			ObservedDeliveryDate:          "?",
-		})
+		err := f.subsection("Additional data for KPIs", allKPIs, KPIFieldLabels, additionalKPIData)
 		if err != nil {
 			return err
 		}

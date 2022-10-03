@@ -25,15 +25,13 @@ type AdditionalKPIData struct {
 	ObservedPickupSpreadEndDate   string
 	ObservedClaimDate             string
 	ObservedPickupDate            string
-	ObservedDeliveryDate          string
 }
 
 var KPIFieldLabels = map[string]string{
-	"ObservedPickupSpreadStartDate": "Observed pickup start dates",
-	"ObservedPickupSpreadEndDate":   "Observed pickup end dates",
+	"ObservedPickupSpreadStartDate": "Observed pickup spread start date",
+	"ObservedPickupSpreadEndDate":   "Observed pickup spread end date",
 	"ObservedClaimDate":             "Observed claims response date",
 	"ObservedPickupDate":            "Observed pickup date",
-	"ObservedDeliveryDate":          "Observed delivery date",
 }
 
 type InspectionInformationValues struct {
@@ -414,4 +412,22 @@ func FormatContactInformationValues(customer models.ServiceMember, qae models.Of
 	contactInfo.CustomerFullName = customer.ReverseNameLineFormat()
 
 	return contactInfo
+}
+
+func FormatAdditionalKPIValues(report models.EvaluationReport) AdditionalKPIData {
+	additionalKPIData := AdditionalKPIData{}
+	if report.ObservedPickupSpreadStartDate != nil {
+		additionalKPIData.ObservedPickupSpreadStartDate = report.ObservedPickupSpreadStartDate.Format(dateFormat)
+	}
+	if report.ObservedPickupSpreadEndDate != nil {
+		additionalKPIData.ObservedPickupSpreadEndDate = report.ObservedPickupSpreadEndDate.Format(dateFormat)
+	}
+	if report.ObservedClaimsResponseDate != nil {
+		additionalKPIData.ObservedClaimDate = report.ObservedClaimsResponseDate.Format(dateFormat)
+	}
+	if report.ObservedPickupDate != nil {
+		additionalKPIData.ObservedPickupDate = report.ObservedPickupDate.Format(dateFormat)
+	}
+
+	return additionalKPIData
 }
