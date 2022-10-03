@@ -19,10 +19,10 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
-import { requiredAddressSchema } from 'utils/validation';
+import { requiredW2AddressSchema } from 'utils/validation';
 import { W2AddressShape } from 'types/address';
 
-const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
+const FinalCloseoutForm = ({ mtoShipment, onBack }) => {
   const totalNetWeight = calculateTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
 
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
@@ -33,7 +33,7 @@ const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
 
   const formFieldsName = 'w2_address';
   const validationSchema = Yup.object().shape({
-    [formFieldsName]: requiredAddressSchema.required(),
+    [formFieldsName]: requiredW2AddressSchema.required(),
   });
   const initialValues = {
     [formFieldsName]: {
@@ -103,19 +103,21 @@ const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
       </div>
 
       <Formik initialValues={initialValues} validationSchema={validationSchema}>
-        {({ isValid, isSubmitting }) => {
+        {({ isValid, isSubmitting, handleSubmit }) => {
           return (
             <>
-              <Form className={classnames(formStyles.form, styles.W2AddressForm)}>
-                <SectionWrapper className={formStyles.formSection}>
-                  <h2>W-2 address</h2>
-                  <p>What is the address on your W-2?</p>
-                  <AddressFields
-                    name={formFieldsName}
-                    className={classnames(styles.FinalCloseoutForm, styles.AddressFieldSet)}
-                  />
-                </SectionWrapper>
-              </Form>
+              <div className={classnames(ppmStyles.formContainer)}>
+                <Form className={classnames(formStyles.form, ppmStyles.form, styles.W2AddressForm)}>
+                  <SectionWrapper className={classnames(formStyles.formSection, ppmStyles.sectionWrapper)}>
+                    <h2>W-2 address</h2>
+                    <p>What is the address on your W-2?</p>
+                    <AddressFields
+                      name={formFieldsName}
+                      className={classnames(styles.FinalCloseoutForm, styles.AddressFieldSet)}
+                    />
+                  </SectionWrapper>
+                </Form>
+              </div>
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Finish Later
@@ -123,13 +125,12 @@ const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
                 <Button
                   className={ppmStyles.saveButton}
                   type="button"
-                  onClick={onSubmit}
+                  onClick={handleSubmit}
                   disabled={!isValid || isSubmitting}
                 >
                   Submit PPM Documentation
                 </Button>
               </div>
-              ;
             </>
           );
         }}
@@ -144,17 +145,6 @@ FinalCloseoutForm.prototypes = {
   onSubmit: func.isRequired,
   formFieldsName: PropTypes.string.isRequired,
   initialValues: W2AddressShape.isRequired,
-  // validators: PropTypes.shape({
-  //   streetAddress1: PropTypes.func,
-  //   streetAddress2: PropTypes.func,
-  //   city: PropTypes.func,
-  //   state: PropTypes.func,
-  //   postalCode: PropTypes.func,
-  // }),
 };
-
-// FinalCloseoutForm.defaultProps = {
-//   validators: {},
-// };
 
 export default FinalCloseoutForm;
