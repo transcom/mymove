@@ -19,14 +19,7 @@ import { DatePickerInput } from 'components/form/fields';
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { EvaluationReportShape, ReportViolationShape, PWSViolationShape } from 'types';
 
-const EvaluationViolationsForm = ({
-  violations,
-  evaluationReport,
-  reportViolations,
-  customerInfo,
-  grade,
-  mtoShipments,
-}) => {
+const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolations, customerInfo, mtoShipments }) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
 
@@ -155,15 +148,16 @@ const EvaluationViolationsForm = ({
         evaluationReport={evaluationReport}
         moveCode={moveCode}
         customerInfo={customerInfo}
-        grade={grade}
+        grade={customerInfo.grade}
         mtoShipments={mtoShipments}
         modalActions={submitModalActions}
+        reportViolations={reportViolations}
         bordered
       />
       <Formik
         initialValues={initialValues}
         enableReinitialize
-        onSubmit={() => {}}
+        onSubmit={handlePreviewReport}
         validationSchema={validationSchema}
         validateOnMount
       >
