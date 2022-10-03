@@ -95,7 +95,7 @@ type WeightTicket struct {
 	Reason *PPMDocumentStatusReason `json:"reason"`
 
 	// status
-	Status PPMDocumentStatus `json:"status,omitempty"`
+	Status *PPMDocumentStatus `json:"status"`
 
 	// Trailer meets criteria
 	TrailerMeetsCriteria *bool `json:"trailerMeetsCriteria"`
@@ -361,13 +361,15 @@ func (m *WeightTicket) validateStatus(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.Status.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
+	if m.Status != nil {
+		if err := m.Status.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("status")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -577,13 +579,15 @@ func (m *WeightTicket) contextValidateReason(ctx context.Context, formats strfmt
 
 func (m *WeightTicket) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.Status.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
+	if m.Status != nil {
+		if err := m.Status.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("status")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

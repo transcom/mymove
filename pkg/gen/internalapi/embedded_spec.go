@@ -4938,8 +4938,6 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "x-nullable": true,
-          "x-omitempty": false,
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "updatedAt": {
@@ -5237,7 +5235,9 @@ func init() {
         "APPROVED": "Approved",
         "EXCLUDED": "Excluded",
         "REJECTED": "Rejected"
-      }
+      },
+      "x-nullable": true,
+      "x-omitempty": false
     },
     "PPMDocumentStatusReason": {
       "type": "string",
@@ -7198,8 +7198,6 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {
-          "x-nullable": true,
-          "x-omitempty": false,
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
@@ -12365,8 +12363,6 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "x-nullable": true,
-          "x-omitempty": false,
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "updatedAt": {
@@ -12664,7 +12660,9 @@ func init() {
         "APPROVED": "Approved",
         "EXCLUDED": "Excluded",
         "REJECTED": "Rejected"
-      }
+      },
+      "x-nullable": true,
+      "x-omitempty": false
     },
     "PPMDocumentStatusReason": {
       "type": "string",
@@ -14639,8 +14637,6 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {
-          "x-nullable": true,
-          "x-omitempty": false,
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "trailerMeetsCriteria": {

@@ -82,7 +82,7 @@ type MovingExpense struct {
 	SitStartDate *strfmt.Date `json:"sitStartDate"`
 
 	// status
-	Status PPMDocumentStatus `json:"status,omitempty"`
+	Status *PPMDocumentStatus `json:"status"`
 
 	// Timestamp when a property of this moving expense object was last modified (UTC)
 	// Required: true
@@ -270,13 +270,15 @@ func (m *MovingExpense) validateStatus(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.Status.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
+	if m.Status != nil {
+		if err := m.Status.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("status")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -401,13 +403,15 @@ func (m *MovingExpense) contextValidateReason(ctx context.Context, formats strfm
 
 func (m *MovingExpense) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.Status.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
+	if m.Status != nil {
+		if err := m.Status.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("status")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

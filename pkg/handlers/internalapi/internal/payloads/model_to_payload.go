@@ -306,7 +306,8 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 	}
 
 	if movingExpense.Status != nil {
-		payload.Status = internalmessages.PPMDocumentStatus(*movingExpense.Status)
+		status := internalmessages.PPMDocumentStatus(*movingExpense.Status)
+		payload.Status = &status
 	}
 
 	if movingExpense.Reason != nil {
@@ -376,7 +377,8 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 	}
 
 	if weightTicket.Status != nil {
-		payload.Status = internalmessages.PPMDocumentStatus(*weightTicket.Status)
+		status := internalmessages.PPMDocumentStatus(*weightTicket.Status)
+		payload.Status = &status
 	}
 
 	if weightTicket.Reason != nil {
