@@ -1,11 +1,11 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
-//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
-//RA: in which this would be considered a risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
+// RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
+// RA: in which this would be considered a risk
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package scenario
 
@@ -4082,6 +4082,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createApprovedMoveWithPPM(appCtx, userUploader)
 	createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
 	createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
+	createApprovedMoveWithPPMMovingExpense(appCtx, nil, userUploader)
+	createApprovedMoveWithPPMMovingExpense(appCtx, &moveCreatorInfo{userID: uuid.FromStringOrNil("da65c290-6256-46db-a1a0-3779191638a2"), email: "movingExpensePPM2@ppm.approved", moveLocator: "EXPNS2"}, userUploader)
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMADD")
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSCF")

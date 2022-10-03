@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -390,7 +390,7 @@ func buildContainerEnvironment(environmentName string, dbHost string, variablesF
 			log.Fatal(fmt.Errorf("File %q does not exist: %w", variablesFile, err))
 		}
 		// Read contents of variables file into vars
-		vars, readFileErr := ioutil.ReadFile(filepath.Clean(variablesFile))
+		vars, readFileErr := os.ReadFile(filepath.Clean(variablesFile))
 		if readFileErr != nil {
 			log.Fatal(fmt.Errorf("error reading variables file"))
 		}
@@ -449,7 +449,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	verbose := cli.LogLevelIsDebug(v)
 	if !verbose {
 		// Disable any logging that isn't attached to the logger unless using the verbose flag
-		log.SetOutput(ioutil.Discard)
+		log.SetOutput(io.Discard)
 		log.SetFlags(0)
 
 		// Remove the flags for the logger

@@ -173,6 +173,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		OfficeUser:              &evaluationReportOfficeUserPayload,
 		ETag:                    etag.GenerateEtag(evaluationReport.UpdatedAt),
 		UpdatedAt:               strfmt.DateTime(evaluationReport.UpdatedAt),
+		ReportViolations:        ReportViolations(evaluationReport.ReportViolations),
 	}
 	return payload
 }

@@ -71,28 +71,31 @@ func FetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection) models.DutyLoca
 	// Check if Fort Gordon exists, if not, create
 	// Move date picker for this test case only works with an address of street name "Fort Gordon"
 	fortGordon, err := models.FetchDutyLocationByName(db, "Fort Gordon")
-	if err != nil {
-		fortGordonAssertions := Assertions{
-			Address: models.Address{
-				City:       "Augusta",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			DutyLocation: models.DutyLocation{
-				Name: "Fort Gordon",
-			},
+	if err == nil {
+		fortGordon.TransportationOffice, err = models.FetchDutyLocationTransportationOffice(db, fortGordon.ID)
+		if err == nil {
+			return fortGordon
 		}
-		FetchOrMakeTariff400ngZip3(db, Assertions{
-			Tariff400ngZip3: models.Tariff400ngZip3{
-				Zip3:          "308",
-				BasepointCity: "Harlem",
-				State:         "GA",
-				ServiceArea:   "208",
-				RateArea:      "US45",
-				Region:        "12",
-			},
-		})
-		return MakeDutyLocation(db, fortGordonAssertions)
 	}
-	return fortGordon
+	fortGordonAssertions := Assertions{
+		Address: models.Address{
+			City:       "Augusta",
+			State:      "GA",
+			PostalCode: "30813",
+		},
+		DutyLocation: models.DutyLocation{
+			Name: "Fort Gordon",
+		},
+	}
+	FetchOrMakeTariff400ngZip3(db, Assertions{
+		Tariff400ngZip3: models.Tariff400ngZip3{
+			Zip3:          "308",
+			BasepointCity: "Harlem",
+			State:         "GA",
+			ServiceArea:   "208",
+			RateArea:      "US45",
+			Region:        "12",
+		},
+	})
+	return MakeDutyLocation(db, fortGordonAssertions)
 }

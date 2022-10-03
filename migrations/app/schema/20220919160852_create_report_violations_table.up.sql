@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS report_violations (
 		REFERENCES "evaluation_reports",
 	violation_id uuid NOT NULL
 		CONSTRAINT report_violations_violation_id_fkey
-		REFERENCES "pws_violations"
+		REFERENCES "pws_violations",
+	UNIQUE ("report_id", "violation_id")
 );
 
 CREATE INDEX report_violations_report_id_idx ON report_violations (report_id);

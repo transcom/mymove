@@ -25,7 +25,6 @@ const NTSRShipmentInfoList = ({
     destinationType,
     displayDestinationType,
     secondaryDeliveryAddress,
-    agents,
     mtoAgents,
     counselorRemarks,
     customerRemarks,
@@ -52,6 +51,10 @@ const NTSRShipmentInfoList = ({
     missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
   });
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
+
+  const showElement = (elementFlags) => {
+    return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
+  };
 
   const storageFacilityAddressElementFlags = getDisplayFlags('storageFacility');
   const storageFacilityAddressElement = (
@@ -213,27 +216,13 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
-  const recievingAgentFlags = getDisplayFlags('recievingAgent');
-  const receivingAgentElement = !receivingAgent ? (
-    <div className={recievingAgentFlags.classes}>
+  const receivingAgentFlags = getDisplayFlags('receivingAgent');
+  const receivingAgentElement = (
+    <div className={receivingAgentFlags.classes} key={`${receivingAgent.agentType}-${receivingAgent.email}`}>
       <dt>Receiving agent</dt>
-      <dd data-testid="RECEIVING_AGENT">—</dd>
-    </div>
-  ) : (
-    <div className={recievingAgentFlags.classes} key={`${receivingAgent.agentType}-${receivingAgent.email}`}>
-      <dt>Receiving agent</dt>
-      <dd data-testid={receivingAgent.agentType}>{formatAgent(receivingAgent)}</dd>
+      <dd data-testid="receivingAgent">{receivingAgent ? formatAgent(receivingAgent) : '—'}</dd>
     </div>
   );
-
-  const agentsElement = agents
-    ? agents.map((agent) => (
-        <div className={styles.row} key={`${agent.agentType}-${agent.email}`}>
-          <dt>{agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}</dt>
-          <dd data-testid="agent">{formatAgent(agent)}</dd>
-        </div>
-      ))
-    : null;
 
   const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
@@ -261,19 +250,19 @@ const NTSRShipmentInfoList = ({
       )}
       data-testid="nts-release-shipment-info-list"
     >
-      {(isExpanded || ntsRecordedWeightElementFlags.alwaysShow) && ntsRecordedWeightElement}
-      {(isExpanded || storageFacilityInfoElementFlags.alwaysShow) && storageFacilityInfoElement}
-      {(isExpanded || serviceOrderNumberElementFlags.alwaysShow) && serviceOrderNumberElement}
+      {showElement(ntsRecordedWeightElementFlags) && ntsRecordedWeightElement}
+      {showElement(storageFacilityInfoElementFlags) && storageFacilityInfoElement}
+      {showElement(serviceOrderNumberElementFlags) && serviceOrderNumberElement}
       {storageFacilityAddressElement}
       {requestedDeliveryDateElement}
       {destinationAddressElement}
       {displayDestinationType && destinationTypeElement}
       {isExpanded && secondaryDeliveryAddressElement}
-      {isExpanded && agentsElement}
+      {showElement(receivingAgentFlags) && receivingAgentElement}
       {isExpanded && customerRemarksElement}
-      {(isExpanded || counselorRemarksElementFlags.alwaysShow) && counselorRemarksElement}
-      {(isExpanded || tacElementFlags.alwaysShow) && tacElement}
-      {(isExpanded || sacElementFlags.alwaysShow) && sacElement}
+      {showElement(counselorRemarksElementFlags) && counselorRemarksElement}
+      {showElement(tacElementFlags) && tacElement}
+      {showElement(sacElementFlags) && sacElement}
     </dl>
   );
 

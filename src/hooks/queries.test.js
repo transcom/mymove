@@ -12,6 +12,7 @@ import {
   useTXOMoveInfoQueries,
   useMoveDetailsQueries,
   useEditShipmentQueries,
+  useEvaluationReportQueries,
 } from './queries';
 
 import { serviceItemCodes } from 'content/serviceItems';
@@ -187,7 +188,6 @@ jest.mock('services/ghcApi', () => ({
         id: `${id}0`,
       },
     }),
-
   getMovesQueue: () =>
     Promise.resolve({
       page: 1,
@@ -220,6 +220,29 @@ jest.mock('services/ghcApi', () => ({
     Promise.resolve({
       data: {},
     }),
+  getEvaluationReportByID: () =>
+    Promise.resolve({
+      id: '1234',
+      type: 'SHIPMENT',
+      moveReferenceID: '4321',
+      shipmentID: '123',
+    }),
+  getMTOShipmentByID: () =>
+    Promise.resolve({
+      id: '12345',
+      moveTaskOrderId: '67890',
+      customerRemarks: 'mock remarks',
+      requestedPickupDate: '2020-03-01',
+      requestedDeliveryDate: '2020-03-30',
+    }),
+  getReportViolationsByReportID: () =>
+    Promise.resolve([
+      {
+        id: '123',
+        reportID: '456',
+        violationID: '789',
+      },
+    ]),
   getShipmentsPaymentSITBalance: () => {
     Promise.resolve({
       shipmentsPaymentSITBalance: {
@@ -774,6 +797,44 @@ describe('useUserQueries', () => {
       data: {
         office_user: { transportation_office: { gbloc: 'LMKG' } },
       },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});
+
+describe('useEvaluationReportQueries', () => {
+  it('loads data', async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useEvaluationReportQueries('1234'));
+
+    expect(result.current).toEqual({
+      evaluationReport: {},
+      mtoShipment: {},
+      reportViolations: [],
+      isLoading: true,
+      isError: false,
+      isSuccess: false,
+    });
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      evaluationReport: { id: '1234', moveReferenceID: '4321', type: 'SHIPMENT', shipmentID: '123' },
+      mtoShipment: {
+        id: '12345',
+        moveTaskOrderId: '67890',
+        customerRemarks: 'mock remarks',
+        requestedPickupDate: '2020-03-01',
+        requestedDeliveryDate: '2020-03-30',
+      },
+      reportViolations: [
+        {
+          id: '123',
+          reportID: '456',
+          violationID: '789',
+        },
+      ],
       isLoading: false,
       isError: false,
       isSuccess: true,

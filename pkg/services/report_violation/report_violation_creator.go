@@ -1,9 +1,12 @@
 package reportviolation
 
 import (
+	"database/sql"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -24,7 +27,12 @@ func (u reportViolationsCreator) AssociateReportViolations(appCtx appcontext.App
 		existingReportViolations := models.ReportViolations{}
 		err := appCtx.DB().Where("report_id in (?)", reportID).All(&existingReportViolations)
 		if err != nil {
-			return err
+			switch err {
+			case sql.ErrNoRows:
+				return apperror.NewNotFoundError(reportID, "Unable to find report to associate violations with")
+			default:
+				return err
+			}
 		}
 		err = appCtx.DB().Destroy(existingReportViolations)
 		if err != nil {
@@ -34,9 +42,12 @@ func (u reportViolationsCreator) AssociateReportViolations(appCtx appcontext.App
 		// Create new violations associations for the report
 		if len(*reportViolations) > 0 {
 			verrs, err := appCtx.DB().ValidateAndCreate(reportViolations)
-			if verrs.Count() != 0 || err != nil {
-				return err
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while associating report violations.")
+			} else if err != nil {
+				return apperror.NewQueryError("reportViolations", err, "")
 			}
+
 		}
 		return nil
 	})

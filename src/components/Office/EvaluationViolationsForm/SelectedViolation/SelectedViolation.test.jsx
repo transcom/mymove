@@ -23,13 +23,22 @@ beforeEach(() => {
 
 describe('SelectedViolation', () => {
   it('renders the violation content', async () => {
-    render(<SelectedViolation violation={mockViolation} unselectViolation={mockUnselectViolation} />);
+    render(
+      <SelectedViolation violation={mockViolation} unselectViolation={mockUnselectViolation} isReadOnly={false} />,
+    );
 
     expect(screen.getByRole('heading', { name: '1.2.3 Title for violation 1', level: 5 })).toBeInTheDocument();
     expect(screen.getByText(mockViolation.requirementSummary)).toBeInTheDocument();
 
+    // remove button should display when read only is false
     expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
-    screen.debug();
+  });
+
+  it('renders the violation content in preview without remove button', async () => {
+    render(<SelectedViolation violation={mockViolation} isReadOnly />);
+
+    // remove button should not display when read only is true
+    expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
   });
 
   it('removes the violation from selected when remove is clicked', async () => {
@@ -41,5 +50,13 @@ describe('SelectedViolation', () => {
 
     expect(mockUnselectViolation).toHaveBeenCalledTimes(1);
     expect(mockUnselectViolation).toHaveBeenCalledWith(mockViolation.id);
+  });
+
+  it('does not render anything when there is no violation', async () => {
+    render(<SelectedViolation violation={null} unselectViolation={mockUnselectViolation} />);
+
+    expect(screen.queryByRole('heading', { name: '1.2.3 Title for violation 1', level: 5 })).not.toBeInTheDocument();
+    expect(screen.queryByText(mockViolation.requirementSummary)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
   });
 });

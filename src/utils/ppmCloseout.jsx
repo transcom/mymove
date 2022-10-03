@@ -3,6 +3,7 @@ import { generatePath, Link } from 'react-router-dom';
 import moment from 'moment';
 
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
+import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
 
 export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
   return [
@@ -89,7 +90,7 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
         {
           id: 'expenseType',
           label: 'Expense Type:',
-          value: expense.type,
+          value: expenseTypeLabels[expense.movingExpenseType],
           hideLabel: true,
         },
         { id: 'description', label: 'Description:', value: expense.description, hideLabel: true },
@@ -99,11 +100,11 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
       onDelete: () => handleDelete('expense', expense.id, expense.eTag),
     };
 
-    if (expense.type === 'Storage') {
+    if (expense.movingExpenseType === expenseTypes.STORAGE) {
       contents.rows.push({
         id: 'daysInStorage',
         label: 'Days in storage:',
-        value: moment(expense.endDate).diff(moment(expense.startDate), 'days'),
+        value: 1 + moment(expense.sitEndDate).diff(moment(expense.sitStartDate), 'days'),
       });
     }
     return contents;

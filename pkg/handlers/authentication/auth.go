@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -918,7 +918,7 @@ func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvid
 		}
 	}()
 
-	responseBody, err := ioutil.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		logger.Error("Reading Login.gov token response", zap.Error(err))
 		return nil, err

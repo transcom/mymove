@@ -1,10 +1,10 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values are used to set/unset environment variables needed for session creation in the unit test's local database
-//RA: Setting/unsetting of environment variables does not present any risks and are solely used for unit testing purposes
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values are used to set/unset environment variables needed for session creation in the unit test's local database
+// RA: Setting/unsetting of environment variables does not present any risks and are solely used for unit testing purposes
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package invoice
 
@@ -93,7 +93,7 @@ func (suite *SyncadaSftpSenderSuite) TestSendToSyncadaSftp() {
 
 	// Test failure if any environment variable is missing
 	for _, data := range missingCreds {
-		suite.T().Run(fmt.Sprintf("constructor fails if %s is missing", data.TestEnvironmentVar), func(t *testing.T) {
+		suite.Run(fmt.Sprintf("constructor fails if %s is missing", data.TestEnvironmentVar), func() {
 			data.Setup()
 			sender, err := InitNewSyncadaSFTPSession()
 			suite.Error(err)
@@ -102,7 +102,7 @@ func (suite *SyncadaSftpSenderSuite) TestSendToSyncadaSftp() {
 		})
 	}
 
-	suite.T().Run("constructor doesn't fail if passed in all env", func(t *testing.T) {
+	suite.Run("constructor doesn't fail if passed in all env", func() {
 		os.Setenv("GEX_SFTP_PORT", "1234")
 		os.Setenv("GEX_SFTP_USER_ID", "FAKE_USER_ID")
 		os.Setenv("GEX_SFTP_IP_ADDRESS", "127.0.0.1")
@@ -115,7 +115,7 @@ func (suite *SyncadaSftpSenderSuite) TestSendToSyncadaSftp() {
 		suite.NotNil(sender)
 	})
 
-	suite.T().Run("constructor fails with invalid host key", func(t *testing.T) {
+	suite.Run("constructor fails with invalid host key", func() {
 		os.Setenv("GEX_SFTP_PORT", "1234")
 		os.Setenv("GEX_SFTP_USER_ID", "FAKE_USER_ID")
 		os.Setenv("GEX_SFTP_IP_ADDRESS", "127.0.0.1")

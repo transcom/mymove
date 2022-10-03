@@ -3,7 +3,7 @@ import React from 'react';
 import NTSRShipmentInfoList from './NTSRShipmentInfoList';
 
 export default {
-  title: 'Office Components/Shipment Info List',
+  title: 'Office Components/NTSR Shipment Info List',
   component: NTSRShipmentInfoList,
 };
 
@@ -35,7 +35,7 @@ const info = {
     state: 'TX',
     postalCode: '78234',
   },
-  agents: [
+  mtoAgents: [
     {
       agentType: 'RECEIVING_AGENT',
       firstName: 'Kate',
@@ -94,7 +94,7 @@ export const NTSRWithAllInfo = () => (
       serviceOrderNumber: info.serviceOrderNumber,
       destinationAddress: info.destinationAddress,
       secondaryDeliveryAddress: info.secondaryDeliveryAddress,
-      agents: info.agents,
+      mtoAgents: info.mtoAgents,
       counselorRemarks: info.counselorRemarks,
       customerRemarks: info.customerRemarks,
     }}

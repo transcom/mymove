@@ -223,7 +223,8 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	var officeUser models.OfficeUser
 
 	suite.Run("Successful POST", func() {
 

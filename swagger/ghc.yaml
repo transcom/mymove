@@ -2107,7 +2107,11 @@ paths:
           $ref: '#/responses/ServerError'
     post:
       summary: Associate violations with an evaluation report
-      description: Associate violations with an evaluation report
+      description: >-
+        Associate violations with an evaluation report. This will overwrite any
+        existing report-violations associations for the report and replace them
+        with the newly provided ones.  An empty array will remove all violation
+        associations for a given report.
       operationId: associateReportViolations
       tags:
         - reportViolations
@@ -4680,6 +4684,9 @@ definitions:
       location:
         $ref: '#/definitions/EvaluationReportLocation'
         x-nullable: true
+      ReportViolations:
+        $ref: '#/definitions/ReportViolations'
+        x-nullable: true
       locationDescription:
         type: string
         example: Route 66 at crash inspection site 3
@@ -5437,6 +5444,14 @@ definitions:
       pastSITServiceItems:
         $ref: '#/definitions/MTOServiceItems'
   PPMShipmentStatus:
+    description: |
+      Status of the PPM Shipment:
+        * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.
+        * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.
+        * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.
+        * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.
+        * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
+        * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
     type: string
     readOnly: true
     enum:
@@ -5516,6 +5531,9 @@ definitions:
       - service_member_id
       - uploads
   WeightTicket:
+    description: >-
+      Vehicle and optional trailer information and weight documents used to move
+      this PPM shipment.
     type: object
     properties:
       id:
@@ -5642,42 +5660,57 @@ definitions:
       EXCLUDED: Excluded
       REJECTED: Rejected
   MovingExpense:
+    description: >-
+      Expense information and receipts of costs incurred that can be reimbursed
+      while moving a PPM shipment.
     type: object
     properties:
       id:
+        description: Unique primary identifier of the Moving Expense object
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
       ppmShipmentId:
+        description: The PPM Shipment id that this moving expense belongs to
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
       documentId:
+        description: The id of the Document that contains all file uploads for this expense
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
       document:
+        description: The Document object that contains all file uploads for this expense
         type: object
       movingExpenseType:
         $ref: '#/definitions/MovingExpenseType'
         x-nullable: true
         x-omitempty: false
       description:
+        description: A brief description of the expense
         type: string
         x-nullable: true
         x-omitempty: false
       paidWithGtcc:
+        description: >-
+          Indicates if the service member used their government issued card to
+          pay for the expense
         type: boolean
         x-nullable: true
         x-omitempty: false
       amount:
+        description: The total amount of the expense as indicated on the receipt
         type: integer
         x-nullable: true
         x-omitempty: false
       missingReceipt:
+        description: >-
+          Indicates if the service member is missing the receipt with the proof
+          of expense amount
         type: boolean
         x-nullable: true
         x-omitempty: false
@@ -5686,28 +5719,46 @@ definitions:
         x-nullable: true
         x-omitempty: false
       reason:
+        description: >-
+          The reason the services counselor has excluded or rejected the moving
+          expense
         type: string
         x-nullable: true
         x-omitempty: false
       sitStartDate:
+        description: >-
+          The date the shipment entered storage, applicable for the `STORAGE`
+          movingExpenseType only
         type: string
         example: '2022-04-26'
         format: date
         x-nullable: true
         x-omitempty: false
       sitEndDate:
+        description: >-
+          The date the shipment exited storage, applicable for the `STORAGE`
+          movingExpenseType only
         type: string
         example: '2018-05-26'
         format: date
         x-nullable: true
         x-omitempty: false
       createdAt:
+        description: >-
+          Timestamp the moving expense object was initially created in the
+          system (UTC)
         type: string
         format: date-time
       updatedAt:
+        description: >-
+          Timestamp when a property of this moving expense object was last
+          modified (UTC)
         type: string
         format: date-time
       eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
         type: string
         readOnly: true
     required:
@@ -5719,25 +5770,29 @@ definitions:
       - document
   PPMShipment:
     description: >-
-      A personally procured move is a type of shipment that a service members
+      A personally procured move is a type of shipment that a service member
       moves themselves.
     x-nullable: true
     properties:
       id:
+        description: Primary auto-generated unique identifier of the PPM shipment object
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
         readOnly: true
       shipmentId:
+        description: The id of the parent MTOShipment object
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
         readOnly: true
       createdAt:
+        description: Timestamp of when the PPM Shipment was initially created (UTC)
         format: date-time
         type: string
         readOnly: true
       updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
         format: date-time
         type: string
         readOnly: true
@@ -5750,38 +5805,52 @@ definitions:
         $ref: '#/definitions/PPMAdvanceStatus'
       expectedDepartureDate:
         description: |
-          Date the customer expects to move.
+          Date the customer expects to begin their move.
         format: date
         type: string
       actualMoveDate:
+        description: The actual start date of when the PPM shipment left the origin.
         format: date
         type: string
         x-nullable: true
         x-omitempty: false
       submittedAt:
+        description: >-
+          The timestamp of when the customer submitted their move to the
+          counselor.
         format: date-time
         type: string
         x-nullable: true
         x-omitempty: false
       reviewedAt:
+        description: >-
+          The timestamp of when the Service Counselor has reviewed all of the
+          closeout documents.
         format: date-time
         type: string
         x-nullable: true
         x-omitempty: false
       approvedAt:
+        description: >-
+          The timestamp of when the shipment was approved and the service member
+          can begin their move.
         format: date-time
         type: string
         x-nullable: true
         x-omitempty: false
       pickupPostalCode:
-        description: zip code
+        description: >-
+          The postal code of the origin location where goods are being moved
+          from.
         format: zip
         type: string
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
       secondaryPickupPostalCode:
-        format: zip
+        format: >-
+          An optional secondary pickup location near the origin where additional
+          goods exist.
         type: string
         title: ZIP
         example: '90210'
@@ -5800,12 +5869,18 @@ definitions:
         x-nullable: true
         x-omitempty: false
       destinationPostalCode:
+        description: >-
+          The postal code of the destination location where goods are being
+          delivered to.
         format: zip
         type: string
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
       secondaryDestinationPostalCode:
+        description: >-
+          An optional secondary location near the destination where goods will
+          be dropped off.
         format: zip
         type: string
         title: ZIP
@@ -5825,34 +5900,55 @@ definitions:
         x-nullable: true
         x-omitempty: false
       sitExpected:
+        description: >
+          Captures whether some or all of the PPM shipment will require
+          temporary storage at the origin or destination.
+
+
+          Must be set to `true` when providing `sitLocation`,
+          `sitEstimatedWeight`, `sitEstimatedEntryDate`, and
+          `sitEstimatedDepartureDate` values to calculate the
+          `sitEstimatedCost`.
         type: boolean
       estimatedWeight:
+        description: The estimated weight of the PPM shipment goods being moved.
         type: integer
         example: 4200
         x-nullable: true
         x-omitempty: false
       netWeight:
         description: |
-          The net weight of the shipment once it has been weight
+          The net weight of the shipment once it has been weighed.
         type: integer
         example: 4300
         x-nullable: true
         x-omitempty: false
       hasProGear:
-        description: |
-          Indicates whether PPM shipment has pro gear.
+        description: >
+          Indicates whether PPM shipment has pro gear for themselves or their
+          spouse.
         type: boolean
         x-nullable: true
         x-omitempty: false
       proGearWeight:
+        description: >-
+          The estimated weight of the pro-gear being moved belonging to the
+          service member.
         type: integer
         x-nullable: true
         x-omitempty: false
       spouseProGearWeight:
+        description: >-
+          The estimated weight of the pro-gear being moved belonging to a
+          spouse.
         type: integer
         x-nullable: true
         x-omitempty: false
       estimatedIncentive:
+        description: >-
+          The estimated amount the government will pay the service member to
+          move their belongings based on the moving date, locations, and
+          shipment weight.
         type: integer
         format: cents
         x-nullable: true
@@ -5874,8 +5970,8 @@ definitions:
         x-omitempty: false
       advanceAmountRequested:
         description: >
-          The amount requested for an advance, or null if no advance is
-          requested
+          The amount requested as an advance by the service member up to a
+          maximum percentage of the estimated incentive.
         type: integer
         format: cents
         x-nullable: true
@@ -5899,30 +5995,41 @@ definitions:
           - x-nullable: true
           - x-omitempty: false
       sitEstimatedWeight:
+        description: The estimated weight of the goods being put into storage.
         type: integer
         example: 2000
         x-nullable: true
         x-omitempty: false
       sitEstimatedEntryDate:
+        description: The date that goods will first enter the storage location.
         format: date
         type: string
         x-nullable: true
         x-omitempty: false
       sitEstimatedDepartureDate:
+        description: The date that goods will exit the storage location.
         format: date
         type: string
         x-nullable: true
         x-omitempty: false
       sitEstimatedCost:
+        description: >-
+          The estimated amount that the government will pay the service member
+          to put their goods into storage. This estimated storage cost is
+          separate from the estimated incentive.
         type: integer
         format: cents
         x-nullable: true
         x-omitempty: false
       weightTickets:
+        description: >-
+          All weight ticket documentation records belonging to vehicles of this
+          PPM shipment
         items:
           $ref: '#/definitions/WeightTicket'
         type: array
-      movingExpense:
+      movingExpenses:
+        description: All expense documentation receipt records of this PPM shipment.
         items:
           $ref: '#/definitions/MovingExpense'
         type: array
