@@ -42,5 +42,5 @@ function verifyFinalIncentiveAndTotals() {
   // TODO: Once we get moving expenses and pro gear back, check for those here as well.
 
   cy.get('li').contains('0 lbs of pro-gear');
-  cy.get('li').contains('$0.00 in expenses claimed');
+  cy.get('li').contains('$450.00 in expenses claimed');
 }

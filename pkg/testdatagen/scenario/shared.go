@@ -71,6 +71,37 @@ type moveCreatorInfo struct {
 	moveLocator string
 }
 
+// mergeModels won't work for moveCreatorInfo because the fields aren't settable, this is a temporary workaround
+func overrideMoveCreatorInfo(base *moveCreatorInfo, overrides moveCreatorInfo) {
+	if overrides.userID != uuid.Nil {
+		base.userID = overrides.userID
+	}
+
+	if overrides.email != "" {
+		base.email = overrides.email
+	}
+
+	if overrides.smID != uuid.Nil {
+		base.smID = overrides.smID
+	}
+
+	if overrides.firstName != "" {
+		base.firstName = overrides.firstName
+	}
+
+	if overrides.lastName != "" {
+		base.lastName = overrides.lastName
+	}
+
+	if overrides.moveID != uuid.Nil {
+		base.moveID = overrides.moveID
+	}
+
+	if overrides.moveLocator != "" {
+		base.moveLocator = overrides.moveLocator
+	}
+}
+
 func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo moveCreatorInfo, assertions testdatagen.Assertions) models.Move {
 	if moveInfo.userID.IsNil() || moveInfo.email == "" || moveInfo.smID.IsNil() || moveInfo.firstName == "" || moveInfo.lastName == "" || moveInfo.moveID.IsNil() || moveInfo.moveLocator == "" {
 		log.Panic("All moveInfo fields must have non-zero values.")
@@ -1087,15 +1118,19 @@ func createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo6(appCtx appcontex
 	createGenericMoveWithPPMShipment(appCtx, moveInfo, false, assertions)
 }
 
-func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *moveCreatorInfo, userUploader *uploader.UserUploader) {
 	moveInfo := moveCreatorInfo{
 		userID:      testdatagen.ConvertUUIDStringToUUID("146c2665-5b8a-4653-8434-9a4460de30b5"),
 		email:       "movingExpensePPM@ppm.approved",
-		smID:        testdatagen.ConvertUUIDStringToUUID("e7d5e90b-572d-4891-bedf-ac2ffbcd7fee"),
+		smID:        uuid.Must(uuid.NewV4()),
 		firstName:   "Expense",
 		lastName:    "Complete",
-		moveID:      testdatagen.ConvertUUIDStringToUUID("4da09e7a-a9f0-42bf-8ad4-5872b8ec41de"),
+		moveID:      uuid.Must(uuid.NewV4()),
 		moveLocator: "EXP3NS",
+	}
+
+	if info != nil {
+		overrideMoveCreatorInfo(&moveInfo, *info)
 	}
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
@@ -1106,11 +1141,11 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, userUp
 			Status: models.MoveStatusAPPROVED,
 		},
 		MTOShipment: models.MTOShipment{
-			ID:     testdatagen.ConvertUUIDStringToUUID("22b6f84b-a09f-447d-9bad-875c2ea008ce"),
+			ID:     uuid.Must(uuid.NewV4()),
 			Status: models.MTOShipmentStatusApproved,
 		},
 		PPMShipment: models.PPMShipment{
-			ID:                          testdatagen.ConvertUUIDStringToUUID("625d4341-5705-475a-94ae-f6490a268726"),
+			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
 			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
@@ -1129,6 +1164,19 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, userUp
 	}
 	testdatagen.MakeWeightTicket(appCtx.DB(), ppmCloseoutAssertions)
 	testdatagen.MakeMovingExpense(appCtx.DB(), ppmCloseoutAssertions)
+
+	storageExpenseType := models.MovingExpenseReceiptTypeStorage
+	storageExpenseAssertions := testdatagen.Assertions{
+		PPMShipment:   shipment,
+		ServiceMember: move.Orders.ServiceMember,
+		MovingExpense: models.MovingExpense{
+			MovingExpenseType: &storageExpenseType,
+			Description:       models.StringPointer("Storage R Us monthly rental unit"),
+			SITStartDate:      models.TimePointer(time.Now()),
+			SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+		},
+	}
+	testdatagen.MakeMovingExpense(appCtx.DB(), storageExpenseAssertions)
 }
 
 func createApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
