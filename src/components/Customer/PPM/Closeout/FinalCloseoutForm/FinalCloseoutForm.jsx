@@ -22,7 +22,7 @@ import formStyles from 'styles/form.module.scss';
 import { requiredAddressSchema } from 'utils/validation';
 import { W2AddressShape } from 'types/address';
 
-const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit, validators }) => {
+const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
   const totalNetWeight = calculateTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
 
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
@@ -30,9 +30,6 @@ const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit, validators }) => {
   );
 
   const totalExpensesClaimed = calculateTotalMovingExpensesAmount(mtoShipment?.ppmShipment?.movingExpenses);
-
-  const isValid = false;
-  const isSubmitting = true;
 
   const formFieldsName = 'w2_address';
   const validationSchema = Yup.object().shape({
@@ -105,33 +102,38 @@ const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit, validators }) => {
         </p>
       </div>
 
-      <Formik
-        initialValues={initialValues}
-        validateOnChange={false}
-        validateOnMount
-        validationSchema={validationSchema}
-      >
-        <Form className={classnames(formStyles.form, styles.W2AddressForm)}>
-          <SectionWrapper className={formStyles.formSection}>
-            <h2>W-2 address</h2>
-            <p>What is the address on your W-2?</p>
-            <AddressFields
-              name={formFieldsName}
-              validators={validators}
-              className={classnames(styles.FinalCloseoutForm, styles.AddressFieldSet)}
-            />
-          </SectionWrapper>
-        </Form>
+      <Formik initialValues={initialValues} validationSchema={validationSchema}>
+        {({ isValid, isSubmitting }) => {
+          return (
+            <>
+              <Form className={classnames(formStyles.form, styles.W2AddressForm)}>
+                <SectionWrapper className={formStyles.formSection}>
+                  <h2>W-2 address</h2>
+                  <p>What is the address on your W-2?</p>
+                  <AddressFields
+                    name={formFieldsName}
+                    className={classnames(styles.FinalCloseoutForm, styles.AddressFieldSet)}
+                  />
+                </SectionWrapper>
+              </Form>
+              <div className={ppmStyles.buttonContainer}>
+                <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+                  Finish Later
+                </Button>
+                <Button
+                  className={ppmStyles.saveButton}
+                  type="button"
+                  onClick={onSubmit}
+                  disabled={!isValid || isSubmitting}
+                >
+                  Submit PPM Documentation
+                </Button>
+              </div>
+              ;
+            </>
+          );
+        }}
       </Formik>
-
-      <div className={ppmStyles.buttonContainer}>
-        <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-          Finish Later
-        </Button>
-        <Button className={ppmStyles.saveButton} type="button" onClick={onSubmit} disabled={!isValid || isSubmitting}>
-          Submit PPM Documentation
-        </Button>
-      </div>
     </div>
   );
 };
@@ -142,17 +144,17 @@ FinalCloseoutForm.prototypes = {
   onSubmit: func.isRequired,
   formFieldsName: PropTypes.string.isRequired,
   initialValues: W2AddressShape.isRequired,
-  validators: PropTypes.shape({
-    streetAddress1: PropTypes.func,
-    streetAddress2: PropTypes.func,
-    city: PropTypes.func,
-    state: PropTypes.func,
-    postalCode: PropTypes.func,
-  }),
+  // validators: PropTypes.shape({
+  //   streetAddress1: PropTypes.func,
+  //   streetAddress2: PropTypes.func,
+  //   city: PropTypes.func,
+  //   state: PropTypes.func,
+  //   postalCode: PropTypes.func,
+  // }),
 };
 
-FinalCloseoutForm.defaultProps = {
-  validators: {},
-};
+// FinalCloseoutForm.defaultProps = {
+//   validators: {},
+// };
 
 export default FinalCloseoutForm;
