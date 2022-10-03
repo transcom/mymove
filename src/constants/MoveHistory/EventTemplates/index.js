@@ -48,3 +48,4 @@ export { default as updateMoveEstimatedExcessWeight } from './updateMTOShipmentP
 export { default as updateMTOStatusServiceCounselingCompleted } from './updateMTOStatusServiceCounselingCompleted';
 export { default as updateAllowanceCounseling } from './updateAllowanceCounseling';
 export { default as updateAllowanceServiceMemberByCounselor } from './updateAllowanceServiceMemberByCounselor';
+export { default as updateAllowanceServiceMemberByTOO } from './updateAllowances/updateAllowanceServiceMemberByTOO';
