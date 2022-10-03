@@ -552,6 +552,53 @@ func init() {
         }
       ]
     },
+    "/evaluation-reports/{reportID}/download": {
+      "get": {
+        "description": "Downloads an evaluation report as a PDF",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Downloads an evaluation report as a PDF",
+        "operationId": "downloadEvaluationReport",
+        "responses": {
+          "200": {
+            "description": "Evaluation report PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be downloaded",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/evaluation-reports/{reportID}/submit": {
       "post": {
         "description": "Submits an evaluation report",
@@ -9116,6 +9163,62 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/evaluation-reports/{reportID}/download": {
+      "get": {
+        "description": "Downloads an evaluation report as a PDF",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Downloads an evaluation report as a PDF",
+        "operationId": "downloadEvaluationReport",
+        "responses": {
+          "200": {
+            "description": "Evaluation report PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be downloaded",
           "name": "reportID",
           "in": "path",
           "required": true

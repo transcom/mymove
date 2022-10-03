@@ -292,15 +292,13 @@ func FormatValuesInspectionInformation(report models.EvaluationReport) Inspectio
 	inspectionInfo.ViolationsObserved = "no"
 	if report.ViolationsObserved != nil && *report.ViolationsObserved {
 		inspectionInfo.ViolationsObserved = "yes\nAny violations recorded can be found on the following page"
-		inspectionInfo.SeriousIncident = "yes"
-		inspectionInfo.SeriousIncidentDescription = "a serious incident has happened!!! a serious incident has happened!!! a serious incident has happened!!! a serious incident has happened!!! a serious incident has happened!!! a serious incident has happened!!! a serious incident has happened!!! a serious incident has happened!!! a serious incident has happened!!!"
-		// TODO seems like we don't have this in the model yet :(
-		//if report.SeriousIncident != nil && *report.SeriousIncident {
-		//	inspectionInfo.SeriousIncident = "yes"
-		//	if report.SeriousIncidentDescription != nil {
-		//		inspectionInfo.SeriousIncidentDescription = report.SeriousIncidentDescription
-		//	}
-		//}
+		inspectionInfo.SeriousIncident = "no"
+		if report.SeriousIncident != nil && *report.SeriousIncident {
+			inspectionInfo.SeriousIncident = "yes"
+			if report.SeriousIncidentDesc != nil {
+				inspectionInfo.SeriousIncidentDescription = *report.SeriousIncidentDesc
+			}
+		}
 	}
 	return inspectionInfo
 }

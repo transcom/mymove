@@ -105,7 +105,10 @@ func (f *EvaluationReportFormFiller) CreateShipmentReport(report models.Evaluati
 	f.reportID = fmt.Sprintf("QA-%s", strings.ToUpper(report.ID.String()[:5]))
 
 	f.pdf.AddPage()
-	seriousIncident := false // TODO get from report once it becomes available
+	seriousIncident := false
+	if report.SeriousIncident != nil {
+		seriousIncident = *report.SeriousIncident
+	}
 	f.reportHeading("Shipment report", seriousIncident, f.reportID, report.Move.Locator, *report.Move.ReferenceID)
 	f.contactInformation(customer, report.OfficeUser)
 
@@ -141,7 +144,10 @@ func (f *EvaluationReportFormFiller) CreateCounselingReport(report models.Evalua
 	f.reportID = fmt.Sprintf("QA-%s", strings.ToUpper(report.ID.String()[:5]))
 	f.pdf.AddPage()
 
-	seriousIncident := true // TODO get from report once it becomes available
+	seriousIncident := false
+	if report.SeriousIncident != nil {
+		seriousIncident = *report.SeriousIncident
+	}
 	f.reportHeading("Counseling report", seriousIncident, f.reportID, report.Move.Locator, *report.Move.ReferenceID)
 	f.sectionHeading("Move information", pxToMM(18.0))
 	f.contactInformation(customer, report.OfficeUser)

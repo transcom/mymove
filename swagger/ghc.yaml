@@ -1916,6 +1916,38 @@ paths:
       description: Creates an evaluation report
       operationId: createEvaluationReport
       summary: Creates an evaluation report
+  /evaluation-reports/{reportID}/download:
+    parameters:
+      - in: path
+        description: the evaluation report ID to be downloaded
+        name: reportID
+        required: true
+        type: string
+        format: uuid
+    get:
+      summary: Downloads an evaluation report as a PDF
+      description: Downloads an evaluation report as a PDF
+      operationId: downloadEvaluationReport
+      tags:
+        - evaluationReports
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: Evaluation report PDF
+          schema:
+            format: binary
+            type: file
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /evaluation-reports/{reportID}:
     parameters:
       - in: path
