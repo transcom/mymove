@@ -17,8 +17,12 @@ module.exports = {
     '@storybook/addon-essentials',
     '@storybook/addon-knobs',
     '@storybook/addon-links',
+    '@storybook/addon-interactions',
     '@dump247/storybook-state',
   ],
+  features: {
+    interactionsDebugger: true,
+  },
   webpackFinal: async (config) => {
     config.resolve.modules = config.resolve.modules || [];
     config.resolve.modules.push(path.resolve(__dirname, '../src'));
