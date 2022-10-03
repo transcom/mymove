@@ -47,10 +47,3 @@ func (suite *PaperworkSuite) TestEvaluationReportFormSmokeTests() {
 		suite.FatalNil(err)
 	})
 }
-
-// serious incident
-// kpi
-// cousneling report
-// output
-// ppm shipment
-// nts shipment
