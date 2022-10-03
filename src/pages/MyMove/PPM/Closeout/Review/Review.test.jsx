@@ -326,12 +326,12 @@ describe('Review page', () => {
     });
   });
 
-  it('routes to the home page when the finish later link is clicked', async () => {
+  it('routes to the home page when the return to homepage link is clicked', async () => {
     const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    userEvent.click(screen.getByText('Finish Later'));
+    userEvent.click(screen.getByText('Return To Homepage'));
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual('/');

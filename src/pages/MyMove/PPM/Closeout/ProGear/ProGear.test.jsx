@@ -27,11 +27,11 @@ describe('Pro-gear page', () => {
     render(<ProGear />);
     expect(screen.getByText(/This pro-gear should be included in your total weight moved./)).toBeInTheDocument();
   });
-  it('routes back to home when finish later is clicked', async () => {
+  it('routes back to home when return to homepage is clicked', async () => {
     render(<ProGear />);
 
-    expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
+    expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
     expect(mockPush).toHaveBeenCalledWith(homePath);
   });
 });

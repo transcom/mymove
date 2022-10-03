@@ -147,10 +147,10 @@ describe('About page', () => {
     expect(screen.getAllByRole('heading', { level: 2 })[2]).toHaveTextContent('Advance (AOA)');
   });
 
-  it('routes back to home when finish later is clicked', () => {
+  it('routes back to home when return to homepage is clicked', () => {
     render(<About />, { wrapper: MockProviders });
 
-    userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
+    userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
     expect(mockPush).toHaveBeenCalledWith(homePath);
   });
 
