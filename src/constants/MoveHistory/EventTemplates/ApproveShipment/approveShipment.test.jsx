@@ -1,5 +1,7 @@
+import { render, screen } from '@testing-library/react';
+
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/approveShipment';
+import e from 'constants/MoveHistory/EventTemplates/ApproveShipment/approveShipment';
 
 describe('when given an Approved shipment history record', () => {
   const item = {
@@ -12,6 +14,7 @@ describe('when given an Approved shipment history record', () => {
   it('correctly matches the Approved shipment event', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(e);
-    expect(result.getDetailsPlainText(item)).toEqual('HHG shipment');
+    render(result.getDetails(item));
+    expect(screen.getByText('HHG shipment')).toBeInTheDocument();
   });
 });
