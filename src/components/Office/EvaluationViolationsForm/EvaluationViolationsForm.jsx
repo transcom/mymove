@@ -107,7 +107,42 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
 
   // Get distinct categories
   const categories = [...new Set(violations.map((item) => item.category))];
-  const validationSchema = Yup.object().shape({});
+
+  /*
+
+  Form is valid when:
+    At least one validation from the list must be selected
+
+    Serious incident radio button must be selected (Yes or No)
+      if Yes -> serious incident description is required
+
+    Additional KPI fields which aren't marked optional must be filled when visible
+
+  */
+  const validationSchema = Yup.object().shape({
+    selectedViolations: Yup.array().of(Yup.string()).min(1),
+    seriousIncident: Yup.string().required(),
+    yesSeriousIncident: Yup.string().when('seriousIncident', {
+      is: 'yes',
+      then: Yup.string().required(),
+    }),
+    observedClaimsResponseDate: Yup.date().when('kpiViolations', {
+      is: (kpiViolations) => kpiViolations.includes('observedClaimDate'),
+      then: Yup.date().optional(),
+    }),
+    observedPickupDate: Yup.date().when('kpiViolations', {
+      is: (kpiViolations) => kpiViolations.includes('observedPickupDate'),
+      then: Yup.date().required(),
+    }),
+    observedPickupSpreadStartDate: Yup.date().when('kpiViolations', {
+      is: (kpiViolations) => kpiViolations.includes('observedPickupSpreadDates'),
+      then: Yup.date().required(),
+    }),
+    observedPickupSpreadEndDate: Yup.date().when('kpiViolations', {
+      is: (kpiViolations) => kpiViolations.includes('observedPickupSpreadDates'),
+      then: Yup.date().required(),
+    }),
+  });
 
   const saveDraft = async (values) => {
     // pull out fields we dont want to save/update
@@ -152,6 +187,8 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
     history.push(`/moves/${moveCode}/evaluation-reports`, { showSaveDraftSuccess: true });
   };
 
+  const kpiViolationList = violations.filter((item) => item.isKpi);
+
   const getInitialValues = () => {
     const selectedViolations = reportViolations ? reportViolations.map((violation) => violation.violationID) : [];
 
@@ -160,14 +197,15 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
       seriousIncident = evaluationReport.seriousIncident ? 'yes' : 'no';
     }
 
+    const kpiViolations = reportViolations
+      ? reportViolations.map((violation) => (violation.isKpi ? violation.additionalDataElem : null))
+      : [];
+
     const initialValues = {
       selectedViolations,
       seriousIncident,
       seriousIncidentDesc: evaluationReport?.seriousIncidentDesc,
-      observedClaimsResponseDate: evaluationReport?.observedClaimsResponseDate,
-      observedPickupDate: evaluationReport?.observedPickupDate,
-      observedPickupSpreadStartDate: evaluationReport?.observedPickupSpreadStartDate,
-      observedPickupSpreadEndDate: evaluationReport?.observedPickupSpreadEndDate,
+      kpiViolations,
     };
 
     return initialValues;
@@ -212,20 +250,32 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
             const fieldKey = 'selectedViolations';
             const prevSelectedViolations = values[fieldKey] || [];
 
+            const kpiViolation = kpiViolationList.find((entry) => entry.id === id);
+            const prevSelectedKpiViolations = values.kpiViolations || [];
+
+            // removing
             if (prevSelectedViolations.includes(id)) {
               setFieldValue(
                 fieldKey,
                 prevSelectedViolations.filter((violationId) => violationId !== id),
               );
-            } else {
+
+              if (kpiViolation) {
+                setFieldValue(
+                  'kpiViolations',
+                  prevSelectedKpiViolations.filter((entry) => entry !== kpiViolation.additionalDataElem),
+                );
+              }
+            }
+            // adding a new entry
+            else {
               setFieldValue(fieldKey, [...prevSelectedViolations, id]);
+
+              if (kpiViolation) {
+                setFieldValue('kpiViolations', [...prevSelectedKpiViolations, kpiViolation.additionalDataElem]);
+              }
             }
           };
-          let kpiItems = [];
-          if (values.selectedViolations) {
-            kpiItems = violations.filter((item) => values.selectedViolations.includes(item.id) && item.isKpi);
-          }
-          const kpiDates = [...new Set(kpiItems.map((item) => item.additionalDataElem))];
 
           return (
             <>
@@ -271,7 +321,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                 <Grid row>
                   <Grid col className={styles.claimDatePicker}>
                     <div>
-                      {kpiDates.includes('observedClaimDate') && (
+                      {values.kpiViolations.includes('observedClaimDate') && (
                         <DatePickerInput
                           className={styles.datePicker}
                           label="Observed claims response date"
@@ -280,20 +330,20 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                           showOptional
                         />
                       )}
-                      {kpiDates.includes('observedPickupDate') && (
+                      {values.kpiViolations.includes('observedPickupDate') && (
                         <DatePickerInput
                           label="Observed pickup date"
                           name="observedPickupDate"
                           hint="Enter the date you witnessed the pickup."
                         />
                       )}
-                      {kpiDates.includes('observedPickupSpreadDates') && (
+                      {values.kpiViolations.includes('observedPickupSpreadDates') && (
                         <DatePickerInput
                           label="Observed pickup spread start date"
                           name="observedPickupSpreadStartDate"
                         />
                       )}
-                      {kpiDates.includes('observedPickupSpreadDates') && (
+                      {values.kpiViolations.includes('observedPickupSpreadDates') && (
                         <DatePickerInput label="Observed pickup spread end date" name="observedPickupSpreadEndDate" />
                       )}
                     </div>
