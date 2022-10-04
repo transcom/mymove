@@ -9,7 +9,7 @@
     "@trussworks/react-file-viewer": "git+https://github.com/trussworks/react-file-viewer",
     "@trussworks/react-uswds": "3.1.0",
     "bytes": "^3.1.2",
-    "classnames": "^2.3.1",
+    "classnames": "^2.3.2",
     "connected-react-router": "^6.9.3",
     "core-js": "^3.25.3",
     "customize-cra": "^1.0.0",
@@ -169,7 +169,7 @@
     "react-scripts": "5.0.1",
     "react-select-event": "^5.5.1",
     "react-test-renderer": "^17.0.1",
-    "source-map-explorer": "^2.5.2"
+    "source-map-explorer": "^2.5.3"
   },
   "browserslist": [
     ">0.2%",
