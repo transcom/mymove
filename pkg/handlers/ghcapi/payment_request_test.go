@@ -80,34 +80,6 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		suite.Equal(paymentServiceItemParam.Value, paymentServiceItemParamPayload.Value)
 	})
 
-	suite.Run("failed fetch for payment request - forbidden", func() {
-		paymentServiceItemParam, officeUser := setupTestData()
-		paymentRequest := paymentServiceItemParam.PaymentServiceItem.PaymentRequest
-		officeUserTOO := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-			RoleType: roles.RoleTypeTOO,
-		})
-		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything).Return(paymentRequest, nil).Once()
-
-		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/%s", paymentRequest.ID.String()), nil)
-		req = suite.AuthenticateOfficeRequest(req, officeUserTOO)
-
-		params := paymentrequestop.GetPaymentRequestParams{
-			HTTPRequest:      req,
-			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
-		}
-
-		handler := GetPaymentRequestHandler{
-			suite.HandlerConfig(),
-			paymentRequestFetcher,
-		}
-		response := handler.Handle(params)
-
-		suite.IsType(&paymentrequestop.GetPaymentRequestForbidden{}, response)
-	})
-
 	suite.Run("payment request not found", func() {
 		paymentServiceItemParam, officeUser := setupTestData()
 		paymentRequest := paymentServiceItemParam.PaymentServiceItem.PaymentRequest
@@ -342,42 +314,6 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			response := handler.Handle(params)
 			suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity(), response)
 		}
-	})
-
-	suite.Run("failed status update of payment request - forbidden", func() {
-		officeUser := setupTestData()
-		officeUserTOO := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-			RoleType: roles.RoleTypeTOO,
-		})
-
-		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything, mock.Anything).Return(&paymentRequest, nil).Once()
-
-		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything).Return(paymentRequest, nil).Once()
-
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
-		req = suite.AuthenticateOfficeRequest(req, officeUserTOO)
-
-		params := paymentrequestop.UpdatePaymentRequestStatusParams{
-			HTTPRequest:      req,
-			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
-			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
-		}
-
-		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               suite.HandlerConfig(),
-			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
-			PaymentRequestFetcher:       paymentRequestFetcher,
-		}
-
-		response := handler.Handle(params)
-
-		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusForbidden(), response)
-
 	})
 
 	suite.Run("successful status update of prime-available payment request", func() {
@@ -725,29 +661,6 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 		suite.Equal(int64(30), shipmentSITBalance.TotalSITDaysRemaining)
 		suite.Equal(destinationPaymentEndDate.Format("2006-01-02"), shipmentSITBalance.PendingBilledEndDate.String())
 		suite.Equal(int64(30), *shipmentSITBalance.PreviouslyBilledDays)
-	})
-
-	suite.Run("returns 403 unauthorized when request is not made by TIO office user", func() {
-		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-
-		paymentRequestID := uuid.Must(uuid.NewV4())
-
-		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/%s/shipments-payment-sit-balance", paymentRequestID.String()), nil)
-		req = suite.AuthenticateOfficeRequest(req, officeUser)
-
-		params := paymentrequestop.GetShipmentsPaymentSITBalanceParams{
-			HTTPRequest:      req,
-			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
-		}
-
-		handler := ShipmentsSITBalanceHandler{
-			HandlerConfig:              suite.HandlerConfig(),
-			ShipmentsPaymentSITBalance: paymentrequest.NewPaymentRequestShipmentsSITBalance(),
-		}
-
-		response := handler.Handle(params)
-
-		suite.IsType(&paymentrequestop.GetShipmentsPaymentSITBalanceForbidden{}, response)
 	})
 
 	suite.Run("returns 404 not found when payment request does not exist", func() {
