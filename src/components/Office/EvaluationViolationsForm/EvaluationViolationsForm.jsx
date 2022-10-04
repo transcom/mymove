@@ -17,7 +17,7 @@ import ConnectedEvaluationReportConfirmationModal from 'components/ConfirmationM
 import { saveEvaluationReport, associateReportViolations, submitEvaluationReport } from 'services/ghcApi';
 import { DatePickerInput } from 'components/form/fields';
 import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
-import { EvaluationReportShape, ReportViolationShape, PWSViolationShape } from 'types';
+import { EvaluationReportShape, ReportViolationShape, PWSViolationShape, CustomerShape, ShipmentShape } from 'types';
 import { formatDateForSwagger } from 'shared/dates';
 
 const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolations, customerInfo, mtoShipments }) => {
@@ -387,10 +387,16 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
   );
 };
 
-export default EvaluationViolationsForm;
-
 EvaluationViolationsForm.propTypes = {
   violations: PropTypes.arrayOf(PWSViolationShape).isRequired,
   evaluationReport: EvaluationReportShape.isRequired,
   reportViolations: PropTypes.arrayOf(ReportViolationShape).isRequired,
+  customerInfo: CustomerShape.isRequired,
+  mtoShipments: PropTypes.arrayOf(ShipmentShape),
 };
+
+EvaluationViolationsForm.defaultProps = {
+  mtoShipments: null,
+};
+
+export default EvaluationViolationsForm;
