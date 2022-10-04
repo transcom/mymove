@@ -98,7 +98,7 @@ const FinalCloseoutForm = ({ mtoShipment, onBack, onSubmit }) => {
 
       <div className={ppmStyles.buttonContainer}>
         <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-          Finish Later
+          Return To Homepage
         </Button>
         <Button className={ppmStyles.saveButton} type="button" onClick={onSubmit} disabled={!isValid || isSubmitting}>
           Submit PPM Documentation

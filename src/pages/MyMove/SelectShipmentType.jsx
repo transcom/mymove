@@ -9,7 +9,7 @@ import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/Mov
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
 import SelectableCard from 'components/Customer/SelectableCard';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { generalRoutes, customerRoutes } from 'constants/routes';
 import styles from 'pages/MyMove/SelectShipmentType.module.scss';
 import { patchMove, getResponseError } from 'services/internalApi';
@@ -114,7 +114,7 @@ export class SelectShipmentType extends Component {
     return (
       <>
         <GridContainer>
-          <ScrollToTop otherDep={errorMessage} />
+          <NotificationScrollToTop dependency={errorMessage} />
 
           <Grid row>
             <Grid col desktop={{ col: 8, offset: 2 }}>

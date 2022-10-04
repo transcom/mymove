@@ -8,7 +8,7 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { createUploadForDocument, createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
@@ -16,7 +16,7 @@ import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/
 import { updateMTOShipment } from 'store/entities/actions';
 
 const WeightTickets = () => {
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const dispatch = useDispatch();
   const history = useHistory();
@@ -141,7 +141,7 @@ const WeightTickets = () => {
 
   return (
     <div className={ppmPageStyles.ppmPageStyle}>
-      <ScrollToTop otherDep={errorMessage} />
+      <NotificationScrollToTop dependency={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

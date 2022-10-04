@@ -59,14 +59,14 @@ describe('Final Closeout page', () => {
     expect(screen.getByRole('heading', { level: 2, name: /Your final estimated incentive: \$/ })).toBeInTheDocument();
   });
 
-  it('routes to the home page when the finish later link is clicked', async () => {
+  it('routes to the home page when the return to homepage link is clicked', async () => {
     setUpMocks();
 
     const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
 
     render(<FinalCloseout />, { wrapper: mockProviderWithHistory });
 
-    await userEvent.click(screen.getByText('Finish Later'));
+    await userEvent.click(screen.getByText('Return To Homepage'));
 
     expect(memoryHistory.location.pathname).toEqual(generalRoutes.HOME_PATH);
   });
