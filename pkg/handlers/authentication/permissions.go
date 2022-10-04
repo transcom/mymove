@@ -42,7 +42,7 @@ var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAECSR}
 func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, permission string) (bool, error) {
 
 	logger := appCtx.Logger()
-	userPermissions := getPermissionsForUser(appCtx, session.UserID)
+	userPermissions := session.Permissions
 
 	for _, perm := range userPermissions {
 		if permission == perm {
