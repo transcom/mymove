@@ -390,13 +390,14 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
 EvaluationViolationsForm.propTypes = {
   violations: PropTypes.arrayOf(PWSViolationShape).isRequired,
   evaluationReport: EvaluationReportShape.isRequired,
-  reportViolations: PropTypes.arrayOf(ReportViolationShape).isRequired,
+  reportViolations: PropTypes.arrayOf(ReportViolationShape),
   customerInfo: CustomerShape.isRequired,
   mtoShipments: PropTypes.arrayOf(ShipmentShape),
 };
 
 EvaluationViolationsForm.defaultProps = {
   mtoShipments: null,
+  reportViolations: null,
 };
 
 export default EvaluationViolationsForm;
