@@ -149,21 +149,13 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		routingConfig.GitBranch, routingConfig.GitCommit)
 	site.HandleFunc("/health", healthHandler).Methods("GET")
 
-	staticCustomFileSystem := middleware.NewCustomFileSystem(http.Dir(path.Join(routingConfig.BuildRoot, "static")), appCtx)
-	staticFileServer := http.FileServer(staticCustomFileSystem)
-	staticHandler := http.StripPrefix("/static", staticFileServer)
-
 	staticMux := site.PathPrefix("/static/").Subrouter()
 	staticMux.Use(middleware.ValidMethodsStatic(appCtx.Logger()))
 	staticMux.Use(middleware.RequestLogger(appCtx.Logger()))
 	if telemetryConfig.Enabled {
 		staticMux.Use(otelmux.Middleware("static"))
 	}
-	staticMux.PathPrefix("/").Handler(staticHandler).Methods("GET", "HEAD")
-
-	downloadsCustomFileSystem := middleware.NewCustomFileSystem(http.Dir(path.Join(routingConfig.BuildRoot, "downloads")), appCtx)
-	downloadsFileServer := http.FileServer(downloadsCustomFileSystem)
-	downloadsHandler := http.StripPrefix("/downloads", downloadsFileServer)
+	staticMux.PathPrefix("/").Handler(clientHandler).Methods("GET", "HEAD")
 
 	downloadMux := site.PathPrefix("/downloads/").Subrouter()
 	downloadMux.Use(middleware.ValidMethodsStatic(appCtx.Logger()))
@@ -171,7 +163,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	if telemetryConfig.Enabled {
 		downloadMux.Use(otelmux.Middleware("download"))
 	}
-	downloadMux.PathPrefix("/").Handler(downloadsHandler).Methods("GET", "HEAD")
+	downloadMux.PathPrefix("/").Handler(clientHandler).Methods("GET", "HEAD")
 
 	site.Handle("/favicon.ico", clientHandler)
 
