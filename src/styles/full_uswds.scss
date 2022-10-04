@@ -1,3 +1,2 @@
-$theme-font-path: '~uswds/fonts';
-$theme-image-path: '~uswds/img';
+@import 'shared/styles/settings';
 @import '~uswds/scss/uswds.scss';
