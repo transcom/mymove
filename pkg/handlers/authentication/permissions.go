@@ -44,6 +44,8 @@ var TIO = RolePermissions{
 		"create.shipmentDiversionRequest",
 		"create.reweighRequest",
 		"create.serviceItem",
+		"read.paymentRequest",
+		"read.shipmentsPaymentSITBalance",
 		"update.shipment",
 		"update.financialReviewFlag",
 		"update.orders",
@@ -53,8 +55,6 @@ var TIO = RolePermissions{
 		"update.paymentRequest",
 		"update.paymentServiceItemStatus",
 		"update.MTOServiceItem",
-		"read.paymentRequest",
-		"read.shipmentsPaymentSITBalance",
 	},
 }
 
