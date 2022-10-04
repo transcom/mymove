@@ -5,6 +5,10 @@
         width: 50%;
     }
 
+    :global(.usa-checkbox) {
+      @include u-margin-bottom(2);
+    }
+
     .labelWrapper {
         @include u-margin-top(3);
     }
@@ -12,5 +16,4 @@
     .uploadInstructions {
         @include u-margin-bottom(1);
     }
-
 }

@@ -4082,6 +4082,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	createApprovedMoveWithPPM(appCtx, userUploader)
 	createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
 	createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
+	createApprovedMoveWithPPMMovingExpense(appCtx, nil, userUploader)
+	createApprovedMoveWithPPMMovingExpense(appCtx, &moveCreatorInfo{userID: uuid.FromStringOrNil("da65c290-6256-46db-a1a0-3779191638a2"), email: "movingExpensePPM2@ppm.approved", moveLocator: "EXPNS2"}, userUploader)
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMADD")
 	createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSCF")

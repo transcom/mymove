@@ -133,7 +133,7 @@ IEA*1*000000029`,
 		infoForMultipleFiles[i] = f.fileInfo
 	}
 
-	suite.T().Run("Nothing should be processed or read from an empty directory", func(t *testing.T) {
+	suite.Run("Nothing should be processed or read from an empty directory", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -147,9 +147,9 @@ IEA*1*000000029`,
 		session := NewSyncadaSFTPReaderSession(client, true)
 		_, err = session.FetchAndProcessSyncadaFiles(suite.AppContextForTest(), pickupDir, time.Time{}, processor)
 		suite.NoError(err)
-		client.AssertCalled(t, "ReadDir", pickupDir)
-		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
-		client.AssertNotCalled(t, "Remove", mock.Anything)
+		client.AssertCalled(suite.T(), "ReadDir", pickupDir)
+		processor.AssertNotCalled(suite.T(), "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
+		client.AssertNotCalled(suite.T(), "Remove", mock.Anything)
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType997).Order("process_ended_at desc").First(&ediProcessing)
@@ -161,7 +161,7 @@ IEA*1*000000029`,
 		suite.Greater(newCount, countProcessingRecordsBefore)
 	})
 
-	suite.T().Run("ReadDir error should result in error", func(t *testing.T) {
+	suite.Run("ReadDir error should result in error", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -184,7 +184,7 @@ IEA*1*000000029`,
 		suite.Greater(newCount, countProcessingRecordsBefore)
 	})
 
-	suite.T().Run("File open error should prevent processing and deletion", func(t *testing.T) {
+	suite.Run("File open error should prevent processing and deletion", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -202,9 +202,9 @@ IEA*1*000000029`,
 		_, err = session.FetchAndProcessSyncadaFiles(suite.AppContextForTest(), pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 
-		client.AssertCalled(t, "ReadDir", pickupDir)
-		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
-		client.AssertNotCalled(t, "Remove", mock.Anything)
+		client.AssertCalled(suite.T(), "ReadDir", pickupDir)
+		processor.AssertNotCalled(suite.T(), "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
+		client.AssertNotCalled(suite.T(), "Remove", mock.Anything)
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType997).Order("process_ended_at desc").First(&ediProcessing)
@@ -217,7 +217,7 @@ IEA*1*000000029`,
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
-	suite.T().Run("File WriteTo error should prevent processing and deletion", func(t *testing.T) {
+	suite.Run("File WriteTo error should prevent processing and deletion", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -239,10 +239,10 @@ IEA*1*000000029`,
 		_, err = session.FetchAndProcessSyncadaFiles(suite.AppContextForTest(), pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 
-		client.AssertCalled(t, "ReadDir", pickupDir)
-		client.AssertCalled(t, "Open", mock.Anything)
-		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
-		client.AssertNotCalled(t, "Remove", mock.Anything)
+		client.AssertCalled(suite.T(), "ReadDir", pickupDir)
+		client.AssertCalled(suite.T(), "Open", mock.Anything)
+		processor.AssertNotCalled(suite.T(), "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
+		client.AssertNotCalled(suite.T(), "Remove", mock.Anything)
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType997).Order("process_ended_at desc").First(&ediProcessing)
@@ -255,7 +255,7 @@ IEA*1*000000029`,
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
-	suite.T().Run("File WriteTo error also with a failing Close should prevent processing and deletion", func(t *testing.T) {
+	suite.Run("File WriteTo error also with a failing Close should prevent processing and deletion", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -277,10 +277,10 @@ IEA*1*000000029`,
 		_, err = session.FetchAndProcessSyncadaFiles(suite.AppContextForTest(), pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 
-		client.AssertCalled(t, "ReadDir", pickupDir)
-		client.AssertCalled(t, "Open", mock.Anything)
-		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
-		client.AssertNotCalled(t, "Remove", mock.Anything)
+		client.AssertCalled(suite.T(), "ReadDir", pickupDir)
+		client.AssertCalled(suite.T(), "Open", mock.Anything)
+		processor.AssertNotCalled(suite.T(), "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
+		client.AssertNotCalled(suite.T(), "Remove", mock.Anything)
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType997).Order("process_ended_at desc").First(&ediProcessing)
@@ -293,7 +293,7 @@ IEA*1*000000029`,
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
-	suite.T().Run("File close error should prevent processing and deletion", func(t *testing.T) {
+	suite.Run("File close error should prevent processing and deletion", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -315,10 +315,10 @@ IEA*1*000000029`,
 		_, err = session.FetchAndProcessSyncadaFiles(suite.AppContextForTest(), pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 
-		client.AssertCalled(t, "ReadDir", pickupDir)
-		client.AssertCalled(t, "Open", mock.Anything)
-		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
-		client.AssertNotCalled(t, "Remove", mock.Anything)
+		client.AssertCalled(suite.T(), "ReadDir", pickupDir)
+		client.AssertCalled(suite.T(), "Open", mock.Anything)
+		processor.AssertNotCalled(suite.T(), "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
+		client.AssertNotCalled(suite.T(), "Remove", mock.Anything)
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType997).Order("process_ended_at desc").First(&ediProcessing)
@@ -331,7 +331,7 @@ IEA*1*000000029`,
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
-	suite.T().Run("If ProcessFile returns error, we should not remove the file", func(t *testing.T) {
+	suite.Run("If ProcessFile returns error, we should not remove the file", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -361,12 +361,12 @@ IEA*1*000000029`,
 		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), modTime)
 
 		// Make sure we called external methods with the right args for every file
-		client.AssertCalled(t, "ReadDir", pickupDir)
+		client.AssertCalled(suite.T(), "ReadDir", pickupDir)
 		for _, data := range multipleFileTestData {
-			client.AssertCalled(t, "Open", data.path)
-			processor.AssertCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), data.path, data.file.contents)
+			client.AssertCalled(suite.T(), "Open", data.path)
+			processor.AssertCalled(suite.T(), "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), data.path, data.file.contents)
 		}
-		client.AssertNotCalled(t, "Remove", multipleFileTestData[1].path)
+		client.AssertNotCalled(suite.T(), "Remove", multipleFileTestData[1].path)
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType997).Order("process_ended_at desc").First(&ediProcessing)
@@ -379,7 +379,7 @@ IEA*1*000000029`,
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
-	suite.T().Run("Files read successfully should be processed and deleted", func(t *testing.T) {
+	suite.Run("Files read successfully should be processed and deleted", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -403,11 +403,11 @@ IEA*1*000000029`,
 		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), modTime)
 
 		// Make sure we called external methods with the right args for every file
-		client.AssertCalled(t, "ReadDir", pickupDir)
+		client.AssertCalled(suite.T(), "ReadDir", pickupDir)
 		for _, data := range multipleFileTestData {
-			client.AssertCalled(t, "Open", data.path)
-			processor.AssertCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), data.path, data.file.contents)
-			client.AssertCalled(t, "Remove", data.path)
+			client.AssertCalled(suite.T(), "Open", data.path)
+			processor.AssertCalled(suite.T(), "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), data.path, data.file.contents)
+			client.AssertCalled(suite.T(), "Remove", data.path)
 		}
 
 		var ediProcessing models.EDIProcessing
@@ -421,7 +421,7 @@ IEA*1*000000029`,
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
-	suite.T().Run("Files should not be deleted when deletion flag is not set", func(t *testing.T) {
+	suite.Run("Files should not be deleted when deletion flag is not set", func() {
 		// set up mocks
 		client := &mocks.SFTPClient{}
 		processor := &mocks.SyncadaFileProcessor{}
@@ -440,15 +440,15 @@ IEA*1*000000029`,
 		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), modTime)
 
 		// Make sure we open and process all files, and do not delete any of them
-		client.AssertCalled(t, "ReadDir", pickupDir)
+		client.AssertCalled(suite.T(), "ReadDir", pickupDir)
 		for _, data := range multipleFileTestData {
-			client.AssertCalled(t, "Open", data.path)
-			processor.AssertCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), data.path, data.file.contents)
+			client.AssertCalled(suite.T(), "Open", data.path)
+			processor.AssertCalled(suite.T(), "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), data.path, data.file.contents)
 		}
-		client.AssertNotCalled(t, "Remove", mock.Anything)
+		client.AssertNotCalled(suite.T(), "Remove", mock.Anything)
 	})
 
-	suite.T().Run("SFTP Remove errors don't cause an error", func(t *testing.T) {
+	suite.Run("SFTP Remove errors don't cause an error", func() {
 		// set up mocks
 		client := &mocks.SFTPClient{}
 		processor := &mocks.SyncadaFileProcessor{}
@@ -468,11 +468,11 @@ IEA*1*000000029`,
 
 		// Make sure we called external methods with the right args for every file
 		for _, data := range multipleFileTestData {
-			client.AssertCalled(t, "Remove", data.path)
+			client.AssertCalled(suite.T(), "Remove", data.path)
 		}
 	})
 
-	suite.T().Run("Files before cutoff time should be skipped", func(t *testing.T) {
+	suite.Run("Files before cutoff time should be skipped", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -510,9 +510,9 @@ IEA*1*000000029`,
 
 		// Files at or before the cutoff time should be skipped
 		for _, data := range multipleFileTestData[:2] {
-			client.AssertNotCalled(t, "Open", data.path)
+			client.AssertNotCalled(suite.T(), "Open", data.path)
 		}
 		// Last file should be opened
-		client.AssertCalled(t, "Open", multipleFileTestData[2].path)
+		client.AssertCalled(suite.T(), "Open", multipleFileTestData[2].path)
 	})
 }

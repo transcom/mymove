@@ -4684,6 +4684,9 @@ definitions:
       location:
         $ref: '#/definitions/EvaluationReportLocation'
         x-nullable: true
+      ReportViolations:
+        $ref: '#/definitions/ReportViolations'
+        x-nullable: true
       locationDescription:
         type: string
         example: Route 66 at crash inspection site 3
@@ -4701,6 +4704,28 @@ definitions:
         x-nullable: true
       remarks:
         type: string
+        x-nullable: true
+      seriousIncident:
+        type: boolean
+        x-nullable: true
+      seriousIncidentDesc:
+        type: string
+        x-nullable: true
+      observedClaimsResponseDate:
+        type: string
+        format: date
+        x-nullable: true
+      observedPickupDate:
+        type: string
+        format: date
+        x-nullable: true
+      observedPickupSpreadStartDate:
+        type: string
+        format: date
+        x-nullable: true
+      observedPickupSpreadEndDate:
+        type: string
+        format: date
         x-nullable: true
       moveReferenceID:
         type: string
@@ -6025,7 +6050,7 @@ definitions:
         items:
           $ref: '#/definitions/WeightTicket'
         type: array
-      movingExpense:
+      movingExpenses:
         description: All expense documentation receipt records of this PPM shipment.
         items:
           $ref: '#/definitions/MovingExpense'

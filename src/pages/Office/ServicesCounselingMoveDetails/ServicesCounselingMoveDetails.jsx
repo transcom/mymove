@@ -338,7 +338,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                 counselorCanEdit && (
                   <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
                     <option value="">Add a new shipment</option>
-                    <option test-dataid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+                    <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
                       HHG
                     </option>
                     <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>

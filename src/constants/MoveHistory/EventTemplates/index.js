@@ -1,5 +1,5 @@
 export { default as acknowledgeExcessWeightRisk } from './acknowledgeExcessWeightRisk';
-export { default as approveShipment } from './approveShipment';
+export { default as approveShipment } from './ApproveShipment/approveShipment';
 export { default as approveShipmentDiversion } from './approveShipmentDiversion';
 export { default as createBasicServiceItem } from './createBasicServiceItem';
 export { default as createMTOServiceItem } from './createMTOServiceItem';
@@ -14,6 +14,7 @@ export { default as createPaymentRequestReweighUpdate } from './createPaymentReq
 export { default as createPaymentRequestShipmentUpdate } from './createPaymentRequestShipmentUpdate';
 export { default as createReweighRequestWeightUpdate } from './createReweighRequestWeightUpdate';
 export { default as createStandardServiceItem } from './createStandardServiceItem';
+export { default as deleteShipment } from './deleteShipment';
 export { default as proofOfServiceDocUpload } from './proofOfServiceDocUpload';
 export { default as requestShipmentCancellation } from './requestShipmentCancellation';
 export { default as requestShipmentDiversion } from './requestShipmentDiversion';
@@ -44,3 +45,6 @@ export { default as uploadAmendedOrders } from './uploadAmendedOrders';
 export { default as updateMTOShipmentStatus } from './updateMTOShipmentStatus';
 export { default as updateMTOServiceItemMoveStatus } from './createMTOServiceItemUpdateMoveStatus';
 export { default as updateMoveEstimatedExcessWeight } from './updateMTOShipmentPrimeEstimatedExcessWeight';
+export { default as updateMTOStatusServiceCounselingCompleted } from './updateMTOStatusServiceCounselingCompleted';
+export { default as updateAllowanceCounseling } from './updateAllowanceCounseling';
+export { default as updateAllowanceServiceMemberBranch } from './updateAllowanceServiceMemberBranch';

@@ -35,6 +35,7 @@ export const EvaluationReportConfirmationModal = ({
   modalTopRightClose,
   modalActions,
   evaluationReport,
+  reportViolations,
   moveCode,
   customerInfo,
   grade,
@@ -51,6 +52,7 @@ export const EvaluationReportConfirmationModal = ({
       customerInfo={customerInfo}
       grade={grade}
       evaluationReport={evaluationReport}
+      reportViolations={reportViolations}
       bordered={bordered}
     />
     {modalActions}
@@ -61,6 +63,7 @@ EvaluationReportConfirmationModal.propTypes = {
   modalTitle: PropTypes.element,
   modalTopRightClose: PropTypes.func,
   evaluationReport: EvaluationReportShape.isRequired,
+  reportViolations: PropTypes.arrayOf(PropTypes.object),
   mtoShipments: PropTypes.arrayOf(ShipmentShape),
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
@@ -73,6 +76,7 @@ EvaluationReportConfirmationModal.propTypes = {
 EvaluationReportConfirmationModal.defaultProps = {
   modalTitle: null,
   modalTopRightClose: null,
+  reportViolations: null,
   mtoShipments: null,
   className: null,
   bordered: false,

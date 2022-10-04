@@ -4870,6 +4870,10 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
+        "ReportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -4917,7 +4921,27 @@ func init() {
           "x-nullable": true,
           "readOnly": true
         },
+        "observedClaimsResponseDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "observedDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupSpreadEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupSpreadStartDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -4926,6 +4950,14 @@ func init() {
           "$ref": "#/definitions/EvaluationReportOfficeUser"
         },
         "remarks": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "seriousIncident": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "seriousIncidentDesc": {
           "type": "string",
           "x-nullable": true
         },
@@ -6530,7 +6562,7 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "movingExpense": {
+        "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
           "items": {
@@ -14256,6 +14288,10 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
+        "ReportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -14304,7 +14340,27 @@ func init() {
           "x-nullable": true,
           "readOnly": true
         },
+        "observedClaimsResponseDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "observedDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupSpreadEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupSpreadStartDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -14313,6 +14369,14 @@ func init() {
           "$ref": "#/definitions/EvaluationReportOfficeUser"
         },
         "remarks": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "seriousIncident": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "seriousIncidentDesc": {
           "type": "string",
           "x-nullable": true
         },
@@ -15918,7 +15982,7 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "movingExpense": {
+        "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
           "items": {

@@ -2,7 +2,7 @@ import React, { createRef } from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { Button, ErrorMessage, Form, FormGroup, Radio, Label, Alert } from '@trussworks/react-uswds';
-import { func, string } from 'prop-types';
+import { func, number } from 'prop-types';
 import * as Yup from 'yup';
 
 import styles from './ExpenseForm.module.scss';
@@ -54,16 +54,16 @@ const ExpenseForm = ({
   onUploadComplete,
   onUploadDelete,
 }) => {
-  const { expenseType, description, paidWithGTCC, amount, missingReceipt, receiptDocument, sitStartDate, sitEndDate } =
+  const { movingExpenseType, description, paidWithGtcc, amount, missingReceipt, document, sitStartDate, sitEndDate } =
     expense || {};
 
   const initialValues = {
-    expenseType: expenseType || '',
+    expenseType: movingExpenseType || '',
     description: description || '',
-    paidWithGTCC: paidWithGTCC ? 'true' : 'false',
+    paidWithGTCC: paidWithGtcc ? 'true' : 'false',
     amount: amount ? `${formatCents(amount)}` : '',
     missingReceipt: !!missingReceipt,
-    receiptDocument: receiptDocument?.uploads || [],
+    receiptDocument: document?.uploads || [],
     sitStartDate: sitStartDate || '',
     sitEndDate: sitEndDate || '',
   };
@@ -194,7 +194,7 @@ const ExpenseForm = ({
               </SectionWrapper>
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-                  Finish Later
+                  Return To Homepage
                 </Button>
                 <Button
                   className={ppmStyles.saveButton}
@@ -214,7 +214,7 @@ const ExpenseForm = ({
 };
 
 ExpenseForm.propTypes = {
-  receiptNumber: string,
+  receiptNumber: number,
   expense: ExpenseShape,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
@@ -225,7 +225,7 @@ ExpenseForm.propTypes = {
 
 ExpenseForm.defaultProps = {
   expense: undefined,
-  receiptNumber: '1',
+  receiptNumber: 1,
 };
 
 export default ExpenseForm;
