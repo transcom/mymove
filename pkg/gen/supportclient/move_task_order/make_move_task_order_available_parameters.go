@@ -52,12 +52,10 @@ func NewMakeMoveTaskOrderAvailableParamsWithHTTPClient(client *http.Client) *Mak
 	}
 }
 
-/*
-MakeMoveTaskOrderAvailableParams contains all the parameters to send to the API endpoint
+/* MakeMoveTaskOrderAvailableParams contains all the parameters to send to the API endpoint
+   for the make move task order available operation.
 
-	for the make move task order available operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type MakeMoveTaskOrderAvailableParams struct {
 

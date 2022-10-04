@@ -16,8 +16,7 @@ import (
 // UpdateMTOReviewedBillableWeightsAtOKCode is the HTTP code returned for type UpdateMTOReviewedBillableWeightsAtOK
 const UpdateMTOReviewedBillableWeightsAtOKCode int = 200
 
-/*
-UpdateMTOReviewedBillableWeightsAtOK Successfully updated move task order billableWeightsReviewedAt field
+/*UpdateMTOReviewedBillableWeightsAtOK Successfully updated move task order billableWeightsReviewedAt field
 
 swagger:response updateMTOReviewedBillableWeightsAtOK
 */
@@ -61,8 +60,7 @@ func (o *UpdateMTOReviewedBillableWeightsAtOK) WriteResponse(rw http.ResponseWri
 // UpdateMTOReviewedBillableWeightsAtBadRequestCode is the HTTP code returned for type UpdateMTOReviewedBillableWeightsAtBadRequest
 const UpdateMTOReviewedBillableWeightsAtBadRequestCode int = 400
 
-/*
-UpdateMTOReviewedBillableWeightsAtBadRequest The request payload is invalid
+/*UpdateMTOReviewedBillableWeightsAtBadRequest The request payload is invalid
 
 swagger:response updateMTOReviewedBillableWeightsAtBadRequest
 */
@@ -106,8 +104,7 @@ func (o *UpdateMTOReviewedBillableWeightsAtBadRequest) WriteResponse(rw http.Res
 // UpdateMTOReviewedBillableWeightsAtUnauthorizedCode is the HTTP code returned for type UpdateMTOReviewedBillableWeightsAtUnauthorized
 const UpdateMTOReviewedBillableWeightsAtUnauthorizedCode int = 401
 
-/*
-UpdateMTOReviewedBillableWeightsAtUnauthorized The request was denied
+/*UpdateMTOReviewedBillableWeightsAtUnauthorized The request was denied
 
 swagger:response updateMTOReviewedBillableWeightsAtUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *UpdateMTOReviewedBillableWeightsAtUnauthorized) WriteResponse(rw http.R
 // UpdateMTOReviewedBillableWeightsAtForbiddenCode is the HTTP code returned for type UpdateMTOReviewedBillableWeightsAtForbidden
 const UpdateMTOReviewedBillableWeightsAtForbiddenCode int = 403
 
-/*
-UpdateMTOReviewedBillableWeightsAtForbidden The request was denied
+/*UpdateMTOReviewedBillableWeightsAtForbidden The request was denied
 
 swagger:response updateMTOReviewedBillableWeightsAtForbidden
 */
@@ -196,8 +192,7 @@ func (o *UpdateMTOReviewedBillableWeightsAtForbidden) WriteResponse(rw http.Resp
 // UpdateMTOReviewedBillableWeightsAtNotFoundCode is the HTTP code returned for type UpdateMTOReviewedBillableWeightsAtNotFound
 const UpdateMTOReviewedBillableWeightsAtNotFoundCode int = 404
 
-/*
-UpdateMTOReviewedBillableWeightsAtNotFound The requested resource wasn't found
+/*UpdateMTOReviewedBillableWeightsAtNotFound The requested resource wasn't found
 
 swagger:response updateMTOReviewedBillableWeightsAtNotFound
 */
@@ -241,8 +236,7 @@ func (o *UpdateMTOReviewedBillableWeightsAtNotFound) WriteResponse(rw http.Respo
 // UpdateMTOReviewedBillableWeightsAtConflictCode is the HTTP code returned for type UpdateMTOReviewedBillableWeightsAtConflict
 const UpdateMTOReviewedBillableWeightsAtConflictCode int = 409
 
-/*
-UpdateMTOReviewedBillableWeightsAtConflict Conflict error
+/*UpdateMTOReviewedBillableWeightsAtConflict Conflict error
 
 swagger:response updateMTOReviewedBillableWeightsAtConflict
 */
@@ -286,8 +280,7 @@ func (o *UpdateMTOReviewedBillableWeightsAtConflict) WriteResponse(rw http.Respo
 // UpdateMTOReviewedBillableWeightsAtPreconditionFailedCode is the HTTP code returned for type UpdateMTOReviewedBillableWeightsAtPreconditionFailed
 const UpdateMTOReviewedBillableWeightsAtPreconditionFailedCode int = 412
 
-/*
-UpdateMTOReviewedBillableWeightsAtPreconditionFailed Precondition failed
+/*UpdateMTOReviewedBillableWeightsAtPreconditionFailed Precondition failed
 
 swagger:response updateMTOReviewedBillableWeightsAtPreconditionFailed
 */
@@ -331,8 +324,7 @@ func (o *UpdateMTOReviewedBillableWeightsAtPreconditionFailed) WriteResponse(rw 
 // UpdateMTOReviewedBillableWeightsAtUnprocessableEntityCode is the HTTP code returned for type UpdateMTOReviewedBillableWeightsAtUnprocessableEntity
 const UpdateMTOReviewedBillableWeightsAtUnprocessableEntityCode int = 422
 
-/*
-UpdateMTOReviewedBillableWeightsAtUnprocessableEntity The payload was unprocessable.
+/*UpdateMTOReviewedBillableWeightsAtUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateMTOReviewedBillableWeightsAtUnprocessableEntity
 */
@@ -376,8 +368,7 @@ func (o *UpdateMTOReviewedBillableWeightsAtUnprocessableEntity) WriteResponse(rw
 // UpdateMTOReviewedBillableWeightsAtInternalServerErrorCode is the HTTP code returned for type UpdateMTOReviewedBillableWeightsAtInternalServerError
 const UpdateMTOReviewedBillableWeightsAtInternalServerErrorCode int = 500
 
-/*
-UpdateMTOReviewedBillableWeightsAtInternalServerError A server error occurred
+/*UpdateMTOReviewedBillableWeightsAtInternalServerError A server error occurred
 
 swagger:response updateMTOReviewedBillableWeightsAtInternalServerError
 */

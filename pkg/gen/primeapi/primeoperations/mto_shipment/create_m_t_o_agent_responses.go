@@ -16,8 +16,7 @@ import (
 // CreateMTOAgentOKCode is the HTTP code returned for type CreateMTOAgentOK
 const CreateMTOAgentOKCode int = 200
 
-/*
-CreateMTOAgentOK Successfully added the agent.
+/*CreateMTOAgentOK Successfully added the agent.
 
 swagger:response createMTOAgentOK
 */
@@ -61,8 +60,7 @@ func (o *CreateMTOAgentOK) WriteResponse(rw http.ResponseWriter, producer runtim
 // CreateMTOAgentBadRequestCode is the HTTP code returned for type CreateMTOAgentBadRequest
 const CreateMTOAgentBadRequestCode int = 400
 
-/*
-CreateMTOAgentBadRequest The request payload is invalid.
+/*CreateMTOAgentBadRequest The request payload is invalid.
 
 swagger:response createMTOAgentBadRequest
 */
@@ -106,8 +104,7 @@ func (o *CreateMTOAgentBadRequest) WriteResponse(rw http.ResponseWriter, produce
 // CreateMTOAgentUnauthorizedCode is the HTTP code returned for type CreateMTOAgentUnauthorized
 const CreateMTOAgentUnauthorizedCode int = 401
 
-/*
-CreateMTOAgentUnauthorized The request was denied.
+/*CreateMTOAgentUnauthorized The request was denied.
 
 swagger:response createMTOAgentUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *CreateMTOAgentUnauthorized) WriteResponse(rw http.ResponseWriter, produ
 // CreateMTOAgentForbiddenCode is the HTTP code returned for type CreateMTOAgentForbidden
 const CreateMTOAgentForbiddenCode int = 403
 
-/*
-CreateMTOAgentForbidden The request was denied.
+/*CreateMTOAgentForbidden The request was denied.
 
 swagger:response createMTOAgentForbidden
 */
@@ -196,8 +192,7 @@ func (o *CreateMTOAgentForbidden) WriteResponse(rw http.ResponseWriter, producer
 // CreateMTOAgentNotFoundCode is the HTTP code returned for type CreateMTOAgentNotFound
 const CreateMTOAgentNotFoundCode int = 404
 
-/*
-CreateMTOAgentNotFound The requested resource wasn't found.
+/*CreateMTOAgentNotFound The requested resource wasn't found.
 
 swagger:response createMTOAgentNotFound
 */
@@ -241,8 +236,7 @@ func (o *CreateMTOAgentNotFound) WriteResponse(rw http.ResponseWriter, producer 
 // CreateMTOAgentConflictCode is the HTTP code returned for type CreateMTOAgentConflict
 const CreateMTOAgentConflictCode int = 409
 
-/*
-CreateMTOAgentConflict The request could not be processed because of conflict in the current state of the resource.
+/*CreateMTOAgentConflict The request could not be processed because of conflict in the current state of the resource.
 
 swagger:response createMTOAgentConflict
 */
@@ -286,8 +280,7 @@ func (o *CreateMTOAgentConflict) WriteResponse(rw http.ResponseWriter, producer 
 // CreateMTOAgentUnprocessableEntityCode is the HTTP code returned for type CreateMTOAgentUnprocessableEntity
 const CreateMTOAgentUnprocessableEntityCode int = 422
 
-/*
-CreateMTOAgentUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
+/*CreateMTOAgentUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response createMTOAgentUnprocessableEntity
 */
@@ -331,8 +324,7 @@ func (o *CreateMTOAgentUnprocessableEntity) WriteResponse(rw http.ResponseWriter
 // CreateMTOAgentInternalServerErrorCode is the HTTP code returned for type CreateMTOAgentInternalServerError
 const CreateMTOAgentInternalServerErrorCode int = 500
 
-/*
-CreateMTOAgentInternalServerError A server error occurred.
+/*CreateMTOAgentInternalServerError A server error occurred.
 
 swagger:response createMTOAgentInternalServerError
 */

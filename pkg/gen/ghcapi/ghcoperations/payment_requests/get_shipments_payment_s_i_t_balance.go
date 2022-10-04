@@ -29,12 +29,12 @@ func NewGetShipmentsPaymentSITBalance(ctx *middleware.Context, handler GetShipme
 	return &GetShipmentsPaymentSITBalance{Context: ctx, Handler: handler}
 }
 
-/*
-	GetShipmentsPaymentSITBalance swagger:route GET /payment-requests/{paymentRequestID}/shipments-payment-sit-balance paymentRequests getShipmentsPaymentSITBalance
-
-# Returns all shipment payment request SIT usage to support partial SIT invoicing
+/* GetShipmentsPaymentSITBalance swagger:route GET /payment-requests/{paymentRequestID}/shipments-payment-sit-balance paymentRequests getShipmentsPaymentSITBalance
 
 Returns all shipment payment request SIT usage to support partial SIT invoicing
+
+Returns all shipment payment request SIT usage to support partial SIT invoicing
+
 */
 type GetShipmentsPaymentSITBalance struct {
 	Context *middleware.Context

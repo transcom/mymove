@@ -29,12 +29,12 @@ func NewIndexUsers(ctx *middleware.Context, handler IndexUsersHandler) *IndexUse
 	return &IndexUsers{Context: ctx, Handler: handler}
 }
 
-/*
-	IndexUsers swagger:route GET /users users indexUsers
+/* IndexUsers swagger:route GET /users users indexUsers
 
-# List users
+List users
 
 Returns a list of users
+
 */
 type IndexUsers struct {
 	Context *middleware.Context

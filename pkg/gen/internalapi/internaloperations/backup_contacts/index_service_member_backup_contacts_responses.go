@@ -16,8 +16,7 @@ import (
 // IndexServiceMemberBackupContactsOKCode is the HTTP code returned for type IndexServiceMemberBackupContactsOK
 const IndexServiceMemberBackupContactsOKCode int = 200
 
-/*
-IndexServiceMemberBackupContactsOK list of service member backup contacts
+/*IndexServiceMemberBackupContactsOK list of service member backup contacts
 
 swagger:response indexServiceMemberBackupContactsOK
 */
@@ -64,8 +63,7 @@ func (o *IndexServiceMemberBackupContactsOK) WriteResponse(rw http.ResponseWrite
 // IndexServiceMemberBackupContactsBadRequestCode is the HTTP code returned for type IndexServiceMemberBackupContactsBadRequest
 const IndexServiceMemberBackupContactsBadRequestCode int = 400
 
-/*
-IndexServiceMemberBackupContactsBadRequest invalid request
+/*IndexServiceMemberBackupContactsBadRequest invalid request
 
 swagger:response indexServiceMemberBackupContactsBadRequest
 */
@@ -89,8 +87,7 @@ func (o *IndexServiceMemberBackupContactsBadRequest) WriteResponse(rw http.Respo
 // IndexServiceMemberBackupContactsUnauthorizedCode is the HTTP code returned for type IndexServiceMemberBackupContactsUnauthorized
 const IndexServiceMemberBackupContactsUnauthorizedCode int = 401
 
-/*
-IndexServiceMemberBackupContactsUnauthorized request requires user authentication
+/*IndexServiceMemberBackupContactsUnauthorized request requires user authentication
 
 swagger:response indexServiceMemberBackupContactsUnauthorized
 */
@@ -114,8 +111,7 @@ func (o *IndexServiceMemberBackupContactsUnauthorized) WriteResponse(rw http.Res
 // IndexServiceMemberBackupContactsForbiddenCode is the HTTP code returned for type IndexServiceMemberBackupContactsForbidden
 const IndexServiceMemberBackupContactsForbiddenCode int = 403
 
-/*
-IndexServiceMemberBackupContactsForbidden user is not authorized to see this backup contact
+/*IndexServiceMemberBackupContactsForbidden user is not authorized to see this backup contact
 
 swagger:response indexServiceMemberBackupContactsForbidden
 */
@@ -139,8 +135,7 @@ func (o *IndexServiceMemberBackupContactsForbidden) WriteResponse(rw http.Respon
 // IndexServiceMemberBackupContactsNotFoundCode is the HTTP code returned for type IndexServiceMemberBackupContactsNotFound
 const IndexServiceMemberBackupContactsNotFoundCode int = 404
 
-/*
-IndexServiceMemberBackupContactsNotFound contact not found
+/*IndexServiceMemberBackupContactsNotFound contact not found
 
 swagger:response indexServiceMemberBackupContactsNotFound
 */
@@ -164,8 +159,7 @@ func (o *IndexServiceMemberBackupContactsNotFound) WriteResponse(rw http.Respons
 // IndexServiceMemberBackupContactsInternalServerErrorCode is the HTTP code returned for type IndexServiceMemberBackupContactsInternalServerError
 const IndexServiceMemberBackupContactsInternalServerErrorCode int = 500
 
-/*
-IndexServiceMemberBackupContactsInternalServerError internal server error
+/*IndexServiceMemberBackupContactsInternalServerError internal server error
 
 swagger:response indexServiceMemberBackupContactsInternalServerError
 */

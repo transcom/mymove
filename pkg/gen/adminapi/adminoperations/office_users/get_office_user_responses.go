@@ -16,8 +16,7 @@ import (
 // GetOfficeUserOKCode is the HTTP code returned for type GetOfficeUserOK
 const GetOfficeUserOKCode int = 200
 
-/*
-GetOfficeUserOK success
+/*GetOfficeUserOK success
 
 swagger:response getOfficeUserOK
 */
@@ -61,8 +60,7 @@ func (o *GetOfficeUserOK) WriteResponse(rw http.ResponseWriter, producer runtime
 // GetOfficeUserBadRequestCode is the HTTP code returned for type GetOfficeUserBadRequest
 const GetOfficeUserBadRequestCode int = 400
 
-/*
-GetOfficeUserBadRequest invalid request
+/*GetOfficeUserBadRequest invalid request
 
 swagger:response getOfficeUserBadRequest
 */
@@ -86,8 +84,7 @@ func (o *GetOfficeUserBadRequest) WriteResponse(rw http.ResponseWriter, producer
 // GetOfficeUserUnauthorizedCode is the HTTP code returned for type GetOfficeUserUnauthorized
 const GetOfficeUserUnauthorizedCode int = 401
 
-/*
-GetOfficeUserUnauthorized request requires user authentication
+/*GetOfficeUserUnauthorized request requires user authentication
 
 swagger:response getOfficeUserUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *GetOfficeUserUnauthorized) WriteResponse(rw http.ResponseWriter, produc
 // GetOfficeUserNotFoundCode is the HTTP code returned for type GetOfficeUserNotFound
 const GetOfficeUserNotFoundCode int = 404
 
-/*
-GetOfficeUserNotFound office not found
+/*GetOfficeUserNotFound office not found
 
 swagger:response getOfficeUserNotFound
 */
@@ -136,8 +132,7 @@ func (o *GetOfficeUserNotFound) WriteResponse(rw http.ResponseWriter, producer r
 // GetOfficeUserInternalServerErrorCode is the HTTP code returned for type GetOfficeUserInternalServerError
 const GetOfficeUserInternalServerErrorCode int = 500
 
-/*
-GetOfficeUserInternalServerError server error
+/*GetOfficeUserInternalServerError server error
 
 swagger:response getOfficeUserInternalServerError
 */

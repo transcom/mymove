@@ -29,12 +29,12 @@ func NewIndexElectronicOrders(ctx *middleware.Context, handler IndexElectronicOr
 	return &IndexElectronicOrders{Context: ctx, Handler: handler}
 }
 
-/*
-	IndexElectronicOrders swagger:route GET /electronic_orders electronic_order indexElectronicOrders
+/* IndexElectronicOrders swagger:route GET /electronic_orders electronic_order indexElectronicOrders
 
-# List electronic orders
+List electronic orders
 
 Returns a list of electronic orders
+
 */
 type IndexElectronicOrders struct {
 	Context *middleware.Context

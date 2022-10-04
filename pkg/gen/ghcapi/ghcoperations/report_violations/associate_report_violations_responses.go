@@ -16,8 +16,7 @@ import (
 // AssociateReportViolationsNoContentCode is the HTTP code returned for type AssociateReportViolationsNoContent
 const AssociateReportViolationsNoContentCode int = 204
 
-/*
-AssociateReportViolationsNoContent Successfully saved the report violations
+/*AssociateReportViolationsNoContent Successfully saved the report violations
 
 swagger:response associateReportViolationsNoContent
 */
@@ -41,8 +40,7 @@ func (o *AssociateReportViolationsNoContent) WriteResponse(rw http.ResponseWrite
 // AssociateReportViolationsBadRequestCode is the HTTP code returned for type AssociateReportViolationsBadRequest
 const AssociateReportViolationsBadRequestCode int = 400
 
-/*
-AssociateReportViolationsBadRequest The request payload is invalid
+/*AssociateReportViolationsBadRequest The request payload is invalid
 
 swagger:response associateReportViolationsBadRequest
 */
@@ -86,8 +84,7 @@ func (o *AssociateReportViolationsBadRequest) WriteResponse(rw http.ResponseWrit
 // AssociateReportViolationsForbiddenCode is the HTTP code returned for type AssociateReportViolationsForbidden
 const AssociateReportViolationsForbiddenCode int = 403
 
-/*
-AssociateReportViolationsForbidden The request was denied
+/*AssociateReportViolationsForbidden The request was denied
 
 swagger:response associateReportViolationsForbidden
 */
@@ -131,8 +128,7 @@ func (o *AssociateReportViolationsForbidden) WriteResponse(rw http.ResponseWrite
 // AssociateReportViolationsNotFoundCode is the HTTP code returned for type AssociateReportViolationsNotFound
 const AssociateReportViolationsNotFoundCode int = 404
 
-/*
-AssociateReportViolationsNotFound The requested resource wasn't found
+/*AssociateReportViolationsNotFound The requested resource wasn't found
 
 swagger:response associateReportViolationsNotFound
 */
@@ -176,8 +172,7 @@ func (o *AssociateReportViolationsNotFound) WriteResponse(rw http.ResponseWriter
 // AssociateReportViolationsConflictCode is the HTTP code returned for type AssociateReportViolationsConflict
 const AssociateReportViolationsConflictCode int = 409
 
-/*
-AssociateReportViolationsConflict Conflict error
+/*AssociateReportViolationsConflict Conflict error
 
 swagger:response associateReportViolationsConflict
 */
@@ -221,8 +216,7 @@ func (o *AssociateReportViolationsConflict) WriteResponse(rw http.ResponseWriter
 // AssociateReportViolationsUnprocessableEntityCode is the HTTP code returned for type AssociateReportViolationsUnprocessableEntity
 const AssociateReportViolationsUnprocessableEntityCode int = 422
 
-/*
-AssociateReportViolationsUnprocessableEntity The payload was unprocessable.
+/*AssociateReportViolationsUnprocessableEntity The payload was unprocessable.
 
 swagger:response associateReportViolationsUnprocessableEntity
 */
@@ -266,8 +260,7 @@ func (o *AssociateReportViolationsUnprocessableEntity) WriteResponse(rw http.Res
 // AssociateReportViolationsInternalServerErrorCode is the HTTP code returned for type AssociateReportViolationsInternalServerError
 const AssociateReportViolationsInternalServerErrorCode int = 500
 
-/*
-AssociateReportViolationsInternalServerError A server error occurred
+/*AssociateReportViolationsInternalServerError A server error occurred
 
 swagger:response associateReportViolationsInternalServerError
 */

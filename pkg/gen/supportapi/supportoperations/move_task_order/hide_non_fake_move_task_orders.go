@@ -29,14 +29,15 @@ func NewHideNonFakeMoveTaskOrders(ctx *middleware.Context, handler HideNonFakeMo
 	return &HideNonFakeMoveTaskOrders{Context: ctx, Handler: handler}
 }
 
-/*
-	HideNonFakeMoveTaskOrders swagger:route PATCH /move-task-orders/hide moveTaskOrder hideNonFakeMoveTaskOrders
+/* HideNonFakeMoveTaskOrders swagger:route PATCH /move-task-orders/hide moveTaskOrder hideNonFakeMoveTaskOrders
 
 hideNonFakeMoveTaskOrders
 
 Updates move task order without fake user data `show` to false. No request body required. <br />
 <br />
 This is a support endpoint and will not be available in production.
+
+
 */
 type HideNonFakeMoveTaskOrders struct {
 	Context *middleware.Context

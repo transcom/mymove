@@ -16,8 +16,7 @@ import (
 // ShowOfficeOrdersOKCode is the HTTP code returned for type ShowOfficeOrdersOK
 const ShowOfficeOrdersOKCode int = 200
 
-/*
-ShowOfficeOrdersOK the orders information for a move for office use
+/*ShowOfficeOrdersOK the orders information for a move for office use
 
 swagger:response showOfficeOrdersOK
 */
@@ -61,8 +60,7 @@ func (o *ShowOfficeOrdersOK) WriteResponse(rw http.ResponseWriter, producer runt
 // ShowOfficeOrdersBadRequestCode is the HTTP code returned for type ShowOfficeOrdersBadRequest
 const ShowOfficeOrdersBadRequestCode int = 400
 
-/*
-ShowOfficeOrdersBadRequest invalid request
+/*ShowOfficeOrdersBadRequest invalid request
 
 swagger:response showOfficeOrdersBadRequest
 */
@@ -86,8 +84,7 @@ func (o *ShowOfficeOrdersBadRequest) WriteResponse(rw http.ResponseWriter, produ
 // ShowOfficeOrdersUnauthorizedCode is the HTTP code returned for type ShowOfficeOrdersUnauthorized
 const ShowOfficeOrdersUnauthorizedCode int = 401
 
-/*
-ShowOfficeOrdersUnauthorized request requires user authentication
+/*ShowOfficeOrdersUnauthorized request requires user authentication
 
 swagger:response showOfficeOrdersUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *ShowOfficeOrdersUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 // ShowOfficeOrdersForbiddenCode is the HTTP code returned for type ShowOfficeOrdersForbidden
 const ShowOfficeOrdersForbiddenCode int = 403
 
-/*
-ShowOfficeOrdersForbidden user is not authorized
+/*ShowOfficeOrdersForbidden user is not authorized
 
 swagger:response showOfficeOrdersForbidden
 */
@@ -136,8 +132,7 @@ func (o *ShowOfficeOrdersForbidden) WriteResponse(rw http.ResponseWriter, produc
 // ShowOfficeOrdersNotFoundCode is the HTTP code returned for type ShowOfficeOrdersNotFound
 const ShowOfficeOrdersNotFoundCode int = 404
 
-/*
-ShowOfficeOrdersNotFound move not found
+/*ShowOfficeOrdersNotFound move not found
 
 swagger:response showOfficeOrdersNotFound
 */
@@ -161,8 +156,7 @@ func (o *ShowOfficeOrdersNotFound) WriteResponse(rw http.ResponseWriter, produce
 // ShowOfficeOrdersInternalServerErrorCode is the HTTP code returned for type ShowOfficeOrdersInternalServerError
 const ShowOfficeOrdersInternalServerErrorCode int = 500
 
-/*
-ShowOfficeOrdersInternalServerError internal server error
+/*ShowOfficeOrdersInternalServerError internal server error
 
 swagger:response showOfficeOrdersInternalServerError
 */

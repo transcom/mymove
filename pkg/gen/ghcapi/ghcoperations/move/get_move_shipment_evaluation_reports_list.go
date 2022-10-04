@@ -29,12 +29,12 @@ func NewGetMoveShipmentEvaluationReportsList(ctx *middleware.Context, handler Ge
 	return &GetMoveShipmentEvaluationReportsList{Context: ctx, Handler: handler}
 }
 
-/*
-	GetMoveShipmentEvaluationReportsList swagger:route GET /moves/{moveID}/shipment-evaluation-reports-list move getMoveShipmentEvaluationReportsList
-
-# Returns shipment evaluation reports for the specified move that are visible to the current office user
+/* GetMoveShipmentEvaluationReportsList swagger:route GET /moves/{moveID}/shipment-evaluation-reports-list move getMoveShipmentEvaluationReportsList
 
 Returns shipment evaluation reports for the specified move that are visible to the current office user
+
+Returns shipment evaluation reports for the specified move that are visible to the current office user
+
 */
 type GetMoveShipmentEvaluationReportsList struct {
 	Context *middleware.Context

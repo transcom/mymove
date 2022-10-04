@@ -16,8 +16,7 @@ import (
 // ApproveSITExtensionOKCode is the HTTP code returned for type ApproveSITExtensionOK
 const ApproveSITExtensionOKCode int = 200
 
-/*
-ApproveSITExtensionOK Successfully approved a SIT extension
+/*ApproveSITExtensionOK Successfully approved a SIT extension
 
 swagger:response approveSITExtensionOK
 */
@@ -61,8 +60,7 @@ func (o *ApproveSITExtensionOK) WriteResponse(rw http.ResponseWriter, producer r
 // ApproveSITExtensionForbiddenCode is the HTTP code returned for type ApproveSITExtensionForbidden
 const ApproveSITExtensionForbiddenCode int = 403
 
-/*
-ApproveSITExtensionForbidden The request was denied
+/*ApproveSITExtensionForbidden The request was denied
 
 swagger:response approveSITExtensionForbidden
 */
@@ -106,8 +104,7 @@ func (o *ApproveSITExtensionForbidden) WriteResponse(rw http.ResponseWriter, pro
 // ApproveSITExtensionNotFoundCode is the HTTP code returned for type ApproveSITExtensionNotFound
 const ApproveSITExtensionNotFoundCode int = 404
 
-/*
-ApproveSITExtensionNotFound The requested resource wasn't found
+/*ApproveSITExtensionNotFound The requested resource wasn't found
 
 swagger:response approveSITExtensionNotFound
 */
@@ -151,8 +148,7 @@ func (o *ApproveSITExtensionNotFound) WriteResponse(rw http.ResponseWriter, prod
 // ApproveSITExtensionConflictCode is the HTTP code returned for type ApproveSITExtensionConflict
 const ApproveSITExtensionConflictCode int = 409
 
-/*
-ApproveSITExtensionConflict Conflict error
+/*ApproveSITExtensionConflict Conflict error
 
 swagger:response approveSITExtensionConflict
 */
@@ -196,8 +192,7 @@ func (o *ApproveSITExtensionConflict) WriteResponse(rw http.ResponseWriter, prod
 // ApproveSITExtensionPreconditionFailedCode is the HTTP code returned for type ApproveSITExtensionPreconditionFailed
 const ApproveSITExtensionPreconditionFailedCode int = 412
 
-/*
-ApproveSITExtensionPreconditionFailed Precondition failed
+/*ApproveSITExtensionPreconditionFailed Precondition failed
 
 swagger:response approveSITExtensionPreconditionFailed
 */
@@ -241,8 +236,7 @@ func (o *ApproveSITExtensionPreconditionFailed) WriteResponse(rw http.ResponseWr
 // ApproveSITExtensionUnprocessableEntityCode is the HTTP code returned for type ApproveSITExtensionUnprocessableEntity
 const ApproveSITExtensionUnprocessableEntityCode int = 422
 
-/*
-ApproveSITExtensionUnprocessableEntity The payload was unprocessable.
+/*ApproveSITExtensionUnprocessableEntity The payload was unprocessable.
 
 swagger:response approveSITExtensionUnprocessableEntity
 */
@@ -286,8 +280,7 @@ func (o *ApproveSITExtensionUnprocessableEntity) WriteResponse(rw http.ResponseW
 // ApproveSITExtensionInternalServerErrorCode is the HTTP code returned for type ApproveSITExtensionInternalServerError
 const ApproveSITExtensionInternalServerErrorCode int = 500
 
-/*
-ApproveSITExtensionInternalServerError A server error occurred
+/*ApproveSITExtensionInternalServerError A server error occurred
 
 swagger:response approveSITExtensionInternalServerError
 */

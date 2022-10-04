@@ -16,8 +16,7 @@ import (
 // GetMoveTaskOrderOKCode is the HTTP code returned for type GetMoveTaskOrderOK
 const GetMoveTaskOrderOKCode int = 200
 
-/*
-GetMoveTaskOrderOK Successfully retrieve an individual move task order.
+/*GetMoveTaskOrderOK Successfully retrieve an individual move task order.
 
 swagger:response getMoveTaskOrderOK
 */
@@ -61,8 +60,7 @@ func (o *GetMoveTaskOrderOK) WriteResponse(rw http.ResponseWriter, producer runt
 // GetMoveTaskOrderUnauthorizedCode is the HTTP code returned for type GetMoveTaskOrderUnauthorized
 const GetMoveTaskOrderUnauthorizedCode int = 401
 
-/*
-GetMoveTaskOrderUnauthorized The request was denied.
+/*GetMoveTaskOrderUnauthorized The request was denied.
 
 swagger:response getMoveTaskOrderUnauthorized
 */
@@ -106,8 +104,7 @@ func (o *GetMoveTaskOrderUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 // GetMoveTaskOrderForbiddenCode is the HTTP code returned for type GetMoveTaskOrderForbidden
 const GetMoveTaskOrderForbiddenCode int = 403
 
-/*
-GetMoveTaskOrderForbidden The request was denied.
+/*GetMoveTaskOrderForbidden The request was denied.
 
 swagger:response getMoveTaskOrderForbidden
 */
@@ -151,8 +148,7 @@ func (o *GetMoveTaskOrderForbidden) WriteResponse(rw http.ResponseWriter, produc
 // GetMoveTaskOrderNotFoundCode is the HTTP code returned for type GetMoveTaskOrderNotFound
 const GetMoveTaskOrderNotFoundCode int = 404
 
-/*
-GetMoveTaskOrderNotFound The requested resource wasn't found.
+/*GetMoveTaskOrderNotFound The requested resource wasn't found.
 
 swagger:response getMoveTaskOrderNotFound
 */
@@ -196,8 +192,7 @@ func (o *GetMoveTaskOrderNotFound) WriteResponse(rw http.ResponseWriter, produce
 // GetMoveTaskOrderInternalServerErrorCode is the HTTP code returned for type GetMoveTaskOrderInternalServerError
 const GetMoveTaskOrderInternalServerErrorCode int = 500
 
-/*
-GetMoveTaskOrderInternalServerError A server error occurred.
+/*GetMoveTaskOrderInternalServerError A server error occurred.
 
 swagger:response getMoveTaskOrderInternalServerError
 */

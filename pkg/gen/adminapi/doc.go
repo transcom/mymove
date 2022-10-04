@@ -2,22 +2,22 @@
 
 // Package adminapi MilMove Admin API
 //
-//	The Admin API is a RESTful API that enables the Admin application for MilMove.
+//  The Admin API is a RESTful API that enables the Admin application for MilMove.
 //
-//	All endpoints are located under `/admin/v1`.
+//  All endpoints are located under `/admin/v1`.
 //
-//	Schemes:
-//	  http
-//	Host: localhost
-//	BasePath: /admin/v1
-//	Version: 1.0.0
-//	License: MIT https://github.com/transcom/mymove/blob/master/LICENSE.md
+//  Schemes:
+//    http
+//  Host: localhost
+//  BasePath: /admin/v1
+//  Version: 1.0.0
+//  License: MIT https://github.com/transcom/mymove/blob/master/LICENSE.md
 //
-//	Consumes:
-//	  - application/json
+//  Consumes:
+//    - application/json
 //
-//	Produces:
-//	  - application/json
+//  Produces:
+//    - application/json
 //
 // swagger:meta
 package adminapi

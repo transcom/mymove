@@ -16,8 +16,7 @@ import (
 // GetOrdersOKCode is the HTTP code returned for type GetOrdersOK
 const GetOrdersOKCode int = 200
 
-/*
-GetOrdersOK Successful
+/*GetOrdersOK Successful
 
 swagger:response getOrdersOK
 */
@@ -61,8 +60,7 @@ func (o *GetOrdersOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 // GetOrdersBadRequestCode is the HTTP code returned for type GetOrdersBadRequest
 const GetOrdersBadRequestCode int = 400
 
-/*
-GetOrdersBadRequest Invalid
+/*GetOrdersBadRequest Invalid
 
 swagger:response getOrdersBadRequest
 */
@@ -86,8 +84,7 @@ func (o *GetOrdersBadRequest) WriteResponse(rw http.ResponseWriter, producer run
 // GetOrdersUnauthorizedCode is the HTTP code returned for type GetOrdersUnauthorized
 const GetOrdersUnauthorizedCode int = 401
 
-/*
-GetOrdersUnauthorized must be authenticated to use this endpoint
+/*GetOrdersUnauthorized must be authenticated to use this endpoint
 
 swagger:response getOrdersUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *GetOrdersUnauthorized) WriteResponse(rw http.ResponseWriter, producer r
 // GetOrdersForbiddenCode is the HTTP code returned for type GetOrdersForbidden
 const GetOrdersForbiddenCode int = 403
 
-/*
-GetOrdersForbidden Forbidden
+/*GetOrdersForbidden Forbidden
 
 swagger:response getOrdersForbidden
 */
@@ -136,8 +132,7 @@ func (o *GetOrdersForbidden) WriteResponse(rw http.ResponseWriter, producer runt
 // GetOrdersNotFoundCode is the HTTP code returned for type GetOrdersNotFound
 const GetOrdersNotFoundCode int = 404
 
-/*
-GetOrdersNotFound Orders not found
+/*GetOrdersNotFound Orders not found
 
 swagger:response getOrdersNotFound
 */
@@ -161,8 +156,7 @@ func (o *GetOrdersNotFound) WriteResponse(rw http.ResponseWriter, producer runti
 // GetOrdersInternalServerErrorCode is the HTTP code returned for type GetOrdersInternalServerError
 const GetOrdersInternalServerErrorCode int = 500
 
-/*
-GetOrdersInternalServerError Server error
+/*GetOrdersInternalServerError Server error
 
 swagger:response getOrdersInternalServerError
 */

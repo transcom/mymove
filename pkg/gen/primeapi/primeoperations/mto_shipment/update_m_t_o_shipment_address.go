@@ -29,8 +29,7 @@ func NewUpdateMTOShipmentAddress(ctx *middleware.Context, handler UpdateMTOShipm
 	return &UpdateMTOShipmentAddress{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdateMTOShipmentAddress swagger:route PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID} mtoShipment updateMTOShipmentAddress
+/* UpdateMTOShipmentAddress swagger:route PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID} mtoShipment updateMTOShipmentAddress
 
 updateMTOShipmentAddress
 
@@ -48,6 +47,8 @@ If it is not, caller will receive a **Conflict** Error.
 
 The mtoShipment should be associated with an MTO that is available to prime.
 If the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.
+
+
 */
 type UpdateMTOShipmentAddress struct {
 	Context *middleware.Context

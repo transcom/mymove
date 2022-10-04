@@ -16,8 +16,7 @@ import (
 // CreateSITExtensionAsTOOOKCode is the HTTP code returned for type CreateSITExtensionAsTOOOK
 const CreateSITExtensionAsTOOOKCode int = 200
 
-/*
-CreateSITExtensionAsTOOOK Successfully created a SIT Extension.
+/*CreateSITExtensionAsTOOOK Successfully created a SIT Extension.
 
 swagger:response createSITExtensionAsTOOOK
 */
@@ -61,8 +60,7 @@ func (o *CreateSITExtensionAsTOOOK) WriteResponse(rw http.ResponseWriter, produc
 // CreateSITExtensionAsTOOBadRequestCode is the HTTP code returned for type CreateSITExtensionAsTOOBadRequest
 const CreateSITExtensionAsTOOBadRequestCode int = 400
 
-/*
-CreateSITExtensionAsTOOBadRequest The request payload is invalid
+/*CreateSITExtensionAsTOOBadRequest The request payload is invalid
 
 swagger:response createSITExtensionAsTOOBadRequest
 */
@@ -106,8 +104,7 @@ func (o *CreateSITExtensionAsTOOBadRequest) WriteResponse(rw http.ResponseWriter
 // CreateSITExtensionAsTOOForbiddenCode is the HTTP code returned for type CreateSITExtensionAsTOOForbidden
 const CreateSITExtensionAsTOOForbiddenCode int = 403
 
-/*
-CreateSITExtensionAsTOOForbidden The request was denied
+/*CreateSITExtensionAsTOOForbidden The request was denied
 
 swagger:response createSITExtensionAsTOOForbidden
 */
@@ -151,8 +148,7 @@ func (o *CreateSITExtensionAsTOOForbidden) WriteResponse(rw http.ResponseWriter,
 // CreateSITExtensionAsTOONotFoundCode is the HTTP code returned for type CreateSITExtensionAsTOONotFound
 const CreateSITExtensionAsTOONotFoundCode int = 404
 
-/*
-CreateSITExtensionAsTOONotFound The requested resource wasn't found
+/*CreateSITExtensionAsTOONotFound The requested resource wasn't found
 
 swagger:response createSITExtensionAsTOONotFound
 */
@@ -196,8 +192,7 @@ func (o *CreateSITExtensionAsTOONotFound) WriteResponse(rw http.ResponseWriter, 
 // CreateSITExtensionAsTOOUnprocessableEntityCode is the HTTP code returned for type CreateSITExtensionAsTOOUnprocessableEntity
 const CreateSITExtensionAsTOOUnprocessableEntityCode int = 422
 
-/*
-CreateSITExtensionAsTOOUnprocessableEntity The payload was unprocessable.
+/*CreateSITExtensionAsTOOUnprocessableEntity The payload was unprocessable.
 
 swagger:response createSITExtensionAsTOOUnprocessableEntity
 */
@@ -241,8 +236,7 @@ func (o *CreateSITExtensionAsTOOUnprocessableEntity) WriteResponse(rw http.Respo
 // CreateSITExtensionAsTOOInternalServerErrorCode is the HTTP code returned for type CreateSITExtensionAsTOOInternalServerError
 const CreateSITExtensionAsTOOInternalServerErrorCode int = 500
 
-/*
-CreateSITExtensionAsTOOInternalServerError A server error occurred
+/*CreateSITExtensionAsTOOInternalServerError A server error occurred
 
 swagger:response createSITExtensionAsTOOInternalServerError
 */

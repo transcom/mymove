@@ -29,8 +29,7 @@ func NewCreateMTOAgent(ctx *middleware.Context, handler CreateMTOAgentHandler) *
 	return &CreateMTOAgent{Context: ctx, Handler: handler}
 }
 
-/*
-	CreateMTOAgent swagger:route POST /mto-shipments/{mtoShipmentID}/agents mtoShipment createMTOAgent
+/* CreateMTOAgent swagger:route POST /mto-shipments/{mtoShipmentID}/agents mtoShipment createMTOAgent
 
 createMTOAgent
 
@@ -44,6 +43,8 @@ The agent must be associated with the MTO shipment passed in the url.
 
 The shipment should be associated with an MTO that is available to the Pime.
 If the caller requests a new agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.
+
+
 */
 type CreateMTOAgent struct {
 	Context *middleware.Context

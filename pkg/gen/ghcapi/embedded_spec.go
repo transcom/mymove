@@ -5042,7 +5042,10 @@ func init() {
         "MAPS",
         "MBFL",
         "MLNQ",
-        "XXXX"
+        "XXXX",
+        "NAVY",
+        "USCG",
+        "TCVB"
       ]
     },
     "Grade": {
@@ -14430,7 +14433,10 @@ func init() {
         "MAPS",
         "MBFL",
         "MLNQ",
-        "XXXX"
+        "XXXX",
+        "NAVY",
+        "USCG",
+        "TCVB"
       ]
     },
     "Grade": {

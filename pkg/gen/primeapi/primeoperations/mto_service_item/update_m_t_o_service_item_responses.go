@@ -16,8 +16,7 @@ import (
 // UpdateMTOServiceItemOKCode is the HTTP code returned for type UpdateMTOServiceItemOK
 const UpdateMTOServiceItemOKCode int = 200
 
-/*
-UpdateMTOServiceItemOK Successfully updated the MTO service item.
+/*UpdateMTOServiceItemOK Successfully updated the MTO service item.
 
 swagger:response updateMTOServiceItemOK
 */
@@ -61,8 +60,7 @@ func (o *UpdateMTOServiceItemOK) WriteResponse(rw http.ResponseWriter, producer 
 // UpdateMTOServiceItemBadRequestCode is the HTTP code returned for type UpdateMTOServiceItemBadRequest
 const UpdateMTOServiceItemBadRequestCode int = 400
 
-/*
-UpdateMTOServiceItemBadRequest The request payload is invalid.
+/*UpdateMTOServiceItemBadRequest The request payload is invalid.
 
 swagger:response updateMTOServiceItemBadRequest
 */
@@ -106,8 +104,7 @@ func (o *UpdateMTOServiceItemBadRequest) WriteResponse(rw http.ResponseWriter, p
 // UpdateMTOServiceItemUnauthorizedCode is the HTTP code returned for type UpdateMTOServiceItemUnauthorized
 const UpdateMTOServiceItemUnauthorizedCode int = 401
 
-/*
-UpdateMTOServiceItemUnauthorized The request was denied.
+/*UpdateMTOServiceItemUnauthorized The request was denied.
 
 swagger:response updateMTOServiceItemUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *UpdateMTOServiceItemUnauthorized) WriteResponse(rw http.ResponseWriter,
 // UpdateMTOServiceItemForbiddenCode is the HTTP code returned for type UpdateMTOServiceItemForbidden
 const UpdateMTOServiceItemForbiddenCode int = 403
 
-/*
-UpdateMTOServiceItemForbidden The request was denied.
+/*UpdateMTOServiceItemForbidden The request was denied.
 
 swagger:response updateMTOServiceItemForbidden
 */
@@ -196,8 +192,7 @@ func (o *UpdateMTOServiceItemForbidden) WriteResponse(rw http.ResponseWriter, pr
 // UpdateMTOServiceItemNotFoundCode is the HTTP code returned for type UpdateMTOServiceItemNotFound
 const UpdateMTOServiceItemNotFoundCode int = 404
 
-/*
-UpdateMTOServiceItemNotFound The requested resource wasn't found.
+/*UpdateMTOServiceItemNotFound The requested resource wasn't found.
 
 swagger:response updateMTOServiceItemNotFound
 */
@@ -241,8 +236,7 @@ func (o *UpdateMTOServiceItemNotFound) WriteResponse(rw http.ResponseWriter, pro
 // UpdateMTOServiceItemConflictCode is the HTTP code returned for type UpdateMTOServiceItemConflict
 const UpdateMTOServiceItemConflictCode int = 409
 
-/*
-UpdateMTOServiceItemConflict The request could not be processed because of conflict in the current state of the resource.
+/*UpdateMTOServiceItemConflict The request could not be processed because of conflict in the current state of the resource.
 
 swagger:response updateMTOServiceItemConflict
 */
@@ -286,8 +280,7 @@ func (o *UpdateMTOServiceItemConflict) WriteResponse(rw http.ResponseWriter, pro
 // UpdateMTOServiceItemPreconditionFailedCode is the HTTP code returned for type UpdateMTOServiceItemPreconditionFailed
 const UpdateMTOServiceItemPreconditionFailedCode int = 412
 
-/*
-UpdateMTOServiceItemPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+/*UpdateMTOServiceItemPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response updateMTOServiceItemPreconditionFailed
 */
@@ -331,8 +324,7 @@ func (o *UpdateMTOServiceItemPreconditionFailed) WriteResponse(rw http.ResponseW
 // UpdateMTOServiceItemUnprocessableEntityCode is the HTTP code returned for type UpdateMTOServiceItemUnprocessableEntity
 const UpdateMTOServiceItemUnprocessableEntityCode int = 422
 
-/*
-UpdateMTOServiceItemUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
+/*UpdateMTOServiceItemUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response updateMTOServiceItemUnprocessableEntity
 */
@@ -376,8 +368,7 @@ func (o *UpdateMTOServiceItemUnprocessableEntity) WriteResponse(rw http.Response
 // UpdateMTOServiceItemInternalServerErrorCode is the HTTP code returned for type UpdateMTOServiceItemInternalServerError
 const UpdateMTOServiceItemInternalServerErrorCode int = 500
 
-/*
-UpdateMTOServiceItemInternalServerError A server error occurred.
+/*UpdateMTOServiceItemInternalServerError A server error occurred.
 
 swagger:response updateMTOServiceItemInternalServerError
 */

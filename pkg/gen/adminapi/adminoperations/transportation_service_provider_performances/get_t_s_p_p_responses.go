@@ -16,8 +16,7 @@ import (
 // GetTSPPOKCode is the HTTP code returned for type GetTSPPOK
 const GetTSPPOKCode int = 200
 
-/*
-GetTSPPOK success
+/*GetTSPPOK success
 
 swagger:response getTSPPOK
 */
@@ -61,8 +60,7 @@ func (o *GetTSPPOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produ
 // GetTSPPBadRequestCode is the HTTP code returned for type GetTSPPBadRequest
 const GetTSPPBadRequestCode int = 400
 
-/*
-GetTSPPBadRequest invalid request
+/*GetTSPPBadRequest invalid request
 
 swagger:response getTSPPBadRequest
 */
@@ -86,8 +84,7 @@ func (o *GetTSPPBadRequest) WriteResponse(rw http.ResponseWriter, producer runti
 // GetTSPPUnauthorizedCode is the HTTP code returned for type GetTSPPUnauthorized
 const GetTSPPUnauthorizedCode int = 401
 
-/*
-GetTSPPUnauthorized request requires user authentication
+/*GetTSPPUnauthorized request requires user authentication
 
 swagger:response getTSPPUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *GetTSPPUnauthorized) WriteResponse(rw http.ResponseWriter, producer run
 // GetTSPPNotFoundCode is the HTTP code returned for type GetTSPPNotFound
 const GetTSPPNotFoundCode int = 404
 
-/*
-GetTSPPNotFound tspp not found
+/*GetTSPPNotFound tspp not found
 
 swagger:response getTSPPNotFound
 */
@@ -136,8 +132,7 @@ func (o *GetTSPPNotFound) WriteResponse(rw http.ResponseWriter, producer runtime
 // GetTSPPInternalServerErrorCode is the HTTP code returned for type GetTSPPInternalServerError
 const GetTSPPInternalServerErrorCode int = 500
 
-/*
-GetTSPPInternalServerError server error
+/*GetTSPPInternalServerError server error
 
 swagger:response getTSPPInternalServerError
 */

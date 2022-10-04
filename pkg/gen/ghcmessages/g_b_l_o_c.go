@@ -95,6 +95,15 @@ const (
 
 	// GBLOCXXXX captures enum value "XXXX"
 	GBLOCXXXX GBLOC = "XXXX"
+
+	// GBLOCNAVY captures enum value "NAVY"
+	GBLOCNAVY GBLOC = "NAVY"
+
+	// GBLOCUSCG captures enum value "USCG"
+	GBLOCUSCG GBLOC = "USCG"
+
+	// GBLOCTCVB captures enum value "TCVB"
+	GBLOCTCVB GBLOC = "TCVB"
 )
 
 // for schema
@@ -102,7 +111,7 @@ var gBLOCEnum []interface{}
 
 func init() {
 	var res []GBLOC
-	if err := json.Unmarshal([]byte(`["AGFM","APAT","BGAC","BGNC","BKAS","CFMQ","CLPK","CNNQ","DMAT","GSAT","HAFC","HBAT","JEAT","JENQ","KKFA","LHNQ","LKNQ","MAPK","MAPS","MBFL","MLNQ","XXXX"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGFM","APAT","BGAC","BGNC","BKAS","CFMQ","CLPK","CNNQ","DMAT","GSAT","HAFC","HBAT","JEAT","JENQ","KKFA","LHNQ","LKNQ","MAPK","MAPS","MBFL","MLNQ","XXXX","NAVY","USCG","TCVB"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

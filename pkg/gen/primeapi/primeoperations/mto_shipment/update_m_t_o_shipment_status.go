@@ -29,14 +29,15 @@ func NewUpdateMTOShipmentStatus(ctx *middleware.Context, handler UpdateMTOShipme
 	return &UpdateMTOShipmentStatus{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdateMTOShipmentStatus swagger:route PATCH /mto-shipments/{mtoShipmentID}/status mtoShipment updateMTOShipmentStatus
+/* UpdateMTOShipmentStatus swagger:route PATCH /mto-shipments/{mtoShipmentID}/status mtoShipment updateMTOShipmentStatus
 
 updateMTOShipmentStatus
 
 ### Functionality
 This endpoint should be used by the Prime to confirm the cancellation of a shipment. It allows the shipment
 status to be changed to "CANCELED." Currently, the Prime cannot update the shipment to any other status.
+
+
 */
 type UpdateMTOShipmentStatus struct {
 	Context *middleware.Context

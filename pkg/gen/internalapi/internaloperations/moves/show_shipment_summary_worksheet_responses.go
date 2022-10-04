@@ -15,8 +15,7 @@ import (
 // ShowShipmentSummaryWorksheetOKCode is the HTTP code returned for type ShowShipmentSummaryWorksheetOK
 const ShowShipmentSummaryWorksheetOKCode int = 200
 
-/*
-ShowShipmentSummaryWorksheetOK Pre-filled worksheet PDF
+/*ShowShipmentSummaryWorksheetOK Pre-filled worksheet PDF
 
 swagger:response showShipmentSummaryWorksheetOK
 */
@@ -80,8 +79,7 @@ func (o *ShowShipmentSummaryWorksheetOK) WriteResponse(rw http.ResponseWriter, p
 // ShowShipmentSummaryWorksheetBadRequestCode is the HTTP code returned for type ShowShipmentSummaryWorksheetBadRequest
 const ShowShipmentSummaryWorksheetBadRequestCode int = 400
 
-/*
-ShowShipmentSummaryWorksheetBadRequest invalid request
+/*ShowShipmentSummaryWorksheetBadRequest invalid request
 
 swagger:response showShipmentSummaryWorksheetBadRequest
 */
@@ -105,8 +103,7 @@ func (o *ShowShipmentSummaryWorksheetBadRequest) WriteResponse(rw http.ResponseW
 // ShowShipmentSummaryWorksheetUnauthorizedCode is the HTTP code returned for type ShowShipmentSummaryWorksheetUnauthorized
 const ShowShipmentSummaryWorksheetUnauthorizedCode int = 401
 
-/*
-ShowShipmentSummaryWorksheetUnauthorized request requires user authentication
+/*ShowShipmentSummaryWorksheetUnauthorized request requires user authentication
 
 swagger:response showShipmentSummaryWorksheetUnauthorized
 */
@@ -130,8 +127,7 @@ func (o *ShowShipmentSummaryWorksheetUnauthorized) WriteResponse(rw http.Respons
 // ShowShipmentSummaryWorksheetForbiddenCode is the HTTP code returned for type ShowShipmentSummaryWorksheetForbidden
 const ShowShipmentSummaryWorksheetForbiddenCode int = 403
 
-/*
-ShowShipmentSummaryWorksheetForbidden user is not authorized
+/*ShowShipmentSummaryWorksheetForbidden user is not authorized
 
 swagger:response showShipmentSummaryWorksheetForbidden
 */
@@ -155,8 +151,7 @@ func (o *ShowShipmentSummaryWorksheetForbidden) WriteResponse(rw http.ResponseWr
 // ShowShipmentSummaryWorksheetInternalServerErrorCode is the HTTP code returned for type ShowShipmentSummaryWorksheetInternalServerError
 const ShowShipmentSummaryWorksheetInternalServerErrorCode int = 500
 
-/*
-ShowShipmentSummaryWorksheetInternalServerError internal server error
+/*ShowShipmentSummaryWorksheetInternalServerError internal server error
 
 swagger:response showShipmentSummaryWorksheetInternalServerError
 */

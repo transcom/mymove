@@ -16,8 +16,7 @@ import (
 // IndexSignedCertificationOKCode is the HTTP code returned for type IndexSignedCertificationOK
 const IndexSignedCertificationOKCode int = 200
 
-/*
-IndexSignedCertificationOK returns a list of signed certifications
+/*IndexSignedCertificationOK returns a list of signed certifications
 
 swagger:response indexSignedCertificationOK
 */
@@ -64,8 +63,7 @@ func (o *IndexSignedCertificationOK) WriteResponse(rw http.ResponseWriter, produ
 // IndexSignedCertificationBadRequestCode is the HTTP code returned for type IndexSignedCertificationBadRequest
 const IndexSignedCertificationBadRequestCode int = 400
 
-/*
-IndexSignedCertificationBadRequest invalid request
+/*IndexSignedCertificationBadRequest invalid request
 
 swagger:response indexSignedCertificationBadRequest
 */
@@ -89,8 +87,7 @@ func (o *IndexSignedCertificationBadRequest) WriteResponse(rw http.ResponseWrite
 // IndexSignedCertificationUnauthorizedCode is the HTTP code returned for type IndexSignedCertificationUnauthorized
 const IndexSignedCertificationUnauthorizedCode int = 401
 
-/*
-IndexSignedCertificationUnauthorized request requires user authentication
+/*IndexSignedCertificationUnauthorized request requires user authentication
 
 swagger:response indexSignedCertificationUnauthorized
 */
@@ -114,8 +111,7 @@ func (o *IndexSignedCertificationUnauthorized) WriteResponse(rw http.ResponseWri
 // IndexSignedCertificationForbiddenCode is the HTTP code returned for type IndexSignedCertificationForbidden
 const IndexSignedCertificationForbiddenCode int = 403
 
-/*
-IndexSignedCertificationForbidden user is not authorized
+/*IndexSignedCertificationForbidden user is not authorized
 
 swagger:response indexSignedCertificationForbidden
 */
@@ -139,8 +135,7 @@ func (o *IndexSignedCertificationForbidden) WriteResponse(rw http.ResponseWriter
 // IndexSignedCertificationNotFoundCode is the HTTP code returned for type IndexSignedCertificationNotFound
 const IndexSignedCertificationNotFoundCode int = 404
 
-/*
-IndexSignedCertificationNotFound move not found
+/*IndexSignedCertificationNotFound move not found
 
 swagger:response indexSignedCertificationNotFound
 */
@@ -164,8 +159,7 @@ func (o *IndexSignedCertificationNotFound) WriteResponse(rw http.ResponseWriter,
 // IndexSignedCertificationInternalServerErrorCode is the HTTP code returned for type IndexSignedCertificationInternalServerError
 const IndexSignedCertificationInternalServerErrorCode int = 500
 
-/*
-IndexSignedCertificationInternalServerError internal server error
+/*IndexSignedCertificationInternalServerError internal server error
 
 swagger:response indexSignedCertificationInternalServerError
 */

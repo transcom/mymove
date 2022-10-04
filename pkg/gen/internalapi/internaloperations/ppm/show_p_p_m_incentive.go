@@ -29,12 +29,12 @@ func NewShowPPMIncentive(ctx *middleware.Context, handler ShowPPMIncentiveHandle
 	return &ShowPPMIncentive{Context: ctx, Handler: handler}
 }
 
-/*
-	ShowPPMIncentive swagger:route GET /personally_procured_moves/incentive ppm showPPMIncentive
+/* ShowPPMIncentive swagger:route GET /personally_procured_moves/incentive ppm showPPMIncentive
 
-# Return a PPM incentive value
+Return a PPM incentive value
 
 Calculates incentive for a PPM move (excluding SIT)
+
 */
 type ShowPPMIncentive struct {
 	Context *middleware.Context

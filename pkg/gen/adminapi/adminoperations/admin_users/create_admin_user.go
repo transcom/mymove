@@ -29,12 +29,12 @@ func NewCreateAdminUser(ctx *middleware.Context, handler CreateAdminUserHandler)
 	return &CreateAdminUser{Context: ctx, Handler: handler}
 }
 
-/*
-	CreateAdminUser swagger:route POST /admin_users admin_users createAdminUser
+/* CreateAdminUser swagger:route POST /admin_users admin_users createAdminUser
 
 create an admin user
 
 creates and returns an admin user record
+
 */
 type CreateAdminUser struct {
 	Context *middleware.Context

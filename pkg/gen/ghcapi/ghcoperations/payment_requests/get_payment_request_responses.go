@@ -16,8 +16,7 @@ import (
 // GetPaymentRequestOKCode is the HTTP code returned for type GetPaymentRequestOK
 const GetPaymentRequestOKCode int = 200
 
-/*
-GetPaymentRequestOK fetched instance of payment request
+/*GetPaymentRequestOK fetched instance of payment request
 
 swagger:response getPaymentRequestOK
 */
@@ -61,8 +60,7 @@ func (o *GetPaymentRequestOK) WriteResponse(rw http.ResponseWriter, producer run
 // GetPaymentRequestBadRequestCode is the HTTP code returned for type GetPaymentRequestBadRequest
 const GetPaymentRequestBadRequestCode int = 400
 
-/*
-GetPaymentRequestBadRequest The request payload is invalid
+/*GetPaymentRequestBadRequest The request payload is invalid
 
 swagger:response getPaymentRequestBadRequest
 */
@@ -106,8 +104,7 @@ func (o *GetPaymentRequestBadRequest) WriteResponse(rw http.ResponseWriter, prod
 // GetPaymentRequestUnauthorizedCode is the HTTP code returned for type GetPaymentRequestUnauthorized
 const GetPaymentRequestUnauthorizedCode int = 401
 
-/*
-GetPaymentRequestUnauthorized The request was denied
+/*GetPaymentRequestUnauthorized The request was denied
 
 swagger:response getPaymentRequestUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *GetPaymentRequestUnauthorized) WriteResponse(rw http.ResponseWriter, pr
 // GetPaymentRequestForbiddenCode is the HTTP code returned for type GetPaymentRequestForbidden
 const GetPaymentRequestForbiddenCode int = 403
 
-/*
-GetPaymentRequestForbidden The request was denied
+/*GetPaymentRequestForbidden The request was denied
 
 swagger:response getPaymentRequestForbidden
 */
@@ -196,8 +192,7 @@ func (o *GetPaymentRequestForbidden) WriteResponse(rw http.ResponseWriter, produ
 // GetPaymentRequestNotFoundCode is the HTTP code returned for type GetPaymentRequestNotFound
 const GetPaymentRequestNotFoundCode int = 404
 
-/*
-GetPaymentRequestNotFound The requested resource wasn't found
+/*GetPaymentRequestNotFound The requested resource wasn't found
 
 swagger:response getPaymentRequestNotFound
 */
@@ -241,8 +236,7 @@ func (o *GetPaymentRequestNotFound) WriteResponse(rw http.ResponseWriter, produc
 // GetPaymentRequestInternalServerErrorCode is the HTTP code returned for type GetPaymentRequestInternalServerError
 const GetPaymentRequestInternalServerErrorCode int = 500
 
-/*
-GetPaymentRequestInternalServerError A server error occurred
+/*GetPaymentRequestInternalServerError A server error occurred
 
 swagger:response getPaymentRequestInternalServerError
 */

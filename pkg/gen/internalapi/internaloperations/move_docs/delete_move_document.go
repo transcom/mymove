@@ -29,12 +29,12 @@ func NewDeleteMoveDocument(ctx *middleware.Context, handler DeleteMoveDocumentHa
 	return &DeleteMoveDocument{Context: ctx, Handler: handler}
 }
 
-/*
-	DeleteMoveDocument swagger:route DELETE /move_documents/{moveDocumentId} move_docs deleteMoveDocument
+/* DeleteMoveDocument swagger:route DELETE /move_documents/{moveDocumentId} move_docs deleteMoveDocument
 
-# Deletes a move document
+Deletes a move document
 
 Deletes a move document with the given information
+
 */
 type DeleteMoveDocument struct {
 	Context *middleware.Context

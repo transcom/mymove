@@ -38,13 +38,13 @@ type ClientService interface {
 }
 
 /*
-	CreatePaymentRequest creates payment request
+  CreatePaymentRequest creates payment request
 
-	Creates a new instance of a paymentRequest.
-
+  Creates a new instance of a paymentRequest.
 A newly created payment request is assigned the status `PENDING`.
 A move task order can have multiple payment requests, and
 a final payment request can be marked using boolean `isFinal`.
+
 */
 func (a *Client) CreatePaymentRequest(params *CreatePaymentRequestParams, opts ...ClientOption) (*CreatePaymentRequestCreated, error) {
 	// TODO: Validate the params before sending
@@ -82,15 +82,15 @@ func (a *Client) CreatePaymentRequest(params *CreatePaymentRequestParams, opts .
 }
 
 /*
-	CreateUpload creates upload
+  CreateUpload creates upload
 
-	### Functionality
-
+  ### Functionality
 This endpoint **uploads** a Proof of Service document for a PaymentRequest.
 
 The PaymentRequest should already exist.
 
 PaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.
+
 */
 func (a *Client) CreateUpload(params *CreateUploadParams, opts ...ClientOption) (*CreateUploadCreated, error) {
 	// TODO: Validate the params before sending

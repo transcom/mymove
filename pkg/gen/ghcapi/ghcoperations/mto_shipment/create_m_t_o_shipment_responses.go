@@ -16,8 +16,7 @@ import (
 // CreateMTOShipmentOKCode is the HTTP code returned for type CreateMTOShipmentOK
 const CreateMTOShipmentOKCode int = 200
 
-/*
-CreateMTOShipmentOK Successfully created a MTO shipment.
+/*CreateMTOShipmentOK Successfully created a MTO shipment.
 
 swagger:response createMTOShipmentOK
 */
@@ -61,8 +60,7 @@ func (o *CreateMTOShipmentOK) WriteResponse(rw http.ResponseWriter, producer run
 // CreateMTOShipmentBadRequestCode is the HTTP code returned for type CreateMTOShipmentBadRequest
 const CreateMTOShipmentBadRequestCode int = 400
 
-/*
-CreateMTOShipmentBadRequest The request payload is invalid
+/*CreateMTOShipmentBadRequest The request payload is invalid
 
 swagger:response createMTOShipmentBadRequest
 */
@@ -106,8 +104,7 @@ func (o *CreateMTOShipmentBadRequest) WriteResponse(rw http.ResponseWriter, prod
 // CreateMTOShipmentNotFoundCode is the HTTP code returned for type CreateMTOShipmentNotFound
 const CreateMTOShipmentNotFoundCode int = 404
 
-/*
-CreateMTOShipmentNotFound The requested resource wasn't found
+/*CreateMTOShipmentNotFound The requested resource wasn't found
 
 swagger:response createMTOShipmentNotFound
 */
@@ -151,8 +148,7 @@ func (o *CreateMTOShipmentNotFound) WriteResponse(rw http.ResponseWriter, produc
 // CreateMTOShipmentUnprocessableEntityCode is the HTTP code returned for type CreateMTOShipmentUnprocessableEntity
 const CreateMTOShipmentUnprocessableEntityCode int = 422
 
-/*
-CreateMTOShipmentUnprocessableEntity The payload was unprocessable.
+/*CreateMTOShipmentUnprocessableEntity The payload was unprocessable.
 
 swagger:response createMTOShipmentUnprocessableEntity
 */
@@ -196,8 +192,7 @@ func (o *CreateMTOShipmentUnprocessableEntity) WriteResponse(rw http.ResponseWri
 // CreateMTOShipmentInternalServerErrorCode is the HTTP code returned for type CreateMTOShipmentInternalServerError
 const CreateMTOShipmentInternalServerErrorCode int = 500
 
-/*
-CreateMTOShipmentInternalServerError A server error occurred
+/*CreateMTOShipmentInternalServerError A server error occurred
 
 swagger:response createMTOShipmentInternalServerError
 */

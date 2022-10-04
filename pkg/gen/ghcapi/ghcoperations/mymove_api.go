@@ -254,8 +254,7 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 	}
 }
 
-/*
-MymoveAPI The GHC API is a RESTful API that enables the Office application for MilMove.
+/*MymoveAPI The GHC API is a RESTful API that enables the Office application for MilMove.
 
 All endpoints are located under `/ghc/v1`.
 */

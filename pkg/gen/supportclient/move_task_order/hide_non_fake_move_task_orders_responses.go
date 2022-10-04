@@ -87,8 +87,7 @@ func NewHideNonFakeMoveTaskOrdersOK() *HideNonFakeMoveTaskOrdersOK {
 	return &HideNonFakeMoveTaskOrdersOK{}
 }
 
-/*
-HideNonFakeMoveTaskOrdersOK describes a response with status code 200, with default header values.
+/* HideNonFakeMoveTaskOrdersOK describes a response with status code 200, with default header values.
 
 Successfully hid MTOs.
 */
@@ -150,8 +149,7 @@ func NewHideNonFakeMoveTaskOrdersBadRequest() *HideNonFakeMoveTaskOrdersBadReque
 	return &HideNonFakeMoveTaskOrdersBadRequest{}
 }
 
-/*
-HideNonFakeMoveTaskOrdersBadRequest describes a response with status code 400, with default header values.
+/* HideNonFakeMoveTaskOrdersBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -213,8 +211,7 @@ func NewHideNonFakeMoveTaskOrdersUnauthorized() *HideNonFakeMoveTaskOrdersUnauth
 	return &HideNonFakeMoveTaskOrdersUnauthorized{}
 }
 
-/*
-HideNonFakeMoveTaskOrdersUnauthorized describes a response with status code 401, with default header values.
+/* HideNonFakeMoveTaskOrdersUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -276,8 +273,7 @@ func NewHideNonFakeMoveTaskOrdersForbidden() *HideNonFakeMoveTaskOrdersForbidden
 	return &HideNonFakeMoveTaskOrdersForbidden{}
 }
 
-/*
-HideNonFakeMoveTaskOrdersForbidden describes a response with status code 403, with default header values.
+/* HideNonFakeMoveTaskOrdersForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -339,8 +335,7 @@ func NewHideNonFakeMoveTaskOrdersNotFound() *HideNonFakeMoveTaskOrdersNotFound {
 	return &HideNonFakeMoveTaskOrdersNotFound{}
 }
 
-/*
-HideNonFakeMoveTaskOrdersNotFound describes a response with status code 404, with default header values.
+/* HideNonFakeMoveTaskOrdersNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -402,8 +397,7 @@ func NewHideNonFakeMoveTaskOrdersConflict() *HideNonFakeMoveTaskOrdersConflict {
 	return &HideNonFakeMoveTaskOrdersConflict{}
 }
 
-/*
-HideNonFakeMoveTaskOrdersConflict describes a response with status code 409, with default header values.
+/* HideNonFakeMoveTaskOrdersConflict describes a response with status code 409, with default header values.
 
 There was a conflict with the request.
 */
@@ -465,8 +459,7 @@ func NewHideNonFakeMoveTaskOrdersPreconditionFailed() *HideNonFakeMoveTaskOrders
 	return &HideNonFakeMoveTaskOrdersPreconditionFailed{}
 }
 
-/*
-HideNonFakeMoveTaskOrdersPreconditionFailed describes a response with status code 412, with default header values.
+/* HideNonFakeMoveTaskOrdersPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -528,8 +521,7 @@ func NewHideNonFakeMoveTaskOrdersUnprocessableEntity() *HideNonFakeMoveTaskOrder
 	return &HideNonFakeMoveTaskOrdersUnprocessableEntity{}
 }
 
-/*
-HideNonFakeMoveTaskOrdersUnprocessableEntity describes a response with status code 422, with default header values.
+/* HideNonFakeMoveTaskOrdersUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -591,8 +583,7 @@ func NewHideNonFakeMoveTaskOrdersInternalServerError() *HideNonFakeMoveTaskOrder
 	return &HideNonFakeMoveTaskOrdersInternalServerError{}
 }
 
-/*
-HideNonFakeMoveTaskOrdersInternalServerError describes a response with status code 500, with default header values.
+/* HideNonFakeMoveTaskOrdersInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

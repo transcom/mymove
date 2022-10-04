@@ -63,8 +63,7 @@ func NewCreateMTOShipmentOK() *CreateMTOShipmentOK {
 	return &CreateMTOShipmentOK{}
 }
 
-/*
-CreateMTOShipmentOK describes a response with status code 200, with default header values.
+/* CreateMTOShipmentOK describes a response with status code 200, with default header values.
 
 Successfully created a MTO shipment.
 */
@@ -126,8 +125,7 @@ func NewCreateMTOShipmentBadRequest() *CreateMTOShipmentBadRequest {
 	return &CreateMTOShipmentBadRequest{}
 }
 
-/*
-CreateMTOShipmentBadRequest describes a response with status code 400, with default header values.
+/* CreateMTOShipmentBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -189,8 +187,7 @@ func NewCreateMTOShipmentNotFound() *CreateMTOShipmentNotFound {
 	return &CreateMTOShipmentNotFound{}
 }
 
-/*
-CreateMTOShipmentNotFound describes a response with status code 404, with default header values.
+/* CreateMTOShipmentNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -252,8 +249,7 @@ func NewCreateMTOShipmentUnprocessableEntity() *CreateMTOShipmentUnprocessableEn
 	return &CreateMTOShipmentUnprocessableEntity{}
 }
 
-/*
-CreateMTOShipmentUnprocessableEntity describes a response with status code 422, with default header values.
+/* CreateMTOShipmentUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -315,8 +311,7 @@ func NewCreateMTOShipmentInternalServerError() *CreateMTOShipmentInternalServerE
 	return &CreateMTOShipmentInternalServerError{}
 }
 
-/*
-CreateMTOShipmentInternalServerError describes a response with status code 500, with default header values.
+/* CreateMTOShipmentInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

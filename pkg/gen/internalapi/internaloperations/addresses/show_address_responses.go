@@ -16,8 +16,7 @@ import (
 // ShowAddressOKCode is the HTTP code returned for type ShowAddressOK
 const ShowAddressOKCode int = 200
 
-/*
-ShowAddressOK the requested address
+/*ShowAddressOK the requested address
 
 swagger:response showAddressOK
 */
@@ -61,8 +60,7 @@ func (o *ShowAddressOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 // ShowAddressBadRequestCode is the HTTP code returned for type ShowAddressBadRequest
 const ShowAddressBadRequestCode int = 400
 
-/*
-ShowAddressBadRequest invalid request
+/*ShowAddressBadRequest invalid request
 
 swagger:response showAddressBadRequest
 */
@@ -86,8 +84,7 @@ func (o *ShowAddressBadRequest) WriteResponse(rw http.ResponseWriter, producer r
 // ShowAddressForbiddenCode is the HTTP code returned for type ShowAddressForbidden
 const ShowAddressForbiddenCode int = 403
 
-/*
-ShowAddressForbidden not authorized
+/*ShowAddressForbidden not authorized
 
 swagger:response showAddressForbidden
 */
@@ -111,8 +108,7 @@ func (o *ShowAddressForbidden) WriteResponse(rw http.ResponseWriter, producer ru
 // ShowAddressNotFoundCode is the HTTP code returned for type ShowAddressNotFound
 const ShowAddressNotFoundCode int = 404
 
-/*
-ShowAddressNotFound not found
+/*ShowAddressNotFound not found
 
 swagger:response showAddressNotFound
 */
@@ -136,8 +132,7 @@ func (o *ShowAddressNotFound) WriteResponse(rw http.ResponseWriter, producer run
 // ShowAddressInternalServerErrorCode is the HTTP code returned for type ShowAddressInternalServerError
 const ShowAddressInternalServerErrorCode int = 500
 
-/*
-ShowAddressInternalServerError server error
+/*ShowAddressInternalServerError server error
 
 swagger:response showAddressInternalServerError
 */

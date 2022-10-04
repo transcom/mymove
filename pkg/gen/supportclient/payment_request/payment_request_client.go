@@ -44,14 +44,14 @@ type ClientService interface {
 }
 
 /*
-	GetPaymentRequestEDI gets payment request e d i
+  GetPaymentRequestEDI gets payment request e d i
 
-	Returns the EDI (Electronic Data Interchange) message for the payment request identified
-
+  Returns the EDI (Electronic Data Interchange) message for the payment request identified
 by the given payment request ID. Note that the EDI returned in the JSON payload will have where there
 would normally be line breaks (due to JSON not allowing line breaks in a string).
 
 This is a support endpoint and will not be available in production.
+
 */
 func (a *Client) GetPaymentRequestEDI(params *GetPaymentRequestEDIParams, opts ...ClientOption) (*GetPaymentRequestEDIOK, error) {
 	// TODO: Validate the params before sending
@@ -89,13 +89,14 @@ func (a *Client) GetPaymentRequestEDI(params *GetPaymentRequestEDIParams, opts .
 }
 
 /*
-	ListMTOPaymentRequests lists m t o payment requests
+  ListMTOPaymentRequests lists m t o payment requests
 
-	### Functionality
+  ### Functionality
 
 This endpoint lists all PaymentRequests associated with a given MoveTaskOrder.
 
 This is a support endpoint and is not available in production.
+
 */
 func (a *Client) ListMTOPaymentRequests(params *ListMTOPaymentRequestsParams, opts ...ClientOption) (*ListMTOPaymentRequestsOK, error) {
 	// TODO: Validate the params before sending
@@ -133,13 +134,13 @@ func (a *Client) ListMTOPaymentRequests(params *ListMTOPaymentRequestsParams, op
 }
 
 /*
-	ProcessReviewedPaymentRequests processes reviewed payment requests
+  ProcessReviewedPaymentRequests processes reviewed payment requests
 
-	Updates the status of reviewed payment requests and sends PRs to Syncada if
-
+  Updates the status of reviewed payment requests and sends PRs to Syncada if
 the SendToSyncada flag is set
 
 This is a support endpoint and will not be available in production.
+
 */
 func (a *Client) ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRequestsParams, opts ...ClientOption) (*ProcessReviewedPaymentRequestsOK, error) {
 	// TODO: Validate the params before sending
@@ -177,14 +178,14 @@ func (a *Client) ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRe
 }
 
 /*
-	RecalculatePaymentRequest recalculates payment request
+  RecalculatePaymentRequest recalculates payment request
 
-	Recalculates an existing pending payment request by creating a new payment request for the same service
-
+  Recalculates an existing pending payment request by creating a new payment request for the same service
 items but is priced based on the current inputs (weights, dates, etc.). The previously existing payment
 request is then deprecated. A link is made between the new and existing payment requests.
 
 This is a support endpoint and will not be available in production.
+
 */
 func (a *Client) RecalculatePaymentRequest(params *RecalculatePaymentRequestParams, opts ...ClientOption) (*RecalculatePaymentRequestCreated, error) {
 	// TODO: Validate the params before sending
@@ -222,13 +223,14 @@ func (a *Client) RecalculatePaymentRequest(params *RecalculatePaymentRequestPara
 }
 
 /*
-	UpdatePaymentRequestStatus updates payment request status
+  UpdatePaymentRequestStatus updates payment request status
 
-	Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.
+  Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.
 
 A status of REVIEWED can optionally have a `rejectionReason`.
 
 This is a support endpoint and is not available in production.
+
 */
 func (a *Client) UpdatePaymentRequestStatus(params *UpdatePaymentRequestStatusParams, opts ...ClientOption) (*UpdatePaymentRequestStatusOK, error) {
 	// TODO: Validate the params before sending

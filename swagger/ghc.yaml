@@ -4575,6 +4575,9 @@ definitions:
       - MBFL
       - MLNQ
       - XXXX
+      - NAVY
+      - USCG
+      - TCVB
   CreateCustomerSupportRemark:
     type: object
     description: >-

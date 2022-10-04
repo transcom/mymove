@@ -29,12 +29,12 @@ func NewShowShipmentSummaryWorksheet(ctx *middleware.Context, handler ShowShipme
 	return &ShowShipmentSummaryWorksheet{Context: ctx, Handler: handler}
 }
 
-/*
-	ShowShipmentSummaryWorksheet swagger:route GET /moves/{moveId}/shipment_summary_worksheet moves showShipmentSummaryWorksheet
+/* ShowShipmentSummaryWorksheet swagger:route GET /moves/{moveId}/shipment_summary_worksheet moves showShipmentSummaryWorksheet
 
-# Returns Shipment Summary Worksheet
+Returns Shipment Summary Worksheet
 
 Generates pre-filled PDF using data already collected
+
 */
 type ShowShipmentSummaryWorksheet struct {
 	Context *middleware.Context

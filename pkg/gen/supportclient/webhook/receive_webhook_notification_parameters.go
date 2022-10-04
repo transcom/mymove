@@ -54,12 +54,10 @@ func NewReceiveWebhookNotificationParamsWithHTTPClient(client *http.Client) *Rec
 	}
 }
 
-/*
-ReceiveWebhookNotificationParams contains all the parameters to send to the API endpoint
+/* ReceiveWebhookNotificationParams contains all the parameters to send to the API endpoint
+   for the receive webhook notification operation.
 
-	for the receive webhook notification operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ReceiveWebhookNotificationParams struct {
 

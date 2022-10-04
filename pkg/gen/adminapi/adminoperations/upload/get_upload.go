@@ -29,12 +29,12 @@ func NewGetUpload(ctx *middleware.Context, handler GetUploadHandler) *GetUpload 
 	return &GetUpload{Context: ctx, Handler: handler}
 }
 
-/*
-	GetUpload swagger:route GET /uploads/{uploadId} upload getUpload
+/* GetUpload swagger:route GET /uploads/{uploadId} upload getUpload
 
-# Get information about an upload
+Get information about an upload
 
 Returns the given upload and information about the uploader and move
+
 */
 type GetUpload struct {
 	Context *middleware.Context

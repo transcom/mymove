@@ -16,8 +16,7 @@ import (
 // GetMoveCounselingEvaluationReportsListOKCode is the HTTP code returned for type GetMoveCounselingEvaluationReportsListOK
 const GetMoveCounselingEvaluationReportsListOKCode int = 200
 
-/*
-GetMoveCounselingEvaluationReportsListOK Successfully retrieved the move's evaluation reports
+/*GetMoveCounselingEvaluationReportsListOK Successfully retrieved the move's evaluation reports
 
 swagger:response getMoveCounselingEvaluationReportsListOK
 */
@@ -64,8 +63,7 @@ func (o *GetMoveCounselingEvaluationReportsListOK) WriteResponse(rw http.Respons
 // GetMoveCounselingEvaluationReportsListBadRequestCode is the HTTP code returned for type GetMoveCounselingEvaluationReportsListBadRequest
 const GetMoveCounselingEvaluationReportsListBadRequestCode int = 400
 
-/*
-GetMoveCounselingEvaluationReportsListBadRequest The request payload is invalid
+/*GetMoveCounselingEvaluationReportsListBadRequest The request payload is invalid
 
 swagger:response getMoveCounselingEvaluationReportsListBadRequest
 */
@@ -109,8 +107,7 @@ func (o *GetMoveCounselingEvaluationReportsListBadRequest) WriteResponse(rw http
 // GetMoveCounselingEvaluationReportsListUnauthorizedCode is the HTTP code returned for type GetMoveCounselingEvaluationReportsListUnauthorized
 const GetMoveCounselingEvaluationReportsListUnauthorizedCode int = 401
 
-/*
-GetMoveCounselingEvaluationReportsListUnauthorized The request was denied
+/*GetMoveCounselingEvaluationReportsListUnauthorized The request was denied
 
 swagger:response getMoveCounselingEvaluationReportsListUnauthorized
 */
@@ -154,8 +151,7 @@ func (o *GetMoveCounselingEvaluationReportsListUnauthorized) WriteResponse(rw ht
 // GetMoveCounselingEvaluationReportsListForbiddenCode is the HTTP code returned for type GetMoveCounselingEvaluationReportsListForbidden
 const GetMoveCounselingEvaluationReportsListForbiddenCode int = 403
 
-/*
-GetMoveCounselingEvaluationReportsListForbidden The request was denied
+/*GetMoveCounselingEvaluationReportsListForbidden The request was denied
 
 swagger:response getMoveCounselingEvaluationReportsListForbidden
 */
@@ -199,8 +195,7 @@ func (o *GetMoveCounselingEvaluationReportsListForbidden) WriteResponse(rw http.
 // GetMoveCounselingEvaluationReportsListNotFoundCode is the HTTP code returned for type GetMoveCounselingEvaluationReportsListNotFound
 const GetMoveCounselingEvaluationReportsListNotFoundCode int = 404
 
-/*
-GetMoveCounselingEvaluationReportsListNotFound The requested resource wasn't found
+/*GetMoveCounselingEvaluationReportsListNotFound The requested resource wasn't found
 
 swagger:response getMoveCounselingEvaluationReportsListNotFound
 */
@@ -244,8 +239,7 @@ func (o *GetMoveCounselingEvaluationReportsListNotFound) WriteResponse(rw http.R
 // GetMoveCounselingEvaluationReportsListInternalServerErrorCode is the HTTP code returned for type GetMoveCounselingEvaluationReportsListInternalServerError
 const GetMoveCounselingEvaluationReportsListInternalServerErrorCode int = 500
 
-/*
-GetMoveCounselingEvaluationReportsListInternalServerError A server error occurred
+/*GetMoveCounselingEvaluationReportsListInternalServerError A server error occurred
 
 swagger:response getMoveCounselingEvaluationReportsListInternalServerError
 */
