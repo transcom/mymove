@@ -17,32 +17,71 @@ type RolePermissions struct {
 
 var TOO = RolePermissions{
 	RoleType: roles.RoleTypeTOO,
-	Permissions: []string{"update.move", "create.serviceItem",
-		"update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight",
-		"create.shipmentCancellation", "create.SITExtension", "update.SITExtension", "create.shipmentDiversionRequest",
-		"create.reweighRequest", "update.MTOServiceItem", "read.paymentRequest", "update.paymentServiceItemStatus",
-		"update.excessWeightRisk"},
+	Permissions: []string{
+		"create.serviceItem",
+		"create.shipmentDiversionRequest",
+		"create.reweighRequest",
+		"create.shipmentCancellation",
+		"create.SITExtension",
+		"read.paymentRequest",
+		"update.move",
+		"update.shipment",
+		"update.financialReviewFlag",
+		"update.orders",
+		"update.allowances",
+		"update.billableWeight",
+		"update.SITExtension",
+		"update.MTOServiceItem",
+		"update.paymentServiceItemStatus",
+		"update.excessWeightRisk",
+	},
 }
 
 var TIO = RolePermissions{
 	RoleType: roles.RoleTypeTIO,
-	Permissions: []string{"create.serviceItem", "update.shipment", "update.financialReviewFlag", "update.orders",
-		"update.allowances", "update.billableWeight", "update.maxBillableWeight", "create.ShipmentCancellation",
-		"create.shipmentDiversionRequest", "create.reweighRequest", "update.MTOServiceItem", "read.paymentRequest",
-		"update.paymentServiceItemStatus", "read.shipmentsPaymentSITBalance"},
+	Permissions: []string{
+		"create.ShipmentCancellation",
+		"create.shipmentDiversionRequest",
+		"create.reweighRequest",
+		"create.serviceItem",
+		"update.shipment",
+		"update.financialReviewFlag",
+		"update.orders",
+		"update.allowances",
+		"update.billableWeight",
+		"update.maxBillableWeight",
+		"update.paymentRequest",
+		"update.paymentServiceItemStatus",
+		"update.MTOServiceItem",
+		"read.paymentRequest",
+		"read.shipmentsPaymentSITBalance",
+	},
 }
 
 var ServicesCounselor = RolePermissions{
 	RoleType: roles.RoleTypeServicesCounselor,
-	Permissions: []string{"update.financialReviewFlag", "update.shipment", "update.orders", "update.allowances",
-		"update.billableWeight", "create.shipmentDiversionRequest", "create.reweighRequest", "update.MTOServiceItem",
-		"update.customer"},
+	Permissions: []string{
+		"create.shipmentDiversionRequest",
+		"create.reweighRequest",
+		"update.financialReviewFlag",
+		"update.shipment",
+		"update.orders",
+		"update.allowances",
+		"update.billableWeight",
+		"update.MTOServiceItem",
+		"update.customer",
+	},
 }
 
 var QAECSR = RolePermissions{
 	RoleType: roles.RoleTypeQaeCsr,
-	Permissions: []string{"read.paymentRequest", "create.evaluationReport", "update.evaluationReport",
-		"delete.evaluationReport", "create.reportViolation"},
+	Permissions: []string{
+		"create.reportViolation",
+		"create.evaluationReport",
+		"read.paymentRequest",
+		"update.evaluationReport",
+		"delete.evaluationReport",
+	},
 }
 
 var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAECSR}
