@@ -135,7 +135,11 @@ const amendedOrderProps = {
 
 const propsForApprovedPPMShipment = {
   ...shipmentSelectionProps,
-  mtoShipments: [createApprovedPPMShipment()],
+  mtoShipments: [
+    createApprovedPPMShipment({
+      id: 'abcd1234-0000-0000-0000-000000000000',
+    }),
+  ],
   move: {
     ...withShipmentProps.move,
     status: MOVE_STATUSES.APPROVED,
@@ -146,7 +150,10 @@ const propsForApprovedPPMShipment = {
 const propsForCloseoutCompletePPMShipment = {
   ...shipmentSelectionProps,
   mtoShipments: [
-    createPPMShipmentWithFinalIncentive({ ppmShipment: { status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL } }),
+    createPPMShipmentWithFinalIncentive({
+      id: 'abcd1234-0000-0000-0000-000000000000',
+      ppmShipment: { status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL },
+    }),
   ],
   move: {
     ...withShipmentProps.move,
