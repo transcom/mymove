@@ -11,6 +11,6 @@ export default {
   tableName: t.mto_shipments,
   getEventNameDisplay: () => 'Approved shipment',
   getDetails: (historyRecord) => {
-    return <div>{`${s[historyRecord.oldValues?.shipment_type]} shipment`}</div>;
+    return <>{`${s[historyRecord.oldValues?.shipment_type]} shipment`}</>;
   },
 };
