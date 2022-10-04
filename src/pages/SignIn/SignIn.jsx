@@ -4,10 +4,7 @@ import { bool, shape, string } from 'prop-types';
 import { Button, ButtonGroup } from '@trussworks/react-uswds';
 import { useHistory } from 'react-router-dom';
 
-import '../../styles/office.scss';
 import styles from './SignIn.module.scss';
-
-import '@trussworks/react-uswds/lib/index.css';
 
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';

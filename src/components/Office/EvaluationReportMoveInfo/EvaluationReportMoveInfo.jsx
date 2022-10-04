@@ -1,7 +1,6 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import 'styles/office.scss';
 
 import evaluationReportStyles from './EvaluationReportMoveInfo.module.scss';
 

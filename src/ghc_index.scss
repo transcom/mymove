@@ -1,9 +1,3 @@
-@import './shared/styles/settings';
-@import '~uswds/scss/uswds.scss';
+// this ghc_index.scss file should be imported once by {MyMove,Office}/index.jsx
+@import 'styles/full_uswds';
 @import '~@trussworks/react-uswds/lib/index.css';
-@import './shared/styles/colors';
-@import './shared/styles/variables';
-@import './shared/styles/mixins';
-@import './shared/styles/typography';
-@import './shared/styles/custom';
-@import './shared/styles/overrides';

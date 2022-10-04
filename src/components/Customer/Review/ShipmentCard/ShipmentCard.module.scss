@@ -1,7 +1,4 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@import 'styles/uswds_for_module';
 
 @media (max-width: $tablet) {
   .remarksRow {

@@ -1,6 +1,4 @@
-@import 'src/shared/styles/basics';
-@import 'src/shared/styles/mixins';
-@import 'src/shared/styles/colors';
+@import 'styles/uswds_for_module';
 
 .RequestedShipments {
   @include u-bg('white');

@@ -1,2 +1,9 @@
+// this styles/full_uswds should be imported once by ghc_index.scss
 @import 'shared/styles/settings';
 @import '~uswds/scss/uswds.scss';
+@import 'shared/styles/colors';
+@import 'shared/styles/variables';
+@import 'shared/styles/mixins';
+@import 'shared/styles/typography';
+@import 'shared/styles/custom';
+@import 'shared/styles/overrides';

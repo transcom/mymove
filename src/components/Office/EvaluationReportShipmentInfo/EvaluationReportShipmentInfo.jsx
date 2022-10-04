@@ -6,7 +6,6 @@ import classnames from 'classnames';
 import evaluationReportStyles from './EvaluationReportShipmentInfo.module.scss';
 
 import styles from 'components/Office/EvaluationReportPreview/EvaluationReportPreview.module.scss';
-import 'styles/office.scss';
 import DataTable from 'components/DataTable';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { shipmentTypeLabels } from 'content/shipments';

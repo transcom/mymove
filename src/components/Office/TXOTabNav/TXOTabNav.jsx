@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 import { Tag } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
 
-import 'styles/office.scss';
 import TabNav from 'components/TabNav';
 import { OrdersShape } from 'types/customerShapes';
 

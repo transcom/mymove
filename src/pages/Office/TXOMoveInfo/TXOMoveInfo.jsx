@@ -2,8 +2,6 @@ import React, { lazy, Suspense } from 'react';
 import { matchPath, Redirect, Route, Switch, useLocation, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-import 'styles/office.scss';
-
 import { permissionTypes } from 'constants/permissions';
 import { qaeCSRRoutes, tioRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';

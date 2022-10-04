@@ -1,5 +1,6 @@
-@import '../ghc_index.scss';
-
+// this styles/customer.scss should be imported once by MyMove/index.jsx
+@import 'shared/styles/colors';
+@import 'shared/styles/variables';
 .my-move-container,
 .my-move .usa-footer {
   background-color: $bg-white;

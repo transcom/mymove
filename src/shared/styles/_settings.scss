@@ -1,5 +1,6 @@
 /* reduce noise in logs by turning off uswds notifications */
 $theme-show-notifications: false;
+$theme-show-compile-warnings: false;
 
 /* GENERAL */
 $theme-image-path: '~uswds/img';

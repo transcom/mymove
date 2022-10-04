@@ -1,6 +1,5 @@
-@import '../index.scss';
-@import '../ghc_index.scss';
-@import 'src/styles/_officeLayoutRules.scss';
+// this styles/office.scss file should be imported once by Office/index.jsx
+@import 'styles/officeLayoutRules';
 
 // Fix 100% height layouts in IE11 - https://philipwalton.com/articles/normalizing-cross-browser-flexbox-bugs/
 .site--fullscreen {

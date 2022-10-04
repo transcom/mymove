@@ -1,5 +1,4 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@import 'styles/uswds_for_module';
 
 .mtoshipmentSITDisplay {
   // these styles conflict with the custom.scss .table--data-point-group, we should try to remove that custom class

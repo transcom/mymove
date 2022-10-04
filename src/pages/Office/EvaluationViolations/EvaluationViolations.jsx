@@ -1,5 +1,4 @@
 import React from 'react';
-import 'styles/office.scss';
 import { GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { useParams } from 'react-router';

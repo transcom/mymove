@@ -1,0 +1,6 @@
+// This is the ONLY file that a scss module should import if it needs uswds styling
+@import 'shared/styles/basics';
+@import 'shared/styles/mixins';
+@import 'shared/styles/overrides';
+@import 'shared/styles/themes';
+@import 'shared/styles/variables';

@@ -4,7 +4,6 @@ import { queryCache, useMutation } from 'react-query';
 import { generatePath } from 'react-router';
 import { func } from 'prop-types';
 import classnames from 'classnames';
-import 'styles/office.scss';
 import { Alert, Button, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
