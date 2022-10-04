@@ -27,7 +27,7 @@ func TestProcessEDI997Suite(t *testing.T) {
 
 func (suite *ProcessEDI997Suite) TestParsingEDI997() {
 	edi997Processor := NewEDI997Processor()
-	suite.T().Run("successfully processes a valid EDI997", func(t *testing.T) {
+	suite.Run("successfully processes a valid EDI997", func() {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000999*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
@@ -58,7 +58,7 @@ IEA*1*000000022
 		suite.NoError(err)
 	})
 
-	suite.T().Run("throw error when parsing an EDI997 when an EDI997 is expected", func(t *testing.T) {
+	suite.Run("throw error when parsing an EDI997 when an EDI997 is expected", func() {
 		sample997EDIString := `
 		ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 		GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -74,7 +74,7 @@ IEA*1*000000022
 		suite.Contains(err.Error(), "unable to parse EDI997")
 	})
 
-	suite.T().Run("successfully updates a payment request status after processing a valid EDI997", func(t *testing.T) {
+	suite.Run("successfully updates a payment request status after processing a valid EDI997", func() {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
@@ -110,7 +110,7 @@ IEA*1*000000995
 		suite.Equal(models.PaymentRequestStatusReceivedByGex, updatedPR.Status)
 	})
 
-	suite.T().Run("can handle 997 and 858 with same ICN", func(t *testing.T) {
+	suite.Run("can handle 997 and 858 with same ICN", func() {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
@@ -154,7 +154,7 @@ IEA*1*000000995
 		suite.Equal(models.PaymentRequestStatusReceivedByGex, updatedPR.Status)
 	})
 
-	suite.T().Run("does not error out if edi with same icn is processed for the same payment request", func(t *testing.T) {
+	suite.Run("does not error out if edi with same icn is processed for the same payment request", func() {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
@@ -198,7 +198,7 @@ IEA*1*000000995
 		suite.Equal(models.PaymentRequestStatusReceivedByGex, updatedPR.Status)
 	})
 
-	suite.T().Run("doesn't update a payment request status after processing an invalid EDI997", func(t *testing.T) {
+	suite.Run("doesn't update a payment request status after processing an invalid EDI997", func() {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000999*0*T*|
 GS*SI*8004171844*MILMOVE*20210217*152945*220001*X*004010
@@ -233,7 +233,7 @@ IEA*1*000000022
 		suite.Equal(models.PaymentRequestStatusSentToGex, updatedPR.Status)
 	})
 
-	suite.T().Run("throw an error when edi997 is missing a transaction set", func(t *testing.T) {
+	suite.Run("throw an error when edi997 is missing a transaction set", func() {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000999*0*T*|
 GS*SI*8004171844*MILMOVE*20210217*152945*220001*X*004010
@@ -244,7 +244,7 @@ IEA*1*000000022
 		suite.Contains(err.Error(), "Validation error(s) detected with the EDI997. EDI Errors could not be saved")
 	})
 
-	suite.T().Run("Return an error if payment request is not found with GCN", func(t *testing.T) {
+	suite.Run("Return an error if payment request is not found with GCN", func() {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000009*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
@@ -263,7 +263,7 @@ IEA*1*000000022
 		suite.Contains(err.Error(), "unable to find PaymentRequest with GCN")
 	})
 
-	suite.T().Run("Should only find icn of edi type in AK2", func(t *testing.T) {
+	suite.Run("Should only find icn of edi type in AK2", func() {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000009*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
@@ -286,7 +286,7 @@ IEA*1*000000022
 func (suite *ProcessEDI997Suite) TestValidatingEDI997() {
 	edi997Processor := NewEDI997Processor()
 
-	suite.T().Run("fails when there are validation errors on EDI997 fields", func(t *testing.T) {
+	suite.Run("fails when there are validation errors on EDI997 fields", func() {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *210217*1530*U*00401*2000000000*8*A*|
 GS*BS*MILMOVE*8004171844*20190903*1617*2000000000*X*004010
@@ -354,7 +354,7 @@ IEA*1*000000995
 		}
 
 		for i, data := range testData {
-			suite.T().Run(data.TestName, func(t *testing.T) {
+			suite.Run(data.TestName, func() {
 				suite.Contains(actualErrors[i], data.ExpectedErrorMsg)
 			})
 		}

@@ -3369,7 +3369,7 @@ definitions:
         items:
           $ref: '#/definitions/WeightTicket'
         type: array
-      movingExpense:
+      movingExpenses:
         description: All expense documentation receipt records of this PPM shipment.
         items:
           $ref: '#/definitions/MovingExpense'

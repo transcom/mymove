@@ -1,8 +1,6 @@
 package ghcimport
 
 import (
-	"testing"
-
 	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/db/dberr"
@@ -15,7 +13,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREIntlAccessorialPrices() {
 		ContractCode: testContractCode,
 	}
 
-	suite.T().Run("import success", func(t *testing.T) {
+	setupTestData := func() {
 		// Prerequisite tables must be loaded.
 		err := gre.importREContract(suite.AppContextForTest())
 		suite.NoError(err)
@@ -25,19 +23,20 @@ func (suite *GHCRateEngineImportSuite) Test_importREIntlAccessorialPrices() {
 
 		err = gre.importREIntlAccessorialPrices(suite.AppContextForTest())
 		suite.NoError(err)
+	}
+
+	suite.Run("import success", func() {
+		setupTestData()
 		suite.helperVerifyIntlAccessorialPrices()
 		suite.helperCheckIntlAccessorialPrices()
 	})
 
-	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
+	suite.Run("run a second time; should fail immediately due to constraint violation", func() {
+		setupTestData()
 		err := gre.importREIntlAccessorialPrices(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_intl_accessorial_prices_unique_key"))
 		}
-
-		// Check to see if anything else changed
-		suite.helperVerifyIntlAccessorialPrices()
-		suite.helperCheckIntlAccessorialPrices()
 	})
 }
 

@@ -10,7 +10,7 @@ import Hint from 'components/Hint';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import FileUpload from 'components/FileUpload/FileUpload';
 import { UploadsShape, OrdersShape } from 'types/customerShapes';
 import {
@@ -92,7 +92,7 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
 
   return (
     <GridContainer>
-      <ScrollToTop otherDep={serverError} />
+      <NotificationScrollToTop dependency={serverError} />
 
       {serverError && (
         <Grid row>

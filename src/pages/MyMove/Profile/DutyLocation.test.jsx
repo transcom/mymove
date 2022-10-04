@@ -9,6 +9,7 @@ import ConnectedDutyLocation, { DutyLocation } from './DutyLocation';
 
 import { MockProviders } from 'testUtils';
 import { patchServiceMember } from 'services/internalApi';
+import dutyLocationFactory from 'utils/test/factories/dutyLocation';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -51,15 +52,7 @@ describe('Duty Location page', () => {
       suffix: 'Mr.',
     };
 
-    const testexistingDutyLocationValues = {
-      address: {
-        city: 'San Diego',
-        state: 'CA',
-        postalCode: '92104',
-      },
-      name: 'San Diego',
-      id: 'testId',
-    };
+    const testexistingDutyLocationValues = dutyLocationFactory();
 
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
 
@@ -93,15 +86,7 @@ describe('Duty Location page', () => {
       suffix: 'Mr.',
     };
 
-    const testexistingDutyLocationValues = {
-      address: {
-        city: 'San Diego',
-        state: 'CA',
-        postalCode: '92104',
-      },
-      name: 'San Diego',
-      id: 'testId',
-    };
+    const testexistingDutyLocationValues = dutyLocationFactory();
 
     patchServiceMember.mockImplementation(() =>
       // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails

@@ -218,16 +218,16 @@ describe('Weight Tickets page', () => {
     });
   });
 
-  it('routes back to home when finish later is clicked', async () => {
+  it('routes back to home when return to homepage is clicked', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
     selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
     expect(mockPush).toHaveBeenCalledWith(homePath);
   });
 

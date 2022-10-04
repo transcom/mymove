@@ -4,7 +4,6 @@ import { GridContainer, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
-import ScrollToTop from 'components/ScrollToTop';
 import ServiceInfoForm from 'components/Customer/ServiceInfoForm/ServiceInfoForm';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
@@ -17,6 +16,7 @@ import {
 import { generalRoutes, customerRoutes } from 'constants/routes';
 import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import { formatWeight } from 'utils/formatters';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
 export const EditServiceInfo = ({
   serviceMember,
@@ -95,7 +95,7 @@ export const EditServiceInfo = ({
 
   return (
     <GridContainer>
-      <ScrollToTop />
+      <NotificationScrollToTop dependency={serverError} />
       {serverError && (
         <Alert type="error" headingLevel="h4" heading="An error occurred">
           {serverError}

@@ -13,7 +13,6 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
 import EstimatedIncentiveDetails from 'components/Customer/PPM/Booking/EstimatedIncentiveDetails/EstimatedIncentiveDetails';
-import ScrollToTop from 'components/ScrollToTop';
 
 const EstimatedIncentive = () => {
   const history = useHistory();
@@ -29,7 +28,6 @@ const EstimatedIncentive = () => {
 
   return (
     <div className={classnames(ppmPageStyles.ppmPageStyle, styles.EstimatedIncentive)}>
-      <ScrollToTop />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

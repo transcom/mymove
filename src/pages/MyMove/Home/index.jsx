@@ -24,7 +24,6 @@ import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
 import Step from 'components/Customer/Home/Step';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PPMSummaryList from 'components/PPMSummaryList/PPMSummaryList';
-import ScrollToTop from 'components/ScrollToTop';
 import ShipmentList from 'components/ShipmentList/ShipmentList';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
@@ -378,7 +377,6 @@ export class Home extends Component {
 
     return (
       <>
-        <ScrollToTop />
         <ConnectedDestructiveShipmentConfirmationModal
           isOpen={showDeleteModal}
           shipmentID={targetShipmentId}

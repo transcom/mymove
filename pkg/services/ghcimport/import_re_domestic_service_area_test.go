@@ -1,8 +1,6 @@
 package ghcimport
 
 import (
-	"testing"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -11,13 +9,17 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceArea() {
 		ContractCode: testContractCode,
 	}
 
-	// Prerequisite tables must be loaded.
-	err := gre.importREContract(suite.AppContextForTest())
-	suite.NoError(err)
+	setupTestData := func() {
+		// Prerequisite tables must be loaded.
+		err := gre.importREContract(suite.AppContextForTest())
+		suite.NoError(err)
 
-	suite.T().Run("import success", func(t *testing.T) {
 		err = gre.importREDomesticServiceArea(suite.AppContextForTest())
 		suite.NoError(err)
+	}
+
+	suite.Run("import success", func() {
+		setupTestData()
 		suite.helperVerifyServiceAreaCount(testContractCode)
 		suite.NotNil(gre.serviceAreaToIDMap)
 
@@ -25,10 +27,12 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceArea() {
 		suite.helperCheckServiceAreaValue(testContractCode)
 	})
 
-	suite.T().Run("Run a second time with changed data, should still succeed", func(t *testing.T) {
+	suite.Run("Run a second time with changed data, should still succeed", func() {
+		setupTestData()
+
 		// Get contract UUID.
 		var contract models.ReContract
-		err = suite.DB().Where("code = ?", testContractCode).First(&contract)
+		err := suite.DB().Where("code = ?", testContractCode).First(&contract)
 		suite.NoError(err)
 
 		// Change a service area and remove/change a zip and see if they return as they were before.
@@ -69,16 +73,19 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceArea() {
 		suite.helperCheckServiceAreaValue(testContractCode)
 	})
 
-	gre2 := &GHCRateEngineImporter{
-		ContractCode: testContractCode2,
-	}
+	suite.Run("Run with a different contract code, should add new records", func() {
+		setupTestData()
 
-	// Prerequisite tables must be loaded.
-	err = gre2.importREContract(suite.AppContextForTest())
-	suite.NoError(err)
+		gre2 := &GHCRateEngineImporter{
+			ContractCode: testContractCode2,
+		}
 
-	suite.T().Run("Run with a different contract code, should add new records", func(t *testing.T) {
+		// Prerequisite tables must be loaded.
+		err := gre2.importREContract(suite.AppContextForTest())
+		suite.NoError(err)
 		err = gre2.importREDomesticServiceArea(suite.AppContextForTest())
+		suite.NoError(err)
+
 		suite.NoError(err)
 		suite.helperVerifyServiceAreaCount(testContractCode2)
 		suite.NotNil(gre2.serviceAreaToIDMap)

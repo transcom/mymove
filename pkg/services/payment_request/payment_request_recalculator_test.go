@@ -4,7 +4,6 @@ import (
 	"errors"
 	"sort"
 	"strconv"
-	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -304,7 +303,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 	statusUpdater := NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := NewPaymentRequestRecalculator(creator, statusUpdater)
 
-	suite.T().Run("Fail to find payment request ID", func(t *testing.T) {
+	suite.Run("Fail to find payment request ID", func() {
 		bogusPaymentRequestID := uuid.Must(uuid.NewV4())
 		newPaymentRequest, err := recalculator.RecalculatePaymentRequest(suite.AppContextForTest(), bogusPaymentRequestID)
 		suite.Nil(newPaymentRequest)
@@ -314,7 +313,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 		}
 	})
 
-	suite.T().Run("Old payment status has unexpected status", func(t *testing.T) {
+	suite.Run("Old payment status has unexpected status", func() {
 		paidPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
 				Status: models.PaymentRequestStatusPaid,
@@ -329,7 +328,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 		}
 	})
 
-	suite.T().Run("Can handle error when creating new recalculated payment request", func(t *testing.T) {
+	suite.Run("Can handle error when creating new recalculated payment request", func() {
 		// Mock out a creator.
 		errString := "mock creator test error"
 		mockCreator := &mocks.PaymentRequestCreator{}
@@ -348,7 +347,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 		}
 	})
 
-	suite.T().Run("Can handle error when updating old payment request status", func(t *testing.T) {
+	suite.Run("Can handle error when updating old payment request status", func() {
 		// Mock out a status updater.
 		errString := "mock status updater test error"
 		mockStatusUpdater := &mocks.PaymentRequestStatusUpdater{}

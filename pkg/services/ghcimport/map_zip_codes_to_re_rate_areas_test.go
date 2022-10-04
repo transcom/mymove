@@ -1,8 +1,6 @@
 package ghcimport
 
 import (
-	"testing"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -11,7 +9,7 @@ func (suite *GHCRateEngineImportSuite) Test_mapZipCodesToReRateAreas() {
 		ContractCode: testContractCode,
 	}
 
-	suite.T().Run("import prerequisite tables", func(t *testing.T) {
+	setupTestData := func() {
 		// Prerequisite tables must be loaded.
 		err := gre.importREContract(suite.AppContextForTest())
 		suite.NoError(err)
@@ -21,9 +19,10 @@ func (suite *GHCRateEngineImportSuite) Test_mapZipCodesToReRateAreas() {
 
 		err = gre.importRERateArea(suite.AppContextForTest())
 		suite.NoError(err)
-	})
+	}
 
-	suite.T().Run("map ReZip3 records to correct ReRateArea records", func(t *testing.T) {
+	suite.Run("map ReZip3 records to correct ReRateArea records", func() {
+		setupTestData()
 		reContract, err := suite.helperFetchReContract()
 		suite.NoError(err)
 
@@ -76,7 +75,8 @@ func (suite *GHCRateEngineImportSuite) Test_mapZipCodesToReRateAreas() {
 		suite.True(updatedReZip3WithMultipleReRateAreas.HasMultipleRateAreas)
 	})
 
-	suite.T().Run("create ReZip5RateArea records and map to correct ReRateArea records", func(t *testing.T) {
+	suite.Run("create ReZip5RateArea records and map to correct ReRateArea records", func() {
+		setupTestData()
 		reContract, err := suite.helperFetchReContract()
 		suite.NoError(err)
 

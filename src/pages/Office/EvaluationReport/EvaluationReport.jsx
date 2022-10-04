@@ -19,8 +19,8 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const EvaluationReport = ({ customerInfo, grade }) => {
   const { reportId } = useParams();
-  const { evaluationReport, mtoShipments, isLoading, isError } = useEvaluationReportShipmentListQueries(reportId);
-
+  const { evaluationReport, reportViolations, mtoShipments, isLoading, isError } =
+    useEvaluationReportShipmentListQueries(reportId);
   if (isLoading) {
     return <LoadingPlaceholder />;
   }
@@ -49,6 +49,7 @@ const EvaluationReport = ({ customerInfo, grade }) => {
         )}
         <EvaluationForm
           evaluationReport={evaluationReport}
+          reportViolations={reportViolations}
           grade={grade}
           customerInfo={customerInfo}
           mtoShipments={mtoShipments}

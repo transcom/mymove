@@ -588,7 +588,7 @@ describe('TIO user', () => {
     cy.wait(['@getMovePaymentRequests', '@getMoves', '@getOrders']);
     cy.get('[data-testid="MovePaymentRequests"]');
 
-    cy.get('[test-dataid="reviewBtn"]').click();
+    cy.get('[data-testid="reviewBtn"]').click();
 
     cy.get('[data-testid="serviceItemName"]').contains('Move management');
     cy.get('[data-testid="approveRadio"]').click({ force: true });

@@ -96,12 +96,12 @@ describe('FinalCloseoutForm component', () => {
     expect(findListItemWithText('$1,200.00 in expenses claimed')).toBeInTheDocument();
   });
 
-  it('calls onBack func when "Finish Later" button is clicked', async () => {
+  it('calls onBack func when "Return To Homepage" button is clicked', async () => {
     const mtoShipment = createPPMShipmentWithFinalIncentive();
 
     render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
 
     expect(defaultProps.onBack).toHaveBeenCalled();
   });

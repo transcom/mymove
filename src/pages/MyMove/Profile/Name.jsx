@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import NameForm from 'components/Customer/NameForm/NameForm';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
@@ -54,7 +54,7 @@ export const Name = ({ serviceMember, push, updateServiceMember }) => {
 
   return (
     <GridContainer>
-      <ScrollToTop otherDep={serverError} />
+      <NotificationScrollToTop dependency={serverError} />
 
       {serverError && (
         <Grid row>

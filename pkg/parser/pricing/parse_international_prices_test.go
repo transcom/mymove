@@ -2,7 +2,6 @@ package pricing
 
 import (
 	"strconv"
-	"testing"
 	"time"
 )
 
@@ -22,7 +21,7 @@ func (suite *PricingParserSuite) Test_OconusToOconusPrices() {
 		XlsxFile:     suite.xlsxFile,
 		RunVerify:    true,
 	}
-	suite.T().Run("parse oconusToOconus prices", func(t *testing.T) {
+	suite.Run("parse oconusToOconus prices", func() {
 		slice, err := parseOconusToOconusPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseOconusToOconusPrices function failed")
 
@@ -34,19 +33,19 @@ func (suite *PricingParserSuite) Test_OconusToOconusPrices() {
 		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 	})
 
-	suite.T().Run("attempt to parse oconusToOconus prices with incorrect sheet index", func(t *testing.T) {
+	suite.Run("attempt to parse oconusToOconus prices with incorrect sheet index", func() {
 		_, err := parseOconusToOconusPrices(suite.AppContextForTest(), params, 7)
 		if suite.Error(err) {
 			suite.Equal("parseOconusToOconusPrices expected to process sheet 10, but received sheetIndex 7", err.Error())
 		}
 	})
 
-	suite.T().Run("verify oconusToOconus prices", func(t *testing.T) {
+	suite.Run("verify oconusToOconus prices", func() {
 		err := verifyIntlOconusToOconusPrices(params, sheetIndex)
 		suite.NoError(err, "verifyIntlOconusToOconusPrices failed")
 	})
 
-	suite.T().Run("attempt to verify oconusToOconus prices with incorrect sheet index", func(t *testing.T) {
+	suite.Run("attempt to verify oconusToOconus prices with incorrect sheet index", func() {
 		err := verifyIntlOconusToOconusPrices(params, 7)
 		if suite.Error(err) {
 			suite.Equal("verifyInternationalPrices expected to process sheet 10, but received sheetIndex 7", err.Error())
@@ -70,7 +69,7 @@ func (suite *PricingParserSuite) Test_ConusToOconusPrices() {
 		XlsxFile:     suite.xlsxFile,
 		RunVerify:    true,
 	}
-	suite.T().Run("parse conusToOconus prices", func(t *testing.T) {
+	suite.Run("parse conusToOconus prices", func() {
 		slice, err := parseConusToOconusPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseConusToOconusPrices function failed")
 
@@ -82,19 +81,19 @@ func (suite *PricingParserSuite) Test_ConusToOconusPrices() {
 		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 	})
 
-	suite.T().Run("attempt to parse conusToOconus prices with incorrect sheet index", func(t *testing.T) {
+	suite.Run("attempt to parse conusToOconus prices with incorrect sheet index", func() {
 		_, err := parseConusToOconusPrices(suite.AppContextForTest(), params, 7)
 		if suite.Error(err) {
 			suite.Equal("parseConusToOconusPrices expected to process sheet 11, but received sheetIndex 7", err.Error())
 		}
 	})
 
-	suite.T().Run("verify conusToOconus prices", func(t *testing.T) {
+	suite.Run("verify conusToOconus prices", func() {
 		err := verifyIntlConusToOconusPrices(params, sheetIndex)
 		suite.NoError(err, "verifyIntlConusToOconusPrices failed")
 	})
 
-	suite.T().Run("attempt to verify conusToOconus prices with incorrect sheet index", func(t *testing.T) {
+	suite.Run("attempt to verify conusToOconus prices with incorrect sheet index", func() {
 		err := verifyIntlConusToOconusPrices(params, 7)
 		if suite.Error(err) {
 			suite.Equal("verifyInternationalPrices expected to process sheet 11, but received sheetIndex 7", err.Error())
@@ -118,7 +117,7 @@ func (suite *PricingParserSuite) Test_OconusToConusPrices() {
 		XlsxFile:     suite.xlsxFile,
 		RunVerify:    true,
 	}
-	suite.T().Run("parse oconusToConus prices", func(t *testing.T) {
+	suite.Run("parse oconusToConus prices", func() {
 		slice, err := parseOconusToConusPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseOconusToConusPrices function failed")
 
@@ -130,19 +129,19 @@ func (suite *PricingParserSuite) Test_OconusToConusPrices() {
 		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 	})
 
-	suite.T().Run("attempt to parse oconusToConus prices with incorrect sheet index", func(t *testing.T) {
+	suite.Run("attempt to parse oconusToConus prices with incorrect sheet index", func() {
 		_, err := parseOconusToConusPrices(suite.AppContextForTest(), params, 7)
 		if suite.Error(err) {
 			suite.Equal("parseOconusToConusPrices expected to process sheet 12, but received sheetIndex 7", err.Error())
 		}
 	})
 
-	suite.T().Run("verify oconusToConus prices", func(t *testing.T) {
+	suite.Run("verify oconusToConus prices", func() {
 		err := verifyIntlOconusToConusPrices(params, sheetIndex)
 		suite.NoError(err, "verifyIntlOconusToConusPrices failed")
 	})
 
-	suite.T().Run("attempt to verify oconusToConus prices with incorrect sheet index", func(t *testing.T) {
+	suite.Run("attempt to verify oconusToConus prices with incorrect sheet index", func() {
 		err := verifyIntlOconusToConusPrices(params, 7)
 		if suite.Error(err) {
 			suite.Equal("verifyInternationalPrices expected to process sheet 12, but received sheetIndex 7", err.Error())
