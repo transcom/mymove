@@ -275,9 +275,9 @@ func FormatValuesInspectionInformation(report models.EvaluationReport) Inspectio
 		}
 		if report.ObservedDate != nil {
 			if *report.Location == models.EvaluationReportLocationTypeOrigin {
-				inspectionInfo.ObservedPickupDate = report.ObservedDate.String()
+				inspectionInfo.ObservedPickupDate = report.ObservedDate.Format(dateFormat)
 			} else if *report.Location == models.EvaluationReportLocationTypeDestination {
-				inspectionInfo.ObservedDeliveryDate = report.ObservedDate.String()
+				inspectionInfo.ObservedDeliveryDate = report.ObservedDate.Format(dateFormat)
 			}
 		}
 	}
@@ -287,12 +287,12 @@ func FormatValuesInspectionInformation(report models.EvaluationReport) Inspectio
 	if report.Remarks != nil {
 		inspectionInfo.QAERemarks = *report.Remarks
 	}
-	inspectionInfo.ViolationsObserved = "no"
+	inspectionInfo.ViolationsObserved = "No"
 	if report.ViolationsObserved != nil && *report.ViolationsObserved {
-		inspectionInfo.ViolationsObserved = "yes\nAny violations recorded can be found on the following page"
-		inspectionInfo.SeriousIncident = "no"
+		inspectionInfo.ViolationsObserved = "Yes\nViolations are listed on a subsequent page"
+		inspectionInfo.SeriousIncident = "No"
 		if report.SeriousIncident != nil && *report.SeriousIncident {
-			inspectionInfo.SeriousIncident = "yes"
+			inspectionInfo.SeriousIncident = "Yes"
 			if report.SeriousIncidentDesc != nil {
 				inspectionInfo.SeriousIncidentDescription = *report.SeriousIncidentDesc
 			}

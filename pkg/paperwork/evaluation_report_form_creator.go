@@ -474,6 +474,11 @@ func (f *EvaluationReportFormFiller) subsectionHeading(heading string) {
 	f.setTextColorBaseDarkest()
 	f.pdf.SetFontUnitSize(subsectionHeadingFontSize)
 	f.addVerticalSpace(topMargin)
+	safetyMargin := 2.0 * subsectionHeadingFontSize
+	if f.pdf.GetY()+subsectionHeadingFontSize+bottomMargin+safetyMargin > pageHeightMm-pageBottomMarginMm {
+		// Bump heading to next page if we're too close to the bottom
+		f.pdf.AddPage()
+	}
 	f.pdf.SetX(pageSideMarginMm)
 	f.pdf.CellFormat(widthFill, pxToMM(26.0), heading, "", moveDown, "LT", false, 0, "")
 	f.addVerticalSpace(bottomMargin)
@@ -505,7 +510,7 @@ func (f *EvaluationReportFormFiller) subsectionRow(key string, value string) {
 		// Auto page break doesnt work super well for us in other places in the document because we have lines that
 		// should be kept together, but here, for a potentially large block of paragraphy text, it works great.
 		f.pdf.SetAutoPageBreak(true, pageBottomMarginMm)
-		estimatedHeight = math.Ceil(f.pdf.GetStringWidth(value)/(widthFill-2*f.pdf.GetCellMargin())) * textLineHeight
+		estimatedHeight = math.Ceil(f.pdf.GetStringWidth(value)/(valueWidth-2*f.pdf.GetCellMargin())) * textLineHeight
 	}
 	if needToLineWrapLabel {
 		estimatedHeight = math.Max(estimatedHeight, math.Ceil(f.pdf.GetStringWidth(key)/(labelWidth-2*f.pdf.GetCellMargin()))*textLineHeight)
