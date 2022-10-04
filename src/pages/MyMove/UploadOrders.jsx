@@ -5,7 +5,7 @@ import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import './UploadOrders.css';
 
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import { documentSizeLimitMsg } from 'shared/constants';
@@ -88,7 +88,7 @@ export class UploadOrders extends Component {
 
     return (
       <GridContainer>
-        <ScrollToTop otherDep={serverError} />
+        <NotificationScrollToTop dependency={serverError} />
 
         {serverError && (
           <Grid row>

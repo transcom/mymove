@@ -7,7 +7,7 @@ import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import styles from './FinalCloseout.module.scss';
 
 import FinalCloseoutForm from 'components/Customer/PPM/Closeout/FinalCloseoutForm/FinalCloseoutForm';
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { generalRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
@@ -20,7 +20,7 @@ import { selectMTOShipmentById } from 'store/entities/selectors';
 const FinalCloseout = () => {
   const history = useHistory();
   const dispatch = useDispatch();
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState(null);
   const { mtoShipmentId } = useParams();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
@@ -58,7 +58,7 @@ const FinalCloseout = () => {
 
   return (
     <div className={classnames(ppmPageStyles.ppmPageStyle, styles.FinalCloseout)}>
-      <ScrollToTop otherDep={errorMessage} />
+      <NotificationScrollToTop dependency={errorMessage} />
 
       <GridContainer>
         <Grid row>

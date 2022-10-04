@@ -3,7 +3,7 @@ import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ContactInfoForm from 'components/Customer/ContactInfoForm';
 import { ServiceMemberShape } from 'types/customerShapes';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
@@ -60,7 +60,7 @@ export const ContactInfo = ({ serviceMember, updateServiceMember, userEmail, pus
 
   return (
     <GridContainer>
-      <ScrollToTop otherDep={serverError} />
+      <NotificationScrollToTop dependency={serverError} />
 
       {serverError && (
         <Grid row>

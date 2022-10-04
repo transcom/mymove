@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { getResponseError, patchServiceMember } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
@@ -57,7 +57,7 @@ export const BackupMailingAddress = ({ serviceMember, updateServiceMember, push 
 
   return (
     <GridContainer>
-      <ScrollToTop otherDep={serverError} />
+      <NotificationScrollToTop dependency={serverError} />
 
       {serverError && (
         <Grid row>

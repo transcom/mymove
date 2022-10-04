@@ -8,7 +8,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './MovingInfo.module.scss';
 
 import { customerRoutes, generalRoutes } from 'constants/routes';
-import ScrollToTop from 'components/ScrollToTop';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
@@ -49,7 +48,6 @@ export class MovingInfo extends Component {
 
     return (
       <GridContainer>
-        <ScrollToTop />
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <h1 className={styles.ShipmentsHeader}>Things to know about selecting shipments</h1>
