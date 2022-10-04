@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
 import {
   getServiceMember,
@@ -122,7 +122,7 @@ export class Orders extends Component {
 
     return (
       <GridContainer>
-        <ScrollToTop otherDep={serverError} />
+        <NotificationScrollToTop dependency={serverError} />
 
         {serverError && (
           <Grid row>
