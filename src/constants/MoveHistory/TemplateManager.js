@@ -20,6 +20,7 @@ const registerTemplate = ({
   },
   getDetailsLabeledDetails = null,
   getLabeledPaymentRequestDetails = null,
+  getDetails = null,
 }) => {
   const eventType = {};
   eventType.action = action;
@@ -31,6 +32,7 @@ const registerTemplate = ({
   eventType.getStatusDetails = getStatusDetails;
   eventType.getLabeledPaymentRequestDetails = getLabeledPaymentRequestDetails;
   eventType.getDetailsLabeledDetails = getDetailsLabeledDetails;
+  eventType.getDetails = getDetails;
 
   // Used for matching properties on Events when building an Event Template
   function propertiesMatch(p1, p2) {

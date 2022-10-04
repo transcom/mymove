@@ -210,7 +210,7 @@ const Review = () => {
                 className={classnames(ppmStyles.backButton, 'usa-button', 'usa-button--secondary')}
                 to={generalRoutes.HOME_PATH}
               >
-                Finish Later
+                Return To Homepage
               </Link>
               <Link
                 className={classnames(ppmStyles.saveButton, 'usa-button', {

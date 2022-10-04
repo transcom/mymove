@@ -108,7 +108,7 @@ describe('Expenses page', () => {
     expect(screen.getByLabelText("I don't have this receipt")).not.toBeChecked();
     expect(screen.getByText('expense.pdf')).toBeInTheDocument();
 
-    expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
 
     const saveBtn = screen.getByRole('button', { name: 'Save & Continue' });
     expect(saveBtn).toBeEnabled();
@@ -150,17 +150,17 @@ describe('Expenses page', () => {
 
     expect(screen.getByLabelText('Select type')).toHaveDisplayValue('- Select -');
 
-    expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
   });
 
-  it('routes to home when the finish later button is clicked', async () => {
+  it('routes to home when the return to homepage button is clicked', async () => {
     render(<Expenses />, { wrapper: MockProviders });
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
     expect(mockPush).toHaveBeenCalledWith(homePath);
   });
 });
