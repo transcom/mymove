@@ -177,13 +177,13 @@ const PaymentRequestCard = ({
                   style={{ maxWidth: '225px' }}
                   onClick={handleClick}
                   disabled={hasBillableWeightIssues}
-                  test-dataid="reviewBtn"
+                  data-testid="reviewBtn"
                 >
                   <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
                   Review service items
                 </Button>
                 {hasBillableWeightIssues && (
-                  <span className={styles.errorText} test-dataid="errorTxt">
+                  <span className={styles.errorText} data-testid="errorTxt">
                     Resolve billable weight before reviewing service items.
                   </span>
                 )}
