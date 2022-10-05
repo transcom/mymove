@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -987,6 +988,72 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	suite.Equal(officeUser.ID, session.OfficeUserID)
 	suite.Equal(uuid.Nil, session.AdminUserID)
 	suite.NotEqual("", foundUser.CurrentOfficeSessionID)
+}
+
+func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	// user is in office_users but has never logged into the app
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			Active: true,
+			UserID: &user.ID,
+		},
+		User: user,
+	})
+	qaeCsrRole, _ := testdatagen.LookupOrMakeRole(suite.DB(), roles.RoleTypeQaeCsr, "Quality Assurance and Customer Service")
+	testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
+		User: user,
+		UsersRoles: models.UsersRoles{
+			UserID: user.ID,
+			RoleID: qaeCsrRole.ID,
+		},
+	})
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
+	fakeToken := "some_token"
+
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          user.ID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+		Email:           officeUser.Email,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	gothUser := goth.User{
+		UserID: user.ID.String(),
+		Email:  officeUser.Email,
+	}
+
+	callbackPort := 1234
+	sessionManagers := suite.SetupSessionManagers()
+	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort, sessionManagers)
+
+	officeSession := sessionManagers[2]
+	scsContext := setupScsSession(ctx, &session, officeSession)
+
+	handlerConfig := suite.HandlerConfig()
+	h := CallbackHandler{
+		authContext,
+		handlerConfig,
+		setUpMockNotificationSender(),
+	}
+	rr := httptest.NewRecorder()
+
+	authorizeUnknownUser(suite.AppContextWithSessionForTest(&session), gothUser, h, rr, req.WithContext(scsContext), "")
+
+	foundUser, _ := models.GetUserFromEmail(suite.DB(), officeUser.Email)
+
+	// Office app, so should only have office ID information
+	suite.Equal(officeUser.ID, session.OfficeUserID)
+	suite.Equal(uuid.Nil, session.AdminUserID)
+	suite.NotEqual("", foundUser.CurrentOfficeSessionID)
+	// Make sure session contains roles and permissions
+	suite.NotEmpty(session.Roles)
+	suite.Equal(qaeCsrRole.ID, session.Roles[0].ID)
+	suite.NotEmpty(session.Permissions)
+	suite.ElementsMatch(QAECSR.Permissions, session.Permissions)
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
