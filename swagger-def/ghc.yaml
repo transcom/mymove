@@ -95,6 +95,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.customer
   '/move/{locator}':
     parameters:
       - description: Code used to identify a move in the system
@@ -426,6 +428,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.excessWeightRisk
   '/orders/{orderID}/update-billable-weight':
     parameters:
       - description: ID of order to use
@@ -1720,6 +1724,8 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
+      x-permissions:
+        - read.paymentRequest
   '/moves/{locator}/customer-support-remarks':
     parameters:
       - description: move code to identify a move for customer support remarks
@@ -2245,6 +2251,8 @@ paths:
       description: Returns all shipment payment request SIT usage to support partial SIT invoicing
       operationId: getShipmentsPaymentSITBalance
       summary: Returns all shipment payment request SIT usage to support partial SIT invoicing
+      x-permissions:
+        - read.shipmentsPaymentSITBalance
   '/payment-requests/{paymentRequestID}/status':
     patch:
       consumes:
@@ -2291,6 +2299,8 @@ paths:
       description: Updates status of a payment request by id
       operationId: updatePaymentRequestStatus
       summary: Updates status of a payment request by id
+      x-permissions:
+        - update.paymentRequest
   /documents/{documentId}:
     get:
       summary: Returns a document

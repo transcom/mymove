@@ -351,7 +351,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.customer"
+        ]
       },
       "parameters": [
         {
@@ -2330,7 +2333,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.excessWeightRisk"
+        ]
       },
       "parameters": [
         {
@@ -2577,7 +2583,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "read.paymentRequest"
+        ]
       },
       "parameters": [
         {
@@ -2620,7 +2629,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "read.shipmentsPaymentSITBalance"
+        ]
       },
       "parameters": [
         {
@@ -2699,7 +2711,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.paymentRequest"
+        ]
       }
     },
     "/pws-violations": {
@@ -8896,7 +8911,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.customer"
+        ]
       },
       "parameters": [
         {
@@ -11436,7 +11454,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.excessWeightRisk"
+        ]
       },
       "parameters": [
         {
@@ -11747,7 +11768,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "read.paymentRequest"
+        ]
       },
       "parameters": [
         {
@@ -11802,7 +11826,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "read.shipmentsPaymentSITBalance"
+        ]
       },
       "parameters": [
         {
@@ -11902,7 +11929,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.paymentRequest"
+        ]
       }
     },
     "/pws-violations": {
