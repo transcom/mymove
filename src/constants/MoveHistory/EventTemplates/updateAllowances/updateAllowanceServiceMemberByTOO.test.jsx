@@ -20,9 +20,16 @@ describe('When a TOO updates shipping allowances', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(updateAllowanceServiceMemberByTOO);
     render(result.getDetails(item));
-    expect(screen.getByText('Branch')).toBeInTheDocument();
-    expect(screen.getByText(': Air Force')).toBeInTheDocument();
-    expect(screen.getByText('Rank')).toBeInTheDocument();
-    expect(screen.getByText(': E-2')).toBeInTheDocument();
+  });
+  describe('it correctly displays the details component', () => {
+    it.each([
+      ['Branch', ': Air Force'],
+      ['Rank', ': E-2'],
+    ])('displays the correct details value for %s', async (label, value) => {
+      const result = getTemplate(item);
+      render(result.getDetails(item));
+      expect(screen.getByText(label)).toBeInTheDocument();
+      expect(screen.getByText(value)).toBeInTheDocument();
+    });
   });
 });

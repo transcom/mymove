@@ -24,20 +24,19 @@ describe('When a service counselor updates shipping allowances', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(updateAllowance);
   });
-  it('correctly renders the details component', () => {
-    const result = getTemplate(item);
-    render(result.getDetails(item));
-    expect(screen.getByText('Authorized weight')).toBeInTheDocument();
-    expect(screen.getByText(': 4000 lbs')).toBeInTheDocument();
-    expect(screen.getByText('Storage in transit (SIT)')).toBeInTheDocument();
-    expect(screen.getByText(': 80 days')).toBeInTheDocument();
-    expect(screen.getByText('Dependents')).toBeInTheDocument();
-    expect(screen.getByText(': false')).toBeInTheDocument();
-    expect(screen.getByText('Pro-gear')).toBeInTheDocument();
-    expect(screen.getByText(': 10 lbs')).toBeInTheDocument();
-    expect(screen.getByText('Spouse pro-gear')).toBeInTheDocument();
-    expect(screen.getByText(': 80 lbs')).toBeInTheDocument();
-    expect(screen.getByText('RME')).toBeInTheDocument();
-    expect(screen.getByText(': 100 lbs')).toBeInTheDocument();
+  describe('it correctly renders the details component', () => {
+    it.each([
+      ['Authorized weight', ': 4000 lbs'],
+      ['Storage in transit (SIT)', ': 80 days'],
+      ['Dependents', ': false'],
+      ['Pro-gear', ': 10 lbs'],
+      ['Spouse pro-gear', ': 80 lbs'],
+      ['RME', ': 100 lbs'],
+    ])('displays the correct details value for %s', async (label, value) => {
+      const result = getTemplate(item);
+      render(result.getDetails(item));
+      expect(screen.getByText(label)).toBeInTheDocument();
+      expect(screen.getByText(value)).toBeInTheDocument();
+    });
   });
 });
