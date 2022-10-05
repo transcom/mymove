@@ -48,6 +48,7 @@ const mockEvaluationReport = {
   type: 'SHIPMENT',
   updatedAt: '2022-09-07T18:06:37.864Z',
   violationsObserved: true,
+  seriousIncident: false,
 };
 
 const mockReportViolation = {
@@ -136,8 +137,8 @@ const savedReportBody = {
   observedPickupSpreadEndDate: undefined,
   observedPickupSpreadStartDate: undefined,
   remarks: mockEvaluationReport.remarks,
-  seriousIncident: undefined,
-  seriousIncidentDesc: undefined,
+  seriousIncident: false,
+  seriousIncidentDesc: null,
   violationsObserved: mockEvaluationReport.violationsObserved,
 };
 
@@ -311,7 +312,7 @@ describe('EvaluationViolationsForm Buttons', () => {
     renderForm();
 
     // Click save draft button
-    userEvent.click(await screen.findByRole('button', { name: 'Review and submit' }));
+    userEvent.click(await screen.findByTestId('reviewAndSubmit'));
 
     // Verify that report was saved, violations re-associated with report, and submission preview modal is rendered
     await waitFor(() => {
@@ -339,10 +340,10 @@ describe('EvaluationViolationsForm Buttons', () => {
     renderForm();
 
     // Click save draft button
-    userEvent.click(await screen.findByRole('button', { name: 'Review and submit' }));
+    userEvent.click(await screen.findByTestId('reviewAndSubmit'));
 
     // Click back button
-    userEvent.click(await screen.findByRole('button', { name: 'Back to Evaluation form' }));
+    userEvent.click(await screen.findByTestId('backToEvalFromSubmit'));
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Select violations', level: 2 })).toBeInTheDocument();

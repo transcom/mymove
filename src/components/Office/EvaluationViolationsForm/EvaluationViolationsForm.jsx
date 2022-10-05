@@ -81,6 +81,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
         aria-label="Back to Evaluation form"
         unstyled
         className={styles.closeModalBtn}
+        data-testid="backToEvalFromSubmit"
       >
         <FontAwesomeIcon icon="chevron-left" className={styles.backIcon} /> Back to Evaluation form
       </Button>
@@ -407,6 +408,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                         className={classnames(styles.backToEvalButton, 'usa-button--unstyled')}
                         type="button"
                         onClick={handleBackToEvalForm}
+                        data-testid="backToEvalForm"
                       >
                         {'< Back to Evaluation form'}
                       </Button>
@@ -422,7 +424,12 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                       >
                         Save draft
                       </Button>
-                      <Button disabled={!isValid} type="button" onClick={() => handlePreviewReport(values)}>
+                      <Button
+                        disabled={!isValid}
+                        type="button"
+                        onClick={() => handlePreviewReport(values)}
+                        data-testid="reviewAndSubmit"
+                      >
                         Review and submit
                       </Button>
                     </div>
