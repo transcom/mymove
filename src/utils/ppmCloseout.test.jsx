@@ -4,10 +4,12 @@ import {
   calculateTotalMovingExpensesAmount,
   calculateTotalNetWeightForProGearWeightTickets,
   calculateTotalNetWeightForWeightTickets,
+  formatExpenseItems,
 } from 'utils/ppmCloseout';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { createCompleteProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
-import { createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
+import { createCompleteMovingExpense, createCompleteSITMovingExpense } from 'utils/test/factories/movingExpense';
+import { expenseTypeLabels } from 'constants/ppmExpenseTypes';
 
 describe('calculateNetWeightForWeightTicket', () => {
   it.each([
@@ -314,5 +316,32 @@ describe('calculateTotalMovingExpensesAmount', () => {
     });
 
     expect(calculateTotalMovingExpensesAmount(expenses)).toEqual(expectedTotal);
+  });
+});
+
+describe('formatExpenseItems', () => {
+  it.each([
+    [
+      [createCompleteMovingExpense()],
+      {
+        movingExpenseType: expenseTypeLabels.PACKING_MATERIALS,
+        description: 'Medium and large boxes',
+        amount: '$75.00',
+      },
+    ],
+    [
+      [createCompleteSITMovingExpense()],
+      { movingExpenseType: expenseTypeLabels.STORAGE, description: 'Storage while away', amount: '$75.00' },
+    ],
+  ])(`formats moving expense for review`, (movingExpense, expectedMovingExpense) => {
+    const formattedExpense = formatExpenseItems(movingExpense, '', {}, () => {})[0];
+
+    expect(formattedExpense.rows[0].value).toEqual(expectedMovingExpense.movingExpenseType);
+    expect(formattedExpense.rows[1].value).toEqual(expectedMovingExpense.description);
+    expect(formattedExpense.rows[2].value).toEqual(expectedMovingExpense.amount);
+
+    if (expectedMovingExpense.movingExpenseType === expenseTypeLabels.STORAGE) {
+      expect(formattedExpense.rows[3].value).toEqual(6);
+    }
   });
 });

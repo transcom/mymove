@@ -52,7 +52,7 @@ const EvaluationReportTable = ({
         <td className={styles.dateSubmittedColumn}>{report.submittedAt && formatCustomerDate(report.submittedAt)}</td>
         <td className={styles.locationColumn}>{formatEvaluationReportLocation(report.location)}</td>
         <td className={styles.violationsColumn}>{report.violationsObserved ? 'Yes' : 'No'}</td>
-        <td className={styles.seriousIncidentColumn}>No</td>
+        <td className={styles.seriousIncidentColumn}>{report.seriousIncident ? 'Yes' : 'No'}</td>
         <td className={styles.viewReportColumn}>
           {report.submittedAt && (
             <Button
@@ -108,6 +108,7 @@ const EvaluationReportTable = ({
           customerInfo={customerInfo}
           grade={grade}
           mtoShipments={shipments}
+          reportViolations={reportToView.ReportViolations}
           modalActions={
             <div className={styles.modalActions}>
               <Button

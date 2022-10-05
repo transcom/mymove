@@ -107,6 +107,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
 		WeightTickets:                  WeightTickets(storer, ppmShipment.WeightTickets),
+		MovingExpenses:                 MovingExpenses(storer, ppmShipment.MovingExpenses),
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -318,6 +319,15 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		payload.SitEndDate = handlers.FmtDatePtr(movingExpense.SITEndDate)
 	}
 
+	return payload
+}
+
+func MovingExpenses(storer storage.FileStorer, movingExpenses models.MovingExpenses) []*internalmessages.MovingExpense {
+	payload := make([]*internalmessages.MovingExpense, len(movingExpenses))
+	for i, movingExpense := range movingExpenses {
+		copyOfMovingExpense := movingExpense
+		payload[i] = MovingExpense(storer, &copyOfMovingExpense)
+	}
 	return payload
 }
 

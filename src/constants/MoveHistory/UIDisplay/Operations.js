@@ -9,6 +9,7 @@ export default {
   createOrders: 'createOrders', // internal.yaml
   createPaymentRequest: 'createPaymentRequest', // prime.yaml
   createUpload: 'createUpload',
+  deleteShipment: 'deleteShipment',
   requestShipmentCancellation: 'requestShipmentCancellation', // ghc.yaml
   requestShipmentDiversion: 'requestShipmentDiversion', // ghc.yaml
   requestShipmentReweigh: 'requestShipmentReweigh',

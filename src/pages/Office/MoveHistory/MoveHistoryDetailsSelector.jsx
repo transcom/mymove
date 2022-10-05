@@ -10,7 +10,9 @@ import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 
 const MoveHistoryDetailsSelector = ({ historyRecord }) => {
   const eventTemplate = getTemplate(historyRecord);
-
+  if (typeof eventTemplate.getDetails === 'function') {
+    return eventTemplate.getDetails(historyRecord);
+  }
   switch (eventTemplate.detailsType) {
     case detailsTypes.LABELED:
       return (

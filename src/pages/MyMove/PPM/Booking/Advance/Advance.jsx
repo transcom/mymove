@@ -13,12 +13,12 @@ import { updateMTOShipment } from 'store/entities/actions';
 import { selectCurrentOrders, selectMTOShipmentById } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { matchesOrdersType } from 'utils/orders';
 import { ORDERS_TYPE } from 'constants/orders';
 
 const Advance = () => {
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState(null);
   const history = useHistory();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const dispatch = useDispatch();
@@ -72,7 +72,7 @@ const Advance = () => {
 
   return (
     <div className={ppmPageStyles.ppmPageStyle}>
-      <ScrollToTop otherDep={errorMessage} />
+      <NotificationScrollToTop dependency={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

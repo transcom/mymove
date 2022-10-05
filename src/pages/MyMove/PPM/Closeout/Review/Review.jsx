@@ -7,7 +7,6 @@ import classnames from 'classnames';
 import styles from './Review.module.scss';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import ScrollToTop from 'components/ScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -66,7 +65,7 @@ const Review = () => {
 
   const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
   const proGear = mtoShipment?.ppmShipment?.proGear;
-  const expenses = mtoShipment?.ppmShipment?.expenses;
+  const expenses = mtoShipment?.ppmShipment?.movingExpenses;
 
   if (!mtoShipment) {
     return <LoadingPlaceholder />;
@@ -138,7 +137,6 @@ const Review = () => {
 
   return (
     <div className={classnames(ppmPageStyles.ppmPageStyle, styles.PPMReview)}>
-      <ScrollToTop />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
@@ -189,7 +187,7 @@ const Review = () => {
                 emptyMessage="No pro-gear weight documented."
               />
               <ReviewItems
-                className={styles.reviewItems}
+                className={classnames(styles.reviewItems, 'reviewExpenses')}
                 heading={
                   <>
                     <h3>Expenses</h3>
@@ -210,7 +208,7 @@ const Review = () => {
                 className={classnames(ppmStyles.backButton, 'usa-button', 'usa-button--secondary')}
                 to={generalRoutes.HOME_PATH}
               >
-                Finish Later
+                Return To Homepage
               </Link>
               <Link
                 className={classnames(ppmStyles.saveButton, 'usa-button', {

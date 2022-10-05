@@ -59,7 +59,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack }) => {
               </SectionWrapper>
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-                  Finish Later
+                  Return To Homepage
                 </Button>
                 <Button
                   className={ppmStyles.saveButton}

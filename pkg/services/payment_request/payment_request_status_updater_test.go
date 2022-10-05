@@ -1,7 +1,6 @@
 package paymentrequest
 
 import (
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -15,7 +14,7 @@ import (
 func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 	builder := query.NewQueryBuilder()
 
-	suite.T().Run("If we get a payment request pointer with a status it should update and return no error", func(t *testing.T) {
+	suite.Run("If we get a payment request pointer with a status it should update and return no error", func() {
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		paymentRequest.Status = models.PaymentRequestStatusReviewed
 
@@ -25,7 +24,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		suite.NoError(err)
 	})
 
-	suite.T().Run("Should return a ConflictError if the payment request has any service items that have not been reviewed", func(t *testing.T) {
+	suite.Run("Should return a ConflictError if the payment request has any service items that have not been reviewed", func() {
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
 		psiCost := unit.Cents(10000)
@@ -52,7 +51,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		suite.IsType(apperror.ConflictError{}, err)
 	})
 
-	suite.T().Run("Should update and return no error if the payment request has service items that have all been reviewed", func(t *testing.T) {
+	suite.Run("Should update and return no error if the payment request has service items that have all been reviewed", func() {
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
 		psiCost := unit.Cents(10000)
@@ -78,7 +77,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		suite.NoError(err)
 	})
 
-	suite.T().Run("Should return a PreconditionFailedError with a stale etag", func(t *testing.T) {
+	suite.Run("Should return a PreconditionFailedError with a stale etag", func() {
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		paymentRequest.Status = models.PaymentRequestStatusReviewed
 
