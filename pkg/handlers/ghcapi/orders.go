@@ -291,11 +291,6 @@ func (h UpdateBillableWeightHandler) Handle(
 				}
 			}
 
-			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-				return handleError(apperror.NewForbiddenError("is not a TOO"))
-			}
-
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
 			dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
 			updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateBillableWeightAsTOO(
@@ -346,11 +341,6 @@ func (h UpdateMaxBillableWeightAsTIOHandler) Handle(
 				default:
 					return orderop.NewUpdateMaxBillableWeightAsTIOInternalServerError(), err
 				}
-			}
-
-			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-				return handleError(apperror.NewForbiddenError("is not a TIO"))
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())
@@ -405,11 +395,6 @@ func (h AcknowledgeExcessWeightRiskHandler) Handle(
 				default:
 					return orderop.NewAcknowledgeExcessWeightRiskInternalServerError(), err
 				}
-			}
-
-			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-				return handleError(apperror.NewForbiddenError("is not a TOO"))
 			}
 
 			orderID := uuid.FromStringOrNil(params.OrderID.String())

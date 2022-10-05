@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/event"
@@ -74,14 +73,6 @@ func (h GetPaymentRequestHandler) Handle(
 ) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with TIO office role",
-				)
-				appCtx.Logger().Error(forbiddenErr.Error())
-				return paymentrequestop.NewGetPaymentRequestForbidden(), forbiddenErr
-			}
 
 			paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
 			if err != nil {
@@ -131,15 +122,6 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 ) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with TIO office role",
-				)
-				appCtx.Logger().Error(forbiddenErr.Error())
-
-				return paymentrequestop.NewUpdatePaymentRequestStatusForbidden(), forbiddenErr
-			}
 
 			paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
 			if err != nil {
@@ -268,13 +250,6 @@ func (h ShipmentsSITBalanceHandler) Handle(
 				default:
 					return paymentrequestop.NewGetShipmentsPaymentSITBalanceInternalServerError(), err
 				}
-			}
-
-			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-				return handleError(
-					apperror.NewForbiddenError("user is not authorized with the TIO role"),
-				)
 			}
 
 			shipmentSITBalances, err := h.ListShipmentPaymentSITBalance(appCtx, paymentRequestID)

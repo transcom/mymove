@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -55,12 +54,6 @@ type UpdateCustomerHandler struct {
 func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-				forbiddenError := apperror.NewForbiddenError("user is not authenticated with service counselor office role")
-				appCtx.Logger().Error(forbiddenError.Error())
-				return customercodeop.NewUpdateCustomerForbidden(), forbiddenError
-			}
 
 			customerID, err := uuid.FromString(params.CustomerID.String())
 			if err != nil {
