@@ -56,10 +56,7 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
   const dbFieldsToDisplay = Object.keys(fieldMappings).filter((dbField) => {
     return (
       changedValuesToUse[dbField] ||
-      (changedValuesToUse &&
-        dbField in changedValuesToUse &&
-        historyRecord.oldValues &&
-        dbField in historyRecord.oldValues)
+      (dbField in changedValuesToUse && historyRecord.oldValues && dbField in historyRecord.oldValues)
     );
   });
 
