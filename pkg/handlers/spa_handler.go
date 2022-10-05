@@ -19,24 +19,34 @@ import (
 type SpaHandler struct {
 	staticPath string
 	indexPath  string
+	cfs        CustomFileSystem
 }
 
 // NewSpaHandler returns a new handler for a Single Page App
-func NewSpaHandler(staticPath string, indexPath string) SpaHandler {
+func NewSpaHandler(staticPath string, indexPath string, cfs CustomFileSystem) SpaHandler {
 	return SpaHandler{
 		staticPath: staticPath,
 		indexPath:  indexPath,
+		cfs:        cfs,
 	}
 }
 
 // from https://www.alexedwards.net/blog/disable-http-fileserver-directory-listings
-type customFileSystem struct {
+type CustomFileSystem struct {
 	fs        http.FileSystem
 	indexPath string
 	logger    *zap.Logger
 }
 
-func (cfs customFileSystem) Open(path string) (http.File, error) {
+func NewCustomFileSystem(fs http.FileSystem, indexPath string, logger *zap.Logger) CustomFileSystem {
+	return CustomFileSystem{
+		fs:        fs,
+		indexPath: indexPath,
+		logger:    logger,
+	}
+}
+
+func (cfs CustomFileSystem) Open(path string) (http.File, error) {
 	f, openErr := cfs.fs.Open(path)
 	logger := cfs.logger
 	logger.Debug("Using CustomFileSystem for " + path)
@@ -98,14 +108,12 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// otherwise, use http.FileServer to serve the static dir
 	// use the customFileSystem so that we do not expose directory listings
-	http.FileServer(customFileSystem{http.Dir(h.staticPath), h.indexPath, logger}).ServeHTTP(w, r)
+	http.FileServer(h.cfs).ServeHTTP(w, r)
 }
 
 // NewFileHandler serves up a single file
 func NewFileHandler(entrypoint string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		logger := logging.FromContext(r.Context())
-		logger.Debug("Serving a single file")
 		http.ServeFile(w, r, entrypoint)
 	}
 }
