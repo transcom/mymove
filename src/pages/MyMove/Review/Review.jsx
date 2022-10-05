@@ -6,7 +6,6 @@ import { generatePath } from 'react-router';
 
 import styles from './Review.module.scss';
 
-import ScrollToTop from 'components/ScrollToTop';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ConnectedSummary from 'components/Customer/Review/Summary/Summary';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
@@ -43,7 +42,6 @@ const Review = ({ currentMove, mtoShipments, push, match }) => {
 
   return (
     <GridContainer>
-      <ScrollToTop />
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <ConnectedFlashMessage />
