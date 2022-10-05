@@ -118,12 +118,20 @@ describe('FinalCloseoutForm component', () => {
     expect(defaultProps.onBack).toHaveBeenCalled();
   });
 
-  it('"Submit PPM Documentation" is disabled when form data has not been filled out', () => {
+  it('"Submit PPM Documentation" is disabled when form data has not been filled out', async () => {
     const mtoShipment = createPPMShipmentWithFinalIncentive();
 
     render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
 
-    expect(screen.getByRole('button', { name: 'Submit PPM Documentation' })).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Submit PPM Documentation' })).toBeDisabled();
+    });
   });
 
   it('renders the W2 Address form inputs', async () => {
@@ -143,30 +151,23 @@ describe('FinalCloseoutForm component', () => {
     });
   });
 
-  it('passes custom validators to W2 Address form fields', async () => {
+  it('shows an error message if trying to submit an invalid form', async () => {
     const mtoShipment = createPPMShipmentWithFinalIncentive();
-    const postalCodeValidator = jest.fn().mockImplementation(() => undefined);
+    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} {...testProps} />);
+    const submitBtn = screen.getByRole('button', { name: 'Submit PPM Documentation' });
 
-    const { findByLabelText } = render(
-      <FinalCloseoutForm
-        mtoShipment={mtoShipment}
-        {...defaultProps}
-        {...testProps}
-        validators={{ postalCode: postalCodeValidator }}
-      />,
-    );
+    userEvent.click(submitBtn);
 
-    const postalCodeInput = await findByLabelText('ZIP');
+    const alerts = await screen.findAllByRole('alert');
 
-    const postalCode = '99999';
+    expect(alerts.length).toBe(4);
 
-    userEvent.type(postalCodeInput, postalCode);
-    userEvent.tab();
+    alerts.forEach((alert) => {
+      expect(alert).toHaveTextContent('Required');
+    });
 
     await waitFor(() => {
-      expect(postalCodeValidator).toHaveBeenCalledWith(postalCode);
+      expect(defaultProps.onSubmit).not.toHaveBeenCalled();
     });
   });
-
-  afterEach(jest.resetAllMocks);
 });
