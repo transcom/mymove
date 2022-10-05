@@ -122,7 +122,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
   const validationSchema = Yup.object().shape({
     selectedViolations: Yup.array().of(Yup.string()).min(1),
     seriousIncident: Yup.string().required(),
-    yesSeriousIncident: Yup.string().when('seriousIncident', {
+    seriousIncidentDesc: Yup.string().when('seriousIncident', {
       is: 'yes',
       then: Yup.string().required(),
     }),
@@ -387,7 +387,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                             {values.seriousIncident === 'yes' && (
                               <>
                                 <p className={styles.incidentTextAreaLabel}>Serious incident description</p>
-                                <Field as={Textarea} name="yesSeriousIncident" />
+                                <Field as={Textarea} name="seriousIncidentDesc" />
                               </>
                             )}
                           </div>

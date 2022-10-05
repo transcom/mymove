@@ -12,7 +12,7 @@ import { useEvaluationReportShipmentListQueries, usePWSViolationsQueries } from 
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
 import EvaluationViolationsForm from 'components/Office/EvaluationViolationsForm/EvaluationViolationsForm';
 
-const EvaluationViolations = (customerInfo) => {
+const EvaluationViolations = ({ customerInfo }) => {
   const { reportId } = useParams();
 
   const { evaluationReport, reportViolations, mtoShipments } = useEvaluationReportShipmentListQueries(reportId);
