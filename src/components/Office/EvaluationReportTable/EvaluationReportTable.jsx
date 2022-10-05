@@ -68,7 +68,9 @@ const EvaluationReportTable = ({
         </td>
         {report.submittedAt && (
           <td className={styles.downloadColumn}>
-            <a href={`${location}/evaluation-reports/${report.id}/download`}>Download</a>
+            <a href={`/ghc/v1/evaluation-reports/${report.id}/download`} target="_blank" rel="noopener noreferrer">
+              Download
+            </a>
           </td>
         )}
         {!report.submittedAt && (

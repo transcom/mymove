@@ -17,7 +17,7 @@ import (
 //
 //go:generate mockery --name OrderFetcher --disable-version-string
 type OrderFetcher interface {
-	FetchOrder(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Order, error)
+	FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error)
 	ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, int, error)
 }
 
