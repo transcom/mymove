@@ -301,14 +301,19 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		PaidWithGtcc:   movingExpense.PaidWithGTCC,
 		Amount:         handlers.FmtCost(movingExpense.Amount),
 		MissingReceipt: movingExpense.MissingReceipt,
-		Reason:         movingExpense.Reason,
 	}
 	if movingExpense.MovingExpenseType != nil {
 		payload.MovingExpenseType = internalmessages.MovingExpenseType(*movingExpense.MovingExpenseType)
 	}
 
 	if movingExpense.Status != nil {
-		payload.Status = internalmessages.PPMDocumentStatus(*movingExpense.Status)
+		status := internalmessages.PPMDocumentStatus(*movingExpense.Status)
+		payload.Status = &status
+	}
+
+	if movingExpense.Reason != nil {
+		reason := internalmessages.PPMDocumentStatusReason(*movingExpense.Reason)
+		payload.Reason = &reason
 	}
 
 	if movingExpense.SITStartDate != nil {
@@ -379,6 +384,16 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
 		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
+	}
+
+	if weightTicket.Status != nil {
+		status := internalmessages.PPMDocumentStatus(*weightTicket.Status)
+		payload.Status = &status
+	}
+
+	if weightTicket.Reason != nil {
+		reason := internalmessages.PPMDocumentStatusReason(*weightTicket.Reason)
+		payload.Reason = &reason
 	}
 
 	return payload

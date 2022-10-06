@@ -48,13 +48,8 @@ properties:
     x-omitempty: false
   status:
     $ref: 'PPMDocumentStatus.yaml'
-    x-nullable: true
-    x-omitempty: false
   reason:
-    description: The reason the services counselor has excluded or rejected the moving expense
-    type: string
-    x-nullable: true
-    x-omitempty: false
+    $ref: 'PPMDocumentStatusReason.yaml'
   sitStartDate:
     description: The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
     type: string
