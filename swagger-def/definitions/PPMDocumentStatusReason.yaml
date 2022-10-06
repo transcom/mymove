@@ -1,3 +1,4 @@
+description: The reason the services counselor has excluded or rejected the item.
 type: string
 x-nullable: true
 x-omitempty: false

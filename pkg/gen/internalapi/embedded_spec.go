@@ -4918,7 +4918,6 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
-          "description": "The reason the services counselor has excluded or rejected the moving expense",
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "sitEndDate": {
@@ -5240,6 +5239,7 @@ func init() {
       "x-omitempty": false
     },
     "PPMDocumentStatusReason": {
+      "description": "The reason the services counselor has excluded or rejected the item.",
       "type": "string",
       "x-nullable": true,
       "x-omitempty": false
@@ -7194,7 +7194,6 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
-          "description": "The reason the services counselor has excluded or rejected the weight ticket.",
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {
@@ -12343,7 +12342,6 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
-          "description": "The reason the services counselor has excluded or rejected the moving expense",
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "sitEndDate": {
@@ -12665,6 +12663,7 @@ func init() {
       "x-omitempty": false
     },
     "PPMDocumentStatusReason": {
+      "description": "The reason the services counselor has excluded or rejected the item.",
       "type": "string",
       "x-nullable": true,
       "x-omitempty": false
@@ -14633,7 +14632,6 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
-          "description": "The reason the services counselor has excluded or rejected the weight ticket.",
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {

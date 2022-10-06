@@ -91,7 +91,7 @@ type WeightTicket struct {
 	// Format: uuid
 	ProofOfTrailerOwnershipDocumentID strfmt.UUID `json:"proofOfTrailerOwnershipDocumentId"`
 
-	// The reason the services counselor has excluded or rejected the weight ticket.
+	// reason
 	Reason *PPMDocumentStatusReason `json:"reason"`
 
 	// status

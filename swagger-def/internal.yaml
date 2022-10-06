@@ -1025,7 +1025,6 @@ definitions:
       status:
         $ref: 'definitions/PPMDocumentStatus.yaml'
       reason:
-        description: The reason the services counselor has excluded or rejected the weight ticket.
         $ref: 'definitions/PPMDocumentStatusReason.yaml'
       eTag:
         type: string

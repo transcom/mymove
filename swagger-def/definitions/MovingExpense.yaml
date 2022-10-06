@@ -49,7 +49,6 @@ properties:
   status:
     $ref: 'PPMDocumentStatus.yaml'
   reason:
-    description: The reason the services counselor has excluded or rejected the moving expense
     $ref: 'PPMDocumentStatusReason.yaml'
   sitStartDate:
     description: The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only

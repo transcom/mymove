@@ -11,7 +11,7 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// PPMDocumentStatusReason p p m document status reason
+// PPMDocumentStatusReason The reason the services counselor has excluded or rejected the item.
 //
 // swagger:model PPMDocumentStatusReason
 type PPMDocumentStatusReason string
