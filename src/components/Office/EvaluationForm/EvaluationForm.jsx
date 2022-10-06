@@ -142,8 +142,8 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
     }
 
     let travelMinutes;
-    if (values.minute >= 0 || values.hour >= 0) {
-      travelMinutes = convertToMinutes(values.hour, values.minute);
+    if (values.travelTimeMinute >= 0 || values.travelTimeHour >= 0) {
+      travelMinutes = convertToMinutes(values.travelTimeHour, values.travelTimeMinute);
     }
 
     let violations;
@@ -229,8 +229,8 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
 
   if (evaluationReport.travelTimeMinutes >= 0) {
     const { hours, minutes } = convertToHoursAndMinutes(evaluationReport.travelTimeMinutes);
-    initialValues.minute = minutes;
-    initialValues.hour = hours;
+    initialValues.travelTimeMinute = minutes;
+    initialValues.travelTimeHour = hours;
   }
 
   if (evaluationReport.violationsObserved !== undefined) {
@@ -248,17 +248,17 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
         is: 'other',
         then: Yup.string().required(),
       }),
-      hour: Yup.string().when('evaluationType', {
+      travelTimeHour: Yup.string().when('evaluationType', {
         is: 'physical',
-        then: Yup.string().when('minute', {
-          is: (minute) => !minute,
+        then: Yup.string().when('travelTimeMinute', {
+          is: (travelTimeMinute) => !travelTimeMinute,
           then: Yup.string().required(),
         }),
       }),
-      minute: Yup.string().when('evaluationType', {
+      travelTimeMinute: Yup.string().when('evaluationType', {
         is: 'physical',
-        then: Yup.string().when('hour', {
-          is: (hour) => !hour,
+        then: Yup.string().when('travelTimeHour', {
+          is: (travelTimeHour) => !travelTimeHour,
           then: Yup.string().required(),
         }),
       }),
@@ -392,12 +392,12 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
                         <div className={styles.durationPickers}>
                           <div>
                             <DropdownInput
-                              id="hour"
-                              name="hour"
+                              id="travelTimeHour"
+                              name="travelTimeHour"
                               label="Hours"
                               className={styles.hourPicker}
                               onChange={(e) => {
-                                setFieldValue('hour', e.target.value);
+                                setFieldValue('travelTimeHour', e.target.value);
                               }}
                               disableErrorLabel
                               options={hours}
@@ -405,12 +405,12 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
                           </div>
                           <div>
                             <DropdownInput
-                              id="minute"
-                              name="minute"
+                              id="travelTimeMinute"
+                              name="travelTimeMinute"
                               label="Minutes"
                               className={styles.minutePicker}
                               onChange={(e) => {
-                                setFieldValue('minute', e.target.value);
+                                setFieldValue('travelTimeMinute', e.target.value);
                               }}
                               disableErrorLabel
                               options={minutes}
@@ -484,7 +484,7 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
                       <div className={styles.durationPickers}>
                         <div>
                           <DropdownInput
-                            id="hour"
+                            id="evalLengthHour"
                             name="evalLengthHour"
                             label="Hours"
                             className={styles.hourPicker}
@@ -497,7 +497,7 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
                         </div>
                         <div>
                           <DropdownInput
-                            id="minute"
+                            id="evalLengthMinute"
                             name="evalLengthMinute"
                             label="Minutes"
                             className={styles.minutePicker}
