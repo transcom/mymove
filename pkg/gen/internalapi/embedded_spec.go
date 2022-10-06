@@ -4919,9 +4919,7 @@ func init() {
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the moving expense",
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false
+          "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "sitEndDate": {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -4940,8 +4938,6 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "x-nullable": true,
-          "x-omitempty": false,
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "updatedAt": {
@@ -5239,7 +5235,14 @@ func init() {
         "APPROVED": "Approved",
         "EXCLUDED": "Excluded",
         "REJECTED": "Rejected"
-      }
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
+    "PPMDocumentStatusReason": {
+      "type": "string",
+      "x-nullable": true,
+      "x-omitempty": false
     },
     "PPMEstimateRange": {
       "type": "object",
@@ -7189,6 +7192,13 @@ func init() {
           "title": "Trailer Document ID",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "description": "The reason the services counselor has excluded or rejected the weight ticket.",
+          "$ref": "#/definitions/PPMDocumentStatusReason"
+        },
+        "status": {
+          "$ref": "#/definitions/PPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
           "type": "boolean",
@@ -12334,9 +12344,7 @@ func init() {
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the moving expense",
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false
+          "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "sitEndDate": {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -12355,8 +12363,6 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "x-nullable": true,
-          "x-omitempty": false,
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "updatedAt": {
@@ -12654,7 +12660,14 @@ func init() {
         "APPROVED": "Approved",
         "EXCLUDED": "Excluded",
         "REJECTED": "Rejected"
-      }
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
+    "PPMDocumentStatusReason": {
+      "type": "string",
+      "x-nullable": true,
+      "x-omitempty": false
     },
     "PPMEstimateRange": {
       "type": "object",
@@ -14618,6 +14631,13 @@ func init() {
           "title": "Trailer Document ID",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "description": "The reason the services counselor has excluded or rejected the weight ticket.",
+          "$ref": "#/definitions/PPMDocumentStatusReason"
+        },
+        "status": {
+          "$ref": "#/definitions/PPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
           "type": "boolean",

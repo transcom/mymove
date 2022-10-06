@@ -91,6 +91,12 @@ type WeightTicket struct {
 	// Format: uuid
 	ProofOfTrailerOwnershipDocumentID strfmt.UUID `json:"proofOfTrailerOwnershipDocumentId"`
 
+	// The reason the services counselor has excluded or rejected the weight ticket.
+	Reason *PPMDocumentStatusReason `json:"reason"`
+
+	// status
+	Status *PPMDocumentStatus `json:"status"`
+
 	// Trailer meets criteria
 	TrailerMeetsCriteria *bool `json:"trailerMeetsCriteria"`
 
@@ -149,6 +155,14 @@ func (m *WeightTicket) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateProofOfTrailerOwnershipDocumentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReason(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -323,6 +337,44 @@ func (m *WeightTicket) validateProofOfTrailerOwnershipDocumentID(formats strfmt.
 	return nil
 }
 
+func (m *WeightTicket) validateReason(formats strfmt.Registry) error {
+	if swag.IsZero(m.Reason) { // not required
+		return nil
+	}
+
+	if m.Reason != nil {
+		if err := m.Reason.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("reason")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("reason")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *WeightTicket) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	if m.Status != nil {
+		if err := m.Status.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("status")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *WeightTicket) validateUpdatedAt(formats strfmt.Registry) error {
 
 	if err := validate.Required("updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
@@ -377,6 +429,14 @@ func (m *WeightTicket) ContextValidate(ctx context.Context, formats strfmt.Regis
 	}
 
 	if err := m.contextValidateProofOfTrailerOwnershipDocumentID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateReason(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -496,6 +556,38 @@ func (m *WeightTicket) contextValidateProofOfTrailerOwnershipDocumentID(ctx cont
 
 	if err := validate.ReadOnly(ctx, "proofOfTrailerOwnershipDocumentId", "body", strfmt.UUID(m.ProofOfTrailerOwnershipDocumentID)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *WeightTicket) contextValidateReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Reason != nil {
+		if err := m.Reason.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("reason")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("reason")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *WeightTicket) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Status != nil {
+		if err := m.Status.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("status")
+			}
+			return err
+		}
 	}
 
 	return nil
