@@ -25,6 +25,30 @@ export default {
   ],
 };
 
+const mockEvaluationReport = {
+  id: '9cdc8dc3-6cf4-46fb-b272-1468ef40796f',
+  createdAt: '2022-09-07T15:17:37.484Z',
+  eTag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
+  evaluationLengthMinutes: 240,
+  inspectionDate: '2022-09-08',
+  inspectionType: 'DATA_REVIEW',
+  location: 'A12345',
+  moveID: '551dd01f-90cf-44d6-addb-ff919433dd61',
+  moveReferenceID: '4118-8295',
+  officeUser: {
+    email: 'qae_csr_role@office.mil',
+    firstName: 'Leo',
+    id: 'ef4f6d1f-4ac3-4159-a364-5403e7d958ff',
+    lastName: 'Spaceman',
+    phone: '415-555-1212',
+  },
+  remarks: 'test',
+  shipmentID: '319e0751-1337-4ed9-b4b5-a15d4e6d272c',
+  type: 'SHIPMENT',
+  updatedAt: '2022-09-07T18:06:37.864Z',
+  violationsObserved: true,
+};
+
 const mockViolation = {
   category: 'Category 1',
   displayOrder: 1,
@@ -36,4 +60,16 @@ const mockViolation = {
   title: 'Title for violation 1',
 };
 
-export const Default = () => <EvaluationViolationsForm violations={[mockViolation]} />;
+const mockCustomerInfo = {
+  agency: 'ARMY',
+  grade: 'E_4',
+};
+
+export const Default = () => (
+  <EvaluationViolationsForm
+    violations={[mockViolation]}
+    evaluationReport={mockEvaluationReport}
+    customerInfo={mockCustomerInfo}
+    reportViolations={null}
+  />
+);
