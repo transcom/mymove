@@ -111,7 +111,7 @@ const EvaluationReportPreview = ({
       </div>
       <div className={styles.section}>
         <h2>Evaluation report</h2>
-        {isShipment && evaluationReport.location !== 'OTHER' && (
+        {isShipment && evaluationReport.location !== 'OTHER' ? (
           <div className={styles.section}>
             <h3>Information</h3>
             <div className={styles.sideBySideDetails}>
@@ -148,8 +148,7 @@ const EvaluationReportPreview = ({
             </div>
             <EvaluationReportList evaluationReport={evaluationReport} />
           </div>
-        )}
-        {(!isShipment === 'COUNSELING' || evaluationReport.location === 'OTHER') && (
+        ) : (
           <div className={styles.section}>
             <h3>Information</h3>
             <DataTableWrapper className={classnames(styles.detailsRight, 'table--data-point-group')}>
@@ -168,9 +167,7 @@ const EvaluationReportPreview = ({
           <h3>Violations</h3>
           <dl className={descriptionListStyles.descriptionList}>
             <div className={classnames(descriptionListStyles.row)}>
-              <dt data-testid="violationsObserved" className={styles.violationsLabel}>
-                Violations observed
-              </dt>
+              <dt className={styles.violationsLabel}>Violations observed</dt>
               {hasViolations ? (
                 <dd className={styles.violationsRemarks}>
                   {reportViolations.map((reportViolation) => (
