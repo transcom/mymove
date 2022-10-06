@@ -29,12 +29,12 @@ func NewIndexTSPs(ctx *middleware.Context, handler IndexTSPsHandler) *IndexTSPs 
 	return &IndexTSPs{Context: ctx, Handler: handler}
 }
 
-/*
-	IndexTSPs swagger:route GET /tsps tsps indexTSPs
+/* IndexTSPs swagger:route GET /tsps tsps indexTSPs
 
-# List all TSPs
+List all TSPs
 
 Gets a list of all the TSPs which the logged in user has access to.
+
 */
 type IndexTSPs struct {
 	Context *middleware.Context

@@ -16,8 +16,7 @@ import (
 // UpdateMTOServiceItemOKCode is the HTTP code returned for type UpdateMTOServiceItemOK
 const UpdateMTOServiceItemOKCode int = 200
 
-/*
-UpdateMTOServiceItemOK Successfully updated move task order status
+/*UpdateMTOServiceItemOK Successfully updated move task order status
 
 swagger:response updateMTOServiceItemOK
 */
@@ -61,8 +60,7 @@ func (o *UpdateMTOServiceItemOK) WriteResponse(rw http.ResponseWriter, producer 
 // UpdateMTOServiceItemBadRequestCode is the HTTP code returned for type UpdateMTOServiceItemBadRequest
 const UpdateMTOServiceItemBadRequestCode int = 400
 
-/*
-UpdateMTOServiceItemBadRequest The request payload is invalid
+/*UpdateMTOServiceItemBadRequest The request payload is invalid
 
 swagger:response updateMTOServiceItemBadRequest
 */
@@ -106,8 +104,7 @@ func (o *UpdateMTOServiceItemBadRequest) WriteResponse(rw http.ResponseWriter, p
 // UpdateMTOServiceItemUnauthorizedCode is the HTTP code returned for type UpdateMTOServiceItemUnauthorized
 const UpdateMTOServiceItemUnauthorizedCode int = 401
 
-/*
-UpdateMTOServiceItemUnauthorized The request was denied
+/*UpdateMTOServiceItemUnauthorized The request was denied
 
 swagger:response updateMTOServiceItemUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *UpdateMTOServiceItemUnauthorized) WriteResponse(rw http.ResponseWriter,
 // UpdateMTOServiceItemForbiddenCode is the HTTP code returned for type UpdateMTOServiceItemForbidden
 const UpdateMTOServiceItemForbiddenCode int = 403
 
-/*
-UpdateMTOServiceItemForbidden The request was denied
+/*UpdateMTOServiceItemForbidden The request was denied
 
 swagger:response updateMTOServiceItemForbidden
 */
@@ -196,8 +192,7 @@ func (o *UpdateMTOServiceItemForbidden) WriteResponse(rw http.ResponseWriter, pr
 // UpdateMTOServiceItemNotFoundCode is the HTTP code returned for type UpdateMTOServiceItemNotFound
 const UpdateMTOServiceItemNotFoundCode int = 404
 
-/*
-UpdateMTOServiceItemNotFound The requested resource wasn't found
+/*UpdateMTOServiceItemNotFound The requested resource wasn't found
 
 swagger:response updateMTOServiceItemNotFound
 */
@@ -241,8 +236,7 @@ func (o *UpdateMTOServiceItemNotFound) WriteResponse(rw http.ResponseWriter, pro
 // UpdateMTOServiceItemPreconditionFailedCode is the HTTP code returned for type UpdateMTOServiceItemPreconditionFailed
 const UpdateMTOServiceItemPreconditionFailedCode int = 412
 
-/*
-UpdateMTOServiceItemPreconditionFailed Precondition failed
+/*UpdateMTOServiceItemPreconditionFailed Precondition failed
 
 swagger:response updateMTOServiceItemPreconditionFailed
 */
@@ -286,8 +280,7 @@ func (o *UpdateMTOServiceItemPreconditionFailed) WriteResponse(rw http.ResponseW
 // UpdateMTOServiceItemInternalServerErrorCode is the HTTP code returned for type UpdateMTOServiceItemInternalServerError
 const UpdateMTOServiceItemInternalServerErrorCode int = 500
 
-/*
-UpdateMTOServiceItemInternalServerError A server error occurred
+/*UpdateMTOServiceItemInternalServerError A server error occurred
 
 swagger:response updateMTOServiceItemInternalServerError
 */

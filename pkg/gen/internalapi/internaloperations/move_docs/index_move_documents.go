@@ -29,12 +29,12 @@ func NewIndexMoveDocuments(ctx *middleware.Context, handler IndexMoveDocumentsHa
 	return &IndexMoveDocuments{Context: ctx, Handler: handler}
 }
 
-/*
-	IndexMoveDocuments swagger:route GET /moves/{moveId}/move_documents move_docs indexMoveDocuments
-
-# Returns a list of all Move Documents associated with this move
+/* IndexMoveDocuments swagger:route GET /moves/{moveId}/move_documents move_docs indexMoveDocuments
 
 Returns a list of all Move Documents associated with this move
+
+Returns a list of all Move Documents associated with this move
+
 */
 type IndexMoveDocuments struct {
 	Context *middleware.Context

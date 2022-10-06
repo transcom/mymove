@@ -29,12 +29,12 @@ func NewRequestShipmentReweigh(ctx *middleware.Context, handler RequestShipmentR
 	return &RequestShipmentReweigh{Context: ctx, Handler: handler}
 }
 
-/*
-	RequestShipmentReweigh swagger:route POST /shipments/{shipmentID}/request-reweigh shipment reweigh requestShipmentReweigh
-
-# Requests a shipment reweigh
+/* RequestShipmentReweigh swagger:route POST /shipments/{shipmentID}/request-reweigh shipment reweigh requestShipmentReweigh
 
 Requests a shipment reweigh
+
+Requests a shipment reweigh
+
 */
 type RequestShipmentReweigh struct {
 	Context *middleware.Context

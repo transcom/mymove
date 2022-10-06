@@ -29,10 +29,10 @@ func NewUpdateMTOReviewedBillableWeightsAt(ctx *middleware.Context, handler Upda
 	return &UpdateMTOReviewedBillableWeightsAt{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdateMTOReviewedBillableWeightsAt swagger:route PATCH /move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at moveTaskOrder updateMTOReviewedBillableWeightsAt
+/* UpdateMTOReviewedBillableWeightsAt swagger:route PATCH /move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at moveTaskOrder updateMTOReviewedBillableWeightsAt
 
 Changes move (move task order) billableWeightsReviewedAt field to a timestamp
+
 */
 type UpdateMTOReviewedBillableWeightsAt struct {
 	Context *middleware.Context

@@ -29,12 +29,12 @@ func NewGetMoveHistory(ctx *middleware.Context, handler GetMoveHistoryHandler) *
 	return &GetMoveHistory{Context: ctx, Handler: handler}
 }
 
-/*
-	GetMoveHistory swagger:route GET /move/{locator}/history move getMoveHistory
+/* GetMoveHistory swagger:route GET /move/{locator}/history move getMoveHistory
 
-# Returns the history of an identified move
+Returns the history of an identified move
 
 Returns the history for a given move for a unique alphanumeric locator string
+
 */
 type GetMoveHistory struct {
 	Context *middleware.Context

@@ -16,8 +16,7 @@ import (
 // UpdateWebhookSubscriptionOKCode is the HTTP code returned for type UpdateWebhookSubscriptionOK
 const UpdateWebhookSubscriptionOKCode int = 200
 
-/*
-UpdateWebhookSubscriptionOK Successfully updated webhook subscription
+/*UpdateWebhookSubscriptionOK Successfully updated webhook subscription
 
 swagger:response updateWebhookSubscriptionOK
 */
@@ -61,8 +60,7 @@ func (o *UpdateWebhookSubscriptionOK) WriteResponse(rw http.ResponseWriter, prod
 // UpdateWebhookSubscriptionBadRequestCode is the HTTP code returned for type UpdateWebhookSubscriptionBadRequest
 const UpdateWebhookSubscriptionBadRequestCode int = 400
 
-/*
-UpdateWebhookSubscriptionBadRequest Invalid Request
+/*UpdateWebhookSubscriptionBadRequest Invalid Request
 
 swagger:response updateWebhookSubscriptionBadRequest
 */
@@ -86,8 +84,7 @@ func (o *UpdateWebhookSubscriptionBadRequest) WriteResponse(rw http.ResponseWrit
 // UpdateWebhookSubscriptionUnauthorizedCode is the HTTP code returned for type UpdateWebhookSubscriptionUnauthorized
 const UpdateWebhookSubscriptionUnauthorizedCode int = 401
 
-/*
-UpdateWebhookSubscriptionUnauthorized Must be authenticated to use this end point
+/*UpdateWebhookSubscriptionUnauthorized Must be authenticated to use this end point
 
 swagger:response updateWebhookSubscriptionUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *UpdateWebhookSubscriptionUnauthorized) WriteResponse(rw http.ResponseWr
 // UpdateWebhookSubscriptionForbiddenCode is the HTTP code returned for type UpdateWebhookSubscriptionForbidden
 const UpdateWebhookSubscriptionForbiddenCode int = 403
 
-/*
-UpdateWebhookSubscriptionForbidden Not authorized to update this webhook subscription
+/*UpdateWebhookSubscriptionForbidden Not authorized to update this webhook subscription
 
 swagger:response updateWebhookSubscriptionForbidden
 */
@@ -136,8 +132,7 @@ func (o *UpdateWebhookSubscriptionForbidden) WriteResponse(rw http.ResponseWrite
 // UpdateWebhookSubscriptionNotFoundCode is the HTTP code returned for type UpdateWebhookSubscriptionNotFound
 const UpdateWebhookSubscriptionNotFoundCode int = 404
 
-/*
-UpdateWebhookSubscriptionNotFound subscription not found
+/*UpdateWebhookSubscriptionNotFound subscription not found
 
 swagger:response updateWebhookSubscriptionNotFound
 */
@@ -161,8 +156,7 @@ func (o *UpdateWebhookSubscriptionNotFound) WriteResponse(rw http.ResponseWriter
 // UpdateWebhookSubscriptionPreconditionFailedCode is the HTTP code returned for type UpdateWebhookSubscriptionPreconditionFailed
 const UpdateWebhookSubscriptionPreconditionFailedCode int = 412
 
-/*
-UpdateWebhookSubscriptionPreconditionFailed Precondition failed
+/*UpdateWebhookSubscriptionPreconditionFailed Precondition failed
 
 swagger:response updateWebhookSubscriptionPreconditionFailed
 */
@@ -186,8 +180,7 @@ func (o *UpdateWebhookSubscriptionPreconditionFailed) WriteResponse(rw http.Resp
 // UpdateWebhookSubscriptionUnprocessableEntityCode is the HTTP code returned for type UpdateWebhookSubscriptionUnprocessableEntity
 const UpdateWebhookSubscriptionUnprocessableEntityCode int = 422
 
-/*
-UpdateWebhookSubscriptionUnprocessableEntity Validation error
+/*UpdateWebhookSubscriptionUnprocessableEntity Validation error
 
 swagger:response updateWebhookSubscriptionUnprocessableEntity
 */
@@ -231,8 +224,7 @@ func (o *UpdateWebhookSubscriptionUnprocessableEntity) WriteResponse(rw http.Res
 // UpdateWebhookSubscriptionInternalServerErrorCode is the HTTP code returned for type UpdateWebhookSubscriptionInternalServerError
 const UpdateWebhookSubscriptionInternalServerErrorCode int = 500
 
-/*
-UpdateWebhookSubscriptionInternalServerError Server error
+/*UpdateWebhookSubscriptionInternalServerError Server error
 
 swagger:response updateWebhookSubscriptionInternalServerError
 */

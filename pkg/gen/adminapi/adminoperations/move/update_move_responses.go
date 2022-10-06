@@ -16,8 +16,7 @@ import (
 // UpdateMoveOKCode is the HTTP code returned for type UpdateMoveOK
 const UpdateMoveOKCode int = 200
 
-/*
-UpdateMoveOK Successfully updated the Mov
+/*UpdateMoveOK Successfully updated the Mov
 
 swagger:response updateMoveOK
 */
@@ -61,8 +60,7 @@ func (o *UpdateMoveOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 // UpdateMoveBadRequestCode is the HTTP code returned for type UpdateMoveBadRequest
 const UpdateMoveBadRequestCode int = 400
 
-/*
-UpdateMoveBadRequest Invalid request
+/*UpdateMoveBadRequest Invalid request
 
 swagger:response updateMoveBadRequest
 */
@@ -86,8 +84,7 @@ func (o *UpdateMoveBadRequest) WriteResponse(rw http.ResponseWriter, producer ru
 // UpdateMoveUnauthorizedCode is the HTTP code returned for type UpdateMoveUnauthorized
 const UpdateMoveUnauthorizedCode int = 401
 
-/*
-UpdateMoveUnauthorized Must be authenticated to use this endpoint
+/*UpdateMoveUnauthorized Must be authenticated to use this endpoint
 
 swagger:response updateMoveUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *UpdateMoveUnauthorized) WriteResponse(rw http.ResponseWriter, producer 
 // UpdateMoveForbiddenCode is the HTTP code returned for type UpdateMoveForbidden
 const UpdateMoveForbiddenCode int = 403
 
-/*
-UpdateMoveForbidden Not authorized to update this move
+/*UpdateMoveForbidden Not authorized to update this move
 
 swagger:response updateMoveForbidden
 */
@@ -136,8 +132,7 @@ func (o *UpdateMoveForbidden) WriteResponse(rw http.ResponseWriter, producer run
 // UpdateMoveNotFoundCode is the HTTP code returned for type UpdateMoveNotFound
 const UpdateMoveNotFoundCode int = 404
 
-/*
-UpdateMoveNotFound Move not found
+/*UpdateMoveNotFound Move not found
 
 swagger:response updateMoveNotFound
 */
@@ -161,8 +156,7 @@ func (o *UpdateMoveNotFound) WriteResponse(rw http.ResponseWriter, producer runt
 // UpdateMoveUnprocessableEntityCode is the HTTP code returned for type UpdateMoveUnprocessableEntity
 const UpdateMoveUnprocessableEntityCode int = 422
 
-/*
-UpdateMoveUnprocessableEntity Invalid input
+/*UpdateMoveUnprocessableEntity Invalid input
 
 swagger:response updateMoveUnprocessableEntity
 */
@@ -186,8 +180,7 @@ func (o *UpdateMoveUnprocessableEntity) WriteResponse(rw http.ResponseWriter, pr
 // UpdateMoveInternalServerErrorCode is the HTTP code returned for type UpdateMoveInternalServerError
 const UpdateMoveInternalServerErrorCode int = 500
 
-/*
-UpdateMoveInternalServerError Server error
+/*UpdateMoveInternalServerError Server error
 
 swagger:response updateMoveInternalServerError
 */

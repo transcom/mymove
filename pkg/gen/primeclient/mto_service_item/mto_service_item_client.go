@@ -38,13 +38,12 @@ type ClientService interface {
 }
 
 /*
-	CreateMTOServiceItem creates m t o service item
+  CreateMTOServiceItem creates m t o service item
 
-	Creates one or more MTOServiceItems. Not all service items may be created, please see details below.
+  Creates one or more MTOServiceItems. Not all service items may be created, please see details below.
 
 This endpoint supports different body definitions. In the modelType field below, select the modelType corresponding
-
-	to the service item you wish to create and the documentation will update with the new definition.
+ to the service item you wish to create and the documentation will update with the new definition.
 
 Upon creation these items are associated with a Move Task Order and an MTO Shipment.
 The request must include UUIDs for the MTO and MTO Shipment connected to this service item. Some service item types require
@@ -65,9 +64,9 @@ model type with the following codes:
 **DOFSIT**
 
 **1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:
-  - DOFSIT - Domestic origin 1st day SIT
-  - DOASIT - Domestic origin Additional day SIT
-  - DOPSIT - Domestic origin SIT pickup
+  * DOFSIT - Domestic origin 1st day SIT
+  * DOASIT - Domestic origin Additional day SIT
+  * DOPSIT - Domestic origin SIT pickup
 
 **DOASIT**
 
@@ -86,28 +85,29 @@ model type with the following codes:
 **DDFSIT**
 
 **1st day origin SIT service item**. The additional fields are required for creating a DDFSIT:
-  - `firstAvailableDeliveryDate1`
-  - string <date>
-  - First available date that Prime can deliver SIT service item.
-  - `firstAvailableDeliveryDate2`
-  - string <date>
-  - Second available date that Prime can deliver SIT service item.
-  - `timeMilitary1`
-  - string\d{4}Z
-  - Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
-  - `timeMilitary2`
-  - string\d{4}Z
-  - Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+  * `firstAvailableDeliveryDate1`
+    * string <date>
+    * First available date that Prime can deliver SIT service item.
+  * `firstAvailableDeliveryDate2`
+    * string <date>
+    * Second available date that Prime can deliver SIT service item.
+  * `timeMilitary1`
+    * string\d{4}Z
+    * Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+  * `timeMilitary2`
+    * string\d{4}Z
+    * Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
 
 When a DDFSIT is requested, the API will auto-create the following group of service items:
-  - DDFSIT - Domestic destination 1st day SIT
-  - DDASIT - Domestic destination Additional day SIT
-  - DDDSIT - Domestic destination SIT delivery
+  * DDFSIT - Domestic destination 1st day SIT
+  * DDASIT - Domestic destination Additional day SIT
+  * DDDSIT - Domestic destination SIT delivery
 
 **DDASIT**
 
 **Addt'l days destination SIT service item**. This represents an additional day of storage for the same item.
 Additional DDASIT service items can be created and added to an existing shipment that **includes a DDFSIT service item**.
+
 */
 func (a *Client) CreateMTOServiceItem(params *CreateMTOServiceItemParams, opts ...ClientOption) (*CreateMTOServiceItemOK, error) {
 	// TODO: Validate the params before sending
@@ -145,19 +145,19 @@ func (a *Client) CreateMTOServiceItem(params *CreateMTOServiceItemParams, opts .
 }
 
 /*
-	UpdateMTOServiceItem updates m t o service item
+  UpdateMTOServiceItem updates m t o service item
 
-	Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.
+  Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.
 
 This endpoint supports different body definitions. In the modelType field below, select the modelType corresponding
-
-	to the service item you wish to update and the documentation will update with the new definition.
+ to the service item you wish to update and the documentation will update with the new definition.
 
 To create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
 
 ### Errors
 
 Currently this is not implemented and will generated the NotImplemented error.
+
 */
 func (a *Client) UpdateMTOServiceItem(params *UpdateMTOServiceItemParams, opts ...ClientOption) (*UpdateMTOServiceItemOK, error) {
 	// TODO: Validate the params before sending

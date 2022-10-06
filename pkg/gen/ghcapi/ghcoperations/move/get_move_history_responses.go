@@ -16,8 +16,7 @@ import (
 // GetMoveHistoryOKCode is the HTTP code returned for type GetMoveHistoryOK
 const GetMoveHistoryOKCode int = 200
 
-/*
-GetMoveHistoryOK Successfully retrieved the individual move history
+/*GetMoveHistoryOK Successfully retrieved the individual move history
 
 swagger:response getMoveHistoryOK
 */
@@ -61,8 +60,7 @@ func (o *GetMoveHistoryOK) WriteResponse(rw http.ResponseWriter, producer runtim
 // GetMoveHistoryBadRequestCode is the HTTP code returned for type GetMoveHistoryBadRequest
 const GetMoveHistoryBadRequestCode int = 400
 
-/*
-GetMoveHistoryBadRequest The request payload is invalid
+/*GetMoveHistoryBadRequest The request payload is invalid
 
 swagger:response getMoveHistoryBadRequest
 */
@@ -106,8 +104,7 @@ func (o *GetMoveHistoryBadRequest) WriteResponse(rw http.ResponseWriter, produce
 // GetMoveHistoryUnauthorizedCode is the HTTP code returned for type GetMoveHistoryUnauthorized
 const GetMoveHistoryUnauthorizedCode int = 401
 
-/*
-GetMoveHistoryUnauthorized The request was denied
+/*GetMoveHistoryUnauthorized The request was denied
 
 swagger:response getMoveHistoryUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *GetMoveHistoryUnauthorized) WriteResponse(rw http.ResponseWriter, produ
 // GetMoveHistoryForbiddenCode is the HTTP code returned for type GetMoveHistoryForbidden
 const GetMoveHistoryForbiddenCode int = 403
 
-/*
-GetMoveHistoryForbidden The request was denied
+/*GetMoveHistoryForbidden The request was denied
 
 swagger:response getMoveHistoryForbidden
 */
@@ -196,8 +192,7 @@ func (o *GetMoveHistoryForbidden) WriteResponse(rw http.ResponseWriter, producer
 // GetMoveHistoryNotFoundCode is the HTTP code returned for type GetMoveHistoryNotFound
 const GetMoveHistoryNotFoundCode int = 404
 
-/*
-GetMoveHistoryNotFound The requested resource wasn't found
+/*GetMoveHistoryNotFound The requested resource wasn't found
 
 swagger:response getMoveHistoryNotFound
 */
@@ -241,8 +236,7 @@ func (o *GetMoveHistoryNotFound) WriteResponse(rw http.ResponseWriter, producer 
 // GetMoveHistoryInternalServerErrorCode is the HTTP code returned for type GetMoveHistoryInternalServerError
 const GetMoveHistoryInternalServerErrorCode int = 500
 
-/*
-GetMoveHistoryInternalServerError A server error occurred
+/*GetMoveHistoryInternalServerError A server error occurred
 
 swagger:response getMoveHistoryInternalServerError
 */

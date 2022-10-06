@@ -16,8 +16,7 @@ import (
 // FetchMTOAgentListOKCode is the HTTP code returned for type FetchMTOAgentListOK
 const FetchMTOAgentListOKCode int = 200
 
-/*
-FetchMTOAgentListOK Successfully retrieved all agents for a move task order
+/*FetchMTOAgentListOK Successfully retrieved all agents for a move task order
 
 swagger:response fetchMTOAgentListOK
 */
@@ -64,8 +63,7 @@ func (o *FetchMTOAgentListOK) WriteResponse(rw http.ResponseWriter, producer run
 // FetchMTOAgentListNotFoundCode is the HTTP code returned for type FetchMTOAgentListNotFound
 const FetchMTOAgentListNotFoundCode int = 404
 
-/*
-FetchMTOAgentListNotFound The requested resource wasn't found
+/*FetchMTOAgentListNotFound The requested resource wasn't found
 
 swagger:response fetchMTOAgentListNotFound
 */
@@ -109,8 +107,7 @@ func (o *FetchMTOAgentListNotFound) WriteResponse(rw http.ResponseWriter, produc
 // FetchMTOAgentListUnprocessableEntityCode is the HTTP code returned for type FetchMTOAgentListUnprocessableEntity
 const FetchMTOAgentListUnprocessableEntityCode int = 422
 
-/*
-FetchMTOAgentListUnprocessableEntity The payload was unprocessable.
+/*FetchMTOAgentListUnprocessableEntity The payload was unprocessable.
 
 swagger:response fetchMTOAgentListUnprocessableEntity
 */
@@ -154,8 +151,7 @@ func (o *FetchMTOAgentListUnprocessableEntity) WriteResponse(rw http.ResponseWri
 // FetchMTOAgentListInternalServerErrorCode is the HTTP code returned for type FetchMTOAgentListInternalServerError
 const FetchMTOAgentListInternalServerErrorCode int = 500
 
-/*
-FetchMTOAgentListInternalServerError A server error occurred
+/*FetchMTOAgentListInternalServerError A server error occurred
 
 swagger:response fetchMTOAgentListInternalServerError
 */

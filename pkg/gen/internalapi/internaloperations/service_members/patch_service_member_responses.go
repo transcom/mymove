@@ -16,8 +16,7 @@ import (
 // PatchServiceMemberOKCode is the HTTP code returned for type PatchServiceMemberOK
 const PatchServiceMemberOKCode int = 200
 
-/*
-PatchServiceMemberOK updated instance of service member
+/*PatchServiceMemberOK updated instance of service member
 
 swagger:response patchServiceMemberOK
 */
@@ -61,8 +60,7 @@ func (o *PatchServiceMemberOK) WriteResponse(rw http.ResponseWriter, producer ru
 // PatchServiceMemberBadRequestCode is the HTTP code returned for type PatchServiceMemberBadRequest
 const PatchServiceMemberBadRequestCode int = 400
 
-/*
-PatchServiceMemberBadRequest invalid request
+/*PatchServiceMemberBadRequest invalid request
 
 swagger:response patchServiceMemberBadRequest
 */
@@ -86,8 +84,7 @@ func (o *PatchServiceMemberBadRequest) WriteResponse(rw http.ResponseWriter, pro
 // PatchServiceMemberUnauthorizedCode is the HTTP code returned for type PatchServiceMemberUnauthorized
 const PatchServiceMemberUnauthorizedCode int = 401
 
-/*
-PatchServiceMemberUnauthorized request requires user authentication
+/*PatchServiceMemberUnauthorized request requires user authentication
 
 swagger:response patchServiceMemberUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *PatchServiceMemberUnauthorized) WriteResponse(rw http.ResponseWriter, p
 // PatchServiceMemberForbiddenCode is the HTTP code returned for type PatchServiceMemberForbidden
 const PatchServiceMemberForbiddenCode int = 403
 
-/*
-PatchServiceMemberForbidden user is not authorized
+/*PatchServiceMemberForbidden user is not authorized
 
 swagger:response patchServiceMemberForbidden
 */
@@ -136,8 +132,7 @@ func (o *PatchServiceMemberForbidden) WriteResponse(rw http.ResponseWriter, prod
 // PatchServiceMemberNotFoundCode is the HTTP code returned for type PatchServiceMemberNotFound
 const PatchServiceMemberNotFoundCode int = 404
 
-/*
-PatchServiceMemberNotFound service member not found
+/*PatchServiceMemberNotFound service member not found
 
 swagger:response patchServiceMemberNotFound
 */
@@ -161,8 +156,7 @@ func (o *PatchServiceMemberNotFound) WriteResponse(rw http.ResponseWriter, produ
 // PatchServiceMemberInternalServerErrorCode is the HTTP code returned for type PatchServiceMemberInternalServerError
 const PatchServiceMemberInternalServerErrorCode int = 500
 
-/*
-PatchServiceMemberInternalServerError internal server error
+/*PatchServiceMemberInternalServerError internal server error
 
 swagger:response patchServiceMemberInternalServerError
 */

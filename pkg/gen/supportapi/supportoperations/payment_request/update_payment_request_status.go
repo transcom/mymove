@@ -29,8 +29,7 @@ func NewUpdatePaymentRequestStatus(ctx *middleware.Context, handler UpdatePaymen
 	return &UpdatePaymentRequestStatus{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdatePaymentRequestStatus swagger:route PATCH /payment-requests/{paymentRequestID}/status paymentRequest updatePaymentRequestStatus
+/* UpdatePaymentRequestStatus swagger:route PATCH /payment-requests/{paymentRequestID}/status paymentRequest updatePaymentRequestStatus
 
 updatePaymentRequestStatus
 
@@ -39,6 +38,8 @@ Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, R
 A status of REVIEWED can optionally have a `rejectionReason`.
 
 This is a support endpoint and is not available in production.
+
+
 */
 type UpdatePaymentRequestStatus struct {
 	Context *middleware.Context

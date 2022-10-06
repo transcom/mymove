@@ -16,8 +16,7 @@ import (
 // ShowDocumentOKCode is the HTTP code returned for type ShowDocumentOK
 const ShowDocumentOKCode int = 200
 
-/*
-ShowDocumentOK the requested document
+/*ShowDocumentOK the requested document
 
 swagger:response showDocumentOK
 */
@@ -61,8 +60,7 @@ func (o *ShowDocumentOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 // ShowDocumentBadRequestCode is the HTTP code returned for type ShowDocumentBadRequest
 const ShowDocumentBadRequestCode int = 400
 
-/*
-ShowDocumentBadRequest invalid request
+/*ShowDocumentBadRequest invalid request
 
 swagger:response showDocumentBadRequest
 */
@@ -106,8 +104,7 @@ func (o *ShowDocumentBadRequest) WriteResponse(rw http.ResponseWriter, producer 
 // ShowDocumentForbiddenCode is the HTTP code returned for type ShowDocumentForbidden
 const ShowDocumentForbiddenCode int = 403
 
-/*
-ShowDocumentForbidden not authorized
+/*ShowDocumentForbidden not authorized
 
 swagger:response showDocumentForbidden
 */
@@ -131,8 +128,7 @@ func (o *ShowDocumentForbidden) WriteResponse(rw http.ResponseWriter, producer r
 // ShowDocumentNotFoundCode is the HTTP code returned for type ShowDocumentNotFound
 const ShowDocumentNotFoundCode int = 404
 
-/*
-ShowDocumentNotFound not found
+/*ShowDocumentNotFound not found
 
 swagger:response showDocumentNotFound
 */
@@ -156,8 +152,7 @@ func (o *ShowDocumentNotFound) WriteResponse(rw http.ResponseWriter, producer ru
 // ShowDocumentInternalServerErrorCode is the HTTP code returned for type ShowDocumentInternalServerError
 const ShowDocumentInternalServerErrorCode int = 500
 
-/*
-ShowDocumentInternalServerError server error
+/*ShowDocumentInternalServerError server error
 
 swagger:response showDocumentInternalServerError
 */

@@ -16,8 +16,7 @@ import (
 // ShowServiceMemberOrdersOKCode is the HTTP code returned for type ShowServiceMemberOrdersOK
 const ShowServiceMemberOrdersOKCode int = 200
 
-/*
-ShowServiceMemberOrdersOK the instance of the service member
+/*ShowServiceMemberOrdersOK the instance of the service member
 
 swagger:response showServiceMemberOrdersOK
 */
@@ -61,8 +60,7 @@ func (o *ShowServiceMemberOrdersOK) WriteResponse(rw http.ResponseWriter, produc
 // ShowServiceMemberOrdersBadRequestCode is the HTTP code returned for type ShowServiceMemberOrdersBadRequest
 const ShowServiceMemberOrdersBadRequestCode int = 400
 
-/*
-ShowServiceMemberOrdersBadRequest invalid request
+/*ShowServiceMemberOrdersBadRequest invalid request
 
 swagger:response showServiceMemberOrdersBadRequest
 */
@@ -86,8 +84,7 @@ func (o *ShowServiceMemberOrdersBadRequest) WriteResponse(rw http.ResponseWriter
 // ShowServiceMemberOrdersUnauthorizedCode is the HTTP code returned for type ShowServiceMemberOrdersUnauthorized
 const ShowServiceMemberOrdersUnauthorizedCode int = 401
 
-/*
-ShowServiceMemberOrdersUnauthorized request requires user authentication
+/*ShowServiceMemberOrdersUnauthorized request requires user authentication
 
 swagger:response showServiceMemberOrdersUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *ShowServiceMemberOrdersUnauthorized) WriteResponse(rw http.ResponseWrit
 // ShowServiceMemberOrdersForbiddenCode is the HTTP code returned for type ShowServiceMemberOrdersForbidden
 const ShowServiceMemberOrdersForbiddenCode int = 403
 
-/*
-ShowServiceMemberOrdersForbidden user is not authorized
+/*ShowServiceMemberOrdersForbidden user is not authorized
 
 swagger:response showServiceMemberOrdersForbidden
 */
@@ -136,8 +132,7 @@ func (o *ShowServiceMemberOrdersForbidden) WriteResponse(rw http.ResponseWriter,
 // ShowServiceMemberOrdersNotFoundCode is the HTTP code returned for type ShowServiceMemberOrdersNotFound
 const ShowServiceMemberOrdersNotFoundCode int = 404
 
-/*
-ShowServiceMemberOrdersNotFound service member not found
+/*ShowServiceMemberOrdersNotFound service member not found
 
 swagger:response showServiceMemberOrdersNotFound
 */
@@ -161,8 +156,7 @@ func (o *ShowServiceMemberOrdersNotFound) WriteResponse(rw http.ResponseWriter, 
 // ShowServiceMemberOrdersInternalServerErrorCode is the HTTP code returned for type ShowServiceMemberOrdersInternalServerError
 const ShowServiceMemberOrdersInternalServerErrorCode int = 500
 
-/*
-ShowServiceMemberOrdersInternalServerError internal server error
+/*ShowServiceMemberOrdersInternalServerError internal server error
 
 swagger:response showServiceMemberOrdersInternalServerError
 */

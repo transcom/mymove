@@ -29,12 +29,12 @@ func NewTacValidation(ctx *middleware.Context, handler TacValidationHandler) *Ta
 	return &TacValidation{Context: ctx, Handler: handler}
 }
 
-/*
-	TacValidation swagger:route GET /tac/valid tac order tacValidation
+/* TacValidation swagger:route GET /tac/valid tac order tacValidation
 
-# Validation of a TAC value
+Validation of a TAC value
 
 Returns a boolean based on whether a tac value is valid or not
+
 */
 type TacValidation struct {
 	Context *middleware.Context

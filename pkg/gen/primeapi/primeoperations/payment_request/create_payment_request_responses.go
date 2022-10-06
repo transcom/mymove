@@ -16,8 +16,7 @@ import (
 // CreatePaymentRequestCreatedCode is the HTTP code returned for type CreatePaymentRequestCreated
 const CreatePaymentRequestCreatedCode int = 201
 
-/*
-CreatePaymentRequestCreated Successfully created a paymentRequest object.
+/*CreatePaymentRequestCreated Successfully created a paymentRequest object.
 
 swagger:response createPaymentRequestCreated
 */
@@ -61,8 +60,7 @@ func (o *CreatePaymentRequestCreated) WriteResponse(rw http.ResponseWriter, prod
 // CreatePaymentRequestBadRequestCode is the HTTP code returned for type CreatePaymentRequestBadRequest
 const CreatePaymentRequestBadRequestCode int = 400
 
-/*
-CreatePaymentRequestBadRequest Request payload is invalid.
+/*CreatePaymentRequestBadRequest Request payload is invalid.
 
 swagger:response createPaymentRequestBadRequest
 */
@@ -106,8 +104,7 @@ func (o *CreatePaymentRequestBadRequest) WriteResponse(rw http.ResponseWriter, p
 // CreatePaymentRequestUnauthorizedCode is the HTTP code returned for type CreatePaymentRequestUnauthorized
 const CreatePaymentRequestUnauthorizedCode int = 401
 
-/*
-CreatePaymentRequestUnauthorized The request was denied.
+/*CreatePaymentRequestUnauthorized The request was denied.
 
 swagger:response createPaymentRequestUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *CreatePaymentRequestUnauthorized) WriteResponse(rw http.ResponseWriter,
 // CreatePaymentRequestForbiddenCode is the HTTP code returned for type CreatePaymentRequestForbidden
 const CreatePaymentRequestForbiddenCode int = 403
 
-/*
-CreatePaymentRequestForbidden The request was denied.
+/*CreatePaymentRequestForbidden The request was denied.
 
 swagger:response createPaymentRequestForbidden
 */
@@ -196,8 +192,7 @@ func (o *CreatePaymentRequestForbidden) WriteResponse(rw http.ResponseWriter, pr
 // CreatePaymentRequestNotFoundCode is the HTTP code returned for type CreatePaymentRequestNotFound
 const CreatePaymentRequestNotFoundCode int = 404
 
-/*
-CreatePaymentRequestNotFound The requested resource wasn't found.
+/*CreatePaymentRequestNotFound The requested resource wasn't found.
 
 swagger:response createPaymentRequestNotFound
 */
@@ -241,8 +236,7 @@ func (o *CreatePaymentRequestNotFound) WriteResponse(rw http.ResponseWriter, pro
 // CreatePaymentRequestConflictCode is the HTTP code returned for type CreatePaymentRequestConflict
 const CreatePaymentRequestConflictCode int = 409
 
-/*
-CreatePaymentRequestConflict The request could not be processed because of conflict in the current state of the resource.
+/*CreatePaymentRequestConflict The request could not be processed because of conflict in the current state of the resource.
 
 swagger:response createPaymentRequestConflict
 */
@@ -286,8 +280,7 @@ func (o *CreatePaymentRequestConflict) WriteResponse(rw http.ResponseWriter, pro
 // CreatePaymentRequestUnprocessableEntityCode is the HTTP code returned for type CreatePaymentRequestUnprocessableEntity
 const CreatePaymentRequestUnprocessableEntityCode int = 422
 
-/*
-CreatePaymentRequestUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
+/*CreatePaymentRequestUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response createPaymentRequestUnprocessableEntity
 */
@@ -331,8 +324,7 @@ func (o *CreatePaymentRequestUnprocessableEntity) WriteResponse(rw http.Response
 // CreatePaymentRequestInternalServerErrorCode is the HTTP code returned for type CreatePaymentRequestInternalServerError
 const CreatePaymentRequestInternalServerErrorCode int = 500
 
-/*
-CreatePaymentRequestInternalServerError A server error occurred.
+/*CreatePaymentRequestInternalServerError A server error occurred.
 
 swagger:response createPaymentRequestInternalServerError
 */

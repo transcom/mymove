@@ -16,8 +16,7 @@ import (
 // CreateEvaluationReportOKCode is the HTTP code returned for type CreateEvaluationReportOK
 const CreateEvaluationReportOKCode int = 200
 
-/*
-CreateEvaluationReportOK Successfully created evaluation report
+/*CreateEvaluationReportOK Successfully created evaluation report
 
 swagger:response createEvaluationReportOK
 */
@@ -61,8 +60,7 @@ func (o *CreateEvaluationReportOK) WriteResponse(rw http.ResponseWriter, produce
 // CreateEvaluationReportBadRequestCode is the HTTP code returned for type CreateEvaluationReportBadRequest
 const CreateEvaluationReportBadRequestCode int = 400
 
-/*
-CreateEvaluationReportBadRequest The request payload is invalid
+/*CreateEvaluationReportBadRequest The request payload is invalid
 
 swagger:response createEvaluationReportBadRequest
 */
@@ -106,8 +104,7 @@ func (o *CreateEvaluationReportBadRequest) WriteResponse(rw http.ResponseWriter,
 // CreateEvaluationReportNotFoundCode is the HTTP code returned for type CreateEvaluationReportNotFound
 const CreateEvaluationReportNotFoundCode int = 404
 
-/*
-CreateEvaluationReportNotFound The requested resource wasn't found
+/*CreateEvaluationReportNotFound The requested resource wasn't found
 
 swagger:response createEvaluationReportNotFound
 */
@@ -151,8 +148,7 @@ func (o *CreateEvaluationReportNotFound) WriteResponse(rw http.ResponseWriter, p
 // CreateEvaluationReportUnprocessableEntityCode is the HTTP code returned for type CreateEvaluationReportUnprocessableEntity
 const CreateEvaluationReportUnprocessableEntityCode int = 422
 
-/*
-CreateEvaluationReportUnprocessableEntity The payload was unprocessable.
+/*CreateEvaluationReportUnprocessableEntity The payload was unprocessable.
 
 swagger:response createEvaluationReportUnprocessableEntity
 */
@@ -196,8 +192,7 @@ func (o *CreateEvaluationReportUnprocessableEntity) WriteResponse(rw http.Respon
 // CreateEvaluationReportInternalServerErrorCode is the HTTP code returned for type CreateEvaluationReportInternalServerError
 const CreateEvaluationReportInternalServerErrorCode int = 500
 
-/*
-CreateEvaluationReportInternalServerError A server error occurred
+/*CreateEvaluationReportInternalServerError A server error occurred
 
 swagger:response createEvaluationReportInternalServerError
 */

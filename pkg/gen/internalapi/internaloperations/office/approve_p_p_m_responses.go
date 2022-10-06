@@ -16,8 +16,7 @@ import (
 // ApprovePPMOKCode is the HTTP code returned for type ApprovePPMOK
 const ApprovePPMOKCode int = 200
 
-/*
-ApprovePPMOK updated instance of personally_procured_move
+/*ApprovePPMOK updated instance of personally_procured_move
 
 swagger:response approvePPMOK
 */
@@ -61,8 +60,7 @@ func (o *ApprovePPMOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 // ApprovePPMBadRequestCode is the HTTP code returned for type ApprovePPMBadRequest
 const ApprovePPMBadRequestCode int = 400
 
-/*
-ApprovePPMBadRequest invalid request
+/*ApprovePPMBadRequest invalid request
 
 swagger:response approvePPMBadRequest
 */
@@ -86,8 +84,7 @@ func (o *ApprovePPMBadRequest) WriteResponse(rw http.ResponseWriter, producer ru
 // ApprovePPMUnauthorizedCode is the HTTP code returned for type ApprovePPMUnauthorized
 const ApprovePPMUnauthorizedCode int = 401
 
-/*
-ApprovePPMUnauthorized request requires user authentication
+/*ApprovePPMUnauthorized request requires user authentication
 
 swagger:response approvePPMUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *ApprovePPMUnauthorized) WriteResponse(rw http.ResponseWriter, producer 
 // ApprovePPMForbiddenCode is the HTTP code returned for type ApprovePPMForbidden
 const ApprovePPMForbiddenCode int = 403
 
-/*
-ApprovePPMForbidden user is not authorized
+/*ApprovePPMForbidden user is not authorized
 
 swagger:response approvePPMForbidden
 */
@@ -136,8 +132,7 @@ func (o *ApprovePPMForbidden) WriteResponse(rw http.ResponseWriter, producer run
 // ApprovePPMInternalServerErrorCode is the HTTP code returned for type ApprovePPMInternalServerError
 const ApprovePPMInternalServerErrorCode int = 500
 
-/*
-ApprovePPMInternalServerError internal server error
+/*ApprovePPMInternalServerError internal server error
 
 swagger:response approvePPMInternalServerError
 */

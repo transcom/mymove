@@ -87,8 +87,7 @@ func NewRecalculatePaymentRequestCreated() *RecalculatePaymentRequestCreated {
 	return &RecalculatePaymentRequestCreated{}
 }
 
-/*
-RecalculatePaymentRequestCreated describes a response with status code 201, with default header values.
+/* RecalculatePaymentRequestCreated describes a response with status code 201, with default header values.
 
 The new payment request with recalculated pricing.
 */
@@ -150,8 +149,7 @@ func NewRecalculatePaymentRequestBadRequest() *RecalculatePaymentRequestBadReque
 	return &RecalculatePaymentRequestBadRequest{}
 }
 
-/*
-RecalculatePaymentRequestBadRequest describes a response with status code 400, with default header values.
+/* RecalculatePaymentRequestBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -213,8 +211,7 @@ func NewRecalculatePaymentRequestUnauthorized() *RecalculatePaymentRequestUnauth
 	return &RecalculatePaymentRequestUnauthorized{}
 }
 
-/*
-RecalculatePaymentRequestUnauthorized describes a response with status code 401, with default header values.
+/* RecalculatePaymentRequestUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -276,8 +273,7 @@ func NewRecalculatePaymentRequestForbidden() *RecalculatePaymentRequestForbidden
 	return &RecalculatePaymentRequestForbidden{}
 }
 
-/*
-RecalculatePaymentRequestForbidden describes a response with status code 403, with default header values.
+/* RecalculatePaymentRequestForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -339,8 +335,7 @@ func NewRecalculatePaymentRequestNotFound() *RecalculatePaymentRequestNotFound {
 	return &RecalculatePaymentRequestNotFound{}
 }
 
-/*
-RecalculatePaymentRequestNotFound describes a response with status code 404, with default header values.
+/* RecalculatePaymentRequestNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -402,8 +397,7 @@ func NewRecalculatePaymentRequestConflict() *RecalculatePaymentRequestConflict {
 	return &RecalculatePaymentRequestConflict{}
 }
 
-/*
-RecalculatePaymentRequestConflict describes a response with status code 409, with default header values.
+/* RecalculatePaymentRequestConflict describes a response with status code 409, with default header values.
 
 There was a conflict with the request.
 */
@@ -465,8 +459,7 @@ func NewRecalculatePaymentRequestPreconditionFailed() *RecalculatePaymentRequest
 	return &RecalculatePaymentRequestPreconditionFailed{}
 }
 
-/*
-RecalculatePaymentRequestPreconditionFailed describes a response with status code 412, with default header values.
+/* RecalculatePaymentRequestPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -528,8 +521,7 @@ func NewRecalculatePaymentRequestUnprocessableEntity() *RecalculatePaymentReques
 	return &RecalculatePaymentRequestUnprocessableEntity{}
 }
 
-/*
-RecalculatePaymentRequestUnprocessableEntity describes a response with status code 422, with default header values.
+/* RecalculatePaymentRequestUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -591,8 +583,7 @@ func NewRecalculatePaymentRequestInternalServerError() *RecalculatePaymentReques
 	return &RecalculatePaymentRequestInternalServerError{}
 }
 
-/*
-RecalculatePaymentRequestInternalServerError describes a response with status code 500, with default header values.
+/* RecalculatePaymentRequestInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

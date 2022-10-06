@@ -81,8 +81,7 @@ func NewCreateMTOAgentOK() *CreateMTOAgentOK {
 	return &CreateMTOAgentOK{}
 }
 
-/*
-CreateMTOAgentOK describes a response with status code 200, with default header values.
+/* CreateMTOAgentOK describes a response with status code 200, with default header values.
 
 Successfully added the agent.
 */
@@ -144,8 +143,7 @@ func NewCreateMTOAgentBadRequest() *CreateMTOAgentBadRequest {
 	return &CreateMTOAgentBadRequest{}
 }
 
-/*
-CreateMTOAgentBadRequest describes a response with status code 400, with default header values.
+/* CreateMTOAgentBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -207,8 +205,7 @@ func NewCreateMTOAgentUnauthorized() *CreateMTOAgentUnauthorized {
 	return &CreateMTOAgentUnauthorized{}
 }
 
-/*
-CreateMTOAgentUnauthorized describes a response with status code 401, with default header values.
+/* CreateMTOAgentUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -270,8 +267,7 @@ func NewCreateMTOAgentForbidden() *CreateMTOAgentForbidden {
 	return &CreateMTOAgentForbidden{}
 }
 
-/*
-CreateMTOAgentForbidden describes a response with status code 403, with default header values.
+/* CreateMTOAgentForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -333,8 +329,7 @@ func NewCreateMTOAgentNotFound() *CreateMTOAgentNotFound {
 	return &CreateMTOAgentNotFound{}
 }
 
-/*
-CreateMTOAgentNotFound describes a response with status code 404, with default header values.
+/* CreateMTOAgentNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -396,8 +391,7 @@ func NewCreateMTOAgentConflict() *CreateMTOAgentConflict {
 	return &CreateMTOAgentConflict{}
 }
 
-/*
-CreateMTOAgentConflict describes a response with status code 409, with default header values.
+/* CreateMTOAgentConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -459,8 +453,7 @@ func NewCreateMTOAgentUnprocessableEntity() *CreateMTOAgentUnprocessableEntity {
 	return &CreateMTOAgentUnprocessableEntity{}
 }
 
-/*
-CreateMTOAgentUnprocessableEntity describes a response with status code 422, with default header values.
+/* CreateMTOAgentUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -522,8 +515,7 @@ func NewCreateMTOAgentInternalServerError() *CreateMTOAgentInternalServerError {
 	return &CreateMTOAgentInternalServerError{}
 }
 
-/*
-CreateMTOAgentInternalServerError describes a response with status code 500, with default header values.
+/* CreateMTOAgentInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

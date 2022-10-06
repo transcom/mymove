@@ -16,8 +16,7 @@ import (
 // DeleteMoveDocumentNoContentCode is the HTTP code returned for type DeleteMoveDocumentNoContent
 const DeleteMoveDocumentNoContentCode int = 204
 
-/*
-DeleteMoveDocumentNoContent deleted
+/*DeleteMoveDocumentNoContent deleted
 
 swagger:response deleteMoveDocumentNoContent
 */
@@ -41,8 +40,7 @@ func (o *DeleteMoveDocumentNoContent) WriteResponse(rw http.ResponseWriter, prod
 // DeleteMoveDocumentBadRequestCode is the HTTP code returned for type DeleteMoveDocumentBadRequest
 const DeleteMoveDocumentBadRequestCode int = 400
 
-/*
-DeleteMoveDocumentBadRequest invalid request
+/*DeleteMoveDocumentBadRequest invalid request
 
 swagger:response deleteMoveDocumentBadRequest
 */
@@ -86,8 +84,7 @@ func (o *DeleteMoveDocumentBadRequest) WriteResponse(rw http.ResponseWriter, pro
 // DeleteMoveDocumentForbiddenCode is the HTTP code returned for type DeleteMoveDocumentForbidden
 const DeleteMoveDocumentForbiddenCode int = 403
 
-/*
-DeleteMoveDocumentForbidden not authorized
+/*DeleteMoveDocumentForbidden not authorized
 
 swagger:response deleteMoveDocumentForbidden
 */
@@ -111,8 +108,7 @@ func (o *DeleteMoveDocumentForbidden) WriteResponse(rw http.ResponseWriter, prod
 // DeleteMoveDocumentNotFoundCode is the HTTP code returned for type DeleteMoveDocumentNotFound
 const DeleteMoveDocumentNotFoundCode int = 404
 
-/*
-DeleteMoveDocumentNotFound not found
+/*DeleteMoveDocumentNotFound not found
 
 swagger:response deleteMoveDocumentNotFound
 */
@@ -136,8 +132,7 @@ func (o *DeleteMoveDocumentNotFound) WriteResponse(rw http.ResponseWriter, produ
 // DeleteMoveDocumentInternalServerErrorCode is the HTTP code returned for type DeleteMoveDocumentInternalServerError
 const DeleteMoveDocumentInternalServerErrorCode int = 500
 
-/*
-DeleteMoveDocumentInternalServerError server error
+/*DeleteMoveDocumentInternalServerError server error
 
 swagger:response deleteMoveDocumentInternalServerError
 */

@@ -29,12 +29,12 @@ func NewUpdatePersonallyProcuredMove(ctx *middleware.Context, handler UpdatePers
 	return &UpdatePersonallyProcuredMove{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdatePersonallyProcuredMove swagger:route PUT /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId} ppm updatePersonallyProcuredMove
+/* UpdatePersonallyProcuredMove swagger:route PUT /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId} ppm updatePersonallyProcuredMove
 
-# Updates the PPM
+Updates the PPM
 
 This replaces the current version of the PPM with the version sent.
+
 */
 type UpdatePersonallyProcuredMove struct {
 	Context *middleware.Context

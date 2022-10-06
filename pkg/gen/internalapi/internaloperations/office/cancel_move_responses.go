@@ -16,8 +16,7 @@ import (
 // CancelMoveOKCode is the HTTP code returned for type CancelMoveOK
 const CancelMoveOKCode int = 200
 
-/*
-CancelMoveOK returns updated (canceled) move object
+/*CancelMoveOK returns updated (canceled) move object
 
 swagger:response cancelMoveOK
 */
@@ -61,8 +60,7 @@ func (o *CancelMoveOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 // CancelMoveBadRequestCode is the HTTP code returned for type CancelMoveBadRequest
 const CancelMoveBadRequestCode int = 400
 
-/*
-CancelMoveBadRequest invalid request
+/*CancelMoveBadRequest invalid request
 
 swagger:response cancelMoveBadRequest
 */
@@ -86,8 +84,7 @@ func (o *CancelMoveBadRequest) WriteResponse(rw http.ResponseWriter, producer ru
 // CancelMoveUnauthorizedCode is the HTTP code returned for type CancelMoveUnauthorized
 const CancelMoveUnauthorizedCode int = 401
 
-/*
-CancelMoveUnauthorized must be authenticated to use this endpoint
+/*CancelMoveUnauthorized must be authenticated to use this endpoint
 
 swagger:response cancelMoveUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *CancelMoveUnauthorized) WriteResponse(rw http.ResponseWriter, producer 
 // CancelMoveForbiddenCode is the HTTP code returned for type CancelMoveForbidden
 const CancelMoveForbiddenCode int = 403
 
-/*
-CancelMoveForbidden not authorized to cancel this move
+/*CancelMoveForbidden not authorized to cancel this move
 
 swagger:response cancelMoveForbidden
 */
@@ -136,8 +132,7 @@ func (o *CancelMoveForbidden) WriteResponse(rw http.ResponseWriter, producer run
 // CancelMoveConflictCode is the HTTP code returned for type CancelMoveConflict
 const CancelMoveConflictCode int = 409
 
-/*
-CancelMoveConflict the move is not in a state to be canceled
+/*CancelMoveConflict the move is not in a state to be canceled
 
 swagger:response cancelMoveConflict
 */
@@ -181,8 +176,7 @@ func (o *CancelMoveConflict) WriteResponse(rw http.ResponseWriter, producer runt
 // CancelMoveInternalServerErrorCode is the HTTP code returned for type CancelMoveInternalServerError
 const CancelMoveInternalServerErrorCode int = 500
 
-/*
-CancelMoveInternalServerError server error
+/*CancelMoveInternalServerError server error
 
 swagger:response cancelMoveInternalServerError
 */

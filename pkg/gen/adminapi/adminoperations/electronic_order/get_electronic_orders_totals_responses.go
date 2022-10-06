@@ -16,8 +16,7 @@ import (
 // GetElectronicOrdersTotalsOKCode is the HTTP code returned for type GetElectronicOrdersTotalsOK
 const GetElectronicOrdersTotalsOKCode int = 200
 
-/*
-GetElectronicOrdersTotalsOK success
+/*GetElectronicOrdersTotalsOK success
 
 swagger:response getElectronicOrdersTotalsOK
 */
@@ -64,8 +63,7 @@ func (o *GetElectronicOrdersTotalsOK) WriteResponse(rw http.ResponseWriter, prod
 // GetElectronicOrdersTotalsBadRequestCode is the HTTP code returned for type GetElectronicOrdersTotalsBadRequest
 const GetElectronicOrdersTotalsBadRequestCode int = 400
 
-/*
-GetElectronicOrdersTotalsBadRequest invalid request
+/*GetElectronicOrdersTotalsBadRequest invalid request
 
 swagger:response getElectronicOrdersTotalsBadRequest
 */
@@ -89,8 +87,7 @@ func (o *GetElectronicOrdersTotalsBadRequest) WriteResponse(rw http.ResponseWrit
 // GetElectronicOrdersTotalsUnauthorizedCode is the HTTP code returned for type GetElectronicOrdersTotalsUnauthorized
 const GetElectronicOrdersTotalsUnauthorizedCode int = 401
 
-/*
-GetElectronicOrdersTotalsUnauthorized request requires user authentication
+/*GetElectronicOrdersTotalsUnauthorized request requires user authentication
 
 swagger:response getElectronicOrdersTotalsUnauthorized
 */
@@ -114,8 +111,7 @@ func (o *GetElectronicOrdersTotalsUnauthorized) WriteResponse(rw http.ResponseWr
 // GetElectronicOrdersTotalsNotFoundCode is the HTTP code returned for type GetElectronicOrdersTotalsNotFound
 const GetElectronicOrdersTotalsNotFoundCode int = 404
 
-/*
-GetElectronicOrdersTotalsNotFound not found
+/*GetElectronicOrdersTotalsNotFound not found
 
 swagger:response getElectronicOrdersTotalsNotFound
 */
@@ -139,8 +135,7 @@ func (o *GetElectronicOrdersTotalsNotFound) WriteResponse(rw http.ResponseWriter
 // GetElectronicOrdersTotalsInternalServerErrorCode is the HTTP code returned for type GetElectronicOrdersTotalsInternalServerError
 const GetElectronicOrdersTotalsInternalServerErrorCode int = 500
 
-/*
-GetElectronicOrdersTotalsInternalServerError server error
+/*GetElectronicOrdersTotalsInternalServerError server error
 
 swagger:response getElectronicOrdersTotalsInternalServerError
 */

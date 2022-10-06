@@ -29,12 +29,12 @@ func NewApprovePPM(ctx *middleware.Context, handler ApprovePPMHandler) *ApproveP
 	return &ApprovePPM{Context: ctx, Handler: handler}
 }
 
-/*
-	ApprovePPM swagger:route POST /personally_procured_moves/{personallyProcuredMoveId}/approve office approvePPM
+/* ApprovePPM swagger:route POST /personally_procured_moves/{personallyProcuredMoveId}/approve office approvePPM
 
-# Approves the PPM
+Approves the PPM
 
 Sets the status of the PPM to APPROVED.
+
 */
 type ApprovePPM struct {
 	Context *middleware.Context

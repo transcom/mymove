@@ -16,8 +16,7 @@ import (
 // GetShipmentsPaymentSITBalanceOKCode is the HTTP code returned for type GetShipmentsPaymentSITBalanceOK
 const GetShipmentsPaymentSITBalanceOKCode int = 200
 
-/*
-GetShipmentsPaymentSITBalanceOK Successfully retrieved shipments and their SIT days balance from all payment requests on the move
+/*GetShipmentsPaymentSITBalanceOK Successfully retrieved shipments and their SIT days balance from all payment requests on the move
 
 swagger:response getShipmentsPaymentSITBalanceOK
 */
@@ -64,8 +63,7 @@ func (o *GetShipmentsPaymentSITBalanceOK) WriteResponse(rw http.ResponseWriter, 
 // GetShipmentsPaymentSITBalanceForbiddenCode is the HTTP code returned for type GetShipmentsPaymentSITBalanceForbidden
 const GetShipmentsPaymentSITBalanceForbiddenCode int = 403
 
-/*
-GetShipmentsPaymentSITBalanceForbidden The request was denied
+/*GetShipmentsPaymentSITBalanceForbidden The request was denied
 
 swagger:response getShipmentsPaymentSITBalanceForbidden
 */
@@ -109,8 +107,7 @@ func (o *GetShipmentsPaymentSITBalanceForbidden) WriteResponse(rw http.ResponseW
 // GetShipmentsPaymentSITBalanceNotFoundCode is the HTTP code returned for type GetShipmentsPaymentSITBalanceNotFound
 const GetShipmentsPaymentSITBalanceNotFoundCode int = 404
 
-/*
-GetShipmentsPaymentSITBalanceNotFound The requested resource wasn't found
+/*GetShipmentsPaymentSITBalanceNotFound The requested resource wasn't found
 
 swagger:response getShipmentsPaymentSITBalanceNotFound
 */
@@ -154,8 +151,7 @@ func (o *GetShipmentsPaymentSITBalanceNotFound) WriteResponse(rw http.ResponseWr
 // GetShipmentsPaymentSITBalanceUnprocessableEntityCode is the HTTP code returned for type GetShipmentsPaymentSITBalanceUnprocessableEntity
 const GetShipmentsPaymentSITBalanceUnprocessableEntityCode int = 422
 
-/*
-GetShipmentsPaymentSITBalanceUnprocessableEntity The payload was unprocessable.
+/*GetShipmentsPaymentSITBalanceUnprocessableEntity The payload was unprocessable.
 
 swagger:response getShipmentsPaymentSITBalanceUnprocessableEntity
 */
@@ -199,8 +195,7 @@ func (o *GetShipmentsPaymentSITBalanceUnprocessableEntity) WriteResponse(rw http
 // GetShipmentsPaymentSITBalanceInternalServerErrorCode is the HTTP code returned for type GetShipmentsPaymentSITBalanceInternalServerError
 const GetShipmentsPaymentSITBalanceInternalServerErrorCode int = 500
 
-/*
-GetShipmentsPaymentSITBalanceInternalServerError A server error occurred
+/*GetShipmentsPaymentSITBalanceInternalServerError A server error occurred
 
 swagger:response getShipmentsPaymentSITBalanceInternalServerError
 */

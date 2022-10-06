@@ -16,8 +16,7 @@ import (
 // CreateMovingExpenseOKCode is the HTTP code returned for type CreateMovingExpenseOK
 const CreateMovingExpenseOKCode int = 200
 
-/*
-CreateMovingExpenseOK returns new moving expense object
+/*CreateMovingExpenseOK returns new moving expense object
 
 swagger:response createMovingExpenseOK
 */
@@ -61,8 +60,7 @@ func (o *CreateMovingExpenseOK) WriteResponse(rw http.ResponseWriter, producer r
 // CreateMovingExpenseBadRequestCode is the HTTP code returned for type CreateMovingExpenseBadRequest
 const CreateMovingExpenseBadRequestCode int = 400
 
-/*
-CreateMovingExpenseBadRequest The request payload is invalid.
+/*CreateMovingExpenseBadRequest The request payload is invalid.
 
 swagger:response createMovingExpenseBadRequest
 */
@@ -106,8 +104,7 @@ func (o *CreateMovingExpenseBadRequest) WriteResponse(rw http.ResponseWriter, pr
 // CreateMovingExpenseUnauthorizedCode is the HTTP code returned for type CreateMovingExpenseUnauthorized
 const CreateMovingExpenseUnauthorizedCode int = 401
 
-/*
-CreateMovingExpenseUnauthorized The request was denied.
+/*CreateMovingExpenseUnauthorized The request was denied.
 
 swagger:response createMovingExpenseUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *CreateMovingExpenseUnauthorized) WriteResponse(rw http.ResponseWriter, 
 // CreateMovingExpenseForbiddenCode is the HTTP code returned for type CreateMovingExpenseForbidden
 const CreateMovingExpenseForbiddenCode int = 403
 
-/*
-CreateMovingExpenseForbidden The request was denied.
+/*CreateMovingExpenseForbidden The request was denied.
 
 swagger:response createMovingExpenseForbidden
 */
@@ -196,8 +192,7 @@ func (o *CreateMovingExpenseForbidden) WriteResponse(rw http.ResponseWriter, pro
 // CreateMovingExpenseNotFoundCode is the HTTP code returned for type CreateMovingExpenseNotFound
 const CreateMovingExpenseNotFoundCode int = 404
 
-/*
-CreateMovingExpenseNotFound The requested resource wasn't found.
+/*CreateMovingExpenseNotFound The requested resource wasn't found.
 
 swagger:response createMovingExpenseNotFound
 */
@@ -241,8 +236,7 @@ func (o *CreateMovingExpenseNotFound) WriteResponse(rw http.ResponseWriter, prod
 // CreateMovingExpenseUnprocessableEntityCode is the HTTP code returned for type CreateMovingExpenseUnprocessableEntity
 const CreateMovingExpenseUnprocessableEntityCode int = 422
 
-/*
-CreateMovingExpenseUnprocessableEntity The payload was unprocessable.
+/*CreateMovingExpenseUnprocessableEntity The payload was unprocessable.
 
 swagger:response createMovingExpenseUnprocessableEntity
 */
@@ -286,8 +280,7 @@ func (o *CreateMovingExpenseUnprocessableEntity) WriteResponse(rw http.ResponseW
 // CreateMovingExpenseInternalServerErrorCode is the HTTP code returned for type CreateMovingExpenseInternalServerError
 const CreateMovingExpenseInternalServerErrorCode int = 500
 
-/*
-CreateMovingExpenseInternalServerError A server error occurred.
+/*CreateMovingExpenseInternalServerError A server error occurred.
 
 swagger:response createMovingExpenseInternalServerError
 */

@@ -29,8 +29,7 @@ func NewListMTOs(ctx *middleware.Context, handler ListMTOsHandler) *ListMTOs {
 	return &ListMTOs{Context: ctx, Handler: handler}
 }
 
-/*
-	ListMTOs swagger:route GET /move-task-orders moveTaskOrder listMTOs
+/* ListMTOs swagger:route GET /move-task-orders moveTaskOrder listMTOs
 
 listMTOs
 
@@ -38,6 +37,8 @@ listMTOs
 This endpoint lists all MoveTaskOrders regardless of whether or not they have been made available to Prime.
 
 It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+
+
 */
 type ListMTOs struct {
 	Context *middleware.Context

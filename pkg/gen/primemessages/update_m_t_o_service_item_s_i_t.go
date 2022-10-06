@@ -18,6 +18,7 @@ import (
 
 // UpdateMTOServiceItemSIT Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.
 //
+//
 // swagger:model UpdateMTOServiceItemSIT
 type UpdateMTOServiceItemSIT struct {
 	idField strfmt.UUID

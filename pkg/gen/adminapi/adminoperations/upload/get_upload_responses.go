@@ -16,8 +16,7 @@ import (
 // GetUploadOKCode is the HTTP code returned for type GetUploadOK
 const GetUploadOKCode int = 200
 
-/*
-GetUploadOK success
+/*GetUploadOK success
 
 swagger:response getUploadOK
 */
@@ -61,8 +60,7 @@ func (o *GetUploadOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 // GetUploadBadRequestCode is the HTTP code returned for type GetUploadBadRequest
 const GetUploadBadRequestCode int = 400
 
-/*
-GetUploadBadRequest invalid request
+/*GetUploadBadRequest invalid request
 
 swagger:response getUploadBadRequest
 */
@@ -86,8 +84,7 @@ func (o *GetUploadBadRequest) WriteResponse(rw http.ResponseWriter, producer run
 // GetUploadUnauthorizedCode is the HTTP code returned for type GetUploadUnauthorized
 const GetUploadUnauthorizedCode int = 401
 
-/*
-GetUploadUnauthorized request requires user authentication
+/*GetUploadUnauthorized request requires user authentication
 
 swagger:response getUploadUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *GetUploadUnauthorized) WriteResponse(rw http.ResponseWriter, producer r
 // GetUploadNotFoundCode is the HTTP code returned for type GetUploadNotFound
 const GetUploadNotFoundCode int = 404
 
-/*
-GetUploadNotFound upload not found
+/*GetUploadNotFound upload not found
 
 swagger:response getUploadNotFound
 */
@@ -136,8 +132,7 @@ func (o *GetUploadNotFound) WriteResponse(rw http.ResponseWriter, producer runti
 // GetUploadInternalServerErrorCode is the HTTP code returned for type GetUploadInternalServerError
 const GetUploadInternalServerErrorCode int = 500
 
-/*
-GetUploadInternalServerError server error
+/*GetUploadInternalServerError server error
 
 swagger:response getUploadInternalServerError
 */

@@ -15,12 +15,13 @@ import (
 )
 
 // UpdateMTOServiceItemModelType Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
-//   - DDDSIT - UpdateMTOServiceItemSIT
-//   - DOPSIT - UpdateMTOServiceItemSIT
-//   - DDSHUT - UpdateMTOServiceItemShuttle
-//   - DOSHUT - UpdateMTOServiceItemShuttle
+//   * DDDSIT - UpdateMTOServiceItemSIT
+//   * DOPSIT - UpdateMTOServiceItemSIT
+//   * DDSHUT - UpdateMTOServiceItemShuttle
+//   * DOSHUT - UpdateMTOServiceItemShuttle
 //
 // The documentation will then update with the supported fields.
+//
 //
 // swagger:model UpdateMTOServiceItemModelType
 type UpdateMTOServiceItemModelType string

@@ -87,8 +87,7 @@ func NewUpdateMTOServiceItemOK() *UpdateMTOServiceItemOK {
 	return &UpdateMTOServiceItemOK{}
 }
 
-/*
-UpdateMTOServiceItemOK describes a response with status code 200, with default header values.
+/* UpdateMTOServiceItemOK describes a response with status code 200, with default header values.
 
 Successfully updated the MTO service item.
 */
@@ -150,8 +149,7 @@ func NewUpdateMTOServiceItemBadRequest() *UpdateMTOServiceItemBadRequest {
 	return &UpdateMTOServiceItemBadRequest{}
 }
 
-/*
-UpdateMTOServiceItemBadRequest describes a response with status code 400, with default header values.
+/* UpdateMTOServiceItemBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -213,8 +211,7 @@ func NewUpdateMTOServiceItemUnauthorized() *UpdateMTOServiceItemUnauthorized {
 	return &UpdateMTOServiceItemUnauthorized{}
 }
 
-/*
-UpdateMTOServiceItemUnauthorized describes a response with status code 401, with default header values.
+/* UpdateMTOServiceItemUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -276,8 +273,7 @@ func NewUpdateMTOServiceItemForbidden() *UpdateMTOServiceItemForbidden {
 	return &UpdateMTOServiceItemForbidden{}
 }
 
-/*
-UpdateMTOServiceItemForbidden describes a response with status code 403, with default header values.
+/* UpdateMTOServiceItemForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -339,8 +335,7 @@ func NewUpdateMTOServiceItemNotFound() *UpdateMTOServiceItemNotFound {
 	return &UpdateMTOServiceItemNotFound{}
 }
 
-/*
-UpdateMTOServiceItemNotFound describes a response with status code 404, with default header values.
+/* UpdateMTOServiceItemNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -402,8 +397,7 @@ func NewUpdateMTOServiceItemConflict() *UpdateMTOServiceItemConflict {
 	return &UpdateMTOServiceItemConflict{}
 }
 
-/*
-UpdateMTOServiceItemConflict describes a response with status code 409, with default header values.
+/* UpdateMTOServiceItemConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -465,8 +459,7 @@ func NewUpdateMTOServiceItemPreconditionFailed() *UpdateMTOServiceItemPreconditi
 	return &UpdateMTOServiceItemPreconditionFailed{}
 }
 
-/*
-UpdateMTOServiceItemPreconditionFailed describes a response with status code 412, with default header values.
+/* UpdateMTOServiceItemPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -528,8 +521,7 @@ func NewUpdateMTOServiceItemUnprocessableEntity() *UpdateMTOServiceItemUnprocess
 	return &UpdateMTOServiceItemUnprocessableEntity{}
 }
 
-/*
-UpdateMTOServiceItemUnprocessableEntity describes a response with status code 422, with default header values.
+/* UpdateMTOServiceItemUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -591,8 +583,7 @@ func NewUpdateMTOServiceItemInternalServerError() *UpdateMTOServiceItemInternalS
 	return &UpdateMTOServiceItemInternalServerError{}
 }
 
-/*
-UpdateMTOServiceItemInternalServerError describes a response with status code 500, with default header values.
+/* UpdateMTOServiceItemInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

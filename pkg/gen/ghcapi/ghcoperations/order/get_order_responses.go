@@ -16,8 +16,7 @@ import (
 // GetOrderOKCode is the HTTP code returned for type GetOrderOK
 const GetOrderOKCode int = 200
 
-/*
-GetOrderOK Successfully retrieved order
+/*GetOrderOK Successfully retrieved order
 
 swagger:response getOrderOK
 */
@@ -61,8 +60,7 @@ func (o *GetOrderOK) WriteResponse(rw http.ResponseWriter, producer runtime.Prod
 // GetOrderBadRequestCode is the HTTP code returned for type GetOrderBadRequest
 const GetOrderBadRequestCode int = 400
 
-/*
-GetOrderBadRequest The request payload is invalid
+/*GetOrderBadRequest The request payload is invalid
 
 swagger:response getOrderBadRequest
 */
@@ -106,8 +104,7 @@ func (o *GetOrderBadRequest) WriteResponse(rw http.ResponseWriter, producer runt
 // GetOrderUnauthorizedCode is the HTTP code returned for type GetOrderUnauthorized
 const GetOrderUnauthorizedCode int = 401
 
-/*
-GetOrderUnauthorized The request was denied
+/*GetOrderUnauthorized The request was denied
 
 swagger:response getOrderUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *GetOrderUnauthorized) WriteResponse(rw http.ResponseWriter, producer ru
 // GetOrderForbiddenCode is the HTTP code returned for type GetOrderForbidden
 const GetOrderForbiddenCode int = 403
 
-/*
-GetOrderForbidden The request was denied
+/*GetOrderForbidden The request was denied
 
 swagger:response getOrderForbidden
 */
@@ -196,8 +192,7 @@ func (o *GetOrderForbidden) WriteResponse(rw http.ResponseWriter, producer runti
 // GetOrderNotFoundCode is the HTTP code returned for type GetOrderNotFound
 const GetOrderNotFoundCode int = 404
 
-/*
-GetOrderNotFound The requested resource wasn't found
+/*GetOrderNotFound The requested resource wasn't found
 
 swagger:response getOrderNotFound
 */
@@ -241,8 +236,7 @@ func (o *GetOrderNotFound) WriteResponse(rw http.ResponseWriter, producer runtim
 // GetOrderInternalServerErrorCode is the HTTP code returned for type GetOrderInternalServerError
 const GetOrderInternalServerErrorCode int = 500
 
-/*
-GetOrderInternalServerError A server error occurred
+/*GetOrderInternalServerError A server error occurred
 
 swagger:response getOrderInternalServerError
 */

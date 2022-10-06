@@ -16,8 +16,7 @@ import (
 // GetCustomerSupportRemarksForMoveOKCode is the HTTP code returned for type GetCustomerSupportRemarksForMoveOK
 const GetCustomerSupportRemarksForMoveOKCode int = 200
 
-/*
-GetCustomerSupportRemarksForMoveOK Successfully retrieved all line items for a move task order
+/*GetCustomerSupportRemarksForMoveOK Successfully retrieved all line items for a move task order
 
 swagger:response getCustomerSupportRemarksForMoveOK
 */
@@ -64,8 +63,7 @@ func (o *GetCustomerSupportRemarksForMoveOK) WriteResponse(rw http.ResponseWrite
 // GetCustomerSupportRemarksForMoveForbiddenCode is the HTTP code returned for type GetCustomerSupportRemarksForMoveForbidden
 const GetCustomerSupportRemarksForMoveForbiddenCode int = 403
 
-/*
-GetCustomerSupportRemarksForMoveForbidden The request was denied
+/*GetCustomerSupportRemarksForMoveForbidden The request was denied
 
 swagger:response getCustomerSupportRemarksForMoveForbidden
 */
@@ -109,8 +107,7 @@ func (o *GetCustomerSupportRemarksForMoveForbidden) WriteResponse(rw http.Respon
 // GetCustomerSupportRemarksForMoveNotFoundCode is the HTTP code returned for type GetCustomerSupportRemarksForMoveNotFound
 const GetCustomerSupportRemarksForMoveNotFoundCode int = 404
 
-/*
-GetCustomerSupportRemarksForMoveNotFound The requested resource wasn't found
+/*GetCustomerSupportRemarksForMoveNotFound The requested resource wasn't found
 
 swagger:response getCustomerSupportRemarksForMoveNotFound
 */
@@ -154,8 +151,7 @@ func (o *GetCustomerSupportRemarksForMoveNotFound) WriteResponse(rw http.Respons
 // GetCustomerSupportRemarksForMoveUnprocessableEntityCode is the HTTP code returned for type GetCustomerSupportRemarksForMoveUnprocessableEntity
 const GetCustomerSupportRemarksForMoveUnprocessableEntityCode int = 422
 
-/*
-GetCustomerSupportRemarksForMoveUnprocessableEntity The payload was unprocessable.
+/*GetCustomerSupportRemarksForMoveUnprocessableEntity The payload was unprocessable.
 
 swagger:response getCustomerSupportRemarksForMoveUnprocessableEntity
 */
@@ -199,8 +195,7 @@ func (o *GetCustomerSupportRemarksForMoveUnprocessableEntity) WriteResponse(rw h
 // GetCustomerSupportRemarksForMoveInternalServerErrorCode is the HTTP code returned for type GetCustomerSupportRemarksForMoveInternalServerError
 const GetCustomerSupportRemarksForMoveInternalServerErrorCode int = 500
 
-/*
-GetCustomerSupportRemarksForMoveInternalServerError A server error occurred
+/*GetCustomerSupportRemarksForMoveInternalServerError A server error occurred
 
 swagger:response getCustomerSupportRemarksForMoveInternalServerError
 */

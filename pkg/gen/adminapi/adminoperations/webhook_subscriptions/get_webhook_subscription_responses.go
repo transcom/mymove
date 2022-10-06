@@ -16,8 +16,7 @@ import (
 // GetWebhookSubscriptionOKCode is the HTTP code returned for type GetWebhookSubscriptionOK
 const GetWebhookSubscriptionOKCode int = 200
 
-/*
-GetWebhookSubscriptionOK success
+/*GetWebhookSubscriptionOK success
 
 swagger:response getWebhookSubscriptionOK
 */
@@ -61,8 +60,7 @@ func (o *GetWebhookSubscriptionOK) WriteResponse(rw http.ResponseWriter, produce
 // GetWebhookSubscriptionBadRequestCode is the HTTP code returned for type GetWebhookSubscriptionBadRequest
 const GetWebhookSubscriptionBadRequestCode int = 400
 
-/*
-GetWebhookSubscriptionBadRequest invalid request
+/*GetWebhookSubscriptionBadRequest invalid request
 
 swagger:response getWebhookSubscriptionBadRequest
 */
@@ -86,8 +84,7 @@ func (o *GetWebhookSubscriptionBadRequest) WriteResponse(rw http.ResponseWriter,
 // GetWebhookSubscriptionUnauthorizedCode is the HTTP code returned for type GetWebhookSubscriptionUnauthorized
 const GetWebhookSubscriptionUnauthorizedCode int = 401
 
-/*
-GetWebhookSubscriptionUnauthorized request requires user authentication
+/*GetWebhookSubscriptionUnauthorized request requires user authentication
 
 swagger:response getWebhookSubscriptionUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *GetWebhookSubscriptionUnauthorized) WriteResponse(rw http.ResponseWrite
 // GetWebhookSubscriptionNotFoundCode is the HTTP code returned for type GetWebhookSubscriptionNotFound
 const GetWebhookSubscriptionNotFoundCode int = 404
 
-/*
-GetWebhookSubscriptionNotFound subscription not found
+/*GetWebhookSubscriptionNotFound subscription not found
 
 swagger:response getWebhookSubscriptionNotFound
 */
@@ -136,8 +132,7 @@ func (o *GetWebhookSubscriptionNotFound) WriteResponse(rw http.ResponseWriter, p
 // GetWebhookSubscriptionInternalServerErrorCode is the HTTP code returned for type GetWebhookSubscriptionInternalServerError
 const GetWebhookSubscriptionInternalServerErrorCode int = 500
 
-/*
-GetWebhookSubscriptionInternalServerError server error
+/*GetWebhookSubscriptionInternalServerError server error
 
 swagger:response getWebhookSubscriptionInternalServerError
 */

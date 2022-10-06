@@ -16,8 +16,7 @@ import (
 // SubmitPersonallyProcuredMoveOKCode is the HTTP code returned for type SubmitPersonallyProcuredMoveOK
 const SubmitPersonallyProcuredMoveOKCode int = 200
 
-/*
-SubmitPersonallyProcuredMoveOK updated instance of personally_procured_move
+/*SubmitPersonallyProcuredMoveOK updated instance of personally_procured_move
 
 swagger:response submitPersonallyProcuredMoveOK
 */
@@ -61,8 +60,7 @@ func (o *SubmitPersonallyProcuredMoveOK) WriteResponse(rw http.ResponseWriter, p
 // SubmitPersonallyProcuredMoveBadRequestCode is the HTTP code returned for type SubmitPersonallyProcuredMoveBadRequest
 const SubmitPersonallyProcuredMoveBadRequestCode int = 400
 
-/*
-SubmitPersonallyProcuredMoveBadRequest invalid request
+/*SubmitPersonallyProcuredMoveBadRequest invalid request
 
 swagger:response submitPersonallyProcuredMoveBadRequest
 */
@@ -86,8 +84,7 @@ func (o *SubmitPersonallyProcuredMoveBadRequest) WriteResponse(rw http.ResponseW
 // SubmitPersonallyProcuredMoveUnauthorizedCode is the HTTP code returned for type SubmitPersonallyProcuredMoveUnauthorized
 const SubmitPersonallyProcuredMoveUnauthorizedCode int = 401
 
-/*
-SubmitPersonallyProcuredMoveUnauthorized request requires user authentication
+/*SubmitPersonallyProcuredMoveUnauthorized request requires user authentication
 
 swagger:response submitPersonallyProcuredMoveUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *SubmitPersonallyProcuredMoveUnauthorized) WriteResponse(rw http.Respons
 // SubmitPersonallyProcuredMoveForbiddenCode is the HTTP code returned for type SubmitPersonallyProcuredMoveForbidden
 const SubmitPersonallyProcuredMoveForbiddenCode int = 403
 
-/*
-SubmitPersonallyProcuredMoveForbidden user is not authorized
+/*SubmitPersonallyProcuredMoveForbidden user is not authorized
 
 swagger:response submitPersonallyProcuredMoveForbidden
 */
@@ -136,8 +132,7 @@ func (o *SubmitPersonallyProcuredMoveForbidden) WriteResponse(rw http.ResponseWr
 // SubmitPersonallyProcuredMoveNotFoundCode is the HTTP code returned for type SubmitPersonallyProcuredMoveNotFound
 const SubmitPersonallyProcuredMoveNotFoundCode int = 404
 
-/*
-SubmitPersonallyProcuredMoveNotFound ppm is not found
+/*SubmitPersonallyProcuredMoveNotFound ppm is not found
 
 swagger:response submitPersonallyProcuredMoveNotFound
 */
@@ -161,8 +156,7 @@ func (o *SubmitPersonallyProcuredMoveNotFound) WriteResponse(rw http.ResponseWri
 // SubmitPersonallyProcuredMoveInternalServerErrorCode is the HTTP code returned for type SubmitPersonallyProcuredMoveInternalServerError
 const SubmitPersonallyProcuredMoveInternalServerErrorCode int = 500
 
-/*
-SubmitPersonallyProcuredMoveInternalServerError internal server error
+/*SubmitPersonallyProcuredMoveInternalServerError internal server error
 
 swagger:response submitPersonallyProcuredMoveInternalServerError
 */

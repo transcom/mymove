@@ -16,8 +16,7 @@ import (
 // SubmitAmendedOrdersOKCode is the HTTP code returned for type SubmitAmendedOrdersOK
 const SubmitAmendedOrdersOKCode int = 200
 
-/*
-SubmitAmendedOrdersOK returns updated (submitted) move object
+/*SubmitAmendedOrdersOK returns updated (submitted) move object
 
 swagger:response submitAmendedOrdersOK
 */
@@ -61,8 +60,7 @@ func (o *SubmitAmendedOrdersOK) WriteResponse(rw http.ResponseWriter, producer r
 // SubmitAmendedOrdersBadRequestCode is the HTTP code returned for type SubmitAmendedOrdersBadRequest
 const SubmitAmendedOrdersBadRequestCode int = 400
 
-/*
-SubmitAmendedOrdersBadRequest invalid request
+/*SubmitAmendedOrdersBadRequest invalid request
 
 swagger:response submitAmendedOrdersBadRequest
 */
@@ -86,8 +84,7 @@ func (o *SubmitAmendedOrdersBadRequest) WriteResponse(rw http.ResponseWriter, pr
 // SubmitAmendedOrdersUnauthorizedCode is the HTTP code returned for type SubmitAmendedOrdersUnauthorized
 const SubmitAmendedOrdersUnauthorizedCode int = 401
 
-/*
-SubmitAmendedOrdersUnauthorized must be authenticated to use this endpoint
+/*SubmitAmendedOrdersUnauthorized must be authenticated to use this endpoint
 
 swagger:response submitAmendedOrdersUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *SubmitAmendedOrdersUnauthorized) WriteResponse(rw http.ResponseWriter, 
 // SubmitAmendedOrdersForbiddenCode is the HTTP code returned for type SubmitAmendedOrdersForbidden
 const SubmitAmendedOrdersForbiddenCode int = 403
 
-/*
-SubmitAmendedOrdersForbidden not authorized to approve this move
+/*SubmitAmendedOrdersForbidden not authorized to approve this move
 
 swagger:response submitAmendedOrdersForbidden
 */
@@ -136,8 +132,7 @@ func (o *SubmitAmendedOrdersForbidden) WriteResponse(rw http.ResponseWriter, pro
 // SubmitAmendedOrdersConflictCode is the HTTP code returned for type SubmitAmendedOrdersConflict
 const SubmitAmendedOrdersConflictCode int = 409
 
-/*
-SubmitAmendedOrdersConflict the move is not in a state to be approved
+/*SubmitAmendedOrdersConflict the move is not in a state to be approved
 
 swagger:response submitAmendedOrdersConflict
 */
@@ -181,8 +176,7 @@ func (o *SubmitAmendedOrdersConflict) WriteResponse(rw http.ResponseWriter, prod
 // SubmitAmendedOrdersInternalServerErrorCode is the HTTP code returned for type SubmitAmendedOrdersInternalServerError
 const SubmitAmendedOrdersInternalServerErrorCode int = 500
 
-/*
-SubmitAmendedOrdersInternalServerError server error
+/*SubmitAmendedOrdersInternalServerError server error
 
 swagger:response submitAmendedOrdersInternalServerError
 */

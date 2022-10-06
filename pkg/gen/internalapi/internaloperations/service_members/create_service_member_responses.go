@@ -16,8 +16,7 @@ import (
 // CreateServiceMemberCreatedCode is the HTTP code returned for type CreateServiceMemberCreated
 const CreateServiceMemberCreatedCode int = 201
 
-/*
-CreateServiceMemberCreated created instance of service member
+/*CreateServiceMemberCreated created instance of service member
 
 swagger:response createServiceMemberCreated
 */
@@ -61,8 +60,7 @@ func (o *CreateServiceMemberCreated) WriteResponse(rw http.ResponseWriter, produ
 // CreateServiceMemberBadRequestCode is the HTTP code returned for type CreateServiceMemberBadRequest
 const CreateServiceMemberBadRequestCode int = 400
 
-/*
-CreateServiceMemberBadRequest invalid request
+/*CreateServiceMemberBadRequest invalid request
 
 swagger:response createServiceMemberBadRequest
 */
@@ -86,8 +84,7 @@ func (o *CreateServiceMemberBadRequest) WriteResponse(rw http.ResponseWriter, pr
 // CreateServiceMemberUnauthorizedCode is the HTTP code returned for type CreateServiceMemberUnauthorized
 const CreateServiceMemberUnauthorizedCode int = 401
 
-/*
-CreateServiceMemberUnauthorized request requires user authentication
+/*CreateServiceMemberUnauthorized request requires user authentication
 
 swagger:response createServiceMemberUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *CreateServiceMemberUnauthorized) WriteResponse(rw http.ResponseWriter, 
 // CreateServiceMemberForbiddenCode is the HTTP code returned for type CreateServiceMemberForbidden
 const CreateServiceMemberForbiddenCode int = 403
 
-/*
-CreateServiceMemberForbidden user is not authorized
+/*CreateServiceMemberForbidden user is not authorized
 
 swagger:response createServiceMemberForbidden
 */
@@ -136,8 +132,7 @@ func (o *CreateServiceMemberForbidden) WriteResponse(rw http.ResponseWriter, pro
 // CreateServiceMemberNotFoundCode is the HTTP code returned for type CreateServiceMemberNotFound
 const CreateServiceMemberNotFoundCode int = 404
 
-/*
-CreateServiceMemberNotFound service member not found
+/*CreateServiceMemberNotFound service member not found
 
 swagger:response createServiceMemberNotFound
 */
@@ -161,8 +156,7 @@ func (o *CreateServiceMemberNotFound) WriteResponse(rw http.ResponseWriter, prod
 // CreateServiceMemberInternalServerErrorCode is the HTTP code returned for type CreateServiceMemberInternalServerError
 const CreateServiceMemberInternalServerErrorCode int = 500
 
-/*
-CreateServiceMemberInternalServerError internal server error
+/*CreateServiceMemberInternalServerError internal server error
 
 swagger:response createServiceMemberInternalServerError
 */

@@ -81,8 +81,7 @@ func NewMakeMoveTaskOrderAvailableOK() *MakeMoveTaskOrderAvailableOK {
 	return &MakeMoveTaskOrderAvailableOK{}
 }
 
-/*
-MakeMoveTaskOrderAvailableOK describes a response with status code 200, with default header values.
+/* MakeMoveTaskOrderAvailableOK describes a response with status code 200, with default header values.
 
 Successfully made MTO available to Prime.
 */
@@ -144,8 +143,7 @@ func NewMakeMoveTaskOrderAvailableBadRequest() *MakeMoveTaskOrderAvailableBadReq
 	return &MakeMoveTaskOrderAvailableBadRequest{}
 }
 
-/*
-MakeMoveTaskOrderAvailableBadRequest describes a response with status code 400, with default header values.
+/* MakeMoveTaskOrderAvailableBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -207,8 +205,7 @@ func NewMakeMoveTaskOrderAvailableUnauthorized() *MakeMoveTaskOrderAvailableUnau
 	return &MakeMoveTaskOrderAvailableUnauthorized{}
 }
 
-/*
-MakeMoveTaskOrderAvailableUnauthorized describes a response with status code 401, with default header values.
+/* MakeMoveTaskOrderAvailableUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -270,8 +267,7 @@ func NewMakeMoveTaskOrderAvailableForbidden() *MakeMoveTaskOrderAvailableForbidd
 	return &MakeMoveTaskOrderAvailableForbidden{}
 }
 
-/*
-MakeMoveTaskOrderAvailableForbidden describes a response with status code 403, with default header values.
+/* MakeMoveTaskOrderAvailableForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -333,8 +329,7 @@ func NewMakeMoveTaskOrderAvailableNotFound() *MakeMoveTaskOrderAvailableNotFound
 	return &MakeMoveTaskOrderAvailableNotFound{}
 }
 
-/*
-MakeMoveTaskOrderAvailableNotFound describes a response with status code 404, with default header values.
+/* MakeMoveTaskOrderAvailableNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -396,8 +391,7 @@ func NewMakeMoveTaskOrderAvailablePreconditionFailed() *MakeMoveTaskOrderAvailab
 	return &MakeMoveTaskOrderAvailablePreconditionFailed{}
 }
 
-/*
-MakeMoveTaskOrderAvailablePreconditionFailed describes a response with status code 412, with default header values.
+/* MakeMoveTaskOrderAvailablePreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -459,8 +453,7 @@ func NewMakeMoveTaskOrderAvailableUnprocessableEntity() *MakeMoveTaskOrderAvaila
 	return &MakeMoveTaskOrderAvailableUnprocessableEntity{}
 }
 
-/*
-MakeMoveTaskOrderAvailableUnprocessableEntity describes a response with status code 422, with default header values.
+/* MakeMoveTaskOrderAvailableUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -522,8 +515,7 @@ func NewMakeMoveTaskOrderAvailableInternalServerError() *MakeMoveTaskOrderAvaila
 	return &MakeMoveTaskOrderAvailableInternalServerError{}
 }
 
-/*
-MakeMoveTaskOrderAvailableInternalServerError describes a response with status code 500, with default header values.
+/* MakeMoveTaskOrderAvailableInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

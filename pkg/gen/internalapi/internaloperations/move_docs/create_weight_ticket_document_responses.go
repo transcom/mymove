@@ -16,8 +16,7 @@ import (
 // CreateWeightTicketDocumentOKCode is the HTTP code returned for type CreateWeightTicketDocumentOK
 const CreateWeightTicketDocumentOKCode int = 200
 
-/*
-CreateWeightTicketDocumentOK returns new weight ticket document object
+/*CreateWeightTicketDocumentOK returns new weight ticket document object
 
 swagger:response createWeightTicketDocumentOK
 */
@@ -61,8 +60,7 @@ func (o *CreateWeightTicketDocumentOK) WriteResponse(rw http.ResponseWriter, pro
 // CreateWeightTicketDocumentBadRequestCode is the HTTP code returned for type CreateWeightTicketDocumentBadRequest
 const CreateWeightTicketDocumentBadRequestCode int = 400
 
-/*
-CreateWeightTicketDocumentBadRequest invalid request
+/*CreateWeightTicketDocumentBadRequest invalid request
 
 swagger:response createWeightTicketDocumentBadRequest
 */
@@ -86,8 +84,7 @@ func (o *CreateWeightTicketDocumentBadRequest) WriteResponse(rw http.ResponseWri
 // CreateWeightTicketDocumentUnauthorizedCode is the HTTP code returned for type CreateWeightTicketDocumentUnauthorized
 const CreateWeightTicketDocumentUnauthorizedCode int = 401
 
-/*
-CreateWeightTicketDocumentUnauthorized must be authenticated to use this endpoint
+/*CreateWeightTicketDocumentUnauthorized must be authenticated to use this endpoint
 
 swagger:response createWeightTicketDocumentUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *CreateWeightTicketDocumentUnauthorized) WriteResponse(rw http.ResponseW
 // CreateWeightTicketDocumentForbiddenCode is the HTTP code returned for type CreateWeightTicketDocumentForbidden
 const CreateWeightTicketDocumentForbiddenCode int = 403
 
-/*
-CreateWeightTicketDocumentForbidden not authorized to modify this move
+/*CreateWeightTicketDocumentForbidden not authorized to modify this move
 
 swagger:response createWeightTicketDocumentForbidden
 */
@@ -136,8 +132,7 @@ func (o *CreateWeightTicketDocumentForbidden) WriteResponse(rw http.ResponseWrit
 // CreateWeightTicketDocumentInternalServerErrorCode is the HTTP code returned for type CreateWeightTicketDocumentInternalServerError
 const CreateWeightTicketDocumentInternalServerErrorCode int = 500
 
-/*
-CreateWeightTicketDocumentInternalServerError server error
+/*CreateWeightTicketDocumentInternalServerError server error
 
 swagger:response createWeightTicketDocumentInternalServerError
 */
