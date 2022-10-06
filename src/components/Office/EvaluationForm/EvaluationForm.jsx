@@ -344,7 +344,7 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
             values.evaluationType === 'physical' && values.evaluationLocation === 'origin' && isShipment;
 
           return (
-            <Form className={classnames(formStyles.form, styles.form)}>
+            <Form className={classnames(formStyles.form, styles.form)} data-testid="evaluationReportForm">
               <GridContainer className={styles.cardContainer}>
                 <Grid row className={styles.evalInfoSection}>
                   <Grid col>
@@ -570,34 +570,44 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
                   <Grid col>
                     <div className={styles.buttonRow}>
                       {evaluationReport.updatedAt === evaluationReport.createdAt && (
-                        <Button className="usa-button--unstyled" onClick={toggleDeleteReportModal} type="button">
+                        <Button
+                          className="usa-button--unstyled"
+                          onClick={toggleDeleteReportModal}
+                          type="button"
+                          data-testid="cancelReport"
+                        >
                           Cancel
                         </Button>
                       )}
                       {!(evaluationReport.updatedAt === evaluationReport.createdAt) && (
                         <Button
                           className="usa-button--unstyled"
-                          data-testid="cancelForUpdated"
+                          data-testid="cancelReport"
                           onClick={cancelForUpdatedReport}
                           type="button"
                         >
                           Cancel
                         </Button>
                       )}
-                      <Button
-                        data-testid="saveDraft"
-                        type="button"
-                        className="usa-button--secondary"
-                        onClick={() => handleSaveDraft(values)}
-                      >
+                      <Button type="button" className="usa-button--secondary" onClick={() => handleSaveDraft(values)}>
                         Save draft
                       </Button>
                       {values.violationsObserved === 'yes' ? (
-                        <Button disabled={!isValid} onClick={() => handleSelectViolations(values)} type="button">
+                        <Button
+                          disabled={!isValid}
+                          onClick={() => handleSelectViolations(values)}
+                          type="button"
+                          data-testid="selectViolations"
+                        >
                           Next: select violations
                         </Button>
                       ) : (
-                        <Button disabled={!isValid} type="button" onClick={() => handlePreviewReport(values)}>
+                        <Button
+                          disabled={!isValid}
+                          type="button"
+                          data-testid="reviewAndSubmit"
+                          onClick={() => handlePreviewReport(values)}
+                        >
                           Review and submit
                         </Button>
                       )}

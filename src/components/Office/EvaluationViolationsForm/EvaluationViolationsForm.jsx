@@ -280,7 +280,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
 
           return (
             <>
-              <GridContainer className={styles.cardContainer}>
+              <GridContainer className={styles.cardContainer} data-testid="evaluationViolationsForm">
                 <Grid row>
                   <Grid col>
                     <h2>Select violations</h2>
@@ -413,15 +413,15 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                         {'< Back to Evaluation form'}
                       </Button>
                       <div className={styles.grow} />
-                      <Button className="usa-button--unstyled" type="button" onClick={cancelForViolations}>
+                      <Button
+                        className="usa-button--unstyled"
+                        type="button"
+                        onClick={cancelForViolations}
+                        data-testid="cancelReport"
+                      >
                         Cancel
                       </Button>
-                      <Button
-                        data-testid="saveDraft"
-                        type="button"
-                        className="usa-button--secondary"
-                        onClick={() => handleSaveDraft(values)}
-                      >
+                      <Button type="button" className="usa-button--secondary" onClick={() => handleSaveDraft(values)}>
                         Save draft
                       </Button>
                       <Button

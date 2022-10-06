@@ -183,7 +183,9 @@ const EvaluationReportPreview = ({
                   ))}
                 </dd>
               ) : (
-                <dd className={styles.violationsRemarks}>No</dd>
+                <dd className={styles.violationsRemarks} data-testid="noViolationsObserved">
+                  No
+                </dd>
               )}
             </div>
             {hasViolations && (
