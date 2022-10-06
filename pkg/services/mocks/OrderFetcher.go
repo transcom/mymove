@@ -18,13 +18,13 @@ type OrderFetcher struct {
 	mock.Mock
 }
 
-// FetchOrder provides a mock function with given fields: appCtx, moveTaskOrderID
-func (_m *OrderFetcher) FetchOrder(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Order, error) {
-	ret := _m.Called(appCtx, moveTaskOrderID)
+// FetchOrder provides a mock function with given fields: appCtx, orderID
+func (_m *OrderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error) {
+	ret := _m.Called(appCtx, orderID)
 
 	var r0 *models.Order
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.Order); ok {
-		r0 = rf(appCtx, moveTaskOrderID)
+		r0 = rf(appCtx, orderID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Order)
@@ -33,7 +33,7 @@ func (_m *OrderFetcher) FetchOrder(appCtx appcontext.AppContext, moveTaskOrderID
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
-		r1 = rf(appCtx, moveTaskOrderID)
+		r1 = rf(appCtx, orderID)
 	} else {
 		r1 = ret.Error(1)
 	}

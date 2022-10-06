@@ -1,15 +1,13 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import EvaluationForm from './EvaluationForm';
 
 import { MockProviders } from 'testUtils';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({ moveCode: 'LR4T8V', reportID: '58350bae-8e87-4e83-bd75-74027fb4333a' }),
-}));
+const mockMoveCode = 'LR4T8V';
+const mockReportId = '58350bae-8e87-4e83-bd75-74027fb4333a';
 
 const mockSaveEvaluationReport = jest.fn();
 jest.mock('services/ghcApi', () => ({
@@ -80,18 +78,38 @@ const customerInfo = {
 const grade = 'E_4';
 const moveCode = 'FAKEIT';
 
+const mockPush = jest.fn();
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useHistory: () => ({
+    push: mockPush,
+  }),
+  useParams: () => ({ moveCode: 'LR4T8V', reportId: '58350bae-8e87-4e83-bd75-74027fb4333a' }),
+}));
+
+afterEach(() => {
+  jest.resetAllMocks();
+  cleanup();
+});
+
+const renderForm = (props) => {
+  const defaultProps = {
+    evaluationReport: mockEvaluationReport,
+    customerInfo,
+    grade,
+    moveCode,
+  };
+
+  return render(
+    <MockProviders initialEntries={[`/moves/${mockMoveCode}/evaluation-reports/${mockReportId}`]}>
+      <EvaluationForm {...defaultProps} {...props} />
+    </MockProviders>,
+  );
+};
+
 describe('EvaluationForm', () => {
   it('renders the form components', async () => {
-    render(
-      <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <EvaluationForm
-          evaluationReport={evaluationReportCounseling}
-          customerInfo={customerInfo}
-          grade={grade}
-          moveCode={moveCode}
-        />
-      </MockProviders>,
-    );
+    renderForm();
 
     // Headers
     await waitFor(() => {
@@ -126,16 +144,7 @@ describe('EvaluationForm', () => {
   });
 
   it('renders conditionally displayed shipment form components correctly', async () => {
-    render(
-      <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <EvaluationForm
-          evaluationReport={evaluationReportShipment}
-          customerInfo={customerInfo}
-          grade={grade}
-          moveCode={moveCode}
-        />
-      </MockProviders>,
-    );
+    renderForm({ evaluationReport: evaluationReportShipment });
 
     // Initially no conditional fields shown
     await waitFor(() => {
@@ -188,16 +197,7 @@ describe('EvaluationForm', () => {
   });
 
   it('displays the delete confirmation on cancel', async () => {
-    render(
-      <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <EvaluationForm
-          evaluationReport={evaluationReportCounseling}
-          customerInfo={customerInfo}
-          grade={grade}
-          moveCode={moveCode}
-        />
-      </MockProviders>,
-    );
+    renderForm({ evaluationReport: evaluationReportCounseling });
 
     expect(await screen.getByRole('heading', { level: 2 })).toHaveTextContent('Evaluation form');
 
@@ -210,16 +210,7 @@ describe('EvaluationForm', () => {
   });
 
   it('updates the submit button when there are violations', async () => {
-    render(
-      <MockProviders initialEntries={['/moves/LR4T8V/evaluation-reports/58350bae-8e87-4e83-bd75-74027fb4333a']}>
-        <EvaluationForm
-          evaluationReport={mockEvaluationReport}
-          customerInfo={customerInfo}
-          grade={grade}
-          moveCode={moveCode}
-        />
-      </MockProviders>,
-    );
+    renderForm();
 
     expect(await screen.findByRole('button', { name: 'Review and submit' })).toBeInTheDocument();
     expect(
@@ -252,6 +243,38 @@ describe('EvaluationForm', () => {
         violationsObserved: true,
       },
       ifMatchETag: mockEvaluationReport.eTag,
+      reportID: mockReportId,
+    });
+  });
+
+  it('can save a draft and reroute back to the eval reports', async () => {
+    renderForm();
+
+    // Click save draft button
+    await userEvent.click(await screen.findByRole('button', { name: 'Save draft' }));
+
+    // Verify that report was saved and page rerouted
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledTimes(1);
+      expect(mockSaveEvaluationReport).toHaveBeenCalledTimes(1);
+      expect(mockSaveEvaluationReport).toHaveBeenCalledWith({
+        body: {
+          evaluationLengthMinutes: 240,
+          inspectionDate: '2022-09-08',
+          inspectionType: 'DATA_REVIEW',
+          location: 'ORIGIN',
+          locationDescription: undefined,
+          observedDate: undefined,
+          remarks: 'test',
+          travelTimeMinutes: undefined,
+          violationsObserved: false,
+        },
+        ifMatchETag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
+        reportID: mockReportId,
+      });
+      expect(mockPush).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports`, {
+        showSaveDraftSuccess: true,
+      });
     });
   });
 });

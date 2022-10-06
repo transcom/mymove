@@ -2,7 +2,6 @@ package pricing
 
 import (
 	"strconv"
-	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -24,7 +23,7 @@ func (suite *PricingParserSuite) Test_parseShipmentManagementServicesPrices() {
 		RunVerify:    true,
 	}
 
-	suite.T().Run("parse sheet and check csv", func(t *testing.T) {
+	suite.Run("parse sheet and check csv", func() {
 		slice, err := parseShipmentManagementServicesPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseShipmentManagementServices function failed")
 
@@ -36,7 +35,7 @@ func (suite *PricingParserSuite) Test_parseShipmentManagementServicesPrices() {
 		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 	})
 
-	suite.T().Run("try parse wrong sheet index", func(t *testing.T) {
+	suite.Run("try parse wrong sheet index", func() {
 		_, err := parseShipmentManagementServicesPrices(suite.AppContextForTest(), params, sheetIndex-1)
 		if suite.Error(err, "parseShipmentManagementServicesPrices function failed") {
 			suite.Equal("parseShipmentManagementServices expected to process sheet 16, but received sheetIndex 15", err.Error())
@@ -60,7 +59,7 @@ func (suite *PricingParserSuite) Test_parseCounselServicesPrices() {
 		RunVerify:    true,
 	}
 
-	suite.T().Run("parse sheet and check csv", func(t *testing.T) {
+	suite.Run("parse sheet and check csv", func() {
 		slice, err := parseCounselingServicesPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseCounselingServicesPrices function failed")
 
@@ -72,7 +71,7 @@ func (suite *PricingParserSuite) Test_parseCounselServicesPrices() {
 		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 	})
 
-	suite.T().Run("try parse wrong sheet index", func(t *testing.T) {
+	suite.Run("try parse wrong sheet index", func() {
 		_, err := parseCounselingServicesPrices(suite.AppContextForTest(), params, sheetIndex-1)
 		if suite.Error(err, "parseCounselingServicesPrices function failed") {
 			suite.Equal("parseCounselingServicesPrices expected to process sheet 16, but received sheetIndex 15", err.Error())
@@ -96,7 +95,7 @@ func (suite *PricingParserSuite) Test_parseTransitionPrices() {
 		RunVerify:    true,
 	}
 
-	suite.T().Run("parse sheet and check csv", func(t *testing.T) {
+	suite.Run("parse sheet and check csv", func() {
 		slice, err := parseTransitionPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseTransitionPrices function failed")
 
@@ -108,7 +107,7 @@ func (suite *PricingParserSuite) Test_parseTransitionPrices() {
 		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 	})
 
-	suite.T().Run("try parse wrong sheet index", func(t *testing.T) {
+	suite.Run("try parse wrong sheet index", func() {
 		_, err := parseTransitionPrices(suite.AppContextForTest(), params, sheetIndex-1)
 		if suite.Error(err, "parseTransitionPrices function failed") {
 			suite.Equal("parseTransitionPrices expected to process sheet 16, but received sheetIndex 15", err.Error())
@@ -131,12 +130,12 @@ func (suite *PricingParserSuite) Test_verifyManagementCounselTransitionPrices() 
 		RunVerify:    true,
 	}
 
-	suite.T().Run("verify good sheet", func(t *testing.T) {
+	suite.Run("verify good sheet", func() {
 		err := verifyManagementCounselTransitionPrices(params, sheetIndex)
 		suite.NoError(err, "verifyManagementCounselTransitionPrices function failed")
 	})
 
-	suite.T().Run("verify wrong sheet", func(t *testing.T) {
+	suite.Run("verify wrong sheet", func() {
 		err := verifyManagementCounselTransitionPrices(params, sheetIndex-2)
 		if suite.Error(err, "verifyManagementCounselTransitionPrices function failed") {
 			suite.Equal("verifyManagementCounselTransitionPrices expected to process sheet 16, but received sheetIndex 14", err.Error())

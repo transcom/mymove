@@ -14,6 +14,7 @@ import {
   HelperNeedsShipment,
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
+  HelperPPMCloseoutSubmitted,
 } from './HomeHelpers';
 
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
@@ -23,13 +24,12 @@ import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
 import Step from 'components/Customer/Home/Step';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PPMSummaryList from 'components/PPMSummaryList/PPMSummaryList';
-import ScrollToTop from 'components/ScrollToTop';
 import ShipmentList from 'components/ShipmentList/ShipmentList';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
 import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
-import { shipmentTypes } from 'constants/shipments';
+import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
@@ -127,6 +127,14 @@ export class Home extends Component {
     return mtoShipments?.some((shipment) => shipment.ppmShipment);
   }
 
+  get hasSubmittedPPMCloseout() {
+    const { mtoShipments } = this.props;
+    const finishedCloseout = mtoShipments.filter(
+      (shipment) => shipment?.ppmShipment?.status === ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+    );
+    return !!finishedCloseout.length;
+  }
+
   get hasAllCompletedPPMShipments() {
     const { mtoShipments } = this.props;
     return mtoShipments?.filter((s) => s.shipmentType === SHIPMENT_OPTIONS.PPM)?.every((s) => isPPMShipmentComplete(s));
@@ -178,6 +186,7 @@ export class Home extends Component {
     if (!this.hasOrders) return <HelperNeedsOrders />;
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
     if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
+    if (this.hasSubmittedPPMCloseout) return <HelperPPMCloseoutSubmitted />;
     if (this.hasUnapprovedAmendedOrders) return <HelperAmendedOrders />;
     if (this.isMoveApproved) return <HelperApprovedMove />;
     return <HelperSubmittedMove />;
@@ -368,7 +377,6 @@ export class Home extends Component {
 
     return (
       <>
-        <ScrollToTop />
         <ConnectedDestructiveShipmentConfirmationModal
           isOpen={showDeleteModal}
           shipmentID={targetShipmentId}

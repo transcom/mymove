@@ -382,11 +382,11 @@ func FetchLatestOrder(session *auth.Session, db *pop.Connection) (Order, error) 
 // ReverseNameLineFormat returns the service member's name as a string in Last, First, M format.
 func (s *ServiceMember) ReverseNameLineFormat() string {
 	names := []string{}
-	if s.FirstName != nil && len(*s.FirstName) > 0 {
-		names = append(names, *s.FirstName)
-	}
 	if s.LastName != nil && len(*s.LastName) > 0 {
 		names = append(names, *s.LastName)
+	}
+	if s.FirstName != nil && len(*s.FirstName) > 0 {
+		names = append(names, *s.FirstName)
 	}
 	if s.MiddleName != nil && len(*s.MiddleName) > 0 {
 		names = append(names, *s.MiddleName)

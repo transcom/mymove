@@ -1,8 +1,6 @@
 package ghcimport
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgerrcode"
 
@@ -16,7 +14,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREInternationalPrices() {
 		ContractCode: testContractCode,
 	}
 
-	suite.T().Run("import success", func(t *testing.T) {
+	setupTestData := func() {
 		// Prerequisite tables must be loaded.
 		err := gre.importREContract(suite.AppContextForTest())
 		suite.NoError(err)
@@ -29,25 +27,40 @@ func (suite *GHCRateEngineImportSuite) Test_importREInternationalPrices() {
 
 		err = gre.importREInternationalPrices(suite.AppContextForTest())
 		suite.NoError(err)
+	}
+
+	suite.Run("import success", func() {
+		setupTestData()
 		suite.helperVerifyInternationalPrices()
 
 		// Spot check prices
 		suite.helperCheckInternationalPriceValues()
 	})
 
-	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
+	suite.Run("run a second time; should fail immediately due to constraint violation", func() {
+		setupTestData()
 		err := gre.importREInternationalPrices(suite.AppContextForTest())
 		if suite.Error(err) {
 			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_intl_prices_unique_key"))
 		}
-
-		// Check to see if anything else changed
-		suite.helperVerifyInternationalPrices()
-		suite.helperCheckInternationalPriceValues()
 	})
+}
+func (suite *GHCRateEngineImportSuite) Test_getRateAreaIDForKind() {
+	gre := &GHCRateEngineImporter{
+		ContractCode: testContractCode,
+	}
 
+	setupTestData := func() {
+		// Prerequisite tables must be loaded.
+		err := gre.importREContract(suite.AppContextForTest())
+		suite.NoError(err)
+
+		err = gre.importRERateArea(suite.AppContextForTest())
+		suite.NoError(err)
+	}
 	// Doing this here instead of a separate test function so we don't have to reload prerequisite tables
-	suite.T().Run("tests for getRateAreaIDForKind", func(t *testing.T) {
+	suite.Run("tests for getRateAreaIDForKind", func() {
+		setupTestData()
 		testCases := []struct {
 			name        string
 			rateArea    string
@@ -68,7 +81,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREInternationalPrices() {
 		suite.NoError(err)
 
 		for _, testCase := range testCases {
-			suite.T().Run(testCase.name, func(t *testing.T) {
+			suite.Run(testCase.name, func() {
 				id, err := gre.getRateAreaIDForKind(testCase.rateArea, testCase.kind)
 				if testCase.shouldError {
 					suite.Error(err)

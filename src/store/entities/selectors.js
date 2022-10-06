@@ -182,6 +182,22 @@ export const selectWeightTicketsForShipment = (state, mtoShipmentId) => {
   return mtoShipment?.ppmShipment?.weightTickets;
 };
 
+export const selectExpenseAndIndexById = (state, mtoShipmentId, expenseId) => {
+  let expense = null;
+  let index = -1;
+  if (expenseId == null) {
+    return { expense, index };
+  }
+
+  const mtoShipment = selectMTOShipmentById(state, mtoShipmentId);
+  const expenses = mtoShipment?.ppmShipment?.movingExpenses;
+  if (Array.isArray(expenses)) {
+    index = expenses.findIndex((el) => el.id === expenseId);
+    expense = expenses?.[index] || null;
+  }
+  return { expense, index };
+};
+
 export const selectPPMForMove = (state, moveId) => {
   const ppmForMove = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === moveId);
   if (['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'].indexOf(ppmForMove?.status) > -1) {

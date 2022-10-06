@@ -351,7 +351,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.customer"
+        ]
       },
       "parameters": [
         {
@@ -546,6 +549,53 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/evaluation-reports/{reportID}/download": {
+      "get": {
+        "description": "Downloads an evaluation report as a PDF",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Downloads an evaluation report as a PDF",
+        "operationId": "downloadEvaluationReport",
+        "responses": {
+          "200": {
+            "description": "Evaluation report PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be downloaded",
           "name": "reportID",
           "in": "path",
           "required": true
@@ -2283,7 +2333,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.excessWeightRisk"
+        ]
       },
       "parameters": [
         {
@@ -2530,7 +2583,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "read.paymentRequest"
+        ]
       },
       "parameters": [
         {
@@ -2573,7 +2629,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "read.shipmentsPaymentSITBalance"
+        ]
       },
       "parameters": [
         {
@@ -2652,7 +2711,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.paymentRequest"
+        ]
       }
     },
     "/pws-violations": {
@@ -4870,6 +4932,10 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
+        "ReportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -4917,7 +4983,27 @@ func init() {
           "x-nullable": true,
           "readOnly": true
         },
+        "observedClaimsResponseDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "observedDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupSpreadEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupSpreadStartDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -4926,6 +5012,14 @@ func init() {
           "$ref": "#/definitions/EvaluationReportOfficeUser"
         },
         "remarks": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "seriousIncident": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "seriousIncidentDesc": {
           "type": "string",
           "x-nullable": true
         },
@@ -6530,7 +6624,7 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "movingExpense": {
+        "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
           "items": {
@@ -8817,7 +8911,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.customer"
+        ]
       },
       "parameters": [
         {
@@ -9084,6 +9181,62 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "the evaluation report ID to be modified",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/evaluation-reports/{reportID}/download": {
+      "get": {
+        "description": "Downloads an evaluation report as a PDF",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Downloads an evaluation report as a PDF",
+        "operationId": "downloadEvaluationReport",
+        "responses": {
+          "200": {
+            "description": "Evaluation report PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID to be downloaded",
           "name": "reportID",
           "in": "path",
           "required": true
@@ -11301,7 +11454,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.excessWeightRisk"
+        ]
       },
       "parameters": [
         {
@@ -11612,7 +11768,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "read.paymentRequest"
+        ]
       },
       "parameters": [
         {
@@ -11667,7 +11826,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "read.shipmentsPaymentSITBalance"
+        ]
       },
       "parameters": [
         {
@@ -11767,7 +11929,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.paymentRequest"
+        ]
       }
     },
     "/pws-violations": {
@@ -14256,6 +14421,10 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
+        "ReportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -14304,7 +14473,27 @@ func init() {
           "x-nullable": true,
           "readOnly": true
         },
+        "observedClaimsResponseDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "observedDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupSpreadEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedPickupSpreadStartDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -14313,6 +14502,14 @@ func init() {
           "$ref": "#/definitions/EvaluationReportOfficeUser"
         },
         "remarks": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "seriousIncident": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "seriousIncidentDesc": {
           "type": "string",
           "x-nullable": true
         },
@@ -15918,7 +16115,7 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "movingExpense": {
+        "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
           "items": {

@@ -219,7 +219,7 @@ properties:
     items:
       $ref: '../internal.yaml#/definitions/WeightTicket'
     type: array
-  movingExpense:
+  movingExpenses:
     description: All expense documentation receipt records of this PPM shipment.
     items:
       $ref: 'MovingExpense.yaml'

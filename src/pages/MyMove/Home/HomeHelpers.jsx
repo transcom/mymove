@@ -17,7 +17,7 @@ export const HelperNeedsOrders = () => (
 );
 
 export const HelperNeedsShipment = () => (
-  <Helper title="Time for step 3: set up your shipments">
+  <Helper title="Time for step 3: set up your shipments" className={styles['helper-paragraph-only']}>
     <p>Share where and when you&apos;re moving, and how you want your things to be shipped.</p>
   </Helper>
 );
@@ -110,10 +110,23 @@ export const HelperApprovedMove = () => (
 );
 
 export const HelperAmendedOrders = () => (
-  <Helper title="Next step: Contact your movers (if you have them)">
+  <Helper title="Next step: Contact your movers (if you have them)" className={styles['helper-paragraph-only']}>
     <p>
       If your destination changed or your move was canceled, contact your movers ASAP to let them know. They&apos;ll
       work with you to coordinate any changes.
+    </p>
+  </Helper>
+);
+
+export const HelperPPMCloseoutSubmitted = () => (
+  <Helper title="Someone will review all of your PPM documentation" className={styles['helper-paragraph-only']}>
+    <p>
+      If your documentation is clear and valid, you’ll be able to download a payment packet. You can submit that packet
+      to your Finance office to finalize your acutal incentive amount and request payment.
+    </p>
+    <p>
+      If any documentation is unclear or inaccurate, the counselor will send it back for you to edit. When you are done
+      editing, you will submit it again and a counselor will review your changes.
     </p>
   </Helper>
 );

@@ -52,7 +52,7 @@ const EvaluationReportTable = ({
         <td className={styles.dateSubmittedColumn}>{report.submittedAt && formatCustomerDate(report.submittedAt)}</td>
         <td className={styles.locationColumn}>{formatEvaluationReportLocation(report.location)}</td>
         <td className={styles.violationsColumn}>{report.violationsObserved ? 'Yes' : 'No'}</td>
-        <td className={styles.seriousIncidentColumn}>No</td>
+        <td className={styles.seriousIncidentColumn}>{report.seriousIncident ? 'Yes' : 'No'}</td>
         <td className={styles.viewReportColumn}>
           {report.submittedAt && (
             <Button
@@ -68,7 +68,9 @@ const EvaluationReportTable = ({
         </td>
         {report.submittedAt && (
           <td className={styles.downloadColumn}>
-            <a href={`${location}/evaluation-reports/${report.id}/download`}>Download</a>
+            <a href={`/ghc/v1/evaluation-reports/${report.id}/download`} target="_blank" rel="noopener noreferrer">
+              Download
+            </a>
           </td>
         )}
         {!report.submittedAt && (
@@ -108,6 +110,7 @@ const EvaluationReportTable = ({
           customerInfo={customerInfo}
           grade={grade}
           mtoShipments={shipments}
+          reportViolations={reportToView.ReportViolations}
           modalActions={
             <div className={styles.modalActions}>
               <Button

@@ -3,24 +3,35 @@ import * as PropTypes from 'prop-types';
 import { Grid } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
+import SelectedViolation from '../EvaluationViolationsForm/SelectedViolation/SelectedViolation';
+
 import styles from './EvaluationReportPreview.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
+import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
 import EvaluationReportShipmentDisplay from 'components/Office/EvaluationReportShipmentDisplay/EvaluationReportShipmentDisplay';
 import DataTable from 'components/DataTable';
 import DataTableWrapper from 'components/DataTableWrapper';
 import EvaluationReportList from 'components/Office/DefinitionLists/EvaluationReportList';
-import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 import { formatDateFromIso, formatQAReportID } from 'utils/formatters';
 import { formatDate } from 'shared/dates';
 import { shipmentTypeLabels } from 'content/shipments';
 
-const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, customerInfo, grade, bordered }) => {
+const EvaluationReportPreview = ({
+  evaluationReport,
+  reportViolations,
+  mtoShipments,
+  moveCode,
+  customerInfo,
+  grade,
+}) => {
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
-  let mtoShipmentsToShow;
+  const hasViolations = reportViolations && reportViolations.length > 0;
+  const showIncidentDescription = evaluationReport?.seriousIncident;
 
+  let mtoShipmentsToShow;
   if (evaluationReport.shipmentID) {
     mtoShipmentsToShow = [mtoShipments.find((shipment) => shipment.id === evaluationReport.shipmentID)];
   } else {
@@ -62,7 +73,7 @@ const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, cus
   };
 
   return (
-    <div className={bordered ? styles.bordered : styles.borderless} data-testid="EvaluationReportPreview">
+    <div className={styles.evaluationReportPreview} data-testid="EvaluationReportPreview">
       <div>
         <div className={styles.titleSection}>
           <div className={styles.pageHeader}>
@@ -77,7 +88,7 @@ const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, cus
         <div className={styles.section}>
           <Grid row>
             <Grid col desktop={{ col: 8 }}>
-              <h2>{`${isShipment ? 'Shipment' : 'Report'} information`}</h2>
+              <h2>Move information</h2>
               {mtoShipmentsToShow &&
                 mtoShipmentsToShow.map((mtoShipment) => (
                   <div key={mtoShipment.id} className={styles.shipmentDisplayContainer}>
@@ -92,8 +103,8 @@ const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, cus
                 ))}
             </Grid>
             <Grid className={styles.qaeAndCustomerInfo} col desktop={{ col: 2 }}>
-              <DataTable columnHeaders={['QAE']} dataRow={[officeUserInfoTableBody]} />
               <DataTable columnHeaders={['Customer information']} dataRow={[customerInfoTableBody]} />
+              <DataTable columnHeaders={['QAE']} dataRow={[officeUserInfoTableBody]} />
             </Grid>
           </Grid>
         </div>
@@ -138,10 +149,10 @@ const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, cus
             <EvaluationReportList evaluationReport={evaluationReport} />
           </div>
         )}
-        {(!isShipment || evaluationReport.location === 'OTHER') && (
+        {(!isShipment === 'COUNSELING' || evaluationReport.location === 'OTHER') && (
           <div className={styles.section}>
             <h3>Information</h3>
-            <DataTableWrapper className={classnames(styles.counselingDetails, 'table--data-point-group')}>
+            <DataTableWrapper className={classnames(styles.detailsRight, 'table--data-point-group')}>
               <DataTable
                 columnHeaders={['Inspection date', 'Report submission']}
                 dataRow={[
@@ -153,6 +164,44 @@ const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, cus
             <EvaluationReportList evaluationReport={evaluationReport} />
           </div>
         )}
+        <div className={styles.section}>
+          <h3>Violations</h3>
+          <dl className={descriptionListStyles.descriptionList}>
+            <div className={classnames(descriptionListStyles.row)}>
+              <dt data-testid="violationsObserved" className={styles.violationsLabel}>
+                Violations observed
+              </dt>
+              {hasViolations ? (
+                <dd className={styles.violationsRemarks}>
+                  {reportViolations.map((reportViolation) => (
+                    <SelectedViolation
+                      className={styles.violationsList}
+                      key={`${reportViolation.id}-violation`}
+                      violation={reportViolation.violation}
+                      isReadOnly
+                    />
+                  ))}
+                </dd>
+              ) : (
+                <dd className={styles.violationsRemarks}>No</dd>
+              )}
+            </div>
+            {hasViolations && (
+              <>
+                <div className={classnames(descriptionListStyles.row)}>
+                  <dt className={styles.violationsLabel}>Serious incident</dt>
+                  <dd className={styles.violationsRemarks}>{showIncidentDescription ? 'yes' : 'no'}</dd>
+                </div>
+                {showIncidentDescription && (
+                  <div className={classnames(descriptionListStyles.row)}>
+                    <dt className={styles.violationsLabel}>Serious incident description</dt>
+                    <dd className={styles.violationsRemarks}>{evaluationReport?.seriousIncidentDesc}</dd>
+                  </div>
+                )}
+              </>
+            )}
+          </dl>
+        </div>
         <div className={styles.section}>
           <h3>QAE remarks</h3>
           <dl className={descriptionListStyles.descriptionList}>
@@ -170,15 +219,15 @@ const EvaluationReportPreview = ({ evaluationReport, mtoShipments, moveCode, cus
 EvaluationReportPreview.propTypes = {
   evaluationReport: EvaluationReportShape.isRequired,
   mtoShipments: PropTypes.arrayOf(ShipmentShape),
+  reportViolations: PropTypes.arrayOf(Object),
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
-  bordered: PropTypes.bool,
 };
 
 EvaluationReportPreview.defaultProps = {
   mtoShipments: null,
-  bordered: false,
+  reportViolations: null,
 };
 
 export default EvaluationReportPreview;

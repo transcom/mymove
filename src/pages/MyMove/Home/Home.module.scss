@@ -8,6 +8,7 @@
   max-width: 64rem;
   padding-left: 1rem;
   padding-right: 1rem;
+
   @media (min-width: $tablet) {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
@@ -186,5 +187,11 @@
     >p>strong {
       @include u-margin-bottom(1);
     }
+  }
+}
+
+.helper-paragraph-only {
+  p:last-of-type {
+    @include u-margin-bottom(0);
   }
 }

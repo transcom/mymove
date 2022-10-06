@@ -8,7 +8,7 @@ import { push as pushAction } from 'connected-react-router';
 
 import { customerRoutes } from 'constants/routes';
 import SubmitMoveForm from 'components/Customer/SubmitMoveForm/SubmitMoveForm';
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { completeCertificationText } from 'scenes/Legalese/legaleseText';
 import { submitMoveForApproval } from 'services/internalApi';
@@ -53,7 +53,7 @@ export const Agreement = ({ moveId, updateMove, push, setFlashMessage }) => {
 
   return (
     <GridContainer>
-      <ScrollToTop otherDep={serverError} />
+      <NotificationScrollToTop dependency={serverError} />
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <SubmitMoveForm

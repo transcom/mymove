@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { v4 } from 'uuid';
 
@@ -16,6 +16,18 @@ beforeEach(() => {
 const defaultProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
+};
+
+const testProps = {
+  initialValues: {
+    w2_address: {
+      streetAddress1: '',
+      streetAddress2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+    },
+  },
 };
 
 describe('FinalCloseoutForm component', () => {
@@ -96,21 +108,66 @@ describe('FinalCloseoutForm component', () => {
     expect(findListItemWithText('$1,200.00 in expenses claimed')).toBeInTheDocument();
   });
 
-  it('calls onBack func when "Finish Later" button is clicked', async () => {
+  it('calls onBack func when "Return To Homepage" button is clicked', async () => {
     const mtoShipment = createPPMShipmentWithFinalIncentive();
 
     render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
 
     expect(defaultProps.onBack).toHaveBeenCalled();
   });
 
-  it('"Submit PPM Documentation" is disabled when form data has not been filled out', () => {
+  it('"Submit PPM Documentation" is disabled when form data has not been filled out', async () => {
     const mtoShipment = createPPMShipmentWithFinalIncentive();
 
     render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
 
-    expect(screen.getByRole('button', { name: 'Submit PPM Documentation' })).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Submit PPM Documentation' })).toBeDisabled();
+    });
+  });
+
+  it('renders the W2 Address form inputs', async () => {
+    const mtoShipment = createPPMShipmentWithFinalIncentive();
+    const { getByLabelText } = render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} {...testProps} />);
+
+    await waitFor(() => {
+      expect(getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
+
+      expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
+
+      expect(getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
+
+      expect(getByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
+
+      expect(getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
+    });
+  });
+
+  it('shows an error message if trying to submit an invalid form', async () => {
+    const mtoShipment = createPPMShipmentWithFinalIncentive();
+    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} {...testProps} />);
+    const submitBtn = screen.getByRole('button', { name: 'Submit PPM Documentation' });
+
+    userEvent.click(submitBtn);
+
+    const alerts = await screen.findAllByRole('alert');
+
+    expect(alerts.length).toBe(4);
+
+    alerts.forEach((alert) => {
+      expect(alert).toHaveTextContent('Required');
+    });
+
+    await waitFor(() => {
+      expect(defaultProps.onSubmit).not.toHaveBeenCalled();
+    });
   });
 });
