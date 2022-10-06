@@ -167,7 +167,9 @@ const EvaluationReportPreview = ({
           <h3>Violations</h3>
           <dl className={descriptionListStyles.descriptionList}>
             <div className={classnames(descriptionListStyles.row)}>
-              <dt className={styles.violationsLabel}>Violations observed</dt>
+              <dt data-testid="violationsObserved" className={styles.violationsLabel}>
+                Violations observed
+              </dt>
               {hasViolations ? (
                 <dd className={styles.violationsRemarks}>
                   {reportViolations.map((reportViolation) => (
