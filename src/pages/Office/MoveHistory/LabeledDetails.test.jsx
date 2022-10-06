@@ -119,7 +119,6 @@ it('does render text for changed values that are blank when they exist in the ol
   const historyRecord = {
     changedValues: {
       billable_weight_cap: '200',
-      customer_remarks: 'Test customer remarks',
       counselor_remarks: '',
     },
     oldValues: {
@@ -129,7 +128,8 @@ it('does render text for changed values that are blank when they exist in the ol
 
   render(<LabeledDetails historyRecord={historyRecord} />);
 
-  expect(screen.getByText('Customer remarks')).toBeInTheDocument();
+  expect(screen.getByText('Counselor remarks')).toBeInTheDocument();
+  expect(screen.getByText('—', { exact: false })).toBeInTheDocument();
 
   expect(await screen.queryByText('These remarks were deleted')).not.toBeInTheDocument();
 });

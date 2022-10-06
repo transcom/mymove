@@ -12,6 +12,7 @@ import optionFields from 'constants/MoveHistory/Database/OptionFields';
 import { formatCustomerDate } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
+  const emptyValue = '—';
   const displayName = fieldMappings[fieldName];
   let displayValue = value;
 
@@ -23,6 +24,10 @@ const retrieveTextToDisplay = (fieldName, value) => {
     displayValue = optionFields[displayValue];
   } else if (dateFields[fieldName]) {
     displayValue = formatCustomerDate(displayValue);
+  }
+
+  if (!displayValue) {
+    displayValue = emptyValue;
   }
 
   return {
