@@ -4,7 +4,7 @@ import (
 	"time"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -347,6 +347,75 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(models.AffiliationNAVY, *moves[0].Orders.ServiceMember.Affiliation)
+
+	})
+
+	suite.Run("returns TVCB order for TVCB office user when there's a ppm shipment in closeout", func() {
+		marines := models.AffiliationMARINES
+		showMove := true
+		// It doesn't matter what the Origin GBLOC is for the move. Only the marines
+		// affiliation matters for SC  who are tied to the TVCB GBLOC.
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show: &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &marines},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				MoveTaskOrder: move,
+				MoveTaskOrderID: move.ID,
+			},
+		})
+
+		officeUserSC:= testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "TVCB")
+
+		marine := "MARINES"
+		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1), Branch: &marine}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.AffiliationMARINES, *moves[0].Orders.ServiceMember.Affiliation)
+
+	})
+
+	suite.Run("returns coast guard order for USCG office user when there's a ppm shipment in closeout", func() {
+		cg := models.AffiliationCOASTGUARD
+		showMove := true
+		// It doesn't matter what the Origin GBLOC is for the move. Only the coast guard
+		// affiliation matters for SC  who are tied to the USCG GBLOC.
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show: &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &cg},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				MoveTaskOrder: move,
+				MoveTaskOrderID: move.ID,
+			},
+		})
+
+		officeUserSC:= testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
+
+		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.AffiliationCOASTGUARD, *moves[0].Orders.ServiceMember.Affiliation)
 
 	})
 }
