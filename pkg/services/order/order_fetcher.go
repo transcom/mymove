@@ -60,6 +60,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	if officeUserGbloc == "USMC" && !needsCounseling {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), needsCounseling)
 		gblocToFilterBy = params.OriginGBLOC
+	} else if officeUserGbloc == "NAVY" || officeUserGbloc == "TVCB" || officeUserGbloc == "USCG" {
+
 	} else {
 		gblocToFilterBy = &officeUserGbloc
 	}
@@ -313,6 +315,25 @@ func gblocFilterForTOO(gbloc *string) QueryOption {
 			// Note: extra parens necessary to keep precedence correct when AND'ing all filters together.
 			query.Where("((mto_shipments.shipment_type != ? AND move_to_gbloc.gbloc = ?) OR (mto_shipments.shipment_type = ? AND o_gbloc.gbloc = ?))",
 				models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc, models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc)
+		}
+	}
+}
+
+func gblocFilterForPPMCloseoutForNavyMarineAndCG(gbloc *string) QueryOption {
+	// For PPM Closeout the SC should see moves that have ppm shipments
+	// And the GBLOC should map to the service member's affiliation
+	navyGbloc := "NAVY"
+	tvcbGbloc := "TVCB"
+	uscgGbloc := "USCG"
+	return func(query *pop.Query) {
+		if gbloc != nil {
+			if gbloc == &navyGbloc {
+				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationNAVY, models.PPMShipmentStatusNeedsPaymentApproval)
+			} else if gbloc == &tvcbGbloc {
+				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationMARINES, models.PPMShipmentStatusNeedsPaymentApproval)
+			} else if gbloc == &uscgGbloc {
+				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationCOASTGUARD, models.PPMShipmentStatusNeedsPaymentApproval)
+			}
 		}
 	}
 }
