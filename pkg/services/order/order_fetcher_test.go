@@ -2,10 +2,9 @@ package order
 
 import (
 	"time"
-
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-
+	
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -311,6 +310,44 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(models.AffiliationARMY, *moves[0].Orders.ServiceMember.Affiliation)
+	})
+}
+
+func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMarines() {
+	orderFetcher := NewOrderFetcher()
+
+	suite.Run("returns Navy order for NAVY office user when there's a ppm shipment in closeout", func() {
+		navy := models.AffiliationNAVY
+		showMove := true
+		// It doesn't matter what the Origin GBLOC is for the move. Only the navy
+		// affiliation matters for SC  who are tied to the NAVY GBLOC.
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show: &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &navy},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				MoveTaskOrder: move,
+				MoveTaskOrderID: move.ID,
+			},
+		})
+
+		officeUserSC:= testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "NAVY")
+
+		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.AffiliationNAVY, *moves[0].Orders.ServiceMember.Affiliation)
+
 	})
 }
 
