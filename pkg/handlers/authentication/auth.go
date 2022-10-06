@@ -637,6 +637,11 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			zap.String("stateCookieName", stateCookieName),
 			zap.String("sessionUserId", appCtx.Session().UserID.String()),
 			zap.Error(err))
+		// This has happened in staging a few times and it's a bit
+		// confusing about why it happens
+		//
+		// Instead of just sending a 403, should we redirect back to
+		// the sign in page?
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
 		return
 	}
