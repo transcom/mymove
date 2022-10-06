@@ -41,7 +41,9 @@ const hhgShipment = {
     state: 'AK',
     postalCode: '90210',
   },
+  createdAt: '2020-01-01T00:01:00.999Z',
 };
+
 const ppmShipment = {
   id: '22222222-2222-2222-2222-222222222222',
   shipmentType: SHIPMENT_OPTIONS.PPM,
@@ -49,6 +51,7 @@ const ppmShipment = {
     pickupPostalCode: '89503',
     destinationPostalCode: '90210',
   },
+  createdAt: '2020-01-01T00:02:00.999Z',
 };
 
 const ntsShipment = {
@@ -63,7 +66,9 @@ const ntsShipment = {
   storageFacility: {
     facilityName: 'Awesome Storage LLC',
   },
+  createdAt: '2020-01-01T00:03:00.999Z',
 };
+
 const ntsrShipment = {
   id: '44444444-4444-4444-4444-444444444444',
   shipmentType: SHIPMENT_OPTIONS.NTSR,
@@ -76,6 +81,7 @@ const ntsrShipment = {
   storageFacility: {
     facilityName: 'Awesome Storage LLC',
   },
+  createdAt: '2020-01-01T00:04:00.999Z',
 };
 
 const shipments = [hhgShipment, ppmShipment, ntsShipment, ntsrShipment];
@@ -100,6 +106,7 @@ const reports = [
     violationsObserved: true,
   },
 ];
+
 export const empty = () => (
   <div className="officeApp">
     <ShipmentEvaluationReports reports={[]} />
