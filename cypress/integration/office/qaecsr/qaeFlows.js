@@ -12,7 +12,6 @@ beforeEach(() => {
   cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedOrders');
   cy.intercept('**/ghc/v1/move/**').as('getMoves');
   cy.intercept('GET', '**/ghc/v1/orders/**').as('getOrders');
-  cy.intercept('GET', '**/ghc/v1/customer/**').as('getCustomer');
   cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
   cy.intercept('**/ghc/v1/moves/**/shipment-evaluation-reports-list').as('getShipmentEvaluationReports');
   cy.intercept('**/ghc/v1/moves/**/counseling-evaluation-reports-list').as('getCounselingEvaluationReports');
@@ -23,7 +22,6 @@ beforeEach(() => {
   cy.intercept('POST', '**/ghc/v1/evaluation-reports/**/submit').as('submitEvaluationReport');
   cy.intercept('GET', '**/ghc/v1/report-violations/**').as('getReportViolationsByReportID');
   cy.intercept('POST', '**/ghc/v1/report-violations/**').as('associateReportViolations');
-  cy.intercept('/ghc/v1/pws-violations').as('getPWSViolations');
   cy.intercept('**/ghc/v1/moves/search').as('getSearchResults');
 
   const userId = '2419b1d6-097f-4dc4-8171-8f858967b4db';
@@ -135,8 +133,6 @@ const goToFormPageTwo = () => {
 
   // Wait for form to save and switch over to page 2 of form
   cy.wait(['@saveEvaluationReport', '@getEvaluationReport']);
-  cy.wait(['@getMTOShipments', '@getReportViolationsByReportID', '@getPWSViolations']);
-
   cy.get('[data-testid="evaluationViolationsForm"]').should('exist');
 };
 
