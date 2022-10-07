@@ -57,7 +57,8 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
     delete changedValuesToUse.service_item_name;
   }
 
-  // Filter out empty values unless they used to be non-empty
+  /* Filter out empty values unless they used to be non-empty
+     These values may be non-nullish in oldValues and nullish in changedValues */
   const dbFieldsToDisplay = Object.keys(fieldMappings).filter((dbField) => {
     return (
       changedValuesToUse[dbField] ||
