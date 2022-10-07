@@ -2,6 +2,18 @@
 -- that is commented out in this file is for example purposes only. This
 -- migration does not need to run in your local environment.
 
+-- ============================================================================
+-- README:
+-- This file will not be committed into the default branch. It's existence is
+-- merely as an artifact in the codebase and for us to have the ability to
+-- deploy it to Experimental. We are actively working on solutions that are
+-- secuirty and realiability focused for this solution. The start of that
+-- ticket is [MB-14054](https://dp3.atlassian.net/browse/MB-14054) 🔒.
+
+-- This file may have a final resting place in Confluence in order to support
+-- knowledge sharing across the Trussel engineering practices.
+-- ============================================================================
+
 --- ████████╗██╗  ██╗██╗███████╗    ███████╗ ██████╗ ██╗
 --- ╚══██╔══╝██║  ██║██║██╔════╝    ██╔════╝██╔═══██╗██║
 ---    ██║   ███████║██║███████╗    ███████╗██║   ██║██║
@@ -108,6 +120,12 @@
 -- ╚═════╝  ╚═════╝  ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
 --
 -- README: Taken from this link here: https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.PostgreSQL.html#CHAP_Source.PostgreSQL.RDSPostgreSQL.NonMasterUser
+
+-- ============================================================================
+-- The SQL code below is modified to allow for no operation (no-op) because the
+-- migrations will need to be run on a database on a schedule and we will be
+-- adding and removing them after the work in MB-14054.
+-- ============================================================================
 --
 -- CREATE TABLE IF NOT EXISTS public.awsdms_ddl_audit
 -- (
@@ -142,7 +160,6 @@
 -- END;
 -- $$;
 --
--- --- This needs to be run as the dms_export
 -- BEGIN;
 -- 	DROP EVENT TRIGGER IF EXISTS awsdms_intercept_ddl;
 --
@@ -151,7 +168,6 @@
 -- END;
 --
 --
--- --- All users and roles need access to the events
 -- GRANT ALL ON public.awsdms_ddl_audit TO public;
 -- GRANT ALL ON public.awsdms_ddl_audit_c_key_seq TO public;
 --
