@@ -57,6 +57,9 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
 
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
+  // Bail early if we don't have the eval report
+  if (!evaluationReport) return <div>NO EVAL REPORT</div>;
+
   // passed to the confrimation modal
   const submitReport = async () => {
     // close the modal
@@ -68,7 +71,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
 
   const modalTitle = (
     <div className={styles.title}>
-      <h3>{`Preview and submit ${evaluationReport?.type.toLowerCase()} report`}</h3>
+      <h3>{`Preview and submit ${evaluationReport.type.toLowerCase()} report`}</h3>
       <p>Is all the information shown correct?</p>
     </div>
   );
