@@ -68,3 +68,7 @@ W2AddressFormWithErrors.play = async () => {
   await userEvent.tab();
   await userEvent.tab();
 };
+
+W2AddressFormWithErrors.parameters = {
+  happo: false,
+};
