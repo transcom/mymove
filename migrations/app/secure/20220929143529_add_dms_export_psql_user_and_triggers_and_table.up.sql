@@ -57,15 +57,20 @@
 
 -- SET ROLE master;
 --
--- IF NOT EXISTS (
--- 	SELECT -- SELECT list can stay empty for this
--- 	FROM   pg_catalog.pg_roles
--- 	WHERE  rolname = 'rds_superuser') THEN
+-- DO
+-- $do$
+-- BEGIN
+--	IF NOT EXISTS (
+--		SELECT -- SELECT list can stay empty for this
+--		FROM   pg_catalog.pg_roles
+--		WHERE  rolname = 'rds_superuser') THEN
 --
--- 		CREATE ROLE dms_export WITH LOGIN NOINHERIT;
--- 		GRANT rds_superuser TO dms_export;
+--			CREATE ROLE dms_export WITH LOGIN NOINHERIT;
+--			GRANT rds_superuser TO dms_export;
 --
--- END IF;
+--	END IF;
+-- END
+-- $do$;
 --
 -- ALTER USER dms_export WITH PASSWORD 'mysecretpassword';
 --
