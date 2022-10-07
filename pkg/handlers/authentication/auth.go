@@ -277,7 +277,9 @@ func authenticateUser(ctx context.Context, appCtx appcontext.AppContext, session
 		appCtx.Logger().Error("Updating user's current session ID", zap.Error(updateErr))
 		return updateErr
 	}
-	appCtx.Logger().Info("Logged in", zap.Any("session", appCtx.Session()))
+	appCtx.Logger().Info("Logged in",
+		zap.Any("session.UserID", appCtx.Session().UserID),
+		zap.Any("session.appname", appCtx.Session().ApplicationName))
 
 	return nil
 }
