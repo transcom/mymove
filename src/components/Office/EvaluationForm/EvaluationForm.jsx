@@ -142,8 +142,10 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
     }
 
     let travelMinutes;
-    if (values.travelTimeMinute >= 0 || values.travelTimeHour >= 0) {
-      travelMinutes = convertToMinutes(values.travelTimeHour, values.travelTimeMinute);
+    if (inspectionType === 'PHYSICAL') {
+      if (values.travelTimeMinute || values.travelTimeHour) {
+        travelMinutes = convertToMinutes(values.travelTimeHour, values.travelTimeMinute);
+      }
     }
 
     let violations;

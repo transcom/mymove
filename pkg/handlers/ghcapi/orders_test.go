@@ -762,38 +762,6 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		suite.Equal(body.NtsSac.Value, ordersPayload.NtsSac)
 	})
 
-	suite.Run("Returns a 403 when the user does not have Counselor role", func() {
-		handlerConfig := suite.HandlerConfig()
-		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
-		order := subtestData.order
-		body := subtestData.body
-
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-		request = suite.AuthenticateOfficeRequest(request, requestUser)
-
-		params := orderop.CounselingUpdateOrderParams{
-			HTTPRequest: request,
-			OrderID:     strfmt.UUID(order.ID.String()),
-			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
-			Body:        body,
-		}
-
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		updater := &mocks.OrderUpdater{}
-		handler := CounselingUpdateOrderHandler{
-			handlerConfig,
-			updater,
-		}
-
-		updater.AssertNumberOfCalls(suite.T(), "UpdateOrderAsTOO", 0)
-		updater.AssertNumberOfCalls(suite.T(), "UpdateOrderAsCounselor", 0)
-
-		response := handler.Handle(params)
-
-		suite.IsType(&orderop.CounselingUpdateOrderForbidden{}, response)
-	})
-
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
 		handlerConfig := suite.HandlerConfig()
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
@@ -1207,37 +1175,6 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		suite.Equal(*body.StorageInTransit, *ordersPayload.Entitlement.StorageInTransit)
 	})
 
-	suite.Run("Returns a 403 when the user does not have Counselor role", func() {
-		handlerConfig := suite.HandlerConfig()
-		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
-		order := move.Orders
-
-		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-		request = suite.AuthenticateOfficeRequest(request, requestUser)
-
-		params := orderop.CounselingUpdateAllowanceParams{
-			HTTPRequest: request,
-			OrderID:     strfmt.UUID(order.ID.String()),
-			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
-			Body:        body,
-		}
-
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		updater := &mocks.OrderUpdater{}
-		handler := CounselingUpdateAllowanceHandler{
-			handlerConfig,
-			updater,
-		}
-
-		updater.AssertNumberOfCalls(suite.T(), "UpdateAllowanceAsTOO", 0)
-		updater.AssertNumberOfCalls(suite.T(), "UpdateAllowanceAsCounselor", 0)
-
-		response := handler.Handle(params)
-
-		suite.IsType(&orderop.CounselingUpdateAllowanceForbidden{}, response)
-	})
-
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
 		handlerConfig := suite.HandlerConfig()
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
@@ -1361,37 +1298,6 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 		suite.Assertions.IsType(&orderop.UpdateMaxBillableWeightAsTIOOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
-	})
-
-	suite.Run("Returns a 403 when the user does not have TIO role", func() {
-		handlerConfig := suite.HandlerConfig()
-		subtestData := suite.makeUpdateMaxBillableWeightAsTIOHandlerSubtestData()
-		order := subtestData.order
-		body := subtestData.body
-
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-		request = suite.AuthenticateOfficeRequest(request, requestUser)
-
-		params := orderop.UpdateMaxBillableWeightAsTIOParams{
-			HTTPRequest: request,
-			OrderID:     strfmt.UUID(order.ID.String()),
-			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
-			Body:        body,
-		}
-
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		updater := &mocks.ExcessWeightRiskManager{}
-		handler := UpdateMaxBillableWeightAsTIOHandler{
-			handlerConfig,
-			updater,
-		}
-
-		updater.AssertNumberOfCalls(suite.T(), "UpdateMaxBillableWeightAsTIO", 0)
-
-		response := handler.Handle(params)
-
-		suite.IsType(&orderop.UpdateMaxBillableWeightAsTIOForbidden{}, response)
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
@@ -1526,37 +1432,6 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 		suite.Assertions.IsType(&orderop.UpdateBillableWeightOK{}, response)
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
-	})
-
-	suite.Run("Returns a 403 when the user does not have TOO role", func() {
-		handlerConfig := suite.HandlerConfig()
-		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
-		order := subtestData.order
-		body := subtestData.body
-
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-		request = suite.AuthenticateOfficeRequest(request, requestUser)
-
-		params := orderop.UpdateBillableWeightParams{
-			HTTPRequest: request,
-			OrderID:     strfmt.UUID(order.ID.String()),
-			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
-			Body:        body,
-		}
-
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		updater := &mocks.ExcessWeightRiskManager{}
-		handler := UpdateBillableWeightHandler{
-			handlerConfig,
-			updater,
-		}
-
-		updater.AssertNumberOfCalls(suite.T(), "UpdateBillableWeightAsTOO", 0)
-
-		response := handler.Handle(params)
-
-		suite.IsType(&orderop.UpdateBillableWeightForbidden{}, response)
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
@@ -1733,36 +1608,6 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 		suite.Assertions.IsType(&orderop.AcknowledgeExcessWeightRiskOK{}, response)
 		suite.Equal(move.ID.String(), movePayload.ID.String())
 		suite.NotNil(movePayload.ExcessWeightAcknowledgedAt)
-	})
-
-	suite.Run("Returns a 403 when the user does not have TOO role", func() {
-		handlerConfig := suite.HandlerConfig()
-		now := time.Now()
-		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{ExcessWeightQualifiedAt: &now},
-		})
-		order := move.Orders
-
-		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-		request = suite.AuthenticateOfficeRequest(request, requestUser)
-
-		params := orderop.AcknowledgeExcessWeightRiskParams{
-			HTTPRequest: request,
-			OrderID:     strfmt.UUID(order.ID.String()),
-			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
-		}
-
-		updater := &mocks.ExcessWeightRiskManager{}
-		handler := AcknowledgeExcessWeightRiskHandler{
-			handlerConfig,
-			updater,
-		}
-
-		updater.AssertNumberOfCalls(suite.T(), "AcknowledgeExcessWeightRisk", 0)
-
-		response := handler.Handle(params)
-
-		suite.IsType(&orderop.AcknowledgeExcessWeightRiskForbidden{}, response)
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {

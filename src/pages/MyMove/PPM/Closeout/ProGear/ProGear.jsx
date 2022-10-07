@@ -3,7 +3,6 @@ import { useHistory } from 'react-router-dom';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import ScrollToTop from 'components/ScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import { generalRoutes } from 'constants/routes';
@@ -19,7 +18,6 @@ const ProGear = () => {
   };
   return (
     <div className={ppmPageStyles.ppmPageStyle}>
-      <ScrollToTop />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

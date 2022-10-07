@@ -73,7 +73,12 @@ const EvaluationReportTable = ({
         </td>
         {report.submittedAt && (
           <td className={styles.downloadColumn}>
-            <a href={`${location}/evaluation-reports/${report.id}/download`} data-testid="downloadReport">
+            <a
+              href={`/ghc/v1/evaluation-reports/${report.id}/download`}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="downloadReport"
+            >
               Download
             </a>
           </td>

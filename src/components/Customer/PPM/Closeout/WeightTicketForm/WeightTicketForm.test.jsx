@@ -188,7 +188,7 @@ describe('WeightTicketForm component', () => {
       );
       expect(screen.getByLabelText('No')).toBeChecked();
 
-      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -215,7 +215,7 @@ describe('WeightTicketForm component', () => {
 
       expect(screen.getByLabelText('No')).toBeChecked();
 
-      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -265,7 +265,7 @@ describe('WeightTicketForm component', () => {
       expect(screen.getByText('200KB')).toBeInTheDocument();
       expect(screen.getByText('Uploaded 24 Jun 2022 11:25 PM')).toBeInTheDocument();
 
-      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
   });
@@ -417,10 +417,10 @@ describe('WeightTicketForm component', () => {
         );
       });
     });
-    it('calls the onBack prop when the Finish Later button is clicked', async () => {
+    it('calls the onBack prop when the Return To Homepage button is clicked', async () => {
       render(<WeightTicketForm {...defaultProps} />);
 
-      await userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
 
       await waitFor(() => {
         expect(defaultProps.onBack).toHaveBeenCalled();

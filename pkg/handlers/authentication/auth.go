@@ -886,6 +886,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 	}
 
 	appCtx.Session().Roles = append(appCtx.Session().Roles, user.Roles...)
+	appCtx.Session().Permissions = getPermissionsForUser(appCtx, user.ID)
 
 	sessionManager := h.sessionManager(appCtx.Session())
 	authError := authenticateUser(r.Context(), appCtx, sessionManager)

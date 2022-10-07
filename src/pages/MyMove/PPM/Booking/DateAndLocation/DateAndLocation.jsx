@@ -4,7 +4,7 @@ import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
@@ -19,7 +19,7 @@ import { ShipmentShape } from 'types/shipment';
 import { validatePostalCode } from 'utils/validation';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }) => {
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState(null);
   const history = useHistory();
   const { moveId, shipmentNumber } = useParams();
   const dispatch = useDispatch();
@@ -96,7 +96,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation }
 
   return (
     <div className={ppmPageStyles.ppmPageStyle}>
-      <ScrollToTop otherDep={errorMessage} />
+      <NotificationScrollToTop dependency={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

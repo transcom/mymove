@@ -413,6 +413,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                         {'< Back to Evaluation form'}
                       </Button>
                       <div className={styles.grow} />
+
                       <Button
                         className="usa-button--unstyled"
                         type="button"
@@ -421,7 +422,12 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                       >
                         Cancel
                       </Button>
-                      <Button type="button" className="usa-button--secondary" onClick={() => handleSaveDraft(values)}>
+                      <Button
+                        data-testid="saveDraft"
+                        type="button"
+                        className="usa-button--secondary"
+                        onClick={() => handleSaveDraft(values)}
+                      >
                         Save draft
                       </Button>
                       <Button

@@ -31,7 +31,7 @@ describe('ProGearForm component', () => {
       expect(screen.getByLabelText('Me')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('My spouse')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -66,10 +66,10 @@ describe('ProGearForm component', () => {
         expect(defaultProps.onSubmit).toHaveBeenCalledWith(expectedPayload, expect.anything());
       });
     });
-    it('calls the onBack prop when the Finish Later button is clicked', async () => {
+    it('calls the onBack prop when the Return To Homepage button is clicked', async () => {
       render(<ProGearForm {...defaultProps} />);
 
-      await userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
 
       await waitFor(() => {
         expect(defaultProps.onBack).toHaveBeenCalled();
