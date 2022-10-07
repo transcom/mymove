@@ -143,8 +143,12 @@
 -- $$;
 --
 -- --- This needs to be run as the dms_export
--- CREATE EVENT TRIGGER awsdms_intercept_ddl ON ddl_command_end
--- 	EXECUTE PROCEDURE public.awsdms_intercept_ddl();
+-- BEGIN;
+-- 	DROP EVENT TRIGGER IF EXISTS awsdms_intercept_ddl;
+--
+-- 	CREATE EVENT TRIGGER awsdms_intercept_ddl ON ddl_command_end
+-- 		EXECUTE PROCEDURE public.awsdms_intercept_ddl();
+-- END;
 --
 --
 -- --- All users and roles need access to the events
