@@ -665,13 +665,23 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx.Logger().Info("New Login", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("Host", appCtx.Session().Hostname))
 
 	userIdentity, err := models.FetchUserIdentity(appCtx.DB(), openIDUser.UserID)
-	if err == nil { // Someone we know already
-		authorizeKnownUser(appCtx, userIdentity, h, w, r, landingURL.String())
-		appCtx.Logger().Info("Authorized and known user detected", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email))
+	if err == nil {
+		// In this case, we found an existing user associated with the
+		// unique login.gov UUID (aka OID_User, aka openIDUser.UserID,
+		// aka models.User.login_gov_uuid)
+		appCtx.Logger().Info("Known user: found by login.gov OID_User, checking authorization", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("user.id", userIdentity.ID.String()), zap.String("user.login_gov_email", userIdentity.Email))
+		ok := authorizeKnownUser(appCtx, userIdentity, h, w, r, landingURL.String())
+		appCtx.Logger().Info("Known user authorization", zap.Bool("authorized", ok), zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email))
 		return
-	} else if err == models.ErrFetchNotFound { // Never heard of them so far
-		authorizeUnknownUser(appCtx, openIDUser, h, w, r, landingURL.String())
-		appCtx.Logger().Error("Unknown user detected", zap.Error(err))
+	} else if err == models.ErrFetchNotFound { // Never heard of them
+		// so far In this case, we can't find an existing user
+		// associated with the unique login.gov UUID (aka OID_User,
+		// aka openIDUser.UserID, aka models.User.login_gov_uuid).
+		// The authorizeUnknownUser method tries to find a user record
+		// with a matching email address
+		appCtx.Logger().Info("Unknown user: not found by login.gov OID_User, associating email and checking authorization", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email))
+		ok := authorizeUnknownUser(appCtx, openIDUser, h, w, r, landingURL.String())
+		appCtx.Logger().Info("Unknown user authorization", zap.Bool("authorized", ok), zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email))
 		return
 	} else {
 		appCtx.Logger().Error("Error loading Identity.", zap.Error(err))
@@ -680,14 +690,14 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models.UserIdentity, h CallbackHandler, w http.ResponseWriter, r *http.Request, lURL string) {
+var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models.UserIdentity, h CallbackHandler, w http.ResponseWriter, r *http.Request, lURL string) bool {
 	if !userIdentity.Active {
 		appCtx.Logger().Error("Inactive user requesting authentication",
 			zap.String("application_name", string(appCtx.Session().ApplicationName)),
 			zap.String("hostname", appCtx.Session().Hostname),
 			zap.String("user_id", appCtx.Session().UserID.String()))
-		http.Error(w, http.StatusText(403), http.StatusForbidden)
-		return
+		http.Error(w, "User unauthorized", http.StatusForbidden)
+		return false
 	}
 	appCtx.Session().Roles = append(appCtx.Session().Roles, userIdentity.Roles...)
 	appCtx.Session().Permissions = getPermissionsForUser(appCtx, userIdentity.ID)
@@ -700,8 +710,8 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 	if appCtx.Session().IsOfficeApp() {
 		if userIdentity.OfficeActive != nil && !*userIdentity.OfficeActive {
 			appCtx.Logger().Error("Office user is deactivated", zap.String("userID", appCtx.Session().UserID.String()))
-			http.Error(w, http.StatusText(403), http.StatusForbidden)
-			return
+			http.Error(w, "Office User Unauthorized", http.StatusForbidden)
+			return false
 		}
 		if userIdentity.OfficeUserID != nil {
 			appCtx.Session().OfficeUserID = *(userIdentity.OfficeUserID)
@@ -710,12 +720,12 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 			officeUser, err := models.FetchOfficeUserByEmail(appCtx.DB(), appCtx.Session().Email)
 			if err == models.ErrFetchNotFound {
 				appCtx.Logger().Error("Non-office user authenticated at office site", zap.String("userID", appCtx.Session().UserID.String()))
-				http.Error(w, http.StatusText(403), http.StatusForbidden)
-				return
+				http.Error(w, "Office User Unauthorized", http.StatusForbidden)
+				return false
 			} else if err != nil {
 				appCtx.Logger().Error("Checking for office user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
+				return false
 			}
 			appCtx.Session().OfficeUserID = officeUser.ID
 			officeUser.UserID = &userIdentity.ID
@@ -723,7 +733,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 			if err != nil {
 				appCtx.Logger().Error("Updating office user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
+				return false
 			}
 		}
 	}
@@ -731,8 +741,8 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 	if appCtx.Session().IsAdminApp() {
 		if userIdentity.AdminUserActive != nil && !*userIdentity.AdminUserActive {
 			appCtx.Logger().Error("Admin user is deactivated", zap.String("userID", appCtx.Session().UserID.String()))
-			http.Error(w, http.StatusText(403), http.StatusForbidden)
-			return
+			http.Error(w, "Admin User Unauthorized", http.StatusForbidden)
+			return false
 		}
 		if userIdentity.AdminUserID != nil {
 			appCtx.Session().AdminUserID = *(userIdentity.AdminUserID)
@@ -748,12 +758,12 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 
 			if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 				appCtx.Logger().Error("No admin user found", zap.String("userID", appCtx.Session().UserID.String()))
-				http.Error(w, http.StatusText(403), http.StatusForbidden)
-				return
+				http.Error(w, "Admin User Unauthorized", http.StatusForbidden)
+				return false
 			} else if err != nil {
 				appCtx.Logger().Error("Checking for admin user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
+				return false
 			}
 
 			appCtx.Session().AdminUserID = adminUser.ID
@@ -763,13 +773,13 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 			if err != nil {
 				appCtx.Logger().Error("Updating admin user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
+				return false
 			}
 
 			if verrs != nil {
 				appCtx.Logger().Error("Admin user validation errors", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(verrs))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
+				return false
 			}
 		}
 	}
@@ -782,13 +792,14 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 	if authError != nil {
 		appCtx.Logger().Error("Authenticating user", zap.Error(authError))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
+		return false
 	}
 
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
+	return true
 }
 
-var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.User, h CallbackHandler, w http.ResponseWriter, r *http.Request, lURL string) {
+var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.User, h CallbackHandler, w http.ResponseWriter, r *http.Request, lURL string) bool {
 	var officeUser *models.OfficeUser
 	var user *models.User
 	var err error
@@ -799,18 +810,25 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 	if appCtx.Session().IsOfficeApp() { // Look to see if we have OfficeUser with this email address
 		officeUser, err = models.FetchOfficeUserByEmail(conn, appCtx.Session().Email)
 		if err == models.ErrFetchNotFound {
-			appCtx.Logger().Error("No Office user found", zap.String("userID", appCtx.Session().UserID.String()))
-			http.Error(w, http.StatusText(403), http.StatusForbidden)
-			return
+			appCtx.Logger().Error("Unauthorized: No Office user found",
+				zap.String("OID_User", openIDUser.UserID),
+				zap.String("OID_Email", openIDUser.Email))
+			http.Error(w, "Office User Unauthorized", http.StatusForbidden)
+			return false
 		} else if err != nil {
-			appCtx.Logger().Error("Checking for office user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
+			appCtx.Logger().Error("Authorization checking for office user",
+				zap.String("OID_User", openIDUser.UserID),
+				zap.String("OID_Email", openIDUser.Email),
+				zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
+			return false
 		}
 		if !officeUser.Active {
-			appCtx.Logger().Error("Office user is deactivated", zap.String("userID", appCtx.Session().UserID.String()))
-			http.Error(w, http.StatusText(403), http.StatusForbidden)
-			return
+			appCtx.Logger().Error("Unauthorized: Office user deactivated",
+				zap.String("OID_User", openIDUser.UserID),
+				zap.String("OID_Email", openIDUser.Email))
+			http.Error(w, "Office User Unauthorized", http.StatusForbidden)
+			return false
 		}
 		user = &officeUser.User
 	}
@@ -824,18 +842,25 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 		err = queryBuilder.FetchOne(appCtx, &adminUser, filters)
 
 		if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			appCtx.Logger().Error("No admin user found", zap.String("userID", appCtx.Session().UserID.String()))
-			http.Error(w, http.StatusText(403), http.StatusForbidden)
-			return
+			appCtx.Logger().Error("Unauthorized: No admin user found",
+				zap.String("OID_User", openIDUser.UserID),
+				zap.String("OID_Email", openIDUser.Email))
+			http.Error(w, "Admin User Unauthorized", http.StatusForbidden)
+			return false
 		} else if err != nil {
-			appCtx.Logger().Error("Checking for admin user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
+			appCtx.Logger().Error("Authorization checking for admin user",
+				zap.String("OID_User", openIDUser.UserID),
+				zap.String("OID_Email", openIDUser.Email),
+				zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
+			return false
 		}
 		if !adminUser.Active {
-			appCtx.Logger().Error("Admin user is deactivated", zap.String("userID", appCtx.Session().UserID.String()))
-			http.Error(w, http.StatusText(403), http.StatusForbidden)
-			return
+			appCtx.Logger().Error("Unauthorized: Admin user deactivated",
+				zap.String("OID_User", openIDUser.UserID),
+				zap.String("OID_Email", openIDUser.Email))
+			http.Error(w, "Admin User Unauthorized", http.StatusForbidden)
+			return false
 		}
 		user = &adminUser.User
 	}
@@ -874,17 +899,22 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 		if smVerrs.HasAny() || smErr != nil {
 			appCtx.Logger().Error("Error creating service member for user", zap.Error(smErr))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
+			return false
 		}
 		appCtx.Session().ServiceMemberID = newServiceMember.ID
 	} else {
+		appCtx.Logger().Error("Authorization associating login.gov UUID with user",
+			zap.String("OID_User", openIDUser.UserID),
+			zap.String("OID_Email", openIDUser.Email),
+			zap.String("user.id", user.ID.String()),
+		)
 		err = models.UpdateUserLoginGovUUID(appCtx.DB(), user, openIDUser.UserID)
 	}
 
 	if err != nil {
-		appCtx.Logger().Error("Error updating/creating user", zap.Error(err))
+		appCtx.Logger().Error("Authorization error updating/creating user", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
+		return false
 	}
 
 	appCtx.Session().UserID = user.ID
@@ -902,10 +932,11 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 	if authError != nil {
 		appCtx.Logger().Error("Authenticate user", zap.Error(authError))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
+		return false
 	}
 
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
+	return true
 }
 
 func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
