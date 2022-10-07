@@ -43,7 +43,7 @@ const createShipmentReport = () => {
 
   // Wait for the fetch and an element of form to load
   cy.wait(['@getEvaluationReport']);
-  cy.get('[data-testid="evaluationReportForm"]').should('exist');
+  cy.get('[data-testid="evaluationReportForm"]', { timeout: 10000 }).should('exist');
 };
 
 const createCounselingReport = () => {
@@ -52,7 +52,7 @@ const createCounselingReport = () => {
 
   // Wait for the fetch and an element of form to load
   cy.wait(['@getEvaluationReport']);
-  cy.get('[data-testid="evaluationReportForm"]').should('exist');
+  cy.get('[data-testid="evaluationReportForm"]', { timeout: 10000 }).should('exist');
 };
 
 const openSubmissionPreview = (isViolationsPage) => {
