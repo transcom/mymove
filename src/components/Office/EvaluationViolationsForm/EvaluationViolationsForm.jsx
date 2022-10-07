@@ -203,7 +203,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
     const selectedViolations = reportViolations ? reportViolations.map((violation) => violation.violationID) : [];
 
     let seriousIncident;
-    if (evaluationReport && Object.hasOwn(evaluationReport, 'seriousIncident')) {
+    if (evaluationReport && 'seriousIncident' in evaluationReport) {
       seriousIncident = evaluationReport.seriousIncident ? 'yes' : 'no';
     }
 
