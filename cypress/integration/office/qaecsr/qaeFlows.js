@@ -214,7 +214,7 @@ describe('Quality Evaluation Report', () => {
     });
 
     // Create new report, fill out minimal fields with violations observed = true, select violations on second page, submit
-    it('can complete a minimal evaluation report with violations from creation through submission', () => {
+    it.only('can complete a minimal evaluation report with violations from creation through submission', () => {
       // Create a new shipment report
       createShipmentReport();
 
