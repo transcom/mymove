@@ -4993,6 +4993,11 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "observedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "observedPickupDate": {
           "type": "string",
           "format": "date",
@@ -14488,6 +14493,11 @@ func init() {
           "x-nullable": true
         },
         "observedDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedDeliveryDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true

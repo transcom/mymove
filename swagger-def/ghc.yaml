@@ -4620,6 +4620,10 @@ definitions:
         type: string
         format: date
         x-nullable: true
+      observedDeliveryDate:
+        type: string
+        format: date
+        x-nullable: true
       moveReferenceID:
         type: string
         x-nullable: true

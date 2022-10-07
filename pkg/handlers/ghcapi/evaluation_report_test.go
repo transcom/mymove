@@ -530,6 +530,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 				ObservedPickupDate:            handlers.FmtDate(time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC)),
 				ObservedPickupSpreadStartDate: handlers.FmtDate(time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC)),
 				ObservedPickupSpreadEndDate:   handlers.FmtDate(time.Date(2020, 2, 5, 0, 0, 0, 0, time.UTC)),
+				ObservedDeliveryDate:          handlers.FmtDate(time.Date(2020, 2, 5, 0, 0, 0, 0, time.UTC)),
 				Remarks:                       swag.String("new remarks"),
 				SeriousIncident:               handlers.FmtBool(true),
 				SeriousIncidentDesc:           swag.String("serious incident description"),
