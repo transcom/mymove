@@ -135,7 +135,7 @@ const goToFormPageTwo = () => {
 
   // Wait for form to save and switch over to page 2 of form
   cy.wait(['@saveEvaluationReport', '@getEvaluationReport']);
-  cy.wait(['@getEvaluationReport', '@getMTOShipments', '@getReportViolationsByReportID', '@getPWSViolations']);
+  cy.wait(['@getMTOShipments', '@getReportViolationsByReportID', '@getPWSViolations']);
 
   cy.get('[data-testid="evaluationViolationsForm"]').should('exist');
 };
