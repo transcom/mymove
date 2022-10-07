@@ -731,3 +731,140 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		suite.Assertions.IsType(&evaluationReportop.SaveEvaluationReportInternalServerError{}, response)
 	})
 }
+func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
+
+	suite.Run("Successful download", func() {
+		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		reportID := report.ID
+
+		reportFetcher := &mocks.EvaluationReportFetcher{}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		orderFetcher := &mocks.OrderFetcher{}
+		violationsFetcher := &mocks.ReportViolationFetcher{}
+		handlerConfig := suite.HandlerConfig()
+		handler := DownloadEvaluationReportHandler{
+			HandlerConfig:           handlerConfig,
+			EvaluationReportFetcher: reportFetcher,
+			MTOShipmentFetcher:      shipmentFetcher,
+			OrderFetcher:            orderFetcher,
+			ReportViolationFetcher:  violationsFetcher,
+		}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s/download", reportID), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := evaluationReportop.DownloadEvaluationReportParams{
+			HTTPRequest: request,
+			ReportID:    *handlers.FmtUUID(reportID),
+		}
+
+		reportFetcher.On("FetchEvaluationReportByID",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&report, nil).Once()
+
+		orderFetcher.On("FetchOrder",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&report.Move.Orders, nil)
+
+		violationsFetcher.On("FetchReportViolationsByReportID",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(models.ReportViolations{}, nil)
+
+		shipmentFetcher.On("ListMTOShipments",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return([]models.MTOShipment{}, nil)
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&evaluationReportop.DownloadEvaluationReportOK{}, response)
+	})
+	suite.Run("Not found error", func() {
+		reportID := uuid.Must(uuid.NewV4())
+
+		reportFetcher := &mocks.EvaluationReportFetcher{}
+		handlerConfig := suite.HandlerConfig()
+		handler := DownloadEvaluationReportHandler{
+			HandlerConfig:           handlerConfig,
+			EvaluationReportFetcher: reportFetcher,
+		}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s/download", reportID), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := evaluationReportop.DownloadEvaluationReportParams{
+			HTTPRequest: request,
+			ReportID:    *handlers.FmtUUID(reportID),
+		}
+
+		reportFetcher.On("FetchEvaluationReportByID",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(nil, apperror.NewNotFoundError(uuid.Nil, "not found")).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&evaluationReportop.DownloadEvaluationReportNotFound{}, response)
+	})
+	suite.Run("Query error should result in 500", func() {
+		reportID := uuid.Must(uuid.NewV4())
+
+		reportFetcher := &mocks.EvaluationReportFetcher{}
+		handlerConfig := suite.HandlerConfig()
+		handler := DownloadEvaluationReportHandler{
+			HandlerConfig:           handlerConfig,
+			EvaluationReportFetcher: reportFetcher,
+		}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s/download", reportID), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := evaluationReportop.DownloadEvaluationReportParams{
+			HTTPRequest: request,
+			ReportID:    *handlers.FmtUUID(reportID),
+		}
+
+		reportFetcher.On("FetchEvaluationReportByID",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(nil, apperror.NewQueryError("", nil, "")).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&evaluationReportop.DownloadEvaluationReportInternalServerError{}, response)
+	})
+	suite.Run("Unknown error should result in 500", func() {
+		reportID := uuid.Must(uuid.NewV4())
+
+		reportFetcher := &mocks.EvaluationReportFetcher{}
+		handlerConfig := suite.HandlerConfig()
+		handler := DownloadEvaluationReportHandler{
+			HandlerConfig:           handlerConfig,
+			EvaluationReportFetcher: reportFetcher,
+		}
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s/download", reportID), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := evaluationReportop.DownloadEvaluationReportParams{
+			HTTPRequest: request,
+			ReportID:    *handlers.FmtUUID(reportID),
+		}
+
+		reportFetcher.On("FetchEvaluationReportByID",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(nil, fmt.Errorf("an error")).Once()
+
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&evaluationReportop.DownloadEvaluationReportInternalServerError{}, response)
+	})
+}

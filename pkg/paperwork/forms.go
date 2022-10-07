@@ -55,6 +55,14 @@ var affiliationDisplayValue = map[internalmessages.Affiliation]string{
 	internalmessages.AffiliationCOASTGUARD: "Coast Guard",
 }
 
+var serviceMemberAffiliationDisplayValue = map[models.ServiceMemberAffiliation]string{
+	models.AffiliationARMY:       "Army",
+	models.AffiliationNAVY:       "Navy",
+	models.AffiliationMARINES:    "Marines",
+	models.AffiliationAIRFORCE:   "Air Force",
+	models.AffiliationCOASTGUARD: "Coast Guard",
+}
+
 var deptIndDisplayValue = map[internalmessages.DeptIndicator]string{
 	internalmessages.DeptIndicatorAIRFORCE:       "Air Force",
 	internalmessages.DeptIndicatorNAVYANDMARINES: "Navy and Marine Corps",
