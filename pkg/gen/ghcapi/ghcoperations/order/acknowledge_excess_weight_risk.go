@@ -29,12 +29,12 @@ func NewAcknowledgeExcessWeightRisk(ctx *middleware.Context, handler Acknowledge
 	return &AcknowledgeExcessWeightRisk{Context: ctx, Handler: handler}
 }
 
-/*
-	AcknowledgeExcessWeightRisk swagger:route POST /orders/{orderID}/acknowledge-excess-weight-risk order acknowledgeExcessWeightRisk
-
-# Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert
+/* AcknowledgeExcessWeightRisk swagger:route POST /orders/{orderID}/acknowledge-excess-weight-risk order acknowledgeExcessWeightRisk
 
 Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert
+
+Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert
+
 */
 type AcknowledgeExcessWeightRisk struct {
 	Context *middleware.Context

@@ -16,8 +16,7 @@ import (
 // GetEntitlementsOKCode is the HTTP code returned for type GetEntitlementsOK
 const GetEntitlementsOKCode int = 200
 
-/*
-GetEntitlementsOK Successfully retrieved entitlements
+/*GetEntitlementsOK Successfully retrieved entitlements
 
 swagger:response getEntitlementsOK
 */
@@ -61,8 +60,7 @@ func (o *GetEntitlementsOK) WriteResponse(rw http.ResponseWriter, producer runti
 // GetEntitlementsBadRequestCode is the HTTP code returned for type GetEntitlementsBadRequest
 const GetEntitlementsBadRequestCode int = 400
 
-/*
-GetEntitlementsBadRequest The request payload is invalid
+/*GetEntitlementsBadRequest The request payload is invalid
 
 swagger:response getEntitlementsBadRequest
 */
@@ -106,8 +104,7 @@ func (o *GetEntitlementsBadRequest) WriteResponse(rw http.ResponseWriter, produc
 // GetEntitlementsUnauthorizedCode is the HTTP code returned for type GetEntitlementsUnauthorized
 const GetEntitlementsUnauthorizedCode int = 401
 
-/*
-GetEntitlementsUnauthorized The request was denied
+/*GetEntitlementsUnauthorized The request was denied
 
 swagger:response getEntitlementsUnauthorized
 */
@@ -151,8 +148,7 @@ func (o *GetEntitlementsUnauthorized) WriteResponse(rw http.ResponseWriter, prod
 // GetEntitlementsForbiddenCode is the HTTP code returned for type GetEntitlementsForbidden
 const GetEntitlementsForbiddenCode int = 403
 
-/*
-GetEntitlementsForbidden The request was denied
+/*GetEntitlementsForbidden The request was denied
 
 swagger:response getEntitlementsForbidden
 */
@@ -196,8 +192,7 @@ func (o *GetEntitlementsForbidden) WriteResponse(rw http.ResponseWriter, produce
 // GetEntitlementsNotFoundCode is the HTTP code returned for type GetEntitlementsNotFound
 const GetEntitlementsNotFoundCode int = 404
 
-/*
-GetEntitlementsNotFound The requested resource wasn't found
+/*GetEntitlementsNotFound The requested resource wasn't found
 
 swagger:response getEntitlementsNotFound
 */
@@ -241,8 +236,7 @@ func (o *GetEntitlementsNotFound) WriteResponse(rw http.ResponseWriter, producer
 // GetEntitlementsInternalServerErrorCode is the HTTP code returned for type GetEntitlementsInternalServerError
 const GetEntitlementsInternalServerErrorCode int = 500
 
-/*
-GetEntitlementsInternalServerError A server error occurred
+/*GetEntitlementsInternalServerError A server error occurred
 
 swagger:response getEntitlementsInternalServerError
 */

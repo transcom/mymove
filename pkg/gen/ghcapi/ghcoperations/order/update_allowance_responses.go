@@ -16,8 +16,7 @@ import (
 // UpdateAllowanceOKCode is the HTTP code returned for type UpdateAllowanceOK
 const UpdateAllowanceOKCode int = 200
 
-/*
-UpdateAllowanceOK updated instance of allowance
+/*UpdateAllowanceOK updated instance of allowance
 
 swagger:response updateAllowanceOK
 */
@@ -61,8 +60,7 @@ func (o *UpdateAllowanceOK) WriteResponse(rw http.ResponseWriter, producer runti
 // UpdateAllowanceForbiddenCode is the HTTP code returned for type UpdateAllowanceForbidden
 const UpdateAllowanceForbiddenCode int = 403
 
-/*
-UpdateAllowanceForbidden The request was denied
+/*UpdateAllowanceForbidden The request was denied
 
 swagger:response updateAllowanceForbidden
 */
@@ -106,8 +104,7 @@ func (o *UpdateAllowanceForbidden) WriteResponse(rw http.ResponseWriter, produce
 // UpdateAllowanceNotFoundCode is the HTTP code returned for type UpdateAllowanceNotFound
 const UpdateAllowanceNotFoundCode int = 404
 
-/*
-UpdateAllowanceNotFound The requested resource wasn't found
+/*UpdateAllowanceNotFound The requested resource wasn't found
 
 swagger:response updateAllowanceNotFound
 */
@@ -151,8 +148,7 @@ func (o *UpdateAllowanceNotFound) WriteResponse(rw http.ResponseWriter, producer
 // UpdateAllowancePreconditionFailedCode is the HTTP code returned for type UpdateAllowancePreconditionFailed
 const UpdateAllowancePreconditionFailedCode int = 412
 
-/*
-UpdateAllowancePreconditionFailed Precondition failed
+/*UpdateAllowancePreconditionFailed Precondition failed
 
 swagger:response updateAllowancePreconditionFailed
 */
@@ -196,8 +192,7 @@ func (o *UpdateAllowancePreconditionFailed) WriteResponse(rw http.ResponseWriter
 // UpdateAllowanceUnprocessableEntityCode is the HTTP code returned for type UpdateAllowanceUnprocessableEntity
 const UpdateAllowanceUnprocessableEntityCode int = 422
 
-/*
-UpdateAllowanceUnprocessableEntity The payload was unprocessable.
+/*UpdateAllowanceUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateAllowanceUnprocessableEntity
 */
@@ -241,8 +236,7 @@ func (o *UpdateAllowanceUnprocessableEntity) WriteResponse(rw http.ResponseWrite
 // UpdateAllowanceInternalServerErrorCode is the HTTP code returned for type UpdateAllowanceInternalServerError
 const UpdateAllowanceInternalServerErrorCode int = 500
 
-/*
-UpdateAllowanceInternalServerError A server error occurred
+/*UpdateAllowanceInternalServerError A server error occurred
 
 swagger:response updateAllowanceInternalServerError
 */

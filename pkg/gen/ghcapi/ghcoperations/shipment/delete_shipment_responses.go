@@ -16,8 +16,7 @@ import (
 // DeleteShipmentNoContentCode is the HTTP code returned for type DeleteShipmentNoContent
 const DeleteShipmentNoContentCode int = 204
 
-/*
-DeleteShipmentNoContent Successfully soft deleted the shipment
+/*DeleteShipmentNoContent Successfully soft deleted the shipment
 
 swagger:response deleteShipmentNoContent
 */
@@ -41,8 +40,7 @@ func (o *DeleteShipmentNoContent) WriteResponse(rw http.ResponseWriter, producer
 // DeleteShipmentBadRequestCode is the HTTP code returned for type DeleteShipmentBadRequest
 const DeleteShipmentBadRequestCode int = 400
 
-/*
-DeleteShipmentBadRequest The request payload is invalid
+/*DeleteShipmentBadRequest The request payload is invalid
 
 swagger:response deleteShipmentBadRequest
 */
@@ -86,8 +84,7 @@ func (o *DeleteShipmentBadRequest) WriteResponse(rw http.ResponseWriter, produce
 // DeleteShipmentForbiddenCode is the HTTP code returned for type DeleteShipmentForbidden
 const DeleteShipmentForbiddenCode int = 403
 
-/*
-DeleteShipmentForbidden The request was denied
+/*DeleteShipmentForbidden The request was denied
 
 swagger:response deleteShipmentForbidden
 */
@@ -131,8 +128,7 @@ func (o *DeleteShipmentForbidden) WriteResponse(rw http.ResponseWriter, producer
 // DeleteShipmentNotFoundCode is the HTTP code returned for type DeleteShipmentNotFound
 const DeleteShipmentNotFoundCode int = 404
 
-/*
-DeleteShipmentNotFound The requested resource wasn't found
+/*DeleteShipmentNotFound The requested resource wasn't found
 
 swagger:response deleteShipmentNotFound
 */
@@ -176,8 +172,7 @@ func (o *DeleteShipmentNotFound) WriteResponse(rw http.ResponseWriter, producer 
 // DeleteShipmentConflictCode is the HTTP code returned for type DeleteShipmentConflict
 const DeleteShipmentConflictCode int = 409
 
-/*
-DeleteShipmentConflict Conflict error
+/*DeleteShipmentConflict Conflict error
 
 swagger:response deleteShipmentConflict
 */
@@ -221,8 +216,7 @@ func (o *DeleteShipmentConflict) WriteResponse(rw http.ResponseWriter, producer 
 // DeleteShipmentUnprocessableEntityCode is the HTTP code returned for type DeleteShipmentUnprocessableEntity
 const DeleteShipmentUnprocessableEntityCode int = 422
 
-/*
-DeleteShipmentUnprocessableEntity The payload was unprocessable.
+/*DeleteShipmentUnprocessableEntity The payload was unprocessable.
 
 swagger:response deleteShipmentUnprocessableEntity
 */
@@ -266,8 +260,7 @@ func (o *DeleteShipmentUnprocessableEntity) WriteResponse(rw http.ResponseWriter
 // DeleteShipmentInternalServerErrorCode is the HTTP code returned for type DeleteShipmentInternalServerError
 const DeleteShipmentInternalServerErrorCode int = 500
 
-/*
-DeleteShipmentInternalServerError A server error occurred
+/*DeleteShipmentInternalServerError A server error occurred
 
 swagger:response deleteShipmentInternalServerError
 */

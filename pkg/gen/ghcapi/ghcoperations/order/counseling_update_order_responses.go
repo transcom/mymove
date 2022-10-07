@@ -16,8 +16,7 @@ import (
 // CounselingUpdateOrderOKCode is the HTTP code returned for type CounselingUpdateOrderOK
 const CounselingUpdateOrderOKCode int = 200
 
-/*
-CounselingUpdateOrderOK updated instance of orders
+/*CounselingUpdateOrderOK updated instance of orders
 
 swagger:response counselingUpdateOrderOK
 */
@@ -61,8 +60,7 @@ func (o *CounselingUpdateOrderOK) WriteResponse(rw http.ResponseWriter, producer
 // CounselingUpdateOrderForbiddenCode is the HTTP code returned for type CounselingUpdateOrderForbidden
 const CounselingUpdateOrderForbiddenCode int = 403
 
-/*
-CounselingUpdateOrderForbidden The request was denied
+/*CounselingUpdateOrderForbidden The request was denied
 
 swagger:response counselingUpdateOrderForbidden
 */
@@ -106,8 +104,7 @@ func (o *CounselingUpdateOrderForbidden) WriteResponse(rw http.ResponseWriter, p
 // CounselingUpdateOrderNotFoundCode is the HTTP code returned for type CounselingUpdateOrderNotFound
 const CounselingUpdateOrderNotFoundCode int = 404
 
-/*
-CounselingUpdateOrderNotFound The requested resource wasn't found
+/*CounselingUpdateOrderNotFound The requested resource wasn't found
 
 swagger:response counselingUpdateOrderNotFound
 */
@@ -151,8 +148,7 @@ func (o *CounselingUpdateOrderNotFound) WriteResponse(rw http.ResponseWriter, pr
 // CounselingUpdateOrderPreconditionFailedCode is the HTTP code returned for type CounselingUpdateOrderPreconditionFailed
 const CounselingUpdateOrderPreconditionFailedCode int = 412
 
-/*
-CounselingUpdateOrderPreconditionFailed Precondition failed
+/*CounselingUpdateOrderPreconditionFailed Precondition failed
 
 swagger:response counselingUpdateOrderPreconditionFailed
 */
@@ -196,8 +192,7 @@ func (o *CounselingUpdateOrderPreconditionFailed) WriteResponse(rw http.Response
 // CounselingUpdateOrderUnprocessableEntityCode is the HTTP code returned for type CounselingUpdateOrderUnprocessableEntity
 const CounselingUpdateOrderUnprocessableEntityCode int = 422
 
-/*
-CounselingUpdateOrderUnprocessableEntity The payload was unprocessable.
+/*CounselingUpdateOrderUnprocessableEntity The payload was unprocessable.
 
 swagger:response counselingUpdateOrderUnprocessableEntity
 */
@@ -241,8 +236,7 @@ func (o *CounselingUpdateOrderUnprocessableEntity) WriteResponse(rw http.Respons
 // CounselingUpdateOrderInternalServerErrorCode is the HTTP code returned for type CounselingUpdateOrderInternalServerError
 const CounselingUpdateOrderInternalServerErrorCode int = 500
 
-/*
-CounselingUpdateOrderInternalServerError A server error occurred
+/*CounselingUpdateOrderInternalServerError A server error occurred
 
 swagger:response counselingUpdateOrderInternalServerError
 */

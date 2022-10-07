@@ -29,12 +29,12 @@ func NewCreateCustomerSupportRemarkForMove(ctx *middleware.Context, handler Crea
 	return &CreateCustomerSupportRemarkForMove{Context: ctx, Handler: handler}
 }
 
-/*
-	CreateCustomerSupportRemarkForMove swagger:route POST /moves/{locator}/customer-support-remarks customerSupportRemarks createCustomerSupportRemarkForMove
-
-# Creates a customer support remark for a move
+/* CreateCustomerSupportRemarkForMove swagger:route POST /moves/{locator}/customer-support-remarks customerSupportRemarks createCustomerSupportRemarkForMove
 
 Creates a customer support remark for a move
+
+Creates a customer support remark for a move
+
 */
 type CreateCustomerSupportRemarkForMove struct {
 	Context *middleware.Context

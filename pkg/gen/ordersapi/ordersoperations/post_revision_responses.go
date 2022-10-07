@@ -16,8 +16,7 @@ import (
 // PostRevisionCreatedCode is the HTTP code returned for type PostRevisionCreated
 const PostRevisionCreatedCode int = 201
 
-/*
-PostRevisionCreated Created
+/*PostRevisionCreated Created
 
 swagger:response postRevisionCreated
 */
@@ -61,8 +60,7 @@ func (o *PostRevisionCreated) WriteResponse(rw http.ResponseWriter, producer run
 // PostRevisionBadRequestCode is the HTTP code returned for type PostRevisionBadRequest
 const PostRevisionBadRequestCode int = 400
 
-/*
-PostRevisionBadRequest Invalid
+/*PostRevisionBadRequest Invalid
 
 swagger:response postRevisionBadRequest
 */
@@ -86,8 +84,7 @@ func (o *PostRevisionBadRequest) WriteResponse(rw http.ResponseWriter, producer 
 // PostRevisionUnauthorizedCode is the HTTP code returned for type PostRevisionUnauthorized
 const PostRevisionUnauthorizedCode int = 401
 
-/*
-PostRevisionUnauthorized must be authenticated to use this endpoint
+/*PostRevisionUnauthorized must be authenticated to use this endpoint
 
 swagger:response postRevisionUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *PostRevisionUnauthorized) WriteResponse(rw http.ResponseWriter, produce
 // PostRevisionForbiddenCode is the HTTP code returned for type PostRevisionForbidden
 const PostRevisionForbiddenCode int = 403
 
-/*
-PostRevisionForbidden Forbidden
+/*PostRevisionForbidden Forbidden
 
 swagger:response postRevisionForbidden
 */
@@ -136,8 +132,7 @@ func (o *PostRevisionForbidden) WriteResponse(rw http.ResponseWriter, producer r
 // PostRevisionNotFoundCode is the HTTP code returned for type PostRevisionNotFound
 const PostRevisionNotFoundCode int = 404
 
-/*
-PostRevisionNotFound Not Found
+/*PostRevisionNotFound Not Found
 
 swagger:response postRevisionNotFound
 */
@@ -161,8 +156,7 @@ func (o *PostRevisionNotFound) WriteResponse(rw http.ResponseWriter, producer ru
 // PostRevisionConflictCode is the HTTP code returned for type PostRevisionConflict
 const PostRevisionConflictCode int = 409
 
-/*
-PostRevisionConflict Conflict
+/*PostRevisionConflict Conflict
 
 swagger:response postRevisionConflict
 */
@@ -186,8 +180,7 @@ func (o *PostRevisionConflict) WriteResponse(rw http.ResponseWriter, producer ru
 // PostRevisionInternalServerErrorCode is the HTTP code returned for type PostRevisionInternalServerError
 const PostRevisionInternalServerErrorCode int = 500
 
-/*
-PostRevisionInternalServerError Server error
+/*PostRevisionInternalServerError Server error
 
 swagger:response postRevisionInternalServerError
 */

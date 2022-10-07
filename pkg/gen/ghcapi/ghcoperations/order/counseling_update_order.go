@@ -29,12 +29,12 @@ func NewCounselingUpdateOrder(ctx *middleware.Context, handler CounselingUpdateO
 	return &CounselingUpdateOrder{Context: ctx, Handler: handler}
 }
 
-/*
-	CounselingUpdateOrder swagger:route PATCH /counseling/orders/{orderID} order counselingUpdateOrder
+/* CounselingUpdateOrder swagger:route PATCH /counseling/orders/{orderID} order counselingUpdateOrder
 
 Updates an order (performed by a services counselor)
 
 All fields sent in this request will be set on the order referenced
+
 */
 type CounselingUpdateOrder struct {
 	Context *middleware.Context

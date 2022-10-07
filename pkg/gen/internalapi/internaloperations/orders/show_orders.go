@@ -29,12 +29,12 @@ func NewShowOrders(ctx *middleware.Context, handler ShowOrdersHandler) *ShowOrde
 	return &ShowOrders{Context: ctx, Handler: handler}
 }
 
-/*
-	ShowOrders swagger:route GET /orders/{ordersId} orders showOrders
-
-# Returns the given order
+/* ShowOrders swagger:route GET /orders/{ordersId} orders showOrders
 
 Returns the given order
+
+Returns the given order
+
 */
 type ShowOrders struct {
 	Context *middleware.Context

@@ -16,8 +16,7 @@ import (
 // CreateCustomerSupportRemarkForMoveOKCode is the HTTP code returned for type CreateCustomerSupportRemarkForMoveOK
 const CreateCustomerSupportRemarkForMoveOKCode int = 200
 
-/*
-CreateCustomerSupportRemarkForMoveOK Successfully created customer support remark
+/*CreateCustomerSupportRemarkForMoveOK Successfully created customer support remark
 
 swagger:response createCustomerSupportRemarkForMoveOK
 */
@@ -61,8 +60,7 @@ func (o *CreateCustomerSupportRemarkForMoveOK) WriteResponse(rw http.ResponseWri
 // CreateCustomerSupportRemarkForMoveBadRequestCode is the HTTP code returned for type CreateCustomerSupportRemarkForMoveBadRequest
 const CreateCustomerSupportRemarkForMoveBadRequestCode int = 400
 
-/*
-CreateCustomerSupportRemarkForMoveBadRequest The request payload is invalid
+/*CreateCustomerSupportRemarkForMoveBadRequest The request payload is invalid
 
 swagger:response createCustomerSupportRemarkForMoveBadRequest
 */
@@ -106,8 +104,7 @@ func (o *CreateCustomerSupportRemarkForMoveBadRequest) WriteResponse(rw http.Res
 // CreateCustomerSupportRemarkForMoveNotFoundCode is the HTTP code returned for type CreateCustomerSupportRemarkForMoveNotFound
 const CreateCustomerSupportRemarkForMoveNotFoundCode int = 404
 
-/*
-CreateCustomerSupportRemarkForMoveNotFound The requested resource wasn't found
+/*CreateCustomerSupportRemarkForMoveNotFound The requested resource wasn't found
 
 swagger:response createCustomerSupportRemarkForMoveNotFound
 */
@@ -151,8 +148,7 @@ func (o *CreateCustomerSupportRemarkForMoveNotFound) WriteResponse(rw http.Respo
 // CreateCustomerSupportRemarkForMoveUnprocessableEntityCode is the HTTP code returned for type CreateCustomerSupportRemarkForMoveUnprocessableEntity
 const CreateCustomerSupportRemarkForMoveUnprocessableEntityCode int = 422
 
-/*
-CreateCustomerSupportRemarkForMoveUnprocessableEntity The payload was unprocessable.
+/*CreateCustomerSupportRemarkForMoveUnprocessableEntity The payload was unprocessable.
 
 swagger:response createCustomerSupportRemarkForMoveUnprocessableEntity
 */
@@ -196,8 +192,7 @@ func (o *CreateCustomerSupportRemarkForMoveUnprocessableEntity) WriteResponse(rw
 // CreateCustomerSupportRemarkForMoveInternalServerErrorCode is the HTTP code returned for type CreateCustomerSupportRemarkForMoveInternalServerError
 const CreateCustomerSupportRemarkForMoveInternalServerErrorCode int = 500
 
-/*
-CreateCustomerSupportRemarkForMoveInternalServerError A server error occurred
+/*CreateCustomerSupportRemarkForMoveInternalServerError A server error occurred
 
 swagger:response createCustomerSupportRemarkForMoveInternalServerError
 */

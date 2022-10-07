@@ -54,12 +54,10 @@ func NewUpdateMTOAgentParamsWithHTTPClient(client *http.Client) *UpdateMTOAgentP
 	}
 }
 
-/*
-UpdateMTOAgentParams contains all the parameters to send to the API endpoint
+/* UpdateMTOAgentParams contains all the parameters to send to the API endpoint
+   for the update m t o agent operation.
 
-	for the update m t o agent operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type UpdateMTOAgentParams struct {
 

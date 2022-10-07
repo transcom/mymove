@@ -29,12 +29,12 @@ func NewRequestShipmentDiversion(ctx *middleware.Context, handler RequestShipmen
 	return &RequestShipmentDiversion{Context: ctx, Handler: handler}
 }
 
-/*
-	RequestShipmentDiversion swagger:route POST /shipments/{shipmentID}/request-diversion shipment requestShipmentDiversion
-
-# Requests a shipment diversion
+/* RequestShipmentDiversion swagger:route POST /shipments/{shipmentID}/request-diversion shipment requestShipmentDiversion
 
 Requests a shipment diversion
+
+Requests a shipment diversion
+
 */
 type RequestShipmentDiversion struct {
 	Context *middleware.Context

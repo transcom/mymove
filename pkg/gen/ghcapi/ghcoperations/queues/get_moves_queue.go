@@ -29,12 +29,13 @@ func NewGetMovesQueue(ctx *middleware.Context, handler GetMovesQueueHandler) *Ge
 	return &GetMovesQueue{Context: ctx, Handler: handler}
 }
 
-/*
-	GetMovesQueue swagger:route GET /queues/moves queues getMovesQueue
+/* GetMovesQueue swagger:route GET /queues/moves queues getMovesQueue
 
-# Gets queued list of all customer moves by GBLOC origin
+Gets queued list of all customer moves by GBLOC origin
 
 An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.
+
+
 */
 type GetMovesQueue struct {
 	Context *middleware.Context

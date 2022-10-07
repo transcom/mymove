@@ -29,22 +29,22 @@ func NewUpdateMTOServiceItem(ctx *middleware.Context, handler UpdateMTOServiceIt
 	return &UpdateMTOServiceItem{Context: ctx, Handler: handler}
 }
 
-/*
-	UpdateMTOServiceItem swagger:route PATCH /mto-service-items/{mtoServiceItemID} mtoServiceItem updateMTOServiceItem
+/* UpdateMTOServiceItem swagger:route PATCH /mto-service-items/{mtoServiceItemID} mtoServiceItem updateMTOServiceItem
 
 updateMTOServiceItem
 
 Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.
 
 This endpoint supports different body definitions. In the modelType field below, select the modelType corresponding
-
-	to the service item you wish to update and the documentation will update with the new definition.
+ to the service item you wish to update and the documentation will update with the new definition.
 
 To create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
 
 ### Errors
 
 Currently this is not implemented and will generated the NotImplemented error.
+
+
 */
 type UpdateMTOServiceItem struct {
 	Context *middleware.Context

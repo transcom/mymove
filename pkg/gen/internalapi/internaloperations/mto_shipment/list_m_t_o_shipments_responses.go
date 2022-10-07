@@ -16,8 +16,7 @@ import (
 // ListMTOShipmentsOKCode is the HTTP code returned for type ListMTOShipmentsOK
 const ListMTOShipmentsOKCode int = 200
 
-/*
-ListMTOShipmentsOK Successfully retrieved all mto shipments for a move task order.
+/*ListMTOShipmentsOK Successfully retrieved all mto shipments for a move task order.
 
 swagger:response listMTOShipmentsOK
 */
@@ -64,8 +63,7 @@ func (o *ListMTOShipmentsOK) WriteResponse(rw http.ResponseWriter, producer runt
 // ListMTOShipmentsBadRequestCode is the HTTP code returned for type ListMTOShipmentsBadRequest
 const ListMTOShipmentsBadRequestCode int = 400
 
-/*
-ListMTOShipmentsBadRequest The request payload is invalid.
+/*ListMTOShipmentsBadRequest The request payload is invalid.
 
 swagger:response listMTOShipmentsBadRequest
 */
@@ -109,8 +107,7 @@ func (o *ListMTOShipmentsBadRequest) WriteResponse(rw http.ResponseWriter, produ
 // ListMTOShipmentsUnauthorizedCode is the HTTP code returned for type ListMTOShipmentsUnauthorized
 const ListMTOShipmentsUnauthorizedCode int = 401
 
-/*
-ListMTOShipmentsUnauthorized The request was denied.
+/*ListMTOShipmentsUnauthorized The request was denied.
 
 swagger:response listMTOShipmentsUnauthorized
 */
@@ -154,8 +151,7 @@ func (o *ListMTOShipmentsUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 // ListMTOShipmentsInternalServerErrorCode is the HTTP code returned for type ListMTOShipmentsInternalServerError
 const ListMTOShipmentsInternalServerErrorCode int = 500
 
-/*
-ListMTOShipmentsInternalServerError A server error occurred.
+/*ListMTOShipmentsInternalServerError A server error occurred.
 
 swagger:response listMTOShipmentsInternalServerError
 */

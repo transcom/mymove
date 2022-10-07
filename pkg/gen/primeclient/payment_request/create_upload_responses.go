@@ -75,8 +75,7 @@ func NewCreateUploadCreated() *CreateUploadCreated {
 	return &CreateUploadCreated{}
 }
 
-/*
-CreateUploadCreated describes a response with status code 201, with default header values.
+/* CreateUploadCreated describes a response with status code 201, with default header values.
 
 Successfully created upload of digital file.
 */
@@ -138,8 +137,7 @@ func NewCreateUploadBadRequest() *CreateUploadBadRequest {
 	return &CreateUploadBadRequest{}
 }
 
-/*
-CreateUploadBadRequest describes a response with status code 400, with default header values.
+/* CreateUploadBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -201,8 +199,7 @@ func NewCreateUploadUnauthorized() *CreateUploadUnauthorized {
 	return &CreateUploadUnauthorized{}
 }
 
-/*
-CreateUploadUnauthorized describes a response with status code 401, with default header values.
+/* CreateUploadUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -264,8 +261,7 @@ func NewCreateUploadForbidden() *CreateUploadForbidden {
 	return &CreateUploadForbidden{}
 }
 
-/*
-CreateUploadForbidden describes a response with status code 403, with default header values.
+/* CreateUploadForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -327,8 +323,7 @@ func NewCreateUploadNotFound() *CreateUploadNotFound {
 	return &CreateUploadNotFound{}
 }
 
-/*
-CreateUploadNotFound describes a response with status code 404, with default header values.
+/* CreateUploadNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -390,8 +385,7 @@ func NewCreateUploadUnprocessableEntity() *CreateUploadUnprocessableEntity {
 	return &CreateUploadUnprocessableEntity{}
 }
 
-/*
-CreateUploadUnprocessableEntity describes a response with status code 422, with default header values.
+/* CreateUploadUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -453,8 +447,7 @@ func NewCreateUploadInternalServerError() *CreateUploadInternalServerError {
 	return &CreateUploadInternalServerError{}
 }
 
-/*
-CreateUploadInternalServerError describes a response with status code 500, with default header values.
+/* CreateUploadInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

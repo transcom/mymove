@@ -29,12 +29,12 @@ func NewGetCustomer(ctx *middleware.Context, handler GetCustomerHandler) *GetCus
 	return &GetCustomer{Context: ctx, Handler: handler}
 }
 
-/*
-	GetCustomer swagger:route GET /customer/{customerID} customer getCustomer
-
-# Returns a given customer
+/* GetCustomer swagger:route GET /customer/{customerID} customer getCustomer
 
 Returns a given customer
+
+Returns a given customer
+
 */
 type GetCustomer struct {
 	Context *middleware.Context

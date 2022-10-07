@@ -29,12 +29,12 @@ func NewValidatePostalCodeWithRateData(ctx *middleware.Context, handler Validate
 	return &ValidatePostalCodeWithRateData{Context: ctx, Handler: handler}
 }
 
-/*
-	ValidatePostalCodeWithRateData swagger:route GET /rate_engine_postal_codes/{postal_code} postal_codes validatePostalCodeWithRateData
+/* ValidatePostalCodeWithRateData swagger:route GET /rate_engine_postal_codes/{postal_code} postal_codes validatePostalCodeWithRateData
 
 Validate if a zipcode is valid for origin or destination location for a move.
 
 Verifies if a zipcode is valid for origin or destination location for a move.
+
 */
 type ValidatePostalCodeWithRateData struct {
 	Context *middleware.Context

@@ -54,12 +54,10 @@ func NewCreateMTOAgentParamsWithHTTPClient(client *http.Client) *CreateMTOAgentP
 	}
 }
 
-/*
-CreateMTOAgentParams contains all the parameters to send to the API endpoint
+/* CreateMTOAgentParams contains all the parameters to send to the API endpoint
+   for the create m t o agent operation.
 
-	for the create m t o agent operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type CreateMTOAgentParams struct {
 

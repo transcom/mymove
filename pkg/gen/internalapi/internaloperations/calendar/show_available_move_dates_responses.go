@@ -16,8 +16,7 @@ import (
 // ShowAvailableMoveDatesOKCode is the HTTP code returned for type ShowAvailableMoveDatesOK
 const ShowAvailableMoveDatesOKCode int = 200
 
-/*
-ShowAvailableMoveDatesOK List of available dates
+/*ShowAvailableMoveDatesOK List of available dates
 
 swagger:response showAvailableMoveDatesOK
 */
@@ -61,8 +60,7 @@ func (o *ShowAvailableMoveDatesOK) WriteResponse(rw http.ResponseWriter, produce
 // ShowAvailableMoveDatesBadRequestCode is the HTTP code returned for type ShowAvailableMoveDatesBadRequest
 const ShowAvailableMoveDatesBadRequestCode int = 400
 
-/*
-ShowAvailableMoveDatesBadRequest invalid request
+/*ShowAvailableMoveDatesBadRequest invalid request
 
 swagger:response showAvailableMoveDatesBadRequest
 */
@@ -86,8 +84,7 @@ func (o *ShowAvailableMoveDatesBadRequest) WriteResponse(rw http.ResponseWriter,
 // ShowAvailableMoveDatesUnauthorizedCode is the HTTP code returned for type ShowAvailableMoveDatesUnauthorized
 const ShowAvailableMoveDatesUnauthorizedCode int = 401
 
-/*
-ShowAvailableMoveDatesUnauthorized request requires user authentication
+/*ShowAvailableMoveDatesUnauthorized request requires user authentication
 
 swagger:response showAvailableMoveDatesUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *ShowAvailableMoveDatesUnauthorized) WriteResponse(rw http.ResponseWrite
 // ShowAvailableMoveDatesForbiddenCode is the HTTP code returned for type ShowAvailableMoveDatesForbidden
 const ShowAvailableMoveDatesForbiddenCode int = 403
 
-/*
-ShowAvailableMoveDatesForbidden user is not authorized
+/*ShowAvailableMoveDatesForbidden user is not authorized
 
 swagger:response showAvailableMoveDatesForbidden
 */
@@ -136,8 +132,7 @@ func (o *ShowAvailableMoveDatesForbidden) WriteResponse(rw http.ResponseWriter, 
 // ShowAvailableMoveDatesInternalServerErrorCode is the HTTP code returned for type ShowAvailableMoveDatesInternalServerError
 const ShowAvailableMoveDatesInternalServerErrorCode int = 500
 
-/*
-ShowAvailableMoveDatesInternalServerError internal server error
+/*ShowAvailableMoveDatesInternalServerError internal server error
 
 swagger:response showAvailableMoveDatesInternalServerError
 */

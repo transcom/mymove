@@ -69,8 +69,7 @@ func NewCreateExcessWeightRecordCreated() *CreateExcessWeightRecordCreated {
 	return &CreateExcessWeightRecordCreated{}
 }
 
-/*
-CreateExcessWeightRecordCreated describes a response with status code 201, with default header values.
+/* CreateExcessWeightRecordCreated describes a response with status code 201, with default header values.
 
 Successfully uploaded the excess weight record file.
 */
@@ -132,8 +131,7 @@ func NewCreateExcessWeightRecordUnauthorized() *CreateExcessWeightRecordUnauthor
 	return &CreateExcessWeightRecordUnauthorized{}
 }
 
-/*
-CreateExcessWeightRecordUnauthorized describes a response with status code 401, with default header values.
+/* CreateExcessWeightRecordUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -195,8 +193,7 @@ func NewCreateExcessWeightRecordForbidden() *CreateExcessWeightRecordForbidden {
 	return &CreateExcessWeightRecordForbidden{}
 }
 
-/*
-CreateExcessWeightRecordForbidden describes a response with status code 403, with default header values.
+/* CreateExcessWeightRecordForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -258,8 +255,7 @@ func NewCreateExcessWeightRecordNotFound() *CreateExcessWeightRecordNotFound {
 	return &CreateExcessWeightRecordNotFound{}
 }
 
-/*
-CreateExcessWeightRecordNotFound describes a response with status code 404, with default header values.
+/* CreateExcessWeightRecordNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -321,8 +317,7 @@ func NewCreateExcessWeightRecordUnprocessableEntity() *CreateExcessWeightRecordU
 	return &CreateExcessWeightRecordUnprocessableEntity{}
 }
 
-/*
-CreateExcessWeightRecordUnprocessableEntity describes a response with status code 422, with default header values.
+/* CreateExcessWeightRecordUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -384,8 +379,7 @@ func NewCreateExcessWeightRecordInternalServerError() *CreateExcessWeightRecordI
 	return &CreateExcessWeightRecordInternalServerError{}
 }
 
-/*
-CreateExcessWeightRecordInternalServerError describes a response with status code 500, with default header values.
+/* CreateExcessWeightRecordInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

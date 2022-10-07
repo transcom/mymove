@@ -16,8 +16,7 @@ import (
 // CreateWebhookSubscriptionCreatedCode is the HTTP code returned for type CreateWebhookSubscriptionCreated
 const CreateWebhookSubscriptionCreatedCode int = 201
 
-/*
-CreateWebhookSubscriptionCreated Successfully created webhook subscription
+/*CreateWebhookSubscriptionCreated Successfully created webhook subscription
 
 swagger:response createWebhookSubscriptionCreated
 */
@@ -61,8 +60,7 @@ func (o *CreateWebhookSubscriptionCreated) WriteResponse(rw http.ResponseWriter,
 // CreateWebhookSubscriptionBadRequestCode is the HTTP code returned for type CreateWebhookSubscriptionBadRequest
 const CreateWebhookSubscriptionBadRequestCode int = 400
 
-/*
-CreateWebhookSubscriptionBadRequest Invalid Request
+/*CreateWebhookSubscriptionBadRequest Invalid Request
 
 swagger:response createWebhookSubscriptionBadRequest
 */
@@ -86,8 +84,7 @@ func (o *CreateWebhookSubscriptionBadRequest) WriteResponse(rw http.ResponseWrit
 // CreateWebhookSubscriptionUnauthorizedCode is the HTTP code returned for type CreateWebhookSubscriptionUnauthorized
 const CreateWebhookSubscriptionUnauthorizedCode int = 401
 
-/*
-CreateWebhookSubscriptionUnauthorized Must be authenticated to use this end point
+/*CreateWebhookSubscriptionUnauthorized Must be authenticated to use this end point
 
 swagger:response createWebhookSubscriptionUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *CreateWebhookSubscriptionUnauthorized) WriteResponse(rw http.ResponseWr
 // CreateWebhookSubscriptionForbiddenCode is the HTTP code returned for type CreateWebhookSubscriptionForbidden
 const CreateWebhookSubscriptionForbiddenCode int = 403
 
-/*
-CreateWebhookSubscriptionForbidden Not authorized to create a webhook subscription
+/*CreateWebhookSubscriptionForbidden Not authorized to create a webhook subscription
 
 swagger:response createWebhookSubscriptionForbidden
 */
@@ -136,8 +132,7 @@ func (o *CreateWebhookSubscriptionForbidden) WriteResponse(rw http.ResponseWrite
 // CreateWebhookSubscriptionInternalServerErrorCode is the HTTP code returned for type CreateWebhookSubscriptionInternalServerError
 const CreateWebhookSubscriptionInternalServerErrorCode int = 500
 
-/*
-CreateWebhookSubscriptionInternalServerError Server error
+/*CreateWebhookSubscriptionInternalServerError Server error
 
 swagger:response createWebhookSubscriptionInternalServerError
 */

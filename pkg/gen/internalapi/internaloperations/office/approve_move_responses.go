@@ -16,8 +16,7 @@ import (
 // ApproveMoveOKCode is the HTTP code returned for type ApproveMoveOK
 const ApproveMoveOKCode int = 200
 
-/*
-ApproveMoveOK returns updated (approved) move object
+/*ApproveMoveOK returns updated (approved) move object
 
 swagger:response approveMoveOK
 */
@@ -61,8 +60,7 @@ func (o *ApproveMoveOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 // ApproveMoveBadRequestCode is the HTTP code returned for type ApproveMoveBadRequest
 const ApproveMoveBadRequestCode int = 400
 
-/*
-ApproveMoveBadRequest invalid request
+/*ApproveMoveBadRequest invalid request
 
 swagger:response approveMoveBadRequest
 */
@@ -86,8 +84,7 @@ func (o *ApproveMoveBadRequest) WriteResponse(rw http.ResponseWriter, producer r
 // ApproveMoveUnauthorizedCode is the HTTP code returned for type ApproveMoveUnauthorized
 const ApproveMoveUnauthorizedCode int = 401
 
-/*
-ApproveMoveUnauthorized must be authenticated to use this endpoint
+/*ApproveMoveUnauthorized must be authenticated to use this endpoint
 
 swagger:response approveMoveUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *ApproveMoveUnauthorized) WriteResponse(rw http.ResponseWriter, producer
 // ApproveMoveForbiddenCode is the HTTP code returned for type ApproveMoveForbidden
 const ApproveMoveForbiddenCode int = 403
 
-/*
-ApproveMoveForbidden not authorized to approve this move
+/*ApproveMoveForbidden not authorized to approve this move
 
 swagger:response approveMoveForbidden
 */
@@ -136,8 +132,7 @@ func (o *ApproveMoveForbidden) WriteResponse(rw http.ResponseWriter, producer ru
 // ApproveMoveConflictCode is the HTTP code returned for type ApproveMoveConflict
 const ApproveMoveConflictCode int = 409
 
-/*
-ApproveMoveConflict the move is not in a state to be approved
+/*ApproveMoveConflict the move is not in a state to be approved
 
 swagger:response approveMoveConflict
 */
@@ -181,8 +176,7 @@ func (o *ApproveMoveConflict) WriteResponse(rw http.ResponseWriter, producer run
 // ApproveMoveInternalServerErrorCode is the HTTP code returned for type ApproveMoveInternalServerError
 const ApproveMoveInternalServerErrorCode int = 500
 
-/*
-ApproveMoveInternalServerError server error
+/*ApproveMoveInternalServerError server error
 
 swagger:response approveMoveInternalServerError
 */

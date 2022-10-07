@@ -54,12 +54,10 @@ func NewCreateSITExtensionParamsWithHTTPClient(client *http.Client) *CreateSITEx
 	}
 }
 
-/*
-CreateSITExtensionParams contains all the parameters to send to the API endpoint
+/* CreateSITExtensionParams contains all the parameters to send to the API endpoint
+   for the create s i t extension operation.
 
-	for the create s i t extension operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type CreateSITExtensionParams struct {
 

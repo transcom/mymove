@@ -54,12 +54,10 @@ func NewUpdateReweighParamsWithHTTPClient(client *http.Client) *UpdateReweighPar
 	}
 }
 
-/*
-UpdateReweighParams contains all the parameters to send to the API endpoint
+/* UpdateReweighParams contains all the parameters to send to the API endpoint
+   for the update reweigh operation.
 
-	for the update reweigh operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type UpdateReweighParams struct {
 

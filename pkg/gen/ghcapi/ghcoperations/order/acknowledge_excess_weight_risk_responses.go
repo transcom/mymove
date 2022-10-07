@@ -16,8 +16,7 @@ import (
 // AcknowledgeExcessWeightRiskOKCode is the HTTP code returned for type AcknowledgeExcessWeightRiskOK
 const AcknowledgeExcessWeightRiskOKCode int = 200
 
-/*
-AcknowledgeExcessWeightRiskOK updated Move
+/*AcknowledgeExcessWeightRiskOK updated Move
 
 swagger:response acknowledgeExcessWeightRiskOK
 */
@@ -61,8 +60,7 @@ func (o *AcknowledgeExcessWeightRiskOK) WriteResponse(rw http.ResponseWriter, pr
 // AcknowledgeExcessWeightRiskForbiddenCode is the HTTP code returned for type AcknowledgeExcessWeightRiskForbidden
 const AcknowledgeExcessWeightRiskForbiddenCode int = 403
 
-/*
-AcknowledgeExcessWeightRiskForbidden The request was denied
+/*AcknowledgeExcessWeightRiskForbidden The request was denied
 
 swagger:response acknowledgeExcessWeightRiskForbidden
 */
@@ -106,8 +104,7 @@ func (o *AcknowledgeExcessWeightRiskForbidden) WriteResponse(rw http.ResponseWri
 // AcknowledgeExcessWeightRiskNotFoundCode is the HTTP code returned for type AcknowledgeExcessWeightRiskNotFound
 const AcknowledgeExcessWeightRiskNotFoundCode int = 404
 
-/*
-AcknowledgeExcessWeightRiskNotFound The requested resource wasn't found
+/*AcknowledgeExcessWeightRiskNotFound The requested resource wasn't found
 
 swagger:response acknowledgeExcessWeightRiskNotFound
 */
@@ -151,8 +148,7 @@ func (o *AcknowledgeExcessWeightRiskNotFound) WriteResponse(rw http.ResponseWrit
 // AcknowledgeExcessWeightRiskPreconditionFailedCode is the HTTP code returned for type AcknowledgeExcessWeightRiskPreconditionFailed
 const AcknowledgeExcessWeightRiskPreconditionFailedCode int = 412
 
-/*
-AcknowledgeExcessWeightRiskPreconditionFailed Precondition failed
+/*AcknowledgeExcessWeightRiskPreconditionFailed Precondition failed
 
 swagger:response acknowledgeExcessWeightRiskPreconditionFailed
 */
@@ -196,8 +192,7 @@ func (o *AcknowledgeExcessWeightRiskPreconditionFailed) WriteResponse(rw http.Re
 // AcknowledgeExcessWeightRiskUnprocessableEntityCode is the HTTP code returned for type AcknowledgeExcessWeightRiskUnprocessableEntity
 const AcknowledgeExcessWeightRiskUnprocessableEntityCode int = 422
 
-/*
-AcknowledgeExcessWeightRiskUnprocessableEntity The payload was unprocessable.
+/*AcknowledgeExcessWeightRiskUnprocessableEntity The payload was unprocessable.
 
 swagger:response acknowledgeExcessWeightRiskUnprocessableEntity
 */
@@ -241,8 +236,7 @@ func (o *AcknowledgeExcessWeightRiskUnprocessableEntity) WriteResponse(rw http.R
 // AcknowledgeExcessWeightRiskInternalServerErrorCode is the HTTP code returned for type AcknowledgeExcessWeightRiskInternalServerError
 const AcknowledgeExcessWeightRiskInternalServerErrorCode int = 500
 
-/*
-AcknowledgeExcessWeightRiskInternalServerError A server error occurred
+/*AcknowledgeExcessWeightRiskInternalServerError A server error occurred
 
 swagger:response acknowledgeExcessWeightRiskInternalServerError
 */

@@ -29,12 +29,12 @@ func NewIndexPersonallyProcuredMoves(ctx *middleware.Context, handler IndexPerso
 	return &IndexPersonallyProcuredMoves{Context: ctx, Handler: handler}
 }
 
-/*
-	IndexPersonallyProcuredMoves swagger:route GET /moves/{moveId}/personally_procured_move ppm indexPersonallyProcuredMoves
-
-# Returns a list of all PPMs associated with this move
+/* IndexPersonallyProcuredMoves swagger:route GET /moves/{moveId}/personally_procured_move ppm indexPersonallyProcuredMoves
 
 Returns a list of all PPMs associated with this move
+
+Returns a list of all PPMs associated with this move
+
 */
 type IndexPersonallyProcuredMoves struct {
 	Context *middleware.Context

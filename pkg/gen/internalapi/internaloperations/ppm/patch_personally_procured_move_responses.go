@@ -16,8 +16,7 @@ import (
 // PatchPersonallyProcuredMoveOKCode is the HTTP code returned for type PatchPersonallyProcuredMoveOK
 const PatchPersonallyProcuredMoveOKCode int = 200
 
-/*
-PatchPersonallyProcuredMoveOK updated instance of personally_procured_move
+/*PatchPersonallyProcuredMoveOK updated instance of personally_procured_move
 
 swagger:response patchPersonallyProcuredMoveOK
 */
@@ -61,8 +60,7 @@ func (o *PatchPersonallyProcuredMoveOK) WriteResponse(rw http.ResponseWriter, pr
 // PatchPersonallyProcuredMoveBadRequestCode is the HTTP code returned for type PatchPersonallyProcuredMoveBadRequest
 const PatchPersonallyProcuredMoveBadRequestCode int = 400
 
-/*
-PatchPersonallyProcuredMoveBadRequest invalid request
+/*PatchPersonallyProcuredMoveBadRequest invalid request
 
 swagger:response patchPersonallyProcuredMoveBadRequest
 */
@@ -86,8 +84,7 @@ func (o *PatchPersonallyProcuredMoveBadRequest) WriteResponse(rw http.ResponseWr
 // PatchPersonallyProcuredMoveUnauthorizedCode is the HTTP code returned for type PatchPersonallyProcuredMoveUnauthorized
 const PatchPersonallyProcuredMoveUnauthorizedCode int = 401
 
-/*
-PatchPersonallyProcuredMoveUnauthorized request requires user authentication
+/*PatchPersonallyProcuredMoveUnauthorized request requires user authentication
 
 swagger:response patchPersonallyProcuredMoveUnauthorized
 */
@@ -111,8 +108,7 @@ func (o *PatchPersonallyProcuredMoveUnauthorized) WriteResponse(rw http.Response
 // PatchPersonallyProcuredMoveForbiddenCode is the HTTP code returned for type PatchPersonallyProcuredMoveForbidden
 const PatchPersonallyProcuredMoveForbiddenCode int = 403
 
-/*
-PatchPersonallyProcuredMoveForbidden user is not authorized
+/*PatchPersonallyProcuredMoveForbidden user is not authorized
 
 swagger:response patchPersonallyProcuredMoveForbidden
 */
@@ -136,8 +132,7 @@ func (o *PatchPersonallyProcuredMoveForbidden) WriteResponse(rw http.ResponseWri
 // PatchPersonallyProcuredMoveNotFoundCode is the HTTP code returned for type PatchPersonallyProcuredMoveNotFound
 const PatchPersonallyProcuredMoveNotFoundCode int = 404
 
-/*
-PatchPersonallyProcuredMoveNotFound ppm is not found or ppm discount not found for provided postal codes and original move date
+/*PatchPersonallyProcuredMoveNotFound ppm is not found or ppm discount not found for provided postal codes and original move date
 
 swagger:response patchPersonallyProcuredMoveNotFound
 */
@@ -161,8 +156,7 @@ func (o *PatchPersonallyProcuredMoveNotFound) WriteResponse(rw http.ResponseWrit
 // PatchPersonallyProcuredMoveUnprocessableEntityCode is the HTTP code returned for type PatchPersonallyProcuredMoveUnprocessableEntity
 const PatchPersonallyProcuredMoveUnprocessableEntityCode int = 422
 
-/*
-PatchPersonallyProcuredMoveUnprocessableEntity cannot process request with given information
+/*PatchPersonallyProcuredMoveUnprocessableEntity cannot process request with given information
 
 swagger:response patchPersonallyProcuredMoveUnprocessableEntity
 */
@@ -186,8 +180,7 @@ func (o *PatchPersonallyProcuredMoveUnprocessableEntity) WriteResponse(rw http.R
 // PatchPersonallyProcuredMoveInternalServerErrorCode is the HTTP code returned for type PatchPersonallyProcuredMoveInternalServerError
 const PatchPersonallyProcuredMoveInternalServerErrorCode int = 500
 
-/*
-PatchPersonallyProcuredMoveInternalServerError internal server error
+/*PatchPersonallyProcuredMoveInternalServerError internal server error
 
 swagger:response patchPersonallyProcuredMoveInternalServerError
 */

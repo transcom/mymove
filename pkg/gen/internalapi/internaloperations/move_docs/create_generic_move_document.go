@@ -29,12 +29,12 @@ func NewCreateGenericMoveDocument(ctx *middleware.Context, handler CreateGeneric
 	return &CreateGenericMoveDocument{Context: ctx, Handler: handler}
 }
 
-/*
-	CreateGenericMoveDocument swagger:route POST /moves/{moveId}/move_documents move_docs createGenericMoveDocument
+/* CreateGenericMoveDocument swagger:route POST /moves/{moveId}/move_documents move_docs createGenericMoveDocument
 
-# Creates a move document
+Creates a move document
 
 Created a move document with the given information
+
 */
 type CreateGenericMoveDocument struct {
 	Context *middleware.Context
