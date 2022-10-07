@@ -322,8 +322,15 @@ func FormatValuesShipment(shipment models.MTOShipment) ShipmentValues {
 		vals.PPMDestinationZIP = shipment.PPMShipment.DestinationPostalCode
 		vals.PPMDepartureDate = shipment.PPMShipment.ExpectedDepartureDate.Format(dateFormat)
 	}
-	if shipment.StorageFacility != nil || shipment.StorageFacilityID != nil {
-		vals.StorageFacility = fmt.Sprintf("%s\n%s", *shipment.StorageFacility.Phone, *shipment.StorageFacility.Email)
+	if shipment.StorageFacility != nil {
+		if shipment.StorageFacility.Phone != nil && shipment.StorageFacility.Email != nil {
+			vals.StorageFacility = fmt.Sprintf("%s\n%s", *shipment.StorageFacility.Phone, *shipment.StorageFacility.Email)
+		} else if shipment.StorageFacility.Phone != nil {
+			vals.StorageFacility = *shipment.StorageFacility.Phone
+		} else if shipment.StorageFacility.Email != nil {
+			vals.StorageFacility = *shipment.StorageFacility.Email
+		}
+
 		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
 			vals.PickupAddress = formatSingleLineAddress(shipment.StorageFacility.Address)
 		}
