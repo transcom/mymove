@@ -143,6 +143,10 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
       is: (kpiViolations) => kpiViolations.includes('observedPickupSpreadDates'),
       then: Yup.date().required(),
     }),
+    observedDeliveryDate: Yup.date().when('kpiViolations', {
+      is: (kpiViolations) => kpiViolations.includes('observedDeliveryDate'),
+      then: Yup.date().required(),
+    }),
   });
 
   const saveDraft = async (values) => {
@@ -174,6 +178,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
       observedPickupDate: formatDateForSwagger(values.observedPickupDate),
       observedPickupSpreadStartDate: formatDateForSwagger(values.observedPickupSpreadStartDate),
       observedPickupSpreadEndDate: formatDateForSwagger(values.observedPickupSpreadEndDate),
+      observedDeliveryDate: formatDateForSwagger(values.observedDeliveryDate),
     };
 
     await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
@@ -198,9 +203,16 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
       seriousIncident = evaluationReport.seriousIncident ? 'yes' : 'no';
     }
 
-    const kpiViolations = reportViolations
-      ? reportViolations.map((violation) => (violation.isKpi ? violation.additionalDataElem : null))
-      : [];
+    const kpiViolations = [];
+
+    if (reportViolations) {
+      reportViolations.forEach((entry) => {
+        if (entry.violation?.isKpi) {
+          const violationName = entry.violation.additionalDataElem;
+          kpiViolations.push({ violationName: evaluationReport[violationName] });
+        }
+      });
+    }
 
     const initialValues = {
       selectedViolations,
@@ -208,6 +220,8 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
       seriousIncidentDesc: evaluationReport?.seriousIncidentDesc,
       kpiViolations,
     };
+
+    console.log('initial values: ', initialValues);
 
     return initialValues;
   };
@@ -346,6 +360,24 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                       )}
                       {values.kpiViolations.includes('observedPickupSpreadDates') && (
                         <DatePickerInput label="Observed pickup spread end date" name="observedPickupSpreadEndDate" />
+                      )}
+                      {values.kpiViolations.includes('observedClaimDate') && (
+                        <DatePickerInput
+                          className={styles.datePicker}
+                          label="Observed claims response date"
+                          name="observedClaimsResponseDate"
+                          hint="Only enter a date here if the claim has a response."
+                          showOptional
+                        />
+                      )}
+                      {values.kpiViolations.includes('observedDeliveryDate') && (
+                        <DatePickerInput
+                          className={styles.datePicker}
+                          label="Observed delivery date"
+                          name="observedDeliveryDate"
+                          hint="Only enter a date here if the delivery you witnessed did not happen on the scheduled delivery date."
+                          showOptional
+                        />
                       )}
                     </div>
                   </Grid>
