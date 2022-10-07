@@ -15,17 +15,26 @@ import { CustomerShape } from 'types';
 import EvaluationReportShipmentInfo from 'components/Office/EvaluationReportShipmentInfo/EvaluationReportShipmentInfo';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
+// import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const EvaluationReport = ({ customerInfo, grade }) => {
   const { reportId } = useParams();
-  const { evaluationReport, reportViolations, mtoShipments, isLoading, isError } =
+  const { evaluationReport, reportViolations, mtoShipments, isLoading, isError, error } =
     useEvaluationReportShipmentListQueries(reportId);
   if (isLoading) {
     return <LoadingPlaceholder />;
   }
   if (isError) {
-    return <SomethingWentWrong />;
+    return (
+      <div>
+        <h1>In the eval report isError</h1>
+        <div>reportId: {reportId}</div>
+        <div>{error}</div>
+        <div>{evaluationReport}</div>
+        <div>{reportViolations}</div>
+        <div>{mtoShipments}</div>
+      </div>
+    );
   }
   let mtoShipmentsToShow;
   if (evaluationReport.shipmentID && mtoShipments) {
