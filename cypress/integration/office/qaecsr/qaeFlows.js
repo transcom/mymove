@@ -167,7 +167,7 @@ describe('Quality Evaluation Report', () => {
       // Verify preview displays saved report data
       cy.get('@report').within(() => {
         cy.get('td').contains('01 Oct 2022');
-        cy.get('dd').contains('Data Review');
+        cy.get('dd').contains('Data review');
         cy.get('dd').contains('Origin');
         cy.get('dd').contains('1 hr 15 min');
         cy.get('dd').contains('No');
@@ -250,7 +250,7 @@ describe('Quality Evaluation Report', () => {
         cy.get('dt').contains('Violations observed');
         cy.get('small').contains('Provide adequate storage facilities');
         cy.get('td').contains('01 Oct 2022');
-        cy.get('dd').contains('Shipment');
+        cy.get('dd').contains('Data review');
         cy.get('dd').contains('Origin');
         cy.get('dd').contains('1 hr 15 min');
         cy.get('dd').contains('no');
@@ -317,7 +317,7 @@ describe('Quality Evaluation Report', () => {
       // Verify preview has correct sections/headers
       cy.get('@report').within(() => {
         cy.get('td').contains('01 Oct 2022');
-        cy.get('dd').contains('Shipment');
+        cy.get('dd').contains('Physical');
         cy.get('dd').contains('Other');
         cy.get('dd').contains('This is a test other location text');
         cy.get('dd').contains('1 hr 15 min');
