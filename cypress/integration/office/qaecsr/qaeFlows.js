@@ -345,7 +345,7 @@ describe('Quality Evaluation Report', () => {
 
       // Verify the form to edit is displayed
       cy.wait(['@getEvaluationReport']);
-      cy.get('[data-testid="evaluationReportForm"]').should('exist');
+      cy.get('[data-testid="evaluationReportForm"]', { timeout: 10000 }).should('exist');
     });
 
     it('can delete a draft', () => {
@@ -464,7 +464,7 @@ describe('Quality Evaluation Report', () => {
 
       // Verify the form to edit is displayed
       cy.wait(['@getEvaluationReport']);
-      cy.get('[data-testid="evaluationReportForm"]').should('exist');
+      cy.get('[data-testid="evaluationReportForm"]', { timeout: 10000 }).should('exist');
 
       // Click cancel
       cy.get('[data-testid="cancelReport"]').click();
