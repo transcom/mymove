@@ -109,7 +109,7 @@
 --
 -- README: Taken from this link here: https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.PostgreSQL.html#CHAP_Source.PostgreSQL.RDSPostgreSQL.NonMasterUser
 --
--- CREATE TABLE public.awsdms_ddl_audit
+-- CREATE TABLE IF NOT EXISTS public.awsdms_ddl_audit
 -- (
 --   c_key    bigserial primary key,
 --   c_time   timestamp,    -- Informational
