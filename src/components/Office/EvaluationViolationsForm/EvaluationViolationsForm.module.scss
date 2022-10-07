@@ -99,3 +99,26 @@
   border: 1px solid;
 
 }
+
+.backIcon {
+  color: $link !important;
+  width: 16px;
+  height: 16px;
+}
+
+.closeModalBtn {
+  font-weight: 700;
+  color: $link;
+  @include u-padding-left(0 !important);
+}
+
+.modalActions {
+  @include u-display('flex');
+  @include u-justify-content('justify');
+  @include u-margin-top(4 !important);
+  @include u-margin-x(0 !important);
+}
+
+.submitModalBtn {
+  @include u-margin(0 !important);
+}

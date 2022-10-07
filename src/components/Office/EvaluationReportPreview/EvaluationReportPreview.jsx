@@ -149,7 +149,7 @@ const EvaluationReportPreview = ({
             <EvaluationReportList evaluationReport={evaluationReport} />
           </div>
         )}
-        {(!isShipment === 'COUNSELING' || evaluationReport.location === 'OTHER') && (
+        {(!isShipment || evaluationReport.location === 'OTHER') && (
           <div className={styles.section}>
             <h3>Information</h3>
             <DataTableWrapper className={classnames(styles.detailsRight, 'table--data-point-group')}>

@@ -1,11 +1,13 @@
 package paperwork
 
 import (
+	"strings"
 	"time"
 
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
@@ -72,6 +74,46 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 		// serious incident values are empty if no violations
 		suite.Equal("Yes", values.SeriousIncident)
 		suite.Equal("serious incident", values.SeriousIncidentDescription)
+	})
+}
+
+func (suite *PaperworkSuite) TestFormatValuesShipment() {
+	suite.Run("storage facility with phone and email", func() {
+		storageFacility := testdatagen.MakeDefaultStorageFacility(suite.DB())
+		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
+			StorageFacility: storageFacility,
+			MTOShipment:     models.MTOShipment{StorageFacility: &storageFacility},
+		})
+
+		shipmentValues := FormatValuesShipment(shipment)
+		expectedContactInfo := strings.Join([]string{*storageFacility.Phone, *storageFacility.Email}, "\n")
+		suite.Equal(expectedContactInfo, shipmentValues.StorageFacility)
+	})
+
+	suite.Run("storage facility with no phone number should not panic", func() {
+		storageFacility := testdatagen.MakeDefaultStorageFacility(suite.DB())
+		storageFacility.Phone = nil
+		suite.MustSave(&storageFacility)
+		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
+			StorageFacility: storageFacility,
+			MTOShipment:     models.MTOShipment{StorageFacility: &storageFacility},
+		})
+
+		shipmentValues := FormatValuesShipment(shipment)
+		suite.Equal(*storageFacility.Email, shipmentValues.StorageFacility)
+	})
+
+	suite.Run("storage facility with no email should not panic", func() {
+		storageFacility := testdatagen.MakeDefaultStorageFacility(suite.DB())
+		storageFacility.Email = nil
+		suite.MustSave(&storageFacility)
+		shipment := testdatagen.MakeNTSShipment(suite.DB(), testdatagen.Assertions{
+			StorageFacility: storageFacility,
+			MTOShipment:     models.MTOShipment{StorageFacility: &storageFacility},
+		})
+
+		shipmentValues := FormatValuesShipment(shipment)
+		suite.Equal(*storageFacility.Phone, shipmentValues.StorageFacility)
 	})
 }
 
