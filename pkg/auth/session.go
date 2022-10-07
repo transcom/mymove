@@ -9,9 +9,7 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
@@ -189,21 +187,19 @@ func SessionIDMiddleware(appnames ApplicationServername, sessionManagers [3]*scs
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
-			logger := logging.FromContext(ctx)
 			// Split the hostname from the port
 			hostname := strings.Split(r.Host, ":")[0]
 			app, err := ApplicationName(hostname, appnames)
-			if err != nil {
-				logger.Error("Bad Hostname", zap.Error(err))
-				http.Error(w, http.StatusText(400), http.StatusBadRequest)
-				return
-			}
-
-			sessionManager := sessionManagerForApp(app, sessionManagers)
-			if sessionManager != nil {
-				cookie, err := r.Cookie(sessionManager.Cookie.Name)
-				if err == nil {
-					ctx = setSessionIDInContext(ctx, cookie.Value)
+			// the hostname may not be recognized if this is e.g.
+			// a prime session. We won't have a sessionManager in
+			// that case, so we won't add a sessionID to the context
+			if err == nil {
+				sessionManager := sessionManagerForApp(app, sessionManagers)
+				if sessionManager != nil {
+					cookie, err := r.Cookie(sessionManager.Cookie.Name)
+					if err == nil {
+						ctx = setSessionIDInContext(ctx, cookie.Value)
+					}
 				}
 			}
 			next.ServeHTTP(w, r.WithContext(ctx))
