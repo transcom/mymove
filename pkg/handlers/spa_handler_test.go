@@ -89,7 +89,7 @@ func (suite *SpaHandlerSuite) TestSpaHandlerServeHttp() {
 		},
 		{
 			name:               "A directory with a trailing slash and that has an index.html",
-			request:            "/test",
+			request:            "/test/",
 			expectedStatusCode: http.StatusOK,
 			expectedBody:       "",
 		},
@@ -113,7 +113,7 @@ func (suite *SpaHandlerSuite) TestSpaHandlerServeHttp() {
 		},
 		{
 			name:               "A file that exists in a directory and that does not have an index.html",
-			request:            "test/noIndexDir/b",
+			request:            "/test/noIndexDir/b",
 			expectedStatusCode: http.StatusOK,
 			expectedBody:       "",
 		},
@@ -135,9 +135,7 @@ func (suite *SpaHandlerSuite) TestSpaHandlerServeHttp() {
 		suite.T().Run(testCase.name, func(t *testing.T) {
 
 			req, err := http.NewRequest("GET", testCase.request, nil)
-			if err != nil {
-				suite.NoError(err)
-			}
+			suite.NoError(err)
 
 			// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 			rr := httptest.NewRecorder()
