@@ -81,7 +81,8 @@ func NewUpdateMTOPostCounselingInformationOK() *UpdateMTOPostCounselingInformati
 	return &UpdateMTOPostCounselingInformationOK{}
 }
 
-/* UpdateMTOPostCounselingInformationOK describes a response with status code 200, with default header values.
+/*
+	UpdateMTOPostCounselingInformationOK describes a response with status code 200, with default header values.
 
 Successfully updated move task order with post counseling information.
 */
@@ -143,7 +144,8 @@ func NewUpdateMTOPostCounselingInformationUnauthorized() *UpdateMTOPostCounselin
 	return &UpdateMTOPostCounselingInformationUnauthorized{}
 }
 
-/* UpdateMTOPostCounselingInformationUnauthorized describes a response with status code 401, with default header values.
+/*
+	UpdateMTOPostCounselingInformationUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -205,7 +207,8 @@ func NewUpdateMTOPostCounselingInformationForbidden() *UpdateMTOPostCounselingIn
 	return &UpdateMTOPostCounselingInformationForbidden{}
 }
 
-/* UpdateMTOPostCounselingInformationForbidden describes a response with status code 403, with default header values.
+/*
+	UpdateMTOPostCounselingInformationForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -267,7 +270,8 @@ func NewUpdateMTOPostCounselingInformationNotFound() *UpdateMTOPostCounselingInf
 	return &UpdateMTOPostCounselingInformationNotFound{}
 }
 
-/* UpdateMTOPostCounselingInformationNotFound describes a response with status code 404, with default header values.
+/*
+	UpdateMTOPostCounselingInformationNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -329,7 +333,8 @@ func NewUpdateMTOPostCounselingInformationConflict() *UpdateMTOPostCounselingInf
 	return &UpdateMTOPostCounselingInformationConflict{}
 }
 
-/* UpdateMTOPostCounselingInformationConflict describes a response with status code 409, with default header values.
+/*
+	UpdateMTOPostCounselingInformationConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -391,7 +396,8 @@ func NewUpdateMTOPostCounselingInformationPreconditionFailed() *UpdateMTOPostCou
 	return &UpdateMTOPostCounselingInformationPreconditionFailed{}
 }
 
-/* UpdateMTOPostCounselingInformationPreconditionFailed describes a response with status code 412, with default header values.
+/*
+	UpdateMTOPostCounselingInformationPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -453,7 +459,8 @@ func NewUpdateMTOPostCounselingInformationUnprocessableEntity() *UpdateMTOPostCo
 	return &UpdateMTOPostCounselingInformationUnprocessableEntity{}
 }
 
-/* UpdateMTOPostCounselingInformationUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+	UpdateMTOPostCounselingInformationUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -515,7 +522,8 @@ func NewUpdateMTOPostCounselingInformationInternalServerError() *UpdateMTOPostCo
 	return &UpdateMTOPostCounselingInformationInternalServerError{}
 }
 
-/* UpdateMTOPostCounselingInformationInternalServerError describes a response with status code 500, with default header values.
+/*
+	UpdateMTOPostCounselingInformationInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

@@ -29,13 +29,12 @@ func NewIndexOrdersForMember(ctx *middleware.Context, handler IndexOrdersForMemb
 	return &IndexOrdersForMember{Context: ctx, Handler: handler}
 }
 
-/* IndexOrdersForMember swagger:route GET /edipis/{edipi}/orders indexOrdersForMember
+/*
+	IndexOrdersForMember swagger:route GET /edipis/{edipi}/orders indexOrdersForMember
 
-Retrieve orders for a particular member
+# Retrieve orders for a particular member
 
 Returns all Orders for the specified service member. This endpoint will only return Orders cut by issuers to which the user has read permission.
-
-
 */
 type IndexOrdersForMember struct {
 	Context *middleware.Context

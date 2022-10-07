@@ -81,7 +81,8 @@ func NewGetPaymentRequestEDIOK() *GetPaymentRequestEDIOK {
 	return &GetPaymentRequestEDIOK{}
 }
 
-/* GetPaymentRequestEDIOK describes a response with status code 200, with default header values.
+/*
+	GetPaymentRequestEDIOK describes a response with status code 200, with default header values.
 
 Successfully retrieved payment requests associated with a given move task order
 */
@@ -143,7 +144,8 @@ func NewGetPaymentRequestEDIBadRequest() *GetPaymentRequestEDIBadRequest {
 	return &GetPaymentRequestEDIBadRequest{}
 }
 
-/* GetPaymentRequestEDIBadRequest describes a response with status code 400, with default header values.
+/*
+	GetPaymentRequestEDIBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -205,7 +207,8 @@ func NewGetPaymentRequestEDIUnauthorized() *GetPaymentRequestEDIUnauthorized {
 	return &GetPaymentRequestEDIUnauthorized{}
 }
 
-/* GetPaymentRequestEDIUnauthorized describes a response with status code 401, with default header values.
+/*
+	GetPaymentRequestEDIUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -267,7 +270,8 @@ func NewGetPaymentRequestEDIForbidden() *GetPaymentRequestEDIForbidden {
 	return &GetPaymentRequestEDIForbidden{}
 }
 
-/* GetPaymentRequestEDIForbidden describes a response with status code 403, with default header values.
+/*
+	GetPaymentRequestEDIForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -329,7 +333,8 @@ func NewGetPaymentRequestEDINotFound() *GetPaymentRequestEDINotFound {
 	return &GetPaymentRequestEDINotFound{}
 }
 
-/* GetPaymentRequestEDINotFound describes a response with status code 404, with default header values.
+/*
+	GetPaymentRequestEDINotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -391,7 +396,8 @@ func NewGetPaymentRequestEDIConflict() *GetPaymentRequestEDIConflict {
 	return &GetPaymentRequestEDIConflict{}
 }
 
-/* GetPaymentRequestEDIConflict describes a response with status code 409, with default header values.
+/*
+	GetPaymentRequestEDIConflict describes a response with status code 409, with default header values.
 
 There was a conflict with the request.
 */
@@ -453,7 +459,8 @@ func NewGetPaymentRequestEDIUnprocessableEntity() *GetPaymentRequestEDIUnprocess
 	return &GetPaymentRequestEDIUnprocessableEntity{}
 }
 
-/* GetPaymentRequestEDIUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+	GetPaymentRequestEDIUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -515,7 +522,8 @@ func NewGetPaymentRequestEDIInternalServerError() *GetPaymentRequestEDIInternalS
 	return &GetPaymentRequestEDIInternalServerError{}
 }
 
-/* GetPaymentRequestEDIInternalServerError describes a response with status code 500, with default header values.
+/*
+	GetPaymentRequestEDIInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

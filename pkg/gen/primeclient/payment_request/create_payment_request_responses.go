@@ -81,7 +81,8 @@ func NewCreatePaymentRequestCreated() *CreatePaymentRequestCreated {
 	return &CreatePaymentRequestCreated{}
 }
 
-/* CreatePaymentRequestCreated describes a response with status code 201, with default header values.
+/*
+	CreatePaymentRequestCreated describes a response with status code 201, with default header values.
 
 Successfully created a paymentRequest object.
 */
@@ -143,7 +144,8 @@ func NewCreatePaymentRequestBadRequest() *CreatePaymentRequestBadRequest {
 	return &CreatePaymentRequestBadRequest{}
 }
 
-/* CreatePaymentRequestBadRequest describes a response with status code 400, with default header values.
+/*
+	CreatePaymentRequestBadRequest describes a response with status code 400, with default header values.
 
 Request payload is invalid.
 */
@@ -205,7 +207,8 @@ func NewCreatePaymentRequestUnauthorized() *CreatePaymentRequestUnauthorized {
 	return &CreatePaymentRequestUnauthorized{}
 }
 
-/* CreatePaymentRequestUnauthorized describes a response with status code 401, with default header values.
+/*
+	CreatePaymentRequestUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -267,7 +270,8 @@ func NewCreatePaymentRequestForbidden() *CreatePaymentRequestForbidden {
 	return &CreatePaymentRequestForbidden{}
 }
 
-/* CreatePaymentRequestForbidden describes a response with status code 403, with default header values.
+/*
+	CreatePaymentRequestForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -329,7 +333,8 @@ func NewCreatePaymentRequestNotFound() *CreatePaymentRequestNotFound {
 	return &CreatePaymentRequestNotFound{}
 }
 
-/* CreatePaymentRequestNotFound describes a response with status code 404, with default header values.
+/*
+	CreatePaymentRequestNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -391,7 +396,8 @@ func NewCreatePaymentRequestConflict() *CreatePaymentRequestConflict {
 	return &CreatePaymentRequestConflict{}
 }
 
-/* CreatePaymentRequestConflict describes a response with status code 409, with default header values.
+/*
+	CreatePaymentRequestConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -453,7 +459,8 @@ func NewCreatePaymentRequestUnprocessableEntity() *CreatePaymentRequestUnprocess
 	return &CreatePaymentRequestUnprocessableEntity{}
 }
 
-/* CreatePaymentRequestUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+	CreatePaymentRequestUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -515,7 +522,8 @@ func NewCreatePaymentRequestInternalServerError() *CreatePaymentRequestInternalS
 	return &CreatePaymentRequestInternalServerError{}
 }
 
-/* CreatePaymentRequestInternalServerError describes a response with status code 500, with default header values.
+/*
+	CreatePaymentRequestInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

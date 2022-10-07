@@ -29,15 +29,14 @@ func NewMakeMoveTaskOrderAvailable(ctx *middleware.Context, handler MakeMoveTask
 	return &MakeMoveTaskOrderAvailable{Context: ctx, Handler: handler}
 }
 
-/* MakeMoveTaskOrderAvailable swagger:route PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime moveTaskOrder makeMoveTaskOrderAvailable
+/*
+	MakeMoveTaskOrderAvailable swagger:route PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime moveTaskOrder makeMoveTaskOrderAvailable
 
 makeMoveTaskOrderAvailable
 
 Updates move task order `availableToPrimeAt` to make it available to prime. No request body required. <br />
 <br />
 This is a support endpoint and will not be available in production.
-
-
 */
 type MakeMoveTaskOrderAvailable struct {
 	Context *middleware.Context

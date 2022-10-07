@@ -81,7 +81,8 @@ func NewCreateSITExtensionCreated() *CreateSITExtensionCreated {
 	return &CreateSITExtensionCreated{}
 }
 
-/* CreateSITExtensionCreated describes a response with status code 201, with default header values.
+/*
+	CreateSITExtensionCreated describes a response with status code 201, with default header values.
 
 Successfully created the sit extension request.
 */
@@ -143,7 +144,8 @@ func NewCreateSITExtensionBadRequest() *CreateSITExtensionBadRequest {
 	return &CreateSITExtensionBadRequest{}
 }
 
-/* CreateSITExtensionBadRequest describes a response with status code 400, with default header values.
+/*
+	CreateSITExtensionBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -205,7 +207,8 @@ func NewCreateSITExtensionUnauthorized() *CreateSITExtensionUnauthorized {
 	return &CreateSITExtensionUnauthorized{}
 }
 
-/* CreateSITExtensionUnauthorized describes a response with status code 401, with default header values.
+/*
+	CreateSITExtensionUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -267,7 +270,8 @@ func NewCreateSITExtensionForbidden() *CreateSITExtensionForbidden {
 	return &CreateSITExtensionForbidden{}
 }
 
-/* CreateSITExtensionForbidden describes a response with status code 403, with default header values.
+/*
+	CreateSITExtensionForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -329,7 +333,8 @@ func NewCreateSITExtensionNotFound() *CreateSITExtensionNotFound {
 	return &CreateSITExtensionNotFound{}
 }
 
-/* CreateSITExtensionNotFound describes a response with status code 404, with default header values.
+/*
+	CreateSITExtensionNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -391,7 +396,8 @@ func NewCreateSITExtensionConflict() *CreateSITExtensionConflict {
 	return &CreateSITExtensionConflict{}
 }
 
-/* CreateSITExtensionConflict describes a response with status code 409, with default header values.
+/*
+	CreateSITExtensionConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -453,7 +459,8 @@ func NewCreateSITExtensionUnprocessableEntity() *CreateSITExtensionUnprocessable
 	return &CreateSITExtensionUnprocessableEntity{}
 }
 
-/* CreateSITExtensionUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+	CreateSITExtensionUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -515,7 +522,8 @@ func NewCreateSITExtensionInternalServerError() *CreateSITExtensionInternalServe
 	return &CreateSITExtensionInternalServerError{}
 }
 
-/* CreateSITExtensionInternalServerError describes a response with status code 500, with default header values.
+/*
+	CreateSITExtensionInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

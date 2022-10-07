@@ -63,7 +63,8 @@ func NewGetMoveTaskOrderOK() *GetMoveTaskOrderOK {
 	return &GetMoveTaskOrderOK{}
 }
 
-/* GetMoveTaskOrderOK describes a response with status code 200, with default header values.
+/*
+	GetMoveTaskOrderOK describes a response with status code 200, with default header values.
 
 Successfully retrieve an individual move task order.
 */
@@ -125,7 +126,8 @@ func NewGetMoveTaskOrderUnauthorized() *GetMoveTaskOrderUnauthorized {
 	return &GetMoveTaskOrderUnauthorized{}
 }
 
-/* GetMoveTaskOrderUnauthorized describes a response with status code 401, with default header values.
+/*
+	GetMoveTaskOrderUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -187,7 +189,8 @@ func NewGetMoveTaskOrderForbidden() *GetMoveTaskOrderForbidden {
 	return &GetMoveTaskOrderForbidden{}
 }
 
-/* GetMoveTaskOrderForbidden describes a response with status code 403, with default header values.
+/*
+	GetMoveTaskOrderForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -249,7 +252,8 @@ func NewGetMoveTaskOrderNotFound() *GetMoveTaskOrderNotFound {
 	return &GetMoveTaskOrderNotFound{}
 }
 
-/* GetMoveTaskOrderNotFound describes a response with status code 404, with default header values.
+/*
+	GetMoveTaskOrderNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -311,7 +315,8 @@ func NewGetMoveTaskOrderInternalServerError() *GetMoveTaskOrderInternalServerErr
 	return &GetMoveTaskOrderInternalServerError{}
 }
 
-/* GetMoveTaskOrderInternalServerError describes a response with status code 500, with default header values.
+/*
+	GetMoveTaskOrderInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

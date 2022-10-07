@@ -16,7 +16,8 @@ import (
 // UpdateOfficeUserOKCode is the HTTP code returned for type UpdateOfficeUserOK
 const UpdateOfficeUserOKCode int = 200
 
-/*UpdateOfficeUserOK Successfully updated Office User
+/*
+UpdateOfficeUserOK Successfully updated Office User
 
 swagger:response updateOfficeUserOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateOfficeUserOK) WriteResponse(rw http.ResponseWriter, producer runt
 // UpdateOfficeUserBadRequestCode is the HTTP code returned for type UpdateOfficeUserBadRequest
 const UpdateOfficeUserBadRequestCode int = 400
 
-/*UpdateOfficeUserBadRequest Invalid Request
+/*
+UpdateOfficeUserBadRequest Invalid Request
 
 swagger:response updateOfficeUserBadRequest
 */
@@ -84,7 +86,8 @@ func (o *UpdateOfficeUserBadRequest) WriteResponse(rw http.ResponseWriter, produ
 // UpdateOfficeUserUnauthorizedCode is the HTTP code returned for type UpdateOfficeUserUnauthorized
 const UpdateOfficeUserUnauthorizedCode int = 401
 
-/*UpdateOfficeUserUnauthorized Must be authenticated to use this end point
+/*
+UpdateOfficeUserUnauthorized Must be authenticated to use this end point
 
 swagger:response updateOfficeUserUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *UpdateOfficeUserUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 // UpdateOfficeUserForbiddenCode is the HTTP code returned for type UpdateOfficeUserForbidden
 const UpdateOfficeUserForbiddenCode int = 403
 
-/*UpdateOfficeUserForbidden Not authorized to update an office user
+/*
+UpdateOfficeUserForbidden Not authorized to update an office user
 
 swagger:response updateOfficeUserForbidden
 */
@@ -132,7 +136,8 @@ func (o *UpdateOfficeUserForbidden) WriteResponse(rw http.ResponseWriter, produc
 // UpdateOfficeUserInternalServerErrorCode is the HTTP code returned for type UpdateOfficeUserInternalServerError
 const UpdateOfficeUserInternalServerErrorCode int = 500
 
-/*UpdateOfficeUserInternalServerError Server error
+/*
+UpdateOfficeUserInternalServerError Server error
 
 swagger:response updateOfficeUserInternalServerError
 */

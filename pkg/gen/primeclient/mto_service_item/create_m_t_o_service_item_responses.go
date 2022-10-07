@@ -81,7 +81,8 @@ func NewCreateMTOServiceItemOK() *CreateMTOServiceItemOK {
 	return &CreateMTOServiceItemOK{}
 }
 
-/* CreateMTOServiceItemOK describes a response with status code 200, with default header values.
+/*
+	CreateMTOServiceItemOK describes a response with status code 200, with default header values.
 
 Successfully created an MTO service item.
 */
@@ -143,7 +144,8 @@ func NewCreateMTOServiceItemBadRequest() *CreateMTOServiceItemBadRequest {
 	return &CreateMTOServiceItemBadRequest{}
 }
 
-/* CreateMTOServiceItemBadRequest describes a response with status code 400, with default header values.
+/*
+	CreateMTOServiceItemBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -205,7 +207,8 @@ func NewCreateMTOServiceItemUnauthorized() *CreateMTOServiceItemUnauthorized {
 	return &CreateMTOServiceItemUnauthorized{}
 }
 
-/* CreateMTOServiceItemUnauthorized describes a response with status code 401, with default header values.
+/*
+	CreateMTOServiceItemUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -267,7 +270,8 @@ func NewCreateMTOServiceItemForbidden() *CreateMTOServiceItemForbidden {
 	return &CreateMTOServiceItemForbidden{}
 }
 
-/* CreateMTOServiceItemForbidden describes a response with status code 403, with default header values.
+/*
+	CreateMTOServiceItemForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -329,7 +333,8 @@ func NewCreateMTOServiceItemNotFound() *CreateMTOServiceItemNotFound {
 	return &CreateMTOServiceItemNotFound{}
 }
 
-/* CreateMTOServiceItemNotFound describes a response with status code 404, with default header values.
+/*
+	CreateMTOServiceItemNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -391,7 +396,8 @@ func NewCreateMTOServiceItemConflict() *CreateMTOServiceItemConflict {
 	return &CreateMTOServiceItemConflict{}
 }
 
-/* CreateMTOServiceItemConflict describes a response with status code 409, with default header values.
+/*
+	CreateMTOServiceItemConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -453,7 +459,8 @@ func NewCreateMTOServiceItemUnprocessableEntity() *CreateMTOServiceItemUnprocess
 	return &CreateMTOServiceItemUnprocessableEntity{}
 }
 
-/* CreateMTOServiceItemUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+	CreateMTOServiceItemUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -515,7 +522,8 @@ func NewCreateMTOServiceItemInternalServerError() *CreateMTOServiceItemInternalS
 	return &CreateMTOServiceItemInternalServerError{}
 }
 
-/* CreateMTOServiceItemInternalServerError describes a response with status code 500, with default header values.
+/*
+	CreateMTOServiceItemInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

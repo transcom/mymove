@@ -16,7 +16,8 @@ import (
 // DeleteCustomerSupportRemarkNoContentCode is the HTTP code returned for type DeleteCustomerSupportRemarkNoContent
 const DeleteCustomerSupportRemarkNoContentCode int = 204
 
-/*DeleteCustomerSupportRemarkNoContent Successfully soft deleted the shipment
+/*
+DeleteCustomerSupportRemarkNoContent Successfully soft deleted the shipment
 
 swagger:response deleteCustomerSupportRemarkNoContent
 */
@@ -40,7 +41,8 @@ func (o *DeleteCustomerSupportRemarkNoContent) WriteResponse(rw http.ResponseWri
 // DeleteCustomerSupportRemarkBadRequestCode is the HTTP code returned for type DeleteCustomerSupportRemarkBadRequest
 const DeleteCustomerSupportRemarkBadRequestCode int = 400
 
-/*DeleteCustomerSupportRemarkBadRequest The request payload is invalid
+/*
+DeleteCustomerSupportRemarkBadRequest The request payload is invalid
 
 swagger:response deleteCustomerSupportRemarkBadRequest
 */
@@ -84,7 +86,8 @@ func (o *DeleteCustomerSupportRemarkBadRequest) WriteResponse(rw http.ResponseWr
 // DeleteCustomerSupportRemarkForbiddenCode is the HTTP code returned for type DeleteCustomerSupportRemarkForbidden
 const DeleteCustomerSupportRemarkForbiddenCode int = 403
 
-/*DeleteCustomerSupportRemarkForbidden The request was denied
+/*
+DeleteCustomerSupportRemarkForbidden The request was denied
 
 swagger:response deleteCustomerSupportRemarkForbidden
 */
@@ -128,7 +131,8 @@ func (o *DeleteCustomerSupportRemarkForbidden) WriteResponse(rw http.ResponseWri
 // DeleteCustomerSupportRemarkNotFoundCode is the HTTP code returned for type DeleteCustomerSupportRemarkNotFound
 const DeleteCustomerSupportRemarkNotFoundCode int = 404
 
-/*DeleteCustomerSupportRemarkNotFound The requested resource wasn't found
+/*
+DeleteCustomerSupportRemarkNotFound The requested resource wasn't found
 
 swagger:response deleteCustomerSupportRemarkNotFound
 */
@@ -172,7 +176,8 @@ func (o *DeleteCustomerSupportRemarkNotFound) WriteResponse(rw http.ResponseWrit
 // DeleteCustomerSupportRemarkConflictCode is the HTTP code returned for type DeleteCustomerSupportRemarkConflict
 const DeleteCustomerSupportRemarkConflictCode int = 409
 
-/*DeleteCustomerSupportRemarkConflict Conflict error
+/*
+DeleteCustomerSupportRemarkConflict Conflict error
 
 swagger:response deleteCustomerSupportRemarkConflict
 */
@@ -216,7 +221,8 @@ func (o *DeleteCustomerSupportRemarkConflict) WriteResponse(rw http.ResponseWrit
 // DeleteCustomerSupportRemarkUnprocessableEntityCode is the HTTP code returned for type DeleteCustomerSupportRemarkUnprocessableEntity
 const DeleteCustomerSupportRemarkUnprocessableEntityCode int = 422
 
-/*DeleteCustomerSupportRemarkUnprocessableEntity The payload was unprocessable.
+/*
+DeleteCustomerSupportRemarkUnprocessableEntity The payload was unprocessable.
 
 swagger:response deleteCustomerSupportRemarkUnprocessableEntity
 */
@@ -260,7 +266,8 @@ func (o *DeleteCustomerSupportRemarkUnprocessableEntity) WriteResponse(rw http.R
 // DeleteCustomerSupportRemarkInternalServerErrorCode is the HTTP code returned for type DeleteCustomerSupportRemarkInternalServerError
 const DeleteCustomerSupportRemarkInternalServerErrorCode int = 500
 
-/*DeleteCustomerSupportRemarkInternalServerError A server error occurred
+/*
+DeleteCustomerSupportRemarkInternalServerError A server error occurred
 
 swagger:response deleteCustomerSupportRemarkInternalServerError
 */

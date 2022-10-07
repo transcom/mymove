@@ -17,7 +17,6 @@ import (
 
 // MTOAgents A list of the agents for a shipment. Agents are the people who the Prime contractor recognize as permitted to release (in the case of pickup) or receive (on delivery) a shipment.
 //
-//
 // swagger:model MTOAgents
 type MTOAgents []*MTOAgent
 

@@ -29,12 +29,12 @@ func NewDownloadEvaluationReport(ctx *middleware.Context, handler DownloadEvalua
 	return &DownloadEvaluationReport{Context: ctx, Handler: handler}
 }
 
-/* DownloadEvaluationReport swagger:route GET /evaluation-reports/{reportID}/download evaluationReports downloadEvaluationReport
+/*
+	DownloadEvaluationReport swagger:route GET /evaluation-reports/{reportID}/download evaluationReports downloadEvaluationReport
+
+# Downloads an evaluation report as a PDF
 
 Downloads an evaluation report as a PDF
-
-Downloads an evaluation report as a PDF
-
 */
 type DownloadEvaluationReport struct {
 	Context *middleware.Context

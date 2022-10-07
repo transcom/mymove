@@ -29,12 +29,12 @@ func NewRequestShipmentCancellation(ctx *middleware.Context, handler RequestShip
 	return &RequestShipmentCancellation{Context: ctx, Handler: handler}
 }
 
-/* RequestShipmentCancellation swagger:route POST /shipments/{shipmentID}/request-cancellation shipment requestShipmentCancellation
+/*
+	RequestShipmentCancellation swagger:route POST /shipments/{shipmentID}/request-cancellation shipment requestShipmentCancellation
+
+# Requests a shipment cancellation
 
 Requests a shipment cancellation
-
-Requests a shipment cancellation
-
 */
 type RequestShipmentCancellation struct {
 	Context *middleware.Context

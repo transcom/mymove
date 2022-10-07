@@ -81,7 +81,8 @@ func NewUpdateMTOAgentOK() *UpdateMTOAgentOK {
 	return &UpdateMTOAgentOK{}
 }
 
-/* UpdateMTOAgentOK describes a response with status code 200, with default header values.
+/*
+	UpdateMTOAgentOK describes a response with status code 200, with default header values.
 
 Successfully updated the agent.
 */
@@ -143,7 +144,8 @@ func NewUpdateMTOAgentBadRequest() *UpdateMTOAgentBadRequest {
 	return &UpdateMTOAgentBadRequest{}
 }
 
-/* UpdateMTOAgentBadRequest describes a response with status code 400, with default header values.
+/*
+	UpdateMTOAgentBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -205,7 +207,8 @@ func NewUpdateMTOAgentUnauthorized() *UpdateMTOAgentUnauthorized {
 	return &UpdateMTOAgentUnauthorized{}
 }
 
-/* UpdateMTOAgentUnauthorized describes a response with status code 401, with default header values.
+/*
+	UpdateMTOAgentUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -267,7 +270,8 @@ func NewUpdateMTOAgentForbidden() *UpdateMTOAgentForbidden {
 	return &UpdateMTOAgentForbidden{}
 }
 
-/* UpdateMTOAgentForbidden describes a response with status code 403, with default header values.
+/*
+	UpdateMTOAgentForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -329,7 +333,8 @@ func NewUpdateMTOAgentNotFound() *UpdateMTOAgentNotFound {
 	return &UpdateMTOAgentNotFound{}
 }
 
-/* UpdateMTOAgentNotFound describes a response with status code 404, with default header values.
+/*
+	UpdateMTOAgentNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -391,7 +396,8 @@ func NewUpdateMTOAgentPreconditionFailed() *UpdateMTOAgentPreconditionFailed {
 	return &UpdateMTOAgentPreconditionFailed{}
 }
 
-/* UpdateMTOAgentPreconditionFailed describes a response with status code 412, with default header values.
+/*
+	UpdateMTOAgentPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -453,7 +459,8 @@ func NewUpdateMTOAgentUnprocessableEntity() *UpdateMTOAgentUnprocessableEntity {
 	return &UpdateMTOAgentUnprocessableEntity{}
 }
 
-/* UpdateMTOAgentUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+	UpdateMTOAgentUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -515,7 +522,8 @@ func NewUpdateMTOAgentInternalServerError() *UpdateMTOAgentInternalServerError {
 	return &UpdateMTOAgentInternalServerError{}
 }
 
-/* UpdateMTOAgentInternalServerError describes a response with status code 500, with default header values.
+/*
+	UpdateMTOAgentInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

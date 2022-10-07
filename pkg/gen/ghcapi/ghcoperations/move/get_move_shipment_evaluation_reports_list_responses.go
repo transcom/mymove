@@ -16,7 +16,8 @@ import (
 // GetMoveShipmentEvaluationReportsListOKCode is the HTTP code returned for type GetMoveShipmentEvaluationReportsListOK
 const GetMoveShipmentEvaluationReportsListOKCode int = 200
 
-/*GetMoveShipmentEvaluationReportsListOK Successfully retrieved the move's evaluation reports
+/*
+GetMoveShipmentEvaluationReportsListOK Successfully retrieved the move's evaluation reports
 
 swagger:response getMoveShipmentEvaluationReportsListOK
 */
@@ -63,7 +64,8 @@ func (o *GetMoveShipmentEvaluationReportsListOK) WriteResponse(rw http.ResponseW
 // GetMoveShipmentEvaluationReportsListBadRequestCode is the HTTP code returned for type GetMoveShipmentEvaluationReportsListBadRequest
 const GetMoveShipmentEvaluationReportsListBadRequestCode int = 400
 
-/*GetMoveShipmentEvaluationReportsListBadRequest The request payload is invalid
+/*
+GetMoveShipmentEvaluationReportsListBadRequest The request payload is invalid
 
 swagger:response getMoveShipmentEvaluationReportsListBadRequest
 */
@@ -107,7 +109,8 @@ func (o *GetMoveShipmentEvaluationReportsListBadRequest) WriteResponse(rw http.R
 // GetMoveShipmentEvaluationReportsListUnauthorizedCode is the HTTP code returned for type GetMoveShipmentEvaluationReportsListUnauthorized
 const GetMoveShipmentEvaluationReportsListUnauthorizedCode int = 401
 
-/*GetMoveShipmentEvaluationReportsListUnauthorized The request was denied
+/*
+GetMoveShipmentEvaluationReportsListUnauthorized The request was denied
 
 swagger:response getMoveShipmentEvaluationReportsListUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *GetMoveShipmentEvaluationReportsListUnauthorized) WriteResponse(rw http
 // GetMoveShipmentEvaluationReportsListForbiddenCode is the HTTP code returned for type GetMoveShipmentEvaluationReportsListForbidden
 const GetMoveShipmentEvaluationReportsListForbiddenCode int = 403
 
-/*GetMoveShipmentEvaluationReportsListForbidden The request was denied
+/*
+GetMoveShipmentEvaluationReportsListForbidden The request was denied
 
 swagger:response getMoveShipmentEvaluationReportsListForbidden
 */
@@ -195,7 +199,8 @@ func (o *GetMoveShipmentEvaluationReportsListForbidden) WriteResponse(rw http.Re
 // GetMoveShipmentEvaluationReportsListNotFoundCode is the HTTP code returned for type GetMoveShipmentEvaluationReportsListNotFound
 const GetMoveShipmentEvaluationReportsListNotFoundCode int = 404
 
-/*GetMoveShipmentEvaluationReportsListNotFound The requested resource wasn't found
+/*
+GetMoveShipmentEvaluationReportsListNotFound The requested resource wasn't found
 
 swagger:response getMoveShipmentEvaluationReportsListNotFound
 */
@@ -239,7 +244,8 @@ func (o *GetMoveShipmentEvaluationReportsListNotFound) WriteResponse(rw http.Res
 // GetMoveShipmentEvaluationReportsListInternalServerErrorCode is the HTTP code returned for type GetMoveShipmentEvaluationReportsListInternalServerError
 const GetMoveShipmentEvaluationReportsListInternalServerErrorCode int = 500
 
-/*GetMoveShipmentEvaluationReportsListInternalServerError A server error occurred
+/*
+GetMoveShipmentEvaluationReportsListInternalServerError A server error occurred
 
 swagger:response getMoveShipmentEvaluationReportsListInternalServerError
 */

@@ -75,7 +75,8 @@ func NewProcessReviewedPaymentRequestsOK() *ProcessReviewedPaymentRequestsOK {
 	return &ProcessReviewedPaymentRequestsOK{}
 }
 
-/* ProcessReviewedPaymentRequestsOK describes a response with status code 200, with default header values.
+/*
+	ProcessReviewedPaymentRequestsOK describes a response with status code 200, with default header values.
 
 Successfully updated status of reviewed payment request and sent to Syncada if that flag is set
 */
@@ -135,7 +136,8 @@ func NewProcessReviewedPaymentRequestsBadRequest() *ProcessReviewedPaymentReques
 	return &ProcessReviewedPaymentRequestsBadRequest{}
 }
 
-/* ProcessReviewedPaymentRequestsBadRequest describes a response with status code 400, with default header values.
+/*
+	ProcessReviewedPaymentRequestsBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -197,7 +199,8 @@ func NewProcessReviewedPaymentRequestsUnauthorized() *ProcessReviewedPaymentRequ
 	return &ProcessReviewedPaymentRequestsUnauthorized{}
 }
 
-/* ProcessReviewedPaymentRequestsUnauthorized describes a response with status code 401, with default header values.
+/*
+	ProcessReviewedPaymentRequestsUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -259,7 +262,8 @@ func NewProcessReviewedPaymentRequestsForbidden() *ProcessReviewedPaymentRequest
 	return &ProcessReviewedPaymentRequestsForbidden{}
 }
 
-/* ProcessReviewedPaymentRequestsForbidden describes a response with status code 403, with default header values.
+/*
+	ProcessReviewedPaymentRequestsForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -321,7 +325,8 @@ func NewProcessReviewedPaymentRequestsNotFound() *ProcessReviewedPaymentRequests
 	return &ProcessReviewedPaymentRequestsNotFound{}
 }
 
-/* ProcessReviewedPaymentRequestsNotFound describes a response with status code 404, with default header values.
+/*
+	ProcessReviewedPaymentRequestsNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -383,7 +388,8 @@ func NewProcessReviewedPaymentRequestsUnprocessableEntity() *ProcessReviewedPaym
 	return &ProcessReviewedPaymentRequestsUnprocessableEntity{}
 }
 
-/* ProcessReviewedPaymentRequestsUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+	ProcessReviewedPaymentRequestsUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -445,7 +451,8 @@ func NewProcessReviewedPaymentRequestsInternalServerError() *ProcessReviewedPaym
 	return &ProcessReviewedPaymentRequestsInternalServerError{}
 }
 
-/* ProcessReviewedPaymentRequestsInternalServerError describes a response with status code 500, with default header values.
+/*
+	ProcessReviewedPaymentRequestsInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

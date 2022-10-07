@@ -29,12 +29,12 @@ func NewSearchDutyLocations(ctx *middleware.Context, handler SearchDutyLocations
 	return &SearchDutyLocations{Context: ctx, Handler: handler}
 }
 
-/* SearchDutyLocations swagger:route GET /duty_locations duty_locations searchDutyLocations
+/*
+	SearchDutyLocations swagger:route GET /duty_locations duty_locations searchDutyLocations
+
+# Returns the duty locations matching the search query
 
 Returns the duty locations matching the search query
-
-Returns the duty locations matching the search query
-
 */
 type SearchDutyLocations struct {
 	Context *middleware.Context

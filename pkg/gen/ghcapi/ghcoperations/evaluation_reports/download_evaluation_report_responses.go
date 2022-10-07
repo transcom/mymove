@@ -17,7 +17,8 @@ import (
 // DownloadEvaluationReportOKCode is the HTTP code returned for type DownloadEvaluationReportOK
 const DownloadEvaluationReportOKCode int = 200
 
-/*DownloadEvaluationReportOK Evaluation report PDF
+/*
+DownloadEvaluationReportOK Evaluation report PDF
 
 swagger:response downloadEvaluationReportOK
 */
@@ -81,7 +82,8 @@ func (o *DownloadEvaluationReportOK) WriteResponse(rw http.ResponseWriter, produ
 // DownloadEvaluationReportForbiddenCode is the HTTP code returned for type DownloadEvaluationReportForbidden
 const DownloadEvaluationReportForbiddenCode int = 403
 
-/*DownloadEvaluationReportForbidden The request was denied
+/*
+DownloadEvaluationReportForbidden The request was denied
 
 swagger:response downloadEvaluationReportForbidden
 */
@@ -125,7 +127,8 @@ func (o *DownloadEvaluationReportForbidden) WriteResponse(rw http.ResponseWriter
 // DownloadEvaluationReportNotFoundCode is the HTTP code returned for type DownloadEvaluationReportNotFound
 const DownloadEvaluationReportNotFoundCode int = 404
 
-/*DownloadEvaluationReportNotFound The requested resource wasn't found
+/*
+DownloadEvaluationReportNotFound The requested resource wasn't found
 
 swagger:response downloadEvaluationReportNotFound
 */
@@ -169,7 +172,8 @@ func (o *DownloadEvaluationReportNotFound) WriteResponse(rw http.ResponseWriter,
 // DownloadEvaluationReportInternalServerErrorCode is the HTTP code returned for type DownloadEvaluationReportInternalServerError
 const DownloadEvaluationReportInternalServerErrorCode int = 500
 
-/*DownloadEvaluationReportInternalServerError A server error occurred
+/*
+DownloadEvaluationReportInternalServerError A server error occurred
 
 swagger:response downloadEvaluationReportInternalServerError
 */

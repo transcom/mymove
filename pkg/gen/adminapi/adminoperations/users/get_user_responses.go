@@ -16,7 +16,8 @@ import (
 // GetUserOKCode is the HTTP code returned for type GetUserOK
 const GetUserOKCode int = 200
 
-/*GetUserOK success
+/*
+GetUserOK success
 
 swagger:response getUserOK
 */
@@ -60,7 +61,8 @@ func (o *GetUserOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produ
 // GetUserBadRequestCode is the HTTP code returned for type GetUserBadRequest
 const GetUserBadRequestCode int = 400
 
-/*GetUserBadRequest invalid request
+/*
+GetUserBadRequest invalid request
 
 swagger:response getUserBadRequest
 */
@@ -84,7 +86,8 @@ func (o *GetUserBadRequest) WriteResponse(rw http.ResponseWriter, producer runti
 // GetUserUnauthorizedCode is the HTTP code returned for type GetUserUnauthorized
 const GetUserUnauthorizedCode int = 401
 
-/*GetUserUnauthorized request requires user authentication
+/*
+GetUserUnauthorized request requires user authentication
 
 swagger:response getUserUnauthorized
 */
@@ -108,7 +111,8 @@ func (o *GetUserUnauthorized) WriteResponse(rw http.ResponseWriter, producer run
 // GetUserNotFoundCode is the HTTP code returned for type GetUserNotFound
 const GetUserNotFoundCode int = 404
 
-/*GetUserNotFound user not found
+/*
+GetUserNotFound user not found
 
 swagger:response getUserNotFound
 */
@@ -132,7 +136,8 @@ func (o *GetUserNotFound) WriteResponse(rw http.ResponseWriter, producer runtime
 // GetUserInternalServerErrorCode is the HTTP code returned for type GetUserInternalServerError
 const GetUserInternalServerErrorCode int = 500
 
-/*GetUserInternalServerError server error
+/*
+GetUserInternalServerError server error
 
 swagger:response getUserInternalServerError
 */

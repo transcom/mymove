@@ -16,7 +16,8 @@ import (
 // ReceiveWebhookNotificationOKCode is the HTTP code returned for type ReceiveWebhookNotificationOK
 const ReceiveWebhookNotificationOKCode int = 200
 
-/*ReceiveWebhookNotificationOK Received notification
+/*
+ReceiveWebhookNotificationOK Received notification
 
 swagger:response receiveWebhookNotificationOK
 */
@@ -60,7 +61,8 @@ func (o *ReceiveWebhookNotificationOK) WriteResponse(rw http.ResponseWriter, pro
 // ReceiveWebhookNotificationBadRequestCode is the HTTP code returned for type ReceiveWebhookNotificationBadRequest
 const ReceiveWebhookNotificationBadRequestCode int = 400
 
-/*ReceiveWebhookNotificationBadRequest The request payload is invalid.
+/*
+ReceiveWebhookNotificationBadRequest The request payload is invalid.
 
 swagger:response receiveWebhookNotificationBadRequest
 */
@@ -104,7 +106,8 @@ func (o *ReceiveWebhookNotificationBadRequest) WriteResponse(rw http.ResponseWri
 // ReceiveWebhookNotificationUnauthorizedCode is the HTTP code returned for type ReceiveWebhookNotificationUnauthorized
 const ReceiveWebhookNotificationUnauthorizedCode int = 401
 
-/*ReceiveWebhookNotificationUnauthorized The request was denied.
+/*
+ReceiveWebhookNotificationUnauthorized The request was denied.
 
 swagger:response receiveWebhookNotificationUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *ReceiveWebhookNotificationUnauthorized) WriteResponse(rw http.ResponseW
 // ReceiveWebhookNotificationForbiddenCode is the HTTP code returned for type ReceiveWebhookNotificationForbidden
 const ReceiveWebhookNotificationForbiddenCode int = 403
 
-/*ReceiveWebhookNotificationForbidden The request was denied.
+/*
+ReceiveWebhookNotificationForbidden The request was denied.
 
 swagger:response receiveWebhookNotificationForbidden
 */
@@ -192,7 +196,8 @@ func (o *ReceiveWebhookNotificationForbidden) WriteResponse(rw http.ResponseWrit
 // ReceiveWebhookNotificationInternalServerErrorCode is the HTTP code returned for type ReceiveWebhookNotificationInternalServerError
 const ReceiveWebhookNotificationInternalServerErrorCode int = 500
 
-/*ReceiveWebhookNotificationInternalServerError A server error occurred.
+/*
+ReceiveWebhookNotificationInternalServerError A server error occurred.
 
 swagger:response receiveWebhookNotificationInternalServerError
 */

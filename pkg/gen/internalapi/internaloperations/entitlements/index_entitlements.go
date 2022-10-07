@@ -29,12 +29,12 @@ func NewIndexEntitlements(ctx *middleware.Context, handler IndexEntitlementsHand
 	return &IndexEntitlements{Context: ctx, Handler: handler}
 }
 
-/* IndexEntitlements swagger:route GET /entitlements entitlements indexEntitlements
+/*
+	IndexEntitlements swagger:route GET /entitlements entitlements indexEntitlements
+
+# List weight weights allotted by entitlement
 
 List weight weights allotted by entitlement
-
-List weight weights allotted by entitlement
-
 */
 type IndexEntitlements struct {
 	Context *middleware.Context

@@ -16,7 +16,8 @@ import (
 // UpdateMovingExpenseOKCode is the HTTP code returned for type UpdateMovingExpenseOK
 const UpdateMovingExpenseOKCode int = 200
 
-/*UpdateMovingExpenseOK returns an updated moving expense object
+/*
+UpdateMovingExpenseOK returns an updated moving expense object
 
 swagger:response updateMovingExpenseOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateMovingExpenseOK) WriteResponse(rw http.ResponseWriter, producer r
 // UpdateMovingExpenseBadRequestCode is the HTTP code returned for type UpdateMovingExpenseBadRequest
 const UpdateMovingExpenseBadRequestCode int = 400
 
-/*UpdateMovingExpenseBadRequest The request payload is invalid.
+/*
+UpdateMovingExpenseBadRequest The request payload is invalid.
 
 swagger:response updateMovingExpenseBadRequest
 */
@@ -104,7 +106,8 @@ func (o *UpdateMovingExpenseBadRequest) WriteResponse(rw http.ResponseWriter, pr
 // UpdateMovingExpenseUnauthorizedCode is the HTTP code returned for type UpdateMovingExpenseUnauthorized
 const UpdateMovingExpenseUnauthorizedCode int = 401
 
-/*UpdateMovingExpenseUnauthorized The request was denied.
+/*
+UpdateMovingExpenseUnauthorized The request was denied.
 
 swagger:response updateMovingExpenseUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *UpdateMovingExpenseUnauthorized) WriteResponse(rw http.ResponseWriter, 
 // UpdateMovingExpenseForbiddenCode is the HTTP code returned for type UpdateMovingExpenseForbidden
 const UpdateMovingExpenseForbiddenCode int = 403
 
-/*UpdateMovingExpenseForbidden The request was denied.
+/*
+UpdateMovingExpenseForbidden The request was denied.
 
 swagger:response updateMovingExpenseForbidden
 */
@@ -192,7 +196,8 @@ func (o *UpdateMovingExpenseForbidden) WriteResponse(rw http.ResponseWriter, pro
 // UpdateMovingExpenseNotFoundCode is the HTTP code returned for type UpdateMovingExpenseNotFound
 const UpdateMovingExpenseNotFoundCode int = 404
 
-/*UpdateMovingExpenseNotFound The requested resource wasn't found.
+/*
+UpdateMovingExpenseNotFound The requested resource wasn't found.
 
 swagger:response updateMovingExpenseNotFound
 */
@@ -236,7 +241,8 @@ func (o *UpdateMovingExpenseNotFound) WriteResponse(rw http.ResponseWriter, prod
 // UpdateMovingExpensePreconditionFailedCode is the HTTP code returned for type UpdateMovingExpensePreconditionFailed
 const UpdateMovingExpensePreconditionFailedCode int = 412
 
-/*UpdateMovingExpensePreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+/*
+UpdateMovingExpensePreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response updateMovingExpensePreconditionFailed
 */
@@ -280,7 +286,8 @@ func (o *UpdateMovingExpensePreconditionFailed) WriteResponse(rw http.ResponseWr
 // UpdateMovingExpenseUnprocessableEntityCode is the HTTP code returned for type UpdateMovingExpenseUnprocessableEntity
 const UpdateMovingExpenseUnprocessableEntityCode int = 422
 
-/*UpdateMovingExpenseUnprocessableEntity The payload was unprocessable.
+/*
+UpdateMovingExpenseUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateMovingExpenseUnprocessableEntity
 */
@@ -324,7 +331,8 @@ func (o *UpdateMovingExpenseUnprocessableEntity) WriteResponse(rw http.ResponseW
 // UpdateMovingExpenseInternalServerErrorCode is the HTTP code returned for type UpdateMovingExpenseInternalServerError
 const UpdateMovingExpenseInternalServerErrorCode int = 500
 
-/*UpdateMovingExpenseInternalServerError A server error occurred.
+/*
+UpdateMovingExpenseInternalServerError A server error occurred.
 
 swagger:response updateMovingExpenseInternalServerError
 */

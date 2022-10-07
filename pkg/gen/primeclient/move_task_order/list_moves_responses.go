@@ -57,7 +57,8 @@ func NewListMovesOK() *ListMovesOK {
 	return &ListMovesOK{}
 }
 
-/* ListMovesOK describes a response with status code 200, with default header values.
+/*
+	ListMovesOK describes a response with status code 200, with default header values.
 
 Successfully retrieved moves. A successful fetch might still return zero moves.
 */
@@ -117,7 +118,8 @@ func NewListMovesUnauthorized() *ListMovesUnauthorized {
 	return &ListMovesUnauthorized{}
 }
 
-/* ListMovesUnauthorized describes a response with status code 401, with default header values.
+/*
+	ListMovesUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -179,7 +181,8 @@ func NewListMovesForbidden() *ListMovesForbidden {
 	return &ListMovesForbidden{}
 }
 
-/* ListMovesForbidden describes a response with status code 403, with default header values.
+/*
+	ListMovesForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -241,7 +244,8 @@ func NewListMovesInternalServerError() *ListMovesInternalServerError {
 	return &ListMovesInternalServerError{}
 }
 
-/* ListMovesInternalServerError describes a response with status code 500, with default header values.
+/*
+	ListMovesInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */

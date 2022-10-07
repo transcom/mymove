@@ -16,7 +16,8 @@ import (
 // IndexAdminUsersOKCode is the HTTP code returned for type IndexAdminUsersOK
 const IndexAdminUsersOKCode int = 200
 
-/*IndexAdminUsersOK success
+/*
+IndexAdminUsersOK success
 
 swagger:response indexAdminUsersOK
 */
@@ -85,7 +86,8 @@ func (o *IndexAdminUsersOK) WriteResponse(rw http.ResponseWriter, producer runti
 // IndexAdminUsersBadRequestCode is the HTTP code returned for type IndexAdminUsersBadRequest
 const IndexAdminUsersBadRequestCode int = 400
 
-/*IndexAdminUsersBadRequest invalid request
+/*
+IndexAdminUsersBadRequest invalid request
 
 swagger:response indexAdminUsersBadRequest
 */
@@ -109,7 +111,8 @@ func (o *IndexAdminUsersBadRequest) WriteResponse(rw http.ResponseWriter, produc
 // IndexAdminUsersUnauthorizedCode is the HTTP code returned for type IndexAdminUsersUnauthorized
 const IndexAdminUsersUnauthorizedCode int = 401
 
-/*IndexAdminUsersUnauthorized request requires user authentication
+/*
+IndexAdminUsersUnauthorized request requires user authentication
 
 swagger:response indexAdminUsersUnauthorized
 */
@@ -133,7 +136,8 @@ func (o *IndexAdminUsersUnauthorized) WriteResponse(rw http.ResponseWriter, prod
 // IndexAdminUsersNotFoundCode is the HTTP code returned for type IndexAdminUsersNotFound
 const IndexAdminUsersNotFoundCode int = 404
 
-/*IndexAdminUsersNotFound admin users not found
+/*
+IndexAdminUsersNotFound admin users not found
 
 swagger:response indexAdminUsersNotFound
 */
@@ -157,7 +161,8 @@ func (o *IndexAdminUsersNotFound) WriteResponse(rw http.ResponseWriter, producer
 // IndexAdminUsersInternalServerErrorCode is the HTTP code returned for type IndexAdminUsersInternalServerError
 const IndexAdminUsersInternalServerErrorCode int = 500
 
-/*IndexAdminUsersInternalServerError server error
+/*
+IndexAdminUsersInternalServerError server error
 
 swagger:response indexAdminUsersInternalServerError
 */

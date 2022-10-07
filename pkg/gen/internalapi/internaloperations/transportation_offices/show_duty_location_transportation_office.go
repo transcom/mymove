@@ -29,12 +29,12 @@ func NewShowDutyLocationTransportationOffice(ctx *middleware.Context, handler Sh
 	return &ShowDutyLocationTransportationOffice{Context: ctx, Handler: handler}
 }
 
-/* ShowDutyLocationTransportationOffice swagger:route GET /duty_locations/{dutyLocationId}/transportation_office transportation_offices showDutyLocationTransportationOffice
+/*
+	ShowDutyLocationTransportationOffice swagger:route GET /duty_locations/{dutyLocationId}/transportation_office transportation_offices showDutyLocationTransportationOffice
 
-Returns the transportation office for a given duty location
+# Returns the transportation office for a given duty location
 
 Returns the given duty location's transportation office
-
 */
 type ShowDutyLocationTransportationOffice struct {
 	Context *middleware.Context
