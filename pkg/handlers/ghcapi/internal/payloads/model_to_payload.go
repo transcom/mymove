@@ -1022,8 +1022,8 @@ func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghc
 }
 
 // Upload payload
-func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmessages.Upload {
-	uploadPayload := &ghcmessages.Upload{
+func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmessages.UploadPayload {
+	uploadPayload := &ghcmessages.UploadPayload{
 		ID:          handlers.FmtUUID(upload.ID),
 		Filename:    swag.String(upload.Filename),
 		ContentType: swag.String(upload.ContentType),
@@ -1044,7 +1044,7 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 // ProofOfServiceDoc payload from model
 func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.FileStorer) (*ghcmessages.ProofOfServiceDoc, error) {
 
-	uploads := make([]*ghcmessages.Upload, len(proofOfService.PrimeUploads))
+	uploads := make([]*ghcmessages.UploadPayload, len(proofOfService.PrimeUploads))
 	if proofOfService.PrimeUploads != nil && len(proofOfService.PrimeUploads) > 0 {
 		for i, primeUpload := range proofOfService.PrimeUploads {
 			url, err := storer.PresignedURL(primeUpload.Upload.StorageKey, primeUpload.Upload.ContentType)

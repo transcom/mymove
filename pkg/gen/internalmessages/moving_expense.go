@@ -32,7 +32,7 @@ type MovingExpense struct {
 
 	// The Document object that contains all file uploads for this expense
 	// Required: true
-	Document interface{} `json:"document"`
+	Document *DocumentPayload `json:"document"`
 
 	// The id of the Document that contains all file uploads for this expense
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -159,8 +159,19 @@ func (m *MovingExpense) validateCreatedAt(formats strfmt.Registry) error {
 
 func (m *MovingExpense) validateDocument(formats strfmt.Registry) error {
 
-	if m.Document == nil {
-		return errors.Required("document", "body", nil)
+	if err := validate.Required("document", "body", m.Document); err != nil {
+		return err
+	}
+
+	if m.Document != nil {
+		if err := m.Document.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("document")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("document")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -301,6 +312,10 @@ func (m *MovingExpense) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateDocument(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateDocumentID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -332,6 +347,22 @@ func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Regi
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MovingExpense) contextValidateDocument(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Document != nil {
+		if err := m.Document.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("document")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("document")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

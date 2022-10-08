@@ -15,7 +15,7 @@ import (
 )
 
 func payloadForDocumentModel(storer storage.FileStorer, document models.Document) (*ghcmessages.DocumentPayload, error) {
-	uploads := make([]*ghcmessages.Upload, len(document.UserUploads))
+	uploads := make([]*ghcmessages.UploadPayload, len(document.UserUploads))
 	for i, userUpload := range document.UserUploads {
 		if userUpload.Upload.ID == uuid.Nil {
 			return nil, errors.New("No uploads for user")

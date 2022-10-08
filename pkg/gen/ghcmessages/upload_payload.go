@@ -24,19 +24,15 @@ type UploadPayload struct {
 	// Required: true
 	Bytes *int64 `json:"bytes"`
 
-	// checksum
-	// Example: ImGQ2Ush0bDHsaQthV5BnQ==
-	Checksum string `json:"checksum,omitempty"`
-
 	// content type
 	// Example: application/pdf
 	// Required: true
-	ContentType *string `json:"content_type"`
+	ContentType *string `json:"contentType"`
 
 	// created at
 	// Required: true
 	// Format: date-time
-	CreatedAt *strfmt.DateTime `json:"created_at"`
+	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
 	// filename
 	// Example: filename.pdf
@@ -56,7 +52,7 @@ type UploadPayload struct {
 	// updated at
 	// Required: true
 	// Format: date-time
-	UpdatedAt *strfmt.DateTime `json:"updated_at"`
+	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
 
 	// url
 	// Example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -118,7 +114,7 @@ func (m *UploadPayload) validateBytes(formats strfmt.Registry) error {
 
 func (m *UploadPayload) validateContentType(formats strfmt.Registry) error {
 
-	if err := validate.Required("content_type", "body", m.ContentType); err != nil {
+	if err := validate.Required("contentType", "body", m.ContentType); err != nil {
 		return err
 	}
 
@@ -127,11 +123,11 @@ func (m *UploadPayload) validateContentType(formats strfmt.Registry) error {
 
 func (m *UploadPayload) validateCreatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("created_at", "body", m.CreatedAt); err != nil {
+	if err := validate.Required("createdAt", "body", m.CreatedAt); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("created_at", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -207,11 +203,11 @@ func (m *UploadPayload) validateStatus(formats strfmt.Registry) error {
 
 func (m *UploadPayload) validateUpdatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("updated_at", "body", m.UpdatedAt); err != nil {
+	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("updated_at", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

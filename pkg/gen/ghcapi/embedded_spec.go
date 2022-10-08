@@ -4820,7 +4820,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/UploadPayload"
           }
         }
       }
@@ -6183,7 +6183,7 @@ func init() {
         },
         "document": {
           "description": "The Document object that contains all file uploads for this expense",
-          "type": "object"
+          "$ref": "#/definitions/DocumentPayload"
         },
         "documentId": {
           "description": "The id of the Document that contains all file uploads for this expense",
@@ -7064,7 +7064,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/UploadPayload"
           }
         }
       }
@@ -8126,7 +8126,7 @@ func init() {
         }
       }
     },
-    "Upload": {
+    "UploadPayload": {
       "type": "object",
       "required": [
         "id",
@@ -8168,62 +8168,6 @@ func init() {
           ]
         },
         "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
-    "UploadPayload": {
-      "type": "object",
-      "required": [
-        "id",
-        "url",
-        "filename",
-        "content_type",
-        "bytes",
-        "created_at",
-        "updated_at"
-      ],
-      "properties": {
-        "bytes": {
-          "type": "integer"
-        },
-        "checksum": {
-          "type": "string",
-          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
-        },
-        "content_type": {
-          "type": "string",
-          "format": "mime-type",
-          "example": "application/pdf"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "filename": {
-          "type": "string",
-          "example": "filename.pdf"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "INFECTED",
-            "CLEAN",
-            "PROCESSING"
-          ]
-        },
-        "updated_at": {
           "type": "string",
           "format": "date-time"
         },
@@ -8281,7 +8225,7 @@ func init() {
         },
         "emptyDocument": {
           "title": "Empty Document",
-          "$ref": "#/definitions/definitions-DocumentPayload"
+          "$ref": "#/definitions/DocumentPayload"
         },
         "emptyDocumentId": {
           "type": "string",
@@ -8295,7 +8239,7 @@ func init() {
         },
         "fullDocument": {
           "title": "Full Document",
-          "$ref": "#/definitions/definitions-DocumentPayload"
+          "$ref": "#/definitions/DocumentPayload"
         },
         "fullDocumentId": {
           "type": "string",
@@ -8340,7 +8284,7 @@ func init() {
         },
         "proofOfTrailerOwnershipDocument": {
           "title": "Proof of Trailer Ownership Document",
-          "$ref": "#/definitions/definitions-DocumentPayload"
+          "$ref": "#/definitions/DocumentPayload"
         },
         "proofOfTrailerOwnershipDocumentId": {
           "type": "string",
@@ -8370,32 +8314,6 @@ func init() {
           "type": "string",
           "title": "Vehicle description (ex. 'SUV')",
           "x-nullable": true
-        }
-      }
-    },
-    "definitions-DocumentPayload": {
-      "type": "object",
-      "required": [
-        "id",
-        "service_member_id",
-        "uploads"
-      ],
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "service_member_id": {
-          "type": "string",
-          "format": "uuid",
-          "title": "The service member this document belongs to"
-        },
-        "uploads": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UploadPayload"
-          }
         }
       }
     }
@@ -14318,7 +14236,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/UploadPayload"
           }
         }
       }
@@ -15683,7 +15601,7 @@ func init() {
         },
         "document": {
           "description": "The Document object that contains all file uploads for this expense",
-          "type": "object"
+          "$ref": "#/definitions/DocumentPayload"
         },
         "documentId": {
           "description": "The id of the Document that contains all file uploads for this expense",
@@ -16564,7 +16482,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/UploadPayload"
           }
         }
       }
@@ -17633,7 +17551,7 @@ func init() {
         }
       }
     },
-    "Upload": {
+    "UploadPayload": {
       "type": "object",
       "required": [
         "id",
@@ -17675,62 +17593,6 @@ func init() {
           ]
         },
         "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
-    "UploadPayload": {
-      "type": "object",
-      "required": [
-        "id",
-        "url",
-        "filename",
-        "content_type",
-        "bytes",
-        "created_at",
-        "updated_at"
-      ],
-      "properties": {
-        "bytes": {
-          "type": "integer"
-        },
-        "checksum": {
-          "type": "string",
-          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
-        },
-        "content_type": {
-          "type": "string",
-          "format": "mime-type",
-          "example": "application/pdf"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "filename": {
-          "type": "string",
-          "example": "filename.pdf"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "INFECTED",
-            "CLEAN",
-            "PROCESSING"
-          ]
-        },
-        "updated_at": {
           "type": "string",
           "format": "date-time"
         },
@@ -17791,7 +17653,7 @@ func init() {
         },
         "emptyDocument": {
           "title": "Empty Document",
-          "$ref": "#/definitions/definitions-DocumentPayload"
+          "$ref": "#/definitions/DocumentPayload"
         },
         "emptyDocumentId": {
           "type": "string",
@@ -17806,7 +17668,7 @@ func init() {
         },
         "fullDocument": {
           "title": "Full Document",
-          "$ref": "#/definitions/definitions-DocumentPayload"
+          "$ref": "#/definitions/DocumentPayload"
         },
         "fullDocumentId": {
           "type": "string",
@@ -17852,7 +17714,7 @@ func init() {
         },
         "proofOfTrailerOwnershipDocument": {
           "title": "Proof of Trailer Ownership Document",
-          "$ref": "#/definitions/definitions-DocumentPayload"
+          "$ref": "#/definitions/DocumentPayload"
         },
         "proofOfTrailerOwnershipDocumentId": {
           "type": "string",
@@ -17882,32 +17744,6 @@ func init() {
           "type": "string",
           "title": "Vehicle description (ex. 'SUV')",
           "x-nullable": true
-        }
-      }
-    },
-    "definitions-DocumentPayload": {
-      "type": "object",
-      "required": [
-        "id",
-        "service_member_id",
-        "uploads"
-      ],
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "service_member_id": {
-          "type": "string",
-          "format": "uuid",
-          "title": "The service member this document belongs to"
-        },
-        "uploads": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UploadPayload"
-          }
         }
       }
     }

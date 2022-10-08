@@ -21,7 +21,7 @@ properties:
     readOnly: true
   document:
     description: The Document object that contains all file uploads for this expense
-    type: object
+    $ref: 'DocumentPayload.yaml'
   movingExpenseType:
     $ref: 'MovingExpenseType.yaml'
     x-nullable: true

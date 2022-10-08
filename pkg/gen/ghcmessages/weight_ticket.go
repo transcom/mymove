@@ -31,7 +31,7 @@ type WeightTicket struct {
 
 	// Empty Document
 	// Required: true
-	EmptyDocument *DefinitionsDocumentPayload `json:"emptyDocument"`
+	EmptyDocument *DocumentPayload `json:"emptyDocument"`
 
 	// Empty Document ID
 	// Required: true
@@ -45,7 +45,7 @@ type WeightTicket struct {
 
 	// Full Document
 	// Required: true
-	FullDocument *DefinitionsDocumentPayload `json:"fullDocument"`
+	FullDocument *DocumentPayload `json:"fullDocument"`
 
 	// Full Document ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -82,7 +82,7 @@ type WeightTicket struct {
 
 	// Proof of Trailer Ownership Document
 	// Required: true
-	ProofOfTrailerOwnershipDocument *DefinitionsDocumentPayload `json:"proofOfTrailerOwnershipDocument"`
+	ProofOfTrailerOwnershipDocument *DocumentPayload `json:"proofOfTrailerOwnershipDocument"`
 
 	// Trailer Document ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538

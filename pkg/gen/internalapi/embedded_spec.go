@@ -4872,7 +4872,7 @@ func init() {
         },
         "document": {
           "description": "The Document object that contains all file uploads for this expense",
-          "type": "object"
+          "$ref": "#/definitions/DocumentPayload"
         },
         "documentId": {
           "description": "The id of the Document that contains all file uploads for this expense",
@@ -6997,25 +6997,21 @@ func init() {
         "id",
         "url",
         "filename",
-        "content_type",
+        "contentType",
         "bytes",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
         "bytes": {
           "type": "integer"
         },
-        "checksum": {
-          "type": "string",
-          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
-        },
-        "content_type": {
+        "contentType": {
           "type": "string",
           "format": "mime-type",
           "example": "application/pdf"
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -7036,7 +7032,7 @@ func init() {
             "PROCESSING"
           ]
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -12296,7 +12292,7 @@ func init() {
         },
         "document": {
           "description": "The Document object that contains all file uploads for this expense",
-          "type": "object"
+          "$ref": "#/definitions/DocumentPayload"
         },
         "documentId": {
           "description": "The id of the Document that contains all file uploads for this expense",
@@ -14430,25 +14426,21 @@ func init() {
         "id",
         "url",
         "filename",
-        "content_type",
+        "contentType",
         "bytes",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
         "bytes": {
           "type": "integer"
         },
-        "checksum": {
-          "type": "string",
-          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
-        },
-        "content_type": {
+        "contentType": {
           "type": "string",
           "format": "mime-type",
           "example": "application/pdf"
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -14469,7 +14461,7 @@ func init() {
             "PROCESSING"
           ]
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         },
