@@ -23,7 +23,7 @@ export { default as requestShipmentDiversion } from './requestShipmentDiversion'
 export { default as requestShipmentReweigh } from './requestShipmentReweigh';
 export { default as setFinancialReviewFlag } from './setFinancialReviewFlag';
 export { default as submitMoveForApproval } from './submitMoveForApproval';
-export { default as updateAllowance } from './updateAllowance';
+export { default as updateAllowance } from './updateAllowances/updateAllowance';
 export { default as updateBillableWeight } from './updateBillableWeight';
 export { default as updateBillableWeightAsTIO } from './updateBillableWeightAsTIO';
 export { default as updateBillableWeightRemarksAsTIO } from './updateBillableWeightRemarksAsTIO';
@@ -49,4 +49,5 @@ export { default as updateMTOServiceItemMoveStatus } from './createMTOServiceIte
 export { default as updateMoveEstimatedExcessWeight } from './updateMTOShipmentPrimeEstimatedExcessWeight';
 export { default as updateMTOStatusServiceCounselingCompleted } from './updateMTOStatusServiceCounselingCompleted';
 export { default as updateAllowanceCounseling } from './updateAllowanceCounseling';
-export { default as updateAllowanceServiceMemberBranch } from './updateAllowanceServiceMemberBranch';
+export { default as updateAllowanceServiceMemberByCounselor } from './updateAllowanceServiceMemberByCounselor';
+export { default as updateAllowanceServiceMemberByTOO } from './updateAllowances/updateAllowanceServiceMemberByTOO';
