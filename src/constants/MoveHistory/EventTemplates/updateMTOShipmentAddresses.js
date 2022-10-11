@@ -27,10 +27,13 @@ export default {
     let addressLabel = '';
     if (addressType === 'pickupAddress') {
       addressLabel = 'pickup_address';
+    } else if (addressType === 'secondaryPickupAddress') {
+      addressLabel = 'secondary_pickup_address';
     } else if (addressType === 'destinationAddress') {
       addressLabel = 'destination_address';
+    } else if (addressType === 'secondaryDestinationAddress') {
+      addressLabel = 'secondary_destination_address';
     }
-
     newChangedValues = {
       shipment_type: context[0]?.shipment_type,
       ...changedValues,

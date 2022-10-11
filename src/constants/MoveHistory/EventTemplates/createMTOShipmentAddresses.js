@@ -8,7 +8,7 @@ export default {
   eventName: '*',
   tableName: t.addresses,
   detailsType: d.LABELED,
-  getEventNameDisplay: () => 'Updated shipment',
+  getEventNameDisplay: () => 'Created shipment',
   getDetailsLabeledDetails: ({ changedValues, context }) => {
     const address = formatMoveHistoryFullAddress(changedValues);
 
@@ -17,8 +17,12 @@ export default {
     let addressLabel = '';
     if (addressType === 'pickupAddress') {
       addressLabel = 'pickup_address';
+    } else if (addressType === 'secondaryPickupAddress') {
+      addressLabel = 'secondary_pickup_address';
     } else if (addressType === 'destinationAddress') {
       addressLabel = 'destination_address';
+    } else if (addressType === 'secondaryDestinationAddress') {
+      addressLabel = 'secondary_destination_address';
     }
 
     const newChangedValues = {
