@@ -2,6 +2,7 @@ package order
 
 import (
 	"time"
+
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
@@ -324,7 +325,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusSUBMITTED,
-				Show: &showMove,
+				Show:   &showMove,
 			},
 			ServiceMember: models.ServiceMember{Affiliation: &navy},
 		})
@@ -333,8 +334,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
-				MoveTaskOrder: move,
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   move,
 				MoveTaskOrderID: move.ID,
 			},
 		})
@@ -343,7 +344,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		nonCGMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusSUBMITTED,
-				Show: &showMove,
+				Show:   &showMove,
 			},
 			ServiceMember: models.ServiceMember{Affiliation: &cg},
 		})
@@ -352,13 +353,13 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
-				MoveTaskOrder: nonCGMove,
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   nonCGMove,
 				MoveTaskOrderID: nonCGMove.ID,
 			},
 		})
 
-		officeUserSC:= testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "NAVY")
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "NAVY")
 
 		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
@@ -376,7 +377,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusSUBMITTED,
-				Show: &showMove,
+				Show:   &showMove,
 			},
 			ServiceMember: models.ServiceMember{Affiliation: &marines},
 		})
@@ -385,8 +386,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
-				MoveTaskOrder: move,
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   move,
 				MoveTaskOrderID: move.ID,
 			},
 		})
@@ -395,7 +396,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		nonMarineMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusSUBMITTED,
-				Show: &showMove,
+				Show:   &showMove,
 			},
 			ServiceMember: models.ServiceMember{Affiliation: &army},
 		})
@@ -404,13 +405,13 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
-				MoveTaskOrder: nonMarineMove,
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   nonMarineMove,
 				MoveTaskOrderID: nonMarineMove.ID,
 			},
 		})
 
-		officeUserSC:= testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "TVCB")
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "TVCB")
 
 		marine := "MARINES"
 		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1), Branch: &marine}
@@ -429,7 +430,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusSUBMITTED,
-				Show: &showMove,
+				Show:   &showMove,
 			},
 			ServiceMember: models.ServiceMember{Affiliation: &cg},
 		})
@@ -438,8 +439,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
-				MoveTaskOrder: move,
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   move,
 				MoveTaskOrderID: move.ID,
 			},
 		})
@@ -448,7 +449,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		armyMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusSUBMITTED,
-				Show: &showMove,
+				Show:   &showMove,
 			},
 			ServiceMember: models.ServiceMember{Affiliation: &army},
 		})
@@ -457,20 +458,19 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				Status: models.PPMShipmentStatusNeedsPaymentApproval,
 			},
 			MTOShipment: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypePPM,
-				MoveTaskOrder: armyMove,
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   armyMove,
 				MoveTaskOrderID: armyMove.ID,
 			},
 		})
 
-		officeUserSC:= testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
 		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(models.AffiliationCOASTGUARD, *moves[0].Orders.ServiceMember.Affiliation)
-
 	})
 }
 

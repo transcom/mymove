@@ -132,7 +132,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			Where("show = ?", swag.Bool(true)).
 			Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
 	}
-	
+
 	for _, option := range options {
 		if option != nil {
 			option(query) // mutates
