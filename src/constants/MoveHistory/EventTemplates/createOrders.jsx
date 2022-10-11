@@ -13,6 +13,16 @@ export default {
   detailsType: d.PLAIN_TEXT,
   getEventNameDisplay: () => 'Created orders',
   getDetails: (historyRecord) => {
-    return <LabeledDetails historyRecord={historyRecord} />;
+    const getDetailsLabeledDetails = (history) => {
+      const newChangedValues = {
+        new_duty_location_name: history.context[0]?.new_duty_location_name,
+        origin_duty_location_name: history.context[0]?.origin_duty_location_name,
+        ...history.changedValues,
+      };
+
+      return newChangedValues;
+    };
+
+    return <LabeledDetails historyRecord={historyRecord} getDetailsLabeledDetails={getDetailsLabeledDetails} />;
   },
 };

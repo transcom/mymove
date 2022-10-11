@@ -24,6 +24,8 @@ const retrieveTextToDisplay = (fieldName, value) => {
     displayValue = optionFields[displayValue];
   } else if (dateFields[fieldName]) {
     displayValue = formatCustomerDate(displayValue);
+  } else if (displayName === fieldMappings.dependents_authorized && displayValue === true) {
+    displayValue = 'Yes';
   }
 
   if (!displayValue) {

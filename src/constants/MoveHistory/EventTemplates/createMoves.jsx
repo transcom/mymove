@@ -11,7 +11,7 @@ export default {
   eventName: o.createOrders,
   tableName: t.moves,
   detailsType: d.PLAIN_TEXT,
-  getEventNameDisplay: () => 'Updated Move',
+  getEventNameDisplay: () => 'Created move',
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={historyRecord} />;
   },
