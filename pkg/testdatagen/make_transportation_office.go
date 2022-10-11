@@ -17,16 +17,12 @@ func MakeTransportationOffice(db *pop.Connection, assertions Assertions) models.
 
 	address := MakeDefaultAddress(db)
 
-	gbloc := "KKFA"
-	if assertions.TransportationOffice.Gbloc != "" {
-		gbloc = assertions.TransportationOffice.Gbloc
-	}
 	office := models.TransportationOffice{
 		ID:        transportationOfficeID,
 		Name:      "JPPSO Testy McTest",
 		AddressID: address.ID,
 		Address:   address,
-		Gbloc:     gbloc,
+		Gbloc:     "KKFA",
 		Latitude:  1.23445,
 		Longitude: -23.34455,
 	}
