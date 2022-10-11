@@ -99,11 +99,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"Orders.NewDutyLocation.Address",
 			"Orders.OriginDutyLocation.Address",
 			"Orders.Entitlement",
-			"MTOShipments",
-			"MTOServiceItems",
+			"MTOShipments.PPMShipment",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
+			InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
 			Where("show = ?", swag.Bool(true))
 	} else {
@@ -342,17 +342,18 @@ func gblocFilterForPPMCloseoutForNavyMarineAndCG(gbloc *string) QueryOption {
 	// For PPM Closeout the SC should see moves that have ppm shipments
 	// And the GBLOC should map to the service member's affiliation
 	navyGbloc := "NAVY"
-	tvcbGbloc := "TVCB"
-	uscgGbloc := "USCG"
+	// tvcbGbloc := "TVCB"
+	// uscgGbloc := "USCG"
 	return func(query *pop.Query) {
 		if gbloc != nil {
-			if gbloc == &navyGbloc {
+			if *gbloc == navyGbloc {
 				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationNAVY, models.PPMShipmentStatusNeedsPaymentApproval)
-			} else if gbloc == &tvcbGbloc {
-				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationMARINES, models.PPMShipmentStatusNeedsPaymentApproval)
-			} else if gbloc == &uscgGbloc {
-				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationCOASTGUARD, models.PPMShipmentStatusNeedsPaymentApproval)
-			}
+			} 
+			// else if gbloc == &tvcbGbloc {
+			// 	query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationMARINES, models.PPMShipmentStatusNeedsPaymentApproval)
+			// } else if gbloc == &uscgGbloc {
+			// 	query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationCOASTGUARD, models.PPMShipmentStatusNeedsPaymentApproval)
+			// }
 		}
 	}
 }
