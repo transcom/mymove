@@ -228,4 +228,34 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.IsType(apperror.InvalidInputError{}, updateErr)
 		suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
 	})
+
+	suite.Run("Fails to update when status or reason are changed", func() {
+		appCtx := suite.AppContextForTest()
+
+		originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
+
+		updater := NewCustomerWeightTicketUpdater()
+
+		status := models.PPMDocumentStatusExcluded
+
+		desiredWeightTicket := &models.WeightTicket{
+			ID:                       originalWeightTicket.ID,
+			VehicleDescription:       models.StringPointer("2004 Ford Fiesta"),
+			EmptyWeight:              models.PoundPointer(3000),
+			MissingEmptyWeightTicket: models.BoolPointer(false),
+			FullWeight:               models.PoundPointer(4000),
+			MissingFullWeightTicket:  models.BoolPointer(false),
+			OwnsTrailer:              models.BoolPointer(false),
+			TrailerMeetsCriteria:     models.BoolPointer(false),
+			Status:                   &status,
+			Reason:                   models.StringPointer("bad data"),
+		}
+
+		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+		suite.Nil(updatedWeightTicket)
+		suite.NotNil(updateErr)
+		suite.IsType(apperror.InvalidInputError{}, updateErr)
+		suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
+	})
 }

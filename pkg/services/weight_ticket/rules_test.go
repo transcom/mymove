@@ -8,6 +8,37 @@ import (
 )
 
 func (suite *WeightTicketSuite) TestValidationRules() {
+	// setup some shared data
+	weightTicketID := uuid.Must(uuid.NewV4())
+	ppmShipmentID := uuid.Must(uuid.NewV4())
+	emptyDocID := uuid.Must(uuid.NewV4())
+	fullDocID := uuid.Must(uuid.NewV4())
+	proofOfOwnershipID := uuid.Must(uuid.NewV4())
+
+	emptyUploads := models.UserUploads{}
+	emptyUploads = append(emptyUploads, models.UserUpload{
+		DocumentID: &emptyDocID,
+	})
+
+	fullUploads := models.UserUploads{}
+	fullUploads = append(fullUploads, models.UserUpload{
+		DocumentID: &fullDocID,
+	})
+
+	existingWeightTicket := &models.WeightTicket{
+		ID:                                weightTicketID,
+		PPMShipmentID:                     ppmShipmentID,
+		EmptyDocumentID:                   emptyDocID,
+		FullDocumentID:                    fullDocID,
+		ProofOfTrailerOwnershipDocumentID: proofOfOwnershipID,
+		EmptyDocument: models.Document{
+			UserUploads: emptyUploads,
+		},
+		FullDocument: models.Document{
+			UserUploads: fullUploads,
+		},
+	}
+
 	suite.Run("checkID", func() {
 		suite.Run("Success", func() {
 			suite.Run("Create WeightTicket without an ID", func() {
@@ -41,36 +72,6 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 	})
 
 	suite.Run("checkRequiredFields", func() {
-		weightTicketID := uuid.Must(uuid.NewV4())
-		ppmShipmentID := uuid.Must(uuid.NewV4())
-		emptyDocID := uuid.Must(uuid.NewV4())
-		fullDocID := uuid.Must(uuid.NewV4())
-		proofOfOwnershipID := uuid.Must(uuid.NewV4())
-
-		emptyUploads := models.UserUploads{}
-		emptyUploads = append(emptyUploads, models.UserUpload{
-			DocumentID: &emptyDocID,
-		})
-
-		fullUploads := models.UserUploads{}
-		fullUploads = append(fullUploads, models.UserUpload{
-			DocumentID: &fullDocID,
-		})
-
-		existingWeightTicket := &models.WeightTicket{
-			ID:                                weightTicketID,
-			PPMShipmentID:                     ppmShipmentID,
-			EmptyDocumentID:                   emptyDocID,
-			FullDocumentID:                    fullDocID,
-			ProofOfTrailerOwnershipDocumentID: proofOfOwnershipID,
-			EmptyDocument: models.Document{
-				UserUploads: emptyUploads,
-			},
-			FullDocument: models.Document{
-				UserUploads: fullUploads,
-			},
-		}
-
 		suite.Run("Success", func() {
 			suite.Run("Update WeightTicket - all fields", func() {
 
@@ -148,6 +149,7 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
 				}
 			})
+
 			suite.Run("Update WeightTicket - documents required", func() {
 				err := checkRequiredFields().Validate(suite.AppContextForTest(),
 					&models.WeightTicket{
@@ -173,6 +175,55 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 				}
 
 			})
+		})
+	})
+
+	suite.Run("verifyReasonAndStatusAreConstant", func() {
+		suite.Run("Success", func() {
+			err := verifyReasonAndStatusAreConstant().Validate(suite.AppContextForTest(),
+				&models.WeightTicket{
+					ID:                       weightTicketID,
+					VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
+					EmptyWeight:              models.PoundPointer(2500),
+					MissingEmptyWeightTicket: models.BoolPointer(true),
+					FullWeight:               models.PoundPointer(3300),
+					MissingFullWeightTicket:  models.BoolPointer(true),
+					OwnsTrailer:              models.BoolPointer(false),
+					TrailerMeetsCriteria:     models.BoolPointer(false),
+				},
+				existingWeightTicket,
+			)
+
+			suite.NilOrNoVerrs(err)
+		})
+
+		suite.Run("Failure", func() {
+			status := models.PPMDocumentStatusRejected
+			err := verifyReasonAndStatusAreConstant().Validate(suite.AppContextForTest(),
+				&models.WeightTicket{
+					ID:                       weightTicketID,
+					VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
+					EmptyWeight:              models.PoundPointer(2500),
+					MissingEmptyWeightTicket: models.BoolPointer(true),
+					FullWeight:               models.PoundPointer(3300),
+					MissingFullWeightTicket:  models.BoolPointer(true),
+					OwnsTrailer:              models.BoolPointer(false),
+					TrailerMeetsCriteria:     models.BoolPointer(false),
+					Status:                   &status,
+					Reason:                   models.StringPointer("bad data"),
+				},
+				existingWeightTicket,
+			)
+
+			switch verr := err.(type) {
+			case *validate.Errors:
+				suite.True(verr.HasAny())
+				suite.Equal(len(verr.Keys()), 2)
+				suite.Contains(verr.Keys(), "Reason")
+				suite.Contains(verr.Keys(), "Status")
+			default:
+				suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+			}
 		})
 	})
 }

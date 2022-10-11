@@ -37,15 +37,7 @@ func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, w
 		return nil, apperror.NewPreconditionFailedError(originalWeightTicket.ID, nil)
 	}
 
-	// merge
-	mergedWeightTicket := *originalWeightTicket
-	mergedWeightTicket.VehicleDescription = services.SetOptionalStringField(weightTicket.VehicleDescription, mergedWeightTicket.VehicleDescription)
-	mergedWeightTicket.EmptyWeight = services.SetNoNilOptionalPoundField(weightTicket.EmptyWeight, mergedWeightTicket.EmptyWeight)
-	mergedWeightTicket.MissingEmptyWeightTicket = services.SetNoNilOptionalBoolField(weightTicket.MissingEmptyWeightTicket, mergedWeightTicket.MissingEmptyWeightTicket)
-	mergedWeightTicket.FullWeight = services.SetNoNilOptionalPoundField(weightTicket.FullWeight, mergedWeightTicket.FullWeight)
-	mergedWeightTicket.MissingFullWeightTicket = services.SetNoNilOptionalBoolField(weightTicket.MissingFullWeightTicket, mergedWeightTicket.MissingFullWeightTicket)
-	mergedWeightTicket.OwnsTrailer = services.SetNoNilOptionalBoolField(weightTicket.OwnsTrailer, mergedWeightTicket.OwnsTrailer)
-	mergedWeightTicket.TrailerMeetsCriteria = services.SetNoNilOptionalBoolField(weightTicket.TrailerMeetsCriteria, mergedWeightTicket.TrailerMeetsCriteria)
+	mergedWeightTicket := mergeWeightTicket(weightTicket, *originalWeightTicket)
 
 	// validate updated model
 	if err := validateWeightTicket(appCtx, &mergedWeightTicket, originalWeightTicket, f.checks...); err != nil {
@@ -70,6 +62,28 @@ func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, w
 	}
 
 	return &mergedWeightTicket, nil
+}
+
+func mergeWeightTicket(weightTicket models.WeightTicket, originalWeightTicket models.WeightTicket) models.WeightTicket {
+	mergedWeightTicket := originalWeightTicket
+
+	mergedWeightTicket.VehicleDescription = services.SetOptionalStringField(weightTicket.VehicleDescription, mergedWeightTicket.VehicleDescription)
+	mergedWeightTicket.EmptyWeight = services.SetNoNilOptionalPoundField(weightTicket.EmptyWeight, mergedWeightTicket.EmptyWeight)
+	mergedWeightTicket.MissingEmptyWeightTicket = services.SetNoNilOptionalBoolField(weightTicket.MissingEmptyWeightTicket, mergedWeightTicket.MissingEmptyWeightTicket)
+	mergedWeightTicket.FullWeight = services.SetNoNilOptionalPoundField(weightTicket.FullWeight, mergedWeightTicket.FullWeight)
+	mergedWeightTicket.MissingFullWeightTicket = services.SetNoNilOptionalBoolField(weightTicket.MissingFullWeightTicket, mergedWeightTicket.MissingFullWeightTicket)
+	mergedWeightTicket.OwnsTrailer = services.SetNoNilOptionalBoolField(weightTicket.OwnsTrailer, mergedWeightTicket.OwnsTrailer)
+	mergedWeightTicket.TrailerMeetsCriteria = services.SetNoNilOptionalBoolField(weightTicket.TrailerMeetsCriteria, mergedWeightTicket.TrailerMeetsCriteria)
+	mergedWeightTicket.Reason = services.SetOptionalStringField(weightTicket.Reason, mergedWeightTicket.Reason)
+	status := services.SetOptionalStringField((*string)(weightTicket.Status), (*string)(mergedWeightTicket.Status))
+	if status != nil {
+		ppmDocStatus := models.PPMDocumentStatus(*status)
+		mergedWeightTicket.Status = &ppmDocStatus
+	} else {
+		mergedWeightTicket.Status = nil
+	}
+
+	return mergedWeightTicket
 }
 
 func FetchWeightTicketByIDExcludeDeletedUploads(appContext appcontext.AppContext, weightTicketID uuid.UUID) (*models.WeightTicket, error) {

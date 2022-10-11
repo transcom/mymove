@@ -95,9 +95,29 @@ func checkRequiredFields() weightTicketValidator {
 	})
 }
 
+// verifyReasonAndStatusAreConstant ensures that the reason and status fields do not change
+func verifyReasonAndStatusAreConstant() weightTicketValidator {
+	return weightTicketValidatorFunc(func(_ appcontext.AppContext, newWeightTicket *models.WeightTicket, originalWeightTicket *models.WeightTicket) error {
+		verrs := validate.NewErrors()
+
+		if newWeightTicket == nil || originalWeightTicket == nil {
+			return verrs
+		}
+
+		if originalWeightTicket.Reason != newWeightTicket.Reason {
+			verrs.Add("Reason", "reason cannot be modified")
+		}
+		if originalWeightTicket.Status != newWeightTicket.Status {
+			verrs.Add("Status", "status cannot be modified")
+		}
+		return verrs
+	})
+}
+
 func basicChecks() []weightTicketValidator {
 	return []weightTicketValidator{
 		checkID(),
 		checkRequiredFields(),
+		verifyReasonAndStatusAreConstant(),
 	}
 }
