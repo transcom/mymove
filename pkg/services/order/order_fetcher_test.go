@@ -413,8 +413,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 
 		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "TVCB")
 
-		marine := "MARINES"
-		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1), Branch: &marine}
+		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)

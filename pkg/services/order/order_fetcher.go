@@ -51,14 +51,16 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		}
 	}
 
-	branchQuery := branchFilter(params.Branch, needsCounseling)
+	ppmCloseoutGblocs := officeUserGbloc == "NAVY" || officeUserGbloc == "TVCB" || officeUserGbloc == "USCG"
+
+	branchQuery := branchFilter(params.Branch, needsCounseling, ppmCloseoutGblocs)
 
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
 	// var gblocQuery QueryOption
 	var gblocToFilterBy *string
 	if officeUserGbloc == "USMC" && !needsCounseling {
-		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), needsCounseling)
+		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), needsCounseling, ppmCloseoutGblocs)
 		gblocToFilterBy = params.OriginGBLOC
 	} else {
 		gblocToFilterBy = &officeUserGbloc
@@ -72,7 +74,6 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	//    pickup address. However, if that shipment happens to be an NTS-Release, we instead drop
 	//    back to the GBLOC of the origin duty location's transportation office since an NTS-Release
 	//    does not populate the pickup address field.
-	ppmCloseoutGblocs := officeUserGbloc == "NAVY" || officeUserGbloc == "TVCB" || officeUserGbloc == "USCG"
 	var gblocQuery QueryOption
 	if needsCounseling {
 		gblocQuery = gblocFilterForSC(gblocToFilterBy)
@@ -232,9 +233,9 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 }
 
 // These are a bunch of private functions that are used to cobble our list Orders filters together.
-func branchFilter(branch *string, needsCounseling bool) QueryOption {
+func branchFilter(branch *string, needsCounseling bool, ppmCloseoutGblocs bool) QueryOption {
 	return func(query *pop.Query) {
-		if branch == nil && !needsCounseling {
+		if branch == nil && !needsCounseling && !ppmCloseoutGblocs {
 			query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
 		}
 		if branch != nil {
