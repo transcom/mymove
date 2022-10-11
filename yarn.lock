@@ -9900,10 +9900,10 @@ eslint-plugin-security@^1.5.0:
   dependencies:
     safe-regex "^2.1.1"
 
-eslint-plugin-storybook@0.6.4:
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-storybook/-/eslint-plugin-storybook-0.6.4.tgz#4b4f077fcc0cf3b3f4ebc730426497e814e38e49"
-  integrity sha512-wxwbAZqlgjj6MbS/llY7wnXCCUsuFcLB1XnahbgBtjmsFUggpiECt01Dt8huaKvriVXg2w4d7Ye+GzA00rdcKg==
+eslint-plugin-storybook@0.6.6:
+  version "0.6.6"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-storybook/-/eslint-plugin-storybook-0.6.6.tgz#f8865ad6b2a25143fea0a17e8096352a526afe4e"
+  integrity sha512-nqYq802vJABpaV0n9cpIZl4Mlmy1yStxa8T3sPqvqbByOpXXtA9ZKRqVv2faSDp0DKVC0B3ItTNU7iMX3Et8VQ==
   dependencies:
     "@storybook/csf" "^0.0.1"
     "@typescript-eslint/experimental-utils" "^5.3.0"
@@ -17261,10 +17261,10 @@ ra-core@^4.4.0:
     react-is "^17.0.2"
     react-query "^3.32.1"
 
-ra-data-simple-rest@^4.3.2:
-  version "4.3.2"
-  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.3.2.tgz#07a7791b27ec0a28b586c4bc07a80606f41f3b47"
-  integrity sha512-HIv6aCJWXVxnP5chapftNhOGq0AmWPSyJNf9SBOliqkNGs74JEMOMD1dRAbsI3NVrkk1zQqtNyWi1mOjLndSPQ==
+ra-data-simple-rest@^4.4.1:
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.4.1.tgz#452d46c82c01e78f93b0c625df1a4b4313c4dd8b"
+  integrity sha512-hBpuy2rwCh2AZXpXuWt4CTQASMoN4iObDMfBlGpcxxdzfP4OyGa5UHnEKtbQW/pmylZsodG32+/3E7xqhYOjTg==
   dependencies:
     query-string "^7.1.1"
 
