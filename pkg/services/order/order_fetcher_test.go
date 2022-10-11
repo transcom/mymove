@@ -472,6 +472,61 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		suite.Equal(1, len(moves))
 		suite.Equal(models.AffiliationCOASTGUARD, *moves[0].Orders.ServiceMember.Affiliation)
 	})
+
+	suite.Run("Filters out moves with PPM shipments not in the status of NeedsApproval", func() {
+		cg := models.AffiliationCOASTGUARD
+
+		cgMoveInWrongStatus := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show:   &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &cg},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusPaymentApproved,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   cgMoveInWrongStatus,
+				MoveTaskOrderID: cgMoveInWrongStatus.ID,
+			},
+		})
+
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
+		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(0, len(moves))
+	})
+
+	suite.Run("Filters out moves with no PPM shipment", func() {
+		cg := models.AffiliationCOASTGUARD
+
+		moveWithHHG := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show:   &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &cg},
+		})
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    models.MTOShipmentTypeHHG,
+				MoveTaskOrder:   moveWithHHG,
+				MoveTaskOrderID: moveWithHHG.ID,
+			},
+		})
+
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
+		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(0, len(moves))
+	})
 }
 
 func (suite *OrderServiceSuite) TestListOrdersMarines() {
