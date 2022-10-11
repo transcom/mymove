@@ -122,7 +122,7 @@ describe('EvaluationForm', () => {
       expect(screen.getByText('QAE remarks')).toBeInTheDocument();
 
       // // Form components
-      expect(screen.getByTestId('form')).toBeInTheDocument();
+      expect(screen.getByTestId('evaluationReportForm')).toBeInTheDocument();
 
       expect(screen.getByText('Date of inspection')).toBeInTheDocument();
       expect(screen.getByText('Evaluation type')).toBeInTheDocument();
