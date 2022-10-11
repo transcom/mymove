@@ -315,10 +315,10 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 
 func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMarines() {
 	orderFetcher := NewOrderFetcher()
+	showMove := true
 
 	suite.Run("returns Navy order for NAVY office user when there's a ppm shipment in closeout", func() {
 		navy := models.AffiliationNAVY
-		showMove := true
 		// It doesn't matter what the Origin GBLOC is for the move. Only the navy
 		// affiliation matters for SC  who are tied to the NAVY GBLOC.
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -371,7 +371,6 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 
 	suite.Run("returns TVCB order for TVCB office user when there's a ppm shipment in closeout", func() {
 		marines := models.AffiliationMARINES
-		showMove := true
 		// It doesn't matter what the Origin GBLOC is for the move. Only the marines
 		// affiliation matters for SC  who are tied to the TVCB GBLOC.
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -423,57 +422,56 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 
 	})
 
-	// suite.Run("returns coast guard order for USCG office user when there's a ppm shipment in closeout and filters out non coast guard moves", func() {
-	// 	cg := models.AffiliationCOASTGUARD
-	// 	showMove := true
-	// 	// It doesn't matter what the Origin GBLOC is for the move. Only the coast guard
-	// 	// affiliation matters for SC  who are tied to the USCG GBLOC.
-	// 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-	// 		Move: models.Move{
-	// 			Status: models.MoveStatusSUBMITTED,
-	// 			Show: &showMove,
-	// 		},
-	// 		ServiceMember: models.ServiceMember{Affiliation: &cg},
-	// 	})
-	// 	testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-	// 		PPMShipment: models.PPMShipment{
-	// 			Status: models.PPMShipmentStatusNeedsPaymentApproval,
-	// 		},
-	// 		MTOShipment: models.MTOShipment{
-	// 			ShipmentType: models.MTOShipmentTypePPM,
-	// 			MoveTaskOrder: move,
-		// 		MoveTaskOrderID: move.ID,
-		// 	},
-		// })
+	suite.Run("returns coast guard order for USCG office user when there's a ppm shipment in closeout and filters out non coast guard moves", func() {
+		cg := models.AffiliationCOASTGUARD
+		// It doesn't matter what the Origin GBLOC is for the move. Only the coast guard
+		// affiliation matters for SC  who are tied to the USCG GBLOC.
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show: &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &cg},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				MoveTaskOrder: move,
+				MoveTaskOrderID: move.ID,
+			},
+		})
 
-		// army := models.AffiliationARMY
-		// nonCGMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		// 	Move: models.Move{
-		// 		Status: models.MoveStatusSUBMITTED,
-		// 		Show: &showMove,
-		// 	},
-		// 	ServiceMember: models.ServiceMember{Affiliation: &army},
-		// })
-		// testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-		// 	PPMShipment: models.PPMShipment{
-		// 		Status: models.PPMShipmentStatusNeedsPaymentApproval,
-		// 	},
-		// 	MTOShipment: models.MTOShipment{
-		// 		ShipmentType: models.MTOShipmentTypePPM,
-		// 		MoveTaskOrder: nonCGMove,
-		// 		MoveTaskOrderID: nonCGMove.ID,
-		// 	},
-	// 	})
+		army := models.AffiliationARMY
+		armyMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show: &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &army},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				MoveTaskOrder: armyMove,
+				MoveTaskOrderID: armyMove.ID,
+			},
+		})
 
-	// 	officeUserSC:= testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
-	// 	params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
-	// 	moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		officeUserSC:= testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
+		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
 
-	// 	suite.FatalNoError(err)
-	// 	suite.Equal(1, len(moves))
-	// 	suite.Equal(models.AffiliationCOASTGUARD, *moves[0].Orders.ServiceMember.Affiliation)
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.AffiliationCOASTGUARD, *moves[0].Orders.ServiceMember.Affiliation)
 
-	// })
+	})
 }
 
 func (suite *OrderServiceSuite) TestListOrdersMarines() {
