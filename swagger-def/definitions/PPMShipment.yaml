@@ -217,7 +217,7 @@ properties:
   weightTickets:
     description: All weight ticket documentation records belonging to vehicles of this PPM shipment
     items:
-      $ref: '../internal.yaml#/definitions/WeightTicket'
+      $ref: 'WeightTicket.yaml'
     type: array
   movingExpenses:
     description: All expense documentation receipt records of this PPM shipment.

@@ -1,0 +1,96 @@
+description: Vehicle and optional trailer information and weight documents used to move this PPM shipment.
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  ppmShipmentId:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  createdAt:
+    type: string
+    format: date-time
+    readOnly: true
+  updatedAt:
+    type: string
+    format: date-time
+    readOnly: true
+  vehicleDescription:
+    type: string
+    title: Vehicle description (ex. 'SUV')
+    x-nullable: true
+  emptyWeight:
+    type: integer
+    title: Empty Recorded Weight
+    minimum: 0
+  missingEmptyWeightTicket:
+    type: boolean
+    title: has empty weight ticket
+    x-nullable: true
+    x-omitempty: false
+  emptyDocumentId:
+    title: Empty Document ID
+    type: string
+    format: uuid
+    readOnly: true
+  emptyDocument:
+    title: Empty Document
+    $ref: 'DocumentPayload.yaml'
+  fullWeight:
+    title: full weight ticket recorded weight
+    type: integer
+    minimum: 0
+  missingFullWeightTicket:
+    title: has full weight ticket
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  fullDocumentId:
+    title: Full Document ID
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  fullDocument:
+    title: Full Document
+    $ref: 'DocumentPayload.yaml'
+  ownsTrailer:
+    title: Owns trailer
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  trailerMeetsCriteria:
+    title: Trailer meets criteria
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  proofOfTrailerOwnershipDocumentId:
+    title: Trailer Document ID
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  proofOfTrailerOwnershipDocument:
+    title: Proof of Trailer Ownership Document
+    $ref: 'DocumentPayload.yaml'
+  status:
+    $ref: 'PPMDocumentStatus.yaml'
+  reason:
+    $ref: 'PPMDocumentStatusReason.yaml'
+  eTag:
+    type: string
+    readOnly: true
+required:
+  - ppmShipmentId
+  - createdAt
+  - updatedAt
+  - emptyDocumentId
+  - emptyDocument
+  - fullDocument
+  - fullDocumentId
+  - proofOfTrailerOwnershipDocument
+  - proofOfTrailerOwnershipDocumentId
