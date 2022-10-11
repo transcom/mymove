@@ -18,13 +18,17 @@ const ShipmentEvaluationReports = ({
   setIsDeleteModalOpen,
   deleteReport,
   isDeleteModalOpen,
+  destinationDutyLocationPostalCode,
 }) => {
   const sortedShipments = shipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
 
   const shipmentRows = sortedShipments.map((shipment) => {
     return (
       <div key={shipment.id} className={styles.shipmentRow}>
-        <EvaluationReportShipmentInfo shipment={shipment} />
+        <EvaluationReportShipmentInfo
+          shipment={shipment}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
+        />
         <EvaluationReportTable
           moveCode={moveCode}
           reports={reports.filter((r) => r.shipmentID === shipment.id)}
@@ -55,6 +59,7 @@ ShipmentEvaluationReports.propTypes = {
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 ShipmentEvaluationReports.defaultProps = {
   reports: [],

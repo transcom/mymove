@@ -183,7 +183,7 @@ const ShipmentInfoList = ({
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
       <dt>Destination address</dt>
-      <dd data-testid="destinationAddress">{formatAddress(destinationAddress)}</dd>
+      <dd data-testid="destinationAddress">{destinationAddress ? formatAddress(destinationAddress) : '—'}</dd>
     </div>
   );
 
