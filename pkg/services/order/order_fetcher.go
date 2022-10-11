@@ -342,18 +342,17 @@ func gblocFilterForPPMCloseoutForNavyMarineAndCG(gbloc *string) QueryOption {
 	// For PPM Closeout the SC should see moves that have ppm shipments
 	// And the GBLOC should map to the service member's affiliation
 	navyGbloc := "NAVY"
-	// tvcbGbloc := "TVCB"
-	// uscgGbloc := "USCG"
+	tvcbGbloc := "TVCB"
+	uscgGbloc := "USCG"
 	return func(query *pop.Query) {
 		if gbloc != nil {
 			if *gbloc == navyGbloc {
 				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationNAVY, models.PPMShipmentStatusNeedsPaymentApproval)
-			} 
-			// else if gbloc == &tvcbGbloc {
-			// 	query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationMARINES, models.PPMShipmentStatusNeedsPaymentApproval)
-			// } else if gbloc == &uscgGbloc {
-			// 	query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationCOASTGUARD, models.PPMShipmentStatusNeedsPaymentApproval)
-			// }
+			} else if *gbloc == tvcbGbloc {
+				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationMARINES, models.PPMShipmentStatusNeedsPaymentApproval)
+			} else if *gbloc == uscgGbloc {
+				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationCOASTGUARD, models.PPMShipmentStatusNeedsPaymentApproval)
+			}
 		}
 	}
 }
