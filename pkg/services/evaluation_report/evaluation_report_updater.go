@@ -51,6 +51,23 @@ func (u evaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppCon
 	evaluationReport.MoveID = originalReport.MoveID
 	evaluationReport.ShipmentID = originalReport.ShipmentID
 	evaluationReport.Type = originalReport.Type
+
+	if evaluationReport.ViolationsObserved != nil && !*evaluationReport.ViolationsObserved {
+		// Check to see if there are existing report_violations for this report
+		existingReportViolations := models.ReportViolations{}
+		err = appCtx.DB().Where("report_id = ?", evaluationReport.ID).All(&existingReportViolations)
+		if err != nil {
+			return err
+		}
+		// Delete the existing reportViolations
+		if len(existingReportViolations) > 0 {
+			err = appCtx.DB().Destroy(existingReportViolations)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	verrs, err := appCtx.DB().ValidateAndSave(evaluationReport)
 	if err != nil {
 		return err

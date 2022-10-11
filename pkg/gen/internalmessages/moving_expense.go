@@ -68,8 +68,8 @@ type MovingExpense struct {
 	// Format: uuid
 	PpmShipmentID strfmt.UUID `json:"ppmShipmentId"`
 
-	// The reason the services counselor has excluded or rejected the moving expense
-	Reason *string `json:"reason"`
+	// reason
+	Reason *PPMDocumentStatusReason `json:"reason"`
 
 	// The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
 	// Example: 2018-05-26
@@ -82,7 +82,7 @@ type MovingExpense struct {
 	SitStartDate *strfmt.Date `json:"sitStartDate"`
 
 	// status
-	Status PPMDocumentStatus `json:"status,omitempty"`
+	Status *PPMDocumentStatus `json:"status"`
 
 	// Timestamp when a property of this moving expense object was last modified (UTC)
 	// Required: true
@@ -115,6 +115,10 @@ func (m *MovingExpense) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePpmShipmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -218,6 +222,25 @@ func (m *MovingExpense) validatePpmShipmentID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MovingExpense) validateReason(formats strfmt.Registry) error {
+	if swag.IsZero(m.Reason) { // not required
+		return nil
+	}
+
+	if m.Reason != nil {
+		if err := m.Reason.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("reason")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("reason")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MovingExpense) validateSitEndDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.SitEndDate) { // not required
 		return nil
@@ -247,13 +270,15 @@ func (m *MovingExpense) validateStatus(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.Status.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
+	if m.Status != nil {
+		if err := m.Status.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("status")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -293,6 +318,10 @@ func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Regi
 	}
 
 	if err := m.contextValidatePpmShipmentID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateReason(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -356,15 +385,33 @@ func (m *MovingExpense) contextValidatePpmShipmentID(ctx context.Context, format
 	return nil
 }
 
+func (m *MovingExpense) contextValidateReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Reason != nil {
+		if err := m.Reason.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("reason")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("reason")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MovingExpense) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.Status.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("status")
+	if m.Status != nil {
+		if err := m.Status.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("status")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

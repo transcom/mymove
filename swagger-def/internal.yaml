@@ -1022,6 +1022,10 @@ definitions:
       proofOfTrailerOwnershipDocument:
         title: Proof of Trailer Ownership Document
         $ref: '#/definitions/DocumentPayload'
+      status:
+        $ref: 'definitions/PPMDocumentStatus.yaml'
+      reason:
+        $ref: 'definitions/PPMDocumentStatusReason.yaml'
       eTag:
         type: string
         readOnly: true

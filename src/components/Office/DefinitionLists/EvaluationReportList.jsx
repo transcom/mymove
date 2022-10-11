@@ -12,6 +12,13 @@ const capitalizeFirstLetterOnly = ([first, ...restOfString]) => {
   return first.toUpperCase() + restOfString.join('').toLowerCase();
 };
 
+const inspectionTypeFormatting = (inspectionType) => {
+  if (inspectionType === 'DATA_REVIEW') {
+    return 'Data review';
+  }
+  return capitalizeFirstLetterOnly(inspectionType);
+};
+
 const convertToHoursAndMinutes = (totalMinutes) => {
   // divide and round down to get hours
   const hours = Math.floor(totalMinutes / 60);
@@ -26,7 +33,7 @@ const EvaluationReportList = ({ evaluationReport }) => {
       <dl className={descriptionListStyles.descriptionList}>
         <div className={classnames(descriptionListStyles.row, descriptionListStyles.noBorder)}>
           <dt>Evaluation type</dt>
-          <dd>{capitalizeFirstLetterOnly(evaluationReport.type)}</dd>
+          <dd>{evaluationReport.inspectionType ? inspectionTypeFormatting(evaluationReport.inspectionType) : ''}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Evaluation location</dt>
