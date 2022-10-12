@@ -1,6 +1,6 @@
 import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/updateOrder';
+import e from 'constants/MoveHistory/EventTemplates/updateOrders/updateOrder';
 
 describe('when given an Order update history record', () => {
   const item = {
