@@ -545,13 +545,13 @@ func NewCallbackHandler(ac Context, hc handlers.HandlerConfig, sender notificati
 	return handler
 }
 
-// InvalidPermissionsResponse generates an http response when invalid
+// invalidPermissionsResponse generates an http response when invalid
 // permissions are encountered. It *also* saves the session
 // information. This is needed so we have the necessary info to create
 // a redirect to logout of login.gov
-func (h CallbackHandler) InvalidPermissionsResponse(appCtx appcontext.AppContext, w http.ResponseWriter, r *http.Request) {
+func invalidPermissionsResponse(appCtx appcontext.AppContext, handlerConfig handlers.HandlerConfig, authContext Context, w http.ResponseWriter, r *http.Request) {
 
-	sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
+	sessionManager := handlerConfig.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
 	_, _, err := sessionManager.Commit(r.Context())
 	if err != nil {
 		appCtx.Logger().Error("Failed to write invalid permissions user session to store", zap.Error(err))
@@ -565,14 +565,14 @@ func (h CallbackHandler) InvalidPermissionsResponse(appCtx appcontext.AppContext
 		return
 	}
 
-	rawLandingURL := h.landingURL(appCtx.Session()) + "invalid-permissions"
+	rawLandingURL := authContext.landingURL(appCtx.Session()) + "invalid-permissions"
 	landingURL, err := url.Parse(rawLandingURL)
 	if err != nil {
 		appCtx.Logger().Error("Error parsing invalid permissions url", zap.Any("url", rawLandingURL))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	traceID := h.GetTraceIDFromRequest(r)
+	traceID := handlerConfig.GetTraceIDFromRequest(r)
 	if !traceID.IsNil() {
 		landingQuery := landingURL.Query()
 		landingQuery.Add("traceId", traceID.String())
@@ -742,7 +742,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 			zap.String("application_name", string(appCtx.Session().ApplicationName)),
 			zap.String("hostname", appCtx.Session().Hostname),
 			zap.String("user_id", appCtx.Session().UserID.String()))
-		h.InvalidPermissionsResponse(appCtx, w, r)
+		invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
 		return false
 	}
 	appCtx.Session().Roles = append(appCtx.Session().Roles, userIdentity.Roles...)
@@ -759,7 +759,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 				zap.String("application_name", string(appCtx.Session().ApplicationName)),
 				zap.String("hostname", appCtx.Session().Hostname),
 				zap.String("user_id", appCtx.Session().UserID.String()))
-			h.InvalidPermissionsResponse(appCtx, w, r)
+			invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
 			return false
 		}
 		if userIdentity.OfficeUserID != nil {
@@ -772,7 +772,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 					zap.String("application_name", string(appCtx.Session().ApplicationName)),
 					zap.String("hostname", appCtx.Session().Hostname),
 					zap.String("user_id", appCtx.Session().UserID.String()))
-				h.InvalidPermissionsResponse(appCtx, w, r)
+				invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
 				return false
 			} else if err != nil {
 				appCtx.Logger().Error("Checking for office user during authorization",
@@ -800,7 +800,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 				zap.String("application_name", string(appCtx.Session().ApplicationName)),
 				zap.String("hostname", appCtx.Session().Hostname),
 				zap.String("user_id", appCtx.Session().UserID.String()))
-			h.InvalidPermissionsResponse(appCtx, w, r)
+			invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
 			return false
 		}
 		if userIdentity.AdminUserID != nil {
@@ -818,7 +818,7 @@ var authorizeKnownUser = func(appCtx appcontext.AppContext, userIdentity *models
 			if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 				appCtx.Logger().Error("No admin user found during authorization",
 					zap.String("user_id", appCtx.Session().UserID.String()))
-				h.InvalidPermissionsResponse(appCtx, w, r)
+				invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
 				return false
 			} else if err != nil {
 				appCtx.Logger().Error("Checking for admin user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
@@ -879,7 +879,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 			appCtx.Logger().Error("Unauthorized: No Office user found",
 				zap.String("OID_User", openIDUser.UserID),
 				zap.String("OID_Email", openIDUser.Email))
-			h.InvalidPermissionsResponse(appCtx, w, r)
+			invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
 			return false
 		} else if err != nil {
 			appCtx.Logger().Error("Authorization checking for office user",
@@ -893,7 +893,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 			appCtx.Logger().Error("Unauthorized: Office user deactivated",
 				zap.String("OID_User", openIDUser.UserID),
 				zap.String("OID_Email", openIDUser.Email))
-			h.InvalidPermissionsResponse(appCtx, w, r)
+			invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
 			return false
 		}
 		user = &officeUser.User
@@ -911,7 +911,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 			appCtx.Logger().Error("Unauthorized: No admin user found",
 				zap.String("OID_User", openIDUser.UserID),
 				zap.String("OID_Email", openIDUser.Email))
-			h.InvalidPermissionsResponse(appCtx, w, r)
+			invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
 			return false
 		} else if err != nil {
 			appCtx.Logger().Error("Authorization checking for admin user",
@@ -925,7 +925,7 @@ var authorizeUnknownUser = func(appCtx appcontext.AppContext, openIDUser goth.Us
 			appCtx.Logger().Error("Unauthorized: Admin user deactivated",
 				zap.String("OID_User", openIDUser.UserID),
 				zap.String("OID_Email", openIDUser.Email))
-			h.InvalidPermissionsResponse(appCtx, w, r)
+			invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
 			return false
 		}
 		user = &adminUser.User
