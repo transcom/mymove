@@ -642,7 +642,11 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			zap.String("stateCookieName", stateCookieName),
 			zap.String("sessionUserId", appCtx.Session().UserID.String()),
 			zap.Error(err))
-		http.Error(w, http.StatusText(403), http.StatusForbidden)
+		landingQuery := landingURL.Query()
+		landingQuery.Add("error", "STATE_COOKIE_MISSING")
+		landingURL.RawQuery = landingQuery.Encode()
+		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
+		appCtx.Logger().Info("User redirected from login.gov", zap.String("landingURL", landingURL.String()))
 		return
 	}
 
