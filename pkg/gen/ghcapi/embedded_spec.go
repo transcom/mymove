@@ -2717,6 +2717,66 @@ func init() {
         ]
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
+      "patch": {
+        "description": "Updates a moving expense with new information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates the moving expense",
+        "operationId": "updateMovingExpense",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ifMatch"
+          },
+          {
+            "name": "updateMovingExpense",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMovingExpense"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated moving expense object",
+            "schema": {
+              "$ref": "#/definitions/MovingExpense"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        },
+        {
+          "$ref": "#/parameters/movingExpenseId"
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
       "patch": {
         "description": "Updates a weight ticket document with new information",
@@ -7894,6 +7954,43 @@ func init() {
         }
       }
     },
+    "UpdateMovingExpense": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "integer"
+        },
+        "description": {
+          "type": "string"
+        },
+        "missingReceipt": {
+          "type": "boolean"
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "paidWithGTCC": {
+          "type": "boolean"
+        },
+        "reason": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string"
+        },
+        "sitEndDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-05-26"
+        },
+        "sitStartDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2022-04-26"
+        },
+        "status": {
+          "$ref": "#/definitions/BasePPMDocumentStatus"
+        }
+      }
+    },
     "UpdateOrderPayload": {
       "type": "object",
       "required": [
@@ -8439,6 +8536,14 @@ func init() {
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
       "name": "If-Match",
       "in": "header",
+      "required": true
+    },
+    "movingExpenseId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the moving expense",
+      "name": "movingExpenseId",
+      "in": "path",
       "required": true
     },
     "ppmShipmentId": {
@@ -11992,6 +12097,101 @@ func init() {
           "update.paymentRequest"
         ]
       }
+    },
+    "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
+      "patch": {
+        "description": "Updates a moving expense with new information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates the moving expense",
+        "operationId": "updateMovingExpense",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "updateMovingExpense",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMovingExpense"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated moving expense object",
+            "schema": {
+              "$ref": "#/definitions/MovingExpense"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the moving expense",
+          "name": "movingExpenseId",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
       "patch": {
@@ -17485,6 +17685,43 @@ func init() {
         }
       }
     },
+    "UpdateMovingExpense": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "integer"
+        },
+        "description": {
+          "type": "string"
+        },
+        "missingReceipt": {
+          "type": "boolean"
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "paidWithGTCC": {
+          "type": "boolean"
+        },
+        "reason": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string"
+        },
+        "sitEndDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-05-26"
+        },
+        "sitStartDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2022-04-26"
+        },
+        "status": {
+          "$ref": "#/definitions/BasePPMDocumentStatus"
+        }
+      }
+    },
     "UpdateOrderPayload": {
       "type": "object",
       "required": [
@@ -18037,6 +18274,14 @@ func init() {
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
       "name": "If-Match",
       "in": "header",
+      "required": true
+    },
+    "movingExpenseId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the moving expense",
+      "name": "movingExpenseId",
+      "in": "path",
       "required": true
     },
     "ppmShipmentId": {
