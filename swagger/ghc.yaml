@@ -1301,6 +1301,42 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
+  /ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+      - $ref: '#/parameters/weightTicketId'
+    patch:
+      summary: Updates a weight ticket document
+      description: Updates a weight ticket document with new information
+      operationId: updateWeightTicket
+      tags:
+        - ppmShipment
+      parameters:
+        - $ref: '#/parameters/ifMatch'
+        - in: body
+          name: updateWeightTicketPayload
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateWeightTicket'
+      responses:
+        '200':
+          description: returns an updated weight ticket object
+          schema:
+            $ref: '#/definitions/WeightTicket'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents:
     parameters:
       - description: ID of move task order
@@ -4112,6 +4148,38 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+  UpdateWeightTicket:
+    type: object
+    properties:
+      vehicleDescription:
+        type: string
+        description: Vehicle description (ex. 'SUV')
+      emptyWeight:
+        type: integer
+        description: Empty Recorded Weight
+        minimum: 0
+      missingEmptyWeightTicket:
+        type: boolean
+        description: has empty weight ticket
+      fullWeight:
+        description: full weight ticket recorded weight
+        type: integer
+        minimum: 0
+      missingFullWeightTicket:
+        description: has full weight ticket
+        type: boolean
+      ownsTrailer:
+        description: Owns trailer
+        type: boolean
+      trailerMeetsCriteria:
+        description: Trailer meets criteria
+        type: boolean
+        x-nullable: true
+      status:
+        $ref: '#/definitions/BasePPMDocumentStatus'
+      reason:
+        description: The reason the services counselor has excluded or rejected the item.
+        type: string
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -6219,6 +6287,17 @@ definitions:
     enum:
       - HHG
       - NTS
+  BasePPMDocumentStatus:
+    type: string
+    title: PPM document status
+    enum:
+      - APPROVED
+      - EXCLUDED
+      - REJECTED
+    x-display-value:
+      APPROVED: Approved
+      EXCLUDED: Excluded
+      REJECTED: Rejected
   ServiceItemParamName:
     type: string
     enum:
@@ -6392,3 +6471,17 @@ parameters:
       Optimistic locking is implemented via the `If-Match` header. If the ETag
       header does not match the value of the resource on the server, the server
       rejects the change with a `412 Precondition Failed` error.
+  ppmShipmentId:
+    name: ppmShipmentId
+    in: path
+    type: string
+    format: uuid
+    required: true
+    description: UUID of the PPM shipment
+  weightTicketId:
+    name: weightTicketId
+    in: path
+    type: string
+    format: uuid
+    required: true
+    description: UUID of the weight ticket

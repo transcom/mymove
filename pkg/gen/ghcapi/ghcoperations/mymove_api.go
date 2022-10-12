@@ -31,6 +31,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm_shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
@@ -255,6 +256,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PaymentServiceItemUpdatePaymentServiceItemStatusHandler: payment_service_item.UpdatePaymentServiceItemStatusHandlerFunc(func(params payment_service_item.UpdatePaymentServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_service_item.UpdatePaymentServiceItemStatus has not yet been implemented")
 		}),
+		PpmShipmentUpdateWeightTicketHandler: ppm_shipment.UpdateWeightTicketHandlerFunc(func(params ppm_shipment.UpdateWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm_shipment.UpdateWeightTicket has not yet been implemented")
+		}),
 	}
 }
 
@@ -428,6 +432,8 @@ type MymoveAPI struct {
 	PaymentRequestsUpdatePaymentRequestStatusHandler payment_requests.UpdatePaymentRequestStatusHandler
 	// PaymentServiceItemUpdatePaymentServiceItemStatusHandler sets the operation handler for the update payment service item status operation
 	PaymentServiceItemUpdatePaymentServiceItemStatusHandler payment_service_item.UpdatePaymentServiceItemStatusHandler
+	// PpmShipmentUpdateWeightTicketHandler sets the operation handler for the update weight ticket operation
+	PpmShipmentUpdateWeightTicketHandler ppm_shipment.UpdateWeightTicketHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -702,6 +708,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentServiceItemUpdatePaymentServiceItemStatusHandler == nil {
 		unregistered = append(unregistered, "payment_service_item.UpdatePaymentServiceItemStatusHandler")
+	}
+	if o.PpmShipmentUpdateWeightTicketHandler == nil {
+		unregistered = append(unregistered, "ppm_shipment.UpdateWeightTicketHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -1053,6 +1062,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status"] = payment_service_item.NewUpdatePaymentServiceItemStatus(o.context, o.PaymentServiceItemUpdatePaymentServiceItemStatusHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}"] = ppm_shipment.NewUpdateWeightTicket(o.context, o.PpmShipmentUpdateWeightTicketHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

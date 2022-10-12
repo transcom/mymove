@@ -2717,6 +2717,66 @@ func init() {
         ]
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
+      "patch": {
+        "description": "Updates a weight ticket document with new information",
+        "tags": [
+          "ppmShipment"
+        ],
+        "summary": "Updates a weight ticket document",
+        "operationId": "updateWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ifMatch"
+          },
+          {
+            "name": "updateWeightTicketPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/WeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        },
+        {
+          "$ref": "#/parameters/weightTicketId"
+        }
+      ]
+    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -4190,6 +4250,20 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
+      }
+    },
+    "BasePPMDocumentStatus": {
+      "type": "string",
+      "title": "PPM document status",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
       }
     },
     "ClientError": {
@@ -8126,6 +8200,47 @@ func init() {
         }
       }
     },
+    "UpdateWeightTicket": {
+      "type": "object",
+      "properties": {
+        "emptyWeight": {
+          "description": "Empty Recorded Weight",
+          "type": "integer"
+        },
+        "fullWeight": {
+          "description": "full weight ticket recorded weight",
+          "type": "integer"
+        },
+        "missingEmptyWeightTicket": {
+          "description": "has empty weight ticket",
+          "type": "boolean"
+        },
+        "missingFullWeightTicket": {
+          "description": "has full weight ticket",
+          "type": "boolean"
+        },
+        "ownsTrailer": {
+          "description": "Owns trailer",
+          "type": "boolean"
+        },
+        "reason": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/BasePPMDocumentStatus"
+        },
+        "trailerMeetsCriteria": {
+          "description": "Trailer meets criteria",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "vehicleDescription": {
+          "description": "Vehicle description (ex. 'SUV')",
+          "type": "string"
+        }
+      }
+    },
     "UploadPayload": {
       "type": "object",
       "required": [
@@ -8324,6 +8439,22 @@ func init() {
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
       "name": "If-Match",
       "in": "header",
+      "required": true
+    },
+    "ppmShipmentId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the PPM shipment",
+      "name": "ppmShipmentId",
+      "in": "path",
+      "required": true
+    },
+    "weightTicketId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the weight ticket",
+      "name": "weightTicketId",
+      "in": "path",
       "required": true
     }
   },
@@ -11862,6 +11993,101 @@ func init() {
         ]
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
+      "patch": {
+        "description": "Updates a weight ticket document with new information",
+        "tags": [
+          "ppmShipment"
+        ],
+        "summary": "Updates a weight ticket document",
+        "operationId": "updateWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "updateWeightTicketPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateWeightTicket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns an updated weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/WeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the weight ticket",
+          "name": "weightTicketId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/pws-violations": {
       "get": {
         "description": "Fetch the possible PWS violations for an evaluation report",
@@ -13602,6 +13828,20 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
+      }
+    },
+    "BasePPMDocumentStatus": {
+      "type": "string",
+      "title": "PPM document status",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
       }
     },
     "ClientError": {
@@ -17551,6 +17791,49 @@ func init() {
         }
       }
     },
+    "UpdateWeightTicket": {
+      "type": "object",
+      "properties": {
+        "emptyWeight": {
+          "description": "Empty Recorded Weight",
+          "type": "integer",
+          "minimum": 0
+        },
+        "fullWeight": {
+          "description": "full weight ticket recorded weight",
+          "type": "integer",
+          "minimum": 0
+        },
+        "missingEmptyWeightTicket": {
+          "description": "has empty weight ticket",
+          "type": "boolean"
+        },
+        "missingFullWeightTicket": {
+          "description": "has full weight ticket",
+          "type": "boolean"
+        },
+        "ownsTrailer": {
+          "description": "Owns trailer",
+          "type": "boolean"
+        },
+        "reason": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/BasePPMDocumentStatus"
+        },
+        "trailerMeetsCriteria": {
+          "description": "Trailer meets criteria",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "vehicleDescription": {
+          "description": "Vehicle description (ex. 'SUV')",
+          "type": "string"
+        }
+      }
+    },
     "UploadPayload": {
       "type": "object",
       "required": [
@@ -17754,6 +18037,22 @@ func init() {
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
       "name": "If-Match",
       "in": "header",
+      "required": true
+    },
+    "ppmShipmentId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the PPM shipment",
+      "name": "ppmShipmentId",
+      "in": "path",
+      "required": true
+    },
+    "weightTicketId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the weight ticket",
+      "name": "weightTicketId",
+      "in": "path",
       "required": true
     }
   },
