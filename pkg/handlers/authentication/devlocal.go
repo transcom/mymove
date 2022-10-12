@@ -962,18 +962,6 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		return nil, errors.New("Cannot determine session manager")
 	}
 
-	// DREW DEBUG
-	// ctx, err := sessionManager.Load(r.Context(), session.IDToken)
-	// if err != nil {
-	// 	appCtx.Logger().Error("Cannot load session from context", zap.Error(err))
-	// 	return nil, err
-	// }
-	// _, _, err = sessionManager.Commit(ctx)
-	// if err != nil {
-	// 	appCtx.Logger().Error("Cannot commit session to context", zap.Error(err))
-	// 	return nil, err
-	// }
-
 	sessionManager.Put(r.Context(), "session", session)
 	// Writing out the session cookie logs in the user
 	appCtx.Logger().Info("logged in", zap.Any("session", session))
