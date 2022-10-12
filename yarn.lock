@@ -17245,10 +17245,10 @@ ra-core@^3.19.11:
     query-string "^5.1.1"
     reselect "~3.0.0"
 
-ra-core@^4.4.0:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.4.0.tgz#001e1d31598677ebddff35666dab4ad6de228ea3"
-  integrity sha512-/Ze5bEi8KCVjStzGlYW0Ke6YejnM/GLpbaKeCGYd8jPhD8IDXzmb3d9dPkpVrl8XY2T+BDR7TlYC0gvUYWPbQQ==
+ra-core@^4.4.1:
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.4.1.tgz#4e68e33c3143c08618f25fc464272e7c8b73ae2e"
+  integrity sha512-opDq9ZxVQCIT3M+TX88l2xVxvFSwrbTpRwYC92WTJI17zgiQNnBN5PAEpOi10G80hf65deB138L3HzheM8eQCg==
   dependencies:
     clsx "^1.1.1"
     date-fns "^2.19.0"
@@ -17283,12 +17283,12 @@ ra-language-english@^3.19.11:
   dependencies:
     ra-core "^3.19.11"
 
-ra-language-english@^4.4.0:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.4.0.tgz#8179a290f52b36737b9ceafb74ba45bf807169cc"
-  integrity sha512-M8f6h92s/YFaci/6UWPaNPUZYNhEnasOAFDfvCYyGnvYK2z93WGdPLKmtyAdo9BGz2N0JVwfS5+6Yo2dOez+uw==
+ra-language-english@^4.4.1:
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.4.1.tgz#c37d951c29eb053dc59a1dd9d11f65c74a8d92e8"
+  integrity sha512-HT3LazuxPjHiNAeR+lail8/rb3AuQd62UVwUK0NMf70TYkSthShsnubadqzgx8hRROnk/EvzRFpBWBUvMuUe2g==
   dependencies:
-    ra-core "^4.4.0"
+    ra-core "^4.4.1"
 
 ra-ui-materialui@^3.19.11:
   version "3.19.11"
