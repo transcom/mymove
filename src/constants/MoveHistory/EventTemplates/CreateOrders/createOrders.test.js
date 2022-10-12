@@ -1,5 +1,5 @@
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/createOrders';
+import e from 'constants/MoveHistory/EventTemplates/CreateOrders/createOrders';
 
 describe('when given a Submitted orders history record', () => {
   const item = {
