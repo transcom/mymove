@@ -27,6 +27,10 @@ type UpdateMovingExpense struct {
 	// Required: true
 	Description *string `json:"description"`
 
+	// e tag
+	// Read Only: true
+	ETag string `json:"eTag,omitempty"`
+
 	// missing receipt
 	// Required: true
 	MissingReceipt *bool `json:"missingReceipt"`
@@ -176,6 +180,10 @@ func (m *UpdateMovingExpense) validateSitStartDate(formats strfmt.Registry) erro
 func (m *UpdateMovingExpense) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMovingExpenseType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -183,6 +191,15 @@ func (m *UpdateMovingExpense) ContextValidate(ctx context.Context, formats strfm
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *UpdateMovingExpense) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
 	return nil
 }
 

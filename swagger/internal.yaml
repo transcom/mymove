@@ -868,6 +868,9 @@ definitions:
         type: string
         example: '2018-05-26'
         format: date
+      eTag:
+        type: string
+        readOnly: true
     required:
       - movingExpenseType
       - description
@@ -2260,7 +2263,7 @@ definitions:
         description: zip code, international allowed
         format: zip
         title: ZIP
-        example: '''90210'' or ''N15 3NL'''
+        example: "'90210' or 'N15 3NL'"
       postal_code_type:
         type: string
         enum:
@@ -3000,7 +3003,7 @@ definitions:
       - RENTAL_EQUIPMENT
       - STORAGE
       - TOLLS
-      - WEIGHING_FEES
+      - WEIGHING_FEE
     x-display-value:
       CONTRACTED_EXPENSE: Contracted expense
       GAS: Gas
@@ -3010,7 +3013,7 @@ definitions:
       STORAGE: Storage
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
-      WEIGHING_FEES: Weighing fees
+      WEIGHING_FEE: Weighing fees
   MovingExpense:
     description: >-
       Expense information and receipts of costs incurred that can be reimbursed
