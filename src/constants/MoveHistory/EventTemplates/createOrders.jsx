@@ -1,6 +1,5 @@
 import React from 'react';
 
-import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import t from 'constants/MoveHistory/Database/Tables';
 import a from 'constants/MoveHistory/Database/Actions';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
@@ -10,14 +9,13 @@ export default {
   action: a.INSERT,
   eventName: o.createOrders,
   tableName: t.orders,
-  detailsType: d.PLAIN_TEXT,
   getEventNameDisplay: () => 'Created orders',
   getDetails: (historyRecord) => {
-    const getDetailsLabeledDetails = (history) => {
+    const getDetailsLabeledDetails = ({ context, changedValues }) => {
       const newChangedValues = {
-        new_duty_location_name: history.context[0]?.new_duty_location_name,
-        origin_duty_location_name: history.context[0]?.origin_duty_location_name,
-        ...history.changedValues,
+        new_duty_location_name: context[0]?.new_duty_location_name,
+        origin_duty_location_name: context[0]?.origin_duty_location_name,
+        ...changedValues,
       };
 
       return newChangedValues;
