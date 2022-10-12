@@ -2312,10 +2312,10 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@faker-js/faker@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-7.5.0.tgz#8e8265f65f5b68d2a57886d59b03788eeb676264"
-  integrity sha512-8wNUCCUHvfvI0gQpDUho/3gPzABffnCn5um65F8dzQ86zz6dlt4+nmAA7PQUc8L+eH+9RgR/qzy5N/8kN0Ozdw==
+"@faker-js/faker@^7.6.0":
+  version "7.6.0"
+  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-7.6.0.tgz#9ea331766084288634a9247fcd8b84f16ff4ba07"
+  integrity sha512-XK6BTq1NDMo9Xqw/YkYyGjSsg44fbNwYRx7QK2CuoQgyy+f1rrTDHoExVM5PsyXCtfl2vs2vVJ0MN0yN6LppRw==
 
 "@fortawesome/fontawesome-common-types@6.1.2":
   version "6.1.2"
@@ -4876,10 +4876,10 @@
     react-visibility-sensor "^5.0.2"
     three "0.137.0"
 
-"@trussworks/react-uswds@3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-3.1.0.tgz#aa5c7de53dec34b2f92dc83f225d633e1f8031de"
-  integrity sha512-4krdLn8LGgr3EwOsizUF6cBLnwDS6x0WgJjjGk59kNBpgH4qiv8YGzic3HYaVr8xWBq36VpEEfGeQZnjYGMegw==
+"@trussworks/react-uswds@3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-3.2.0.tgz#3193b968419837895444a6e9e72a832bd7afcb84"
+  integrity sha512-wZYK03JoP+BwzBaJ3AN5jG5nmsIQokTk863zKo+zkEiynbUAeXLd+IZUKu+yTjfc4RpSlt1aIEo+sxaQZSu10A==
 
 "@trysound/sax@0.2.0":
   version "0.2.0"
@@ -17245,10 +17245,10 @@ ra-core@^3.19.11:
     query-string "^5.1.1"
     reselect "~3.0.0"
 
-ra-core@^4.4.0:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.4.0.tgz#001e1d31598677ebddff35666dab4ad6de228ea3"
-  integrity sha512-/Ze5bEi8KCVjStzGlYW0Ke6YejnM/GLpbaKeCGYd8jPhD8IDXzmb3d9dPkpVrl8XY2T+BDR7TlYC0gvUYWPbQQ==
+ra-core@^4.4.1:
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-4.4.1.tgz#4e68e33c3143c08618f25fc464272e7c8b73ae2e"
+  integrity sha512-opDq9ZxVQCIT3M+TX88l2xVxvFSwrbTpRwYC92WTJI17zgiQNnBN5PAEpOi10G80hf65deB138L3HzheM8eQCg==
   dependencies:
     clsx "^1.1.1"
     date-fns "^2.19.0"
@@ -17283,12 +17283,12 @@ ra-language-english@^3.19.11:
   dependencies:
     ra-core "^3.19.11"
 
-ra-language-english@^4.4.0:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.4.0.tgz#8179a290f52b36737b9ceafb74ba45bf807169cc"
-  integrity sha512-M8f6h92s/YFaci/6UWPaNPUZYNhEnasOAFDfvCYyGnvYK2z93WGdPLKmtyAdo9BGz2N0JVwfS5+6Yo2dOez+uw==
+ra-language-english@^4.4.1:
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-4.4.1.tgz#c37d951c29eb053dc59a1dd9d11f65c74a8d92e8"
+  integrity sha512-HT3LazuxPjHiNAeR+lail8/rb3AuQd62UVwUK0NMf70TYkSthShsnubadqzgx8hRROnk/EvzRFpBWBUvMuUe2g==
   dependencies:
-    ra-core "^4.4.0"
+    ra-core "^4.4.1"
 
 ra-ui-materialui@^3.19.11:
   version "3.19.11"
@@ -19802,10 +19802,10 @@ swagger-client@^3.18.5:
     traverse "~0.6.6"
     url "~0.11.0"
 
-swagger-ui-dist@^4.14.2:
-  version "4.14.2"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.14.2.tgz#fbcacc7efae64c94f7335810d7ee8f93b6c65400"
-  integrity sha512-kOIU7Ts3TrXDLb3/c9jRe4qGp8O3bRT19FFJA8wJfrRFkcK/4atPn3krhtBVJ57ZkNNofworXHxuYwmaisXBdg==
+swagger-ui-dist@^4.14.3:
+  version "4.14.3"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.14.3.tgz#02aeaf61ec35aa85a4ed17f4b6b7417c00526c1f"
+  integrity sha512-Y7Sta24I9r+G6dX3ZTIq9Psr55cDC3myCB0E00ZnVkB0Wn3cO77NdLXSM0f90WZh9VpgTetKpMPR3n2VqKr+lQ==
 
 symbol-tree@^3.2.4:
   version "3.2.4"
