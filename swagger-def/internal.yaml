@@ -4229,12 +4229,7 @@ paths:
       tags:
         - ppm
       parameters:
-        - name: ppmShipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppm
+        - $ref: 'parameters/ppmShipmentId.yaml'
       responses:
         '200':
           description: returns new moving expense object
@@ -4260,25 +4255,9 @@ paths:
       tags:
         - ppm
       parameters:
-        - in: path
-          name: ppmShipmentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppm shipment
-        - in: path
-          name: movingExpenseId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the moving expense
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ppmShipmentId.yaml'
+        - $ref: 'parameters/movingExpenseId.yaml'
+        - $ref: 'parameters/ifMatch.yaml'
         - in: body
           name: updateMovingExpense
           required: true
@@ -4311,12 +4290,7 @@ paths:
       tags:
         - ppm
       parameters:
-        - name: ppmShipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppm shipment
+        - $ref: 'parameters/ppmShipmentId.yaml'
       responses:
         '200':
           description: returns new weight ticket object
@@ -4342,25 +4316,9 @@ paths:
       tags:
         - ppm
       parameters:
-        - name: ppmShipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppm shipment
-        - name: weightTicketId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the weight ticket
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ppmShipmentId.yaml'
+        - $ref: 'parameters/weightTicketId.yaml'
+        - $ref: 'parameters/ifMatch.yaml'
         - in: body
           name: updateWeightTicketPayload
           required: true

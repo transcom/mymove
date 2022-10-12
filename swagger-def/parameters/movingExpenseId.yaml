@@ -1,0 +1,6 @@
+name: movingExpenseId
+in: path
+type: string
+format: uuid
+required: true
+description: UUID of the moving expense

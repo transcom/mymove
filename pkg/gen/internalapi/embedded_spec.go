@@ -2270,12 +2270,7 @@ func init() {
         "operationId": "createMovingExpense",
         "parameters": [
           {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppm",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
+            "$ref": "#/parameters/ppmShipmentId"
           }
         ],
         "responses": {
@@ -2316,27 +2311,13 @@ func init() {
         "operationId": "updateMovingExpense",
         "parameters": [
           {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppm shipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
+            "$ref": "#/parameters/ppmShipmentId"
           },
           {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the moving expense",
-            "name": "movingExpenseId",
-            "in": "path",
-            "required": true
+            "$ref": "#/parameters/movingExpenseId"
           },
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           },
           {
             "name": "updateMovingExpense",
@@ -2388,12 +2369,7 @@ func init() {
         "operationId": "createWeightTicket",
         "parameters": [
           {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppm shipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
+            "$ref": "#/parameters/ppmShipmentId"
           }
         ],
         "responses": {
@@ -2434,27 +2410,13 @@ func init() {
         "operationId": "updateWeightTicket",
         "parameters": [
           {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppm shipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
+            "$ref": "#/parameters/ppmShipmentId"
           },
           {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the weight ticket",
-            "name": "weightTicketId",
-            "in": "path",
-            "required": true
+            "$ref": "#/parameters/weightTicketId"
           },
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           },
           {
             "name": "updateWeightTicketPayload",
@@ -7231,6 +7193,39 @@ func init() {
       "x-nullable": true
     }
   },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    },
+    "movingExpenseId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the moving expense",
+      "name": "movingExpenseId",
+      "in": "path",
+      "required": true
+    },
+    "ppmShipmentId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the PPM shipment",
+      "name": "ppmShipmentId",
+      "in": "path",
+      "required": true
+    },
+    "weightTicketId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the weight ticket",
+      "name": "weightTicketId",
+      "in": "path",
+      "required": true
+    }
+  },
   "responses": {
     "Conflict": {
       "description": "The request could not be processed because of conflict in the current state of the resource.",
@@ -9597,7 +9592,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the ppm",
+            "description": "UUID of the PPM shipment",
             "name": "ppmShipmentId",
             "in": "path",
             "required": true
@@ -9661,7 +9656,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the ppm shipment",
+            "description": "UUID of the PPM shipment",
             "name": "ppmShipmentId",
             "in": "path",
             "required": true
@@ -9754,7 +9749,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the ppm shipment",
+            "description": "UUID of the PPM shipment",
             "name": "ppmShipmentId",
             "in": "path",
             "required": true
@@ -9818,7 +9813,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the ppm shipment",
+            "description": "UUID of the PPM shipment",
             "name": "ppmShipmentId",
             "in": "path",
             "required": true
@@ -14663,6 +14658,39 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    }
+  },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    },
+    "movingExpenseId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the moving expense",
+      "name": "movingExpenseId",
+      "in": "path",
+      "required": true
+    },
+    "ppmShipmentId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the PPM shipment",
+      "name": "ppmShipmentId",
+      "in": "path",
+      "required": true
+    },
+    "weightTicketId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the weight ticket",
+      "name": "weightTicketId",
+      "in": "path",
+      "required": true
     }
   },
   "responses": {
