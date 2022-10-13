@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3.1.0
-        fetch-depth: 0
+        # fetch-depth: 0
         # if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
       - name: reattach HEAD to Head Ref
         # b/c checkout action leaves in detached head state https://github.com/actions/checkout/issues/6
