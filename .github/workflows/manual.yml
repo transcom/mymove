@@ -1,13 +1,8 @@
 name: auto approve and tidy kh
 on:
-  pull_request_target:
+  push:
     branches:
-      - master
-      - kh-test-checkout-fix
-    paths:
-      - '.github/workflows/gosum.yml'
-      - 'go.mod'
-      - 'go.sum'
+      - rogeruiz-patch-1
 
 # job level conditions don't seem to work at the moment
 # https://github.community/t5/GitHub-Actions/Status-of-workflows-with-no-running-jobs/td-p/37160
