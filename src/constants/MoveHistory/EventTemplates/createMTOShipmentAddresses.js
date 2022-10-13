@@ -9,7 +9,7 @@ export default {
   eventName: '*',
   tableName: t.addresses,
   detailsType: d.LABELED,
-  getEventNameDisplay: () => 'Created shipment',
+  getEventNameDisplay: () => 'Updated shipment',
   getDetailsLabeledDetails: ({ changedValues, context }) => {
     const address = formatMoveHistoryFullAddress(changedValues);
 
