@@ -226,4 +226,199 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 			}
 		})
 	})
+
+	suite.Run("verifyReasonAndStatusAreValid", func() {
+		suite.Run("Success", func() {
+			suite.Run("no status or reason", func() {
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.WeightTicket{
+						ID:                       weightTicketID,
+						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
+						EmptyWeight:              models.PoundPointer(2500),
+						MissingEmptyWeightTicket: models.BoolPointer(true),
+						FullWeight:               models.PoundPointer(3300),
+						MissingFullWeightTicket:  models.BoolPointer(true),
+						OwnsTrailer:              models.BoolPointer(false),
+						TrailerMeetsCriteria:     models.BoolPointer(false),
+					},
+					existingWeightTicket,
+				)
+				suite.NilOrNoVerrs(err)
+			})
+
+			// Should pass this check, but fails at the verifications in the model
+			suite.Run("invalid status", func() {
+				status := models.PPMDocumentStatus("random")
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.WeightTicket{
+						ID:                       weightTicketID,
+						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
+						EmptyWeight:              models.PoundPointer(2500),
+						MissingEmptyWeightTicket: models.BoolPointer(true),
+						FullWeight:               models.PoundPointer(3300),
+						MissingFullWeightTicket:  models.BoolPointer(true),
+						OwnsTrailer:              models.BoolPointer(false),
+						TrailerMeetsCriteria:     models.BoolPointer(false),
+						Status:                   &status,
+					},
+					existingWeightTicket,
+				)
+				suite.NilOrNoVerrs(err)
+			})
+
+			suite.Run("excluded with reason", func() {
+				status := models.PPMDocumentStatusExcluded
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.WeightTicket{
+						ID:                       weightTicketID,
+						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
+						EmptyWeight:              models.PoundPointer(2500),
+						MissingEmptyWeightTicket: models.BoolPointer(true),
+						FullWeight:               models.PoundPointer(3300),
+						MissingFullWeightTicket:  models.BoolPointer(true),
+						OwnsTrailer:              models.BoolPointer(false),
+						TrailerMeetsCriteria:     models.BoolPointer(false),
+						Status:                   &status,
+						Reason:                   models.StringPointer("bad data"),
+					},
+					existingWeightTicket,
+				)
+				suite.NilOrNoVerrs(err)
+			})
+
+			suite.Run("approved with no reason", func() {
+				status := models.PPMDocumentStatusApproved
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.WeightTicket{
+						ID:                       weightTicketID,
+						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
+						EmptyWeight:              models.PoundPointer(2500),
+						MissingEmptyWeightTicket: models.BoolPointer(true),
+						FullWeight:               models.PoundPointer(3300),
+						MissingFullWeightTicket:  models.BoolPointer(true),
+						OwnsTrailer:              models.BoolPointer(false),
+						TrailerMeetsCriteria:     models.BoolPointer(false),
+						Status:                   &status,
+						Reason:                   models.StringPointer(""),
+					},
+					existingWeightTicket,
+				)
+				suite.NilOrNoVerrs(err)
+			})
+		})
+
+		suite.Run("Failure", func() {
+			suite.Run("Reason cannot be provided without status", func() {
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.WeightTicket{
+						ID:                       weightTicketID,
+						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
+						EmptyWeight:              models.PoundPointer(2500),
+						MissingEmptyWeightTicket: models.BoolPointer(true),
+						FullWeight:               models.PoundPointer(3300),
+						MissingFullWeightTicket:  models.BoolPointer(true),
+						OwnsTrailer:              models.BoolPointer(false),
+						TrailerMeetsCriteria:     models.BoolPointer(false),
+						Reason:                   models.StringPointer("reason without status"),
+					},
+					existingWeightTicket,
+				)
+
+				switch verr := err.(type) {
+				case *validate.Errors:
+					suite.True(verr.HasAny())
+					suite.Equal(len(verr.Keys()), 1)
+					suite.Contains(verr.Keys(), "Reason")
+					suite.Equal("reason should be empty", err.Error())
+				default:
+					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+				}
+			})
+
+			suite.Run("Reason must be empty when status is approved", func() {
+				status := models.PPMDocumentStatusApproved
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.WeightTicket{
+						ID:                       weightTicketID,
+						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
+						EmptyWeight:              models.PoundPointer(2500),
+						MissingEmptyWeightTicket: models.BoolPointer(true),
+						FullWeight:               models.PoundPointer(3300),
+						MissingFullWeightTicket:  models.BoolPointer(true),
+						OwnsTrailer:              models.BoolPointer(false),
+						TrailerMeetsCriteria:     models.BoolPointer(false),
+						Status:                   &status,
+						Reason:                   models.StringPointer("bad data"),
+					},
+					existingWeightTicket,
+				)
+
+				switch verr := err.(type) {
+				case *validate.Errors:
+					suite.True(verr.HasAny())
+					suite.Equal(len(verr.Keys()), 1)
+					suite.Contains(verr.Keys(), "Reason")
+				default:
+					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+				}
+			})
+
+			suite.Run("Reason must be populated when status is excluded", func() {
+				status := models.PPMDocumentStatusExcluded
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.WeightTicket{
+						ID:                       weightTicketID,
+						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
+						EmptyWeight:              models.PoundPointer(2500),
+						MissingEmptyWeightTicket: models.BoolPointer(true),
+						FullWeight:               models.PoundPointer(3300),
+						MissingFullWeightTicket:  models.BoolPointer(true),
+						OwnsTrailer:              models.BoolPointer(false),
+						TrailerMeetsCriteria:     models.BoolPointer(false),
+						Status:                   &status,
+						Reason:                   models.StringPointer(""),
+					},
+					existingWeightTicket,
+				)
+
+				switch verr := err.(type) {
+				case *validate.Errors:
+					suite.True(verr.HasAny())
+					suite.Equal(len(verr.Keys()), 1)
+					suite.Contains(verr.Keys(), "Reason")
+				default:
+					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+				}
+
+			})
+
+			suite.Run("Reason must be populated when status is rejected", func() {
+				status := models.PPMDocumentStatusRejected
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.WeightTicket{
+						ID:                       weightTicketID,
+						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
+						EmptyWeight:              models.PoundPointer(2500),
+						MissingEmptyWeightTicket: models.BoolPointer(true),
+						FullWeight:               models.PoundPointer(3300),
+						MissingFullWeightTicket:  models.BoolPointer(true),
+						OwnsTrailer:              models.BoolPointer(false),
+						TrailerMeetsCriteria:     models.BoolPointer(false),
+						Status:                   &status,
+						Reason:                   models.StringPointer(""),
+					},
+					existingWeightTicket,
+				)
+
+				switch verr := err.(type) {
+				case *validate.Errors:
+					suite.True(verr.HasAny())
+					suite.Equal(len(verr.Keys()), 1)
+					suite.Contains(verr.Keys(), "Reason")
+				default:
+					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+				}
+			})
+		})
+	})
 }

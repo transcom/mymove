@@ -114,6 +114,32 @@ func verifyReasonAndStatusAreConstant() weightTicketValidator {
 	})
 }
 
+func verifyReasonAndStatusAreValid() weightTicketValidator {
+	return weightTicketValidatorFunc(func(_ appcontext.AppContext, newWeightTicket *models.WeightTicket, originalWeightTicket *models.WeightTicket) error {
+		verrs := validate.NewErrors()
+
+		if newWeightTicket == nil || originalWeightTicket == nil {
+			return verrs
+		}
+
+		if newWeightTicket.Status != nil {
+			if *newWeightTicket.Status == models.PPMDocumentStatusApproved && (newWeightTicket.Reason == nil || len(*newWeightTicket.Reason) > 0) {
+				verrs.Add("Reason", "reason must be blank if the status is Approved")
+			}
+
+			if (*newWeightTicket.Status == models.PPMDocumentStatusExcluded || *newWeightTicket.Status == models.PPMDocumentStatusRejected) && (newWeightTicket.Reason == nil || len(*newWeightTicket.Reason) <= 0) {
+				verrs.Add("Reason", "reason is mandatory if the status is Excluded or Rejected")
+			}
+		} else {
+			if newWeightTicket.Reason != nil && len(*newWeightTicket.Reason) > 0 {
+				verrs.Add("Reason", "reason should be empty")
+			}
+		}
+
+		return verrs
+	})
+}
+
 func basicChecks() []weightTicketValidator {
 	return []weightTicketValidator{
 		checkID(),
