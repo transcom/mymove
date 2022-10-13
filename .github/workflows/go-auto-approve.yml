@@ -22,6 +22,7 @@ jobs:
       - name: reattach HEAD to Head Ref
         # b/c checkout action leaves in detached head state https://github.com/actions/checkout/issues/6
         run: git checkout "$(echo ${{ github.head_ref }})"
+        if: github.head_ref != ''
         # if: github.head_ref != '' && (github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]')
       - name: setup go
         uses: actions/setup-go@v3
