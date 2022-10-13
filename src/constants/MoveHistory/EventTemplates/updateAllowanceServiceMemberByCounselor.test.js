@@ -2,7 +2,7 @@ import getTemplate from 'constants/MoveHistory/TemplateManager';
 import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import t from 'constants/MoveHistory/Database/Tables';
-import updateAllowanceServiceMemberBranch from 'constants/MoveHistory/EventTemplates/updateAllowanceServiceMemberBranch';
+import updateAllowanceServiceMemberByCounselor from 'constants/MoveHistory/EventTemplates/updateAllowanceServiceMemberByCounselor';
 
 describe('When a service counselor updates shipping allowances', () => {
   const item = {
@@ -18,7 +18,7 @@ describe('When a service counselor updates shipping allowances', () => {
   };
   it('correctly matches the update allowance event results in a change in service branch', () => {
     const result = getTemplate(item);
-    expect(result).toMatchObject(updateAllowanceServiceMemberBranch);
+    expect(result).toMatchObject(updateAllowanceServiceMemberByCounselor);
     expect(result.getEventNameDisplay()).toMatch(item.eventNameDisplay);
   });
 });

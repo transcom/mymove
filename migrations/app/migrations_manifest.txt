@@ -759,3 +759,4 @@
 20220923135119_app_loadtest_cert_migration.up.sql
 20220926162626_add_additional_eval_report_fields.up.sql
 20220927210523_remove-gidjin-cac.up.sql
+20221006031146_add_status_and_reason_to_weight_ticket.up.sql

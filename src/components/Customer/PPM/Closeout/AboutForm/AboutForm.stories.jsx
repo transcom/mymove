@@ -104,6 +104,10 @@ RequiredErrors.play = async ({ canvasElement }) => {
   await userEvent.click(canvas.getByText('Save & Continue'));
 };
 
+RequiredErrors.parameters = {
+  happo: false,
+};
+
 export const InvalidZIPs = Template.bind({});
 InvalidZIPs.storyName = 'Invalid ZIPs';
 InvalidZIPs.args = {
@@ -125,4 +129,8 @@ InvalidZIPs.play = async ({ canvasElement }) => {
   const canvas = within(canvasElement);
 
   await userEvent.click(canvas.getByText('Save & Continue'));
+};
+
+InvalidZIPs.parameters = {
+  happo: false,
 };
