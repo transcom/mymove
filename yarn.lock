@@ -2317,6 +2317,18 @@
   resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-7.6.0.tgz#9ea331766084288634a9247fcd8b84f16ff4ba07"
   integrity sha512-XK6BTq1NDMo9Xqw/YkYyGjSsg44fbNwYRx7QK2CuoQgyy+f1rrTDHoExVM5PsyXCtfl2vs2vVJ0MN0yN6LppRw==
 
+"@floating-ui/core@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@floating-ui/core/-/core-1.0.1.tgz#00e64d74e911602c8533957af0cce5af6b2e93c8"
+  integrity sha512-bO37brCPfteXQfFY0DyNDGB3+IMe4j150KFQcgJ5aBP295p9nBGeHEs/p0czrRbtlHq4Px/yoPXO/+dOCcF4uA==
+
+"@floating-ui/dom@^1.0.1":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-1.0.2.tgz#c5184c52c6f50abd11052d71204f4be2d9245237"
+  integrity sha512-5X9WSvZ8/fjy3gDu8yx9HAA4KG1lazUN2P4/VnaXLxTO9Dz53HI1oYoh1OlhqFNlHgGDiwFX5WhFCc2ljbW3yA==
+  dependencies:
+    "@floating-ui/core" "^1.0.1"
+
 "@fortawesome/fontawesome-common-types@6.1.2":
   version "6.1.2"
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-6.1.2.tgz#c1095b1bbabf19f37f9ff0719db38d92a410bcfe"
@@ -17829,18 +17841,20 @@ react-select@^3.2.0:
     react-input-autosize "^3.0.0"
     react-transition-group "^4.3.0"
 
-react-select@^5.4.0:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/react-select/-/react-select-5.4.0.tgz#81f6ac73906126706f104751ee14437bd16798f4"
-  integrity sha512-CjE9RFLUvChd5SdlfG4vqxZd55AZJRrLrHzkQyTYeHlpOztqcgnyftYAolJ0SGsBev6zAs6qFrjm6KU3eo2hzg==
+react-select@^5.5.0:
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/react-select/-/react-select-5.5.0.tgz#c82286e20b26194738186ada54cc8a0c677dfc6e"
+  integrity sha512-yzA+eavdxpF5Onf0u9KZ84qxr8r/CwPPn777bRkslbDtEUYx2+m13OrhP3WVa30+aWYxwkO/pkLcZ7q7r/6OhQ==
   dependencies:
     "@babel/runtime" "^7.12.0"
     "@emotion/cache" "^11.4.0"
     "@emotion/react" "^11.8.1"
+    "@floating-ui/dom" "^1.0.1"
     "@types/react-transition-group" "^4.4.0"
     memoize-one "^5.0.0"
     prop-types "^15.6.0"
     react-transition-group "^4.3.0"
+    use-isomorphic-layout-effect "^1.1.2"
 
 react-shallow-renderer@^16.13.1:
   version "16.14.1"
@@ -20794,10 +20808,10 @@ use-composed-ref@^1.0.0:
   dependencies:
     ts-essentials "^2.0.3"
 
-use-isomorphic-layout-effect@^1.0.0:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/use-isomorphic-layout-effect/-/use-isomorphic-layout-effect-1.1.1.tgz#7bb6589170cd2987a152042f9084f9effb75c225"
-  integrity sha512-L7Evj8FGcwo/wpbv/qvSfrkHFtOpCzvM5yl2KVyDJoylVuSvzphiiasmjgQPttIGBAy2WKiBNR98q8w7PiNgKQ==
+use-isomorphic-layout-effect@^1.0.0, use-isomorphic-layout-effect@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/use-isomorphic-layout-effect/-/use-isomorphic-layout-effect-1.1.2.tgz#497cefb13d863d687b08477d9e5a164ad8c1a6fb"
+  integrity sha512-49L8yCO3iGT/ZF9QttjwLF/ZD9Iwto5LnH5LmEdk/6cFmXddqi2ulF0edxTwjj+7mqvpVVGQWvbXZdn32wRSHA==
 
 use-latest@^1.0.0:
   version "1.2.0"
