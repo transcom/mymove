@@ -11,6 +11,15 @@ export default {
   tableName: t.entitlements,
   getEventNameDisplay: () => 'Created allowances',
   getDetails: (historyRecord) => {
-    return <LabeledDetails historyRecord={historyRecord} />;
+    const getDetailsLabeledDetails = ({ changedValues }) => {
+      const newChangedValues = {
+        ...changedValues,
+        dependents_authorized: changedValues.dependents_authorized === true ? 'Yes' : 'No',
+      };
+
+      return newChangedValues;
+    };
+
+    return <LabeledDetails historyRecord={historyRecord} getDetailsLabeledDetails={getDetailsLabeledDetails} />;
   },
 };

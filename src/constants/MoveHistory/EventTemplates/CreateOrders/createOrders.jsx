@@ -13,11 +13,11 @@ export default {
   getDetails: (historyRecord) => {
     const getDetailsLabeledDetails = ({ context, changedValues }) => {
       const newChangedValues = {
+        ...changedValues,
         new_duty_location_name: context[0]?.new_duty_location_name,
         origin_duty_location_name: context[0]?.origin_duty_location_name,
-        ...changedValues,
+        has_dependents: changedValues.has_dependents === true ? 'Yes' : 'No',
       };
-
       return newChangedValues;
     };
 
