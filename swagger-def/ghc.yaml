@@ -1337,6 +1337,42 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+      - $ref: 'parameters/proGearWeightTicketId.yaml'
+    patch:
+      summary: Updates a pro-gear weight ticket
+      description: Updates a pro-gear weight ticket with new information
+      operationId: updateProGearWeightTicket
+      tags:
+        - ppm
+      parameters:
+        - $ref: 'parameters/ifMatch.yaml'
+        - in: body
+          name: updateProGearWeightTicket
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateProGearWeightTicket'
+      responses:
+        '200':
+          description: returns an updated pro-gear weight ticket object
+          schema:
+            $ref: 'definitions/ProGearWeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
@@ -4106,6 +4142,35 @@ definitions:
         type: string
         example: '2018-05-26'
         format: date
+      status:
+        $ref: 'definitions/BasePPMDocumentStatus.yaml'
+      reason:
+        description: The reason the services counselor has excluded or rejected the item.
+        type: string
+  UpdateProGearWeightTicket:
+    type: object
+    properties:
+      belongsToSelf:
+        type: boolean
+        description: Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.
+      description:
+        type: string
+        description: Describes the pro-gear that was moved.
+      hasWeightTickets:
+        type: boolean
+        description: Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.
+      emptyWeight:
+        type: integer
+        description: Weight of the vehicle not including the pro-gear.
+        minimum: 0
+      fullWeight:
+        type: integer
+        description: Weight of the vehicle including the pro-gear.
+        minimum: 0
+      constructedWeight:
+        type: integer
+        description: Constructed weight of the pro-gear.
+        minimum: 0
       status:
         $ref: 'definitions/BasePPMDocumentStatus.yaml'
       reason:

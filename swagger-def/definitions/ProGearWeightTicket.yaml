@@ -1,0 +1,96 @@
+description: Pro-gear associated information and weight docs for a PPM shipment
+type: object
+properties:
+  id:
+    allOf:
+      - $ref: 'UUID.yaml'
+      - description: The ID of the pro-gear weight ticket.
+  ppmShipmentId:
+    allOf:
+      - $ref: 'UUID.yaml'
+      - description: The ID of the PPM shipment that this pro-gear weight ticket is associated with.
+  createdAt:
+    type: string
+    format: date-time
+    readOnly: true
+  updatedAt:
+    type: string
+    format: date-time
+    readOnly: true
+  belongsToSelf:
+    type: boolean
+    description: Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.
+    x-nullable: true
+    x-omitempty: false
+  description:
+    type: string
+    description: Describes the pro-gear that was moved.
+    x-nullable: true
+    x-omitempty: false
+  hasWeightTickets:
+    type: boolean
+    description: Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.
+    x-nullable: true
+    x-omitempty: false
+  emptyWeight:
+    type: integer
+    description: Weight of the vehicle not including the pro-gear.
+    minimum: 0
+    x-nullable: true
+    x-omitempty: false
+  emptyDocumentId:
+    allOf:
+      - $ref: 'UUID.yaml'
+      - description: The ID of the document that is associated with the user uploads containing the empty vehicle weight.
+  emptyDocument:
+    allOf:
+      - $ref: 'DocumentPayload.yaml'
+      - description: Document that is associated with the user uploads containing the empty vehicle weight.
+  fullWeight:
+    type: integer
+    description: Weight of the vehicle including the pro-gear.
+    minimum: 0
+    x-nullable: true
+    x-omitempty: false
+  fullDocumentId:
+    allOf:
+      - $ref: 'UUID.yaml'
+      - description: The ID of the document that is associated with the user uploads containing the full vehicle weight.
+  fullDocument:
+    allOf:
+      - $ref: 'DocumentPayload.yaml'
+      - description: Document that is associated with the user uploads containing the full vehicle weight.
+  constructedWeight:
+    type: integer
+    description: Constructed weight of the pro-gear.
+    minimum: 0
+    x-nullable: true
+    x-omitempty: false
+  constructedWeightDocumentId:
+    allOf:
+      - $ref: 'UUID.yaml'
+      - description: The ID of the document that is associated with the user uploads containing the constructed weight.
+  constructedWeightDocument:
+    allOf:
+      - $ref: 'DocumentPayload.yaml'
+      - description: Document that is associated with the user uploads containing the constructed weight.
+  status:
+    $ref: 'PPMDocumentStatus.yaml'
+  reason:
+    $ref: 'PPMDocumentStatusReason.yaml'
+  eTag:
+    description: A hash that should be used as the "If-Match" header for any updates.
+    type: string
+    readOnly: true
+required:
+  - id
+  - ppmShipmentId
+  - createdAt
+  - updatedAt
+  - emptyDocumentId
+  - emptyDocument
+  - fullDocumentId
+  - fullDocument
+  - constructedWeightDocumentId
+  - constructedWeightDocument
+  - eTag

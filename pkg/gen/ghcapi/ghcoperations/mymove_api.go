@@ -260,6 +260,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PaymentServiceItemUpdatePaymentServiceItemStatusHandler: payment_service_item.UpdatePaymentServiceItemStatusHandlerFunc(func(params payment_service_item.UpdatePaymentServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_service_item.UpdatePaymentServiceItemStatus has not yet been implemented")
 		}),
+		PpmUpdateProGearWeightTicketHandler: ppm.UpdateProGearWeightTicketHandlerFunc(func(params ppm.UpdateProGearWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateProGearWeightTicket has not yet been implemented")
+		}),
 		PpmShipmentUpdateWeightTicketHandler: ppm_shipment.UpdateWeightTicketHandlerFunc(func(params ppm_shipment.UpdateWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm_shipment.UpdateWeightTicket has not yet been implemented")
 		}),
@@ -438,6 +441,8 @@ type MymoveAPI struct {
 	PaymentRequestsUpdatePaymentRequestStatusHandler payment_requests.UpdatePaymentRequestStatusHandler
 	// PaymentServiceItemUpdatePaymentServiceItemStatusHandler sets the operation handler for the update payment service item status operation
 	PaymentServiceItemUpdatePaymentServiceItemStatusHandler payment_service_item.UpdatePaymentServiceItemStatusHandler
+	// PpmUpdateProGearWeightTicketHandler sets the operation handler for the update pro gear weight ticket operation
+	PpmUpdateProGearWeightTicketHandler ppm.UpdateProGearWeightTicketHandler
 	// PpmShipmentUpdateWeightTicketHandler sets the operation handler for the update weight ticket operation
 	PpmShipmentUpdateWeightTicketHandler ppm_shipment.UpdateWeightTicketHandler
 
@@ -717,6 +722,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentServiceItemUpdatePaymentServiceItemStatusHandler == nil {
 		unregistered = append(unregistered, "payment_service_item.UpdatePaymentServiceItemStatusHandler")
+	}
+	if o.PpmUpdateProGearWeightTicketHandler == nil {
+		unregistered = append(unregistered, "ppm.UpdateProGearWeightTicketHandler")
 	}
 	if o.PpmShipmentUpdateWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm_shipment.UpdateWeightTicketHandler")
@@ -1075,6 +1083,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status"] = payment_service_item.NewUpdatePaymentServiceItemStatus(o.context, o.PaymentServiceItemUpdatePaymentServiceItemStatusHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}"] = ppm.NewUpdateProGearWeightTicket(o.context, o.PpmUpdateProGearWeightTicketHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
