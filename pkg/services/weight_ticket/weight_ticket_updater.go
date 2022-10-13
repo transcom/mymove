@@ -20,7 +20,13 @@ type weightTicketUpdater struct {
 // NewCustomerWeightTicketUpdater creates a new weightTicketUpdater struct with the checks it needs for a customer
 func NewCustomerWeightTicketUpdater() services.WeightTicketUpdater {
 	return &weightTicketUpdater{
-		checks: basicChecks(),
+		checks: basicChecksForCustomer(),
+	}
+}
+
+func NewOfficeWeightTicketUpdater() services.WeightTicketUpdater {
+	return &weightTicketUpdater{
+		checks: basicChecksForOffice(),
 	}
 }
 

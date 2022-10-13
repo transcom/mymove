@@ -140,10 +140,18 @@ func verifyReasonAndStatusAreValid() weightTicketValidator {
 	})
 }
 
-func basicChecks() []weightTicketValidator {
+func basicChecksForCustomer() []weightTicketValidator {
 	return []weightTicketValidator{
 		checkID(),
 		checkRequiredFields(),
 		verifyReasonAndStatusAreConstant(),
+	}
+}
+
+func basicChecksForOffice() []weightTicketValidator {
+	return []weightTicketValidator{
+		checkID(),
+		checkRequiredFields(),
+		verifyReasonAndStatusAreValid(),
 	}
 }
