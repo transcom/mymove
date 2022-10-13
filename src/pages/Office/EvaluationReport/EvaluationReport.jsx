@@ -54,6 +54,7 @@ const EvaluationReport = ({ customerInfo, grade, destinationDutyLocationPostalCo
           grade={grade}
           customerInfo={customerInfo}
           mtoShipments={mtoShipments}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />
       </GridContainer>
     </div>

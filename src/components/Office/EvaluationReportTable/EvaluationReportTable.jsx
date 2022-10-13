@@ -22,6 +22,7 @@ const EvaluationReportTable = ({
   setIsDeleteModalOpen,
   deleteReport,
   isDeleteModalOpen,
+  destinationDutyLocationPostalCode,
 }) => {
   const location = useLocation();
   const [isViewReportModalVisible, setIsViewReportModalVisible] = useState(false);
@@ -109,6 +110,7 @@ const EvaluationReportTable = ({
           moveCode={moveCode}
           customerInfo={customerInfo}
           grade={grade}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
           mtoShipments={shipments}
           reportViolations={reportToView.ReportViolations}
           modalActions={
@@ -155,11 +157,13 @@ EvaluationReportTable.propTypes = {
   setReportToDelete: PropTypes.func.isRequired,
   deleteReport: PropTypes.func.isRequired,
   isDeleteModalOpen: PropTypes.bool.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string,
 };
 
 EvaluationReportTable.defaultProps = {
   reports: [],
   shipments: null,
+  destinationDutyLocationPostalCode: 'table',
 };
 
 export default EvaluationReportTable;

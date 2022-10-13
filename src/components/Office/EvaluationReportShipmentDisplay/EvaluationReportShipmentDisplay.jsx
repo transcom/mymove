@@ -112,7 +112,7 @@ const EvaluationReportShipmentDisplay = ({
 
 EvaluationReportShipmentDisplay.propTypes = {
   shipmentId: PropTypes.string.isRequired,
-  destinationDutyLocationPostalCode: PropTypes.string.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string,
   shipmentType: PropTypes.oneOf([
     SHIPMENT_OPTIONS.HHG,
     SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
@@ -180,6 +180,7 @@ EvaluationReportShipmentDisplay.propTypes = {
 
 EvaluationReportShipmentDisplay.defaultProps = {
   shipmentType: SHIPMENT_OPTIONS.HHG,
+  destinationDutyLocationPostalCode: '',
   allowApproval: true,
   ordersLOA: {
     tac: '',

@@ -23,7 +23,14 @@ import { formatDateForSwagger } from 'shared/dates';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 
-const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, customerInfo, grade }) => {
+const EvaluationForm = ({
+  evaluationReport,
+  reportViolations,
+  mtoShipments,
+  customerInfo,
+  grade,
+  destinationDutyLocationPostalCode,
+}) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
   const location = useLocation();
@@ -330,6 +337,7 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
         mtoShipments={mtoShipments}
         modalActions={submitModalActions}
         bordered
+        destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
       />
 
       <Formik
@@ -620,10 +628,12 @@ EvaluationForm.propTypes = {
   mtoShipments: PropTypes.arrayOf(ShipmentShape),
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string,
 };
 
 EvaluationForm.defaultProps = {
   mtoShipments: null,
+  destinationDutyLocationPostalCode: '',
 };
 
 export default EvaluationForm;

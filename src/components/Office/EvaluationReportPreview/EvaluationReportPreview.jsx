@@ -26,6 +26,7 @@ const EvaluationReportPreview = ({
   moveCode,
   customerInfo,
   grade,
+  destinationDutyLocationPostalCode,
 }) => {
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
   const hasViolations = reportViolations && reportViolations.length > 0;
@@ -98,6 +99,7 @@ const EvaluationReportPreview = ({
                       shipmentId={mtoShipment.id}
                       displayInfo={shipmentDisplayInfo(mtoShipment)}
                       shipmentType={mtoShipment.shipmentType}
+                      destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
                     />
                   </div>
                 ))}
@@ -223,11 +225,13 @@ EvaluationReportPreview.propTypes = {
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string,
 };
 
 EvaluationReportPreview.defaultProps = {
   mtoShipments: null,
   reportViolations: null,
+  destinationDutyLocationPostalCode: '',
 };
 
 export default EvaluationReportPreview;

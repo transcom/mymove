@@ -117,7 +117,7 @@ ShipmentInfoListSelector.defaultProps = {
   showWhenCollapsed: [],
   neverShow: [],
   isForEvaluationReport: false,
-  destinationDutyLocationPostalCode: '',
+  destinationDutyLocationPostalCode: 'silselect',
 };
 
 export default ShipmentInfoListSelector;

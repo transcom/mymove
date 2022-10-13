@@ -40,6 +40,7 @@ const ShipmentEvaluationReports = ({
           setIsDeleteModalOpen={setIsDeleteModalOpen}
           isDeleteModalOpen={isDeleteModalOpen}
           deleteReport={deleteReport}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />
       </div>
     );

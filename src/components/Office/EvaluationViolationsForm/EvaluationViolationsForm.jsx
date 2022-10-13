@@ -20,7 +20,14 @@ import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { EvaluationReportShape, ReportViolationShape, PWSViolationShape, CustomerShape, ShipmentShape } from 'types';
 import { formatDateForSwagger } from 'shared/dates';
 
-const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolations, customerInfo, mtoShipments }) => {
+const EvaluationViolationsForm = ({
+  violations,
+  evaluationReport,
+  reportViolations,
+  customerInfo,
+  mtoShipments,
+  destinationDutyLocationPostalCode,
+}) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
 
@@ -237,6 +244,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
         modalActions={submitModalActions}
         reportViolations={reportViolations}
         bordered
+        destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
       />
       <Formik
         initialValues={getInitialValues()}
@@ -450,11 +458,13 @@ EvaluationViolationsForm.propTypes = {
   reportViolations: PropTypes.arrayOf(ReportViolationShape),
   customerInfo: CustomerShape.isRequired,
   mtoShipments: PropTypes.arrayOf(ShipmentShape),
+  destinationDutyLocationPostalCode: PropTypes.string,
 };
 
 EvaluationViolationsForm.defaultProps = {
   mtoShipments: null,
   reportViolations: null,
+  destinationDutyLocationPostalCode: '',
 };
 
 export default EvaluationViolationsForm;
