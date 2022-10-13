@@ -7,6 +7,7 @@ package internalmessages
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -108,6 +109,11 @@ type UpdatePPMShipment struct {
 	// spouse pro gear weight
 	SpouseProGearWeight *int64 `json:"spouseProGearWeight,omitempty"`
 
+	// Indicates status of PPM shipment
+	//
+	// Enum: [DRAFT SUBMITTED WAITING_ON_CUSTOMER NEEDS_ADVANCE_APPROVAL NEEDS_PAYMENT_APPROVAL PAYMENT_APPROVED]
+	Status string `json:"status,omitempty"`
+
 	// w2 address
 	W2Address *Address `json:"w2Address,omitempty"`
 }
@@ -145,6 +151,10 @@ func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSecondaryPickupPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -258,6 +268,60 @@ func (m *UpdatePPMShipment) validateSecondaryPickupPostalCode(formats strfmt.Reg
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("secondaryPickupPostalCode")
 		}
+		return err
+	}
+
+	return nil
+}
+
+var updatePPMShipmentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DRAFT","SUBMITTED","WAITING_ON_CUSTOMER","NEEDS_ADVANCE_APPROVAL","NEEDS_PAYMENT_APPROVAL","PAYMENT_APPROVED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		updatePPMShipmentTypeStatusPropEnum = append(updatePPMShipmentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// UpdatePPMShipmentStatusDRAFT captures enum value "DRAFT"
+	UpdatePPMShipmentStatusDRAFT string = "DRAFT"
+
+	// UpdatePPMShipmentStatusSUBMITTED captures enum value "SUBMITTED"
+	UpdatePPMShipmentStatusSUBMITTED string = "SUBMITTED"
+
+	// UpdatePPMShipmentStatusWAITINGONCUSTOMER captures enum value "WAITING_ON_CUSTOMER"
+	UpdatePPMShipmentStatusWAITINGONCUSTOMER string = "WAITING_ON_CUSTOMER"
+
+	// UpdatePPMShipmentStatusNEEDSADVANCEAPPROVAL captures enum value "NEEDS_ADVANCE_APPROVAL"
+	UpdatePPMShipmentStatusNEEDSADVANCEAPPROVAL string = "NEEDS_ADVANCE_APPROVAL"
+
+	// UpdatePPMShipmentStatusNEEDSPAYMENTAPPROVAL captures enum value "NEEDS_PAYMENT_APPROVAL"
+	UpdatePPMShipmentStatusNEEDSPAYMENTAPPROVAL string = "NEEDS_PAYMENT_APPROVAL"
+
+	// UpdatePPMShipmentStatusPAYMENTAPPROVED captures enum value "PAYMENT_APPROVED"
+	UpdatePPMShipmentStatusPAYMENTAPPROVED string = "PAYMENT_APPROVED"
+)
+
+// prop value enum
+func (m *UpdatePPMShipment) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, updatePPMShipmentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *UpdatePPMShipment) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
 		return err
 	}
 

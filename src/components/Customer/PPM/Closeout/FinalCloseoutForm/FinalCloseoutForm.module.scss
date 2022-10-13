@@ -107,3 +107,31 @@
   }
 
 }
+
+.signatureBox {
+  :global(.usa-input#signature) {
+    width: 100%;
+  }
+
+  :global(.usa-input#date) {
+    width: 100%;
+  }
+
+p {
+  @include u-margin-bottom(3);
+
+  &:last-of-type {
+    @include u-margin-bottom(0)
+  }
+}
+
+  :global(.usa-form-group--error) {
+    @include u-margin-left(0);
+  }
+
+  :global(.usa-fieldset) {
+    @include u-margin-top(0)
+  }
+}
+
+

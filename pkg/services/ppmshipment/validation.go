@@ -96,6 +96,10 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.W2Address = newPPMShipment.W2Address
 	}
 
+	if newPPMShipment.Status != "" {
+		ppmShipment.Status = newPPMShipment.Status
+	}
+
 	if ppmShipment.SITExpected != nil && !*ppmShipment.SITExpected {
 		ppmShipment.SITLocation = nil
 		ppmShipment.SITEstimatedWeight = nil

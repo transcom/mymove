@@ -51,6 +51,16 @@ func SetOptionalStringField(newString *string, oldString *string) *string {
 	return newString // return the new intended value
 }
 
+// SetOptionalStringField sets the correct new value for the updated string field. Can be nil.
+func SetNoNilOptionalStringField(newString *string, oldString *string) *string {
+	// check if the user wanted to keep this field the same:
+	if newString == nil {
+		return oldString
+	}
+
+	return newString // return the new intended value
+}
+
 // SetOptionalPoundField sets the correct new value for the updated weight field. Can be nil.
 func SetOptionalPoundField(newWeight *unit.Pound, oldWeight *unit.Pound) *unit.Pound {
 	// check if the user wanted to keep this field the same:

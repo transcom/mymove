@@ -6760,6 +6760,18 @@ func init() {
           "type": "integer",
           "x-nullable": true
         },
+        "status": {
+          "description": "Indicates status of PPM shipment\n",
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "SUBMITTED",
+            "WAITING_ON_CUSTOMER",
+            "NEEDS_ADVANCE_APPROVAL",
+            "NEEDS_PAYMENT_APPROVAL",
+            "PAYMENT_APPROVED"
+          ]
+        },
         "w2Address": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -14178,6 +14190,18 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "status": {
+          "description": "Indicates status of PPM shipment\n",
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "SUBMITTED",
+            "WAITING_ON_CUSTOMER",
+            "NEEDS_ADVANCE_APPROVAL",
+            "NEEDS_PAYMENT_APPROVAL",
+            "PAYMENT_APPROVED"
+          ]
         },
         "w2Address": {
           "x-nullable": true,

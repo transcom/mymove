@@ -1,7 +1,7 @@
 import React from 'react';
-import { PropTypes, func } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
-import { Formik } from 'formik';
+import { PropTypes, func, shape, string } from 'prop-types';
+import { Button, TextInput, Label, FormGroup, Fieldset, ErrorMessage, Grid, Alert } from '@trussworks/react-uswds';
+import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import classnames from 'classnames';
 
@@ -9,7 +9,7 @@ import styles from './FinalCloseoutForm.module.scss';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { ShipmentShape } from 'types/shipment';
-import { formatCents, formatWeight } from 'utils/formatters';
+import { formatCents, formatWeight, formatSwaggerDate } from 'utils/formatters';
 import {
   calculateTotalMovingExpensesAmount,
   calculateTotalNetWeightForProGearWeightTickets,
@@ -22,7 +22,7 @@ import formStyles from 'styles/form.module.scss';
 import { requiredW2AddressSchema } from 'utils/validation';
 import { W2AddressShape } from 'types/address';
 
-const FinalCloseoutForm = ({ mtoShipment, onBack }) => {
+const FinalCloseoutForm = ({ mtoShipment, onBack, error, onSubmit }) => {
   const totalNetWeight = calculateTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
 
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
@@ -34,6 +34,8 @@ const FinalCloseoutForm = ({ mtoShipment, onBack }) => {
   const formFieldsName = 'w2_address';
   const validationSchema = Yup.object().shape({
     [formFieldsName]: requiredW2AddressSchema.required(),
+    signature: Yup.string().required('Required'),
+    date: Yup.date().required(),
   });
   const initialValues = {
     [formFieldsName]: {
@@ -43,6 +45,8 @@ const FinalCloseoutForm = ({ mtoShipment, onBack }) => {
       state: mtoShipment?.ppmShipment?.w2Address?.state || '',
       postalCode: mtoShipment?.ppmShipment?.w2Address?.postalCode || '',
     },
+    signature: '',
+    date: formatSwaggerDate(new Date()),
   };
 
   return (
@@ -102,8 +106,9 @@ const FinalCloseoutForm = ({ mtoShipment, onBack }) => {
         </p>
       </div>
 
-      <Formik initialValues={initialValues} validationSchema={validationSchema}>
-        {({ isValid, isSubmitting, handleSubmit }) => {
+      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+        {({ isValid, isSubmitting, handleSubmit, errors, touched }) => {
+          const showSignatureError = !!(errors.signature && touched.signature);
           return (
             <div className={classnames(ppmStyles.formContainer)}>
               <Form className={classnames(ppmStyles.form, formStyles.form, styles.W2AddressForm)}>
@@ -112,6 +117,52 @@ const FinalCloseoutForm = ({ mtoShipment, onBack }) => {
                   <p>What is the address on your W-2?</p>
                   <AddressFields name={formFieldsName} className={classnames(styles.AddressFieldSet)} />
                 </SectionWrapper>
+
+                <SectionWrapper className={classnames(formStyles.formSection, styles.signatureBox)}>
+                  <h2>Customer agreement</h2>
+                  <p>
+                    I certify that any expenses claimed in this application were legitimately incurred during my PPM.
+                  </p>
+                  <p>
+                    Failure to furnish data may result in partial or total denial of claim and/or improper tax
+                    application.
+                  </p>
+                  <p>
+                    I understand the penalty for willfully making a false statement of claim is a maximum fine of
+                    $10,000, maximum imprisonment of five years, or both (U.S.C, Title 18, Section 287).
+                  </p>
+                  <Fieldset className={styles.signatureFieldSet}>
+                    <Grid row gap>
+                      <Grid tablet={{ col: 'fill' }}>
+                        <FormGroup error={showSignatureError}>
+                          <Label htmlFor="signature">Signature</Label>
+                          {showSignatureError && (
+                            <ErrorMessage id="signature-error-message">{errors.signature}</ErrorMessage>
+                          )}
+                          <Field
+                            as={TextInput}
+                            name="signature"
+                            id="signature"
+                            required
+                            aria-describedby={showSignatureError ? 'signature-error-message' : null}
+                          />
+                        </FormGroup>
+                      </Grid>
+                      <Grid tablet={{ col: 'auto' }}>
+                        <FormGroup>
+                          <Label htmlFor="date">Date</Label>
+                          <Field as={TextInput} name="date" id="date" disabled />
+                        </FormGroup>
+                      </Grid>
+                    </Grid>
+                  </Fieldset>
+                  {error && (
+                    <Alert type="error" headingLevel="h4" heading="Server Error">
+                      There was a problem saving your signature.
+                    </Alert>
+                  )}
+                </SectionWrapper>
+
                 <div className={ppmStyles.buttonContainer}>
                   <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
                     Return To Homepage
@@ -139,7 +190,15 @@ FinalCloseoutForm.prototypes = {
   onBack: func.isRequired,
   onSubmit: func.isRequired,
   formFieldsName: PropTypes.string.isRequired,
-  initialValues: W2AddressShape.isRequired,
+  initialValues: shape({
+    W2AddressShape,
+    signature: string,
+    date: string,
+  }).isRequired,
+};
+
+FinalCloseoutForm.defaultProps = {
+  error: false,
 };
 
 export default FinalCloseoutForm;

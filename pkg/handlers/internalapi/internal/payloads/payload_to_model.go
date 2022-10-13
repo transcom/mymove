@@ -146,6 +146,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
 		FinalIncentive:                 handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive),
+		Status:                         models.PPMShipmentStatus(ppmShipment.Status),
 	}
 
 	ppmModel.W2Address = AddressModel(ppmShipment.W2Address)

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
+import moment from 'moment';
 
 import styles from './FinalCloseout.module.scss';
 
@@ -10,12 +11,13 @@ import FinalCloseoutForm from 'components/Customer/PPM/Closeout/FinalCloseoutFor
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { generalRoutes } from 'constants/routes';
-import { shipmentTypes } from 'constants/shipments';
+import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { updateMTOShipment } from 'store/entities/actions';
 import { selectMTOShipmentById } from 'store/entities/selectors';
+import { setFlashMessage } from 'store/flash/actions';
 
 const FinalCloseout = () => {
   const history = useHistory();
@@ -37,8 +39,10 @@ const FinalCloseout = () => {
     setErrorMessage(null);
 
     const payload = {
+      shipmentType: mtoShipment.shipmentType,
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
+        status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
       },
     };
 
@@ -47,7 +51,7 @@ const FinalCloseout = () => {
         setSubmitting(false);
 
         dispatch(updateMTOShipment(response));
-
+        dispatch(setFlashMessage('PPM_SUBMIT_SUCCESS', 'success', 'You submitted documentation for review.'));
         history.push(generalRoutes.HOME_PATH);
       })
       .catch((err) => {
