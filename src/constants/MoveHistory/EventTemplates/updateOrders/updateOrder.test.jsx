@@ -10,7 +10,7 @@ describe('when given an Order update history record', () => {
     eventName: 'updateOrder',
     tableName: 'orders',
     detailsType: d.LABELED,
-    changedValues: { old_duty_location_id: 'ID1', new_duty_location_id: 'ID2' },
+    changedValues: { old_duty_location_id: 'ID1', new_duty_location_id: 'ID2', has_dependents: 'false' },
     context: [{ old_duty_location_name: 'old name', new_duty_location_name: 'new name' }],
   };
   it('correctly matches the Update orders event', () => {
@@ -23,5 +23,6 @@ describe('when given an Order update history record', () => {
     expect(screen.queryByText('old name')).not.toBeInTheDocument();
     expect(screen.getByText('New duty location name')).toBeInTheDocument();
     expect(screen.getByText('new name', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('Dependents included')).toBeInTheDocument();
   });
 });
