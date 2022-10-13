@@ -43,6 +43,7 @@ func ApplicationTestServername() auth.ApplicationServername {
 		OfficeServername: OfficeTestHost,
 		OrdersServername: OrdersTestHost,
 		AdminServername:  AdminTestHost,
+		PrimeServername:  PrimeTestHost,
 	}
 }
 
@@ -75,8 +76,7 @@ func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
 }
 
 func setupSessionManagers() auth.AppSessionManagers {
-	return auth.SetupSessionManagers(nil, false, time.Duration(180*time.Second),
-		time.Duration(180*time.Second))
+	return auth.SetupSessionManagers(nil, false, 180*time.Second, 180*time.Second)
 }
 
 // TestFilesToClose returns the list of files needed to close at the end of tests
