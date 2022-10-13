@@ -139,7 +139,11 @@ const TXOMoveInfo = () => {
 
           <Route path={qaeCSRRoutes.EVALUATION_REPORT_PATH} exact>
             <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
-              <EvaluationReport customerInfo={customerData} grade={order.grade} />
+              <EvaluationReport
+                customerInfo={customerData}
+                grade={order.grade}
+                destinationDutyLocationPostalCode={order.destinationDutyLocation.address.postalCode}
+              />
             </Restricted>
           </Route>
 

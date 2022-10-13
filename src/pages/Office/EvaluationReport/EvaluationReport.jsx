@@ -17,7 +17,7 @@ import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const EvaluationReport = ({ customerInfo, grade }) => {
+const EvaluationReport = ({ customerInfo, grade, destinationDutyLocationPostalCode }) => {
   const { reportId } = useParams();
   const { evaluationReport, reportViolations, mtoShipments, isLoading, isError } =
     useEvaluationReportShipmentListQueries(reportId);
@@ -45,6 +45,7 @@ const EvaluationReport = ({ customerInfo, grade }) => {
             grade={grade}
             shipments={mtoShipmentsToShow}
             report={evaluationReport}
+            destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
           />
         )}
         <EvaluationForm
@@ -62,6 +63,7 @@ const EvaluationReport = ({ customerInfo, grade }) => {
 EvaluationReport.propTypes = {
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 
 export default EvaluationReport;
