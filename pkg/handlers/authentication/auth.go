@@ -584,8 +584,8 @@ func invalidPermissionsResponse(appCtx appcontext.AppContext, handlerConfig hand
 	// this request, so we need to redirect to the client app so that
 	// we can present a "pretty" error page to the user
 	appCtx.Logger().Info("Redirect invalid permissions",
-		zap.Any("request_path", r.URL.Path),
-		zap.Any("redirect_url", landingURL.String()))
+		zap.String("request_path", r.URL.Path),
+		zap.String("redirect_url", landingURL.String()))
 	http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 }
 
