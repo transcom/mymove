@@ -29,6 +29,11 @@ const retrieveTextToDisplay = (fieldName, value) => {
     displayValue === true
   ) {
     displayValue = 'Yes';
+  } else if (
+    (displayName === fieldMappings.dependents_authorized || displayName === fieldMappings.has_dependents) &&
+    displayValue === false
+  ) {
+    displayValue = 'No';
   }
 
   if (!displayValue) {
