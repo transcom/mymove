@@ -259,6 +259,7 @@ func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UU
 		file,
 		filename,
 		uploader.MaxCustomerUserUploadFileSizeLimit,
+		uploader.AllowedTypesServiceMember,
 		&savedAmendedOrdersDoc.ID,
 	)
 

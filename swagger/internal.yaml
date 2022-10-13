@@ -5308,6 +5308,54 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/uploads:
+    post:
+      summary: >-
+        Create a new upload for a PPM weight ticket, pro-gear, or moving expense
+        document
+      description: >-
+        Uploads represent a single digital file, such as a PNG, JPEG, PDF, or
+        spreadsheet.
+      operationId: createPPMUpload
+      tags:
+        - ppm
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: ppmShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppm shipment
+        - in: query
+          name: documentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/UploadPayload'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '413':
+          description: payload is too large
+        '500':
+          $ref: '#/responses/ServerError'
   /rate_engine_postal_codes/{postal_code}:
     get:
       summary: >-

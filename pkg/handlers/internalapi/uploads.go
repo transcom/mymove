@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
@@ -16,8 +17,12 @@ import (
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
-// CreateUploadHandler creates a new upload via POST /documents/{documentID}/uploads
+// CreateUploadHandler creates a new upload via POST /uploads?documentId={documentId}
 type CreateUploadHandler struct {
+	handlers.HandlerConfig
+}
+
+type CreatePPMUploadHandler struct {
 	handlers.HandlerConfig
 }
 
@@ -65,6 +70,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 				file,
 				file.Header.Filename,
 				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+				uploaderpkg.AllowedTypesServiceMember,
 				docID,
 			)
 
@@ -148,5 +154,62 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 			}
 
 			return uploadop.NewDeleteUploadsNoContent(), nil
+		})
+}
+
+func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			rollbackErr := fmt.Errorf("Error creating upload")
+
+			file, ok := params.File.(*runtime.File)
+			if !ok {
+				appCtx.Logger().Error("This should always be a runtime.File, something has changed in go-swagger.")
+				return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+			}
+
+			appCtx.Logger().Info(
+				"File uploader and size",
+				zap.String("userID", appCtx.Session().UserID.String()),
+				zap.String("serviceMemberID", appCtx.Session().ServiceMemberID.String()),
+				zap.Int64("size", file.Header.Size),
+			)
+
+			documentID := uuid.FromStringOrNil(params.DocumentID.String())
+
+			// Fetch document to ensure user has access to it
+			document, docErr := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, true)
+			if docErr != nil {
+				docNotFoundErr := fmt.Errorf("documentId %q was not found for this user", documentID)
+				return ppmop.NewCreatePPMUploadNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, docNotFoundErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), docNotFoundErr
+			}
+
+			newUserUpload, url, verrs, createErr := uploaderpkg.CreateUserUploadForDocumentWrapper(
+				appCtx,
+				appCtx.Session().UserID,
+				h.FileStorer(),
+				file,
+				file.Header.Filename,
+				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+				uploaderpkg.AllowedTypesPPMDocuments,
+				&document.ID,
+			)
+
+			if verrs.HasAny() || createErr != nil {
+				appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
+				switch createErr.(type) {
+				case uploaderpkg.ErrTooLarge:
+					return uploadop.NewCreateUploadRequestEntityTooLarge(), rollbackErr
+				case uploaderpkg.ErrFile:
+					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
+				case uploaderpkg.ErrFailedToInitUploader:
+					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
+				default:
+					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), rollbackErr
+				}
+			}
+
+			uploadPayload := payloads.PayloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
+			return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload), nil
 		})
 }

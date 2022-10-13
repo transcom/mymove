@@ -184,6 +184,20 @@ export async function createUploadForDocument(file, documentId) {
   );
 }
 
+export async function createUploadForPPMDocument(ppmShipmentId, documentId, file) {
+  return makeInternalRequest(
+    'ppm.createPPMUpload',
+    {
+      ppmShipmentId,
+      documentId,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function deleteUpload(uploadId) {
   return makeInternalRequest(
     'uploads.deleteUpload',

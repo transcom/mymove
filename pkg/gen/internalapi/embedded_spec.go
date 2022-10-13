@@ -2378,6 +2378,70 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Create a new upload for a PPM weight ticket, pro-gear, or moving expense document",
+        "operationId": "createPPMUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/UploadPayload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket": {
       "post": {
         "description": "Created a weight ticket document with the given information",
@@ -9727,6 +9791,79 @@ func init() {
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Create a new upload for a PPM weight ticket, pro-gear, or moving expense document",
+        "operationId": "createPPMUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/UploadPayload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
             "description": "A server error occurred.",
