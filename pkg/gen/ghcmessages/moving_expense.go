@@ -68,7 +68,7 @@ type MovingExpense struct {
 	// Format: uuid
 	PpmShipmentID strfmt.UUID `json:"ppmShipmentId"`
 
-	// The reason the services counselor has excluded or rejected the moving expense
+	// reason
 	Reason *PPMDocumentStatusReason `json:"reason"`
 
 	// The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only

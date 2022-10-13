@@ -6,10 +6,15 @@ import userEvent from '@testing-library/user-event';
 import EvaluationViolationsForm from './EvaluationViolationsForm';
 
 import { MockProviders } from 'testUtils';
+import { saveEvaluationReport, associateReportViolations, submitEvaluationReport } from 'services/ghcApi';
+import { useEvaluationReportShipmentListQueries } from 'hooks/queries';
 
 const mockMoveCode = 'A12345';
 const mockReportId = 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2';
+const mockMoveId = '551dd01f-90cf-44d6-addb-ff919433dd61';
 const mockViolationID = '9cdc8dc3-6cf4-46fb-b272-1468ef40796f';
+const mockShipmentID = '319e0751-1337-4ed9-b4b5-a15d4e6d272c';
+
 const mockViolation = {
   category: 'Category 1',
   displayOrder: 1,
@@ -22,13 +27,14 @@ const mockViolation = {
 };
 
 const mockEvaluationReport = {
+  id: mockReportId,
   createdAt: '2022-09-07T15:17:37.484Z',
   eTag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
   evaluationLengthMinutes: 240,
   inspectionDate: '2022-09-08',
   inspectionType: 'DATA_REVIEW',
   location: mockMoveCode,
-  moveID: '551dd01f-90cf-44d6-addb-ff919433dd61',
+  moveID: mockMoveId,
   moveReferenceID: '4118-8295',
   officeUser: {
     email: 'qae_csr_role@office.mil',
@@ -38,10 +44,11 @@ const mockEvaluationReport = {
     phone: '415-555-1212',
   },
   remarks: 'test',
-  shipmentID: '319e0751-1337-4ed9-b4b5-a15d4e6d272c',
+  shipmentID: mockShipmentID,
   type: 'SHIPMENT',
   updatedAt: '2022-09-07T18:06:37.864Z',
   violationsObserved: true,
+  seriousIncident: false,
 };
 
 const mockReportViolation = {
@@ -50,6 +57,94 @@ const mockReportViolation = {
   violationId: mockViolationID,
   violations: [mockViolation],
 };
+
+const customerInfo = {
+  agency: 'ARMY',
+  backup_contact: { email: 'email@example.com', name: 'name', phone: '555-555-5555' },
+  current_address: {
+    city: 'Beverly Hills',
+    country: 'US',
+    eTag: 'MjAyMi0wOC0xNVQxNjoxMToyNi4zMzIwOTFa',
+    id: '28f11990-7ced-4d01-87ad-b16f2c86ea83',
+    postalCode: '90210',
+    state: 'CA',
+    streetAddress1: '123 Any Street',
+    streetAddress2: 'P.O. Box 12345',
+    streetAddress3: 'c/o Some Person',
+  },
+  dodID: '5052247544',
+  eTag: 'MjAyMi0wOC0xNVQxNjoxMToyNi4zNTkzNFo=',
+  email: 'leo_spaceman_sm@example.com',
+  first_name: 'Leo',
+  id: 'ea557b1f-2660-4d6b-89a0-fb1b5efd2113',
+  last_name: 'Spacemen',
+  phone: '555-555-5555',
+  userID: 'f4bbfcdf-ef66-4ce7-92f8-4c1bf507d596',
+  grade: 'E_4',
+};
+
+const mockShipmentData = [
+  {
+    actualPickupDate: '2020-03-16',
+    approvedDate: '2022-08-16T00:00:00.000Z',
+    billableWeightCap: 4000,
+    billableWeightJustification: 'heavy',
+    createdAt: '2022-08-16T00:00:22.316Z',
+    customerRemarks: 'Please treat gently',
+    destinationAddress: {
+      city: 'Fairfield',
+      country: 'US',
+      eTag: 'MjAyMi0wOC0xNlQwMDowMDoyMi4zMTQ0MDha',
+      id: '1cf638df-1c1e-4c03-916a-bd20f7ec58ce',
+      postalCode: '94535',
+      state: 'CA',
+      streetAddress1: '987 Any Avenue',
+      streetAddress2: 'P.O. Box 9876',
+      streetAddress3: 'c/o Some Person',
+    },
+    eTag: 'MjAyMi0wOC0xNlQwMDowMDoyMi4zMTY2N1o=',
+    id: mockShipmentID,
+    moveTaskOrderID: mockMoveId,
+    pickupAddress: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMi0wOC0xNlQwMDowMDoyMi4zMTIzOTZa',
+      id: 'c0cf15bb-96ee-443a-982e-0e9ef2b9a80d',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
+    },
+    primeActualWeight: 2000,
+    primeEstimatedWeight: 1400,
+    requestedDeliveryDate: '2020-03-15',
+    requestedPickupDate: '2020-03-15',
+    scheduledPickupDate: '2020-03-16',
+    shipmentType: 'HHG',
+    status: 'APPROVED',
+    updatedAt: '2022-08-16T00:00:22.316Z',
+  },
+];
+
+const savedReportBody = {
+  evaluationLengthMinutes: mockEvaluationReport.evaluationLengthMinutes,
+  inspectionDate: mockEvaluationReport.inspectionDate,
+  inspectionType: mockEvaluationReport.inspectionType,
+  location: mockMoveCode,
+  observedClaimsResponseDate: undefined,
+  observedPickupDate: undefined,
+  observedPickupSpreadEndDate: undefined,
+  observedPickupSpreadStartDate: undefined,
+  remarks: mockEvaluationReport.remarks,
+  seriousIncident: false,
+  seriousIncidentDesc: null,
+  violationsObserved: mockEvaluationReport.violationsObserved,
+};
+
+jest.mock('hooks/queries', () => ({
+  useEvaluationReportShipmentListQueries: jest.fn(),
+}));
 
 const mockPush = jest.fn();
 jest.mock('react-router', () => ({
@@ -60,23 +155,25 @@ jest.mock('react-router', () => ({
   useParams: jest.fn().mockReturnValue({ moveCode: 'A12345', reportId: 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2' }),
 }));
 
-const mockSaveEvaluationReport = jest.fn();
-const mockAssociateReportViolations = jest.fn();
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
-  saveEvaluationReport: (options) => mockSaveEvaluationReport(options),
-  associateReportViolations: (options) => mockAssociateReportViolations(options),
+  saveEvaluationReport: jest.fn(),
+  associateReportViolations: jest.fn(),
+  submitEvaluationReport: jest.fn(),
 }));
 
 const renderForm = (props) => {
+  useEvaluationReportShipmentListQueries.mockReturnValue(mockShipmentData);
   const defaultProps = {
     evaluationReport: mockEvaluationReport,
     reportViolations: [mockReportViolation],
     violations: [mockViolation],
+    customerInfo,
+    mtoShipments: mockShipmentData,
   };
 
   return render(
-    <MockProviders initialEntries={[`/moves/${mockMoveCode}/evaluation-reports/${mockReportId}`]}>
+    <MockProviders initialEntries={[`/moves/A12345/evaluation-reports/db30c135-1d6d-4a0d-a6d5-f408474f6ee2`]}>
       <EvaluationViolationsForm {...defaultProps} {...props} />
     </MockProviders>,
   );
@@ -120,16 +217,7 @@ describe('EvaluationViolationsForm', () => {
 
   it('renders a violation accordion for each category', async () => {
     const mockTwoCategoryViolations = [
-      {
-        category: 'Category 1',
-        displayOrder: 1,
-        id: '9cdc8dc3-6cf4-46fb-b272-1468ef40796f',
-        paragraphNumber: '1.2.2',
-        requirementStatement: 'Test requirement statement for violation 1',
-        requirementSummary: 'Test requirement summary for violation 1',
-        subCategory: 'SubCategory of Category 1',
-        title: 'Title for violation 1',
-      },
+      mockViolation,
       {
         category: 'Category 2',
         displayOrder: 2,
@@ -146,8 +234,8 @@ describe('EvaluationViolationsForm', () => {
 
     // Content for each category is present
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Category 1', level: 3 })).toBeInTheDocument();
-      expect(screen.getByRole('heading', { name: 'SubCategory of Category 1', level: 4 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: mockViolation.category, level: 3 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: mockViolation.subCategory, level: 4 })).toBeInTheDocument();
       expect(screen.getByRole('heading', { name: 'Category 2', level: 3 })).toBeInTheDocument();
       expect(screen.getByRole('heading', { name: 'SubCategory of Category 2', level: 4 })).toBeInTheDocument();
     });
@@ -185,11 +273,13 @@ describe('EvaluationViolationsForm', () => {
       expect(screen.getByText('Observed pickup spread end date')).toBeInTheDocument();
     });
   });
+});
 
+describe('EvaluationViolationsForm Buttons', () => {
   it('re-routes back to the eval report', async () => {
     renderForm();
     // Click back button
-    await userEvent.click(await screen.findByRole('button', { name: '< Back to Evaluation form' }));
+    userEvent.click(await screen.findByRole('button', { name: '< Back to Evaluation form' }));
 
     // Verify that we re-route back to the eval report
     expect(mockPush).toHaveBeenCalledTimes(1);
@@ -200,34 +290,79 @@ describe('EvaluationViolationsForm', () => {
     renderForm();
 
     // Click save draft button
-    await userEvent.click(await screen.findByRole('button', { name: 'Save draft' }));
+    userEvent.click(await screen.findByRole('button', { name: 'Save draft' }));
 
     // Verify that report was saved, violations re-associated with report, and page rerouted
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledTimes(1);
-      expect(mockSaveEvaluationReport).toHaveBeenCalledTimes(1);
-      expect(mockSaveEvaluationReport).toHaveBeenCalledWith({
-        body: {
-          evaluationLengthMinutes: 240,
-          inspectionDate: '2022-09-08',
-          inspectionType: 'DATA_REVIEW',
-          location: 'A12345',
-          observedClaimsResponseDate: undefined,
-          observedPickupDate: undefined,
-          observedPickupSpreadEndDate: undefined,
-          observedPickupSpreadStartDate: undefined,
-          remarks: 'test',
-          seriousIncident: undefined,
-          seriousIncidentDesc: undefined,
-          violationsObserved: true,
-        },
-        ifMatchETag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
-        reportID: 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2',
+      expect(saveEvaluationReport).toHaveBeenCalledTimes(1);
+      expect(saveEvaluationReport).toHaveBeenCalledWith({
+        body: savedReportBody,
+        ifMatchETag: mockEvaluationReport.eTag,
+        reportID: mockReportId,
       });
-      expect(mockAssociateReportViolations).toHaveBeenCalledTimes(1);
+      expect(associateReportViolations).toHaveBeenCalledTimes(1);
       expect(mockPush).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports`, {
         showSaveDraftSuccess: true,
       });
+    });
+  });
+
+  it('click the review and submit button, and see the report preivew with violations', async () => {
+    renderForm();
+
+    // Click save draft button
+    userEvent.click(await screen.findByTestId('reviewAndSubmit'));
+
+    // Verify that report was saved, violations re-associated with report, and submission preview modal is rendered
+    await waitFor(() => {
+      expect(saveEvaluationReport).toHaveBeenCalledTimes(1);
+      expect(saveEvaluationReport).toHaveBeenCalledWith({
+        body: savedReportBody,
+        ifMatchETag: mockEvaluationReport.eTag,
+        reportID: mockReportId,
+      });
+      expect(associateReportViolations).toHaveBeenCalledTimes(1);
+
+      expect(screen.getByText('Preview and submit shipment report')).toBeInTheDocument();
+
+      // check that violations render in the preview
+      expect(screen.getByRole('heading', { name: mockViolation.category, level: 3 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: mockViolation.subCategory, level: 4 })).toBeInTheDocument();
+
+      // check that back and submission buttons render
+      expect(screen.getByRole('button', { name: '< Back to Evaluation form' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
+    });
+  });
+
+  it('click the back button from the preview page and close the preview modal', async () => {
+    renderForm();
+
+    // Click save draft button
+    userEvent.click(await screen.findByTestId('reviewAndSubmit'));
+
+    // Click back button
+    userEvent.click(await screen.findByTestId('backToEvalFromSubmit'));
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Select violations', level: 2 })).toBeInTheDocument();
+    });
+  });
+
+  it('click the submit button from the preview page and close the preview modal', async () => {
+    renderForm();
+
+    // Click save draft button
+    userEvent.click(await screen.findByRole('button', { name: 'Review and submit' }));
+
+    userEvent.click(await screen.findByRole('button', { name: 'Submit' }));
+
+    await waitFor(() => {
+      expect(submitEvaluationReport).toHaveBeenCalledTimes(1);
+      // Verify that we re-route back to the eval report
+      expect(mockPush).toHaveBeenCalledTimes(1);
+      expect(mockPush).toHaveBeenCalledWith(`/moves/${mockMoveCode}/evaluation-reports`, { showSubmitSuccess: true });
     });
   });
 });
