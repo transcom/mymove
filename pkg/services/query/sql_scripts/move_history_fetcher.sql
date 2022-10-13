@@ -21,12 +21,20 @@ WITH moves AS (
 	shipment_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			NULLIF(
+				jsonb_agg(jsonb_strip_nulls(
+					jsonb_build_object(
+						'shipment_type', shipments.shipment_type,
+						'shipment_id_abbr', LEFT(shipments.id::TEXT, 5)
+					)
+				))::TEXT, '[{}]'::TEXT
+			) AS context,
 			NULL AS context_id
 		FROM
 			audit_history
 			JOIN shipments ON shipments.id = audit_history.object_id
 				AND audit_history."table_name" = 'mto_shipments'
+		GROUP BY audit_history.id
 	),
 	move_logs AS (
 		SELECT
@@ -76,10 +84,12 @@ WITH moves AS (
 	service_items AS (
 		SELECT
 			mto_service_items.id,
-			json_agg(json_build_object('name',
-					re_services.name,
-					'shipment_type',
-					mto_shipments.shipment_type))::TEXT AS context
+			json_agg(json_build_object(
+				'name', re_services.name,
+				'shipment_type', mto_shipments.shipment_type,
+				'shipment_id_abbr', LEFT(mto_shipments.id::TEXT, 5)
+				)
+			)::TEXT AS context
 		FROM
 			mto_service_items
 		JOIN re_services ON mto_service_items.re_service_id = re_services.id
@@ -119,10 +129,12 @@ WITH moves AS (
 	service_item_dimensions AS (
 		SELECT
 			mto_service_item_dimensions.*,
-			json_agg(json_build_object('name',
-					re_services.name,
-					'shipment_type',
-					mto_shipments.shipment_type))::TEXT AS context
+			json_agg(json_build_object(
+				'name', re_services.name,
+				'shipment_type', mto_shipments.shipment_type,
+				'shipment_id_abbr', LEFT(mto_shipments.id::TEXT, 5)
+				)
+			)::TEXT AS context
 		FROM
 			mto_service_item_dimensions
 		JOIN mto_service_items on mto_service_items.id = mto_service_item_dimensions.mto_service_item_id
@@ -148,8 +160,9 @@ WITH moves AS (
 			json_agg(
 				json_build_object(
 					'address_type', 'pickupAddress'::TEXT,
-					'shipment_type', shipments.shipment_type
-				)
+					'shipment_type', shipments.shipment_type,
+					'shipment_id_abbr', LEFT(shipments.id::TEXT, 5)
+					)
 				)::TEXT AS context,
 			shipments.id::text AS context_id
 		FROM
@@ -165,9 +178,10 @@ WITH moves AS (
 			json_agg(
 				json_build_object(
 					'address_type', 'destinationAddress'::TEXT,
-					'shipment_type', shipments.shipment_type
-				)
-			)::TEXT AS context,
+					'shipment_type', shipments.shipment_type,
+					'shipment_id_abbr', LEFT(shipments.id::TEXT, 5)
+					)
+				)::TEXT AS context,
 			shipments.id::text AS context_id
 		FROM
 			audit_history
@@ -200,15 +214,15 @@ WITH moves AS (
 	),
 	payment_requests AS (
 		SELECT
-			json_agg(json_build_object('name',
-					re_services.name,
-					'price',
-					payment_service_items.price_cents::TEXT,
-					'status',
-					payment_service_items.status,
-					'shipment_id',
-					mto_shipments.id::TEXT,
-					'shipment_type', mto_shipments.shipment_type))::TEXT AS context,
+			json_agg(json_build_object(
+				'name', re_services.name,
+				'price', payment_service_items.price_cents::TEXT,
+				'status', payment_service_items.status,
+				'shipment_id', mto_shipments.id::TEXT,
+				'shipment_id_abbr', LEFT(mto_shipments.id::TEXT, 5),
+				'shipment_type', mto_shipments.shipment_type
+				)
+			)::TEXT AS context,
 			payment_requests.id AS id,
 			payment_requests.move_id,
 			payment_requests.payment_request_number
@@ -262,8 +276,10 @@ WITH moves AS (
 		SELECT
 			mto_agents.id,
 			json_agg(json_build_object(
-				'shipment_type',
-				shipments.shipment_type))::TEXT AS context
+				'shipment_type', shipments.shipment_type,
+				'shipment_id_abbr', LEFT(shipments.id::TEXT, 5)
+				)
+			)::TEXT AS context
 		FROM
 			mto_agents
 			JOIN shipments ON mto_agents.mto_shipment_id = shipments.id
@@ -283,10 +299,12 @@ WITH moves AS (
 	reweighs AS (
 		SELECT
 			reweighs.id,
-			json_agg(json_build_object('shipment_type',
-				shipments.shipment_type,
-				'payment_request_number',
-				payment_requests.payment_request_number))::TEXT AS context
+			json_agg(json_build_object(
+				'shipment_type', shipments.shipment_type,
+				'shipment_id_abbr', LEFT(shipments.id::TEXT, 5),
+				'payment_request_number', payment_requests.payment_request_number
+				)
+			)::TEXT AS context
 		FROM
 			reweighs
 			JOIN shipments ON reweighs.shipment_id = shipments.id
