@@ -109,7 +109,9 @@ const EvaluationReports = ({ customerInfo, grade }) => {
           <Grid row className={evaluationReportsStyles.counselingHeadingContainer}>
             <h2>Counseling QAE reports ({counselingEvaluationReports.length})</h2>
             <Restricted to={permissionTypes.createEvaluationReport}>
-              <Button onClick={() => handleCounselingCreateClick()}>Create report</Button>
+              <Button data-testid="counselingEvaluationCreate" onClick={() => handleCounselingCreateClick()}>
+                Create report
+              </Button>
             </Restricted>
           </Grid>
           <Grid row>

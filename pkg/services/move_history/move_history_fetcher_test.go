@@ -2,7 +2,6 @@ package movehistory
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 	"time"
 
@@ -683,14 +682,34 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 			user = testdatagen.MakeUserWithRoleTypes(suite.DB(), roleTypes, assertions)
 		}
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
-		auditHistory := testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
 			User: user,
 			Move: models.Move{
 				ID: approvedMove.ID,
 			},
 		})
-		fmt.Print(auditHistory)
 		return approvedMove.Locator
+	}
+
+	setupServiceMemberTestData := func(userFirstName string, fakeEventName string) (string, models.User) {
+		assertions := testdatagen.Assertions{
+			ServiceMember: models.ServiceMember{
+				FirstName: &userFirstName,
+			},
+		}
+		// Create an unsubmitted move with the service member attached to the orders.
+		move := testdatagen.MakeMove(suite.DB(), assertions)
+		user := move.Orders.ServiceMember.User
+		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				ID: move.ID,
+			},
+			User: user,
+			TestDataAuditHistory: testdatagen.TestDataAuditHistory{
+				EventName: &fakeEventName,
+			},
+		})
+		return move.Locator, user
 	}
 
 	suite.Run("Test with TOO user", func() {
@@ -739,6 +758,19 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
 		suite.Equal(1, len(auditHistoriesForUser))
 		suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+	})
+
+	suite.Run("Test with Service Member user", func() {
+		userName := "service_member_creator"
+		fakeEventName := "submitMoveForApproval"
+		locator, user := setupServiceMemberTestData(userName, fakeEventName)
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
+		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.Nil(err)
+		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, user.ID)
+		suite.Equal(1, len(auditHistoriesForUser))
+		suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+		suite.Equal(fakeEventName, *auditHistoriesForUser[0].EventName)
 	})
 }
 
