@@ -1,6 +1,9 @@
 name: auto approve and tidy
 on:
   pull_request_target:
+    branches:
+      - master
+      - kh-test-checkout-fix
     paths:
       - '.github/workflows/gosum.yml'
       - 'go.mod'
@@ -18,12 +21,11 @@ jobs:
       - name: checkout
         uses: actions/checkout@v3.1.0
         fetch-depth: 0
-
+        # if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
       - name: reattach HEAD to Head Ref
         # b/c checkout action leaves in detached head state https://github.com/actions/checkout/issues/6
         run: git checkout "$(echo ${{ github.head_ref }})"
-        if: github.head_ref != ''
-
+        # if: github.head_ref != '' && (github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]')
       - name: setup go
         uses: actions/setup-go@v3
         with:
@@ -32,7 +34,7 @@ jobs:
         run: |
           go version
           go mod tidy
-
+        # if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
       - name: set up Git
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,7 +42,7 @@ jobs:
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-
+        # if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
       - name: commit and push changes
         run: |
           git add .
@@ -48,7 +50,7 @@ jobs:
             git commit -m 'Fix go modules'
             git push
           fi
-
+        # if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
   approve:
     name: auto-approve dependabot PRs
     runs-on: ubuntu-latest
@@ -56,6 +58,6 @@ jobs:
     steps:
       - name: approve
         uses: hmarr/auto-approve-action@v2.4.0
-
+        # if: github.actor == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, 'dependencies')
         with:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
