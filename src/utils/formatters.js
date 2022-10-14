@@ -425,3 +425,13 @@ export function formatEvaluationReportLocation(location) {
       return undefined;
   }
 }
+
+/**
+ * Formats comma separated numeral string into number. Eg. $1,234.12 -> 1234.12
+ *
+ * @param string
+ * @returns {number}
+ */
+export function commaSeparatedStringToFloat(string) {
+  return parseFloat(string.replace(/,/g, ''), 10);
+}

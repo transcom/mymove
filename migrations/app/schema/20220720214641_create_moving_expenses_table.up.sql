@@ -5,7 +5,7 @@ CREATE TYPE moving_expense_type AS enum (
 	'RENTAL_EQUIPMENT',
 	'STORAGE',
 	'TOLLS',
-	'WEIGHING_FEE',
+	'WEIGHING_FEES',
 	'OTHER'
 	);
 

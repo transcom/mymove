@@ -5733,7 +5733,7 @@ definitions:
       STORAGE: Storage
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
-      WEIGHING_FEE: Weighing fees
+      WEIGHING_FEE: Weighing fee
   MovingExpense:
     description: >-
       Expense information and receipts of costs incurred that can be reimbursed
