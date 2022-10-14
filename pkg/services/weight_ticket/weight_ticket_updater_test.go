@@ -252,6 +252,34 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.Reason, *updatedWeightTicket.Reason)
 	})
 
+	suite.Run("Successfully changes reason from rejected to approved", func() {
+		appCtx := suite.AppContextForTest()
+
+		status := models.PPMDocumentStatusExcluded
+		originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+			WeightTicket: models.WeightTicket{
+				Status: &status,
+				Reason: models.StringPointer("some temporary reason"),
+			},
+		})
+
+		updater := NewOfficeWeightTicketUpdater()
+
+		desiredStatus := models.PPMDocumentStatusApproved
+		desiredWeightTicket := &models.WeightTicket{
+			ID:     originalWeightTicket.ID,
+			Status: &desiredStatus,
+			Reason: models.StringPointer(""),
+		}
+
+		updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+		suite.Nil(updateErr)
+		suite.NotNil(updatedWeightTicket)
+		suite.Equal(desiredStatus, *updatedWeightTicket.Status)
+		suite.Equal((*string)(nil), updatedWeightTicket.Reason)
+	})
+
 	suite.Run("Fails to update when files are missing", func() {
 		appCtx := suite.AppContextForTest()
 

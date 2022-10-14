@@ -123,7 +123,7 @@ func verifyReasonAndStatusAreValid() weightTicketValidator {
 		}
 
 		if newWeightTicket.Status != nil {
-			if *newWeightTicket.Status == models.PPMDocumentStatusApproved && (newWeightTicket.Reason == nil || len(*newWeightTicket.Reason) > 0) {
+			if *newWeightTicket.Status == models.PPMDocumentStatusApproved && newWeightTicket.Reason != nil {
 				verrs.Add("Reason", "reason must be blank if the status is Approved")
 			}
 
