@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
@@ -128,7 +129,12 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 			// And return
 			serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember)
 			responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
-			sessionManager := h.SessionManager(appCtx.Session())
+			sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
+			if sessionManager == nil {
+				appCtx.Logger().Error("Cannot get session manager from request")
+				err := errors.New("error getting session manager")
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 			return handlers.NewCookieUpdateResponder(params.HTTPRequest, responder, sessionManager, appCtx.Session()), nil
 		})
 }
