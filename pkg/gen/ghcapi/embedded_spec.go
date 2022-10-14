@@ -2841,7 +2841,7 @@ func init() {
       "patch": {
         "description": "Updates a weight ticket document with new information",
         "tags": [
-          "ppmShipment"
+          "ppm"
         ],
         "summary": "Updates a weight ticket document",
         "operationId": "updateWeightTicket",
@@ -8903,6 +8903,9 @@ func init() {
       "name": "paymentServiceItem"
     },
     {
+      "name": "ppm"
+    },
+    {
       "name": "tac"
     }
   ]
@@ -12558,7 +12561,7 @@ func init() {
       "patch": {
         "description": "Updates a weight ticket document with new information",
         "tags": [
-          "ppmShipment"
+          "ppm"
         ],
         "summary": "Updates a weight ticket document",
         "operationId": "updateWeightTicket",
@@ -18946,6 +18949,9 @@ func init() {
     },
     {
       "name": "paymentServiceItem"
+    },
+    {
+      "name": "ppm"
     },
     {
       "name": "tac"

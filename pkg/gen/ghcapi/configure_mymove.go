@@ -24,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm_shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
@@ -391,9 +390,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.UpdateProGearWeightTicket has not yet been implemented")
 		})
 	}
-	if api.PpmShipmentUpdateWeightTicketHandler == nil {
-		api.PpmShipmentUpdateWeightTicketHandler = ppm_shipment.UpdateWeightTicketHandlerFunc(func(params ppm_shipment.UpdateWeightTicketParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm_shipment.UpdateWeightTicket has not yet been implemented")
+	if api.PpmUpdateWeightTicketHandler == nil {
+		api.PpmUpdateWeightTicketHandler = ppm.UpdateWeightTicketHandlerFunc(func(params ppm.UpdateWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateWeightTicket has not yet been implemented")
 		})
 	}
 

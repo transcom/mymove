@@ -32,7 +32,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm_shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
@@ -263,8 +262,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmUpdateProGearWeightTicketHandler: ppm.UpdateProGearWeightTicketHandlerFunc(func(params ppm.UpdateProGearWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateProGearWeightTicket has not yet been implemented")
 		}),
-		PpmShipmentUpdateWeightTicketHandler: ppm_shipment.UpdateWeightTicketHandlerFunc(func(params ppm_shipment.UpdateWeightTicketParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm_shipment.UpdateWeightTicket has not yet been implemented")
+		PpmUpdateWeightTicketHandler: ppm.UpdateWeightTicketHandlerFunc(func(params ppm.UpdateWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateWeightTicket has not yet been implemented")
 		}),
 	}
 }
@@ -443,8 +442,8 @@ type MymoveAPI struct {
 	PaymentServiceItemUpdatePaymentServiceItemStatusHandler payment_service_item.UpdatePaymentServiceItemStatusHandler
 	// PpmUpdateProGearWeightTicketHandler sets the operation handler for the update pro gear weight ticket operation
 	PpmUpdateProGearWeightTicketHandler ppm.UpdateProGearWeightTicketHandler
-	// PpmShipmentUpdateWeightTicketHandler sets the operation handler for the update weight ticket operation
-	PpmShipmentUpdateWeightTicketHandler ppm_shipment.UpdateWeightTicketHandler
+	// PpmUpdateWeightTicketHandler sets the operation handler for the update weight ticket operation
+	PpmUpdateWeightTicketHandler ppm.UpdateWeightTicketHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -726,8 +725,8 @@ func (o *MymoveAPI) Validate() error {
 	if o.PpmUpdateProGearWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.UpdateProGearWeightTicketHandler")
 	}
-	if o.PpmShipmentUpdateWeightTicketHandler == nil {
-		unregistered = append(unregistered, "ppm_shipment.UpdateWeightTicketHandler")
+	if o.PpmUpdateWeightTicketHandler == nil {
+		unregistered = append(unregistered, "ppm.UpdateWeightTicketHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -1090,7 +1089,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}"] = ppm_shipment.NewUpdateWeightTicket(o.context, o.PpmShipmentUpdateWeightTicketHandler)
+	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}"] = ppm.NewUpdateWeightTicket(o.context, o.PpmUpdateWeightTicketHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

@@ -34,6 +34,7 @@ tags:
   - name: mtoShipment
   - name: mtoAgent
   - name: paymentServiceItem
+  - name: ppm
   - name: tac
 paths:
   /customer/{customerID}:
@@ -1310,7 +1311,7 @@ paths:
       description: Updates a weight ticket document with new information
       operationId: updateWeightTicket
       tags:
-        - ppmShipment
+        - ppm
       parameters:
         - $ref: '#/parameters/ifMatch'
         - in: body
