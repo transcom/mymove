@@ -5044,6 +5044,11 @@ func init() {
         }
       }
     },
+    "ETag": {
+      "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+      "type": "string",
+      "readOnly": true
+    },
     "Entitlements": {
       "type": "object",
       "properties": {
@@ -7314,9 +7319,7 @@ func init() {
           "x-omitempty": false
         },
         "eTag": {
-          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
-          "type": "string",
-          "readOnly": true
+          "$ref": "#/definitions/ETag"
         },
         "emptyDocument": {
           "allOf": [
@@ -15070,6 +15073,11 @@ func init() {
         }
       }
     },
+    "ETag": {
+      "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+      "type": "string",
+      "readOnly": true
+    },
     "Entitlements": {
       "type": "object",
       "properties": {
@@ -17343,9 +17351,7 @@ func init() {
           "x-omitempty": false
         },
         "eTag": {
-          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
-          "type": "string",
-          "readOnly": true
+          "$ref": "#/definitions/ETag"
         },
         "emptyDocument": {
           "allOf": [

@@ -79,9 +79,7 @@ properties:
   reason:
     $ref: 'PPMDocumentStatusReason.yaml'
   eTag:
-    description: A hash that should be used as the "If-Match" header for any updates.
-    type: string
-    readOnly: true
+    $ref: 'ETag.yaml'
 required:
   - id
   - ppmShipmentId

@@ -6435,6 +6435,10 @@ definitions:
     format: uuid
     example: c56a4180-65aa-42ec-a945-5fd21dec0538
     readOnly: true
+  ETag:
+    description: A hash that should be used as the "If-Match" header for any updates.
+    type: string
+    readOnly: true
   ProGearWeightTicket:
     description: Pro-gear associated information and weight docs for a PPM shipment
     type: object
@@ -6535,9 +6539,7 @@ definitions:
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
       eTag:
-        description: A hash that should be used as the "If-Match" header for any updates.
-        type: string
-        readOnly: true
+        $ref: '#/definitions/ETag'
     required:
       - id
       - ppmShipmentId

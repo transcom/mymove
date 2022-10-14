@@ -44,10 +44,9 @@ type ProGearWeightTicket struct {
 	// Describes the pro-gear that was moved.
 	Description *string `json:"description"`
 
-	// A hash that should be used as the "If-Match" header for any updates.
+	// e tag
 	// Required: true
-	// Read Only: true
-	ETag string `json:"eTag"`
+	ETag ETag `json:"eTag"`
 
 	// empty document
 	// Required: true
@@ -240,7 +239,16 @@ func (m *ProGearWeightTicket) validateCreatedAt(formats strfmt.Registry) error {
 
 func (m *ProGearWeightTicket) validateETag(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("eTag", "body", m.ETag); err != nil {
+	if err := validate.Required("eTag", "body", ETag(m.ETag)); err != nil {
+		return err
+	}
+
+	if err := m.ETag.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("eTag")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("eTag")
+		}
 		return err
 	}
 
@@ -537,7 +545,12 @@ func (m *ProGearWeightTicket) contextValidateCreatedAt(ctx context.Context, form
 
 func (m *ProGearWeightTicket) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+	if err := m.ETag.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("eTag")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("eTag")
+		}
 		return err
 	}
 
