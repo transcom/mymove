@@ -2,7 +2,7 @@ import getTemplate from 'constants/MoveHistory/TemplateManager';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
-import e from 'constants/MoveHistory/EventTemplates/updateMTOServiceItemAddress';
+import e from 'constants/MoveHistory/EventTemplates/CreateMTOServiceItem/updateMTOServiceItemAddress';
 
 describe('when given a Update basic service item address history record', () => {
   const item = {

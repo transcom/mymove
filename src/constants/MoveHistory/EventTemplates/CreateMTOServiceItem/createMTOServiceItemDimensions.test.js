@@ -2,7 +2,7 @@ import getTemplate from 'constants/MoveHistory/TemplateManager';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
-import e from 'constants/MoveHistory/EventTemplates/createMTOServiceItemDimensions';
+import e from 'constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemDimensions';
 
 describe('when given a Create basic service item dimensions history record', () => {
   const item = {

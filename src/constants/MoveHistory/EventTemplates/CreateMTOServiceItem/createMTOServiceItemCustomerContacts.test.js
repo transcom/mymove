@@ -2,33 +2,26 @@ import getTemplate from 'constants/MoveHistory/TemplateManager';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
-import e from 'constants/MoveHistory/EventTemplates/createMTOServiceItem';
+import e from 'constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemCustomerContacts';
 
-describe('when given a Create basic service item history record', () => {
+describe('when given a Create basic service item customer contacts history record', () => {
   const item = {
     action: a.INSERT,
     changedValues: {
-      reason: 'Test',
-      status: 'SUBMITTED',
+      first_available_delivery_date: '2022-06-30T00:00:00+00:00',
+      time_military: '1500Z',
+      type: 'SECOND',
     },
-    context: [
-      {
-        name: 'Domestic uncrating',
-        shipment_type: 'HHG',
-      },
-    ],
     eventName: o.createMTOServiceItem,
-    tableName: t.mto_service_items,
+    tableName: t.mto_service_item_customer_contacts,
   };
-  it('correctly matches the create service item event', () => {
+  it('correctly matches the create service item customer contacts event', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(e);
     expect(result.getEventNameDisplay()).toEqual('Requested service item');
     expect(result.getDetailsLabeledDetails(item)).toMatchObject({
-      service_item_name: 'Domestic uncrating',
-      shipment_type: 'HHG',
-      reason: 'Test',
-      status: 'SUBMITTED',
+      first_available_delivery_date: '2022-06-30T00:00:00+00:00',
+      second_available_delivery_time: '1500Z',
     });
   });
 });
