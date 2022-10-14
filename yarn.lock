@@ -144,13 +144,13 @@
     "@babel/helper-module-imports" "^7.12.5"
     "@babel/types" "^7.12.11"
 
-"@babel/helper-builder-react-jsx@^7.18.6":
-  version "7.18.6"
-  resolved "https://registry.yarnpkg.com/@babel/helper-builder-react-jsx/-/helper-builder-react-jsx-7.18.6.tgz#b3a302c0eb4949e5356b400cb752a91e93bf9b79"
-  integrity sha512-2ndBVP5f9zwHWQeBr5EgqTAvFhPDViMW969bbJzRhKUUylnC39CdFZdVmqk+UtkxIpwm/efPgm3SzXUSlJnjAw==
+"@babel/helper-builder-react-jsx@^7.19.0":
+  version "7.19.0"
+  resolved "https://registry.yarnpkg.com/@babel/helper-builder-react-jsx/-/helper-builder-react-jsx-7.19.0.tgz#a1f4fef805388eda4b3c1bd8994dc585b0afa351"
+  integrity sha512-xvrbORmJ13lWrqyMErk4vczhXNNWdOSg1BZ+R/7D34SjDjToR5g3M5UpD6MyUekstI50qAHLWA1j7w5o1WK2Pw==
   dependencies:
     "@babel/helper-annotate-as-pure" "^7.18.6"
-    "@babel/types" "^7.18.6"
+    "@babel/types" "^7.19.0"
 
 "@babel/helper-compilation-targets@^7.13.0", "@babel/helper-compilation-targets@^7.15.4", "@babel/helper-compilation-targets@^7.16.7", "@babel/helper-compilation-targets@^7.17.10", "@babel/helper-compilation-targets@^7.18.2", "@babel/helper-compilation-targets@^7.19.3":
   version "7.19.3"
