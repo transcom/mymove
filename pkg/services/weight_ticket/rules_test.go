@@ -299,7 +299,7 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 						OwnsTrailer:              models.BoolPointer(false),
 						TrailerMeetsCriteria:     models.BoolPointer(false),
 						Status:                   &status,
-						Reason:                   models.StringPointer(""),
+						Reason:                   nil,
 					},
 					existingWeightTicket,
 				)
