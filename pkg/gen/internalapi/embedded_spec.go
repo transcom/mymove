@@ -4010,6 +4010,11 @@ func init() {
         "$ref": "#/definitions/DutyLocationPayload"
       }
     },
+    "ETag": {
+      "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+      "type": "string",
+      "readOnly": true
+    },
     "Error": {
       "type": "object",
       "required": [
@@ -5404,6 +5409,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "proGearWeightTickets": {
+          "description": "All pro-gear weight ticket documentation records for this PPM shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProGearWeightTicket"
+          }
+        },
         "reviewedAt": {
           "description": "The timestamp of when the Service Counselor has reviewed all of the closeout documents.",
           "type": "string",
@@ -6012,6 +6024,160 @@ func init() {
       "x-nullable": true,
       "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
     },
+    "ProGearWeightTicket": {
+      "description": "Pro-gear associated information and weight docs for a PPM shipment",
+      "type": "object",
+      "required": [
+        "id",
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "emptyDocumentId",
+        "emptyDocument",
+        "fullDocumentId",
+        "fullDocument",
+        "constructedWeightDocumentId",
+        "constructedWeightDocument",
+        "eTag"
+      ],
+      "properties": {
+        "belongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "constructedWeight": {
+          "description": "Constructed weight of the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "constructedWeightDocument": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/DocumentPayload"
+            },
+            {
+              "description": "Document that is associated with the user uploads containing the constructed weight."
+            }
+          ]
+        },
+        "constructedWeightDocumentId": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/UUID"
+            },
+            {
+              "description": "The ID of the document that is associated with the user uploads containing the constructed weight."
+            }
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "description": "Describes the pro-gear that was moved.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "eTag": {
+          "$ref": "#/definitions/ETag"
+        },
+        "emptyDocument": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/DocumentPayload"
+            },
+            {
+              "description": "Document that is associated with the user uploads containing the empty vehicle weight."
+            }
+          ]
+        },
+        "emptyDocumentId": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/UUID"
+            },
+            {
+              "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight."
+            }
+          ]
+        },
+        "emptyWeight": {
+          "description": "Weight of the vehicle not including the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "fullDocument": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/DocumentPayload"
+            },
+            {
+              "description": "Document that is associated with the user uploads containing the full vehicle weight."
+            }
+          ]
+        },
+        "fullDocumentId": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/UUID"
+            },
+            {
+              "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight."
+            }
+          ]
+        },
+        "fullWeight": {
+          "description": "Weight of the vehicle including the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/UUID"
+            },
+            {
+              "description": "The ID of the pro-gear weight ticket."
+            }
+          ]
+        },
+        "ppmShipmentId": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/UUID"
+            },
+            {
+              "description": "The ID of the PPM shipment that this pro-gear weight ticket is associated with."
+            }
+          ]
+        },
+        "reason": {
+          "$ref": "#/definitions/PPMDocumentStatusReason"
+        },
+        "status": {
+          "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -6566,6 +6732,12 @@ func init() {
           "format": "date-time"
         }
       }
+    },
+    "UUID": {
+      "type": "string",
+      "format": "uuid",
+      "readOnly": true,
+      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
     },
     "UpdateMovingExpense": {
       "type": "object",
@@ -11450,6 +11622,11 @@ func init() {
         "$ref": "#/definitions/DutyLocationPayload"
       }
     },
+    "ETag": {
+      "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+      "type": "string",
+      "readOnly": true
+    },
     "Error": {
       "type": "object",
       "required": [
@@ -12857,6 +13034,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "proGearWeightTickets": {
+          "description": "All pro-gear weight ticket documentation records for this PPM shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProGearWeightTicket"
+          }
+        },
         "reviewedAt": {
           "description": "The timestamp of when the Service Counselor has reviewed all of the closeout documents.",
           "type": "string",
@@ -13469,6 +13653,163 @@ func init() {
       "x-nullable": true,
       "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
     },
+    "ProGearWeightTicket": {
+      "description": "Pro-gear associated information and weight docs for a PPM shipment",
+      "type": "object",
+      "required": [
+        "id",
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "emptyDocumentId",
+        "emptyDocument",
+        "fullDocumentId",
+        "fullDocument",
+        "constructedWeightDocumentId",
+        "constructedWeightDocument",
+        "eTag"
+      ],
+      "properties": {
+        "belongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "constructedWeight": {
+          "description": "Constructed weight of the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "constructedWeightDocument": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/DocumentPayload"
+            },
+            {
+              "description": "Document that is associated with the user uploads containing the constructed weight."
+            }
+          ]
+        },
+        "constructedWeightDocumentId": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/UUID"
+            },
+            {
+              "description": "The ID of the document that is associated with the user uploads containing the constructed weight."
+            }
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "description": "Describes the pro-gear that was moved.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "eTag": {
+          "$ref": "#/definitions/ETag"
+        },
+        "emptyDocument": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/DocumentPayload"
+            },
+            {
+              "description": "Document that is associated with the user uploads containing the empty vehicle weight."
+            }
+          ]
+        },
+        "emptyDocumentId": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/UUID"
+            },
+            {
+              "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight."
+            }
+          ]
+        },
+        "emptyWeight": {
+          "description": "Weight of the vehicle not including the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "fullDocument": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/DocumentPayload"
+            },
+            {
+              "description": "Document that is associated with the user uploads containing the full vehicle weight."
+            }
+          ]
+        },
+        "fullDocumentId": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/UUID"
+            },
+            {
+              "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight."
+            }
+          ]
+        },
+        "fullWeight": {
+          "description": "Weight of the vehicle including the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/UUID"
+            },
+            {
+              "description": "The ID of the pro-gear weight ticket."
+            }
+          ]
+        },
+        "ppmShipmentId": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/UUID"
+            },
+            {
+              "description": "The ID of the PPM shipment that this pro-gear weight ticket is associated with."
+            }
+          ]
+        },
+        "reason": {
+          "$ref": "#/definitions/PPMDocumentStatusReason"
+        },
+        "status": {
+          "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -14023,6 +14364,12 @@ func init() {
           "format": "date-time"
         }
       }
+    },
+    "UUID": {
+      "type": "string",
+      "format": "uuid",
+      "readOnly": true,
+      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
     },
     "UpdateMovingExpense": {
       "type": "object",

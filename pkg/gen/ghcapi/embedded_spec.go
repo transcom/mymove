@@ -6854,6 +6854,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "proGearWeightTickets": {
+          "description": "All pro-gear weight ticket documentation records for this PPM shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProGearWeightTicket"
+          }
+        },
         "reviewedAt": {
           "description": "The timestamp of when the Service Counselor has reviewed all of the closeout documents.",
           "type": "string",
@@ -16884,6 +16891,13 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "proGearWeightTickets": {
+          "description": "All pro-gear weight ticket documentation records for this PPM shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProGearWeightTicket"
+          }
         },
         "reviewedAt": {
           "description": "The timestamp of when the Service Counselor has reviewed all of the closeout documents.",
