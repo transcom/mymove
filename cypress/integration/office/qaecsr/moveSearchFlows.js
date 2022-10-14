@@ -77,7 +77,7 @@ describe('QAE/CSR Move Search', () => {
     // Verify results table contents
     cy.get('tbody > tr').as('results');
     cy.get('@results').should('have.length', 1); // Page size of 20 in table
-    cy.get('@results').first().contains(name); // Should have leo in name
+    cy.get('@results').first().contains(name); // Should have QAECSRTestFirst in name
 
     // Click result to navigate to move details page
     cy.get('@results').first().click();
