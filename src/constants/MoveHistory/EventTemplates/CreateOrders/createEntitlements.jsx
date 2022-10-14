@@ -5,21 +5,21 @@ import a from 'constants/MoveHistory/Database/Actions';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 
+const formatChangedValues = (historyRecord) => {
+  const newChangedValues = {
+    ...historyRecord.changedValues,
+    dependents_authorized: historyRecord.changedValues?.dependents_authorized === true ? 'Yes' : 'No',
+  };
+
+  return { ...historyRecord, changedValues: newChangedValues };
+};
+
 export default {
   action: a.INSERT,
   eventName: o.createOrders,
   tableName: t.entitlements,
   getEventNameDisplay: () => 'Created allowances',
   getDetails: (historyRecord) => {
-    const getDetailsLabeledDetails = ({ changedValues }) => {
-      const newChangedValues = {
-        ...changedValues,
-        dependents_authorized: changedValues.dependents_authorized === true ? 'Yes' : 'No',
-      };
-
-      return newChangedValues;
-    };
-
-    return <LabeledDetails historyRecord={historyRecord} getDetailsLabeledDetails={getDetailsLabeledDetails} />;
+    return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
   },
 };
