@@ -269,13 +269,11 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 					RevokeOfficeSession: &boolean,
 				}
 
-				sessionStore := h.SessionManager(appCtx.Session()).Store
-
 				_, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(
 					appCtx,
 					*updatedOfficeUser.UserID,
 					&revokeOfficeSessionPayload,
-					sessionStore,
+					h.SessionManagers(),
 				)
 
 				if revokeErr != nil {

@@ -60,22 +60,36 @@ const EvaluationReportTable = ({
               id={report.id}
               className={classnames(styles.viewButton, 'text-blue usa-button--unstyled')}
               onClick={() => handleViewReportClick(report)}
+              data-testid="viewReport"
             >
               View report
             </Button>
           )}
-          {!report.submittedAt && <a href={`${location.pathname}/${report.id}`}>Edit report</a>}
+          {!report.submittedAt && (
+            <a href={`${location.pathname}/${report.id}`} data-testid="editReport">
+              Edit report
+            </a>
+          )}
         </td>
         {report.submittedAt && (
           <td className={styles.downloadColumn}>
-            <a href={`/ghc/v1/evaluation-reports/${report.id}/download`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`/ghc/v1/evaluation-reports/${report.id}/download`}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="downloadReport"
+            >
               Download
             </a>
           </td>
         )}
         {!report.submittedAt && (
           <td className={styles.downloadColumn}>
-            <Button className="usa-button--unstyled" onClick={() => toggleDeleteReportModal(report.id)}>
+            <Button
+              className="usa-button--unstyled"
+              onClick={() => toggleDeleteReportModal(report.id)}
+              data-testid="deleteReport"
+            >
               Delete
             </Button>
           </td>
@@ -95,7 +109,7 @@ const EvaluationReportTable = ({
   }
 
   return (
-    <div>
+    <div data-testid="evaluationReportTable">
       <ConnectedDeleteEvaluationReportConfirmationModal
         isOpen={isDeleteModalOpen}
         closeModal={toggleDeleteReportModal}
