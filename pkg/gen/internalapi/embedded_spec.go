@@ -2436,6 +2436,9 @@ func init() {
           "413": {
             "description": "payload is too large"
           },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
           "500": {
             "$ref": "#/responses/ServerError"
           }
@@ -9864,6 +9867,12 @@ func init() {
           },
           "413": {
             "description": "payload is too large"
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
             "description": "A server error occurred.",

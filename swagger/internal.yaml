@@ -5354,6 +5354,8 @@ paths:
           $ref: '#/responses/NotFound'
         '413':
           description: payload is too large
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
   /rate_engine_postal_codes/{postal_code}:

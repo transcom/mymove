@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -178,9 +179,18 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 			documentID := uuid.FromStringOrNil(params.DocumentID.String())
 
 			// Fetch document to ensure user has access to it
-			document, docErr := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, true)
+			document, docErr := models.FetchDocument(appCtx.DB(), appCtx.Session(), documentID, false)
 			if docErr != nil {
 				docNotFoundErr := fmt.Errorf("documentId %q was not found for this user", documentID)
+				return ppmop.NewCreatePPMUploadNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, docNotFoundErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), docNotFoundErr
+			}
+
+			ppmShipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
+
+			// Ensure the document belongs to an association of the PPM shipment
+			shipErr := ppmshipment.FindPPMShipmentWithDocument(appCtx, ppmShipmentID, documentID)
+			if shipErr != nil {
+				docNotFoundErr := fmt.Errorf("documentId %q was not found for this shipment", documentID)
 				return ppmop.NewCreatePPMUploadNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, docNotFoundErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), docNotFoundErr
 			}
 
@@ -198,18 +208,22 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 			if verrs.HasAny() || createErr != nil {
 				appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
 				switch createErr.(type) {
+				case uploaderpkg.ErrUnsupportedContentType:
+					return ppmop.NewCreatePPMUploadUnprocessableEntity().WithPayload(payloads.ValidationError(createErr.Error(), uuid.Nil, verrs)), createErr
 				case uploaderpkg.ErrTooLarge:
-					return uploadop.NewCreateUploadRequestEntityTooLarge(), rollbackErr
+					return ppmop.NewCreatePPMUploadRequestEntityTooLarge(), createErr
 				case uploaderpkg.ErrFile:
-					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
+					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				case uploaderpkg.ErrFailedToInitUploader:
-					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
+					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				default:
-					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), rollbackErr
+					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), createErr
 				}
 			}
 
+			// fmt.Printf("%+v\n", newUserUpload.Upload)
 			uploadPayload := payloads.PayloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
-			return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload), nil
+			// fmt.Printf("%+v\n", uploadPayload)
+			return ppmop.NewCreatePPMUploadCreated().WithPayload(uploadPayload), nil
 		})
 }

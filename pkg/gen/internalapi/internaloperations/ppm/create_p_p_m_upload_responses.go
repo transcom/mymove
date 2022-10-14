@@ -218,6 +218,51 @@ func (o *CreatePPMUploadRequestEntityTooLarge) WriteResponse(rw http.ResponseWri
 	rw.WriteHeader(413)
 }
 
+// CreatePPMUploadUnprocessableEntityCode is the HTTP code returned for type CreatePPMUploadUnprocessableEntity
+const CreatePPMUploadUnprocessableEntityCode int = 422
+
+/*
+CreatePPMUploadUnprocessableEntity The payload was unprocessable.
+
+swagger:response createPPMUploadUnprocessableEntity
+*/
+type CreatePPMUploadUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewCreatePPMUploadUnprocessableEntity creates CreatePPMUploadUnprocessableEntity with default headers values
+func NewCreatePPMUploadUnprocessableEntity() *CreatePPMUploadUnprocessableEntity {
+
+	return &CreatePPMUploadUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the create p p m upload unprocessable entity response
+func (o *CreatePPMUploadUnprocessableEntity) WithPayload(payload *internalmessages.ValidationError) *CreatePPMUploadUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create p p m upload unprocessable entity response
+func (o *CreatePPMUploadUnprocessableEntity) SetPayload(payload *internalmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreatePPMUploadUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // CreatePPMUploadInternalServerErrorCode is the HTTP code returned for type CreatePPMUploadInternalServerError
 const CreatePPMUploadInternalServerErrorCode int = 500
 
