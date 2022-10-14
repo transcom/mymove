@@ -84,7 +84,7 @@ EvaluationReportConfirmationModal.defaultProps = {
   className: null,
   bordered: false,
   modalActions: null,
-  destinationDutyLocationPostalCode: 'bbbblank',
+  destinationDutyLocationPostalCode: '',
 };
 
 EvaluationReportConfirmationModal.displayName = 'EvaluationReportConfirmationModal';

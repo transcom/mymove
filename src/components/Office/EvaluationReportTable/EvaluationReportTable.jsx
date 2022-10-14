@@ -163,7 +163,7 @@ EvaluationReportTable.propTypes = {
 EvaluationReportTable.defaultProps = {
   reports: [],
   shipments: null,
-  destinationDutyLocationPostalCode: 'table',
+  destinationDutyLocationPostalCode: '',
 };
 
 export default EvaluationReportTable;
