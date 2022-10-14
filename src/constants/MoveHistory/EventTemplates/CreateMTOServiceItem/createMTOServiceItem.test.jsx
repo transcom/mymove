@@ -22,6 +22,7 @@ describe('when given a Create basic service item history record', () => {
     eventName: o.createMTOServiceItem,
     tableName: t.mto_service_items,
   };
+
   const template = getTemplate(historyRecord);
   it('correctly matches the create service item event', () => {
     expect(template).toMatchObject(e);
@@ -33,7 +34,7 @@ describe('when given a Create basic service item history record', () => {
       ['shipment_type', 'HHG'],
       ['reason', 'Test'],
       ['status', 'SUBMITTED'],
-    ])('dislpays the proper details value for %s', async (label, value) => {
+    ])('for label %s it displays the proper details value %s', async (label, value) => {
       render(template.getDetails(historyRecord));
       expect(screen.getByText(value, { exact: false })).toBeInTheDocument();
     });
