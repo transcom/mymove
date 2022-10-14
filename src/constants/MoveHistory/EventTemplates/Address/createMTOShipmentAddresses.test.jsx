@@ -1,6 +1,6 @@
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
-import e from 'constants/MoveHistory/EventTemplates/createMTOShipmentAddresses';
+import e from 'constants/MoveHistory/EventTemplates/Address/createAddress';
 
 describe('when given an mto shipment insert with address table history record', () => {
   const item = {
