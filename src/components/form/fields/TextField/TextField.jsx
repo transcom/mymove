@@ -33,6 +33,7 @@ const TextField = ({
   errorClassName,
   isDisabled,
   display,
+  button,
   ...inputProps
 }) => {
   const [fieldProps, metaProps] = useField({ name, validate, type });
@@ -66,6 +67,8 @@ const TextField = ({
         <Textarea id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />
       )}
       {/* eslint-enable react/jsx-props-no-spreading */}
+
+      {button || null}
     </FormGroup>
   );
 };
@@ -85,6 +88,7 @@ TextField.propTypes = {
   errorMessage: PropTypes.string,
   errorClassName: PropTypes.string,
   isDisabled: PropTypes.bool,
+  button: PropTypes.node,
 };
 
 TextField.defaultProps = {
@@ -99,6 +103,7 @@ TextField.defaultProps = {
   errorClassName: '',
   isDisabled: false,
   display: 'input',
+  button: undefined,
 };
 
 export default TextField;

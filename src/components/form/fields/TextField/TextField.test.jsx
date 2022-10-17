@@ -1,6 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { useField } from 'formik'; // package will be auto mocked
+import userEvent from '@testing-library/user-event';
 
 import TextField from './TextField';
 
@@ -47,6 +48,33 @@ describe('TextField component', () => {
     );
 
     expect(queryByLabelText('First Name')).toHaveClass('myCustomInputClass');
+  });
+
+  it('can include a trailing button', () => {
+    useField.mockReturnValue([{}, {}]);
+
+    const mockOnButtonClick = jest.fn();
+    const { getByTestId } = render(
+      <TextField
+        name="testName"
+        id="testId"
+        label="testLabel"
+        button={
+          <button type="button" data-testid="testButton" onClick={mockOnButtonClick}>
+            Test button
+          </button>
+        }
+      />,
+    );
+
+    // Verify button is shown
+    expect(getByTestId('testButton')).toBeInTheDocument();
+    expect(getByTestId('testButton')).toHaveTextContent('Test button');
+
+    // Click the button
+    expect(mockOnButtonClick).not.toHaveBeenCalled();
+    userEvent.click(getByTestId('testButton'));
+    expect(mockOnButtonClick).toHaveBeenCalled();
   });
 
   describe('with an error message', () => {

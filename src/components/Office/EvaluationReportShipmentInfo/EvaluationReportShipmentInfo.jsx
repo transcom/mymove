@@ -12,7 +12,13 @@ import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { shipmentTypeLabels } from 'content/shipments';
 import EvaluationReportShipmentDisplay from 'components/Office/EvaluationReportShipmentDisplay/EvaluationReportShipmentDisplay';
 
-const EvaluationReportShipmentInfo = ({ shipments, report, customerInfo, grade }) => {
+const EvaluationReportShipmentInfo = ({
+  shipments,
+  report,
+  customerInfo,
+  grade,
+  destinationDutyLocationPostalCode,
+}) => {
   const shipmentDisplayInfo = (shipment) => ({
     ...shipment,
     heading: shipmentTypeLabels[shipment.shipmentType],
@@ -62,6 +68,7 @@ const EvaluationReportShipmentInfo = ({ shipments, report, customerInfo, grade }
                   shipmentId={shipment.id}
                   displayInfo={shipmentDisplayInfo(shipment)}
                   shipmentType={shipment.shipmentType}
+                  destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
                 />
               </div>
             ))}
@@ -80,6 +87,7 @@ EvaluationReportShipmentInfo.propTypes = {
   shipments: PropTypes.arrayOf(PropTypes.object).isRequired,
   customerInfo: PropTypes.object.isRequired,
   grade: PropTypes.string.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 
 export default EvaluationReportShipmentInfo;
