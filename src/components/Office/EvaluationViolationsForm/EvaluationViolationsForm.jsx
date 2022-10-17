@@ -20,7 +20,14 @@ import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
 import { EvaluationReportShape, ReportViolationShape, PWSViolationShape, CustomerShape, ShipmentShape } from 'types';
 import { formatDateForSwagger } from 'shared/dates';
 
-const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolations, customerInfo, mtoShipments }) => {
+const EvaluationViolationsForm = ({
+  violations,
+  evaluationReport,
+  reportViolations,
+  customerInfo,
+  grade,
+  mtoShipments,
+}) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
 
@@ -130,7 +137,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
       then: Yup.string().required(),
     }),
     observedClaimsResponseDate: Yup.date().when('kpiViolations', {
-      is: (kpiViolations) => kpiViolations.includes('observedClaimDate'),
+      is: (kpiViolations) => kpiViolations.includes('observedClaimsResponseDate'),
       then: Yup.date().optional(),
     }),
     observedPickupDate: Yup.date().when('kpiViolations', {
@@ -205,25 +212,26 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
       seriousIncident = evaluationReport.seriousIncident ? 'yes' : 'no';
     }
 
-    const kpiViolations = [];
-
-    if (reportViolations) {
-      reportViolations.forEach((entry) => {
-        if (entry.violation?.isKpi) {
-          const violationName = entry.violation.additionalDataElem;
-          kpiViolations.push({ violationName: evaluationReport[violationName] });
-        }
-      });
-    }
-
     const initialValues = {
       selectedViolations,
       seriousIncident,
       seriousIncidentDesc: evaluationReport?.seriousIncidentDesc,
-      kpiViolations,
+      observedPickupSpreadStartDate: evaluationReport?.observedPickupSpreadStartDate,
+      observedPickupSpreadEndDate: evaluationReport?.observedPickupSpreadEndDate,
+      observedClaimsResponseDate: evaluationReport?.observedClaimsResponseDate,
+      observedDeliveryDate: evaluationReport?.observedDeliveryDate,
     };
 
-    console.log('initial values: ', initialValues);
+    const kpiViolations = [];
+
+    reportViolations.forEach((entry) => {
+      if (entry.violation?.isKpi) {
+        const ade = entry.violation.additionalDataElem;
+        kpiViolations.push(ade);
+      }
+    });
+
+    initialValues.kpiViolations = kpiViolations;
 
     return initialValues;
   };
@@ -248,7 +256,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
         evaluationReport={evaluationReport}
         moveCode={moveCode}
         customerInfo={customerInfo}
-        grade={customerInfo.grade}
+        grade={grade}
         mtoShipments={mtoShipments}
         modalActions={submitModalActions}
         reportViolations={reportViolations}
@@ -270,12 +278,12 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
             const kpiViolation = kpiViolationList.find((entry) => entry.id === id);
             const prevSelectedKpiViolations = values.kpiViolations || [];
 
-            // removing
-            if (prevSelectedViolations.includes(id)) {
-              setFieldValue(
-                fieldKey,
-                prevSelectedViolations.filter((violationId) => violationId !== id),
-              );
+            const location = prevSelectedViolations.findIndex((entry) => entry === id);
+
+            // remove
+            if (location >= 0) {
+              prevSelectedViolations.splice(location, 1);
+              setFieldValue(fieldKey, prevSelectedViolations);
 
               if (kpiViolation) {
                 setFieldValue(
@@ -283,9 +291,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                   prevSelectedKpiViolations.filter((entry) => entry !== kpiViolation.additionalDataElem),
                 );
               }
-            }
-            // adding a new entry
-            else {
+            } else {
               setFieldValue(fieldKey, [...prevSelectedViolations, id]);
 
               if (kpiViolation) {
@@ -338,7 +344,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                 <Grid row>
                   <Grid col className={styles.claimDatePicker}>
                     <div>
-                      {values.kpiViolations.includes('observedClaimDate') && (
+                      {values.kpiViolations.includes('observedClaimsReponseDate') && (
                         <DatePickerInput
                           className={styles.datePicker}
                           label="Observed claims response date"
@@ -363,7 +369,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                       {values.kpiViolations.includes('observedPickupSpreadDates') && (
                         <DatePickerInput label="Observed pickup spread end date" name="observedPickupSpreadEndDate" />
                       )}
-                      {values.kpiViolations.includes('observedClaimDate') && (
+                      {values.kpiViolations.includes('observedClaimsResponseDate') && (
                         <DatePickerInput
                           className={styles.datePicker}
                           label="Observed claims response date"
@@ -489,6 +495,7 @@ EvaluationViolationsForm.propTypes = {
   evaluationReport: EvaluationReportShape.isRequired,
   reportViolations: PropTypes.arrayOf(ReportViolationShape),
   customerInfo: CustomerShape.isRequired,
+  grade: PropTypes.string.isRequired,
   mtoShipments: PropTypes.arrayOf(ShipmentShape),
 };
 
