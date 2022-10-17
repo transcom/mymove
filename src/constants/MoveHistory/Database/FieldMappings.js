@@ -18,7 +18,6 @@ export default {
   authorized_weight: 'Authorized weight',
   report_by_date: 'Report by date',
   issue_date: 'Orders date',
-  has_dependents: 'Dependents included',
   orders_type: 'Orders type',
   orders_type_detail: 'Orders type detail',
   origin_duty_location_name: 'Origin duty location name',
