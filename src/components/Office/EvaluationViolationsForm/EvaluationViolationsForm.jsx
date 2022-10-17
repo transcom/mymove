@@ -215,12 +215,14 @@ const EvaluationViolationsForm = ({
 
     const kpiViolations = [];
 
-    reportViolations.forEach((entry) => {
-      if (entry.violation?.isKpi) {
-        const ade = entry.violation.additionalDataElem;
-        kpiViolations.push(ade);
-      }
-    });
+    if (reportViolations) {
+      reportViolations.forEach((entry) => {
+        if (entry.violation?.isKpi) {
+          const ade = entry.violation.additionalDataElem;
+          kpiViolations.push(ade);
+        }
+      });
+    }
 
     const initialValues = {
       selectedViolations,
