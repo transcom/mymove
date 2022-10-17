@@ -4918,8 +4918,8 @@ func init() {
       }
     },
     "MovingExpenseType": {
+      "description": "Moving Expense Type",
       "type": "string",
-      "title": "Moving Expense Type",
       "enum": [
         "CONTRACTED_EXPENSE",
         "GAS",
@@ -5013,8 +5013,8 @@ func init() {
       }
     },
     "OmittableMovingExpenseType": {
+      "description": "Moving Expense Type",
       "type": "string",
-      "title": "Moving Expense Type",
       "enum": [
         "CONTRACTED_EXPENSE",
         "GAS",
@@ -12601,8 +12601,8 @@ func init() {
       }
     },
     "MovingExpenseType": {
+      "description": "Moving Expense Type",
       "type": "string",
-      "title": "Moving Expense Type",
       "enum": [
         "CONTRACTED_EXPENSE",
         "GAS",
@@ -12696,8 +12696,8 @@ func init() {
       }
     },
     "OmittableMovingExpenseType": {
+      "description": "Moving Expense Type",
       "type": "string",
-      "title": "Moving Expense Type",
       "enum": [
         "CONTRACTED_EXPENSE",
         "GAS",

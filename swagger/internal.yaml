@@ -3018,7 +3018,7 @@ definitions:
       - proofOfTrailerOwnershipDocumentId
   OmittableMovingExpenseType:
     type: string
-    title: Moving Expense Type
+    description: Moving Expense Type
     enum:
       - CONTRACTED_EXPENSE
       - GAS
@@ -3561,7 +3561,7 @@ definitions:
     x-nullable: true
   MovingExpenseType:
     type: string
-    title: Moving Expense Type
+    description: Moving Expense Type
     enum:
       - CONTRACTED_EXPENSE
       - GAS
