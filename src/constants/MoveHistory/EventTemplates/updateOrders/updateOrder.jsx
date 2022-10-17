@@ -5,15 +5,17 @@ import t from 'constants/MoveHistory/Database/Tables';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 
 const formatChangedValues = (historyRecord) => {
-  let newChangedValues;
+  let newChangedValues = historyRecord.changedValues;
 
   if (historyRecord.context) {
     newChangedValues = {
-      ...historyRecord.changedValues,
+      ...newChangedValues,
       ...historyRecord.context[0],
     };
-  } else {
-    newChangedValues = historyRecord.changedValues;
+  }
+
+  if ('has_dependents' in newChangedValues) {
+    newChangedValues.has_dependents = newChangedValues.has_dependents ? 'Yes' : 'No';
   }
 
   return { ...historyRecord, changedValues: newChangedValues };
