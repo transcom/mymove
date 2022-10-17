@@ -12,7 +12,7 @@ describe('Admin Home Page', function () {
   it('successfully loads when not logged in', function () {
     cy.logout();
     cy.contains('admin.move.mil');
-    cy.contains('Sign In');
+    cy.contains('Sign in');
   });
 
   it('redirects to the office users page after login', function () {
