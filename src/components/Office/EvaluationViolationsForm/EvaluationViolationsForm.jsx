@@ -155,7 +155,7 @@ const EvaluationViolationsForm = ({
     }),
     observedDeliveryDate: Yup.date().when('kpiViolations', {
       is: (kpiViolations) => kpiViolations.includes('observedDeliveryDate'),
-      then: Yup.date().required(),
+      then: Yup.date().optional(),
     }),
   });
 
@@ -213,16 +213,6 @@ const EvaluationViolationsForm = ({
       seriousIncident = evaluationReport.seriousIncident ? 'yes' : 'no';
     }
 
-    const initialValues = {
-      selectedViolations,
-      seriousIncident,
-      seriousIncidentDesc: evaluationReport?.seriousIncidentDesc,
-      observedPickupSpreadStartDate: evaluationReport?.observedPickupSpreadStartDate,
-      observedPickupSpreadEndDate: evaluationReport?.observedPickupSpreadEndDate,
-      observedClaimsResponseDate: evaluationReport?.observedClaimsResponseDate,
-      observedDeliveryDate: evaluationReport?.observedDeliveryDate,
-    };
-
     const kpiViolations = [];
 
     reportViolations.forEach((entry) => {
@@ -231,6 +221,17 @@ const EvaluationViolationsForm = ({
         kpiViolations.push(ade);
       }
     });
+
+    const initialValues = {
+      selectedViolations,
+      seriousIncident,
+      seriousIncidentDesc: evaluationReport?.seriousIncidentDesc,
+      observedPickupSpreadStartDate: evaluationReport?.observedPickupSpreadStartDate,
+      observedPickupSpreadEndDate: evaluationReport?.observedPickupSpreadEndDate,
+      observedClaimsResponseDate: evaluationReport?.observedClaimsResponseDate,
+      observedDeliveryDate: evaluationReport?.observedDeliveryDate,
+      kpiViolations,
+    };
 
     initialValues.kpiViolations = kpiViolations;
 
@@ -280,12 +281,12 @@ const EvaluationViolationsForm = ({
             const kpiViolation = kpiViolationList.find((entry) => entry.id === id);
             const prevSelectedKpiViolations = values.kpiViolations || [];
 
-            const location = prevSelectedViolations.findIndex((entry) => entry === id);
-
-            // remove
-            if (location >= 0) {
-              prevSelectedViolations.splice(location, 1);
-              setFieldValue(fieldKey, prevSelectedViolations);
+            // removing
+            if (prevSelectedViolations.includes(id)) {
+              setFieldValue(
+                fieldKey,
+                prevSelectedViolations.filter((violationId) => violationId !== id),
+              );
 
               if (kpiViolation) {
                 setFieldValue(
