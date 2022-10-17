@@ -628,12 +628,11 @@ EvaluationForm.propTypes = {
   mtoShipments: PropTypes.arrayOf(ShipmentShape),
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
-  destinationDutyLocationPostalCode: PropTypes.string,
+  destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 
 EvaluationForm.defaultProps = {
   mtoShipments: null,
-  destinationDutyLocationPostalCode: '',
 };
 
 export default EvaluationForm;

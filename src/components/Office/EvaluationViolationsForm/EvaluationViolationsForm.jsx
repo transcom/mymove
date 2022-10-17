@@ -458,13 +458,12 @@ EvaluationViolationsForm.propTypes = {
   reportViolations: PropTypes.arrayOf(ReportViolationShape),
   customerInfo: CustomerShape.isRequired,
   mtoShipments: PropTypes.arrayOf(ShipmentShape),
-  destinationDutyLocationPostalCode: PropTypes.string,
+  destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 
 EvaluationViolationsForm.defaultProps = {
   mtoShipments: null,
   reportViolations: null,
-  destinationDutyLocationPostalCode: '',
 };
 
 export default EvaluationViolationsForm;

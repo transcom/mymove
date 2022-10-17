@@ -133,7 +133,7 @@ const TXOMoveInfo = () => {
             <EvaluationReports
               customerInfo={customerData}
               grade={order.grade}
-              destinationDutyLocationPostalCode={order.destinationDutyLocation.address.postalCode}
+              destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
             />
           </Route>
 
@@ -142,7 +142,7 @@ const TXOMoveInfo = () => {
               <EvaluationReport
                 customerInfo={customerData}
                 grade={order.grade}
-                destinationDutyLocationPostalCode={order.destinationDutyLocation.address.postalCode}
+                destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
               />
             </Restricted>
           </Route>
@@ -150,7 +150,7 @@ const TXOMoveInfo = () => {
           <Route path={qaeCSRRoutes.EVALUATION_VIOLATIONS_PATH} exact>
             <EvaluationViolations
               customerInfo={customerData}
-              destinationDutyLocationPostalCode={order.destinationDutyLocation.address.postalCode}
+              destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
             />
           </Route>
 
