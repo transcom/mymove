@@ -2,13 +2,15 @@ export { default as acknowledgeExcessWeightRisk } from './acknowledgeExcessWeigh
 export { default as approveShipment } from './ApproveShipment/approveShipment';
 export { default as approveShipmentDiversion } from './approveShipmentDiversion';
 export { default as createBasicServiceItem } from './createBasicServiceItem';
+export { default as createEntitlements } from './CreateOrders/createEntitlements';
+export { default as createMoves } from './CreateOrders/createMoves';
 export { default as createMTOServiceItem } from './createMTOServiceItem';
 export { default as createMTOServiceItemCustomerContacts } from './createMTOServiceItemCustomerContacts';
 export { default as createMTOServiceItemDimensions } from './createMTOServiceItemDimensions';
 export { default as createMTOShipment } from './createMTOShipment';
 export { default as createMTOShipmentAddresses } from './createMTOShipmentAddresses';
 export { default as createMTOShipmentAgent } from './createMTOShipmentAgent';
-export { default as createOrders } from './createOrders';
+export { default as createOrders } from './CreateOrders/createOrders';
 export { default as createPaymentRequest } from './createPaymentRequest';
 export { default as createPaymentRequestReweighUpdate } from './createPaymentRequestReweighUpdate';
 export { default as createPaymentRequestShipmentUpdate } from './createPaymentRequestShipmentUpdate';
