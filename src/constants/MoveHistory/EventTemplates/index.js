@@ -5,7 +5,7 @@ export { default as createBasicServiceItem } from './createBasicServiceItem';
 export { default as createMTOServiceItem } from './CreateMTOServiceItem/createMTOServiceItem';
 export { default as createMTOServiceItemCustomerContacts } from './CreateMTOServiceItem/createMTOServiceItemCustomerContacts';
 export { default as createMTOServiceItemDimensions } from './CreateMTOServiceItem/createMTOServiceItemDimensions';
-export { default as createMTOShipment } from './createMTOShipment';
+export { default as createMTOShipment } from './MTOShipment/createMTOShipment';
 export { default as createAddresses } from './Address/createAddress';
 export { default as createMTOShipmentAgent } from './createMTOShipmentAgent';
 export { default as createOrders } from './CreateOrders/createOrders';
@@ -28,7 +28,7 @@ export { default as updateBillableWeightRemarksAsTIO } from './updateBillableWei
 export { default as updateMoveTaskOrder } from './updateMoveTaskOrder';
 export { default as updateMoveTaskOrderStatus } from './updateMoveTaskOrderStatus';
 export { default as updateMTOServiceItem } from './updateMTOServiceItem';
-export { default as updateMTOShipment } from './updateMTOShipment';
+export { default as updateMTOShipment } from './MTOShipment/updateMTOShipment';
 export { default as updateMTOShipmentAddresses } from './updateMTOShipmentAddresses';
 export { default as updateMTOShipmentAgent } from './updateMTOShipmentAgent';
 export { default as updateMTOShipmentDeprecatePaymentRequest } from './updateMTOShipmentDeprecatePaymentRequest';

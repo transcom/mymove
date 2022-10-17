@@ -26,6 +26,7 @@ const formatChangedValues = (historyRecord) => {
 
   if (context[0]?.shipment_type) {
     newChangedValues.shipment_type = context[0].shipment_type;
+    newChangedValues.shipment_id_display = context[0].shipment_id_abbr.toUpperCase();
   }
 
   return { ...historyRecord, changedValues: newChangedValues };

@@ -15,7 +15,7 @@ describe('when given an mto shipment insert with address table history record', 
       street_address_2: 'P.O. Box 1234',
       state: 'CA',
     },
-    context: [{ shipment_type: 'HHG', address_type: 'pickupAddress' }],
+    context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c', address_type: 'pickupAddress' }],
   };
 
   it('correctly matches the insert mto shipment address event for pickup addresses', () => {
@@ -35,6 +35,7 @@ describe('when given an mto shipment insert with address table history record', 
       street_address_2: 'P.O. Box 1234',
       state: 'CA',
       shipment_type: 'HHG',
+      shipment_id_display: 'A1B2C',
     });
   });
 
@@ -45,7 +46,7 @@ describe('when given an mto shipment insert with address table history record', 
     expect(
       result.getDetailsLabeledDetails({
         changedValues: item.changedValues,
-        context: [{ shipment_type: 'HHG', address_type: 'destinationAddress' }],
+        context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c', address_type: 'destinationAddress' }],
       }),
     ).toEqual({
       destination_address: '12 Any Street, P.O. Box 1234, Beverly Hills, CA 90211',
@@ -55,6 +56,7 @@ describe('when given an mto shipment insert with address table history record', 
       street_address_2: 'P.O. Box 1234',
       state: 'CA',
       shipment_type: 'HHG',
+      shipment_id_display: 'A1B2C',
     });
   });
 
@@ -66,7 +68,7 @@ describe('when given an mto shipment insert with address table history record', 
       result.getDetailsLabeledDetails({
         changedValues: item.changedValues,
         oldValues: item.oldValues,
-        context: [{ shipment_type: 'HHG', address_type: 'secondaryPickupAddress' }],
+        context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c', address_type: 'secondaryPickupAddress' }],
       }),
     ).toEqual({
       secondary_pickup_address: '12 Any Street, P.O. Box 1234, Beverly Hills, CA 90211',
@@ -76,6 +78,7 @@ describe('when given an mto shipment insert with address table history record', 
       street_address_2: 'P.O. Box 1234',
       state: 'CA',
       shipment_type: 'HHG',
+      shipment_id_display: 'A1B2C',
     });
   });
 
@@ -87,7 +90,7 @@ describe('when given an mto shipment insert with address table history record', 
       result.getDetailsLabeledDetails({
         changedValues: item.changedValues,
         oldValues: item.oldValues,
-        context: [{ shipment_type: 'HHG', address_type: 'secondaryDestinationAddress' }],
+        context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c', address_type: 'secondaryDestinationAddress' }],
       }),
     ).toEqual({
       secondary_destination_address: '12 Any Street, P.O. Box 1234, Beverly Hills, CA 90211',
@@ -97,6 +100,7 @@ describe('when given an mto shipment insert with address table history record', 
       street_address_2: 'P.O. Box 1234',
       state: 'CA',
       shipment_type: 'HHG',
+      shipment_id_display: 'A1B2C',
     });
   });
 });
