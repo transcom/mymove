@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { GridContainer } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
 
@@ -212,31 +211,35 @@ const SearchResultsTable = (props) => {
   if (isError) return <SomethingWentWrong />;
 
   return (
-    <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.SearchResultsTable}>
-      <h1>{`${title} (${totalCount})`}</h1>
-      <div className={styles.tableContainer}>
-        <Table
-          showFilters={showFilters}
-          showPagination={showPagination}
-          handleClick={handleClick}
-          gotoPage={gotoPage}
-          setPageSize={setPageSize}
-          nextPage={nextPage}
-          previousPage={previousPage}
-          getTableProps={getTableProps}
-          getTableBodyProps={getTableBodyProps}
-          headerGroups={headerGroups}
-          rows={rows}
-          prepareRow={prepareRow}
-          canPreviousPage={canPreviousPage}
-          canNextPage={canNextPage}
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-          pageCount={pageCount}
-          pageOptions={pageOptions}
-        />
-      </div>
-    </GridContainer>
+    <div data-testid="table-queue" className={styles.SearchResultsTable}>
+      <h2>{`${title} (${totalCount})`}</h2>
+      {totalCount > 0 ? (
+        <div className={styles.tableContainer}>
+          <Table
+            showFilters={showFilters}
+            showPagination={showPagination}
+            handleClick={handleClick}
+            gotoPage={gotoPage}
+            setPageSize={setPageSize}
+            nextPage={nextPage}
+            previousPage={previousPage}
+            getTableProps={getTableProps}
+            getTableBodyProps={getTableBodyProps}
+            headerGroups={headerGroups}
+            rows={rows}
+            prepareRow={prepareRow}
+            canPreviousPage={canPreviousPage}
+            canNextPage={canNextPage}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            pageCount={pageCount}
+            pageOptions={pageOptions}
+          />
+        </div>
+      ) : (
+        <p>No results found.</p>
+      )}
+    </div>
   );
 };
 
