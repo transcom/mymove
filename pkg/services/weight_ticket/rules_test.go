@@ -246,26 +246,6 @@ func (suite *WeightTicketSuite) TestValidationRules() {
 				suite.NilOrNoVerrs(err)
 			})
 
-			// Should pass this check, but fails at the verifications in the model
-			suite.Run("invalid status", func() {
-				status := models.PPMDocumentStatus("random")
-				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
-					&models.WeightTicket{
-						ID:                       weightTicketID,
-						VehicleDescription:       models.StringPointer("1994 Mazda MX-5 Miata"),
-						EmptyWeight:              models.PoundPointer(2500),
-						MissingEmptyWeightTicket: models.BoolPointer(true),
-						FullWeight:               models.PoundPointer(3300),
-						MissingFullWeightTicket:  models.BoolPointer(true),
-						OwnsTrailer:              models.BoolPointer(false),
-						TrailerMeetsCriteria:     models.BoolPointer(false),
-						Status:                   &status,
-					},
-					existingWeightTicket,
-				)
-				suite.NilOrNoVerrs(err)
-			})
-
 			suite.Run("excluded with reason", func() {
 				status := models.PPMDocumentStatusExcluded
 				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
