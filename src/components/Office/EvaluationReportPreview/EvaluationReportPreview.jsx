@@ -3,8 +3,6 @@ import * as PropTypes from 'prop-types';
 import { Grid } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import SelectedViolation from '../EvaluationViolationsForm/SelectedViolation/SelectedViolation';
-
 import styles from './EvaluationReportPreview.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
@@ -175,12 +173,12 @@ const EvaluationReportPreview = ({
               {hasViolations ? (
                 <dd className={styles.violationsRemarks}>
                   {reportViolations.map((reportViolation) => (
-                    <SelectedViolation
-                      className={styles.violationsList}
-                      key={`${reportViolation.id}-violation`}
-                      violation={reportViolation.violation}
-                      isReadOnly
-                    />
+                    <div className={styles.violation} key={`${reportViolation.id}-violation`}>
+                      <h5>{`${reportViolation?.violation?.paragraphNumber} ${reportViolation?.violation?.title}`}</h5>
+                      <p>
+                        <small>{reportViolation?.violation?.requirementSummary}</small>
+                      </p>
+                    </div>
                   ))}
                 </dd>
               ) : (

@@ -68,11 +68,13 @@
   @include u-margin-top(2);
 }
 
-.qaeRemarks, .violationsRemarks  {
+.qaeRemarks,
+.violationsRemarks {
   width: 75%;
 }
 
-.qaeRemarksLabel, .violationsLabel  {
+.qaeRemarksLabel,
+.violationsLabel {
   width: 25%;
 }
 
@@ -81,13 +83,15 @@
   @include u-margin-top(6);
 }
 
-div > h5 {
-  padding-left: 18px;
-  margin-left: 20px;
-  margin-top: 8px !important;
-  margin-bottom: 4px !important;
-}
+.violation {
+  @include u-padding-x(2);
+  @include u-padding-y(1);
+  border: 1px solid $base-light;
+  border-radius: 2px;
+  max-width: 648px;
+  margin-bottom: -1px;
 
-div > p {
-  padding-bottom: 6px;
+  p {
+    padding-top: 4px;
+  }
 }
