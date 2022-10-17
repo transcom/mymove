@@ -27,6 +27,7 @@ const EvaluationViolationsForm = ({
   customerInfo,
   grade,
   mtoShipments,
+  destinationDutyLocationPostalCode,
 }) => {
   const { moveCode, reportId } = useParams();
   const history = useHistory();
@@ -261,6 +262,7 @@ const EvaluationViolationsForm = ({
         modalActions={submitModalActions}
         reportViolations={reportViolations}
         bordered
+        destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
       />
       <Formik
         initialValues={getInitialValues()}
@@ -497,6 +499,7 @@ EvaluationViolationsForm.propTypes = {
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
   mtoShipments: PropTypes.arrayOf(ShipmentShape),
+  destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 
 EvaluationViolationsForm.defaultProps = {
