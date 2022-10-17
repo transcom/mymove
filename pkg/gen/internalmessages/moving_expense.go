@@ -30,7 +30,7 @@ type MovingExpense struct {
 	// A brief description of the expense
 	Description *string `json:"description"`
 
-	// The Document object that contains all file uploads for this expense
+	// document
 	// Required: true
 	Document *DocumentPayload `json:"document"`
 
@@ -41,7 +41,7 @@ type MovingExpense struct {
 	// Format: uuid
 	DocumentID strfmt.UUID `json:"documentId"`
 
-	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
+	// A hash that should be used as the "If-Match" header for any updates.
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
@@ -56,7 +56,7 @@ type MovingExpense struct {
 	MissingReceipt *bool `json:"missingReceipt"`
 
 	// moving expense type
-	MovingExpenseType MovingExpenseType `json:"movingExpenseType,omitempty"`
+	MovingExpenseType *OmittableMovingExpenseType `json:"movingExpenseType"`
 
 	// Indicates if the service member used their government issued card to pay for the expense
 	PaidWithGtcc *bool `json:"paidWithGtcc"`
@@ -208,13 +208,15 @@ func (m *MovingExpense) validateMovingExpenseType(formats strfmt.Registry) error
 		return nil
 	}
 
-	if err := m.MovingExpenseType.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("movingExpenseType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("movingExpenseType")
+	if m.MovingExpenseType != nil {
+		if err := m.MovingExpenseType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("movingExpenseType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("movingExpenseType")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -395,13 +397,15 @@ func (m *MovingExpense) contextValidateID(ctx context.Context, formats strfmt.Re
 
 func (m *MovingExpense) contextValidateMovingExpenseType(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.MovingExpenseType.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("movingExpenseType")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("movingExpenseType")
+	if m.MovingExpenseType != nil {
+		if err := m.MovingExpenseType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("movingExpenseType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("movingExpenseType")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

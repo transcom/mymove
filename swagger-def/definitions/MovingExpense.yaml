@@ -20,12 +20,11 @@ properties:
     example: c56a4180-65aa-42ec-a945-5fd21dec0538
     readOnly: true
   document:
-    description: The Document object that contains all file uploads for this expense
-    $ref: 'DocumentPayload.yaml'
+    allOf:
+      - description: The Document object that contains all file uploads for this expense
+      - $ref: 'DocumentPayload.yaml'
   movingExpenseType:
-    $ref: 'MovingExpenseType.yaml'
-    x-nullable: true
-    x-omitempty: false
+    $ref: 'OmittableMovingExpenseType.yaml'
   description:
     description: A brief description of the expense
     type: string
@@ -73,7 +72,7 @@ properties:
     type: string
     format: date-time
   eTag:
-    description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
+    description: A hash that should be used as the "If-Match" header for any updates.
     type: string
     readOnly: true
 required:
