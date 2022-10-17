@@ -5,6 +5,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/trace"
 )
@@ -17,6 +18,11 @@ func ContextLogger(field string, original *zap.Logger) func(next http.Handler) h
 			logs := original.With(zap.String("host", r.Host))
 			if id := trace.FromContext(ctx); !id.IsNil() {
 				logs = logs.With(zap.String(field, id.String()))
+			}
+			// log the sessionID so we can track requests from the
+			// same user across time
+			if sessionID := auth.SessionIDFromContext(ctx); sessionID != "" {
+				logs = logs.With(zap.String("session_id", sessionID))
 			}
 			ctx = logging.NewContext(ctx, logs)
 			next.ServeHTTP(w, r.WithContext(ctx))

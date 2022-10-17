@@ -90,7 +90,7 @@ const ViolationsAccordion = ({ violations, onChange, selected }) => {
         title: subCategory,
         content: getContentForItem(subCategory),
         expanded: false,
-        id: `${subCategory}-violation`,
+        id: `${subCategory.replace(/[\W_]+/g, '')}Violation`,
         headingLevel: 'h4',
       });
     });

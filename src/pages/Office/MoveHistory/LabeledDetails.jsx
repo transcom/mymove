@@ -12,6 +12,7 @@ import optionFields from 'constants/MoveHistory/Database/OptionFields';
 import { formatCustomerDate } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
+  const emptyValue = '—';
   const displayName = fieldMappings[fieldName];
   let displayValue = value;
 
@@ -23,6 +24,10 @@ const retrieveTextToDisplay = (fieldName, value) => {
     displayValue = optionFields[displayValue];
   } else if (dateFields[fieldName]) {
     displayValue = formatCustomerDate(displayValue);
+  }
+
+  if (!displayValue) {
+    displayValue = emptyValue;
   }
 
   return {
@@ -52,8 +57,13 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
     delete changedValuesToUse.service_item_name;
   }
 
+  /* Filter out empty values unless they used to be non-empty
+     These values may be non-nullish in oldValues and nullish in changedValues */
   const dbFieldsToDisplay = Object.keys(fieldMappings).filter((dbField) => {
-    return changedValuesToUse[dbField];
+    return (
+      changedValuesToUse[dbField] ||
+      (dbField in changedValuesToUse && historyRecord.oldValues && historyRecord.oldValues[dbField])
+    );
   });
 
   return (
