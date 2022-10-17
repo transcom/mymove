@@ -2,6 +2,13 @@
 
 set -eu -o pipefail
 
+# Check swagger version
+SWAGGER_VERSION=0.30.3
+if ! swagger version 2>/dev/null | grep -q -E "v?${SWAGGER_VERSION}"; then
+  echo "ERROR: Please install go-swagger version ${SWAGGER_VERSION}"
+  exit 1
+fi
+
 # Remove the generated code
 gendir=./pkg/gen
 

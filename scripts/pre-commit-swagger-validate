@@ -6,22 +6,13 @@
 
 set -eu -o pipefail
 
-UNAME_S=$(uname -s)
-if [ "$UNAME_S" == "Linux" ]; then
-  LOCAL_SWAGGER="/usr/local/bin/swagger"
-elif swagger version 2>/dev/null | grep -F -q -E 'version: v?0.30.2'; then
-  LOCAL_SWAGGER=$(which swagger)
+# Check swagger version
+SWAGGER_VERSION=0.30.3
+if ! swagger version 2>/dev/null | grep -q -E "v?${SWAGGER_VERSION}"; then
+  echo "ERROR: Please install go-swagger version ${SWAGGER_VERSION}"
+  exit 1
 fi
 
-if [[ -n "${LOCAL_SWAGGER+x}" ]]; then
-  for filename in "$@"; do
-    ${LOCAL_SWAGGER} validate "${filename}"
-  done
-else
-  # Locally we need to download the docker image to get the binary
-  image=milmove/circleci-docker:milmove-app-6adecbb2328766fc217e0b9c698cdcb0a5c524dd
-  docker pull -q "${image}"
-  for filename in "$@"; do
-    docker run --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" swagger validate "${filename}"
-  done
-fi
+for filename in "$@"; do
+  swagger validate "${filename}"
+done
