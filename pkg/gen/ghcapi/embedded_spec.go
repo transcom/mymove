@@ -2724,7 +2724,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "evaluationReports"
+          "pwsViolations"
         ],
         "summary": "Fetch the possible PWS violations for an evaluation report",
         "operationId": "getPWSViolations",
@@ -11951,7 +11951,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "evaluationReports"
+          "pwsViolations"
         ],
         "summary": "Fetch the possible PWS violations for an evaluation report",
         "operationId": "getPWSViolations",
