@@ -222,8 +222,6 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 	setupHandler := func(updater services.OfficeUserUpdater, revoker services.UserSessionRevocation) UpdateOfficeUserHandler {
 		handlerConfig := suite.HandlerConfig()
-		sessionManagers := suite.SetupSessionManagers()
-		handlerConfig.SetSessionManagers(sessionManagers)
 		return UpdateOfficeUserHandler{
 			handlerConfig,
 			updater,

@@ -159,6 +159,38 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		suite.Equal(report.Remarks, updatedReport.Remarks)
 		suite.Nil(updatedReport.SubmittedAt)
 	})
+
+	suite.Run("saving report with pre-existing violations should be removed or preserved based on observedViolations bool", func() {
+		report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{ReportViolation: models.ReportViolation{
+			ReportID:    report.ID,
+			Violation:   models.PWSViolation{},
+			ViolationID: uuid.UUID{},
+		}})
+		report.ViolationsObserved = swag.Bool(true)
+
+		// do the update
+		err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, etag.GenerateEtag(report.UpdatedAt))
+		suite.NoError(err)
+
+		var reportViolations models.ReportViolations
+		err = suite.DB().Where("report_id = ?", report.ID).All(&reportViolations)
+		suite.NoError(err)
+		// we should find any report violations, which means this object should have a 1 length
+		suite.Equal(1, len(reportViolations))
+
+		report.ViolationsObserved = swag.Bool(false)
+
+		// do the update
+		err = updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, etag.GenerateEtag(report.UpdatedAt))
+		suite.NoError(err)
+
+		err = suite.DB().Where("report_id = ?", report.ID).All(&reportViolations)
+		suite.NoError(err)
+		// we shouldn't find any report violations, which means this object should have a 0 length
+		suite.Equal(0, len(reportViolations))
+	})
+
 	suite.Run("saving report does not overwrite readonly fields", func() {
 		// Create a report and save it to the database
 		move := testdatagen.MakeDefaultMove(suite.DB())

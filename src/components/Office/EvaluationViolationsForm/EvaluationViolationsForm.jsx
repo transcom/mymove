@@ -68,7 +68,9 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
 
   const modalTitle = (
     <div className={styles.title}>
-      <h3>{`Preview and submit ${evaluationReport.type.toLowerCase()} report`}</h3>
+      <h3>{`Preview and submit ${
+        evaluationReport && evaluationReport.type ? evaluationReport.type.toLowerCase() : ''
+      } report`}</h3>
       <p>Is all the information shown correct?</p>
     </div>
   );
@@ -199,7 +201,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
     const selectedViolations = reportViolations ? reportViolations.map((violation) => violation.violationID) : [];
 
     let seriousIncident;
-    if (evaluationReport && Object.hasOwn(evaluationReport, 'seriousIncident')) {
+    if (evaluationReport && 'seriousIncident' in evaluationReport) {
       seriousIncident = evaluationReport.seriousIncident ? 'yes' : 'no';
     }
 
@@ -294,7 +296,7 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
 
           return (
             <>
-              <GridContainer className={styles.cardContainer}>
+              <GridContainer className={styles.cardContainer} data-testid="evaluationViolationsForm">
                 <Grid row>
                   <Grid col>
                     <h2>Select violations</h2>
@@ -445,7 +447,13 @@ const EvaluationViolationsForm = ({ violations, evaluationReport, reportViolatio
                         {'< Back to Evaluation form'}
                       </Button>
                       <div className={styles.grow} />
-                      <Button className="usa-button--unstyled" type="button" onClick={cancelForViolations}>
+
+                      <Button
+                        className="usa-button--unstyled"
+                        type="button"
+                        onClick={cancelForViolations}
+                        data-testid="cancelReport"
+                      >
                         Cancel
                       </Button>
                       <Button
