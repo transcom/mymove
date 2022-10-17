@@ -28,6 +28,7 @@ describe('when given a Update basic service item address history record', () => 
       {
         address_type: 'pickupAddress',
         shipment_type: 'HHG',
+        shipment_id_abbr: 'a1b2c',
       },
     ],
     eventName: o.createMTOServiceItem,
