@@ -75,7 +75,7 @@ properties:
       - $ref: 'DocumentPayload.yaml'
       - description: Document that is associated with the user uploads containing the constructed weight.
   status:
-    $ref: 'PPMDocumentStatus.yaml'
+    $ref: 'OmittablePPMDocumentStatus.yaml'
   reason:
     $ref: 'PPMDocumentStatusReason.yaml'
   eTag:

@@ -82,7 +82,7 @@ type MovingExpense struct {
 	SitStartDate *strfmt.Date `json:"sitStartDate"`
 
 	// status
-	Status *PPMDocumentStatus `json:"status"`
+	Status *OmittablePPMDocumentStatus `json:"status"`
 
 	// Timestamp when a property of this moving expense object was last modified (UTC)
 	// Required: true

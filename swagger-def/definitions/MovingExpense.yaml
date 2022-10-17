@@ -46,7 +46,7 @@ properties:
     x-nullable: true
     x-omitempty: false
   status:
-    $ref: 'PPMDocumentStatus.yaml'
+    $ref: 'OmittablePPMDocumentStatus.yaml'
   reason:
     $ref: 'PPMDocumentStatusReason.yaml'
   sitStartDate:

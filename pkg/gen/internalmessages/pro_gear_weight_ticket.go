@@ -91,7 +91,7 @@ type ProGearWeightTicket struct {
 	Reason *PPMDocumentStatusReason `json:"reason"`
 
 	// status
-	Status *PPMDocumentStatus `json:"status"`
+	Status *OmittablePPMDocumentStatus `json:"status"`
 
 	// updated at
 	// Required: true

@@ -48,7 +48,7 @@ type UpdateMovingExpense struct {
 	SitStartDate strfmt.Date `json:"sitStartDate,omitempty"`
 
 	// status
-	Status BasePPMDocumentStatus `json:"status,omitempty"`
+	Status PPMDocumentStatus `json:"status,omitempty"`
 }
 
 // Validate validates this update moving expense

@@ -2868,19 +2868,19 @@ definitions:
     enum:
       - ORIGIN
       - DESTINATION
-  PPMDocumentStatus:
+  OmittablePPMDocumentStatus:
+    description: Status of the PPM document.
     type: string
-    title: PPM document status
     enum:
       - APPROVED
       - EXCLUDED
       - REJECTED
-    x-nullable: true
-    x-omitempty: false
     x-display-value:
       APPROVED: Approved
       EXCLUDED: Excluded
       REJECTED: Rejected
+    x-nullable: true
+    x-omitempty: false
   PPMDocumentStatusReason:
     description: The reason the services counselor has excluded or rejected the item.
     type: string
@@ -2999,7 +2999,7 @@ definitions:
               proof of trailer ownership.
           - $ref: '#/definitions/DocumentPayload'
       status:
-        $ref: '#/definitions/PPMDocumentStatus'
+        $ref: '#/definitions/OmittablePPMDocumentStatus'
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
       eTag:
@@ -3098,7 +3098,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       status:
-        $ref: '#/definitions/PPMDocumentStatus'
+        $ref: '#/definitions/OmittablePPMDocumentStatus'
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
       sitStartDate:
@@ -3247,7 +3247,7 @@ definitions:
               Document that is associated with the user uploads containing the
               constructed weight.
       status:
-        $ref: '#/definitions/PPMDocumentStatus'
+        $ref: '#/definitions/OmittablePPMDocumentStatus'
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
       eTag:

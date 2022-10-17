@@ -40,7 +40,7 @@ type UpdateWeightTicket struct {
 	Reason string `json:"reason,omitempty"`
 
 	// status
-	Status BasePPMDocumentStatus `json:"status,omitempty"`
+	Status PPMDocumentStatus `json:"status,omitempty"`
 
 	// Trailer meets criteria
 	TrailerMeetsCriteria *bool `json:"trailerMeetsCriteria,omitempty"`

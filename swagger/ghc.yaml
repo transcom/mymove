@@ -4249,7 +4249,7 @@ definitions:
         type: boolean
         x-nullable: true
       status:
-        $ref: '#/definitions/BasePPMDocumentStatus'
+        $ref: '#/definitions/PPMDocumentStatus'
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
@@ -4275,7 +4275,7 @@ definitions:
         example: '2018-05-26'
         format: date
       status:
-        $ref: '#/definitions/BasePPMDocumentStatus'
+        $ref: '#/definitions/PPMDocumentStatus'
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
@@ -4308,7 +4308,7 @@ definitions:
         description: Constructed weight of the pro-gear.
         minimum: 0
       status:
-        $ref: '#/definitions/BasePPMDocumentStatus'
+        $ref: '#/definitions/PPMDocumentStatus'
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
@@ -5732,19 +5732,19 @@ definitions:
       - id
       - service_member_id
       - uploads
-  PPMDocumentStatus:
+  OmittablePPMDocumentStatus:
+    description: Status of the PPM document.
     type: string
-    title: PPM document status
     enum:
       - APPROVED
       - EXCLUDED
       - REJECTED
-    x-nullable: true
-    x-omitempty: false
     x-display-value:
       APPROVED: Approved
       EXCLUDED: Excluded
       REJECTED: Rejected
+    x-nullable: true
+    x-omitempty: false
   PPMDocumentStatusReason:
     description: The reason the services counselor has excluded or rejected the item.
     type: string
@@ -5863,7 +5863,7 @@ definitions:
               proof of trailer ownership.
           - $ref: '#/definitions/DocumentPayload'
       status:
-        $ref: '#/definitions/PPMDocumentStatus'
+        $ref: '#/definitions/OmittablePPMDocumentStatus'
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
       eTag:
@@ -5962,7 +5962,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       status:
-        $ref: '#/definitions/PPMDocumentStatus'
+        $ref: '#/definitions/OmittablePPMDocumentStatus'
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
       sitStartDate:
@@ -6111,7 +6111,7 @@ definitions:
               Document that is associated with the user uploads containing the
               constructed weight.
       status:
-        $ref: '#/definitions/PPMDocumentStatus'
+        $ref: '#/definitions/OmittablePPMDocumentStatus'
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
       eTag:
@@ -6580,9 +6580,9 @@ definitions:
     enum:
       - HHG
       - NTS
-  BasePPMDocumentStatus:
+  PPMDocumentStatus:
+    description: Status of the PPM document.
     type: string
-    title: PPM document status
     enum:
       - APPROVED
       - EXCLUDED
@@ -6593,7 +6593,7 @@ definitions:
       REJECTED: Rejected
   MovingExpenseType:
     type: string
-    title: Moving Expense Type
+    description: Moving Expense Type
     enum:
       - CONTRACTED_EXPENSE
       - GAS

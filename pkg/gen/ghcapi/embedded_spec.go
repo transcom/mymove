@@ -4372,20 +4372,6 @@ func init() {
         }
       }
     },
-    "BasePPMDocumentStatus": {
-      "type": "string",
-      "title": "PPM document status",
-      "enum": [
-        "APPROVED",
-        "EXCLUDED",
-        "REJECTED"
-      ],
-      "x-display-value": {
-        "APPROVED": "Approved",
-        "EXCLUDED": "Excluded",
-        "REJECTED": "Rejected"
-      }
-    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -6451,7 +6437,7 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
@@ -6461,8 +6447,8 @@ func init() {
       }
     },
     "MovingExpenseType": {
+      "description": "Moving Expense Type",
       "type": "string",
-      "title": "Moving Expense Type",
       "enum": [
         "CONTRACTED_EXPENSE",
         "GAS",
@@ -6519,6 +6505,22 @@ func init() {
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEES": "Weighing fees"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
+    "OmittablePPMDocumentStatus": {
+      "description": "Status of the PPM document.",
+      "type": "string",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
       },
       "x-nullable": true,
       "x-omitempty": false
@@ -6701,8 +6703,8 @@ func init() {
       ]
     },
     "PPMDocumentStatus": {
+      "description": "Status of the PPM document.",
       "type": "string",
-      "title": "PPM document status",
       "enum": [
         "APPROVED",
         "EXCLUDED",
@@ -6712,9 +6714,7 @@ func init() {
         "APPROVED": "Approved",
         "EXCLUDED": "Excluded",
         "REJECTED": "Rejected"
-      },
-      "x-nullable": true,
-      "x-omitempty": false
+      }
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
@@ -7442,7 +7442,7 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "updatedAt": {
           "type": "string",
@@ -8251,7 +8251,7 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "$ref": "#/definitions/BasePPMDocumentStatus"
+          "$ref": "#/definitions/PPMDocumentStatus"
         }
       }
     },
@@ -8502,7 +8502,7 @@ func init() {
           "type": "string"
         },
         "status": {
-          "$ref": "#/definitions/BasePPMDocumentStatus"
+          "$ref": "#/definitions/PPMDocumentStatus"
         }
       }
     },
@@ -8625,7 +8625,7 @@ func init() {
           "type": "string"
         },
         "status": {
-          "$ref": "#/definitions/BasePPMDocumentStatus"
+          "$ref": "#/definitions/PPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
           "description": "Trailer meets criteria",
@@ -8834,7 +8834,7 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
@@ -14462,20 +14462,6 @@ func init() {
         }
       }
     },
-    "BasePPMDocumentStatus": {
-      "type": "string",
-      "title": "PPM document status",
-      "enum": [
-        "APPROVED",
-        "EXCLUDED",
-        "REJECTED"
-      ],
-      "x-display-value": {
-        "APPROVED": "Approved",
-        "EXCLUDED": "Excluded",
-        "REJECTED": "Rejected"
-      }
-    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -16547,7 +16533,7 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
@@ -16557,8 +16543,8 @@ func init() {
       }
     },
     "MovingExpenseType": {
+      "description": "Moving Expense Type",
       "type": "string",
-      "title": "Moving Expense Type",
       "enum": [
         "CONTRACTED_EXPENSE",
         "GAS",
@@ -16615,6 +16601,22 @@ func init() {
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEES": "Weighing fees"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
+    "OmittablePPMDocumentStatus": {
+      "description": "Status of the PPM document.",
+      "type": "string",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
       },
       "x-nullable": true,
       "x-omitempty": false
@@ -16797,8 +16799,8 @@ func init() {
       ]
     },
     "PPMDocumentStatus": {
+      "description": "Status of the PPM document.",
       "type": "string",
-      "title": "PPM document status",
       "enum": [
         "APPROVED",
         "EXCLUDED",
@@ -16808,9 +16810,7 @@ func init() {
         "APPROVED": "Approved",
         "EXCLUDED": "Excluded",
         "REJECTED": "Rejected"
-      },
-      "x-nullable": true,
-      "x-omitempty": false
+      }
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
@@ -17541,7 +17541,7 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "updatedAt": {
           "type": "string",
@@ -18357,7 +18357,7 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "$ref": "#/definitions/BasePPMDocumentStatus"
+          "$ref": "#/definitions/PPMDocumentStatus"
         }
       }
     },
@@ -18611,7 +18611,7 @@ func init() {
           "type": "string"
         },
         "status": {
-          "$ref": "#/definitions/BasePPMDocumentStatus"
+          "$ref": "#/definitions/PPMDocumentStatus"
         }
       }
     },
@@ -18736,7 +18736,7 @@ func init() {
           "type": "string"
         },
         "status": {
-          "$ref": "#/definitions/BasePPMDocumentStatus"
+          "$ref": "#/definitions/PPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
           "description": "Trailer meets criteria",
@@ -18950,7 +18950,7 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",

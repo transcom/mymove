@@ -44,7 +44,7 @@ type UpdateProGearWeightTicket struct {
 	Reason string `json:"reason,omitempty"`
 
 	// status
-	Status BasePPMDocumentStatus `json:"status,omitempty"`
+	Status PPMDocumentStatus `json:"status,omitempty"`
 }
 
 // Validate validates this update pro gear weight ticket

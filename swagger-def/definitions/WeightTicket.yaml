@@ -88,7 +88,7 @@ properties:
       - description: Document that is associated with the user uploads containing the proof of trailer ownership.
       - $ref: 'DocumentPayload.yaml'
   status:
-    $ref: 'PPMDocumentStatus.yaml'
+    $ref: 'OmittablePPMDocumentStatus.yaml'
   reason:
     $ref: 'PPMDocumentStatusReason.yaml'
   eTag:

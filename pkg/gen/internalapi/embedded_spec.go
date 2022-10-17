@@ -4908,7 +4908,7 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
@@ -5036,6 +5036,22 @@ func init() {
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEES": "Weighing fees"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
+    "OmittablePPMDocumentStatus": {
+      "description": "Status of the PPM document.",
+      "type": "string",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
       },
       "x-nullable": true,
       "x-omitempty": false
@@ -5220,22 +5236,6 @@ func init() {
         "REJECTED",
         "EDITED"
       ]
-    },
-    "PPMDocumentStatus": {
-      "type": "string",
-      "title": "PPM document status",
-      "enum": [
-        "APPROVED",
-        "EXCLUDED",
-        "REJECTED"
-      ],
-      "x-display-value": {
-        "APPROVED": "Approved",
-        "EXCLUDED": "Excluded",
-        "REJECTED": "Rejected"
-      },
-      "x-nullable": true,
-      "x-omitempty": false
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
@@ -6201,7 +6201,7 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "updatedAt": {
           "type": "string",
@@ -7384,7 +7384,7 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
@@ -12591,7 +12591,7 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
@@ -12719,6 +12719,22 @@ func init() {
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEES": "Weighing fees"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
+    "OmittablePPMDocumentStatus": {
+      "description": "Status of the PPM document.",
+      "type": "string",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
       },
       "x-nullable": true,
       "x-omitempty": false
@@ -12903,22 +12919,6 @@ func init() {
         "REJECTED",
         "EDITED"
       ]
-    },
-    "PPMDocumentStatus": {
-      "type": "string",
-      "title": "PPM document status",
-      "enum": [
-        "APPROVED",
-        "EXCLUDED",
-        "REJECTED"
-      ],
-      "x-display-value": {
-        "APPROVED": "Approved",
-        "EXCLUDED": "Excluded",
-        "REJECTED": "Rejected"
-      },
-      "x-nullable": true,
-      "x-omitempty": false
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
@@ -13891,7 +13891,7 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "updatedAt": {
           "type": "string",
@@ -15084,7 +15084,7 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",

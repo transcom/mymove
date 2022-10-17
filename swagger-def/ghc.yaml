@@ -4118,7 +4118,7 @@ definitions:
         type: boolean
         x-nullable: true
       status:
-        $ref: 'definitions/BasePPMDocumentStatus.yaml'
+        $ref: 'definitions/PPMDocumentStatus.yaml'
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
@@ -4144,7 +4144,7 @@ definitions:
         example: '2018-05-26'
         format: date
       status:
-        $ref: 'definitions/BasePPMDocumentStatus.yaml'
+        $ref: 'definitions/PPMDocumentStatus.yaml'
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
@@ -4173,7 +4173,7 @@ definitions:
         description: Constructed weight of the pro-gear.
         minimum: 0
       status:
-        $ref: 'definitions/BasePPMDocumentStatus.yaml'
+        $ref: 'definitions/PPMDocumentStatus.yaml'
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
