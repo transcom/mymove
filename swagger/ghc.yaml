@@ -5682,7 +5682,7 @@ definitions:
       - proofOfTrailerOwnershipDocumentId
   OmittableMovingExpenseType:
     type: string
-    title: Moving Expense Type
+    description: Moving Expense Type
     enum:
       - CONTRACTED_EXPENSE
       - GAS
