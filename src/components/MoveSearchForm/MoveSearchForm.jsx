@@ -38,7 +38,7 @@ const MoveSearchForm = ({ onSubmit }) => {
             onSubmit={formik.handleSubmit}
             role="search"
           >
-            <p>What do you want to search for?</p>
+            <legend className="usa-label">What do you want to search for?</legend>
             <div role="group" className={formStyles.radioGroup}>
               <Field
                 as={Radio}
@@ -68,11 +68,19 @@ const MoveSearchForm = ({ onSubmit }) => {
                 label="Customer Name"
               />
             </div>
-            <div className={classnames(styles.searchBar)}>
-              <TextField id="searchText" className="usa-search__input" label="Search" name="searchText" type="search" />
-              <Button className={classnames(styles.searchButton)} type="submit" disabled={!formik.isValid}>
-                Search
-              </Button>
+            <div className={styles.searchBar}>
+              <TextField
+                id="searchText"
+                className="usa-search__input"
+                label={<legend className="usa-label">Search</legend>}
+                name="searchText"
+                type="search"
+                button={
+                  <Button className={styles.searchButton} type="submit" disabled={!formik.isValid}>
+                    Search
+                  </Button>
+                }
+              />
             </div>
           </Form>
         );
