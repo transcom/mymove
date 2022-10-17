@@ -31,6 +31,7 @@ export default {
   amended_orders_acknowledged_at: 'Amended orders acknowledged at',
   storage_in_transit: 'Storage in transit (SIT)',
   dependents_authorized: 'Dependents',
+  has_dependents: 'Dependents included',
   pro_gear_weight: 'Pro-gear',
   pro_gear_weight_spouse: 'Spouse pro-gear',
   required_medical_equipment_weight: 'RME',
