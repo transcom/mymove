@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -18,7 +19,7 @@ type userSessionRevocation struct {
 }
 
 // RevokeUserSession revokes the user's session
-func (o *userSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.UserUpdatePayload, sessionStore scs.Store) (*models.User, *validate.Errors, error) {
+func (o *userSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.UserUpdatePayload, sessionManagers auth.AppSessionManagers) (*models.User, *validate.Errors, error) {
 	var foundUser models.User
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	err := o.builder.FetchOne(appCtx, &foundUser, filters)
@@ -27,7 +28,7 @@ func (o *userSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext, 
 		return nil, nil, err
 	}
 
-	redisErr := deleteSessionIDFromRedis(appCtx, foundUser, payload, sessionStore)
+	redisErr := deleteSessionsFromRedis(appCtx, foundUser, payload, sessionManagers)
 	if redisErr != nil {
 		return nil, nil, redisErr
 	}
@@ -40,45 +41,56 @@ func NewUserSessionRevocation(builder userQueryBuilder) services.UserSessionRevo
 	return &userSessionRevocation{builder}
 }
 
-func deleteSessionIDFromRedis(appCtx appcontext.AppContext, user models.User, payload *adminmessages.UserUpdatePayload, sessionStore scs.Store) error {
-	var currentAdminSessionID, currentOfficeSessionID, currentMilSessionID string
+// deleteSessionIDFromRedis deletes a sessionID from a particular sessionStore
+func deleteSessionIDFromRedis(appCtx appcontext.AppContext, app auth.Application, userID uuid.UUID, sessionID string, sessionStore scs.Store) error {
+	_, exists, err := sessionStore.Find(sessionID)
+	if err != nil {
+		appCtx.Logger().Error("Error looking sessionID in redis for app", zap.Any("app", app), zap.String("UserID", userID.String()), zap.Error(err))
+		return err
+	}
+
+	if !exists {
+		appCtx.Logger().Info("Not found in Redis; nothing to revoke", zap.Any("app", app))
+	} else {
+		appCtx.Logger().Info("Found for user ID; deleting it from Redis", zap.Any("app", app), zap.String("UserID", userID.String()))
+		err := sessionStore.Delete(sessionID)
+		if err != nil {
+			appCtx.Logger().Error("Error deleting session from Redis for user ID", zap.Any("app", app), zap.String("UserID", userID.String()), zap.Error(err))
+			return err
+		}
+	}
+
+	return nil
+}
+
+// deleteSessionsFromRedis deletes all sessions as configured in the
+// payload form the sessionManagers
+func deleteSessionsFromRedis(appCtx appcontext.AppContext, user models.User, payload *adminmessages.UserUpdatePayload, sessionManagers auth.AppSessionManagers) error {
 	userID := user.ID
 
+	var adminErr, officeErr, milErr error
 	if payload.RevokeAdminSession != nil && *payload.RevokeAdminSession {
-		currentAdminSessionID = user.CurrentAdminSessionID
+		adminErr = deleteSessionIDFromRedis(appCtx, auth.AdminApp, userID, user.CurrentAdminSessionID, sessionManagers.Admin.Store())
 	}
 
 	if payload.RevokeOfficeSession != nil && *payload.RevokeOfficeSession {
-		currentOfficeSessionID = user.CurrentOfficeSessionID
+		officeErr = deleteSessionIDFromRedis(appCtx, auth.OfficeApp, userID, user.CurrentOfficeSessionID, sessionManagers.Office.Store())
 	}
 
 	if payload.RevokeMilSession != nil && *payload.RevokeMilSession {
-		currentMilSessionID = user.CurrentMilSessionID
+		milErr = deleteSessionIDFromRedis(appCtx, auth.MilApp, userID, user.CurrentMilSessionID, sessionManagers.Mil.Store())
 	}
 
-	var sessionIDMap = map[string]string{
-		"adminSessionID":  currentAdminSessionID,
-		"officeSessionID": currentOfficeSessionID,
-		"milSessionID":    currentMilSessionID,
+	// wait to check errors at the end so we try to delete all
+	// sessions from redis even if one operation fails
+	if adminErr != nil {
+		return adminErr
 	}
-
-	for field, sessionID := range sessionIDMap {
-		_, exists, err := sessionStore.Find(sessionID)
-		if err != nil {
-			appCtx.Logger().Error("Error looking up field in Redis for user ID", zap.String("field", field), zap.String("UserID", userID.String()), zap.Error(err))
-			return err
-		}
-
-		if !exists {
-			appCtx.Logger().Info("Not found in Redis; nothing to revoke", zap.String("field", field))
-		} else {
-			appCtx.Logger().Info("Found for user ID; deleting it from Redis", zap.String("field", field), zap.String("UserID", userID.String()))
-			err := sessionStore.Delete(sessionID)
-			if err != nil {
-				appCtx.Logger().Error("Error deleting field from Redis for user ID", zap.String("field", field), zap.String("UserID", userID.String()), zap.Error(err))
-				return err
-			}
-		}
+	if officeErr != nil {
+		return officeErr
+	}
+	if milErr != nil {
+		return milErr
 	}
 
 	return nil

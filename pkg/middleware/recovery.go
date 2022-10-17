@@ -32,6 +32,7 @@ func Recovery(globalLogger *zap.Logger) func(inner http.Handler) http.Handler {
 					}
 					if err, ok := obj.(error); ok {
 						fields = append(fields, zap.Error(err))
+						fields = append(fields, zap.String("stacktrace", string(debug.Stack())))
 					} else {
 						fields = append(fields, zap.Any("object", obj))
 						fields = append(fields, zap.String("stacktrace", string(debug.Stack())))

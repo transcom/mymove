@@ -172,6 +172,23 @@ WITH moves AS (
 		GROUP BY
 			shipments.id, audit_history.id
 	),
+	secondary_pickup_address_logs AS (
+		SELECT
+			audit_history.*,
+			json_agg(
+				json_build_object(
+					'address_type', 'secondaryPickupAddress'::TEXT,
+					'shipment_type', shipments.shipment_type
+				)
+			)::TEXT AS context,
+			shipments.id::text AS context_id
+		FROM
+			audit_history
+				JOIN shipments ON shipments.secondary_pickup_address_id = audit_history.object_id
+				AND audit_history. "table_name" = 'addresses'
+		GROUP BY
+			shipments.id, audit_history.id
+	),
 	destination_address_logs AS (
 		SELECT
 			audit_history.*,
@@ -187,6 +204,23 @@ WITH moves AS (
 			audit_history
 		JOIN shipments ON shipments.destination_address_id = audit_history.object_id
 			AND audit_history. "table_name" = 'addresses'
+		GROUP BY
+			shipments.id, audit_history.id
+	),
+	secondary_destination_address_logs AS (
+		SELECT
+			audit_history.*,
+			json_agg(
+				json_build_object(
+					'address_type', 'secondaryDestinationAddress'::TEXT,
+					'shipment_type', shipments.shipment_type
+				)
+			)::TEXT AS context,
+			shipments.id::text AS context_id
+		FROM
+			audit_history
+				JOIN shipments ON shipments.secondary_delivery_address_id = audit_history.object_id
+				AND audit_history. "table_name" = 'addresses'
 		GROUP BY
 			shipments.id, audit_history.id
 	),
@@ -346,7 +380,17 @@ WITH moves AS (
 		SELECT
 			*
 		FROM
+			secondary_pickup_address_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
 			destination_address_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
+			secondary_destination_address_logs
 		UNION ALL
 		SELECT
 			*
@@ -409,15 +453,16 @@ WITH moves AS (
 			service_members_logs
 	) SELECT DISTINCT
 		combined_logs.*,
-		COALESCE(office_users.first_name, prime_user_first_name) AS session_user_first_name,
-		office_users.last_name AS session_user_last_name,
-		office_users.email AS session_user_email,
-		office_users.telephone AS session_user_telephone
-	FROM
-		combined_logs
+		COALESCE(office_users.first_name, prime_user_first_name, service_members.first_name) AS session_user_first_name,
+		COALESCE(office_users.last_name, service_members.last_name) AS session_user_last_name,
+		COALESCE(office_users.email, service_members.personal_email) AS session_user_email,
+		COALESCE(office_users.telephone, service_members.telephone) AS session_user_telephone
+FROM
+	combined_logs
 		LEFT JOIN users_roles ON session_userid = users_roles.user_id
 		LEFT JOIN roles ON users_roles.role_id = roles.id
 		LEFT JOIN office_users ON office_users.user_id = session_userid
+		LEFT JOIN service_members ON service_members.user_id = session_userid
 		LEFT JOIN (
 			SELECT 'Prime' AS prime_user_first_name
 			) prime_users ON roles.role_type = 'prime'

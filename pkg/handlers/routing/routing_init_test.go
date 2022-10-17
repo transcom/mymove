@@ -6,9 +6,7 @@ import (
 	"net/http/httptest"
 	"path"
 	"testing"
-	"time"
 
-	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
 
@@ -47,13 +45,9 @@ func (suite *RoutingSuite) setupRouting() *Config {
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetAppNames(appNames)
 
-	sessionManagers := auth.SetupSessionManagers(true, memstore.New(), false,
-		time.Duration(180), time.Duration(180))
-	handlerConfig.SetSessionManagers(sessionManagers)
-
 	fakeLoginGovProvider := authentication.NewLoginGovProvider("fakeHostname", "secret_key", suite.Logger())
 
-	authContext := authentication.NewAuthContext(suite.Logger(), fakeLoginGovProvider, "http", 80, sessionManagers)
+	authContext := authentication.NewAuthContext(suite.Logger(), fakeLoginGovProvider, "http", 80)
 
 	fakeFs := afero.NewMemMapFs()
 	fakeBase := "fakebase"
@@ -78,6 +72,7 @@ func (suite *RoutingSuite) setupRouting() *Config {
 		ServePrimeSimulator: true,
 		ServeGHC:            true,
 		ServeDevlocalAuth:   true,
+		ServeOrders:         true,
 	}
 
 	return rConfig
