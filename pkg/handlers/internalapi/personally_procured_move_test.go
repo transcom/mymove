@@ -670,8 +670,13 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	moveRouter := moverouter.NewMoveRouter()
-
-	err := moveRouter.Submit(suite.AppContextForTest(), &move)
+	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	err := moveRouter.Submit(suite.AppContextForTest(), &move, newSignedCertification)
 	if err != nil {
 		t.Fatal("Should transition.")
 	}

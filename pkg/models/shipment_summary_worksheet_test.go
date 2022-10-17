@@ -69,7 +69,13 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 		ApplicationName: auth.MilApp,
 	}
 	moveRouter := moverouter.NewMoveRouter()
-	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, newSignedCertification)
 	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
 	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -221,7 +227,13 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 		ApplicationName: auth.MilApp,
 	}
 	moveRouter := moverouter.NewMoveRouter()
-	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move)
+	newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID: move.ID,
+		},
+		Stub: true,
+	})
+	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, newSignedCertification)
 	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
 	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
