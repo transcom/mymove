@@ -221,7 +221,7 @@ bin/gotestsum: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 bin/mockery: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/mockery github.com/vektra/mockery/v2
 
-# No static linking / $(LDFLAGS) because mockery is only used for code generation
+# No static linking / $(LDFLAGS) because swagger is only used for code generation
 bin/swagger: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 

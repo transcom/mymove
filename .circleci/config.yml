@@ -381,7 +381,7 @@ commands:
             [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
@@ -673,16 +673,20 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Install dependencies
           command: for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
       - run: scripts/check-generated-code go.sum
+      - run:
+          name: Install go-swagger
+          command: make bin/swagger
       - save_cache:
-          key: go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+          key: go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
           paths:
             - '~/go'
+            - '~/transcom/mymove/bin/swagger'
       - announce_failure
 
   # `pre_deps_yarn` is used to cache yarn sources
@@ -711,7 +715,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
@@ -747,7 +751,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}}
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
@@ -762,9 +766,7 @@ jobs:
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
           name: Run pre-commit tests without golangci-lint, eslint, or prettier
-          command: |
-            make bin/swagger
-            SKIP=golangci-lint,eslint,prettier pre-commit run --all-files
+          command: SKIP=golangci-lint,eslint,prettier pre-commit run --all-files
       # The output of golangci-lint is an artifact towards STIG compliance
       - run:
           name: Run pre-commit tests with golangci-lint only
@@ -804,7 +806,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run:
           name: Run Local acceptance tests
           command: |
@@ -972,7 +974,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: db_dev_fresh
@@ -1025,7 +1027,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - restore_cache:
           keys:
@@ -1117,7 +1119,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: make db_test_reset
       - run:
           command: make db_test_migrate
@@ -1168,7 +1170,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       # make -j 4 tells make to run 4 simultaneous builds
       - run: make -j 4 server_build build_tools
       - persist_to_workspace:
