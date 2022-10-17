@@ -2,11 +2,13 @@ description: Vehicle and optional trailer information and weight documents used 
 type: object
 properties:
   id:
+    description: ID of this set of weight tickets.
     type: string
     format: uuid
     example: c56a4180-65aa-42ec-a945-5fd21dec0538
     readOnly: true
   ppmShipmentId:
+    description: The ID of the PPM shipment that this set of weight tickets is for.
     type: string
     format: uuid
     example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -20,68 +22,77 @@ properties:
     format: date-time
     readOnly: true
   vehicleDescription:
+    description: Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.
     type: string
-    title: Vehicle description (ex. 'SUV')
     x-nullable: true
+    x-omitempty: false
   emptyWeight:
+    description: Weight of the vehicle when empty.
     type: integer
-    title: Empty Recorded Weight
     minimum: 0
+    x-nullable: true
+    x-omitempty: false
   missingEmptyWeightTicket:
+    description: Indicates if the customer is missing a weight ticket for the vehicle weight when empty.
     type: boolean
-    title: has empty weight ticket
     x-nullable: true
     x-omitempty: false
   emptyDocumentId:
-    title: Empty Document ID
+    description: ID of the document that is associated with the user uploads containing the vehicle weight when empty.
     type: string
     format: uuid
     readOnly: true
   emptyDocument:
-    title: Empty Document
-    $ref: 'DocumentPayload.yaml'
+    allOf:
+      - description: Document that is associated with the user uploads containing the vehicle weight when empty.
+      - $ref: 'DocumentPayload.yaml'
   fullWeight:
-    title: full weight ticket recorded weight
+    description: The weight of the vehicle when full.
     type: integer
     minimum: 0
+    x-nullable: true
+    x-omitempty: false
   missingFullWeightTicket:
-    title: has full weight ticket
+    description: Indicates if the customer is missing a weight ticket for the vehicle weight when full.
     type: boolean
     x-nullable: true
     x-omitempty: false
   fullDocumentId:
-    title: Full Document ID
+    description: ID of the document that is associated with the user uploads containing the vehicle weight when full.
     type: string
     format: uuid
     example: c56a4180-65aa-42ec-a945-5fd21dec0538
     readOnly: true
   fullDocument:
-    title: Full Document
-    $ref: 'DocumentPayload.yaml'
+    allOf:
+      - description: Document that is associated with the user uploads containing the vehicle weight when full.
+      - $ref: 'DocumentPayload.yaml'
   ownsTrailer:
-    title: Owns trailer
+    description: Indicates if the customer used a trailer they own for the move.
     type: boolean
     x-nullable: true
     x-omitempty: false
   trailerMeetsCriteria:
-    title: Trailer meets criteria
+    description: Indicates if the trailer that the customer used meets all the criteria to be claimable.
     type: boolean
     x-nullable: true
     x-omitempty: false
   proofOfTrailerOwnershipDocumentId:
-    title: Trailer Document ID
+    description: ID of the document that is associated with the user uploads containing the proof of trailer ownership.
     type: string
     format: uuid
     example: c56a4180-65aa-42ec-a945-5fd21dec0538
     readOnly: true
   proofOfTrailerOwnershipDocument:
-    title: Proof of Trailer Ownership Document
-    $ref: 'DocumentPayload.yaml'
+    allOf:
+      - description: Document that is associated with the user uploads containing the proof of trailer ownership.
+      - $ref: 'DocumentPayload.yaml'
   status:
     $ref: 'PPMDocumentStatus.yaml'
   reason:
     $ref: 'PPMDocumentStatusReason.yaml'
   eTag:
+    description: A hash that should be used as the "If-Match" header for any updates.
     type: string
     readOnly: true
 required:

@@ -30,7 +30,7 @@ type MovingExpense struct {
 	// A brief description of the expense
 	Description *string `json:"description"`
 
-	// The Document object that contains all file uploads for this expense
+	// document
 	// Required: true
 	Document *DocumentPayload `json:"document"`
 
@@ -41,7 +41,7 @@ type MovingExpense struct {
 	// Format: uuid
 	DocumentID strfmt.UUID `json:"documentId"`
 
-	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
+	// A hash that should be used as the "If-Match" header for any updates.
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
