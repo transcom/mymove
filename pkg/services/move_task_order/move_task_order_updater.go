@@ -389,3 +389,23 @@ func (o *moveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveID uui
 
 	return updatedMove, nil
 }
+
+// UpdateSelectedMoveType changes the SelectedMoveType a Move
+func (o *moveTaskOrderUpdater) UpdateSelectedMoveType(appCtx appcontext.AppContext, moveID uuid.UUID, selectedMoveType *models.SelectedMoveType) (*models.Move, error) {
+	searchParams := services.MoveTaskOrderFetcherParams{
+		IncludeHidden:   false,
+		MoveTaskOrderID: moveID,
+	}
+	move, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
+	if err != nil {
+		return nil, err
+	}
+
+	move.SelectedMoveType = selectedMoveType
+	verrs, err := appCtx.DB().ValidateAndUpdate(move)
+	if err != nil || verrs.HasAny() {
+		return nil, err
+	}
+
+	return move, nil
+}

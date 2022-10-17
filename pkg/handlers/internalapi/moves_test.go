@@ -26,11 +26,22 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
+	// Set up the necessary updater objects:
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	updater := movetaskorder.NewMoveTaskOrderUpdater(
+		queryBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		moveRouter,
+	)
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
@@ -48,7 +59,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 		PatchMovePayload: &patchPayload,
 	}
 	// And: a move is patched
-	handler := PatchMoveHandler{suite.HandlerConfig()}
+	handler := PatchMoveHandler{suite.HandlerConfig(), updater}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -60,6 +71,14 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
+	// Set up the necessary updater objects:
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	updater := movetaskorder.NewMoveTaskOrderUpdater(
+		queryBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		moveRouter,
+	)
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	// And: another logged in user
@@ -80,13 +99,21 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{suite.HandlerConfig()}
+	handler := PatchMoveHandler{suite.HandlerConfig(), updater}
 	response := handler.Handle(params)
 
 	suite.CheckResponseForbidden(response)
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
+	// Set up the necessary updater objects:
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	updater := movetaskorder.NewMoveTaskOrderUpdater(
+		queryBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		moveRouter,
+	)
 	// Given: a logged in user and no Move
 	user := testdatagen.MakeDefaultServiceMember(suite.DB())
 
@@ -107,13 +134,21 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{suite.HandlerConfig()}
+	handler := PatchMoveHandler{suite.HandlerConfig(), updater}
 	response := handler.Handle(params)
 
 	suite.CheckResponseNotFound(response)
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
+	// Set up the necessary updater objects:
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	updater := movetaskorder.NewMoveTaskOrderUpdater(
+		queryBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		moveRouter,
+	)
 	// Given: a set of orders, a move, user and servicemember
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
@@ -128,7 +163,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler{suite.HandlerConfig()}
+	handler := PatchMoveHandler{suite.HandlerConfig(), updater}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&moveop.PatchMoveCreated{}, response)
@@ -652,7 +687,6 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 		}
 		// And: a move is submitted
 		handlerConfig := suite.HandlerConfig()
-
 		handler := SubmitAmendedOrdersHandler{handlerConfig, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
 
