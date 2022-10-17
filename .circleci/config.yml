@@ -751,7 +751,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
