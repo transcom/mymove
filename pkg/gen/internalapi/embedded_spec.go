@@ -4906,9 +4906,7 @@ func init() {
           "x-omitempty": false
         },
         "movingExpenseType": {
-          "x-nullable": true,
-          "x-omitempty": false,
-          "$ref": "#/definitions/MovingExpenseType"
+          "$ref": "#/definitions/OmittableMovingExpenseType"
         },
         "paidWithGtcc": {
           "description": "Indicates if the service member used their government issued card to pay for the expense",
@@ -5046,6 +5044,34 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
+    },
+    "OmittableMovingExpenseType": {
+      "type": "string",
+      "title": "Moving Expense Type",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEES"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEES": "Weighing fees"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
     },
     "Orders": {
       "type": "object",
@@ -12358,9 +12384,7 @@ func init() {
           "x-omitempty": false
         },
         "movingExpenseType": {
-          "x-nullable": true,
-          "x-omitempty": false,
-          "$ref": "#/definitions/MovingExpenseType"
+          "$ref": "#/definitions/OmittableMovingExpenseType"
         },
         "paidWithGtcc": {
           "description": "Indicates if the service member used their government issued card to pay for the expense",
@@ -12498,6 +12522,34 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
+    },
+    "OmittableMovingExpenseType": {
+      "type": "string",
+      "title": "Moving Expense Type",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEES"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEES": "Weighing fees"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
     },
     "Orders": {
       "type": "object",

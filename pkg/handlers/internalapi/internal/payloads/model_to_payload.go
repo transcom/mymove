@@ -303,7 +303,8 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		MissingReceipt: movingExpense.MissingReceipt,
 	}
 	if movingExpense.MovingExpenseType != nil {
-		payload.MovingExpenseType = internalmessages.MovingExpenseType(*movingExpense.MovingExpenseType)
+		movingExpenseType := internalmessages.OmittableMovingExpenseType(*movingExpense.MovingExpenseType)
+		payload.MovingExpenseType = &movingExpenseType
 	}
 
 	if movingExpense.Status != nil {

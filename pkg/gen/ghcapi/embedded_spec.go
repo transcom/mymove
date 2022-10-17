@@ -6217,9 +6217,7 @@ func init() {
           "x-omitempty": false
         },
         "movingExpenseType": {
-          "x-nullable": true,
-          "x-omitempty": false,
-          "$ref": "#/definitions/MovingExpenseType"
+          "$ref": "#/definitions/OmittableMovingExpenseType"
         },
         "paidWithGtcc": {
           "description": "Indicates if the service member used their government issued card to pay for the expense",
@@ -6263,7 +6261,16 @@ func init() {
         }
       }
     },
-    "MovingExpenseType": {
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      }
+    },
+    "OmittableMovingExpenseType": {
       "type": "string",
       "title": "Moving Expense Type",
       "enum": [
@@ -6287,16 +6294,9 @@ func init() {
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEES": "Weighing fees"
-      }
-    },
-    "NullableString": {
-      "type": "string",
-      "x-go-type": {
-        "import": {
-          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
-        },
-        "type": "String"
-      }
+      },
+      "x-nullable": true,
+      "x-omitempty": false
     },
     "Order": {
       "type": "object",
@@ -15667,9 +15667,7 @@ func init() {
           "x-omitempty": false
         },
         "movingExpenseType": {
-          "x-nullable": true,
-          "x-omitempty": false,
-          "$ref": "#/definitions/MovingExpenseType"
+          "$ref": "#/definitions/OmittableMovingExpenseType"
         },
         "paidWithGtcc": {
           "description": "Indicates if the service member used their government issued card to pay for the expense",
@@ -15713,7 +15711,16 @@ func init() {
         }
       }
     },
-    "MovingExpenseType": {
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      }
+    },
+    "OmittableMovingExpenseType": {
       "type": "string",
       "title": "Moving Expense Type",
       "enum": [
@@ -15737,16 +15744,9 @@ func init() {
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEES": "Weighing fees"
-      }
-    },
-    "NullableString": {
-      "type": "string",
-      "x-go-type": {
-        "import": {
-          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
-        },
-        "type": "String"
-      }
+      },
+      "x-nullable": true,
+      "x-omitempty": false
     },
     "Order": {
       "type": "object",
