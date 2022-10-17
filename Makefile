@@ -305,10 +305,14 @@ swagger_generate: .swagger_build.stamp ## Check that the build files haven't bee
 # If any swagger files (source or generated) have changed, re-run so
 # we can warn on improperly modified files. Look for any files so that
 # if API docs have changed, swagger regeneration will capture those
-# changes
+# changes. On Circle CI, or if the user has set
+# SWAGGER_AUTOREBUILD, rebuild automatically without asking
+ifdef CIRCLECI
+SWAGGER_AUTOREBUILD=1
+endif
 SWAGGER_FILES = $(shell find swagger swagger-def -type f)
 .swagger_build.stamp: $(SWAGGER_FILES)
-ifndef CIRCLECI
+ifndef SWAGGER_AUTOREBUILD
 ifneq ("$(shell find swagger -type f -name '*.yaml' -newer .swagger_build.stamp)","")
 	@echo "Unexpected changes found in swagger build files. Code may be overwritten."
 	@read -p "Continue with rebuild? [y/N] : " ANS && test "$${ANS}" == "y" || (echo "Exiting rebuild."; false)
