@@ -1,22 +1,22 @@
-WITH moves AS (
+WITH move AS (
 		SELECT
 			moves.*
 		FROM
 			moves
 		WHERE
-			locator = $1
+			moves.locator = $1
 	),
-	shipments AS (
+	move_shipments AS (
 		SELECT
 			mto_shipments.*
 		FROM
 			mto_shipments
 		WHERE
-			move_id = (
+			mto_shipments.move_id = (
 				SELECT
-					moves.id
+					move.id
 				FROM
-					moves)
+					move)
 	),
 	shipment_logs AS (
 		SELECT
@@ -24,15 +24,15 @@ WITH moves AS (
 			NULLIF(
 				jsonb_agg(jsonb_strip_nulls(
 					jsonb_build_object(
-						'shipment_type', shipments.shipment_type,
-						'shipment_id_abbr', LEFT(shipments.id::TEXT, 5)
+						'shipment_type', move_shipments.shipment_type,
+						'shipment_id_abbr', LEFT(move_shipments.id::TEXT, 5)
 					)
 				))::TEXT, '[{}]'::TEXT
 			) AS context,
 			NULL AS context_id
 		FROM
 			audit_history
-			JOIN shipments ON shipments.id = audit_history.object_id
+			JOIN move_shipments ON move_shipments.id = audit_history.object_id
 				AND audit_history."table_name" = 'mto_shipments'
 		GROUP BY audit_history.id
 	),
@@ -43,21 +43,15 @@ WITH moves AS (
 			NULL AS context_id
 		FROM
 			audit_history
-		JOIN moves ON audit_history.table_name = 'moves'
-			AND audit_history.object_id = moves.id
+		JOIN move ON audit_history.table_name = 'moves'
+			AND audit_history.object_id = move.id
 	),
-	orders AS (
+	move_orders AS (
 		SELECT
 			orders.*
 		FROM
 			orders
-		JOIN moves ON moves.orders_id = orders.id
-	WHERE
-		orders.id = (
-			SELECT
-				moves.orders_id
-			FROM
-				moves)
+		WHERE orders.id = (SELECT move.orders_id FROM move)
 	),
 	-- Context is null if empty, {}, object
     -- Joining the jsonb changed_data for every record to surface duty location ids.
@@ -74,39 +68,39 @@ WITH moves AS (
  			NULL AS context_id
 		FROM
 			audit_history
-		JOIN orders ON orders.id = audit_history.object_id
+		JOIN move_orders ON move_orders.id = audit_history.object_id
 			AND audit_history."table_name" = 'orders'
 		JOIN jsonb_to_record(audit_history.changed_data) as c(origin_duty_location_id TEXT, new_duty_location_id TEXT) on TRUE
 		LEFT JOIN duty_locations AS old_duty on uuid(c.origin_duty_location_id) = old_duty.id
 		LEFT JOIN duty_locations AS new_duty on uuid(c.new_duty_location_id) = new_duty.id
 		GROUP BY audit_history.id
 	),
-	service_items AS (
+	move_service_items AS (
 		SELECT
-			mto_service_items.id,
-			json_agg(json_build_object(
-				'name', re_services.name,
-				'shipment_type', shipments.shipment_type,
-				'shipment_id_abbr', LEFT(shipments.id::TEXT, 5)
-				)
-			)::TEXT AS context
+			mto_service_items.*
 		FROM
 			mto_service_items
-		JOIN re_services ON mto_service_items.re_service_id = re_services.id
-		JOIN moves ON moves.id = mto_service_items.move_id
-		LEFT JOIN shipments ON mto_service_items.mto_shipment_id = shipments.id
-		GROUP BY
-				mto_service_items.id
+		WHERE
+			mto_service_items.move_id = (SELECT move.id FROM move)
 	),
 	service_item_logs AS (
 		SELECT
 			audit_history.*,
-			context,
+			json_agg(json_build_object(
+				'name', re_services.name,
+				'shipment_type', move_shipments.shipment_type,
+				'shipment_id_abbr', LEFT(move_shipments.id::TEXT, 5)
+				)
+			)::TEXT AS context,
 			NULL AS context_id
 		FROM
 			audit_history
-			JOIN service_items ON service_items.id = audit_history.object_id
+			JOIN move_service_items ON move_service_items.id = audit_history.object_id
 				AND audit_history. "table_name" = 'mto_service_items'
+			JOIN re_services ON move_service_items.re_service_id = re_services.id
+			LEFT JOIN move_shipments ON move_service_items.mto_shipment_id = move_shipments.id
+		GROUP BY
+				audit_history.id, move_service_items.id
 	),
 	service_item_customer_contacts AS (
 		SELECT
@@ -114,7 +108,7 @@ WITH moves AS (
 		FROM
 			mto_service_item_customer_contacts
 		JOIN mto_service_items on mto_service_items.id = mto_service_item_customer_contacts.mto_service_item_id
-		JOIN moves ON moves.id = mto_service_items.move_id
+		JOIN move ON move.id = mto_service_items.move_id
 	),
 	service_item_customer_contacts_logs AS (
 		SELECT
@@ -128,138 +122,32 @@ WITH moves AS (
 	),
 	service_item_dimensions AS (
 		SELECT
-			mto_service_item_dimensions.*,
-			json_agg(json_build_object(
-				'name', re_services.name,
-				'shipment_type', shipments.shipment_type,
-				'shipment_id_abbr', LEFT(shipments.id::TEXT, 5)
-				)
-			)::TEXT AS context
+			mto_service_item_dimensions.*
 		FROM
 			mto_service_item_dimensions
-		JOIN mto_service_items on mto_service_items.id = mto_service_item_dimensions.mto_service_item_id
-		JOIN re_services ON mto_service_items.re_service_id = re_services.id
-		LEFT JOIN shipments ON mto_service_items.mto_shipment_id = shipments.id
-		JOIN moves ON moves.id = mto_service_items.move_id
-		GROUP BY
-			mto_service_item_dimensions.id
+		JOIN move_service_items on move_service_items.id = mto_service_item_dimensions.mto_service_item_id
+
 	),
 	service_item_dimensions_logs AS  (
 		SELECT
 			audit_history.*,
-			context,
+			json_agg(json_build_object(
+				'name', re_services.name,
+				'shipment_type', move_shipments.shipment_type,
+				'shipment_id_abbr', LEFT(move_shipments.id::TEXT, 5)
+				)
+			)::TEXT AS context,
 			NULL AS context_id
 		FROM
 			audit_history
-		JOIN service_item_dimensions ON service_item_dimensions.id = audit_history.object_id
-			AND audit_history."table_name" = 'mto_service_item_dimensions'
+			JOIN service_item_dimensions ON service_item_dimensions.id = audit_history.object_id
+				AND audit_history."table_name" = 'mto_service_item_dimensions'
+			JOIN move_service_items ON move_service_items.id = service_item_dimensions.mto_service_item_id
+			JOIN re_services ON move_service_items.re_service_id = re_services.id
+			LEFT JOIN move_shipments ON move_service_items.mto_shipment_id = move_shipments.id
+		GROUP BY audit_history.id
 	),
-	pickup_address_logs AS (
-		SELECT
-			audit_history.*,
-			json_agg(
-				json_build_object(
-					'address_type', 'pickupAddress'::TEXT,
-					'shipment_type', shipments.shipment_type,
-					'shipment_id_abbr', LEFT(shipments.id::TEXT, 5)
-					)
-				)::TEXT AS context,
-			shipments.id::text AS context_id
-		FROM
-			audit_history
-		JOIN shipments ON shipments.pickup_address_id = audit_history.object_id
-			AND audit_history. "table_name" = 'addresses'
-		GROUP BY
-			shipments.id, audit_history.id
-	),
-	secondary_pickup_address_logs AS (
-		SELECT
-			audit_history.*,
-			json_agg(
-				json_build_object(
-					'address_type', 'secondaryPickupAddress'::TEXT,
-					'shipment_type', shipments.shipment_type
-				)
-			)::TEXT AS context,
-			shipments.id::text AS context_id
-		FROM
-			audit_history
-				JOIN shipments ON shipments.secondary_pickup_address_id = audit_history.object_id
-				AND audit_history. "table_name" = 'addresses'
-		GROUP BY
-			shipments.id, audit_history.id
-	),
-	destination_address_logs AS (
-		SELECT
-			audit_history.*,
-			json_agg(
-				json_build_object(
-					'address_type', 'destinationAddress'::TEXT,
-					'shipment_type', shipments.shipment_type,
-					'shipment_id_abbr', LEFT(shipments.id::TEXT, 5)
-					)
-				)::TEXT AS context,
-			shipments.id::text AS context_id
-		FROM
-			audit_history
-		JOIN shipments ON shipments.destination_address_id = audit_history.object_id
-			AND audit_history. "table_name" = 'addresses'
-		GROUP BY
-			shipments.id, audit_history.id
-	),
-	secondary_destination_address_logs AS (
-		SELECT
-			audit_history.*,
-			json_agg(
-				json_build_object(
-					'address_type', 'secondaryDestinationAddress'::TEXT,
-					'shipment_type', shipments.shipment_type
-				)
-			)::TEXT AS context,
-			shipments.id::text AS context_id
-		FROM
-			audit_history
-				JOIN shipments ON shipments.secondary_delivery_address_id = audit_history.object_id
-				AND audit_history. "table_name" = 'addresses'
-		GROUP BY
-			shipments.id, audit_history.id
-	),
-	residential_address_logs AS (
-		SELECT
-			audit_history.*,
-			json_agg(
-					'address_type', 'residentialAddress'::TEXT
-				)
-			)::TEXT AS context,
-			service_members.id::text AS context_id
-		FROM
-			audit_history
-		JOIN service_members ON service_members.residential_address_id = audit_history.object_id
-			AND audit_history. "table_name" = 'addresses'
-		WHERE
-			service_members.id = (SELECT service_member_id FROM orders)
-		GROUP BY
-			service_members.id, audit_history.id
-	),
-	backup_mailing_address_logs AS (
-		SELECT
-			audit_history.*,
-			json_agg(
-				json_build_object(
-					'address_type', 'backupMailingAddress'::TEXT
-				)
-			)::TEXT AS context,
-			service_members.id::text AS context_id
-		FROM
-			audit_history
-		JOIN service_members ON service_members.backup_mailing_address_id = audit_history.object_id
-			AND audit_history. "table_name" = 'addresses'
-		WHERE
-			service_members.id = (SELECT service_member_id FROM orders)
-		GROUP BY
-			service_members.id, audit_history.id
-	),
-	entitlements AS (
+	move_entitlements AS (
 		SELECT
 			entitlements.*
 		FROM
@@ -269,7 +157,7 @@ WITH moves AS (
 			SELECT
 				entitlement_id
 			FROM
-				orders)
+				move_orders)
 	),
 	entitlements_logs AS (
 		SELECT
@@ -278,18 +166,18 @@ WITH moves AS (
 			NULL AS context_id
 		FROM
 			audit_history
-			JOIN entitlements ON entitlements.id = audit_history.object_id
+			JOIN move_entitlements ON move_entitlements.id = audit_history.object_id
 				AND audit_history. "table_name" = 'entitlements'
 	),
-	payment_requests AS (
+	move_payment_requests AS (
 		SELECT
 			json_agg(json_build_object(
 				'name', re_services.name,
 				'price', payment_service_items.price_cents::TEXT,
 				'status', payment_service_items.status,
-				'shipment_id', shipments.id::TEXT,
-				'shipment_id_abbr', LEFT(shipments.id::TEXT, 5),
-				'shipment_type', shipments.shipment_type
+				'shipment_id', move_shipments.id::TEXT,
+				'shipment_id_abbr', LEFT(move_shipments.id::TEXT, 5),
+				'shipment_type', move_shipments.shipment_type
 				)
 			)::TEXT AS context,
 			payment_requests.id AS id,
@@ -297,16 +185,12 @@ WITH moves AS (
 			payment_requests.payment_request_number
 		FROM
 			payment_requests
-		JOIN payment_service_items ON payment_service_items.payment_request_id = payment_requests.id
-		JOIN mto_service_items ON mto_service_items.id = mto_service_item_id
-		LEFT JOIN shipments ON shipments.id = mto_service_items.mto_shipment_id
-		JOIN re_services ON mto_service_items.re_service_id = re_services.id
-	WHERE
-		payment_requests.move_id = (
-			SELECT
-				moves.id
-			FROM
-				moves)
+			JOIN payment_service_items ON payment_service_items.payment_request_id = payment_requests.id
+			JOIN move_service_items ON move_service_items.id = payment_service_items.mto_service_item_id
+			LEFT JOIN move_shipments ON move_shipments.id = move_service_items.mto_shipment_id
+			JOIN re_services ON move_service_items.re_service_id = re_services.id
+		WHERE
+			payment_requests.move_id = (SELECT move.id FROM move)
 		GROUP BY
 			payment_requests.id
 	),
@@ -317,18 +201,18 @@ WITH moves AS (
 			NULL AS context_id
 		FROM
 			audit_history
-			JOIN payment_requests ON payment_requests.id = audit_history.object_id
+			JOIN move_payment_requests ON move_payment_requests.id = audit_history.object_id
 				AND audit_history. "table_name" = 'payment_requests'
 	),
-	proof_of_service_docs AS (
+	move_proof_of_service_docs AS (
 		SELECT
 			proof_of_service_docs.*,
 			json_agg(json_build_object(
 				'payment_request_number',
-				payment_requests.payment_request_number::TEXT))::TEXT AS context
+				move_payment_requests.payment_request_number::TEXT))::TEXT AS context
 		FROM
 			proof_of_service_docs
-				JOIN payment_requests ON proof_of_service_docs.payment_request_id = payment_requests.id
+				JOIN move_payment_requests ON proof_of_service_docs.payment_request_id = move_payment_requests.id
 		GROUP BY proof_of_service_docs.id
 	),
 	proof_of_service_docs_logs AS (
@@ -338,20 +222,20 @@ WITH moves AS (
 			NULL AS context_id
 		FROM
 			audit_history
-			JOIN proof_of_service_docs ON proof_of_service_docs.id = audit_history.object_id
+			JOIN move_proof_of_service_docs ON move_proof_of_service_docs.id = audit_history.object_id
 				AND audit_history. "table_name" = 'proof_of_service_docs'
 	),
 	agents AS (
 		SELECT
 			mto_agents.id,
 			json_agg(json_build_object(
-				'shipment_type', shipments.shipment_type,
-				'shipment_id_abbr', LEFT(shipments.id::TEXT, 5)
+				'shipment_type', move_shipments.shipment_type,
+				'shipment_id_abbr', LEFT(move_shipments.id::TEXT, 5)
 				)
 			)::TEXT AS context
 		FROM
 			mto_agents
-			JOIN shipments ON mto_agents.mto_shipment_id = shipments.id
+			JOIN move_shipments ON mto_agents.mto_shipment_id = move_shipments.id
 		GROUP BY
 			mto_agents.id
 	),
@@ -365,19 +249,19 @@ WITH moves AS (
 			JOIN agents ON agents.id = audit_history.object_id
 				AND audit_history."table_name" = 'mto_agents'
 	),
-	reweighs AS (
+	move_reweighs AS (
 		SELECT
 			reweighs.id,
 			json_agg(json_build_object(
-				'shipment_type', shipments.shipment_type,
-				'shipment_id_abbr', LEFT(shipments.id::TEXT, 5),
-				'payment_request_number', payment_requests.payment_request_number
+				'shipment_type', move_shipments.shipment_type,
+				'shipment_id_abbr', LEFT(move_shipments.id::TEXT, 5),
+				'payment_request_number', move_payment_requests.payment_request_number
 				)
 			)::TEXT AS context
 		FROM
 			reweighs
-			JOIN shipments ON reweighs.shipment_id = shipments.id
-			LEFT JOIN payment_requests ON shipments.move_id = payment_requests.move_id
+			JOIN move_shipments ON reweighs.shipment_id = move_shipments.id
+			LEFT JOIN move_payment_requests ON move_shipments.move_id = move_payment_requests.move_id
 		GROUP BY
 			reweighs.id
 	),
@@ -387,19 +271,19 @@ WITH moves AS (
 			NULL AS context_id
 		FROM
 			audit_history
-		JOIN reweighs ON reweighs.id = audit_history.object_id
+		JOIN move_reweighs ON move_reweighs.id = audit_history.object_id
 			AND audit_history."table_name" = 'reweighs'
 	),
-	service_members AS (
+	move_service_members AS (
 		SELECT service_members.*
 		FROM
 			service_members
 		WHERE
-			service_members.id = (SELECT service_member_id FROM orders)
+			service_members.id = (SELECT move_orders.service_member_id FROM move_orders)
 	),
 	service_members_logs as (
 		SELECT audit_history.*,
-						NULLIF(
+				NULLIF(
 				jsonb_agg(jsonb_strip_nulls(
 					jsonb_build_object('current_duty_location_name', current_duty.name)
 				))::TEXT, '[{}]'::TEXT
@@ -407,32 +291,92 @@ WITH moves AS (
 			NULL AS context_id
 		FROM
 			audit_history
-		JOIN service_members ON service_members.id = audit_history.object_id
+		JOIN move_service_members ON move_service_members.id = audit_history.object_id
 			AND audit_history."table_name" = 'service_members'
 		JOIN jsonb_to_record(audit_history.changed_data) as c(duty_location_id TEXT) on TRUE
 		LEFT JOIN duty_locations AS current_duty on uuid(c.duty_location_id) = current_duty.id
 		GROUP BY audit_history.id
 	),
+	move_addresses (address_id, address_type, shipment_type, shipment_id, service_member_id)  AS (
+		SELECT
+			audit_history.object_id,
+			'destinationAddress',
+			move_shipments.shipment_type,
+			move_shipments.id::TEXT,
+			NULL
+		FROM audit_history
+			JOIN move_shipments ON move_shipments.destination_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
+		UNION ALL
+		SELECT
+			audit_history.object_id,
+			'secondaryDestinationAddress',
+			move_shipments.shipment_type,
+			move_shipments.id::TEXT,
+			NULL
+		FROM audit_history
+			JOIN move_shipments ON move_shipments.secondary_delivery_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
+		UNION ALL
+		SELECT
+			audit_history.object_id,
+			'pickupAddress',
+			move_shipments.shipment_type,
+			move_shipments.id::TEXT,
+			NULL
+		FROM audit_history
+			JOIN move_shipments ON move_shipments.pickup_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
+		UNION ALL
+		SELECT
+			audit_history.object_id,
+			'secondaryPickupAddress',
+			move_shipments.shipment_type,
+			move_shipments.id::TEXT,
+			NULL
+		FROM audit_history
+			JOIN move_shipments ON move_shipments.secondary_pickup_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
+		UNION ALL
+		SELECT
+			audit_history.object_id,
+			'residentialAddress',
+			NULL,
+			NULL,
+			move_service_members.id::TEXT
+		FROM audit_history
+			JOIN move_service_members ON move_service_members.residential_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
+		UNION ALL
+		SELECT
+			audit_history.object_id,
+			'backupMailingAddress',
+			NULL,
+			NULL,
+			move_service_members.id::TEXT
+		FROM audit_history
+			JOIN move_service_members ON move_service_members.backup_mailing_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
+	),
+	address_logs AS (
+		SELECT
+			audit_history.*,
+			jsonb_agg(
+				jsonb_strip_nulls(
+					jsonb_build_object(
+						'address_type', move_addresses.address_type,
+						'shipment_type', move_addresses.shipment_type,
+						'shipment_id_abbr', (CASE WHEN move_addresses.shipment_id IS NOT NULL THEN LEFT(move_addresses.shipment_id::TEXT, 5) ELSE NULL END)
+					)
+				)
+			)::TEXT AS context,
+			COALESCE(move_addresses.shipment_id::TEXT, move_addresses.service_member_id::TEXT, NULL)::TEXT AS context_id
+		FROM
+			audit_history
+				JOIN move_addresses ON move_addresses.address_id = audit_history.object_id
+					AND audit_history. "table_name" = 'addresses'
+		GROUP BY
+			move_addresses.shipment_id, move_addresses.service_member_id, audit_history.id
+	),
 	combined_logs AS (
 		SELECT
 			*
 		FROM
-			pickup_address_logs
-		UNION ALL
-		SELECT
-			*
-		FROM
-			secondary_pickup_address_logs
-		UNION ALL
-		SELECT
-			*
-		FROM
-			destination_address_logs
-		UNION ALL
-		SELECT
-			*
-		FROM
-			secondary_destination_address_logs
+			address_logs
 		UNION ALL
 		SELECT
 			*
@@ -493,28 +437,18 @@ WITH moves AS (
 		 	*
 		FROM
 			service_members_logs
-		UNION ALL
-		SELECT
-		 	*
-		FROM
-			residential_address_logs
-		UNION ALL
-		SELECT
-		 	*
-		FROM
-			backup_mailing_address_logs
+
 	) SELECT DISTINCT
 		combined_logs.*,
-		COALESCE(office_users.first_name, prime_user_first_name, service_members.first_name) AS session_user_first_name,
-		COALESCE(office_users.last_name, service_members.last_name) AS session_user_last_name,
-		COALESCE(office_users.email, service_members.personal_email) AS session_user_email,
-		COALESCE(office_users.telephone, service_members.telephone) AS session_user_telephone
-FROM
-	combined_logs
+		COALESCE(office_users.first_name, prime_user_first_name) AS session_user_first_name,
+		office_users.last_name AS session_user_last_name,
+		office_users.email AS session_user_email,
+		office_users.telephone AS session_user_telephone
+	FROM
+		combined_logs
 		LEFT JOIN users_roles ON session_userid = users_roles.user_id
 		LEFT JOIN roles ON users_roles.role_id = roles.id
 		LEFT JOIN office_users ON office_users.user_id = session_userid
-		LEFT JOIN service_members ON service_members.user_id = session_userid
 		LEFT JOIN (
 			SELECT 'Prime' AS prime_user_first_name
 			) prime_users ON roles.role_type = 'prime'
