@@ -102,7 +102,7 @@ const Expenses = () => {
     const payload = {
       ppmShipmentId: mtoShipment.ppmShipment.id,
       movingExpenseType: values.expenseType,
-      amount: commaSeparatedStringToFloat(values.amount) * 100,
+      amount: parseInt(commaSeparatedStringToFloat(values.amount) * 100, 10),
       description: values.description,
       missingReceipt: values.missingReceipt,
       paidWithGTCC: values.paidWithGTCC === 'true',
