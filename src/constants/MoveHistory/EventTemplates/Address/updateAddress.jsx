@@ -4,20 +4,14 @@ import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 import { formatMoveHistoryFullAddress } from 'utils/formatters';
-
-const ADDRESS_LABEL = {
-  backupMailingAddress: 'backup_address',
-  destinationAddress: 'destination_address',
-  residentialAddress: 'residential_address',
-  pickupAddress: 'pickup_address',
-};
+import ADDRESS_TYPE from 'constants/MoveHistory/Database/AddressTypes';
 
 const formatChangedValues = (historyRecord) => {
   const { context, changedValues, oldValues } = historyRecord;
   const address = formatMoveHistoryFullAddress(changedValues);
 
   const addressType = context.filter((contextObject) => contextObject.address_type)[0].address_type;
-  const addressLabel = ADDRESS_LABEL[addressType];
+  const addressLabel = ADDRESS_TYPE[addressType];
 
   const newChangedValues = {
     street_address_1: oldValues.street_address_1,

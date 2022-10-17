@@ -5594,6 +5594,24 @@ definitions:
       - id
       - service_member_id
       - uploads
+  PPMDocumentStatus:
+    type: string
+    title: PPM document status
+    enum:
+      - APPROVED
+      - EXCLUDED
+      - REJECTED
+    x-nullable: true
+    x-omitempty: false
+    x-display-value:
+      APPROVED: Approved
+      EXCLUDED: Excluded
+      REJECTED: Rejected
+  PPMDocumentStatusReason:
+    description: The reason the services counselor has excluded or rejected the item.
+    type: string
+    x-nullable: true
+    x-omitempty: false
   WeightTicket:
     description: >-
       Vehicle and optional trailer information and weight documents used to move
@@ -5676,6 +5694,10 @@ definitions:
       proofOfTrailerOwnershipDocument:
         title: Proof of Trailer Ownership Document
         $ref: '#/definitions/definitions-DocumentPayload'
+      status:
+        $ref: '#/definitions/PPMDocumentStatus'
+      reason:
+        $ref: '#/definitions/PPMDocumentStatusReason'
       eTag:
         type: string
         readOnly: true
@@ -5712,17 +5734,6 @@ definitions:
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
       WEIGHING_FEES: Weighing fees
-  PPMDocumentStatus:
-    type: string
-    title: PPM document status
-    enum:
-      - APPROVED
-      - EXCLUDED
-      - REJECTED
-    x-display-value:
-      APPROVED: Approved
-      EXCLUDED: Excluded
-      REJECTED: Rejected
   MovingExpense:
     description: >-
       Expense information and receipts of costs incurred that can be reimbursed
@@ -5780,15 +5791,8 @@ definitions:
         x-omitempty: false
       status:
         $ref: '#/definitions/PPMDocumentStatus'
-        x-nullable: true
-        x-omitempty: false
       reason:
-        description: >-
-          The reason the services counselor has excluded or rejected the moving
-          expense
-        type: string
-        x-nullable: true
-        x-omitempty: false
+        $ref: '#/definitions/PPMDocumentStatusReason'
       sitStartDate:
         description: >-
           The date the shipment entered storage, applicable for the `STORAGE`

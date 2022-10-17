@@ -2,7 +2,6 @@ package movehistory
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 	"time"
 
@@ -31,13 +30,15 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
+		secondaryPickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 		approvedShipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status:              models.MTOShipmentStatusApproved,
 				ApprovedDate:        &now,
 				ScheduledPickupDate: &pickupDate,
 			},
-			Move: approvedMove,
+			Move:                   approvedMove,
+			SecondaryPickupAddress: secondaryPickupAddress,
 		})
 
 		testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
@@ -66,18 +67,28 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		updateAddress.PostalCode = "23503"
 		suite.MustSave(updateAddress)
 
+		// update Secondary Pickup Address
+		oldSecondaryPickupAddress := *approvedShipment.SecondaryPickupAddress
+		updateSecondaryPickupAddress := approvedShipment.SecondaryPickupAddress
+		updateSecondaryPickupAddress.City = "Hampton"
+		updateSecondaryPickupAddress.State = "VA"
+		updateSecondaryPickupAddress.PostalCode = "23661"
+		suite.MustSave(updateSecondaryPickupAddress)
+
 		// update move
 		tioRemarks := "updating TIO remarks for test"
 		approvedMove.TIORemarks = &tioRemarks
 		suite.MustSave(&approvedMove)
 
-		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
 		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.FatalNoError(err)
 
 		// address update
 		verifyOldPickupAddress := false
 		verifyNewPickupAddress := false
+		verifyOldSecondaryPickupAddress := false
+		verifyNewSecondaryPickupAddress := false
 		// agent update
 		verifyNewAgent := false
 		// orders update
@@ -102,6 +113,19 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 						changedData := removeEscapeJSONtoObject(h.ChangedData)
 						if changedData["city"] == updateAddress.City && changedData["state"] == updateAddress.State && changedData["postal_code"] == updateAddress.PostalCode {
 							verifyNewPickupAddress = true
+						}
+					}
+				} else if *h.ObjectID == updateSecondaryPickupAddress.ID {
+					if h.OldData != nil {
+						oldData := removeEscapeJSONtoObject(h.OldData)
+						if oldData["city"] == oldSecondaryPickupAddress.City && oldData["state"] == oldSecondaryPickupAddress.State && oldData["postal_code"] == oldSecondaryPickupAddress.PostalCode {
+							verifyOldSecondaryPickupAddress = true
+						}
+					}
+					if h.ChangedData != nil {
+						changedData := removeEscapeJSONtoObject(h.ChangedData)
+						if changedData["city"] == updateSecondaryPickupAddress.City && changedData["state"] == updateSecondaryPickupAddress.State && changedData["postal_code"] == updateSecondaryPickupAddress.PostalCode {
+							verifyNewSecondaryPickupAddress = true
 						}
 					}
 				}
@@ -160,6 +184,9 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// address update
 		suite.True(verifyOldPickupAddress, "verifyOldPickupAddress")
 		suite.True(verifyNewPickupAddress, "verifyNewPickupAddress")
+		// secondary address update
+		suite.True(verifyOldSecondaryPickupAddress, "verifyOldSecondaryPickupAddress")
+		suite.True(verifyNewSecondaryPickupAddress, "verifyNewSecondaryPickupAddress")
 		// agent update
 		suite.True(verifyNewAgent, "verifyNewAgent")
 		// orders update
@@ -175,7 +202,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 	suite.Run("returns not found error for unknown locator", func() {
 		_ = testdatagen.MakeAvailableMove(suite.DB())
 
-		params := services.FetchMoveHistoryParams{Locator: "QX97UY", Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		params := services.FetchMoveHistoryParams{Locator: "QX97UY", Page: swag.Int64(1), PerPage: swag.Int64(100)}
 		_, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -234,7 +261,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		parameters := services.FetchMoveHistoryParams{
 			Locator: approvedMove.Locator,
 			Page:    swag.Int64(1),
-			PerPage: swag.Int64(20),
+			PerPage: swag.Int64(100),
 		}
 		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &parameters)
 		suite.FatalNoError(err)
@@ -327,7 +354,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 			},
 		})
 
-		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
 		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
@@ -381,7 +408,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		approvedShipmentToFilter.CustomerRemarks = &customerRemarksFilter
 		suite.MustSave(&approvedShipmentToFilter)
 
-		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
 		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
@@ -412,7 +439,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
 		suite.NoError(err)
 
-		params := services.FetchMoveHistoryParams{Locator: move.Locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		params := services.FetchMoveHistoryParams{Locator: move.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
 		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
@@ -451,7 +478,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
-
+		suite.Equal(2, len(moveHistoryData.AuditHistories))
 	})
 
 	suite.Run("approved payment request shows up", func() {
@@ -485,7 +512,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		paymentServiceItem.Status = models.PaymentServiceItemStatusApproved
 		suite.MustSave(&paymentServiceItem)
 
-		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(9)}
+		params := services.FetchMoveHistoryParams{Locator: approvedMove.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
 		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
@@ -519,7 +546,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		createdReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), newReweigh)
 		suite.NoError(err)
 
-		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(7)}
+		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
 		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
@@ -576,7 +603,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 
-		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(11)}
+		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
 		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
@@ -640,7 +667,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherWithFakeData() {
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 
-		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(10)}
+		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
 		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.NotNil(moveHistoryData)
 		suite.NoError(err)
@@ -683,21 +710,41 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 			user = testdatagen.MakeUserWithRoleTypes(suite.DB(), roleTypes, assertions)
 		}
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
-		auditHistory := testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
 			User: user,
 			Move: models.Move{
 				ID: approvedMove.ID,
 			},
 		})
-		fmt.Print(auditHistory)
 		return approvedMove.Locator
+	}
+
+	setupServiceMemberTestData := func(userFirstName string, fakeEventName string) (string, models.User) {
+		assertions := testdatagen.Assertions{
+			ServiceMember: models.ServiceMember{
+				FirstName: &userFirstName,
+			},
+		}
+		// Create an unsubmitted move with the service member attached to the orders.
+		move := testdatagen.MakeMove(suite.DB(), assertions)
+		user := move.Orders.ServiceMember.User
+		testdatagen.MakeAuditHistory(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				ID: move.ID,
+			},
+			User: user,
+			TestDataAuditHistory: testdatagen.TestDataAuditHistory{
+				EventName: &fakeEventName,
+			},
+		})
+		return move.Locator, user
 	}
 
 	suite.Run("Test with TOO user", func() {
 		userID, _ := uuid.NewV4()
 		userName := "TOO_user"
 		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO}, true)
-		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
 		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Nil(err)
 		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
@@ -709,7 +756,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 		userID, _ := uuid.NewV4()
 		userName := "Prime_user"
 		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypePrime}, false)
-		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
 		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Nil(err)
 		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
@@ -721,7 +768,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 		userID, _ := uuid.NewV4()
 		userName := "TOO_and_prime_simulator_user"
 		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypePrimeSimulator}, true)
-		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
 		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Nil(err)
 		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
@@ -733,12 +780,25 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 		userID, _ := uuid.NewV4()
 		userName := "TOO_and_customer_user"
 		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeCustomer}, true)
-		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(20)}
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
 		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
 		suite.Nil(err)
 		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
 		suite.Equal(1, len(auditHistoriesForUser))
 		suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+	})
+
+	suite.Run("Test with Service Member user", func() {
+		userName := "service_member_creator"
+		fakeEventName := "submitMoveForApproval"
+		locator, user := setupServiceMemberTestData(userName, fakeEventName)
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: swag.Int64(1), PerPage: swag.Int64(100)}
+		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.Nil(err)
+		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, user.ID)
+		suite.Equal(1, len(auditHistoriesForUser))
+		suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+		suite.Equal(fakeEventName, *auditHistoriesForUser[0].EventName)
 	})
 }
 

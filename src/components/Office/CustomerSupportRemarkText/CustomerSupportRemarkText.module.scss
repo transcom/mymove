@@ -13,6 +13,7 @@
 .customerSupportRemarkText {
   @include u-margin-bottom(0.5);
   @include u-margin-top(0);
+  overflow-wrap: anywhere;
 }
 
 .customerSupportRemarkNameTimestamp {

@@ -21,7 +21,7 @@ describe('when given an mto shipment insert with address table history record', 
   it('correctly matches the insert mto shipment address event for pickup addresses', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(e);
-    // expect to have formatted the adddresses correctly
+    // expect to have formatted the addresses correctly
     expect(
       result.getDetailsLabeledDetails({
         changedValues: item.changedValues,
@@ -41,7 +41,7 @@ describe('when given an mto shipment insert with address table history record', 
   it('correctly matches the insert mto shipment address event for destination addresses', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(e);
-    // expect to have formatted the adddresses correctly
+    // expect to have formatted the addresses correctly
     expect(
       result.getDetailsLabeledDetails({
         changedValues: item.changedValues,
@@ -49,6 +49,48 @@ describe('when given an mto shipment insert with address table history record', 
       }),
     ).toEqual({
       destination_address: '12 Any Street, P.O. Box 1234, Beverly Hills, CA 90211',
+      city: 'Beverly Hills',
+      postal_code: '90211',
+      street_address_1: '12 Any Street',
+      street_address_2: 'P.O. Box 1234',
+      state: 'CA',
+      shipment_type: 'HHG',
+    });
+  });
+
+  it('correctly matches the insert mto shipment address event for secondary pickup addresses', () => {
+    const result = getTemplate(item);
+    expect(result).toMatchObject(e);
+    // expect to have formatted the addresses correctly
+    expect(
+      result.getDetailsLabeledDetails({
+        changedValues: item.changedValues,
+        oldValues: item.oldValues,
+        context: [{ shipment_type: 'HHG', address_type: 'secondaryPickupAddress' }],
+      }),
+    ).toEqual({
+      secondary_pickup_address: '12 Any Street, P.O. Box 1234, Beverly Hills, CA 90211',
+      city: 'Beverly Hills',
+      postal_code: '90211',
+      street_address_1: '12 Any Street',
+      street_address_2: 'P.O. Box 1234',
+      state: 'CA',
+      shipment_type: 'HHG',
+    });
+  });
+
+  it('correctly matches the insert mto shipment address event for secondary destination addresses', () => {
+    const result = getTemplate(item);
+    expect(result).toMatchObject(e);
+    // expect to have formatted the addresses correctly
+    expect(
+      result.getDetailsLabeledDetails({
+        changedValues: item.changedValues,
+        oldValues: item.oldValues,
+        context: [{ shipment_type: 'HHG', address_type: 'secondaryDestinationAddress' }],
+      }),
+    ).toEqual({
+      secondary_destination_address: '12 Any Street, P.O. Box 1234, Beverly Hills, CA 90211',
       city: 'Beverly Hills',
       postal_code: '90211',
       street_address_1: '12 Any Street',
