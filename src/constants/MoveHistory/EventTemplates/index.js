@@ -6,7 +6,7 @@ export { default as createMTOServiceItem } from './createMTOServiceItem';
 export { default as createMTOServiceItemCustomerContacts } from './createMTOServiceItemCustomerContacts';
 export { default as createMTOServiceItemDimensions } from './createMTOServiceItemDimensions';
 export { default as createMTOShipment } from './createMTOShipment';
-export { default as createMTOShipmentAddresses } from './createMTOShipmentAddresses';
+export { default as createAddresses } from './Address/createAddress';
 export { default as createMTOShipmentAgent } from './createMTOShipmentAgent';
 export { default as createOrders } from './createOrders';
 export { default as createPaymentRequest } from './createPaymentRequest';
@@ -49,3 +49,6 @@ export { default as updateMTOStatusServiceCounselingCompleted } from './updateMT
 export { default as updateAllowanceCounseling } from './updateAllowanceCounseling';
 export { default as updateAllowanceServiceMemberByCounselor } from './updateAllowanceServiceMemberByCounselor';
 export { default as updateAllowanceServiceMemberByTOO } from './updateAllowances/updateAllowanceServiceMemberByTOO';
+export { default as createServiceMember } from './createServiceMember/createServiceMember';
+export { default as patchServiceMember } from './patchServiceMember/patchServiceMember';
+export { default as updateAddress } from './Address/updateAddress';

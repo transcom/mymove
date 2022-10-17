@@ -224,6 +224,41 @@ WITH moves AS (
 		GROUP BY
 			shipments.id, audit_history.id
 	),
+	residential_address_logs AS (
+		SELECT
+			audit_history.*,
+			json_agg(
+					'address_type', 'residentialAddress'::TEXT
+				)
+			)::TEXT AS context,
+			service_members.id::text AS context_id
+		FROM
+			audit_history
+		JOIN service_members ON service_members.residential_address_id = audit_history.object_id
+			AND audit_history. "table_name" = 'addresses'
+		WHERE
+			service_members.id = (SELECT service_member_id FROM orders)
+		GROUP BY
+			service_members.id, audit_history.id
+	),
+	backup_mailing_address_logs AS (
+		SELECT
+			audit_history.*,
+			json_agg(
+				json_build_object(
+					'address_type', 'backupMailingAddress'::TEXT
+				)
+			)::TEXT AS context,
+			service_members.id::text AS context_id
+		FROM
+			audit_history
+		JOIN service_members ON service_members.backup_mailing_address_id = audit_history.object_id
+			AND audit_history. "table_name" = 'addresses'
+		WHERE
+			service_members.id = (SELECT service_member_id FROM orders)
+		GROUP BY
+			service_members.id, audit_history.id
+	),
 	entitlements AS (
 		SELECT
 			entitlements.*
@@ -364,12 +399,19 @@ WITH moves AS (
 	),
 	service_members_logs as (
 		SELECT audit_history.*,
-			NULL AS context,
+						NULLIF(
+				jsonb_agg(jsonb_strip_nulls(
+					jsonb_build_object('current_duty_location_name', current_duty.name)
+				))::TEXT, '[{}]'::TEXT
+			) AS context,
 			NULL AS context_id
 		FROM
 			audit_history
 		JOIN service_members ON service_members.id = audit_history.object_id
 			AND audit_history."table_name" = 'service_members'
+		JOIN jsonb_to_record(audit_history.changed_data) as c(duty_location_id TEXT) on TRUE
+		LEFT JOIN duty_locations AS current_duty on uuid(c.duty_location_id) = current_duty.id
+		GROUP BY audit_history.id
 	),
 	combined_logs AS (
 		SELECT
@@ -451,6 +493,16 @@ WITH moves AS (
 		 	*
 		FROM
 			service_members_logs
+		UNION ALL
+		SELECT
+		 	*
+		FROM
+			residential_address_logs
+		UNION ALL
+		SELECT
+		 	*
+		FROM
+			backup_mailing_address_logs
 	) SELECT DISTINCT
 		combined_logs.*,
 		COALESCE(office_users.first_name, prime_user_first_name, service_members.first_name) AS session_user_first_name,
