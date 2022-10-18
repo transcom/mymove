@@ -17268,10 +17268,10 @@ ra-core@^4.4.3:
     react-is "^17.0.2"
     react-query "^3.32.1"
 
-ra-data-simple-rest@^4.4.2:
-  version "4.4.2"
-  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.4.2.tgz#d10b59cc432ef88278dcb553f63f2ac1edf8c098"
-  integrity sha512-tRybE32ccpTlzvFsiOQ2jMumgh5MotSy28ssw0BJ6VpbyUCsGtAIPhWPfDlqUPcWqA8/dZXNZon9cxYPlxWngA==
+ra-data-simple-rest@^4.4.3:
+  version "4.4.3"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-4.4.3.tgz#e0b44e1012a4d09cc794b3c00e835300be574c88"
+  integrity sha512-9usR4apy/DjWtkpHJUqPmhv+PiaTjpZlDEr9jdE5WpPPBMv3kXTPlmV+45VPxjJ93v/pUnCxidp1BRyIyuM/Sw==
   dependencies:
     query-string "^7.1.1"
 
@@ -17836,10 +17836,10 @@ react-select@^3.2.0:
     react-input-autosize "^3.0.0"
     react-transition-group "^4.3.0"
 
-react-select@^5.5.1:
-  version "5.5.1"
-  resolved "https://registry.yarnpkg.com/react-select/-/react-select-5.5.1.tgz#60cc6767e77396cdf1d6f49a10555b80d27e749a"
-  integrity sha512-zOXIKvNqrnBn030Goi7pRHfLJHnvjPweA4uDyj9me8YPqgkaJp+vX3eNGHOzTlI442rbfPUMGrEZQnymJn/XUg==
+react-select@^5.5.2:
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/react-select/-/react-select-5.5.2.tgz#40ac709338860b836feda5e43bdab56cb8ae5b57"
+  integrity sha512-zbcxtiqXvFW2Wh+dd8zAqMY6QaqX9Ez0WlcjSXycXn1ASpKdc17LcGJj7gAJiUcHI/UVlo6wfg44hgBsUPyEBQ==
   dependencies:
     "@babel/runtime" "^7.12.0"
     "@emotion/cache" "^11.4.0"
