@@ -5889,11 +5889,6 @@ func init() {
           "additionalProperties": true,
           "x-nullable": true
         },
-        "clientQuery": {
-          "description": "Record the text of the client query that triggered the audit event",
-          "type": "string",
-          "x-nullable": true
-        },
         "context": {
           "type": "array",
           "items": {
@@ -15337,11 +15332,6 @@ func init() {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
           "type": "object",
           "additionalProperties": true,
-          "x-nullable": true
-        },
-        "clientQuery": {
-          "description": "Record the text of the client query that triggered the audit event",
-          "type": "string",
           "x-nullable": true
         },
         "context": {
