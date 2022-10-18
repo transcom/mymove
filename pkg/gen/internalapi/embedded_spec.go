@@ -4010,11 +4010,6 @@ func init() {
         "$ref": "#/definitions/DutyLocationPayload"
       }
     },
-    "ETag": {
-      "description": "A hash that should be used as the \"If-Match\" header for any updates.",
-      "type": "string",
-      "readOnly": true
-    },
     "Error": {
       "type": "object",
       "required": [
@@ -6098,14 +6093,11 @@ func init() {
           ]
         },
         "constructedWeightDocumentId": {
-          "allOf": [
-            {
-              "description": "The ID of the document that is associated with the user uploads containing the constructed weight."
-            },
-            {
-              "$ref": "#/definitions/UUID"
-            }
-          ]
+          "description": "The ID of the document that is associated with the user uploads containing the constructed weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "createdAt": {
           "type": "string",
@@ -6119,7 +6111,9 @@ func init() {
           "x-omitempty": false
         },
         "eTag": {
-          "$ref": "#/definitions/ETag"
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
         },
         "emptyDocument": {
           "allOf": [
@@ -6132,14 +6126,11 @@ func init() {
           ]
         },
         "emptyDocumentId": {
-          "allOf": [
-            {
-              "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight."
-            },
-            {
-              "$ref": "#/definitions/UUID"
-            }
-          ]
+          "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "emptyWeight": {
           "description": "Weight of the vehicle not including the pro-gear.",
@@ -6158,14 +6149,11 @@ func init() {
           ]
         },
         "fullDocumentId": {
-          "allOf": [
-            {
-              "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight."
-            },
-            {
-              "$ref": "#/definitions/UUID"
-            }
-          ]
+          "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "fullWeight": {
           "description": "Weight of the vehicle including the pro-gear.",
@@ -6180,24 +6168,18 @@ func init() {
           "x-omitempty": false
         },
         "id": {
-          "allOf": [
-            {
-              "description": "The ID of the pro-gear weight ticket."
-            },
-            {
-              "$ref": "#/definitions/UUID"
-            }
-          ]
+          "description": "The ID of the pro-gear weight ticket.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ppmShipmentId": {
-          "allOf": [
-            {
-              "description": "The ID of the PPM shipment that this pro-gear weight ticket is associated with."
-            },
-            {
-              "$ref": "#/definitions/UUID"
-            }
-          ]
+          "description": "The ID of the PPM shipment that this pro-gear weight ticket is associated with.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
           "$ref": "#/definitions/PPMDocumentStatusReason"
@@ -6766,12 +6748,6 @@ func init() {
           "format": "date-time"
         }
       }
-    },
-    "UUID": {
-      "type": "string",
-      "format": "uuid",
-      "readOnly": true,
-      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
     },
     "UpdateMovingExpense": {
       "type": "object",
@@ -11688,11 +11664,6 @@ func init() {
         "$ref": "#/definitions/DutyLocationPayload"
       }
     },
-    "ETag": {
-      "description": "A hash that should be used as the \"If-Match\" header for any updates.",
-      "type": "string",
-      "readOnly": true
-    },
     "Error": {
       "type": "object",
       "required": [
@@ -13794,14 +13765,11 @@ func init() {
           ]
         },
         "constructedWeightDocumentId": {
-          "allOf": [
-            {
-              "description": "The ID of the document that is associated with the user uploads containing the constructed weight."
-            },
-            {
-              "$ref": "#/definitions/UUID"
-            }
-          ]
+          "description": "The ID of the document that is associated with the user uploads containing the constructed weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "createdAt": {
           "type": "string",
@@ -13815,7 +13783,9 @@ func init() {
           "x-omitempty": false
         },
         "eTag": {
-          "$ref": "#/definitions/ETag"
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
         },
         "emptyDocument": {
           "allOf": [
@@ -13828,14 +13798,11 @@ func init() {
           ]
         },
         "emptyDocumentId": {
-          "allOf": [
-            {
-              "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight."
-            },
-            {
-              "$ref": "#/definitions/UUID"
-            }
-          ]
+          "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "emptyWeight": {
           "description": "Weight of the vehicle not including the pro-gear.",
@@ -13855,14 +13822,11 @@ func init() {
           ]
         },
         "fullDocumentId": {
-          "allOf": [
-            {
-              "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight."
-            },
-            {
-              "$ref": "#/definitions/UUID"
-            }
-          ]
+          "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "fullWeight": {
           "description": "Weight of the vehicle including the pro-gear.",
@@ -13878,24 +13842,18 @@ func init() {
           "x-omitempty": false
         },
         "id": {
-          "allOf": [
-            {
-              "description": "The ID of the pro-gear weight ticket."
-            },
-            {
-              "$ref": "#/definitions/UUID"
-            }
-          ]
+          "description": "The ID of the pro-gear weight ticket.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "ppmShipmentId": {
-          "allOf": [
-            {
-              "description": "The ID of the PPM shipment that this pro-gear weight ticket is associated with."
-            },
-            {
-              "$ref": "#/definitions/UUID"
-            }
-          ]
+          "description": "The ID of the PPM shipment that this pro-gear weight ticket is associated with.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reason": {
           "$ref": "#/definitions/PPMDocumentStatusReason"
@@ -14464,12 +14422,6 @@ func init() {
           "format": "date-time"
         }
       }
-    },
-    "UUID": {
-      "type": "string",
-      "format": "uuid",
-      "readOnly": true,
-      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
     },
     "UpdateMovingExpense": {
       "type": "object",

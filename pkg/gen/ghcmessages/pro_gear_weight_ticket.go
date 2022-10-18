@@ -30,10 +30,12 @@ type ProGearWeightTicket struct {
 	// Required: true
 	ConstructedWeightDocument *DocumentPayload `json:"constructedWeightDocument"`
 
-	// constructed weight document Id
+	// The ID of the document that is associated with the user uploads containing the constructed weight.
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	ConstructedWeightDocumentID UUID `json:"constructedWeightDocumentId"`
+	ConstructedWeightDocumentID strfmt.UUID `json:"constructedWeightDocumentId"`
 
 	// created at
 	// Required: true
@@ -44,18 +46,21 @@ type ProGearWeightTicket struct {
 	// Describes the pro-gear that was moved.
 	Description *string `json:"description"`
 
-	// e tag
+	// A hash that should be used as the "If-Match" header for any updates.
 	// Required: true
-	ETag ETag `json:"eTag"`
+	// Read Only: true
+	ETag string `json:"eTag"`
 
 	// empty document
 	// Required: true
 	EmptyDocument *DocumentPayload `json:"emptyDocument"`
 
-	// empty document Id
+	// The ID of the document that is associated with the user uploads containing the empty vehicle weight.
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	EmptyDocumentID UUID `json:"emptyDocumentId"`
+	EmptyDocumentID strfmt.UUID `json:"emptyDocumentId"`
 
 	// Weight of the vehicle not including the pro-gear.
 	// Minimum: 0
@@ -65,10 +70,12 @@ type ProGearWeightTicket struct {
 	// Required: true
 	FullDocument *DocumentPayload `json:"fullDocument"`
 
-	// full document Id
+	// The ID of the document that is associated with the user uploads containing the full vehicle weight.
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	FullDocumentID UUID `json:"fullDocumentId"`
+	FullDocumentID strfmt.UUID `json:"fullDocumentId"`
 
 	// Weight of the vehicle including the pro-gear.
 	// Minimum: 0
@@ -77,15 +84,19 @@ type ProGearWeightTicket struct {
 	// Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.
 	HasWeightTickets *bool `json:"hasWeightTickets"`
 
-	// id
+	// The ID of the pro-gear weight ticket.
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	ID UUID `json:"id"`
+	ID strfmt.UUID `json:"id"`
 
-	// ppm shipment Id
+	// The ID of the PPM shipment that this pro-gear weight ticket is associated with.
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	PpmShipmentID UUID `json:"ppmShipmentId"`
+	PpmShipmentID strfmt.UUID `json:"ppmShipmentId"`
 
 	// reason
 	Reason *PPMDocumentStatusReason `json:"reason"`
@@ -208,16 +219,11 @@ func (m *ProGearWeightTicket) validateConstructedWeightDocument(formats strfmt.R
 
 func (m *ProGearWeightTicket) validateConstructedWeightDocumentID(formats strfmt.Registry) error {
 
-	if err := validate.Required("constructedWeightDocumentId", "body", UUID(m.ConstructedWeightDocumentID)); err != nil {
+	if err := validate.Required("constructedWeightDocumentId", "body", strfmt.UUID(m.ConstructedWeightDocumentID)); err != nil {
 		return err
 	}
 
-	if err := m.ConstructedWeightDocumentID.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("constructedWeightDocumentId")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("constructedWeightDocumentId")
-		}
+	if err := validate.FormatOf("constructedWeightDocumentId", "body", "uuid", m.ConstructedWeightDocumentID.String(), formats); err != nil {
 		return err
 	}
 
@@ -239,16 +245,7 @@ func (m *ProGearWeightTicket) validateCreatedAt(formats strfmt.Registry) error {
 
 func (m *ProGearWeightTicket) validateETag(formats strfmt.Registry) error {
 
-	if err := validate.Required("eTag", "body", ETag(m.ETag)); err != nil {
-		return err
-	}
-
-	if err := m.ETag.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("eTag")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("eTag")
-		}
+	if err := validate.RequiredString("eTag", "body", m.ETag); err != nil {
 		return err
 	}
 
@@ -277,16 +274,11 @@ func (m *ProGearWeightTicket) validateEmptyDocument(formats strfmt.Registry) err
 
 func (m *ProGearWeightTicket) validateEmptyDocumentID(formats strfmt.Registry) error {
 
-	if err := validate.Required("emptyDocumentId", "body", UUID(m.EmptyDocumentID)); err != nil {
+	if err := validate.Required("emptyDocumentId", "body", strfmt.UUID(m.EmptyDocumentID)); err != nil {
 		return err
 	}
 
-	if err := m.EmptyDocumentID.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("emptyDocumentId")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("emptyDocumentId")
-		}
+	if err := validate.FormatOf("emptyDocumentId", "body", "uuid", m.EmptyDocumentID.String(), formats); err != nil {
 		return err
 	}
 
@@ -327,16 +319,11 @@ func (m *ProGearWeightTicket) validateFullDocument(formats strfmt.Registry) erro
 
 func (m *ProGearWeightTicket) validateFullDocumentID(formats strfmt.Registry) error {
 
-	if err := validate.Required("fullDocumentId", "body", UUID(m.FullDocumentID)); err != nil {
+	if err := validate.Required("fullDocumentId", "body", strfmt.UUID(m.FullDocumentID)); err != nil {
 		return err
 	}
 
-	if err := m.FullDocumentID.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("fullDocumentId")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("fullDocumentId")
-		}
+	if err := validate.FormatOf("fullDocumentId", "body", "uuid", m.FullDocumentID.String(), formats); err != nil {
 		return err
 	}
 
@@ -357,16 +344,11 @@ func (m *ProGearWeightTicket) validateFullWeight(formats strfmt.Registry) error 
 
 func (m *ProGearWeightTicket) validateID(formats strfmt.Registry) error {
 
-	if err := validate.Required("id", "body", UUID(m.ID)); err != nil {
+	if err := validate.Required("id", "body", strfmt.UUID(m.ID)); err != nil {
 		return err
 	}
 
-	if err := m.ID.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("id")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("id")
-		}
+	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
 	}
 
@@ -375,16 +357,11 @@ func (m *ProGearWeightTicket) validateID(formats strfmt.Registry) error {
 
 func (m *ProGearWeightTicket) validatePpmShipmentID(formats strfmt.Registry) error {
 
-	if err := validate.Required("ppmShipmentId", "body", UUID(m.PpmShipmentID)); err != nil {
+	if err := validate.Required("ppmShipmentId", "body", strfmt.UUID(m.PpmShipmentID)); err != nil {
 		return err
 	}
 
-	if err := m.PpmShipmentID.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("ppmShipmentId")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("ppmShipmentId")
-		}
+	if err := validate.FormatOf("ppmShipmentId", "body", "uuid", m.PpmShipmentID.String(), formats); err != nil {
 		return err
 	}
 
@@ -522,12 +499,7 @@ func (m *ProGearWeightTicket) contextValidateConstructedWeightDocument(ctx conte
 
 func (m *ProGearWeightTicket) contextValidateConstructedWeightDocumentID(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.ConstructedWeightDocumentID.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("constructedWeightDocumentId")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("constructedWeightDocumentId")
-		}
+	if err := validate.ReadOnly(ctx, "constructedWeightDocumentId", "body", strfmt.UUID(m.ConstructedWeightDocumentID)); err != nil {
 		return err
 	}
 
@@ -545,12 +517,7 @@ func (m *ProGearWeightTicket) contextValidateCreatedAt(ctx context.Context, form
 
 func (m *ProGearWeightTicket) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.ETag.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("eTag")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("eTag")
-		}
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
 		return err
 	}
 
@@ -575,12 +542,7 @@ func (m *ProGearWeightTicket) contextValidateEmptyDocument(ctx context.Context, 
 
 func (m *ProGearWeightTicket) contextValidateEmptyDocumentID(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.EmptyDocumentID.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("emptyDocumentId")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("emptyDocumentId")
-		}
+	if err := validate.ReadOnly(ctx, "emptyDocumentId", "body", strfmt.UUID(m.EmptyDocumentID)); err != nil {
 		return err
 	}
 
@@ -605,12 +567,7 @@ func (m *ProGearWeightTicket) contextValidateFullDocument(ctx context.Context, f
 
 func (m *ProGearWeightTicket) contextValidateFullDocumentID(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.FullDocumentID.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("fullDocumentId")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("fullDocumentId")
-		}
+	if err := validate.ReadOnly(ctx, "fullDocumentId", "body", strfmt.UUID(m.FullDocumentID)); err != nil {
 		return err
 	}
 
@@ -619,12 +576,7 @@ func (m *ProGearWeightTicket) contextValidateFullDocumentID(ctx context.Context,
 
 func (m *ProGearWeightTicket) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.ID.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("id")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("id")
-		}
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
 		return err
 	}
 
@@ -633,12 +585,7 @@ func (m *ProGearWeightTicket) contextValidateID(ctx context.Context, formats str
 
 func (m *ProGearWeightTicket) contextValidatePpmShipmentID(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.PpmShipmentID.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("ppmShipmentId")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("ppmShipmentId")
-		}
+	if err := validate.ReadOnly(ctx, "ppmShipmentId", "body", strfmt.UUID(m.PpmShipmentID)); err != nil {
 		return err
 	}
 

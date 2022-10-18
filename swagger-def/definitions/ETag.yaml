@@ -1,3 +1,0 @@
-description: A hash that should be used as the "If-Match" header for any updates.
-type: string
-readOnly: true

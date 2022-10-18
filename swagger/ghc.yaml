@@ -5996,29 +5996,24 @@ definitions:
       - ppmShipmentId
       - documentId
       - document
-  UUID:
-    type: string
-    format: uuid
-    example: c56a4180-65aa-42ec-a945-5fd21dec0538
-    readOnly: true
-  ETag:
-    description: A hash that should be used as the "If-Match" header for any updates.
-    type: string
-    readOnly: true
   ProGearWeightTicket:
     description: Pro-gear associated information and weight docs for a PPM shipment
     type: object
     properties:
       id:
-        allOf:
-          - description: The ID of the pro-gear weight ticket.
-          - $ref: '#/definitions/UUID'
+        description: The ID of the pro-gear weight ticket.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       ppmShipmentId:
-        allOf:
-          - description: >-
-              The ID of the PPM shipment that this pro-gear weight ticket is
-              associated with.
-          - $ref: '#/definitions/UUID'
+        description: >-
+          The ID of the PPM shipment that this pro-gear weight ticket is
+          associated with.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       createdAt:
         type: string
         format: date-time
@@ -6053,11 +6048,13 @@ definitions:
         x-nullable: true
         x-omitempty: false
       emptyDocumentId:
-        allOf:
-          - description: >-
-              The ID of the document that is associated with the user uploads
-              containing the empty vehicle weight.
-          - $ref: '#/definitions/UUID'
+        description: >-
+          The ID of the document that is associated with the user uploads
+          containing the empty vehicle weight.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       emptyDocument:
         allOf:
           - description: >-
@@ -6071,11 +6068,13 @@ definitions:
         x-nullable: true
         x-omitempty: false
       fullDocumentId:
-        allOf:
-          - description: >-
-              The ID of the document that is associated with the user uploads
-              containing the full vehicle weight.
-          - $ref: '#/definitions/UUID'
+        description: >-
+          The ID of the document that is associated with the user uploads
+          containing the full vehicle weight.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       fullDocument:
         allOf:
           - description: >-
@@ -6089,11 +6088,13 @@ definitions:
         x-nullable: true
         x-omitempty: false
       constructedWeightDocumentId:
-        allOf:
-          - description: >-
-              The ID of the document that is associated with the user uploads
-              containing the constructed weight.
-          - $ref: '#/definitions/UUID'
+        description: >-
+          The ID of the document that is associated with the user uploads
+          containing the constructed weight.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       constructedWeightDocument:
         allOf:
           - description: >-
@@ -6105,7 +6106,9 @@ definitions:
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
       eTag:
-        $ref: '#/definitions/ETag'
+        description: A hash that should be used as the "If-Match" header for any updates.
+        type: string
+        readOnly: true
     required:
       - id
       - ppmShipmentId
