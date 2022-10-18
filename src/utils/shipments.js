@@ -81,10 +81,10 @@ export function isExpenseComplete(expense) {
 }
 
 // hasCompletedAllExpenses - checks if expense ticket has been completed.
-// Returns false if there are no expenses, or if any of them are incomplete.
+// Returns true if expenses are not defined or there are none, false if any of them are incomplete.
 export function hasCompletedAllExpenses(expenses) {
-  if (!expenses.length) {
-    return false;
+  if (!expenses?.length) {
+    return true;
   }
 
   return !!expenses?.every(isExpenseComplete);
