@@ -137,7 +137,8 @@ func (suite *UploaderSuite) TestUploadFromLocalFileWrongContentType() {
 	defer cleanup()
 
 	upload, verrs, err := up.CreateUpload(suite.AppContextForTest(), uploader.File{File: file}, uploader.AllowedTypesPDF)
-	suite.NoError(err)
+	suite.Error(err)
+	suite.Equal("content type \"application/octet-stream\" is not one of the supported types [application/pdf]", err.Error())
 	suite.True(verrs.HasAny(), "invalid content type for upload")
 	suite.Nil(upload, "returned an upload when erroring")
 }
