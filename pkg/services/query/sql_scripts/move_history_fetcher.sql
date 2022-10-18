@@ -440,15 +440,16 @@ WITH move AS (
 
 	) SELECT DISTINCT
 		combined_logs.*,
-		COALESCE(office_users.first_name, prime_user_first_name) AS session_user_first_name,
-		office_users.last_name AS session_user_last_name,
-		office_users.email AS session_user_email,
-		office_users.telephone AS session_user_telephone
-	FROM
-		combined_logs
+		COALESCE(office_users.first_name, prime_user_first_name, service_members.first_name) AS session_user_first_name,
+		COALESCE(office_users.last_name, service_members.last_name) AS session_user_last_name,
+		COALESCE(office_users.email, service_members.personal_email) AS session_user_email,
+		COALESCE(office_users.telephone, service_members.telephone) AS session_user_telephone
+FROM
+	combined_logs
 		LEFT JOIN users_roles ON session_userid = users_roles.user_id
 		LEFT JOIN roles ON users_roles.role_id = roles.id
 		LEFT JOIN office_users ON office_users.user_id = session_userid
+		LEFT JOIN service_members ON service_members.user_id = session_userid
 		LEFT JOIN (
 			SELECT 'Prime' AS prime_user_first_name
 			) prime_users ON roles.role_type = 'prime'
