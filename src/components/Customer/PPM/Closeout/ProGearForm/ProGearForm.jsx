@@ -83,21 +83,48 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                         name="missingWeightTicket"
                         label="I don't have weight tickets"
                       />
-                      <p>Upload your pro-gear&apos;s weight tickets.</p>
-                      <Hint>
-                        <p>{DocumentAndImageUploadInstructions}</p>
-                      </Hint>
-                      <div>
-                        <WeightTicketUpload
-                          fieldName="proGearDocument"
-                          onCreateUpload={onCreateUpload}
-                          onUploadComplete={onUploadComplete}
-                          onUploadDelete={onUploadDelete}
-                          fileUploadRef={proGearDocumentRef}
-                          values={values}
-                          formikProps={formikProps}
-                        />
-                      </div>
+                      {values.missingWeightTicket ? (
+                        <>
+                          <p>Download the official government spreadsheet to calculate the constructed weight.</p>
+                          <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+                            Go to Download Page
+                          </Button>
+                          <p>Enter the constructed weight you calculated.</p>
+                          <p>Upload a completed copy of the spreadsheet.</p>
+                          <Hint>
+                            <p>{DocumentAndImageUploadInstructions}</p>
+                          </Hint>
+                          <div>
+                            <WeightTicketUpload
+                              fieldName="proGearDocument"
+                              onCreateUpload={onCreateUpload}
+                              onUploadComplete={onUploadComplete}
+                              onUploadDelete={onUploadDelete}
+                              fileUploadRef={proGearDocumentRef}
+                              values={values}
+                              formikProps={formikProps}
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <p>Upload your pro-gear&apos;s weight tickets.</p>
+                          <Hint>
+                            <p>{DocumentAndImageUploadInstructions}</p>
+                          </Hint>
+                          <div>
+                            <WeightTicketUpload
+                              fieldName="proGearDocument"
+                              onCreateUpload={onCreateUpload}
+                              onUploadComplete={onUploadComplete}
+                              onUploadDelete={onUploadDelete}
+                              fileUploadRef={proGearDocumentRef}
+                              values={values}
+                              formikProps={formikProps}
+                            />
+                          </div>
+                        </>
+                      )}
                     </Fieldset>
                   )}
                 </FormGroup>
