@@ -11,28 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func FindPPMShipment(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, eagerAssociations ...string) (*models.PPMShipment, error) {
-	var shipment models.PPMShipment
-	findShipmentQuery := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope())
-
-	if len(eagerAssociations) > 0 {
-		findShipmentQuery.Eager(eagerAssociations...)
-	}
-
-	err := findShipmentQuery.Find(&shipment, ppmShipmentID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(ppmShipmentID, "while looking for shipment")
-		default:
-			return nil, apperror.NewQueryError("PPMShipment", err, "")
-		}
-	}
-
-	return &shipment, nil
-}
-
 func FindPPMShipmentWithDocument(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, documentID uuid.UUID) error {
 	var weightTicket models.WeightTicket
 	var proGear models.ProgearWeightTicket
@@ -40,7 +18,7 @@ func FindPPMShipmentWithDocument(appCtx appcontext.AppContext, ppmShipmentID uui
 
 	err := appCtx.DB().Q().
 		Scope(utilities.ExcludeDeletedScope()).
-		Where("ppm_shipment_id = ? AND (empty_document_id = ? OR full_document_id = ?)", ppmShipmentID, documentID, documentID).
+		Where("ppm_shipment_id = ? AND (empty_document_id = ? OR full_document_id = ? OR proof_of_trailer_ownership_document_id = ?)", ppmShipmentID, documentID, documentID, documentID).
 		First(&weightTicket)
 
 	if err != nil {
