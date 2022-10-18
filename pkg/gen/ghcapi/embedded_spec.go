@@ -6446,32 +6446,6 @@ func init() {
         }
       }
     },
-    "MovingExpenseType": {
-      "description": "Moving Expense Type",
-      "type": "string",
-      "enum": [
-        "CONTRACTED_EXPENSE",
-        "GAS",
-        "OIL",
-        "OTHER",
-        "PACKING_MATERIALS",
-        "RENTAL_EQUIPMENT",
-        "STORAGE",
-        "TOLLS",
-        "WEIGHING_FEES"
-      ],
-      "x-display-value": {
-        "CONTRACTED_EXPENSE": "Contracted expense",
-        "GAS": "Gas",
-        "OIL": "Oil",
-        "OTHER": "Other",
-        "PACKING_MATERIALS": "Packing materials",
-        "RENTAL_EQUIPMENT": "Rental equipment",
-        "STORAGE": "Storage",
-        "TOLLS": "Tolls",
-        "WEIGHING_FEES": "Weighing fees"
-      }
-    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -8224,18 +8198,6 @@ func init() {
         "amount": {
           "type": "integer"
         },
-        "description": {
-          "type": "string"
-        },
-        "missingReceipt": {
-          "type": "boolean"
-        },
-        "movingExpenseType": {
-          "$ref": "#/definitions/MovingExpenseType"
-        },
-        "paidWithGTCC": {
-          "type": "boolean"
-        },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
           "type": "string"
@@ -8481,10 +8443,6 @@ func init() {
           "description": "Constructed weight of the pro-gear.",
           "type": "integer"
         },
-        "description": {
-          "description": "Describes the pro-gear that was moved.",
-          "type": "string"
-        },
         "emptyWeight": {
           "description": "Weight of the vehicle not including the pro-gear.",
           "type": "integer"
@@ -8608,14 +8566,6 @@ func init() {
           "description": "full weight ticket recorded weight",
           "type": "integer"
         },
-        "missingEmptyWeightTicket": {
-          "description": "has empty weight ticket",
-          "type": "boolean"
-        },
-        "missingFullWeightTicket": {
-          "description": "has full weight ticket",
-          "type": "boolean"
-        },
         "ownsTrailer": {
           "description": "Owns trailer",
           "type": "boolean"
@@ -8631,10 +8581,6 @@ func init() {
           "description": "Trailer meets criteria",
           "type": "boolean",
           "x-nullable": true
-        },
-        "vehicleDescription": {
-          "description": "Vehicle description (ex. 'SUV')",
-          "type": "string"
         }
       }
     },
@@ -16542,32 +16488,6 @@ func init() {
         }
       }
     },
-    "MovingExpenseType": {
-      "description": "Moving Expense Type",
-      "type": "string",
-      "enum": [
-        "CONTRACTED_EXPENSE",
-        "GAS",
-        "OIL",
-        "OTHER",
-        "PACKING_MATERIALS",
-        "RENTAL_EQUIPMENT",
-        "STORAGE",
-        "TOLLS",
-        "WEIGHING_FEES"
-      ],
-      "x-display-value": {
-        "CONTRACTED_EXPENSE": "Contracted expense",
-        "GAS": "Gas",
-        "OIL": "Oil",
-        "OTHER": "Other",
-        "PACKING_MATERIALS": "Packing materials",
-        "RENTAL_EQUIPMENT": "Rental equipment",
-        "STORAGE": "Storage",
-        "TOLLS": "Tolls",
-        "WEIGHING_FEES": "Weighing fees"
-      }
-    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -18330,18 +18250,6 @@ func init() {
         "amount": {
           "type": "integer"
         },
-        "description": {
-          "type": "string"
-        },
-        "missingReceipt": {
-          "type": "boolean"
-        },
-        "movingExpenseType": {
-          "$ref": "#/definitions/MovingExpenseType"
-        },
-        "paidWithGTCC": {
-          "type": "boolean"
-        },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
           "type": "string"
@@ -18588,10 +18496,6 @@ func init() {
           "type": "integer",
           "minimum": 0
         },
-        "description": {
-          "description": "Describes the pro-gear that was moved.",
-          "type": "string"
-        },
         "emptyWeight": {
           "description": "Weight of the vehicle not including the pro-gear.",
           "type": "integer",
@@ -18719,14 +18623,6 @@ func init() {
           "type": "integer",
           "minimum": 0
         },
-        "missingEmptyWeightTicket": {
-          "description": "has empty weight ticket",
-          "type": "boolean"
-        },
-        "missingFullWeightTicket": {
-          "description": "has full weight ticket",
-          "type": "boolean"
-        },
         "ownsTrailer": {
           "description": "Owns trailer",
           "type": "boolean"
@@ -18742,10 +18638,6 @@ func init() {
           "description": "Trailer meets criteria",
           "type": "boolean",
           "x-nullable": true
-        },
-        "vehicleDescription": {
-          "description": "Vehicle description (ex. 'SUV')",
-          "type": "string"
         }
       }
     },

@@ -26,9 +26,6 @@ type UpdateProGearWeightTicket struct {
 	// Minimum: 0
 	ConstructedWeight *int64 `json:"constructedWeight,omitempty"`
 
-	// Describes the pro-gear that was moved.
-	Description string `json:"description,omitempty"`
-
 	// Weight of the vehicle not including the pro-gear.
 	// Minimum: 0
 	EmptyWeight *int64 `json:"emptyWeight,omitempty"`

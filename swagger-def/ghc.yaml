@@ -4093,23 +4093,14 @@ definitions:
   UpdateWeightTicket:
     type: object
     properties:
-      vehicleDescription:
-        type: string
-        description: Vehicle description (ex. 'SUV')
       emptyWeight:
         type: integer
         description: Empty Recorded Weight
         minimum: 0
-      missingEmptyWeightTicket:
-        type: boolean
-        description: has empty weight ticket
       fullWeight:
         description: full weight ticket recorded weight
         type: integer
         minimum: 0
-      missingFullWeightTicket:
-        description: has full weight ticket
-        type: boolean
       ownsTrailer:
         description: Owns trailer
         type: boolean
@@ -4125,16 +4116,8 @@ definitions:
   UpdateMovingExpense:
     type: object
     properties:
-      movingExpenseType:
-        $ref: 'definitions/MovingExpenseType.yaml'
-      description:
-        type: string
-      paidWithGTCC:
-        type: boolean
       amount:
         type: integer
-      missingReceipt:
-        type: boolean
       sitStartDate:
         type: string
         example: '2022-04-26'
@@ -4154,9 +4137,6 @@ definitions:
       belongsToSelf:
         type: boolean
         description: Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.
-      description:
-        type: string
-        description: Describes the pro-gear that was moved.
       hasWeightTickets:
         type: boolean
         description: Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.

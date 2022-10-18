@@ -27,12 +27,6 @@ type UpdateWeightTicket struct {
 	// Minimum: 0
 	FullWeight *int64 `json:"fullWeight,omitempty"`
 
-	// has empty weight ticket
-	MissingEmptyWeightTicket bool `json:"missingEmptyWeightTicket,omitempty"`
-
-	// has full weight ticket
-	MissingFullWeightTicket bool `json:"missingFullWeightTicket,omitempty"`
-
 	// Owns trailer
 	OwnsTrailer bool `json:"ownsTrailer,omitempty"`
 
@@ -44,9 +38,6 @@ type UpdateWeightTicket struct {
 
 	// Trailer meets criteria
 	TrailerMeetsCriteria *bool `json:"trailerMeetsCriteria,omitempty"`
-
-	// Vehicle description (ex. 'SUV')
-	VehicleDescription string `json:"vehicleDescription,omitempty"`
 }
 
 // Validate validates this update weight ticket
