@@ -3132,10 +3132,6 @@ definitions:
         description: Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx.
         type: integer
         x-nullable: true
-      clientQuery:
-        description: Record the text of the client query that triggered the audit event
-        type: string
-        x-nullable: true
       action:
         description: Action type; I = insert, D = delete, U = update, T = truncate
         type: string
