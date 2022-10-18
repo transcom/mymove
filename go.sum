@@ -698,8 +698,8 @@ go.opentelemetry.io/contrib/detectors/aws/ecs v1.11.0 h1:/aWodnl9uxpk3fiK3d4d0+r
 go.opentelemetry.io/contrib/detectors/aws/ecs v1.11.0/go.mod h1:hHIBsGTmB9J2JOt5LgF+hLTpEY7ESnlXfIDrizfTr2c=
 go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.36.3 h1:e2y1xsF6dXMcZtazpCZrmwTXzFGauhHseXLxDfo5+5s=
 go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.36.3/go.mod h1:wFlvEnVFv1ChAW2ef48pxlKggFQpfe+/7327NFixxEE=
-go.opentelemetry.io/contrib/instrumentation/runtime v0.34.0 h1:zt4RDodWkgiHk8tyUmFOjFoOOfyGH7vwIbUzKP6CCh8=
-go.opentelemetry.io/contrib/instrumentation/runtime v0.34.0/go.mod h1:5wIoZE96WbcQVU3D6UF/ukRfFQXbB6OYgeWi9CjHa90=
+go.opentelemetry.io/contrib/instrumentation/runtime v0.36.3 h1:l9sIsOs1h8ItVkbBKbgrQE35BwrAlHMlT/cR3HJ67TM=
+go.opentelemetry.io/contrib/instrumentation/runtime v0.36.3/go.mod h1:ZrUKFUvAWYoSkrLg9lejrSD9tqbVyX9vd9uuK5OhkxY=
 go.opentelemetry.io/contrib/propagators/aws v1.9.0 h1:60BnkzNPdU3WD12oOGQNTjgbyws8iDggIaBWpghvcVo=
 go.opentelemetry.io/contrib/propagators/aws v1.9.0/go.mod h1:lYGAfTJZU1mo92QxtuiuNJjRyRyEWj1ldO1b0Vpc1I0=
 go.opentelemetry.io/otel v1.11.0 h1:kfToEGMDq6TrVrJ9Vht84Y8y9enykSZzDDZglV0kIEk=
