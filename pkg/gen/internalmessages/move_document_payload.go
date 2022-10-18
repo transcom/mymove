@@ -22,7 +22,7 @@ type MoveDocumentPayload struct {
 
 	// document
 	// Required: true
-	Document *DocumentPayload `json:"document"`
+	Document *Document `json:"document"`
 
 	// Empty weight
 	// Minimum: 0

@@ -28,7 +28,7 @@ type ProGearWeightTicket struct {
 
 	// constructed weight document
 	// Required: true
-	ConstructedWeightDocument *DocumentPayload `json:"constructedWeightDocument"`
+	ConstructedWeightDocument *Document `json:"constructedWeightDocument"`
 
 	// The ID of the document that is associated with the user uploads containing the constructed weight.
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -53,7 +53,7 @@ type ProGearWeightTicket struct {
 
 	// empty document
 	// Required: true
-	EmptyDocument *DocumentPayload `json:"emptyDocument"`
+	EmptyDocument *Document `json:"emptyDocument"`
 
 	// The ID of the document that is associated with the user uploads containing the empty vehicle weight.
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -68,7 +68,7 @@ type ProGearWeightTicket struct {
 
 	// full document
 	// Required: true
-	FullDocument *DocumentPayload `json:"fullDocument"`
+	FullDocument *Document `json:"fullDocument"`
 
 	// The ID of the document that is associated with the user uploads containing the full vehicle weight.
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538

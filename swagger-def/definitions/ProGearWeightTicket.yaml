@@ -51,7 +51,7 @@ properties:
   emptyDocument:
     allOf:
       - description: Document that is associated with the user uploads containing the empty vehicle weight.
-      - $ref: 'DocumentPayload.yaml'
+      - $ref: 'Document.yaml'
   fullWeight:
     description: Weight of the vehicle including the pro-gear.
     type: integer
@@ -67,7 +67,7 @@ properties:
   fullDocument:
     allOf:
       - description: Document that is associated with the user uploads containing the full vehicle weight.
-      - $ref: 'DocumentPayload.yaml'
+      - $ref: 'Document.yaml'
   constructedWeight:
     description: Constructed weight of the pro-gear.
     type: integer
@@ -83,7 +83,7 @@ properties:
   constructedWeightDocument:
     allOf:
       - description: Document that is associated with the user uploads containing the constructed weight.
-      - $ref: 'DocumentPayload.yaml'
+      - $ref: 'Document.yaml'
   status:
     $ref: 'OmittablePPMDocumentStatus.yaml'
   reason:

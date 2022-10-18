@@ -389,7 +389,7 @@ func init() {
           "200": {
             "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -4979,7 +4979,7 @@ func init() {
         "CRATE"
       ]
     },
-    "DocumentPayload": {
+    "Document": {
       "type": "object",
       "required": [
         "id",
@@ -5000,7 +5000,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UploadPayload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -6069,11 +6069,6 @@ func init() {
           "additionalProperties": true,
           "x-nullable": true
         },
-        "clientQuery": {
-          "description": "Record the text of the client query that triggered the audit event",
-          "type": "string",
-          "x-nullable": true
-        },
         "context": {
           "type": "array",
           "items": {
@@ -6368,7 +6363,7 @@ func init() {
               "description": "The Document object that contains all file uploads for this expense"
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -7303,7 +7298,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the constructed weight."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -7336,7 +7331,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the empty vehicle weight."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -7359,7 +7354,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the full vehicle weight."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -7414,7 +7409,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UploadPayload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -8564,7 +8559,8 @@ func init() {
         }
       }
     },
-    "UploadPayload": {
+    "Upload": {
+      "description": "An uploaded file.",
       "type": "object",
       "required": [
         "id",
@@ -8577,24 +8573,29 @@ func init() {
       ],
       "properties": {
         "bytes": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "contentType": {
           "type": "string",
           "format": "mime-type",
+          "readOnly": true,
           "example": "application/pdf"
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
+          "readOnly": true,
           "example": "filename.pdf"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "status": {
@@ -8603,15 +8604,18 @@ func init() {
             "INFECTED",
             "CLEAN",
             "PROCESSING"
-          ]
+          ],
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "url": {
           "type": "string",
           "format": "uri",
+          "readOnly": true,
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
@@ -8668,7 +8672,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the vehicle weight when empty."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -8690,7 +8694,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the vehicle weight when full."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -8745,7 +8749,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the proof of trailer ownership."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -9375,7 +9379,7 @@ func init() {
           "200": {
             "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -14999,7 +15003,7 @@ func init() {
         "CRATE"
       ]
     },
-    "DocumentPayload": {
+    "Document": {
       "type": "object",
       "required": [
         "id",
@@ -15020,7 +15024,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UploadPayload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -16091,11 +16095,6 @@ func init() {
           "additionalProperties": true,
           "x-nullable": true
         },
-        "clientQuery": {
-          "description": "Record the text of the client query that triggered the audit event",
-          "type": "string",
-          "x-nullable": true
-        },
         "context": {
           "type": "array",
           "items": {
@@ -16390,7 +16389,7 @@ func init() {
               "description": "The Document object that contains all file uploads for this expense"
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -17326,7 +17325,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the constructed weight."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -17359,7 +17358,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the empty vehicle weight."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -17383,7 +17382,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the full vehicle weight."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -17439,7 +17438,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UploadPayload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -18601,7 +18600,8 @@ func init() {
         }
       }
     },
-    "UploadPayload": {
+    "Upload": {
+      "description": "An uploaded file.",
       "type": "object",
       "required": [
         "id",
@@ -18614,24 +18614,29 @@ func init() {
       ],
       "properties": {
         "bytes": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "contentType": {
           "type": "string",
           "format": "mime-type",
+          "readOnly": true,
           "example": "application/pdf"
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
+          "readOnly": true,
           "example": "filename.pdf"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "status": {
@@ -18640,15 +18645,18 @@ func init() {
             "INFECTED",
             "CLEAN",
             "PROCESSING"
-          ]
+          ],
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "url": {
           "type": "string",
           "format": "uri",
+          "readOnly": true,
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
@@ -18708,7 +18716,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the vehicle weight when empty."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -18731,7 +18739,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the vehicle weight when full."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -18787,7 +18795,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the proof of trailer ownership."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },

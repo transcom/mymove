@@ -2428,7 +2428,7 @@ paths:
         '200':
           description: the requested document
           schema:
-            $ref: 'definitions/DocumentPayload.yaml'
+            $ref: 'definitions/Document.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -3241,10 +3241,6 @@ definitions:
         description: Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx.
         type: integer
         x-nullable: true
-      clientQuery:
-        description: Record the text of the client query that triggered the audit event
-        type: string
-        x-nullable: true
       action:
         description: Action type; I = insert, D = delete, U = update, T = truncate
         type: string
@@ -3893,7 +3889,7 @@ definitions:
     properties:
       uploads:
         items:
-          $ref: 'definitions/UploadPayload.yaml'
+          $ref: 'definitions/Upload.yaml'
         type: array
   ShipmentsPaymentSITBalance:
     items:

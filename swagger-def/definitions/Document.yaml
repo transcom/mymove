@@ -11,7 +11,7 @@ properties:
   uploads:
     type: array
     items:
-      $ref: 'UploadPayload.yaml'
+      $ref: 'Upload.yaml'
 required:
   - id
   - service_member_id

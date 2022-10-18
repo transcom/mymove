@@ -120,7 +120,7 @@ definitions:
       advance:
         $ref: '#/definitions/CreateReimbursement'
       advance_worksheet:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: '#/definitions/Document'
       has_pro_gear:
         type: string
         title: Has Pro-Gear
@@ -215,7 +215,7 @@ definitions:
       advance:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: '#/definitions/Document'
       has_pro_gear:
         type: string
         title: Has Pro-Gear
@@ -316,7 +316,7 @@ definitions:
       advance:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: '#/definitions/Document'
       has_pro_gear:
         type: string
         title: Has Pro-Gear
@@ -455,7 +455,7 @@ definitions:
       advance:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: '#/definitions/Document'
       has_pro_gear:
         type: string
         title: Has Pro-Gear
@@ -703,7 +703,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
       document:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: '#/definitions/Document'
       title:
         type: string
         example: very_useful_document.pdf
@@ -1775,9 +1775,9 @@ definitions:
       new_duty_location:
         $ref: '#/definitions/DutyLocationPayload'
       uploaded_orders:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: '#/definitions/Document'
       uploaded_amended_orders:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: '#/definitions/Document'
       uploaded_amended_orders_id:
         type: string
         format: uuid
@@ -2798,38 +2798,47 @@ definitions:
       - affiliation
       - created_at
       - updated_at
-  UploadPayload:
+  Upload:
+    description: An uploaded file.
     type: object
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       url:
         type: string
         format: uri
         example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       filename:
         type: string
         example: filename.pdf
+        readOnly: true
       contentType:
         type: string
         format: mime-type
         example: application/pdf
+        readOnly: true
       bytes:
         type: integer
+        readOnly: true
       status:
         type: string
         enum:
           - INFECTED
           - CLEAN
           - PROCESSING
+        readOnly: true
       createdAt:
         type: string
         format: date-time
+        readOnly: true
       updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
       - url
@@ -2838,7 +2847,7 @@ definitions:
       - bytes
       - createdAt
       - updatedAt
-  DocumentPayload:
+  Document:
     type: object
     properties:
       id:
@@ -2852,7 +2861,7 @@ definitions:
       uploads:
         type: array
         items:
-          $ref: '#/definitions/UploadPayload'
+          $ref: '#/definitions/Upload'
     required:
       - id
       - service_member_id
@@ -2964,7 +2973,7 @@ definitions:
           - description: >-
               Document that is associated with the user uploads containing the
               vehicle weight when empty.
-          - $ref: '#/definitions/DocumentPayload'
+          - $ref: '#/definitions/Document'
       fullWeight:
         description: The weight of the vehicle when full.
         type: integer
@@ -2991,7 +3000,7 @@ definitions:
           - description: >-
               Document that is associated with the user uploads containing the
               vehicle weight when full.
-          - $ref: '#/definitions/DocumentPayload'
+          - $ref: '#/definitions/Document'
       ownsTrailer:
         description: Indicates if the customer used a trailer they own for the move.
         type: boolean
@@ -3017,7 +3026,7 @@ definitions:
           - description: >-
               Document that is associated with the user uploads containing the
               proof of trailer ownership.
-          - $ref: '#/definitions/DocumentPayload'
+          - $ref: '#/definitions/Document'
       status:
         $ref: '#/definitions/OmittablePPMDocumentStatus'
       reason:
@@ -3090,7 +3099,7 @@ definitions:
           - description: >-
               The Document object that contains all file uploads for this
               expense
-          - $ref: '#/definitions/DocumentPayload'
+          - $ref: '#/definitions/Document'
       movingExpenseType:
         $ref: '#/definitions/OmittableMovingExpenseType'
       description:
@@ -3228,7 +3237,7 @@ definitions:
           - description: >-
               Document that is associated with the user uploads containing the
               empty vehicle weight.
-          - $ref: '#/definitions/DocumentPayload'
+          - $ref: '#/definitions/Document'
       fullWeight:
         description: Weight of the vehicle including the pro-gear.
         type: integer
@@ -3248,7 +3257,7 @@ definitions:
           - description: >-
               Document that is associated with the user uploads containing the
               full vehicle weight.
-          - $ref: '#/definitions/DocumentPayload'
+          - $ref: '#/definitions/Document'
       constructedWeight:
         description: Constructed weight of the pro-gear.
         type: integer
@@ -3268,7 +3277,7 @@ definitions:
           - description: >-
               Document that is associated with the user uploads containing the
               constructed weight.
-          - $ref: '#/definitions/DocumentPayload'
+          - $ref: '#/definitions/Document'
       status:
         $ref: '#/definitions/OmittablePPMDocumentStatus'
       reason:
@@ -3875,7 +3884,7 @@ paths:
         '201':
           description: created upload
           schema:
-            $ref: '#/definitions/UploadPayload'
+            $ref: '#/definitions/Upload'
         '400':
           description: invalid request
           schema:
@@ -4695,7 +4704,7 @@ paths:
         '200':
           description: returns a PPM attachments upload
           schema:
-            $ref: '#/definitions/UploadPayload'
+            $ref: '#/definitions/Upload'
         '400':
           description: invalid request
         '401':
@@ -4810,7 +4819,7 @@ paths:
         '201':
           description: created document
           schema:
-            $ref: '#/definitions/DocumentPayload'
+            $ref: '#/definitions/Document'
         '400':
           description: invalid request
         '500':
@@ -4833,7 +4842,7 @@ paths:
         '200':
           description: the requested document
           schema:
-            $ref: '#/definitions/DocumentPayload'
+            $ref: '#/definitions/Document'
         '400':
           description: invalid request
           schema:
@@ -4896,7 +4905,7 @@ paths:
         '201':
           description: created upload
           schema:
-            $ref: '#/definitions/UploadPayload'
+            $ref: '#/definitions/Upload'
         '400':
           description: invalid request
           schema:

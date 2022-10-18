@@ -256,7 +256,6 @@ func MoveAuditHistory(logger *zap.Logger, auditHistory models.AuditHistory) *ghc
 		ActionTstampTx:       strfmt.DateTime(auditHistory.ActionTstampTx),
 		ChangedValues:        removeEscapeJSONtoObject(logger, auditHistory.ChangedData),
 		OldValues:            removeEscapeJSONtoObject(logger, auditHistory.OldData),
-		ClientQuery:          auditHistory.ClientQuery,
 		EventName:            auditHistory.EventName,
 		ID:                   strfmt.UUID(auditHistory.ID.String()),
 		ObjectID:             handlers.FmtUUIDPtr(auditHistory.ObjectID),
@@ -1022,15 +1021,15 @@ func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghc
 }
 
 // Upload payload
-func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmessages.UploadPayload {
-	uploadPayload := &ghcmessages.UploadPayload{
-		ID:          handlers.FmtUUID(upload.ID),
-		Filename:    swag.String(upload.Filename),
-		ContentType: swag.String(upload.ContentType),
-		URL:         handlers.FmtURI(url),
-		Bytes:       &upload.Bytes,
-		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
-		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmessages.Upload {
+	uploadPayload := &ghcmessages.Upload{
+		ID:          handlers.FmtUUIDValue(upload.ID),
+		Filename:    upload.Filename,
+		ContentType: upload.ContentType,
+		URL:         strfmt.URI(url),
+		Bytes:       upload.Bytes,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
@@ -1044,7 +1043,7 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 // ProofOfServiceDoc payload from model
 func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.FileStorer) (*ghcmessages.ProofOfServiceDoc, error) {
 
-	uploads := make([]*ghcmessages.UploadPayload, len(proofOfService.PrimeUploads))
+	uploads := make([]*ghcmessages.Upload, len(proofOfService.PrimeUploads))
 	if proofOfService.PrimeUploads != nil && len(proofOfService.PrimeUploads) > 0 {
 		for i, primeUpload := range proofOfService.PrimeUploads {
 			url, err := storer.PresignedURL(primeUpload.Upload.StorageKey, primeUpload.Upload.ContentType)
