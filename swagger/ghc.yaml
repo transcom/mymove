@@ -2098,7 +2098,7 @@ paths:
       description: Fetch the possible PWS violations for an evaluation report
       operationId: getPWSViolations
       tags:
-        - evaluationReports
+        - pwsViolations
       produces:
         - application/json
       responses:
