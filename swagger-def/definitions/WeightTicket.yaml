@@ -45,7 +45,7 @@ properties:
   emptyDocument:
     allOf:
       - description: Document that is associated with the user uploads containing the vehicle weight when empty.
-      - $ref: 'DocumentPayload.yaml'
+      - $ref: 'Document.yaml'
   fullWeight:
     description: The weight of the vehicle when full.
     type: integer
@@ -66,7 +66,7 @@ properties:
   fullDocument:
     allOf:
       - description: Document that is associated with the user uploads containing the vehicle weight when full.
-      - $ref: 'DocumentPayload.yaml'
+      - $ref: 'Document.yaml'
   ownsTrailer:
     description: Indicates if the customer used a trailer they own for the move.
     type: boolean
@@ -86,7 +86,7 @@ properties:
   proofOfTrailerOwnershipDocument:
     allOf:
       - description: Document that is associated with the user uploads containing the proof of trailer ownership.
-      - $ref: 'DocumentPayload.yaml'
+      - $ref: 'Document.yaml'
   status:
     $ref: 'PPMDocumentStatus.yaml'
   reason:

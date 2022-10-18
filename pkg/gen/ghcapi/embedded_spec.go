@@ -389,7 +389,7 @@ func init() {
           "200": {
             "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -4799,7 +4799,7 @@ func init() {
         "CRATE"
       ]
     },
-    "DocumentPayload": {
+    "Document": {
       "type": "object",
       "required": [
         "id",
@@ -6182,7 +6182,7 @@ func init() {
               "description": "The Document object that contains all file uploads for this expense"
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -8240,7 +8240,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the vehicle weight when empty."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -8262,7 +8262,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the vehicle weight when full."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -8317,7 +8317,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the proof of trailer ownership."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -8912,7 +8912,7 @@ func init() {
           "200": {
             "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -14251,7 +14251,7 @@ func init() {
         "CRATE"
       ]
     },
-    "DocumentPayload": {
+    "Document": {
       "type": "object",
       "required": [
         "id",
@@ -15636,7 +15636,7 @@ func init() {
               "description": "The Document object that contains all file uploads for this expense"
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -17704,7 +17704,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the vehicle weight when empty."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -17727,7 +17727,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the vehicle weight when full."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -17783,7 +17783,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the proof of trailer ownership."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },

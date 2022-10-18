@@ -22,7 +22,7 @@ properties:
   document:
     allOf:
       - description: The Document object that contains all file uploads for this expense
-      - $ref: 'DocumentPayload.yaml'
+      - $ref: 'Document.yaml'
   movingExpenseType:
     $ref: 'OmittableMovingExpenseType.yaml'
   description:

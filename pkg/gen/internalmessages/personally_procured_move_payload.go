@@ -34,7 +34,7 @@ type PersonallyProcuredMovePayload struct {
 	Advance *Reimbursement `json:"advance,omitempty"`
 
 	// advance worksheet
-	AdvanceWorksheet *DocumentPayload `json:"advance_worksheet,omitempty"`
+	AdvanceWorksheet *Document `json:"advance_worksheet,omitempty"`
 
 	// When was the ppm move approved?
 	// Example: 2019-03-26T13:19:56-04:00

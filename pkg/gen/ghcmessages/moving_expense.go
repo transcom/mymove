@@ -32,7 +32,7 @@ type MovingExpense struct {
 
 	// document
 	// Required: true
-	Document *DocumentPayload `json:"document"`
+	Document *Document `json:"document"`
 
 	// The id of the Document that contains all file uploads for this expense
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538

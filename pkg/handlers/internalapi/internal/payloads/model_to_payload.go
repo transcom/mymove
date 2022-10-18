@@ -236,7 +236,7 @@ func ClientError(title string, detail string, instance uuid.UUID) *internalmessa
 	}
 }
 
-func PayloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
+func PayloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.Document, error) {
 	uploads := make([]*internalmessages.Upload, len(document.UserUploads))
 	for i, userUpload := range document.UserUploads {
 		if userUpload.Upload.ID == uuid.Nil {
@@ -251,7 +251,7 @@ func PayloadForDocumentModel(storer storage.FileStorer, document models.Document
 		uploads[i] = uploadPayload
 	}
 
-	documentPayload := &internalmessages.DocumentPayload{
+	documentPayload := &internalmessages.Document{
 		ID:              handlers.FmtUUID(document.ID),
 		ServiceMemberID: handlers.FmtUUID(document.ServiceMemberID),
 		Uploads:         uploads,

@@ -31,7 +31,7 @@ type WeightTicket struct {
 
 	// empty document
 	// Required: true
-	EmptyDocument *DocumentPayload `json:"emptyDocument"`
+	EmptyDocument *Document `json:"emptyDocument"`
 
 	// ID of the document that is associated with the user uploads containing the vehicle weight when empty.
 	// Required: true
@@ -45,7 +45,7 @@ type WeightTicket struct {
 
 	// full document
 	// Required: true
-	FullDocument *DocumentPayload `json:"fullDocument"`
+	FullDocument *Document `json:"fullDocument"`
 
 	// ID of the document that is associated with the user uploads containing the vehicle weight when full.
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -82,7 +82,7 @@ type WeightTicket struct {
 
 	// proof of trailer ownership document
 	// Required: true
-	ProofOfTrailerOwnershipDocument *DocumentPayload `json:"proofOfTrailerOwnershipDocument"`
+	ProofOfTrailerOwnershipDocument *Document `json:"proofOfTrailerOwnershipDocument"`
 
 	// ID of the document that is associated with the user uploads containing the proof of trailer ownership.
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538

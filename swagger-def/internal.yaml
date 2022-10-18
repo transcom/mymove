@@ -119,7 +119,7 @@ definitions:
       advance:
         $ref: '#/definitions/CreateReimbursement'
       advance_worksheet:
-        $ref: 'definitions/DocumentPayload.yaml'
+        $ref: 'definitions/Document.yaml'
       has_pro_gear:
         type: string
         title: Has Pro-Gear
@@ -214,7 +214,7 @@ definitions:
       advance:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
-        $ref: 'definitions/DocumentPayload.yaml'
+        $ref: 'definitions/Document.yaml'
       has_pro_gear:
         type: string
         title: Has Pro-Gear
@@ -315,7 +315,7 @@ definitions:
       advance:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
-        $ref: 'definitions/DocumentPayload.yaml'
+        $ref: 'definitions/Document.yaml'
       has_pro_gear:
         type: string
         title: Has Pro-Gear
@@ -454,7 +454,7 @@ definitions:
       advance:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
-        $ref: 'definitions/DocumentPayload.yaml'
+        $ref: 'definitions/Document.yaml'
       has_pro_gear:
         type: string
         title: Has Pro-Gear
@@ -702,7 +702,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
       document:
-        $ref: 'definitions/DocumentPayload.yaml'
+        $ref: 'definitions/Document.yaml'
       title:
         type: string
         example: very_useful_document.pdf
@@ -1752,9 +1752,9 @@ definitions:
       new_duty_location:
         $ref: 'definitions/DutyLocationPayload.yaml'
       uploaded_orders:
-        $ref: 'definitions/DocumentPayload.yaml'
+        $ref: 'definitions/Document.yaml'
       uploaded_amended_orders:
-        $ref: 'definitions/DocumentPayload.yaml'
+        $ref: 'definitions/Document.yaml'
       uploaded_amended_orders_id:
         type: string
         format: uuid
@@ -3689,7 +3689,7 @@ paths:
         '201':
           description: created document
           schema:
-            $ref: 'definitions/DocumentPayload.yaml'
+            $ref: 'definitions/Document.yaml'
         '400':
           description: invalid request
         '500':
@@ -3712,7 +3712,7 @@ paths:
         '200':
           description: the requested document
           schema:
-            $ref: 'definitions/DocumentPayload.yaml'
+            $ref: 'definitions/Document.yaml'
         '400':
           description: invalid request
           schema:

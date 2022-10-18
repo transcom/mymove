@@ -2319,7 +2319,7 @@ paths:
         '200':
           description: the requested document
           schema:
-            $ref: 'definitions/DocumentPayload.yaml'
+            $ref: 'definitions/Document.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':

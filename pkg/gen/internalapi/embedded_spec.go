@@ -233,7 +233,7 @@ func init() {
           "201": {
             "description": "created document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -267,7 +267,7 @@ func init() {
           "200": {
             "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -3488,7 +3488,7 @@ func init() {
           "$ref": "#/definitions/CreateReimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -3966,7 +3966,7 @@ func init() {
       },
       "x-nullable": true
     },
-    "DocumentPayload": {
+    "Document": {
       "type": "object",
       "required": [
         "id",
@@ -4434,7 +4434,7 @@ func init() {
       ],
       "properties": {
         "document": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "empty_weight": {
           "type": "integer",
@@ -4876,7 +4876,7 @@ func init() {
               "description": "The Document object that contains all file uploads for this expense"
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -5180,7 +5180,7 @@ func init() {
           "format": "date-time"
         },
         "uploaded_amended_orders": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "uploaded_amended_orders_id": {
           "type": "string",
@@ -5188,7 +5188,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "uploaded_orders": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         }
       }
     },
@@ -5663,7 +5663,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -5900,7 +5900,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "approve_date": {
           "type": "string",
@@ -6823,7 +6823,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -7167,7 +7167,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the vehicle weight when empty."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -7189,7 +7189,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the vehicle weight when full."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -7244,7 +7244,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the proof of trailer ownership."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -7559,7 +7559,7 @@ func init() {
           "201": {
             "description": "created document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -7593,7 +7593,7 @@ func init() {
           "200": {
             "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -10958,7 +10958,7 @@ func init() {
           "$ref": "#/definitions/CreateReimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -11440,7 +11440,7 @@ func init() {
       },
       "x-nullable": true
     },
-    "DocumentPayload": {
+    "Document": {
       "type": "object",
       "required": [
         "id",
@@ -11919,7 +11919,7 @@ func init() {
       ],
       "properties": {
         "document": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "empty_weight": {
           "type": "integer",
@@ -12363,7 +12363,7 @@ func init() {
               "description": "The Document object that contains all file uploads for this expense"
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -12667,7 +12667,7 @@ func init() {
           "format": "date-time"
         },
         "uploaded_amended_orders": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "uploaded_amended_orders_id": {
           "type": "string",
@@ -12675,7 +12675,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "uploaded_orders": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         }
       }
     },
@@ -13150,7 +13150,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -13389,7 +13389,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "approve_date": {
           "type": "string",
@@ -14314,7 +14314,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -14666,7 +14666,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the vehicle weight when empty."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -14689,7 +14689,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the vehicle weight when full."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
@@ -14745,7 +14745,7 @@ func init() {
               "description": "Document that is associated with the user uploads containing the proof of trailer ownership."
             },
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           ]
         },
