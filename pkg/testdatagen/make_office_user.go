@@ -258,12 +258,12 @@ func MakeOfficeUserWithUSMCGBLOC(db *pop.Connection) models.OfficeUser {
 	})
 }
 
-// MakeServicesCounselorOfficeUserWithUSMCGBLOC makes a Services Counselor tied to the USMC GBLOC
-func MakeServicesCounselorOfficeUserWithUSMCGBLOC(db *pop.Connection) models.OfficeUser {
+// MakeServicesCounselorOfficeUserWithGBLOC makes a Services Counselor tied to the USMC GBLOC
+func MakeServicesCounselorOfficeUserWithGBLOC(db *pop.Connection, gbloc string) models.OfficeUser {
 	officeUUID, _ := uuid.NewV4()
 	transportationOffice := MakeTransportationOffice(db, Assertions{
 		TransportationOffice: models.TransportationOffice{
-			Gbloc: "USMC",
+			Gbloc: gbloc,
 			ID:    officeUUID,
 		},
 	})

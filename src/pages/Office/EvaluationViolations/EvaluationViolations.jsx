@@ -12,7 +12,7 @@ import { useEvaluationReportShipmentListQueries, usePWSViolationsQueries } from 
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
 import EvaluationViolationsForm from 'components/Office/EvaluationViolationsForm/EvaluationViolationsForm';
 
-const EvaluationViolations = ({ customerInfo }) => {
+const EvaluationViolations = ({ customerInfo, destinationDutyLocationPostalCode }) => {
   const { reportId } = useParams();
 
   const { evaluationReport, reportViolations, mtoShipments } = useEvaluationReportShipmentListQueries(reportId);
@@ -29,6 +29,7 @@ const EvaluationViolations = ({ customerInfo }) => {
           reportViolations={reportViolations}
           customerInfo={customerInfo}
           mtoShipments={mtoShipments}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />
       </GridContainer>
     </div>

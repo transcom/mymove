@@ -4,6 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 import { useMutation, queryCache } from 'react-query';
 import { useHistory, useParams } from 'react-router-dom';
 import classnames from 'classnames';
+import PropTypes from 'prop-types';
 
 import styles from './EvaluationReportShipmentInfo.module.scss';
 
@@ -16,7 +17,7 @@ import { SHIPMENT_EVALUATION_REPORTS } from 'constants/queryKeys';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
-const EvaluationReportShipmentInfo = ({ shipment }) => {
+const EvaluationReportShipmentInfo = ({ shipment, destinationDutyLocationPostalCode }) => {
   const { moveCode } = useParams();
   const history = useHistory();
 
@@ -48,7 +49,9 @@ const EvaluationReportShipmentInfo = ({ shipment }) => {
     case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
       heading = 'HHG';
       pickupAddress = formatEvaluationReportShipmentAddress(shipment.pickupAddress);
-      destinationAddress = formatEvaluationReportShipmentAddress(shipment.destinationAddress);
+      destinationAddress = shipment?.destinationAddress
+        ? formatEvaluationReportShipmentAddress(shipment.destinationAddress)
+        : destinationDutyLocationPostalCode;
       shipmentAccentStyle = styles.hhgShipmentType;
       break;
     case SHIPMENT_OPTIONS.NTS:
@@ -60,7 +63,9 @@ const EvaluationReportShipmentInfo = ({ shipment }) => {
     case SHIPMENT_OPTIONS.NTSR:
       heading = 'NTS-Release';
       pickupAddress = shipment?.storageFacility ? shipment.storageFacility.facilityName : '';
-      destinationAddress = formatEvaluationReportShipmentAddress(shipment.destinationAddress);
+      destinationAddress = shipment?.destinationAddress
+        ? formatEvaluationReportShipmentAddress(shipment.destinationAddress)
+        : destinationDutyLocationPostalCode;
       shipmentAccentStyle = styles.ntsrShipmentType;
       break;
     case SHIPMENT_OPTIONS.PPM:
@@ -96,6 +101,7 @@ const EvaluationReportShipmentInfo = ({ shipment }) => {
 };
 EvaluationReportShipmentInfo.propTypes = {
   shipment: ShipmentShape.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 
 export default EvaluationReportShipmentInfo;

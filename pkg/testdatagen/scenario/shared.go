@@ -6542,7 +6542,8 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 			ProvidesServicesCounseling: true,
 		},
 		ServiceMember: models.ServiceMember{
-			Edipi: swag.String(dodID),
+			Edipi:     swag.String(dodID),
+			FirstName: swag.String("QAECSRTestFirst"),
 		},
 	})
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
