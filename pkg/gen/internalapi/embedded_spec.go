@@ -6621,10 +6621,6 @@ func init() {
         "description": {
           "type": "string"
         },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
         "missingReceipt": {
           "type": "boolean"
         },
@@ -14052,10 +14048,6 @@ func init() {
         },
         "description": {
           "type": "string"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
         },
         "missingReceipt": {
           "type": "boolean"

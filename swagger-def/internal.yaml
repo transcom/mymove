@@ -867,9 +867,6 @@ definitions:
         type: string
         example: '2018-05-26'
         format: date
-      eTag:
-        type: string
-        readOnly: true
     required:
       - movingExpenseType
       - description
