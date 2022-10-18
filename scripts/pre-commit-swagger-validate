@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 #
-# Pre-commit hook to run `swagger validate` that is different based on environment
+# Pre-commit hook to run `swagger validate`
 #
 
 set -eu -o pipefail
