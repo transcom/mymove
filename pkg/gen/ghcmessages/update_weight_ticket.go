@@ -19,15 +19,15 @@ import (
 // swagger:model UpdateWeightTicket
 type UpdateWeightTicket struct {
 
-	// Empty Recorded Weight
+	// Weight of the vehicle when empty.
 	// Minimum: 0
 	EmptyWeight *int64 `json:"emptyWeight,omitempty"`
 
-	// full weight ticket recorded weight
+	// The weight of the vehicle when full.
 	// Minimum: 0
 	FullWeight *int64 `json:"fullWeight,omitempty"`
 
-	// Owns trailer
+	// Indicates if the customer used a trailer they own for the move.
 	OwnsTrailer bool `json:"ownsTrailer,omitempty"`
 
 	// The reason the services counselor has excluded or rejected the item.
@@ -36,8 +36,8 @@ type UpdateWeightTicket struct {
 	// status
 	Status PPMDocumentStatus `json:"status,omitempty"`
 
-	// Trailer meets criteria
-	TrailerMeetsCriteria *bool `json:"trailerMeetsCriteria,omitempty"`
+	// Indicates if the trailer that the customer used meets all the criteria to be claimable.
+	TrailerMeetsCriteria bool `json:"trailerMeetsCriteria,omitempty"`
 }
 
 // Validate validates this update weight ticket

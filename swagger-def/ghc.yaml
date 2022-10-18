@@ -4094,20 +4094,19 @@ definitions:
     type: object
     properties:
       emptyWeight:
+        description: Weight of the vehicle when empty.
         type: integer
-        description: Empty Recorded Weight
         minimum: 0
       fullWeight:
-        description: full weight ticket recorded weight
+        description: The weight of the vehicle when full.
         type: integer
         minimum: 0
       ownsTrailer:
-        description: Owns trailer
+        description: Indicates if the customer used a trailer they own for the move.
         type: boolean
       trailerMeetsCriteria:
-        description: Trailer meets criteria
+        description: Indicates if the trailer that the customer used meets all the criteria to be claimable.
         type: boolean
-        x-nullable: true
       status:
         $ref: 'definitions/PPMDocumentStatus.yaml'
       reason:
@@ -4117,12 +4116,15 @@ definitions:
     type: object
     properties:
       amount:
+        description: The total amount of the expense as indicated on the receipt
         type: integer
       sitStartDate:
+        description: The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
         type: string
         example: '2022-04-26'
         format: date
       sitEndDate:
+        description: The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
         type: string
         example: '2018-05-26'
         format: date
@@ -4135,22 +4137,22 @@ definitions:
     type: object
     properties:
       belongsToSelf:
-        type: boolean
         description: Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.
-      hasWeightTickets:
         type: boolean
+      hasWeightTickets:
         description: Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.
+        type: boolean
       emptyWeight:
-        type: integer
         description: Weight of the vehicle not including the pro-gear.
+        type: integer
         minimum: 0
       fullWeight:
-        type: integer
         description: Weight of the vehicle including the pro-gear.
+        type: integer
         minimum: 0
       constructedWeight:
-        type: integer
         description: Constructed weight of the pro-gear.
+        type: integer
         minimum: 0
       status:
         $ref: 'definitions/PPMDocumentStatus.yaml'

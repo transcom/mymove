@@ -853,18 +853,30 @@ definitions:
       movingExpenseType:
         $ref: '#/definitions/MovingExpenseType'
       description:
+        description: A brief description of the expense
         type: string
       paidWithGTCC:
+        description: >-
+          Indicates if the service member used their government issued card to
+          pay for the expense
         type: boolean
       amount:
+        description: The total amount of the expense as indicated on the receipt
         type: integer
       missingReceipt:
+        description: Indicates if the customer is missing the receipt for their expense.
         type: boolean
       sitStartDate:
+        description: >-
+          The date the shipment entered storage, applicable for the `STORAGE`
+          movingExpenseType only
         type: string
         example: '2022-04-26'
         format: date
       sitEndDate:
+        description: >-
+          The date the shipment exited storage, applicable for the `STORAGE`
+          movingExpenseType only
         type: string
         example: '2018-05-26'
         format: date
@@ -947,27 +959,35 @@ definitions:
     type: object
     properties:
       vehicleDescription:
+        description: >-
+          Description of the vehicle used for the trip. E.g. make/model, type of
+          truck/van, etc.
         type: string
-        description: Vehicle description (ex. 'SUV')
       emptyWeight:
+        description: Weight of the vehicle when empty.
         type: integer
-        description: Empty Recorded Weight
         minimum: 0
       missingEmptyWeightTicket:
+        description: >-
+          Indicates if the customer is missing a weight ticket for the vehicle
+          weight when empty.
         type: boolean
-        description: has empty weight ticket
       fullWeight:
-        description: full weight ticket recorded weight
+        description: The weight of the vehicle when full.
         type: integer
         minimum: 0
       missingFullWeightTicket:
-        description: has full weight ticket
+        description: >-
+          Indicates if the customer is missing a weight ticket for the vehicle
+          weight when full.
         type: boolean
       ownsTrailer:
-        description: Owns trailer
+        description: Indicates if the customer used a trailer they own for the move.
         type: boolean
       trailerMeetsCriteria:
-        description: Trailer meets criteria
+        description: >-
+          Indicates if the trailer that the customer used meets all the criteria
+          to be claimable.
         type: boolean
   OfficeUser:
     type: object
@@ -3125,12 +3145,14 @@ definitions:
           system (UTC)
         type: string
         format: date-time
+        readOnly: true
       updatedAt:
         description: >-
           Timestamp when a property of this moving expense object was last
           modified (UTC)
         type: string
         format: date-time
+        readOnly: true
       eTag:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
@@ -3157,14 +3179,14 @@ definitions:
     properties:
       id:
         allOf:
-          - $ref: '#/definitions/UUID'
           - description: The ID of the pro-gear weight ticket.
+          - $ref: '#/definitions/UUID'
       ppmShipmentId:
         allOf:
-          - $ref: '#/definitions/UUID'
           - description: >-
               The ID of the PPM shipment that this pro-gear weight ticket is
               associated with.
+          - $ref: '#/definitions/UUID'
       createdAt:
         type: string
         format: date-time
@@ -3174,78 +3196,78 @@ definitions:
         format: date-time
         readOnly: true
       belongsToSelf:
-        type: boolean
         description: >-
           Indicates if this information is for the customer's own pro-gear,
           otherwise, it's the spouse's.
+        type: boolean
         x-nullable: true
         x-omitempty: false
       description:
-        type: string
         description: Describes the pro-gear that was moved.
+        type: string
         x-nullable: true
         x-omitempty: false
       hasWeightTickets:
-        type: boolean
         description: >-
           Indicates if the user has a weight ticket for their pro-gear,
           otherwise they have a constructed weight.
+        type: boolean
         x-nullable: true
         x-omitempty: false
       emptyWeight:
-        type: integer
         description: Weight of the vehicle not including the pro-gear.
+        type: integer
         minimum: 0
         x-nullable: true
         x-omitempty: false
       emptyDocumentId:
         allOf:
-          - $ref: '#/definitions/UUID'
           - description: >-
               The ID of the document that is associated with the user uploads
               containing the empty vehicle weight.
+          - $ref: '#/definitions/UUID'
       emptyDocument:
         allOf:
-          - $ref: '#/definitions/DocumentPayload'
           - description: >-
               Document that is associated with the user uploads containing the
               empty vehicle weight.
+          - $ref: '#/definitions/DocumentPayload'
       fullWeight:
-        type: integer
         description: Weight of the vehicle including the pro-gear.
+        type: integer
         minimum: 0
         x-nullable: true
         x-omitempty: false
       fullDocumentId:
         allOf:
-          - $ref: '#/definitions/UUID'
           - description: >-
               The ID of the document that is associated with the user uploads
               containing the full vehicle weight.
+          - $ref: '#/definitions/UUID'
       fullDocument:
         allOf:
-          - $ref: '#/definitions/DocumentPayload'
           - description: >-
               Document that is associated with the user uploads containing the
               full vehicle weight.
+          - $ref: '#/definitions/DocumentPayload'
       constructedWeight:
-        type: integer
         description: Constructed weight of the pro-gear.
+        type: integer
         minimum: 0
         x-nullable: true
         x-omitempty: false
       constructedWeightDocumentId:
         allOf:
-          - $ref: '#/definitions/UUID'
           - description: >-
               The ID of the document that is associated with the user uploads
               containing the constructed weight.
+          - $ref: '#/definitions/UUID'
       constructedWeightDocument:
         allOf:
-          - $ref: '#/definitions/DocumentPayload'
           - description: >-
               Document that is associated with the user uploads containing the
               constructed weight.
+          - $ref: '#/definitions/DocumentPayload'
       status:
         $ref: '#/definitions/OmittablePPMDocumentStatus'
       reason:

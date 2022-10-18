@@ -852,18 +852,24 @@ definitions:
       movingExpenseType:
         $ref: 'definitions/MovingExpenseType.yaml'
       description:
+        description: A brief description of the expense
         type: string
       paidWithGTCC:
+        description: Indicates if the service member used their government issued card to pay for the expense
         type: boolean
       amount:
+        description: The total amount of the expense as indicated on the receipt
         type: integer
       missingReceipt:
+        description: Indicates if the customer is missing the receipt for their expense.
         type: boolean
       sitStartDate:
+        description: The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
         type: string
         example: '2022-04-26'
         format: date
       sitEndDate:
+        description: The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
         type: string
         example: '2018-05-26'
         format: date
@@ -946,27 +952,27 @@ definitions:
     type: object
     properties:
       vehicleDescription:
+        description: Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.
         type: string
-        description: Vehicle description (ex. 'SUV')
       emptyWeight:
+        description: Weight of the vehicle when empty.
         type: integer
-        description: Empty Recorded Weight
         minimum: 0
       missingEmptyWeightTicket:
+        description: Indicates if the customer is missing a weight ticket for the vehicle weight when empty.
         type: boolean
-        description: has empty weight ticket
       fullWeight:
-        description: full weight ticket recorded weight
+        description: The weight of the vehicle when full.
         type: integer
         minimum: 0
       missingFullWeightTicket:
-        description: has full weight ticket
+        description: Indicates if the customer is missing a weight ticket for the vehicle weight when full.
         type: boolean
       ownsTrailer:
-        description: Owns trailer
+        description: Indicates if the customer used a trailer they own for the move.
         type: boolean
       trailerMeetsCriteria:
-        description: Trailer meets criteria
+        description: Indicates if the trailer that the customer used meets all the criteria to be claimable.
         type: boolean
   OfficeUser:
     type: object

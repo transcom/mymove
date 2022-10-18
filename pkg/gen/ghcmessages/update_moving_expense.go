@@ -19,18 +19,18 @@ import (
 // swagger:model UpdateMovingExpense
 type UpdateMovingExpense struct {
 
-	// amount
+	// The total amount of the expense as indicated on the receipt
 	Amount int64 `json:"amount,omitempty"`
 
 	// The reason the services counselor has excluded or rejected the item.
 	Reason string `json:"reason,omitempty"`
 
-	// sit end date
+	// The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
 	// Example: 2018-05-26
 	// Format: date
 	SitEndDate strfmt.Date `json:"sitEndDate,omitempty"`
 
-	// sit start date
+	// The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
 	// Example: 2022-04-26
 	// Format: date
 	SitStartDate strfmt.Date `json:"sitStartDate,omitempty"`

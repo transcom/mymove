@@ -6358,7 +6358,8 @@ func init() {
         "createdAt": {
           "description": "Timestamp the moving expense object was initially created in the system (UTC)",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "description": {
           "description": "A brief description of the expense",
@@ -6442,7 +6443,8 @@ func init() {
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -7303,20 +7305,20 @@ func init() {
         "constructedWeightDocument": {
           "allOf": [
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "description": "Document that is associated with the user uploads containing the constructed weight."
             },
             {
-              "description": "Document that is associated with the user uploads containing the constructed weight."
+              "$ref": "#/definitions/DocumentPayload"
             }
           ]
         },
         "constructedWeightDocumentId": {
           "allOf": [
             {
-              "$ref": "#/definitions/UUID"
+              "description": "The ID of the document that is associated with the user uploads containing the constructed weight."
             },
             {
-              "description": "The ID of the document that is associated with the user uploads containing the constructed weight."
+              "$ref": "#/definitions/UUID"
             }
           ]
         },
@@ -7337,20 +7339,20 @@ func init() {
         "emptyDocument": {
           "allOf": [
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "description": "Document that is associated with the user uploads containing the empty vehicle weight."
             },
             {
-              "description": "Document that is associated with the user uploads containing the empty vehicle weight."
+              "$ref": "#/definitions/DocumentPayload"
             }
           ]
         },
         "emptyDocumentId": {
           "allOf": [
             {
-              "$ref": "#/definitions/UUID"
+              "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight."
             },
             {
-              "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight."
+              "$ref": "#/definitions/UUID"
             }
           ]
         },
@@ -7363,20 +7365,20 @@ func init() {
         "fullDocument": {
           "allOf": [
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "description": "Document that is associated with the user uploads containing the full vehicle weight."
             },
             {
-              "description": "Document that is associated with the user uploads containing the full vehicle weight."
+              "$ref": "#/definitions/DocumentPayload"
             }
           ]
         },
         "fullDocumentId": {
           "allOf": [
             {
-              "$ref": "#/definitions/UUID"
+              "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight."
             },
             {
-              "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight."
+              "$ref": "#/definitions/UUID"
             }
           ]
         },
@@ -7395,20 +7397,20 @@ func init() {
         "id": {
           "allOf": [
             {
-              "$ref": "#/definitions/UUID"
+              "description": "The ID of the pro-gear weight ticket."
             },
             {
-              "description": "The ID of the pro-gear weight ticket."
+              "$ref": "#/definitions/UUID"
             }
           ]
         },
         "ppmShipmentId": {
           "allOf": [
             {
-              "$ref": "#/definitions/UUID"
+              "description": "The ID of the PPM shipment that this pro-gear weight ticket is associated with."
             },
             {
-              "description": "The ID of the PPM shipment that this pro-gear weight ticket is associated with."
+              "$ref": "#/definitions/UUID"
             }
           ]
         },
@@ -8196,6 +8198,7 @@ func init() {
       "type": "object",
       "properties": {
         "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer"
         },
         "reason": {
@@ -8203,11 +8206,13 @@ func init() {
           "type": "string"
         },
         "sitEndDate": {
+          "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date",
           "example": "2018-05-26"
         },
         "sitStartDate": {
+          "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date",
           "example": "2022-04-26"
@@ -8559,15 +8564,15 @@ func init() {
       "type": "object",
       "properties": {
         "emptyWeight": {
-          "description": "Empty Recorded Weight",
+          "description": "Weight of the vehicle when empty.",
           "type": "integer"
         },
         "fullWeight": {
-          "description": "full weight ticket recorded weight",
+          "description": "The weight of the vehicle when full.",
           "type": "integer"
         },
         "ownsTrailer": {
-          "description": "Owns trailer",
+          "description": "Indicates if the customer used a trailer they own for the move.",
           "type": "boolean"
         },
         "reason": {
@@ -8578,9 +8583,8 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
-          "description": "Trailer meets criteria",
-          "type": "boolean",
-          "x-nullable": true
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
+          "type": "boolean"
         }
       }
     },
@@ -16400,7 +16404,8 @@ func init() {
         "createdAt": {
           "description": "Timestamp the moving expense object was initially created in the system (UTC)",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "description": {
           "description": "A brief description of the expense",
@@ -16484,7 +16489,8 @@ func init() {
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -17346,20 +17352,20 @@ func init() {
         "constructedWeightDocument": {
           "allOf": [
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "description": "Document that is associated with the user uploads containing the constructed weight."
             },
             {
-              "description": "Document that is associated with the user uploads containing the constructed weight."
+              "$ref": "#/definitions/DocumentPayload"
             }
           ]
         },
         "constructedWeightDocumentId": {
           "allOf": [
             {
-              "$ref": "#/definitions/UUID"
+              "description": "The ID of the document that is associated with the user uploads containing the constructed weight."
             },
             {
-              "description": "The ID of the document that is associated with the user uploads containing the constructed weight."
+              "$ref": "#/definitions/UUID"
             }
           ]
         },
@@ -17380,20 +17386,20 @@ func init() {
         "emptyDocument": {
           "allOf": [
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "description": "Document that is associated with the user uploads containing the empty vehicle weight."
             },
             {
-              "description": "Document that is associated with the user uploads containing the empty vehicle weight."
+              "$ref": "#/definitions/DocumentPayload"
             }
           ]
         },
         "emptyDocumentId": {
           "allOf": [
             {
-              "$ref": "#/definitions/UUID"
+              "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight."
             },
             {
-              "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight."
+              "$ref": "#/definitions/UUID"
             }
           ]
         },
@@ -17407,20 +17413,20 @@ func init() {
         "fullDocument": {
           "allOf": [
             {
-              "$ref": "#/definitions/DocumentPayload"
+              "description": "Document that is associated with the user uploads containing the full vehicle weight."
             },
             {
-              "description": "Document that is associated with the user uploads containing the full vehicle weight."
+              "$ref": "#/definitions/DocumentPayload"
             }
           ]
         },
         "fullDocumentId": {
           "allOf": [
             {
-              "$ref": "#/definitions/UUID"
+              "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight."
             },
             {
-              "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight."
+              "$ref": "#/definitions/UUID"
             }
           ]
         },
@@ -17440,20 +17446,20 @@ func init() {
         "id": {
           "allOf": [
             {
-              "$ref": "#/definitions/UUID"
+              "description": "The ID of the pro-gear weight ticket."
             },
             {
-              "description": "The ID of the pro-gear weight ticket."
+              "$ref": "#/definitions/UUID"
             }
           ]
         },
         "ppmShipmentId": {
           "allOf": [
             {
-              "$ref": "#/definitions/UUID"
+              "description": "The ID of the PPM shipment that this pro-gear weight ticket is associated with."
             },
             {
-              "description": "The ID of the PPM shipment that this pro-gear weight ticket is associated with."
+              "$ref": "#/definitions/UUID"
             }
           ]
         },
@@ -18248,6 +18254,7 @@ func init() {
       "type": "object",
       "properties": {
         "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer"
         },
         "reason": {
@@ -18255,11 +18262,13 @@ func init() {
           "type": "string"
         },
         "sitEndDate": {
+          "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date",
           "example": "2018-05-26"
         },
         "sitStartDate": {
+          "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date",
           "example": "2022-04-26"
@@ -18614,17 +18623,17 @@ func init() {
       "type": "object",
       "properties": {
         "emptyWeight": {
-          "description": "Empty Recorded Weight",
+          "description": "Weight of the vehicle when empty.",
           "type": "integer",
           "minimum": 0
         },
         "fullWeight": {
-          "description": "full weight ticket recorded weight",
+          "description": "The weight of the vehicle when full.",
           "type": "integer",
           "minimum": 0
         },
         "ownsTrailer": {
-          "description": "Owns trailer",
+          "description": "Indicates if the customer used a trailer they own for the move.",
           "type": "boolean"
         },
         "reason": {
@@ -18635,9 +18644,8 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
-          "description": "Trailer meets criteria",
-          "type": "boolean",
-          "x-nullable": true
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
+          "type": "boolean"
         }
       }
     },
