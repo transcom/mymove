@@ -291,10 +291,14 @@ const EvaluationViolationsForm = ({
               );
 
               if (kpiViolation) {
-                setFieldValue(
-                  'kpiViolations',
-                  prevSelectedKpiViolations.filter((entry) => entry !== kpiViolation.additionalDataElem),
+                // perform a lookup rather than straight filter as we may have more than one of a single KPI violation in the array that are still valid
+                const location = prevSelectedKpiViolations.findIndex(
+                  (entry) => entry === kpiViolation.additionalDataElem,
                 );
+
+                prevSelectedKpiViolations.splice(location, 1);
+
+                setFieldValue('kpiViolations', prevSelectedKpiViolations);
               }
             } else {
               setFieldValue(fieldKey, [...prevSelectedViolations, id]);
