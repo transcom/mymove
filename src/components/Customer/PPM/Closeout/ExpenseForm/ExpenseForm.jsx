@@ -34,13 +34,13 @@ const validationSchema = Yup.object().shape({
   sitStartDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
-      is: 'STORAGE',
+      is: ppmExpenseTypes.STORAGE,
       then: (schema) => schema.required('Required').max(Yup.ref('sitEndDate'), 'Start date must be before end date.'),
     }),
   sitEndDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
-      is: 'STORAGE',
+      is: ppmExpenseTypes.STORAGE,
       then: (schema) => schema.required('Required'),
     }),
 });
