@@ -39,9 +39,6 @@ RUN mkdir /build/src
 
 RUN set -x \
   && make bin/rds-ca-2019-root.pem \
-  && rm -f pkg/assets/assets.go && make pkg/assets/assets.go \
-  && make bin/swagger \
-  && scripts/gen-server \
   && rm -f bin/milmove && make bin/milmove \
   && make bin/generate-test-data
 
