@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import t from 'constants/MoveHistory/Database/Tables';
-import updateAllowance from 'constants/MoveHistory/EventTemplates/updateAllowances/updateAllowance';
+import updateAllowance from 'constants/MoveHistory/EventTemplates/UpdateAllowances/updateAllowance';
 
 describe('When a service counselor updates shipping allowances', () => {
   const item = {
