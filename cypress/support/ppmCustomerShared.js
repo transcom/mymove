@@ -122,15 +122,17 @@ export function fillOutWeightTicketPage(options) {
   if (options?.useConstructedWeight) {
     cy.get('input[name="emptyWeight"]').clear().type('1000').blur();
     cy.get('input[name="missingEmptyWeightTicket"]').check({ force: true });
-    cy.intercept('/internal/uploads**').as('uploadFile');
+
     cy.upload_file('.emptyDocument.filepond--root', 'constructedWeight.xls');
     cy.wait('@uploadFile');
+
     cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
     cy.get('input[name="fullWeight"]').clear().type('3000');
     cy.get('input[name="missingFullWeightTicket"]').check({ force: true });
-    cy.intercept('/internal/uploads**').as('uploadFile');
+
     cy.upload_file('.fullDocument.filepond--root', 'constructedWeight.xls');
     cy.wait('@uploadFile');
+
     cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
   } else {
     cy.get('input[name="emptyWeight"]').clear().type('1000').blur();

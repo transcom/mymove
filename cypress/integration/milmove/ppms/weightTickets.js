@@ -13,6 +13,7 @@ describe('Weight Tickets', function () {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
     cy.intercept('PATCH', '**/internal/ppm-shipments/**/weight-ticket').as('patchWeightTicket');
+    cy.intercept('POST', '**/internal/ppm-shipments/**/uploads**').as('uploadFile');
   });
 
   const viewportType = [
