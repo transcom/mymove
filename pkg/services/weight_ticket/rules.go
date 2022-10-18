@@ -104,11 +104,14 @@ func verifyReasonAndStatusAreConstant() weightTicketValidator {
 			return verrs
 		}
 
+		if originalWeightTicket.Status == nil && newWeightTicket.Status != nil {
+			verrs.Add("Status", "status cannot be modified")
+		} else if originalWeightTicket.Status != nil && newWeightTicket.Status != nil && *originalWeightTicket.Status != *newWeightTicket.Status {
+			verrs.Add("Status", "status cannot be modified")
+		}
+
 		if originalWeightTicket.Reason != newWeightTicket.Reason {
 			verrs.Add("Reason", "reason cannot be modified")
-		}
-		if originalWeightTicket.Status != newWeightTicket.Status {
-			verrs.Add("Status", "status cannot be modified")
 		}
 		return verrs
 	})
