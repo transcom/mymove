@@ -4,8 +4,8 @@ set -eu -o pipefail
 
 if [ "${CIRCLECI+x}" ]; then
   LOCAL_SWAGGER="/usr/local/bin/swagger"
-#elif swagger version 2>/dev/null | grep -F -q -E 'version: v?0.30.2'; then
-#  LOCAL_SWAGGER=$(which swagger)
+elif swagger version 2>/dev/null | grep -F -q -E 'version: v?0.30.2'; then
+  LOCAL_SWAGGER=$(which swagger)
 fi
 
 # Ensure the latest image is being used
@@ -30,7 +30,6 @@ swagger_func() {
     echo "Using local swagger"
     ${LOCAL_SWAGGER} "$@"
   else
-    echo "Using docker swagger"
     docker run --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" swagger "$@"
   fi
 }
