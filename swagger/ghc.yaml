@@ -3908,7 +3908,7 @@ definitions:
     properties:
       uploads:
         items:
-          $ref: '#/definitions/UploadPayload'
+          $ref: '#/definitions/Upload'
         type: array
   ShipmentsPaymentSITBalance:
     items:
@@ -5469,38 +5469,47 @@ definitions:
       - APPROVED
       - REJECTED
       - EDITED
-  UploadPayload:
+  Upload:
+    description: An uploaded file.
     type: object
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       url:
         type: string
         format: uri
         example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       filename:
         type: string
         example: filename.pdf
+        readOnly: true
       contentType:
         type: string
         format: mime-type
         example: application/pdf
+        readOnly: true
       bytes:
         type: integer
+        readOnly: true
       status:
         type: string
         enum:
           - INFECTED
           - CLEAN
           - PROCESSING
+        readOnly: true
       createdAt:
         type: string
         format: date-time
+        readOnly: true
       updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
       - url
@@ -5523,7 +5532,7 @@ definitions:
       uploads:
         type: array
         items:
-          $ref: '#/definitions/UploadPayload'
+          $ref: '#/definitions/Upload'
     required:
       - id
       - service_member_id

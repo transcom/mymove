@@ -1,3 +1,4 @@
+description: An uploaded file.
 type: object
 properties:
   id:
@@ -26,14 +27,12 @@ properties:
   createdAt:
     type: string
     format: date-time
+    readOnly: true
   updatedAt:
     type: string
     format: date-time
+    readOnly: true
 required:
-  - id
-  - url
   - filename
   - contentType
   - bytes
-  - createdAt
-  - updatedAt

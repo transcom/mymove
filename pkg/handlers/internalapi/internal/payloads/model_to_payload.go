@@ -237,7 +237,7 @@ func ClientError(title string, detail string, instance uuid.UUID) *internalmessa
 }
 
 func PayloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
-	uploads := make([]*internalmessages.UploadPayload, len(document.UserUploads))
+	uploads := make([]*internalmessages.Upload, len(document.UserUploads))
 	for i, userUpload := range document.UserUploads {
 		if userUpload.Upload.ID == uuid.Nil {
 			return nil, errors.New("no uploads for user")
@@ -263,15 +263,15 @@ func PayloadForUploadModel(
 	storer storage.FileStorer,
 	upload models.Upload,
 	url string,
-) *internalmessages.UploadPayload {
-	uploadPayload := &internalmessages.UploadPayload{
-		ID:          handlers.FmtUUID(upload.ID),
-		Filename:    swag.String(upload.Filename),
-		ContentType: swag.String(upload.ContentType),
-		URL:         handlers.FmtURI(url),
-		Bytes:       &upload.Bytes,
-		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
-		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+) *internalmessages.Upload {
+	uploadPayload := &internalmessages.Upload{
+		ID:          handlers.FmtUUIDValue(upload.ID),
+		Filename:    upload.Filename,
+		ContentType: upload.ContentType,
+		URL:         strfmt.URI(url),
+		Bytes:       upload.Bytes,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {

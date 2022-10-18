@@ -2774,7 +2774,7 @@ paths:
         '201':
           description: created upload
           schema:
-            $ref: 'definitions/UploadPayload.yaml'
+            $ref: 'definitions/Upload.yaml'
         '400':
           description: invalid request
           schema:
@@ -3576,7 +3576,7 @@ paths:
         '200':
           description: returns a PPM attachments upload
           schema:
-            $ref: 'definitions/UploadPayload.yaml'
+            $ref: 'definitions/Upload.yaml'
         '400':
           description: invalid request
         '401':
@@ -3775,7 +3775,7 @@ paths:
         '201':
           description: created upload
           schema:
-            $ref: 'definitions/UploadPayload.yaml'
+            $ref: 'definitions/Upload.yaml'
         '400':
           description: invalid request
           schema:

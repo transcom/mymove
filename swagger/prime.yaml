@@ -1183,7 +1183,7 @@ paths:
         '201':
           description: Successfully created upload of digital file.
           schema:
-            $ref: '#/definitions/Upload'
+            $ref: '#/definitions/UploadWithOmissions'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -2735,7 +2735,7 @@ definitions:
     properties:
       uploads:
         items:
-          $ref: '#/definitions/Upload'
+          $ref: '#/definitions/UploadWithOmissions'
         type: array
     type: object
   Reweigh:
@@ -3320,7 +3320,7 @@ definitions:
       - city
       - state
       - postalCode
-  Upload:
+  UploadWithOmissions:
     description: An uploaded file.
     type: object
     properties:
@@ -3575,7 +3575,7 @@ definitions:
       A document uploaded by the movers proving that the customer has been
       counseled about excess weight.
     allOf:
-      - $ref: '#/definitions/Upload'
+      - $ref: '#/definitions/UploadWithOmissions'
       - type: object
         properties:
           moveId:

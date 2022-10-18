@@ -3780,7 +3780,7 @@ definitions:
     properties:
       uploads:
         items:
-          $ref: 'definitions/UploadPayload.yaml'
+          $ref: 'definitions/Upload.yaml'
         type: array
   ShipmentsPaymentSITBalance:
     items:

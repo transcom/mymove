@@ -33,7 +33,7 @@ type DocumentPayload struct {
 
 	// uploads
 	// Required: true
-	Uploads []*UploadPayload `json:"uploads"`
+	Uploads []*Upload `json:"uploads"`
 }
 
 // Validate validates this document payload

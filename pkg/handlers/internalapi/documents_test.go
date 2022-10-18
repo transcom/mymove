@@ -100,7 +100,7 @@ func (suite *HandlerSuite) TestShowDocumentHandler() {
 
 	uploadPayload := documentPayload.Uploads[0]
 	expectedURL := fmt.Sprintf("https://example.com/dir/%s?contentType=application/pdf&signed=test", userUpload.Upload.StorageKey)
-	if (*uploadPayload.URL).String() != expectedURL {
+	if (uploadPayload.URL).String() != expectedURL {
 		t.Errorf("wrong URL for upload, expected %s, got %s", expectedURL, uploadPayload.URL)
 	}
 }

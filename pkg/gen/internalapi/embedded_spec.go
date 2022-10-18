@@ -1912,7 +1912,7 @@ func init() {
           "201": {
             "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -2233,7 +2233,7 @@ func init() {
           "200": {
             "description": "returns a PPM attachments upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -2936,7 +2936,7 @@ func init() {
           "201": {
             "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -3987,7 +3987,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UploadPayload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -7023,7 +7023,8 @@ func init() {
         }
       }
     },
-    "UploadPayload": {
+    "Upload": {
+      "description": "An uploaded file.",
       "type": "object",
       "required": [
         "id",
@@ -7036,24 +7037,29 @@ func init() {
       ],
       "properties": {
         "bytes": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "contentType": {
           "type": "string",
           "format": "mime-type",
+          "readOnly": true,
           "example": "application/pdf"
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
+          "readOnly": true,
           "example": "filename.pdf"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "status": {
@@ -7062,15 +7068,18 @@ func init() {
             "INFECTED",
             "CLEAN",
             "PROCESSING"
-          ]
+          ],
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "url": {
           "type": "string",
           "format": "uri",
+          "readOnly": true,
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
@@ -9295,7 +9304,7 @@ func init() {
           "201": {
             "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -9616,7 +9625,7 @@ func init() {
           "200": {
             "description": "returns a PPM attachments upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -10397,7 +10406,7 @@ func init() {
           "201": {
             "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -11452,7 +11461,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UploadPayload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -14510,7 +14519,8 @@ func init() {
         }
       }
     },
-    "UploadPayload": {
+    "Upload": {
+      "description": "An uploaded file.",
       "type": "object",
       "required": [
         "id",
@@ -14523,24 +14533,29 @@ func init() {
       ],
       "properties": {
         "bytes": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "contentType": {
           "type": "string",
           "format": "mime-type",
+          "readOnly": true,
           "example": "application/pdf"
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
+          "readOnly": true,
           "example": "filename.pdf"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "status": {
@@ -14549,15 +14564,18 @@ func init() {
             "INFECTED",
             "CLEAN",
             "PROCESSING"
-          ]
+          ],
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "url": {
           "type": "string",
           "format": "uri",
+          "readOnly": true,
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
