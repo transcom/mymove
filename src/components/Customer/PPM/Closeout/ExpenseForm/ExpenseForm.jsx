@@ -35,7 +35,7 @@ const validationSchema = Yup.object().shape({
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
       is: 'STORAGE',
-      then: (schema) => schema.required('Required'),
+      then: (schema) => schema.required('Required').max(Yup.ref('sitEndDate'), 'Start date must be before end date.'),
     }),
   sitEndDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
@@ -148,7 +148,6 @@ const ExpenseForm = ({
                         <p>{DocumentAndImageUploadInstructions}</p>
                       </Hint>
                       <UploadsTable
-                        // className={styles.uploadsTable}
                         uploads={values.document}
                         onDelete={(uploadId) =>
                           onUploadDelete(uploadId, 'document', formikProps.setFieldTouched, formikProps.setFieldValue)
@@ -156,7 +155,7 @@ const ExpenseForm = ({
                       />
                       <FileUpload
                         name="document"
-                        className="document"
+                        className="receiptDocument"
                         createUpload={(file) => onCreateUpload('document', file, formikProps.setFieldTouched)}
                         labelIdle={UploadDropZoneLabel}
                         labelIdleMobile={UploadDropZoneLabelMobile}

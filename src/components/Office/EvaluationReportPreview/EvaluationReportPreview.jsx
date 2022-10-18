@@ -26,6 +26,7 @@ const EvaluationReportPreview = ({
   moveCode,
   customerInfo,
   grade,
+  destinationDutyLocationPostalCode,
 }) => {
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
   const hasViolations = reportViolations && reportViolations.length > 0;
@@ -98,6 +99,7 @@ const EvaluationReportPreview = ({
                       shipmentId={mtoShipment.id}
                       displayInfo={shipmentDisplayInfo(mtoShipment)}
                       shipmentType={mtoShipment.shipmentType}
+                      destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
                     />
                   </div>
                 ))}
@@ -111,7 +113,7 @@ const EvaluationReportPreview = ({
       </div>
       <div className={styles.section}>
         <h2>Evaluation report</h2>
-        {isShipment && evaluationReport.location !== 'OTHER' && (
+        {isShipment && evaluationReport.location !== 'OTHER' ? (
           <div className={styles.section}>
             <h3>Information</h3>
             <div className={styles.sideBySideDetails}>
@@ -148,8 +150,7 @@ const EvaluationReportPreview = ({
             </div>
             <EvaluationReportList evaluationReport={evaluationReport} />
           </div>
-        )}
-        {(!isShipment || evaluationReport.location === 'OTHER') && (
+        ) : (
           <div className={styles.section}>
             <h3>Information</h3>
             <DataTableWrapper className={classnames(styles.detailsRight, 'table--data-point-group')}>
@@ -183,7 +184,9 @@ const EvaluationReportPreview = ({
                   ))}
                 </dd>
               ) : (
-                <dd className={styles.violationsRemarks}>No</dd>
+                <dd className={styles.violationsRemarks} data-testid="noViolationsObserved">
+                  No
+                </dd>
               )}
             </div>
             {hasViolations && (
@@ -223,11 +226,13 @@ EvaluationReportPreview.propTypes = {
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string,
 };
 
 EvaluationReportPreview.defaultProps = {
   mtoShipments: null,
   reportViolations: null,
+  destinationDutyLocationPostalCode: '',
 };
 
 export default EvaluationReportPreview;

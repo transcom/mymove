@@ -17,7 +17,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { createUploadForDocument, createMovingExpense, deleteUpload, patchMovingExpense } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { formatDateForSwagger } from 'shared/dates';
-import { commaSeparatedStringToFloat } from 'utils/formatters';
+import { convertDollarsToCents } from 'shared/utils';
 
 const Expenses = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -102,7 +102,7 @@ const Expenses = () => {
     const payload = {
       ppmShipmentId: mtoShipment.ppmShipment.id,
       movingExpenseType: values.expenseType,
-      amount: parseInt(commaSeparatedStringToFloat(values.amount) * 100, 10),
+      amount: convertDollarsToCents(values.amount),
       description: values.description,
       missingReceipt: values.missingReceipt,
       paidWithGTCC: values.paidWithGTCC === 'true',
