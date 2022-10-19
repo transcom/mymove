@@ -4883,10 +4883,9 @@
     react-visibility-sensor "^5.0.2"
     three "0.137.0"
 
-"@trussworks/react-uswds@3.2.0":
+"@trussworks/react-uswds@https://github.com/trussworks/react-uswds#jfk-uswds-v3-2199":
   version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-3.2.0.tgz#3193b968419837895444a6e9e72a832bd7afcb84"
-  integrity sha512-wZYK03JoP+BwzBaJ3AN5jG5nmsIQokTk863zKo+zkEiynbUAeXLd+IZUKu+yTjfc4RpSlt1aIEo+sxaQZSu10A==
+  resolved "https://github.com/trussworks/react-uswds#d36b842c3926a61b81f56b86b03d9e227226b623"
 
 "@trysound/sax@0.2.0":
   version "0.2.0"
