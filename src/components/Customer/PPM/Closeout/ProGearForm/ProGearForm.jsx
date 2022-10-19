@@ -11,7 +11,6 @@ import { ProGearTicketShape } from 'types/shipment';
 import { CheckboxField } from 'components/form/fields/CheckboxField';
 import WeightTicketUpload from 'components/Customer/PPM/Closeout/WeightTicketUpload/WeightTicketUpload';
 import Hint from 'components/Hint';
-import { DocumentAndImageUploadInstructions } from 'content/uploads';
 import TextField from 'components/form/fields/TextField/TextField';
 import formStyles from 'styles/form.module.scss';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
@@ -91,12 +90,9 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                           </Button>
                           <p>Enter the constructed weight you calculated.</p>
                           <p>Upload a completed copy of the spreadsheet.</p>
-                          <Hint>
-                            <p>{DocumentAndImageUploadInstructions}</p>
-                          </Hint>
                           <div>
                             <WeightTicketUpload
-                              fieldName="proGearDocument"
+                              fieldName="emptyDocument"
                               onCreateUpload={onCreateUpload}
                               onUploadComplete={onUploadComplete}
                               onUploadDelete={onUploadDelete}
@@ -109,9 +105,6 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                       ) : (
                         <>
                           <p>Upload your pro-gear&apos;s weight tickets.</p>
-                          <Hint>
-                            <p>{DocumentAndImageUploadInstructions}</p>
-                          </Hint>
                           <div>
                             <WeightTicketUpload
                               fieldName="proGearDocument"
