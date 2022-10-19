@@ -2,13 +2,6 @@
 
 set -eu -o pipefail
 
-# Check swagger version
-SWAGGER_VERSION=0.30.3
-if ! swagger version 2>/dev/null | grep -q -E "v?${SWAGGER_VERSION}"; then
-  echo "ERROR: Please install go-swagger version ${SWAGGER_VERSION}"
-  exit 1
-fi
-
 # Remove the generated code
 gendir=./pkg/gen
 
@@ -30,7 +23,7 @@ function generate_server () {
   server_package=$3
   api_package=$4
 
-  swagger generate server -q -f "${swagger_file}" -t "${gendir}" --model-package "${model_package}" --server-package "${server_package}" --api-package "${api_package}" --exclude-main -A mymove &
+  ./bin/swagger generate server -q -f "${swagger_file}" -t "${gendir}" --model-package "${model_package}" --server-package "${server_package}" --api-package "${api_package}" --exclude-main -A mymove &
   pids+=($!)
 }
 
@@ -44,7 +37,7 @@ function generate_client () {
   model_package=$2
   client_package=$3
 
-  swagger generate client -q -f "${swagger_file}" -t "${gendir}" --model-package "${model_package}" --client-package "${client_package}" -A mymove &
+  ./bin/swagger generate client -q -f "${swagger_file}" -t "${gendir}" --model-package "${model_package}" --client-package "${client_package}" -A mymove &
   pids+=($!)
 }
 
