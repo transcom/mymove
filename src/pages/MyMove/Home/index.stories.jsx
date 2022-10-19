@@ -138,6 +138,7 @@ const propsForApprovedPPMShipment = {
   mtoShipments: [
     createApprovedPPMShipment({
       id: 'abcd1234-0000-0000-0000-000000000000',
+      approvedAt: '2022-10-10',
     }),
   ],
   move: {

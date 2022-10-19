@@ -122,6 +122,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
+	site.Use(auth.SessionIDMiddleware(routingConfig.HandlerConfig.AppNames(), routingConfig.HandlerConfig.SessionManagers()))
 	site.Use(middleware.Trace(appCtx.Logger())) // injects trace id into the context
 	site.Use(middleware.ContextLogger("milmove_trace_id", appCtx.Logger()))
 	site.Use(middleware.Recovery(appCtx.Logger()))
@@ -132,7 +133,7 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	}
 
 	// Session management and authentication middleware
-	sessionCookieMiddleware := auth.SessionCookieMiddleware(appCtx.Logger(), routingConfig.HandlerConfig.AppNames(), routingConfig.HandlerConfig.GetSessionManagers())
+	sessionCookieMiddleware := auth.SessionCookieMiddleware(appCtx.Logger(), routingConfig.HandlerConfig.AppNames(), routingConfig.HandlerConfig.SessionManagers())
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(appCtx.Logger(), routingConfig.HandlerConfig.UseSecureCookie())
 	userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(appCtx.Logger())
@@ -283,9 +284,12 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(routingConfig.HandlerConfig.UseSecureCookie()), csrf.Path("/"), csrf.CookieName(auth.GorillaCSRFToken)))
 	root.Use(maskedCSRFMiddleware)
 
-	site.Host(routingConfig.HandlerConfig.AppNames().MilServername).PathPrefix("/").Handler(routingConfig.HandlerConfig.GetMilSessionManager().LoadAndSave(root))
-	site.Host(routingConfig.HandlerConfig.AppNames().AdminServername).PathPrefix("/").Handler(routingConfig.HandlerConfig.GetAdminSessionManager().LoadAndSave(root))
-	site.Host(routingConfig.HandlerConfig.AppNames().OfficeServername).PathPrefix("/").Handler(routingConfig.HandlerConfig.GetOfficeSessionManager().LoadAndSave(root))
+	site.Host(routingConfig.HandlerConfig.AppNames().MilServername).PathPrefix("/").
+		Handler(routingConfig.HandlerConfig.SessionManagers().Mil.LoadAndSave(root))
+	site.Host(routingConfig.HandlerConfig.AppNames().AdminServername).PathPrefix("/").
+		Handler(routingConfig.HandlerConfig.SessionManagers().Admin.LoadAndSave(root))
+	site.Host(routingConfig.HandlerConfig.AppNames().OfficeServername).PathPrefix("/").
+		Handler(routingConfig.HandlerConfig.SessionManagers().Office.LoadAndSave(root))
 
 	if routingConfig.ServeAPIInternal {
 		internalMux := root.PathPrefix("/internal/").Subrouter()
@@ -383,9 +387,9 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		localAuthMux.Use(middleware.NoCache(appCtx.Logger()))
 		localAuthMux.Use(otelmux.Middleware("devlocal"))
 		localAuthMux.Handle("/login", authentication.NewUserListHandler(routingConfig.AuthContext, routingConfig.HandlerConfig)).Methods("GET")
-		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.AppNames())).Methods("POST")
-		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.AppNames())).Methods("POST")
-		localAuthMux.Handle("/create", authentication.NewCreateUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.AppNames())).Methods("POST")
+		localAuthMux.Handle("/login", authentication.NewAssignUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig)).Methods("POST")
+		localAuthMux.Handle("/new", authentication.NewCreateAndLoginUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig)).Methods("POST")
+		localAuthMux.Handle("/create", authentication.NewCreateUserHandler(routingConfig.AuthContext, routingConfig.HandlerConfig)).Methods("POST")
 
 	}
 

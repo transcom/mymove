@@ -1001,8 +1001,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
       fullDocument:
-          title: Full Document
-          $ref: '#/definitions/DocumentPayload'
+        title: Full Document
+        $ref: '#/definitions/DocumentPayload'
       ownsTrailer:
         title: Owns trailer
         type: boolean

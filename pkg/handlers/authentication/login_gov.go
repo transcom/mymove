@@ -21,7 +21,30 @@ const milProviderName = "milProvider"
 const officeProviderName = "officeProvider"
 const adminProviderName = "adminProvider"
 
-func getLoginGovProviderForRequest(r *http.Request) (*openidConnect.Provider, error) {
+type MilMoveLoginGovProvider interface {
+	Name() string
+	SetName(name string)
+	BeginAuth(state string) (goth.Session, error)
+	FetchUser(goth.Session) (goth.User, error)
+	ClientKey() string
+}
+
+type milMoveLoginGovProviderWrapper struct {
+	*openidConnect.Provider
+}
+
+func (w *milMoveLoginGovProviderWrapper) ClientKey() string {
+	return w.Provider.ClientKey
+}
+
+func wrapGothProvider(provider goth.Provider) MilMoveLoginGovProvider {
+	if openidProvider, ok := provider.(*openidConnect.Provider); ok {
+		return &milMoveLoginGovProviderWrapper{openidProvider}
+	}
+	return provider.(MilMoveLoginGovProvider)
+}
+
+func getLoginGovProviderForRequest(r *http.Request) (MilMoveLoginGovProvider, error) {
 	session := auth.SessionFromRequestContext(r)
 	providerName := milProviderName
 	if session.IsOfficeApp() {
@@ -33,7 +56,18 @@ func getLoginGovProviderForRequest(r *http.Request) (*openidConnect.Provider, er
 	if err != nil {
 		return nil, err
 	}
-	return gothProvider.(*openidConnect.Provider), nil
+	return wrapGothProvider(gothProvider), nil
+}
+
+func SetLoginGovProviders(milProvider MilMoveLoginGovProvider,
+	officeProvider MilMoveLoginGovProvider,
+	adminProvider MilMoveLoginGovProvider) {
+	milProvider.SetName(milProviderName)
+	officeProvider.SetName(officeProviderName)
+	adminProvider.SetName(adminProviderName)
+	goth.UseProviders(milProvider.(goth.Provider),
+		officeProvider.(goth.Provider),
+		adminProvider.(goth.Provider))
 }
 
 // LoginGovProvider facilitates generating URLs and parameters for interfacing with Login.gov
@@ -70,20 +104,19 @@ func (p LoginGovProvider) RegisterProvider(milHostname string, milClientID strin
 		p.logger.Error("getting open_id provider", zap.String("host", milHostname), zap.Error(err))
 		return err
 	}
-	milProvider.SetName(milProviderName)
 	officeProvider, err := p.getOpenIDProvider(officeHostname, officeClientID, callbackProtocol, callbackPort)
 	if err != nil {
 		p.logger.Error("getting open_id provider", zap.String("host", officeHostname), zap.Error(err))
 		return err
 	}
-	officeProvider.SetName(officeProviderName)
 	adminProvider, err := p.getOpenIDProvider(adminHostname, adminClientID, callbackProtocol, callbackPort)
 	if err != nil {
 		p.logger.Error("getting open_id provider", zap.String("host", adminHostname), zap.Error(err))
 		return err
 	}
-	adminProvider.SetName(adminProviderName)
-	goth.UseProviders(milProvider, officeProvider, adminProvider)
+	SetLoginGovProviders(wrapGothProvider(milProvider),
+		wrapGothProvider(officeProvider),
+		wrapGothProvider(adminProvider))
 	return nil
 }
 
@@ -138,7 +171,14 @@ func (p LoginGovProvider) AuthorizationURL(r *http.Request) (*LoginGovData, erro
 	}
 
 	params := authURL.Query()
-	params.Add("acr_values", "http://idmanagement.gov/ns/assurance/loa/1")
+	// Logging into the Admin app will require a CAC.
+	session := auth.SessionFromRequestContext(r)
+	if session.IsAdminApp() {
+		// This specifies that a user has been authenticated with an HSPD12 credential, via their CAC. Both acr_values must be specified.
+		params.Add("acr_values", "http://idmanagement.gov/ns/assurance/ial/1 http://idmanagement.gov/ns/assurance/aal/3?hspd12=true")
+	} else {
+		params.Add("acr_values", "http://idmanagement.gov/ns/assurance/loa/1")
+	}
 	params.Add("nonce", state)
 	params.Set("scope", "openid email")
 

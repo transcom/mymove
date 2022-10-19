@@ -1,9 +1,12 @@
 import React from 'react';
+import * as PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './SelectedViolation.module.scss';
 
-const SelectedViolation = ({ violation, unselectViolation, isReadOnly }) => {
+import { PWSViolationShape } from 'types';
+
+const SelectedViolation = ({ violation, unselectViolation }) => {
   if (!violation) {
     return null;
   }
@@ -13,16 +16,23 @@ const SelectedViolation = ({ violation, unselectViolation, isReadOnly }) => {
       <div className={styles.grow}>
         <h5>{`${violation.paragraphNumber} ${violation.title}`}</h5>
         <p>
-          <small> {violation.requirementSummary}</small>
+          <small>{violation.requirementSummary}</small>
         </p>
       </div>
-      {!isReadOnly && (
-        <Button type="button" unstyled onClick={() => unselectViolation(violation.id)} role="button">
-          Remove
-        </Button>
-      )}
+      <Button type="button" unstyled onClick={() => unselectViolation(violation.id)} role="button">
+        Remove
+      </Button>
     </div>
   );
+};
+
+SelectedViolation.propTypes = {
+  violation: PWSViolationShape,
+  unselectViolation: PropTypes.func.isRequired,
+};
+
+SelectedViolation.defaultProps = {
+  violation: null,
 };
 
 export default SelectedViolation;
