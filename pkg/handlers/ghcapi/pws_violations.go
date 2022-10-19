@@ -5,7 +5,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	pwsviolationsop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
+	pwsviolationsop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/pws_violations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"

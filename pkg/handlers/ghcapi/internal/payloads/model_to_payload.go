@@ -257,7 +257,6 @@ func MoveAuditHistory(logger *zap.Logger, auditHistory models.AuditHistory) *ghc
 		ActionTstampTx:       strfmt.DateTime(auditHistory.ActionTstampTx),
 		ChangedValues:        removeEscapeJSONtoObject(logger, auditHistory.ChangedData),
 		OldValues:            removeEscapeJSONtoObject(logger, auditHistory.OldData),
-		ClientQuery:          auditHistory.ClientQuery,
 		EventName:            auditHistory.EventName,
 		ID:                   strfmt.UUID(auditHistory.ID.String()),
 		ObjectID:             handlers.FmtUUIDPtr(auditHistory.ObjectID),

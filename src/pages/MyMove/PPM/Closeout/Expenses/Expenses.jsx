@@ -1,54 +1,153 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { generatePath, useHistory, useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { Grid, GridContainer } from '@trussworks/react-uswds';
+import { useSelector, useDispatch } from 'react-redux';
+import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import styles from './Expenses.module.scss';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { selectExpenseAndIndexById, selectMTOShipmentById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { createUploadForDocument, createMovingExpense, deleteUpload, patchMovingExpense } from 'services/internalApi';
+import { updateMTOShipment } from 'store/entities/actions';
+import { formatDateForSwagger } from 'shared/dates';
+import { convertDollarsToCents } from 'shared/utils';
 
 const Expenses = () => {
-  const { moveId, mtoShipmentId, expenseId } = useParams();
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  const dispatch = useDispatch();
   const history = useHistory();
+  const { moveId, mtoShipmentId, expenseId } = useParams();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const { expense: currentExpense, index: currentIndex } = useSelector((state) =>
     selectExpenseAndIndexById(state, mtoShipmentId, expenseId),
   );
 
+  useEffect(() => {
+    if (!expenseId) {
+      createMovingExpense(mtoShipment?.ppmShipment?.id)
+        .then((resp) => {
+          if (mtoShipment?.ppmShipment?.movingExpenses) {
+            mtoShipment.ppmShipment.movingExpenses.push(resp);
+          } else {
+            mtoShipment.ppmShipment.movingExpenses = [resp];
+          }
+          history.replace(
+            generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
+              moveId,
+              mtoShipmentId,
+              expenseId: resp.id,
+            }),
+          );
+          dispatch(updateMTOShipment(mtoShipment));
+        })
+        .catch(() => {
+          setErrorMessage('Failed to create trip record');
+        });
+    }
+  }, [expenseId, moveId, mtoShipmentId, history, dispatch, mtoShipment]);
+
+  const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
+    const documentId = currentExpense[`${fieldName}Id`];
+
+    createUploadForDocument(file, documentId)
+      .then((upload) => {
+        mtoShipment.ppmShipment.movingExpenses[currentIndex][fieldName].uploads.push(upload);
+        dispatch(updateMTOShipment(mtoShipment));
+        setFieldTouched(fieldName, true);
+        return upload;
+      })
+      .catch(() => {
+        setErrorMessage('Failed to save the file upload');
+      });
+  };
+
+  const handleUploadComplete = (err) => {
+    if (err) {
+      setErrorMessage('Encountered error when completing file upload');
+    }
+  };
+
+  const handleUploadDelete = (uploadId, fieldName, setFieldTouched, setFieldValue) => {
+    deleteUpload(uploadId)
+      .then(() => {
+        const filteredUploads = mtoShipment.ppmShipment.movingExpenses[currentIndex][fieldName].uploads.filter(
+          (upload) => upload.id !== uploadId,
+        );
+        mtoShipment.ppmShipment.movingExpenses[currentIndex][fieldName].uploads = filteredUploads;
+
+        setFieldValue(fieldName, filteredUploads, true);
+        setFieldTouched(fieldName, true, true);
+        dispatch(updateMTOShipment(mtoShipment));
+      })
+      .catch(() => {
+        setErrorMessage('Failed to delete the file upload');
+      });
+  };
+
   const handleBack = () => {
-    history.push(generatePath(generalRoutes.HOME_PATH));
+    history.push(generalRoutes.HOME_PATH);
   };
 
-  const handleSubmit = () => {
-    // TODO: Calls update expense API endpoint
-    history.push(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
+  const handleSubmit = async (values, { setSubmitting }) => {
+    setErrorMessage(null);
+    const payload = {
+      ppmShipmentId: mtoShipment.ppmShipment.id,
+      movingExpenseType: values.expenseType,
+      amount: convertDollarsToCents(values.amount),
+      description: values.description,
+      missingReceipt: values.missingReceipt,
+      paidWithGTCC: values.paidWithGTCC === 'true',
+      SITEndDate: formatDateForSwagger(values.sitEndDate),
+      SITStartDate: formatDateForSwagger(values.sitStartDate),
+    };
+
+    patchMovingExpense(mtoShipment?.ppmShipment?.id, currentExpense.id, payload, currentExpense.eTag)
+      .then((resp) => {
+        setSubmitting(false);
+        mtoShipment.ppmShipment.movingExpenses[currentIndex] = resp;
+        history.push(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
+        dispatch(updateMTOShipment(mtoShipment));
+      })
+      .catch(() => {
+        setSubmitting(false);
+        setErrorMessage('Failed to save updated trip record');
+      });
   };
 
-  const handleCreateUpload = () => {};
-  const handleUploadComplete = () => {};
-  const handleUploadDelete = () => {};
+  const renderError = () => {
+    if (!errorMessage) {
+      return null;
+    }
 
-  if (!mtoShipment) {
-    return <LoadingPlaceholder />;
+    return (
+      <Alert slim type="error">
+        {errorMessage}
+      </Alert>
+    );
+  };
+
+  if (!mtoShipment || !currentExpense) {
+    return renderError() || <LoadingPlaceholder />;
   }
 
   return (
     <div className={classnames(styles.Expenses, ppmPageStyles.ppmPageStyle)}>
-      <ScrollToTop />
+      <NotificationScrollToTop dependency={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Expenses</h1>
+            {renderError()}
             <div className={styles.introSection}>
               <p>
                 Document your qualified expenses by uploading receipts. They should include a description of the item,
@@ -62,7 +161,7 @@ const Expenses = () => {
             </div>
             <ExpenseForm
               expense={currentExpense}
-              receiptNumber={currentIndex >= 0 ? currentIndex + 1 : undefined}
+              receiptNumber={currentIndex + 1}
               onBack={handleBack}
               onSubmit={handleSubmit}
               onCreateUpload={handleCreateUpload}

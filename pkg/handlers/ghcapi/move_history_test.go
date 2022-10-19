@@ -20,7 +20,6 @@ import (
 func getMoveHistoryForTest() models.MoveHistory {
 	localUUID := uuid.Must(uuid.NewV4())
 	transactionID := int64(3281)
-	clientQuery := "UPDATE \"orders\" AS orders SET \"amended_orders_acknowledged_at\" = $1, \"department_indicator\" = $2, \"entitlement_id\" = $3, \"grade\" = $4, \"has_dependents\" = $5, \"issue_date\" = $6, \"new_duty_location_id\" = $7, \"nts_sac\" = $8, \"nts_tac\" = $9, \"orders_number\" = $10, \"orders_type\" = $11, \"orders_type_detail\" = $12, \"origin_duty_location_id\" = $13, \"report_by_date\" = $14, \"sac\" = $15, \"service_member_id\" = $16, \"spouse_has_pro_gear\" = $17, \"status\" = $18, \"tac\" = $19, \"updated_at\" = $20, \"uploaded_amended_orders_id\" = $21, \"uploaded_orders_id\" = $22 WHERE orders.id = $23"
 	eventName := "apiEndpoint"
 	oldData := `{\"updated_at\": \"2022-03-08T19:08:44.664709\", \"postal_code\": \"90213\"}`
 	changedData := `{\"updated_at\": \"2022-03-08T19:08:44.664709\", \"postal_code\": \"90213\"}`
@@ -38,7 +37,6 @@ func getMoveHistoryForTest() models.MoveHistory {
 				ObjectID:        &localUUID,
 				SessionUserID:   &localUUID,
 				TransactionID:   &transactionID,
-				ClientQuery:     &clientQuery,
 				Action:          "U",
 				EventName:       &eventName,
 				OldData:         &oldData,
@@ -98,11 +96,9 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		suite.Equal(maudit.SchemaName, paudit.SchemaName)
 		suite.Equal(maudit.TableName, paudit.TableName)
 		suite.Equal(maudit.RelID, paudit.RelID)
-		suite.Equal(maudit.ClientQuery, paudit.ClientQuery)
 		suite.Equal(maudit.Action, paudit.Action)
 		suite.Equal(maudit.EventName, paudit.EventName)
 		suite.Equal(maudit.StatementOnly, paudit.StatementOnly)
-
 		swaggerTimeFormat := "2006-01-02T15:04:05.99Z07:00"
 		suite.Equal(maudit.ActionTstampTx.Format(swaggerTimeFormat), time.Time(paudit.ActionTstampTx).Format(swaggerTimeFormat))
 		suite.Equal(maudit.ActionTstampStm.Format(swaggerTimeFormat), time.Time(paudit.ActionTstampStm).Format(swaggerTimeFormat))

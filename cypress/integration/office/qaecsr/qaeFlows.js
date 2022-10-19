@@ -252,7 +252,7 @@ describe('Quality Evaluation Report', () => {
         cy.get('dd').contains('Data review');
         cy.get('dd').contains('Origin');
         cy.get('dd').contains('1 hr 15 min');
-        cy.get('dd').contains('no');
+        cy.get('dd').contains('No');
         cy.get('dd').contains('This is a test evaluation report');
       });
 
@@ -306,7 +306,7 @@ describe('Quality Evaluation Report', () => {
 
       // Veryify preview has correct sections/headers
       cy.contains('Move information').should('exist');
-      cy.contains('yes').should('exist');
+      cy.contains('Yes').should('exist');
 
       cy.get('h1').contains('Shipment report');
       cy.get('h2').contains('Evaluation report').parent().as('report');

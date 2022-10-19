@@ -27,8 +27,8 @@ const (
 	MovingExpenseReceiptTypeStorage MovingExpenseReceiptType = "STORAGE"
 	// MovingExpenseReceiptTypeTolls captures enum value "TOLLS"
 	MovingExpenseReceiptTypeTolls MovingExpenseReceiptType = "TOLLS"
-	// MovingExpenseReceiptTypeWeighingFees captures enum value "WEIGHING_FEES"
-	MovingExpenseReceiptTypeWeighingFees MovingExpenseReceiptType = "WEIGHING_FEES"
+	// MovingExpenseReceiptTypeWeighingFee captures enum value "WEIGHING_FEE"
+	MovingExpenseReceiptTypeWeighingFee MovingExpenseReceiptType = "WEIGHING_FEE"
 	// MovingExpenseReceiptTypeOther captures enum value "OTHER"
 	MovingExpenseReceiptTypeOther MovingExpenseReceiptType = "OTHER"
 )
@@ -40,7 +40,7 @@ var AllowedExpenseTypes = []string{
 	string(MovingExpenseReceiptTypeRentalEquipment),
 	string(MovingExpenseReceiptTypeStorage),
 	string(MovingExpenseReceiptTypeTolls),
-	string(MovingExpenseReceiptTypeWeighingFees),
+	string(MovingExpenseReceiptTypeWeighingFee),
 	string(MovingExpenseReceiptTypeOther),
 }
 
