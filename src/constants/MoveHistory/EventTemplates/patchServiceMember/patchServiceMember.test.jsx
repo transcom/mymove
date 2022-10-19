@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import t from 'constants/MoveHistory/Database/Tables';
-import patchServiceMember from 'constants/MoveHistory/EventTemplates/patchServiceMember/patchServiceMember';
+import patchServiceMember from 'constants/MoveHistory/EventTemplates/PatchServiceMember/patchServiceMember';
 
 const PROFILE = {
   branch: {

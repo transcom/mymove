@@ -6,7 +6,7 @@ export { default as createMTOServiceItem } from './CreateMTOServiceItem/createMT
 export { default as createMTOServiceItemCustomerContacts } from './CreateMTOServiceItem/createMTOServiceItemCustomerContacts';
 export { default as createMTOServiceItemDimensions } from './CreateMTOServiceItem/createMTOServiceItemDimensions';
 export { default as createMTOShipment } from './MTOShipment/createMTOShipment';
-export { default as createAddresses } from './Address/createAddress';
+export { default as createAddresses } from './UpdateAddress/createAddress';
 export { default as createMTOShipmentAgent } from './createMTOShipmentAgent';
 export { default as createOrders } from './CreateOrders/createOrders';
 export { default as createPaymentRequest } from './createPaymentRequest';
@@ -21,7 +21,7 @@ export { default as requestShipmentDiversion } from './requestShipmentDiversion'
 export { default as requestShipmentReweigh } from './requestShipmentReweigh';
 export { default as setFinancialReviewFlag } from './setFinancialReviewFlag';
 export { default as submitMoveForApproval } from './submitMoveForApproval';
-export { default as updateAllowance } from './updateAllowances/updateAllowance';
+export { default as updateAllowance } from './UpdateAllowances/updateAllowance';
 export { default as updateBillableWeight } from './updateBillableWeight';
 export { default as updateBillableWeightAsTIO } from './updateBillableWeightAsTIO';
 export { default as updateBillableWeightRemarksAsTIO } from './updateBillableWeightRemarksAsTIO';
@@ -33,7 +33,6 @@ export { default as updateMTOShipmentAddresses } from './updateMTOShipmentAddres
 export { default as updateMTOShipmentAgent } from './updateMTOShipmentAgent';
 export { default as updateMTOShipmentDeprecatePaymentRequest } from './updateMTOShipmentDeprecatePaymentRequest';
 export { default as reweighPaymentRequest } from './reweighPaymentRequest';
-export { default as updateMTOServiceItemAddress } from './CreateMTOServiceItem/updateMTOServiceItemAddress';
 export { default as updateOrder } from './updateOrder';
 export { default as updatePaymentRequest } from './updatePaymentRequest';
 export { default as updatePaymentRequestJobRunner } from './updatePaymentRequestJobRunner';
@@ -48,7 +47,7 @@ export { default as updateMoveEstimatedExcessWeight } from './updateMTOShipmentP
 export { default as updateMTOStatusServiceCounselingCompleted } from './updateMTOStatusServiceCounselingCompleted';
 export { default as updateAllowanceCounseling } from './updateAllowanceCounseling';
 export { default as updateAllowanceServiceMemberByCounselor } from './updateAllowanceServiceMemberByCounselor';
-export { default as updateAllowanceServiceMemberByTOO } from './updateAllowances/updateAllowanceServiceMemberByTOO';
-export { default as createServiceMember } from './createServiceMember/createServiceMember';
-export { default as patchServiceMember } from './patchServiceMember/patchServiceMember';
-export { default as updateAddress } from './Address/updateAddress';
+export { default as updateAllowanceServiceMemberByTOO } from './UpdateAllowances/updateAllowanceServiceMemberByTOO';
+export { default as createServiceMember } from './CreateServiceMember/createServiceMember';
+export { default as patchServiceMember } from './PatchServiceMember/patchServiceMember';
+export { default as updateAddress } from './UpdateAddress/updateAddress';
