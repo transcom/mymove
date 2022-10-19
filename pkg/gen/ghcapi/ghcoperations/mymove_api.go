@@ -31,6 +31,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/pws_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
@@ -153,8 +154,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderGetOrderHandler: order.GetOrderHandlerFunc(func(params order.GetOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.GetOrder has not yet been implemented")
 		}),
-		EvaluationReportsGetPWSViolationsHandler: evaluation_reports.GetPWSViolationsHandlerFunc(func(params evaluation_reports.GetPWSViolationsParams) middleware.Responder {
-			return middleware.NotImplemented("operation evaluation_reports.GetPWSViolations has not yet been implemented")
+		PwsViolationsGetPWSViolationsHandler: pws_violations.GetPWSViolationsHandlerFunc(func(params pws_violations.GetPWSViolationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation pws_violations.GetPWSViolations has not yet been implemented")
 		}),
 		PaymentRequestsGetPaymentRequestHandler: payment_requests.GetPaymentRequestHandlerFunc(func(params payment_requests.GetPaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.GetPaymentRequest has not yet been implemented")
@@ -360,8 +361,8 @@ type MymoveAPI struct {
 	QueuesGetMovesQueueHandler queues.GetMovesQueueHandler
 	// OrderGetOrderHandler sets the operation handler for the get order operation
 	OrderGetOrderHandler order.GetOrderHandler
-	// EvaluationReportsGetPWSViolationsHandler sets the operation handler for the get p w s violations operation
-	EvaluationReportsGetPWSViolationsHandler evaluation_reports.GetPWSViolationsHandler
+	// PwsViolationsGetPWSViolationsHandler sets the operation handler for the get p w s violations operation
+	PwsViolationsGetPWSViolationsHandler pws_violations.GetPWSViolationsHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
 	// PaymentRequestsGetPaymentRequestsForMoveHandler sets the operation handler for the get payment requests for move operation
@@ -601,8 +602,8 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrderGetOrderHandler == nil {
 		unregistered = append(unregistered, "order.GetOrderHandler")
 	}
-	if o.EvaluationReportsGetPWSViolationsHandler == nil {
-		unregistered = append(unregistered, "evaluation_reports.GetPWSViolationsHandler")
+	if o.PwsViolationsGetPWSViolationsHandler == nil {
+		unregistered = append(unregistered, "pws_violations.GetPWSViolationsHandler")
 	}
 	if o.PaymentRequestsGetPaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_requests.GetPaymentRequestHandler")
@@ -920,7 +921,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/pws-violations"] = evaluation_reports.NewGetPWSViolations(o.context, o.EvaluationReportsGetPWSViolationsHandler)
+	o.handlers["GET"]["/pws-violations"] = pws_violations.NewGetPWSViolations(o.context, o.PwsViolationsGetPWSViolationsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

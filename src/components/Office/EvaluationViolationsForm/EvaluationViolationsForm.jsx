@@ -26,6 +26,7 @@ const EvaluationViolationsForm = ({
   reportViolations,
   customerInfo,
   mtoShipments,
+  grade,
   destinationDutyLocationPostalCode,
 }) => {
   const { moveCode, reportId } = useParams();
@@ -241,7 +242,7 @@ const EvaluationViolationsForm = ({
         evaluationReport={evaluationReport}
         moveCode={moveCode}
         customerInfo={customerInfo}
-        grade={customerInfo.grade}
+        grade={grade}
         mtoShipments={mtoShipments}
         modalActions={submitModalActions}
         reportViolations={reportViolations}
@@ -466,6 +467,7 @@ EvaluationViolationsForm.propTypes = {
   reportViolations: PropTypes.arrayOf(ReportViolationShape),
   customerInfo: CustomerShape.isRequired,
   mtoShipments: PropTypes.arrayOf(ShipmentShape),
+  grade: PropTypes.string.isRequired,
   destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 

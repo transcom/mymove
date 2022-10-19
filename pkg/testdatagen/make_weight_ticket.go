@@ -67,6 +67,7 @@ func MakeWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTi
 			FullDocumentID:           fullDocument.ID,
 			FullDocument:             fullDocument,
 			OwnsTrailer:              models.BoolPointer(false),
+			TrailerMeetsCriteria:     models.BoolPointer(false),
 		},
 	}
 
