@@ -2098,7 +2098,7 @@ paths:
       description: Fetch the possible PWS violations for an evaluation report
       operationId: getPWSViolations
       tags:
-        - evaluationReports
+        - pwsViolations
       produces:
         - application/json
       responses:
@@ -2379,7 +2379,7 @@ paths:
         '200':
           description: the requested document
           schema:
-            $ref: '#/definitions/DocumentPayload'
+            $ref: '#/definitions/Document'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -3245,10 +3245,6 @@ definitions:
           Identifier of transaction that made the change. May wrap, but unique
           paired with action_tstamp_tx.
         type: integer
-        x-nullable: true
-      clientQuery:
-        description: Record the text of the client query that triggered the audit event
-        type: string
         x-nullable: true
       action:
         description: Action type; I = insert, D = delete, U = update, T = truncate
@@ -4390,65 +4386,6 @@ definitions:
       eTag:
         type: string
     type: object
-  DocumentPayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
-        type: string
-        format: uuid
-        title: The service member this document belongs to
-      uploads:
-        type: array
-        items:
-          $ref: '#/definitions/Upload'
-    required:
-      - id
-      - service_member_id
-      - uploads
-  Upload:
-    properties:
-      bytes:
-        type: integer
-      contentType:
-        example: application/pdf
-        format: mime-type
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      filename:
-        example: filename.pdf
-        type: string
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      updatedAt:
-        format: date-time
-        type: string
-      url:
-        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uri
-        type: string
-      status:
-        type: string
-        enum:
-          - INFECTED
-          - CLEAN
-          - PROCESSING
-    required:
-      - id
-      - url
-      - filename
-      - contentType
-      - bytes
-      - createdAt
-      - updatedAt
-    type: object
   QueueMoves:
     type: array
     items:
@@ -5532,50 +5469,56 @@ definitions:
       - APPROVED
       - REJECTED
       - EDITED
-  UploadPayload:
+  Upload:
+    description: An uploaded file.
     type: object
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       url:
         type: string
         format: uri
         example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       filename:
         type: string
         example: filename.pdf
-      content_type:
+        readOnly: true
+      contentType:
         type: string
         format: mime-type
         example: application/pdf
-      checksum:
-        type: string
-        example: ImGQ2Ush0bDHsaQthV5BnQ==
+        readOnly: true
       bytes:
         type: integer
+        readOnly: true
       status:
         type: string
         enum:
           - INFECTED
           - CLEAN
           - PROCESSING
-      created_at:
+        readOnly: true
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+        readOnly: true
+      updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
       - url
       - filename
-      - content_type
+      - contentType
       - bytes
-      - created_at
-      - updated_at
-  definitions-DocumentPayload:
+      - createdAt
+      - updatedAt
+  Document:
     type: object
     properties:
       id:
@@ -5589,7 +5532,7 @@ definitions:
       uploads:
         type: array
         items:
-          $ref: '#/definitions/UploadPayload'
+          $ref: '#/definitions/Upload'
     required:
       - id
       - service_member_id
@@ -5619,11 +5562,13 @@ definitions:
     type: object
     properties:
       id:
+        description: ID of this set of weight tickets.
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
       ppmShipmentId:
+        description: The ID of the PPM shipment that this set of weight tickets is for.
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -5637,68 +5582,97 @@ definitions:
         format: date-time
         readOnly: true
       vehicleDescription:
+        description: >-
+          Description of the vehicle used for the trip. E.g. make/model, type of
+          truck/van, etc.
         type: string
-        title: Vehicle description (ex. 'SUV')
         x-nullable: true
+        x-omitempty: false
       emptyWeight:
+        description: Weight of the vehicle when empty.
         type: integer
-        title: Empty Recorded Weight
         minimum: 0
+        x-nullable: true
+        x-omitempty: false
       missingEmptyWeightTicket:
+        description: >-
+          Indicates if the customer is missing a weight ticket for the vehicle
+          weight when empty.
         type: boolean
-        title: has empty weight ticket
         x-nullable: true
         x-omitempty: false
       emptyDocumentId:
-        title: Empty Document ID
+        description: >-
+          ID of the document that is associated with the user uploads containing
+          the vehicle weight when empty.
         type: string
         format: uuid
         readOnly: true
       emptyDocument:
-        title: Empty Document
-        $ref: '#/definitions/definitions-DocumentPayload'
+        allOf:
+          - description: >-
+              Document that is associated with the user uploads containing the
+              vehicle weight when empty.
+          - $ref: '#/definitions/Document'
       fullWeight:
-        title: full weight ticket recorded weight
+        description: The weight of the vehicle when full.
         type: integer
         minimum: 0
+        x-nullable: true
+        x-omitempty: false
       missingFullWeightTicket:
-        title: has full weight ticket
+        description: >-
+          Indicates if the customer is missing a weight ticket for the vehicle
+          weight when full.
         type: boolean
         x-nullable: true
         x-omitempty: false
       fullDocumentId:
-        title: Full Document ID
+        description: >-
+          ID of the document that is associated with the user uploads containing
+          the vehicle weight when full.
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
       fullDocument:
-        title: Full Document
-        $ref: '#/definitions/definitions-DocumentPayload'
+        allOf:
+          - description: >-
+              Document that is associated with the user uploads containing the
+              vehicle weight when full.
+          - $ref: '#/definitions/Document'
       ownsTrailer:
-        title: Owns trailer
+        description: Indicates if the customer used a trailer they own for the move.
         type: boolean
         x-nullable: true
         x-omitempty: false
       trailerMeetsCriteria:
-        title: Trailer meets criteria
+        description: >-
+          Indicates if the trailer that the customer used meets all the criteria
+          to be claimable.
         type: boolean
         x-nullable: true
         x-omitempty: false
       proofOfTrailerOwnershipDocumentId:
-        title: Trailer Document ID
+        description: >-
+          ID of the document that is associated with the user uploads containing
+          the proof of trailer ownership.
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
       proofOfTrailerOwnershipDocument:
-        title: Proof of Trailer Ownership Document
-        $ref: '#/definitions/definitions-DocumentPayload'
+        allOf:
+          - description: >-
+              Document that is associated with the user uploads containing the
+              proof of trailer ownership.
+          - $ref: '#/definitions/Document'
       status:
         $ref: '#/definitions/PPMDocumentStatus'
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
       eTag:
+        description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
     required:
@@ -5711,9 +5685,9 @@ definitions:
       - fullDocumentId
       - proofOfTrailerOwnershipDocument
       - proofOfTrailerOwnershipDocumentId
-  MovingExpenseType:
+  OmittableMovingExpenseType:
     type: string
-    title: Moving Expense Type
+    description: Moving Expense Type
     enum:
       - CONTRACTED_EXPENSE
       - GAS
@@ -5723,7 +5697,7 @@ definitions:
       - RENTAL_EQUIPMENT
       - STORAGE
       - TOLLS
-      - WEIGHING_FEES
+      - WEIGHING_FEE
     x-display-value:
       CONTRACTED_EXPENSE: Contracted expense
       GAS: Gas
@@ -5733,7 +5707,9 @@ definitions:
       STORAGE: Storage
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
-      WEIGHING_FEES: Weighing fees
+      WEIGHING_FEE: Weighing fee
+    x-nullable: true
+    x-omitempty: false
   MovingExpense:
     description: >-
       Expense information and receipts of costs incurred that can be reimbursed
@@ -5759,12 +5735,13 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
       document:
-        description: The Document object that contains all file uploads for this expense
-        type: object
+        allOf:
+          - description: >-
+              The Document object that contains all file uploads for this
+              expense
+          - $ref: '#/definitions/Document'
       movingExpenseType:
-        $ref: '#/definitions/MovingExpenseType'
-        x-nullable: true
-        x-omitempty: false
+        $ref: '#/definitions/OmittableMovingExpenseType'
       description:
         description: A brief description of the expense
         type: string
@@ -5824,9 +5801,7 @@ definitions:
         type: string
         format: date-time
       eTag:
-        description: >-
-          A hash unique to this shipment that should be used as the "If-Match"
-          header for any updates.
+        description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
     required:

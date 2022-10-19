@@ -390,7 +390,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		paymentrequest.NewPaymentRequestShipmentsSITBalance(),
 	}
 
-	ghcAPI.EvaluationReportsGetPWSViolationsHandler = GetPWSViolationsHandler{
+	ghcAPI.PwsViolationsGetPWSViolationsHandler = GetPWSViolationsHandler{
 		handlerConfig,
 		pwsviolation.NewPWSViolationsFetcher(),
 	}

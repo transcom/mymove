@@ -824,7 +824,7 @@ definitions:
       uploads:
         type: array
         items:
-          $ref: 'definitions/Upload.yaml'
+          $ref: 'definitions/UploadWithOmissions.yaml'
     required:
       - id
       - serviceMemberID
@@ -1682,7 +1682,7 @@ definitions:
         type: string
       uploads:
         items:
-          $ref: 'definitions/Upload.yaml'
+          $ref: 'definitions/UploadWithOmissions.yaml'
         type: array
     type: object
   Rank:

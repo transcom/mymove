@@ -228,4 +228,168 @@ func (suite WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.IsType(apperror.InvalidInputError{}, updateErr)
 		suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
 	})
+
+	suite.Run("Status and reason related", func() {
+		suite.Run("successfully", func() {
+
+			suite.Run("changes status and reason", func() {
+				appCtx := suite.AppContextForTest()
+
+				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+
+				updater := NewOfficeWeightTicketUpdater()
+
+				status := models.PPMDocumentStatusExcluded
+
+				desiredWeightTicket := &models.WeightTicket{
+					ID:     originalWeightTicket.ID,
+					Status: &status,
+					Reason: models.StringPointer("bad data"),
+				}
+
+				updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+				suite.Nil(updateErr)
+				suite.NotNil(updatedWeightTicket)
+				suite.Equal(*desiredWeightTicket.Status, *updatedWeightTicket.Status)
+				suite.Equal(*desiredWeightTicket.Reason, *updatedWeightTicket.Reason)
+			})
+
+			suite.Run("changes reason", func() {
+				appCtx := suite.AppContextForTest()
+
+				status := models.PPMDocumentStatusExcluded
+				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+					WeightTicket: models.WeightTicket{
+						Status: &status,
+						Reason: models.StringPointer("some temporary reason"),
+					},
+				})
+
+				updater := NewOfficeWeightTicketUpdater()
+
+				desiredWeightTicket := &models.WeightTicket{
+					ID:     originalWeightTicket.ID,
+					Reason: models.StringPointer("bad data"),
+				}
+
+				updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+				suite.Nil(updateErr)
+				suite.NotNil(updatedWeightTicket)
+				suite.Equal(status, *updatedWeightTicket.Status)
+				suite.Equal(*desiredWeightTicket.Reason, *updatedWeightTicket.Reason)
+			})
+
+			suite.Run("changes reason from rejected to approved", func() {
+				appCtx := suite.AppContextForTest()
+
+				status := models.PPMDocumentStatusExcluded
+				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+					WeightTicket: models.WeightTicket{
+						Status: &status,
+						Reason: models.StringPointer("some temporary reason"),
+					},
+				})
+
+				updater := NewOfficeWeightTicketUpdater()
+
+				desiredStatus := models.PPMDocumentStatusApproved
+				desiredWeightTicket := &models.WeightTicket{
+					ID:     originalWeightTicket.ID,
+					Status: &desiredStatus,
+					Reason: models.StringPointer(""),
+				}
+
+				updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+				suite.Nil(updateErr)
+				suite.NotNil(updatedWeightTicket)
+				suite.Equal(desiredStatus, *updatedWeightTicket.Status)
+				suite.Equal((*string)(nil), updatedWeightTicket.Reason)
+			})
+		})
+
+		suite.Run("fails", func() {
+			suite.Run("to update when status or reason are changed", func() {
+				appCtx := suite.AppContextForTest()
+
+				originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
+
+				updater := NewCustomerWeightTicketUpdater()
+
+				status := models.PPMDocumentStatusExcluded
+
+				desiredWeightTicket := &models.WeightTicket{
+					ID:                       originalWeightTicket.ID,
+					VehicleDescription:       models.StringPointer("2004 Ford Fiesta"),
+					EmptyWeight:              models.PoundPointer(3000),
+					MissingEmptyWeightTicket: models.BoolPointer(false),
+					FullWeight:               models.PoundPointer(4000),
+					MissingFullWeightTicket:  models.BoolPointer(false),
+					OwnsTrailer:              models.BoolPointer(false),
+					TrailerMeetsCriteria:     models.BoolPointer(false),
+					Status:                   &status,
+					Reason:                   models.StringPointer("bad data"),
+				}
+
+				updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+				suite.Nil(updatedWeightTicket)
+				suite.NotNil(updateErr)
+				suite.IsType(apperror.InvalidInputError{}, updateErr)
+				suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
+			})
+
+			suite.Run("to update status", func() {
+				appCtx := suite.AppContextForTest()
+
+				status := models.PPMDocumentStatusExcluded
+				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{
+					WeightTicket: models.WeightTicket{
+						Status: &status,
+						Reason: models.StringPointer("some temporary reason"),
+					},
+				})
+
+				updater := NewOfficeWeightTicketUpdater()
+
+				desiredStatus := models.PPMDocumentStatusApproved
+				desiredWeightTicket := &models.WeightTicket{
+					ID:     originalWeightTicket.ID,
+					Status: &desiredStatus,
+					Reason: models.StringPointer("bad data"),
+				}
+
+				updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+				suite.Nil(updatedWeightTicket)
+				suite.NotNil(updateErr)
+				suite.IsType(apperror.InvalidInputError{}, updateErr)
+				suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
+			})
+
+			suite.Run("to update because of invalid status", func() {
+				appCtx := suite.AppContextForTest()
+
+				originalWeightTicket := testdatagen.MakeWeightTicket(suite.DB(), testdatagen.Assertions{})
+
+				updater := NewOfficeWeightTicketUpdater()
+
+				status := models.PPMDocumentStatus("invalid status")
+				desiredWeightTicket := &models.WeightTicket{
+					ID:     originalWeightTicket.ID,
+					Status: &status,
+					Reason: models.StringPointer("bad data"),
+				}
+
+				updatedWeightTicket, updateErr := updater.UpdateWeightTicket(appCtx, *desiredWeightTicket, etag.GenerateEtag(originalWeightTicket.UpdatedAt))
+
+				suite.Nil(updatedWeightTicket)
+				suite.NotNil(updateErr)
+				suite.IsType(apperror.InvalidInputError{}, updateErr)
+				suite.Equal("invalid input found while updating the WeightTicket", updateErr.Error())
+			})
+		})
+	})
 }

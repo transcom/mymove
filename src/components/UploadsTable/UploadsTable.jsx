@@ -9,6 +9,7 @@ import classnames from 'classnames';
 import styles from './UploadsTable.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { ExistingUploadsShape } from 'types/uploads';
 
 const UploadsTable = ({ className, uploads, onDelete }) => {
   const getIcon = (fileType) => {
@@ -34,12 +35,12 @@ const UploadsTable = ({ className, uploads, onDelete }) => {
           {uploads.map((upload) => (
             <li className={styles.uploadListItem} key={upload.id}>
               <div className={styles.fileInfoContainer}>
-                <FontAwesomeIcon size="lg" icon={getIcon(upload.content_type)} className={styles.faIcon} />
+                <FontAwesomeIcon size="lg" icon={getIcon(upload.contentType)} className={styles.faIcon} />
                 <div className={styles.fileInfo}>
                   <p>{upload.filename}</p>
                   <p className={styles.fileSizeAndTime}>
                     <span className={styles.uploadFileSize}>{bytes(upload.bytes)}</span>
-                    <span>Uploaded {moment(upload.created_at).format('DD MMM YYYY h:mm A')}</span>
+                    <span>Uploaded {moment(upload.createdAt).format('DD MMM YYYY h:mm A')}</span>
                   </p>
                 </div>
               </div>
@@ -56,15 +57,7 @@ const UploadsTable = ({ className, uploads, onDelete }) => {
 
 UploadsTable.propTypes = {
   className: PropTypes.string,
-  uploads: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      created_at: PropTypes.string.isRequired,
-      bytes: PropTypes.number.isRequired,
-      url: PropTypes.string.isRequired,
-      filename: PropTypes.string.isRequired,
-    }),
-  ).isRequired,
+  uploads: ExistingUploadsShape.isRequired,
   onDelete: PropTypes.func.isRequired,
 };
 

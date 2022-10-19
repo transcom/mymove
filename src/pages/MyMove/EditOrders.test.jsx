@@ -88,11 +88,11 @@ describe('EditOrders Page', () => {
     existingUploads: [
       {
         id: '123',
-        created_at: '2020-11-08',
+        createdAt: '2020-11-08',
         bytes: 1,
         url: 'url',
         filename: 'Test Upload',
-        content_type: 'application/pdf',
+        contentType: 'application/pdf',
       },
     ],
     context: { flags: { allOrdersTypes: true } },

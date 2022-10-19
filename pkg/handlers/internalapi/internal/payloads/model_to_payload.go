@@ -236,8 +236,8 @@ func ClientError(title string, detail string, instance uuid.UUID) *internalmessa
 	}
 }
 
-func PayloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
-	uploads := make([]*internalmessages.UploadPayload, len(document.UserUploads))
+func PayloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.Document, error) {
+	uploads := make([]*internalmessages.Upload, len(document.UserUploads))
 	for i, userUpload := range document.UserUploads {
 		if userUpload.Upload.ID == uuid.Nil {
 			return nil, errors.New("no uploads for user")
@@ -251,7 +251,7 @@ func PayloadForDocumentModel(storer storage.FileStorer, document models.Document
 		uploads[i] = uploadPayload
 	}
 
-	documentPayload := &internalmessages.DocumentPayload{
+	documentPayload := &internalmessages.Document{
 		ID:              handlers.FmtUUID(document.ID),
 		ServiceMemberID: handlers.FmtUUID(document.ServiceMemberID),
 		Uploads:         uploads,
@@ -263,15 +263,15 @@ func PayloadForUploadModel(
 	storer storage.FileStorer,
 	upload models.Upload,
 	url string,
-) *internalmessages.UploadPayload {
-	uploadPayload := &internalmessages.UploadPayload{
-		ID:          handlers.FmtUUID(upload.ID),
-		Filename:    swag.String(upload.Filename),
-		ContentType: swag.String(upload.ContentType),
-		URL:         handlers.FmtURI(url),
-		Bytes:       &upload.Bytes,
-		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
-		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+) *internalmessages.Upload {
+	uploadPayload := &internalmessages.Upload{
+		ID:          handlers.FmtUUIDValue(upload.ID),
+		Filename:    upload.Filename,
+		ContentType: upload.ContentType,
+		URL:         strfmt.URI(url),
+		Bytes:       upload.Bytes,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
@@ -301,9 +301,11 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		PaidWithGtcc:   movingExpense.PaidWithGTCC,
 		Amount:         handlers.FmtCost(movingExpense.Amount),
 		MissingReceipt: movingExpense.MissingReceipt,
+		ETag:           etag.GenerateEtag(movingExpense.UpdatedAt),
 	}
 	if movingExpense.MovingExpenseType != nil {
-		payload.MovingExpenseType = internalmessages.MovingExpenseType(*movingExpense.MovingExpenseType)
+		movingExpenseType := internalmessages.OmittableMovingExpenseType(*movingExpense.MovingExpenseType)
+		payload.MovingExpenseType = &movingExpenseType
 	}
 
 	if movingExpense.Status != nil {
