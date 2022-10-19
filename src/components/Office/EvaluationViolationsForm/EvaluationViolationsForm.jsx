@@ -155,7 +155,7 @@ const EvaluationViolationsForm = ({
     }),
     observedDeliveryDate: Yup.date().when('kpiViolations', {
       is: (kpiViolations) => kpiViolations.includes('observedDeliveryDate'),
-      then: Yup.date().optional(),
+      then: Yup.date().required(),
     }),
   });
 
@@ -392,8 +392,6 @@ const EvaluationViolationsForm = ({
                           className={styles.datePicker}
                           label="Observed delivery date"
                           name="observedDeliveryDate"
-                          hint="Only enter a date here if the delivery you witnessed did not happen on the scheduled delivery date."
-                          showOptional
                         />
                       )}
                     </div>
