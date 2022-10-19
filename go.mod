@@ -7,7 +7,7 @@ require (
 	github.com/XSAM/otelsql v0.16.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20220216073957-c252878bcf5a
 	github.com/alexedwards/scs/v2 v2.5.0
-	github.com/aws/aws-sdk-go v1.44.104
+	github.com/aws/aws-sdk-go v1.44.118
 	github.com/benbjohnson/clock v1.3.0
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/disintegration/imaging v1.6.2
@@ -44,12 +44,12 @@ require (
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/lib/pq v1.10.7
 	github.com/luna-duclos/instrumentedsql v1.1.3
-	github.com/markbates/goth v1.73.0
+	github.com/markbates/goth v1.74.1
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
-	github.com/pterm/pterm v0.12.47
+	github.com/pterm/pterm v0.12.49
 	github.com/rickar/cal/v2 v2.1.6
 	github.com/spf13/afero v1.9.2
 	github.com/spf13/cobra v1.6.0

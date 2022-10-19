@@ -13,6 +13,11 @@ import (
 // These functions facilitate converting from the go types the db uses
 // into the strfmt types that go-swagger uses for payloads.
 
+// FmtUUIDValue converts pop UUID value type to go-swagger UUID value type
+func FmtUUIDValue(u uuid.UUID) strfmt.UUID {
+	return strfmt.UUID(u.String())
+}
+
 // FmtUUID converts pop type to go-swagger type
 func FmtUUID(u uuid.UUID) *strfmt.UUID {
 	fmtUUID := strfmt.UUID(u.String())

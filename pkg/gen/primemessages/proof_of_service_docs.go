@@ -20,7 +20,7 @@ import (
 type ProofOfServiceDocs struct {
 
 	// uploads
-	Uploads []*Upload `json:"uploads"`
+	Uploads []*UploadWithOmissions `json:"uploads"`
 }
 
 // Validate validates this proof of service docs
