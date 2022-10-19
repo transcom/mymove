@@ -1,16 +1,15 @@
 import React from 'react';
 
-import t from 'constants/MoveHistory/Database/Tables';
 import a from 'constants/MoveHistory/Database/Actions';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
+import t from 'constants/MoveHistory/Database/Tables';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 
 const formatChangedValues = (historyRecord) => {
-  let newChangedValues;
+  let newChangedValues = historyRecord.changedValues;
 
   if (historyRecord.context) {
     newChangedValues = {
-      ...historyRecord.changedValues,
+      ...newChangedValues,
       ...historyRecord.context[0],
     };
   }
@@ -19,10 +18,10 @@ const formatChangedValues = (historyRecord) => {
 };
 
 export default {
-  action: a.INSERT,
-  eventName: o.createOrders,
+  action: a.UPDATE,
+  eventName: '*',
   tableName: t.orders,
-  getEventNameDisplay: () => 'Created orders',
+  getEventNameDisplay: () => 'Updated orders',
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
   },
