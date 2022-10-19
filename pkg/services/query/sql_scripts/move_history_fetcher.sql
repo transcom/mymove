@@ -8,7 +8,7 @@ WITH move AS (
 	),
 	move_shipments AS (
 		SELECT
-			mto_shipments.*
+			mto_shipments.*, LEFT(mto_shipments.id::TEXT, 5) AS shipment_id_abbr
 		FROM
 			mto_shipments
 		WHERE
@@ -25,7 +25,7 @@ WITH move AS (
 				jsonb_agg(jsonb_strip_nulls(
 					jsonb_build_object(
 						'shipment_type', move_shipments.shipment_type,
-						'shipment_id_abbr', LEFT(move_shipments.id::TEXT, 5)
+						'shipment_id_abbr', move_shipments.shipment_id_abbr
 					)
 				))::TEXT, '[{}]'::TEXT
 			) AS context,
@@ -89,7 +89,7 @@ WITH move AS (
 			json_agg(json_build_object(
 				'name', re_services.name,
 				'shipment_type', move_shipments.shipment_type,
-				'shipment_id_abbr', LEFT(move_shipments.id::TEXT, 5)
+				'shipment_id_abbr', move_shipments.shipment_id_abbr
 				)
 			)::TEXT AS context,
 			NULL AS context_id
@@ -134,7 +134,7 @@ WITH move AS (
 			json_agg(json_build_object(
 				'name', re_services.name,
 				'shipment_type', move_shipments.shipment_type,
-				'shipment_id_abbr', LEFT(move_shipments.id::TEXT, 5)
+				'shipment_id_abbr', move_shipments.shipment_id_abbr
 				)
 			)::TEXT AS context,
 			NULL AS context_id
@@ -176,7 +176,7 @@ WITH move AS (
 				'price', payment_service_items.price_cents::TEXT,
 				'status', payment_service_items.status,
 				'shipment_id', move_shipments.id::TEXT,
-				'shipment_id_abbr', LEFT(move_shipments.id::TEXT, 5),
+				'shipment_id_abbr', move_shipments.shipment_id_abbr,
 				'shipment_type', move_shipments.shipment_type
 				)
 			)::TEXT AS context,
@@ -230,7 +230,7 @@ WITH move AS (
 			mto_agents.id,
 			json_agg(json_build_object(
 				'shipment_type', move_shipments.shipment_type,
-				'shipment_id_abbr', LEFT(move_shipments.id::TEXT, 5)
+				'shipment_id_abbr', move_shipments.shipment_id_abbr
 				)
 			)::TEXT AS context
 		FROM
@@ -254,7 +254,7 @@ WITH move AS (
 			reweighs.id,
 			json_agg(json_build_object(
 				'shipment_type', move_shipments.shipment_type,
-				'shipment_id_abbr', LEFT(move_shipments.id::TEXT, 5),
+				'shipment_id_abbr', move_shipments.shipment_id_abbr,
 				'payment_request_number', move_payment_requests.payment_request_number
 				)
 			)::TEXT AS context
