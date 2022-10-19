@@ -2724,7 +2724,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "evaluationReports"
+          "pwsViolations"
         ],
         "summary": "Fetch the possible PWS violations for an evaluation report",
         "operationId": "getPWSViolations",
@@ -5887,11 +5887,6 @@ func init() {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
           "type": "object",
           "additionalProperties": true,
-          "x-nullable": true
-        },
-        "clientQuery": {
-          "description": "Record the text of the client query that triggered the audit event",
-          "type": "string",
           "x-nullable": true
         },
         "context": {
@@ -11951,7 +11946,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "evaluationReports"
+          "pwsViolations"
         ],
         "summary": "Fetch the possible PWS violations for an evaluation report",
         "operationId": "getPWSViolations",
@@ -15387,11 +15382,6 @@ func init() {
           "description": "A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.",
           "type": "object",
           "additionalProperties": true,
-          "x-nullable": true
-        },
-        "clientQuery": {
-          "description": "Record the text of the client query that triggered the audit event",
-          "type": "string",
           "x-nullable": true
         },
         "context": {

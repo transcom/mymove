@@ -3,6 +3,7 @@ import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import { formatMoveHistoryFullAddress } from 'utils/formatters';
+import AddressTypes from 'constants/MoveHistory/Database/AddressTypes';
 
 export default {
   action: a.UPDATE,
@@ -23,13 +24,7 @@ export default {
     const address = formatMoveHistoryFullAddress(newChangedValues);
 
     const addressType = context.filter((contextObject) => contextObject.address_type)[0].address_type;
-
-    let addressLabel = '';
-    if (addressType === 'pickupAddress') {
-      addressLabel = 'pickup_address';
-    } else if (addressType === 'destinationAddress') {
-      addressLabel = 'destination_address';
-    }
+    const addressLabel = AddressTypes[addressType];
 
     newChangedValues = {
       shipment_type: context[0]?.shipment_type,

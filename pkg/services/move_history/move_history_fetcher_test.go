@@ -30,13 +30,15 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
+		secondaryPickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 		approvedShipment := testdatagen.MakeMTOShipmentWithMove(suite.DB(), &approvedMove, testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status:              models.MTOShipmentStatusApproved,
 				ApprovedDate:        &now,
 				ScheduledPickupDate: &pickupDate,
 			},
-			Move: approvedMove,
+			Move:                   approvedMove,
+			SecondaryPickupAddress: secondaryPickupAddress,
 		})
 
 		testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
@@ -65,6 +67,14 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		updateAddress.PostalCode = "23503"
 		suite.MustSave(updateAddress)
 
+		// update Secondary Pickup Address
+		oldSecondaryPickupAddress := *approvedShipment.SecondaryPickupAddress
+		updateSecondaryPickupAddress := approvedShipment.SecondaryPickupAddress
+		updateSecondaryPickupAddress.City = "Hampton"
+		updateSecondaryPickupAddress.State = "VA"
+		updateSecondaryPickupAddress.PostalCode = "23661"
+		suite.MustSave(updateSecondaryPickupAddress)
+
 		// update move
 		tioRemarks := "updating TIO remarks for test"
 		approvedMove.TIORemarks = &tioRemarks
@@ -77,6 +87,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// address update
 		verifyOldPickupAddress := false
 		verifyNewPickupAddress := false
+		verifyOldSecondaryPickupAddress := false
+		verifyNewSecondaryPickupAddress := false
 		// agent update
 		verifyNewAgent := false
 		// orders update
@@ -101,6 +113,19 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 						changedData := removeEscapeJSONtoObject(h.ChangedData)
 						if changedData["city"] == updateAddress.City && changedData["state"] == updateAddress.State && changedData["postal_code"] == updateAddress.PostalCode {
 							verifyNewPickupAddress = true
+						}
+					}
+				} else if *h.ObjectID == updateSecondaryPickupAddress.ID {
+					if h.OldData != nil {
+						oldData := removeEscapeJSONtoObject(h.OldData)
+						if oldData["city"] == oldSecondaryPickupAddress.City && oldData["state"] == oldSecondaryPickupAddress.State && oldData["postal_code"] == oldSecondaryPickupAddress.PostalCode {
+							verifyOldSecondaryPickupAddress = true
+						}
+					}
+					if h.ChangedData != nil {
+						changedData := removeEscapeJSONtoObject(h.ChangedData)
+						if changedData["city"] == updateSecondaryPickupAddress.City && changedData["state"] == updateSecondaryPickupAddress.State && changedData["postal_code"] == updateSecondaryPickupAddress.PostalCode {
+							verifyNewSecondaryPickupAddress = true
 						}
 					}
 				}
@@ -159,6 +184,9 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 		// address update
 		suite.True(verifyOldPickupAddress, "verifyOldPickupAddress")
 		suite.True(verifyNewPickupAddress, "verifyNewPickupAddress")
+		// secondary address update
+		suite.True(verifyOldSecondaryPickupAddress, "verifyOldSecondaryPickupAddress")
+		suite.True(verifyNewSecondaryPickupAddress, "verifyNewSecondaryPickupAddress")
 		// agent update
 		suite.True(verifyNewAgent, "verifyNewAgent")
 		// orders update
