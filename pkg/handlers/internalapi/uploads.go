@@ -221,9 +221,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				}
 			}
 
-			// fmt.Printf("%+v\n", newUserUpload.Upload)
 			uploadPayload := payloads.PayloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
-			// fmt.Printf("%+v\n", uploadPayload)
 			return ppmop.NewCreatePPMUploadCreated().WithPayload(uploadPayload), nil
 		})
 }
