@@ -13,7 +13,6 @@ import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
-import SystemError from 'components/SystemError';
 import { LocationShape } from 'types/index';
 
 const InvalidPermissions = ({ context, location }) => {
@@ -41,35 +40,34 @@ const InvalidPermissions = ({ context, location }) => {
     <div className="usa-prose grid-container padding-top-3">
       <div className="grid-row">
         <div>
-          <div>
-            <Alert type="error" heading="An error occurred">
-              You are not signed in with a role that gives you access. If you believe you should have access, contact
-              your administrator.
-            </Alert>
-          </div>
-          <div className="align-center">
-            <p>You can sign out and try again.</p>
-            <ButtonGroup type="default">
-              <Button
-                aria-label="Sign Out"
-                className={signoutClass}
-                data-testid="signout"
-                onClick={handleLogOut}
-                type="button"
-              >
-                Sign Out
-              </Button>
-            </ButtonGroup>
-          </div>
+          <h1>You do not have permission to access this site.</h1>
+          <p>
+            You are not signed in with a role that gives you access. If you believe you should have access, contact your
+            administrator.
+          </p>
           {traceId && traceId !== '' && (
-            <SystemError>
-              If that doesn&apos;t fix it, contact the{' '}
+            <Alert type="warning" slim>
+              If you believe this is an error, try logging out and back in.
+              <br />
+              <br />
+              If that doesn&apos;t work, please contact the{' '}
               <a className={styles.link} href="https://move.mil/customer-service#technical-help-desk">
                 Technical Help Desk
               </a>{' '}
               and give them this code: <strong>{traceId}</strong>
-            </SystemError>
+            </Alert>
           )}
+          <ButtonGroup type="default">
+            <Button
+              aria-label="Sign Out"
+              className={signoutClass}
+              data-testid="signout"
+              onClick={handleLogOut}
+              type="button"
+            >
+              Sign Out
+            </Button>
+          </ButtonGroup>
         </div>
       </div>
     </div>
