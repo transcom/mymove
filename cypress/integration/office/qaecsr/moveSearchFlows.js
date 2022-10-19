@@ -64,7 +64,7 @@ describe('QAE/CSR Move Search', () => {
   });
 
   it('is able to search by customer name', () => {
-    const name = 'Leo';
+    const name = 'QAECSRTestFirst';
 
     // Type dodID into search bar and select DOD ID as search type
     cy.get('[type="radio"]').check('customerName', { force: true });
@@ -76,8 +76,8 @@ describe('QAE/CSR Move Search', () => {
 
     // Verify results table contents
     cy.get('tbody > tr').as('results');
-    cy.get('@results').should('have.length', 20); // Page size of 20 in table
-    cy.get('@results').first().contains(name);
+    cy.get('@results').should('have.length', 1); // Page size of 20 in table
+    cy.get('@results').first().contains(name); // Should have QAECSRTestFirst in name
 
     // Click result to navigate to move details page
     cy.get('@results').first().click();
@@ -92,6 +92,7 @@ describe('QAE/CSR Move Search', () => {
     cy.wait(['@getSearchResults']);
 
     // Verify no results
-    cy.get('[data-testid=table-queue] > h1').contains('Results (0)');
+    cy.get('[data-testid=table-queue] > h2').contains('Results (0)');
+    cy.get('[data-testid=table-queue] > p').contains('No results found.');
   });
 });

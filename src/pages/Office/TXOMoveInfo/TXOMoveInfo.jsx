@@ -130,17 +130,29 @@ const TXOMoveInfo = () => {
           </Route>
 
           <Route path={qaeCSRRoutes.EVALUATION_REPORTS_PATH} exact>
-            <EvaluationReports customerInfo={customerData} grade={order.grade} />
+            <EvaluationReports
+              customerInfo={customerData}
+              grade={order.grade}
+              destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
+            />
           </Route>
 
           <Route path={qaeCSRRoutes.EVALUATION_REPORT_PATH} exact>
             <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
-              <EvaluationReport customerInfo={customerData} grade={order.grade} />
+              <EvaluationReport
+                customerInfo={customerData}
+                grade={order.grade}
+                destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
+              />
             </Restricted>
           </Route>
 
           <Route path={qaeCSRRoutes.EVALUATION_VIOLATIONS_PATH} exact>
-            <EvaluationViolations customerInfo={customerData} />
+            <EvaluationViolations
+              customerInfo={customerData}
+              grade={order.grade}
+              destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
+            />
           </Route>
 
           <Route path="/moves/:moveCode/history" exact>
