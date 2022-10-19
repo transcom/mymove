@@ -25,66 +25,66 @@ type WeightTicket struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt"`
 
-	// e tag
+	// A hash that should be used as the "If-Match" header for any updates.
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
-	// Empty Document
+	// empty document
 	// Required: true
-	EmptyDocument *DocumentPayload `json:"emptyDocument"`
+	EmptyDocument *Document `json:"emptyDocument"`
 
-	// Empty Document ID
+	// ID of the document that is associated with the user uploads containing the vehicle weight when empty.
 	// Required: true
 	// Read Only: true
 	// Format: uuid
 	EmptyDocumentID strfmt.UUID `json:"emptyDocumentId"`
 
-	// Empty Recorded Weight
+	// Weight of the vehicle when empty.
 	// Minimum: 0
-	EmptyWeight *int64 `json:"emptyWeight,omitempty"`
+	EmptyWeight *int64 `json:"emptyWeight"`
 
-	// Full Document
+	// full document
 	// Required: true
-	FullDocument *DocumentPayload `json:"fullDocument"`
+	FullDocument *Document `json:"fullDocument"`
 
-	// Full Document ID
+	// ID of the document that is associated with the user uploads containing the vehicle weight when full.
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Read Only: true
 	// Format: uuid
 	FullDocumentID strfmt.UUID `json:"fullDocumentId"`
 
-	// full weight ticket recorded weight
+	// The weight of the vehicle when full.
 	// Minimum: 0
-	FullWeight *int64 `json:"fullWeight,omitempty"`
+	FullWeight *int64 `json:"fullWeight"`
 
-	// id
+	// ID of this set of weight tickets.
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// has empty weight ticket
+	// Indicates if the customer is missing a weight ticket for the vehicle weight when empty.
 	MissingEmptyWeightTicket *bool `json:"missingEmptyWeightTicket"`
 
-	// has full weight ticket
+	// Indicates if the customer is missing a weight ticket for the vehicle weight when full.
 	MissingFullWeightTicket *bool `json:"missingFullWeightTicket"`
 
-	// Owns trailer
+	// Indicates if the customer used a trailer they own for the move.
 	OwnsTrailer *bool `json:"ownsTrailer"`
 
-	// ppm shipment Id
+	// The ID of the PPM shipment that this set of weight tickets is for.
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Read Only: true
 	// Format: uuid
 	PpmShipmentID strfmt.UUID `json:"ppmShipmentId"`
 
-	// Proof of Trailer Ownership Document
+	// proof of trailer ownership document
 	// Required: true
-	ProofOfTrailerOwnershipDocument *DocumentPayload `json:"proofOfTrailerOwnershipDocument"`
+	ProofOfTrailerOwnershipDocument *Document `json:"proofOfTrailerOwnershipDocument"`
 
-	// Trailer Document ID
+	// ID of the document that is associated with the user uploads containing the proof of trailer ownership.
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Read Only: true
@@ -97,7 +97,7 @@ type WeightTicket struct {
 	// status
 	Status *PPMDocumentStatus `json:"status"`
 
-	// Trailer meets criteria
+	// Indicates if the trailer that the customer used meets all the criteria to be claimable.
 	TrailerMeetsCriteria *bool `json:"trailerMeetsCriteria"`
 
 	// updated at
@@ -106,8 +106,8 @@ type WeightTicket struct {
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt"`
 
-	// Vehicle description (ex. 'SUV')
-	VehicleDescription *string `json:"vehicleDescription,omitempty"`
+	// Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.
+	VehicleDescription *string `json:"vehicleDescription"`
 }
 
 // Validate validates this weight ticket

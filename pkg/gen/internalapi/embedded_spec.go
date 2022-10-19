@@ -233,7 +233,7 @@ func init() {
           "201": {
             "description": "created document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -267,7 +267,7 @@ func init() {
           "200": {
             "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -1912,7 +1912,7 @@ func init() {
           "201": {
             "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -2233,7 +2233,7 @@ func init() {
           "200": {
             "description": "returns a PPM attachments upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -2936,7 +2936,7 @@ func init() {
           "201": {
             "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -3488,7 +3488,7 @@ func init() {
           "$ref": "#/definitions/CreateReimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -3966,7 +3966,7 @@ func init() {
       },
       "x-nullable": true
     },
-    "DocumentPayload": {
+    "Document": {
       "type": "object",
       "required": [
         "id",
@@ -3987,7 +3987,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UploadPayload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -4434,7 +4434,7 @@ func init() {
       ],
       "properties": {
         "document": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "empty_weight": {
           "type": "integer",
@@ -4871,8 +4871,14 @@ func init() {
           "x-omitempty": false
         },
         "document": {
-          "description": "The Document object that contains all file uploads for this expense",
-          "type": "object"
+          "allOf": [
+            {
+              "description": "The Document object that contains all file uploads for this expense"
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "documentId": {
           "description": "The id of the Document that contains all file uploads for this expense",
@@ -4882,7 +4888,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
-          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
@@ -4900,9 +4906,7 @@ func init() {
           "x-omitempty": false
         },
         "movingExpenseType": {
-          "x-nullable": true,
-          "x-omitempty": false,
-          "$ref": "#/definitions/MovingExpenseType"
+          "$ref": "#/definitions/OmittableMovingExpenseType"
         },
         "paidWithGtcc": {
           "description": "Indicates if the service member used their government issued card to pay for the expense",
@@ -4947,8 +4951,8 @@ func init() {
       }
     },
     "MovingExpenseType": {
+      "description": "Moving Expense Type",
       "type": "string",
-      "title": "Moving Expense Type",
       "enum": [
         "CONTRACTED_EXPENSE",
         "GAS",
@@ -5040,6 +5044,34 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
+    },
+    "OmittableMovingExpenseType": {
+      "description": "Moving Expense Type",
+      "type": "string",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEE"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEE": "Weighing fee"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
     },
     "Orders": {
       "type": "object",
@@ -5148,7 +5180,7 @@ func init() {
           "format": "date-time"
         },
         "uploaded_amended_orders": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "uploaded_amended_orders_id": {
           "type": "string",
@@ -5156,7 +5188,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "uploaded_orders": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         }
       }
     },
@@ -5631,7 +5663,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -5868,7 +5900,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "approve_date": {
           "type": "string",
@@ -6791,7 +6823,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -6991,41 +7023,43 @@ func init() {
         }
       }
     },
-    "UploadPayload": {
+    "Upload": {
+      "description": "An uploaded file.",
       "type": "object",
       "required": [
         "id",
         "url",
         "filename",
-        "content_type",
+        "contentType",
         "bytes",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
         "bytes": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
-        "checksum": {
-          "type": "string",
-          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
-        },
-        "content_type": {
+        "contentType": {
           "type": "string",
           "format": "mime-type",
+          "readOnly": true,
           "example": "application/pdf"
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
+          "readOnly": true,
           "example": "filename.pdf"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "status": {
@@ -7034,15 +7068,18 @@ func init() {
             "INFECTED",
             "CLEAN",
             "PROCESSING"
-          ]
+          ],
+          "readOnly": true
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "url": {
           "type": "string",
           "format": "uri",
+          "readOnly": true,
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
@@ -7120,76 +7157,101 @@ func init() {
           "readOnly": true
         },
         "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
         "emptyDocument": {
-          "title": "Empty Document",
-          "$ref": "#/definitions/DocumentPayload"
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the vehicle weight when empty."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "emptyDocumentId": {
+          "description": "ID of the document that is associated with the user uploads containing the vehicle weight when empty.",
           "type": "string",
           "format": "uuid",
-          "title": "Empty Document ID",
           "readOnly": true
         },
         "emptyWeight": {
+          "description": "Weight of the vehicle when empty.",
           "type": "integer",
-          "title": "Empty Recorded Weight"
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "fullDocument": {
-          "title": "Full Document",
-          "$ref": "#/definitions/DocumentPayload"
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the vehicle weight when full."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "fullDocumentId": {
+          "description": "ID of the document that is associated with the user uploads containing the vehicle weight when full.",
           "type": "string",
           "format": "uuid",
-          "title": "Full Document ID",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "fullWeight": {
+          "description": "The weight of the vehicle when full.",
           "type": "integer",
-          "title": "full weight ticket recorded weight"
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
+          "description": "ID of this set of weight tickets.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "missingEmptyWeightTicket": {
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when empty.",
           "type": "boolean",
-          "title": "has empty weight ticket",
           "x-nullable": true,
           "x-omitempty": false
         },
         "missingFullWeightTicket": {
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean",
-          "title": "has full weight ticket",
           "x-nullable": true,
           "x-omitempty": false
         },
         "ownsTrailer": {
+          "description": "Indicates if the customer used a trailer they own for the move.",
           "type": "boolean",
-          "title": "Owns trailer",
           "x-nullable": true,
           "x-omitempty": false
         },
         "ppmShipmentId": {
+          "description": "The ID of the PPM shipment that this set of weight tickets is for.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "proofOfTrailerOwnershipDocument": {
-          "title": "Proof of Trailer Ownership Document",
-          "$ref": "#/definitions/DocumentPayload"
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the proof of trailer ownership."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "proofOfTrailerOwnershipDocumentId": {
+          "description": "ID of the document that is associated with the user uploads containing the proof of trailer ownership.",
           "type": "string",
           "format": "uuid",
-          "title": "Trailer Document ID",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
@@ -7200,8 +7262,8 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
           "type": "boolean",
-          "title": "Trailer meets criteria",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -7211,9 +7273,10 @@ func init() {
           "readOnly": true
         },
         "vehicleDescription": {
+          "description": "Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.",
           "type": "string",
-          "title": "Vehicle description (ex. 'SUV')",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -7496,7 +7559,7 @@ func init() {
           "201": {
             "description": "created document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -7530,7 +7593,7 @@ func init() {
           "200": {
             "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -9241,7 +9304,7 @@ func init() {
           "201": {
             "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -9562,7 +9625,7 @@ func init() {
           "200": {
             "description": "returns a PPM attachments upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -10343,7 +10406,7 @@ func init() {
           "201": {
             "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -10895,7 +10958,7 @@ func init() {
           "$ref": "#/definitions/CreateReimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -11377,7 +11440,7 @@ func init() {
       },
       "x-nullable": true
     },
-    "DocumentPayload": {
+    "Document": {
       "type": "object",
       "required": [
         "id",
@@ -11398,7 +11461,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UploadPayload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -11856,7 +11919,7 @@ func init() {
       ],
       "properties": {
         "document": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "empty_weight": {
           "type": "integer",
@@ -12295,8 +12358,14 @@ func init() {
           "x-omitempty": false
         },
         "document": {
-          "description": "The Document object that contains all file uploads for this expense",
-          "type": "object"
+          "allOf": [
+            {
+              "description": "The Document object that contains all file uploads for this expense"
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "documentId": {
           "description": "The id of the Document that contains all file uploads for this expense",
@@ -12306,7 +12375,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
-          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
@@ -12324,9 +12393,7 @@ func init() {
           "x-omitempty": false
         },
         "movingExpenseType": {
-          "x-nullable": true,
-          "x-omitempty": false,
-          "$ref": "#/definitions/MovingExpenseType"
+          "$ref": "#/definitions/OmittableMovingExpenseType"
         },
         "paidWithGtcc": {
           "description": "Indicates if the service member used their government issued card to pay for the expense",
@@ -12371,8 +12438,8 @@ func init() {
       }
     },
     "MovingExpenseType": {
+      "description": "Moving Expense Type",
       "type": "string",
-      "title": "Moving Expense Type",
       "enum": [
         "CONTRACTED_EXPENSE",
         "GAS",
@@ -12464,6 +12531,34 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
+    },
+    "OmittableMovingExpenseType": {
+      "description": "Moving Expense Type",
+      "type": "string",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEE"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEE": "Weighing fee"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
     },
     "Orders": {
       "type": "object",
@@ -12572,7 +12667,7 @@ func init() {
           "format": "date-time"
         },
         "uploaded_amended_orders": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "uploaded_amended_orders_id": {
           "type": "string",
@@ -12580,7 +12675,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "uploaded_orders": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         }
       }
     },
@@ -13055,7 +13150,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -13294,7 +13389,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "approve_date": {
           "type": "string",
@@ -14219,7 +14314,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -14424,41 +14519,43 @@ func init() {
         }
       }
     },
-    "UploadPayload": {
+    "Upload": {
+      "description": "An uploaded file.",
       "type": "object",
       "required": [
         "id",
         "url",
         "filename",
-        "content_type",
+        "contentType",
         "bytes",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
         "bytes": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
-        "checksum": {
-          "type": "string",
-          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
-        },
-        "content_type": {
+        "contentType": {
           "type": "string",
           "format": "mime-type",
+          "readOnly": true,
           "example": "application/pdf"
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
+          "readOnly": true,
           "example": "filename.pdf"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "status": {
@@ -14467,15 +14564,18 @@ func init() {
             "INFECTED",
             "CLEAN",
             "PROCESSING"
-          ]
+          ],
+          "readOnly": true
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "url": {
           "type": "string",
           "format": "uri",
+          "readOnly": true,
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
@@ -14556,78 +14656,103 @@ func init() {
           "readOnly": true
         },
         "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
         "emptyDocument": {
-          "title": "Empty Document",
-          "$ref": "#/definitions/DocumentPayload"
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the vehicle weight when empty."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "emptyDocumentId": {
+          "description": "ID of the document that is associated with the user uploads containing the vehicle weight when empty.",
           "type": "string",
           "format": "uuid",
-          "title": "Empty Document ID",
           "readOnly": true
         },
         "emptyWeight": {
+          "description": "Weight of the vehicle when empty.",
           "type": "integer",
-          "title": "Empty Recorded Weight",
-          "minimum": 0
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "fullDocument": {
-          "title": "Full Document",
-          "$ref": "#/definitions/DocumentPayload"
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the vehicle weight when full."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "fullDocumentId": {
+          "description": "ID of the document that is associated with the user uploads containing the vehicle weight when full.",
           "type": "string",
           "format": "uuid",
-          "title": "Full Document ID",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "fullWeight": {
+          "description": "The weight of the vehicle when full.",
           "type": "integer",
-          "title": "full weight ticket recorded weight",
-          "minimum": 0
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
+          "description": "ID of this set of weight tickets.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "missingEmptyWeightTicket": {
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when empty.",
           "type": "boolean",
-          "title": "has empty weight ticket",
           "x-nullable": true,
           "x-omitempty": false
         },
         "missingFullWeightTicket": {
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean",
-          "title": "has full weight ticket",
           "x-nullable": true,
           "x-omitempty": false
         },
         "ownsTrailer": {
+          "description": "Indicates if the customer used a trailer they own for the move.",
           "type": "boolean",
-          "title": "Owns trailer",
           "x-nullable": true,
           "x-omitempty": false
         },
         "ppmShipmentId": {
+          "description": "The ID of the PPM shipment that this set of weight tickets is for.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "proofOfTrailerOwnershipDocument": {
-          "title": "Proof of Trailer Ownership Document",
-          "$ref": "#/definitions/DocumentPayload"
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the proof of trailer ownership."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "proofOfTrailerOwnershipDocumentId": {
+          "description": "ID of the document that is associated with the user uploads containing the proof of trailer ownership.",
           "type": "string",
           "format": "uuid",
-          "title": "Trailer Document ID",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
@@ -14638,8 +14763,8 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
           "type": "boolean",
-          "title": "Trailer meets criteria",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -14649,9 +14774,10 @@ func init() {
           "readOnly": true
         },
         "vehicleDescription": {
+          "description": "Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.",
           "type": "string",
-          "title": "Vehicle description (ex. 'SUV')",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },

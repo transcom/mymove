@@ -20,3 +20,5 @@ x-display-value:
   RENTAL_EQUIPMENT: Rental equipment
   TOLLS: Tolls
   WEIGHING_FEE: Weighing fee
+x-nullable: true
+x-omitempty: false

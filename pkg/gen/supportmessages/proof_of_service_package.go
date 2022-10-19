@@ -26,7 +26,7 @@ type ProofOfServicePackage struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// uploads
-	Uploads []*Upload `json:"uploads"`
+	Uploads []*UploadWithOmissions `json:"uploads"`
 }
 
 // Validate validates this proof of service package

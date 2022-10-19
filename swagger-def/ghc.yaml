@@ -2319,7 +2319,7 @@ paths:
         '200':
           description: the requested document
           schema:
-            $ref: '#/definitions/DocumentPayload'
+            $ref: 'definitions/Document.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -3780,7 +3780,7 @@ definitions:
     properties:
       uploads:
         items:
-          $ref: '#/definitions/Upload'
+          $ref: 'definitions/Upload.yaml'
         type: array
   ShipmentsPaymentSITBalance:
     items:
@@ -4239,65 +4239,6 @@ definitions:
         $ref: '#/definitions/PaymentRequestStatus'
       eTag:
         type: string
-    type: object
-  DocumentPayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
-        type: string
-        format: uuid
-        title: The service member this document belongs to
-      uploads:
-        type: array
-        items:
-          $ref: '#/definitions/Upload'
-    required:
-      - id
-      - service_member_id
-      - uploads
-  Upload:
-    properties:
-      bytes:
-        type: integer
-      contentType:
-        example: application/pdf
-        format: mime-type
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      filename:
-        example: filename.pdf
-        type: string
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      updatedAt:
-        format: date-time
-        type: string
-      url:
-        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
-        format: uri
-        type: string
-      status:
-        type: string
-        enum:
-          - INFECTED
-          - CLEAN
-          - PROCESSING
-    required:
-      - id
-      - url
-      - filename
-      - contentType
-      - bytes
-      - createdAt
-      - updatedAt
     type: object
   QueueMoves:
     type: array

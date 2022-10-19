@@ -26,7 +26,7 @@ type UploadAmendedOrdersCreated struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.UploadPayload `json:"body,omitempty"`
+	Payload *internalmessages.Upload `json:"body,omitempty"`
 }
 
 // NewUploadAmendedOrdersCreated creates UploadAmendedOrdersCreated with default headers values
@@ -36,13 +36,13 @@ func NewUploadAmendedOrdersCreated() *UploadAmendedOrdersCreated {
 }
 
 // WithPayload adds the payload to the upload amended orders created response
-func (o *UploadAmendedOrdersCreated) WithPayload(payload *internalmessages.UploadPayload) *UploadAmendedOrdersCreated {
+func (o *UploadAmendedOrdersCreated) WithPayload(payload *internalmessages.Upload) *UploadAmendedOrdersCreated {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the upload amended orders created response
-func (o *UploadAmendedOrdersCreated) SetPayload(payload *internalmessages.UploadPayload) {
+func (o *UploadAmendedOrdersCreated) SetPayload(payload *internalmessages.Upload) {
 	o.Payload = payload
 }
 
