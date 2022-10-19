@@ -80,7 +80,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
 	golang.org/x/net v0.0.0-20221002022538-bcab6841153b
 	golang.org/x/oauth2 v0.0.0-20220718184931-c8730f7fcb92
-	golang.org/x/text v0.3.7
+	golang.org/x/text v0.4.0
 	golang.org/x/tools v0.1.12
 	gotest.tools/gotestsum v1.8.2
 	pault.ag/go/pksigner v1.0.2
