@@ -52,11 +52,19 @@ const WeightTicketUpload = ({
   formikProps: { touched, errors, setFieldTouched, setFieldValue },
 }) => {
   const weightTicketUploadLabel = (name, showConstructedWeight) => {
-    if (name === 'emptyDocument') {
-      return showConstructedWeight ? 'Upload constructed weight spreadsheet' : 'Upload empty weight ticket';
+    if (showConstructedWeight || name === 'missingProGearWeightDocument') {
+      return 'Upload constructed weight spreadsheet';
     }
 
-    return showConstructedWeight ? 'Upload constructed weight spreadsheet' : 'Upload full weight ticket';
+    if (name === 'emptyDocument') {
+      return 'Upload empty weight ticket';
+    }
+
+    if (name === 'proGearDocument') {
+      return "Upload your pro-gear's weight tickets";
+    }
+
+    return 'Upload full weight ticket';
   };
 
   const weightTicketUploadHint = (showConstructedWeight) => {

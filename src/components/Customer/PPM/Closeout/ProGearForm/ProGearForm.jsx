@@ -92,7 +92,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                           <p>Upload a completed copy of the spreadsheet.</p>
                           <div>
                             <WeightTicketUpload
-                              fieldName="emptyDocument"
+                              fieldName="missingProGearWeightDocument"
                               onCreateUpload={onCreateUpload}
                               onUploadComplete={onUploadComplete}
                               onUploadDelete={onUploadDelete}
