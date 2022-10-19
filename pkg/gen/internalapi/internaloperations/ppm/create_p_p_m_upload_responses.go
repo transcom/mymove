@@ -26,7 +26,7 @@ type CreatePPMUploadCreated struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.UploadPayload `json:"body,omitempty"`
+	Payload *internalmessages.Upload `json:"body,omitempty"`
 }
 
 // NewCreatePPMUploadCreated creates CreatePPMUploadCreated with default headers values
@@ -36,13 +36,13 @@ func NewCreatePPMUploadCreated() *CreatePPMUploadCreated {
 }
 
 // WithPayload adds the payload to the create p p m upload created response
-func (o *CreatePPMUploadCreated) WithPayload(payload *internalmessages.UploadPayload) *CreatePPMUploadCreated {
+func (o *CreatePPMUploadCreated) WithPayload(payload *internalmessages.Upload) *CreatePPMUploadCreated {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create p p m upload created response
-func (o *CreatePPMUploadCreated) SetPayload(payload *internalmessages.UploadPayload) {
+func (o *CreatePPMUploadCreated) SetPayload(payload *internalmessages.Upload) {
 	o.Payload = payload
 }
 

@@ -357,11 +357,11 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.Equal("e14dC4vs5L1gOb6M8N0vow==", upload.Checksum)
 
 		suite.NotEmpty(createdResponse.Payload.ID)
-		suite.Equal(FixtureXLS, *createdResponse.Payload.Filename)
-		suite.Equal("application/vnd.ms-excel", *createdResponse.Payload.ContentType)
-		suite.Contains(*createdResponse.Payload.URL, document.ServiceMember.UserID.String())
-		suite.Contains(*createdResponse.Payload.URL, upload.ID.String())
-		suite.Contains(*createdResponse.Payload.URL, "application/vnd.ms-excel")
+		suite.Equal(FixtureXLS, createdResponse.Payload.Filename)
+		suite.Equal("application/vnd.ms-excel", createdResponse.Payload.ContentType)
+		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
+		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
+		suite.Contains(createdResponse.Payload.URL, "application/vnd.ms-excel")
 	})
 
 	suite.Run("uploads .xlsx file", func() {
@@ -381,11 +381,11 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.Equal("laUtcMk6foIO71eS2J/t2A==", upload.Checksum)
 
 		suite.NotEmpty(createdResponse.Payload.ID)
-		suite.Equal(FixtureXLSX, *createdResponse.Payload.Filename)
-		suite.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", *createdResponse.Payload.ContentType)
-		suite.Contains(*createdResponse.Payload.URL, document.ServiceMember.UserID.String())
-		suite.Contains(*createdResponse.Payload.URL, upload.ID.String())
-		suite.Contains(*createdResponse.Payload.URL, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+		suite.Equal(FixtureXLSX, createdResponse.Payload.Filename)
+		suite.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", createdResponse.Payload.ContentType)
+		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
+		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
+		suite.Contains(createdResponse.Payload.URL, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	})
 
 	suite.Run("uploads file for a progear document", func() {
@@ -405,11 +405,11 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.Equal("qEnueX0FLpoz4bTnliprog==", upload.Checksum)
 
 		suite.NotEmpty(createdResponse.Payload.ID)
-		suite.Equal(FixturePNG, *createdResponse.Payload.Filename)
-		suite.Equal("image/png", *createdResponse.Payload.ContentType)
-		suite.Contains(*createdResponse.Payload.URL, document.ServiceMember.UserID.String())
-		suite.Contains(*createdResponse.Payload.URL, upload.ID.String())
-		suite.Contains(*createdResponse.Payload.URL, "image/png")
+		suite.Equal(FixturePNG, createdResponse.Payload.Filename)
+		suite.Equal("image/png", createdResponse.Payload.ContentType)
+		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
+		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
+		suite.Contains(createdResponse.Payload.URL, "image/png")
 	})
 
 	suite.Run("uploads file for an expense document", func() {
@@ -429,11 +429,11 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.Equal("sedKa8jlK99FB1knFoxLsA==", upload.Checksum)
 
 		suite.NotEmpty(createdResponse.Payload.ID)
-		suite.Equal(FixtureJPG, *createdResponse.Payload.Filename)
-		suite.Equal("image/jpeg", *createdResponse.Payload.ContentType)
-		suite.Contains(*createdResponse.Payload.URL, document.ServiceMember.UserID.String())
-		suite.Contains(*createdResponse.Payload.URL, upload.ID.String())
-		suite.Contains(*createdResponse.Payload.URL, "image/jpeg")
+		suite.Equal(FixtureJPG, createdResponse.Payload.Filename)
+		suite.Equal("image/jpeg", createdResponse.Payload.ContentType)
+		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
+		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
+		suite.Contains(createdResponse.Payload.URL, "image/jpeg")
 	})
 }
 

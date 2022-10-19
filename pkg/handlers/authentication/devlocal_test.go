@@ -1,11 +1,3 @@
-// RA Summary: gosec - errcheck - Unchecked return value
-// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-// RA: Functions with unchecked return values in the file are used to generate test data for use in the unit test
-// RA: Creation of test data generation for unit test consumption does not present any unexpected states and conditions
-// RA Developer Status: Mitigated
-// RA Validator Status: Mitigated
-// RA Modified Severity: N/A
-// nolint:errcheck
 package authentication
 
 import (
@@ -48,7 +40,7 @@ func (suite *AuthSuite) TestCreateUserHandlerMilMove() {
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/create", appnames.MilServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-	req.ParseForm()
+	suite.NoError(req.ParseForm())
 
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	handler := NewCreateUserHandler(authContext, handlerConfig)
@@ -103,7 +95,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/create", appnames.OfficeServername), strings.NewReader(form.Encode()))
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-		req.ParseForm()
+		suite.NoError(req.ParseForm())
 
 		rr := httptest.NewRecorder()
 		session := &auth.Session{
@@ -150,7 +142,7 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/create", appnames.AdminServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-	req.ParseForm()
+	suite.NoError(req.ParseForm())
 
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()
@@ -202,7 +194,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.MilServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-	req.ParseForm()
+	suite.NoError(req.ParseForm())
 
 	session := auth.Session{
 		ApplicationName: auth.MilApp,
@@ -247,7 +239,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.MilServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-	req.ParseForm()
+	suite.NoError(req.ParseForm())
 
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()
@@ -281,7 +273,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToAdmin() {
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.MilServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-	req.ParseForm()
+	suite.NoError(req.ParseForm())
 
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()
@@ -315,7 +307,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToMilMove() {
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.OfficeServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-	req.ParseForm()
+	suite.NoError(req.ParseForm())
 
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()
@@ -349,7 +341,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToAdmin() {
 	appnames := handlerConfig.AppNames()
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.OfficeServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-	req.ParseForm()
+	suite.NoError(req.ParseForm())
 
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()
@@ -381,7 +373,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.AdminServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-	req.ParseForm()
+	suite.NoError(req.ParseForm())
 
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()
@@ -413,7 +405,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.AdminServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-	req.ParseForm()
+	suite.NoError(req.ParseForm())
 
 	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()

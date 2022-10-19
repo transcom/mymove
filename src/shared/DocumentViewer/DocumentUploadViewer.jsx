@@ -5,32 +5,23 @@ import { connect } from 'react-redux';
 
 import { selectMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import DocumentContent from './DocumentContent';
+import { ExistingUploadsShape } from 'types/uploads';
 
 export const DocumentUploadViewer = ({ moveDocument }) => {
   const uploadModels = get(moveDocument, 'document.uploads', []);
-  return uploadModels.map(({ url, filename, content_type, status }) => (
-    <DocumentContent key={url} url={url} filename={filename} contentType={content_type} status={status} />
+  return uploadModels.map(({ url, filename, contentType, status }) => (
+    <DocumentContent key={url} url={url} filename={filename} contentType={contentType} status={status} />
   ));
 };
 
-const { shape, string, number, arrayOf } = PropTypes;
+const { shape, string } = PropTypes;
 
 DocumentUploadViewer.propTypes = {
   moveDocument: shape({
     document: shape({
       id: string.isRequired,
       service_member_id: string.isRequired,
-      uploads: arrayOf(
-        shape({
-          byes: number,
-          content_type: string.isRequired,
-          created_at: string.isRequired,
-          filename: string.isRequired,
-          id: string.isRequired,
-          update_at: string,
-          url: string.isRequired,
-        }),
-      ).isRequired,
+      uploads: ExistingUploadsShape.isRequired,
     }),
     id: string.isRequired,
     move_document_type: string.isRequired,

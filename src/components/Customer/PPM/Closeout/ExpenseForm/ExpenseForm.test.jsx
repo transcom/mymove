@@ -53,11 +53,11 @@ const expenseRequiredProps = {
       uploads: [
         {
           id: 'db4713ae-6087-4330-8b0d-926b3d65c454',
-          created_at: '2022-06-10T12:59:30.000Z',
+          createdAt: '2022-06-10T12:59:30.000Z',
           bytes: 204800,
           url: 'some/path/to/',
           filename: 'expenseReceipt.pdf',
-          content_type: 'application/pdf',
+          contentType: 'application/pdf',
         },
       ],
     },
@@ -79,11 +79,11 @@ const sitExpenseProps = {
       uploads: [
         {
           id: 'db4713ae-6087-4330-8b0d-926b3d65c454',
-          created_at: '2022-08-10T12:59:30.000Z',
+          createdAt: '2022-08-10T12:59:30.000Z',
           bytes: 204800,
           url: 'some/path/to/',
           filename: 'uhaulReceipt.pdf',
-          content_type: 'application/pdf',
+          contentType: 'application/pdf',
         },
       ],
     },

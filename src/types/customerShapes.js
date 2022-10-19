@@ -38,12 +38,12 @@ export const MoveShape = shape({
 
 export const UploadShape = shape({
   filename: string,
-  content_type: string,
+  contentType: string,
   id: string,
   status: string,
   bytes: number,
-  created_at: string,
-  updated_at: string,
+  createdAt: string,
+  updatedAt: string,
   url: string,
 });
 
