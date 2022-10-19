@@ -1,5 +1,8 @@
 // The PPM shipment creation is a multi-step flow so it's possible to get in a state with missing
 // information and get to the review screen in an incomplete state from creating another shipment
+
+import { expenseTypes } from 'constants/ppmExpenseTypes';
+
 // on the move. hasRequestedAdvance is the last required field that would mean they're finished.
 export function isPPMShipmentComplete(mtoShipment) {
   if (mtoShipment?.ppmShipment?.hasRequestedAdvance != null) {
@@ -60,3 +63,29 @@ export function hasCompletedAllWeightTickets(weightTickets) {
 }
 
 export default isPPMShipmentComplete;
+
+// isExpenseComplete - checks that the required fields for an expense have valid data
+// to check if the expense can be considered complete. For the purposes of this function,
+// any data is enough to consider some fields valid.
+export function isExpenseComplete(expense) {
+  const hasADocumentUpload = expense.document.uploads.length > 0;
+  const hasValidSITDates =
+    expense.movingExpenseType !== expenseTypes.STORAGE || (expense.sitStartDate && expense.sitEndDate);
+  return !!(
+    expense.description &&
+    expense.movingExpenseType &&
+    expense.amount &&
+    hasADocumentUpload &&
+    hasValidSITDates
+  );
+}
+
+// hasCompletedAllExpenses - checks if expense ticket has been completed.
+// Returns true if expenses are not defined or there are none, false if any of them are incomplete.
+export function hasCompletedAllExpenses(expenses) {
+  if (!expenses?.length) {
+    return true;
+  }
+
+  return !!expenses?.every(isExpenseComplete);
+}

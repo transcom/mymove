@@ -2098,7 +2098,7 @@ paths:
       description: Fetch the possible PWS violations for an evaluation report
       operationId: getPWSViolations
       tags:
-        - evaluationReports
+        - pwsViolations
       produces:
         - application/json
       responses:
@@ -5719,7 +5719,7 @@ definitions:
       - RENTAL_EQUIPMENT
       - STORAGE
       - TOLLS
-      - WEIGHING_FEES
+      - WEIGHING_FEE
     x-display-value:
       CONTRACTED_EXPENSE: Contracted expense
       GAS: Gas
@@ -5729,7 +5729,7 @@ definitions:
       STORAGE: Storage
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
-      WEIGHING_FEES: Weighing fees
+      WEIGHING_FEE: Weighing fee
   MovingExpense:
     description: >-
       Expense information and receipts of costs incurred that can be reimbursed

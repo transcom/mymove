@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/pws_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
@@ -209,9 +210,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation order.GetOrder has not yet been implemented")
 		})
 	}
-	if api.EvaluationReportsGetPWSViolationsHandler == nil {
-		api.EvaluationReportsGetPWSViolationsHandler = evaluation_reports.GetPWSViolationsHandlerFunc(func(params evaluation_reports.GetPWSViolationsParams) middleware.Responder {
-			return middleware.NotImplemented("operation evaluation_reports.GetPWSViolations has not yet been implemented")
+	if api.PwsViolationsGetPWSViolationsHandler == nil {
+		api.PwsViolationsGetPWSViolationsHandler = pws_violations.GetPWSViolationsHandlerFunc(func(params pws_violations.GetPWSViolationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation pws_violations.GetPWSViolations has not yet been implemented")
 		})
 	}
 	if api.PaymentRequestsGetPaymentRequestHandler == nil {
