@@ -24,6 +24,8 @@ const spouseProGearProps = {
   },
 };
 
+const missingWeightTicket = screen.getByLabelText("I don't have weight tickets");
+
 describe('ProGearForm component', () => {
   describe('displays form', () => {
     it('renders blank form on load with defaults', () => {
@@ -48,8 +50,17 @@ describe('ProGearForm component', () => {
       render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
       expect(screen.getByLabelText('Me')).toBeChecked();
       expect(screen.getByLabelText('My spouse')).not.toBeChecked();
-      const missingWeightTicket = screen.getByLabelText("I don't have weight tickets");
       expect(missingWeightTicket).toBeInstanceOf(HTMLInputElement);
+    });
+
+    it('populates form when weight ticket is missing', async () => {
+      render(<ProGearForm {...defaultProps} {...missingWeightTicket} />);
+      await waitFor(() => {
+        expect(screen.getByLabelText("I don't have weight tickets")).toHaveDisplayValue('missingWeightTicket');
+      });
+      expect(
+        screen.getByText('Download the official government spreadsheet to calculate the constructed weight.'),
+      ).toBeInTheDocument();
     });
 
     it('selects "My spouse" radio when selfProGear is false', () => {
