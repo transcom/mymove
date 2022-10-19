@@ -7,6 +7,9 @@ import ProGearForm from 'components/Customer/PPM/Closeout/ProGearForm/ProGearFor
 const defaultProps = {
   onBack: jest.fn(),
   onSubmit: jest.fn(),
+  // onCreateUpload: jest.fn(),
+  // onUploadComplete: jest.fn(),
+  // onUploadDelete: jest.fn(),
 };
 
 const selfProGearProps = {
@@ -45,8 +48,15 @@ describe('ProGearForm component', () => {
       render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
       expect(screen.getByLabelText('Me')).toBeChecked();
       expect(screen.getByLabelText('My spouse')).not.toBeChecked();
+      const missingWeightTicket = screen.getByLabelText("I don't have weight tickets");
+      expect(missingWeightTicket).toBeInstanceOf(HTMLInputElement);
     });
 
+    it('selects "My spouse" radio when selfProGear is false', () => {
+      render(<ProGearForm {...defaultProps} {...spouseProGearProps} />);
+      expect(screen.getByLabelText('My spouse')).toBeChecked();
+      expect(screen.getByLabelText('Me')).not.toBeChecked();
+    });
     it('selects "My spouse" radio when selfProGear is false', () => {
       render(<ProGearForm {...defaultProps} {...spouseProGearProps} />);
       expect(screen.getByLabelText('My spouse')).toBeChecked();
