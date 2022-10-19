@@ -34,7 +34,8 @@ func NewUpdateProGearWeightTicket(ctx *middleware.Context, handler UpdateProGear
 
 # Updates a pro-gear weight ticket
 
-Updates a pro-gear weight ticket with new information
+Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable
+because some have to be set by the customer, e.g. the description.
 */
 type UpdateProGearWeightTicket struct {
 	Context *middleware.Context

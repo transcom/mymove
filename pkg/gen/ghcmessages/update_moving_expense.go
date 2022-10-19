@@ -26,12 +26,10 @@ type UpdateMovingExpense struct {
 	Reason string `json:"reason,omitempty"`
 
 	// The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
-	// Example: 2018-05-26
 	// Format: date
 	SitEndDate strfmt.Date `json:"sitEndDate,omitempty"`
 
 	// The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
-	// Example: 2022-04-26
 	// Format: date
 	SitStartDate strfmt.Date `json:"sitStartDate,omitempty"`
 

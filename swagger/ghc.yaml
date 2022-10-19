@@ -1308,10 +1308,19 @@ paths:
       - $ref: '#/parameters/weightTicketId'
     patch:
       summary: Updates a weight ticket document
-      description: Updates a weight ticket document with new information
+      description: >
+        Updates a PPM shipment's weight ticket document with new information.
+        Only some of the weight ticket document's
+
+        fields are editable because some have to be set by the customer, e.g.
+        vehicle description.
       operationId: updateWeightTicket
       tags:
         - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
       parameters:
         - $ref: '#/parameters/ifMatch'
         - in: body
@@ -1344,10 +1353,19 @@ paths:
       - $ref: '#/parameters/movingExpenseId'
     patch:
       summary: Updates the moving expense
-      description: Updates a moving expense with new information
+      description: >
+        Updates a PPM shipment's moving expense with new information. Only some
+        of the moving expense's fields are
+
+        editable because some have to be set by the customer, e.g. the
+        description and the moving expense type.
       operationId: updateMovingExpense
       tags:
         - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
       parameters:
         - $ref: '#/parameters/ifMatch'
         - in: body
@@ -1380,10 +1398,18 @@ paths:
       - $ref: '#/parameters/proGearWeightTicketId'
     patch:
       summary: Updates a pro-gear weight ticket
-      description: Updates a pro-gear weight ticket with new information
+      description: >
+        Updates a PPM shipment's pro-gear weight ticket with new information.
+        Only some of the fields are editable
+
+        because some have to be set by the customer, e.g. the description.
       operationId: updateProGearWeightTicket
       tags:
         - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
       parameters:
         - $ref: '#/parameters/ifMatch'
         - in: body
@@ -4252,14 +4278,12 @@ definitions:
           The date the shipment entered storage, applicable for the `STORAGE`
           movingExpenseType only
         type: string
-        example: '2022-04-26'
         format: date
       sitEndDate:
         description: >-
           The date the shipment exited storage, applicable for the `STORAGE`
           movingExpenseType only
         type: string
-        example: '2018-05-26'
         format: date
       status:
         $ref: '#/definitions/PPMDocumentStatus'

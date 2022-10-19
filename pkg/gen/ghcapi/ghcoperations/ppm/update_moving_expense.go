@@ -34,7 +34,8 @@ func NewUpdateMovingExpense(ctx *middleware.Context, handler UpdateMovingExpense
 
 # Updates the moving expense
 
-Updates a moving expense with new information
+Updates a PPM shipment's moving expense with new information. Only some of the moving expense's fields are
+editable because some have to be set by the customer, e.g. the description and the moving expense type.
 */
 type UpdateMovingExpense struct {
 	Context *middleware.Context

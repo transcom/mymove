@@ -2719,7 +2719,13 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
       "patch": {
-        "description": "Updates a moving expense with new information",
+        "description": "Updates a PPM shipment's moving expense with new information. Only some of the moving expense's fields are\neditable because some have to be set by the customer, e.g. the description and the moving expense type.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "ppm"
         ],
@@ -2779,7 +2785,13 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
-        "description": "Updates a pro-gear weight ticket with new information",
+        "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "ppm"
         ],
@@ -2839,7 +2851,13 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
       "patch": {
-        "description": "Updates a weight ticket document with new information",
+        "description": "Updates a PPM shipment's weight ticket document with new information. Only some of the weight ticket document's\nfields are editable because some have to be set by the customer, e.g. vehicle description.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "ppm"
         ],
@@ -8179,14 +8197,12 @@ func init() {
         "sitEndDate": {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2018-05-26"
+          "format": "date"
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2022-04-26"
+          "format": "date"
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
@@ -12367,7 +12383,13 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
       "patch": {
-        "description": "Updates a moving expense with new information",
+        "description": "Updates a PPM shipment's moving expense with new information. Only some of the moving expense's fields are\neditable because some have to be set by the customer, e.g. the description and the moving expense type.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "ppm"
         ],
@@ -12462,7 +12484,13 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
-        "description": "Updates a pro-gear weight ticket with new information",
+        "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "ppm"
         ],
@@ -12557,7 +12585,13 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
       "patch": {
-        "description": "Updates a weight ticket document with new information",
+        "description": "Updates a PPM shipment's weight ticket document with new information. Only some of the weight ticket document's\nfields are editable because some have to be set by the customer, e.g. vehicle description.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "ppm"
         ],
@@ -18215,14 +18249,12 @@ func init() {
         "sitEndDate": {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2018-05-26"
+          "format": "date"
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2022-04-26"
+          "format": "date"
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
