@@ -18,4 +18,6 @@ import (
 	_ "github.com/vektra/mockery/v2"
 	// Possible replacement for go-junit-report
 	_ "gotest.tools/gotestsum"
+	// Install for go-swagger code generation
+	_ "github.com/go-swagger/go-swagger/cmd/swagger"
 )
