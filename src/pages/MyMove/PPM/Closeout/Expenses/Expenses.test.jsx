@@ -9,7 +9,8 @@ import { MockProviders } from 'testUtils';
 import { selectExpenseAndIndexById, selectMTOShipmentById } from 'store/entities/selectors';
 import Expenses from 'pages/MyMove/PPM/Closeout/Expenses/Expenses';
 import { customerRoutes, generalRoutes } from 'constants/routes';
-import { createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
+import { createBaseMovingExpense, createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
+import { createMovingExpense, patchMovingExpense, deleteUpload } from 'services/internalApi';
 
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
@@ -26,6 +27,13 @@ jest.mock('react-router-dom', () => ({
     moveId: mockMoveId,
     mtoShipmentId: mockMTOShipmentId,
   })),
+}));
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  createMovingExpense: jest.fn(),
+  createUploadForDocument: jest.fn(),
+  deleteUpload: jest.fn(),
+  patchMovingExpense: jest.fn(),
 }));
 
 const mockPPMShipmentId = v4();
@@ -55,12 +63,29 @@ const mockEmptyExpenseAndIndex = {
   index: -1,
 };
 
+const mockExpense = createCompleteMovingExpense();
+const mockNewExpense = createBaseMovingExpense();
+
 const mockExpenseAndIndex = {
-  expense: createCompleteMovingExpense(),
+  expense: mockExpense,
+  index: 0,
+};
+
+const mockNewExpenseAndIndex = {
+  expense: mockNewExpense,
   index: 0,
 };
 
 const homePath = generatePath(generalRoutes.HOME_PATH);
+const expensesEditPath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+  expenseId: mockExpense.id,
+});
+const reviewPath = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+});
 
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
@@ -74,6 +99,8 @@ beforeEach(() => {
 
 describe('Expenses page', () => {
   it('loads the selected shipment from redux for a new expense', async () => {
+    createMovingExpense.mockResolvedValue(mockExpense);
+
     render(<Expenses />, { wrapper: MockProviders });
 
     await waitFor(() => {
@@ -81,6 +108,71 @@ describe('Expenses page', () => {
     });
 
     expect(selectExpenseAndIndexById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId, undefined);
+  });
+
+  it('displays an error if the createMovingExpense request fails', async () => {
+    createMovingExpense.mockRejectedValue('an error occurred');
+
+    render(<Expenses />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to create trip record')).toBeInTheDocument();
+    });
+  });
+
+  it('does not make create moving expense api request if id param exists', async () => {
+    useParams.mockImplementationOnce(() => ({
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+      expenseId: mockExpenseId,
+    }));
+    selectExpenseAndIndexById.mockReturnValue(mockExpenseAndIndex);
+
+    render(<Expenses />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(createMovingExpense).not.toHaveBeenCalled();
+    });
+  });
+
+  it('renders the page content', async () => {
+    createMovingExpense.mockResolvedValue(mockExpense);
+    selectExpenseAndIndexById.mockReturnValueOnce(mockEmptyExpenseAndIndex);
+    selectExpenseAndIndexById.mockReturnValue(mockExpenseAndIndex);
+
+    render(<Expenses />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
+    });
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Expenses');
+
+    // renders form content
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 1');
+    expect(screen.getByLabelText('Select type')).toHaveDisplayValue('Packing materials');
+    expect(screen.getByLabelText('What did you buy?')).toHaveValue('Medium and large boxes');
+    expect(screen.getByLabelText('No')).toBeChecked();
+    expect(screen.getByLabelText('Amount')).toHaveValue('75.00');
+    expect(screen.getByLabelText("I don't have this receipt")).not.toBeChecked();
+    expect(screen.getByText('expense.pdf')).toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+
+    const saveBtn = screen.getByRole('button', { name: 'Save & Continue' });
+    expect(saveBtn).toBeEnabled();
+  });
+
+  it('replaces the router history with newly created weight ticket id', async () => {
+    createMovingExpense.mockResolvedValueOnce(mockExpense);
+    selectExpenseAndIndexById.mockReturnValueOnce(mockEmptyExpenseAndIndex);
+    selectExpenseAndIndexById.mockReturnValue(mockExpenseAndIndex);
+
+    render(<Expenses />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith(expensesEditPath);
+    });
   });
 
   it('loads the selected shipment and existing expense from redux', async () => {
@@ -97,7 +189,6 @@ describe('Expenses page', () => {
     await waitFor(() => {
       expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
     });
-
     expect(selectExpenseAndIndexById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId, mockExpenseId);
 
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 1');
@@ -109,20 +200,11 @@ describe('Expenses page', () => {
     expect(screen.getByText('expense.pdf')).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
-
-    const saveBtn = screen.getByRole('button', { name: 'Save & Continue' });
-    expect(saveBtn).toBeEnabled();
-
-    await userEvent.click(saveBtn);
-
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(
-        generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId: mockMoveId, mtoShipmentId: mockMTOShipmentId }),
-      );
-    });
+    expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
   });
 
   it('displays the creation form when adding a new expense', async () => {
+    selectExpenseAndIndexById.mockReturnValueOnce(mockNewExpenseAndIndex);
     render(<Expenses />, { wrapper: MockProviders });
 
     await waitFor(() => {
@@ -154,6 +236,150 @@ describe('Expenses page', () => {
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
   });
 
+  it('calls patchMovingExpense with the appropriate payload', async () => {
+    createMovingExpense.mockResolvedValue(mockExpense);
+    selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 1 });
+    patchMovingExpense.mockResolvedValue({});
+
+    render(<Expenses />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 2');
+    });
+    userEvent.selectOptions(screen.getByLabelText('Select type'), ['CONTRACTED_EXPENSE']);
+    userEvent.clear(screen.getByLabelText('What did you buy?'));
+    userEvent.type(screen.getByLabelText('What did you buy?'), 'Boxes and tape');
+    userEvent.click(screen.getByLabelText('Yes'));
+    userEvent.clear(screen.getByLabelText('Amount'));
+    userEvent.type(screen.getByLabelText('Amount'), '12.34');
+    userEvent.click(screen.getByLabelText("I don't have this receipt"));
+
+    expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+    await waitFor(() => {
+      expect(patchMovingExpense).toHaveBeenCalledWith(
+        mockPPMShipmentId,
+        mockExpense.id,
+        {
+          ppmShipmentId: mockPPMShipmentId,
+          movingExpenseType: 'CONTRACTED_EXPENSE',
+          description: 'Boxes and tape',
+          missingReceipt: true,
+          amount: 1234,
+          SITEndDate: undefined,
+          SITStartDate: undefined,
+          paidWithGTCC: true,
+        },
+        mockExpense.eTag,
+      );
+    });
+
+    expect(mockPush).toHaveBeenCalledWith(reviewPath);
+  });
+
+  it('has an appropriate amount payload when a whole dollar amount is entered', async () => {
+    createMovingExpense.mockResolvedValue(mockExpense);
+    selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 1 });
+    patchMovingExpense.mockResolvedValue({});
+
+    render(<Expenses />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 2');
+    });
+    userEvent.clear(screen.getByLabelText('Amount'));
+    userEvent.type(screen.getByLabelText('Amount'), '12');
+
+    expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+    await waitFor(() => {
+      expect(patchMovingExpense).toHaveBeenCalledWith(
+        mockPPMShipmentId,
+        mockExpense.id,
+        {
+          ppmShipmentId: mockPPMShipmentId,
+          movingExpenseType: 'PACKING_MATERIALS',
+          description: 'Medium and large boxes',
+          missingReceipt: false,
+          amount: 1200,
+          SITEndDate: undefined,
+          SITStartDate: undefined,
+          paidWithGTCC: false,
+        },
+        mockExpense.eTag,
+      );
+    });
+
+    expect(mockPush).toHaveBeenCalledWith(reviewPath);
+  });
+
+  it('has an appropriate payload when the type is Storage', async () => {
+    createMovingExpense.mockResolvedValue(mockExpense);
+    selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 1 });
+    patchMovingExpense.mockResolvedValue({});
+
+    render(<Expenses />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 2');
+    });
+    userEvent.selectOptions(screen.getByLabelText('Select type'), ['STORAGE']);
+    userEvent.type(screen.getByLabelText('Start date'), '10/10/2022');
+    userEvent.type(screen.getByLabelText('End date'), '10/11/2022');
+
+    expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+    await waitFor(() => {
+      expect(patchMovingExpense).toHaveBeenCalledWith(
+        mockPPMShipmentId,
+        mockExpense.id,
+        {
+          ppmShipmentId: mockPPMShipmentId,
+          movingExpenseType: 'STORAGE',
+          description: 'Medium and large boxes',
+          missingReceipt: false,
+          amount: 7500,
+          SITEndDate: '2022-10-11',
+          SITStartDate: '2022-10-10',
+          paidWithGTCC: false,
+        },
+        mockExpense.eTag,
+      );
+    });
+
+    expect(mockPush).toHaveBeenCalledWith(reviewPath);
+  });
+
+  it('displays an error if patchMovingExpense fails', async () => {
+    createMovingExpense.mockResolvedValue(mockExpense);
+    selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 4 });
+    patchMovingExpense.mockRejectedValueOnce('an error occurred');
+
+    render(<Expenses />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 5');
+    });
+    userEvent.selectOptions(screen.getByLabelText('Select type'), ['CONTRACTED_EXPENSE']);
+    userEvent.type(screen.getByLabelText('What did you buy?'), 'Boxes and tape');
+    userEvent.click(screen.getByLabelText('Yes'));
+    userEvent.clear(screen.getByLabelText('Amount'));
+    userEvent.type(screen.getByLabelText('Amount'), '12.34');
+    userEvent.click(screen.getByLabelText("I don't have this receipt"));
+
+    userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to save updated trip record')).toBeInTheDocument();
+    });
+  });
+
   it('routes to home when the return to homepage button is clicked', async () => {
     render(<Expenses />, { wrapper: MockProviders });
 
@@ -162,5 +388,44 @@ describe('Expenses page', () => {
     });
     await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
     expect(mockPush).toHaveBeenCalledWith(homePath);
+  });
+
+  it('calls the delete handler when removing an existing upload', async () => {
+    useParams.mockImplementation(() => ({
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+      expenseId: mockExpense.id,
+    }));
+    selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 0 });
+
+    selectMTOShipmentById.mockReturnValue({
+      ...mockMTOShipment,
+      ppmShipment: {
+        ...mockMTOShipment.ppmShipment,
+        expenses: [mockExpense],
+      },
+    });
+    deleteUpload.mockResolvedValue({});
+    render(<Expenses />, { wrapper: MockProviders });
+
+    let deleteButtons;
+    await waitFor(() => {
+      deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
+      expect(deleteButtons).toHaveLength(1);
+    });
+    userEvent.click(deleteButtons[0]);
+    await waitFor(() => {
+      expect(screen.queryByText('empty_weight.jpg')).not.toBeInTheDocument();
+    });
+  });
+
+  it('expect loadingPlaceholder when mtoShipment is falsy', async () => {
+    selectMTOShipmentById.mockReturnValueOnce(null);
+
+    render(<Expenses />, { wrapper: MockProviders });
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Loading, please wait...');
+    });
   });
 });
