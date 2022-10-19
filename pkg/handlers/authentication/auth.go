@@ -421,7 +421,14 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if appCtx.Session().IDToken == "devlocal" {
 				logoutURL = redirectURL
 			} else {
-				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, appCtx.Session().IDToken)
+				clientID := ""
+				provider, err := getLoginGovProviderForRequest(r)
+				if err != nil {
+					appCtx.Logger().Error("Failed to get provider from request", zap.Error(err))
+				} else {
+					clientID = provider.ClientKey()
+				}
+				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, clientID)
 			}
 			if !appCtx.Session().UserID.IsNil() {
 				err := resetUserCurrentSessionID(appCtx)

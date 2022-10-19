@@ -13,6 +13,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/mux"
 	"github.com/markbates/goth"
+	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -121,6 +122,12 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	sessionManagers := handlerConfig.SessionManagers()
 	officeSession := sessionManagers.Office
 	authContext := suite.AuthContext()
+	fakeProvider := openidConnect.Provider{
+		ClientKey: "some_token",
+	}
+	fakeProvider.SetName("officeProvider")
+	goth.UseProviders(&fakeProvider)
+
 	handler := officeSession.LoadAndSave(NewLogoutHandler(authContext, handlerConfig))
 
 	rr := httptest.NewRecorder()
@@ -137,7 +144,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	suite.NoError(err)
 	suite.Equal(appnames.OfficeServername, postRedirectURI.Hostname())
 	suite.Equal(strconv.Itoa(suite.callbackPort), postRedirectURI.Port())
-	token := params["id_token_hint"][0]
+	token := params["client_id"][0]
 	suite.Equal(fakeToken, token, "handler id_token")
 
 	noIDTokenSession := auth.Session{
