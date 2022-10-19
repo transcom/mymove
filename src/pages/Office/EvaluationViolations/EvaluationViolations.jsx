@@ -8,15 +8,25 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import evaluationViolationsStyles from './EvaluationViolations.module.scss';
 
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useEvaluationReportShipmentListQueries, usePWSViolationsQueries } from 'hooks/queries';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
 import EvaluationViolationsForm from 'components/Office/EvaluationViolationsForm/EvaluationViolationsForm';
 
-const EvaluationViolations = ({ customerInfo, destinationDutyLocationPostalCode }) => {
+const EvaluationViolations = ({ customerInfo, grade, destinationDutyLocationPostalCode }) => {
   const { reportId } = useParams();
 
-  const { evaluationReport, reportViolations, mtoShipments } = useEvaluationReportShipmentListQueries(reportId);
-  const { violations } = usePWSViolationsQueries();
+  const { evaluationReport, reportViolations, mtoShipments, isLoading, isError } =
+    useEvaluationReportShipmentListQueries(reportId);
+  const { violations, isLoading: isViolationsLoading, isError: isViolationsError } = usePWSViolationsQueries();
+
+  if (isLoading || isViolationsLoading) {
+    return <LoadingPlaceholder />;
+  }
+  if (isError || isViolationsError) {
+    return <SomethingWentWrong />;
+  }
 
   return (
     <div className={classnames(styles.tabContent, evaluationViolationsStyles.tabContent)}>
@@ -29,6 +39,7 @@ const EvaluationViolations = ({ customerInfo, destinationDutyLocationPostalCode 
           reportViolations={reportViolations}
           customerInfo={customerInfo}
           mtoShipments={mtoShipments}
+          grade={grade}
           destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />
       </GridContainer>

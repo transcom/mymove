@@ -3,7 +3,7 @@ package ghcapi
 import (
 	"net/http/httptest"
 
-	pwsviolationsop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
+	pwsviolationsop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/pws_violations"
 	violationservice "github.com/transcom/mymove/pkg/services/pws_violation"
 )
 

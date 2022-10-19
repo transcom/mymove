@@ -1649,7 +1649,7 @@ jobs:
       - tls_vars_stg
       - deploy_app_client_tls_steps:
           compare_host: gex.stg.move.mil
-          health_check_hosts: gex.stg.move.mil,orders.stg.move.mil
+          health_check_hosts: gex.stg.move.mil
           ecr_env: stg
 
   # `deploy_stg_webhook_client` deploys the webhook client to stg
@@ -1717,7 +1717,7 @@ jobs:
       - tls_vars_prd
       - deploy_app_client_tls_steps:
           compare_host: gex.move.mil
-          health_check_hosts: gex.move.mil,orders.move.mil
+          health_check_hosts: gex.move.mil
           ecr_env: prd
 
 workflows:

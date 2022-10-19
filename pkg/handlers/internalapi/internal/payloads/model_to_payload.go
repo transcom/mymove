@@ -301,6 +301,7 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		PaidWithGtcc:   movingExpense.PaidWithGTCC,
 		Amount:         handlers.FmtCost(movingExpense.Amount),
 		MissingReceipt: movingExpense.MissingReceipt,
+		ETag:           etag.GenerateEtag(movingExpense.UpdatedAt),
 	}
 	if movingExpense.MovingExpenseType != nil {
 		movingExpenseType := internalmessages.OmittableMovingExpenseType(*movingExpense.MovingExpenseType)

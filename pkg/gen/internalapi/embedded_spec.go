@@ -4926,7 +4926,7 @@ func init() {
         "RENTAL_EQUIPMENT",
         "STORAGE",
         "TOLLS",
-        "WEIGHING_FEES"
+        "WEIGHING_FEE"
       ],
       "x-display-value": {
         "CONTRACTED_EXPENSE": "Contracted expense",
@@ -4937,7 +4937,7 @@ func init() {
         "RENTAL_EQUIPMENT": "Rental equipment",
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
-        "WEIGHING_FEES": "Weighing fees"
+        "WEIGHING_FEE": "Weighing fee"
       }
     },
     "NullableString": {
@@ -5021,7 +5021,7 @@ func init() {
         "RENTAL_EQUIPMENT",
         "STORAGE",
         "TOLLS",
-        "WEIGHING_FEES"
+        "WEIGHING_FEE"
       ],
       "x-display-value": {
         "CONTRACTED_EXPENSE": "Contracted expense",
@@ -5032,7 +5032,7 @@ func init() {
         "RENTAL_EQUIPMENT": "Rental equipment",
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
-        "WEIGHING_FEES": "Weighing fees"
+        "WEIGHING_FEE": "Weighing fee"
       },
       "x-nullable": true,
       "x-omitempty": false
@@ -12602,7 +12602,7 @@ func init() {
         "RENTAL_EQUIPMENT",
         "STORAGE",
         "TOLLS",
-        "WEIGHING_FEES"
+        "WEIGHING_FEE"
       ],
       "x-display-value": {
         "CONTRACTED_EXPENSE": "Contracted expense",
@@ -12613,7 +12613,7 @@ func init() {
         "RENTAL_EQUIPMENT": "Rental equipment",
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
-        "WEIGHING_FEES": "Weighing fees"
+        "WEIGHING_FEE": "Weighing fee"
       }
     },
     "NullableString": {
@@ -12697,7 +12697,7 @@ func init() {
         "RENTAL_EQUIPMENT",
         "STORAGE",
         "TOLLS",
-        "WEIGHING_FEES"
+        "WEIGHING_FEE"
       ],
       "x-display-value": {
         "CONTRACTED_EXPENSE": "Contracted expense",
@@ -12708,7 +12708,7 @@ func init() {
         "RENTAL_EQUIPMENT": "Rental equipment",
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
-        "WEIGHING_FEES": "Weighing fees"
+        "WEIGHING_FEE": "Weighing fee"
       },
       "x-nullable": true,
       "x-omitempty": false
