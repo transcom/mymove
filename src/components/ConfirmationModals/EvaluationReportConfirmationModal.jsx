@@ -42,6 +42,7 @@ export const EvaluationReportConfirmationModal = ({
   mtoShipments,
   className,
   bordered,
+  destinationDutyLocationPostalCode,
 }) => (
   <Modal className={classnames(styles.evaluationReportModal, className)}>
     {modalTopRightClose && <ModalClose handleClick={() => modalTopRightClose()} data-testid="modalCloseButtonTop" />}
@@ -54,6 +55,7 @@ export const EvaluationReportConfirmationModal = ({
       evaluationReport={evaluationReport}
       reportViolations={reportViolations}
       bordered={bordered}
+      destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
     />
     {modalActions}
   </Modal>
@@ -71,6 +73,7 @@ EvaluationReportConfirmationModal.propTypes = {
   className: PropTypes.string,
   bordered: PropTypes.bool,
   modalActions: PropTypes.element,
+  destinationDutyLocationPostalCode: PropTypes.string,
 };
 
 EvaluationReportConfirmationModal.defaultProps = {
@@ -81,6 +84,7 @@ EvaluationReportConfirmationModal.defaultProps = {
   className: null,
   bordered: false,
   modalActions: null,
+  destinationDutyLocationPostalCode: '',
 };
 
 EvaluationReportConfirmationModal.displayName = 'EvaluationReportConfirmationModal';

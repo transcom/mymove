@@ -1070,7 +1070,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/UploadWithOmissions"
           }
         }
       }
@@ -2154,7 +2154,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/UploadWithOmissions"
           }
         }
       }
@@ -2315,7 +2315,7 @@ func init() {
         }
       }
     },
-    "Upload": {
+    "UploadWithOmissions": {
       "description": "An uploaded file.",
       "type": "object",
       "required": [
@@ -3862,7 +3862,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/UploadWithOmissions"
           }
         }
       }
@@ -4946,7 +4946,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/UploadWithOmissions"
           }
         }
       }
@@ -5107,7 +5107,7 @@ func init() {
         }
       }
     },
-    "Upload": {
+    "UploadWithOmissions": {
       "description": "An uploaded file.",
       "type": "object",
       "required": [

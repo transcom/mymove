@@ -26,7 +26,7 @@ type CreateUploadCreated struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.UploadPayload `json:"body,omitempty"`
+	Payload *internalmessages.Upload `json:"body,omitempty"`
 }
 
 // NewCreateUploadCreated creates CreateUploadCreated with default headers values
@@ -36,13 +36,13 @@ func NewCreateUploadCreated() *CreateUploadCreated {
 }
 
 // WithPayload adds the payload to the create upload created response
-func (o *CreateUploadCreated) WithPayload(payload *internalmessages.UploadPayload) *CreateUploadCreated {
+func (o *CreateUploadCreated) WithPayload(payload *internalmessages.Upload) *CreateUploadCreated {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create upload created response
-func (o *CreateUploadCreated) SetPayload(payload *internalmessages.UploadPayload) {
+func (o *CreateUploadCreated) SetPayload(payload *internalmessages.Upload) {
 	o.Payload = payload
 }
 

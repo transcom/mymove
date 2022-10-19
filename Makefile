@@ -98,7 +98,7 @@ check_go_version: .check_go_version.stamp ## Check that the correct Golang versi
 
 .PHONY: check_gopath
 check_gopath: .check_gopath.stamp ## Check that $GOPATH exists in $PATH
-.check_gopath.stamp: scripts/check-gopath
+.check_gopath.stamp: scripts/check-gopath go.sum # Make sure any go binaries rebuild if version possibly changes
 ifndef CIRCLECI
 	scripts/check-gopath
 else
@@ -221,6 +221,10 @@ bin/gotestsum: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 bin/mockery: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/mockery github.com/vektra/mockery/v2
 
+# No static linking / $(LDFLAGS) because swagger is only used for code generation
+bin/swagger: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
+	go build -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
+
 ### Cert Targets
 # AWS is only providing a bundle for the 2022 cert, which includes 2017? and rds-ca-rsa4096-g1
 bin/rds-ca-rsa4096-g1.pem:
@@ -323,7 +327,7 @@ endif
 
 server_generate: .server_generate.stamp
 
-.server_generate.stamp: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp pkg/assets/assets.go $(wildcard swagger/*.yaml) ## Generate golang server code from Swagger files
+.server_generate.stamp: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp pkg/assets/assets.go bin/swagger $(wildcard swagger/*.yaml) ## Generate golang server code from Swagger files
 	scripts/gen-server
 	touch .server_generate.stamp
 
@@ -365,6 +369,7 @@ server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp
 .PHONY: build_tools
 build_tools: bin/gin \
 	bin/mockery \
+	bin/swagger \
 	bin/rds-ca-rsa4096-g1.pem \
 	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
@@ -1126,7 +1131,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-dd61e0303f06a916ea1ce1454ee152f563189e42 bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-72166d322751035f17653503d19db22dd14c049e bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

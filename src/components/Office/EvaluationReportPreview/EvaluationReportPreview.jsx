@@ -3,8 +3,6 @@ import * as PropTypes from 'prop-types';
 import { Grid } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import SelectedViolation from '../EvaluationViolationsForm/SelectedViolation/SelectedViolation';
-
 import styles from './EvaluationReportPreview.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
@@ -26,6 +24,7 @@ const EvaluationReportPreview = ({
   moveCode,
   customerInfo,
   grade,
+  destinationDutyLocationPostalCode,
 }) => {
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
   const hasViolations = reportViolations && reportViolations.length > 0;
@@ -98,6 +97,7 @@ const EvaluationReportPreview = ({
                       shipmentId={mtoShipment.id}
                       displayInfo={shipmentDisplayInfo(mtoShipment)}
                       shipmentType={mtoShipment.shipmentType}
+                      destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
                     />
                   </div>
                 ))}
@@ -173,12 +173,12 @@ const EvaluationReportPreview = ({
               {hasViolations ? (
                 <dd className={styles.violationsRemarks}>
                   {reportViolations.map((reportViolation) => (
-                    <SelectedViolation
-                      className={styles.violationsList}
-                      key={`${reportViolation.id}-violation`}
-                      violation={reportViolation.violation}
-                      isReadOnly
-                    />
+                    <div className={styles.violation} key={`${reportViolation.id}-violation`}>
+                      <h5>{`${reportViolation?.violation?.paragraphNumber} ${reportViolation?.violation?.title}`}</h5>
+                      <p>
+                        <small>{reportViolation?.violation?.requirementSummary}</small>
+                      </p>
+                    </div>
                   ))}
                 </dd>
               ) : (
@@ -191,7 +191,7 @@ const EvaluationReportPreview = ({
               <>
                 <div className={classnames(descriptionListStyles.row)}>
                   <dt className={styles.violationsLabel}>Serious incident</dt>
-                  <dd className={styles.violationsRemarks}>{showIncidentDescription ? 'yes' : 'no'}</dd>
+                  <dd className={styles.violationsRemarks}>{showIncidentDescription ? 'Yes' : 'No'}</dd>
                 </div>
                 {showIncidentDescription && (
                   <div className={classnames(descriptionListStyles.row)}>
@@ -224,11 +224,13 @@ EvaluationReportPreview.propTypes = {
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string,
 };
 
 EvaluationReportPreview.defaultProps = {
   mtoShipments: null,
   reportViolations: null,
+  destinationDutyLocationPostalCode: '',
 };
 
 export default EvaluationReportPreview;

@@ -664,19 +664,19 @@ func ExcessWeightRecord(appCtx appcontext.AppContext, storer storage.FileStorer,
 
 	upload := Upload(appCtx, storer, move.ExcessWeightUpload)
 	if upload != nil {
-		payload.Upload = *upload
+		payload.UploadWithOmissions = *upload
 	}
 
 	return payload
 }
 
 // Upload returns the data for an uploaded file.
-func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *models.Upload) *primemessages.Upload {
+func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *models.Upload) *primemessages.UploadWithOmissions {
 	if upload == nil || upload.ID == uuid.Nil {
 		return nil
 	}
 
-	payload := &primemessages.Upload{
+	payload := &primemessages.UploadWithOmissions{
 		ID:          strfmt.UUID(upload.ID.String()),
 		Bytes:       &upload.Bytes,
 		ContentType: &upload.ContentType,

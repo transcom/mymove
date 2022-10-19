@@ -21,7 +21,7 @@ import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
-const EvaluationReports = ({ customerInfo, grade }) => {
+const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalCode }) => {
   const { moveCode } = useParams();
   const location = useLocation();
   const history = useHistory();
@@ -120,6 +120,7 @@ const EvaluationReports = ({ customerInfo, grade }) => {
               moveCode={moveCode}
               customerInfo={customerInfo}
               grade={grade}
+              destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
               shipments={shipments}
               emptyText="No QAE reports have been submitted for counseling."
               setReportToDelete={setReportToDelete}
@@ -137,6 +138,7 @@ const EvaluationReports = ({ customerInfo, grade }) => {
               moveCode={moveCode}
               customerInfo={customerInfo}
               grade={grade}
+              destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
               emptyText="No QAE reports have been submitted for this shipment"
               setReportToDelete={setReportToDelete}
               setIsDeleteModalOpen={setIsDeleteModalOpen}
@@ -153,6 +155,7 @@ const EvaluationReports = ({ customerInfo, grade }) => {
 EvaluationReports.propTypes = {
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 
 export default EvaluationReports;

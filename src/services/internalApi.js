@@ -416,3 +416,30 @@ export async function requestPayment(ppmId) {
     },
   );
 }
+
+export async function createMovingExpense(ppmShipmentId) {
+  return makeInternalRequest(
+    'ppm.createMovingExpense',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function patchMovingExpense(ppmShipmentId, movingExpenseId, payload, eTag) {
+  return makeInternalRequest(
+    'ppm.updateMovingExpense',
+    {
+      ppmShipmentId,
+      movingExpenseId,
+      'If-Match': eTag,
+      updateMovingExpense: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}

@@ -7,7 +7,7 @@ export const EditButton = ({ label, ...props }) => (
   /* eslint-disable-next-line react/jsx-props-no-spreading */
   <Button {...props}>
     <span className="icon">
-      <FontAwesomeIcon icon="pen" />
+      <FontAwesomeIcon data-testid="edit-icon" icon="pen" />
     </span>
     <span>{label}</span>
   </Button>
@@ -25,7 +25,7 @@ export const DocsButton = ({ label, ...props }) => (
   /* eslint-disable-next-line react/jsx-props-no-spreading */
   <Button {...props}>
     <span className="icon">
-      <FontAwesomeIcon icon="file" />
+      <FontAwesomeIcon data-testid="docs-icon" icon="file" />
     </span>
     <span>{label}</span>
   </Button>

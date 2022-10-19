@@ -159,6 +159,23 @@ WITH moves AS (
 		GROUP BY
 			shipments.id, audit_history.id
 	),
+	secondary_pickup_address_logs AS (
+		SELECT
+			audit_history.*,
+			json_agg(
+				json_build_object(
+					'address_type', 'secondaryPickupAddress'::TEXT,
+					'shipment_type', shipments.shipment_type
+				)
+			)::TEXT AS context,
+			shipments.id::text AS context_id
+		FROM
+			audit_history
+				JOIN shipments ON shipments.secondary_pickup_address_id = audit_history.object_id
+				AND audit_history. "table_name" = 'addresses'
+		GROUP BY
+			shipments.id, audit_history.id
+	),
 	destination_address_logs AS (
 		SELECT
 			audit_history.*,
@@ -173,6 +190,23 @@ WITH moves AS (
 			audit_history
 		JOIN shipments ON shipments.destination_address_id = audit_history.object_id
 			AND audit_history. "table_name" = 'addresses'
+		GROUP BY
+			shipments.id, audit_history.id
+	),
+	secondary_destination_address_logs AS (
+		SELECT
+			audit_history.*,
+			json_agg(
+				json_build_object(
+					'address_type', 'secondaryDestinationAddress'::TEXT,
+					'shipment_type', shipments.shipment_type
+				)
+			)::TEXT AS context,
+			shipments.id::text AS context_id
+		FROM
+			audit_history
+				JOIN shipments ON shipments.secondary_delivery_address_id = audit_history.object_id
+				AND audit_history. "table_name" = 'addresses'
 		GROUP BY
 			shipments.id, audit_history.id
 	),
@@ -328,7 +362,17 @@ WITH moves AS (
 		SELECT
 			*
 		FROM
+			secondary_pickup_address_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
 			destination_address_logs
+		UNION ALL
+		SELECT
+			*
+		FROM
+			secondary_destination_address_logs
 		UNION ALL
 		SELECT
 			*

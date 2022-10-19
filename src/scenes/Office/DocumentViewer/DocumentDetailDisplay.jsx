@@ -7,6 +7,7 @@ import { renderStatusIcon } from 'shared/utils';
 import { formatDate } from 'utils/formatters';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 import { WEIGHT_TICKET_SET_TYPE } from 'shared/constants';
+import { ExistingUploadsShape } from 'types/uploads';
 
 const DocumentDetailDisplay = ({
   isExpenseDocument,
@@ -35,7 +36,7 @@ const DocumentDetailDisplay = ({
           {moveDocument.title}
         </h3>
         <p className="uploaded-at" data-testid="uploaded-at">
-          Uploaded {formatDate(get(moveDocument, 'document.uploads.0.created_at'))}
+          Uploaded {formatDate(get(moveDocument, 'document.uploads.0.createdAt'))}
         </p>
         <PanelSwaggerField
           data-testid="document-title"
@@ -151,7 +152,7 @@ const DocumentDetailDisplay = ({
   );
 };
 
-const { bool, object, shape, string, number, arrayOf } = PropTypes;
+const { bool, object, shape, string, arrayOf } = PropTypes;
 
 DocumentDetailDisplay.propTypes = {
   isExpenseDocument: bool.isRequired,
@@ -165,17 +166,7 @@ DocumentDetailDisplay.propTypes = {
     document: shape({
       id: string.isRequired,
       service_member_id: string.isRequired,
-      uploads: arrayOf(
-        shape({
-          byes: number,
-          content_type: string.isRequired,
-          created_at: string.isRequired,
-          filename: string.isRequired,
-          id: string.isRequired,
-          update_at: string,
-          url: string.isRequired,
-        }),
-      ).isRequired,
+      uploads: ExistingUploadsShape.isRequired,
     }),
     id: string.isRequired,
     move_document_type: string.isRequired,
