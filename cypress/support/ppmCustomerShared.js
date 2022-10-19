@@ -130,7 +130,7 @@ export function fillOutWeightTicketPage(options) {
     cy.get('input[name="fullWeight"]').clear().type('3000');
     cy.get('input[name="missingFullWeightTicket"]').check({ force: true });
 
-    cy.upload_file('.fullDocument.filepond--root', 'constructedWeight.xls');
+    cy.upload_file('.fullDocument.filepond--root', 'constructedWeight.xlsx');
     cy.wait('@uploadFile');
 
     cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);

@@ -61,4 +61,20 @@ describe('Weight Tickets', function () {
       submitWeightTicketPage({ hasTrailer: true, ownTrailer: false });
     });
   });
+
+  const viewportType4 = [
+    { viewport: 'desktop', isMobile: false, userId: 'c7cd77e8-74e8-4d7f-975c-d4ca18735561' }, // actualPPMDateZIPAdvanceDone7@ppm.approved
+    { viewport: 'mobile', isMobile: true, userId: 'e5a06330-3f5c-4f50-82a6-46f1bd7dd3a6' }, // actualPPMDateZIPAdvanceDone8@ppm.approved
+  ];
+
+  viewportType4.forEach(({ viewport, isMobile, userId }) => {
+    it(`proceed with constructed weight ticket documents - ${viewport}`, () => {
+      if (isMobile) {
+        setMobileViewport();
+      }
+
+      signInAndNavigateToWeightTicketPage(userId);
+      submitWeightTicketPage({ useConstructedWeight: true });
+    });
+  });
 });
