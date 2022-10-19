@@ -14,10 +14,6 @@ const formatChangedValues = (historyRecord) => {
     };
   }
 
-  if ('has_dependents' in newChangedValues) {
-    newChangedValues.has_dependents = newChangedValues.has_dependents ? 'Yes' : 'No';
-  }
-
   return { ...historyRecord, changedValues: newChangedValues };
 };
 
