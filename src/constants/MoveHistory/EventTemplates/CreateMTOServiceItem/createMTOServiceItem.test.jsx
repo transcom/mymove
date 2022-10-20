@@ -34,7 +34,7 @@ describe('when given a Create basic service item history record', () => {
       ['service_item_name', 'Domestic uncrating'],
       ['shipment_type', 'HHG'],
       ['shipment_id_display', 'A1B2C'],
-      [('reason', 'Test')],
+      ['reason', 'Test'],
       ['status', 'SUBMITTED'],
     ])('for label %s it displays the proper details value %s', async (label, value) => {
       render(template.getDetails(historyRecord));
