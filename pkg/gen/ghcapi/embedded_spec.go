@@ -5659,6 +5659,11 @@ func init() {
             }
           ]
         },
+        "scheduledDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "scheduledPickupDate": {
           "type": "string",
           "format": "date",
@@ -15158,6 +15163,11 @@ func init() {
               "x-nullable": true
             }
           ]
+        },
+        "scheduledDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "scheduledPickupDate": {
           "type": "string",
