@@ -51,7 +51,8 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                 <h2>Set {setNumber}</h2>
                 <FormGroup>
                   <Fieldset>
-                    <legend className="usa-label margin-bottom-0">Pro-gear belongs to</legend>
+                    <legend className="usa-label margin-bottom-0">Who does this pro-gear belongs to?</legend>
+                    <Hint className={ppmStyles.hint}>You have to separate yours and your spouse&apos;s pro-gear.</Hint>
                     <Field
                       as={Radio}
                       id="ownerOfProGearSelf"
