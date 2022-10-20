@@ -24,8 +24,9 @@ type MovingExpense struct {
 
 	// Timestamp the moving expense object was initially created in the system (UTC)
 	// Required: true
+	// Read Only: true
 	// Format: date-time
-	CreatedAt *strfmt.DateTime `json:"createdAt"`
+	CreatedAt strfmt.DateTime `json:"createdAt"`
 
 	// A brief description of the expense
 	Description *string `json:"description"`
@@ -82,12 +83,13 @@ type MovingExpense struct {
 	SitStartDate *strfmt.Date `json:"sitStartDate"`
 
 	// status
-	Status *PPMDocumentStatus `json:"status"`
+	Status *OmittablePPMDocumentStatus `json:"status"`
 
 	// Timestamp when a property of this moving expense object was last modified (UTC)
 	// Required: true
+	// Read Only: true
 	// Format: date-time
-	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
+	UpdatedAt strfmt.DateTime `json:"updatedAt"`
 }
 
 // Validate validates this moving expense
@@ -146,7 +148,7 @@ func (m *MovingExpense) Validate(formats strfmt.Registry) error {
 
 func (m *MovingExpense) validateCreatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("createdAt", "body", m.CreatedAt); err != nil {
+	if err := validate.Required("createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
 		return err
 	}
 
@@ -299,7 +301,7 @@ func (m *MovingExpense) validateStatus(formats strfmt.Registry) error {
 
 func (m *MovingExpense) validateUpdatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
+	if err := validate.Required("updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 
@@ -313,6 +315,10 @@ func (m *MovingExpense) validateUpdatedAt(formats strfmt.Registry) error {
 // ContextValidate validate this moving expense based on the context it is used
 func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.contextValidateDocument(ctx, formats); err != nil {
 		res = append(res, err)
@@ -346,9 +352,22 @@ func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Regi
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MovingExpense) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -447,6 +466,15 @@ func (m *MovingExpense) contextValidateStatus(ctx context.Context, formats strfm
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
+		return err
 	}
 
 	return nil

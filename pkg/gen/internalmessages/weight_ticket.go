@@ -95,7 +95,7 @@ type WeightTicket struct {
 	Reason *PPMDocumentStatusReason `json:"reason"`
 
 	// status
-	Status *PPMDocumentStatus `json:"status"`
+	Status *OmittablePPMDocumentStatus `json:"status"`
 
 	// Indicates if the trailer that the customer used meets all the criteria to be claimable.
 	TrailerMeetsCriteria *bool `json:"trailerMeetsCriteria"`

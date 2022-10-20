@@ -121,6 +121,7 @@ func FindShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssoc
 
 	return &shipment, nil
 }
+
 func (f mtoShipmentFetcher) GetShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssociations ...string) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 	findShipmentQuery := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope())

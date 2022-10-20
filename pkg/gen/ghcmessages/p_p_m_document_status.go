@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// PPMDocumentStatus PPM document status
+// PPMDocumentStatus Status of the PPM document.
 //
 // swagger:model PPMDocumentStatus
 type PPMDocumentStatus string

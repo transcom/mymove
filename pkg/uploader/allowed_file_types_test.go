@@ -28,6 +28,17 @@ var fileTypeTestCasesServiceMember = []fileTypeTestCase{
 	{"text/plain", false},
 }
 
+var fileTypeTestCasesPPM = []fileTypeTestCase{
+	{"image/jpeg", true},
+	{"image/png", true},
+	{"image/gif", false},
+	{"application/pdf", true},
+	{"application/vnd.ms-excel", true},
+	{"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", true},
+	{"application/zip", false},
+	{"text/plain", false},
+}
+
 var fileTypeTestCasesPaymentRequest = []fileTypeTestCase{
 	{"image/jpeg", true},
 	{"image/png", true},
@@ -64,6 +75,7 @@ func (suite *UploaderSuite) verifyFileTypes(name string, allowedFileTypes upload
 
 func (suite *UploaderSuite) TestAllowedFileTypes() {
 	suite.verifyFileTypes("AllowedTypesServiceMember", uploader.AllowedTypesServiceMember, fileTypeTestCasesServiceMember)
+	suite.verifyFileTypes("AllowedTypesPPMDocuments", uploader.AllowedTypesPPMDocuments, fileTypeTestCasesPPM)
 	suite.verifyFileTypes("AllowedTypesPaymentRequest", uploader.AllowedTypesPaymentRequest, fileTypeTestCasesPaymentRequest)
 	suite.verifyFileTypes("AllowedTypesAny", uploader.AllowedTypesAny, fileTypeTestCasesAny)
 	suite.verifyFileTypes("AllowedTypesText", uploader.AllowedTypesText, fileTypeTestCasesText)
