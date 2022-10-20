@@ -108,6 +108,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
 		WeightTickets:                  WeightTickets(storer, ppmShipment.WeightTickets),
 		MovingExpenses:                 MovingExpenses(storer, ppmShipment.MovingExpenses),
+		ProGearWeightTickets:           ProGearWeightTickets(ppmShipment.ProgearExpenses),
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -295,8 +296,8 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		PpmShipmentID:  *handlers.FmtUUID(movingExpense.PPMShipmentID),
 		DocumentID:     *handlers.FmtUUID(movingExpense.DocumentID),
 		Document:       document,
-		CreatedAt:      *handlers.FmtDateTime(movingExpense.CreatedAt),
-		UpdatedAt:      *handlers.FmtDateTime(movingExpense.UpdatedAt),
+		CreatedAt:      strfmt.DateTime(movingExpense.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(movingExpense.UpdatedAt),
 		Description:    movingExpense.Description,
 		PaidWithGtcc:   movingExpense.PaidWithGTCC,
 		Amount:         handlers.FmtCost(movingExpense.Amount),
@@ -398,5 +399,12 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		payload.Reason = &reason
 	}
 
+	return payload
+}
+
+// ProGearWeightTickets sets up a ProGearWeightTicket slice for the api using model data.
+func ProGearWeightTickets(proGearWeightTickets models.ProgearWeightTickets) []*internalmessages.ProGearWeightTicket {
+	payload := make([]*internalmessages.ProGearWeightTicket, len(proGearWeightTickets))
+	// TODO: MB-14168 will fill this in. Needed to at least have this for MB-13773, but the goal wasn't to get this working fully until MB-14168 and related tickets are done.
 	return payload
 }
