@@ -853,18 +853,30 @@ definitions:
       movingExpenseType:
         $ref: '#/definitions/MovingExpenseType'
       description:
+        description: A brief description of the expense
         type: string
       paidWithGTCC:
+        description: >-
+          Indicates if the service member used their government issued card to
+          pay for the expense
         type: boolean
       amount:
+        description: The total amount of the expense as indicated on the receipt
         type: integer
       missingReceipt:
+        description: Indicates if the customer is missing the receipt for their expense.
         type: boolean
       sitStartDate:
+        description: >-
+          The date the shipment entered storage, applicable for the `STORAGE`
+          movingExpenseType only
         type: string
         example: '2022-04-26'
         format: date
       sitEndDate:
+        description: >-
+          The date the shipment exited storage, applicable for the `STORAGE`
+          movingExpenseType only
         type: string
         example: '2018-05-26'
         format: date
@@ -947,27 +959,35 @@ definitions:
     type: object
     properties:
       vehicleDescription:
+        description: >-
+          Description of the vehicle used for the trip. E.g. make/model, type of
+          truck/van, etc.
         type: string
-        description: Vehicle description (ex. 'SUV')
       emptyWeight:
+        description: Weight of the vehicle when empty.
         type: integer
-        description: Empty Recorded Weight
         minimum: 0
       missingEmptyWeightTicket:
+        description: >-
+          Indicates if the customer is missing a weight ticket for the vehicle
+          weight when empty.
         type: boolean
-        description: has empty weight ticket
       fullWeight:
-        description: full weight ticket recorded weight
+        description: The weight of the vehicle when full.
         type: integer
         minimum: 0
       missingFullWeightTicket:
-        description: has full weight ticket
+        description: >-
+          Indicates if the customer is missing a weight ticket for the vehicle
+          weight when full.
         type: boolean
       ownsTrailer:
-        description: Owns trailer
+        description: Indicates if the customer used a trailer they own for the move.
         type: boolean
       trailerMeetsCriteria:
-        description: Trailer meets criteria
+        description: >-
+          Indicates if the trailer that the customer used meets all the criteria
+          to be claimable.
         type: boolean
   OfficeUser:
     type: object
@@ -2877,19 +2897,19 @@ definitions:
     enum:
       - ORIGIN
       - DESTINATION
-  PPMDocumentStatus:
+  OmittablePPMDocumentStatus:
+    description: Status of the PPM document.
     type: string
-    title: PPM document status
     enum:
       - APPROVED
       - EXCLUDED
       - REJECTED
-    x-nullable: true
-    x-omitempty: false
     x-display-value:
       APPROVED: Approved
       EXCLUDED: Excluded
       REJECTED: Rejected
+    x-nullable: true
+    x-omitempty: false
   PPMDocumentStatusReason:
     description: The reason the services counselor has excluded or rejected the item.
     type: string
@@ -3008,7 +3028,7 @@ definitions:
               proof of trailer ownership.
           - $ref: '#/definitions/Document'
       status:
-        $ref: '#/definitions/PPMDocumentStatus'
+        $ref: '#/definitions/OmittablePPMDocumentStatus'
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
       eTag:
@@ -3107,7 +3127,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       status:
-        $ref: '#/definitions/PPMDocumentStatus'
+        $ref: '#/definitions/OmittablePPMDocumentStatus'
       reason:
         $ref: '#/definitions/PPMDocumentStatusReason'
       sitStartDate:
@@ -3134,12 +3154,14 @@ definitions:
           system (UTC)
         type: string
         format: date-time
+        readOnly: true
       updatedAt:
         description: >-
           Timestamp when a property of this moving expense object was last
           modified (UTC)
         type: string
         format: date-time
+        readOnly: true
       eTag:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
@@ -3151,6 +3173,131 @@ definitions:
       - ppmShipmentId
       - documentId
       - document
+  ProGearWeightTicket:
+    description: Pro-gear associated information and weight docs for a PPM shipment
+    type: object
+    properties:
+      id:
+        description: The ID of the pro-gear weight ticket.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      ppmShipmentId:
+        description: >-
+          The ID of the PPM shipment that this pro-gear weight ticket is
+          associated with.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      belongsToSelf:
+        description: >-
+          Indicates if this information is for the customer's own pro-gear,
+          otherwise, it's the spouse's.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      description:
+        description: Describes the pro-gear that was moved.
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      hasWeightTickets:
+        description: >-
+          Indicates if the user has a weight ticket for their pro-gear,
+          otherwise they have a constructed weight.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      emptyWeight:
+        description: Weight of the vehicle not including the pro-gear.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      emptyDocumentId:
+        description: >-
+          The ID of the document that is associated with the user uploads
+          containing the empty vehicle weight.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      emptyDocument:
+        allOf:
+          - description: >-
+              Document that is associated with the user uploads containing the
+              empty vehicle weight.
+          - $ref: '#/definitions/Document'
+      fullWeight:
+        description: Weight of the vehicle including the pro-gear.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      fullDocumentId:
+        description: >-
+          The ID of the document that is associated with the user uploads
+          containing the full vehicle weight.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      fullDocument:
+        allOf:
+          - description: >-
+              Document that is associated with the user uploads containing the
+              full vehicle weight.
+          - $ref: '#/definitions/Document'
+      constructedWeight:
+        description: Constructed weight of the pro-gear.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      constructedWeightDocumentId:
+        description: >-
+          The ID of the document that is associated with the user uploads
+          containing the constructed weight.
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      constructedWeightDocument:
+        allOf:
+          - description: >-
+              Document that is associated with the user uploads containing the
+              constructed weight.
+          - $ref: '#/definitions/Document'
+      status:
+        $ref: '#/definitions/OmittablePPMDocumentStatus'
+      reason:
+        $ref: '#/definitions/PPMDocumentStatusReason'
+      eTag:
+        description: A hash that should be used as the "If-Match" header for any updates.
+        type: string
+        readOnly: true
+    required:
+      - id
+      - ppmShipmentId
+      - createdAt
+      - updatedAt
+      - emptyDocumentId
+      - emptyDocument
+      - fullDocumentId
+      - fullDocument
+      - constructedWeightDocumentId
+      - constructedWeightDocument
+      - eTag
   PPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service member
@@ -3416,6 +3563,13 @@ definitions:
         items:
           $ref: '#/definitions/MovingExpense'
         type: array
+      proGearWeightTickets:
+        description: >-
+          All pro-gear weight ticket documentation records for this PPM
+          shipment.
+        type: array
+        items:
+          $ref: '#/definitions/ProGearWeightTicket'
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"
@@ -5211,12 +5365,7 @@ paths:
       tags:
         - ppm
       parameters:
-        - name: ppmShipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppm
+        - $ref: '#/parameters/ppmShipmentId'
       responses:
         '200':
           description: returns new moving expense object
@@ -5244,27 +5393,9 @@ paths:
       tags:
         - ppm
       parameters:
-        - in: path
-          name: ppmShipmentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppm shipment
-        - in: path
-          name: movingExpenseId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the moving expense
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the
-            ETag header does not match the value of the resource on the server,
-            the server rejects the change with a `412 Precondition Failed`
-            error.
+        - $ref: '#/parameters/ppmShipmentId'
+        - $ref: '#/parameters/movingExpenseId'
+        - $ref: '#/parameters/ifMatch'
         - in: body
           name: updateMovingExpense
           required: true
@@ -5297,12 +5428,7 @@ paths:
       tags:
         - ppm
       parameters:
-        - name: ppmShipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppm shipment
+        - $ref: '#/parameters/ppmShipmentId'
       responses:
         '200':
           description: returns new weight ticket object
@@ -5328,27 +5454,9 @@ paths:
       tags:
         - ppm
       parameters:
-        - name: ppmShipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppm shipment
-        - name: weightTicketId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the weight ticket
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the
-            ETag header does not match the value of the resource on the server,
-            the server rejects the change with a `412 Precondition Failed`
-            error.
+        - $ref: '#/parameters/ppmShipmentId'
+        - $ref: '#/parameters/weightTicketId'
+        - $ref: '#/parameters/ifMatch'
         - in: body
           name: updateWeightTicketPayload
           required: true
@@ -5687,3 +5795,34 @@ responses:
     description: The payload was unprocessable.
     schema:
       $ref: '#/definitions/ValidationError'
+parameters:
+  ppmShipmentId:
+    name: ppmShipmentId
+    in: path
+    type: string
+    format: uuid
+    required: true
+    description: UUID of the PPM shipment
+  movingExpenseId:
+    name: movingExpenseId
+    in: path
+    type: string
+    format: uuid
+    required: true
+    description: UUID of the moving expense
+  ifMatch:
+    in: header
+    name: If-Match
+    type: string
+    required: true
+    description: >
+      Optimistic locking is implemented via the `If-Match` header. If the ETag
+      header does not match the value of the resource on the server, the server
+      rejects the change with a `412 Precondition Failed` error.
+  weightTicketId:
+    name: weightTicketId
+    in: path
+    type: string
+    format: uuid
+    required: true
+    description: UUID of the weight ticket

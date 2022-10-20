@@ -1,0 +1,6 @@
+name: ppmShipmentId
+in: path
+type: string
+format: uuid
+required: true
+description: UUID of the PPM shipment
