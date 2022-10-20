@@ -31,7 +31,7 @@ type CreateMovingExpenseParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*UUID of the ppm
+	/*UUID of the PPM shipment
 	  Required: true
 	  In: path
 	*/

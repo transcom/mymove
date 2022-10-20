@@ -34,13 +34,6 @@ describe('SelectedViolation', () => {
     expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
   });
 
-  it('renders the violation content in preview without remove button', async () => {
-    render(<SelectedViolation violation={mockViolation} isReadOnly />);
-
-    // remove button should not display when read only is true
-    expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
-  });
-
   it('removes the violation from selected when remove is clicked', async () => {
     render(<SelectedViolation violation={mockViolation} unselectViolation={mockUnselectViolation} />);
 

@@ -17,8 +17,8 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-func payloadForPaymentRequestUploadModel(u models.Upload) *primemessages.Upload {
-	return &primemessages.Upload{
+func payloadForPaymentRequestUploadModel(u models.Upload) *primemessages.UploadWithOmissions {
+	return &primemessages.UploadWithOmissions{
 		Bytes:       &u.Bytes,
 		ContentType: &u.ContentType,
 		Filename:    &u.Filename,

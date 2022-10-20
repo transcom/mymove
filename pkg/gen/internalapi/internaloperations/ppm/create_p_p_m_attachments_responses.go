@@ -26,7 +26,7 @@ type CreatePPMAttachmentsOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.UploadPayload `json:"body,omitempty"`
+	Payload *internalmessages.Upload `json:"body,omitempty"`
 }
 
 // NewCreatePPMAttachmentsOK creates CreatePPMAttachmentsOK with default headers values
@@ -36,13 +36,13 @@ func NewCreatePPMAttachmentsOK() *CreatePPMAttachmentsOK {
 }
 
 // WithPayload adds the payload to the create p p m attachments o k response
-func (o *CreatePPMAttachmentsOK) WithPayload(payload *internalmessages.UploadPayload) *CreatePPMAttachmentsOK {
+func (o *CreatePPMAttachmentsOK) WithPayload(payload *internalmessages.Upload) *CreatePPMAttachmentsOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create p p m attachments o k response
-func (o *CreatePPMAttachmentsOK) SetPayload(payload *internalmessages.UploadPayload) {
+func (o *CreatePPMAttachmentsOK) SetPayload(payload *internalmessages.Upload) {
 	o.Payload = payload
 }
 
