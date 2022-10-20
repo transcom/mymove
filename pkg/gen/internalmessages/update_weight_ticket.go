@@ -19,27 +19,27 @@ import (
 // swagger:model UpdateWeightTicket
 type UpdateWeightTicket struct {
 
-	// Empty Recorded Weight
+	// Weight of the vehicle when empty.
 	// Minimum: 0
 	EmptyWeight *int64 `json:"emptyWeight,omitempty"`
 
-	// full weight ticket recorded weight
+	// The weight of the vehicle when full.
 	// Minimum: 0
 	FullWeight *int64 `json:"fullWeight,omitempty"`
 
-	// has empty weight ticket
+	// Indicates if the customer is missing a weight ticket for the vehicle weight when empty.
 	MissingEmptyWeightTicket bool `json:"missingEmptyWeightTicket,omitempty"`
 
-	// has full weight ticket
+	// Indicates if the customer is missing a weight ticket for the vehicle weight when full.
 	MissingFullWeightTicket bool `json:"missingFullWeightTicket,omitempty"`
 
-	// Owns trailer
+	// Indicates if the customer used a trailer they own for the move.
 	OwnsTrailer bool `json:"ownsTrailer,omitempty"`
 
-	// Trailer meets criteria
+	// Indicates if the trailer that the customer used meets all the criteria to be claimable.
 	TrailerMeetsCriteria bool `json:"trailerMeetsCriteria,omitempty"`
 
-	// Vehicle description (ex. 'SUV')
+	// Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.
 	VehicleDescription string `json:"vehicleDescription,omitempty"`
 }
 

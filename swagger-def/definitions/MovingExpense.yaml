@@ -46,7 +46,7 @@ properties:
     x-nullable: true
     x-omitempty: false
   status:
-    $ref: 'PPMDocumentStatus.yaml'
+    $ref: 'OmittablePPMDocumentStatus.yaml'
   reason:
     $ref: 'PPMDocumentStatusReason.yaml'
   sitStartDate:
@@ -67,10 +67,12 @@ properties:
     description: Timestamp the moving expense object was initially created in the system (UTC)
     type: string
     format: date-time
+    readOnly: true
   updatedAt:
     description: Timestamp when a property of this moving expense object was last modified (UTC)
     type: string
     format: date-time
+    readOnly: true
   eTag:
     description: A hash that should be used as the "If-Match" header for any updates.
     type: string
