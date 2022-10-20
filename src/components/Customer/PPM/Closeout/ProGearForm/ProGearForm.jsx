@@ -15,6 +15,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 import formStyles from 'styles/form.module.scss';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 
 const validationSchema = Yup.object().shape({
   selfProGear: Yup.bool().required('Required'),
@@ -23,8 +24,12 @@ const validationSchema = Yup.object().shape({
 const proGearDocumentRef = createRef();
 
 const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onUploadComplete, onUploadDelete }) => {
-  const { selfProGear } = proGear || {};
-  const initialValues = { selfProGear, proGearDocument: document?.uploads || [] };
+  const { selfProGear, document, proGearWeight } = proGear || {};
+  const initialValues = {
+    selfProGear,
+    proGearDocument: document?.uploads || [],
+    proGearWeight: proGearWeight ? `${proGearWeight}` : '',
+  };
 
   const jtr = (
     <Link
@@ -71,11 +76,22 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                       <h3>Description</h3>
                       <TextField label="Brief description of the pro-gear" id="description" name="description" />
                       <Hint className={ppmStyles.hint}>
-                        Examples of pro-gear includes specialized apparel and government issued equiptment.Check the{' '}
+                        Examples of pro-gear includes specialized apparel and government issued equiptment. Check the{' '}
                         {jtr} for examples of pro-gear.
                       </Hint>
                       <h3>Weight</h3>
-                      <TextField label="Shipment's pro-gear weight" id="description" name="description" />
+                      <MaskedTextField
+                        defaultValue="0"
+                        name="proGearWeight"
+                        label="Shipment's pro-gear weight"
+                        id="proGearWeight"
+                        mask={Number}
+                        scale={0} // digits after point, 0 for integers
+                        signed={false} // disallow negative
+                        thousandsSeparator=","
+                        lazy={false} // immediate masking evaluation
+                        suffix="lbs"
+                      />
                       <Hint className={ppmStyles.hint}>Your maximum allowance is X,XXX lbs.</Hint>
                       <CheckboxField
                         id="missingWeightTicket"
@@ -103,20 +119,17 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                           </div>
                         </>
                       ) : (
-                        <>
-                          <p>Upload your pro-gear&apos;s weight tickets.</p>
-                          <div>
-                            <WeightTicketUpload
-                              fieldName="proGearDocument"
-                              onCreateUpload={onCreateUpload}
-                              onUploadComplete={onUploadComplete}
-                              onUploadDelete={onUploadDelete}
-                              fileUploadRef={proGearDocumentRef}
-                              values={values}
-                              formikProps={formikProps}
-                            />
-                          </div>
-                        </>
+                        <div>
+                          <WeightTicketUpload
+                            fieldName="proGearDocument"
+                            onCreateUpload={onCreateUpload}
+                            onUploadComplete={onUploadComplete}
+                            onUploadDelete={onUploadDelete}
+                            fileUploadRef={proGearDocumentRef}
+                            values={values}
+                            formikProps={formikProps}
+                          />
+                        </div>
                       )}
                     </Fieldset>
                   )}
