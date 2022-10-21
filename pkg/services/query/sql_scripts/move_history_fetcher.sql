@@ -86,7 +86,7 @@ WITH move AS (
 	service_item_logs AS (
 		SELECT
 			audit_history.*,
-			json_agg(json_build_object(
+			jsonb_agg(jsonb_build_object(
 				'name', re_services.name,
 				'shipment_type', move_shipments.shipment_type,
 				'shipment_id_abbr', move_shipments.shipment_id_abbr
@@ -131,7 +131,7 @@ WITH move AS (
 	service_item_dimensions_logs AS  (
 		SELECT
 			audit_history.*,
-			json_agg(json_build_object(
+			jsonb_agg(jsonb_build_object(
 				'name', re_services.name,
 				'shipment_type', move_shipments.shipment_type,
 				'shipment_id_abbr', move_shipments.shipment_id_abbr
@@ -171,7 +171,7 @@ WITH move AS (
 	),
 	move_payment_requests AS (
 		SELECT
-			json_agg(json_build_object(
+			jsonb_agg(jsonb_build_object(
 				'name', re_services.name,
 				'price', payment_service_items.price_cents::TEXT,
 				'status', payment_service_items.status,
@@ -207,7 +207,7 @@ WITH move AS (
 	move_proof_of_service_docs AS (
 		SELECT
 			proof_of_service_docs.*,
-			json_agg(json_build_object(
+			jsonb_agg(jsonb_build_object(
 				'payment_request_number',
 				move_payment_requests.payment_request_number::TEXT))::TEXT AS context
 		FROM
@@ -228,7 +228,7 @@ WITH move AS (
 	agents AS (
 		SELECT
 			mto_agents.id,
-			json_agg(json_build_object(
+			jsonb_agg(jsonb_build_object(
 				'shipment_type', move_shipments.shipment_type,
 				'shipment_id_abbr', move_shipments.shipment_id_abbr
 				)
@@ -252,7 +252,7 @@ WITH move AS (
 	move_reweighs AS (
 		SELECT
 			reweighs.id,
-			json_agg(json_build_object(
+			jsonb_agg(jsonb_build_object(
 				'shipment_type', move_shipments.shipment_type,
 				'shipment_id_abbr', move_shipments.shipment_id_abbr,
 				'payment_request_number', move_payment_requests.payment_request_number
