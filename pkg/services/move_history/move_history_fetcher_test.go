@@ -285,7 +285,8 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 				suite.Equal(*order.DepartmentIndicator, changedData["department_indicator"])
 
 				//changedData["amended_orders_acknowledged_at"] is being converted from a string to a formatted time.Time type
-				changedDataTimeStamp, _ := time.Parse("2006-01-02T15:04:05.000000", changedData["amended_orders_acknowledged_at"].(string))
+				layout := "2006-01-02T15:04:05.000000"
+				changedDataTimeStamp, _ := time.Parse(layout, changedData["amended_orders_acknowledged_at"].(string))
 				//We assert if it falls within a range starting at the original order.AmendedOrdersAcknowledgedAt time and ending with a added 2000 microsecond buffer
 				suite.WithinRange(changedDataTimeStamp, *order.AmendedOrdersAcknowledgedAt, order.AmendedOrdersAcknowledgedAt.Add(2000*time.Microsecond))
 
