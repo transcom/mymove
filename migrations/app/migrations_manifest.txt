@@ -761,3 +761,4 @@
 20220927210523_remove-gidjin-cac.up.sql
 20221006031146_add_status_and_reason_to_weight_ticket.up.sql
 20221014194001_rename_weighing_fees_to_weighing_fee.up.sql
+20221021145115_ppm_closeout_status.up.sql
