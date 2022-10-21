@@ -12,6 +12,7 @@ export default {
   getDetailsLabeledDetails: ({ changedValues, context }) => {
     const newChangedValues = {
       shipment_type: context[0]?.shipment_type,
+      shipment_id_display: context[0]?.shipment_id_abbr.toUpperCase(),
       service_item_name: context[0]?.name,
       ...changedValues,
     };

@@ -9,9 +9,10 @@ export default {
   tableName: t.mto_shipments,
   detailsType: d.LABELED,
   getEventNameDisplay: () => 'Updated shipment',
-  getDetailsLabeledDetails: ({ changedValues, oldValues }) => {
+  getDetailsLabeledDetails: ({ changedValues, context }) => {
     return {
-      shipment_type: oldValues.shipment_type,
+      shipment_type: context[0]?.shipment_type,
+      shipment_id_display: context[0]?.shipment_id_abbr.toUpperCase(),
       ...changedValues,
     };
   },

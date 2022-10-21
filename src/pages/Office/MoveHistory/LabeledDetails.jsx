@@ -48,7 +48,7 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
   // TODO: [ MB-12182 ] This will include a shipment ID label in the future
   if ('shipment_type' in changedValuesToUse) {
     shipmentDisplay = shipmentTypes[changedValuesToUse.shipment_type];
-    shipmentDisplay += ' shipment';
+    shipmentDisplay += ` shipment #${changedValuesToUse.shipment_id_display}`;
     delete changedValuesToUse.shipment_type;
   }
 
