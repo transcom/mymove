@@ -81,10 +81,8 @@ SELECT add_audit_history_table(
 		'service_member_id',
 		'uploaded_orders_id',
 		'entitlement_id',
-		'uploaded_amended_orders_id',
-		'origin_duty_location_id',
-		'new_duty_location_id'
-	]
+		'uploaded_amended_orders_id'
+	] -- origin_duty_location_id and new_duty_location_id are fks but are utilized to display supplemental information
 );
 SELECT add_audit_history_table(
 	target_table := 'payment_requests',
@@ -151,7 +149,7 @@ SELECT add_audit_history_table(
 	]
 );
 SELECT add_audit_history_table(
-	target_table := 'moves',
+	target_table := 'user_uploads',
 	audit_rows := BOOLEAN 't',
 	audit_query_text := BOOLEAN 't',
 	ignored_cols := ARRAY[
