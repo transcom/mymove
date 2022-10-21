@@ -75,16 +75,23 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                   {values.selfProGear === 'true' && (
                     <Fieldset>
                       <h3>Description</h3>
-                      <TextField label="Brief description of the pro-gear" id="description" name="description" />
-                      <Hint className={ppmStyles.hint}>
-                        Examples of pro-gear includes specialized apparel and government issued equiptment. Check the{' '}
-                        {jtr} for examples of pro-gear.
-                      </Hint>
+                      <TextField
+                        label="Brief description of the pro-gear"
+                        labelHint={
+                          <Hint className={ppmStyles.hint}>
+                            Examples of pro-gear includes specialized apparel and government issued equiptment. Check
+                            the {jtr} for examples of pro-gear.
+                          </Hint>
+                        }
+                        id="description"
+                        name="description"
+                      />
                       <h3>Weight</h3>
                       <MaskedTextField
                         defaultValue="0"
                         name="proGearWeight"
                         label="Shipment's pro-gear weight"
+                        labelHint={<Hint className={ppmStyles.hint}>Your maximum allowance is X,XXX lbs.</Hint>}
                         id="proGearWeight"
                         mask={Number}
                         scale={0} // digits after point, 0 for integers
@@ -93,7 +100,6 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                         lazy={false} // immediate masking evaluation
                         suffix="lbs"
                       />
-                      <Hint className={ppmStyles.hint}>Your maximum allowance is X,XXX lbs.</Hint>
                       <CheckboxField
                         id="missingWeightTicket"
                         name="missingWeightTicket"
