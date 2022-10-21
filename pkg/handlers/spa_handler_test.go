@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -20,32 +22,72 @@ type SpaHandlerSuite struct {
 }
 
 func setupMockFileSystem() *afero.HttpFs {
+	// Have to use both OsFs and MemMapFs when setting up the tests since
+	// spa_handler makes use of os and http.FileSystem's functions
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	ofs := afero.NewOsFs()
+
+	errMkdir := ofs.MkdirAll(path.Join(cwd, "test"), 0755)
+
+	if errMkdir != nil {
+		log.Panic(errMkdir)
+	}
+
+	errWriteFile := afero.WriteFile(ofs, path.Join(cwd, "test/a"), []byte("file a"), 0644)
+
+	if errWriteFile != nil {
+		log.Panic(errWriteFile)
+	}
+
+	errWriteFile = afero.WriteFile(ofs, path.Join(cwd, "test/index.html"), []byte("index html file"), 0644)
+
+	if errWriteFile != nil {
+		log.Panic(errWriteFile)
+	}
+
+	errMkdir = ofs.MkdirAll(path.Join(cwd, "test/noIndexDir"), 0755)
+
+	if errMkdir != nil {
+		log.Panic(errMkdir)
+	}
+
+	errWriteFile = afero.WriteFile(ofs, path.Join(cwd, "test/noIndexDir/b"), []byte("file b"), 0644)
+
+	if errWriteFile != nil {
+		log.Panic(errWriteFile)
+	}
+
 	afs := afero.NewMemMapFs()
-	errMkdir := afs.MkdirAll("test", 0755)
+
+	errMkdir = afs.MkdirAll("test", 0755)
 
 	if errMkdir != nil {
 		log.Panic(errMkdir)
 	}
 
-	errWriteFile := afero.WriteFile(afs, "test/a", []byte("file a"), 0644)
+	errWriteFile = afero.WriteFile(afs, "/test/a", []byte("file a"), 0644)
 
 	if errWriteFile != nil {
 		log.Panic(errWriteFile)
 	}
 
-	errWriteFile = afero.WriteFile(afs, "test/index.html", []byte("index html file"), 0644)
+	errWriteFile = afero.WriteFile(afs, "/test/index.html", []byte("index html file"), 0644)
 
 	if errWriteFile != nil {
 		log.Panic(errWriteFile)
 	}
 
-	errMkdir = afs.MkdirAll("test/noIndexDir", 0755)
+	errMkdir = afs.MkdirAll("/test/noIndexDir", 0755)
 
 	if errMkdir != nil {
 		log.Panic(errMkdir)
 	}
 
-	errWriteFile = afero.WriteFile(afs, "test/noIndexDir/b", []byte("file b"), 0644)
+	errWriteFile = afero.WriteFile(afs, "/test/noIndexDir/b", []byte("file b"), 0644)
 
 	if errWriteFile != nil {
 		log.Panic(errWriteFile)
@@ -53,6 +95,16 @@ func setupMockFileSystem() *afero.HttpFs {
 
 	ahttpFs := afero.NewHttpFs(afs)
 	return ahttpFs
+}
+
+func (suite *SpaHandlerSuite) TestCleanup() {
+	ofs := afero.NewOsFs()
+
+	cwd, err := os.Getwd()
+	suite.NoError(err)
+
+	err = ofs.RemoveAll(path.Join(cwd, "test"))
+	suite.NoError(err)
 }
 
 func TestSpaHandlerSuite(t *testing.T) {
@@ -69,6 +121,7 @@ func TestSpaHandlerSuite(t *testing.T) {
 		mfs:          *mfs,
 	}
 	suite.Run(t, hs)
+	hs.TestCleanup()
 	hs.PopTestSuite.TearDown()
 }
 
@@ -83,43 +136,43 @@ func (suite *SpaHandlerSuite) TestSpaHandlerServeHttp() {
 	cases := []testCase{
 		{
 			name:               "A directory without a trailing slash and that has an index.html",
-			request:            "/test",
-			expectedStatusCode: http.StatusOK,
+			request:            "test",
+			expectedStatusCode: http.StatusMovedPermanently,
 			expectedBody:       "",
 		},
 		{
 			name:               "A directory with a trailing slash and that has an index.html",
-			request:            "/test/",
+			request:            "test/",
 			expectedStatusCode: http.StatusOK,
-			expectedBody:       "",
+			expectedBody:       "index html file",
 		},
 		{
 			name:               "A directory without a trailing slash and that does not have an index.html",
-			request:            "/test/noIndexDir",
+			request:            "test/noIndexDir",
 			expectedStatusCode: http.StatusNotFound,
 			expectedBody:       "404 page not found\n",
 		},
 		{
 			name:               "A directory with a trailing slash and that does not have an index.html",
-			request:            "/test/noIndexDir/",
+			request:            "test/noIndexDir/",
 			expectedStatusCode: http.StatusNotFound,
 			expectedBody:       "404 page not found\n",
 		},
 		{
-			name:               "A file that exists in a directory and that does have an index.html",
-			request:            "/test/a",
+			name:               "A file that exists in a directory that does have an index.html",
+			request:            "test/a",
 			expectedStatusCode: http.StatusOK,
-			expectedBody:       "",
+			expectedBody:       "file a",
 		},
 		{
-			name:               "A file that exists in a directory and that does not have an index.html",
-			request:            "/test/noIndexDir/b",
+			name:               "A file that exists in a directory that does not have an index.html",
+			request:            "test/noIndexDir/b",
 			expectedStatusCode: http.StatusOK,
-			expectedBody:       "",
+			expectedBody:       "file b",
 		},
 		{
 			name:               "A file that does not exist",
-			request:            "/test/c",
+			request:            "test/c",
 			expectedStatusCode: http.StatusNotFound,
 			expectedBody:       "404 page not found\n",
 		},
@@ -142,10 +195,10 @@ func (suite *SpaHandlerSuite) TestSpaHandlerServeHttp() {
 
 			// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
 			// directly and pass in our Request and ResponseRecorder.
-			sh := NewSpaHandler("/", "index.html", cfs)
+			sh := NewSpaHandler("", "index.html", cfs)
 			sh.ServeHTTP(rr, req)
 
-			suite.Equal(testCase.expectedStatusCode, rr.Code, "Status codes did not match when retreiving %v: expected %v, got %v", testCase.name, testCase.expectedStatusCode, rr.Code)
+			suite.Equal(testCase.expectedStatusCode, rr.Code, "Status codes did not match when retreiving %v for request %v: expected %v, got %v", testCase.name, testCase.request, testCase.expectedStatusCode, rr.Code)
 
 			// Check the response body is what we expect.
 			suite.Equal(testCase.expectedBody, rr.Body.String(), "Handler returned unexpected body when retrieving %v: expected %v, got %v", testCase.name, testCase.expectedBody, rr.Body.String())
