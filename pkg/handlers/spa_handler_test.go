@@ -4,8 +4,6 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"path"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -24,52 +22,52 @@ type SpaHandlerSuite struct {
 func setupMockFileSystem() *afero.HttpFs {
 	// Have to use both OsFs and MemMapFs when setting up the tests since
 	// spa_handler makes use of os and http.FileSystem's functions
-	cwd, err := os.Getwd()
-	if err != nil {
-		log.Panic(err)
-	}
+	// cwd, err := os.Getwd()
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
 
-	ofs := afero.NewOsFs()
+	// ofs := afero.NewOsFs()
 
-	errMkdir := ofs.MkdirAll(path.Join(cwd, "test"), 0755)
+	// errMkdir := ofs.MkdirAll(path.Join(cwd, "test"), 0755)
 
-	if errMkdir != nil {
-		log.Panic(errMkdir)
-	}
+	// if errMkdir != nil {
+	// 	log.Panic(errMkdir)
+	// }
 
-	errWriteFile := afero.WriteFile(ofs, path.Join(cwd, "test/a"), []byte("file a"), 0644)
+	// errWriteFile := afero.WriteFile(ofs, path.Join(cwd, "test/a"), []byte("file a"), 0644)
 
-	if errWriteFile != nil {
-		log.Panic(errWriteFile)
-	}
+	// if errWriteFile != nil {
+	// 	log.Panic(errWriteFile)
+	// }
 
-	errWriteFile = afero.WriteFile(ofs, path.Join(cwd, "test/index.html"), []byte("index html file"), 0644)
+	// errWriteFile = afero.WriteFile(ofs, path.Join(cwd, "test/index.html"), []byte("index html file"), 0644)
 
-	if errWriteFile != nil {
-		log.Panic(errWriteFile)
-	}
+	// if errWriteFile != nil {
+	// 	log.Panic(errWriteFile)
+	// }
 
-	errMkdir = ofs.MkdirAll(path.Join(cwd, "test/noIndexDir"), 0755)
+	// errMkdir = ofs.MkdirAll(path.Join(cwd, "test/noIndexDir"), 0755)
 
-	if errMkdir != nil {
-		log.Panic(errMkdir)
-	}
+	// if errMkdir != nil {
+	// 	log.Panic(errMkdir)
+	// }
 
-	errWriteFile = afero.WriteFile(ofs, path.Join(cwd, "test/noIndexDir/b"), []byte("file b"), 0644)
+	// errWriteFile = afero.WriteFile(ofs, path.Join(cwd, "test/noIndexDir/b"), []byte("file b"), 0644)
 
-	if errWriteFile != nil {
-		log.Panic(errWriteFile)
-	}
+	// if errWriteFile != nil {
+	// 	log.Panic(errWriteFile)
+	// }
 
 	afs := afero.NewMemMapFs()
 
-	errMkdir = afs.MkdirAll("test", 0755)
+	errMkdir := afs.MkdirAll("test", 0755)
 
 	if errMkdir != nil {
 		log.Panic(errMkdir)
 	}
 
-	errWriteFile = afero.WriteFile(afs, "/test/a", []byte("file a"), 0644)
+	errWriteFile := afero.WriteFile(afs, "/test/a", []byte("file a"), 0644)
 
 	if errWriteFile != nil {
 		log.Panic(errWriteFile)
@@ -97,15 +95,15 @@ func setupMockFileSystem() *afero.HttpFs {
 	return ahttpFs
 }
 
-func (suite *SpaHandlerSuite) TestCleanup() {
-	ofs := afero.NewOsFs()
+// func (suite *SpaHandlerSuite) TestCleanup() {
+// 	ofs := afero.NewOsFs()
 
-	cwd, err := os.Getwd()
-	suite.NoError(err)
+// 	cwd, err := os.Getwd()
+// 	suite.NoError(err)
 
-	err = ofs.RemoveAll(path.Join(cwd, "test"))
-	suite.NoError(err)
-}
+// 	err = ofs.RemoveAll(path.Join(cwd, "test"))
+// 	suite.NoError(err)
+// }
 
 func TestSpaHandlerSuite(t *testing.T) {
 	logger, err := zap.NewDevelopment()
@@ -121,7 +119,7 @@ func TestSpaHandlerSuite(t *testing.T) {
 		mfs:          *mfs,
 	}
 	suite.Run(t, hs)
-	hs.TestCleanup()
+	//hs.TestCleanup()
 	hs.PopTestSuite.TearDown()
 }
 

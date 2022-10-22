@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"path/filepath"
 
 	"go.uber.org/zap"
@@ -90,7 +89,7 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("running serveHTTP for path " + r.URL.Path)
 	// get the absolute path to prevent directory traversal
-	path, err := filepath.Abs(r.URL.Path)
+	_, err := filepath.Abs(r.URL.Path)
 	if err != nil {
 		// if we failed to get the absolute path respond with a 400 bad request
 		// and stop
@@ -99,25 +98,27 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println("passed prevent directory traversal")
-	// prepend the path with the path to the static directory
-	path = filepath.Join(h.staticPath, path)
+	/*
+		// prepend the path with the path to the static directory
+		path = filepath.Join(h.staticPath, path)
 
-	fmt.Println("checking if the file exists " + path)
-	// check whether a file exists at the given path
-	_, err = os.Stat(path)
-	if os.IsNotExist(err) {
-		// file does not exist, serve index.html
-		fmt.Println("file does not exist, serving index.html:" + filepath.Join(h.staticPath, h.indexPath))
-		http.ServeFile(w, r, filepath.Join(h.staticPath, h.indexPath))
-		return
-	} else if err != nil {
-		// if we got an error (that wasn't that the file doesn't exist) stating the
-		// file, return a 500 internal server error and stop
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	fmt.Println("passed file exists")
+		fmt.Println("checking if the file exists " + path)
+		// check whether a file exists at the given path
+		_, err = os.Stat(path)
+		if os.IsNotExist(err) {
+			// file does not exist, serve index.html
+			fmt.Println("file does not exist, serving index.html:" + filepath.Join(h.staticPath, h.indexPath))
+			http.ServeFile(w, r, filepath.Join(h.staticPath, h.indexPath))
+			return
+		} else if err != nil {
+			// if we got an error (that wasn't that the file doesn't exist) stating the
+			// file, return a 500 internal server error and stop
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		fmt.Println("passed file exists")
 
+	*/
 	// otherwise, use http.FileServer to serve the static dir
 	// use the customFileSystem so that we do not expose directory listings
 	http.FileServer(h.cfs).ServeHTTP(w, r)
