@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"path/filepath"
 
@@ -47,15 +46,12 @@ func NewCustomFileSystem(fs http.FileSystem, indexPath string, logger *zap.Logge
 }
 
 func (cfs CustomFileSystem) Open(path string) (http.File, error) {
-	//trimmedPath := strings.TrimPrefix(path, "/")
 	f, openErr := cfs.fs.Open(path)
 	logger := cfs.logger
 	logger.Debug("Using CustomFileSystem for " + path)
-	fmt.Println("running open for path " + path)
 
 	if openErr != nil {
 		logger.Error("Error with opening", zap.Error(openErr))
-		fmt.Printf("open error %v", openErr)
 		return nil, openErr
 	}
 
@@ -66,12 +62,10 @@ func (cfs CustomFileSystem) Open(path string) (http.File, error) {
 			closeErr := f.Close()
 			if closeErr != nil {
 				logger.Error("Unable to close ", zap.Error(closeErr))
-				fmt.Printf("close error %v", closeErr)
 				return nil, closeErr
 			}
 
 			logger.Error("Unable to open index.html in the directory", zap.Error(indexOpenErr))
-			fmt.Printf("index open error %v", indexOpenErr)
 			return nil, indexOpenErr
 		}
 	}
@@ -87,7 +81,6 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	logger := logging.FromContext(r.Context())
 	logger.Debug("Using SPA Handler for " + r.URL.Path)
 
-	fmt.Println("running serveHTTP for path " + r.URL.Path)
 	// get the absolute path to prevent directory traversal
 	_, err := filepath.Abs(r.URL.Path)
 	if err != nil {
@@ -97,28 +90,6 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("passed prevent directory traversal")
-	/*
-		// prepend the path with the path to the static directory
-		path = filepath.Join(h.staticPath, path)
-
-		fmt.Println("checking if the file exists " + path)
-		// check whether a file exists at the given path
-		_, err = os.Stat(path)
-		if os.IsNotExist(err) {
-			// file does not exist, serve index.html
-			fmt.Println("file does not exist, serving index.html:" + filepath.Join(h.staticPath, h.indexPath))
-			http.ServeFile(w, r, filepath.Join(h.staticPath, h.indexPath))
-			return
-		} else if err != nil {
-			// if we got an error (that wasn't that the file doesn't exist) stating the
-			// file, return a 500 internal server error and stop
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		fmt.Println("passed file exists")
-
-	*/
 	// otherwise, use http.FileServer to serve the static dir
 	// use the customFileSystem so that we do not expose directory listings
 	http.FileServer(h.cfs).ServeHTTP(w, r)
