@@ -1,0 +1,6 @@
+name: proGearWeightTicketId
+in: path
+type: string
+format: uuid
+required: true
+description: UUID of the pro-gear weight ticket

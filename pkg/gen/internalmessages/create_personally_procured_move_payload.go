@@ -29,7 +29,7 @@ type CreatePersonallyProcuredMovePayload struct {
 	Advance *CreateReimbursement `json:"advance,omitempty"`
 
 	// advance worksheet
-	AdvanceWorksheet *DocumentPayload `json:"advance_worksheet,omitempty"`
+	AdvanceWorksheet *Document `json:"advance_worksheet,omitempty"`
 
 	// How many days of storage do you think you'll need?
 	// Maximum: 90

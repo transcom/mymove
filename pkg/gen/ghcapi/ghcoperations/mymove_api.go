@@ -31,6 +31,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/pws_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
@@ -247,6 +248,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderUpdateMoveTaskOrderStatusHandler: move_task_order.UpdateMoveTaskOrderStatusHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrderStatus has not yet been implemented")
 		}),
+		PpmUpdateMovingExpenseHandler: ppm.UpdateMovingExpenseHandlerFunc(func(params ppm.UpdateMovingExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateMovingExpense has not yet been implemented")
+		}),
 		OrderUpdateOrderHandler: order.UpdateOrderHandlerFunc(func(params order.UpdateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateOrder has not yet been implemented")
 		}),
@@ -255,6 +259,12 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PaymentServiceItemUpdatePaymentServiceItemStatusHandler: payment_service_item.UpdatePaymentServiceItemStatusHandlerFunc(func(params payment_service_item.UpdatePaymentServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_service_item.UpdatePaymentServiceItemStatus has not yet been implemented")
+		}),
+		PpmUpdateProGearWeightTicketHandler: ppm.UpdateProGearWeightTicketHandlerFunc(func(params ppm.UpdateProGearWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateProGearWeightTicket has not yet been implemented")
+		}),
+		PpmUpdateWeightTicketHandler: ppm.UpdateWeightTicketHandlerFunc(func(params ppm.UpdateWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateWeightTicket has not yet been implemented")
 		}),
 	}
 }
@@ -423,12 +433,18 @@ type MymoveAPI struct {
 	MoveTaskOrderUpdateMoveTaskOrderHandler move_task_order.UpdateMoveTaskOrderHandler
 	// MoveTaskOrderUpdateMoveTaskOrderStatusHandler sets the operation handler for the update move task order status operation
 	MoveTaskOrderUpdateMoveTaskOrderStatusHandler move_task_order.UpdateMoveTaskOrderStatusHandler
+	// PpmUpdateMovingExpenseHandler sets the operation handler for the update moving expense operation
+	PpmUpdateMovingExpenseHandler ppm.UpdateMovingExpenseHandler
 	// OrderUpdateOrderHandler sets the operation handler for the update order operation
 	OrderUpdateOrderHandler order.UpdateOrderHandler
 	// PaymentRequestsUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
 	PaymentRequestsUpdatePaymentRequestStatusHandler payment_requests.UpdatePaymentRequestStatusHandler
 	// PaymentServiceItemUpdatePaymentServiceItemStatusHandler sets the operation handler for the update payment service item status operation
 	PaymentServiceItemUpdatePaymentServiceItemStatusHandler payment_service_item.UpdatePaymentServiceItemStatusHandler
+	// PpmUpdateProGearWeightTicketHandler sets the operation handler for the update pro gear weight ticket operation
+	PpmUpdateProGearWeightTicketHandler ppm.UpdateProGearWeightTicketHandler
+	// PpmUpdateWeightTicketHandler sets the operation handler for the update weight ticket operation
+	PpmUpdateWeightTicketHandler ppm.UpdateWeightTicketHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -695,6 +711,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {
 		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderStatusHandler")
 	}
+	if o.PpmUpdateMovingExpenseHandler == nil {
+		unregistered = append(unregistered, "ppm.UpdateMovingExpenseHandler")
+	}
 	if o.OrderUpdateOrderHandler == nil {
 		unregistered = append(unregistered, "order.UpdateOrderHandler")
 	}
@@ -703,6 +722,12 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentServiceItemUpdatePaymentServiceItemStatusHandler == nil {
 		unregistered = append(unregistered, "payment_service_item.UpdatePaymentServiceItemStatusHandler")
+	}
+	if o.PpmUpdateProGearWeightTicketHandler == nil {
+		unregistered = append(unregistered, "ppm.UpdateProGearWeightTicketHandler")
+	}
+	if o.PpmUpdateWeightTicketHandler == nil {
+		unregistered = append(unregistered, "ppm.UpdateWeightTicketHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -1045,6 +1070,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
+	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}"] = ppm.NewUpdateMovingExpense(o.context, o.PpmUpdateMovingExpenseHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
 	o.handlers["PATCH"]["/orders/{orderID}"] = order.NewUpdateOrder(o.context, o.OrderUpdateOrderHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
@@ -1054,6 +1083,14 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status"] = payment_service_item.NewUpdatePaymentServiceItemStatus(o.context, o.PaymentServiceItemUpdatePaymentServiceItemStatusHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}"] = ppm.NewUpdateProGearWeightTicket(o.context, o.PpmUpdateProGearWeightTicketHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}"] = ppm.NewUpdateWeightTicket(o.context, o.PpmUpdateWeightTicketHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

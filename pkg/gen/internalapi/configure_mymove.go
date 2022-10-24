@@ -59,6 +59,8 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	api.JSONProducer = runtime.JSONProducer()
 
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
+	// ppm.CreatePPMUploadMaxParseMemory = 32 << 20
+	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// uploads.CreateUploadMaxParseMemory = 32 << 20
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// orders.UploadAmendedOrdersMaxParseMemory = 32 << 20
@@ -111,6 +113,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.PpmCreatePPMAttachmentsHandler == nil {
 		api.PpmCreatePPMAttachmentsHandler = ppm.CreatePPMAttachmentsHandlerFunc(func(params ppm.CreatePPMAttachmentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreatePPMAttachments has not yet been implemented")
+		})
+	}
+	if api.PpmCreatePPMUploadHandler == nil {
+		api.PpmCreatePPMUploadHandler = ppm.CreatePPMUploadHandlerFunc(func(params ppm.CreatePPMUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreatePPMUpload has not yet been implemented")
 		})
 	}
 	if api.PpmCreatePersonallyProcuredMoveHandler == nil {

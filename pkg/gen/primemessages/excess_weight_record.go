@@ -18,7 +18,7 @@ import (
 //
 // swagger:model ExcessWeightRecord
 type ExcessWeightRecord struct {
-	Upload
+	UploadWithOmissions
 
 	// The date and time when the TOO acknowledged the excess weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.
 	//
@@ -42,11 +42,11 @@ type ExcessWeightRecord struct {
 // UnmarshalJSON unmarshals this object from a JSON structure
 func (m *ExcessWeightRecord) UnmarshalJSON(raw []byte) error {
 	// AO0
-	var aO0 Upload
+	var aO0 UploadWithOmissions
 	if err := swag.ReadJSON(raw, &aO0); err != nil {
 		return err
 	}
-	m.Upload = aO0
+	m.UploadWithOmissions = aO0
 
 	// AO1
 	var dataAO1 struct {
@@ -73,7 +73,7 @@ func (m *ExcessWeightRecord) UnmarshalJSON(raw []byte) error {
 func (m ExcessWeightRecord) MarshalJSON() ([]byte, error) {
 	_parts := make([][]byte, 0, 2)
 
-	aO0, err := swag.WriteJSON(m.Upload)
+	aO0, err := swag.WriteJSON(m.UploadWithOmissions)
 	if err != nil {
 		return nil, err
 	}
@@ -104,8 +104,8 @@ func (m ExcessWeightRecord) MarshalJSON() ([]byte, error) {
 func (m *ExcessWeightRecord) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	// validation for a type composition with Upload
-	if err := m.Upload.Validate(formats); err != nil {
+	// validation for a type composition with UploadWithOmissions
+	if err := m.UploadWithOmissions.Validate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -170,8 +170,8 @@ func (m *ExcessWeightRecord) validateMoveID(formats strfmt.Registry) error {
 func (m *ExcessWeightRecord) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	// validation for a type composition with Upload
-	if err := m.Upload.ContextValidate(ctx, formats); err != nil {
+	// validation for a type composition with UploadWithOmissions
+	if err := m.UploadWithOmissions.ContextValidate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 

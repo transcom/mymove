@@ -233,7 +233,7 @@ func init() {
           "201": {
             "description": "created document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -267,7 +267,7 @@ func init() {
           "200": {
             "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -1912,7 +1912,7 @@ func init() {
           "201": {
             "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -2233,7 +2233,7 @@ func init() {
           "200": {
             "description": "returns a PPM attachments upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -2270,12 +2270,7 @@ func init() {
         "operationId": "createMovingExpense",
         "parameters": [
           {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppm",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
+            "$ref": "#/parameters/ppmShipmentId"
           }
         ],
         "responses": {
@@ -2316,27 +2311,13 @@ func init() {
         "operationId": "updateMovingExpense",
         "parameters": [
           {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppm shipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
+            "$ref": "#/parameters/ppmShipmentId"
           },
           {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the moving expense",
-            "name": "movingExpenseId",
-            "in": "path",
-            "required": true
+            "$ref": "#/parameters/movingExpenseId"
           },
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           },
           {
             "name": "updateMovingExpense",
@@ -2378,6 +2359,73 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Create a new upload for a PPM weight ticket, pro-gear, or moving expense document",
+        "operationId": "createPPMUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket": {
       "post": {
         "description": "Created a weight ticket document with the given information",
@@ -2388,12 +2436,7 @@ func init() {
         "operationId": "createWeightTicket",
         "parameters": [
           {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppm shipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
+            "$ref": "#/parameters/ppmShipmentId"
           }
         ],
         "responses": {
@@ -2434,27 +2477,13 @@ func init() {
         "operationId": "updateWeightTicket",
         "parameters": [
           {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppm shipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
+            "$ref": "#/parameters/ppmShipmentId"
           },
           {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the weight ticket",
-            "name": "weightTicketId",
-            "in": "path",
-            "required": true
+            "$ref": "#/parameters/weightTicketId"
           },
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           },
           {
             "name": "updateWeightTicketPayload",
@@ -2936,7 +2965,7 @@ func init() {
           "201": {
             "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -3488,7 +3517,7 @@ func init() {
           "$ref": "#/definitions/CreateReimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -3966,7 +3995,7 @@ func init() {
       },
       "x-nullable": true
     },
-    "DocumentPayload": {
+    "Document": {
       "type": "object",
       "required": [
         "id",
@@ -3987,7 +4016,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UploadPayload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -4434,7 +4463,7 @@ func init() {
       ],
       "properties": {
         "document": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "empty_weight": {
           "type": "integer",
@@ -4862,7 +4891,8 @@ func init() {
         "createdAt": {
           "description": "Timestamp the moving expense object was initially created in the system (UTC)",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "description": {
           "description": "A brief description of the expense",
@@ -4871,8 +4901,14 @@ func init() {
           "x-omitempty": false
         },
         "document": {
-          "description": "The Document object that contains all file uploads for this expense",
-          "type": "object"
+          "allOf": [
+            {
+              "description": "The Document object that contains all file uploads for this expense"
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "documentId": {
           "description": "The id of the Document that contains all file uploads for this expense",
@@ -4882,7 +4918,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
-          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
@@ -4900,9 +4936,7 @@ func init() {
           "x-omitempty": false
         },
         "movingExpenseType": {
-          "x-nullable": true,
-          "x-omitempty": false,
-          "$ref": "#/definitions/MovingExpenseType"
+          "$ref": "#/definitions/OmittableMovingExpenseType"
         },
         "paidWithGtcc": {
           "description": "Indicates if the service member used their government issued card to pay for the expense",
@@ -4937,18 +4971,19 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
     "MovingExpenseType": {
+      "description": "Moving Expense Type",
       "type": "string",
-      "title": "Moving Expense Type",
       "enum": [
         "CONTRACTED_EXPENSE",
         "GAS",
@@ -5040,6 +5075,50 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
+    },
+    "OmittableMovingExpenseType": {
+      "description": "Moving Expense Type",
+      "type": "string",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEE"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEE": "Weighing fee"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
+    "OmittablePPMDocumentStatus": {
+      "description": "Status of the PPM document.",
+      "type": "string",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
     },
     "Orders": {
       "type": "object",
@@ -5148,7 +5227,7 @@ func init() {
           "format": "date-time"
         },
         "uploaded_amended_orders": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "uploaded_amended_orders_id": {
           "type": "string",
@@ -5156,7 +5235,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "uploaded_orders": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         }
       }
     },
@@ -5221,22 +5300,6 @@ func init() {
         "REJECTED",
         "EDITED"
       ]
-    },
-    "PPMDocumentStatus": {
-      "type": "string",
-      "title": "PPM document status",
-      "enum": [
-        "APPROVED",
-        "EXCLUDED",
-        "REJECTED"
-      ],
-      "x-display-value": {
-        "APPROVED": "Approved",
-        "EXCLUDED": "Excluded",
-        "REJECTED": "Rejected"
-      },
-      "x-nullable": true,
-      "x-omitempty": false
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
@@ -5442,6 +5505,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "proGearWeightTickets": {
+          "description": "All pro-gear weight ticket documentation records for this PPM shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProGearWeightTicket"
+          }
+        },
         "reviewedAt": {
           "description": "The timestamp of when the Service Counselor has reviewed all of the closeout documents.",
           "type": "string",
@@ -5631,7 +5701,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -5868,7 +5938,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "approve_date": {
           "type": "string",
@@ -6049,6 +6119,147 @@ func init() {
       "format": "uuid",
       "x-nullable": true,
       "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+    },
+    "ProGearWeightTicket": {
+      "description": "Pro-gear associated information and weight docs for a PPM shipment",
+      "type": "object",
+      "required": [
+        "id",
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "emptyDocumentId",
+        "emptyDocument",
+        "fullDocumentId",
+        "fullDocument",
+        "constructedWeightDocumentId",
+        "constructedWeightDocument",
+        "eTag"
+      ],
+      "properties": {
+        "belongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "constructedWeight": {
+          "description": "Constructed weight of the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "constructedWeightDocument": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the constructed weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "constructedWeightDocumentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the constructed weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "description": "Describes the pro-gear that was moved.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "emptyDocument": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the empty vehicle weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "emptyDocumentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "emptyWeight": {
+          "description": "Weight of the vehicle not including the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "fullDocument": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the full vehicle weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "fullDocumentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "fullWeight": {
+          "description": "Weight of the vehicle including the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "description": "The ID of the pro-gear weight ticket.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmShipmentId": {
+          "description": "The ID of the PPM shipment that this pro-gear weight ticket is associated with.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "$ref": "#/definitions/PPMDocumentStatusReason"
+        },
+        "status": {
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
     },
     "RateEnginePostalCodePayload": {
       "type": "object",
@@ -6616,26 +6827,32 @@ func init() {
       ],
       "properties": {
         "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer"
         },
         "description": {
+          "description": "A brief description of the expense",
           "type": "string"
         },
         "missingReceipt": {
+          "description": "Indicates if the customer is missing the receipt for their expense.",
           "type": "boolean"
         },
         "movingExpenseType": {
           "$ref": "#/definitions/MovingExpenseType"
         },
         "paidWithGTCC": {
+          "description": "Indicates if the service member used their government issued card to pay for the expense",
           "type": "boolean"
         },
         "sitEndDate": {
+          "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date",
           "example": "2018-05-26"
         },
         "sitStartDate": {
+          "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date",
           "example": "2022-04-26"
@@ -6791,7 +7008,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -6962,70 +7179,72 @@ func init() {
       "type": "object",
       "properties": {
         "emptyWeight": {
-          "description": "Empty Recorded Weight",
+          "description": "Weight of the vehicle when empty.",
           "type": "integer"
         },
         "fullWeight": {
-          "description": "full weight ticket recorded weight",
+          "description": "The weight of the vehicle when full.",
           "type": "integer"
         },
         "missingEmptyWeightTicket": {
-          "description": "has empty weight ticket",
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when empty.",
           "type": "boolean"
         },
         "missingFullWeightTicket": {
-          "description": "has full weight ticket",
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean"
         },
         "ownsTrailer": {
-          "description": "Owns trailer",
+          "description": "Indicates if the customer used a trailer they own for the move.",
           "type": "boolean"
         },
         "trailerMeetsCriteria": {
-          "description": "Trailer meets criteria",
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
           "type": "boolean"
         },
         "vehicleDescription": {
-          "description": "Vehicle description (ex. 'SUV')",
+          "description": "Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.",
           "type": "string"
         }
       }
     },
-    "UploadPayload": {
+    "Upload": {
+      "description": "An uploaded file.",
       "type": "object",
       "required": [
         "id",
         "url",
         "filename",
-        "content_type",
+        "contentType",
         "bytes",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
         "bytes": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
-        "checksum": {
-          "type": "string",
-          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
-        },
-        "content_type": {
+        "contentType": {
           "type": "string",
           "format": "mime-type",
+          "readOnly": true,
           "example": "application/pdf"
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
+          "readOnly": true,
           "example": "filename.pdf"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "status": {
@@ -7034,15 +7253,18 @@ func init() {
             "INFECTED",
             "CLEAN",
             "PROCESSING"
-          ]
+          ],
+          "readOnly": true
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "url": {
           "type": "string",
           "format": "uri",
+          "readOnly": true,
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
@@ -7120,76 +7342,101 @@ func init() {
           "readOnly": true
         },
         "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
         "emptyDocument": {
-          "title": "Empty Document",
-          "$ref": "#/definitions/DocumentPayload"
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the vehicle weight when empty."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "emptyDocumentId": {
+          "description": "ID of the document that is associated with the user uploads containing the vehicle weight when empty.",
           "type": "string",
           "format": "uuid",
-          "title": "Empty Document ID",
           "readOnly": true
         },
         "emptyWeight": {
+          "description": "Weight of the vehicle when empty.",
           "type": "integer",
-          "title": "Empty Recorded Weight"
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "fullDocument": {
-          "title": "Full Document",
-          "$ref": "#/definitions/DocumentPayload"
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the vehicle weight when full."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "fullDocumentId": {
+          "description": "ID of the document that is associated with the user uploads containing the vehicle weight when full.",
           "type": "string",
           "format": "uuid",
-          "title": "Full Document ID",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "fullWeight": {
+          "description": "The weight of the vehicle when full.",
           "type": "integer",
-          "title": "full weight ticket recorded weight"
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
+          "description": "ID of this set of weight tickets.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "missingEmptyWeightTicket": {
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when empty.",
           "type": "boolean",
-          "title": "has empty weight ticket",
           "x-nullable": true,
           "x-omitempty": false
         },
         "missingFullWeightTicket": {
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean",
-          "title": "has full weight ticket",
           "x-nullable": true,
           "x-omitempty": false
         },
         "ownsTrailer": {
+          "description": "Indicates if the customer used a trailer they own for the move.",
           "type": "boolean",
-          "title": "Owns trailer",
           "x-nullable": true,
           "x-omitempty": false
         },
         "ppmShipmentId": {
+          "description": "The ID of the PPM shipment that this set of weight tickets is for.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "proofOfTrailerOwnershipDocument": {
-          "title": "Proof of Trailer Ownership Document",
-          "$ref": "#/definitions/DocumentPayload"
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the proof of trailer ownership."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "proofOfTrailerOwnershipDocumentId": {
+          "description": "ID of the document that is associated with the user uploads containing the proof of trailer ownership.",
           "type": "string",
           "format": "uuid",
-          "title": "Trailer Document ID",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
@@ -7197,11 +7444,11 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
           "type": "boolean",
-          "title": "Trailer meets criteria",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -7211,9 +7458,10 @@ func init() {
           "readOnly": true
         },
         "vehicleDescription": {
+          "description": "Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.",
           "type": "string",
-          "title": "Vehicle description (ex. 'SUV')",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -7233,6 +7481,39 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    }
+  },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    },
+    "movingExpenseId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the moving expense",
+      "name": "movingExpenseId",
+      "in": "path",
+      "required": true
+    },
+    "ppmShipmentId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the PPM shipment",
+      "name": "ppmShipmentId",
+      "in": "path",
+      "required": true
+    },
+    "weightTicketId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the weight ticket",
+      "name": "weightTicketId",
+      "in": "path",
+      "required": true
     }
   },
   "responses": {
@@ -7496,7 +7777,7 @@ func init() {
           "201": {
             "description": "created document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -7530,7 +7811,7 @@ func init() {
           "200": {
             "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Document"
             }
           },
           "400": {
@@ -9241,7 +9522,7 @@ func init() {
           "201": {
             "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -9562,7 +9843,7 @@ func init() {
           "200": {
             "description": "returns a PPM attachments upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -9601,7 +9882,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the ppm",
+            "description": "UUID of the PPM shipment",
             "name": "ppmShipmentId",
             "in": "path",
             "required": true
@@ -9665,7 +9946,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the ppm shipment",
+            "description": "UUID of the PPM shipment",
             "name": "ppmShipmentId",
             "in": "path",
             "required": true
@@ -9746,6 +10027,85 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Create a new upload for a PPM weight ticket, pro-gear, or moving expense document",
+        "operationId": "createPPMUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket": {
       "post": {
         "description": "Created a weight ticket document with the given information",
@@ -9758,7 +10118,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the ppm shipment",
+            "description": "UUID of the PPM shipment",
             "name": "ppmShipmentId",
             "in": "path",
             "required": true
@@ -9822,7 +10182,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the ppm shipment",
+            "description": "UUID of the PPM shipment",
             "name": "ppmShipmentId",
             "in": "path",
             "required": true
@@ -10343,7 +10703,7 @@ func init() {
           "201": {
             "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -10895,7 +11255,7 @@ func init() {
           "$ref": "#/definitions/CreateReimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -11377,7 +11737,7 @@ func init() {
       },
       "x-nullable": true
     },
-    "DocumentPayload": {
+    "Document": {
       "type": "object",
       "required": [
         "id",
@@ -11398,7 +11758,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UploadPayload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -11856,7 +12216,7 @@ func init() {
       ],
       "properties": {
         "document": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "empty_weight": {
           "type": "integer",
@@ -12286,7 +12646,8 @@ func init() {
         "createdAt": {
           "description": "Timestamp the moving expense object was initially created in the system (UTC)",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "description": {
           "description": "A brief description of the expense",
@@ -12295,8 +12656,14 @@ func init() {
           "x-omitempty": false
         },
         "document": {
-          "description": "The Document object that contains all file uploads for this expense",
-          "type": "object"
+          "allOf": [
+            {
+              "description": "The Document object that contains all file uploads for this expense"
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "documentId": {
           "description": "The id of the Document that contains all file uploads for this expense",
@@ -12306,7 +12673,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
-          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
@@ -12324,9 +12691,7 @@ func init() {
           "x-omitempty": false
         },
         "movingExpenseType": {
-          "x-nullable": true,
-          "x-omitempty": false,
-          "$ref": "#/definitions/MovingExpenseType"
+          "$ref": "#/definitions/OmittableMovingExpenseType"
         },
         "paidWithGtcc": {
           "description": "Indicates if the service member used their government issued card to pay for the expense",
@@ -12361,18 +12726,19 @@ func init() {
           "example": "2022-04-26"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
     "MovingExpenseType": {
+      "description": "Moving Expense Type",
       "type": "string",
-      "title": "Moving Expense Type",
       "enum": [
         "CONTRACTED_EXPENSE",
         "GAS",
@@ -12464,6 +12830,50 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
+    },
+    "OmittableMovingExpenseType": {
+      "description": "Moving Expense Type",
+      "type": "string",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEE"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEE": "Weighing fee"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
+    "OmittablePPMDocumentStatus": {
+      "description": "Status of the PPM document.",
+      "type": "string",
+      "enum": [
+        "APPROVED",
+        "EXCLUDED",
+        "REJECTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "EXCLUDED": "Excluded",
+        "REJECTED": "Rejected"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
     },
     "Orders": {
       "type": "object",
@@ -12572,7 +12982,7 @@ func init() {
           "format": "date-time"
         },
         "uploaded_amended_orders": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "uploaded_amended_orders_id": {
           "type": "string",
@@ -12580,7 +12990,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "uploaded_orders": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         }
       }
     },
@@ -12645,22 +13055,6 @@ func init() {
         "REJECTED",
         "EDITED"
       ]
-    },
-    "PPMDocumentStatus": {
-      "type": "string",
-      "title": "PPM document status",
-      "enum": [
-        "APPROVED",
-        "EXCLUDED",
-        "REJECTED"
-      ],
-      "x-display-value": {
-        "APPROVED": "Approved",
-        "EXCLUDED": "Excluded",
-        "REJECTED": "Rejected"
-      },
-      "x-nullable": true,
-      "x-omitempty": false
     },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
@@ -12866,6 +13260,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "proGearWeightTickets": {
+          "description": "All pro-gear weight ticket documentation records for this PPM shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProGearWeightTicket"
+          }
+        },
         "reviewedAt": {
           "description": "The timestamp of when the Service Counselor has reviewed all of the closeout documents.",
           "type": "string",
@@ -13055,7 +13456,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -13294,7 +13695,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "approve_date": {
           "type": "string",
@@ -13477,6 +13878,150 @@ func init() {
       "format": "uuid",
       "x-nullable": true,
       "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+    },
+    "ProGearWeightTicket": {
+      "description": "Pro-gear associated information and weight docs for a PPM shipment",
+      "type": "object",
+      "required": [
+        "id",
+        "ppmShipmentId",
+        "createdAt",
+        "updatedAt",
+        "emptyDocumentId",
+        "emptyDocument",
+        "fullDocumentId",
+        "fullDocument",
+        "constructedWeightDocumentId",
+        "constructedWeightDocument",
+        "eTag"
+      ],
+      "properties": {
+        "belongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "constructedWeight": {
+          "description": "Constructed weight of the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "constructedWeightDocument": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the constructed weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "constructedWeightDocumentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the constructed weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "description": "Describes the pro-gear that was moved.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "emptyDocument": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the empty vehicle weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "emptyDocumentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "emptyWeight": {
+          "description": "Weight of the vehicle not including the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "fullDocument": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the full vehicle weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "fullDocumentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "fullWeight": {
+          "description": "Weight of the vehicle including the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "description": "The ID of the pro-gear weight ticket.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmShipmentId": {
+          "description": "The ID of the PPM shipment that this pro-gear weight ticket is associated with.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reason": {
+          "$ref": "#/definitions/PPMDocumentStatusReason"
+        },
+        "status": {
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
     },
     "RateEnginePostalCodePayload": {
       "type": "object",
@@ -14044,26 +14589,32 @@ func init() {
       ],
       "properties": {
         "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer"
         },
         "description": {
+          "description": "A brief description of the expense",
           "type": "string"
         },
         "missingReceipt": {
+          "description": "Indicates if the customer is missing the receipt for their expense.",
           "type": "boolean"
         },
         "movingExpenseType": {
           "$ref": "#/definitions/MovingExpenseType"
         },
         "paidWithGTCC": {
+          "description": "Indicates if the service member used their government issued card to pay for the expense",
           "type": "boolean"
         },
         "sitEndDate": {
+          "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date",
           "example": "2018-05-26"
         },
         "sitStartDate": {
+          "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date",
           "example": "2022-04-26"
@@ -14219,7 +14770,7 @@ func init() {
           "$ref": "#/definitions/Reimbursement"
         },
         "advance_worksheet": {
-          "$ref": "#/definitions/DocumentPayload"
+          "$ref": "#/definitions/Document"
         },
         "days_in_storage": {
           "type": "integer",
@@ -14393,72 +14944,74 @@ func init() {
       "type": "object",
       "properties": {
         "emptyWeight": {
-          "description": "Empty Recorded Weight",
+          "description": "Weight of the vehicle when empty.",
           "type": "integer",
           "minimum": 0
         },
         "fullWeight": {
-          "description": "full weight ticket recorded weight",
+          "description": "The weight of the vehicle when full.",
           "type": "integer",
           "minimum": 0
         },
         "missingEmptyWeightTicket": {
-          "description": "has empty weight ticket",
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when empty.",
           "type": "boolean"
         },
         "missingFullWeightTicket": {
-          "description": "has full weight ticket",
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean"
         },
         "ownsTrailer": {
-          "description": "Owns trailer",
+          "description": "Indicates if the customer used a trailer they own for the move.",
           "type": "boolean"
         },
         "trailerMeetsCriteria": {
-          "description": "Trailer meets criteria",
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
           "type": "boolean"
         },
         "vehicleDescription": {
-          "description": "Vehicle description (ex. 'SUV')",
+          "description": "Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.",
           "type": "string"
         }
       }
     },
-    "UploadPayload": {
+    "Upload": {
+      "description": "An uploaded file.",
       "type": "object",
       "required": [
         "id",
         "url",
         "filename",
-        "content_type",
+        "contentType",
         "bytes",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
         "bytes": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
-        "checksum": {
-          "type": "string",
-          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
-        },
-        "content_type": {
+        "contentType": {
           "type": "string",
           "format": "mime-type",
+          "readOnly": true,
           "example": "application/pdf"
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
+          "readOnly": true,
           "example": "filename.pdf"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "status": {
@@ -14467,15 +15020,18 @@ func init() {
             "INFECTED",
             "CLEAN",
             "PROCESSING"
-          ]
+          ],
+          "readOnly": true
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "url": {
           "type": "string",
           "format": "uri",
+          "readOnly": true,
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
@@ -14556,78 +15112,103 @@ func init() {
           "readOnly": true
         },
         "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
         "emptyDocument": {
-          "title": "Empty Document",
-          "$ref": "#/definitions/DocumentPayload"
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the vehicle weight when empty."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "emptyDocumentId": {
+          "description": "ID of the document that is associated with the user uploads containing the vehicle weight when empty.",
           "type": "string",
           "format": "uuid",
-          "title": "Empty Document ID",
           "readOnly": true
         },
         "emptyWeight": {
+          "description": "Weight of the vehicle when empty.",
           "type": "integer",
-          "title": "Empty Recorded Weight",
-          "minimum": 0
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "fullDocument": {
-          "title": "Full Document",
-          "$ref": "#/definitions/DocumentPayload"
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the vehicle weight when full."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "fullDocumentId": {
+          "description": "ID of the document that is associated with the user uploads containing the vehicle weight when full.",
           "type": "string",
           "format": "uuid",
-          "title": "Full Document ID",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "fullWeight": {
+          "description": "The weight of the vehicle when full.",
           "type": "integer",
-          "title": "full weight ticket recorded weight",
-          "minimum": 0
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
+          "description": "ID of this set of weight tickets.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "missingEmptyWeightTicket": {
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when empty.",
           "type": "boolean",
-          "title": "has empty weight ticket",
           "x-nullable": true,
           "x-omitempty": false
         },
         "missingFullWeightTicket": {
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
           "type": "boolean",
-          "title": "has full weight ticket",
           "x-nullable": true,
           "x-omitempty": false
         },
         "ownsTrailer": {
+          "description": "Indicates if the customer used a trailer they own for the move.",
           "type": "boolean",
-          "title": "Owns trailer",
           "x-nullable": true,
           "x-omitempty": false
         },
         "ppmShipmentId": {
+          "description": "The ID of the PPM shipment that this set of weight tickets is for.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "proofOfTrailerOwnershipDocument": {
-          "title": "Proof of Trailer Ownership Document",
-          "$ref": "#/definitions/DocumentPayload"
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the proof of trailer ownership."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
         },
         "proofOfTrailerOwnershipDocumentId": {
+          "description": "ID of the document that is associated with the user uploads containing the proof of trailer ownership.",
           "type": "string",
           "format": "uuid",
-          "title": "Trailer Document ID",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
@@ -14635,11 +15216,11 @@ func init() {
           "$ref": "#/definitions/PPMDocumentStatusReason"
         },
         "status": {
-          "$ref": "#/definitions/PPMDocumentStatus"
+          "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
         "trailerMeetsCriteria": {
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
           "type": "boolean",
-          "title": "Trailer meets criteria",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -14649,9 +15230,10 @@ func init() {
           "readOnly": true
         },
         "vehicleDescription": {
+          "description": "Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.",
           "type": "string",
-          "title": "Vehicle description (ex. 'SUV')",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -14671,6 +15253,39 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    }
+  },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
+    },
+    "movingExpenseId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the moving expense",
+      "name": "movingExpenseId",
+      "in": "path",
+      "required": true
+    },
+    "ppmShipmentId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the PPM shipment",
+      "name": "ppmShipmentId",
+      "in": "path",
+      "required": true
+    },
+    "weightTicketId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the weight ticket",
+      "name": "weightTicketId",
+      "in": "path",
+      "required": true
     }
   },
   "responses": {

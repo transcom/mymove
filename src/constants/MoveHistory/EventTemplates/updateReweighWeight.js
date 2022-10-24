@@ -12,6 +12,7 @@ export default {
   getDetailsLabeledDetails: ({ changedValues, context }) => {
     return {
       shipment_type: context[0]?.shipment_type,
+      shipment_id_display: context[0]?.shipment_id_abbr.toUpperCase(),
       reweigh_weight: changedValues.weight,
     };
   },

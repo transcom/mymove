@@ -28,11 +28,11 @@ const testInitialValues = {
   uploaded_orders: [
     {
       id: '100',
-      created_at: '2020-10-19T17:01:16.114Z',
+      createdAt: '2020-10-19T17:01:16.114Z',
       bytes: 1024,
       url: '',
       filename: 'orders.pdf',
-      content_type: 'application/pdf',
+      contentType: 'application/pdf',
     },
   ],
 };
@@ -59,11 +59,11 @@ const testProps = {
     uploaded_orders: [
       {
         id: '100',
-        created_at: '2020-10-19T17:01:16.114Z',
+        createdAt: '2020-10-19T17:01:16.114Z',
         bytes: 1024,
         url: '',
         filename: 'orders.pdf',
-        content_type: 'application/pdf',
+        contentType: 'application/pdf',
       },
     ],
   },

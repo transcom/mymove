@@ -14,16 +14,16 @@ describe('UploadTable component', () => {
     uploads: [
       {
         bytes: 9043,
-        content_type: 'image/png',
-        created_at: '2021-06-21T19:51:49.441Z',
+        contentType: 'image/png',
+        createdAt: '2021-06-21T19:51:49.441Z',
         filename: 'orders1.png',
         id: '00000000-0000-0000-0000-000000000001',
         url: '',
       },
       {
         bytes: 4043,
-        content_type: 'application/pdf',
-        created_at: '2021-06-21T20:33:22.724Z',
+        contentType: 'application/pdf',
+        createdAt: '2021-06-21T20:33:22.724Z',
         filename: 'orders2.pdf',
         id: '00000000-0000-0000-0000-000000000002',
         url: '',

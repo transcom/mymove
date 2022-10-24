@@ -15,6 +15,7 @@ describe('when given a Update basic service item history record', () => {
       {
         name: 'Domestic uncrating',
         shipment_type: 'HHG',
+        shipment_id_abbr: 'a1b2c',
       },
     ],
     eventName: o.updateMTOServiceItem,
@@ -27,6 +28,7 @@ describe('when given a Update basic service item history record', () => {
     expect(result.getDetailsLabeledDetails(item)).toMatchObject({
       service_item_name: 'Domestic uncrating',
       shipment_type: 'HHG',
+      shipment_id_display: 'A1B2C',
       actual_weight: '300',
       estimated_weight: '500',
     });

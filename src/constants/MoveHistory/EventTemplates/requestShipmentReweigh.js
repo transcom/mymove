@@ -11,6 +11,8 @@ export default {
   detailsType: d.PLAIN_TEXT,
   getEventNameDisplay: () => 'Updated shipment',
   getDetailsPlainText: (historyRecord) => {
-    return `${shipmentTypes[historyRecord.context[0]?.shipment_type]} shipment, reweigh requested`;
+    const shipmentType = historyRecord.context[0]?.shipment_type;
+    const shipmentIdDisplay = historyRecord.context[0].shipment_id_abbr.toUpperCase();
+    return `${shipmentTypes[shipmentType]} shipment #${shipmentIdDisplay}, reweigh requested`;
   },
 };

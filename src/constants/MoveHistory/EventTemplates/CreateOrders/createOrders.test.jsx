@@ -18,7 +18,7 @@ describe('When given a created orders event for the orders table', () => {
       orders_type: 'PERMANENT_CHANGE_OF_STATION',
       origin_duty_location_name: 'Los Angeles AFB',
       new_duty_location_name: 'Fairchild AFB',
-      has_dependents: true,
+      has_dependents: 'true',
       grade: 'E_1',
     },
     context: [
@@ -40,7 +40,7 @@ describe('When given a created orders event for the orders table', () => {
       ['Orders type', ': Permanent Change Of Station (PCS)'],
       ['Origin duty location name', ': Los Angeles AFB'],
       ['New duty location name', ': Fairchild AFB'],
-      ['Dependents included', ': Yes'],
+      ['Dependents included', ': true'],
       ['Rank', ': E-1'],
     ])('displays the proper details value for %s', async (label, value) => {
       const result = getTemplate(item);

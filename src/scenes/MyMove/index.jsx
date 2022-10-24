@@ -57,6 +57,7 @@ import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipme
 import Home from 'pages/MyMove/Home';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
+const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
 const MovingInfo = lazy(() => import('pages/MyMove/MovingInfo'));
 const EditServiceInfo = lazy(() => import('pages/MyMove/Profile/EditServiceInfo'));
 const Profile = lazy(() => import('pages/MyMove/Profile/Profile'));
@@ -237,6 +238,7 @@ export class CustomerApp extends Component {
                       <h2>We are experiencing an internal server error</h2>
                     </div>
                   </Route>
+                  <Route exact path="/invalid-permissions" component={InvalidPermissions} />
 
                   {/* 404 */}
                   <Route render={(routeProps) => <NotFound {...routeProps} handleOnClick={this.props.goBack} />} />

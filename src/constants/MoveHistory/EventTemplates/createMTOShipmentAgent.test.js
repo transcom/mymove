@@ -16,7 +16,7 @@ describe('when given an mto shipment agents insert with mto agents table history
       phone: '555-555-5555',
       agent_type: 'RELEASING_AGENT',
     },
-    context: [{ shipment_type: 'HHG' }],
+    context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c' }],
   };
 
   const item2 = {
@@ -31,7 +31,7 @@ describe('when given an mto shipment agents insert with mto agents table history
       phone: '999-999-9999',
       agent_type: 'RELEASING_AGENT',
     },
-    context: [{ shipment_type: 'HHG' }],
+    context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c' }],
   };
 
   it('correctly matches the insert mto shipment agent event for releasing agents when shipment updated', () => {
@@ -51,6 +51,7 @@ describe('when given an mto shipment agents insert with mto agents table history
       phone: '555-555-5555',
       agent_type: 'RELEASING_AGENT',
       shipment_type: 'HHG',
+      shipment_id_display: 'A1B2C',
     });
   });
 
@@ -71,6 +72,7 @@ describe('when given an mto shipment agents insert with mto agents table history
       phone: '999-999-9999',
       agent_type: 'RELEASING_AGENT',
       shipment_type: 'HHG',
+      shipment_id_display: 'A1B2C',
     });
   });
 
@@ -91,6 +93,7 @@ describe('when given an mto shipment agents insert with mto agents table history
       phone: '555-555-5555',
       agent_type: 'RECEIVING_AGENT',
       shipment_type: 'HHG',
+      shipment_id_display: 'A1B2C',
     });
   });
 
@@ -111,6 +114,7 @@ describe('when given an mto shipment agents insert with mto agents table history
       phone: '999-999-9999',
       agent_type: 'RECEIVING_AGENT',
       shipment_type: 'HHG',
+      shipment_id_display: 'A1B2C',
     });
   });
 });
