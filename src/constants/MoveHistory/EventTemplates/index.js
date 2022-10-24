@@ -52,3 +52,5 @@ export { default as updateAllowanceServiceMemberByTOO } from './UpdateAllowances
 export { default as createServiceMember } from './CreateServiceMember/createServiceMember';
 export { default as patchServiceMember } from './PatchServiceMember/patchServiceMember';
 export { default as updateAddress } from './UpdateAddress/updateAddress';
+export { default as updateServiceMemberBackupContacts } from './UpdateServiceMemberBackupContact/updateServiceMemberBackupContact';
+export { default as createServiceMemberBackupContacts } from './CreateServiceMemberBackupContact/createServiceMemberBackupContact';

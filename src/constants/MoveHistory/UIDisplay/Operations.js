@@ -36,4 +36,6 @@ export default {
   uploadAmendedOrders: 'uploadAmendedOrders', // internal.yaml
   patchServiceMember: 'patchServiceMember', // internal.yaml
   createServiceMember: 'createServiceMember', // internal.yaml
+  createServiceMemberBackupContact: 'createServiceMemberBackupContact', // internal.yaml
+  updateServiceMemberBackupContact: 'updateServiceMemberBackupContact', // internal.yaml
 };

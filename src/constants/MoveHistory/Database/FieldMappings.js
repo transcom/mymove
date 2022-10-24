@@ -76,4 +76,7 @@ export default {
   residential_address: 'Current mailing address',
   backup_address: 'Backup mailing address',
   current_duty_location_name: 'Current duty location name',
+  name: 'Backup contact name',
+  email: 'Backup contact email',
+  phone: 'Backup contact phone',
 };
