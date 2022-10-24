@@ -68,10 +68,6 @@ type EvaluationReport struct {
 	// Format: date
 	ObservedClaimsResponseDate *strfmt.Date `json:"observedClaimsResponseDate,omitempty"`
 
-	// observed date
-	// Format: date
-	ObservedDate *strfmt.Date `json:"observedDate,omitempty"`
-
 	// observed delivery date
 	// Format: date
 	ObservedDeliveryDate *strfmt.Date `json:"observedDeliveryDate,omitempty"`
@@ -87,6 +83,14 @@ type EvaluationReport struct {
 	// observed pickup spread start date
 	// Format: date
 	ObservedPickupSpreadStartDate *strfmt.Date `json:"observedPickupSpreadStartDate,omitempty"`
+
+	// observed shipment delivery date
+	// Format: date
+	ObservedShipmentDeliveryDate *strfmt.Date `json:"observedShipmentDeliveryDate,omitempty"`
+
+	// observed shipment physical pickup date
+	// Format: date
+	ObservedShipmentPhysicalPickupDate *strfmt.Date `json:"observedShipmentPhysicalPickupDate,omitempty"`
 
 	// office user
 	OfficeUser *EvaluationReportOfficeUser `json:"officeUser,omitempty"`
@@ -166,10 +170,6 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateObservedDate(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateObservedDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -183,6 +183,14 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateObservedPickupSpreadStartDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateObservedShipmentDeliveryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateObservedShipmentPhysicalPickupDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -343,18 +351,6 @@ func (m *EvaluationReport) validateObservedClaimsResponseDate(formats strfmt.Reg
 	return nil
 }
 
-func (m *EvaluationReport) validateObservedDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.ObservedDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("observedDate", "body", "date", m.ObservedDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *EvaluationReport) validateObservedDeliveryDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ObservedDeliveryDate) { // not required
 		return nil
@@ -397,6 +393,30 @@ func (m *EvaluationReport) validateObservedPickupSpreadStartDate(formats strfmt.
 	}
 
 	if err := validate.FormatOf("observedPickupSpreadStartDate", "body", "date", m.ObservedPickupSpreadStartDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateObservedShipmentDeliveryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObservedShipmentDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observedShipmentDeliveryDate", "body", "date", m.ObservedShipmentDeliveryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateObservedShipmentPhysicalPickupDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObservedShipmentPhysicalPickupDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observedShipmentPhysicalPickupDate", "body", "date", m.ObservedShipmentPhysicalPickupDate.String(), formats); err != nil {
 		return err
 	}
 

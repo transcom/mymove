@@ -37,18 +37,18 @@ var KPIFieldLabels = map[string]string{
 }
 
 type InspectionInformationValues struct {
-	DateOfInspection           string
-	ReportSubmission           string
-	EvaluationType             string
-	TravelTimeToEvaluation     string
-	EvaluationLocation         string
-	ObservedPickupDate         string
-	ObservedDeliveryDate       string
-	EvaluationLength           string
-	QAERemarks                 string
-	ViolationsObserved         string
-	SeriousIncident            string
-	SeriousIncidentDescription string
+	DateOfInspection                   string
+	ReportSubmission                   string
+	EvaluationType                     string
+	TravelTimeToEvaluation             string
+	EvaluationLocation                 string
+	ObservedShipmentDeliveryDate       string
+	ObservedShipmentPhysicalPickupDate string
+	EvaluationLength                   string
+	QAERemarks                         string
+	ViolationsObserved                 string
+	SeriousIncident                    string
+	SeriousIncidentDescription         string
 }
 
 var InspectionInformationFields = []string{
@@ -56,20 +56,20 @@ var InspectionInformationFields = []string{
 	"ReportSubmission",
 	"EvaluationType",
 	"TravelTimeToEvaluation",
+	"ObservedShipmentDeliveryDate",
+	"ObservedShipmentPhysicalPickupDate",
 	"EvaluationLocation",
-	"ObservedPickupDate",
-	"ObservedDeliveryDate",
 	"EvaluationLength",
 }
 var InspectionInformationFieldLabels = map[string]string{
-	"DateOfInspection":       "Date of inspection",
-	"ReportSubmission":       "Report submission",
-	"EvaluationType":         "Evaluation type",
-	"TravelTimeToEvaluation": "Travel time to evaluation",
-	"EvaluationLocation":     "Evaluation location",
-	"ObservedPickupDate":     "Observed pickup date",
-	"ObservedDeliveryDate":   "Observed delivery date",
-	"EvaluationLength":       "Evaluation length",
+	"DateOfInspection":                   "Date of inspection",
+	"ReportSubmission":                   "Report submission",
+	"EvaluationType":                     "Evaluation type",
+	"TravelTimeToEvaluation":             "Travel time to evaluation",
+	"EvaluationLocation":                 "Evaluation location",
+	"ObservedShipmentPhysicalPickupDate": "Observed pickup date",
+	"ObservedShipmentDeliveryDate":       "Observed delivery date",
+	"EvaluationLength":                   "Evaluation length",
 }
 
 var ViolationsFields = []string{
@@ -275,14 +275,16 @@ func FormatValuesInspectionInformation(report models.EvaluationReport) Inspectio
 		if *report.Location == models.EvaluationReportLocationTypeOther && report.LocationDescription != nil {
 			inspectionInfo.EvaluationLocation += "\n" + *report.LocationDescription
 		}
-		if report.ObservedDate != nil {
-			if *report.Location == models.EvaluationReportLocationTypeOrigin {
-				inspectionInfo.ObservedPickupDate = report.ObservedDate.Format(dateFormat)
-			} else if *report.Location == models.EvaluationReportLocationTypeDestination {
-				inspectionInfo.ObservedDeliveryDate = report.ObservedDate.Format(dateFormat)
-			}
-		}
 	}
+
+	if report.ObservedShipmentDeliveryDate != nil {
+		inspectionInfo.ObservedShipmentDeliveryDate = report.ObservedShipmentDeliveryDate.Format(dateFormat)
+	}
+
+	if report.ObservedShipmentPhysicalPickupDate != nil {
+		inspectionInfo.ObservedShipmentPhysicalPickupDate = report.ObservedShipmentPhysicalPickupDate.Format(dateFormat)
+	}
+
 	if report.EvaluationLengthMinutes != nil {
 		inspectionInfo.EvaluationLength = formatDuration(*report.EvaluationLengthMinutes)
 	}

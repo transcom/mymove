@@ -123,7 +123,9 @@ const EvaluationReportPreview = ({
                       mtoShipments[0].scheduledPickupDate
                         ? formatDate(mtoShipments[0].scheduledPickupDate, 'DD MMM YYYY')
                         : '—',
-                      evaluationReport.observedDate ? formatDate(evaluationReport.observedDate, 'DD MMM YYYY') : '—',
+                      evaluationReport.observedShipmentPhysicalPickupDate
+                        ? formatDate(evaluationReport.observedShipmentPhysicalPickupDate, 'DD MMM YYYY')
+                        : '—',
                     ]}
                   />
                 )}
@@ -131,7 +133,9 @@ const EvaluationReportPreview = ({
                   <DataTable
                     columnHeaders={['Observed delivery']}
                     dataRow={[
-                      evaluationReport.observedDate ? formatDate(evaluationReport.observedDate, 'DD MMM YYYY') : '—',
+                      evaluationReport.observedShipmentDeliveryDate
+                        ? formatDate(evaluationReport.observedShipmentDeliveryDate, 'DD MMM YYYY')
+                        : '—',
                     ]}
                   />
                 )}
@@ -141,7 +145,8 @@ const EvaluationReportPreview = ({
                   columnHeaders={['Inspection date', 'Report submission']}
                   dataRow={[
                     evaluationReport.inspectionDate ? formatDate(evaluationReport.inspectionDate, 'DD MMM YYYY') : '—',
-                    evaluationReport.observedDate ? formatDate(evaluationReport.observedDate, 'DD MMM YYYY') : '—',
+                    // TODO: what value should this be?
+                    // evaluationReport.observedDate ? formatDate(evaluationReport.observedDate, 'DD MMM YYYY') : '—',
                   ]}
                 />
               </DataTableWrapper>

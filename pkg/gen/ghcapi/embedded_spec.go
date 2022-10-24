@@ -5186,11 +5186,6 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "observedDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
         "observedDeliveryDate": {
           "type": "string",
           "format": "date",
@@ -5207,6 +5202,16 @@ func init() {
           "x-nullable": true
         },
         "observedPickupSpreadStartDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedShipmentDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedShipmentPhysicalPickupDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -15232,11 +15237,6 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "observedDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
         "observedDeliveryDate": {
           "type": "string",
           "format": "date",
@@ -15253,6 +15253,16 @@ func init() {
           "x-nullable": true
         },
         "observedPickupSpreadStartDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedShipmentDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "observedShipmentPhysicalPickupDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true

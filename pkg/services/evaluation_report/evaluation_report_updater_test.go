@@ -307,10 +307,11 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 	currentTime := time.Now()
 
 	testCases := map[string]struct {
-		inspectionType    *models.EvaluationReportInspectionType
-		travelTimeMinutes *int
-		observedDate      *time.Time
-		expectedError     bool
+		inspectionType                     *models.EvaluationReportInspectionType
+		travelTimeMinutes                  *int
+		observedShipmentDeliveryDate       *time.Time
+		observedShipmentPhysicalPickupDate *time.Time
+		expectedError                      bool
 	}{
 		"travel time set for physical report type should succeed": {
 			inspectionType:    &physical,
@@ -327,20 +328,20 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 			travelTimeMinutes: swag.Int(30),
 			expectedError:     true,
 		},
-		"observed date set for physical report type should succeed": {
-			inspectionType: &physical,
-			observedDate:   &currentTime,
-			expectedError:  false,
+		"observed shipment delivery date set for physical report type should succeed": {
+			inspectionType:               &physical,
+			observedShipmentDeliveryDate: &currentTime,
+			expectedError:                false,
 		},
-		"observed date set for virtual report type should fail": {
-			inspectionType: &virtual,
-			observedDate:   &currentTime,
-			expectedError:  true,
+		"observed shipment delivery date set for virtual report type should fail": {
+			inspectionType:               &virtual,
+			observedShipmentDeliveryDate: &currentTime,
+			expectedError:                true,
 		},
-		"observed date set for data review report type should fail": {
-			inspectionType: &dataReview,
-			observedDate:   &currentTime,
-			expectedError:  true,
+		"observed shipment phsyical pickup set for data review report type should fail": {
+			inspectionType:                     &dataReview,
+			observedShipmentPhysicalPickupDate: &currentTime,
+			expectedError:                      true,
 		},
 	}
 
@@ -352,7 +353,8 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 			report := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{})
 			report.InspectionType = tc.inspectionType
 			report.TravelTimeMinutes = tc.travelTimeMinutes
-			report.ObservedDate = tc.observedDate
+			report.ObservedShipmentDeliveryDate = tc.observedShipmentDeliveryDate
+			report.ObservedShipmentPhysicalPickupDate = tc.observedShipmentPhysicalPickupDate
 			err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, etag.GenerateEtag(report.UpdatedAt))
 			if tc.expectedError {
 				suite.Error(err)

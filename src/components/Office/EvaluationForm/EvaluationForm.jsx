@@ -171,7 +171,8 @@ const EvaluationForm = ({
       inspectionDate: formatDateForSwagger(values.inspectionDate),
       evaluationLengthMinutes: evalMinutes,
       travelTimeMinutes: travelMinutes,
-      observedDate: formatDateForSwagger(values.observedDate),
+      observedShipmentDeliveryDate: formatDateForSwagger(values.observedShipmentDeliveryDate),
+      observedShipmentPhysicalPickupDate: formatDateForSwagger(values.observedShipmentPhysicalPickupDate),
     };
 
     await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
@@ -213,7 +214,8 @@ const EvaluationForm = ({
   const initialValues = {
     remarks: evaluationReport.remarks,
     inspectionDate: evaluationReport.inspectionDate,
-    observedDate: evaluationReport.observedDate,
+    observedShipmentDeliveryDate: evaluationReport.observedShipmentDeliveryDate,
+    observedShipmentPhysicalPickupDate: evaluationReport.observedShipmentPhysicalPickupDate,
   };
 
   if (evaluationReport.location) {
@@ -477,14 +479,14 @@ const EvaluationForm = ({
                     {showObservedDeliveryDate && (
                       <DatePickerInput
                         label="Observed delivery date"
-                        name="observedDate"
+                        name="observedShipmentDeliveryDate"
                         hint="Only enter a date here if the delivery you witnessed did not happen on the scheduled delivery date"
                       />
                     )}
                     {showObservedPickupDate && (
                       <DatePickerInput
                         label="Observed pickup date"
-                        name="observedDate"
+                        name="observedShipmentPhysicalPickupDate"
                         hint="Only enter a date here if the pickup you witnessed did not happen on the scheduled pickup date"
                       />
                     )}
