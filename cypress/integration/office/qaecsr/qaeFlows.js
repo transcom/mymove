@@ -277,9 +277,9 @@ describe('Quality Evaluation Report', () => {
 
       // Evaluation location, has up to 3 conditional fields displayed dependent upon selection
       cy.get('[data-testid="radio"] [for="destination"]').click();
-      cy.get('input[name="observedDate"]').clear().type('02 Oct 2022').blur(); // Observed delivery date
+      cy.get('input[name="observedShipmentDeliveryDate"]').clear().type('02 Oct 2022').blur(); // Observed delivery date
       cy.get('[data-testid="radio"] [for="origin"]').click(); // Evaluation location
-      cy.get('input[name="observedDate"]').clear().type('02 Oct 2022').blur(); // Observed pickup date
+      cy.get('input[name="observedShipmentPhysicalPickupDate"]').clear().type('02 Oct 2022').blur(); // Observed pickup date
       cy.get('[data-testid="radio"] [for="other"]').click(); // Evaluation location
       cy.get('textarea[name="otherEvaluationLocation"]').type('This is a test other location text');
 
