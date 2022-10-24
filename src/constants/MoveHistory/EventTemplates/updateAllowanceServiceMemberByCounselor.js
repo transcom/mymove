@@ -8,5 +8,5 @@ export default {
   eventName: o.counselingUpdateAllowance,
   tableName: t.service_members,
   detailsType: d.LABELED,
-  getEventNameDisplay: () => 'Updated service member',
+  getEventNameDisplay: () => 'Updated profile',
 };

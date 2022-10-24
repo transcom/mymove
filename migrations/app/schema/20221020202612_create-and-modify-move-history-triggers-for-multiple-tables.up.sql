@@ -81,7 +81,8 @@ SELECT add_audit_history_table(
 		'service_member_id',
 		'uploaded_orders_id',
 		'entitlement_id',
-		'uploaded_amended_orders_id'
+		'uploaded_amended_orders_id',
+	    'grade'
 	] -- origin_duty_location_id and new_duty_location_id are fks but are utilized to display supplemental information
 );
 SELECT add_audit_history_table(
