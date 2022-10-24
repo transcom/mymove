@@ -66,7 +66,7 @@ require (
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.11.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.36.4
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.36.4
-	go.opentelemetry.io/contrib/propagators/aws v1.9.0
+	go.opentelemetry.io/contrib/propagators/aws v1.11.1
 	go.opentelemetry.io/otel v1.11.1
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.31.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.31.0
