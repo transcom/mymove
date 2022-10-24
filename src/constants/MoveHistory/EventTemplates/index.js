@@ -16,7 +16,7 @@ export { default as createPaymentRequestReweighUpdate } from './createPaymentReq
 export { default as createPaymentRequestShipmentUpdate } from './createPaymentRequestShipmentUpdate';
 export { default as createReweighRequestWeightUpdate } from './createReweighRequestWeightUpdate';
 export { default as createStandardServiceItem } from './createStandardServiceItem';
-export { default as deleteShipment } from './deleteShipment';
+export { default as deleteShipment } from './DeleteShipment/deleteShipment';
 export { default as proofOfServiceDocUpload } from './proofOfServiceDocUpload';
 export { default as requestShipmentCancellation } from './requestShipmentCancellation';
 export { default as requestShipmentDiversion } from './requestShipmentDiversion';
@@ -34,7 +34,7 @@ export { default as updateMTOShipment } from './UpdateMTOShipment/updateMTOShipm
 export { default as updateMTOShipmentAgent } from './updateMTOShipmentAgent';
 export { default as updateMTOShipmentDeprecatePaymentRequest } from './updateMTOShipmentDeprecatePaymentRequest';
 export { default as reweighPaymentRequest } from './reweighPaymentRequest';
-export { default as updateOrder } from './updateOrders/updateOrder';
+export { default as updateOrder } from './UpdateOrders/updateOrder';
 export { default as updatePaymentRequest } from './updatePaymentRequest';
 export { default as updatePaymentRequestJobRunner } from './updatePaymentRequestJobRunner';
 export { default as updatePaymentRequestStatus } from './updatePaymentRequestStatus';

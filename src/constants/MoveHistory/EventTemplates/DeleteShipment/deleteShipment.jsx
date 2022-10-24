@@ -1,3 +1,5 @@
+import React from 'react';
+
 import a from 'constants/MoveHistory/Database/Actions';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import t from 'constants/MoveHistory/Database/Tables';
@@ -10,8 +12,9 @@ export default {
   tableName: t.mto_shipments,
   detailsType: d.PLAIN_TEXT,
   getEventNameDisplay: () => 'Deleted Shipment',
-  getDetailsPlainText: (historyRecord) => {
-    // TODO: [ MB-12182 ] This will include a shipment ID label in the future
-    return `${s[historyRecord.oldValues?.shipment_type]} shipment deleted`;
-  },
+  getDetails: ({ context }) => (
+    <>
+      {s[context[0].shipment_type]} shipment #{context[0].shipment_id_abbr.toUpperCase()} deleted
+    </>
+  ),
 };
