@@ -64,8 +64,8 @@ github.com/Masterminds/sprig/v3 v3.2.2/go.mod h1:UoaO7Yp8KlPnJIYWTFkMaqPUYKTfGFP
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
-github.com/XSAM/otelsql v0.16.0 h1:pOqeHGYCJmP5ezW0OvAGA+zzdgW/sV8nLHTxVnPgiXU=
-github.com/XSAM/otelsql v0.16.0/go.mod h1:DpO7NCSeqQdr23nU0yapjR3jGx2OdO/PihPRG+/PV0Y=
+github.com/XSAM/otelsql v0.17.0 h1:eq9yWwFY6t+nruMmjzhbdbkIo+HnUTziimkBbIqNKwM=
+github.com/XSAM/otelsql v0.17.0/go.mod h1:zGN8fF5r7Xclr92eMl8JM8pYquSWV8Kjf2fUeWvpd3Y=
 github.com/alexedwards/scs/redisstore v0.0.0-20220216073957-c252878bcf5a h1:cG9ww9FPt0rE2K20mccDsbTWUryq9ucJR2yo6iww3iw=
 github.com/alexedwards/scs/redisstore v0.0.0-20220216073957-c252878bcf5a/go.mod h1:ceKFatoD+hfHWWeHOAYue1J+XgOJjE7dw8l3JtIRTGY=
 github.com/alexedwards/scs/v2 v2.5.0 h1:zgxOfNFmiJyXG7UPIuw1g2b9LWBeRLh3PjfB9BDmfL4=

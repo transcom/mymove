@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/DATA-DOG/go-txdb v0.1.5
-	github.com/XSAM/otelsql v0.16.0
+	github.com/XSAM/otelsql v0.17.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20220216073957-c252878bcf5a
 	github.com/alexedwards/scs/v2 v2.5.0
 	github.com/aws/aws-sdk-go v1.44.121
