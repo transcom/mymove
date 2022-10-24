@@ -16,13 +16,15 @@ const NotFound = ({ handleOnClick }) => {
         <h1>
           <b>We can&apos;t find the page you&apos;re looking for</b>
         </h1>
-        <p>You are seeing this because the page you&apos;re looking for doesn&apos;t exist or has been removed.</p>
-        <p>
-          We suggest checking the spelling in the URL or return{' '}
-          <Button unstyled className={styles.goBack} onClick={handleOnClick}>
-            back home.
-          </Button>
-        </p>
+        <div className={styles.explanation}>
+          <p>You are seeing this because the page you&apos;re looking for doesn&apos;t exist or has been removed.</p>
+          <p>
+            We suggest checking the spelling in the URL or return{' '}
+            <Button unstyled className={styles.goBack} onClick={handleOnClick}>
+              back home.
+            </Button>
+          </p>
+        </div>
       </div>
     </div>
   );
