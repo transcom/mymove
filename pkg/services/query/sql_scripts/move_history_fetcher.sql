@@ -380,9 +380,9 @@ WITH move AS (
 			'orders'
 		FROM user_uploads
 			JOIN documents ON user_uploads.document_id = documents.id
-			JOIN orders ON orders.uploaded_orders_id = documents.id
+			JOIN move_orders ON move_orders.uploaded_orders_id = documents.id
 			LEFT JOIN uploads ON user_uploads.upload_id = uploads.id
-		WHERE documents.service_member_id = orders.service_member_id
+		WHERE documents.service_member_id = move_orders.service_member_id
 
 		-- amended orders have the document id in the uploaded amended orders id column
 		UNION ALL
@@ -392,9 +392,9 @@ WITH move AS (
 			'amendedOrders'
 		FROM user_uploads
 			JOIN documents ON user_uploads.document_id = documents.id
-			JOIN orders ON orders.uploaded_amended_orders_id = documents.id
+			JOIN move_orders ON move_orders.uploaded_amended_orders_id = documents.id
 			LEFT JOIN uploads ON user_uploads.upload_id = uploads.id
-		WHERE documents.service_member_id = orders.service_member_id
+		WHERE documents.service_member_id = move_orders.service_member_id
 	),
 	file_uploads_logs as (
 		SELECT
