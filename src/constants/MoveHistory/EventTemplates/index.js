@@ -41,7 +41,7 @@ export { default as updatePaymentRequestStatus } from './updatePaymentRequestSta
 export { default as updateReweighWeight } from './updateReweighWeight';
 export { default as updateServiceItemStatus } from './updateServiceItemStatus';
 export { default as updateMTOReviewedBillableWeightsAt } from './updateMTOReviewedBillableWeightsAt';
-export { default as uploadAmendedOrders } from './uploadAmendedOrders';
+export { default as uploadAmendedOrders } from './UploadAmendedOrders/uploadAmendedOrders';
 export { default as updateMTOShipmentStatus } from './updateMTOShipmentStatus';
 export { default as updateMTOServiceItemMoveStatus } from './CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus';
 export { default as updateMoveEstimatedExcessWeight } from './updateMTOShipmentPrimeEstimatedExcessWeight';
@@ -52,3 +52,5 @@ export { default as updateAllowanceServiceMemberByTOO } from './UpdateAllowances
 export { default as createServiceMember } from './CreateServiceMember/createServiceMember';
 export { default as patchServiceMember } from './PatchServiceMember/patchServiceMember';
 export { default as updateAddress } from './UpdateAddress/updateAddress';
+export { default as createUpload } from './CreateUpload/createUpload';
+export { default as deleteUpload } from './DeleteUpload/deleteUpload';
