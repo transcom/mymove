@@ -12,6 +12,7 @@ import { CheckboxField } from 'components/form/fields/CheckboxField';
 import WeightTicketUpload from 'components/Customer/PPM/Closeout/WeightTicketUpload/WeightTicketUpload';
 import Hint from 'components/Hint';
 import TextField from 'components/form/fields/TextField/TextField';
+import styles from 'components/Customer/PPM/Closeout/WeightTicketUpload/WeightTicketUpload.module.scss';
 import formStyles from 'styles/form.module.scss';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -108,9 +109,14 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                       {values.missingWeightTicket ? (
                         <>
                           <p>Download the official government spreadsheet to calculate the constructed weight.</p>
-                          <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-                            Go to Download Page
-                          </Button>
+                          <Link
+                            className={classnames('usa-button', 'usa-button--secondary', styles.constructedWeightLink)}
+                            href="https://www.ustranscom.mil/dp3/weightestimator.cfm"
+                            target="_blank"
+                            rel="noopener"
+                          >
+                            Go to download page
+                          </Link>
                           <p>Enter the constructed weight you calculated.</p>
                           <p>Upload a completed copy of the spreadsheet.</p>
                           <div>
