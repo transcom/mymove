@@ -56,6 +56,7 @@ type EvaluationReport struct {
 	ObservedPickupDate            *time.Time                      `json:"observed_pickup_date" db:"observed_pickup_date"`
 	ObservedPickupSpreadStartDate *time.Time                      `json:"observed_pickup_spread_start_date" db:"observed_pickup_spread_start_date"`
 	ObservedPickupSpreadEndDate   *time.Time                      `json:"observed_pickup_spread_end_date" db:"observed_pickup_spread_end_date"`
+	ObservedDeliveryDate          *time.Time                      `json:"observed_delivery_date" db:"observed_delivery_date"`
 	SubmittedAt                   *time.Time                      `json:"submitted_at" db:"submitted_at"`
 	DeletedAt                     *time.Time                      `db:"deleted_at"`
 	CreatedAt                     time.Time                       `json:"created_at" db:"created_at"`

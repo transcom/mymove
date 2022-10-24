@@ -760,5 +760,7 @@
 20220926162626_add_additional_eval_report_fields.up.sql
 20220927210523_remove-gidjin-cac.up.sql
 20221006031146_add_status_and_reason_to_weight_ticket.up.sql
+20221007190815_add_evaluation_violation_delivery_date.up.sql
 20221014194001_rename_weighing_fees_to_weighing_fee.up.sql
 20221020202612_create-and-modify-move-history-triggers-for-multiple-tables.up.sql
+20221021145115_ppm_closeout_status.up.sql

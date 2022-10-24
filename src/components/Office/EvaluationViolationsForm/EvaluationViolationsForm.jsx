@@ -25,8 +25,8 @@ const EvaluationViolationsForm = ({
   evaluationReport,
   reportViolations,
   customerInfo,
-  mtoShipments,
   grade,
+  mtoShipments,
   destinationDutyLocationPostalCode,
 }) => {
   const { moveCode, reportId } = useParams();
@@ -138,7 +138,7 @@ const EvaluationViolationsForm = ({
       then: Yup.string().required(),
     }),
     observedClaimsResponseDate: Yup.date().when('kpiViolations', {
-      is: (kpiViolations) => kpiViolations.includes('observedClaimDate'),
+      is: (kpiViolations) => kpiViolations.includes('observedClaimsResponseDate'),
       then: Yup.date().optional(),
     }),
     observedPickupDate: Yup.date().when('kpiViolations', {
@@ -151,6 +151,10 @@ const EvaluationViolationsForm = ({
     }),
     observedPickupSpreadEndDate: Yup.date().when('kpiViolations', {
       is: (kpiViolations) => kpiViolations.includes('observedPickupSpreadDates'),
+      then: Yup.date().required(),
+    }),
+    observedDeliveryDate: Yup.date().when('kpiViolations', {
+      is: (kpiViolations) => kpiViolations.includes('observedDeliveryDate'),
       then: Yup.date().required(),
     }),
   });
@@ -184,6 +188,7 @@ const EvaluationViolationsForm = ({
       observedPickupDate: formatDateForSwagger(values.observedPickupDate),
       observedPickupSpreadStartDate: formatDateForSwagger(values.observedPickupSpreadStartDate),
       observedPickupSpreadEndDate: formatDateForSwagger(values.observedPickupSpreadEndDate),
+      observedDeliveryDate: formatDateForSwagger(values.observedDeliveryDate),
     };
 
     await mutateEvaluationReport({ reportID: reportId, ifMatchETag: eTag, body });
@@ -208,16 +213,29 @@ const EvaluationViolationsForm = ({
       seriousIncident = evaluationReport.seriousIncident ? 'yes' : 'no';
     }
 
-    const kpiViolations = reportViolations
-      ? reportViolations.map((violation) => (violation.isKpi ? violation.additionalDataElem : null))
-      : [];
+    const kpiViolations = [];
+
+    if (reportViolations) {
+      reportViolations.forEach((entry) => {
+        if (entry.violation?.isKpi) {
+          const ade = entry.violation.additionalDataElem;
+          kpiViolations.push(ade);
+        }
+      });
+    }
 
     const initialValues = {
       selectedViolations,
       seriousIncident,
       seriousIncidentDesc: evaluationReport?.seriousIncidentDesc,
+      observedPickupSpreadStartDate: evaluationReport?.observedPickupSpreadStartDate,
+      observedPickupSpreadEndDate: evaluationReport?.observedPickupSpreadEndDate,
+      observedClaimsResponseDate: evaluationReport?.observedClaimsResponseDate,
+      observedDeliveryDate: evaluationReport?.observedDeliveryDate,
       kpiViolations,
     };
+
+    initialValues.kpiViolations = kpiViolations;
 
     return initialValues;
   };
@@ -273,14 +291,16 @@ const EvaluationViolationsForm = ({
               );
 
               if (kpiViolation) {
-                setFieldValue(
-                  'kpiViolations',
-                  prevSelectedKpiViolations.filter((entry) => entry !== kpiViolation.additionalDataElem),
+                // perform a lookup rather than straight filter as we may have more than one of a single KPI violation in the array that are still valid
+                const location = prevSelectedKpiViolations.findIndex(
+                  (entry) => entry === kpiViolation.additionalDataElem,
                 );
+
+                prevSelectedKpiViolations.splice(location, 1);
+
+                setFieldValue('kpiViolations', prevSelectedKpiViolations);
               }
-            }
-            // adding a new entry
-            else {
+            } else {
               setFieldValue(fieldKey, [...prevSelectedViolations, id]);
 
               if (kpiViolation) {
@@ -333,7 +353,7 @@ const EvaluationViolationsForm = ({
                 <Grid row>
                   <Grid col className={styles.claimDatePicker}>
                     <div>
-                      {values.kpiViolations.includes('observedClaimDate') && (
+                      {values.kpiViolations.includes('observedClaimsReponseDate') && (
                         <DatePickerInput
                           className={styles.datePicker}
                           label="Observed claims response date"
@@ -357,6 +377,22 @@ const EvaluationViolationsForm = ({
                       )}
                       {values.kpiViolations.includes('observedPickupSpreadDates') && (
                         <DatePickerInput label="Observed pickup spread end date" name="observedPickupSpreadEndDate" />
+                      )}
+                      {values.kpiViolations.includes('observedClaimsResponseDate') && (
+                        <DatePickerInput
+                          className={styles.datePicker}
+                          label="Observed claims response date"
+                          name="observedClaimsResponseDate"
+                          hint="Only enter a date here if the claim has a response."
+                          showOptional
+                        />
+                      )}
+                      {values.kpiViolations.includes('observedDeliveryDate') && (
+                        <DatePickerInput
+                          className={styles.datePicker}
+                          label="Observed delivery date"
+                          name="observedDeliveryDate"
+                        />
                       )}
                     </div>
                   </Grid>
@@ -466,8 +502,8 @@ EvaluationViolationsForm.propTypes = {
   evaluationReport: EvaluationReportShape.isRequired,
   reportViolations: PropTypes.arrayOf(ReportViolationShape),
   customerInfo: CustomerShape.isRequired,
-  mtoShipments: PropTypes.arrayOf(ShipmentShape),
   grade: PropTypes.string.isRequired,
+  mtoShipments: PropTypes.arrayOf(ShipmentShape),
   destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 
