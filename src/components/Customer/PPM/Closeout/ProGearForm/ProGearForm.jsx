@@ -79,8 +79,8 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                         label="Brief description of the pro-gear"
                         labelHint={
                           <Hint className={ppmStyles.hint}>
-                            Examples of pro-gear includes specialized apparel and government issued equiptment. Check
-                            the {jtr} for examples of pro-gear.
+                            Examples of pro-gear includes specialized apparel and government issued equipment. Check the{' '}
+                            {jtr} for examples of pro-gear.
                           </Hint>
                         }
                         id="description"
