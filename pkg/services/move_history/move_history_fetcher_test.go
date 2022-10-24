@@ -286,9 +286,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 				//TODO: make a better comparison test for time
 				//suite.Equal(order.AmendedOrdersAcknowledgedAt.Format("2006-01-02T15:04:05.000000"), changedData["amended_orders_acknowledged_at"])
 
-				// rank/grade is also on orders
-				suite.Equal(*order.Grade, changedData["grade"])
-
 				// test context as well
 				context := removeEscapeJSONtoArray(historyRecord.Context)[0]
 				suite.Equal(order.OriginDutyLocation.Name, context["origin_duty_location_name"])

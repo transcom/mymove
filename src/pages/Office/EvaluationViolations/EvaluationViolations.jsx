@@ -38,8 +38,8 @@ const EvaluationViolations = ({ customerInfo, grade, destinationDutyLocationPost
           evaluationReport={evaluationReport}
           reportViolations={reportViolations}
           customerInfo={customerInfo}
-          mtoShipments={mtoShipments}
           grade={grade}
+          mtoShipments={mtoShipments}
           destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />
       </GridContainer>

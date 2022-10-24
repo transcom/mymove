@@ -10,7 +10,7 @@ describe('When a service counselor updates shipping allowances', () => {
     eventName: o.counselingUpdateAllowance,
     tableName: t.service_members,
     detailsType: d.LABELED,
-    eventNameDisplay: 'Updated service member',
+    eventNameDisplay: 'Updated profile',
     changedValues: {
       affiliation: 'AIR_FORCE',
       rank: 'E_2',

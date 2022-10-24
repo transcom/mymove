@@ -5,7 +5,7 @@ describe('when given an updated reweigh weight', () => {
   const item = {
     action: 'UPDATE',
     changedValues: { weight: '9001' },
-    context: [{ shipment_type: 'HHG' }],
+    context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c' }],
     eventName: 'updateReweigh',
     tableName: 'reweighs',
   };
@@ -19,6 +19,7 @@ describe('when given an updated reweigh weight', () => {
       }),
     ).toEqual({
       shipment_type: 'HHG',
+      shipment_id_display: 'A1B2C',
       reweigh_weight: '9001',
     });
   });

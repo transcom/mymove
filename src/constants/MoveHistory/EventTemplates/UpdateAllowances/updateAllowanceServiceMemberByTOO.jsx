@@ -9,7 +9,7 @@ export default {
   action: a.UPDATE,
   eventName: o.updateAllowance,
   tableName: t.service_members,
-  getEventNameDisplay: () => 'Updated service member',
+  getEventNameDisplay: () => 'Updated profile',
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={historyRecord} />;
   },
