@@ -372,6 +372,46 @@ WITH move AS (
 		GROUP BY
 			move_addresses.shipment_id, move_addresses.service_member_id, audit_history.id
 	),
+	file_uploads (user_upload_id, filename, upload_type) AS (
+		-- orders uploads have the document id the uploaded orders id column
+		SELECT
+			user_uploads.id,
+			uploads.filename,
+			'orders'
+		FROM user_uploads
+			JOIN documents ON user_uploads.document_id = documents.id
+			JOIN orders ON orders.uploaded_orders_id = documents.id
+			LEFT JOIN uploads ON user_uploads.upload_id = uploads.id
+		WHERE documents.service_member_id = orders.service_member_id
+
+		-- amended orders have the document id in the uploaded amended orders id column
+		UNION ALL
+		SELECT
+			user_uploads.id,
+			uploads.filename,
+			'amendedOrders'
+		FROM user_uploads
+			JOIN documents ON user_uploads.document_id = documents.id
+			JOIN orders ON orders.uploaded_amended_orders_id = documents.id
+			LEFT JOIN uploads ON user_uploads.upload_id = uploads.id
+		WHERE documents.service_member_id = orders.service_member_id
+	),
+	file_uploads_logs as (
+		SELECT
+		    audit_history.*,
+			json_agg(
+				json_build_object(
+					'filename', filename,
+					'upload_type', upload_type
+				)
+			)::TEXT AS context,
+		NULL AS context_id
+		FROM
+			audit_history
+				JOIN file_uploads ON user_upload_id = audit_history.object_id
+					AND audit_history."table_name" = 'user_uploads'
+		GROUP BY audit_history.id
+	),
 	combined_logs AS (
 		SELECT
 			*
@@ -437,6 +477,11 @@ WITH move AS (
 		 	*
 		FROM
 			service_members_logs
+		UNION ALL
+		SELECT
+		    *
+		FROM
+		    file_uploads_logs
 
 	) SELECT DISTINCT
 		combined_logs.*,
