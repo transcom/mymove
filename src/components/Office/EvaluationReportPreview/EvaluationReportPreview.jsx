@@ -145,8 +145,7 @@ const EvaluationReportPreview = ({
                   columnHeaders={['Inspection date', 'Report submission']}
                   dataRow={[
                     evaluationReport.inspectionDate ? formatDate(evaluationReport.inspectionDate, 'DD MMM YYYY') : '—',
-                    // TODO: what value should this be?
-                    // evaluationReport.observedDate ? formatDate(evaluationReport.observedDate, 'DD MMM YYYY') : '—',
+                    evaluationReport.submittedAt ? formatDate(evaluationReport.submittedAt, 'DD MMM YYYY') : '—',
                   ]}
                 />
               </DataTableWrapper>
