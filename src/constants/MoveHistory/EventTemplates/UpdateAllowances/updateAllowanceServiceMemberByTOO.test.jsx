@@ -10,7 +10,7 @@ describe('When a TOO updates shipping allowances', () => {
     action: 'UPDATE',
     eventName: o.updateAllowance,
     tableName: t.service_members,
-    eventNameDisplay: 'Updated service member',
+    eventNameDisplay: 'Updated profile',
     changedValues: {
       affiliation: 'AIR_FORCE',
       rank: 'E_2',
