@@ -408,3 +408,44 @@ func ProGearWeightTickets(proGearWeightTickets models.ProgearWeightTickets) []*i
 	// TODO: MB-14168 will fill this in. Needed to at least have this for MB-13773, but the goal wasn't to get this working fully until MB-14168 and related tickets are done.
 	return payload
 }
+
+// ProGearWeightTicket payload
+func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeightTicket) *internalmessages.ProGearWeightTicket {
+	ppmShipment := strfmt.UUID(progear.PPMShipmentID.String())
+
+	emptyDocument, err := PayloadForDocumentModel(storer, progear.EmptyDocument)
+	if err != nil {
+		return nil
+	}
+
+	fullDocument, err := PayloadForDocumentModel(storer, progear.FullDocument)
+	if err != nil {
+		return nil
+	}
+
+	payload := &internalmessages.ProGearWeightTicket{
+		ID:              strfmt.UUID(progear.ID.String()),
+		PpmShipmentID:   ppmShipment,
+		CreatedAt:       *handlers.FmtDateTime(progear.CreatedAt),
+		UpdatedAt:       *handlers.FmtDateTime(progear.UpdatedAt),
+		EmptyWeight:     handlers.FmtPoundPtr(progear.EmptyWeight),
+		EmptyDocumentID: *handlers.FmtUUID(progear.EmptyDocumentID),
+		EmptyDocument:   emptyDocument,
+		FullWeight:      handlers.FmtPoundPtr(progear.FullWeight),
+		FullDocumentID:  *handlers.FmtUUID(progear.FullDocumentID),
+		FullDocument:    fullDocument,
+		ETag:            etag.GenerateEtag(progear.UpdatedAt),
+	}
+
+	if progear.Status != nil {
+		status := internalmessages.OmittablePPMDocumentStatus(*progear.Status)
+		payload.Status = &status
+	}
+
+	if progear.Reason != nil {
+		reason := internalmessages.PPMDocumentStatusReason(*progear.Reason)
+		payload.Reason = &reason
+	}
+
+	return payload
+}
