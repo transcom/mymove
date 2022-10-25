@@ -6,12 +6,12 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type assetSuite struct {
+type assetsSuite struct {
 	suite.Suite
 }
 
 func TestCLISuite(t *testing.T) {
-	ts := &assetSuite{}
+	ts := &assetsSuite{}
 	suite.Run(t, ts)
 }
 
@@ -20,7 +20,7 @@ const (
 	badPath  = "bad/path/file.txt"
 )
 
-func (suite *assetSuite) TestAsset() {
+func (suite *assetsSuite) TestAsset() {
 	suite.Run("golden path", func() {
 		contents, err := Asset(goodPath)
 		suite.NoError(err)
@@ -35,7 +35,7 @@ func (suite *assetSuite) TestAsset() {
 	})
 }
 
-func (suite *assetSuite) TestMustAsset() {
+func (suite *assetsSuite) TestMustAsset() {
 	suite.Run("golden path", func() {
 		contents := MustAsset(goodPath)
 		suite.NotNil(contents)
