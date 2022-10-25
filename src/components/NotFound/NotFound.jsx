@@ -8,7 +8,7 @@ import styles from './NotFound.module.scss';
 const NotFound = ({ handleOnClick }) => {
   return (
     <div className={classnames('usa-grid', styles.notFound)}>
-      <div className="grid-container usa-prose">
+      <div className="grid-container">
         <b>Error - 404</b>
         <div>
           <b>Let&apos;s move you in the right direction</b>
