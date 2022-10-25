@@ -26,7 +26,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 		proGear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
 
 		err := FindPPMShipmentWithDocument(suite.AppContextForTest(), proGear.PPMShipmentID, proGear.DocumentID)
-		suite.NoError(err, "expected to find PPM Shipment for full weight document")
+		suite.NoError(err, "expected to find PPM Shipment for weight document")
 	})
 
 	suite.Run("FindPPMShipmentWithDocument - document belongs to moving expenses", func() {
