@@ -21,7 +21,6 @@ describe('When a TOO updates shipping allowances', () => {
     expect(result).toMatchObject(updateAllowanceServiceMemberByTOO);
     expect(result.getEventNameDisplay()).toMatch(historyRecord.eventNameDisplay);
   });
-  
   describe('it correctly displays the details component', () => {
     it.each([
       ['Branch', ': Air Force'],
