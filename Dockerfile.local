@@ -12,7 +12,6 @@ WORKDIR /home/circleci/project
 RUN make clean
 RUN make bin/rds-ca-rsa4096-g1.pem
 RUN make bin/rds-ca-2019-root.pem
-RUN rm -f pkg/assets/assets.go && make pkg/assets/assets.go
 RUN make server_generate
 RUN rm -f bin/milmove && make bin/milmove
 
