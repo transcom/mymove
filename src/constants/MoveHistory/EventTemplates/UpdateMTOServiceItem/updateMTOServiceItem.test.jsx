@@ -28,7 +28,7 @@ describe('when given a Update basic service item history record', () => {
     expect(template).toMatchObject(e);
     expect(template.getEventNameDisplay()).toEqual('Updated service item');
   });
-  it('displays shipment type and shipment ID properly', () => {
+  it('displays shipment type, shipment ID, and service item name properly', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
