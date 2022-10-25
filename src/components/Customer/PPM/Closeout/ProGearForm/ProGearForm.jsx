@@ -12,7 +12,7 @@ import { CheckboxField } from 'components/form/fields/CheckboxField';
 import WeightTicketUpload from 'components/Customer/PPM/Closeout/WeightTicketUpload/WeightTicketUpload';
 import Hint from 'components/Hint';
 import TextField from 'components/form/fields/TextField/TextField';
-import styles from 'components/Customer/PPM/Closeout/WeightTicketUpload/WeightTicketUpload.module.scss';
+import styles from 'components/Customer/PPM/Closeout/ProGearForm/ProGearForm.module.scss';
 import formStyles from 'styles/form.module.scss';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -46,8 +46,8 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ handleSubmit, isValid, isSubmitting, values, ...formikProps }) => {
         return (
-          <div className={ppmStyles.formContainer}>
-            <Form className={ppmStyles.form}>
+          <div className={classnames(ppmStyles.formContainer, styles.ProGearForm)}>
+            <Form className={classnames(ppmStyles.form, styles.form)}>
               <SectionWrapper className={formStyles.formSection}>
                 <h2>Set {setNumber}</h2>
                 <FormGroup>
@@ -73,13 +73,14 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                       data-testid="spouseProGear"
                     />
                   </Fieldset>
-                  {values.selfProGear === 'true' && (
+                  {(values.selfProGear === 'true' || values.selfProGear === 'false') && (
                     <Fieldset>
                       <h3>Description</h3>
                       <TextField
+                        className={styles.descriptionTextField}
                         label="Brief description of the pro-gear"
                         labelHint={
-                          <Hint className={ppmStyles.hint}>
+                          <Hint className={styles.hint}>
                             Examples of pro-gear includes specialized apparel and government issued equipment. Check the{' '}
                             {jtr} for examples of pro-gear.
                           </Hint>
@@ -89,10 +90,11 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                       />
                       <h3>Weight</h3>
                       <MaskedTextField
+                        containerClassName={styles.weightField}
                         defaultValue="0"
                         name="proGearWeight"
                         label="Shipment's pro-gear weight"
-                        labelHint={<Hint className={ppmStyles.hint}>Your maximum allowance is X,XXX lbs.</Hint>}
+                        labelHint={<Hint className={styles.hint}>Your maximum allowance is X,XXX lbs.</Hint>}
                         id="proGearWeight"
                         mask={Number}
                         scale={0} // digits after point, 0 for integers
@@ -107,30 +109,18 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                         label="I don't have weight tickets"
                       />
                       {values.missingWeightTicket ? (
-                        <>
-                          <p>Download the official government spreadsheet to calculate the constructed weight.</p>
-                          <Link
-                            className={classnames('usa-button', 'usa-button--secondary', styles.constructedWeightLink)}
-                            href="https://www.ustranscom.mil/dp3/weightestimator.cfm"
-                            target="_blank"
-                            rel="noopener"
-                          >
-                            Go to download page
-                          </Link>
-                          <p>Enter the constructed weight you calculated.</p>
-                          <p>Upload a completed copy of the spreadsheet.</p>
-                          <div>
-                            <WeightTicketUpload
-                              fieldName="missingProGearWeightDocument"
-                              onCreateUpload={onCreateUpload}
-                              onUploadComplete={onUploadComplete}
-                              onUploadDelete={onUploadDelete}
-                              fileUploadRef={proGearDocumentRef}
-                              values={values}
-                              formikProps={formikProps}
-                            />
-                          </div>
-                        </>
+                        <div>
+                          <WeightTicketUpload
+                            fieldName="missingProGearWeightDocument"
+                            missingWeightTicket
+                            onCreateUpload={onCreateUpload}
+                            onUploadComplete={onUploadComplete}
+                            onUploadDelete={onUploadDelete}
+                            fileUploadRef={proGearDocumentRef}
+                            values={values}
+                            formikProps={formikProps}
+                          />
+                        </div>
                       ) : (
                         <div>
                           <WeightTicketUpload
