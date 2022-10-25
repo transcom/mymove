@@ -75,6 +75,7 @@ func checkIfPackageCanBeSkipped(packageName string) bool {
 		"testdatagen":  true,
 		"testingsuite": true,
 		"utilities":    true,
+		"factory":      true,
 	}
 
 	return allowedPackages[packageName]

@@ -14,6 +14,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/notifications/mocks"
@@ -137,7 +138,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		//              A notification is sent to sys admins
 		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
 		// Make an inactive user
-		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
+		user, _ := factory.BuildUser(suite.DB(), nil, nil)
 
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
@@ -162,7 +163,11 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		//           	updateUser returns the active user
 		//              A notification is NOT sent to sys admins
 		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
-		user := testdatagen.MakeDefaultUser(suite.DB()) // Default user is active
+		user, _ := factory.BuildUser(suite.DB(), nil,
+			[]factory.Trait{
+				factory.GetTraitActiveUser,
+			})
+
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
 
@@ -187,7 +192,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
 
-		user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{}) // MakeUser makes an inactive user
+		user, _ := factory.BuildUser(suite.DB(), nil, nil)
 
 		user.Active = inactiveStatus
 		updatedUser, verr, err := updater.UpdateUser(appCtx, user.ID, &user)
