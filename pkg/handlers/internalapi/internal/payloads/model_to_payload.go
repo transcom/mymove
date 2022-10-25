@@ -411,7 +411,7 @@ func ProGearWeightTickets(proGearWeightTickets models.ProgearWeightTickets) []*i
 
 // ProGearWeightTicket payload
 func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeightTicket) *internalmessages.ProGearWeightTicket {
-	ppmShipment := strfmt.UUID(progear.PPMShipmentID.String())
+	ppmShipmentId := strfmt.UUID(progear.PPMShipmentID.String())
 
 	emptyDocument, err := PayloadForDocumentModel(storer, progear.EmptyDocument)
 	if err != nil {
@@ -423,18 +423,29 @@ func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeigh
 		return nil
 	}
 
+	constructedWeightDocument, err := PayloadForDocumentModel(storer, progear.ConstructedWeightDocument)
+	if err != nil {
+		return nil
+	}
+
 	payload := &internalmessages.ProGearWeightTicket{
-		ID:              strfmt.UUID(progear.ID.String()),
-		PpmShipmentID:   ppmShipment,
-		CreatedAt:       *handlers.FmtDateTime(progear.CreatedAt),
-		UpdatedAt:       *handlers.FmtDateTime(progear.UpdatedAt),
-		EmptyWeight:     handlers.FmtPoundPtr(progear.EmptyWeight),
-		EmptyDocumentID: *handlers.FmtUUID(progear.EmptyDocumentID),
-		EmptyDocument:   emptyDocument,
-		FullWeight:      handlers.FmtPoundPtr(progear.FullWeight),
-		FullDocumentID:  *handlers.FmtUUID(progear.FullDocumentID),
-		FullDocument:    fullDocument,
-		ETag:            etag.GenerateEtag(progear.UpdatedAt),
+		ID:                          strfmt.UUID(progear.ID.String()),
+		PpmShipmentID:               ppmShipmentId,
+		CreatedAt:                   *handlers.FmtDateTime(progear.CreatedAt),
+		UpdatedAt:                   *handlers.FmtDateTime(progear.UpdatedAt),
+		EmptyWeight:                 handlers.FmtPoundPtr(progear.EmptyWeight),
+		EmptyDocumentID:             *handlers.FmtUUID(progear.EmptyDocumentID),
+		EmptyDocument:               emptyDocument,
+		FullWeight:                  handlers.FmtPoundPtr(progear.FullWeight),
+		FullDocumentID:              *handlers.FmtUUID(progear.FullDocumentID),
+		FullDocument:                fullDocument,
+		ConstructedWeight:           handlers.FmtPoundPtr(progear.ConstructedWeight),
+		ConstructedWeightDocumentID: *handlers.FmtUUID(progear.ConstructedWeightDocumentID),
+		ConstructedWeightDocument:   constructedWeightDocument,
+		BelongsToSelf:               progear.BelongsToSelf,
+		HasWeightTickets:            progear.HasWeightTickets,
+		Description:                 progear.Description,
+		ETag:                        etag.GenerateEtag(progear.UpdatedAt),
 	}
 
 	if progear.Status != nil {
