@@ -760,4 +760,60 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Error(err)
 		suite.Equal(fakeEstimatedIncentiveError, err)
 	})
+
+	suite.Run("Can successfully update a PPMShipment - add W-2 address", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
+
+		originalPPM := testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+
+		newPPM := models.PPMShipment{
+			W2Address: &models.Address{
+				StreetAddress1: "10642 N Second Ave",
+				StreetAddress2: models.StringPointer("Apt. 308"),
+				City:           "Atco",
+				State:          "NJ",
+				PostalCode:     "08004",
+			},
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		suite.Equal(*newPPM.W2Address, *updatedPPM.W2Address)
+		suite.NotNil(updatedPPM.W2AddressID)
+	})
+
+	suite.Run("Can successfully update a PPMShipment - modify W-2 address", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
+
+		address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				W2Address:   &address,
+				W2AddressID: &address.ID,
+			},
+		})
+
+		newPPM := models.PPMShipment{
+			W2Address: &models.Address{
+				StreetAddress1: "10642 N Second Ave",
+				StreetAddress2: models.StringPointer("Apt. 308"),
+				City:           "Cookstown",
+				State:          "NJ",
+				PostalCode:     "08511",
+			},
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		suite.Equal(*newPPM.W2Address, *updatedPPM.W2Address)
+		suite.Equal(address.ID, *updatedPPM.W2AddressID)
+	})
 }
