@@ -13,7 +13,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/assets"
-	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -165,29 +164,8 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 			}
 			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
-			certificateParams := certop.NewCreateSignedCertificationParams()
-			certificateParams.CreateSignedCertificationPayload = params.SubmitMoveForApprovalPayload.Certificate
-			certificateParams.HTTPRequest = params.HTTPRequest
-			certificateParams.MoveID = params.MoveID
-
-			date := time.Time(*params.SubmitMoveForApprovalPayload.Certificate.Date)
-			certType := models.SignedCertificationType(*certificateParams.CreateSignedCertificationPayload.CertificationType)
-			newSignedCertification := models.SignedCertification{
-				MoveID:                   uuid.FromStringOrNil(certificateParams.MoveID.String()),
-				PersonallyProcuredMoveID: nil,
-				CertificationType:        &certType,
-				SubmittingUserID:         appCtx.Session().UserID,
-				CertificationText:        *certificateParams.CreateSignedCertificationPayload.CertificationText,
-				Signature:                *certificateParams.CreateSignedCertificationPayload.Signature,
-				Date:                     date,
-			}
-
-			if certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID != nil {
-				ppmID := uuid.FromStringOrNil(certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID.String())
-				newSignedCertification.PersonallyProcuredMoveID = &ppmID
-			}
-
-			err = h.MoveRouter.Submit(appCtx, move, newSignedCertification)
+			newSignedCertification := payloads.SignedCertificationFromSubmit(params.SubmitMoveForApprovalPayload, appCtx.Session().UserID, params.MoveID)
+			err = h.MoveRouter.Submit(appCtx, move, *newSignedCertification)
 			if err != nil {
 				return handlers.ResponseForError(logger, err), err
 			}
