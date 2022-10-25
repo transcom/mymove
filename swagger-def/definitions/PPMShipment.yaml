@@ -224,6 +224,11 @@ properties:
     items:
       $ref: 'MovingExpense.yaml'
     type: array
+  proGearWeightTickets:
+    description: All pro-gear weight ticket documentation records for this PPM shipment.
+    type: array
+    items:
+      $ref: 'ProGearWeightTicket.yaml'
   eTag:
     description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
     type: string

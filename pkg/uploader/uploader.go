@@ -39,6 +39,19 @@ func (e ErrFile) Error() string {
 // ErrZeroLengthFile represents an error caused by a file with no content
 var ErrZeroLengthFile = errors.New("File has length of 0")
 
+// ErrUnsupportedContentType represents an error caused by a file with a non-allowed content type
+type ErrUnsupportedContentType struct {
+	message string
+}
+
+func NewErrUnsupportedContentType(contentType string, allowedContentTypes []string) ErrUnsupportedContentType {
+	return ErrUnsupportedContentType{message: fmt.Sprintf("content type %q is not one of the supported types %s", contentType, allowedContentTypes)}
+}
+
+func (e ErrUnsupportedContentType) Error() string {
+	return e.message
+}
+
 // ErrTooLarge is an error where the file size exceeds the limit
 type ErrTooLarge struct {
 	FileSize      int64
@@ -196,7 +209,7 @@ func (u *Uploader) CreateUpload(appCtx appcontext.AppContext, file File, allowed
 		appCtx.Logger().Error("Invalid content type for upload",
 			zap.String("ContentType", contentType),
 		)
-		return nil, responseVErrors, nil
+		return nil, responseVErrors, NewErrUnsupportedContentType(contentType, allowedTypes)
 	}
 
 	checksum, computeChecksumErr := storage.ComputeChecksum(file)

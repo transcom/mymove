@@ -19,6 +19,7 @@ describe('when given a Create basic service item dimensions history record', () 
       {
         name: 'Domestic uncrating',
         shipment_type: 'HHG',
+        shipment_id_abbr: 'a1b2c',
       },
     ],
     eventName: o.createMTOServiceItem,

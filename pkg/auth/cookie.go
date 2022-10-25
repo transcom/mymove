@@ -151,13 +151,15 @@ func SessionCookieMiddleware(globalLogger *zap.Logger, appnames ApplicationServe
 			obj := sessionManager.Get(r.Context(), "session")
 			session, ok := obj.(Session)
 			if ok {
-				logger.Info("Existing session", zap.Any("session.appname", session.ApplicationName))
+				logger.Info("Existing session", zap.Any("session.user_id", session.UserID),
+					zap.Any("session.appname", session.ApplicationName))
 			} else {
 				session = Session{
 					ApplicationName: app,
 					Hostname:        strings.ToLower(hostname),
 				}
-				logger.Info("Creating new session", zap.Any("session.appname", session.ApplicationName))
+				logger.Info("Creating new session", zap.Any("session.user_id", session.UserID),
+					zap.Any("session.appname", session.ApplicationName))
 			}
 
 			// And update the cookie. May get over-ridden later

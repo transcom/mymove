@@ -34,4 +34,6 @@ export default {
   updateReweigh: 'updateReweigh',
   updateServiceItemStatus: 'updateMTOServiceItemStatus',
   uploadAmendedOrders: 'uploadAmendedOrders', // internal.yaml
+  patchServiceMember: 'patchServiceMember', // internal.yaml
+  createServiceMember: 'createServiceMember', // internal.yaml
 };

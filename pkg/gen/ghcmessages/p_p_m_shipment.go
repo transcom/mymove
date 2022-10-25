@@ -130,6 +130,9 @@ type PPMShipment struct {
 	// The estimated weight of the pro-gear being moved belonging to the service member.
 	ProGearWeight *int64 `json:"proGearWeight"`
 
+	// All pro-gear weight ticket documentation records for this PPM shipment.
+	ProGearWeightTickets []*ProGearWeightTicket `json:"proGearWeightTickets"`
+
 	// The timestamp of when the Service Counselor has reviewed all of the closeout documents.
 	// Format: date-time
 	ReviewedAt *strfmt.DateTime `json:"reviewedAt"`
@@ -250,6 +253,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateProGearWeightTickets(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -476,6 +483,32 @@ func (m *PPMShipment) validatePickupPostalCode(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *PPMShipment) validateProGearWeightTickets(formats strfmt.Registry) error {
+	if swag.IsZero(m.ProGearWeightTickets) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.ProGearWeightTickets); i++ {
+		if swag.IsZero(m.ProGearWeightTickets[i]) { // not required
+			continue
+		}
+
+		if m.ProGearWeightTickets[i] != nil {
+			if err := m.ProGearWeightTickets[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("proGearWeightTickets" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("proGearWeightTickets" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) validateReviewedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.ReviewedAt) { // not required
 		return nil
@@ -692,6 +725,10 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateProGearWeightTickets(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateShipmentID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -782,6 +819,26 @@ func (m *PPMShipment) contextValidateMovingExpenses(ctx context.Context, formats
 					return ve.ValidateName("movingExpenses" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("movingExpenses" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateProGearWeightTickets(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.ProGearWeightTickets); i++ {
+
+		if m.ProGearWeightTickets[i] != nil {
+			if err := m.ProGearWeightTickets[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("proGearWeightTickets" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("proGearWeightTickets" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
