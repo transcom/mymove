@@ -7,9 +7,6 @@ import ProGearForm from 'components/Customer/PPM/Closeout/ProGearForm/ProGearFor
 const defaultProps = {
   onBack: jest.fn(),
   onSubmit: jest.fn(),
-  // onCreateUpload: jest.fn(),
-  // onUploadComplete: jest.fn(),
-  // onUploadDelete: jest.fn(),
 };
 
 const selfProGearProps = {
@@ -24,7 +21,7 @@ const spouseProGearProps = {
   },
 };
 
-const missingWeightTicket = screen.getByLabelText("I don't have weight tickets");
+// const missingWeightTicket = screen.getByLabelText("I don't have weight tickets");
 
 describe('ProGearForm component', () => {
   describe('displays form', () => {
@@ -50,18 +47,18 @@ describe('ProGearForm component', () => {
       render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
       expect(screen.getByLabelText('Me')).toBeChecked();
       expect(screen.getByLabelText('My spouse')).not.toBeChecked();
-      expect(missingWeightTicket).toBeInstanceOf(HTMLInputElement);
+      // expect(missingWeightTicket).toBeInstanceOf(HTMLInputElement);
     });
-
-    it('populates form when weight ticket is missing', async () => {
-      render(<ProGearForm {...defaultProps} {...missingWeightTicket} />);
-      await waitFor(() => {
-        expect(screen.getByLabelText("I don't have weight tickets")).toHaveDisplayValue('missingWeightTicket');
-      });
-      expect(
-        screen.getByText('Download the official government spreadsheet to calculate the constructed weight.'),
-      ).toBeInTheDocument();
-    });
+    // TODO: Move test to WeightTicketUpload.test.jsx
+    // it('populates form when weight ticket is missing', async () => {
+    //   render(<ProGearForm {...defaultProps} {...missingWeightTicket} />);
+    //   await waitFor(() => {
+    //     expect(screen.getByLabelText("I don't have weight tickets")).toHaveDisplayValue('missingWeightTicket');
+    //   });
+    //   expect(
+    //     screen.getByText('Download the official government spreadsheet to calculate the constructed weight.'),
+    //   ).toBeInTheDocument();
+    // });
 
     it('selects "My spouse" radio when selfProGear is false', () => {
       render(<ProGearForm {...defaultProps} {...spouseProGearProps} />);
