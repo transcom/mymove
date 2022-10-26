@@ -28,7 +28,7 @@ describe('when given a delete upload history record', () => {
     render(result.getDetails(item));
     render(result.getEventNameDisplay(item));
     expect(screen.getByText(details)).toBeInTheDocument();
-    expect(screen.getByText('Amended orders')).toBeInTheDocument();
+    expect(screen.getByText('Updated orders')).toBeInTheDocument();
   });
   it('correctly matches the default display when the type is not recognized', () => {
     item.context[0].upload_type = 'default';
