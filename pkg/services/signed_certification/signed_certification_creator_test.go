@@ -18,13 +18,13 @@ func (suite *SignedCertificationSuite) TestCreateSignedCertification() {
 
 		if suite.Error(err) {
 			suite.IsType(apperror.InvalidInputError{}, err)
-			suite.Equal(err.Error(), "Invalid input found while validating the signed certification.")
+			suite.Equal("Invalid input found while validating the signed certification.", err.Error())
 		}
 	})
 
 	suite.Run("Returns a transaction error if one is raised when validating the data", func() {
-		// It's hard to trigger this without skipping the validation that the default creator runs, so we'll use a creator that
-		// doesn't have any validation so we can trigger the model-level validation.
+		// It's hard to trigger this without skipping the validation that the default creator runs, so we'll use a
+		// creator that doesn't have any validation so we can trigger the model-level validation.
 		creator := &signedCertificationCreator{}
 
 		newSignedCertification, createErr := creator.CreateSignedCertification(suite.AppContextForTest(), models.SignedCertification{})
@@ -33,13 +33,13 @@ func (suite *SignedCertificationSuite) TestCreateSignedCertification() {
 
 		if suite.Error(createErr) {
 			suite.IsType(apperror.InvalidInputError{}, createErr)
-			suite.Equal(createErr.Error(), "Invalid input found while creating the signed certification.")
+			suite.Equal("Invalid input found while creating the signed certification.", createErr.Error())
 		}
 	})
 
 	suite.Run("Returns a transaction error if one is raised when creating the record", func() {
-		// It's hard to trigger this without skipping the validation that the default creator runs, so we'll use a creator that
-		// doesn't have any validation so we can trigger the model-level validation.
+		// It's hard to trigger this without skipping the validation that the default creator runs, so we'll use a
+		// creator that doesn't have any validation so we can trigger the model-level validation.
 		creator := &signedCertificationCreator{}
 
 		signedCertification := testdatagen.MakeDefaultSignedCertification(suite.DB())
@@ -50,7 +50,7 @@ func (suite *SignedCertificationSuite) TestCreateSignedCertification() {
 
 		if suite.Error(createErr) {
 			suite.IsType(apperror.QueryError{}, createErr)
-			suite.Equal(createErr.Error(), "Unable to create signed certification")
+			suite.Equal("Unable to create signed certification", createErr.Error())
 		}
 	})
 

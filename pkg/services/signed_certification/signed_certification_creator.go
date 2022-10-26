@@ -21,7 +21,7 @@ func NewSignedCertificationCreator() services.SignedCertificationCreator {
 
 // CreateSignedCertification creates a signed certification.
 func (s *signedCertificationCreator) CreateSignedCertification(appCtx appcontext.AppContext, signedCertification models.SignedCertification) (*models.SignedCertification, error) {
-	if err := validateSignedCertification(appCtx, signedCertification, s.checks...); err != nil {
+	if err := validateSignedCertification(appCtx, signedCertification, nil, s.checks...); err != nil {
 		return nil, err
 	}
 

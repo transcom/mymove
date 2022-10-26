@@ -11,3 +11,10 @@ import (
 type SignedCertificationCreator interface {
 	CreateSignedCertification(appCtx appcontext.AppContext, signedCertification models.SignedCertification) (*models.SignedCertification, error)
 }
+
+// SignedCertificationUpdater updates a signed certification
+//
+//go:generate mockery --name SignedCertificationUpdater --disable-version-string
+type SignedCertificationUpdater interface {
+	UpdateSignedCertification(appCtx appcontext.AppContext, signedCertification models.SignedCertification, eTag string) (*models.SignedCertification, error)
+}
