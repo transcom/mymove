@@ -2,12 +2,18 @@
 @import 'shared/styles/_variables';
 
 .notFound {
-  @include u-padding-top(6);
+  @include u-padding-top(10);
   @include u-padding-bottom(15);
+
+  @media (max-width: $tablet) {
+    @include u-padding-top(6);
+    @include u-padding-bottom(2);
+  }
 
   h1 {
     font-family: Public Sans Web, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif,
       Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+    @include u-padding-top(5);
 
     font-size: 60px;
   }
@@ -34,7 +40,16 @@
     }
   }
 
+  .description {
+    @include u-padding-top(1);
+    @include u-padding-bottom(10);
+  }
+
   .explanation {
-    @include u-padding-top(2);
+    @include u-margin-bottom(0);
+  }
+
+  .recommendation {
+    @include u-margin-top(0);
   }
 }
