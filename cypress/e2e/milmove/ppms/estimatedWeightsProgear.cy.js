@@ -1,4 +1,3 @@
-import { afterEach } from 'mocha';
 import {
   navigateFromDateAndLocationPageToEstimatedWeightsPage,
   signInAndNavigateFromHomePageToExistingPPMDateAndLocationPage,
@@ -14,10 +13,6 @@ describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
-  });
-
-  afterEach(() => {
-    cy.pa11y();
   });
 
   it('doesn’t allow SM to progress if form is in an invalid state', () => {

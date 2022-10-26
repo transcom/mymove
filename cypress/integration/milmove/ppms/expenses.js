@@ -12,6 +12,9 @@ describe('Expenses', function () {
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
   });
+  afterEach(() => {
+    cy.pa11y();
+  });
   const viewportType = [
     { viewport: 'desktop', isMobile: false, userId: '146c2665-5b8a-4653-8434-9a4460de30b5' }, // movingExpensePPM@ppm.approved
     { viewport: 'mobile', isMobile: true, userId: '7d4dbc69-2973-4c8b-bf75-6fb582d7a5f6' }, // movingExpensePPM2@ppm.approved

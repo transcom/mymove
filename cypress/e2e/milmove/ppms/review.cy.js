@@ -40,10 +40,6 @@ describe('PPM Onboarding - Review', function () {
     cy.intercept('GET', '**/internal/moves/**/signed_certifications').as('signedCertifications');
   });
 
-  afterEach(() => {
-    cy.pa11y();
-  });
-
   const viewportType = [
     { viewport: 'desktop', isMobile: false, userId: 'afcc7029-4810-4f19-999a-2b254c659e19' }, // multiComplete@ppm.unsubmitted
     { viewport: 'mobile', isMobile: true, userId: '836d8363-1a5a-45b7-aee0-996a97724c24' }, // multiComplete2@ppm.unsubmitted

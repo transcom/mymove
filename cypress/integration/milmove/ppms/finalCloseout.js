@@ -14,6 +14,10 @@ describe('Final Closeout', function () {
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
   });
 
+  afterEach(() => {
+    cy.pa11y();
+  });
+
   const testCases = [
     { viewport: 'desktop', isMobile: false },
     { viewport: 'mobile', isMobile: true },

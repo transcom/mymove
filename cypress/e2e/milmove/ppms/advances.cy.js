@@ -16,9 +16,6 @@ describe('PPM On-boarding - Advances', function () {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
   });
-  afterEach(() => {
-    cy.pa11y();
-  });
 
   it('does not allow SM to progress if form is in an invalid state', () => {
     getToAdvancesPage();
@@ -50,14 +47,6 @@ describe('PPM On-boarding - Advances', function () {
       getToAdvancesPage();
 
       submitsAdvancePage(true, isMobile);
-    });
-
-    it(`passes a pa11y audit - ${viewport}`, () => {
-      if (isMobile) {
-        setMobileViewport();
-      }
-
-      getToAdvancesPage();
     });
   });
 });

@@ -9,10 +9,6 @@ describe('PPM Request Payment - Begin providing documents flow', () => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
   });
 
-  afterEach(() => {
-    cy.pa11y();
-  });
-
   const viewportType = [
     { viewport: 'desktop', isMobile: false },
     { viewport: 'mobile', isMobile: true },

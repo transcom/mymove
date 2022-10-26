@@ -25,6 +25,12 @@ const storeData = async (data, filepath) => {
   }
 };
 
+let reports = {};
+
+const accumulateReports = (runner, report) => {
+  reports[runner] = report;
+};
+
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
@@ -35,11 +41,12 @@ module.exports = (on, config) => {
 
   on('task', {
     lighthouse: lighthouse((report) => {
-      const filepath = path.resolve('cypress', 'reports/lighthouse_report.json');
+      const filepath = path.resolve('cypress', `reports/lighthouse_report-${new Date()}.json`);
       storeData(report, filepath);
     }),
     pa11y: pa11y((report) => {
-      const filepath = path.resolve('cypress', 'reports/pa11y_report.json');
+      console.log(report);
+      const filepath = path.resolve('cypress', `reports/pa11y_report-${new Date()}.json`);
       storeData(report, filepath);
     }),
   });

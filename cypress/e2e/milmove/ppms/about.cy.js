@@ -10,10 +10,6 @@ describe('About Your PPM', function () {
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
   });
 
-  afterEach(() => {
-    cy.pa11y();
-  });
-
   const viewportType = [
     { viewport: 'desktop', isMobile: false, userId: 'c28b2eb1-975f-49f7-b8a3-c7377c0da908', selectAdvance: true }, // readyToFinish2@ppm.approved
     { viewport: 'mobile', isMobile: true, userId: '539af373-9474-49f3-b06b-bc4b4d4111de', selectAdvance: true }, // readyToFinish3@ppm.approved

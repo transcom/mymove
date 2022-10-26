@@ -1,7 +1,6 @@
 import {
   navigateFromCloseoutReviewPageToProGearPage,
   setMobileViewport,
-  signInAndNavigateToPPMReviewPage,
   signInAndNavigateToWeightTicketPage,
 } from '../../../support/ppmCustomerShared';
 
@@ -11,9 +10,6 @@ describe('Progear', function () {
   });
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
-  });
-  afterEach(() => {
-    cy.pa11y();
   });
   const viewportType = [
     { viewport: 'desktop', isMobile: false, userId: '33eabbb6-416d-4d91-ba5b-bfd7d35e3037' }, // progearWeightTicket@ppm.approved
@@ -25,7 +21,7 @@ describe('Progear', function () {
         setMobileViewport();
       }
 
-      signInAndNavigateToPPMReviewPage(userId);
+      signInAndNavigateToWeightTicketPage(userId);
       navigateFromCloseoutReviewPageToProGearPage();
       cy.get('[data-testid="selfProGear"]').should('not.be.checked');
       cy.get('[data-testid="spouseProGear"]').should('not.be.checked');
@@ -35,6 +31,7 @@ describe('Progear', function () {
       cy.get('label[for="ownerOfProGearSpouse"').click();
       cy.get('[data-testid="selfProGear"]').should('not.be.checked');
       cy.get('[data-testid="spouseProGear"]').should('be.checked');
+      cy.pa11y();
     });
   });
 });
