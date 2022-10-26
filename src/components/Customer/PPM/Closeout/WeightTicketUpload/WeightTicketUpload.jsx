@@ -36,6 +36,7 @@ const constructedWeightDownload = (
     <p>
       Enter the constructed weight you calculated.
       <br />
+      <br />
       Upload a completed copy of the spreadsheet.
     </p>
   </>
