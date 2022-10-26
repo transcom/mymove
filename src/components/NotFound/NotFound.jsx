@@ -9,9 +9,11 @@ const NotFound = ({ handleOnClick }) => {
   return (
     <div className={classnames('usa-grid', styles.notFound)}>
       <div className="grid-container">
-        <b>Error - 404</b>
-        <div>
-          <b>Let&apos;s move you in the right direction</b>
+        <div className={styles.preheader}>
+          <b>Error - 404</b>
+          <div className={styles.preheaderQuip}>
+            <b>Let&apos;s move you in the right direction</b>
+          </div>
         </div>
         <h1>
           <b>We can&apos;t find the page you&apos;re looking for</b>

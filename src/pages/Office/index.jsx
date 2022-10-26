@@ -143,6 +143,10 @@ export class OfficeApp extends Component {
         exact: true,
       });
 
+    const goBack = () => {
+      history.push('/');
+    };
+
     const ppmRoutes = [
       <PrivateRoute
         key="ppmOrdersRoute"
@@ -351,7 +355,7 @@ export class OfficeApp extends Component {
                       }}
                     />
                     {/* 404 */}
-                    <Route render={(routeProps) => <NotFound {...routeProps} handleOnClick={history.goBack} />} />
+                    <Route render={(routeProps) => <NotFound {...routeProps} handleOnClick={goBack} />} />
                   </Switch>
                 )}
               </Suspense>

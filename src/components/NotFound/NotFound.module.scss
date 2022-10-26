@@ -10,6 +10,14 @@
     @include u-padding-bottom(2);
   }
 
+  .preheader {
+    font-size: 22px;
+  }
+
+  .preheaderQuip {
+    @include u-padding-top(2);
+  }
+
   h1 {
     @include u-padding-top(5);
 
@@ -41,6 +49,9 @@
   .description {
     @include u-padding-top(1);
     @include u-padding-bottom(10);
+
+    font-size: 15px;
+    line-height: 23px;
   }
 
   .explanation {
