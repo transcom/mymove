@@ -108,29 +108,6 @@ func (_m *MoveTaskOrderUpdater) UpdateReviewedBillableWeightsAt(appCtx appcontex
 	return r0, r1
 }
 
-// UpdateSelectedMoveType provides a mock function with given fields: appCtx, moveTaskOrderID, selectedMoveType
-func (_m *MoveTaskOrderUpdater) UpdateSelectedMoveType(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, selectedMoveType *models.SelectedMoveType) (*models.Move, error) {
-	ret := _m.Called(appCtx, moveTaskOrderID, selectedMoveType)
-
-	var r0 *models.Move
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *models.SelectedMoveType) *models.Move); ok {
-		r0 = rf(appCtx, moveTaskOrderID, selectedMoveType)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Move)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *models.SelectedMoveType) error); ok {
-		r1 = rf(appCtx, moveTaskOrderID, selectedMoveType)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // UpdateStatusServiceCounselingCompleted provides a mock function with given fields: appCtx, moveTaskOrderID, eTag
 func (_m *MoveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID, eTag)

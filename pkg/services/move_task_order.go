@@ -52,7 +52,6 @@ type MoveTaskOrderUpdater interface {
 	UpdateReviewedBillableWeightsAt(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error)
 	UpdateTIORemarks(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string, remarks string) (*models.Move, error)
 	ShowHide(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, show *bool) (*models.Move, error)
-	UpdateSelectedMoveType(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, selectedMoveType *models.SelectedMoveType) (*models.Move, error)
 }
 
 // MoveTaskOrderChecker is the service object interface for checking if a MoveTaskOrder is in a certain state

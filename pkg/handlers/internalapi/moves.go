@@ -8,7 +8,9 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -103,7 +105,6 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 // PatchMoveHandler patches a move via PATCH /moves/{moveId}
 type PatchMoveHandler struct {
 	handlers.HandlerConfig
-	services.MoveTaskOrderUpdater
 }
 
 // Handle ... patches a Move from a request payload
@@ -130,12 +131,13 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 
 			if newSelectedMoveType != nil {
 				stringSelectedMoveType := models.SelectedMoveType(*newSelectedMoveType)
-				move, err = h.UpdateSelectedMoveType(appCtx, moveID, &stringSelectedMoveType)
-				if err != nil {
-					return handlers.ResponseForError(logger, err), err
-				}
+				move.SelectedMoveType = &stringSelectedMoveType
 			}
 
+			verrs, err := appCtx.DB().ValidateAndUpdate(move)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(logger, verrs, err), err
+			}
 			movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
 			if err != nil {
 				return handlers.ResponseForError(logger, err), err
@@ -354,6 +356,18 @@ func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersPara
 			err = h.MoveRouter.Submit(appCtx, move, models.SignedCertification{})
 			if err != nil {
 				return handlers.ResponseForError(logger, err), err
+			}
+
+			responseVErrors := validate.NewErrors()
+			var responseError error
+
+			if verrs, saveErr := appCtx.DB().ValidateAndSave(move); verrs.HasAny() || saveErr != nil {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(saveErr, "Error Saving Move")
+			}
+
+			if responseVErrors.HasAny() {
+				return handlers.ResponseForVErrors(logger, responseVErrors, responseError), responseError
 			}
 
 			movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)

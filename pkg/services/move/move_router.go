@@ -102,12 +102,6 @@ func (router moveRouter) Submit(appCtx appcontext.AppContext, move *models.Move,
 				}
 				txnAppCtx.Logger().Info("Successfully reset orders acknowledgement")
 			}
-
-			if verrs, err = appCtx.DB().ValidateAndSave(move); verrs.HasAny() || err != nil {
-				txnAppCtx.Logger().Error("failure saving move when routing move submission", zap.Error(err))
-				return err
-			}
-
 			return nil
 		})
 		if transactionError != nil {

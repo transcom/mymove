@@ -391,45 +391,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	})
 }
 
-func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateSelectedMoveType() {
-	// Set up the necessary updater objects:
-	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
-	updater := NewMoveTaskOrderUpdater(
-		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
-		moveRouter,
-	)
-	ppmMoveType := models.SelectedMoveTypePPM
-	hhgMoveType := models.SelectedMoveTypeHHG
-
-	suite.Run("Successfully update SelectedMoveType", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				SelectedMoveType: &ppmMoveType,
-			},
-		})
-
-		updatedMove, err := updater.UpdateSelectedMoveType(suite.AppContextForTest(), move.ID, &hhgMoveType)
-
-		suite.NotNil(updatedMove)
-		suite.NoError(err)
-		suite.Equal(updatedMove.ID, move.ID)
-		suite.Equal(hhgMoveType, *updatedMove.SelectedMoveType)
-	})
-
-	// Case: Move UUID not found in DB
-	suite.Run("Fail - Move not found", func() {
-		// Use a non-existent id
-		badMoveID := uuid.Must(uuid.NewV4())
-		updatedMove, err := updater.UpdateSelectedMoveType(suite.AppContextForTest(), badMoveID, &hhgMoveType)
-
-		suite.Nil(updatedMove)
-		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Contains(err.Error(), badMoveID.String())
-	})
-}
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableToPrime() {
 	suite.Run("Service item creator is not called if move fails to get approved", func() {
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
