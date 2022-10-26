@@ -123,7 +123,7 @@ func main() {
 
 	moveID := v.GetString(moveIDFlag)
 	if moveID == "" {
-		log.Fatal("Usage: generate_shipment_summary -move <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
+		log.Fatalf("Usage: %s --move <29cb984e-c70d-46f0-926d-cd89e07a6ec3>", os.Args[0])
 	}
 
 	// Define the data here that you want to populate the form with. Data will only be populated
