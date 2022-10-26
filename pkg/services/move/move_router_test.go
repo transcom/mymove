@@ -186,30 +186,6 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		suite.Nil(updatedOrders.AmendedOrdersAcknowledgedAt)
 	})
 
-	suite.Run("Happy path - move submitted to the TOO ", func() {
-		// Under test: MoveRouter.Submit
-		// Set up: Create a move that is in DRAFT status, submit a move TOO
-		// Expected outcome: No errors. New signed certification created.
-		move := testdatagen.MakeDefaultMove(suite.DB())
-
-		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-			SignedCertification: models.SignedCertification{
-				MoveID: move.ID,
-			},
-			Stub: true,
-		})
-		err := moveRouter.Submit(suite.AppContextForTest(), &move, newSignedCertification)
-		suite.NoError(err)
-		suite.Equal(models.MoveStatusSUBMITTED, move.Status)
-
-		query := suite.DB().Where("move_id = $1", move.ID)
-		err = query.First(&newSignedCertification)
-		suite.NoError(err)
-		suite.NotNil(newSignedCertification)
-		suite.NotNil(move.ID, newSignedCertification.MoveID)
-		suite.NotNil(move.Orders.ServiceMember.UserID, newSignedCertification.SubmittingUserID)
-	})
-
 	suite.Run("moves going to the TOO return errors if the move doesn't have DRAFT status", func() {
 		// Under test: MoveRouter.Submit
 		// Set up: Create a move that is not in DRAFT status, submit a move to other statuses
@@ -238,40 +214,6 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			suite.Contains(err.Error(), "Cannot move to Submitted state for TOO review when the Move is not in Draft status")
 			suite.Contains(err.Error(), fmt.Sprintf("Its current status is: %s", tt.status))
 		}
-	})
-
-	suite.Run("Happy path - move submitted to the services counselor ", func() {
-		// Under test: MoveRouter.Submit
-		// Set up: Create a move that is in DRAFT status, submit a move to services counselor
-		// Expected outcome: No errors. New signed certification created.
-		dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
-			DutyLocation: models.DutyLocation{
-				ProvidesServicesCounseling: true,
-			},
-		})
-		assertions := testdatagen.Assertions{
-			Order: models.Order{
-				OriginDutyLocation: &dutyLocation,
-			},
-		}
-		move := testdatagen.MakeMove(suite.DB(), assertions)
-
-		newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-			SignedCertification: models.SignedCertification{
-				MoveID: move.ID,
-			},
-			Stub: true,
-		})
-		err := moveRouter.Submit(suite.AppContextForTest(), &move, newSignedCertification)
-		suite.NoError(err)
-		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status)
-
-		query := suite.DB().Where("move_id = $1", move.ID)
-		err = query.First(&newSignedCertification)
-		suite.NoError(err)
-		suite.NotNil(newSignedCertification)
-		suite.NotNil(move.ID, newSignedCertification.MoveID)
-		suite.NotNil(move.Orders.ServiceMember.UserID, newSignedCertification.SubmittingUserID)
 	})
 
 	suite.Run("moves going to the services counselor return errors if the move doesn't have DRAFT/NEEDS SERVICE COUNSELING status", func() {
