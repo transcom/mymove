@@ -662,6 +662,19 @@ func (suite *PopTestSuite) NoVerrs(verrs *validate.Errors) bool {
 	return true
 }
 
+// FatalNoVerrs ends a test if there are verrs
+func (suite *PopTestSuite) FatalNoVerrs(verrs *validate.Errors, messages ...string) {
+	t := suite.T()
+	t.Helper()
+	if !suite.NoVerrs(verrs) {
+		if len(messages) > 0 {
+			t.Fatalf("%s: %s", strings.Join(messages, ","), verrs.Error())
+		} else {
+			t.Fatal(verrs.Error())
+		}
+	}
+}
+
 // NilOrNoVerrs checks that an error is effecively nil
 func (suite *PopTestSuite) NilOrNoVerrs(err error) {
 	switch verr := err.(type) {
