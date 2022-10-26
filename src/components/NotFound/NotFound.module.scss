@@ -14,8 +14,20 @@
     font-size: 22px;
   }
 
+  @media (max-width: $tablet) {
+    .preheader {
+      font-size: 20px;
+    }
+  }
+
   .preheaderQuip {
     @include u-padding-top(2);
+  }
+
+  @media (max-width: $tablet) {
+    .preheaderQuip {
+      @include u-padding-top(1);
+    }
   }
 
   h1 {
