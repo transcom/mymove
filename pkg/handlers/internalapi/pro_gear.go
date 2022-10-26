@@ -13,30 +13,30 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// CreateProgearHandler
-type CreateProgearHandler struct {
+// CreateProGearHandler
+type CreateProGearHandler struct {
 	handlers.HandlerConfig
 	progearCreator services.ProgearCreator
 }
 
 // Handle creating a progear weight ticket
-func (h CreateProgearHandler) Handle(params progearops.CreateProgearParams) middleware.Responder {
+func (h CreateProGearHandler) Handle(params progearops.CreateProGearWeightTicketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if appCtx.Session() == nil {
 				noSessionErr := apperror.NewSessionError("No user session")
-				return progearops.NewCreateProGearUnauthorized(), noSessionErr
+				return progearops.NewCreateProGearWeightTicketUnauthorized(), noSessionErr
 			}
 
 			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
 				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
-				return progearops.NewCreateProgearForbidden(), noServiceMemberIDErr
+				return progearops.NewCreateProGearWeightTicketForbidden(), noServiceMemberIDErr
 			}
 
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
 			if err != nil {
 				appCtx.Logger().Error("missing PPM Shipment ID", zap.Error(err))
-				return progearops.NewCreateProgearBadRequest(), nil
+				return progearops.NewCreateProGearWeightTicketBadRequest(), nil
 			}
 
 			progear, err := h.progearCreator.CreateProgear(appCtx, ppmShipmentID)
@@ -45,17 +45,17 @@ func (h CreateProgearHandler) Handle(params progearops.CreateProgearParams) midd
 				appCtx.Logger().Error("internalapi.CreateProgearHandler", zap.Error(err))
 				switch err.(type) {
 				case apperror.InvalidInputError:
-					return progearops.NewCreateProgearUnprocessableEntity(), err
+					return progearops.NewCreateProGearWeightTicketUnprocessableEntity(), err
 				case apperror.ForbiddenError:
-					return progearops.NewCreateProgearForbidden(), err
+					return progearops.NewCreateProGearWeightTicketForbidden(), err
 				case apperror.NotFoundError:
-					return progearops.NewCreateProgearNotFound(), err
+					return progearops.NewCreateProGearWeightTicketNotFound(), err
 				default:
-					return progearops.NewCreateProgearInternalServerError(), err
+					return progearops.NewCreateProGearWeightTicketInternalServerError(), err
 				}
 			}
-			returnPayload := payloads.Progear(h.FileStorer(), progear)
-			return progearops.NewCreateProgearOK().WithPayload(returnPayload), nil
+			returnPayload := payloads.ProGearWeightTicket(h.FileStorer(), progear)
+			return progearops.NewCreateProGearWeightTicketOK().WithPayload(returnPayload), nil
 		})
 }
 
