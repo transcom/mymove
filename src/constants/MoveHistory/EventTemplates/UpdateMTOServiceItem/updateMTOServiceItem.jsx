@@ -1,7 +1,6 @@
 import React from 'react';
 
 import o from 'constants/MoveHistory/UIDisplay/Operations';
-import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
@@ -26,7 +25,6 @@ export default {
   action: a.UPDATE,
   eventName: o.updateMTOServiceItem,
   tableName: t.mto_service_items,
-  detailsType: d.LABELED,
   getEventNameDisplay: () => 'Updated service item',
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
