@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/AcknowledgeExcessWeightRisk /acknowledgeExcessWeightRisk';
+import e from 'constants/MoveHistory/EventTemplates/AcknowledgeExcessWeightRisk/acknowledgeExcessWeightRisk';
 
 describe('when given an Acknowledge excess weight risk history record', () => {
   const historyRecord = {

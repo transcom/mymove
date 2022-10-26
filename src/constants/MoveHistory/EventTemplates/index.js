@@ -1,4 +1,4 @@
-export { default as acknowledgeExcessWeightRisk } from './AcknowledgeExcessWeightRisk /acknowledgeExcessWeightRisk';
+export { default as acknowledgeExcessWeightRisk } from './AcknowledgeExcessWeightRisk/acknowledgeExcessWeightRisk';
 export { default as approveShipment } from './ApproveShipment/approveShipment';
 export { default as approveShipmentDiversion } from './approveShipmentDiversion';
 export { default as createBasicServiceItem } from './createBasicServiceItem';
