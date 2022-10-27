@@ -15,9 +15,9 @@ import (
 )
 
 var (
-	moveCanceledRawTextTemplate = string(assets.MustAsset("pkg/notifications/templates/move_canceled_template.txt"))
+	moveCanceledRawTextTemplate = string(assets.MustAsset("notifications/templates/move_canceled_template.txt"))
 	moveCanceledTextTemplate    = text.Must(text.New("text_template").Parse(moveCanceledRawTextTemplate))
-	moveCanceledRawHTMLTemplate = string(assets.MustAsset("pkg/notifications/templates/move_canceled_template.html"))
+	moveCanceledRawHTMLTemplate = string(assets.MustAsset("notifications/templates/move_canceled_template.html"))
 	moveCanceledHTMLTemplate    = html.Must(html.New("text_template").Parse(moveCanceledRawHTMLTemplate))
 )
 

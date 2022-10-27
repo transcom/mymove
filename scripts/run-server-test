@@ -28,7 +28,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 if [ "${APPLICATION}" == "app" ]; then
-  readarray -t package_list < <(go list ./... | grep -E -v '(ordersapi|/pkg/gen/|/pkg/assets/|/cmd|mocks|/pkg/testdatagen)')
+  readarray -t package_list < <(go list ./... | grep -E -v '(ordersapi|/pkg/gen/|/cmd|mocks|/pkg/testdatagen)')
 elif [ "${APPLICATION}" == "orders" ]; then
   readarray -t package_list < <(go list ./pkg/handlers/ordersapi)
 else

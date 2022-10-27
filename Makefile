@@ -293,9 +293,6 @@ bin/tls-checker: $(shell find cmd/tls-checker -name '*.go') $(PKG_GOSRC)
 bin/generate-payment-request-edi: $(shell find cmd/generate-payment-request-edi -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
 
-pkg/assets/assets.go:
-	scripts/gen-assets
-
 #
 # ----- END BIN TARGETS -----
 #
@@ -327,7 +324,7 @@ endif
 
 server_generate: .server_generate.stamp
 
-.server_generate.stamp: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp pkg/assets/assets.go bin/swagger $(wildcard swagger/*.yaml) ## Generate golang server code from Swagger files
+.server_generate.stamp: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp bin/swagger $(wildcard swagger/*.yaml) ## Generate golang server code from Swagger files
 	scripts/gen-server
 	touch .server_generate.stamp
 
@@ -1131,7 +1128,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-72166d322751035f17653503d19db22dd14c049e bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-4dbb2bcb421ecd4a7ea1e511b954e285a317c8fc bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images
