@@ -7294,12 +7294,8 @@ func init() {
         "ppmShipmentId",
         "createdAt",
         "updatedAt",
-        "emptyDocumentId",
-        "emptyDocument",
-        "fullDocumentId",
-        "fullDocument",
-        "constructedWeightDocumentId",
-        "constructedWeightDocument",
+        "documentId",
+        "document",
         "eTag"
       ],
       "properties": {
@@ -7308,29 +7304,6 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "constructedWeight": {
-          "description": "Constructed weight of the pro-gear.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "constructedWeightDocument": {
-          "allOf": [
-            {
-              "description": "Document that is associated with the user uploads containing the constructed weight."
-            },
-            {
-              "$ref": "#/definitions/Document"
-            }
-          ]
-        },
-        "constructedWeightDocumentId": {
-          "description": "The ID of the document that is associated with the user uploads containing the constructed weight.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "createdAt": {
           "type": "string",
@@ -7343,56 +7316,27 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "document": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the pro-gear weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "documentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the pro-gear weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "eTag": {
           "description": "A hash that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
-        },
-        "emptyDocument": {
-          "allOf": [
-            {
-              "description": "Document that is associated with the user uploads containing the empty vehicle weight."
-            },
-            {
-              "$ref": "#/definitions/Document"
-            }
-          ]
-        },
-        "emptyDocumentId": {
-          "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "emptyWeight": {
-          "description": "Weight of the vehicle not including the pro-gear.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "fullDocument": {
-          "allOf": [
-            {
-              "description": "Document that is associated with the user uploads containing the full vehicle weight."
-            },
-            {
-              "$ref": "#/definitions/Document"
-            }
-          ]
-        },
-        "fullDocumentId": {
-          "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "fullWeight": {
-          "description": "Weight of the vehicle including the pro-gear.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
         },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
@@ -7424,6 +7368,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weight": {
+          "description": "Weight of the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -8436,18 +8386,6 @@ func init() {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean"
         },
-        "constructedWeight": {
-          "description": "Constructed weight of the pro-gear.",
-          "type": "integer"
-        },
-        "emptyWeight": {
-          "description": "Weight of the vehicle not including the pro-gear.",
-          "type": "integer"
-        },
-        "fullWeight": {
-          "description": "Weight of the vehicle including the pro-gear.",
-          "type": "integer"
-        },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
           "type": "boolean"
@@ -8458,6 +8396,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weight": {
+          "description": "Weight of the pro-gear contained in the shipment.",
+          "type": "integer"
         }
       }
     },
@@ -17341,12 +17283,8 @@ func init() {
         "ppmShipmentId",
         "createdAt",
         "updatedAt",
-        "emptyDocumentId",
-        "emptyDocument",
-        "fullDocumentId",
-        "fullDocument",
-        "constructedWeightDocumentId",
-        "constructedWeightDocument",
+        "documentId",
+        "document",
         "eTag"
       ],
       "properties": {
@@ -17355,30 +17293,6 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "constructedWeight": {
-          "description": "Constructed weight of the pro-gear.",
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "constructedWeightDocument": {
-          "allOf": [
-            {
-              "description": "Document that is associated with the user uploads containing the constructed weight."
-            },
-            {
-              "$ref": "#/definitions/Document"
-            }
-          ]
-        },
-        "constructedWeightDocumentId": {
-          "description": "The ID of the document that is associated with the user uploads containing the constructed weight.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "createdAt": {
           "type": "string",
@@ -17391,58 +17305,27 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "document": {
+          "allOf": [
+            {
+              "description": "Document that is associated with the user uploads containing the pro-gear weight."
+            },
+            {
+              "$ref": "#/definitions/Document"
+            }
+          ]
+        },
+        "documentId": {
+          "description": "The ID of the document that is associated with the user uploads containing the pro-gear weight.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "eTag": {
           "description": "A hash that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
-        },
-        "emptyDocument": {
-          "allOf": [
-            {
-              "description": "Document that is associated with the user uploads containing the empty vehicle weight."
-            },
-            {
-              "$ref": "#/definitions/Document"
-            }
-          ]
-        },
-        "emptyDocumentId": {
-          "description": "The ID of the document that is associated with the user uploads containing the empty vehicle weight.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "emptyWeight": {
-          "description": "Weight of the vehicle not including the pro-gear.",
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "fullDocument": {
-          "allOf": [
-            {
-              "description": "Document that is associated with the user uploads containing the full vehicle weight."
-            },
-            {
-              "$ref": "#/definitions/Document"
-            }
-          ]
-        },
-        "fullDocumentId": {
-          "description": "The ID of the document that is associated with the user uploads containing the full vehicle weight.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "fullWeight": {
-          "description": "Weight of the vehicle including the pro-gear.",
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true,
-          "x-omitempty": false
         },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
@@ -17474,6 +17357,13 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weight": {
+          "description": "Weight of the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -18493,21 +18383,6 @@ func init() {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean"
         },
-        "constructedWeight": {
-          "description": "Constructed weight of the pro-gear.",
-          "type": "integer",
-          "minimum": 0
-        },
-        "emptyWeight": {
-          "description": "Weight of the vehicle not including the pro-gear.",
-          "type": "integer",
-          "minimum": 0
-        },
-        "fullWeight": {
-          "description": "Weight of the vehicle including the pro-gear.",
-          "type": "integer",
-          "minimum": 0
-        },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
           "type": "boolean"
@@ -18518,6 +18393,11 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weight": {
+          "description": "Weight of the pro-gear contained in the shipment.",
+          "type": "integer",
+          "minimum": 0
         }
       }
     },
