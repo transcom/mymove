@@ -73,7 +73,7 @@
     "reselect": "^4.1.6",
     "sass": "^1.55.0",
     "swagger-client": "^3.18.5",
-    "swagger-ui-dist": "^4.15.1",
+    "swagger-ui-dist": "^4.15.2",
     "uswds": "2.13.3",
     "uuid": "^9.0.0",
     "webpack": "5",

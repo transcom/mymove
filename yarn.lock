@@ -19778,10 +19778,10 @@ swagger-client@^3.18.5:
     traverse "~0.6.6"
     url "~0.11.0"
 
-swagger-ui-dist@^4.15.1:
-  version "4.15.1"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.15.1.tgz#79952306cfb0d18cc05b10dff4c9896193f673c9"
-  integrity sha512-DlZARu6ckUFqDe0j5IPayO4k0gQvYQw9Un02MhxAgaMtVnTH2vmyyDe+yKeV0r1LiiPx3JbasdS/5Yyb/AV3iw==
+swagger-ui-dist@^4.15.2:
+  version "4.15.2"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.15.2.tgz#9cc1d18ad089cdda30b1d570a8950be382cac730"
+  integrity sha512-sanLAioshpa+Q0PpPxD86uo4labSqeIxtjLoC7xoce3HTnECPoQwY7PUVOiGMZ4dnEnROZPLUTloCEM86jZc1Q==
 
 symbol-tree@^3.2.4:
   version "3.2.4"
