@@ -722,6 +722,11 @@ jobs:
       - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
       - announce_failure
 
+  # `tls_pair_check` uses openssl to verify the validity of the TLS certificate
+  # of the public key.
+  tls_pair_check:
+    executor: av_medium
+
   # `anti_virus` uses virus detection software to scan the source code
   anti_virus:
     executor: av_medium
