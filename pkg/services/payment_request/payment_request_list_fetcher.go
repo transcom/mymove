@@ -254,7 +254,7 @@ func dodIDFilter(dodID *string) QueryOption {
 func locatorFilter(locator *string) QueryOption {
 	return func(query *pop.Query) {
 		if locator != nil {
-			query.Where("moves.locator = ?", *locator)
+			query.Where("moves.locator = ?", strings.ToUpper(*locator))
 		}
 	}
 }

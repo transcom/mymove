@@ -11,9 +11,12 @@ describe('when Prime user cancels a shipment', () => {
     detailsType: d.LABELED,
   };
   const historyRecord = {
-    oldValues: {
-      shipment_type: 'HHG shipment',
-    },
+    context: [
+      {
+        shipment_type: 'HHG shipment',
+        shipment_id_abbr: 'a1b2c',
+      },
+    ],
     changedValues: {
       status: 'CANCELED',
     },

@@ -7,9 +7,9 @@ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 
 export default {
   action: a.UPDATE,
-  eventName: o.updateAllowance,
+  eventName: o.counselingUpdateAllowance,
   tableName: t.service_members,
-  getEventNameDisplay: () => 'Updated service member',
+  getEventNameDisplay: () => 'Updated profile',
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={historyRecord} />;
   },

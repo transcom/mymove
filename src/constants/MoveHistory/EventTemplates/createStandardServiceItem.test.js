@@ -7,6 +7,7 @@ describe('when given a Create standard service item history record', () => {
     context: [
       {
         shipment_type: 'HHG',
+        shipment_id_abbr: 'a1b2c',
         name: 'Domestic linehaul',
       },
     ],
@@ -17,6 +18,6 @@ describe('when given a Create standard service item history record', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(e);
     expect(result.getEventNameDisplay(result)).toEqual('Approved service item');
-    expect(result.getDetailsPlainText(item)).toEqual('HHG shipment, Domestic linehaul');
+    expect(result.getDetailsPlainText(item)).toEqual('HHG shipment #A1B2C, Domestic linehaul');
   });
 });

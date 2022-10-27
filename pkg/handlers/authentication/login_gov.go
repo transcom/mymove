@@ -191,7 +191,7 @@ func (p LoginGovProvider) LogoutURL(redirectURL string, idToken string) string {
 	logoutPath, _ := url.Parse(fmt.Sprintf("https://%s/openid_connect/logout", p.hostname))
 	// Parameters taken from https://developers.login.gov/oidc/#logout
 	params := url.Values{
-		"id_token_hint":            {idToken},
+		"client_id":                {idToken},
 		"post_logout_redirect_uri": {redirectURL},
 		"state":                    {generateNonce()},
 	}

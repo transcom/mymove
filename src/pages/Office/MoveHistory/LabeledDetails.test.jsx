@@ -84,12 +84,13 @@ describe('LabeledDetails', () => {
         billable_weight_cap: '200',
         billable_weight_justification: 'Test TIO Remarks',
         shipment_type: SHIPMENT_OPTIONS.NTSR,
+        shipment_id_display: 'X9Y0Z',
       },
     };
 
     render(<LabeledDetails historyRecord={historyRecord} />);
 
-    expect(screen.getByText('NTS-release shipment')).toBeInTheDocument();
+    expect(screen.getByText('NTS-release shipment #X9Y0Z')).toBeInTheDocument();
   });
 
   it('does not render any text for changed values that are blank', async () => {
