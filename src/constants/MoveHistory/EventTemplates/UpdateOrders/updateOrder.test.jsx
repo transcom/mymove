@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 
 import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/updateOrders/updateOrder';
+import e from 'constants/MoveHistory/EventTemplates/UpdateOrders/updateOrder';
 
 describe('when given an Order update history record', () => {
   const historyRecord = {

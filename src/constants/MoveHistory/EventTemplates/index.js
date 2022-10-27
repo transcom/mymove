@@ -16,7 +16,7 @@ export { default as createPaymentRequestReweighUpdate } from './createPaymentReq
 export { default as createPaymentRequestShipmentUpdate } from './createPaymentRequestShipmentUpdate';
 export { default as createReweighRequestWeightUpdate } from './createReweighRequestWeightUpdate';
 export { default as createStandardServiceItem } from './createStandardServiceItem';
-export { default as deleteShipment } from './deleteShipment';
+export { default as deleteShipment } from './DeleteShipment/deleteShipment';
 export { default as proofOfServiceDocUpload } from './proofOfServiceDocUpload';
 export { default as requestShipmentCancellation } from './requestShipmentCancellation';
 export { default as requestShipmentDiversion } from './requestShipmentDiversion';
@@ -29,12 +29,12 @@ export { default as updateBillableWeightAsTIO } from './updateBillableWeightAsTI
 export { default as updateBillableWeightRemarksAsTIO } from './updateBillableWeightRemarksAsTIO';
 export { default as updateMoveTaskOrder } from './updateMoveTaskOrder';
 export { default as updateMoveTaskOrderStatus } from './updateMoveTaskOrderStatus';
-export { default as updateMTOServiceItem } from './updateMTOServiceItem';
+export { default as updateMTOServiceItem } from './UpdateMTOServiceItem/updateMTOServiceItem';
 export { default as updateMTOShipment } from './UpdateMTOShipment/updateMTOShipment';
 export { default as updateMTOShipmentAgent } from './updateMTOShipmentAgent';
 export { default as updateMTOShipmentDeprecatePaymentRequest } from './updateMTOShipmentDeprecatePaymentRequest';
 export { default as reweighPaymentRequest } from './reweighPaymentRequest';
-export { default as updateOrder } from './updateOrders/updateOrder';
+export { default as updateOrder } from './UpdateOrders/updateOrder';
 export { default as updatePaymentRequest } from './updatePaymentRequest';
 export { default as updatePaymentRequestJobRunner } from './updatePaymentRequestJobRunner';
 export { default as updatePaymentRequestStatus } from './updatePaymentRequestStatus';
