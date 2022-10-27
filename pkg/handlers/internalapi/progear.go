@@ -80,7 +80,7 @@ func (h UpdateProgearHandler) Handle(params progearops.UpdateProGearWeightTicket
 				return progearops.NewUpdateProGearWeightTicketForbidden(), noServiceMemberIDErr
 			}
 
-			payload := params.UpdateProgearWeightTicketPayload
+			payload := params.UpdateProGearWeightTicket
 			if payload == nil {
 				noBodyErr := apperror.NewBadDataError("Invalid weight ticket: params UpdateProgearPayload is nil")
 				appCtx.Logger().Error(noBodyErr.Error())

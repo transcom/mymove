@@ -686,6 +686,46 @@ definitions:
       CAR_TRAILER: Car + Trailer
       BOX_TRUCK: Box truck
       PRO_GEAR: Pro-gear
+  UpdateProGearWeightTicket:
+    type: object
+    properties:
+      belongsToSelf:
+        description: >-
+          Indicates if this information is for the customer's own pro-gear,
+          otherwise, it's the spouse's.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      description:
+        description: Describes the pro-gear that was moved.
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      hasWeightTickets:
+        description: >-
+          Indicates if the user has a weight ticket for their pro-gear,
+          otherwise they have a constructed weight.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      emptyWeight:
+        description: Weight of the vehicle not including the pro-gear.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      fullWeight:
+        description: Weight of the vehicle including the pro-gear.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      constructedWeight:
+        description: Constructed weight of the pro-gear.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
   MoveDocumentPayload:
     type: object
     properties:
@@ -5420,12 +5460,12 @@ paths:
           name: updateProGearWeightTicket
           required: true
           schema:
-            $ref: '#/definitions/ProGearWeightTicket'
+            $ref: '#/definitions/UpdateProGearWeightTicket'
       responses:
         '200':
           description: returns an updated pro-gear weight ticket object
           schema:
-            $ref: '#/definitions/ProGearWeightTicket'
+            $ref: '#/definitions/UpdateProGearWeightTicket'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
