@@ -13,14 +13,14 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// CreateProGearHandler
-type CreateProGearHandler struct {
+// CreateProgearHandler
+type CreateProgearHandler struct {
 	handlers.HandlerConfig
 	progearCreator services.ProgearCreator
 }
 
 // Handle creating a progear weight ticket
-func (h CreateProGearHandler) Handle(params progearops.CreateProGearWeightTicketParams) middleware.Responder {
+func (h CreateProgearHandler) Handle(params progearops.CreateProGearWeightTicketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if appCtx.Session() == nil {

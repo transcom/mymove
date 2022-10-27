@@ -13,6 +13,7 @@ import (
 type ProgearCreator interface {
 	CreateProgear(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.ProgearWeightTicket, error)
 }
+
 // // ProgearUpdater updates a Progear
 // //
 // //go:generate mockery --name ProgearUpdater --disable-version-string
