@@ -21,15 +21,13 @@ const spouseProGearProps = {
   },
 };
 
-// const missingWeightTicket = screen.getByLabelText("I don't have weight tickets");
-
 describe('ProGearForm component', () => {
   describe('displays form', () => {
     it('renders blank form on load with defaults', () => {
       render(<ProGearForm {...defaultProps} />);
 
       expect(screen.getByRole('heading', { level: 2, name: 'Set 1' })).toBeInTheDocument();
-      expect(screen.getByText('Pro-gear belongs to')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Who does this pro-gear belongs to?')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Me')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('My spouse')).toBeInstanceOf(HTMLInputElement);
 
@@ -44,14 +42,14 @@ describe('ProGearForm component', () => {
     });
 
     it('selects "Me" radio when selfProGear is true', () => {
-      render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
+      const { container } = render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
       expect(screen.getByLabelText('Me')).toBeChecked();
       expect(screen.getByLabelText('My spouse')).not.toBeChecked();
-      // expect(missingWeightTicket).toBeInstanceOf(HTMLInputElement);
+      expect(container).toHaveTextContent("You have to separate yours and your spouse's pro-gear.");
     });
     // TODO: Move test to WeightTicketUpload.test.jsx
     // it('populates form when weight ticket is missing', async () => {
-    //   render(<ProGearForm {...defaultProps} {...missingWeightTicket} />);
+    //   render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
     //   await waitFor(() => {
     //     expect(screen.getByLabelText("I don't have weight tickets")).toHaveDisplayValue('missingWeightTicket');
     //   });
@@ -75,6 +73,8 @@ describe('ProGearForm component', () => {
     it('calls the onSubmit callback with selfProGear set', async () => {
       const expectedPayload = {
         selfProGear: 'true',
+        proGearDocument: [],
+        proGearWeight: '',
       };
       render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
 

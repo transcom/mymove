@@ -26,8 +26,16 @@ const proGearDocumentRef = createRef();
 
 const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onUploadComplete, onUploadDelete }) => {
   const { selfProGear, document, proGearWeight } = proGear || {};
+  let proGearValue;
+  if (selfProGear === true) {
+    proGearValue = 'true';
+  }
+  if (selfProGear === false) {
+    proGearValue = 'false';
+  }
+
   const initialValues = {
-    selfProGear,
+    selfProGear: proGearValue,
     proGearDocument: document?.uploads || [],
     proGearWeight: proGearWeight ? `${proGearWeight}` : '',
   };
@@ -169,7 +177,7 @@ ProGearForm.propTypes = {
 ProGearForm.defaultProps = {
   setNumber: 1,
   proGear: {
-    selfProGear: true,
+    selfProGear: null,
   },
 };
 
