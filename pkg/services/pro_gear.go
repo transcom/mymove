@@ -17,6 +17,6 @@ type ProgearCreator interface {
 // // ProgearUpdater updates a Progear
 // //
 // //go:generate mockery --name ProgearUpdater --disable-version-string
-// type ProgearUpdater interface {
-// 	UpdateProgear(appCtx appcontext.AppContext, weightTicket models.Progear, eTag string) (*models.WeightTicket, error)
-// }
+type ProgearUpdater interface {
+	UpdateProgear(appCtx appcontext.AppContext, progear models.ProgearWeightTicket, eTag string) (*models.ProgearWeightTicket, error)
+}

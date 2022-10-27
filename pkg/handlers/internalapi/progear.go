@@ -60,79 +60,79 @@ func (h CreateProgearHandler) Handle(params progearops.CreateProGearWeightTicket
 }
 
 // // UpdateProgearHandler
-// type UpdateProgearHandler struct {
-// 	handlers.HandlerConfig
-// 	weightTicketUpdater services.ProgearUpdater
-// }
+type UpdateProgearHandler struct {
+	handlers.HandlerConfig
+	progearUpdater services.ProgearUpdater
+}
 
-// func (h UpdateProgearHandler) Handle(params weightticketops.UpdateProgearParams) middleware.Responder {
-// 	// track every request with middleware:
-// 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-// 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+func (h UpdateProgearHandler) Handle(params progearops.UpdateProGearWeightTicketParams) middleware.Responder {
+	// track every request with middleware:
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-// 			if appCtx.Session() == nil {
-// 				noSessionErr := apperror.NewSessionError("No user session")
-// 				return weightticketops.NewUpdateProgearUnauthorized(), noSessionErr
-// 			}
+			if appCtx.Session() == nil {
+				noSessionErr := apperror.NewSessionError("No user session")
+				return progearops.NewUpdateProGearWeightTicketUnauthorized(), noSessionErr
+			}
 
-// 			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
-// 				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
-// 				return weightticketops.NewUpdateProgearForbidden(), noServiceMemberIDErr
-// 			}
+			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
+				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
+				return progearops.NewUpdateProGearWeightTicketForbidden(), noServiceMemberIDErr
+			}
 
-// 			payload := params.UpdateProgearPayload
-// 			if payload == nil {
-// 				noBodyErr := apperror.NewBadDataError("Invalid weight ticket: params UpdateProgearPayload is nil")
-// 				appCtx.Logger().Error(noBodyErr.Error())
-// 				return weightticketops.NewUpdateProgearBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-// 					"The Weight Ticket request payload cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest))), noBodyErr
-// 			}
+			payload := params.UpdateProgearWeightTicketPayload
+			if payload == nil {
+				noBodyErr := apperror.NewBadDataError("Invalid weight ticket: params UpdateProgearPayload is nil")
+				appCtx.Logger().Error(noBodyErr.Error())
+				return progearops.NewUpdateProGearWeightTicketBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+					"The Weight Ticket request payload cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest))), noBodyErr
+			}
 
-// 			weightTicket := payloads.ProgearModelFromUpdate(payload)
-// 			weightTicket.ID = uuid.FromStringOrNil(params.ProgearID.String())
+			weightTicket := payloads.ProgearModelFromUpdate(payload)
+			weightTicket.ID = uuid.FromStringOrNil(params.ProgearID.String())
 
-// 			updateProgear, err := h.weightTicketUpdater.UpdateProgear(appCtx, *weightTicket, params.IfMatch)
+			updateProgear, err := h.progearUpdater.UpdateProgear(appCtx, *weightTicket, params.IfMatch)
 
-// 			if err != nil {
-// 				appCtx.Logger().Error("internalapi.UpdateProgearHandler", zap.Error(err))
-// 				switch e := err.(type) {
-// 				case apperror.InvalidInputError:
-// 					return weightticketops.NewUpdateProgearUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
-// 				case apperror.PreconditionFailedError:
-// 					return weightticketops.NewUpdateProgearPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
-// 				case apperror.NotFoundError:
-// 					return weightticketops.NewUpdateProgearNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
-// 				case apperror.QueryError:
-// 					if e.Unwrap() != nil {
-// 						// If you can unwrap, log the internal error (usually a pq error) for better debugging
-// 						appCtx.
-// 							Logger().
-// 							Error(
-// 								"internalapi.UpdateProgearHandler error",
-// 								zap.Error(e.Unwrap()),
-// 							)
-// 					}
-// 					return weightticketops.
-// 						NewUpdateProgearInternalServerError().
-// 						WithPayload(
-// 							payloads.InternalServerError(
-// 								nil,
-// 								h.GetTraceIDFromRequest(params.HTTPRequest),
-// 							),
-// 						), err
-// 				default:
-// 					return weightticketops.
-// 						NewUpdateProgearInternalServerError().
-// 						WithPayload(
-// 							payloads.InternalServerError(
-// 								nil,
-// 								h.GetTraceIDFromRequest(params.HTTPRequest),
-// 							),
-// 						), err
-// 				}
+			if err != nil {
+				appCtx.Logger().Error("internalapi.UpdateProgearHandler", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.InvalidInputError:
+					return progearops.NewUpdateProGearWeightTicketUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
+				case apperror.PreconditionFailedError:
+					return progearops.NewUpdateProGearWeightTicketPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.NotFoundError:
+					return progearops.NewUpdateProGearWeightTicketNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.QueryError:
+					if e.Unwrap() != nil {
+						// If you can unwrap, log the internal error (usually a pq error) for better debugging
+						appCtx.
+							Logger().
+							Error(
+								"internalapi.UpdateProgearHandler error",
+								zap.Error(e.Unwrap()),
+							)
+					}
+					return progearops.
+						NewUpdateProGearWeightTicketInternalServerError().
+						WithPayload(
+							payloads.InternalServerError(
+								nil,
+								h.GetTraceIDFromRequest(params.HTTPRequest),
+							),
+						), err
+				default:
+					return progearops.
+						NewUpdateProGearWeightTicketInternalServerError().
+						WithPayload(
+							payloads.InternalServerError(
+								nil,
+								h.GetTraceIDFromRequest(params.HTTPRequest),
+							),
+						), err
+				}
 
-// 			}
-// 			returnPayload := payloads.Progear(h.FileStorer(), updateProgear)
-// 			return weightticketops.NewUpdateProgearOK().WithPayload(returnPayload), nil
-// 		})
-// }
+			}
+			returnPayload := payloads.ProGearWeightTicket(h.FileStorer(), updateProgear)
+			return progearops.NewUpdateProGearWeightTicketOK().WithPayload(returnPayload), nil
+		})
+}
