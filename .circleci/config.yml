@@ -13,7 +13,7 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-8c7fe3e662d4eb84cae022c7eb00a5afc952e8f5
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-4dbb2bcb421ecd4a7ea1e511b954e285a317c8fc
 
   # the cypress image to use
   cypress: &cypress milmove/circleci-docker:milmove-cypress-f678d1c6a5e2085f733f5408b7affd628f9f3576
@@ -717,7 +717,6 @@ jobs:
           keys:
             - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
       - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
       - announce_failure

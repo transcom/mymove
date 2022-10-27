@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-8c7fe3e662d4eb84cae022c7eb00a5afc952e8f5 as builder
+FROM milmove/circleci-docker:milmove-app-4dbb2bcb421ecd4a7ea1e511b954e285a317c8fc as builder
 
 # Prepare public DOD certificates.
 # hadolint ignore=DL3002
