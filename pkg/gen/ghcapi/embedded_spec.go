@@ -8386,18 +8386,6 @@ func init() {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean"
         },
-        "constructedWeight": {
-          "description": "Constructed weight of the pro-gear.",
-          "type": "integer"
-        },
-        "emptyWeight": {
-          "description": "Weight of the vehicle not including the pro-gear.",
-          "type": "integer"
-        },
-        "fullWeight": {
-          "description": "Weight of the vehicle including the pro-gear.",
-          "type": "integer"
-        },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
           "type": "boolean"
@@ -8408,6 +8396,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weight": {
+          "description": "Weight of the pro-gear contained in the shipment.",
+          "type": "integer"
         }
       }
     },
@@ -18391,21 +18383,6 @@ func init() {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean"
         },
-        "constructedWeight": {
-          "description": "Constructed weight of the pro-gear.",
-          "type": "integer",
-          "minimum": 0
-        },
-        "emptyWeight": {
-          "description": "Weight of the vehicle not including the pro-gear.",
-          "type": "integer",
-          "minimum": 0
-        },
-        "fullWeight": {
-          "description": "Weight of the vehicle including the pro-gear.",
-          "type": "integer",
-          "minimum": 0
-        },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
           "type": "boolean"
@@ -18416,6 +18393,11 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weight": {
+          "description": "Weight of the pro-gear contained in the shipment.",
+          "type": "integer",
+          "minimum": 0
         }
       }
     },

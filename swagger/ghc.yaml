@@ -4303,16 +4303,8 @@ definitions:
           Indicates if the user has a weight ticket for their pro-gear,
           otherwise they have a constructed weight.
         type: boolean
-      emptyWeight:
-        description: Weight of the vehicle not including the pro-gear.
-        type: integer
-        minimum: 0
-      fullWeight:
-        description: Weight of the vehicle including the pro-gear.
-        type: integer
-        minimum: 0
-      constructedWeight:
-        description: Constructed weight of the pro-gear.
+      weight:
+        description: Weight of the pro-gear contained in the shipment.
         type: integer
         minimum: 0
       status:
