@@ -67,11 +67,11 @@ func createPPMProgearPrereqs(suite *HandlerSuite, fixtureFile string) (models.Do
 	})
 
 	params := ppmop.NewCreatePPMUploadParams()
-	params.DocumentID = strfmt.UUID(proGear.FullDocumentID.String())
+	params.DocumentID = strfmt.UUID(proGear.DocumentID.String())
 	params.PpmShipmentID = strfmt.UUID(ppmShipment.ID.String())
 	params.File = suite.Fixture(fixtureFile)
 
-	return proGear.FullDocument, params
+	return proGear.Document, params
 }
 
 func createPPMExpensePrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, ppmop.CreatePPMUploadParams) {
