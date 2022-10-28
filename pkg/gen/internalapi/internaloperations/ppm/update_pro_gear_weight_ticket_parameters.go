@@ -55,7 +55,7 @@ type UpdateProGearWeightTicketParams struct {
 	  Required: true
 	  In: body
 	*/
-	UpdateProGearWeightTicket *internalmessages.ProGearWeightTicket
+	UpdateProGearWeightTicket *internalmessages.UpdateProGearWeightTicket
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -83,7 +83,7 @@ func (o *UpdateProGearWeightTicketParams) BindRequest(r *http.Request, route *mi
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body internalmessages.ProGearWeightTicket
+		var body internalmessages.UpdateProGearWeightTicket
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("updateProGearWeightTicket", "body", ""))

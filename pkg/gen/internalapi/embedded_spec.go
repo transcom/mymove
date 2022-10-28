@@ -2433,11 +2433,17 @@ func init() {
             "$ref": "#/parameters/ifMatch"
           },
           {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "$ref": "#/parameters/progearWeightTicketId"
+          },
+          {
             "name": "updateProGearWeightTicket",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ProGearWeightTicket"
+              "$ref": "#/definitions/UpdateProGearWeightTicket"
             }
           }
         ],
@@ -7221,6 +7227,47 @@ func init() {
         }
       }
     },
+    "UpdateProGearWeightTicket": {
+      "type": "object",
+      "properties": {
+        "belongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "constructedWeight": {
+          "description": "Constructed weight of the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "description": {
+          "description": "Describes the pro-gear that was moved.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "emptyWeight": {
+          "description": "Weight of the vehicle not including the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "fullWeight": {
+          "description": "Weight of the vehicle including the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        }
+      }
+    },
     "UpdateServiceMemberBackupContactPayload": {
       "type": "object",
       "required": [
@@ -7629,6 +7676,14 @@ func init() {
       "required": true
     },
     "proGearWeightTicketId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the pro-gear weight ticket",
+      "name": "proGearWeightTicketId",
+      "in": "path",
+      "required": true
+    },
+    "progearWeightTicketId": {
       "type": "string",
       "format": "uuid",
       "description": "UUID of the pro-gear weight ticket",
@@ -10264,11 +10319,27 @@ func init() {
             "required": true
           },
           {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the pro-gear weight ticket",
+            "name": "proGearWeightTicketId",
+            "in": "path",
+            "required": true
+          },
+          {
             "name": "updateProGearWeightTicket",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ProGearWeightTicket"
+              "$ref": "#/definitions/UpdateProGearWeightTicket"
             }
           }
         ],
@@ -15180,6 +15251,50 @@ func init() {
         }
       }
     },
+    "UpdateProGearWeightTicket": {
+      "type": "object",
+      "properties": {
+        "belongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "constructedWeight": {
+          "description": "Constructed weight of the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "description": {
+          "description": "Describes the pro-gear that was moved.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "emptyWeight": {
+          "description": "Weight of the vehicle not including the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "fullWeight": {
+          "description": "Weight of the vehicle including the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        }
+      }
+    },
     "UpdateServiceMemberBackupContactPayload": {
       "type": "object",
       "required": [
@@ -15595,6 +15710,14 @@ func init() {
       "required": true
     },
     "proGearWeightTicketId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the pro-gear weight ticket",
+      "name": "proGearWeightTicketId",
+      "in": "path",
+      "required": true
+    },
+    "progearWeightTicketId": {
       "type": "string",
       "format": "uuid",
       "description": "UUID of the pro-gear weight ticket",

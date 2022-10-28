@@ -88,8 +88,8 @@ func (h UpdateProgearHandler) Handle(params progearops.UpdateProGearWeightTicket
 					"The Weight Ticket request payload cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest))), noBodyErr
 			}
 
-			weightTicket := payloads.ProgearModelFromUpdate(payload)
-			weightTicket.ID = uuid.FromStringOrNil(params.ProgearID.String())
+			weightTicket := payloads.ProgearWeightTicketModelFromUpdate(payload)
+			weightTicket.ID = uuid.FromStringOrNil(params.ProGearWeightTicketID.String())
 
 			updateProgear, err := h.progearUpdater.UpdateProgear(appCtx, *weightTicket, params.IfMatch)
 

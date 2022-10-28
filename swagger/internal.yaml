@@ -5456,6 +5456,8 @@ paths:
         - application/json
       parameters:
         - $ref: '#/parameters/ifMatch'
+        - $ref: '#/parameters/ppmShipmentId'
+        - $ref: '#/parameters/progearWeightTicketId'
         - in: body
           name: updateProGearWeightTicket
           required: true
@@ -5465,7 +5467,7 @@ paths:
         '200':
           description: returns an updated pro-gear weight ticket object
           schema:
-            $ref: '#/definitions/UpdateProGearWeightTicket'
+            $ref: '#/definitions/ProGearWeightTicket'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -5936,6 +5938,13 @@ parameters:
       header does not match the value of the resource on the server, the server
       rejects the change with a `412 Precondition Failed` error.
   proGearWeightTicketId:
+    name: proGearWeightTicketId
+    in: path
+    type: string
+    format: uuid
+    required: true
+    description: UUID of the pro-gear weight ticket
+  progearWeightTicketId:
     name: proGearWeightTicketId
     in: path
     type: string
