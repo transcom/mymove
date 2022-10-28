@@ -19,7 +19,7 @@ references:
   cypress: &cypress milmove/circleci-docker:milmove-cypress-f678d1c6a5e2085f733f5408b7affd628f9f3576
 
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
-  postgres: &postgres cimg/postgres:12.7
+  postgres: &postgres cimg/postgres:12.11
 
   redis: &redis redis:5.0.6
 
