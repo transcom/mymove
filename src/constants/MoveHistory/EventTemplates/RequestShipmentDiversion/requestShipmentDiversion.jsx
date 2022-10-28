@@ -1,14 +1,18 @@
+import React from 'react';
+
 import o from 'constants/MoveHistory/UIDisplay/Operations';
-import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
-import { shipmentTypes } from 'constants/shipments';
+import t from 'constants/MoveHistory/Database/Tables';
+import a from 'constants/MoveHistory/Database/Actions';
+import { shipmentTypes as s } from 'constants/shipments';
 
 export default {
-  action: '*',
+  action: a.UPDATE,
   eventName: o.requestShipmentDiversion,
-  tableName: '*',
-  detailsType: d.PLAIN_TEXT,
+  tableName: t.mto_shipments,
   getEventNameDisplay: () => 'Requested diversion',
-  getDetailsPlainText: (historyRecord) => {
-    return `Requested diversion for ${shipmentTypes[historyRecord.oldValues?.shipment_type]} shipment`;
-  },
+  getDetails: ({ context }) => (
+    <>
+      Requested diversion for {s[context[0]?.shipment_type]} shipment #{context[0].shipment_id_abbr.toUpperCase()}
+    </>
+  ),
 };
