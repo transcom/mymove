@@ -10,23 +10,32 @@
 package user
 
 import (
+	"context"
 	"reflect"
 	"time"
 
-	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *UserServiceSuite) TestRevokeMilUserSession() {
+	boolean := true
+	payload := &adminmessages.UserUpdatePayload{
+		RevokeMilSession: &boolean,
+	}
 	newUUID, _ := uuid.NewV4()
-	sessionStore := memstore.New()
-	sessionID := "mil_session_token"
-	sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
+	sessionManagers := auth.SetupSessionManagers(nil, false, time.Duration(180*time.Second), time.Duration(180*time.Second))
+
+	ctx := context.Background()
+	ctx, err := sessionManagers.Mil.Load(ctx, "fake_token")
+	suite.NoError(err)
+	sessionID, _, err := sessionManagers.Mil.Commit(ctx)
+	suite.NoError(err)
 
 	fakeUpdateOne := func(appcontext.AppContext, interface{}, *string) (*validate.Errors, error) {
 		return nil, nil
@@ -41,37 +50,36 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 	}
 	updater := NewUserSessionRevocation(builder)
 
-	boolean := true
-	payload := &adminmessages.UserUpdatePayload{
-		RevokeMilSession: &boolean,
-	}
-
 	suite.Run("Key is removed from Redis when boolean is true", func() {
-		_, existsBefore, _ := sessionStore.Find(sessionID)
+		_, existsBefore, _ := sessionManagers.Mil.Store().Find(sessionID)
 
-		suite.Equal(existsBefore, true)
+		suite.True(existsBefore)
 
-		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
-		_, existsAfter, _ := sessionStore.Find(sessionID)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionManagers)
+		_, existsAfter, _ := sessionManagers.Mil.Store().Find(sessionID)
 
 		suite.NoError(revokeErr)
 		suite.Nil(verrs)
-		suite.Equal(existsAfter, false)
+		suite.False(existsAfter)
 	})
 
 	suite.Run("Key is not removed from Redis when boolean is false", func() {
-		sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
 		boolean = false
 		payload = &adminmessages.UserUpdatePayload{
 			RevokeMilSession: &boolean,
 		}
+		sessionID, _, err := sessionManagers.Mil.Commit(ctx)
+		suite.NoError(err)
+		_, existsBefore, _ := sessionManagers.Mil.Store().Find(sessionID)
 
-		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
-		_, exists, _ := sessionStore.Find(sessionID)
+		suite.Equal(existsBefore, true)
+
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionManagers)
+		_, exists, _ := sessionManagers.Mil.Store().Find(sessionID)
 
 		suite.NoError(revokeErr)
 		suite.Nil(verrs)
-		suite.Equal(exists, true)
+		suite.True(exists)
 	})
 
 	suite.Run("Returns an error if user is not found", func() {
@@ -89,7 +97,7 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 		}
 
 		updater := NewUserSessionRevocation(builder)
-		_, _, err := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
+		_, _, err := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionManagers)
 
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
@@ -98,9 +106,12 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 
 func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 	newUUID, _ := uuid.NewV4()
-	sessionStore := memstore.New()
-	sessionID := "admin_session_token"
-	sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
+	sessionManagers := auth.SetupSessionManagers(nil, false, time.Duration(180*time.Second), time.Duration(180*time.Second))
+	ctx := context.Background()
+	ctx, err := sessionManagers.Admin.Load(ctx, "fake_token")
+	suite.NoError(err)
+	sessionID, _, err := sessionManagers.Admin.Commit(ctx)
+	suite.NoError(err)
 
 	fakeUpdateOne := func(appcontext.AppContext, interface{}, *string) (*validate.Errors, error) {
 		return nil, nil
@@ -121,12 +132,12 @@ func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 	}
 
 	suite.Run("Key is removed from Redis when boolean is true", func() {
-		_, existsBefore, _ := sessionStore.Find(sessionID)
+		_, existsBefore, _ := sessionManagers.Admin.Store().Find(sessionID)
 
 		suite.Equal(existsBefore, true)
 
-		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
-		_, existsAfter, _ := sessionStore.Find(sessionID)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionManagers)
+		_, existsAfter, _ := sessionManagers.Admin.Store().Find(sessionID)
 
 		suite.NoError(revokeErr)
 		suite.Nil(verrs)
@@ -134,14 +145,19 @@ func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 	})
 
 	suite.Run("Key is not removed from Redis when boolean is false", func() {
-		sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
+		sessionID, _, err := sessionManagers.Admin.Commit(ctx)
+		suite.NoError(err)
+		_, existsBefore, _ := sessionManagers.Admin.Store().Find(sessionID)
+
+		suite.Equal(existsBefore, true)
+
 		boolean = false
 		payload = &adminmessages.UserUpdatePayload{
 			RevokeAdminSession: &boolean,
 		}
 
-		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
-		_, exists, _ := sessionStore.Find(sessionID)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionManagers)
+		_, exists, _ := sessionManagers.Admin.Store().Find(sessionID)
 
 		suite.NoError(revokeErr)
 		suite.Nil(verrs)
@@ -151,9 +167,13 @@ func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 
 func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 	newUUID, _ := uuid.NewV4()
-	sessionStore := memstore.New()
-	sessionID := "office_session_token"
-	sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
+	sessionManagers := auth.SetupSessionManagers(nil, false, time.Duration(180*time.Second), time.Duration(180*time.Second))
+
+	ctx := context.Background()
+	ctx, err := sessionManagers.Office.Load(ctx, "fake_token")
+	suite.NoError(err)
+	sessionID, _, err := sessionManagers.Office.Commit(ctx)
+	suite.NoError(err)
 
 	fakeUpdateOne := func(appcontext.AppContext, interface{}, *string) (*validate.Errors, error) {
 		return nil, nil
@@ -174,12 +194,12 @@ func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 	}
 
 	suite.Run("Key is removed from Redis when boolean is true", func() {
-		_, existsBefore, _ := sessionStore.Find(sessionID)
+		_, existsBefore, _ := sessionManagers.Office.Store().Find(sessionID)
 
 		suite.Equal(existsBefore, true)
 
-		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
-		_, existsAfter, _ := sessionStore.Find(sessionID)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionManagers)
+		_, existsAfter, _ := sessionManagers.Office.Store().Find(sessionID)
 
 		suite.NoError(revokeErr)
 		suite.Nil(verrs)
@@ -187,14 +207,19 @@ func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 	})
 
 	suite.Run("Key is not removed from Redis when boolean is false", func() {
-		sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
 		boolean = false
 		payload = &adminmessages.UserUpdatePayload{
 			RevokeOfficeSession: &boolean,
 		}
+		sessionID, _, err := sessionManagers.Office.Commit(ctx)
+		suite.NoError(err)
 
-		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
-		_, exists, _ := sessionStore.Find(sessionID)
+		_, existsBefore, _ := sessionManagers.Office.Store().Find(sessionID)
+
+		suite.Equal(existsBefore, true)
+
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionManagers)
+		_, exists, _ := sessionManagers.Office.Store().Find(sessionID)
 
 		suite.NoError(revokeErr)
 		suite.Nil(verrs)
@@ -204,13 +229,25 @@ func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 
 func (suite *UserServiceSuite) TestRevokeMultipleSessions() {
 	newUUID, _ := uuid.NewV4()
-	sessionStore := memstore.New()
-	officeSessionID := "office_session_token"
-	milSessionID := "mil_session_token"
-	adminSessionID := "admin_session_token"
-	sessionStore.Commit(officeSessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
-	sessionStore.Commit(milSessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
-	sessionStore.Commit(adminSessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
+	sessionManagers := auth.SetupSessionManagers(nil, false, time.Duration(180*time.Second), time.Duration(180*time.Second))
+
+	officeCtx := context.Background()
+	officeCtx, err := sessionManagers.Office.Load(officeCtx, "fake_token")
+	suite.NoError(err)
+	officeSessionID, _, err := sessionManagers.Office.Commit(officeCtx)
+	suite.NoError(err)
+
+	milCtx := context.Background()
+	milCtx, err = sessionManagers.Mil.Load(milCtx, "fake_token")
+	suite.NoError(err)
+	milSessionID, _, err := sessionManagers.Mil.Commit(milCtx)
+	suite.NoError(err)
+
+	adminCtx := context.Background()
+	adminCtx, err = sessionManagers.Admin.Load(adminCtx, "fake_token")
+	suite.NoError(err)
+	adminSessionID, _, err := sessionManagers.Admin.Commit(adminCtx)
+	suite.NoError(err)
 
 	fakeUpdateOne := func(appcontext.AppContext, interface{}, *string) (*validate.Errors, error) {
 		return nil, nil
@@ -235,23 +272,23 @@ func (suite *UserServiceSuite) TestRevokeMultipleSessions() {
 	}
 
 	suite.Run("All keys are removed from Redis when boolean is true", func() {
-		_, adminExistsBefore, _ := sessionStore.Find(adminSessionID)
-		_, officeExistsBefore, _ := sessionStore.Find(officeSessionID)
-		_, milExistsBefore, _ := sessionStore.Find(milSessionID)
+		_, adminExistsBefore, _ := sessionManagers.Admin.Store().Find(adminSessionID)
+		_, officeExistsBefore, _ := sessionManagers.Office.Store().Find(officeSessionID)
+		_, milExistsBefore, _ := sessionManagers.Mil.Store().Find(milSessionID)
 
-		suite.Equal(adminExistsBefore, true)
-		suite.Equal(officeExistsBefore, true)
-		suite.Equal(milExistsBefore, true)
+		suite.True(adminExistsBefore)
+		suite.True(officeExistsBefore)
+		suite.True(milExistsBefore)
 
-		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionStore)
-		_, adminExistsAfter, _ := sessionStore.Find(adminSessionID)
-		_, officeExistsAfter, _ := sessionStore.Find(officeSessionID)
-		_, milExistsAfter, _ := sessionStore.Find(milSessionID)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.AppContextForTest(), newUUID, payload, sessionManagers)
+		_, adminExistsAfter, _ := sessionManagers.Admin.Store().Find(adminSessionID)
+		_, officeExistsAfter, _ := sessionManagers.Office.Store().Find(officeSessionID)
+		_, milExistsAfter, _ := sessionManagers.Mil.Store().Find(milSessionID)
 
 		suite.NoError(revokeErr)
 		suite.Nil(verrs)
-		suite.Equal(adminExistsAfter, false)
-		suite.Equal(officeExistsAfter, false)
-		suite.Equal(milExistsAfter, false)
+		suite.False(adminExistsAfter)
+		suite.False(officeExistsAfter)
+		suite.False(milExistsAfter)
 	})
 }

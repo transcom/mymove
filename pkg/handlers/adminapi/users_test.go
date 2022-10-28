@@ -157,14 +157,12 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	// Create a handler and service object instances to test
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-	sessionManagers := suite.SetupSessionManagers()
 	queryBuilder := query.NewQueryBuilder()
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 
 	setupHandler := func() UpdateUserHandler {
 		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetSessionManagers(sessionManagers)
 
 		return UpdateUserHandler{
 			handlerConfig,
@@ -380,14 +378,14 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		err := validate.NewErrors()
 
+		handler := setupHandler()
 		userRevocation.On("RevokeUserSession",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			params.User,
-			sessionManagers[0].Store,
+			handler.HandlerConfig.SessionManagers(),
 		).Return(nil, err, nil).Once()
 
-		handler := setupHandler()
 		handler.UserSessionRevocation = userRevocation
 
 		suite.NoError(params.User.Validate(strfmt.Default))
@@ -488,11 +486,12 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		userRevocation := &mocks.UserSessionRevocation{}
 		err := validate.NewErrors()
 
+		handler := setupHandler()
 		userRevocation.On("RevokeUserSession",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			params.User,
-			sessionManagers[0].Store,
+			handler.HandlerConfig.SessionManagers(),
 		).Return(nil, err, nil).Once()
 
 		userUpdater.On("UpdateUser",
@@ -501,7 +500,6 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 			mock.AnythingOfType("*models.User"),
 		).Return(nil, nil, err).Once()
 
-		handler := setupHandler()
 		handler.UserUpdater = userUpdater
 		handler.UserSessionRevocation = userRevocation
 

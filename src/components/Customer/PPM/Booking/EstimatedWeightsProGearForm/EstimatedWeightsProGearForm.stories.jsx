@@ -105,3 +105,6 @@ ErrorEstimatedWeightsProGear.play = async ({ canvasElement }) => {
   // See https://storybook.js.org/docs/react/essentials/actions#automatically-matching-args to learn how to setup logging in the Actions panel
   await userEvent.click(canvas.getByRole('button', { name: 'Save & Continue' }));
 };
+ErrorEstimatedWeightsProGear.parameters = {
+  happo: false,
+};

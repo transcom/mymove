@@ -15,50 +15,58 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Upload upload
+// Upload An uploaded file.
 //
 // swagger:model Upload
 type Upload struct {
 
 	// bytes
 	// Required: true
-	Bytes *int64 `json:"bytes"`
+	// Read Only: true
+	Bytes int64 `json:"bytes"`
 
 	// content type
 	// Example: application/pdf
 	// Required: true
-	ContentType *string `json:"contentType"`
+	// Read Only: true
+	ContentType string `json:"contentType"`
 
 	// created at
 	// Required: true
+	// Read Only: true
 	// Format: date-time
-	CreatedAt *strfmt.DateTime `json:"createdAt"`
+	CreatedAt strfmt.DateTime `json:"createdAt"`
 
 	// filename
 	// Example: filename.pdf
 	// Required: true
-	Filename *string `json:"filename"`
+	// Read Only: true
+	Filename string `json:"filename"`
 
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uuid
-	ID *strfmt.UUID `json:"id"`
+	ID strfmt.UUID `json:"id"`
 
 	// status
+	// Read Only: true
 	// Enum: [INFECTED CLEAN PROCESSING]
 	Status string `json:"status,omitempty"`
 
 	// updated at
 	// Required: true
+	// Read Only: true
 	// Format: date-time
-	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
+	UpdatedAt strfmt.DateTime `json:"updatedAt"`
 
 	// url
 	// Example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
+	// Read Only: true
 	// Format: uri
-	URL *strfmt.URI `json:"url"`
+	URL strfmt.URI `json:"url"`
 }
 
 // Validate validates this upload
@@ -105,7 +113,7 @@ func (m *Upload) Validate(formats strfmt.Registry) error {
 
 func (m *Upload) validateBytes(formats strfmt.Registry) error {
 
-	if err := validate.Required("bytes", "body", m.Bytes); err != nil {
+	if err := validate.Required("bytes", "body", int64(m.Bytes)); err != nil {
 		return err
 	}
 
@@ -114,7 +122,7 @@ func (m *Upload) validateBytes(formats strfmt.Registry) error {
 
 func (m *Upload) validateContentType(formats strfmt.Registry) error {
 
-	if err := validate.Required("contentType", "body", m.ContentType); err != nil {
+	if err := validate.RequiredString("contentType", "body", m.ContentType); err != nil {
 		return err
 	}
 
@@ -123,7 +131,7 @@ func (m *Upload) validateContentType(formats strfmt.Registry) error {
 
 func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("createdAt", "body", m.CreatedAt); err != nil {
+	if err := validate.Required("createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
 		return err
 	}
 
@@ -136,7 +144,7 @@ func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
 
 func (m *Upload) validateFilename(formats strfmt.Registry) error {
 
-	if err := validate.Required("filename", "body", m.Filename); err != nil {
+	if err := validate.RequiredString("filename", "body", m.Filename); err != nil {
 		return err
 	}
 
@@ -145,7 +153,7 @@ func (m *Upload) validateFilename(formats strfmt.Registry) error {
 
 func (m *Upload) validateID(formats strfmt.Registry) error {
 
-	if err := validate.Required("id", "body", m.ID); err != nil {
+	if err := validate.Required("id", "body", strfmt.UUID(m.ID)); err != nil {
 		return err
 	}
 
@@ -203,7 +211,7 @@ func (m *Upload) validateStatus(formats strfmt.Registry) error {
 
 func (m *Upload) validateUpdatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
+	if err := validate.Required("updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 
@@ -216,7 +224,7 @@ func (m *Upload) validateUpdatedAt(formats strfmt.Registry) error {
 
 func (m *Upload) validateURL(formats strfmt.Registry) error {
 
-	if err := validate.Required("url", "body", m.URL); err != nil {
+	if err := validate.Required("url", "body", strfmt.URI(m.URL)); err != nil {
 		return err
 	}
 
@@ -227,8 +235,117 @@ func (m *Upload) validateURL(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this upload based on context it is used
+// ContextValidate validate this upload based on the context it is used
 func (m *Upload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateBytes(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateContentType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateFilename(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateURL(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Upload) contextValidateBytes(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "bytes", "body", int64(m.Bytes)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Upload) contextValidateContentType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "contentType", "body", string(m.ContentType)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Upload) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Upload) contextValidateFilename(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "filename", "body", string(m.Filename)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Upload) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Upload) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "status", "body", string(m.Status)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Upload) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Upload) contextValidateURL(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "url", "body", strfmt.URI(m.URL)); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -5,7 +5,7 @@ import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
-import { createUploadForDocument, createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
+import { createUploadForPPMDocument, createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -56,7 +56,7 @@ const WeightTickets = () => {
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentWeightTicket[`${fieldName}Id`];
 
-    createUploadForDocument(file, documentId)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file)
       .then((upload) => {
         mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));

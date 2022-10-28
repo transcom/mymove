@@ -84,12 +84,13 @@ describe('LabeledDetails', () => {
         billable_weight_cap: '200',
         billable_weight_justification: 'Test TIO Remarks',
         shipment_type: SHIPMENT_OPTIONS.NTSR,
+        shipment_id_display: 'X9Y0Z',
       },
     };
 
     render(<LabeledDetails historyRecord={historyRecord} />);
 
-    expect(screen.getByText('NTS-release shipment')).toBeInTheDocument();
+    expect(screen.getByText('NTS-release shipment #X9Y0Z')).toBeInTheDocument();
   });
 
   it('does not render any text for changed values that are blank', async () => {
@@ -113,4 +114,23 @@ describe('LabeledDetails', () => {
 
     expect(await screen.queryByText('Counselor remarks')).not.toBeInTheDocument();
   });
+});
+
+it('does render text for changed values that are blank when they exist in the old values (deleted values)', async () => {
+  const historyRecord = {
+    changedValues: {
+      billable_weight_cap: '200',
+      counselor_remarks: '',
+    },
+    oldValues: {
+      counselor_remarks: 'These remarks were deleted',
+    },
+  };
+
+  render(<LabeledDetails historyRecord={historyRecord} />);
+
+  expect(screen.getByText('Counselor remarks')).toBeInTheDocument();
+  expect(screen.getByText('—', { exact: false })).toBeInTheDocument();
+
+  expect(await screen.queryByText('These remarks were deleted')).not.toBeInTheDocument();
 });

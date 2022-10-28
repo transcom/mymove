@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/alexedwards/scs/v2"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
@@ -41,16 +40,12 @@ type HandlerConfig interface {
 	SendProductionInvoice() bool
 	UseSecureCookie() bool
 	AppNames() auth.ApplicationServername
+	SessionManagers() auth.AppSessionManagers
 	GetFeatureFlag(name string) bool
 
 	GexSender() services.GexSender
 	ICNSequencer() sequence.Sequencer
 	GetTraceIDFromRequest(r *http.Request) uuid.UUID
-	SessionManager(session *auth.Session) *scs.SessionManager
-	GetSessionManagers() [3]*scs.SessionManager
-	GetMilSessionManager() *scs.SessionManager
-	GetAdminSessionManager() *scs.SessionManager
-	GetOfficeSessionManager() *scs.SessionManager
 }
 
 // FeatureFlag struct for feature flags
@@ -76,8 +71,8 @@ type Config struct {
 	icnSequencer          sequence.Sequencer
 	useSecureCookie       bool
 	appNames              auth.ApplicationServername
+	sessionManagers       auth.AppSessionManagers
 	featureFlags          map[string]bool
-	sessionManagers       [3]*scs.SessionManager
 }
 
 // NewHandlerConfig returns a new HandlerConfig interface with its
@@ -97,8 +92,8 @@ func NewHandlerConfig(
 	icnSequencer sequence.Sequencer,
 	useSecureCookie bool,
 	appNames auth.ApplicationServername,
+	sessionManagers auth.AppSessionManagers,
 	featureFlags []FeatureFlag,
-	sessionManagers [3]*scs.SessionManager,
 ) HandlerConfig {
 	featureFlagMap := make(map[string]bool)
 	for _, ff := range featureFlags {
@@ -119,8 +114,8 @@ func NewHandlerConfig(
 		icnSequencer:          icnSequencer,
 		useSecureCookie:       useSecureCookie,
 		appNames:              appNames,
-		featureFlags:          featureFlagMap,
 		sessionManagers:       sessionManagers,
+		featureFlags:          featureFlagMap,
 	}
 }
 
@@ -209,6 +204,11 @@ func (c *Config) AppNames() auth.ApplicationServername {
 // SetAppNames is a simple setter for private field
 func (c *Config) SetAppNames(appNames auth.ApplicationServername) {
 	c.appNames = appNames
+}
+
+// SessionManagers returns the auth AppSessionManagers
+func (c *Config) SessionManagers() auth.AppSessionManagers {
+	return c.sessionManagers
 }
 
 // NotificationSender returns the sender to use in the current context
@@ -314,39 +314,4 @@ func (c *Config) GetFeatureFlag(flag string) bool {
 // returns the Nil UUID if no traceid is found
 func (c *Config) GetTraceIDFromRequest(r *http.Request) uuid.UUID {
 	return trace.FromContext(r.Context())
-}
-
-func (c *Config) SetSessionManagers(sessionManagers [3]*scs.SessionManager) {
-	c.sessionManagers = sessionManagers
-}
-
-func (c *Config) GetMilSessionManager() *scs.SessionManager {
-	return c.sessionManagers[0]
-}
-
-func (c *Config) GetAdminSessionManager() *scs.SessionManager {
-	return c.sessionManagers[1]
-}
-
-func (c *Config) GetOfficeSessionManager() *scs.SessionManager {
-	return c.sessionManagers[2]
-}
-
-// SessionManager returns the session manager corresponding to the current app.
-// A user can be signed in at the same time across multiple apps.
-func (c *Config) SessionManager(session *auth.Session) *scs.SessionManager {
-	if session.IsMilApp() {
-		return c.GetMilSessionManager()
-	} else if session.IsAdminApp() {
-		return c.GetAdminSessionManager()
-	} else if session.IsOfficeApp() {
-		return c.GetOfficeSessionManager()
-	}
-
-	return nil
-}
-
-// GetSessionManagers returns all session managers
-func (c *Config) GetSessionManagers() [3]*scs.SessionManager {
-	return c.sessionManagers
 }

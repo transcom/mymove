@@ -81,7 +81,7 @@ CreateUploadCreated describes a response with status code 201, with default head
 Successfully created upload of digital file.
 */
 type CreateUploadCreated struct {
-	Payload *primemessages.Upload
+	Payload *primemessages.UploadWithOmissions
 }
 
 // IsSuccess returns true when this create upload created response has a 2xx status code
@@ -117,13 +117,13 @@ func (o *CreateUploadCreated) String() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadCreated  %+v", 201, o.Payload)
 }
 
-func (o *CreateUploadCreated) GetPayload() *primemessages.Upload {
+func (o *CreateUploadCreated) GetPayload() *primemessages.UploadWithOmissions {
 	return o.Payload
 }
 
 func (o *CreateUploadCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Upload)
+	o.Payload = new(primemessages.UploadWithOmissions)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

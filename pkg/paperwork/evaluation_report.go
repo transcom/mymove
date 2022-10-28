@@ -25,6 +25,7 @@ type AdditionalKPIData struct {
 	ObservedPickupSpreadEndDate   string
 	ObservedClaimDate             string
 	ObservedPickupDate            string
+	ObservedDeliveryDate          string
 }
 
 var KPIFieldLabels = map[string]string{
@@ -32,6 +33,7 @@ var KPIFieldLabels = map[string]string{
 	"ObservedPickupSpreadEndDate":   "Observed pickup spread end date",
 	"ObservedClaimDate":             "Observed claims response date",
 	"ObservedPickupDate":            "Observed pickup date",
+	"ObservedDeliveryDate":          "Observed delivery date",
 }
 
 type InspectionInformationValues struct {
@@ -322,8 +324,15 @@ func FormatValuesShipment(shipment models.MTOShipment) ShipmentValues {
 		vals.PPMDestinationZIP = shipment.PPMShipment.DestinationPostalCode
 		vals.PPMDepartureDate = shipment.PPMShipment.ExpectedDepartureDate.Format(dateFormat)
 	}
-	if shipment.StorageFacility != nil || shipment.StorageFacilityID != nil {
-		vals.StorageFacility = fmt.Sprintf("%s\n%s", *shipment.StorageFacility.Phone, *shipment.StorageFacility.Email)
+	if shipment.StorageFacility != nil {
+		if shipment.StorageFacility.Phone != nil && shipment.StorageFacility.Email != nil {
+			vals.StorageFacility = fmt.Sprintf("%s\n%s", *shipment.StorageFacility.Phone, *shipment.StorageFacility.Email)
+		} else if shipment.StorageFacility.Phone != nil {
+			vals.StorageFacility = *shipment.StorageFacility.Phone
+		} else if shipment.StorageFacility.Email != nil {
+			vals.StorageFacility = *shipment.StorageFacility.Email
+		}
+
 		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
 			vals.PickupAddress = formatSingleLineAddress(shipment.StorageFacility.Address)
 		}
@@ -427,6 +436,9 @@ func FormatAdditionalKPIValues(report models.EvaluationReport) AdditionalKPIData
 	}
 	if report.ObservedPickupDate != nil {
 		additionalKPIData.ObservedPickupDate = report.ObservedPickupDate.Format(dateFormat)
+	}
+	if report.ObservedDeliveryDate != nil {
+		additionalKPIData.ObservedDeliveryDate = report.ObservedDeliveryDate.Format(dateFormat)
 	}
 
 	return additionalKPIData

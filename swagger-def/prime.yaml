@@ -1007,7 +1007,7 @@ paths:
         '201':
           description: Successfully created upload of digital file.
           schema:
-            $ref: 'definitions/Upload.yaml'
+            $ref: 'definitions/UploadWithOmissions.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -2421,7 +2421,7 @@ definitions:
     properties:
       uploads:
         items:
-          $ref: 'definitions/Upload.yaml'
+          $ref: 'definitions/UploadWithOmissions.yaml'
         type: array
     type: object
   Reweigh:

@@ -46,7 +46,7 @@ type UpdateMovingExpenseParams struct {
 	  In: path
 	*/
 	MovingExpenseID strfmt.UUID
-	/*UUID of the ppm shipment
+	/*UUID of the PPM shipment
 	  Required: true
 	  In: path
 	*/

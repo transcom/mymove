@@ -16,9 +16,9 @@ import (
 )
 
 var (
-	reweighRequestedRawTextTemplate = string(assets.MustAsset("pkg/notifications/templates/reweigh_requested_template.txt"))
+	reweighRequestedRawTextTemplate = string(assets.MustAsset("notifications/templates/reweigh_requested_template.txt"))
 	reweighRequestedTextTemplate    = text.Must(text.New("text_template").Parse(reweighRequestedRawTextTemplate))
-	reweighRequestedRawHTMLTemplate = string(assets.MustAsset("pkg/notifications/templates/reweigh_requested_template.html"))
+	reweighRequestedRawHTMLTemplate = string(assets.MustAsset("notifications/templates/reweigh_requested_template.html"))
 	reweighRequestedHTMLTemplate    = html.Must(html.New("text_template").Parse(reweighRequestedRawHTMLTemplate))
 )
 

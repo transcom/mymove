@@ -9,6 +9,7 @@ export default {
   createOrders: 'createOrders', // internal.yaml
   createPaymentRequest: 'createPaymentRequest', // prime.yaml
   createUpload: 'createUpload',
+  deleteUpload: 'deleteUpload',
   deleteShipment: 'deleteShipment',
   requestShipmentCancellation: 'requestShipmentCancellation', // ghc.yaml
   requestShipmentDiversion: 'requestShipmentDiversion', // ghc.yaml
@@ -34,4 +35,6 @@ export default {
   updateReweigh: 'updateReweigh',
   updateServiceItemStatus: 'updateMTOServiceItemStatus',
   uploadAmendedOrders: 'uploadAmendedOrders', // internal.yaml
+  patchServiceMember: 'patchServiceMember', // internal.yaml
+  createServiceMember: 'createServiceMember', // internal.yaml
 };

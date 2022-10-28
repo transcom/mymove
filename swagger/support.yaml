@@ -897,7 +897,7 @@ definitions:
       uploads:
         type: array
         items:
-          $ref: '#/definitions/Upload'
+          $ref: '#/definitions/UploadWithOmissions'
     required:
       - id
       - serviceMemberID
@@ -1800,7 +1800,7 @@ definitions:
         type: string
       uploads:
         items:
-          $ref: '#/definitions/Upload'
+          $ref: '#/definitions/UploadWithOmissions'
         type: array
     type: object
   Rank:
@@ -1950,7 +1950,7 @@ definitions:
       - SKIPPED
       - FAILING
       - FAILED
-  Upload:
+  UploadWithOmissions:
     description: An uploaded file.
     type: object
     properties:

@@ -27,6 +27,7 @@ const EvaluationReportShipmentDisplay = ({
   errorIfMissing,
   showWhenCollapsed,
   neverShow,
+  destinationDutyLocationPostalCode,
 }) => {
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !allowApproval });
   const [isExpanded, setIsExpanded] = useState(true);
@@ -79,7 +80,7 @@ const EvaluationReportShipmentDisplay = ({
             <h6 className={classnames(styles.ntsHeaderTextField, styles.ntsHeaderTextRight)}>Delivery address</h6>
           </div>
         )}
-        {isExpanded && (displayInfo.pickupAddress || displayInfo.destinationAddress) && (
+        {isExpanded && (
           <div className={styles.shipmentAddresses}>
             <div className={classnames(styles.shipmentAddressTextFields, styles.shipmentAddressLeft)}>
               {pickupAddressString || '—'}
@@ -87,7 +88,9 @@ const EvaluationReportShipmentDisplay = ({
             <div className={styles.shipmentAddressArrow}>
               <FontAwesomeIcon icon="arrow-right" />
             </div>
-            <div className={styles.shipmentAddressTextFields}>{destinationAddressString || '—'}</div>
+            <div className={styles.shipmentAddressTextFields}>
+              {destinationAddressString || destinationDutyLocationPostalCode}
+            </div>
           </div>
         )}
         <ShipmentInfoListSelector
@@ -100,6 +103,7 @@ const EvaluationReportShipmentDisplay = ({
           showWhenCollapsed={showWhenCollapsed}
           neverShow={neverShow}
           isForEvaluationReport
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />
       </ShipmentContainer>
     </div>
@@ -108,6 +112,7 @@ const EvaluationReportShipmentDisplay = ({
 
 EvaluationReportShipmentDisplay.propTypes = {
   shipmentId: PropTypes.string.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string,
   shipmentType: PropTypes.oneOf([
     SHIPMENT_OPTIONS.HHG,
     SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
@@ -175,6 +180,7 @@ EvaluationReportShipmentDisplay.propTypes = {
 
 EvaluationReportShipmentDisplay.defaultProps = {
   shipmentType: SHIPMENT_OPTIONS.HHG,
+  destinationDutyLocationPostalCode: '',
   allowApproval: true,
   ordersLOA: {
     tac: '',

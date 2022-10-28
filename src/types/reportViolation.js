@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
 
-import { EvaluationReportShape } from './evaluationReport';
+import { PWSViolationShape } from './pwsViolation';
 
 export const ReportViolationShape = PropTypes.shape({
   id: PropTypes.string,
   reportId: PropTypes.string,
   violationId: PropTypes.string,
-  violation: EvaluationReportShape,
+  violation: PWSViolationShape,
 });
 
 export default {

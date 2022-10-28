@@ -1,11 +1,9 @@
+description: Status of the PPM document.
 type: string
-title: PPM document status
 enum:
   - APPROVED
   - EXCLUDED
   - REJECTED
-x-nullable: true
-x-omitempty: false
 x-display-value:
   APPROVED: Approved
   EXCLUDED: Excluded

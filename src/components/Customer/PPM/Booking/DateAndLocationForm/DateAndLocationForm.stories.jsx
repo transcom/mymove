@@ -97,3 +97,6 @@ ErrorDatesAndLocation.play = async ({ canvasElement }) => {
 
   await userEvent.click(canvas.getByRole('button', { name: 'Save & Continue' }));
 };
+ErrorDatesAndLocation.parameters = {
+  happo: false,
+};

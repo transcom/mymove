@@ -5,38 +5,49 @@
 .MoveSearchForm {
   @include u-padding-y(3);
   @include u-padding-x(4);
-  @include u-margin-x(1);
   @include u-bg('white');
   @include u-radius(4px);
   border: 1px solid $border-color;
+  max-width: none !important;
 
+  :global(.usa-radio) {
+    @include u-margin-left(0);
+    @include u-margin-right(2);
+  }
+  :global(.usa-radio__label) {
+    font-size: 15px;
+    line-height: 23px;
+  }
+  :global(.usa-radio__input) + :global(.usa-radio__label::before) {
+    box-shadow: 0 0 0 2px $base, inset 0 0 0 2px white;
+  }
   :global(.usa-radio__input:checked) + :global(.usa-radio__label::before) {
     background-color: $link;
-    box-shadow:0 0 0 2px $link, inset 0 0 0 2px white;
+    box-shadow: 0 0 0 2px $link, inset 0 0 0 2px white;
   }
-  p {
-    font-weight: 700;
-    font-size: 13px;
-    line-height: 16px;
-    color: $base-darker;
-    @include u-margin-top(0);
-    @include u-margin-bottom(1);
+
+  legend {
+    @include u-margin(0);
   }
 
   .searchBar {
     @include u-margin-top(2);
     display: flex;
-    label {
-      @include u-margin-top(0);
+    @include u-margin-top(2);
+    :global(.usa-form-group) {
+      @include u-margin(0);
+    }
+    legend {
       @include u-margin-bottom(1);
-      line-height: 16px;
     }
   }
+
   .searchButton {
     height: 43px;
-    align-self: flex-end;
+    width: 99px;
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
+    @include u-margin(0 !important);
     background-color: $link;
   }
   .searchButton:hover {
