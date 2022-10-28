@@ -1,11 +1,6 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/colors';
 
-.evaluationReportPreview {
-  @include u-border-top('base-lighter');
-  @include u-margin-top(4);
-}
-
 .pageHeader {
   @include u-margin-y(4);
   display: flex;

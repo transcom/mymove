@@ -71,7 +71,7 @@ const EvaluationReportPreview = ({
   };
 
   return (
-    <div className={styles.evaluationReportPreview} data-testid="EvaluationReportPreview">
+    <div data-testid="EvaluationReportPreview">
       <div>
         {/* Page Header */}
         <div className={styles.pageHeader}>
