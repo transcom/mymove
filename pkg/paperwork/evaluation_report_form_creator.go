@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	regularFontPath = "pkg/paperwork/formtemplates/PublicSans-Regular.ttf"
-	boldFontPath    = "pkg/paperwork/formtemplates/PublicSans-Bold.ttf"
-	arrowImagePath  = "pkg/paperwork/formtemplates/arrowright.png"
+	regularFontPath = "paperwork/formtemplates/PublicSans-Regular.ttf"
+	boldFontPath    = "paperwork/formtemplates/PublicSans-Bold.ttf"
+	arrowImagePath  = "paperwork/formtemplates/arrowright.png"
 	// We can figure the image format out at runtime, but it makes the code more complicated.
 	// If this form ever uses more images, it would probably make more sense to do that.
 	arrowImageFormat = "png"

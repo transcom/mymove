@@ -1402,8 +1402,7 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 		PPMShipment:   shipment,
 		ServiceMember: move.Orders.ServiceMember,
 		ProgearWeightTicket: models.ProgearWeightTicket{
-			EmptyWeight: models.PoundPointer(14000),
-			FullWeight:  models.PoundPointer(15500),
+			Weight: models.PoundPointer(1500),
 		},
 	})
 }
