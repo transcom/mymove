@@ -33,6 +33,15 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		weightAllotment = payloadForWeightAllotmentModel(models.GetWeightAllotment(*serviceMember.Rank))
 	}
 
+	if len(serviceMember.Orders) > 0 {
+		if serviceMember.Orders[0].Entitlement != nil {
+			orderProGearWeight := int64(serviceMember.Orders[0].Entitlement.ProGearWeight)
+			orderProGearWeightSpouse := int64(serviceMember.Orders[0].Entitlement.ProGearWeightSpouse)
+			weightAllotment.ProGearWeight = &orderProGearWeight
+			weightAllotment.ProGearWeightSpouse = &orderProGearWeightSpouse
+		}
+	}
+
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                   handlers.FmtUUID(serviceMember.ID),
 		CreatedAt:            handlers.FmtDateTime(serviceMember.CreatedAt),
