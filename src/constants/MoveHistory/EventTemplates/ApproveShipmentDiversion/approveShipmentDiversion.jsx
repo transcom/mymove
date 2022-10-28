@@ -1,4 +1,5 @@
-import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
+import React from 'react';
+
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import { shipmentTypes as s } from 'constants/shipments';
 
@@ -6,9 +7,10 @@ export default {
   action: '*',
   eventName: o.approveShipmentDiversion,
   tableName: '*',
-  detailsType: d.PLAIN_TEXT,
   getEventNameDisplay: () => 'Approved diversion',
-  getDetailsPlainText: (historyRecord) => {
-    return `${s[historyRecord.oldValues?.shipment_type]} shipment`;
-  },
+  getDetails: ({ context }) => (
+    <>
+      {s[context[0].shipment_type]} shipment #{context[0].shipment_id_abbr.toUpperCase()}
+    </>
+  ),
 };
