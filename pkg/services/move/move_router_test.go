@@ -206,7 +206,9 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		for _, tt := range invalidStatuses {
 			move.Status = tt.status
 			newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
-				Move: move,
+				SignedCertification: models.SignedCertification{
+					MoveID: move.ID,
+				},
 				Stub: true,
 			})
 			err := moveRouter.Submit(suite.AppContextForTest(), &move, newSignedCertification)
@@ -252,6 +254,54 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			suite.Error(err)
 			suite.Contains(err.Error(), "Cannot move to NeedsServiceCounseling state when the Move is not in Draft status")
 			suite.Contains(err.Error(), fmt.Sprintf("Its current status is: %s", tt.status))
+		}
+	})
+
+	suite.Run("Moves are routed correctly and SignedCertification is created", func() {
+		// Under test: MoveRouter.Submit (both routing to services counselor and office user)
+		// Set up: Create moves and SignedCertification
+		// Expected outcome: signed cert is created and move status is updated
+		tests := []struct {
+			desc                       string
+			ProvidesServicesCounseling bool
+			moveStatus                 models.MoveStatus
+		}{
+			{"Routes to Service Counseling", true, models.MoveStatusNeedsServiceCounseling},
+			{"Routes to office user", false, models.MoveStatusSUBMITTED},
+		}
+		for _, tt := range tests {
+			suite.Run(tt.desc, func() {
+				dutyLocation := testdatagen.MakeDutyLocation(suite.DB(), testdatagen.Assertions{
+					DutyLocation: models.DutyLocation{
+						ProvidesServicesCounseling: tt.ProvidesServicesCounseling,
+					},
+				})
+
+				move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+					Order: models.Order{
+						OriginDutyLocation: &dutyLocation,
+					},
+					Move: models.Move{
+						Status: models.MoveStatusDRAFT,
+					},
+				})
+
+				newSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+					SignedCertification: models.SignedCertification{
+						MoveID: move.ID,
+					},
+					Stub: true,
+				})
+				err := moveRouter.Submit(suite.AppContextForTest(), &move, newSignedCertification)
+				suite.NoError(err)
+				err = suite.DB().Where("move_id = $1", move.ID).First(&newSignedCertification)
+				suite.NoError(err)
+				suite.NotNil(newSignedCertification)
+
+				err = suite.DB().Find(&move, move.ID)
+				suite.NoError(err)
+				suite.Equal(tt.moveStatus, move.Status)
+			})
 		}
 	})
 
