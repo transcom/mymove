@@ -45,6 +45,24 @@ const EvaluationReportTable = ({
   };
 
   const row = (report) => {
+    let violations;
+    let seriousIncident;
+
+    if (report.violationsObserved) {
+      violations = 'Yes';
+    } else if (report.violationsObserved === false) {
+      violations = 'No';
+    } else {
+      violations = '';
+    }
+
+    if (report.seriousIncident) {
+      seriousIncident = 'Yes';
+    } else if (report.seriousIncident === false) {
+      seriousIncident = 'No';
+    } else {
+      seriousIncident = '';
+    }
     return (
       <tr key={report.id}>
         <td className={styles.reportIDColumn}>
@@ -52,8 +70,8 @@ const EvaluationReportTable = ({
         </td>
         <td className={styles.dateSubmittedColumn}>{report.submittedAt && formatCustomerDate(report.submittedAt)}</td>
         <td className={styles.locationColumn}>{formatEvaluationReportLocation(report.location)}</td>
-        <td className={styles.violationsColumn}>{report.violationsObserved ? 'Yes' : 'No'}</td>
-        <td className={styles.seriousIncidentColumn}>{report.seriousIncident ? 'Yes' : 'No'}</td>
+        <td className={styles.violationsColumn}>{violations}</td>
+        <td className={styles.seriousIncidentColumn}>{seriousIncident}</td>
         <td className={styles.viewReportColumn}>
           {report.submittedAt && (
             <Button
