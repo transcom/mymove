@@ -1498,7 +1498,7 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		Move:        move,
 		MTOShipment: mtoShipment,
 		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusNeedsCloseOut,
+			Status: models.PPMShipmentStatusNeedsPaymentApproval,
 		},
 	})
 
@@ -1570,7 +1570,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 		Move:        move,
 		MTOShipment: mtoShipment,
 		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusNeedsCloseOut,
+			Status: models.PPMShipmentStatusNeedsPaymentApproval,
 		},
 	})
 
@@ -1592,7 +1592,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 
 func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string, branches models.ServiceMemberAffiliation) {
 	userID := uuid.Must(uuid.NewV4())
-	email := "1needscloseout@ppm.closeout"
+	email := "2needcloseout@ppm.closeout"
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
@@ -1650,7 +1650,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		Move:        move,
 		MTOShipment: mtoShipment,
 		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusNeedsCloseOut,
+			Status: models.PPMShipmentStatusNeedsPaymentApproval,
 		},
 	})
 
@@ -1658,7 +1658,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		Move:        move,
 		MTOShipment: mtoShipment2,
 		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusNeedsCloseOut,
+			Status: models.PPMShipmentStatusNeedsPaymentApproval,
 		},
 	})
 
@@ -1730,7 +1730,7 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 		Move:        move,
 		MTOShipment: mtoShipment,
 		PPMShipment: models.PPMShipment{
-			Status: models.PPMShipmentStatusNeedsCloseOut,
+			Status: models.PPMShipmentStatusNeedsPaymentApproval,
 		},
 	})
 
