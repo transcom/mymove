@@ -1447,7 +1447,7 @@ func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUpload
 	}
 }
 
-func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string, branches models.ServiceMemberAffiliation) {
+func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
 	userID := uuid.Must(uuid.NewV4())
 	email := "needscloseout@ppm.closeout"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -1468,6 +1468,7 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 			FirstName:     models.StringPointer("PPMSC"),
 			LastName:      models.StringPointer("Submitted"),
 			PersonalEmail: models.StringPointer(email),
+			Affiliation:   &branch,
 		},
 	})
 
@@ -1486,11 +1487,10 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 	})
 
 	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
-			ShipmentType:    models.MTOShipmentTypePPM,
-			Status:          models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
+			ShipmentType: models.MTOShipmentTypePPM,
+			Status:       models.MTOShipmentStatusSubmitted,
 		},
 	})
 
@@ -1510,7 +1510,7 @@ func createMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 	})
 }
 
-func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string, branches models.ServiceMemberAffiliation) {
+func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
 	userID := uuid.Must(uuid.NewV4())
 	email := "1needscloseout@ppm.closeout"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -1531,6 +1531,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 			FirstName:     models.StringPointer("PPMSC"),
 			LastName:      models.StringPointer("Submitted"),
 			PersonalEmail: models.StringPointer(email),
+			Affiliation:   &branch,
 		},
 	})
 
@@ -1549,20 +1550,18 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 	})
 
 	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
-			ShipmentType:    models.MTOShipmentTypePPM,
-			Status:          models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
+			ShipmentType: models.MTOShipmentTypePPM,
+			Status:       models.MTOShipmentStatusSubmitted,
 		},
 	})
 
 	mtoShipment2 := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
-			ShipmentType:    models.MTOShipmentTypePPM,
-			Status:          models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
+			ShipmentType: models.MTOShipmentTypePPM,
+			Status:       models.MTOShipmentStatusSubmitted,
 		},
 	})
 
@@ -1590,7 +1589,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 	})
 }
 
-func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string, branches models.ServiceMemberAffiliation) {
+func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
 	userID := uuid.Must(uuid.NewV4())
 	email := "2needcloseout@ppm.closeout"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -1611,6 +1610,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 			FirstName:     models.StringPointer("PPMSC"),
 			LastName:      models.StringPointer("Submitted"),
 			PersonalEmail: models.StringPointer(email),
+			Affiliation:   &branch,
 		},
 	})
 
@@ -1629,20 +1629,18 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 	})
 
 	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
-			ShipmentType:    models.MTOShipmentTypePPM,
-			Status:          models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
+			ShipmentType: models.MTOShipmentTypePPM,
+			Status:       models.MTOShipmentStatusSubmitted,
 		},
 	})
 
 	mtoShipment2 := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
-			ShipmentType:    models.MTOShipmentTypePPM,
-			Status:          models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
+			ShipmentType: models.MTOShipmentTypePPM,
+			Status:       models.MTOShipmentStatusSubmitted,
 		},
 	})
 
@@ -1670,7 +1668,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 	})
 }
 
-func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter, locator string, branches models.ServiceMemberAffiliation) {
+func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
 	userID := uuid.Must(uuid.NewV4())
 	email := "needscloseout@ppmHHG.closeout"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -1691,6 +1689,7 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 			FirstName:     models.StringPointer("PPMSC"),
 			LastName:      models.StringPointer("Submitted"),
 			PersonalEmail: models.StringPointer(email),
+			Affiliation:   &branch,
 		},
 	})
 
@@ -1709,20 +1708,18 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 	})
 
 	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
-			ShipmentType:    models.MTOShipmentTypePPM,
-			Status:          models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
+			ShipmentType: models.MTOShipmentTypePPM,
+			Status:       models.MTOShipmentStatusSubmitted,
 		},
 	})
 
 	testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
-			ShipmentType:    models.MTOShipmentTypeHHG,
-			Status:          models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:   move,
-			MoveTaskOrderID: move.ID,
+			ShipmentType: models.MTOShipmentTypeHHG,
+			Status:       models.MTOShipmentStatusSubmitted,
 		},
 	})
 
@@ -1742,19 +1739,19 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 	})
 }
 
-func createMovesForEachBranch(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+func createMovesForEachBranch(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	// Create a move for each branch
 	branches := []models.ServiceMemberAffiliation{models.AffiliationARMY, models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationAIRFORCE, models.AffiliationCOASTGUARD}
 	for _, branch := range branches {
 		branchCode := strings.ToUpper(branch.String())[:3]
 		locator := "CO1" + branchCode
-		createMoveWithCloseOut(appCtx, userUploader, moveRouter, locator, branch)
+		createMoveWithCloseOut(appCtx, userUploader, locator, branch)
 		locator = "CO2" + branchCode
-		createMoveWithCloseOutandNonCloseOut(appCtx, userUploader, moveRouter, locator, branch)
+		createMoveWithCloseOutandNonCloseOut(appCtx, userUploader, locator, branch)
 		locator = "CO3" + branchCode
-		createMoveWith2CloseOuts(appCtx, userUploader, moveRouter, locator, branch)
+		createMoveWith2CloseOuts(appCtx, userUploader, locator, branch)
 		locator = "CO4" + branchCode
-		createMoveWithCloseOutandHHG(appCtx, userUploader, moveRouter, locator, branch)
+		createMoveWithCloseOutandHHG(appCtx, userUploader, locator, branch)
 	}
 }
 
