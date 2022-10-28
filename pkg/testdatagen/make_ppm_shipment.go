@@ -51,10 +51,12 @@ func getDefaultValuesForRequiredFields(db *pop.Connection, shipment models.MTOSh
 		residentialAddress := models.FetchAddressByID(db, orders.ServiceMember.ResidentialAddressID)
 
 		if residentialAddress == nil {
-			log.Panicf("Could not find residential address to use as pickup zip.")
+			// this can happen if we are creating stubbed data. Setting a value here, but it can be overridden by
+			// assertions in the Make functions.
+			requiredFields.pickupPostalCode = "90210"
+		} else {
+			requiredFields.pickupPostalCode = residentialAddress.PostalCode
 		}
-
-		requiredFields.pickupPostalCode = residentialAddress.PostalCode
 	}
 
 	requiredFields.destinationPostalCode = orders.NewDutyLocation.Address.PostalCode
@@ -80,12 +82,6 @@ func MakePPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipme
 			HasRequestedAdvance:            models.BoolPointer(true),
 			AdvanceAmountRequested:         models.CentPointer(unit.Cents(598700)),
 		},
-	}
-
-	// We only want to set a SubmittedAt time if there is no status set in the assertions, or the one set matches our
-	// default of submitted.
-	if assertions.PPMShipment.Status == "" || assertions.PPMShipment.Status == models.PPMShipmentStatusSubmitted {
-		fullAssertions.PPMShipment.SubmittedAt = models.TimePointer(time.Now())
 	}
 
 	if assertions.PPMShipment.HasRequestedAdvance != nil && *assertions.PPMShipment.HasRequestedAdvance {
@@ -169,7 +165,8 @@ func MakeApprovedPPMShipmentWaitingOnCustomer(db *pop.Connection, assertions Ass
 			Status: models.MoveStatusAPPROVED,
 		},
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusApproved,
+			Status:       models.MTOShipmentStatusApproved,
+			ApprovedDate: &approvedTime,
 		},
 		PPMShipment: models.PPMShipment{
 			Status:      models.PPMShipmentStatusWaitingOnCustomer,
@@ -203,6 +200,24 @@ func MakeApprovedPPMShipmentWithActualInfo(db *pop.Connection, assertions Assert
 		ppmShipment.HasReceivedAdvance = models.BoolPointer(false)
 	}
 
+	newDutyLocationAddress := ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address
+
+	fullAddressAssertions := Assertions{
+		Address: models.Address{
+			StreetAddress1: "987 New Street",
+			City:           newDutyLocationAddress.City,
+			State:          newDutyLocationAddress.State,
+			PostalCode:     newDutyLocationAddress.PostalCode,
+		},
+	}
+
+	mergeModels(&fullAddressAssertions, assertions)
+
+	w2Address := MakeAddress(db, fullAddressAssertions)
+
+	ppmShipment.W2AddressID = &w2Address.ID
+	ppmShipment.W2Address = &w2Address
+
 	mergeModels(&ppmShipment, assertions.PPMShipment)
 
 	if !assertions.Stub {
@@ -212,20 +227,99 @@ func MakeApprovedPPMShipmentWithActualInfo(db *pop.Connection, assertions Assert
 	return ppmShipment
 }
 
-// MakeApprovedPPMShipment creates a single approved PPMShipment and associated relationships
-func MakeApprovedPPMShipment(db *pop.Connection, assertions Assertions) models.PPMShipment {
-	approvedTime := time.Now()
-	reviewedTime := approvedTime.AddDate(0, 0, -1)
-	submittedDate := reviewedTime.AddDate(0, 0, -3)
+// MakePPMShipmentReadyForFinalCustomerCloseout creates a single PPMShipment that has customer documents and is ready
+// for the customer to sign and submit.
+func MakePPMShipmentReadyForFinalCustomerCloseout(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
+	// changes on top of those changes.
+	ppmShipment := MakeApprovedPPMShipmentWithActualInfo(db, assertions)
 
-	approvedPPMShipment := models.PPMShipment{
-		Status:      models.PPMShipmentStatusPaymentApproved,
-		ApprovedAt:  &approvedTime,
-		ReviewedAt:  &reviewedTime,
-		SubmittedAt: &submittedDate,
+	fullWeightTicketSetAssertions := Assertions{
+		PPMShipment: ppmShipment,
 	}
 
-	mergeModels(&assertions.PPMShipment, approvedPPMShipment)
+	mergeModels(&fullWeightTicketSetAssertions, assertions)
 
-	return MakePPMShipment(db, assertions)
+	weightTicket := MakeWeightTicket(db, fullWeightTicketSetAssertions)
+
+	ppmShipment.WeightTickets = append(ppmShipment.WeightTickets, weightTicket)
+
+	ppmShipment.FinalIncentive = ppmShipment.EstimatedIncentive
+
+	mergeModels(&ppmShipment, assertions.PPMShipment)
+
+	if !assertions.Stub {
+		MustSave(db, &ppmShipment)
+	}
+
+	return ppmShipment
+}
+
+// MakePPMShipmentThatNeedsCloseOut creates a PPMShipment that is waiting for a counselor to review after a customer has
+// submitted all the necessary documents.
+func MakePPMShipmentThatNeedsCloseOut(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
+	// changes on top of those changes.
+	ppmShipment := MakePPMShipmentReadyForFinalCustomerCloseout(db, assertions)
+
+	move := ppmShipment.Shipment.MoveTaskOrder
+	certType := models.SignedCertificationTypePPMPAYMENT
+	fullSignedCertificationAssertions := Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID:            move.ID,
+			SubmittingUserID:  move.Orders.ServiceMember.User.ID,
+			PpmID:             &ppmShipment.ID,
+			CertificationType: &certType,
+		},
+	}
+
+	mergeModels(&fullSignedCertificationAssertions, assertions)
+
+	signedCert := MakeSignedCertification(db, fullSignedCertificationAssertions)
+
+	ppmShipment.SignedCertification = &signedCert
+
+	ppmShipment.Status = models.PPMShipmentStatusNeedsCloseOut
+	ppmShipment.SubmittedAt = models.TimePointer(time.Now())
+
+	mergeModels(&ppmShipment, assertions.PPMShipment)
+
+	if !assertions.Stub {
+		MustSave(db, &ppmShipment)
+	}
+
+	return ppmShipment
+}
+
+// MakePPMShipmentThatNeedsToBeResubmitted creates a PPMShipment that a counselor has sent back to the customer
+func MakePPMShipmentThatNeedsToBeResubmitted(db *pop.Connection, assertions Assertions) models.PPMShipment {
+	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
+	// changes on top of those changes.
+	ppmShipment := MakePPMShipmentThatNeedsCloseOut(db, assertions)
+
+	// Document that got rejected. This would normally already exist and would just need to be updated to change the
+	// status, but for simplicity here, we'll just create it here and set it up with the appropriate status.
+	rejectedStatus := models.PPMDocumentStatusRejected
+	fullWeightTicketSetAssertions := Assertions{
+		PPMShipment: ppmShipment,
+		WeightTicket: models.WeightTicket{
+			Status: &rejectedStatus,
+			Reason: models.StringPointer("Rejected because xyz"),
+		},
+	}
+
+	mergeModels(&fullWeightTicketSetAssertions, assertions)
+
+	weightTicket := MakeWeightTicket(db, fullWeightTicketSetAssertions)
+	ppmShipment.WeightTickets = append(ppmShipment.WeightTickets, weightTicket)
+
+	ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+
+	mergeModels(&ppmShipment, assertions.PPMShipment)
+
+	if !assertions.Stub {
+		MustSave(db, &ppmShipment)
+	}
+
+	return ppmShipment
 }

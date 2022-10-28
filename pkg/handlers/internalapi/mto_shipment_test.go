@@ -1279,7 +1279,7 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 		Move: mto,
 	})
 
-	ppmShipment2 := testdatagen.MakeApprovedPPMShipment(suite.DB(), testdatagen.Assertions{
+	ppmShipment2 := testdatagen.MakeApprovedPPMShipmentWaitingOnCustomer(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 	})
 
