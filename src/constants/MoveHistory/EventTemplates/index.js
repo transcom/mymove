@@ -21,7 +21,7 @@ export { default as proofOfServiceDocUpload } from './proofOfServiceDocUpload';
 export { default as requestShipmentCancellation } from './requestShipmentCancellation';
 export { default as requestShipmentDiversion } from './requestShipmentDiversion';
 export { default as requestShipmentReweigh } from './RequestShipmentReweigh/requestShipmentReweigh';
-export { default as setFinancialReviewFlag } from './setFinancialReviewFlag';
+export { default as setFinancialReviewFlag } from './SetFinancialReviewFlag/setFinancialReviewFlag';
 export { default as submitMoveForApproval } from './SubmitMoveForApproval/submitMoveForApproval';
 export { default as updateAllowance } from './UpdateAllowances/updateAllowance';
 export { default as updateBillableWeight } from './updateBillableWeight';
