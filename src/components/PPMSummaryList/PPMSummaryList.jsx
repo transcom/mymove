@@ -80,11 +80,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick) => {
 
   switch (status) {
     case ppmShipmentStatuses.SUBMITTED:
-      actionButton = (
-        <Button disabled onClick={onButtonClick}>
-          Upload PPM Documents
-        </Button>
-      );
+      actionButton = <Button disabled>Upload PPM Documents</Button>;
       content = submittedContent;
       break;
     case ppmShipmentStatuses.WAITING_ON_CUSTOMER:
@@ -92,11 +88,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick) => {
       content = approvedContent(approvedAt);
       break;
     case ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL:
-      actionButton = (
-        <Button disabled onClick={onButtonClick}>
-          Download Incentive Packet
-        </Button>
-      );
+      actionButton = <Button disabled>Download Incentive Packet</Button>;
       content = paymentSubmitted(approvedAt, submittedAt);
       break;
     case ppmShipmentStatuses.PAYMENT_APPROVED:
