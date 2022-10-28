@@ -131,6 +131,10 @@ type MTOShipment struct {
 	// sac type
 	SacType *LOAType `json:"sacType,omitempty"`
 
+	// scheduled delivery date
+	// Format: date
+	ScheduledDeliveryDate *strfmt.Date `json:"scheduledDeliveryDate,omitempty"`
+
 	// scheduled pickup date
 	// Format: date
 	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate,omitempty"`
@@ -243,6 +247,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSacType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateScheduledDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -543,6 +551,18 @@ func (m *MTOShipment) validateSacType(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateScheduledDeliveryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ScheduledDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("scheduledDeliveryDate", "body", "date", m.ScheduledDeliveryDate.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
