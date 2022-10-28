@@ -1,4 +1,4 @@
-export { default as acknowledgeExcessWeightRisk } from './acknowledgeExcessWeightRisk';
+export { default as acknowledgeExcessWeightRisk } from './AcknowledgeExcessWeightRisk/acknowledgeExcessWeightRisk';
 export { default as approveShipment } from './ApproveShipment/approveShipment';
 export { default as approveShipmentDiversion } from './approveShipmentDiversion';
 export { default as createBasicServiceItem } from './createBasicServiceItem';
@@ -20,9 +20,9 @@ export { default as deleteShipment } from './DeleteShipment/deleteShipment';
 export { default as proofOfServiceDocUpload } from './proofOfServiceDocUpload';
 export { default as requestShipmentCancellation } from './requestShipmentCancellation';
 export { default as requestShipmentDiversion } from './requestShipmentDiversion';
-export { default as requestShipmentReweigh } from './requestShipmentReweigh';
+export { default as requestShipmentReweigh } from './RequestShipmentReweigh/requestShipmentReweigh';
 export { default as setFinancialReviewFlag } from './setFinancialReviewFlag';
-export { default as submitMoveForApproval } from './submitMoveForApproval';
+export { default as submitMoveForApproval } from './SubmitMoveForApproval/submitMoveForApproval';
 export { default as updateAllowance } from './UpdateAllowances/updateAllowance';
 export { default as updateBillableWeight } from './updateBillableWeight';
 export { default as updateBillableWeightAsTIO } from './updateBillableWeightAsTIO';
