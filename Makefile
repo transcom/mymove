@@ -4,9 +4,6 @@ DB_NAME_TEST = test_db
 DB_DOCKER_CONTAINER_DEV = milmove-db-dev
 DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS = milmove-db-deployed-migrations
 DB_DOCKER_CONTAINER_TEST = milmove-db-test
-# README: The version of the postgres container should match production as
-# closely as possible.
-# https://github.com/transcom/terraform-aws-app-environment/tree/main/database/main.tf#68
 DB_DOCKER_CONTAINER_IMAGE = postgres:12.11
 REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
 REDIS_DOCKER_CONTAINER = milmove-redis
