@@ -9,7 +9,7 @@ export default {
   action: a.UPDATE,
   eventName: o.setFinancialReviewFlag,
   tableName: t.moves,
-  getEventNameDisplay: () => 'Flagged move',
+  getEventNameDisplay: () => 'Updated shipment',
   getDetails: (historyRecord) => (
     <>
       {historyRecord.changedValues?.financial_review_flag === 'true'
