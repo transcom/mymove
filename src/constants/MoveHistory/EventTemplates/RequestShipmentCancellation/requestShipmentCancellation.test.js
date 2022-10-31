@@ -1,5 +1,5 @@
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/requestShipmentCancellation';
+import e from 'constants/MoveHistory/EventTemplates/RequestShipmentCancellation/requestShipmentCancellation';
 
 describe('when given a Request shipment cancellation history record', () => {
   const item = {
