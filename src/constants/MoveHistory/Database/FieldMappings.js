@@ -77,4 +77,5 @@ export default {
   backup_address: 'Backup mailing address',
   current_duty_location_name: 'Current duty location name',
   financial_review_remarks: 'Financial review remarks',
+  max_billable_weight: 'Max billable weight',
 };

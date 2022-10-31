@@ -5,10 +5,21 @@ import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 
+// To-do: Remove one max_billable_weight is its own value
+const formatChangedValues = (historyRecord) => {
+  const { changedValues } = historyRecord;
+  const newChangedValues = { ...changedValues };
+  if (changedValues.authorized_weight) {
+    newChangedValues.max_billable_weight = changedValues.authorized_weight;
+    delete newChangedValues.authorized_weight;
+  }
+  return { ...historyRecord, changedValues: newChangedValues };
+};
+
 export default {
   action: a.UPDATE,
   eventName: o.updateBillableWeightAsTIO,
   tableName: t.moves,
   getEventNameDisplay: () => 'Updated move',
-  getDetails: (historyRecord) => <LabeledDetails historyRecord={historyRecord} />,
+  getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
 };

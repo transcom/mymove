@@ -22,7 +22,7 @@ describe('when updating billable weight as a TIO ', () => {
   it('correctly renders the details label component', () => {
     const result = getTemplate(historyRecord);
     render(result.getDetails(historyRecord));
-    expect(screen.getByText('Authorized weight')).toBeInTheDocument();
+    expect(screen.getByText('Max billable weight')).toBeInTheDocument();
     expect(screen.getByText(': 7999 lbs')).toBeInTheDocument();
   });
 });
