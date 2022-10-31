@@ -6,9 +6,9 @@ import t from 'constants/MoveHistory/Database/Tables';
 import updateServiceMemberBackupContact from 'constants/MoveHistory/EventTemplates/UpdateServiceMemberBackupContact/updateServiceMemberBackupContact';
 
 const BACKUP_CONTACT = {
-  backup_contact_name: 'Ben Wyatt',
-  backup_contact_email: 'benwyatt@example.com',
-  backup_contact_phone: '555-555-2222',
+  name: 'Ben Wyatt',
+  email: 'benwyatt@example.com',
+  phone: '555-555-2222',
 };
 
 describe('When a service members updates their profile', () => {
