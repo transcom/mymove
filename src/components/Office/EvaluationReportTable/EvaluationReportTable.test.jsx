@@ -22,6 +22,16 @@ const draftReport = {
   submittedAt: null,
   type: 'SHIPMENT',
   violationsObserved: true,
+};
+
+const blankReport = {
+  id: '3g9d18a8-7688-428d-be8e-3f3c59a0ae5e',
+  location: null,
+  moveID: 'aa1bbbdc-1710-4831-aa41-e35ebedff5cd',
+  shipmentID: 'a46825dd-cf90-442b-96de-c5075ea2f1bf',
+  submittedAt: null,
+  type: 'SHIPMENT',
+  violationsObserved: undefined,
   seriousIncident: undefined,
 };
 
@@ -79,7 +89,7 @@ describe('EvaluationReportTable', () => {
       <MockProviders>
         <EvaluationReportTable
           reports={[draftReport]}
-          emptyText="no reports for this"
+          emptyText=""
           shipments={[]}
           moveCode="FAKEIT"
           grade="E_4"
@@ -95,16 +105,34 @@ describe('EvaluationReportTable', () => {
     expect(screen.getByText('Date submitted')).toBeInTheDocument();
     expect(screen.getByText('Location')).toBeInTheDocument();
     expect(screen.getByText('Violations')).toBeInTheDocument();
-    expect(screen.getByTestId('violation-column')).toHaveTextContent('Yes');
     expect(screen.getByText('Serious Incident')).toBeInTheDocument();
-    expect(screen.getByTestId('incident-column')).toHaveTextContent('');
-    expect(screen.queryByText('no reports for this')).not.toBeInTheDocument();
-
     expect(screen.getByTestId('tag')).toHaveTextContent('DRAFT');
 
     expect(screen.getByText('#QA-1F9D1')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Edit report' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+  });
+  it('does not show undefined values in table', () => {
+    render(
+      <MockProviders>
+        <EvaluationReportTable
+          reports={[blankReport]}
+          emptyText="no reports for this"
+          shipments={[]}
+          moveCode="FAKEIT"
+          grade="E_4"
+          customerInfo={customerInfo}
+          deleteReport={jest.fn()}
+          setReportToDelete={jest.fn()}
+          setIsDeleteModalOpen={jest.fn()}
+          isDeleteModalOpen={false}
+        />
+      </MockProviders>,
+    );
+    expect(screen.getByText('Violations')).toBeInTheDocument();
+    expect(screen.getByTestId('violation-column')).toHaveTextContent('');
+    expect(screen.getByText('Serious Incident')).toBeInTheDocument();
+    expect(screen.getByTestId('incident-column')).toHaveTextContent('');
   });
   it('renders table with a submitted report', () => {
     render(
