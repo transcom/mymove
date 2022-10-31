@@ -4,10 +4,7 @@ DB_NAME_TEST = test_db
 DB_DOCKER_CONTAINER_DEV = milmove-db-dev
 DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS = milmove-db-deployed-migrations
 DB_DOCKER_CONTAINER_TEST = milmove-db-test
-# The version of the postgres container should match production as closely
-# as possible.
-# https://github.com/transcom/transcom-infrasec-com/blob/c32c45078f29ea6fd58b0c246f994dbea91be372/transcom-com-legacy/app-prod/main.tf#L62
-DB_DOCKER_CONTAINER_IMAGE = postgres:12.7
+DB_DOCKER_CONTAINER_IMAGE = postgres:12.11
 REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
 REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
