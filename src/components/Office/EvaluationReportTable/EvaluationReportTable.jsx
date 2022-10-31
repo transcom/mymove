@@ -70,8 +70,12 @@ const EvaluationReportTable = ({
         </td>
         <td className={styles.dateSubmittedColumn}>{report.submittedAt && formatCustomerDate(report.submittedAt)}</td>
         <td className={styles.locationColumn}>{formatEvaluationReportLocation(report.location)}</td>
-        <td className={styles.violationsColumn}>{violations}</td>
-        <td className={styles.seriousIncidentColumn}>{seriousIncident}</td>
+        <td data-testid="violation-column" className={styles.violationsColumn}>
+          {violations}
+        </td>
+        <td data-testid="incident-column" className={styles.seriousIncidentColumn}>
+          {seriousIncident}
+        </td>
         <td className={styles.viewReportColumn}>
           {report.submittedAt && (
             <Button

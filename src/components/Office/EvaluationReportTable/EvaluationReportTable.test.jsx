@@ -22,6 +22,7 @@ const draftReport = {
   submittedAt: null,
   type: 'SHIPMENT',
   violationsObserved: true,
+  seriousIncident: undefined,
 };
 
 const customerInfo = {
@@ -94,7 +95,9 @@ describe('EvaluationReportTable', () => {
     expect(screen.getByText('Date submitted')).toBeInTheDocument();
     expect(screen.getByText('Location')).toBeInTheDocument();
     expect(screen.getByText('Violations')).toBeInTheDocument();
+    expect(screen.getByTestId('violation-column')).toHaveTextContent('Yes');
     expect(screen.getByText('Serious Incident')).toBeInTheDocument();
+    expect(screen.getByTestId('incident-column')).toHaveTextContent('');
     expect(screen.queryByText('no reports for this')).not.toBeInTheDocument();
 
     expect(screen.getByTestId('tag')).toHaveTextContent('DRAFT');
