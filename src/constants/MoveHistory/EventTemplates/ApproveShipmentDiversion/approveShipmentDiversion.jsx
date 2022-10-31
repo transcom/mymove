@@ -7,7 +7,7 @@ export default {
   action: '*',
   eventName: o.approveShipmentDiversion,
   tableName: '*',
-  getEventNameDisplay: () => 'Approved diversion',
+  getEventNameDisplay: () => 'Approved shipment',
   getDetails: ({ context }) => (
     <>
       {s[context[0].shipment_type]} shipment #{context[0].shipment_id_abbr.toUpperCase()}
