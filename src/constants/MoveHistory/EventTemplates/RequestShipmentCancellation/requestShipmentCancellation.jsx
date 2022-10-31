@@ -1,14 +1,18 @@
+import React from 'react';
+
+import a from 'constants/MoveHistory/Database/Actions';
+import t from 'constants/MoveHistory/Database/Tables';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
-import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
-import { shipmentTypes } from 'constants/shipments';
+import { shipmentTypes as s } from 'constants/shipments';
 
 export default {
-  action: '*',
+  action: a.UPDATE,
   eventName: o.requestShipmentCancellation,
-  tableName: '*',
-  detailsType: d.PLAIN_TEXT,
+  tableName: t.mto_shipments,
   getEventNameDisplay: () => 'Updated shipment',
-  getDetailsPlainText: (historyRecord) => {
-    return `Requested cancellation for ${shipmentTypes[historyRecord.oldValues?.shipment_type]} shipment`;
-  },
+  getDetails: ({ context }) => (
+    <>
+      Requested cancellation for {s[context[0]?.shipment_type]} shipment #{context[0]?.shipment_id_abbr.toUpperCase()}
+    </>
+  ),
 };
