@@ -20,6 +20,8 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 
 const validationSchema = Yup.object().shape({
   selfProGear: Yup.bool().required('Required'),
+  proGearDocument: Yup.object(),
+  proGearWeight: Yup.number(),
 });
 
 const proGearDocumentRef = createRef();
