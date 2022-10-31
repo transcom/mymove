@@ -9,7 +9,7 @@ export default {
   action: a.UPDATE,
   eventName: o.requestShipmentDiversion,
   tableName: t.mto_shipments,
-  getEventNameDisplay: () => 'Requested diversion',
+  getEventNameDisplay: () => 'Updated shipment',
   getDetails: ({ context }) => (
     <>
       Requested diversion for {s[context[0]?.shipment_type]} shipment #{context[0].shipment_id_abbr.toUpperCase()}
