@@ -8,7 +8,7 @@ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 const formatChangedValues = (historyRecord) => {
   const { changedValues } = historyRecord;
   const { name, phone, email } = changedValues;
-  const newChangedValues = changedValues;
+  const newChangedValues = { ...changedValues };
   if (name) {
     newChangedValues.backup_contact_name = changedValues.name;
     delete newChangedValues.name;
