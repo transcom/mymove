@@ -1,5 +1,5 @@
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/updateMoveTaskOrderStatus';
+import e from 'constants/MoveHistory/EventTemplates/UpdateMoveTaskOrderStatus/updateMoveTaskOrderStatus';
 
 describe('when given a Move approved history record', () => {
   const item = {
