@@ -9,5 +9,5 @@ export default {
   eventName: o.updateMoveTaskOrderStatus,
   tableName: t.mto_service_items,
   getEventNameDisplay: () => 'Approved service item',
-  getDetailsPlainText: ({ context }) => <> {context[0]?.name} </>,
+  getDetails: ({ context }) => <> {context[0]?.name} </>,
 };
