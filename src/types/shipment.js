@@ -70,6 +70,7 @@ export const ShipmentShape = shape({
   calculatedBillableWeight: number,
   ntsRecordedWeight: number,
   scheduledPickupDate: string,
+  scheduledDeliveryDate: string,
   requestedPickupDate: string,
   actualPickupDate: string,
   requestedDeliveryDate: string,

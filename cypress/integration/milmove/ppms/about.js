@@ -11,7 +11,7 @@ describe('About Your PPM', function () {
   });
 
   afterEach(() => {
-    cy.pa11y();
+    cy.a11yAudit();
   });
 
   const viewportType = [

@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-72166d322751035f17653503d19db22dd14c049e  as builder
+FROM milmove/circleci-docker:milmove-app-4dbb2bcb421ecd4a7ea1e511b954e285a317c8fc  as builder
 
 ENV CIRCLECI=true
 
@@ -11,7 +11,6 @@ WORKDIR /home/circleci/project
 
 RUN make clean
 RUN make bin/rds-ca-2019-root.pem
-RUN rm -f pkg/assets/assets.go && make pkg/assets/assets.go
 RUN make server_generate
 RUN rm -f bin/milmove-tasks && make bin/milmove-tasks
 

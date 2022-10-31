@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-72166d322751035f17653503d19db22dd14c049e as builder
+FROM milmove/circleci-docker:milmove-app-4dbb2bcb421ecd4a7ea1e511b954e285a317c8fc as builder
 
 ENV CIRCLECI=true
 
@@ -10,7 +10,6 @@ COPY --chown=circleci:circleci . /home/circleci/project
 WORKDIR /home/circleci/project
 
 RUN make clean
-RUN rm -f pkg/assets/assets.go && make pkg/assets/assets.go
 RUN make server_generate
 RUN rm -f bin/generate-test-data && make bin/generate-test-data
 RUN rm -f bin/prime-api-client && make bin/prime-api-client

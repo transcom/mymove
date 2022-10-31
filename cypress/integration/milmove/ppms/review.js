@@ -41,7 +41,7 @@ describe('PPM Onboarding - Review', function () {
   });
 
   afterEach(() => {
-    cy.pa11y();
+    cy.a11yAudit();
   });
 
   const viewportType = [

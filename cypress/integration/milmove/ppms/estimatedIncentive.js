@@ -17,7 +17,7 @@ describe('PPM Onboarding - Estimated Incentive', function () {
   });
 
   afterEach(() => {
-    cy.pa11y();
+    cy.a11yAudit();
   });
 
   it('go to estimated incentives page', () => {

@@ -3,10 +3,10 @@ import { render, screen } from '@testing-library/react';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import t from 'constants/MoveHistory/Database/Tables';
-import updateAllowanceServiceMemberByTOO from 'constants/MoveHistory/EventTemplates/UpdateAllowances/updateAllowanceServiceMemberByTOO';
+import updateAllowanceServiceMemberByTOO from 'constants/MoveHistory/EventTemplates/UpdateServiceMember/updateServiceMemberByTOO';
 
 describe('When a TOO updates shipping allowances', () => {
-  const item = {
+  const historyRecord = {
     action: 'UPDATE',
     eventName: o.updateAllowance,
     tableName: t.service_members,
@@ -17,17 +17,17 @@ describe('When a TOO updates shipping allowances', () => {
     },
   };
   it('correctly matches the update allowance event results in a change in service branch', () => {
-    const result = getTemplate(item);
+    const result = getTemplate(historyRecord);
     expect(result).toMatchObject(updateAllowanceServiceMemberByTOO);
-    render(result.getDetails(item));
+    expect(result.getEventNameDisplay()).toMatch(historyRecord.eventNameDisplay);
   });
   describe('it correctly displays the details component', () => {
     it.each([
       ['Branch', ': Air Force'],
       ['Rank', ': E-2'],
     ])('displays the correct details value for %s', async (label, value) => {
-      const result = getTemplate(item);
-      render(result.getDetails(item));
+      const result = getTemplate(historyRecord);
+      render(result.getDetails(historyRecord));
       expect(screen.getByText(label)).toBeInTheDocument();
       expect(screen.getByText(value)).toBeInTheDocument();
     });

@@ -3218,65 +3218,25 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
-      emptyWeight:
-        description: Weight of the vehicle not including the pro-gear.
+      weight:
+        description: Weight of the pro-gear.
         type: integer
         minimum: 0
         x-nullable: true
         x-omitempty: false
-      emptyDocumentId:
+      documentId:
         description: >-
           The ID of the document that is associated with the user uploads
-          containing the empty vehicle weight.
+          containing the pro-gear weight.
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      emptyDocument:
+      document:
         allOf:
           - description: >-
               Document that is associated with the user uploads containing the
-              empty vehicle weight.
-          - $ref: '#/definitions/Document'
-      fullWeight:
-        description: Weight of the vehicle including the pro-gear.
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-omitempty: false
-      fullDocumentId:
-        description: >-
-          The ID of the document that is associated with the user uploads
-          containing the full vehicle weight.
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      fullDocument:
-        allOf:
-          - description: >-
-              Document that is associated with the user uploads containing the
-              full vehicle weight.
-          - $ref: '#/definitions/Document'
-      constructedWeight:
-        description: Constructed weight of the pro-gear.
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-omitempty: false
-      constructedWeightDocumentId:
-        description: >-
-          The ID of the document that is associated with the user uploads
-          containing the constructed weight.
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      constructedWeightDocument:
-        allOf:
-          - description: >-
-              Document that is associated with the user uploads containing the
-              constructed weight.
+              pro-gear weight.
           - $ref: '#/definitions/Document'
       status:
         $ref: '#/definitions/OmittablePPMDocumentStatus'
@@ -3291,12 +3251,8 @@ definitions:
       - ppmShipmentId
       - createdAt
       - updatedAt
-      - emptyDocumentId
-      - emptyDocument
-      - fullDocumentId
-      - fullDocument
-      - constructedWeightDocumentId
-      - constructedWeightDocument
+      - documentId
+      - document
       - eTag
   PPMShipment:
     description: >-

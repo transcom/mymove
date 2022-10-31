@@ -58,7 +58,7 @@ describe('Entire PPM onboarding flow', function () {
       }
 
       navigateHappyPathWithEditsAndBacks(userId, isMobile);
-      cy.pa11y();
+      cy.a11yAudit();
     });
   });
 });

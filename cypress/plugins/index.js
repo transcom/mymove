@@ -39,15 +39,36 @@ module.exports = (on, config) => {
     prepareAudit(launchOptions);
   });
 
+  // this would default to true
+  const doNotThrowA11yErrors = false;
+
+  const runLighthouse = (report) => {
+    if (doNotThrowA11yErrors) {
+      return lighthouse((report) => {
+        const filepath = path.resolve('cypress', `reports/lighthouse_report-${new Date()}.json`);
+        storeData(report, filepath);
+      });
+    }
+    return lighthouse();
+  };
+
+  const runPa11y = (report) => {
+    if (doNotThrowA11yErrors) {
+      return pa11y((report) => {
+        console.log(report);
+        const filepath = path.resolve('cypress', `reports/pa11y_report-${new Date()}.json`);
+        storeData(report, filepath);
+      });
+    }
+    return pa11y();
+  };
+
   on('task', {
-    lighthouse: lighthouse((report) => {
-      const filepath = path.resolve('cypress', `reports/lighthouse_report-${new Date()}.json`);
-      storeData(report, filepath);
-    }),
-    pa11y: pa11y((report) => {
-      console.log(report);
-      const filepath = path.resolve('cypress', `reports/pa11y_report-${new Date()}.json`);
-      storeData(report, filepath);
-    }),
+    lighthouse: runLighthouse(),
+    pa11y: runPa11y(),
+    a11yAudit: () => {
+      lighthouse();
+      pa11y();
+    },
   });
 };

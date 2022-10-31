@@ -15,7 +15,7 @@ describe('Final Closeout', function () {
   });
 
   afterEach(() => {
-    cy.pa11y();
+    cy.a11yAudit();
   });
 
   const testCases = [
