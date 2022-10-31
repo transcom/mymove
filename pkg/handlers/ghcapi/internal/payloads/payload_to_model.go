@@ -358,7 +358,7 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		RequestedPickupDate:         requestedPickupDate,
 		RequestedDeliveryDate:       requestedDeliveryDate,
 		CustomerRemarks:             mtoShipment.CustomerRemarks,
-		CounselorRemarks:            mtoShipment.CounselorRemarks,
+		CounselorRemarks:            mtoShipment.CounselorRemarks.Value,
 		TACType:                     tacType,
 		SACType:                     sacType,
 		UsesExternalVendor:          usesExternalVendor,

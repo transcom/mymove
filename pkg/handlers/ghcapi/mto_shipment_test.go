@@ -2514,7 +2514,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 		RequestedDeliveryDate:       &now,
 		ShipmentType:                ghcmessages.MTOShipmentTypeHHG,
 		CustomerRemarks:             &customerRemarks,
-		CounselorRemarks:            &counselorRemarks,
+		CounselorRemarks:            nullable.NewString(counselorRemarks),
 		Agents:                      agents,
 		TacType:                     nullable.NewString("NTS"),
 		SacType:                     nullable.NewString(""),
