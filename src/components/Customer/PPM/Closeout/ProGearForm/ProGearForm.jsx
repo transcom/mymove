@@ -22,12 +22,13 @@ const validationSchema = Yup.object().shape({
   selfProGear: Yup.bool().required('Required'),
   proGearDocument: Yup.object(),
   proGearWeight: Yup.number(),
+  description: Yup.string().required('Required'),
 });
 
 const proGearDocumentRef = createRef();
 
 const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onUploadComplete, onUploadDelete }) => {
-  const { selfProGear, document, proGearWeight } = proGear || {};
+  const { selfProGear, document, proGearWeight, description } = proGear || {};
   let proGearValue;
   if (selfProGear === true) {
     proGearValue = 'true';
@@ -40,6 +41,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
     selfProGear: proGearValue,
     proGearDocument: document?.uploads || [],
     proGearWeight: proGearWeight ? `${proGearWeight}` : '',
+    description: description ? `${description}` : '',
   };
 
   const jtr = (
