@@ -9,6 +9,10 @@
     @include u-margin-bottom(2);
   }
 
+  legend:global(.usa-label) {
+    @include u-margin-bottom(0);
+  }
+
   .hint {
     @include u-margin-top('05');
     @include u-margin-bottom('05');
@@ -20,7 +24,6 @@
     .descriptionTextField {
       width: 100%
     }
-    display: inline-block;
   }
 
   .labelWrapper {

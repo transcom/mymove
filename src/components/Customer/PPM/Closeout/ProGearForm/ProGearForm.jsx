@@ -21,14 +21,15 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 const validationSchema = Yup.object().shape({
   selfProGear: Yup.bool().required('Required'),
   proGearDocument: Yup.object(),
-  proGearWeight: Yup.number(),
+  proGearWeight: Yup.number().required('Required').min(0, 'Enter a weight 0 lbs or greater'),
   description: Yup.string().required('Required'),
+  missingWeightTicket: Yup.string(),
 });
 
 const proGearDocumentRef = createRef();
 
 const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onUploadComplete, onUploadDelete }) => {
-  const { selfProGear, document, proGearWeight, description } = proGear || {};
+  const { selfProGear, document, proGearWeight, description, missingWeightTicket } = proGear || {};
   let proGearValue;
   if (selfProGear === true) {
     proGearValue = 'true';
@@ -42,15 +43,11 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
     proGearDocument: document?.uploads || [],
     proGearWeight: proGearWeight ? `${proGearWeight}` : '',
     description: description ? `${description}` : '',
+    missingWeightTicket: missingWeightTicket ? `${missingWeightTicket}` : '',
   };
 
   const jtr = (
-    <Link
-      className={classnames('string')}
-      href="https://www.defensetravel.dod.mil/Docs/perdiem/JTR.pdf"
-      target="_blank"
-      rel="noopener"
-    >
+    <Link href="https://www.defensetravel.dod.mil/Docs/perdiem/JTR.pdf" target="_blank" rel="noopener">
       Joint Travel Regulations (JTR)
     </Link>
   );
@@ -64,7 +61,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                 <h2>Set {setNumber}</h2>
                 <FormGroup>
                   <Fieldset>
-                    <legend className="usa-label margin-bottom-0">Who does this pro-gear belongs to?</legend>
+                    <legend>Who does this pro-gear belongs to?</legend>
                     <Hint className={ppmStyles.hint}>You have to separate yours and your spouse&apos;s pro-gear.</Hint>
                     <Field
                       as={Radio}
