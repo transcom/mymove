@@ -1,7 +1,7 @@
 export { default as acknowledgeExcessWeightRisk } from './AcknowledgeExcessWeightRisk/acknowledgeExcessWeightRisk';
 export { default as approveShipment } from './ApproveShipment/approveShipment';
 export { default as approveShipmentDiversion } from './approveShipmentDiversion';
-export { default as createBasicServiceItem } from './createBasicServiceItem';
+export { default as createBasicServiceItem } from './UpdateMoveTaskOrderStatus/createBasicServiceItem';
 export { default as createMTOServiceItem } from './CreateMTOServiceItem/createMTOServiceItem';
 export { default as createMTOServiceItemCustomerContacts } from './CreateMTOServiceItem/createMTOServiceItemCustomerContacts';
 export { default as createMTOServiceItemDimensions } from './CreateMTOServiceItem/createMTOServiceItemDimensions';

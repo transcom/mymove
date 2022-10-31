@@ -1,5 +1,5 @@
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/createBasicServiceItem';
+import e from 'constants/MoveHistory/EventTemplates/UpdateMoveTaskOrderStatus/createBasicServiceItem';
 
 describe('when given a Create basic service item history record', () => {
   const item = {
