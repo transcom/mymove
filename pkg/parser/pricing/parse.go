@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/tealeg/xlsx/v3"
+	"github.com/theckman/yacspin"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -429,32 +430,76 @@ func process(appCtx appcontext.AppContext, xlsxDataSheets []XlsxDataSheetInfo, p
 					processDescription = *p.description
 				}
 
-				spinner, err := pterm.DefaultSpinner.Start(fmt.Sprintf("Processing section: %s", processDescription))
-				if err != nil {
-					appCtx.Logger().Fatal("Failed to create pterm spinner", zap.Error(err))
+				message := "Processing section: " + processDescription
+
+				cfg := yacspin.Config{
+
+					Frequency:         100 * time.Millisecond,
+					CharSet:           yacspin.CharSets[11],
+					Suffix:            " ", // puts a least one space between the animating spinner and the Message
+					Message:           message,
+					SuffixAutoColon:   true,
+					ColorAll:          true,
+					Colors:            []string{"fgYellow"},
+					StopCharacter:     "✓",
+					StopColors:        []string{"fgGreen"},
+					StopMessage:       "SUCCESS",
+					StopFailCharacter: "✗",
+					StopFailColors:    []string{"fgRed"},
+					StopFailMessage:   "FAILED",
 				}
+
+				spinner, newSpinErr := yacspin.New(cfg)
+				if newSpinErr != nil {
+					appCtx.Logger().Error("failed to make spinner from struct: ", zap.Error(newSpinErr))
+				}
+
+				if startErr := spinner.Start(); startErr != nil {
+					appCtx.Logger().Error("failed to start spinner: ", zap.Error(startErr))
+				}
+
+				// spinner, err := pterm.DefaultSpinner.Start(fmt.Sprintf("Processing section: %s", processDescription))
+				// if err != nil {
+				// 	appCtx.Logger().Fatal("Failed to create pterm spinner", zap.Error(err))
+				// }
 
 				callFunc := *p.process
 				slice, err := callFunc(appCtx, params, sheetIndex)
 				if err != nil {
-					spinner.Fail()
+					stopErr := spinner.StopFail()
+					if stopErr != nil {
+						appCtx.Logger().Error("failed to stop spinner: %w", zap.Error(stopErr))
+						return errors.Wrapf(stopErr, "error stopping spinner")
+					}
 					appCtx.Logger().Error("process error", zap.String("description", description), zap.Error(err))
 					return errors.Wrapf(err, "process error for sheet index: %d with description: %s", sheetIndex, description)
 				}
 
 				if params.SaveToFile {
 					filename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.RunTime, p.adtlSuffix)
-					if err := createCSV(appCtx, filename, slice); err != nil {
-						spinner.Fail()
+					if err = createCSV(appCtx, filename, slice); err != nil {
+						stopErr := spinner.StopFail()
+						if stopErr != nil {
+							appCtx.Logger().Error("failed to stop spinner: %w", zap.Error(stopErr))
+							return errors.Wrapf(stopErr, "error stopping spinner")
+						}
 						return errors.Wrapf(err, "Could not create CSV for sheet index: %d with description: %s", sheetIndex, description)
 					}
 				}
-				if err := tableFromSliceCreator.CreateTableFromSlice(appCtx, slice); err != nil {
-					spinner.Fail()
+				if err = tableFromSliceCreator.CreateTableFromSlice(appCtx, slice); err != nil {
+					stopErr := spinner.StopFail()
+					if stopErr != nil {
+						appCtx.Logger().Error("failed to stop spinner: %w", zap.Error(stopErr))
+						return errors.Wrapf(stopErr, "error stopping spinner")
+					}
 					return errors.Wrapf(err, "Could not create table for sheet index: %d with description: %s", sheetIndex, description)
 				}
 
-				spinner.Success()
+				err = spinner.Stop()
+				if err != nil {
+					appCtx.Logger().Error("failed to stop spinner: %w", zap.Error(err))
+					return errors.Wrapf(err, "error stopping spinner")
+				}
 			} else {
 				appCtx.Logger().Info("No process function", zap.Int("sheet index", sheetIndex), zap.String("description", description), zap.Int("method index", methodIndex))
 			}

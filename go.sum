@@ -689,6 +689,8 @@ github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8 h1:RB0v+/pc8oMzPsN
 github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8/go.mod h1:IlWNj9v/13q7xFbaK4mbyzMNwrZLaWSHx/aibKIZuIg=
 github.com/tealeg/xlsx/v3 v3.2.4 h1:QPuk5v1xEivxoEUFmqszqINF52ppWCMejEd11ju3180=
 github.com/tealeg/xlsx/v3 v3.2.4/go.mod h1:0j6U48nJBWJsvo1FmYilbGo81oRdLyYInWvjb2WAeOA=
+github.com/theckman/yacspin v0.13.12 h1:CdZ57+n0U6JMuh2xqjnjRq5Haj6v1ner2djtLQRzJr4=
+github.com/theckman/yacspin v0.13.12/go.mod h1:Rd2+oG2LmQi5f3zC3yeZAOl245z8QOvrH4OPOJNZxLg=
 github.com/tiaguinho/gosoap v1.4.4 h1:4XZlaqf/y2UAbCPFGcZS4uLKrEvnMr+5pccIyQAUVg4=
 github.com/tiaguinho/gosoap v1.4.4/go.mod h1:4vv86Jl19UkOeoJW/aawihXYNJ/Iy2NHkhgmBUJ2Ibk=
 github.com/tidwall/pretty v1.0.0 h1:HsD+QiTn7sK6flMKIvNmpqz1qrpP3Ps6jOKIKMooyg4=

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/pterm/pterm"
+	"github.com/theckman/yacspin"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -52,18 +52,51 @@ func (gre *GHCRateEngineImporter) runImports(appCtx appcontext.AppContext) error
 	}
 
 	for _, importer := range importers {
-		spinner, err := pterm.DefaultSpinner.Start(importer.action)
-		if err != nil {
-			return fmt.Errorf("failed to create pterm spinner: %w", err)
+		cfg := yacspin.Config{
+			Frequency:         100 * time.Millisecond,
+			CharSet:           yacspin.CharSets[11],
+			Suffix:            " ", // puts a least one space between the animating spinner and the Message
+			Message:           importer.action,
+			SuffixAutoColon:   true,
+			ColorAll:          true,
+			Colors:            []string{"fgYellow"},
+			StopCharacter:     "✓",
+			StopColors:        []string{"fgGreen"},
+			StopMessage:       "SUCCESS",
+			StopFailCharacter: "✗",
+			StopFailColors:    []string{"fgRed"},
+			StopFailMessage:   "FAILED",
 		}
+
+		spinner, err := yacspin.New(cfg)
+		if err != nil {
+			return fmt.Errorf("failed to make spinner from struct: %w", err)
+		}
+
+		if err = spinner.Start(); err != nil {
+			return fmt.Errorf("failed to start spinner: %w", err)
+		}
+
+		/*
+			spinner, err := pterm.DefaultSpinner.Start(importer.action)
+			if err != nil {
+				return fmt.Errorf("failed to create pterm spinner: %w", err)
+			}*/
 
 		err = importer.importFunction(appCtx)
 		if err != nil {
-			spinner.Fail()
+			stopErr := spinner.StopFail()
+			if stopErr != nil {
+				return fmt.Errorf("failed to stop spinner: %w", stopErr)
+			}
+
 			return fmt.Errorf("importer failed: %s: %w", importer.action, err)
 		}
 
-		spinner.Success()
+		err = spinner.Stop()
+		if err != nil {
+			return fmt.Errorf("failed to stop spinner: %w", err)
+		}
 	}
 
 	return nil

@@ -59,6 +59,7 @@ require (
 	github.com/stretchr/testify v1.8.1
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx/v3 v3.2.4
+	github.com/theckman/yacspin v0.13.12
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/trussworks/otelhttp v0.0.0-20220801182039-09272611890b
 	github.com/vektra/mockery/v2 v2.14.0

@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/tealeg/xlsx/v3"
+	"github.com/theckman/yacspin"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -130,17 +131,53 @@ func main() {
 
 	// Open the spreadsheet
 	printDivider("Loading")
-	spinner, err := pterm.DefaultSpinner.Start(fmt.Sprintf("Loading file: %s", params.XlsxFilename))
-	if err != nil {
-		logger.Fatal("Failed to create pterm spinner", zap.Error(err))
+
+	message := "Loading file: " + params.XlsxFilename
+
+	cfg := yacspin.Config{
+		Frequency:         100 * time.Millisecond,
+		CharSet:           yacspin.CharSets[11],
+		Suffix:            " ", // puts a least one space between the animating spinner and the Message
+		Message:           message,
+		SuffixAutoColon:   true,
+		ColorAll:          true,
+		Colors:            []string{"fgYellow"},
+		StopCharacter:     "✓",
+		StopColors:        []string{"fgGreen"},
+		StopMessage:       "SUCCESS",
+		StopFailCharacter: "✗",
+		StopFailColors:    []string{"fgRed"},
+		StopFailMessage:   "FAILED",
 	}
+
+	spinner, err := yacspin.New(cfg)
+	if err != nil {
+		logger.Error("failed to make spinner from struct: ", zap.Error(err))
+	}
+
+	if err = spinner.Start(); err != nil {
+		logger.Error("failed to start spinner: ", zap.Error(err))
+	}
+
+	// spinner, err := pterm.DefaultSpinner.Start(fmt.Sprintf("Loading file: %s", params.XlsxFilename))
+	// if err != nil {
+	// 	logger.Fatal("Failed to create pterm spinner", zap.Error(err))
+	// }
 
 	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
 	if err != nil {
-		spinner.Fail()
+		stopErr := spinner.StopFail()
+		if stopErr != nil {
+			logger.Error("failed to start spinner: ", zap.Error(stopErr))
+		}
 		logger.Fatal("Failed to open file", zap.String("XlsxFilename", params.XlsxFilename), zap.Error(err))
 	}
-	spinner.Success()
+
+	err = spinner.Stop()
+
+	if err != nil {
+		logger.Error("failed to stop spinner: ", zap.Error(err))
+	}
 
 	// Now kick off the parsing
 	printDivider("Parsing")
