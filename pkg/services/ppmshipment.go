@@ -38,3 +38,17 @@ type PPMShipmentRouter interface {
 	SendToCustomer(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error
 	SubmitCloseOutDocumentation(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error
 }
+
+// PPMShipmentNewSubmitter handles a new submission for a PPM shipment
+//
+//go:generate mockery --name PPMShipmentNewSubmitter --disable-version-string
+type PPMShipmentNewSubmitter interface {
+	SubmitNewCustomerCloseOut(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, signedCertification models.SignedCertification) (*models.PPMShipment, error)
+}
+
+// PPMShipmentUpdatedSubmitter handles a submission for a PPM shipment that has been submitted before
+//
+//go:generate mockery --name PPMShipmentUpdatedSubmitter --disable-version-string
+type PPMShipmentUpdatedSubmitter interface {
+	SubmitUpdatedCustomerCloseOut(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, signedCertification models.SignedCertification, eTag string) (*models.PPMShipment, error)
+}
