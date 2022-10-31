@@ -1,7 +1,7 @@
 import t from 'constants/MoveHistory/TemplateManager';
 import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
-import e from 'constants/MoveHistory/EventTemplates/updateMTOShipmentStatus';
+import e from 'constants/MoveHistory/EventTemplates/UpdateMTOShipmentStatus/updateMTOShipmentStatus';
 
 describe('when Prime user cancels a shipment', () => {
   const item = {
