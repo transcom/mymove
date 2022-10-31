@@ -94,9 +94,6 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 
 	if newPPMShipment.W2Address != nil {
 		ppmShipment.W2Address = newPPMShipment.W2Address
-		if ppmShipment.W2AddressID != nil {
-			ppmShipment.W2Address.ID = *ppmShipment.W2AddressID
-		}
 	}
 
 	if ppmShipment.SITExpected != nil && !*ppmShipment.SITExpected {

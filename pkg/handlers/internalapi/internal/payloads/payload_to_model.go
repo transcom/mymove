@@ -27,21 +27,6 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 	}
 }
 
-func AddressModelWithoutID(address *internalmessages.Address) *models.Address {
-	if address == nil {
-		return nil
-	}
-	return &models.Address{
-		StreetAddress1: *address.StreetAddress1,
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
-		City:           *address.City,
-		State:          *address.State,
-		PostalCode:     *address.PostalCode,
-		Country:        address.Country,
-	}
-}
-
 // MTOAgentModel model
 func MTOAgentModel(mtoAgent *internalmessages.MTOAgent) *models.MTOAgent {
 	if mtoAgent == nil {
@@ -163,7 +148,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		FinalIncentive:                 handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive),
 	}
 
-	ppmModel.W2Address = AddressModelWithoutID(ppmShipment.W2Address)
+	ppmModel.W2Address = AddressModel(ppmShipment.W2Address)
 	if ppmShipment.ExpectedDepartureDate != nil {
 		ppmModel.ExpectedDepartureDate = *handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
 	}
