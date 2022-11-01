@@ -20,12 +20,11 @@ properties:
     example: c56a4180-65aa-42ec-a945-5fd21dec0538
     readOnly: true
   document:
-    description: The Document object that contains all file uploads for this expense
-    type: object
+    allOf:
+      - description: The Document object that contains all file uploads for this expense
+      - $ref: 'Document.yaml'
   movingExpenseType:
-    $ref: 'MovingExpenseType.yaml'
-    x-nullable: true
-    x-omitempty: false
+    $ref: 'OmittableMovingExpenseType.yaml'
   description:
     description: A brief description of the expense
     type: string
@@ -47,7 +46,7 @@ properties:
     x-nullable: true
     x-omitempty: false
   status:
-    $ref: 'PPMDocumentStatus.yaml'
+    $ref: 'OmittablePPMDocumentStatus.yaml'
   reason:
     $ref: 'PPMDocumentStatusReason.yaml'
   sitStartDate:
@@ -68,12 +67,14 @@ properties:
     description: Timestamp the moving expense object was initially created in the system (UTC)
     type: string
     format: date-time
+    readOnly: true
   updatedAt:
     description: Timestamp when a property of this moving expense object was last modified (UTC)
     type: string
     format: date-time
+    readOnly: true
   eTag:
-    description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
+    description: A hash that should be used as the "If-Match" header for any updates.
     type: string
     readOnly: true
 required:

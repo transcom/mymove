@@ -77,6 +77,15 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 	}
 }
 
+func subScenarioPPMCloseOut(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
+	return func() {
+		createServicesCounselor(appCtx)
+
+		// PPM Closeout
+		createMovesForEachBranch(appCtx, userUploader)
+	}
+}
+
 func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
 	return func() {
 		createTXO(appCtx)

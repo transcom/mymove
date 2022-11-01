@@ -50,7 +50,7 @@ repos:
         exclude: ^public/swagger-ui/
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v1.49.0
+    rev: v1.50.1
     hooks:
       - id: golangci-lint
         entry: bash -c 'exec golangci-lint run ${GOLANGCI_LINT_VERBOSE} -j=${GOLANGCI_LINT_CONCURRENCY:-1}' # custom bash so we can override concurrency for faster dev runs
@@ -120,6 +120,8 @@ repos:
         exclude: swagger-def/* # These are partial swagger files that are compiled into the ones in swagger/*.
                                # They will be checked unless explicitly excluded, but they will fail.
                                # By only validating the compiled files, we are effectively checking these files as well.
+        require_serial: true # Make sure that we only call the script once with all affected YAML files as CI seems to
+                             # have sporadic failures if we call this script in parallel.
 
   - repo: local
     hooks:

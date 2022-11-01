@@ -59,7 +59,7 @@ class OrdersInfo extends Component {
                 key={upload.url}
                 url={upload.url}
                 filename={upload.filename}
-                contentType={upload.content_type}
+                contentType={upload.contentType}
                 status={upload.status}
               />
             ))}

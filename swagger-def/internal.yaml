@@ -119,7 +119,7 @@ definitions:
       advance:
         $ref: '#/definitions/CreateReimbursement'
       advance_worksheet:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: 'definitions/Document.yaml'
       has_pro_gear:
         type: string
         title: Has Pro-Gear
@@ -214,7 +214,7 @@ definitions:
       advance:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: 'definitions/Document.yaml'
       has_pro_gear:
         type: string
         title: Has Pro-Gear
@@ -315,7 +315,7 @@ definitions:
       advance:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: 'definitions/Document.yaml'
       has_pro_gear:
         type: string
         title: Has Pro-Gear
@@ -454,7 +454,7 @@ definitions:
       advance:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: 'definitions/Document.yaml'
       has_pro_gear:
         type: string
         title: Has Pro-Gear
@@ -702,7 +702,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
       document:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: 'definitions/Document.yaml'
       title:
         type: string
         example: very_useful_document.pdf
@@ -852,18 +852,24 @@ definitions:
       movingExpenseType:
         $ref: 'definitions/MovingExpenseType.yaml'
       description:
+        description: A brief description of the expense
         type: string
       paidWithGTCC:
+        description: Indicates if the service member used their government issued card to pay for the expense
         type: boolean
       amount:
+        description: The total amount of the expense as indicated on the receipt
         type: integer
       missingReceipt:
+        description: Indicates if the customer is missing the receipt for their expense.
         type: boolean
       sitStartDate:
+        description: The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
         type: string
         example: '2022-04-26'
         format: date
       sitEndDate:
+        description: The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
         type: string
         example: '2018-05-26'
         format: date
@@ -942,128 +948,31 @@ definitions:
       - full_weight_ticket_missing
       - empty_weight_ticket_missing
       - trailer_ownership_missing
-  WeightTicket:
-    description: Vehicle and optional trailer information and weight documents used to move this PPM shipment.
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      ppmShipmentId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      createdAt:
-        type: string
-        format: date-time
-        readOnly: true
-      updatedAt:
-        type: string
-        format: date-time
-        readOnly: true
-      vehicleDescription:
-        type: string
-        title: Vehicle description (ex. 'SUV')
-        x-nullable: true
-      emptyWeight:
-        type: integer
-        title: Empty Recorded Weight
-        minimum: 0
-      missingEmptyWeightTicket:
-        type: boolean
-        title: has empty weight ticket
-        x-nullable: true
-        x-omitempty: false
-      emptyDocumentId:
-        title: Empty Document ID
-        type: string
-        format: uuid
-        readOnly: true
-      emptyDocument:
-        title: Empty Document
-        $ref: '#/definitions/DocumentPayload'
-      fullWeight:
-        title: full weight ticket recorded weight
-        type: integer
-        minimum: 0
-      missingFullWeightTicket:
-        title: has full weight ticket
-        type: boolean
-        x-nullable: true
-        x-omitempty: false
-      fullDocumentId:
-        title: Full Document ID
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      fullDocument:
-          title: Full Document
-          $ref: '#/definitions/DocumentPayload'
-      ownsTrailer:
-        title: Owns trailer
-        type: boolean
-        x-nullable: true
-        x-omitempty: false
-      trailerMeetsCriteria:
-        title: Trailer meets criteria
-        type: boolean
-        x-nullable: true
-        x-omitempty: false
-      proofOfTrailerOwnershipDocumentId:
-        title: Trailer Document ID
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      proofOfTrailerOwnershipDocument:
-        title: Proof of Trailer Ownership Document
-        $ref: '#/definitions/DocumentPayload'
-      status:
-        $ref: 'definitions/PPMDocumentStatus.yaml'
-      reason:
-        $ref: 'definitions/PPMDocumentStatusReason.yaml'
-      eTag:
-        type: string
-        readOnly: true
-    required:
-      - ppmShipmentId
-      - createdAt
-      - updatedAt
-      - emptyDocumentId
-      - emptyDocument
-      - fullDocument
-      - fullDocumentId
-      - proofOfTrailerOwnershipDocument
-      - proofOfTrailerOwnershipDocumentId
   UpdateWeightTicket:
     type: object
     properties:
       vehicleDescription:
+        description: Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.
         type: string
-        description: Vehicle description (ex. 'SUV')
       emptyWeight:
+        description: Weight of the vehicle when empty.
         type: integer
-        description: Empty Recorded Weight
         minimum: 0
       missingEmptyWeightTicket:
+        description: Indicates if the customer is missing a weight ticket for the vehicle weight when empty.
         type: boolean
-        description: has empty weight ticket
       fullWeight:
-        description: full weight ticket recorded weight
+        description: The weight of the vehicle when full.
         type: integer
         minimum: 0
       missingFullWeightTicket:
-        description: has full weight ticket
+        description: Indicates if the customer is missing a weight ticket for the vehicle weight when full.
         type: boolean
       ownsTrailer:
-        description: Owns trailer
+        description: Indicates if the customer used a trailer they own for the move.
         type: boolean
       trailerMeetsCriteria:
-        description: Trailer meets criteria
+        description: Indicates if the trailer that the customer used meets all the criteria to be claimable.
         type: boolean
   OfficeUser:
     type: object
@@ -1571,25 +1480,6 @@ definitions:
       - PPM_PAYMENT
       - SHIPMENT
     x-nullable: true
-  DocumentPayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
-        type: string
-        format: uuid
-        title: The service member this document belongs to
-      uploads:
-        type: array
-        items:
-          $ref: '#/definitions/UploadPayload'
-    required:
-      - id
-      - service_member_id
-      - uploads
   PostDocumentPayload:
     type: object
     properties:
@@ -1597,49 +1487,6 @@ definitions:
         type: string
         format: uuid
         title: The service member this document belongs to
-  UploadPayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      url:
-        type: string
-        format: uri
-        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-      filename:
-        type: string
-        example: filename.pdf
-      content_type:
-        type: string
-        format: mime-type
-        example: application/pdf
-      checksum:
-        type: string
-        example: ImGQ2Ush0bDHsaQthV5BnQ==
-      bytes:
-        type: integer
-      status:
-        type: string
-        enum:
-          - INFECTED
-          - CLEAN
-          - PROCESSING
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - id
-      - url
-      - filename
-      - content_type
-      - bytes
-      - created_at
-      - updated_at
   TShirtSize:
     type: string
     x-nullable: true
@@ -1911,9 +1758,9 @@ definitions:
       new_duty_location:
         $ref: 'definitions/DutyLocationPayload.yaml'
       uploaded_orders:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: 'definitions/Document.yaml'
       uploaded_amended_orders:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: 'definitions/Document.yaml'
       uploaded_amended_orders_id:
         type: string
         format: uuid
@@ -2933,7 +2780,7 @@ paths:
         '201':
           description: created upload
           schema:
-            $ref: '#/definitions/UploadPayload'
+            $ref: 'definitions/Upload.yaml'
         '400':
           description: invalid request
           schema:
@@ -3735,7 +3582,7 @@ paths:
         '200':
           description: returns a PPM attachments upload
           schema:
-            $ref: '#/definitions/UploadPayload'
+            $ref: 'definitions/Upload.yaml'
         '400':
           description: invalid request
         '401':
@@ -3848,7 +3695,7 @@ paths:
         '201':
           description: created document
           schema:
-            $ref: '#/definitions/DocumentPayload'
+            $ref: 'definitions/Document.yaml'
         '400':
           description: invalid request
         '500':
@@ -3871,7 +3718,7 @@ paths:
         '200':
           description: the requested document
           schema:
-            $ref: '#/definitions/DocumentPayload'
+            $ref: 'definitions/Document.yaml'
         '400':
           description: invalid request
           schema:
@@ -3934,7 +3781,7 @@ paths:
         '201':
           description: created upload
           schema:
-            $ref: '#/definitions/UploadPayload'
+            $ref: 'definitions/Upload.yaml'
         '400':
           description: invalid request
           schema:
@@ -4388,12 +4235,7 @@ paths:
       tags:
         - ppm
       parameters:
-        - name: ppmShipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppm
+        - $ref: 'parameters/ppmShipmentId.yaml'
       responses:
         '200':
           description: returns new moving expense object
@@ -4419,25 +4261,9 @@ paths:
       tags:
         - ppm
       parameters:
-        - in: path
-          name: ppmShipmentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppm shipment
-        - in: path
-          name: movingExpenseId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the moving expense
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ppmShipmentId.yaml'
+        - $ref: 'parameters/movingExpenseId.yaml'
+        - $ref: 'parameters/ifMatch.yaml'
         - in: body
           name: updateMovingExpense
           required: true
@@ -4470,17 +4296,12 @@ paths:
       tags:
         - ppm
       parameters:
-        - name: ppmShipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppm shipment
+        - $ref: 'parameters/ppmShipmentId.yaml'
       responses:
         '200':
           description: returns new weight ticket object
           schema:
-            $ref: '#/definitions/WeightTicket'
+            $ref: 'definitions/WeightTicket.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -4501,25 +4322,9 @@ paths:
       tags:
         - ppm
       parameters:
-        - name: ppmShipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppm shipment
-        - name: weightTicketId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the weight ticket
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ppmShipmentId.yaml'
+        - $ref: 'parameters/weightTicketId.yaml'
+        - $ref: 'parameters/ifMatch.yaml'
         - in: body
           name: updateWeightTicketPayload
           required: true
@@ -4529,7 +4334,7 @@ paths:
         '200':
           description: returns an updated weight ticket object
           schema:
-            $ref: '#/definitions/WeightTicket'
+            $ref: 'definitions/WeightTicket.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -4540,6 +4345,52 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/uploads:
+    post:
+      summary: Create a new upload for a PPM weight ticket, pro-gear, or moving expense document
+      description: Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.
+      operationId: createPPMUpload
+      tags:
+        - ppm
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: ppmShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppm shipment
+        - in: query
+          name: documentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '413':
+          description: payload is too large
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':

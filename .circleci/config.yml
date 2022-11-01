@@ -13,7 +13,7 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-dd61e0303f06a916ea1ce1454ee152f563189e42
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-4dbb2bcb421ecd4a7ea1e511b954e285a317c8fc
 
   # the cypress image to use
   cypress: &cypress milmove/circleci-docker:milmove-cypress-f678d1c6a5e2085f733f5408b7affd628f9f3576
@@ -381,7 +381,7 @@ commands:
             [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
@@ -673,16 +673,20 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Install dependencies
           command: for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
       - run: scripts/check-generated-code go.sum
+      - run:
+          name: Install go-swagger
+          command: make bin/swagger
       - save_cache:
-          key: go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+          key: go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
           paths:
             - '~/go'
+            - '~/transcom/mymove/bin/swagger'
       - announce_failure
 
   # `pre_deps_yarn` is used to cache yarn sources
@@ -711,9 +715,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
       - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
       - announce_failure
@@ -747,7 +750,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
@@ -802,7 +805,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run:
           name: Run Local acceptance tests
           command: |
@@ -970,7 +973,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: db_dev_fresh
@@ -1023,7 +1026,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - restore_cache:
           keys:
@@ -1115,7 +1118,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: make db_test_reset
       - run:
           command: make db_test_migrate
@@ -1166,7 +1169,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       # make -j 4 tells make to run 4 simultaneous builds
       - run: make -j 4 server_build build_tools
       - persist_to_workspace:
@@ -1649,7 +1652,7 @@ jobs:
       - tls_vars_stg
       - deploy_app_client_tls_steps:
           compare_host: gex.stg.move.mil
-          health_check_hosts: gex.stg.move.mil,orders.stg.move.mil
+          health_check_hosts: gex.stg.move.mil
           ecr_env: stg
 
   # `deploy_stg_webhook_client` deploys the webhook client to stg
@@ -1717,7 +1720,7 @@ jobs:
       - tls_vars_prd
       - deploy_app_client_tls_steps:
           compare_host: gex.move.mil
-          health_check_hosts: gex.move.mil,orders.move.mil
+          health_check_hosts: gex.move.mil
           ecr_env: prd
 
 workflows:

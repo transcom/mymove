@@ -13,7 +13,15 @@ import (
 )
 
 // CreateUserUploadForDocumentWrapper wrapper/helper function to create a user upload
-func CreateUserUploadForDocumentWrapper(appCtx appcontext.AppContext, userID uuid.UUID, storer storage.FileStorer, file io.ReadCloser, filename string, fileSizeLimit ByteSize, docID *uuid.UUID) (*models.UserUpload, string, *validate.Errors, error) {
+func CreateUserUploadForDocumentWrapper(
+	appCtx appcontext.AppContext, userID uuid.UUID,
+	storer storage.FileStorer, file io.ReadCloser,
+	filename string,
+	fileSizeLimit ByteSize,
+	allowedFileTypes AllowedFileTypes,
+	docID *uuid.UUID,
+) (*models.UserUpload, string, *validate.Errors, error) {
+
 	userUploader, err := NewUserUploader(storer, fileSizeLimit)
 	if err != nil {
 		appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
@@ -26,7 +34,7 @@ func CreateUserUploadForDocumentWrapper(appCtx appcontext.AppContext, userID uui
 		return nil, "", &validate.Errors{}, ErrFile{message: err.Error()}
 	}
 
-	newUserUpload, verrs, err := userUploader.CreateUserUploadForDocument(appCtx, docID, userID, File{File: aFile}, AllowedTypesServiceMember)
+	newUserUpload, verrs, err := userUploader.CreateUserUploadForDocument(appCtx, docID, userID, File{File: aFile}, allowedFileTypes)
 	if verrs.HasAny() || err != nil {
 		return nil, "", verrs, err
 	}

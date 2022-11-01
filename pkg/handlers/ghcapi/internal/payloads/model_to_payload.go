@@ -177,6 +177,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		ObservedPickupDate:            handlers.FmtDatePtr(evaluationReport.ObservedPickupDate),
 		ObservedPickupSpreadStartDate: handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadStartDate),
 		ObservedPickupSpreadEndDate:   handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadEndDate),
+		ObservedDeliveryDate:          handlers.FmtDatePtr(evaluationReport.ObservedDeliveryDate),
 		ETag:                          etag.GenerateEtag(evaluationReport.UpdatedAt),
 		UpdatedAt:                     strfmt.DateTime(evaluationReport.UpdatedAt),
 		ReportViolations:              ReportViolations(evaluationReport.ReportViolations),
@@ -256,7 +257,6 @@ func MoveAuditHistory(logger *zap.Logger, auditHistory models.AuditHistory) *ghc
 		ActionTstampTx:       strfmt.DateTime(auditHistory.ActionTstampTx),
 		ChangedValues:        removeEscapeJSONtoObject(logger, auditHistory.ChangedData),
 		OldValues:            removeEscapeJSONtoObject(logger, auditHistory.OldData),
-		ClientQuery:          auditHistory.ClientQuery,
 		EventName:            auditHistory.EventName,
 		ID:                   strfmt.UUID(auditHistory.ID.String()),
 		ObjectID:             handlers.FmtUUIDPtr(auditHistory.ObjectID),
@@ -1028,13 +1028,13 @@ func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghc
 // Upload payload
 func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmessages.Upload {
 	uploadPayload := &ghcmessages.Upload{
-		ID:          handlers.FmtUUID(upload.ID),
-		Filename:    swag.String(upload.Filename),
-		ContentType: swag.String(upload.ContentType),
-		URL:         handlers.FmtURI(url),
-		Bytes:       &upload.Bytes,
-		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
-		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+		ID:          handlers.FmtUUIDValue(upload.ID),
+		Filename:    upload.Filename,
+		ContentType: upload.ContentType,
+		URL:         strfmt.URI(url),
+		Bytes:       upload.Bytes,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {

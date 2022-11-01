@@ -3,7 +3,7 @@
 ###########
 
 # Base builder so the ci build image hash is referenced once
-FROM milmove/circleci-docker:milmove-app-dd61e0303f06a916ea1ce1454ee152f563189e42 as builder
+FROM milmove/circleci-docker:milmove-app-4dbb2bcb421ecd4a7ea1e511b954e285a317c8fc as builder
 
 ENV CIRCLECI=docker
 ENV REACT_APP_NODE_ENV=development
@@ -39,8 +39,6 @@ RUN mkdir /build/src
 
 RUN set -x \
   && make bin/rds-ca-2019-root.pem \
-  && rm -f pkg/assets/assets.go && make pkg/assets/assets.go \
-  && scripts/gen-server \
   && rm -f bin/milmove && make bin/milmove \
   && make bin/generate-test-data
 

@@ -184,6 +184,20 @@ export async function createUploadForDocument(file, documentId) {
   );
 }
 
+export async function createUploadForPPMDocument(ppmShipmentId, documentId, file) {
+  return makeInternalRequest(
+    'ppm.createPPMUpload',
+    {
+      ppmShipmentId,
+      documentId,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function deleteUpload(uploadId) {
   return makeInternalRequest(
     'uploads.deleteUpload',
@@ -410,6 +424,33 @@ export async function requestPayment(ppmId) {
     'ppm.requestPPMPayment',
     {
       personallyProcuredMoveId: ppmId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function createMovingExpense(ppmShipmentId) {
+  return makeInternalRequest(
+    'ppm.createMovingExpense',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function patchMovingExpense(ppmShipmentId, movingExpenseId, payload, eTag) {
+  return makeInternalRequest(
+    'ppm.updateMovingExpense',
+    {
+      ppmShipmentId,
+      movingExpenseId,
+      'If-Match': eTag,
+      updateMovingExpense: payload,
     },
     {
       normalize: false,

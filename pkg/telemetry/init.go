@@ -7,7 +7,6 @@ import (
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
@@ -16,11 +15,7 @@ import (
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/propagation"
-	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
-	"go.opentelemetry.io/otel/sdk/metric/export"
-	"go.opentelemetry.io/otel/sdk/metric/export/aggregation"
-	processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
-	"go.opentelemetry.io/otel/sdk/metric/selector/simple"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
@@ -60,7 +55,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	}
 
 	var spanExporter sdktrace.SpanExporter
-	var metricExporter export.Exporter
+	var metricExporter sdkmetric.Exporter
 
 	var err error
 
@@ -71,7 +66,8 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 			logger.Error("unable to create otel stdout span exporter", zap.Error(err))
 			break
 		}
-		metricExporter, err = stdoutmetric.New(stdoutmetric.WithPrettyPrint())
+		// seems that maybe stdoutmetric now pretty prints by default?
+		metricExporter, err = stdoutmetric.New()
 		if err != nil {
 			logger.Error("unable to create otel stdout metric exporter", zap.Error(err))
 			break
@@ -84,17 +80,15 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		spanExporter, err = otlptrace.New(ctx, spanClient)
 		if err != nil {
 			logger.Error("failed to create otel trace exporter", zap.Error(err))
+			break
 		}
-		metricClient := otlpmetricgrpc.NewClient(
+		metricExporter, err = otlpmetricgrpc.New(ctx,
 			otlpmetricgrpc.WithInsecure(),
 			otlpmetricgrpc.WithEndpoint(config.Endpoint),
 		)
-		// use MetricExportKindSelector to prevent memory leak?
-		// https://github.com/open-telemetry/opentelemetry-go/issues/2225#issuecomment-915517182
-		metricExporter, err = otlpmetric.New(ctx, metricClient,
-			otlpmetric.WithMetricAggregationTemporalitySelector(aggregation.DeltaTemporalitySelector()))
 		if err != nil {
-			logger.Error("failed to create otel metric exporter", zap.Error(err))
+			logger.Error("failed to create otel metric client", zap.Error(err))
+			break
 		}
 
 	}
@@ -126,32 +120,26 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	if collectSeconds == 0 {
 		collectSeconds = defaultCollectSeconds
 	}
-	pusher := controller.New(
-		processor.NewFactory(
-			simple.NewWithHistogramDistribution(),
-			metricExporter,
-		),
-		controller.WithResource(ecsResource),
-		controller.WithExporter(metricExporter),
-		controller.WithCollectPeriod(time.Duration(collectSeconds)*time.Second),
+	pr := sdkmetric.NewPeriodicReader(metricExporter,
+		sdkmetric.WithInterval(time.Duration(collectSeconds)*time.Second),
 	)
-	err = pusher.Start(ctx)
-	if err != nil {
-		logger.Error("failed to start the metric controller", zap.Error(err))
-	}
+	mp := sdkmetric.NewMeterProvider(
+		sdkmetric.WithResource(ecsResource),
+		sdkmetric.WithReader(pr),
+	)
 
-	logger.Info("emit tracing to local opentelemetry collector at " + config.Endpoint)
+	logger.Info("emitting tracing to local opentelemetry collector at " + config.Endpoint)
 	shutdown = func() {
 		if err = spanExporter.Shutdown(ctx); err != nil {
 			logger.Error("shutdown problems with tracing exporter", zap.Error(err))
 		}
-		if err = pusher.Stop(ctx); err != nil {
+		if err = metricExporter.Shutdown(ctx); err != nil {
 			logger.Error("shutdown problems with metrics pusher", zap.Error(err))
 		}
 	}
 
 	otel.SetTracerProvider(tp)
-	global.SetMeterProvider(pusher)
+	global.SetMeterProvider(mp)
 	if config.UseXrayID {
 		propagation.NewCompositeTextMapPropagator(
 			xray.Propagator{},

@@ -111,10 +111,10 @@ describe('ConnectedPrivateRoute', () => {
         it('does not render the requested component', () => {
           expect(wrapper.contains(<div>My page</div>)).toEqual(false);
         });
-        it('redirects to the root URL', () => {
+        it('redirects to the invalid permissions URL', () => {
           const redirect = wrapper.find('Redirect');
           expect(redirect).toHaveLength(1);
-          expect(redirect.prop('to')).toEqual('/');
+          expect(redirect.prop('to')).toEqual('/invalid-permissions');
         });
       });
 

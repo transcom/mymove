@@ -41,7 +41,7 @@ type UpdateWeightTicketParams struct {
 	  In: header
 	*/
 	IfMatch string
-	/*UUID of the ppm shipment
+	/*UUID of the PPM shipment
 	  Required: true
 	  In: path
 	*/

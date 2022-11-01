@@ -43,11 +43,12 @@ buildEnv {
     (import
       (builtins.fetchGit {
         # Descriptive name to make the store path easier to identify
-        name = "go-1.19.1";
+        name = "go-1.19.2";
         url = "https://github.com/NixOS/nixpkgs/";
         ref = "refs/heads/nixpkgs-unstable";
-        rev = "b79b08f09da27e35d1a7b5e63e6aba213224436a";
-      }) {}).go_1_19
+        rev = "4f8287f3d597c73b0d706cfad028c2d51821f64d";
+      })
+      { }).go_1_19
 
     (import
       (builtins.fetchGit {
@@ -178,16 +179,6 @@ buildEnv {
         rev = "8afc4e543663ca0a6a4f496262cd05233737e732";
       })
       { }).hadolint
-
-    (import
-      (builtins.fetchGit {
-        # Descriptive name to make the store path easier to identify
-        name = "go-swagger-0.30.2";
-        url = "https://github.com/NixOS/nixpkgs/";
-        ref = "refs/heads/nixpkgs-unstable";
-        rev = "a0b7e70db7a55088d3de0cc370a59f9fbcc906c3";
-      })
-      { }).go-swagger
 
     (import
       (builtins.fetchGit {

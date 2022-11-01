@@ -26,7 +26,7 @@ type GetDocumentOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.DocumentPayload `json:"body,omitempty"`
+	Payload *ghcmessages.Document `json:"body,omitempty"`
 }
 
 // NewGetDocumentOK creates GetDocumentOK with default headers values
@@ -36,13 +36,13 @@ func NewGetDocumentOK() *GetDocumentOK {
 }
 
 // WithPayload adds the payload to the get document o k response
-func (o *GetDocumentOK) WithPayload(payload *ghcmessages.DocumentPayload) *GetDocumentOK {
+func (o *GetDocumentOK) WithPayload(payload *ghcmessages.Document) *GetDocumentOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get document o k response
-func (o *GetDocumentOK) SetPayload(payload *ghcmessages.DocumentPayload) {
+func (o *GetDocumentOK) SetPayload(payload *ghcmessages.Document) {
 	o.Payload = payload
 }
 

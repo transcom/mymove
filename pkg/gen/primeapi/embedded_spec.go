@@ -1164,7 +1164,7 @@ func init() {
           "201": {
             "description": "Successfully created upload of digital file.",
             "schema": {
-              "$ref": "#/definitions/Upload"
+              "$ref": "#/definitions/UploadWithOmissions"
             }
           },
           "400": {
@@ -1792,7 +1792,7 @@ func init() {
       "description": "A document uploaded by the movers proving that the customer has been counseled about excess weight.",
       "allOf": [
         {
-          "$ref": "#/definitions/Upload"
+          "$ref": "#/definitions/UploadWithOmissions"
         },
         {
           "type": "object",
@@ -3156,7 +3156,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/UploadWithOmissions"
           }
         }
       }
@@ -3870,7 +3870,7 @@ func init() {
         }
       }
     },
-    "Upload": {
+    "UploadWithOmissions": {
       "description": "An uploaded file.",
       "type": "object",
       "required": [
@@ -5512,7 +5512,7 @@ func init() {
           "201": {
             "description": "Successfully created upload of digital file.",
             "schema": {
-              "$ref": "#/definitions/Upload"
+              "$ref": "#/definitions/UploadWithOmissions"
             }
           },
           "400": {
@@ -6158,7 +6158,7 @@ func init() {
       "description": "A document uploaded by the movers proving that the customer has been counseled about excess weight.",
       "allOf": [
         {
-          "$ref": "#/definitions/Upload"
+          "$ref": "#/definitions/UploadWithOmissions"
         },
         {
           "type": "object",
@@ -7522,7 +7522,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/UploadWithOmissions"
           }
         }
       }
@@ -8239,7 +8239,7 @@ func init() {
         }
       }
     },
-    "Upload": {
+    "UploadWithOmissions": {
       "description": "An uploaded file.",
       "type": "object",
       "required": [
