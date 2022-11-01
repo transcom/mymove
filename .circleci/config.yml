@@ -521,7 +521,7 @@ commands:
             #         the tag name to 100 characters. Docker tags can be a maximum of 128 characters
             #         and this leaves some room for a prefix.
             docker_tag_from_branch_name=${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
-            docker_tag_shortened_name=${DOCKER_TAG_FROM_BRANCH_NAME:0:100}
+            docker_tag_shortened_name=${docker_tag_from_branch_name:0:100}
 
             docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${docker_tag_shortened_name}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${docker_tag_shortened_name}
