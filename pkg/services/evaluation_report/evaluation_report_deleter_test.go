@@ -37,8 +37,8 @@ func (suite *EvaluationReportSuite) TestEvaluationReportDeleter() {
 		suite.NoError(deleter.DeleteEvaluationReport(appCtx, report.ID))
 		var dbReport models.EvaluationReport
 		err := suite.DB().Find(&dbReport, report.ID)
-		suite.NoError(err)
-		suite.NotNil(dbReport.DeletedAt)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("Returns an error when delete non-existent report", func() {
@@ -49,19 +49,5 @@ func (suite *EvaluationReportSuite) TestEvaluationReportDeleter() {
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 
-	})
-
-	suite.Run("Returns an error when attempting to delete an already deleted report", func() {
-		deleter, report, appCtx := setupTestData()
-
-		suite.NoError(deleter.DeleteEvaluationReport(appCtx, report.ID))
-		var dbReport models.EvaluationReport
-		err := suite.DB().Find(&dbReport, report.ID)
-		suite.NoError(err)
-		suite.NotNil(dbReport.DeletedAt)
-
-		err = deleter.DeleteEvaluationReport(appCtx, report.ID)
-		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }

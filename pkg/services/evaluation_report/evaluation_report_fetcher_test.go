@@ -84,29 +84,6 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportList() {
 		suite.NoError(err)
 		suite.Empty(reports)
 	})
-	suite.Run("deleted reports should not be included", func() {
-		fetcher := NewEvaluationReportFetcher()
-		move := testdatagen.MakeDefaultMove(suite.DB())
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				MoveID:       move.ID,
-				OfficeUserID: officeUser.ID,
-				DeletedAt:    swag.Time(time.Now()),
-			},
-		})
-		testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				MoveID:       move.ID,
-				OfficeUserID: officeUser.ID,
-				SubmittedAt:  swag.Time(time.Now()),
-				DeletedAt:    swag.Time(time.Now()),
-			},
-		})
-		reports, err := fetcher.FetchEvaluationReports(suite.AppContextForTest(), models.EvaluationReportTypeCounseling, move.ID, officeUser.ID)
-		suite.NoError(err)
-		suite.Empty(reports)
-	})
 	suite.Run("fetch counseling reports should only return counseling reports", func() {
 		fetcher := NewEvaluationReportFetcher()
 		move := testdatagen.MakeDefaultMove(suite.DB())
