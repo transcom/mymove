@@ -231,6 +231,7 @@ const EvaluationViolationsForm = ({
       observedPickupSpreadStartDate: evaluationReport?.observedPickupSpreadStartDate,
       observedPickupSpreadEndDate: evaluationReport?.observedPickupSpreadEndDate,
       observedClaimsResponseDate: evaluationReport?.observedClaimsResponseDate,
+      observedPickupDate: evaluationReport?.observedPickupDate,
       observedDeliveryDate: evaluationReport?.observedDeliveryDate,
       kpiViolations,
     };
