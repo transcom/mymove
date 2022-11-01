@@ -9,9 +9,13 @@ const defaultProps = {
   onSubmit: jest.fn(),
 };
 
-const selfProGearProps = {
+const proGearProps = {
   proGear: {
     selfProGear: true,
+    proGearDocument: [],
+    proGearWeight: 1,
+    description: 'Description',
+    missingWeightTicket: '',
   },
 };
 
@@ -42,7 +46,7 @@ describe('ProGearForm component', () => {
     });
 
     it('selects "Me" radio when selfProGear is true', () => {
-      const { container } = render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
+      const { container } = render(<ProGearForm {...defaultProps} {...proGearProps} />);
       expect(screen.getByLabelText('Me')).toBeChecked();
       expect(screen.getByLabelText('My spouse')).not.toBeChecked();
       expect(container).toHaveTextContent("You have to separate yours and your spouse's pro-gear.");
@@ -74,11 +78,11 @@ describe('ProGearForm component', () => {
       const expectedPayload = {
         selfProGear: 'true',
         proGearDocument: [],
-        proGearWeight: 100,
+        proGearWeight: '1',
         description: 'Description',
         missingWeightTicket: '',
       };
-      render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
+      render(<ProGearForm {...defaultProps} {...proGearProps} />);
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
