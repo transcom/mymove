@@ -74,7 +74,7 @@ describe('ProGearForm component', () => {
       const expectedPayload = {
         selfProGear: 'true',
         proGearDocument: [],
-        proGearWeight: '',
+        proGearWeight: 100,
         description: 'Description',
         missingWeightTicket: '',
       };
