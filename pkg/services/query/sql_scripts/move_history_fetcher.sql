@@ -412,6 +412,21 @@ WITH move AS (
 					AND audit_history."table_name" = 'user_uploads'
 		GROUP BY audit_history.id
 	),
+	move_backup_contacts AS (
+		SELECT backup_contacts.*
+		FROM
+			backup_contacts
+		WHERE
+			backup_contacts.service_member_id = (SELECT id FROM move_service_members)
+	),
+	backup_contacts_logs as (
+		SELECT audit_history.*,
+			NULL AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN move_backup_contacts ON move_backup_contacts.id = audit_history.object_id
+	),
 	combined_logs AS (
 		SELECT
 			*
@@ -482,6 +497,12 @@ WITH move AS (
 		    *
 		FROM
 		    file_uploads_logs
+		UNION ALL
+		SELECT
+		 	*
+		FROM
+			backup_contacts_logs
+
 
 	) SELECT DISTINCT
 		combined_logs.*,

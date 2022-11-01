@@ -13,4 +13,5 @@ export default {
   mto_service_item_customer_contacts: 'mto_service_item_customer_contacts',
   service_members: 'service_members',
   user_uploads: 'user_uploads',
+  backup_contacts: 'backup_contacts',
 };

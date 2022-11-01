@@ -1,10 +1,10 @@
 import React from 'react';
-import classnames from 'classnames';
 
 import { formatEvaluationReportLocation } from '../../../utils/formatters';
 
 import styles from './OfficeDefinitionLists.module.scss';
 
+import PreviewRow from 'components/Office/EvaluationReportPreview/PreviewRow/PreviewRow';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { EvaluationReportShape } from 'types/evaluationReport';
 
@@ -31,30 +31,30 @@ const EvaluationReportList = ({ evaluationReport }) => {
   return (
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
-        <div className={classnames(descriptionListStyles.row, descriptionListStyles.noBorder)}>
-          <dt>Evaluation type</dt>
-          <dd>{evaluationReport.inspectionType ? inspectionTypeFormatting(evaluationReport.inspectionType) : ''}</dd>
-        </div>
-        <div className={descriptionListStyles.row}>
-          <dt>Evaluation location</dt>
-          <dd>
-            {formatEvaluationReportLocation(evaluationReport.location)}
-            <br />
-            {evaluationReport.locationDescription || ''}
-          </dd>
-        </div>
-        {evaluationReport.travelTimeMinutes >= 0 && (
-          <div className={descriptionListStyles.row}>
-            <dt>Travel time to inspection</dt>
-            <dd>{convertToHoursAndMinutes(evaluationReport.travelTimeMinutes)}</dd>
-          </div>
-        )}
-        {evaluationReport.evaluationLengthMinutes >= 0 && (
-          <div className={descriptionListStyles.row}>
-            <dt>Evaluation length</dt>
-            <dd>{convertToHoursAndMinutes(evaluationReport.evaluationLengthMinutes)}</dd>
-          </div>
-        )}
+        <PreviewRow
+          label="Evaluation type"
+          data={evaluationReport.inspectionType ? inspectionTypeFormatting(evaluationReport.inspectionType) : ''}
+        />
+        <PreviewRow
+          label="Evaluation location"
+          data={
+            <>
+              {formatEvaluationReportLocation(evaluationReport.location)}
+              <br />
+              {evaluationReport.locationDescription || ''}
+            </>
+          }
+        />
+        <PreviewRow
+          isShown={evaluationReport.travelTimeMinutes >= 0}
+          label="Travel time to inspection"
+          data={convertToHoursAndMinutes(evaluationReport.travelTimeMinutes)}
+        />
+        <PreviewRow
+          isShown={evaluationReport.evaluationLengthMinutes >= 0}
+          label="Evaluation length"
+          data={convertToHoursAndMinutes(evaluationReport.evaluationLengthMinutes)}
+        />
       </dl>
     </div>
   );
