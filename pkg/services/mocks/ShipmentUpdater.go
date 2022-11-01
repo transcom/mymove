@@ -15,11 +15,11 @@ type ShipmentUpdater struct {
 }
 
 // UpdateShipment provides a mock function with given fields: appCtx, shipment, eTag
-func (_m *ShipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+func (_m *ShipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipmentUpdate, eTag string) (*models.MTOShipment, error) {
 	ret := _m.Called(appCtx, shipment, eTag)
 
 	var r0 *models.MTOShipment
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string) *models.MTOShipment); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipmentUpdate, string) *models.MTOShipment); ok {
 		r0 = rf(appCtx, shipment, eTag)
 	} else {
 		if ret.Get(0) != nil {
@@ -28,7 +28,7 @@ func (_m *ShipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, string) error); ok {
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipmentUpdate, string) error); ok {
 		r1 = rf(appCtx, shipment, eTag)
 	} else {
 		r1 = ret.Error(1)

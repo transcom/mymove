@@ -228,12 +228,14 @@ func PPMShipmentModelFromCreate(ppmShipment *primemessages.CreatePPMShipment) *m
 }
 
 // MTOShipmentModelFromUpdate model
-func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mtoShipmentID strfmt.UUID) *models.MTOShipment {
+func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mtoShipmentID strfmt.UUID) *models.MTOShipmentUpdate {
 	if mtoShipment == nil {
 		return nil
 	}
 
-	model := &models.MTOShipment{
+	counselorRemarks := models.Nullable[*string]{Present: true, Value: mtoShipment.CounselorRemarks}
+
+	model := &models.MTOShipmentUpdate{
 		ID:                         uuid.FromStringOrNil(mtoShipmentID.String()),
 		ActualPickupDate:           handlers.FmtDatePtrToPopPtr(mtoShipment.ActualPickupDate),
 		FirstAvailableDeliveryDate: handlers.FmtDatePtrToPopPtr(mtoShipment.FirstAvailableDeliveryDate),
@@ -242,7 +244,7 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 		ScheduledDeliveryDate:      handlers.FmtDatePtrToPopPtr(mtoShipment.ScheduledDeliveryDate),
 		ShipmentType:               models.MTOShipmentType(mtoShipment.ShipmentType),
 		Diversion:                  mtoShipment.Diversion,
-		CounselorRemarks:           mtoShipment.CounselorRemarks,
+		CounselorRemarks:           counselorRemarks,
 	}
 
 	if mtoShipment.PrimeActualWeight > 0 {
@@ -294,7 +296,7 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 
 	if mtoShipment.PpmShipment != nil {
 		model.PPMShipment = PPMShipmentModelFromUpdate(mtoShipment.PpmShipment)
-		model.PPMShipment.Shipment = *model
+		// model.PPMShipment.Shipment = *model
 	}
 
 	return model

@@ -23,10 +23,10 @@ func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipm
 }
 
 // UpdateShipment updates a shipment, taking into account different shipment types and their needs.
-func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	if err := validateShipment(appCtx, *shipment, s.checks...); err != nil {
-		return nil, err
-	}
+func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipmentUpdate, eTag string) (*models.MTOShipment, error) {
+	// if err := validateShipment(appCtx, *shipment, s.checks...); err != nil {
+	// 	return nil, err
+	// }
 
 	var mtoShipment *models.MTOShipment
 

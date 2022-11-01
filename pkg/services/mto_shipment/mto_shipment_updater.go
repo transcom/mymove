@@ -100,7 +100,7 @@ func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, fetcher s
 }
 
 // setNewShipmentFields validates the updated shipment
-func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) {
+func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipmentUpdate) {
 	if requestedUpdatedShipment.RequestedPickupDate != nil {
 		dbShipment.RequestedPickupDate = requestedUpdatedShipment.RequestedPickupDate
 	}
@@ -186,8 +186,8 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.CustomerRemarks = requestedUpdatedShipment.CustomerRemarks
 	}
 
-	if requestedUpdatedShipment.CounselorRemarks != nil {
-		dbShipment.CounselorRemarks = requestedUpdatedShipment.CounselorRemarks
+	if requestedUpdatedShipment.CounselorRemarks.Present {
+		dbShipment.CounselorRemarks = requestedUpdatedShipment.CounselorRemarks.Value
 	}
 
 	if requestedUpdatedShipment.BillableWeightCap != nil {
@@ -269,7 +269,7 @@ func (e StaleIdentifierError) Error() string {
 }
 
 // UpdateMTOShipment updates the mto shipment
-func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipmentUpdate, eTag string) (*models.MTOShipment, error) {
 	eagerAssociations := []string{"MoveTaskOrder",
 		"PickupAddress",
 		"DestinationAddress",
@@ -287,11 +287,6 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		return nil, err
 	}
 
-	// run the (read-only) validations
-	if verr := validateShipment(appCtx, mtoShipment, oldShipment, f.checks...); verr != nil {
-		return nil, verr
-	}
-
 	var dbShipment models.MTOShipment
 	err = deepcopy.Copy(&dbShipment, oldShipment) // save the original db version, oldShipment will be modified
 	if err != nil {
@@ -300,6 +295,11 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	setNewShipmentFields(appCtx, oldShipment, mtoShipment)
 	newShipment := oldShipment // old shipment has now been updated with requested changes
 	// db version is used to check if agents need creating or updating
+
+	// run the (read-only) validations
+	if verr := validateShipment(appCtx, newShipment, &dbShipment, f.checks...); verr != nil {
+		return nil, verr
+	}
 	err = f.updateShipmentRecord(appCtx, &dbShipment, newShipment, eTag)
 	if err != nil {
 		switch err.(type) {

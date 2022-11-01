@@ -313,7 +313,7 @@ func CustomerSupportRemarkModelFromCreate(remark *ghcmessages.CreateCustomerSupp
 }
 
 // MTOShipmentModelFromUpdate model
-func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models.MTOShipment {
+func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models.MTOShipmentUpdate {
 	if mtoShipment == nil {
 		return nil
 	}
@@ -351,14 +351,19 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		usesExternalVendor = *mtoShipment.UsesExternalVendor
 	}
 
-	model := &models.MTOShipment{
+	counselorRemarks := models.Nullable[*string]{}
+	if mtoShipment.CounselorRemarks.Present {
+		counselorRemarks = models.Nullable[*string]{Value: mtoShipment.CounselorRemarks.Value, Present: true}
+	}
+
+	model := &models.MTOShipmentUpdate{
 		BillableWeightCap:           billableWeightCap,
 		BillableWeightJustification: mtoShipment.BillableWeightJustification,
 		ShipmentType:                models.MTOShipmentType(mtoShipment.ShipmentType),
 		RequestedPickupDate:         requestedPickupDate,
 		RequestedDeliveryDate:       requestedDeliveryDate,
 		CustomerRemarks:             mtoShipment.CustomerRemarks,
-		CounselorRemarks:            mtoShipment.CounselorRemarks.Value,
+		CounselorRemarks:            counselorRemarks,
 		TACType:                     tacType,
 		SACType:                     sacType,
 		UsesExternalVendor:          usesExternalVendor,
@@ -389,7 +394,7 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 
 	if mtoShipment.PpmShipment != nil {
 		model.PPMShipment = PPMShipmentModelFromUpdate(mtoShipment.PpmShipment)
-		model.PPMShipment.Shipment = *model
+		// model.PPMShipment.Shipment = *model
 	}
 
 	return model

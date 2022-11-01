@@ -146,7 +146,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			}
 
 			appCtx.Logger().Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch)
+			savedShipment, err := h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch)
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 				switch e := err.(type) {
@@ -164,7 +164,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 			}
-			mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
+			mtoShipmentPayload := payloads.MTOShipment(savedShipment)
 			return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload), nil
 		})
 }
@@ -209,7 +209,7 @@ func (h DeleteMTOShipmentHandler) Handle(params mtoshipmentops.DeleteMTOShipment
 // It expects dbShipment to represent what's in the db and mtoShipment to represent the requested update
 // It updates mtoShipment accordingly if there are dependent updates like requiredDeliveryDate
 // On completion it either returns a list of errors or an updated MTOShipment that should be stored to the database.
-func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, dbShipment *models.MTOShipment) (*models.MTOShipment, *validate.Errors) {
+func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(appCtx appcontext.AppContext, mtoShipment *models.MTOShipmentUpdate, dbShipment *models.MTOShipment) (*models.MTOShipmentUpdate, *validate.Errors) {
 	verrs := validate.NewErrors()
 
 	// Prime cannot edit the customer's requestedPickupDate

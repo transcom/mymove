@@ -169,7 +169,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 }
 
 // MTOShipmentModelFromUpdate model
-func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *models.MTOShipment {
+func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *models.MTOShipmentUpdate {
 	if mtoShipment == nil {
 		return nil
 	}
@@ -177,7 +177,7 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
 	requestedDeliveryDate := time.Time(mtoShipment.RequestedDeliveryDate)
 
-	model := &models.MTOShipment{
+	model := &models.MTOShipmentUpdate{
 		ShipmentType:          models.MTOShipmentType(mtoShipment.ShipmentType),
 		RequestedPickupDate:   &requestedPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,
