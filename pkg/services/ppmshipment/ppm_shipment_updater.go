@@ -5,16 +5,19 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type ppmShipmentUpdater struct {
-	checks    []ppmShipmentValidator
-	estimator services.PPMEstimator
+	checks         []ppmShipmentValidator
+	estimator      services.PPMEstimator
+	addressCreator services.AddressCreator
+	addressUpdater services.AddressUpdater
 }
 
-func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator) services.PPMShipmentUpdater {
+func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator, addressCreator services.AddressCreator, addressUpdater services.AddressUpdater) services.PPMShipmentUpdater {
 	return &ppmShipmentUpdater{
 		checks: []ppmShipmentValidator{
 			checkShipmentType(),
@@ -23,7 +26,9 @@ func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator) services.PPMShipm
 			checkRequiredFields(),
 			checkAdvanceAmountRequested(),
 		},
-		estimator: ppmEstimator,
+		estimator:      ppmEstimator,
+		addressCreator: addressCreator,
+		addressUpdater: addressUpdater,
 	}
 }
 
@@ -79,6 +84,20 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 					}
 				}
 			}
+		}
+
+		if updatedPPMShipment.W2Address != nil {
+			var updatedAddress *models.Address
+			var error error
+			if updatedPPMShipment.W2Address.ID.IsNil() {
+				updatedAddress, error = f.addressCreator.CreateAddress(txnAppCtx, updatedPPMShipment.W2Address)
+			} else {
+				updatedAddress, error = f.addressUpdater.UpdateAddress(txnAppCtx, updatedPPMShipment.W2Address, etag.GenerateEtag(oldPPMShipment.W2Address.UpdatedAt))
+			}
+			if error != nil {
+				return error
+			}
+			updatedPPMShipment.W2AddressID = &updatedAddress.ID
 		}
 
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)
