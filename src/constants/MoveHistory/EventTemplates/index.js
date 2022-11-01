@@ -19,7 +19,7 @@ export { default as createStandardServiceItem } from './ApproveShipment/createSt
 export { default as deleteShipment } from './DeleteShipment/deleteShipment';
 export { default as proofOfServiceDocUpload } from './proofOfServiceDocUpload';
 export { default as requestShipmentCancellation } from './requestShipmentCancellation';
-export { default as requestShipmentDiversion } from './requestShipmentDiversion';
+export { default as requestShipmentDiversion } from './RequestShipmentDiversion/requestShipmentDiversion';
 export { default as requestShipmentReweigh } from './RequestShipmentReweigh/requestShipmentReweigh';
 export { default as setFinancialReviewFlag } from './SetFinancialReviewFlag/setFinancialReviewFlag';
 export { default as submitMoveForApproval } from './SubmitMoveForApproval/submitMoveForApproval';
