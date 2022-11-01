@@ -510,13 +510,17 @@ commands:
             docker load -i images/<< parameters.image_name >>
       - run:
           name: 'Tag and push docker image'
+          # Docker tags can only be 128 chars long,
+          # so we will shorten the branch name in the following command
+          # to a nice round 100 to leave room for a prefix.
           command: |
             aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
             docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
+            SHORTENED_BRANCH=${CIRCLE_BRANCH:0:100}
             shopt -s extglob
-            docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH[0,100]//+([^A-Za-z0-9-.])/-}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH[0,100]//+([^A-Za-z0-9-.])/-}
+            docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${SHORTENED_BRANCH//+([^A-Za-z0-9-.])/-}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${SHORTENED_BRANCH//+([^A-Za-z0-9-.])/-}
       - run:
           name: 'Record ECR Image Digest'
           command: |
