@@ -20,7 +20,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 
 const validationSchema = Yup.object().shape({
   selfProGear: Yup.bool().required('Required'),
-  proGearDocument: Yup.object(),
+  proGearDocument: Yup.object().nullable(),
   proGearWeight: Yup.number().required('Required').min(0, 'Enter a weight 0 lbs or greater'),
   description: Yup.string().required('Required'),
   missingWeightTicket: Yup.string(),
