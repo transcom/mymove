@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	progearops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
+	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -149,7 +150,7 @@ func (suite *HandlerSuite) TestUpdateProgearHandler() {
 		db := appCtx.DB()
 
 		// Use fake data:
-		subtestData.progear = testdatagen.MakeProgear(db, testdatagen.Assertions{})
+		subtestData.progear = testdatagen.MakeProgearWeightTicket(db, testdatagen.Assertions{})
 		subtestData.ppmShipment = subtestData.progear.PPMShipment
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
@@ -184,20 +185,21 @@ func (suite *HandlerSuite) TestUpdateProgearHandler() {
 		// An upload must exist if trailer is owned and qualifies to be claimed
 		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
 			UserUpload: models.UserUpload{
-				DocumentID: &subtestData.progear.ProofOfTrailerOwnershipDocumentID,
-				Document:   subtestData.progear.ProofOfTrailerOwnershipDocument,
+				DocumentID: &subtestData.progear.FullDocumentID,
+				Document:   subtestData.progear.FullDocument,
 			},
 		})
 
 		// Add vehicleDescription
+		progearDes := "Pro gear desctription"
+		hasWeightTickets := true
+		belongsToSelf := true
 		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{
-			VehicleDescription:   "Subaru",
-			EmptyWeight:          handlers.FmtInt64(1),
-			MissingEmptyProgear:  false,
-			FullWeight:           handlers.FmtInt64(4000),
-			MissingFullProgear:   false,
-			OwnsTrailer:          true,
-			TrailerMeetsCriteria: true,
+			Description:      &progearDes,
+			EmptyWeight:      handlers.FmtInt64(1),
+			HasWeightTickets: &hasWeightTickets,
+			FullWeight:       handlers.FmtInt64(4000),
+			BelongsToSelf:    &belongsToSelf,
 		}
 
 		response := subtestData.handler.Handle(params)
@@ -206,7 +208,7 @@ func (suite *HandlerSuite) TestUpdateProgearHandler() {
 
 		updatedProgear := response.(*progearops.UpdateProGearWeightTicketOK).Payload
 		suite.Equal(subtestData.progear.ID.String(), updatedProgear.ID.String())
-		suite.Equal(params.UpdateProGearWeightTicket.VehicleDescription, *updatedProgear.VehicleDescription)
+		suite.Equal(params.UpdateProGearWeightTicket.Description, *updatedProgear.Description)
 	})
 
 	suite.Run("PATCH failure -400 - nil body", func() {
@@ -224,14 +226,15 @@ func (suite *HandlerSuite) TestUpdateProgearHandler() {
 
 		subtestData := makeUpdateSubtestData(appCtx, true)
 		params := subtestData.params
+		progearDes := "Pro gear desctription"
+		hasWeightTickets := true
+		belongsToSelf := true
 		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{
-			VehicleDescription:   "Subaru",
-			EmptyWeight:          handlers.FmtInt64(0),
-			MissingEmptyProgear:  false,
-			FullWeight:           handlers.FmtInt64(0),
-			MissingFullProgear:   false,
-			OwnsTrailer:          true,
-			TrailerMeetsCriteria: true,
+			Description:      &progearDes,
+			EmptyWeight:      handlers.FmtInt64(1),
+			HasWeightTickets: &hasWeightTickets,
+			FullWeight:       handlers.FmtInt64(4000),
+			BelongsToSelf:    &belongsToSelf,
 		}
 
 		response := subtestData.handler.Handle(params)
@@ -244,10 +247,10 @@ func (suite *HandlerSuite) TestUpdateProgearHandler() {
 
 		subtestData := makeUpdateSubtestData(appCtx, true)
 		params := subtestData.params
-		params.UpdateProGearWeightTicket = &internalmessages.UpdateProgear{}
+		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{}
 		// This test should fail because of the wrong ID
 		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("f20d9c9b-2de5-4860-ad31-fd5c10e739f6"))
-		params.ProgearID = *uuidString
+		params.ProGearWeightTicketID = *uuidString
 
 		response := subtestData.handler.Handle(params)
 
@@ -259,7 +262,7 @@ func (suite *HandlerSuite) TestUpdateProgearHandler() {
 
 		subtestData := makeUpdateSubtestData(appCtx, true)
 		params := subtestData.params
-		params.UpdateProGearWeightTicket = &internalmessages.UpdateProgear{}
+		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{}
 		params.IfMatch = "intentionally-bad-if-match-header-value"
 
 		response := subtestData.handler.Handle(params)
@@ -273,21 +276,22 @@ func (suite *HandlerSuite) TestUpdateProgearHandler() {
 
 		subtestData := makeUpdateSubtestData(appCtx, true)
 		params := subtestData.params
+		progearDes := "Pro gear desctription"
+		hasWeightTickets := true
+		belongsToSelf := true
 		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{
-			VehicleDescription:   "Subaru",
-			EmptyWeight:          handlers.FmtInt64(1),
-			MissingEmptyProgear:  false,
-			FullWeight:           handlers.FmtInt64(4000),
-			MissingFullProgear:   false,
-			OwnsTrailer:          true,
-			TrailerMeetsCriteria: true,
+			Description:      &progearDes,
+			EmptyWeight:      handlers.FmtInt64(1),
+			HasWeightTickets: &hasWeightTickets,
+			FullWeight:       handlers.FmtInt64(4000),
+			BelongsToSelf:    &belongsToSelf,
 		}
 
 		err := errors.New("ServerError")
 
 		mockUpdater.On("UpdateProgear",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("models.Progear"),
+			mock.AnythingOfType("models.ProgearWeightTicket"),
 			mock.AnythingOfType("string"),
 		).Return(nil, err)
 
