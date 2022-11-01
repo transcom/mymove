@@ -1,6 +1,8 @@
 package evaluationreport
 
 import (
+	"database/sql"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -40,7 +42,7 @@ func (suite *EvaluationReportSuite) TestEvaluationReportDeleter() {
 		var dbReport models.EvaluationReport
 		err := suite.DB().Find(&dbReport, report.ID)
 		suite.Error(err)
-		suite.Equal(err.Error(), "sql: no rows in result set")
+		suite.Equal(sql.ErrNoRows, err)
 	})
 
 	suite.Run("Returns an error when delete non-existent report", func() {
