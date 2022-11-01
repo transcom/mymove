@@ -5,8 +5,10 @@ import e from 'constants/MoveHistory/EventTemplates/ApproveShipmentDiversion/app
 
 describe('when given an Approved shipment diversion history record', () => {
   const historyRecord = {
+    action: 'UPDATE',
     changedValues: { status: 'APPROVED' },
     eventName: 'approveShipmentDiversion',
+    tableName: 'mto_shipments',
     context: [
       {
         shipment_id_abbr: '2fa5c',

@@ -1,12 +1,14 @@
 import React from 'react';
 
 import o from 'constants/MoveHistory/UIDisplay/Operations';
+import t from 'constants/MoveHistory/Database/Tables';
+import a from 'constants/MoveHistory/Database/Actions';
 import { shipmentTypes as s } from 'constants/shipments';
 
 export default {
-  action: '*',
+  action: a.UPDATE,
   eventName: o.approveShipmentDiversion,
-  tableName: '*',
+  tableName: t.mto_shipments,
   getEventNameDisplay: () => 'Approved shipment',
   getDetails: ({ context }) => (
     <>
