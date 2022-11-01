@@ -35,10 +35,12 @@ func (suite *EvaluationReportSuite) TestEvaluationReportDeleter() {
 		deleter, report, appCtx := setupTestData()
 
 		suite.NoError(deleter.DeleteEvaluationReport(appCtx, report.ID))
+
+		// Should not be able to find the deleted report
 		var dbReport models.EvaluationReport
 		err := suite.DB().Find(&dbReport, report.ID)
 		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Equal(err.Error(), "sql: no rows in result set")
 	})
 
 	suite.Run("Returns an error when delete non-existent report", func() {
