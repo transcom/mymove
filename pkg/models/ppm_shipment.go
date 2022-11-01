@@ -130,7 +130,7 @@ func (p PPMShipment) TableName() string {
 func FetchPPMShipmentFromMTOShipmentID(db *pop.Connection, mtoShipmentID uuid.UUID) (*PPMShipment, error) {
 	var ppmShipment PPMShipment
 
-	err := db.Scope(utilities.ExcludeDeletedScope()).EagerPreload("Shipment").
+	err := db.Scope(utilities.ExcludeDeletedScope()).EagerPreload("Shipment", "W2Address").
 		Where("ppm_shipments.shipment_id = ?", mtoShipmentID).
 		First(&ppmShipment)
 
