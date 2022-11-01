@@ -1794,6 +1794,17 @@ definitions:
         type: integer
         example: 7000
         x-nullable: true
+      entitlement:
+        type: object
+        properties:
+          proGear:
+            type: integer
+            example: 2000
+            x-nullable: true
+          proGearSpouse:
+            type: integer
+            example: 500
+            x-nullable: true
     required:
       - id
       - service_member_id
@@ -1806,6 +1817,18 @@ definitions:
       - uploaded_orders
       - created_at
       - updated_at
+  # i think this is right:
+  Entitlement:
+    type: object
+    properties:
+      proGear:
+        type: integer
+        example: 2000
+        x-nullable: true
+      proGearSpouse:
+        type: integer
+        example: 500
+        x-nullable: true
   CreateUpdateOrders:
     type: object
     properties:

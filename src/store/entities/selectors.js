@@ -250,3 +250,18 @@ export const selectEntitlementsForLoggedInUser = createSelector(
     return entitlement;
   },
 );
+
+export const selectEntitlementForServiceMember = createSelector(
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  (serviceMember, orders) => {
+    let entitlement = {
+      proGear: serviceMember.weight_allotment?.pro_gear_weight,
+      proGearSpouse: serviceMember.weight_allotment?.pro_gear_weight_spouse,
+    };
+    if (orders?.entitlement) {
+      entitlement = orders?.entitlement;
+    }
+    return entitlement;
+  },
+);

@@ -31,6 +31,9 @@ type Orders struct {
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"department_indicator,omitempty"`
 
+	// entitlement
+	Entitlement *OrdersEntitlement `json:"entitlement,omitempty"`
+
 	// grade
 	// Example: O-6
 	Grade *string `json:"grade,omitempty"`
@@ -133,6 +136,10 @@ func (m *Orders) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateEntitlement(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateHasDependents(formats); err != nil {
 		res = append(res, err)
 	}
@@ -227,6 +234,25 @@ func (m *Orders) validateDepartmentIndicator(formats strfmt.Registry) error {
 				return ve.ValidateName("department_indicator")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("department_indicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Orders) validateEntitlement(formats strfmt.Registry) error {
+	if swag.IsZero(m.Entitlement) { // not required
+		return nil
+	}
+
+	if m.Entitlement != nil {
+		if err := m.Entitlement.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("entitlement")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("entitlement")
 			}
 			return err
 		}
@@ -493,6 +519,10 @@ func (m *Orders) ContextValidate(ctx context.Context, formats strfmt.Registry) e
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateEntitlement(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMoves(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -539,6 +569,22 @@ func (m *Orders) contextValidateDepartmentIndicator(ctx context.Context, formats
 				return ve.ValidateName("department_indicator")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("department_indicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Orders) contextValidateEntitlement(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Entitlement != nil {
+		if err := m.Entitlement.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("entitlement")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("entitlement")
 			}
 			return err
 		}
@@ -682,6 +728,48 @@ func (m *Orders) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (m *Orders) UnmarshalBinary(b []byte) error {
 	var res Orders
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// OrdersEntitlement orders entitlement
+//
+// swagger:model OrdersEntitlement
+type OrdersEntitlement struct {
+
+	// pro gear
+	// Example: 2000
+	ProGear *int64 `json:"proGear,omitempty"`
+
+	// pro gear spouse
+	// Example: 500
+	ProGearSpouse *int64 `json:"proGearSpouse,omitempty"`
+}
+
+// Validate validates this orders entitlement
+func (m *OrdersEntitlement) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this orders entitlement based on context it is used
+func (m *OrdersEntitlement) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *OrdersEntitlement) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *OrdersEntitlement) UnmarshalBinary(b []byte) error {
+	var res OrdersEntitlement
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -67,8 +67,11 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 
 	var dBAuthorizedWeight *int64
 	dBAuthorizedWeight = nil
+	var entitlement internalmessages.OrdersEntitlement
 	if order.Entitlement != nil {
 		dBAuthorizedWeight = swag.Int64(int64(*order.Entitlement.AuthorizedWeight()))
+		entitlement.ProGear = swag.Int64(int64(order.Entitlement.ProGearWeight))
+		entitlement.ProGearSpouse = swag.Int64(int64(order.Entitlement.ProGearWeightSpouse))
 	}
 	var originDutyLocation models.DutyLocation
 	originDutyLocation = models.DutyLocation{}
@@ -100,6 +103,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		DepartmentIndicator:   (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
 		Status:                internalmessages.OrdersStatus(order.Status),
 		AuthorizedWeight:      dBAuthorizedWeight,
+		Entitlement:           &entitlement,
 	}
 
 	return payload, nil
