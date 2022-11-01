@@ -290,12 +290,14 @@ describe('Quality Evaluation Report', () => {
       selectViolation('Counseling', '1.2.5.3 Scheduling');
       selectViolation('ShipmentSchedule', '1.2.6.7 Pickup');
       selectViolation('LossDamage', '1.2.7.2.2 Claims Settlement');
+      selectViolation('ShipmentSchedule', '1.2.6.15 Delivery');
 
       // Fill out date fields for violations with KPIs
       cy.get('input[name="observedClaimsResponseDate"]').clear().type('03 Oct 2022').blur(); // Observed claims response date
       cy.get('input[name="observedPickupDate"]').clear().type('04 Oct 2022').blur(); // Observed pickup date
-      cy.get('input[name="observedPickupSpreadStartDate"]').clear().type('05 Oct 2022').blur(); // Observed pickup spread start date
-      cy.get('input[name="observedPickupSpreadEndDate"]').clear().type('05 Oct 2022').blur(); // Observed pickup spread end date
+      cy.get('input[name="observedDeliveryDate"]').clear().type('05 Oct 2022').blur(); // Observed delivery date
+      cy.get('input[name="observedPickupSpreadStartDate"]').clear().type('06 Oct 2022').blur(); // Observed pickup spread start date
+      cy.get('input[name="observedPickupSpreadEndDate"]').clear().type('07 Oct 2022').blur(); // Observed pickup spread end date
 
       // Serious violations
       cy.get('[data-testid="radio"] [for="yes"]').click();
@@ -313,14 +315,21 @@ describe('Quality Evaluation Report', () => {
       cy.get('h3').contains('Violations');
       cy.get('h3').contains('QAE remarks');
 
-      // Verify preview has correct sections/headers
+      // Verify preview has correct sections/headers/content
       cy.get('@report').within(() => {
-        cy.get('td').contains('01 Oct 2022');
-        cy.get('dd').contains('Physical');
-        cy.get('dd').contains('Other');
-        cy.get('dd').contains('This is a test other location text');
-        cy.get('dd').contains('1 hr 15 min');
-        cy.get('dd').contains('This is a test evaluation report');
+        cy.contains('td', '01 Oct 2022');
+        cy.contains('dd', 'Physical');
+        cy.contains('dd', 'Other');
+        cy.contains('dd', 'This is a test other location text');
+        cy.contains('dd', '1 hr 15 min');
+        cy.contains('dd', 'This is a test evaluation report');
+
+        //  kpi dates
+        cy.contains('dd', '03 Oct 2022');
+        cy.contains('dd', '04 Oct 2022');
+        cy.contains('dd', '05 Oct 2022');
+        cy.contains('dd', '06 Oct 2022');
+        cy.contains('dd', '07 Oct 2022');
       });
 
       // Submit report
