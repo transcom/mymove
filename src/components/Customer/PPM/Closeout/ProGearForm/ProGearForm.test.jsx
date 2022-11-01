@@ -75,7 +75,7 @@ describe('ProGearForm component', () => {
         selfProGear: 'true',
         proGearDocument: [],
         proGearWeight: '',
-        description: 'Self pro gear weight ticket',
+        description: 'Description',
         missingWeightTicket: '',
       };
       render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
