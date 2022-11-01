@@ -11,6 +11,7 @@ import EvaluationReportShipmentDisplay from 'components/Office/EvaluationReportS
 import DataTable from 'components/DataTable';
 import DataTableWrapper from 'components/DataTableWrapper';
 import EvaluationReportList from 'components/Office/DefinitionLists/EvaluationReportList';
+import EvaluationReportViolationsList from 'components/Office/DefinitionLists/EvaluationReportViolationsList';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 import { formatDateFromIso, formatQAReportID } from 'utils/formatters';
@@ -27,8 +28,6 @@ const EvaluationReportPreview = ({
   destinationDutyLocationPostalCode,
 }) => {
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
-  const hasViolations = reportViolations && reportViolations.length > 0;
-  const showIncidentDescription = evaluationReport?.seriousIncident;
 
   let mtoShipmentsToShow;
   if (evaluationReport.shipmentID) {
@@ -72,18 +71,19 @@ const EvaluationReportPreview = ({
   };
 
   return (
-    <div className={styles.evaluationReportPreview} data-testid="EvaluationReportPreview">
+    <div data-testid="EvaluationReportPreview">
       <div>
-        <div className={styles.titleSection}>
-          <div className={styles.pageHeader}>
-            <h1>{`${isShipment ? 'Shipment' : 'Counseling'} report`}</h1>
-            <div className={styles.pageHeaderDetails}>
-              <h6>REPORT ID {formatQAReportID(evaluationReport.id)}</h6>
-              <h6>MOVE CODE #{moveCode}</h6>
-              <h6>MTO REFERENCE ID #{evaluationReport.moveReferenceID}</h6>
-            </div>
+        {/* Page Header */}
+        <div className={styles.pageHeader}>
+          <h1>{`${isShipment ? 'Shipment' : 'Counseling'} report`}</h1>
+          <div className={styles.pageHeaderDetails}>
+            <h6>REPORT ID {formatQAReportID(evaluationReport.id)}</h6>
+            <h6>MOVE CODE #{moveCode}</h6>
+            <h6>MTO REFERENCE ID #{evaluationReport.moveReferenceID}</h6>
           </div>
         </div>
+
+        {/* Move and Customer/QAE info */}
         <div className={styles.section}>
           <Grid row>
             <Grid col desktop={{ col: 8 }}>
@@ -109,6 +109,8 @@ const EvaluationReportPreview = ({
           </Grid>
         </div>
       </div>
+
+      {/* Report content */}
       <div className={styles.section}>
         <h2>Evaluation report</h2>
         {isShipment && evaluationReport.location !== 'OTHER' ? (
@@ -156,7 +158,9 @@ const EvaluationReportPreview = ({
                 columnHeaders={['Inspection date', 'Report submission']}
                 dataRow={[
                   evaluationReport.inspectionDate ? formatDate(evaluationReport.inspectionDate, 'DD MMM YYYY') : '—',
-                  evaluationReport.submittedAt ? formatDateFromIso(evaluationReport.submittedAt, 'DD MMM YYYY') : '—',
+                  evaluationReport.submittedAt
+                    ? formatDateFromIso(evaluationReport.submittedAt, 'DD MMM YYYY')
+                    : formatDate(new Date(), 'DD MMM YYYY'),
                 ]}
               />
             </DataTableWrapper>
@@ -165,49 +169,13 @@ const EvaluationReportPreview = ({
         )}
         <div className={styles.section}>
           <h3>Violations</h3>
-          <dl className={descriptionListStyles.descriptionList}>
-            <div className={classnames(descriptionListStyles.row)}>
-              <dt data-testid="violationsObserved" className={styles.violationsLabel}>
-                Violations observed
-              </dt>
-              {hasViolations ? (
-                <dd className={styles.violationsRemarks}>
-                  {reportViolations.map((reportViolation) => (
-                    <div className={styles.violation} key={`${reportViolation.id}-violation`}>
-                      <h5>{`${reportViolation?.violation?.paragraphNumber} ${reportViolation?.violation?.title}`}</h5>
-                      <p>
-                        <small>{reportViolation?.violation?.requirementSummary}</small>
-                      </p>
-                    </div>
-                  ))}
-                </dd>
-              ) : (
-                <dd className={styles.violationsRemarks} data-testid="noViolationsObserved">
-                  No
-                </dd>
-              )}
-            </div>
-            {hasViolations && (
-              <>
-                <div className={classnames(descriptionListStyles.row)}>
-                  <dt className={styles.violationsLabel}>Serious incident</dt>
-                  <dd className={styles.violationsRemarks}>{showIncidentDescription ? 'Yes' : 'No'}</dd>
-                </div>
-                {showIncidentDescription && (
-                  <div className={classnames(descriptionListStyles.row)}>
-                    <dt className={styles.violationsLabel}>Serious incident description</dt>
-                    <dd className={styles.violationsRemarks}>{evaluationReport?.seriousIncidentDesc}</dd>
-                  </div>
-                )}
-              </>
-            )}
-          </dl>
+          <EvaluationReportViolationsList evaluationReport={evaluationReport} reportViolations={reportViolations} />
         </div>
         <div className={styles.section}>
           <h3>QAE remarks</h3>
           <dl className={descriptionListStyles.descriptionList}>
-            <div className={classnames(descriptionListStyles.row)}>
-              <dt className={styles.qaeRemarksLabel}>Evaluation remarks</dt>
+            <div className={descriptionListStyles.row}>
+              <dt className={styles.label}>Evaluation remarks</dt>
               <dd className={styles.qaeRemarks}>{evaluationReport.remarks}</dd>
             </div>
           </dl>
