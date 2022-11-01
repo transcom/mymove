@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/etag"
 	progearops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -134,171 +135,171 @@ func (suite *HandlerSuite) TestCreateProgearHandler() {
 // UPDATE test
 //
 
-// func (suite *HandlerSuite) TestUpdateProgearHandler() {
-// 	// Reusable objects
-// 	progearUpdater := progear.NewCustomerProgearUpdater()
+func (suite *HandlerSuite) TestUpdateProgearHandler() {
+	// Reusable objects
+	progearUpdater := progear.NewCustomerProgearUpdater()
 
-// 	type progearUpdateSubtestData struct {
-// 		ppmShipment models.PPMShipment
-// 		progear     models.Progear
-// 		params      progearops.UpdateProgearParams
-// 		handler     UpdateProgearHandler
-// 	}
-// 	makeUpdateSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData progearUpdateSubtestData) {
-// 		db := appCtx.DB()
+	type progearUpdateSubtestData struct {
+		ppmShipment models.PPMShipment
+		progear     models.ProgearWeightTicket
+		params      progearops.UpdateProGearWeightTicketParams
+		handler     UpdateProgearHandler
+	}
+	makeUpdateSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData progearUpdateSubtestData) {
+		db := appCtx.DB()
 
-// 		// Use fake data:
-// 		subtestData.progear = testdatagen.MakeProgear(db, testdatagen.Assertions{})
-// 		subtestData.ppmShipment = subtestData.progear.PPMShipment
-// 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+		// Use fake data:
+		subtestData.progear = testdatagen.MakeProgear(db, testdatagen.Assertions{})
+		subtestData.ppmShipment = subtestData.progear.PPMShipment
+		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
-// 		endpoint := fmt.Sprintf("/ppm-shipments/%s/weight-ticket/%s", subtestData.ppmShipment.ID.String(), subtestData.progear.ID.String())
-// 		req := httptest.NewRequest("PATCH", endpoint, nil)
-// 		if authenticateRequest {
-// 			req = suite.AuthenticateRequest(req, serviceMember)
-// 		}
-// 		eTag := etag.GenerateEtag(subtestData.progear.UpdatedAt)
-// 		subtestData.params = progearops.UpdateProgearParams{
-// 			HTTPRequest:   req,
-// 			PpmShipmentID: *handlers.FmtUUID(subtestData.ppmShipment.ID),
-// 			ProgearID:     *handlers.FmtUUID(subtestData.progear.ID),
-// 			IfMatch:       eTag,
-// 		}
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/pro-gear-weight-tickets/%s", subtestData.ppmShipment.ID.String(), subtestData.progear.ID.String())
+		req := httptest.NewRequest("PATCH", endpoint, nil)
+		if authenticateRequest {
+			req = suite.AuthenticateRequest(req, serviceMember)
+		}
+		eTag := etag.GenerateEtag(subtestData.progear.UpdatedAt)
+		subtestData.params = progearops.UpdateProGearWeightTicketParams{
+			HTTPRequest:           req,
+			PpmShipmentID:         *handlers.FmtUUID(subtestData.ppmShipment.ID),
+			ProGearWeightTicketID: *handlers.FmtUUID(subtestData.progear.ID),
+			IfMatch:               eTag,
+		}
 
-// 		subtestData.handler = UpdateProgearHandler{
-// 			suite.createS3HandlerConfig(),
-// 			progearUpdater,
-// 		}
+		subtestData.handler = UpdateProgearHandler{
+			suite.createS3HandlerConfig(),
+			progearUpdater,
+		}
 
-// 		return subtestData
-// 	}
+		return subtestData
+	}
 
-// 	suite.Run("Successfully Update Weight Ticket - Integration Test", func() {
-// 		appCtx := suite.AppContextForTest()
+	suite.Run("Successfully Update Weight Ticket - Integration Test", func() {
+		appCtx := suite.AppContextForTest()
 
-// 		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData := makeUpdateSubtestData(appCtx, true)
 
-// 		params := subtestData.params
+		params := subtestData.params
 
-// 		// An upload must exist if trailer is owned and qualifies to be claimed
-// 		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
-// 			UserUpload: models.UserUpload{
-// 				DocumentID: &subtestData.progear.ProofOfTrailerOwnershipDocumentID,
-// 				Document:   subtestData.progear.ProofOfTrailerOwnershipDocument,
-// 			},
-// 		})
+		// An upload must exist if trailer is owned and qualifies to be claimed
+		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			UserUpload: models.UserUpload{
+				DocumentID: &subtestData.progear.ProofOfTrailerOwnershipDocumentID,
+				Document:   subtestData.progear.ProofOfTrailerOwnershipDocument,
+			},
+		})
 
-// 		// Add vehicleDescription
-// 		params.UpdateProgearPayload = &internalmessages.UpdateProgear{
-// 			VehicleDescription:   "Subaru",
-// 			EmptyWeight:          handlers.FmtInt64(1),
-// 			MissingEmptyProgear:  false,
-// 			FullWeight:           handlers.FmtInt64(4000),
-// 			MissingFullProgear:   false,
-// 			OwnsTrailer:          true,
-// 			TrailerMeetsCriteria: true,
-// 		}
+		// Add vehicleDescription
+		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{
+			VehicleDescription:   "Subaru",
+			EmptyWeight:          handlers.FmtInt64(1),
+			MissingEmptyProgear:  false,
+			FullWeight:           handlers.FmtInt64(4000),
+			MissingFullProgear:   false,
+			OwnsTrailer:          true,
+			TrailerMeetsCriteria: true,
+		}
 
-// 		response := subtestData.handler.Handle(params)
+		response := subtestData.handler.Handle(params)
 
-// 		suite.IsType(&progearops.UpdateProgearOK{}, response)
+		suite.IsType(&progearops.UpdateProGearWeightTicketOK{}, response)
 
-// 		updatedProgear := response.(*progearops.UpdateProgearOK).Payload
-// 		suite.Equal(subtestData.progear.ID.String(), updatedProgear.ID.String())
-// 		suite.Equal(params.UpdateProgearPayload.VehicleDescription, *updatedProgear.VehicleDescription)
-// 	})
+		updatedProgear := response.(*progearops.UpdateProGearWeightTicketOK).Payload
+		suite.Equal(subtestData.progear.ID.String(), updatedProgear.ID.String())
+		suite.Equal(params.UpdateProGearWeightTicket.VehicleDescription, *updatedProgear.VehicleDescription)
+	})
 
-// 	suite.Run("PATCH failure -400 - nil body", func() {
-// 		appCtx := suite.AppContextForTest()
+	suite.Run("PATCH failure -400 - nil body", func() {
+		appCtx := suite.AppContextForTest()
 
-// 		subtestData := makeUpdateSubtestData(appCtx, true)
-// 		subtestData.params.UpdateProgearPayload = nil
-// 		response := subtestData.handler.Handle(subtestData.params)
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		subtestData.params.UpdateProGearWeightTicket = nil
+		response := subtestData.handler.Handle(subtestData.params)
 
-// 		suite.IsType(&progearops.UpdateProgearBadRequest{}, response)
-// 	})
+		suite.IsType(&progearops.UpdateProGearWeightTicketBadRequest{}, response)
+	})
 
-// 	suite.Run("PATCH failure -422 - Invalid Input", func() {
-// 		appCtx := suite.AppContextForTest()
+	suite.Run("PATCH failure -422 - Invalid Input", func() {
+		appCtx := suite.AppContextForTest()
 
-// 		subtestData := makeUpdateSubtestData(appCtx, true)
-// 		params := subtestData.params
-// 		params.UpdateProgearPayload = &internalmessages.UpdateProgear{
-// 			VehicleDescription:   "Subaru",
-// 			EmptyWeight:          handlers.FmtInt64(0),
-// 			MissingEmptyProgear:  false,
-// 			FullWeight:           handlers.FmtInt64(0),
-// 			MissingFullProgear:   false,
-// 			OwnsTrailer:          true,
-// 			TrailerMeetsCriteria: true,
-// 		}
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{
+			VehicleDescription:   "Subaru",
+			EmptyWeight:          handlers.FmtInt64(0),
+			MissingEmptyProgear:  false,
+			FullWeight:           handlers.FmtInt64(0),
+			MissingFullProgear:   false,
+			OwnsTrailer:          true,
+			TrailerMeetsCriteria: true,
+		}
 
-// 		response := subtestData.handler.Handle(params)
+		response := subtestData.handler.Handle(params)
 
-// 		suite.IsType(&progearops.UpdateProgearUnprocessableEntity{}, response)
-// 	})
+		suite.IsType(&progearops.UpdateProGearWeightTicketUnprocessableEntity{}, response)
+	})
 
-// 	suite.Run("PATCH failure - 404- not found", func() {
-// 		appCtx := suite.AppContextForTest()
+	suite.Run("PATCH failure - 404- not found", func() {
+		appCtx := suite.AppContextForTest()
 
-// 		subtestData := makeUpdateSubtestData(appCtx, true)
-// 		params := subtestData.params
-// 		params.UpdateProgearPayload = &internalmessages.UpdateProgear{}
-// 		// This test should fail because of the wrong ID
-// 		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("f20d9c9b-2de5-4860-ad31-fd5c10e739f6"))
-// 		params.ProgearID = *uuidString
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateProGearWeightTicket = &internalmessages.UpdateProgear{}
+		// This test should fail because of the wrong ID
+		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("f20d9c9b-2de5-4860-ad31-fd5c10e739f6"))
+		params.ProgearID = *uuidString
 
-// 		response := subtestData.handler.Handle(params)
+		response := subtestData.handler.Handle(params)
 
-// 		suite.IsType(&progearops.UpdateProgearNotFound{}, response)
-// 	})
+		suite.IsType(&progearops.UpdateProGearWeightTicketNotFound{}, response)
+	})
 
-// 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
-// 		appCtx := suite.AppContextForTest()
+	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
+		appCtx := suite.AppContextForTest()
 
-// 		subtestData := makeUpdateSubtestData(appCtx, true)
-// 		params := subtestData.params
-// 		params.UpdateProgearPayload = &internalmessages.UpdateProgear{}
-// 		params.IfMatch = "intentionally-bad-if-match-header-value"
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateProGearWeightTicket = &internalmessages.UpdateProgear{}
+		params.IfMatch = "intentionally-bad-if-match-header-value"
 
-// 		response := subtestData.handler.Handle(params)
+		response := subtestData.handler.Handle(params)
 
-// 		suite.IsType(&progearops.UpdateProgearPreconditionFailed{}, response)
-// 	})
+		suite.IsType(&progearops.UpdateProGearWeightTicketPreconditionFailed{}, response)
+	})
 
-// 	suite.Run("PATCH failure - 500", func() {
-// 		mockUpdater := mocks.ProgearUpdater{}
-// 		appCtx := suite.AppContextForTest()
+	suite.Run("PATCH failure - 500", func() {
+		mockUpdater := mocks.ProgearUpdater{}
+		appCtx := suite.AppContextForTest()
 
-// 		subtestData := makeUpdateSubtestData(appCtx, true)
-// 		params := subtestData.params
-// 		params.UpdateProgearPayload = &internalmessages.UpdateProgear{
-// 			VehicleDescription:   "Subaru",
-// 			EmptyWeight:          handlers.FmtInt64(1),
-// 			MissingEmptyProgear:  false,
-// 			FullWeight:           handlers.FmtInt64(4000),
-// 			MissingFullProgear:   false,
-// 			OwnsTrailer:          true,
-// 			TrailerMeetsCriteria: true,
-// 		}
+		subtestData := makeUpdateSubtestData(appCtx, true)
+		params := subtestData.params
+		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{
+			VehicleDescription:   "Subaru",
+			EmptyWeight:          handlers.FmtInt64(1),
+			MissingEmptyProgear:  false,
+			FullWeight:           handlers.FmtInt64(4000),
+			MissingFullProgear:   false,
+			OwnsTrailer:          true,
+			TrailerMeetsCriteria: true,
+		}
 
-// 		err := errors.New("ServerError")
+		err := errors.New("ServerError")
 
-// 		mockUpdater.On("UpdateProgear",
-// 			mock.AnythingOfType("*appcontext.appContext"),
-// 			mock.AnythingOfType("models.Progear"),
-// 			mock.AnythingOfType("string"),
-// 		).Return(nil, err)
+		mockUpdater.On("UpdateProgear",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.Progear"),
+			mock.AnythingOfType("string"),
+		).Return(nil, err)
 
-// 		handler := UpdateProgearHandler{
-// 			suite.HandlerConfig(),
-// 			&mockUpdater,
-// 		}
+		handler := UpdateProgearHandler{
+			suite.HandlerConfig(),
+			&mockUpdater,
+		}
 
-// 		response := handler.Handle(params)
+		response := handler.Handle(params)
 
-// 		suite.IsType(&progearops.UpdateProgearInternalServerError{}, response)
-// 		errResponse := response.(*progearops.UpdateProgearInternalServerError)
-// 		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
-// 	})
-// }
+		suite.IsType(&progearops.UpdateProGearWeightTicketInternalServerError{}, response)
+		errResponse := response.(*progearops.UpdateProGearWeightTicketInternalServerError)
+		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
+	})
+}

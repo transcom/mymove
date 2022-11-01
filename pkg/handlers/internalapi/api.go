@@ -23,6 +23,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
+	progear "github.com/transcom/mymove/pkg/services/progear"
 	"github.com/transcom/mymove/pkg/services/query"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 )
@@ -85,7 +86,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.PpmCreateWeightTicketHandler = CreateWeightTicketHandler{handlerConfig, weightticket.NewCustomerWeightTicketCreator()}
 	internalAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{handlerConfig, weightticket.NewCustomerWeightTicketUpdater()}
 
-	internalAPI.CreateProgearHandler = CreateWeightTicketHandler{handlerConfig, weightticket.NewCustomerWeightTicketCreator()}
+	internalAPI.CreateProgearHandler = CreateProgearHandler{handlerConfig, progear.NewCustomerProgearCreator()}
+	internalAPI.UpdateProgearHandler = CreateProgearHandler{handlerConfig, progear.NewCustomerProgearUpdater()}
 
 	internalAPI.PpmCreatePPMUploadHandler = CreatePPMUploadHandler{handlerConfig}
 
