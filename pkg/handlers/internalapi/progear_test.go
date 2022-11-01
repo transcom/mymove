@@ -21,7 +21,7 @@ import (
 // CREATE TEST
 func (suite *HandlerSuite) TestCreateProgearHandler() {
 	// Reusable objects
-	progearCreator := progear.NewCustomerProgearCreator()
+	progearCreator := progear.NewCustomerProgearWeightTicketCreator()
 
 	type progearCreateSubtestData struct {
 		ppmShipment models.PPMShipment
@@ -138,7 +138,7 @@ func (suite *HandlerSuite) TestCreateProgearHandler() {
 
 func (suite *HandlerSuite) TestUpdateProgearHandler() {
 	// Reusable objects
-	progearUpdater := progear.NewCustomerProgearUpdater()
+	progearUpdater := progear.NewCustomerProgearWeightTicketUpdater()
 
 	type progearUpdateSubtestData struct {
 		ppmShipment models.PPMShipment

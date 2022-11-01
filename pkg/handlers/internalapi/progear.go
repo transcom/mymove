@@ -16,7 +16,7 @@ import (
 // CreateProgearHandler
 type CreateProgearHandler struct {
 	handlers.HandlerConfig
-	progearCreator services.ProgearCreator
+	progearCreator services.ProgearWeightTicketCreator
 }
 
 // Handle creating a progear weight ticket
@@ -39,7 +39,7 @@ func (h CreateProgearHandler) Handle(params progearops.CreateProGearWeightTicket
 				return progearops.NewCreateProGearWeightTicketBadRequest(), nil
 			}
 
-			progear, err := h.progearCreator.CreateProgear(appCtx, ppmShipmentID)
+			progear, err := h.progearCreator.CreateProgearWeightTicket(appCtx, ppmShipmentID)
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.CreateProgearHandler", zap.Error(err))
@@ -62,7 +62,7 @@ func (h CreateProgearHandler) Handle(params progearops.CreateProGearWeightTicket
 // // UpdateProgearHandler
 type UpdateProgearHandler struct {
 	handlers.HandlerConfig
-	progearUpdater services.ProgearUpdater
+	progearUpdater services.ProgearWeightTicketUpdater
 }
 
 func (h UpdateProgearHandler) Handle(params progearops.UpdateProGearWeightTicketParams) middleware.Responder {
@@ -91,7 +91,7 @@ func (h UpdateProgearHandler) Handle(params progearops.UpdateProGearWeightTicket
 			weightTicket := payloads.ProgearWeightTicketModelFromUpdate(payload)
 			weightTicket.ID = uuid.FromStringOrNil(params.ProGearWeightTicketID.String())
 
-			updateProgear, err := h.progearUpdater.UpdateProgear(appCtx, *weightTicket, params.IfMatch)
+			updateProgear, err := h.progearUpdater.UpdateProgearWeightTicket(appCtx, *weightTicket, params.IfMatch)
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.UpdateProgearHandler", zap.Error(err))
