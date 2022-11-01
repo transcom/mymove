@@ -196,7 +196,7 @@ describe('RequestedShipments', () => {
       expect(container.querySelector('#approvalConfirmationModal')).toHaveStyle('display: none');
 
       await act(async () => {
-        await userEvent.type(screen.getByRole('checkbox', { name: 'Move management' }), true);
+        await userEvent.click(screen.getByRole('checkbox', { name: 'Move management' }));
       });
 
       expect(screen.getByRole('button', { name: 'Approve selected' })).not.toBeDisabled();
@@ -220,7 +220,7 @@ describe('RequestedShipments', () => {
       expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
 
       await act(async () => {
-        await userEvent.type(screen.getByRole('checkbox', { name: 'Move management' }), true);
+        await userEvent.click(screen.getByRole('checkbox', { name: 'Move management' }));
       });
 
       expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
@@ -260,10 +260,10 @@ describe('RequestedShipments', () => {
         await userEvent.type(shipmentInput, 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee');
 
         const shipmentManagementFeeInput = screen.getByRole('checkbox', { name: 'Move management' });
-        await userEvent.type(shipmentManagementFeeInput, true);
+        await userEvent.click(shipmentManagementFeeInput);
 
         const counselingFeeInput = screen.getByRole('checkbox', { name: 'Counseling' });
-        await userEvent.type(counselingFeeInput, true);
+        await userEvent.click(counselingFeeInput);
 
         userEvent.click(container.querySelector('form button[type="button"]'));
         userEvent.click(screen.getAllByRole('button').at(0));

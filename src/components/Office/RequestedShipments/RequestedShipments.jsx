@@ -230,7 +230,7 @@ const RequestedShipments = ({
                 {!moveTaskOrder.availableToPrimeAt && (
                   <>
                     <h2>Add service items to this move</h2>
-                    <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
+                    <Fieldset legend="MTO service items" legendsronly="true" id="input-type-fieldset">
                       <Checkbox
                         id="shipmentManagementFee"
                         label={serviceItemCodes.MS}
