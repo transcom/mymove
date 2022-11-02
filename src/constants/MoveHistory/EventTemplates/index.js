@@ -42,7 +42,7 @@ export { default as updateReweighWeight } from './updateReweighWeight';
 export { default as updateServiceItemStatus } from './updateServiceItemStatus';
 export { default as updateMTOReviewedBillableWeightsAt } from './updateMTOReviewedBillableWeightsAt';
 export { default as uploadAmendedOrders } from './UploadAmendedOrders/uploadAmendedOrders';
-export { default as updateMTOShipmentStatus } from './updateMTOShipmentStatus';
+export { default as updateMTOShipmentStatus } from './UpdateMTOShipmentStatus/updateMTOShipmentStatus';
 export { default as updateMTOServiceItemMoveStatus } from './CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus';
 export { default as updateMoveEstimatedExcessWeight } from './updateMTOShipmentPrimeEstimatedExcessWeight';
 export { default as updateMTOStatusServiceCounselingCompleted } from './updateMTOStatusServiceCounselingCompleted';
