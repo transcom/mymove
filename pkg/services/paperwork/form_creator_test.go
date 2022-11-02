@@ -209,9 +209,9 @@ func (suite *PaperworkServiceSuite) TestCreateFormServiceFormFillerOutputFailure
 }
 
 func (suite *PaperworkServiceSuite) TestCreateFormServiceCreateAssetByteReaderFailure() {
-	badAssetPath := "pkg/paperwork/formtemplates/someUndefinedTemplatePath.png"
+	badAssetPath := "paperwork/formtemplates/someUndefinedTemplatePath.png"
 	templateBuffer, err := createAssetByteReader(badAssetPath)
 	suite.Nil(templateBuffer)
 	suite.NotNil(err)
-	suite.Equal("error creating asset from path; check image path: Asset pkg/paperwork/formtemplates/someUndefinedTemplatePath.png not found", err.Error())
+	suite.Equal("error creating asset from path; check image path: open paperwork/formtemplates/someUndefinedTemplatePath.png: file does not exist", err.Error())
 }

@@ -56,7 +56,7 @@ func (suite *SimplePopSuite) TestRunWithPreloadData() {
 		suite.NotEqual(address2.ID, foundAddress.ID)
 	})
 
-	suite.T().Run("non testify subtest", func(t *testing.T) {
+	suite.Run("non testify subtest", func() {
 		var foundAddress models.Address
 		err := suite.DB().Find(&foundAddress, address.ID)
 		suite.NoError(err)

@@ -3,7 +3,6 @@ package tsp
 import (
 	"errors"
 	"reflect"
-	"testing"
 
 	"github.com/gofrs/uuid"
 
@@ -43,7 +42,7 @@ func defaultOrdering() services.QueryOrder {
 }
 
 func (suite *TSPServiceSuite) TestFetchTSPPList() {
-	suite.T().Run("if the TSPP is fetched, it should be returned", func(t *testing.T) {
+	suite.Run("if the TSPP is fetched, it should be returned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
 		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
@@ -66,7 +65,7 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 		suite.Equal(id, tspps[0].ID)
 	})
 
-	suite.T().Run("if TSPPs are fetched, it should be returned", func(t *testing.T) {
+	suite.Run("if TSPPs are fetched, it should be returned", func() {
 		id, err := uuid.NewV4()
 		id2, err2 := uuid.NewV4()
 
@@ -93,7 +92,7 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 		suite.Len(tspps, 2)
 	})
 
-	suite.T().Run("if there is an error, we get it with no tspps", func(t *testing.T) {
+	suite.Run("if there is an error, we get it with no tspps", func() {
 		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
 			return errors.New("Fetch error")
 		}
@@ -113,7 +112,7 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 
 func (suite *TSPServiceSuite) TestCountTSPPs() {
 
-	suite.T().Run("if TSPPs are found, they should be counted", func(t *testing.T) {
+	suite.Run("if TSPPs are found, they should be counted", func() {
 		id, err := uuid.NewV4()
 
 		suite.NoError(err)
@@ -136,7 +135,7 @@ func (suite *TSPServiceSuite) TestCountTSPPs() {
 		suite.Equal(2, count)
 	})
 
-	suite.T().Run("if there is an error, we get it with no count", func(t *testing.T) {
+	suite.Run("if there is an error, we get it with no count", func() {
 		fakeCount := func(appCtx appcontext.AppContext, model interface{}) (int, error) {
 			return 0, errors.New("Fetch error")
 		}

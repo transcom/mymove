@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-circleci_build_image=milmove/circleci-docker:milmove-app-72166d322751035f17653503d19db22dd14c049e
+circleci_build_image=milmove/circleci-docker:milmove-app-4dbb2bcb421ecd4a7ea1e511b954e285a317c8fc
 
 set -eux -o pipefail
 
@@ -22,7 +22,7 @@ docker network rm e2e_mtls || true
 
 # in CI, we can copy in the artifacts built in CI, but locally we have
 # to compile inside docker first
-rm -rf bin pkg/assets/assets.go
+rm -rf bin
 mkdir bin
 # set GOPATH if not already set
 : "${GOPATH:=$HOME/.gopath}"
@@ -34,8 +34,7 @@ docker run \
        -e GOPATH \
        -e CIRCLECI=1 \
        ${circleci_build_image} \
-      make pkg/assets/assets.go \
-       server_build \
+      make server_build \
        bin/prime-api-client \
        bin/generate-test-data \
        bin/rds-ca-2019-root.pem \

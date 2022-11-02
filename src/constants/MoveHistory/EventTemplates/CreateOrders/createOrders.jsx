@@ -6,11 +6,13 @@ import o from 'constants/MoveHistory/UIDisplay/Operations';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 
 const formatChangedValues = (historyRecord) => {
-  let newChangedValues;
+  let newChangedValues = {
+    ...historyRecord.changedValues,
+  };
 
   if (historyRecord.context) {
     newChangedValues = {
-      ...historyRecord.changedValues,
+      ...newChangedValues,
       ...historyRecord.context[0],
     };
   }

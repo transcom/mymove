@@ -283,11 +283,14 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 				suite.Equal(*order.NtsTAC, changedData["nts_tac"])
 				suite.Equal(*order.NtsSAC, changedData["nts_sac"])
 				suite.Equal(*order.DepartmentIndicator, changedData["department_indicator"])
-				//TODO: make a better comparison test for time
-				//suite.Equal(order.AmendedOrdersAcknowledgedAt.Format("2006-01-02T15:04:05.000000"), changedData["amended_orders_acknowledged_at"])
 
-				// rank/grade is also on orders
-				suite.Equal(*order.Grade, changedData["grade"])
+				//changedData["amended_orders_acknowledged_at"] is being converted from a string to a formatted time.Time type
+				layout := "2006-01-02T15:04:05.000000"
+				changedDataTimeStamp, _ := time.Parse(layout, changedData["amended_orders_acknowledged_at"].(string))
+				//CircleCi seems to add on nanoseconds to the tested time stamps so this is being used with Truncate to shave those nanoseconds off
+				d := 1000 * time.Nanosecond
+				//We assert if it falls within a range starting at the original order.AmendedOrdersAcknowledgedAt time and ending with a added 2000 microsecond buffer
+				suite.WithinRange(changedDataTimeStamp, order.AmendedOrdersAcknowledgedAt.Truncate(d), order.AmendedOrdersAcknowledgedAt.Add(2000*time.Microsecond).Truncate(d))
 
 				// test context as well
 				context := removeEscapeJSONtoArray(historyRecord.Context)[0]
@@ -301,6 +304,57 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcher() {
 
 		// double check that we found the record we're looking for
 		suite.True(foundUpdateOrderRecord)
+	})
+	suite.Run("returns user uploads fields and context", func() {
+		// Make an approved move and get the associated orders, service member, uploaded orders and related document
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		orders := approvedMove.Orders
+		serviceMember := orders.ServiceMember
+		uploadedOrdersDocument := orders.UploadedOrders
+		userUploadedOrders := uploadedOrdersDocument.UserUploads[0]
+
+		// Create an amended orders that is associated with the service member
+		userUploadedAmendedOrders := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			Document: models.Document{
+				ServiceMember:   serviceMember,
+				ServiceMemberID: serviceMember.ID,
+			},
+		})
+
+		// Update the orders with the amended orders
+		orders.UploadedAmendedOrdersID = &userUploadedAmendedOrders.Document.ID
+		orders.UploadedAmendedOrders = &userUploadedAmendedOrders.Document
+		suite.MustSave(&orders)
+
+		parameters := services.FetchMoveHistoryParams{
+			Locator: approvedMove.Locator,
+			Page:    swag.Int64(1),
+			PerPage: swag.Int64(100),
+		}
+		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &parameters)
+		suite.FatalNoError(err)
+
+		foundUserUploadOrdersRecord := false
+		foundUserUploadAmendedOrdersRecord := false
+		for _, historyRecord := range moveHistoryData.AuditHistories {
+			if *historyRecord.ObjectID == userUploadedOrders.ID && historyRecord.Action == "INSERT" {
+				context := removeEscapeJSONtoArray(historyRecord.Context)[0]
+				suite.Equal(userUploadedOrders.Upload.Filename, context["filename"])
+				suite.Equal("orders", context["upload_type"])
+
+				foundUserUploadOrdersRecord = true
+			} else if *historyRecord.ObjectID == userUploadedAmendedOrders.ID && historyRecord.Action == "INSERT" {
+				context := removeEscapeJSONtoArray(historyRecord.Context)[0]
+				suite.Equal(userUploadedAmendedOrders.Upload.Filename, context["filename"])
+				suite.Equal("amendedOrders", context["upload_type"])
+
+				foundUserUploadAmendedOrdersRecord = true
+			}
+		}
+		// double check that we found the records we're looking for
+		suite.True(foundUserUploadOrdersRecord, "foundUserUploadOrdersRecord")
+		suite.True(foundUserUploadAmendedOrdersRecord, "foundUserUploadAmendedOrdersRecord")
+
 	})
 
 }

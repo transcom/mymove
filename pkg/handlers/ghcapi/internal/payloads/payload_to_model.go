@@ -503,6 +503,7 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 		ObservedPickupDate:            (*time.Time)(evaluationReport.ObservedPickupDate),
 		ObservedPickupSpreadStartDate: (*time.Time)(evaluationReport.ObservedPickupSpreadStartDate),
 		ObservedPickupSpreadEndDate:   (*time.Time)(evaluationReport.ObservedPickupSpreadEndDate),
+		ObservedDeliveryDate:          (*time.Time)(evaluationReport.ObservedDeliveryDate),
 		SubmittedAt:                   handlers.FmtDateTimePtrToPopPtr(evaluationReport.SubmittedAt),
 	}
 	return &model
