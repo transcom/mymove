@@ -38,16 +38,18 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.Nil(err)
 		suite.Equal(originalAddress.ID, updatedAddress.ID)
 		suite.Equal(desiredAddress.StreetAddress1, updatedAddress.StreetAddress1)
-		suite.Equal(desiredAddress.StreetAddress2, updatedAddress.StreetAddress2)
-		suite.Nil(updatedAddress.StreetAddress2)
 		suite.Equal(desiredAddress.City, updatedAddress.City)
 		suite.Equal(desiredAddress.State, updatedAddress.State)
 		suite.Equal(desiredAddress.PostalCode, updatedAddress.PostalCode)
-		suite.Equal(desiredAddress.Country, updatedAddress.Country)
-		suite.Nil(updatedAddress.Country)
+		suite.NotNil(updatedAddress.StreetAddress2)
+		suite.Equal(originalAddress.StreetAddress2, updatedAddress.StreetAddress2)
+		suite.NotNil(updatedAddress.StreetAddress3)
+		suite.Equal(originalAddress.StreetAddress3, updatedAddress.StreetAddress3)
+		suite.NotNil(updatedAddress.Country)
+		suite.Equal(originalAddress.Country, updatedAddress.Country)
 	})
 
-	suite.Run("Fails to updates an address because of missing fields (eg. of failure in ValidateAndUpdate)", func() {
+	suite.Run("Fails to updates because of stale etag", func() {
 		originalAddress := createOriginalAddress()
 
 		addressUpdater := NewAddressUpdater()
@@ -65,12 +67,16 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
-	suite.Run("Fails to updates because of stale etag", func() {
+	suite.Run("Fails to updates an address because of invalid input (eg. of failure in ValidateAndUpdate)", func() {
 		originalAddress := createOriginalAddress()
 
 		addressUpdater := NewAddressUpdater()
 		desiredAddress := &models.Address{
-			ID: originalAddress.ID,
+			ID:             originalAddress.ID,
+			StreetAddress1: " ",
+			City:           " ",
+			State:          " ",
+			PostalCode:     " ",
 		}
 		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
 

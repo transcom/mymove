@@ -31,15 +31,15 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 		return nil, apperror.NewPreconditionFailedError(originalAddress.ID, nil)
 	}
 
-	// tk handle merge?
+	mergedAddress := mergeAddress(*address, *originalAddress)
 
-	err := validateAddress(appCtx, address, originalAddress, f.checks...)
+	err := validateAddress(appCtx, &mergedAddress, originalAddress, f.checks...)
 	if err != nil {
 		return nil, err
 	}
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
-		verrs, err := txnCtx.DB().ValidateAndUpdate(address)
+		verrs, err := txnCtx.DB().ValidateAndUpdate(&mergedAddress)
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(address.ID, err, verrs, "invalid input while updating an address")
 		} else if err != nil {
@@ -51,5 +51,27 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 		return nil, txnErr
 	}
 
-	return address, nil
+	return &mergedAddress, nil
+}
+
+func mergeAddress(address, originalAddress models.Address) models.Address {
+	mergedAddress := originalAddress
+	if address.StreetAddress1 != "" {
+		mergedAddress.StreetAddress1 = address.StreetAddress1
+	}
+	if address.City != "" {
+		mergedAddress.City = address.City
+	}
+	if address.State != "" {
+		mergedAddress.State = address.State
+	}
+	if address.PostalCode != "" {
+		mergedAddress.PostalCode = address.PostalCode
+	}
+
+	mergedAddress.StreetAddress2 = services.SetOptionalStringField(address.StreetAddress2, mergedAddress.StreetAddress2)
+	mergedAddress.StreetAddress3 = services.SetOptionalStringField(address.StreetAddress3, mergedAddress.StreetAddress3)
+	mergedAddress.Country = services.SetOptionalStringField(address.Country, mergedAddress.Country)
+
+	return mergedAddress
 }

@@ -98,6 +98,7 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 				return error
 			}
 			updatedPPMShipment.W2AddressID = &updatedAddress.ID
+			updatedPPMShipment.W2Address = updatedAddress
 		}
 
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)

@@ -833,12 +833,13 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		suite.NilOrNoVerrs(err)
 
-		suite.Equal(*newPPM.W2Address, *updatedPPM.W2Address)
 		suite.Equal(address.ID, *updatedPPM.W2AddressID)
 		suite.Equal(streetAddress1, updatedPPM.W2Address.StreetAddress1)
 		suite.Equal(streetAddress2, *updatedPPM.W2Address.StreetAddress2)
 		suite.Equal(city, updatedPPM.W2Address.City)
 		suite.Equal(state, updatedPPM.W2Address.State)
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
+		suite.Equal(*address.StreetAddress3, *updatedPPM.W2Address.StreetAddress3)
+		suite.Equal(*address.Country, *updatedPPM.W2Address.Country)
 	})
 }
