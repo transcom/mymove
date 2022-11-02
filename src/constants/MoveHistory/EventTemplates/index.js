@@ -24,9 +24,9 @@ export { default as requestShipmentReweigh } from './RequestShipmentReweigh/requ
 export { default as setFinancialReviewFlag } from './SetFinancialReviewFlag/setFinancialReviewFlag';
 export { default as submitMoveForApproval } from './SubmitMoveForApproval/submitMoveForApproval';
 export { default as updateAllowance } from './UpdateAllowances/updateAllowance';
-export { default as updateBillableWeight } from './updateBillableWeight';
-export { default as updateBillableWeightAsTIO } from './updateBillableWeightAsTIO';
-export { default as updateBillableWeightRemarksAsTIO } from './updateBillableWeightRemarksAsTIO';
+export { default as updateBillableWeight } from './UpdateBillableWeight/updateBillableWeight';
+export { default as updateBillableWeightAsTIO } from './UpdateBillableWeight/updateBillableWeightAsTIO';
+export { default as updateBillableWeightRemarksAsTIO } from './UpdateBillableWeight/updateBillableWeightRemarksAsTIO';
 export { default as updateMoveTaskOrder } from './updateMoveTaskOrder';
 export { default as updateMoveTaskOrderStatus } from './updateMoveTaskOrderStatus';
 export { default as updateMTOServiceItem } from './UpdateMTOServiceItem/updateMTOServiceItem';
