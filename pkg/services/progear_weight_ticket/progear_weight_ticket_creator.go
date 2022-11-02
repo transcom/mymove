@@ -22,6 +22,9 @@ func NewProgearWeightTicketCreator() services.ProgearWeightTicketCreator {
 func (f *progearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.ProgearWeightTicket, error) {
 	newProgearWeightTicket := &models.ProgearWeightTicket{
 		PPMShipmentID: ppmShipmentID,
+		EmptyDocument: models.Document{
+			ServiceMemberID: appCtx.Session().ServiceMemberID,
+		},
 		FullDocument: models.Document{
 			ServiceMemberID: appCtx.Session().ServiceMemberID,
 		},
