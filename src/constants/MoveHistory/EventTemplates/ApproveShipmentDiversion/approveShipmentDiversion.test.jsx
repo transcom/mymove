@@ -1,14 +1,13 @@
-import { render, screen } from '@testing-library/react';
+import { screen, render } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/ApproveShipment/approveShipment';
+import e from 'constants/MoveHistory/EventTemplates/ApproveShipmentDiversion/approveShipmentDiversion';
 
-describe('when given an Approved shipment history record', () => {
+describe('when given an Approved shipment diversion history record', () => {
   const historyRecord = {
     action: 'UPDATE',
     changedValues: { status: 'APPROVED' },
-    eventName: 'approveShipment',
-    oldValues: { shipment_type: 'HHG' },
+    eventName: 'approveShipmentDiversion',
     tableName: 'mto_shipments',
     context: [
       {
@@ -17,12 +16,13 @@ describe('when given an Approved shipment history record', () => {
       },
     ],
   };
-  it('correctly matches to the Approved shipment template', () => {
+
+  it('correctly matches the Approved shipment event', () => {
     const template = getTemplate(historyRecord);
     expect(template).toMatchObject(e);
   });
 
-  it('displays the proper value in the details field', () => {
+  it('correctly displays the proper details message', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));

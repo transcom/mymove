@@ -1,6 +1,6 @@
 export { default as acknowledgeExcessWeightRisk } from './AcknowledgeExcessWeightRisk/acknowledgeExcessWeightRisk';
 export { default as approveShipment } from './ApproveShipment/approveShipment';
-export { default as approveShipmentDiversion } from './approveShipmentDiversion';
+export { default as approveShipmentDiversion } from './ApproveShipmentDiversion/approveShipmentDiversion';
 export { default as createBasicServiceItem } from './createBasicServiceItem';
 export { default as createMTOServiceItem } from './CreateMTOServiceItem/createMTOServiceItem';
 export { default as createMTOServiceItemCustomerContacts } from './CreateMTOServiceItem/createMTOServiceItemCustomerContacts';
@@ -19,7 +19,7 @@ export { default as createStandardServiceItem } from './createStandardServiceIte
 export { default as deleteShipment } from './DeleteShipment/deleteShipment';
 export { default as proofOfServiceDocUpload } from './proofOfServiceDocUpload';
 export { default as requestShipmentCancellation } from './requestShipmentCancellation';
-export { default as requestShipmentDiversion } from './requestShipmentDiversion';
+export { default as requestShipmentDiversion } from './RequestShipmentDiversion/requestShipmentDiversion';
 export { default as requestShipmentReweigh } from './RequestShipmentReweigh/requestShipmentReweigh';
 export { default as setFinancialReviewFlag } from './SetFinancialReviewFlag/setFinancialReviewFlag';
 export { default as submitMoveForApproval } from './SubmitMoveForApproval/submitMoveForApproval';
@@ -54,3 +54,5 @@ export { default as patchServiceMember } from './PatchServiceMember/patchService
 export { default as updateAddress } from './UpdateAddress/updateAddress';
 export { default as createUpload } from './CreateUpload/createUpload';
 export { default as deleteUpload } from './DeleteUpload/deleteUpload';
+export { default as updateServiceMemberBackupContacts } from './UpdateServiceMemberBackupContact/updateServiceMemberBackupContact';
+export { default as createServiceMemberBackupContacts } from './CreateServiceMemberBackupContact/createServiceMemberBackupContact';
