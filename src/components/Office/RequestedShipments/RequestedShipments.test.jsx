@@ -1,7 +1,6 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { mount, shallow } from 'enzyme';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import {
@@ -128,117 +127,103 @@ const requestedShipmentsComponentMissingRequiredInfo = (
 describe('RequestedShipments', () => {
   describe('Prime-handled shipments', () => {
     it('renders the container successfully without services counseling completed', () => {
-      const wrapper = shallow(requestedShipmentsComponent);
-      expect(wrapper.find('div[data-testid="requested-shipments"]').exists()).toBe(true);
-      expect(wrapper.find('p[data-testid="services-counseling-completed-text"]').exists()).toBe(false);
+      render(requestedShipmentsComponent);
+      expect(screen.getByTestId('requested-shipments')).toBeInTheDocument();
+      expect(screen.queryByTestId('services-counseling-completed-text')).not.toBeInTheDocument();
     });
 
     it('renders the container successfully with services counseling completed', () => {
-      const wrapper = shallow(requestedShipmentsComponentServicesCounselingCompleted);
-      expect(wrapper.find('div[data-testid="requested-shipments"]').exists()).toBe(true);
-      expect(wrapper.find('p[data-testid="services-counseling-completed-text"]').exists()).toBe(true);
+      render(requestedShipmentsComponentServicesCounselingCompleted);
+      expect(screen.getByTestId('requested-shipments')).toBeInTheDocument();
+      expect(screen.queryByTestId('services-counseling-completed-text')).not.toBeInTheDocument();
     });
 
     it('renders a shipment passed to it', () => {
-      const wrapper = mount(requestedShipmentsComponent);
-      expect(wrapper.find('div[data-testid="requested-shipments"]').text()).toContain('HHG');
-      expect(wrapper.find('div[data-testid="requested-shipments"]').text()).toContain('NTS');
+      render(requestedShipmentsComponent);
+      const withinContainer = within(screen.getByTestId('requested-shipments'));
+      expect(withinContainer.getAllByText('HHG').length).toEqual(2);
+      expect(withinContainer.getAllByText('NTS').length).toEqual(1);
     });
 
     it('renders the button', () => {
-      const wrapper = mount(requestedShipmentsComponentWithPermission);
-      const approveButton = wrapper.find('button[data-testid="shipmentApproveButton"]');
-      expect(approveButton.exists()).toBe(true);
-      expect(approveButton.text()).toContain('Approve selected');
-      expect(approveButton.html()).toContain('disabled=""');
+      render(requestedShipmentsComponentWithPermission);
+      expect(
+        screen.getByRole('button', {
+          name: 'Approve selected',
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', {
+          name: 'Approve selected',
+        }),
+      ).toBeDisabled();
     });
 
     it('renders the button when it is available to the prime', () => {
-      const wrapper = mount(requestedShipmentsComponentAvailableToPrimeAt);
-      const approveButton = wrapper.find('button[data-testid="shipmentApproveButton"]');
-      expect(approveButton.html()).toContain('disabled=""');
+      render(requestedShipmentsComponentAvailableToPrimeAt);
+      expect(screen.getByTestId('shipmentApproveButton')).toBeInTheDocument();
+      expect(screen.getByTestId('shipmentApproveButton')).toBeDisabled();
     });
 
     it('renders the checkboxes', () => {
-      const wrapper = mount(requestedShipmentsComponentWithPermission);
-      expect(wrapper.find('div[data-testid="checkbox"]').exists()).toBe(true);
-      expect(wrapper.find('div[data-testid="checkbox"]').length).toEqual(5);
+      render(requestedShipmentsComponentWithPermission);
+      expect(screen.getAllByTestId('checkbox').length).toEqual(5);
     });
 
     it('uses the duty location postal code if there is no destination address', () => {
-      const wrapper = mount(requestedShipmentsComponent);
-      // The first shipment has a destination address so will not use the duty location postal code
+      render(requestedShipmentsComponent);
       const destination = shipments[0].destinationAddress;
-      expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toEqual(
-        `${destination.streetAddress1},\xa0${destination.streetAddress2},\xa0${destination.city}, ${destination.state} ${destination.postalCode}`,
+      expect(screen.getAllByTestId('destinationAddress').at(0)).toHaveTextContent(
+        `${destination.streetAddress1}, ${destination.streetAddress2}, ${destination.city}, ${destination.state} ${destination.postalCode}`,
       );
-      expect(wrapper.find('[data-testid="destinationAddress"]').at(1).text()).toEqual(
+
+      expect(screen.getAllByTestId('destinationAddress').at(1)).toHaveTextContent(
         ordersInfo.newDutyLocation.address.postalCode,
       );
     });
 
     it('enables the Approve selected button when a shipment and service item are checked', async () => {
-      const wrapper = mount(requestedShipmentsComponentWithPermission);
+      const { container } = render(requestedShipmentsComponentWithPermission);
 
       await act(async () => {
-        wrapper
-          .find('input[name="shipments"]')
-          .at(0)
-          .simulate('change', {
-            target: {
-              name: 'shipments',
-              value: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
-            },
-          });
+        await userEvent.type(
+          container.querySelector('input[name="shipments"]'),
+          'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+        );
       });
-      wrapper.update();
 
-      expect(wrapper.find('form button[type="button"]').prop('disabled')).toEqual(true);
-      expect(wrapper.find('#approvalConfirmationModal').prop('style')).toHaveProperty('display', 'none');
+      expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
+      expect(container.querySelector('#approvalConfirmationModal')).toHaveStyle('display: none');
 
       await act(async () => {
-        wrapper
-          .find('input[name="shipmentManagementFee"]')
-          .simulate('change', { target: { name: 'shipmentManagementFee', value: true } });
+        await userEvent.click(screen.getByRole('checkbox', { name: 'Move management' }));
       });
-      wrapper.update();
 
-      expect(wrapper.find('form button[type="button"]').prop('disabled')).toBe(false);
+      expect(screen.getByRole('button', { name: 'Approve selected' })).not.toBeDisabled();
 
       await act(async () => {
-        wrapper.find('form button[type="button"]').simulate('click');
+        await userEvent.click(screen.getByRole('button', { name: 'Approve selected' }));
       });
-      wrapper.update();
-
-      expect(wrapper.find('#approvalConfirmationModal').prop('style')).toHaveProperty('display', 'block');
+      expect(container.querySelector('#approvalConfirmationModal')).toHaveStyle('display: block');
     });
 
     it('disables the Approve selected button when there is missing required information', async () => {
-      const wrapper = mount(requestedShipmentsComponentMissingRequiredInfo);
+      const { container } = render(requestedShipmentsComponentMissingRequiredInfo);
 
       await act(async () => {
-        wrapper
-          .find('input[name="shipments"]')
-          .at(0)
-          .simulate('change', {
-            target: {
-              name: 'shipments',
-              value: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
-            },
-          });
+        await userEvent.type(
+          container.querySelector('input[name="shipments"]'),
+          'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+        );
       });
-      wrapper.update();
 
-      expect(wrapper.find('form button[type="button"]').prop('disabled')).toEqual(true);
+      expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
 
       await act(async () => {
-        wrapper
-          .find('input[name="shipmentManagementFee"]')
-          .simulate('change', { target: { name: 'shipmentManagementFee', value: true } });
+        await userEvent.click(screen.getByRole('checkbox', { name: 'Move management' }));
       });
-      wrapper.update();
 
-      expect(wrapper.find('form button[type="button"]').prop('disabled')).toBe(true);
+      expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
     });
 
     it('calls approveMTO onSubmit', async () => {
@@ -248,7 +233,7 @@ describe('RequestedShipments', () => {
         });
       });
 
-      const wrapper = mount(
+      const { container } = render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
           <RequestedShipments
             mtoShipments={shipments}
@@ -265,32 +250,23 @@ describe('RequestedShipments', () => {
       );
 
       // You could take the shortcut and call submit directly as well if providing initial values
-      //  wrapper.find('form').simulate('submit');
+      fireEvent.submit(container.querySelector('form'));
 
       // When simulating change events you must pass the target with the id and
       // name for formik to know which value to update
+
       await act(async () => {
-        wrapper
-          .find('input[name="shipments"]')
-          .at(0)
-          .simulate('change', {
-            target: {
-              name: 'shipments',
-              value: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
-            },
-          });
+        const shipmentInput = container.querySelector('input[name="shipments"]');
+        await userEvent.type(shipmentInput, 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee');
 
-        wrapper
-          .find('input[name="shipmentManagementFee"]')
-          .simulate('change', { target: { name: 'shipmentManagementFee', value: true } });
+        const shipmentManagementFeeInput = screen.getByRole('checkbox', { name: 'Move management' });
+        await userEvent.click(shipmentManagementFeeInput);
 
-        wrapper
-          .find('input[name="counselingFee"]')
-          .simulate('change', { target: { name: 'counselingFee', value: true } });
+        const counselingFeeInput = screen.getByRole('checkbox', { name: 'Counseling' });
+        await userEvent.click(counselingFeeInput);
 
-        wrapper.find('form button[type="button"]').simulate('click');
-
-        wrapper.find('button[type="submit"]').simulate('click');
+        userEvent.click(container.querySelector('form button[type="button"]'));
+        userEvent.click(screen.getAllByRole('button').at(0));
       });
 
       expect(mockOnSubmit).toHaveBeenCalled();
@@ -308,7 +284,7 @@ describe('RequestedShipments', () => {
     });
 
     it('displays approved basic service items for approved shipments', () => {
-      const wrapper = mount(
+      render(
         <RequestedShipments
           ordersInfo={ordersInfo}
           allowancesInfo={allowancesInfo}
@@ -321,25 +297,23 @@ describe('RequestedShipments', () => {
           moveCode="TE5TC0DE"
         />,
       );
-      const approvedServiceItemNames = wrapper.find('[data-testid="basicServiceItemName"]');
-      const approvedServiceItemDates = wrapper.find('[data-testid="basicServiceItemDate"]');
+      const approvedServiceItemNames = screen.getAllByTestId('basicServiceItemName');
+      const approvedServiceItemDates = screen.getAllByTestId('basicServiceItemDate');
 
       expect(approvedServiceItemNames.length).toBe(2);
       expect(approvedServiceItemDates.length).toBe(2);
 
-      expect(approvedServiceItemNames.at(0).text()).toBe('Move management');
-      expect(approvedServiceItemDates.at(0).find('FontAwesomeIcon').prop('icon')).toEqual('check');
-      expect(approvedServiceItemDates.at(0).text()).toBe(' 01 Jan 2020');
+      expect(approvedServiceItemNames.at(0).textContent).toEqual('Move management');
+      expect(approvedServiceItemDates.at(0).textContent).toEqual(' 01 Jan 2020');
 
-      expect(approvedServiceItemNames.at(1).text()).toBe('Counseling fee');
-      expect(approvedServiceItemDates.at(1).find('FontAwesomeIcon').prop('icon')).toEqual('check');
-      expect(approvedServiceItemDates.at(1).text()).toBe(' 01 Jan 2020');
+      expect(approvedServiceItemNames.at(1).textContent).toEqual('Counseling fee');
+      expect(approvedServiceItemDates.at(1).textContent).toEqual(' 01 Jan 2020');
     });
 
     it.each([['APPROVED'], ['SUBMITTED']])(
       'displays the customer and counselor remarks for a(n) %s shipment',
       (status) => {
-        const wrapper = mount(
+        render(
           <RequestedShipments
             ordersInfo={ordersInfo}
             allowancesInfo={allowancesInfo}
@@ -353,14 +327,14 @@ describe('RequestedShipments', () => {
           />,
         );
 
-        const customerRemarks = wrapper.find('[data-testid="customerRemarks"]');
-        const counselorRemarks = wrapper.find('[data-testid="counselorRemarks"]');
+        const customerRemarks = screen.getAllByTestId('customerRemarks');
+        const counselorRemarks = screen.getAllByTestId('counselorRemarks');
 
-        expect(customerRemarks.at(0).text()).toBe('please treat gently');
-        expect(customerRemarks.at(1).text()).toBe('please treat gently');
+        expect(customerRemarks.at(0).textContent).toBe('please treat gently');
+        expect(customerRemarks.at(1).textContent).toBe('please treat gently');
 
-        expect(counselorRemarks.at(0).text()).toBe('looks good');
-        expect(counselorRemarks.at(1).text()).toBe('looks good');
+        expect(counselorRemarks.at(0).textContent).toBe('looks good');
+        expect(counselorRemarks.at(1).textContent).toBe('looks good');
       },
     );
   });
