@@ -294,3 +294,13 @@ func SavePPMShipmentSignedCertification(ppmShipmentID uuid.UUID, signedCertifica
 
 	return model
 }
+
+// ReSavePPMShipmentSignedCertification converts from the SavePPMShipmentSignedCertification payload and the
+// SignedCertification model, taking into account an existing ID
+func ReSavePPMShipmentSignedCertification(ppmShipmentID uuid.UUID, signedCertificationID uuid.UUID, signedCertification internalmessages.SavePPMShipmentSignedCertification) models.SignedCertification {
+	model := SavePPMShipmentSignedCertification(ppmShipmentID, signedCertification)
+
+	model.ID = signedCertificationID
+
+	return model
+}

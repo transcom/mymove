@@ -130,3 +130,147 @@ func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppmops.SubmitPPMShi
 			return ppmops.NewSubmitPPMShipmentDocumentationOK().WithPayload(returnPayload), nil
 		})
 }
+
+// ResubmitPPMShipmentDocumentationHandler is the handler to resubmit PPM shipment documentation
+type ResubmitPPMShipmentDocumentationHandler struct {
+	handlers.HandlerConfig
+	services.PPMShipmentUpdatedSubmitter
+}
+
+// Handle updates a customer's PPM shipment payment signature and re-routes the shipment to the service counselor.
+func (h ResubmitPPMShipmentDocumentationHandler) Handle(params ppmops.ResubmitPPMShipmentDocumentationParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if appCtx.Session() == nil {
+				return ppmops.NewResubmitPPMShipmentDocumentationUnauthorized(), apperror.NewSessionError("No user session")
+			} else if !appCtx.Session().IsMilApp() {
+				return ppmops.NewResubmitPPMShipmentDocumentationForbidden(), apperror.NewSessionError("Request is not from the customer app")
+			} else if appCtx.Session().UserID.IsNil() {
+				return ppmops.NewResubmitPPMShipmentDocumentationForbidden(), apperror.NewSessionError("No user ID in session")
+			}
+
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
+			if err != nil || ppmShipmentID.IsNil() {
+				appCtx.Logger().Error("error with PPM Shipment ID", zap.Error(err))
+
+				errDetail := "Invalid PPM shipment ID in URL"
+
+				if err != nil {
+					errDetail = errDetail + ": " + err.Error()
+				}
+
+				errPayload := payloads.ClientError(
+					handlers.BadRequestErrMessage,
+					errDetail,
+					h.GetTraceIDFromRequest(params.HTTPRequest),
+				)
+
+				return ppmops.NewResubmitPPMShipmentDocumentationBadRequest().WithPayload(errPayload), err
+			}
+
+			signedCertificationID, err := uuid.FromString(params.SignedCertificationID.String())
+			if err != nil || signedCertificationID.IsNil() {
+				appCtx.Logger().Error("error with signed certification ID", zap.Error(err))
+
+				errDetail := "Invalid signed certification ID in URL"
+
+				if err != nil {
+					errDetail = errDetail + ": " + err.Error()
+				}
+
+				errPayload := payloads.ClientError(
+					handlers.BadRequestErrMessage,
+					errDetail,
+					h.GetTraceIDFromRequest(params.HTTPRequest),
+				)
+
+				return ppmops.NewResubmitPPMShipmentDocumentationBadRequest().WithPayload(errPayload), err
+			}
+
+			payload := params.SavePPMShipmentSignedCertificationPayload
+			if payload == nil {
+				noBodyErr := apperror.NewBadDataError("No body provided")
+
+				appCtx.Logger().Error("No body provided", zap.Error(noBodyErr))
+
+				errPayload := payloads.ClientError(
+					handlers.BadRequestErrMessage,
+					noBodyErr.Error(),
+					h.GetTraceIDFromRequest(params.HTTPRequest),
+				)
+
+				return ppmops.NewResubmitPPMShipmentDocumentationBadRequest().WithPayload(errPayload), noBodyErr
+			}
+
+			signedCertification := payloads.ReSavePPMShipmentSignedCertification(ppmShipmentID, signedCertificationID, *payload)
+
+			ppmShipment, err := h.PPMShipmentUpdatedSubmitter.SubmitUpdatedCustomerCloseOut(appCtx, ppmShipmentID, signedCertification, params.IfMatch)
+
+			if err != nil {
+				appCtx.Logger().Error("internalapi.ResubmitPPMShipmentDocumentationHandler", zap.Error(err))
+
+				switch e := err.(type) {
+				case *apperror.BadDataError:
+					errPayload := payloads.ClientError(
+						handlers.BadRequestErrMessage,
+						e.Error(),
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+					)
+
+					return ppmops.NewResubmitPPMShipmentDocumentationBadRequest().WithPayload(errPayload), err
+				case apperror.NotFoundError:
+					errPayload := payloads.ClientError(
+						handlers.NotFoundMessage,
+						err.Error(),
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+					)
+
+					return ppmops.NewResubmitPPMShipmentDocumentationNotFound().WithPayload(errPayload), err
+				case apperror.QueryError:
+					if e.Unwrap() != nil {
+						// If you can unwrap, log the internal error (usually a pq error) for better debugging
+						appCtx.Logger().Error(
+							"internalapi.ResubmitPPMShipmentDocumentationHandler error",
+							zap.Error(e.Unwrap()),
+						)
+					}
+
+					errPayload := payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))
+
+					return ppmops.NewResubmitPPMShipmentDocumentationInternalServerError().WithPayload(errPayload), err
+				case apperror.InvalidInputError:
+					errPayload := payloads.ValidationError(
+						handlers.ValidationErrMessage,
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+						e.ValidationErrors,
+					)
+
+					return ppmops.NewResubmitPPMShipmentDocumentationUnprocessableEntity().WithPayload(errPayload), err
+				case apperror.ConflictError:
+					errPayload := payloads.ClientError(
+						handlers.ConflictErrMessage,
+						e.Error(),
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+					)
+
+					return ppmops.NewResubmitPPMShipmentDocumentationConflict().WithPayload(errPayload), err
+				case apperror.PreconditionFailedError:
+					errPayload := payloads.ClientError(
+						handlers.PreconditionErrMessage,
+						e.Error(),
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+					)
+
+					return ppmops.NewResubmitPPMShipmentDocumentationPreconditionFailed().WithPayload(errPayload), err
+				default:
+					errPayload := payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))
+
+					return ppmops.NewResubmitPPMShipmentDocumentationInternalServerError().WithPayload(errPayload), err
+				}
+			}
+
+			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
+
+			return ppmops.NewResubmitPPMShipmentDocumentationOK().WithPayload(returnPayload), nil
+		})
+}

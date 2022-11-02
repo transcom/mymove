@@ -2359,6 +2359,80 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/resubmit-ppm-shipment-documentation/{signedCertificationId}": {
+      "put": {
+        "description": "Updates customer signature along with the text they agreed to, and then routes the PPM shipment to the service\ncounselor queue for review.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates signature and routes PPM shipment to service counselor",
+        "operationId": "resubmitPPMShipmentDocumentation",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the signed certification",
+            "name": "signedCertificationId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/ifMatch"
+          },
+          {
+            "name": "savePPMShipmentSignedCertificationPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SavePPMShipmentSignedCertification"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the updated PPM shipment",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
       "post": {
         "description": "Saves customer signature along with the text they agreed to, and then routes the PPM shipment to the service\ncounselor queue for review.\n",
@@ -10150,6 +10224,113 @@ func init() {
           }
         }
       }
+    },
+    "/ppm-shipments/{ppmShipmentId}/resubmit-ppm-shipment-documentation/{signedCertificationId}": {
+      "put": {
+        "description": "Updates customer signature along with the text they agreed to, and then routes the PPM shipment to the service\ncounselor queue for review.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates signature and routes PPM shipment to service counselor",
+        "operationId": "resubmitPPMShipmentDocumentation",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the signed certification",
+            "name": "signedCertificationId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "savePPMShipmentSignedCertificationPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SavePPMShipmentSignedCertification"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the updated PPM shipment",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
       "post": {
