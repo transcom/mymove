@@ -17,7 +17,7 @@ import (
 const DeleteEvaluationReportNoContentCode int = 204
 
 /*
-DeleteEvaluationReportNoContent Successfully soft deleted the report
+DeleteEvaluationReportNoContent Successfully deleted the report
 
 swagger:response deleteEvaluationReportNoContent
 */

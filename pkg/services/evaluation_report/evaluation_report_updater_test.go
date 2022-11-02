@@ -268,22 +268,6 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 		err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, etag.GenerateEtag(report.UpdatedAt))
 		suite.Error(err)
 	})
-	suite.Run("updating a deleted report should fail", func() {
-		// Create a report
-		originalReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{
-			EvaluationReport: models.EvaluationReport{
-				DeletedAt: swag.Time(time.Now()),
-			},
-		})
-
-		report := originalReport
-		report.Remarks = swag.String("spectacular packing job!!")
-
-		// Attempt to update the report
-		err := updater.UpdateEvaluationReport(suite.AppContextForTest(), &report, report.OfficeUserID, etag.GenerateEtag(report.UpdatedAt))
-		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
-	})
 	suite.Run("updating a report with a bad ETag should fail", func() {
 		// Create a report
 		originalReport := testdatagen.MakeEvaluationReport(suite.DB(), testdatagen.Assertions{

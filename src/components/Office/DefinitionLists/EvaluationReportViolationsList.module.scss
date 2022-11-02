@@ -1,0 +1,26 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.violationsRemarks {
+  @include u-padding-x(1 !important);
+  flex-grow: 1;
+}
+
+.label {
+  width: 200px !important;
+  @include u-padding-x(1 !important);
+  @include u-padding-y(1.5 !important);
+}
+
+.violation {
+  @include u-padding-x(2);
+  @include u-padding-y(1);
+  border: 1px solid $base-light;
+  border-radius: 2px;
+  max-width: 648px;
+  margin-bottom: -1px;
+
+  p {
+    padding-top: 4px;
+  }
+}
