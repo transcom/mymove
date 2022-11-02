@@ -36,7 +36,7 @@ describe('when given an approved service item history record', () => {
 describe('when given rejected service item history record', () => {
   const historyRecord = {
     action: 'UPDATE',
-    changedValues: { status: 'REJECTED' },
+    changedValues: { status: 'REJECTED', rejection_reason: "I've chosen to reject this item" },
     context: [
       {
         name: 'Domestic origin price',
@@ -60,5 +60,17 @@ describe('when given rejected service item history record', () => {
     render(template.getDetails(historyRecord));
     expect(screen.getByText('Rejected service item')).toBeInTheDocument();
     expect(screen.getByText('HHG shipment #A1B2C, Domestic origin price')).toBeInTheDocument();
+  });
+
+  describe('When given a specific set of details for a rejected service item', () => {
+    it.each([
+      ['Status', ': REJECTED'],
+      ['Reason', ": I've chosen to reject this item"],
+    ])('displays the proper details value for %s', async (label, value) => {
+      const template = getTemplate(historyRecord);
+      render(template.getDetails(historyRecord));
+      expect(screen.getByText(label)).toBeInTheDocument();
+      expect(screen.getByText(value)).toBeInTheDocument();
+    });
   });
 });

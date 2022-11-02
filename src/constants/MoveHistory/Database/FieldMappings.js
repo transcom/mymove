@@ -51,6 +51,7 @@ export default {
   estimated_weight: 'Estimated weight',
   description: 'Description',
   reason: 'Reason',
+  rejection_reason: 'Reason',
   sit_departure_date: 'SIT departure date',
   sit_entry_date: 'SIT entry date',
   sit_postal_code: 'SIT postal code',
