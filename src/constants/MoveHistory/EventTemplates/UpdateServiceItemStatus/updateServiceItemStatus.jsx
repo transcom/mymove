@@ -10,8 +10,9 @@ const formatChangedValues = (historyRecord, formattedContext) => {
   const { changedValues } = historyRecord;
 
   const newChangedValues = {
-    ...changedValues,
     ...formattedContext,
+    rejection_reason: changedValues.rejection_reason,
+    rejected_at: changedValues.rejected_at,
   };
 
   return { ...historyRecord, changedValues: newChangedValues };

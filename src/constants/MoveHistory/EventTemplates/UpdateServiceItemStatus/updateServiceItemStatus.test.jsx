@@ -63,14 +63,14 @@ describe('when given rejected service item history record', () => {
   });
 
   describe('When given a specific set of details for a rejected service item', () => {
-    it.each([
-      ['Status', ': REJECTED'],
-      ['Reason', ": I've chosen to reject this item"],
-    ])('displays the proper details value for %s', async (label, value) => {
-      const template = getTemplate(historyRecord);
-      render(template.getDetails(historyRecord));
-      expect(screen.getByText(label)).toBeInTheDocument();
-      expect(screen.getByText(value)).toBeInTheDocument();
-    });
+    it.each([['Reason', ": I've chosen to reject this item"]])(
+      'displays the proper details value for %s',
+      async (label, value) => {
+        const template = getTemplate(historyRecord);
+        render(template.getDetails(historyRecord));
+        expect(screen.getByText(label)).toBeInTheDocument();
+        expect(screen.getByText(value)).toBeInTheDocument();
+      },
+    );
   });
 });
