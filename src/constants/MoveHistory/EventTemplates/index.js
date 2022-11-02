@@ -1,6 +1,6 @@
-export { default as acknowledgeExcessWeightRisk } from './acknowledgeExcessWeightRisk';
+export { default as acknowledgeExcessWeightRisk } from './AcknowledgeExcessWeightRisk/acknowledgeExcessWeightRisk';
 export { default as approveShipment } from './ApproveShipment/approveShipment';
-export { default as approveShipmentDiversion } from './approveShipmentDiversion';
+export { default as approveShipmentDiversion } from './ApproveShipmentDiversion/approveShipmentDiversion';
 export { default as createBasicServiceItem } from './createBasicServiceItem';
 export { default as createMTOServiceItem } from './CreateMTOServiceItem/createMTOServiceItem';
 export { default as createMTOServiceItemCustomerContacts } from './CreateMTOServiceItem/createMTOServiceItemCustomerContacts';
@@ -19,10 +19,10 @@ export { default as createStandardServiceItem } from './createStandardServiceIte
 export { default as deleteShipment } from './DeleteShipment/deleteShipment';
 export { default as proofOfServiceDocUpload } from './proofOfServiceDocUpload';
 export { default as requestShipmentCancellation } from './requestShipmentCancellation';
-export { default as requestShipmentDiversion } from './requestShipmentDiversion';
-export { default as requestShipmentReweigh } from './requestShipmentReweigh';
-export { default as setFinancialReviewFlag } from './setFinancialReviewFlag';
-export { default as submitMoveForApproval } from './submitMoveForApproval';
+export { default as requestShipmentDiversion } from './RequestShipmentDiversion/requestShipmentDiversion';
+export { default as requestShipmentReweigh } from './RequestShipmentReweigh/requestShipmentReweigh';
+export { default as setFinancialReviewFlag } from './SetFinancialReviewFlag/setFinancialReviewFlag';
+export { default as submitMoveForApproval } from './SubmitMoveForApproval/submitMoveForApproval';
 export { default as updateAllowance } from './UpdateAllowances/updateAllowance';
 export { default as updateBillableWeight } from './updateBillableWeight';
 export { default as updateBillableWeightAsTIO } from './updateBillableWeightAsTIO';
@@ -41,7 +41,7 @@ export { default as updatePaymentRequestStatus } from './updatePaymentRequestSta
 export { default as updateReweighWeight } from './updateReweighWeight';
 export { default as updateServiceItemStatus } from './updateServiceItemStatus';
 export { default as updateMTOReviewedBillableWeightsAt } from './updateMTOReviewedBillableWeightsAt';
-export { default as uploadAmendedOrders } from './uploadAmendedOrders';
+export { default as uploadAmendedOrders } from './UploadAmendedOrders/uploadAmendedOrders';
 export { default as updateMTOShipmentStatus } from './updateMTOShipmentStatus';
 export { default as updateMTOServiceItemMoveStatus } from './CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus';
 export { default as updateMoveEstimatedExcessWeight } from './updateMTOShipmentPrimeEstimatedExcessWeight';
@@ -52,3 +52,7 @@ export { default as updateServiceMemberByTOO } from './UpdateServiceMember/updat
 export { default as createServiceMember } from './CreateServiceMember/createServiceMember';
 export { default as patchServiceMember } from './PatchServiceMember/patchServiceMember';
 export { default as updateAddress } from './UpdateAddress/updateAddress';
+export { default as createUpload } from './CreateUpload/createUpload';
+export { default as deleteUpload } from './DeleteUpload/deleteUpload';
+export { default as updateServiceMemberBackupContacts } from './UpdateServiceMemberBackupContact/updateServiceMemberBackupContact';
+export { default as createServiceMemberBackupContacts } from './CreateServiceMemberBackupContact/createServiceMemberBackupContact';

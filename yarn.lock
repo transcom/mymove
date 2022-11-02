@@ -9864,10 +9864,10 @@ eslint-plugin-security@^1.5.0:
   dependencies:
     safe-regex "^2.1.1"
 
-eslint-plugin-storybook@0.6.6:
-  version "0.6.6"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-storybook/-/eslint-plugin-storybook-0.6.6.tgz#f8865ad6b2a25143fea0a17e8096352a526afe4e"
-  integrity sha512-nqYq802vJABpaV0n9cpIZl4Mlmy1yStxa8T3sPqvqbByOpXXtA9ZKRqVv2faSDp0DKVC0B3ItTNU7iMX3Et8VQ==
+eslint-plugin-storybook@0.6.7:
+  version "0.6.7"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-storybook/-/eslint-plugin-storybook-0.6.7.tgz#85e81f4d5d7af541d6abe5657f4f8b8dfb69b83e"
+  integrity sha512-lcUsB+3PesKWXwwEHGSTCijKWDXuQ4ITVbnsSDMXRCR/cjGtHZIEcy2pp/Eh7nfWA/GZrDPpK97DsTWEzyN6Bw==
   dependencies:
     "@storybook/csf" "^0.0.1"
     "@typescript-eslint/experimental-utils" "^5.3.0"
@@ -17803,10 +17803,10 @@ react-select@^3.2.0:
     react-input-autosize "^3.0.0"
     react-transition-group "^4.3.0"
 
-react-select@^5.5.7:
-  version "5.5.7"
-  resolved "https://registry.yarnpkg.com/react-select/-/react-select-5.5.7.tgz#87760030e6377a7ae3d0b1e419190af175ec2a0e"
-  integrity sha512-izQBXNhTPqXDw4gxzTbc9aLII4tCJ2pdMm6l/WVzKhfHm3RLErheqDNgeenU0XxzqbwT9swYO4CAYk5IzqLlYw==
+react-select@^5.5.9:
+  version "5.5.9"
+  resolved "https://registry.yarnpkg.com/react-select/-/react-select-5.5.9.tgz#02f5664e9feff3cabd28f0748bb0e4a3d5438b7b"
+  integrity sha512-68/sd6KmHS2ISCz9PcDhXidGCjFvc1Q1u8yaxSdo8pT7MkKehID/zMoco304+XtdE79DP0Nq8Fz7ROAb7GJ5Xg==
   dependencies:
     "@babel/runtime" "^7.12.0"
     "@emotion/cache" "^11.4.0"

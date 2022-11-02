@@ -508,18 +508,18 @@ func init() {
         ]
       },
       "delete": {
-        "description": "Soft deletes an evaluation report by ID",
+        "description": "Deletes an evaluation report by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "evaluationReports"
         ],
-        "summary": "Soft deletes an evaluation report by ID",
+        "summary": "Deletes an evaluation report by ID",
         "operationId": "deleteEvaluationReport",
         "responses": {
           "204": {
-            "description": "Successfully soft deleted the report"
+            "description": "Successfully deleted the report"
           },
           "400": {
             "$ref": "#/responses/InvalidRequest"
@@ -5862,6 +5862,11 @@ func init() {
             }
           ]
         },
+        "scheduledDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "scheduledPickupDate": {
           "type": "string",
           "format": "date",
@@ -9515,18 +9520,18 @@ func init() {
         ]
       },
       "delete": {
-        "description": "Soft deletes an evaluation report by ID",
+        "description": "Deletes an evaluation report by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "evaluationReports"
         ],
-        "summary": "Soft deletes an evaluation report by ID",
+        "summary": "Deletes an evaluation report by ID",
         "operationId": "deleteEvaluationReport",
         "responses": {
           "204": {
-            "description": "Successfully soft deleted the report"
+            "description": "Successfully deleted the report"
           },
           "400": {
             "description": "The request payload is invalid",
@@ -15850,6 +15855,11 @@ func init() {
               "x-nullable": true
             }
           ]
+        },
+        "scheduledDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "scheduledPickupDate": {
           "type": "string",
