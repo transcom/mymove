@@ -22,13 +22,14 @@ func NewAddressCreator() services.AddressCreator {
 }
 
 func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *models.Address) (*models.Address, error) {
-	err := validateAddress(appCtx, address, nil, f.checks...)
+	transformedAddress := transformNilValuesForOptionalFields(*address)
+	err := validateAddress(appCtx, &transformedAddress, nil, f.checks...)
 	if err != nil {
 		return nil, err
 	}
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
-		verrs, err := txnCtx.DB().Eager().ValidateAndCreate(address)
+		verrs, err := txnCtx.DB().Eager().ValidateAndCreate(&transformedAddress)
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "error creating an address")
 		} else if err != nil {
@@ -40,5 +41,23 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		return nil, txnErr
 	}
 
-	return address, nil
+	return &transformedAddress, nil
+}
+
+func transformNilValuesForOptionalFields(address models.Address) models.Address {
+	transformedAddress := address
+
+	if transformedAddress.StreetAddress2 != nil && *transformedAddress.StreetAddress2 == "" {
+		transformedAddress.StreetAddress2 = nil
+	}
+
+	if transformedAddress.StreetAddress3 != nil && *transformedAddress.StreetAddress3 == "" {
+		transformedAddress.StreetAddress3 = nil
+	}
+
+	if transformedAddress.Country != nil && *transformedAddress.Country == "" {
+		transformedAddress.Country = nil
+	}
+
+	return transformedAddress
 }

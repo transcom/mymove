@@ -33,6 +33,30 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.Nil(address.Country)
 	})
 
+	suite.Run("Successfully creates an address with empty strings for optional fields", func() {
+		addressCreator := NewAddressCreator()
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
+			StreetAddress1: streetAddress1,
+			StreetAddress2: models.StringPointer(""),
+			StreetAddress3: models.StringPointer(""),
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+			Country:        models.StringPointer(""),
+		})
+
+		suite.Nil(err)
+		suite.NotNil(address)
+		suite.NotNil(address.ID)
+		suite.Equal(streetAddress1, address.StreetAddress1)
+		suite.Equal(city, address.City)
+		suite.Equal(state, address.State)
+		suite.Equal(postalCode, address.PostalCode)
+		suite.Nil(address.StreetAddress2)
+		suite.Nil(address.StreetAddress3)
+		suite.Nil(address.Country)
+	})
+
 	suite.Run("Fails to add an address because an ID is passed (fails to pass rules check)", func() {
 		addressCreator := NewAddressCreator()
 		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
