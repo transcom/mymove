@@ -16,7 +16,7 @@ import (
 // Customization type is the building block for passing in customizations and traits
 type Customization struct {
 	Model     interface{}
-	Type      CustomType
+	Type      *CustomType
 	ForceUUID bool
 }
 
@@ -27,12 +27,15 @@ type CustomType string
 // This does not have to match the model type but generally will
 // You can have CustomType like ResidentialAddress to define specifically
 // where this address will get created and nested
-const (
-	control       CustomType = "Control"
-	Address       CustomType = "Address"
-	User          CustomType = "User"
-	ServiceMember CustomType = "ServiceMember"
-)
+var control CustomType = "Control"
+var Address CustomType = "Address"
+var User CustomType = "User"
+var ServiceMember CustomType = "ServiceMember"
+
+var defaultTypesMap = map[string]CustomType{
+	"models.Address": Address,
+	"models.User":    User,
+}
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
 // a code-completion friendly way to select the right type
@@ -83,40 +86,91 @@ type controlObject struct {
 // Every Trait should start with GetTrait for discoverability
 type Trait func() []Customization
 
-// validateCustomizations
-func validateCustomizations(customs []Customization) ([]Customization, error) {
-	_, controlCustom := findCustomWithIdx(customs, control)
+// assignType uses the model name to assign the CustomType
+// if it's already assigned, do not reassign
+func assignType(custom *Customization) {
+	if custom.Type != nil {
+		return
+	}
+	// Get the model and check that it's a struct
+	model := custom.Model
+	mv := reflect.ValueOf(model)
+	if mv.Kind() != reflect.Struct {
+		log.Panic("Expecting interface containing a models.x struct or a factory.controlObject", model)
+	}
+	// Get the model type and find the default type
+	fmt.Println("assigning type:", defaultTypesMap[mv.Type().String()])
+	typestring, ok := defaultTypesMap[mv.Type().String()]
+	if ok {
+		custom.Type = &typestring
+	}
+}
 
-	// if it does exist, and customization list has been validated already, return
-	if controlCustom != nil {
-		controls := controlCustom.Model.(controlObject)
-		if controls.isValid {
-			return customs, nil
-		}
-	} else {
-		// If control object does not exist, create
+// setDefaultTypes assigns types to all customizations in the list provided
+func setDefaultTypes(clist []Customization) {
+	for idx := 0; idx < len(clist); idx++ {
+		assignType(&clist[idx])
+	}
+}
+
+// setupCustomizations
+// 1 = make sure everything has types, and there's a control object
+// 2 =
+func setupCustomizations(customs []Customization, traits []Trait) []Customization {
+
+	// If a valid control object does not exist, create
+	_, controlCustom := findCustomWithIdx(customs, control)
+	if controlCustom == nil {
 		controlCustom = &Customization{
-			Model: controlObject{},
-			Type:  control,
+			Model: controlObject{
+				isValid: false,
+			},
+			Type: &control,
 		}
 		customs = append(customs, *controlCustom)
 	}
-	controller := (*controlCustom).Model.(controlObject)
-	// validate that there are no repeat model types
-	m := make(map[CustomType]int)
-	for i, custom := range customs {
-		// if custom type already exists
-		idx, exists := m[custom.Type]
-		if exists {
-			controller.isValid = false
-			return customs, fmt.Errorf("Found more than one instance of %s Customization at index %d and %d",
-				custom.Type, idx, i)
-		}
-		// Add to hashmap
-		m[custom.Type] = i
+	// If it exists and is valid, return, this list has been setup and validated
+	controller := controlCustom.Model.(controlObject)
+	if controller.isValid {
+		return customs
+	}
+
+	// If not valid:
+
+	// Make sure all customs have a proper type
+	setDefaultTypes(customs)
+	// Merge customizations with traits
+	customs = mergeCustomization(customs, traits)
+	// Ensure unique customizations
+	customs, err := uniqueCustomizations(customs)
+	if err != nil {
+		controller.isValid = false
+		log.Panic(err)
 	}
 	// Store the validation result
 	controller.isValid = true
+	return customs
+
+}
+
+// uniqueCustomizations
+// Requirement: All customizations should already have a type assigned.
+func uniqueCustomizations(customs []Customization) ([]Customization, error) {
+	// validate that there are no repeat CustomTypes
+	m := make(map[CustomType]int)
+	for i, custom := range customs {
+		if custom.Type == nil {
+			log.Panic("All customizations should have type.")
+		}
+		// if custom type already exists
+		idx, exists := m[*custom.Type]
+		if exists {
+			return customs, fmt.Errorf("Found more than one instance of %s Customization at index %d and %d",
+				*custom.Type, idx, i)
+		}
+		// Add to hashmap
+		m[*custom.Type] = i
+	}
 	return customs, nil
 
 }
@@ -124,7 +178,7 @@ func validateCustomizations(customs []Customization) ([]Customization, error) {
 // findCustomWithIdx is a helper function to find a customization of a specific type and its index
 func findCustomWithIdx(customs []Customization, customType CustomType) (int, *Customization) {
 	for i, custom := range customs {
-		if custom.Type == customType {
+		if custom.Type != nil && *custom.Type == customType {
 			return i, &custom
 		}
 	}
@@ -174,6 +228,8 @@ func hasID(model interface{}) bool {
 
 // mergeCustomization takes the original set of customizations
 // and merges with the traits.
+// Required : All customizations MUST have types
+//
 // The order of application is
 //   - Earlier traits override later traits in the trait list
 //   - Customizations override the traits
@@ -186,14 +242,17 @@ func mergeCustomization(customs []Customization, traits []Trait) []Customization
 	// Get a list of traits, each could return a list of customizations
 	for _, trait := range traits {
 		traitCustomizations := trait()
+		setDefaultTypes(traitCustomizations)
 
 		// for each trait custom, merge or replace the one in user supplied customizations
 		for _, traitCustom := range traitCustomizations {
-			j, callerCustom := findCustomWithIdx(customs, traitCustom.Type)
+			j, callerCustom := findCustomWithIdx(customs, *traitCustom.Type)
 			if callerCustom != nil {
 				// If a customization has an ID, it means we use that precreated object
 				// Therefore we can't merge a trait with it, as those fields will not get
 				// updated.
+				// While this feels like we should warn or error out, we want to support overriding a
+				// trait with a precreated object so it's not an error.
 				if !hasID(callerCustom.Model) {
 					result := mergeInterfaces(traitCustom.Model, callerCustom.Model)
 					callerCustom.Model = result
@@ -220,7 +279,7 @@ func convertCustomizationInList(customs []Customization, from CustomType, to Cus
 		// Populate with copies of objects
 		newCustoms = append(newCustoms, customs...)
 		// Update the type
-		newCustoms[idx].Type = to
+		newCustoms[idx].Type = &to
 		return newCustoms
 	}
 	log.Panic(fmt.Errorf("No customization of type %s found", from))
@@ -235,7 +294,7 @@ func findValidCustomization(customs []Customization, customType CustomType) *Cus
 
 	// Else check that the customization is valid
 	if err := checkNestedModels(*custom); err != nil {
-		log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", custom.Type, err))
+		log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", *custom.Type, err))
 	}
 	return custom
 }

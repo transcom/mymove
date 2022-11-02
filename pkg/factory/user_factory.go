@@ -1,8 +1,6 @@
 package factory
 
 import (
-	"log"
-
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
@@ -13,11 +11,7 @@ import (
 // UserMaker is the base maker function to create a user
 // MYTODO Instead of error (not useful) can we return a list of the created objects?
 func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) (models.User, error) {
-	customs = mergeCustomization(customs, traits)
-	customs, err := validateCustomizations(customs)
-	if err != nil {
-		log.Panic(err)
-	}
+	customs = setupCustomizations(customs, traits)
 
 	// Find user assertion and convert to models user
 	var cUser models.User

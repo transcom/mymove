@@ -9,7 +9,7 @@ func GetTraitActiveUser() []Customization {
 			Model: models.User{
 				Active: true,
 			},
-			Type: User,
+			Type: &User,
 		},
 	}
 }
@@ -22,7 +22,7 @@ func GetTraitNavy() []Customization {
 			Model: models.ServiceMember{
 				Affiliation: &navy,
 			},
-			Type: ServiceMember,
+			Type: &ServiceMember,
 		},
 	}
 }
@@ -35,7 +35,7 @@ func GetTraitArmy() []Customization {
 			Model: models.ServiceMember{
 				Affiliation: &army,
 			},
-			Type: ServiceMember,
+			Type: &ServiceMember,
 		},
 	}
 }

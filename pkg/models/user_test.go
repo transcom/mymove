@@ -150,6 +150,17 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.NoError(suite.DB().Create(&rs))
 	customerRole := rs[0]
 	patUUID := uuid.Must(uuid.NewV4())
+	// pat, _ := factory.BuildUser(suite.DB(), []factory.Customization{
+	// 	{
+	// 		Model: models.User{
+	// 			LoginGovUUID: &patUUID,
+	// 			Active:       true,
+	// 			Roles:        []roles.Role{customerRole},
+	// 		},
+	// 		Type: CustomType.User,
+	// 	},
+	// }, nil)
+
 	pat := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
 		User: User{
 			LoginGovUUID: &patUUID,

@@ -28,7 +28,6 @@ func (suite *MakerSuite) TestUserMaker() {
 				Model: models.User{
 					LoginGovEmail: customEmail,
 				},
-				Type: User,
 			},
 		}, nil)
 		suite.NoError(err)
@@ -61,7 +60,6 @@ func (suite *MakerSuite) TestUserMaker() {
 				Model: models.User{
 					LoginGovEmail: customEmail,
 				},
-				Type: User,
 			}}, []Trait{
 			GetTraitActiveUser,
 		})
