@@ -174,7 +174,7 @@ const ExpenseForm = ({
                     <h3>Dates</h3>
                     <DatePickerInput name="sitStartDate" label="Start date" />
                     <DatePickerInput name="sitEndDate" label="End date" />
-                    <h3>
+                    <h3 className={styles.storageTotal}>
                       Days in storage:{' '}
                       {values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate
                         ? 1 + numOfDaysBetweenDates(values.sitStartDate, values.sitEndDate)
