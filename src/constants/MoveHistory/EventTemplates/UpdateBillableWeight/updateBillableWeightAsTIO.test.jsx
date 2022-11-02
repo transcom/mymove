@@ -23,6 +23,6 @@ describe('when updating billable weight as a TIO ', () => {
     const result = getTemplate(historyRecord);
     render(result.getDetails(historyRecord));
     expect(screen.getByText('Max billable weight')).toBeInTheDocument();
-    expect(screen.getByText(': 7999 lbs')).toBeInTheDocument();
+    expect(screen.getByText(': 7,999 lbs')).toBeInTheDocument();
   });
 });

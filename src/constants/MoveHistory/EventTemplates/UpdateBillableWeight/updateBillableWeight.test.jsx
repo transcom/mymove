@@ -23,6 +23,6 @@ describe('when given an update billable weights', () => {
     const result = getTemplate(historyRecord);
     render(result.getDetails(historyRecord));
     expect(screen.getByText('Max billable weight')).toBeInTheDocument();
-    expect(screen.getByText(': 5800 lbs')).toBeInTheDocument();
+    expect(screen.getByText(': 5,800 lbs')).toBeInTheDocument();
   });
 });
