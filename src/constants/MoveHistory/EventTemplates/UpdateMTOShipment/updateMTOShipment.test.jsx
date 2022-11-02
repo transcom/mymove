@@ -1,5 +1,4 @@
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import e from 'constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment';
 
@@ -8,7 +7,6 @@ describe('when given an mto shipment update with mto shipment table history reco
     action: 'UPDATE',
     eventName: o.updateMTOShipment,
     tableName: 'mto_shipments',
-    detailsType: d.LABELED,
     changedValues: {
       destination_address_type: 'HOME_OF_SELECTION',
       requested_delivery_date: '2020-04-14',
