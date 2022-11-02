@@ -28,26 +28,3 @@ describe('when given a Move approved history record', () => {
     expect(screen.getByText('Created Move Task Order (MTO)'));
   });
 });
-
-describe('when given a Move status update history record', () => {
-  const historyRecord = {
-    action: 'UPDATE',
-    changedValues: { status: 'CANCELED' },
-    eventName: 'updateMoveTaskOrderStatus',
-    tableName: 'moves',
-  };
-
-  it('correctly matches the Update move task order status event', () => {
-    const template = getTemplate(historyRecord);
-    expect(template).toMatchObject(e);
-  });
-
-  it('displays the correct value in the event name and details column', () => {
-    const template = getTemplate(historyRecord);
-
-    render(template.getEventNameDisplay(historyRecord));
-    render(template.getDetails(historyRecord));
-    expect(screen.getByText('Move status updated'));
-    expect(screen.getByText('-'));
-  });
-});
