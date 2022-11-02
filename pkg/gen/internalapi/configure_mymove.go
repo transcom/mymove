@@ -340,6 +340,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation moves.SubmitMoveForApproval has not yet been implemented")
 		})
 	}
+	if api.PpmSubmitPPMShipmentDocumentationHandler == nil {
+		api.PpmSubmitPPMShipmentDocumentationHandler = ppm.SubmitPPMShipmentDocumentationHandlerFunc(func(params ppm.SubmitPPMShipmentDocumentationParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.SubmitPPMShipmentDocumentation has not yet been implemented")
+		})
+	}
 	if api.PpmSubmitPersonallyProcuredMoveHandler == nil {
 		api.PpmSubmitPersonallyProcuredMoveHandler = ppm.SubmitPersonallyProcuredMoveHandlerFunc(func(params ppm.SubmitPersonallyProcuredMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.SubmitPersonallyProcuredMove has not yet been implemented")

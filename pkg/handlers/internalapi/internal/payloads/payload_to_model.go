@@ -275,3 +275,22 @@ func WeightTicketModelFromUpdate(weightTicket *internalmessages.UpdateWeightTick
 	}
 	return model
 }
+
+// SavePPMShipmentSignedCertification converts from the SavePPMShipmentSignedCertification payload and the
+// SignedCertification model
+func SavePPMShipmentSignedCertification(ppmShipmentID uuid.UUID, signedCertification internalmessages.SavePPMShipmentSignedCertification) models.SignedCertification {
+	model := models.SignedCertification{
+		PpmID: &ppmShipmentID,
+		Date:  handlers.FmtDatePtrToPop(signedCertification.Date),
+	}
+
+	if signedCertification.CertificationText != nil {
+		model.CertificationText = *signedCertification.CertificationText
+	}
+
+	if signedCertification.Signature != nil {
+		model.Signature = *signedCertification.Signature
+	}
+
+	return model
+}

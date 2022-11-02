@@ -156,6 +156,9 @@ type PPMShipment struct {
 	// Format: uuid
 	ShipmentID strfmt.UUID `json:"shipmentId"`
 
+	// signed certification
+	SignedCertification *SignedCertification `json:"signedCertification,omitempty"`
+
 	// The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
 	SitEstimatedCost *int64 `json:"sitEstimatedCost"`
 
@@ -273,6 +276,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateShipmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSignedCertification(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -558,6 +565,25 @@ func (m *PPMShipment) validateShipmentID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *PPMShipment) validateSignedCertification(formats strfmt.Registry) error {
+	if swag.IsZero(m.SignedCertification) { // not required
+		return nil
+	}
+
+	if m.SignedCertification != nil {
+		if err := m.SignedCertification.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("signedCertification")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("signedCertification")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) validateSitEstimatedDepartureDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.SitEstimatedDepartureDate) { // not required
 		return nil
@@ -733,6 +759,10 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateSignedCertification(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateSitLocation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -853,6 +883,22 @@ func (m *PPMShipment) contextValidateShipmentID(ctx context.Context, formats str
 
 	if err := validate.ReadOnly(ctx, "shipmentId", "body", strfmt.UUID(m.ShipmentID)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateSignedCertification(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SignedCertification != nil {
+		if err := m.SignedCertification.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("signedCertification")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("signedCertification")
+			}
+			return err
+		}
 	}
 
 	return nil

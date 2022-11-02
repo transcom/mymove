@@ -2359,6 +2359,66 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
+      "post": {
+        "description": "Saves customer signature along with the text they agreed to, and then routes the PPM shipment to the service\ncounselor queue for review.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Saves signature and routes PPM shipment to service counselor",
+        "operationId": "submitPPMShipmentDocumentation",
+        "parameters": [
+          {
+            "name": "savePPMShipmentSignedCertificationPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SavePPMShipmentSignedCertification"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the updated PPM shipment",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
@@ -5007,6 +5067,16 @@ func init() {
         "WEIGHING_FEE": "Weighing fee"
       }
     },
+    "NullableSignedCertificationType": {
+      "type": "string",
+      "enum": [
+        "PPM_PAYMENT",
+        "SHIPMENT",
+        "PPM",
+        "HHG"
+      ],
+      "x-nullable": true
+    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -5544,6 +5614,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "signedCertification": {
+          "$ref": "#/definitions/SignedCertification"
         },
         "sitEstimatedCost": {
           "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
@@ -6322,6 +6395,29 @@ func init() {
         "DESTINATION"
       ]
     },
+    "SavePPMShipmentSignedCertification": {
+      "type": "object",
+      "required": [
+        "certification_text",
+        "signature",
+        "date"
+      ],
+      "properties": {
+        "certification_text": {
+          "description": "Text that the customer is agreeing to and signing.",
+          "type": "string"
+        },
+        "date": {
+          "description": "Date of signature",
+          "type": "string",
+          "format": "date"
+        },
+        "signature": {
+          "description": "Customer signature",
+          "type": "string"
+        }
+      }
+    },
     "SelectedMoveType": {
       "type": "string",
       "title": "Selected Move Type",
@@ -6600,6 +6696,85 @@ func init() {
       },
       "x-nullable": true
     },
+    "SignedCertification": {
+      "description": "Signed certification",
+      "type": "object",
+      "required": [
+        "id",
+        "submittingUserId",
+        "moveId",
+        "certificationType",
+        "certificationText",
+        "signature",
+        "date",
+        "createdAt",
+        "updatedAt",
+        "eTag"
+      ],
+      "properties": {
+        "certificationText": {
+          "description": "Full text that the customer agreed to and signed.",
+          "type": "string"
+        },
+        "certificationType": {
+          "$ref": "#/definitions/SignedCertificationType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "date": {
+          "description": "Date that the customer signed the certification.",
+          "type": "string",
+          "format": "date"
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "description": "The ID of the signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "moveId": {
+          "description": "The ID of the move associated with this signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmId": {
+          "description": "The ID of the PPM shipment associated with this signed certification, if any.",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "signature": {
+          "description": "The signature that the customer provided.",
+          "type": "string"
+        },
+        "submittingUserId": {
+          "description": "The ID of the user that signed.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "SignedCertificationPayload": {
       "type": "object",
       "required": [
@@ -6616,7 +6791,7 @@ func init() {
           "type": "string"
         },
         "certification_type": {
-          "$ref": "#/definitions/SignedCertificationType"
+          "$ref": "#/definitions/NullableSignedCertificationType"
         },
         "created_at": {
           "type": "string",
@@ -6655,14 +6830,13 @@ func init() {
       }
     },
     "SignedCertificationType": {
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT",
-        "PPM",
-        "HHG"
+        "SHIPMENT"
       ],
-      "x-nullable": true
+      "readOnly": true
     },
     "SignedCertificationTypeCreate": {
       "type": "string",
@@ -9977,6 +10151,92 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
+      "post": {
+        "description": "Saves customer signature along with the text they agreed to, and then routes the PPM shipment to the service\ncounselor queue for review.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Saves signature and routes PPM shipment to service counselor",
+        "operationId": "submitPPMShipmentDocumentation",
+        "parameters": [
+          {
+            "name": "savePPMShipmentSignedCertificationPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SavePPMShipmentSignedCertification"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the updated PPM shipment",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
@@ -12712,6 +12972,16 @@ func init() {
         "WEIGHING_FEE": "Weighing fee"
       }
     },
+    "NullableSignedCertificationType": {
+      "type": "string",
+      "enum": [
+        "PPM_PAYMENT",
+        "SHIPMENT",
+        "PPM",
+        "HHG"
+      ],
+      "x-nullable": true
+    },
     "NullableString": {
       "type": "string",
       "x-go-type": {
@@ -13249,6 +13519,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "signedCertification": {
+          "$ref": "#/definitions/SignedCertification"
         },
         "sitEstimatedCost": {
           "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
@@ -14032,6 +14305,29 @@ func init() {
         "DESTINATION"
       ]
     },
+    "SavePPMShipmentSignedCertification": {
+      "type": "object",
+      "required": [
+        "certification_text",
+        "signature",
+        "date"
+      ],
+      "properties": {
+        "certification_text": {
+          "description": "Text that the customer is agreeing to and signing.",
+          "type": "string"
+        },
+        "date": {
+          "description": "Date of signature",
+          "type": "string",
+          "format": "date"
+        },
+        "signature": {
+          "description": "Customer signature",
+          "type": "string"
+        }
+      }
+    },
     "SelectedMoveType": {
       "type": "string",
       "title": "Selected Move Type",
@@ -14310,6 +14606,85 @@ func init() {
       },
       "x-nullable": true
     },
+    "SignedCertification": {
+      "description": "Signed certification",
+      "type": "object",
+      "required": [
+        "id",
+        "submittingUserId",
+        "moveId",
+        "certificationType",
+        "certificationText",
+        "signature",
+        "date",
+        "createdAt",
+        "updatedAt",
+        "eTag"
+      ],
+      "properties": {
+        "certificationText": {
+          "description": "Full text that the customer agreed to and signed.",
+          "type": "string"
+        },
+        "certificationType": {
+          "$ref": "#/definitions/SignedCertificationType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "date": {
+          "description": "Date that the customer signed the certification.",
+          "type": "string",
+          "format": "date"
+        },
+        "eTag": {
+          "description": "A hash that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "description": "The ID of the signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "moveId": {
+          "description": "The ID of the move associated with this signed certification.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmId": {
+          "description": "The ID of the PPM shipment associated with this signed certification, if any.",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "signature": {
+          "description": "The signature that the customer provided.",
+          "type": "string"
+        },
+        "submittingUserId": {
+          "description": "The ID of the user that signed.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "SignedCertificationPayload": {
       "type": "object",
       "required": [
@@ -14326,7 +14701,7 @@ func init() {
           "type": "string"
         },
         "certification_type": {
-          "$ref": "#/definitions/SignedCertificationType"
+          "$ref": "#/definitions/NullableSignedCertificationType"
         },
         "created_at": {
           "type": "string",
@@ -14365,14 +14740,13 @@ func init() {
       }
     },
     "SignedCertificationType": {
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT",
-        "PPM",
-        "HHG"
+        "SHIPMENT"
       ],
-      "x-nullable": true
+      "readOnly": true
     },
     "SignedCertificationTypeCreate": {
       "type": "string",
