@@ -13,7 +13,7 @@ describe('The Home Page', function () {
 
   it('passes a pa11y audit', function () {
     cy.visit('/');
-    cy.a11yAudit();
+    cy.pa11y();
   });
 
   it('creates new devlocal user', function () {

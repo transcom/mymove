@@ -10,7 +10,7 @@ describe('PPM Request Payment - Begin providing documents flow', () => {
   });
 
   afterEach(() => {
-    cy.a11yAudit();
+    cy.pa11y();
   });
 
   const viewportType = [

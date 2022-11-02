@@ -17,7 +17,7 @@ describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', function () {
   });
 
   afterEach(() => {
-    cy.a11yAudit();
+    cy.pa11y();
   });
 
   it('doesn’t allow SM to progress if form is in an invalid state', () => {

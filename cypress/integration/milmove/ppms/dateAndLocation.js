@@ -26,7 +26,7 @@ describe('PPM Onboarding - Add dates and location flow', function () {
   it('passes a pa11y audit', () => {
     cy.apiSignInAsUser(userId);
     customerStartsAddingAPPMShipment();
-    cy.a11yAudit();
+    cy.pa11y();
   });
 });
 

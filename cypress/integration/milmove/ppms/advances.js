@@ -17,7 +17,7 @@ describe('PPM On-boarding - Advances', function () {
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
   });
   afterEach(() => {
-    cy.a11yAudit();
+    cy.pa11y();
   });
 
   it('does not allow SM to progress if form is in an invalid state', () => {

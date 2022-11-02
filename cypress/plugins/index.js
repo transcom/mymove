@@ -15,6 +15,14 @@ const { lighthouse, pa11y, prepareAudit } = require('cypress-audit');
 const fs = require('fs');
 const path = require('path');
 const mkdirp = require('mkdirp');
+const moment = require('moment');
+const a11yReportPath = `reports/a11y_report-${moment().format('MM-DD-YYYY')}.json`;
+let currentIssues;
+try {
+  currentIssues = require(a11yReportPath);
+} catch (e) {
+  currentIssues = [];
+}
 
 const storeData = async (data, filepath) => {
   try {
@@ -23,12 +31,6 @@ const storeData = async (data, filepath) => {
   } catch (err) {
     console.error(err);
   }
-};
-
-let reports = {};
-
-const accumulateReports = (runner, report) => {
-  reports[runner] = report;
 };
 
 module.exports = (on, config) => {
@@ -40,35 +42,35 @@ module.exports = (on, config) => {
   });
 
   // this would default to true
-  const doNotThrowA11yErrors = false;
+  const doNotThrowA11yErrors = true;
 
-  const runLighthouse = (report) => {
-    if (doNotThrowA11yErrors) {
-      return lighthouse((report) => {
-        const filepath = path.resolve('cypress', `reports/lighthouse_report-${new Date()}.json`);
-        storeData(report, filepath);
-      });
-    }
-    return lighthouse();
-  };
-
-  const runPa11y = (report) => {
-    if (doNotThrowA11yErrors) {
-      return pa11y((report) => {
-        console.log(report);
-        const filepath = path.resolve('cypress', `reports/pa11y_report-${new Date()}.json`);
-        storeData(report, filepath);
-      });
-    }
-    return pa11y();
+  const accumulateReports = (report) => {
+    report.issues.forEach((issue) => {
+      if (
+        !currentIssues.find(
+          (existingIssue) =>
+            existingIssue.selector === issue.selector &&
+            existingIssue.context === issue.context &&
+            existingIssue.code === issue.code,
+        )
+      ) {
+        console.log('new issue', issue);
+        console.log('new report', report);
+        currentIssues.push(issue);
+      }
+    });
   };
 
   on('task', {
-    lighthouse: runLighthouse(),
-    pa11y: runPa11y(),
-    a11yAudit: () => {
-      lighthouse();
-      pa11y();
-    },
+    lighthouse: lighthouse((report) => {
+      accumulateReports(report);
+      const filepath = path.resolve('cypress', a11yReportPath);
+      storeData(currentIssues, filepath);
+    }),
+    pa11y: pa11y((report) => {
+      accumulateReports(report);
+      const filepath = path.resolve('cypress', a11yReportPath);
+      storeData(currentIssues, filepath);
+    }),
   });
 };

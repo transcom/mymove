@@ -17,7 +17,7 @@ describe('Weight Tickets', function () {
   });
 
   afterEach(() => {
-    cy.a11yAudit();
+    cy.pa11y();
   });
 
   const viewportType = [
