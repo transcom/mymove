@@ -18,7 +18,7 @@ export { default as createReweighRequestWeightUpdate } from './createReweighRequ
 export { default as createStandardServiceItem } from './createStandardServiceItem';
 export { default as deleteShipment } from './DeleteShipment/deleteShipment';
 export { default as proofOfServiceDocUpload } from './proofOfServiceDocUpload';
-export { default as requestShipmentCancellation } from './requestShipmentCancellation';
+export { default as requestShipmentCancellation } from './RequestShipmentCancellation/requestShipmentCancellation';
 export { default as requestShipmentDiversion } from './RequestShipmentDiversion/requestShipmentDiversion';
 export { default as requestShipmentReweigh } from './RequestShipmentReweigh/requestShipmentReweigh';
 export { default as setFinancialReviewFlag } from './SetFinancialReviewFlag/setFinancialReviewFlag';
@@ -42,7 +42,7 @@ export { default as updateReweighWeight } from './updateReweighWeight';
 export { default as updateServiceItemStatus } from './updateServiceItemStatus';
 export { default as updateMTOReviewedBillableWeightsAt } from './updateMTOReviewedBillableWeightsAt';
 export { default as uploadAmendedOrders } from './UploadAmendedOrders/uploadAmendedOrders';
-export { default as updateMTOShipmentStatus } from './updateMTOShipmentStatus';
+export { default as updateMTOShipmentStatus } from './UpdateMTOShipmentStatus/updateMTOShipmentStatus';
 export { default as updateMTOServiceItemMoveStatus } from './CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus';
 export { default as updateMoveEstimatedExcessWeight } from './updateMTOShipmentPrimeEstimatedExcessWeight';
 export { default as updateMTOStatusServiceCounselingCompleted } from './updateMTOStatusServiceCounselingCompleted';
