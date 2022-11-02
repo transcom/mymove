@@ -31,8 +31,8 @@ func checkCreateRequiredFields() progearWeightTicketValidator {
 			verrs.Add("PPMShipmentID", "PPMShipmentID must exist")
 		}
 
-		if newProgearWeightTicket.FullDocument.ServiceMemberID.IsNil() {
-			verrs.Add("ServiceMemberID", "Full Document ServiceMemberID must exist")
+		if newProgearWeightTicket.Document.ServiceMemberID.IsNil() {
+			verrs.Add("ServiceMemberID", "Document ServiceMemberID must exist")
 		}
 
 		return verrs
@@ -54,21 +54,14 @@ func checkUpdateRequiredFields() progearWeightTicketValidator {
 		if newProgearWeightTicket.HasWeightTickets == nil {
 			verrs.Add("HasWeightTickets", "HasWeightTickets is required")
 		}
+
 		// ARE WE ALLOWING 0 values now?
-		if newProgearWeightTicket.EmptyWeight == nil || *newProgearWeightTicket.EmptyWeight < 0 {
-			verrs.Add("EmptyWeight", "EmptyWeight must have a value of at least 0")
+		if newProgearWeightTicket.Weight == nil || *newProgearWeightTicket.Weight < 1 {
+			verrs.Add("Weight", "FullWeight must have a value of at least 1")
 		}
 
-		if newProgearWeightTicket.FullWeight == nil || *newProgearWeightTicket.EmptyWeight < 1 {
-			verrs.Add("FullWeight", "FullWeight must have a value of at least 1")
-		}
-
-		if newProgearWeightTicket.ConstructedWeight == nil || *newProgearWeightTicket.ConstructedWeight < 1 {
-			verrs.Add("ConstructedWeight", "ConstructedWeight must have a value of at least 1")
-		}
-
-		if len(oldProgearWeightTicket.FullDocument.UserUploads) < 1 {
-			verrs.Add("FullDocument", "At least 1 weight ticket is required")
+		if len(oldProgearWeightTicket.Document.UserUploads) < 1 {
+			verrs.Add("Document", "At least 1 weight ticket is required")
 		}
 
 		if newProgearWeightTicket.Status != nil {

@@ -22,12 +22,8 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 		suite.Nil(err)
 		suite.NotNil(progearWeightTicket)
 		suite.Equal(ppmShipment.ID, progearWeightTicket.PPMShipmentID)
-		suite.NotNil(progearWeightTicket.EmptyDocumentID)
-		suite.NotNil(progearWeightTicket.FullDocumentID)
-		suite.Equal(serviceMember.ID, progearWeightTicket.EmptyDocument.ServiceMemberID)
-		suite.Equal(serviceMember.ID, progearWeightTicket.FullDocument.ServiceMemberID)
-
-		// ADD a test for constructed weight if progear weight ticket document is missing
+		suite.NotNil(progearWeightTicket.DocumentID)
+		suite.Equal(serviceMember.ID, progearWeightTicket.Document.ServiceMemberID)
 	})
 
 	suite.Run("Fails when an invalid ppmShipmentID is used", func() {

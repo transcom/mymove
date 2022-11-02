@@ -45,7 +45,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"MTOServiceItems.Dimensions",
 			"PPMShipment.WeightTickets",
 			"PPMShipment.MovingExpenses",
-			"PPMShipment.ProgearWeightTicket",
+			"PPMShipment.ProgearExpenses",
 			"Reweigh",
 			"SITExtensions",
 			"StorageFacility.Address",
@@ -96,26 +96,14 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 				movingExpense.Document.UserUploads = movingExpense.Document.UserUploads.FilterDeleted()
 			}
 
-			for j := range shipments[i].PPMShipment.ProgearWeightTicket {
-				progearWeightTicket := &shipments[i].PPMShipment.ProgearWeightTicket[j]
+			for j := range shipments[i].PPMShipment.ProgearExpenses {
+				progearWeightTicket := &shipments[i].PPMShipment.ProgearExpenses[j]
 
-				loadErr := appCtx.DB().Load(progearWeightTicket, "EmptyDocument.UserUploads.Upload")
+				loadErr := appCtx.DB().Load(progearWeightTicket, "Document.UserUploads.Upload")
 				if loadErr != nil {
 					return nil, loadErr
 				}
-				progearWeightTicket.EmptyDocument.UserUploads = progearWeightTicket.EmptyDocument.UserUploads.FilterDeleted()
-
-				loadErr = appCtx.DB().Load(progearWeightTicket, "FullDocument.UserUploads.Upload")
-				if loadErr != nil {
-					return nil, loadErr
-				}
-				progearWeightTicket.FullDocument.UserUploads = progearWeightTicket.FullDocument.UserUploads.FilterDeleted()
-
-				loadErr = appCtx.DB().Load(progearWeightTicket, "ConstructedWeightDocument.UserUploads.Upload")
-				if loadErr != nil {
-					return nil, loadErr
-				}
-				progearWeightTicket.ConstructedWeightDocument.UserUploads = progearWeightTicket.ConstructedWeightDocument.UserUploads.FilterDeleted()
+				progearWeightTicket.Document.UserUploads = progearWeightTicket.Document.UserUploads.FilterDeleted()
 			}
 		}
 	}

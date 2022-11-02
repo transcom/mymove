@@ -75,10 +75,8 @@ func FetchProgearID(appContext appcontext.AppContext, progearID uuid.UUID) (*mod
 			return nil, apperror.NewQueryError("Progear fetch original", err, "")
 		}
 	}
-	// set the updated Empty,Full, and constructedWeight Documents
-	progear.EmptyDocument.UserUploads = progear.EmptyDocument.UserUploads.FilterDeleted()
-	progear.FullDocument.UserUploads = progear.FullDocument.UserUploads.FilterDeleted()
-	progear.ConstructedWeightDocument.UserUploads = progear.ConstructedWeightDocument.UserUploads.FilterDeleted()
+	// set the updated Document
+	progear.Document.UserUploads = progear.Document.UserUploads.FilterDeleted()
 
 	return &progear, nil
 }
@@ -104,10 +102,7 @@ func mergeProgearWeightTicket(updatedProgearWeightTicket models.ProgearWeightTic
 	mergedProgearWeightTicket.BelongsToSelf = services.SetNoNilOptionalBoolField(updatedProgearWeightTicket.BelongsToSelf, mergedProgearWeightTicket.BelongsToSelf)
 	mergedProgearWeightTicket.Description = services.SetOptionalStringField(updatedProgearWeightTicket.Description, mergedProgearWeightTicket.Description)
 	mergedProgearWeightTicket.HasWeightTickets = services.SetNoNilOptionalBoolField(updatedProgearWeightTicket.HasWeightTickets, mergedProgearWeightTicket.HasWeightTickets)
-	mergedProgearWeightTicket.EmptyWeight = services.SetOptionalPoundField(updatedProgearWeightTicket.EmptyWeight, mergedProgearWeightTicket.EmptyWeight)
-	mergedProgearWeightTicket.FullWeight = services.SetOptionalPoundField(updatedProgearWeightTicket.FullWeight, mergedProgearWeightTicket.FullWeight)
-	mergedProgearWeightTicket.ConstructedWeight = services.SetOptionalPoundField(updatedProgearWeightTicket.ConstructedWeight, mergedProgearWeightTicket.ConstructedWeight)
-
+	mergedProgearWeightTicket.Weight = services.SetOptionalPoundField(updatedProgearWeightTicket.Weight, mergedProgearWeightTicket.Weight)
 	mergedProgearWeightTicket.DeletedAt = services.SetOptionalDateTimeField(updatedProgearWeightTicket.DeletedAt, mergedProgearWeightTicket.DeletedAt)
 
 	return mergedProgearWeightTicket

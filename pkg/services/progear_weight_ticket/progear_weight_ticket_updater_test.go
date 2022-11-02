@@ -25,27 +25,12 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			},
 		})
 
-		emptyWeightDocument := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
+		document := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
 			Document: models.Document{
 				ServiceMemberID: serviceMember.ID,
 			},
 		})
 
-		fullWeightDocument := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
-			Document: models.Document{
-				ServiceMemberID: serviceMember.ID,
-			},
-		})
-
-		// ADD CONSTRUCTED WEIGHT
-		//
-		//constructedWeightDocument := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
-		//	Document: models.Document{
-		//		ServiceMemberID: serviceMember.ID,
-		//	},
-		//})
-
-		// ADD condition for constructed weight
 		if hasWeightDocumentUploads {
 			for i := 0; i < 2; i++ {
 				var deletedAt *time.Time
@@ -55,16 +40,8 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 				testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
 					UserUpload: models.UserUpload{
 						UploaderID: serviceMember.UserID,
-						DocumentID: &emptyWeightDocument.ID,
-						Document:   emptyWeightDocument,
-						DeletedAt:  deletedAt,
-					},
-				})
-				testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
-					UserUpload: models.UserUpload{
-						UploaderID: serviceMember.UserID,
-						DocumentID: &fullWeightDocument.ID,
-						Document:   fullWeightDocument,
+						DocumentID: &document.ID,
+						Document:   document,
 						DeletedAt:  deletedAt,
 					},
 				})
@@ -73,11 +50,9 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 
 		// ADD constructed weight?
 		oldProgearWeightTicket := models.ProgearWeightTicket{
-			PPMShipmentID:   ppmShipment.ID,
-			EmptyDocument:   emptyWeightDocument,
-			EmptyDocumentID: emptyWeightDocument.ID,
-			FullDocument:    fullWeightDocument,
-			FullDocumentID:  fullWeightDocument.ID,
+			PPMShipmentID: ppmShipment.ID,
+			Document:      document,
+			DocumentID:    document.ID,
 		}
 
 		if overrides != nil {
@@ -147,8 +122,7 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			BelongsToSelf:    models.BoolPointer(true),
 			Description:      models.StringPointer("Self Progear"),
 			HasWeightTickets: models.BoolPointer(true),
-			EmptyWeight:      models.PoundPointer(unit.Pound(0)),
-			FullWeight:       models.PoundPointer(unit.Pound(100)),
+			Weight:           models.PoundPointer(unit.Pound(100)),
 			Status:           &rejectedStatus,
 			Reason:           models.StringPointer("Some info missing"),
 		}
@@ -157,21 +131,16 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 
 		suite.Nil(updateErr)
 		suite.Equal(oldProgearWeightTicket.ID, updatedProgearWeightTicket.ID)
-		suite.Equal(oldProgearWeightTicket.EmptyDocumentID, updatedProgearWeightTicket.EmptyDocumentID)
-		suite.Equal(oldProgearWeightTicket.FullDocumentID, updatedProgearWeightTicket.FullDocumentID)
+		suite.Equal(oldProgearWeightTicket.DocumentID, updatedProgearWeightTicket.DocumentID)
 		// filters out the deleted upload
-		suite.Len(updatedProgearWeightTicket.EmptyDocument.UserUploads, 1)
-		suite.Len(updatedProgearWeightTicket.FullDocument.UserUploads, 1)
+		suite.Len(updatedProgearWeightTicket.Document.UserUploads, 1)
 		suite.Equal(*expectedProgearWeightTicket.Description, *updatedProgearWeightTicket.Description)
 		suite.Equal(*expectedProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.BelongsToSelf)
 		suite.Equal(*expectedProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.HasWeightTickets)
-		suite.Equal(*expectedProgearWeightTicket.EmptyWeight, *updatedProgearWeightTicket.EmptyWeight)
-		suite.Equal(*expectedProgearWeightTicket.FullWeight, *updatedProgearWeightTicket.FullWeight)
+		suite.Equal(*expectedProgearWeightTicket.Weight, *updatedProgearWeightTicket.Weight)
 		suite.Equal(*expectedProgearWeightTicket.Status, *updatedProgearWeightTicket.Status)
 		suite.Equal(*expectedProgearWeightTicket.Reason, *updatedProgearWeightTicket.Reason)
 	})
-
-	// ADD Success test for constructed weight when no full weight document is available
 
 	suite.Run("Successfully clears the reason when status of progear weight ticket is approved", func() {
 		appCtx := suite.AppContextForTest()
@@ -190,8 +159,7 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			BelongsToSelf:    models.BoolPointer(true),
 			Description:      models.StringPointer("Self Progear"),
 			HasWeightTickets: models.BoolPointer(true),
-			EmptyWeight:      models.PoundPointer(unit.Pound(0)),
-			FullWeight:       models.PoundPointer(unit.Pound(100)),
+			Weight:           models.PoundPointer(unit.Pound(100)),
 			Status:           &approvedStatus,
 		}
 
@@ -199,12 +167,11 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 
 		suite.Nil(updateErr)
 		suite.Equal(oldProgearWeightTicket.ID, updatedProgearWeightTicket.ID)
-		suite.Equal(oldProgearWeightTicket.FullDocumentID, updatedProgearWeightTicket.FullDocumentID)
+		suite.Equal(oldProgearWeightTicket.DocumentID, updatedProgearWeightTicket.DocumentID)
 		suite.Equal(*oldProgearWeightTicket.Description, *updatedProgearWeightTicket.Description)
 		suite.Equal(*oldProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.BelongsToSelf)
 		suite.Equal(*oldProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.HasWeightTickets)
-		suite.Equal(*oldProgearWeightTicket.EmptyWeight, *updatedProgearWeightTicket.EmptyWeight)
-		suite.Equal(*oldProgearWeightTicket.FullWeight, *updatedProgearWeightTicket.FullWeight)
+		suite.Equal(*oldProgearWeightTicket.Weight, *updatedProgearWeightTicket.Weight)
 		suite.Equal(*oldProgearWeightTicket.Status, *updatedProgearWeightTicket.Status)
 		suite.Nil(updatedProgearWeightTicket.Reason)
 	})
@@ -222,8 +189,7 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			BelongsToSelf:    models.BoolPointer(true),
 			Description:      models.StringPointer("Self Progear"),
 			HasWeightTickets: models.BoolPointer(false),
-			EmptyWeight:      models.PoundPointer(unit.Pound(0)),
-			FullWeight:       models.PoundPointer(unit.Pound(100)),
+			Weight:           models.PoundPointer(unit.Pound(100)),
 			Status:           &approvedStatus,
 		}
 
@@ -248,8 +214,7 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			BelongsToSelf:    models.BoolPointer(true),
 			Description:      models.StringPointer("Self Progear"),
 			HasWeightTickets: models.BoolPointer(false),
-			EmptyWeight:      models.PoundPointer(unit.Pound(0)),
-			FullWeight:       models.PoundPointer(unit.Pound(100)),
+			Weight:           models.PoundPointer(unit.Pound(100)),
 			Status:           &rejectedStatus,
 		}
 
