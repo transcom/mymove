@@ -18,7 +18,7 @@ export { default as createReweighRequestWeightUpdate } from './createReweighRequ
 export { default as createStandardServiceItem } from './createStandardServiceItem';
 export { default as deleteShipment } from './DeleteShipment/deleteShipment';
 export { default as proofOfServiceDocUpload } from './proofOfServiceDocUpload';
-export { default as requestShipmentCancellation } from './requestShipmentCancellation';
+export { default as requestShipmentCancellation } from './RequestShipmentCancellation/requestShipmentCancellation';
 export { default as requestShipmentDiversion } from './RequestShipmentDiversion/requestShipmentDiversion';
 export { default as requestShipmentReweigh } from './RequestShipmentReweigh/requestShipmentReweigh';
 export { default as setFinancialReviewFlag } from './SetFinancialReviewFlag/setFinancialReviewFlag';
