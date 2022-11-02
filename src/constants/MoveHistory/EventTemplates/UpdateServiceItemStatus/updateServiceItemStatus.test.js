@@ -1,5 +1,5 @@
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/updateServiceItemStatus';
+import e from 'constants/MoveHistory/EventTemplates/UpdateServiceItemStatus/updateServiceItemStatus';
 
 describe('when given an Approved service item history record', () => {
   const item = {
