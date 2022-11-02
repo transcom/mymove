@@ -2,7 +2,7 @@ import o from 'constants/MoveHistory/UIDisplay/Operations';
 import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
-import { shipmentTypes } from 'constants/shipments';
+import { shipmentTypes as s } from 'constants/shipments';
 
 export default {
   action: a.UPDATE,
@@ -22,6 +22,6 @@ export default {
   getDetailsPlainText: (historyRecord) => {
     const shipmentType = historyRecord.context[0]?.shipment_type;
     const shipmentIdDisplay = historyRecord.context[0].shipment_id_abbr.toUpperCase();
-    return `${shipmentTypes[shipmentType]} shipment #${shipmentIdDisplay}, ${historyRecord.context[0]?.name}`;
+    return `${s[shipmentType]} shipment #${shipmentIdDisplay}, ${historyRecord.context[0]?.name}`;
   },
 };
