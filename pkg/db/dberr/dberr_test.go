@@ -9,9 +9,13 @@ import (
 )
 
 type DBErrSuite struct {
-	testingsuite.BaseTestSuite
+	*testingsuite.PopTestSuite
 }
 
 func TestDBFmtSuite(t *testing.T) {
-	suite.Run(t, new(DBErrSuite))
+	ts := &DBErrSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+	}
+	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }

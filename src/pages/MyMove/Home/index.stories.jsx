@@ -88,6 +88,9 @@ const withShipmentProps = {
     {
       id: 'testMove',
       shipmentType: 'PPM',
+      ppmShipment: {
+        status: ppmShipmentStatuses.DRAFT,
+      },
     },
     {
       id: 'testShipment2',
@@ -96,6 +99,7 @@ const withShipmentProps = {
       ppmShipment: {
         id: 'ppmShipmentIncomplete',
         hasRequestedAdvance: null,
+        status: ppmShipmentStatuses.DRAFT,
       },
     },
     {
@@ -105,6 +109,7 @@ const withShipmentProps = {
       ppmShipment: {
         id: 'ppmShipmentComplete',
         hasRequestedAdvance: true,
+        status: ppmShipmentStatuses.SUBMITTED,
       },
     },
   ],

@@ -32,6 +32,10 @@
     @include u-margin-top(2);
   }
 
+  .dateSummary {
+    @include u-margin-bottom(2);
+  }
+
   &:last-of-type {
     @include u-margin-bottom(0);
   }
