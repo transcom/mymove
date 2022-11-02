@@ -29,7 +29,13 @@ const ProGear = () => {
                 Reminder: This pro-gear should be included in your total weight moved.
               </p>
             </div>
-            <ProGearForm onBack={handleBack} onSubmit={handleSubmit} />
+            <ProGearForm
+              onBack={handleBack}
+              onSubmit={handleSubmit}
+              onCreateUpload={() => {}}
+              onUploadComplete={() => {}}
+              onUploadDelete={() => {}}
+            />
           </Grid>
         </Grid>
       </GridContainer>

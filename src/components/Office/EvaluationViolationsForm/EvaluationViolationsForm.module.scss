@@ -45,7 +45,6 @@
   @include u-font-weight(700);
   @include u-color('base-darker');
   font-size: 13px;
-
 }
 
 .siHeading {
@@ -57,7 +56,6 @@
 }
 
 .incident {
-
   :global {
     .usa-form-group {
       @include u-margin-top(0);
@@ -83,7 +81,6 @@
 }
 
 .claimDatePicker {
-
   :global {
     .usa-label {
       @include u-font-weight(700);
@@ -97,7 +94,6 @@
   @include u-color('base-lighter');
   @include u-margin-top(4);
   border: 1px solid;
-
 }
 
 .backIcon {
@@ -121,4 +117,10 @@
 
 .submitModalBtn {
   @include u-margin(0 !important);
+}
+
+.title {
+  h3 {
+    @include u-margin-bottom(1.5);
+  }
 }

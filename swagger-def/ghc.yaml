@@ -2071,8 +2071,8 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
     delete:
-      summary: Soft deletes an evaluation report by ID
-      description: Soft deletes an evaluation report by ID
+      summary: Deletes an evaluation report by ID
+      description: Deletes an evaluation report by ID
       operationId: deleteEvaluationReport
       x-permissions:
         - delete.evaluationReport
@@ -2082,7 +2082,7 @@ paths:
         - application/json
       responses:
         '204':
-          description: Successfully soft deleted the report
+          description: Successfully deleted the report
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -4154,16 +4154,8 @@ definitions:
       hasWeightTickets:
         description: Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.
         type: boolean
-      emptyWeight:
-        description: Weight of the vehicle not including the pro-gear.
-        type: integer
-        minimum: 0
-      fullWeight:
-        description: Weight of the vehicle including the pro-gear.
-        type: integer
-        minimum: 0
-      constructedWeight:
-        description: Constructed weight of the pro-gear.
+      weight:
+        description: Weight of the pro-gear contained in the shipment.
         type: integer
         minimum: 0
       status:
