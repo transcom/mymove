@@ -40,7 +40,7 @@ export { default as updatePaymentRequestJobRunner } from './updatePaymentRequest
 export { default as updatePaymentRequestStatus } from './updatePaymentRequestStatus';
 export { default as updateReweighWeight } from './updateReweighWeight';
 export { default as updateServiceItemStatus } from './updateServiceItemStatus';
-export { default as updateMTOReviewedBillableWeightsAt } from './updateMTOReviewedBillableWeightsAt';
+export { default as updateMTOReviewedBillableWeightsAt } from './UpdateMTOReviewedBillableWeightAt/updateMTOReviewedBillableWeightsAt';
 export { default as uploadAmendedOrders } from './UploadAmendedOrders/uploadAmendedOrders';
 export { default as updateMTOShipmentStatus } from './updateMTOShipmentStatus';
 export { default as updateMTOServiceItemMoveStatus } from './CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus';
