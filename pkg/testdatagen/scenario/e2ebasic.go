@@ -455,7 +455,7 @@ func serviceMemberWithUploadedOrdersAndNewPPM(appCtx appcontext.AppContext, user
 		},
 		Stub: true,
 	})
-	moveRouter.Submit(appCtx, &ppm0.Move, newSignedCertification)
+	moveRouter.Submit(appCtx, &ppm0.Move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm0.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -499,7 +499,7 @@ func serviceMemberWithUploadedOrdersNewPPMNoAdvance(appCtx appcontext.AppContext
 		},
 		Stub: true,
 	})
-	moveRouter.Submit(appCtx, &ppmNoAdvance.Move, newSignedCertification)
+	moveRouter.Submit(appCtx, &ppmNoAdvance.Move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmNoAdvance.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -542,7 +542,7 @@ func officeUserFindsMoveCompletesStoragePanel(appCtx appcontext.AppContext, user
 		},
 		Stub: true,
 	})
-	moveRouter.Submit(appCtx, &ppmStorage.Move, newSignedCertification)
+	moveRouter.Submit(appCtx, &ppmStorage.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppmStorage.Move)
 	ppmStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -589,7 +589,7 @@ func officeUserFindsMoveCancelsStoragePanel(appCtx appcontext.AppContext, userUp
 		},
 		Stub: true,
 	})
-	moveRouter.Submit(appCtx, &ppmNoStorage.Move, newSignedCertification)
+	moveRouter.Submit(appCtx, &ppmNoStorage.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppmNoStorage.Move)
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -637,7 +637,7 @@ func aMoveThatWillBeCancelledByAnE2ETest(appCtx appcontext.AppContext, userUploa
 		},
 		Stub: true,
 	})
-	moveRouter.Submit(appCtx, &ppmToCancel.Move, newSignedCertification)
+	moveRouter.Submit(appCtx, &ppmToCancel.Move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmToCancel.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -682,7 +682,7 @@ func serviceMemberWithPPMInProgress(appCtx appcontext.AppContext, userUploader *
 		},
 		Stub: true,
 	})
-	moveRouter.Submit(appCtx, &ppm1.Move, newSignedCertification)
+	moveRouter.Submit(appCtx, &ppm1.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm1.Move)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm1.Move)
 	if err != nil || verrs.HasAny() {
@@ -736,7 +736,7 @@ func serviceMemberWithPPMMoveWithPaymentRequested01(appCtx appcontext.AppContext
 		},
 		Stub: true,
 	})
-	moveRouter.Submit(appCtx, &ppm2.Move, newSignedCertification)
+	moveRouter.Submit(appCtx, &ppm2.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm2.Move)
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -797,7 +797,7 @@ func serviceMemberWithPPMMoveWithPaymentRequested02(appCtx appcontext.AppContext
 		},
 		Stub: true,
 	})
-	moveRouter.Submit(appCtx, &ppm3.Move, newSignedCertification)
+	moveRouter.Submit(appCtx, &ppm3.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm3.Move)
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
 	ppm3.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -846,7 +846,7 @@ func aCanceledPPMMove(appCtx appcontext.AppContext, userUploader *uploader.UserU
 		},
 		Stub: true,
 	})
-	moveRouter.Submit(appCtx, &ppmCanceled.Move, newSignedCertification)
+	moveRouter.Submit(appCtx, &ppmCanceled.Move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -985,7 +985,7 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, user
 		},
 		Stub: true,
 	})
-	moveRouter.Submit(appCtx, &move, newSignedCertification)
+	moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -1262,7 +1262,7 @@ func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, u
 		},
 		Stub: true,
 	})
-	moveRouter.Submit(appCtx, &ppm6.Move, newSignedCertification)
+	moveRouter.Submit(appCtx, &ppm6.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm6.Move)
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -1318,7 +1318,7 @@ func serviceMemberWithPPMReadyToRequestPayment02(appCtx appcontext.AppContext, u
 		},
 		Stub: true,
 	})
-	moveRouter.Submit(appCtx, &ppm7.Move, newSignedCertification)
+	moveRouter.Submit(appCtx, &ppm7.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm7.Move)
 	ppm7.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm7.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -1374,7 +1374,7 @@ func serviceMemberWithPPMReadyToRequestPayment03(appCtx appcontext.AppContext, u
 		},
 		Stub: true,
 	})
-	moveRouter.Submit(appCtx, &ppm5.Move, newSignedCertification)
+	moveRouter.Submit(appCtx, &ppm5.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppm5.Move)
 	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
 	ppm5.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -1431,7 +1431,7 @@ func serviceMemberWithPPMApprovedNotInProgress(appCtx appcontext.AppContext, use
 		},
 		Stub: true,
 	})
-	moveRouter.Submit(appCtx, &ppmApproved.Move, newSignedCertification)
+	moveRouter.Submit(appCtx, &ppmApproved.Move, &newSignedCertification)
 	moveRouter.Approve(appCtx, &ppmApproved.Move)
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())

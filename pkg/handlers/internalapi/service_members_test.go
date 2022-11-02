@@ -395,7 +395,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		},
 		Stub: true,
 	})
-	err := moveRouter.Submit(suite.AppContextForTest(), &move, newSignedCertification)
+	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	suite.NoError(err)
 	suite.MustSave(&move)
 

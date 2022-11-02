@@ -294,6 +294,9 @@ func WeightTicketModelFromUpdate(weightTicket *internalmessages.UpdateWeightTick
 
 // SignedCertificationFromSubmit
 func SignedCertificationFromSubmit(payload *internalmessages.SubmitMoveForApprovalPayload, userID uuid.UUID, moveID strfmt.UUID) *models.SignedCertification {
+	if payload == nil {
+		return nil
+	}
 	date := time.Time(*payload.Certificate.Date)
 	certType := models.SignedCertificationType(*payload.Certificate.CertificationType)
 	newSignedCertification := models.SignedCertification{

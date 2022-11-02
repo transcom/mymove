@@ -388,7 +388,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 		Move: move,
 		Stub: true,
 	})
-	err := moveRouter.Submit(appCtx, &move, newSignedCertification)
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -1440,7 +1440,7 @@ func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUpload
 		Move: move,
 		Stub: true,
 	})
-	err := moveRouter.Submit(appCtx, &move, newSignedCertification)
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 
 	if err != nil {
 		log.Panic(err)
@@ -2111,7 +2111,7 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 		Move: move,
 		Stub: true,
 	})
-	err := moveRouter.Submit(appCtx, &move, newSignedCertification)
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -2140,7 +2140,7 @@ func createMoveWithHHGMissingOrdersInfo(appCtx appcontext.AppContext, moveRouter
 		Move: move,
 		Stub: true,
 	})
-	err := moveRouter.Submit(appCtx, &move, newSignedCertification)
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -2527,7 +2527,7 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 			Move: move,
 			Stub: true,
 		})
-		err := moveRouter.Submit(appCtx, &move, newSignedCertification)
+		err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 		if err != nil {
 			log.Panic(err)
 		}
@@ -2683,7 +2683,7 @@ func createHHGWithOriginSITServiceItems(appCtx appcontext.AppContext, primeUploa
 		Move: move,
 		Stub: true,
 	})
-	submissionErr := moveRouter.Submit(appCtx, &move, newSignedCertification)
+	submissionErr := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
 	}
@@ -2893,7 +2893,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		Move: move,
 		Stub: true,
 	})
-	submissionErr := moveRouter.Submit(appCtx, &move, newSignedCertification)
+	submissionErr := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
 	}
@@ -3201,7 +3201,7 @@ func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploade
 		Move: move,
 		Stub: true,
 	})
-	submissionErr := moveRouter.Submit(appCtx, &move, newSignedCertification)
+	submissionErr := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
 	}
@@ -4818,7 +4818,7 @@ func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRoute
 		Move: move,
 		Stub: true,
 	})
-	err := moveRouter.Submit(appCtx, &move, newSignedCertification)
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -4863,7 +4863,7 @@ func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, moveRouter
 		Move: move,
 		Stub: true,
 	})
-	err := moveRouter.Submit(appCtx, &move, newSignedCertification)
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -6298,7 +6298,7 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 		Move: move,
 		Stub: true,
 	})
-	err := moveRouter.Submit(appCtx, &move, newSignedCertification)
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -6348,7 +6348,7 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 		Move: move,
 		Stub: true,
 	})
-	err := moveRouter.Submit(appCtx, &move, newSignedCertification)
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -6398,7 +6398,7 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 		Move: move,
 		Stub: true,
 	})
-	err := moveRouter.Submit(appCtx, &move, newSignedCertification)
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -6446,7 +6446,7 @@ func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, us
 		Move: move,
 		Stub: true,
 	})
-	err := moveRouter.Submit(appCtx, &move, newSignedCertification)
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -6526,7 +6526,7 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 		Move: move,
 		Stub: true,
 	})
-	err := moveRouter.Submit(appCtx, &move, newSignedCertification)
+	err := moveRouter.Submit(appCtx, &move, &newSignedCertification)
 	if err != nil {
 		log.Panic(err)
 	}

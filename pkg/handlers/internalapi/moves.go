@@ -167,7 +167,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
 			newSignedCertification := payloads.SignedCertificationFromSubmit(params.SubmitMoveForApprovalPayload, appCtx.Session().UserID, params.MoveID)
-			err = h.MoveRouter.Submit(appCtx, move, *newSignedCertification)
+			err = h.MoveRouter.Submit(appCtx, move, newSignedCertification)
 			if err != nil {
 				return handlers.ResponseForError(logger, err), err
 			}
@@ -353,7 +353,7 @@ func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersPara
 
 			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
-			err = h.MoveRouter.Submit(appCtx, move, models.SignedCertification{})
+			err = h.MoveRouter.Submit(appCtx, move, nil)
 			if err != nil {
 				return handlers.ResponseForError(logger, err), err
 			}

@@ -39,7 +39,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 		},
 		Stub: true,
 	})
-	err := moveRouter.Submit(suite.AppContextForTest(), &move, newSignedCertification)
+	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
@@ -81,7 +81,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 		},
 		Stub: true,
 	})
-	err := moveRouter.Submit(suite.AppContextForTest(), &move, newSignedCertification)
+	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
@@ -161,7 +161,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 		},
 		Stub: true,
 	})
-	err = moveRouter.Submit(suite.AppContextForTest(), move, newSignedCertification)
+	err = moveRouter.Submit(suite.AppContextForTest(), move, &newSignedCertification)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 

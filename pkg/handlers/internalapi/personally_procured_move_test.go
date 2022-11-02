@@ -676,7 +676,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 		},
 		Stub: true,
 	})
-	err := moveRouter.Submit(suite.AppContextForTest(), &move, newSignedCertification)
+	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
