@@ -703,20 +703,8 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
-      emptyWeight:
+      weight:
         description: Weight of the vehicle not including the pro-gear.
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-omitempty: false
-      fullWeight:
-        description: Weight of the vehicle including the pro-gear.
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-omitempty: false
-      constructedWeight:
-        description: Constructed weight of the pro-gear.
         type: integer
         minimum: 0
         x-nullable: true

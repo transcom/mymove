@@ -14,19 +14,19 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	progear "github.com/transcom/mymove/pkg/services/progear"
+	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 // CREATE TEST
-func (suite *HandlerSuite) TestCreateProgearHandler() {
+func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 	// Reusable objects
-	progearCreator := progear.NewCustomerProgearWeightTicketCreator()
+	progearCreator := progear.NewProgearWeightTicketCreator()
 
 	type progearCreateSubtestData struct {
 		ppmShipment models.PPMShipment
 		params      progearops.CreateProGearWeightTicketParams
-		handler     CreateProgearHandler
+		handler     CreateProGearWeightTicketHandler
 	}
 	makeCreateSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData progearCreateSubtestData) {
 		db := appCtx.DB()
@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestCreateProgearHandler() {
 			PpmShipmentID: *handlers.FmtUUID(subtestData.ppmShipment.ID),
 		}
 
-		subtestData.handler = CreateProgearHandler{
+		subtestData.handler = CreateProGearWeightTicketHandler{
 			suite.HandlerConfig(),
 			progearCreator,
 		}
@@ -63,8 +63,7 @@ func (suite *HandlerSuite) TestCreateProgearHandler() {
 		createdProgear := response.(*progearops.CreateProGearWeightTicketOK).Payload
 
 		suite.NotEmpty(createdProgear.ID.String())
-		suite.NotNil(createdProgear.EmptyDocumentID.String())
-		suite.NotNil(createdProgear.FullDocumentID.String())
+		suite.NotNil(createdProgear.DocumentID.String())
 	})
 
 	suite.Run("POST failure - 400- bad request", func() {
@@ -109,7 +108,7 @@ func (suite *HandlerSuite) TestCreateProgearHandler() {
 	})
 
 	suite.Run("Post failure - 500 - Server Error", func() {
-		mockCreator := mocks.ProgearCreator{}
+		mockCreator := mocks.ProgearWeightTicketCreator{}
 		appCtx := suite.AppContextForTest()
 
 		subtestData := makeCreateSubtestData(appCtx, true)
@@ -121,7 +120,7 @@ func (suite *HandlerSuite) TestCreateProgearHandler() {
 			mock.AnythingOfType("uuid.UUID"),
 		).Return(nil, serverErr)
 
-		handler := CreateProgearHandler{
+		handler := CreateProGearWeightTicketHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
 		}
@@ -136,15 +135,15 @@ func (suite *HandlerSuite) TestCreateProgearHandler() {
 // UPDATE test
 //
 
-func (suite *HandlerSuite) TestUpdateProgearHandler() {
+func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 	// Reusable objects
-	progearUpdater := progear.NewCustomerProgearWeightTicketUpdater()
+	progearUpdater := progear.NewProgearWeightTicketUpdater()
 
 	type progearUpdateSubtestData struct {
 		ppmShipment models.PPMShipment
 		progear     models.ProgearWeightTicket
 		params      progearops.UpdateProGearWeightTicketParams
-		handler     UpdateProgearHandler
+		handler     UpdateProGearWeightTicketHandler
 	}
 	makeUpdateSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData progearUpdateSubtestData) {
 		db := appCtx.DB()
@@ -167,7 +166,7 @@ func (suite *HandlerSuite) TestUpdateProgearHandler() {
 			IfMatch:               eTag,
 		}
 
-		subtestData.handler = UpdateProgearHandler{
+		subtestData.handler = UpdateProGearWeightTicketHandler{
 			suite.createS3HandlerConfig(),
 			progearUpdater,
 		}
@@ -185,8 +184,8 @@ func (suite *HandlerSuite) TestUpdateProgearHandler() {
 		// An upload must exist if trailer is owned and qualifies to be claimed
 		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
 			UserUpload: models.UserUpload{
-				DocumentID: &subtestData.progear.FullDocumentID,
-				Document:   subtestData.progear.FullDocument,
+				DocumentID: &subtestData.progear.DocumentID,
+				Document:   subtestData.progear.Document,
 			},
 		})
 
@@ -196,9 +195,8 @@ func (suite *HandlerSuite) TestUpdateProgearHandler() {
 		belongsToSelf := true
 		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{
 			Description:      &progearDes,
-			EmptyWeight:      handlers.FmtInt64(1),
 			HasWeightTickets: &hasWeightTickets,
-			FullWeight:       handlers.FmtInt64(4000),
+			Weight:           handlers.FmtInt64(4000),
 			BelongsToSelf:    &belongsToSelf,
 		}
 
@@ -231,9 +229,8 @@ func (suite *HandlerSuite) TestUpdateProgearHandler() {
 		belongsToSelf := true
 		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{
 			Description:      &progearDes,
-			EmptyWeight:      handlers.FmtInt64(1),
 			HasWeightTickets: &hasWeightTickets,
-			FullWeight:       handlers.FmtInt64(4000),
+			Weight:           handlers.FmtInt64(4000),
 			BelongsToSelf:    &belongsToSelf,
 		}
 
@@ -271,7 +268,7 @@ func (suite *HandlerSuite) TestUpdateProgearHandler() {
 	})
 
 	suite.Run("PATCH failure - 500", func() {
-		mockUpdater := mocks.ProgearUpdater{}
+		mockUpdater := mocks.ProgearWeightTicketUpdater{}
 		appCtx := suite.AppContextForTest()
 
 		subtestData := makeUpdateSubtestData(appCtx, true)
@@ -281,9 +278,8 @@ func (suite *HandlerSuite) TestUpdateProgearHandler() {
 		belongsToSelf := true
 		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{
 			Description:      &progearDes,
-			EmptyWeight:      handlers.FmtInt64(1),
+			Weight:           handlers.FmtInt64(1),
 			HasWeightTickets: &hasWeightTickets,
-			FullWeight:       handlers.FmtInt64(4000),
 			BelongsToSelf:    &belongsToSelf,
 		}
 
@@ -295,7 +291,7 @@ func (suite *HandlerSuite) TestUpdateProgearHandler() {
 			mock.AnythingOfType("string"),
 		).Return(nil, err)
 
-		handler := UpdateProgearHandler{
+		handler := UpdateProGearWeightTicketHandler{
 			suite.HandlerConfig(),
 			&mockUpdater,
 		}

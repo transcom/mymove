@@ -282,12 +282,10 @@ func ProgearWeightTicketModelFromUpdate(progearWeightTicket *internalmessages.Up
 		return nil
 	}
 	model := &models.ProgearWeightTicket{
-		Description:       progearWeightTicket.Description,
-		EmptyWeight:       handlers.PoundPtrFromInt64Ptr(progearWeightTicket.EmptyWeight),
-		FullWeight:        handlers.PoundPtrFromInt64Ptr(progearWeightTicket.FullWeight),
-		ConstructedWeight: handlers.PoundPtrFromInt64Ptr(progearWeightTicket.ConstructedWeight),
-		BelongsToSelf:     handlers.FmtBool(*progearWeightTicket.BelongsToSelf),
-		HasWeightTickets:  handlers.FmtBool(*progearWeightTicket.HasWeightTickets),
+		Description:      progearWeightTicket.Description,
+		Weight:           handlers.PoundPtrFromInt64Ptr(progearWeightTicket.Weight),
+		BelongsToSelf:    handlers.FmtBool(*progearWeightTicket.BelongsToSelf),
+		HasWeightTickets: handlers.FmtBool(*progearWeightTicket.HasWeightTickets),
 	}
 	return model
 }

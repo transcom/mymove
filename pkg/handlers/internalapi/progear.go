@@ -13,14 +13,14 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// CreateProgearHandler
-type CreateProgearHandler struct {
+// CreateProGearWeightTicketHandler
+type CreateProGearWeightTicketHandler struct {
 	handlers.HandlerConfig
 	progearCreator services.ProgearWeightTicketCreator
 }
 
 // Handle creating a progear weight ticket
-func (h CreateProgearHandler) Handle(params progearops.CreateProGearWeightTicketParams) middleware.Responder {
+func (h CreateProGearWeightTicketHandler) Handle(params progearops.CreateProGearWeightTicketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if appCtx.Session() == nil {
@@ -42,7 +42,7 @@ func (h CreateProgearHandler) Handle(params progearops.CreateProGearWeightTicket
 			progear, err := h.progearCreator.CreateProgearWeightTicket(appCtx, ppmShipmentID)
 
 			if err != nil {
-				appCtx.Logger().Error("internalapi.CreateProgearHandler", zap.Error(err))
+				appCtx.Logger().Error("internalapi.CreateProgearWeightTicketHandler", zap.Error(err))
 				switch err.(type) {
 				case apperror.InvalidInputError:
 					return progearops.NewCreateProGearWeightTicketUnprocessableEntity(), err
@@ -59,13 +59,13 @@ func (h CreateProgearHandler) Handle(params progearops.CreateProGearWeightTicket
 		})
 }
 
-// // UpdateProgearHandler
-type UpdateProgearHandler struct {
+// UpdateProGearWeightTicketHandler
+type UpdateProGearWeightTicketHandler struct {
 	handlers.HandlerConfig
 	progearUpdater services.ProgearWeightTicketUpdater
 }
 
-func (h UpdateProgearHandler) Handle(params progearops.UpdateProGearWeightTicketParams) middleware.Responder {
+func (h UpdateProGearWeightTicketHandler) Handle(params progearops.UpdateProGearWeightTicketParams) middleware.Responder {
 	// track every request with middleware:
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -94,7 +94,7 @@ func (h UpdateProgearHandler) Handle(params progearops.UpdateProGearWeightTicket
 			updateProgear, err := h.progearUpdater.UpdateProgearWeightTicket(appCtx, *weightTicket, params.IfMatch)
 
 			if err != nil {
-				appCtx.Logger().Error("internalapi.UpdateProgearHandler", zap.Error(err))
+				appCtx.Logger().Error("internalapi.UpdateProGearWeightTicketHandler", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.InvalidInputError:
 					return progearops.NewUpdateProGearWeightTicketUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
@@ -108,7 +108,7 @@ func (h UpdateProgearHandler) Handle(params progearops.UpdateProGearWeightTicket
 						appCtx.
 							Logger().
 							Error(
-								"internalapi.UpdateProgearHandler error",
+								"internalapi.UpdateProGearWeightTicketHandler error",
 								zap.Error(e.Unwrap()),
 							)
 					}

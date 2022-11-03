@@ -22,38 +22,22 @@ type UpdateProGearWeightTicket struct {
 	// Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.
 	BelongsToSelf *bool `json:"belongsToSelf"`
 
-	// Constructed weight of the pro-gear.
-	// Minimum: 0
-	ConstructedWeight *int64 `json:"constructedWeight"`
-
 	// Describes the pro-gear that was moved.
 	Description *string `json:"description"`
 
-	// Weight of the vehicle not including the pro-gear.
-	// Minimum: 0
-	EmptyWeight *int64 `json:"emptyWeight"`
-
-	// Weight of the vehicle including the pro-gear.
-	// Minimum: 0
-	FullWeight *int64 `json:"fullWeight"`
-
 	// Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.
 	HasWeightTickets *bool `json:"hasWeightTickets"`
+
+	// Weight of the vehicle not including the pro-gear.
+	// Minimum: 0
+	Weight *int64 `json:"weight"`
 }
 
 // Validate validates this update pro gear weight ticket
 func (m *UpdateProGearWeightTicket) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateConstructedWeight(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateEmptyWeight(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateFullWeight(formats); err != nil {
+	if err := m.validateWeight(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -63,36 +47,12 @@ func (m *UpdateProGearWeightTicket) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdateProGearWeightTicket) validateConstructedWeight(formats strfmt.Registry) error {
-	if swag.IsZero(m.ConstructedWeight) { // not required
+func (m *UpdateProGearWeightTicket) validateWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.Weight) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("constructedWeight", "body", *m.ConstructedWeight, 0, false); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateProGearWeightTicket) validateEmptyWeight(formats strfmt.Registry) error {
-	if swag.IsZero(m.EmptyWeight) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("emptyWeight", "body", *m.EmptyWeight, 0, false); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateProGearWeightTicket) validateFullWeight(formats strfmt.Registry) error {
-	if swag.IsZero(m.FullWeight) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("fullWeight", "body", *m.FullWeight, 0, false); err != nil {
+	if err := validate.MinimumInt("weight", "body", *m.Weight, 0, false); err != nil {
 		return err
 	}
 
