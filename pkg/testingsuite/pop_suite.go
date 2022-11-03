@@ -567,9 +567,11 @@ func (suite *PopTestSuite) DB() *pop.Connection {
 	}
 	suite.T().Cleanup(func() {
 		delete(suite.txnTestDb, testingName)
-		err := popConn.Close()
-		if err != nil {
-			log.Panic(err)
+		if popConn.Store != nil {
+			err := popConn.Close()
+			if err != nil {
+				log.Panic(err)
+			}
 		}
 	})
 	return popConn
@@ -687,7 +689,7 @@ func (suite *PopTestSuite) TearDown() {
 			log.Panic(err)
 		}
 	}
-	if suite.highPrivConn != nil {
+	if suite.highPrivConn != nil && suite.highPrivConn != suite.lowPrivConn {
 		if err := suite.highPrivConn.Close(); err != nil {
 			log.Panic(err)
 		}
