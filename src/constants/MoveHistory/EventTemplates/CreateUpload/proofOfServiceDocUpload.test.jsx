@@ -1,5 +1,5 @@
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/proofOfServiceDocUpload';
+import e from 'constants/MoveHistory/EventTemplates/CreateUpload/proofOfServiceDocUpload';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
