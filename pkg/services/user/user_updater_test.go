@@ -138,7 +138,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		//              A notification is sent to sys admins
 		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
 		// Make an inactive user
-		user, _ := factory.BuildUser(suite.DB(), nil, nil)
+		user := factory.BuildUser(suite.DB(), nil, nil)
 
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
@@ -163,7 +163,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		//           	updateUser returns the active user
 		//              A notification is NOT sent to sys admins
 		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
-		user, _ := factory.BuildUser(suite.DB(), nil,
+		user := factory.BuildUser(suite.DB(), nil,
 			[]factory.Trait{
 				factory.GetTraitActiveUser,
 			})
@@ -192,7 +192,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
 
-		user, _ := factory.BuildUser(suite.DB(), nil, nil)
+		user := factory.BuildUser(suite.DB(), nil, nil)
 
 		user.Active = inactiveStatus
 		updatedUser, verr, err := updater.UpdateUser(appCtx, user.ID, &user)

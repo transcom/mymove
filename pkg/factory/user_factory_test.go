@@ -13,8 +13,7 @@ func (suite *MakerSuite) TestUserMaker() {
 		// Set up:          Create a User with no customizations or traits
 		// Expected outcome:User should be created with default values
 
-		user, err := BuildUser(suite.DB(), nil, nil)
-		suite.NoError(err)
+		user := BuildUser(suite.DB(), nil, nil)
 		suite.Equal(defaultEmail, user.LoginGovEmail)
 		suite.False(user.Active)
 	})
@@ -23,14 +22,13 @@ func (suite *MakerSuite) TestUserMaker() {
 		// Under test:      UserMaker
 		// Set up:          Create a User with a customized email and no trait
 		// Expected outcome:User should be created with email and inactive status
-		user, err := BuildUser(suite.DB(), []Customization{
+		user := BuildUser(suite.DB(), []Customization{
 			{
 				Model: models.User{
 					LoginGovEmail: customEmail,
 				},
 			},
 		}, nil)
-		suite.NoError(err)
 		suite.Equal(customEmail, user.LoginGovEmail)
 		suite.False(user.Active)
 
@@ -41,11 +39,10 @@ func (suite *MakerSuite) TestUserMaker() {
 		// Set up:          Create a User with a trait
 		// Expected outcome:User should be created with default email and active status
 
-		user, err := BuildUser(suite.DB(), nil,
+		user := BuildUser(suite.DB(), nil,
 			[]Trait{
 				GetTraitActiveUser,
 			})
-		suite.NoError(err)
 		suite.Equal(defaultEmail, user.LoginGovEmail)
 		suite.True(user.Active)
 	})
@@ -55,7 +52,7 @@ func (suite *MakerSuite) TestUserMaker() {
 		// Set up:          Create a User with a customized email and active trait
 		// Expected outcome:User should be created with email and active status
 
-		user, err := BuildUser(suite.DB(), []Customization{
+		user := BuildUser(suite.DB(), []Customization{
 			{
 				Model: models.User{
 					LoginGovEmail: customEmail,
@@ -63,7 +60,6 @@ func (suite *MakerSuite) TestUserMaker() {
 			}}, []Trait{
 			GetTraitActiveUser,
 		})
-		suite.NoError(err)
 		suite.Equal(customEmail, user.LoginGovEmail)
 		suite.True(user.Active)
 	})

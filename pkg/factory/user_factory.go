@@ -9,8 +9,7 @@ import (
 )
 
 // UserMaker is the base maker function to create a user
-// MYTODO Instead of error (not useful) can we return a list of the created objects?
-func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) (models.User, error) {
+func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) models.User {
 	customs = setupCustomizations(customs, traits)
 
 	// Find user assertion and convert to models user
@@ -31,8 +30,10 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) (mod
 	// Overwrite values with those from assertions
 	testdatagen.MergeModels(&user, cUser)
 
-	// MYTODO: Add back stub functionality
-	mustCreate(db, &user, false)
+	// If db is false, it's a stub. No need to create in database
+	if db != nil {
+		mustCreate(db, &user)
+	}
 
-	return user, nil
+	return user
 }

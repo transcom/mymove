@@ -228,15 +228,14 @@ func (suite *MakerSuite) TestNestedModelsCheck() {
 		// Under test:       checkNestedModels
 		// Set up:           Call with a struct that contains a nested model
 		// Expected outcome: Error
-		user, err := BuildUser(suite.DB(), nil, nil)
-		suite.NoError(err)
+		user := BuildUser(suite.DB(), nil, nil)
 		c := Customization{
 			Model: models.ServiceMember{
 				User: user,
 			},
 			Type: &ServiceMember,
 		}
-		err = checkNestedModels(c)
+		err := checkNestedModels(c)
 		suite.Error(err)
 		suite.Contains(err.Error(), "no nested models")
 
@@ -326,30 +325,19 @@ func (suite *MakerSuite) TestDefaultTypes() {
 			suite.NotNil(c.Type)
 		}
 	})
-	suite.Run("Default types unknown", func() {
+	suite.Run("Error if type is unknown", func() {
 		// TESTCASE SCENARIO
-		// Under test:       setDefaultTypes
-		// Set up:           Pass customizations
-		//                   [0] Known model in map
-		//                   [1] Unknown model in map
-		// Expected outcome: Type is nil on unknown model
-		customs := []Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "string",
-				},
-			},
-			{
-				Model: models.MoveHistory{
-					Locator: "rock",
-				},
+		// Under test:       assignType
+		// Set up:           Create a customization with a type that isn't supported
+		// Expected outcome: Error
+		custom := Customization{
+			Model: models.MoveHistory{
+				Locator: "rock",
 			},
 		}
-		suite.Len(customs, 2)
-		setDefaultTypes(customs)
-
-		suite.NotNil(customs[0].Type)
-		suite.Nil(customs[1].Type)
+		err := assignType(&custom)
+		suite.Error(err)
+		suite.ErrorContains(err, "models.MoveHistory")
 	})
 }
 func (suite *MakerSuite) TestSetupCustomizations() {

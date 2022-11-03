@@ -88,28 +88,33 @@ type Trait func() []Customization
 
 // assignType uses the model name to assign the CustomType
 // if it's already assigned, do not reassign
-func assignType(custom *Customization) {
+func assignType(custom *Customization) error {
 	if custom.Type != nil {
-		return
+		return nil
 	}
 	// Get the model and check that it's a struct
 	model := custom.Model
 	mv := reflect.ValueOf(model)
 	if mv.Kind() != reflect.Struct {
-		log.Panic("Expecting interface containing a models.x struct or a factory.controlObject", model)
+		return fmt.Errorf("Customization.Model field had type %v - should contain a struct", mv.Kind())
 	}
 	// Get the model type and find the default type
 	fmt.Println("assigning type:", defaultTypesMap[mv.Type().String()])
 	typestring, ok := defaultTypesMap[mv.Type().String()]
 	if ok {
 		custom.Type = &typestring
+	} else {
+		return fmt.Errorf("Customization.Model field had type %v which is not supported in defaultTypesMap", mv.Type().String())
 	}
+	return nil
 }
 
 // setDefaultTypes assigns types to all customizations in the list provided
 func setDefaultTypes(clist []Customization) {
 	for idx := 0; idx < len(clist); idx++ {
-		assignType(&clist[idx])
+		if err := assignType(&clist[idx]); err != nil {
+			log.Panic(err.Error())
+		}
 	}
 }
 
@@ -348,11 +353,7 @@ func checkNestedModels(c interface{}) error {
 	return nil
 }
 
-func mustCreate(db *pop.Connection, model interface{}, stub bool) {
-	if stub {
-		return
-	}
-
+func mustCreate(db *pop.Connection, model interface{}) {
 	verrs, err := db.ValidateAndCreate(model)
 	if err != nil {
 		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))
