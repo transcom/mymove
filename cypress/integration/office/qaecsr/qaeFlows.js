@@ -71,8 +71,12 @@ const openSubmissionPreview = (isViolationsPage) => {
 };
 
 const submitReportFromPreview = () => {
-  // Click submit button in the modal
-  cy.get('[data-testid="modalSubmitButton"]').click();
+  // Click submit button in the modal (waits for button to be attached to DOM before clicking)
+  cy.get('[data-testid="modalSubmitButton"]')
+    .should(($el) => {
+      expect(Cypress.dom.isDetached($el)).to.eq(false);
+    })
+    .click();
 
   // Wait for the submit
   cy.wait(['@submitEvaluationReport']);
