@@ -5747,7 +5747,7 @@ func init() {
           "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
-          "description": "The timestamp of when the customer submitted their move to the counselor.",
+          "description": "The timestamp of when the customer submitted their PPM documentation to the counselor for review.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
@@ -13759,7 +13759,7 @@ func init() {
           "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
-          "description": "The timestamp of when the customer submitted their move to the counselor.",
+          "description": "The timestamp of when the customer submitted their PPM documentation to the counselor for review.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,

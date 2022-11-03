@@ -42,7 +42,7 @@ properties:
     x-nullable: true
     x-omitempty: false
   submittedAt:
-    description: The timestamp of when the customer submitted their move to the counselor.
+    description: The timestamp of when the customer submitted their PPM documentation to the counselor for review.
     format: date-time
     type: string
     x-nullable: true
