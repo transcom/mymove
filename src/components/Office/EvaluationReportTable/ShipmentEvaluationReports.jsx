@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 
 import EvaluationReportTable from './EvaluationReportTable';
-import EvaluationReportShipmentInfo from './EvaluationReportShipmentInfo';
+import ShipmentQAEReportHeader from './ShipmentQAEReportHeader';
 import styles from './ShipmentEvaluationReports.module.scss';
 
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
@@ -25,7 +25,7 @@ const ShipmentEvaluationReports = ({
   const shipmentRows = sortedShipments.map((shipment) => {
     return (
       <div key={shipment.id} className={styles.shipmentRow}>
-        <EvaluationReportShipmentInfo
+        <ShipmentQAEReportHeader
           shipment={shipment}
           destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />

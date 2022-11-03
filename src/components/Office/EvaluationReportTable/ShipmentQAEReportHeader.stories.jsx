@@ -1,14 +1,14 @@
 import React from 'react';
 
-import EvaluationReportShipmentInfo from './EvaluationReportShipmentInfo';
+import ShipmentQAEReportHeader from './ShipmentQAEReportHeader';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 
 export default {
-  title: 'Office Components/EvaluationReportShipmentInfo',
-  component: EvaluationReportShipmentInfo,
+  title: 'Office Components/ShipmentQAEReportHeader',
+  component: ShipmentQAEReportHeader,
   decorators: [
     (Story, context) => {
       // Dont wrap with permissions for the read only tests
@@ -80,43 +80,43 @@ const ntsrShipment = {
 
 export const hhg = () => (
   <div className="officeApp">
-    <EvaluationReportShipmentInfo shipment={hhgShipment} />
+    <ShipmentQAEReportHeader shipment={hhgShipment} />
   </div>
 );
 
 export const nts = () => (
   <div className="officeApp">
-    <EvaluationReportShipmentInfo shipment={ntsShipment} />
+    <ShipmentQAEReportHeader shipment={ntsShipment} />
   </div>
 );
 export const ntsr = () => (
   <div className="officeApp">
-    <EvaluationReportShipmentInfo shipment={ntsrShipment} />
+    <ShipmentQAEReportHeader shipment={ntsrShipment} />
   </div>
 );
 export const ppm = () => (
   <div className="officeApp">
-    <EvaluationReportShipmentInfo shipment={ppmShipment} />
+    <ShipmentQAEReportHeader shipment={ppmShipment} />
   </div>
 );
 export const hhgReadOnly = () => (
   <div className="officeApp">
-    <EvaluationReportShipmentInfo shipment={hhgShipment} />
+    <ShipmentQAEReportHeader shipment={hhgShipment} />
   </div>
 );
 
 export const ntsReadOnly = () => (
   <div className="officeApp">
-    <EvaluationReportShipmentInfo shipment={ntsShipment} />
+    <ShipmentQAEReportHeader shipment={ntsShipment} />
   </div>
 );
 export const ntsrReadOnly = () => (
   <div className="officeApp">
-    <EvaluationReportShipmentInfo shipment={ntsrShipment} />
+    <ShipmentQAEReportHeader shipment={ntsrShipment} />
   </div>
 );
 export const ppmReadOnly = () => (
   <div className="officeApp">
-    <EvaluationReportShipmentInfo shipment={ppmShipment} />
+    <ShipmentQAEReportHeader shipment={ppmShipment} />
   </div>
 );
