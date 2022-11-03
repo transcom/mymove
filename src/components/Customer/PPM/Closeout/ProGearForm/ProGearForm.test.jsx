@@ -9,9 +9,13 @@ const defaultProps = {
   onSubmit: jest.fn(),
 };
 
-const selfProGearProps = {
+const proGearProps = {
   proGear: {
     selfProGear: true,
+    proGearDocument: [],
+    proGearWeight: 1,
+    description: 'Description',
+    missingWeightTicket: '',
   },
 };
 
@@ -27,7 +31,7 @@ describe('ProGearForm component', () => {
       render(<ProGearForm {...defaultProps} />);
 
       expect(screen.getByRole('heading', { level: 2, name: 'Set 1' })).toBeInTheDocument();
-      expect(screen.getByText('Pro-gear belongs to')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Who does this pro-gear belongs to?')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Me')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('My spouse')).toBeInstanceOf(HTMLInputElement);
 
@@ -42,11 +46,27 @@ describe('ProGearForm component', () => {
     });
 
     it('selects "Me" radio when selfProGear is true', () => {
-      render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
+      const { container } = render(<ProGearForm {...defaultProps} {...proGearProps} />);
       expect(screen.getByLabelText('Me')).toBeChecked();
       expect(screen.getByLabelText('My spouse')).not.toBeChecked();
+      expect(container).toHaveTextContent("You have to separate yours and your spouse's pro-gear.");
     });
+    // TODO: Move test to WeightTicketUpload.test.jsx
+    // it('populates form when weight ticket is missing', async () => {
+    //   render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
+    //   await waitFor(() => {
+    //     expect(screen.getByLabelText("I don't have weight tickets")).toHaveDisplayValue('missingWeightTicket');
+    //   });
+    //   expect(
+    //     screen.getByText('Download the official government spreadsheet to calculate the constructed weight.'),
+    //   ).toBeInTheDocument();
+    // });
 
+    it('selects "My spouse" radio when selfProGear is false', () => {
+      render(<ProGearForm {...defaultProps} {...spouseProGearProps} />);
+      expect(screen.getByLabelText('My spouse')).toBeChecked();
+      expect(screen.getByLabelText('Me')).not.toBeChecked();
+    });
     it('selects "My spouse" radio when selfProGear is false', () => {
       render(<ProGearForm {...defaultProps} {...spouseProGearProps} />);
       expect(screen.getByLabelText('My spouse')).toBeChecked();
@@ -57,8 +77,12 @@ describe('ProGearForm component', () => {
     it('calls the onSubmit callback with selfProGear set', async () => {
       const expectedPayload = {
         selfProGear: 'true',
+        proGearDocument: [],
+        proGearWeight: '1',
+        description: 'Description',
+        missingWeightTicket: '',
       };
-      render(<ProGearForm {...defaultProps} {...selfProGearProps} />);
+      render(<ProGearForm {...defaultProps} {...proGearProps} />);
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 

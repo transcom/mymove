@@ -9,7 +9,7 @@ import weightFields from 'constants/MoveHistory/Database/WeightFields';
 import { shipmentTypes } from 'constants/shipments';
 import { HistoryLogRecordShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
 import optionFields from 'constants/MoveHistory/Database/OptionFields';
-import { formatCustomerDate } from 'utils/formatters';
+import { formatCustomerDate, formatWeight } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
   const emptyValue = '—';
@@ -19,7 +19,8 @@ const retrieveTextToDisplay = (fieldName, value) => {
   if (displayName === fieldMappings.storage_in_transit) {
     displayValue = `${displayValue} days`;
   } else if (weightFields[fieldName]) {
-    displayValue = `${displayValue} lbs`;
+    // turn string value into number so it can be formatted correctly
+    displayValue = formatWeight(Number(displayValue));
   } else if (optionFields[displayValue]) {
     displayValue = optionFields[displayValue];
   } else if (dateFields[fieldName]) {

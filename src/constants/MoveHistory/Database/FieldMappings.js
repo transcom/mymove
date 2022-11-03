@@ -81,4 +81,5 @@ export default {
   backup_contact_name: 'Backup contact name',
   backup_contact_email: 'Backup contact email',
   backup_contact_phone: 'Backup contact phone',
+  max_billable_weight: 'Max billable weight',
 };

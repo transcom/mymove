@@ -78,9 +78,9 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
 		},
 	}
 	for _, tt := range tests {
-		suite.T().Run(tt.name, func(t *testing.T) {
+		suite.Run(tt.name, func() {
 			if err := tt.gre.Import(suite.AppContextForTest()); (err != nil) != tt.wantErr {
-				t.Errorf("GHCRateEngineImporter.Import() error = %v, wantErr %v", err, tt.wantErr)
+				suite.T().Errorf("GHCRateEngineImporter.Import() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
