@@ -6,22 +6,41 @@ import EvaluationReportTable from './EvaluationReportTable';
 import EvaluationReportShipmentInfo from './EvaluationReportShipmentInfo';
 import styles from './ShipmentEvaluationReports.module.scss';
 
-import { CustomerShape } from 'types';
+import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 
-const ShipmentEvaluationReports = ({ shipments, reports, moveCode, customerInfo, grade }) => {
+const ShipmentEvaluationReports = ({
+  shipments,
+  reports,
+  moveCode,
+  customerInfo,
+  grade,
+  setReportToDelete,
+  setIsDeleteModalOpen,
+  deleteReport,
+  isDeleteModalOpen,
+  destinationDutyLocationPostalCode,
+}) => {
   const sortedShipments = shipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
 
   const shipmentRows = sortedShipments.map((shipment) => {
     return (
       <div key={shipment.id} className={styles.shipmentRow}>
-        <EvaluationReportShipmentInfo shipment={shipment} />
+        <EvaluationReportShipmentInfo
+          shipment={shipment}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
+        />
         <EvaluationReportTable
           moveCode={moveCode}
           reports={reports.filter((r) => r.shipmentID === shipment.id)}
           customerInfo={customerInfo}
           grade={grade}
-          shipmentId={shipment.id}
+          shipments={[shipment]}
           emptyText="No QAE reports have been submitted for this shipment."
+          setReportToDelete={setReportToDelete}
+          setIsDeleteModalOpen={setIsDeleteModalOpen}
+          isDeleteModalOpen={isDeleteModalOpen}
+          deleteReport={deleteReport}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />
       </div>
     );
@@ -36,11 +55,12 @@ const ShipmentEvaluationReports = ({ shipments, reports, moveCode, customerInfo,
 };
 
 ShipmentEvaluationReports.propTypes = {
-  reports: PropTypes.arrayOf(PropTypes.object),
-  shipments: PropTypes.arrayOf(PropTypes.object),
+  reports: PropTypes.arrayOf(EvaluationReportShape),
+  shipments: PropTypes.arrayOf(ShipmentShape),
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 ShipmentEvaluationReports.defaultProps = {
   reports: [],

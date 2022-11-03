@@ -4,16 +4,8 @@
 
 .QAECSRMoveSearchPage {
   @include u-padding-y(3);
-  @include u-padding-x(3);
-
-  h1, h2, h3 {
-    color: $mm-blue;
-    @include u-margin-x(1);
-  }
-
-  h1 {
-    font-size: 40px;
-  }
+  @include u-padding-x(4);
+  width: 100%;
 }
 
 .QAECSRMoveSearchWrapper {

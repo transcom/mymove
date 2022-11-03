@@ -36,6 +36,8 @@ describe('LabeledDetails', () => {
         grade: 'E_1',
         actual_pickup_date: '2022-01-01',
         prime_actual_weight: '100 lbs',
+        destination_address_type: 'HOME_OF_SELECTION',
+        affiliation: 'COAST_GUARD',
       },
     };
     it.each([
@@ -61,9 +63,12 @@ describe('LabeledDetails', () => {
       ['NTS TAC', ': 3333'],
       ['HHG SAC', ': 4444'],
       ['NTS SAC', ': 5555'],
+      ['Rank', ': E-1'],
       ['Dept. indicator', ': Air Force'],
       ['Departure date', ': 01 Jan 2022'],
       ['Shipment weight', ': 100 lbs'],
+      ['Destination type', ': Home of selection (HOS)'],
+      ['Branch', ': Coast Guard'],
     ])('it renders %s%s', (displayName, value) => {
       render(<LabeledDetails historyRecord={historyRecord} />);
 
@@ -79,12 +84,13 @@ describe('LabeledDetails', () => {
         billable_weight_cap: '200',
         billable_weight_justification: 'Test TIO Remarks',
         shipment_type: SHIPMENT_OPTIONS.NTSR,
+        shipment_id_display: 'X9Y0Z',
       },
     };
 
     render(<LabeledDetails historyRecord={historyRecord} />);
 
-    expect(screen.getByText('NTS-release shipment')).toBeInTheDocument();
+    expect(screen.getByText('NTS-release shipment #X9Y0Z')).toBeInTheDocument();
   });
 
   it('does not render any text for changed values that are blank', async () => {
@@ -108,4 +114,23 @@ describe('LabeledDetails', () => {
 
     expect(await screen.queryByText('Counselor remarks')).not.toBeInTheDocument();
   });
+});
+
+it('does render text for changed values that are blank when they exist in the old values (deleted values)', async () => {
+  const historyRecord = {
+    changedValues: {
+      billable_weight_cap: '200',
+      counselor_remarks: '',
+    },
+    oldValues: {
+      counselor_remarks: 'These remarks were deleted',
+    },
+  };
+
+  render(<LabeledDetails historyRecord={historyRecord} />);
+
+  expect(screen.getByText('Counselor remarks')).toBeInTheDocument();
+  expect(screen.getByText('—', { exact: false })).toBeInTheDocument();
+
+  expect(await screen.queryByText('These remarks were deleted')).not.toBeInTheDocument();
 });

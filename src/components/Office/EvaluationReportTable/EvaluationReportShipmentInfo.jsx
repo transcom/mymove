@@ -4,6 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 import { useMutation, queryCache } from 'react-query';
 import { useHistory, useParams } from 'react-router-dom';
 import classnames from 'classnames';
+import PropTypes from 'prop-types';
 
 import styles from './EvaluationReportShipmentInfo.module.scss';
 
@@ -13,8 +14,10 @@ import { ShipmentShape } from 'types/shipment';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { createShipmentEvaluationReport } from 'services/ghcApi';
 import { SHIPMENT_EVALUATION_REPORTS } from 'constants/queryKeys';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
-const EvaluationReportShipmentInfo = ({ shipment }) => {
+const EvaluationReportShipmentInfo = ({ shipment, destinationDutyLocationPostalCode }) => {
   const { moveCode } = useParams();
   const history = useHistory();
 
@@ -46,7 +49,9 @@ const EvaluationReportShipmentInfo = ({ shipment }) => {
     case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
       heading = 'HHG';
       pickupAddress = formatEvaluationReportShipmentAddress(shipment.pickupAddress);
-      destinationAddress = formatEvaluationReportShipmentAddress(shipment.destinationAddress);
+      destinationAddress = shipment?.destinationAddress
+        ? formatEvaluationReportShipmentAddress(shipment.destinationAddress)
+        : destinationDutyLocationPostalCode;
       shipmentAccentStyle = styles.hhgShipmentType;
       break;
     case SHIPMENT_OPTIONS.NTS:
@@ -58,7 +63,9 @@ const EvaluationReportShipmentInfo = ({ shipment }) => {
     case SHIPMENT_OPTIONS.NTSR:
       heading = 'NTS-Release';
       pickupAddress = shipment?.storageFacility ? shipment.storageFacility.facilityName : '';
-      destinationAddress = formatEvaluationReportShipmentAddress(shipment.destinationAddress);
+      destinationAddress = shipment?.destinationAddress
+        ? formatEvaluationReportShipmentAddress(shipment.destinationAddress)
+        : destinationDutyLocationPostalCode;
       shipmentAccentStyle = styles.ntsrShipmentType;
       break;
     case SHIPMENT_OPTIONS.PPM:
@@ -83,15 +90,18 @@ const EvaluationReportShipmentInfo = ({ shipment }) => {
             {pickupAddress} <FontAwesomeIcon icon="arrow-right" /> {destinationAddress}
           </small>
         </div>
-        <Button data-testid="shipmentEvaluationCreate" onClick={() => handleCreateClick(shipment.id)}>
-          Create report
-        </Button>
+        <Restricted to={permissionTypes.createEvaluationReport}>
+          <Button data-testid="shipmentEvaluationCreate" onClick={() => handleCreateClick(shipment.id)}>
+            Create report
+          </Button>
+        </Restricted>
       </div>
     </>
   );
 };
 EvaluationReportShipmentInfo.propTypes = {
   shipment: ShipmentShape.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 
 export default EvaluationReportShipmentInfo;

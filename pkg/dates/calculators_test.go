@@ -49,7 +49,7 @@ func (suite *DatesSuite) TestCreateFutureMoveDates() {
 		},
 	}
 	for _, testCase := range cases {
-		suite.T().Run(testCase.name, func(t *testing.T) {
+		suite.Run(testCase.name, func() {
 			dates := CreateFutureMoveDates(moveDate, numDays, testCase.includeWeekendsAndHolidays, usCalendar)
 			suite.Equal(testCase.dates, dates, "%v: Future dates did not match, expected %v, got %v", testCase.name, testCase.dates, dates)
 		})
@@ -90,7 +90,7 @@ func (suite *DatesSuite) TestCreatePastMoveDates() {
 		},
 	}
 	for _, testCase := range cases {
-		suite.T().Run(testCase.name, func(t *testing.T) {
+		suite.Run(testCase.name, func() {
 			dates := CreatePastMoveDates(moveDate, numDays, testCase.includeWeekendsAndHolidays, usCalendar)
 			suite.Equal(testCase.dates, dates, "%v: Past dates did not match, expected %v, got %v", testCase.name, testCase.dates, dates)
 		})

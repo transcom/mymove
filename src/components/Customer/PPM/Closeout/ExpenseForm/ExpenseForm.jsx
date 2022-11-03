@@ -2,12 +2,14 @@ import React, { createRef } from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { Button, ErrorMessage, Form, FormGroup, Radio, Label, Alert } from '@trussworks/react-uswds';
-import { func, string } from 'prop-types';
+import { func, number } from 'prop-types';
 import * as Yup from 'yup';
 
 import styles from './ExpenseForm.module.scss';
 
+import { formatCents } from 'utils/formatters';
 import numOfDaysBetweenDates from 'utils/dates';
+import { ppmExpenseTypes } from 'constants/ppmExpenseTypes';
 import { ExpenseShape } from 'types/shipment';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -26,19 +28,19 @@ const validationSchema = Yup.object().shape({
   expenseType: Yup.string().required('Required'),
   description: Yup.string().required('Required'),
   paidWithGTCC: Yup.boolean().required('Required'),
-  amount: Yup.number().required('Required'),
+  amount: Yup.string().notOneOf(['0', '0.00'], 'Please enter a non-zero amount').required('Required'),
   missingReceipt: Yup.boolean().required('Required'),
-  receiptDocument: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
+  document: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
   sitStartDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
-      is: 'storage',
-      then: (schema) => schema.required('Required'),
+      is: ppmExpenseTypes.STORAGE,
+      then: (schema) => schema.required('Required').max(Yup.ref('sitEndDate'), 'Start date must be before end date.'),
     }),
   sitEndDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
-      is: 'storage',
+      is: ppmExpenseTypes.STORAGE,
       then: (schema) => schema.required('Required'),
     }),
 });
@@ -52,31 +54,22 @@ const ExpenseForm = ({
   onUploadComplete,
   onUploadDelete,
 }) => {
-  const { expenseType, description, paidWithGTCC, amount, missingReceipt, receiptDocument, sitStartDate, sitEndDate } =
+  const { movingExpenseType, description, paidWithGtcc, amount, missingReceipt, document, sitStartDate, sitEndDate } =
     expense || {};
 
   const initialValues = {
-    expenseType: expenseType || '',
+    expenseType: movingExpenseType || '',
     description: description || '',
-    paidWithGTCC: paidWithGTCC ? 'true' : 'false',
-    amount: amount ? `${amount}` : '',
+    paidWithGTCC: paidWithGtcc ? 'true' : 'false',
+    amount: amount ? `${formatCents(amount)}` : '',
     missingReceipt: !!missingReceipt,
-    receiptDocument: receiptDocument?.uploads || [],
+    document: document?.uploads || [],
     sitStartDate: sitStartDate || '',
     sitEndDate: sitEndDate || '',
   };
 
-  const receiptDocumentRef = createRef();
-  const expenseOptions = [
-    { value: 'Contracted expense', key: 'contracted_expense' },
-    { value: 'Oil', key: 'oil' },
-    { value: 'Packing materials', key: 'packing_materials' },
-    { value: 'Rental equipment', key: 'rental_equipment' },
-    { value: 'Storage', key: 'storage' },
-    { value: 'Tolls', key: 'tolls' },
-    { value: 'Weighing fee', key: 'weighing_fee' },
-    { value: 'Other', key: 'other' },
-  ];
+  const documentRef = createRef();
+
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, values, errors, ...formikProps }) => {
@@ -86,7 +79,7 @@ const ExpenseForm = ({
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>{`Receipt ${receiptNumber}`}</h2>
                 <FormGroup>
-                  <DropdownInput label="Select type" name="expenseType" options={expenseOptions} id="expenseType" />
+                  <DropdownInput label="Select type" name="expenseType" options={ppmExpenseTypes} id="expenseType" />
                 </FormGroup>
                 {values.expenseType && (
                   <>
@@ -123,8 +116,11 @@ const ExpenseForm = ({
                         label="Amount"
                         id="amount"
                         mask={Number}
-                        scale={0} // digits after point, 0 for integers
+                        scale={2} // digits after point, 0 for integers
                         signed={false} // disallow negative
+                        radix="." // fractional delimiter
+                        mapToRadix={['.']} // symbols to process as radix
+                        padFractionalZeros // if true, then pads zeros at end to the length of scale
                         thousandsSeparator=","
                         lazy={false} // immediate masking evaluation
                         prefix="$"
@@ -141,56 +137,47 @@ const ExpenseForm = ({
                         </Alert>
                       )}
                       <div className={styles.labelWrapper}>
-                        <Label
-                          error={formikProps.touched?.receiptDocument && formikProps.errors?.receiptDocument}
-                          htmlFor="receiptDocument"
-                        >
+                        <Label error={formikProps.touched?.document && formikProps.errors?.document} htmlFor="document">
                           Upload receipt
                         </Label>
                       </div>
-                      {formikProps.touched?.receiptDocument && formikProps.errors?.receiptDocument && (
-                        <ErrorMessage>{formikProps.errors?.receiptDocument}</ErrorMessage>
+                      {formikProps.touched?.document && formikProps.errors?.document && (
+                        <ErrorMessage>{formikProps.errors?.document}</ErrorMessage>
                       )}
                       <Hint className={styles.uploadInstructions}>
                         <p>{DocumentAndImageUploadInstructions}</p>
                       </Hint>
                       <UploadsTable
-                        // className={styles.uploadsTable}
-                        uploads={values.receiptDocument}
+                        uploads={values.document}
                         onDelete={(uploadId) =>
-                          onUploadDelete(
-                            uploadId,
-                            'receiptDocument',
-                            formikProps.setFieldTouched,
-                            formikProps.setFieldValue,
-                          )
+                          onUploadDelete(uploadId, 'document', formikProps.setFieldTouched, formikProps.setFieldValue)
                         }
                       />
                       <FileUpload
-                        name="receiptDocument"
+                        name="document"
                         className="receiptDocument"
-                        createUpload={(file) => onCreateUpload('receiptDocument', file)}
+                        createUpload={(file) => onCreateUpload('document', file, formikProps.setFieldTouched)}
                         labelIdle={UploadDropZoneLabel}
                         labelIdleMobile={UploadDropZoneLabelMobile}
                         onChange={(err, upload) => {
-                          formikProps.setFieldTouched('receiptDocument', true);
+                          formikProps.setFieldTouched('document', true);
                           onUploadComplete(err);
-                          receiptDocumentRef.current.removeFile(upload.id);
+                          documentRef.current.removeFile(upload.id);
                         }}
-                        ref={receiptDocumentRef}
+                        ref={documentRef}
                       />
                     </FormGroup>
                   </>
                 )}
-                {values.expenseType === 'storage' && (
+                {values.expenseType === 'STORAGE' && (
                   <FormGroup>
                     <h3>Dates</h3>
                     <DatePickerInput name="sitStartDate" label="Start date" />
                     <DatePickerInput name="sitEndDate" label="End date" />
-                    <h3>
+                    <h3 className={styles.storageTotal}>
                       Days in storage:{' '}
                       {values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate
-                        ? numOfDaysBetweenDates(values.sitStartDate, values.sitEndDate)
+                        ? 1 + numOfDaysBetweenDates(values.sitStartDate, values.sitEndDate)
                         : ''}
                     </h3>
                   </FormGroup>
@@ -198,7 +185,7 @@ const ExpenseForm = ({
               </SectionWrapper>
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-                  Finish Later
+                  Return To Homepage
                 </Button>
                 <Button
                   className={ppmStyles.saveButton}
@@ -218,7 +205,7 @@ const ExpenseForm = ({
 };
 
 ExpenseForm.propTypes = {
-  receiptNumber: string,
+  receiptNumber: number,
   expense: ExpenseShape,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
@@ -229,7 +216,7 @@ ExpenseForm.propTypes = {
 
 ExpenseForm.defaultProps = {
   expense: undefined,
-  receiptNumber: '1',
+  receiptNumber: 1,
 };
 
 export default ExpenseForm;

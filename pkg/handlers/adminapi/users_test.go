@@ -1,11 +1,11 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
-//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
-//RA: in a unit test, then there is no risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+// RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+// RA: in a unit test, then there is no risk
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package adminapi
 
@@ -157,14 +157,12 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	// Create a handler and service object instances to test
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-	sessionManagers := suite.SetupSessionManagers()
 	queryBuilder := query.NewQueryBuilder()
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 
 	setupHandler := func() UpdateUserHandler {
 		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetSessionManagers(sessionManagers)
 
 		return UpdateUserHandler{
 			handlerConfig,
@@ -380,14 +378,14 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		err := validate.NewErrors()
 
+		handler := setupHandler()
 		userRevocation.On("RevokeUserSession",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			params.User,
-			sessionManagers[0].Store,
+			handler.HandlerConfig.SessionManagers(),
 		).Return(nil, err, nil).Once()
 
-		handler := setupHandler()
 		handler.UserSessionRevocation = userRevocation
 
 		suite.NoError(params.User.Validate(strfmt.Default))
@@ -488,11 +486,12 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		userRevocation := &mocks.UserSessionRevocation{}
 		err := validate.NewErrors()
 
+		handler := setupHandler()
 		userRevocation.On("RevokeUserSession",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			params.User,
-			sessionManagers[0].Store,
+			handler.HandlerConfig.SessionManagers(),
 		).Return(nil, err, nil).Once()
 
 		userUpdater.On("UpdateUser",
@@ -501,7 +500,6 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 			mock.AnythingOfType("*models.User"),
 		).Return(nil, nil, err).Once()
 
-		handler := setupHandler()
 		handler.UserUpdater = userUpdater
 		handler.UserSessionRevocation = userRevocation
 

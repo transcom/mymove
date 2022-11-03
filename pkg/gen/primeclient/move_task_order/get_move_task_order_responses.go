@@ -63,7 +63,8 @@ func NewGetMoveTaskOrderOK() *GetMoveTaskOrderOK {
 	return &GetMoveTaskOrderOK{}
 }
 
-/* GetMoveTaskOrderOK describes a response with status code 200, with default header values.
+/*
+GetMoveTaskOrderOK describes a response with status code 200, with default header values.
 
 Successfully retrieve an individual move task order.
 */
@@ -71,9 +72,39 @@ type GetMoveTaskOrderOK struct {
 	Payload *primemessages.MoveTaskOrder
 }
 
+// IsSuccess returns true when this get move task order o k response has a 2xx status code
+func (o *GetMoveTaskOrderOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get move task order o k response has a 3xx status code
+func (o *GetMoveTaskOrderOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get move task order o k response has a 4xx status code
+func (o *GetMoveTaskOrderOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get move task order o k response has a 5xx status code
+func (o *GetMoveTaskOrderOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get move task order o k response a status code equal to that given
+func (o *GetMoveTaskOrderOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetMoveTaskOrderOK) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderOK  %+v", 200, o.Payload)
 }
+
+func (o *GetMoveTaskOrderOK) String() string {
+	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderOK  %+v", 200, o.Payload)
+}
+
 func (o *GetMoveTaskOrderOK) GetPayload() *primemessages.MoveTaskOrder {
 	return o.Payload
 }
@@ -95,7 +126,8 @@ func NewGetMoveTaskOrderUnauthorized() *GetMoveTaskOrderUnauthorized {
 	return &GetMoveTaskOrderUnauthorized{}
 }
 
-/* GetMoveTaskOrderUnauthorized describes a response with status code 401, with default header values.
+/*
+GetMoveTaskOrderUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -103,9 +135,39 @@ type GetMoveTaskOrderUnauthorized struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this get move task order unauthorized response has a 2xx status code
+func (o *GetMoveTaskOrderUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get move task order unauthorized response has a 3xx status code
+func (o *GetMoveTaskOrderUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get move task order unauthorized response has a 4xx status code
+func (o *GetMoveTaskOrderUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get move task order unauthorized response has a 5xx status code
+func (o *GetMoveTaskOrderUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get move task order unauthorized response a status code equal to that given
+func (o *GetMoveTaskOrderUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *GetMoveTaskOrderUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *GetMoveTaskOrderUnauthorized) String() string {
+	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *GetMoveTaskOrderUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -127,7 +189,8 @@ func NewGetMoveTaskOrderForbidden() *GetMoveTaskOrderForbidden {
 	return &GetMoveTaskOrderForbidden{}
 }
 
-/* GetMoveTaskOrderForbidden describes a response with status code 403, with default header values.
+/*
+GetMoveTaskOrderForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -135,9 +198,39 @@ type GetMoveTaskOrderForbidden struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this get move task order forbidden response has a 2xx status code
+func (o *GetMoveTaskOrderForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get move task order forbidden response has a 3xx status code
+func (o *GetMoveTaskOrderForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get move task order forbidden response has a 4xx status code
+func (o *GetMoveTaskOrderForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get move task order forbidden response has a 5xx status code
+func (o *GetMoveTaskOrderForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get move task order forbidden response a status code equal to that given
+func (o *GetMoveTaskOrderForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *GetMoveTaskOrderForbidden) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderForbidden  %+v", 403, o.Payload)
 }
+
+func (o *GetMoveTaskOrderForbidden) String() string {
+	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderForbidden  %+v", 403, o.Payload)
+}
+
 func (o *GetMoveTaskOrderForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -159,7 +252,8 @@ func NewGetMoveTaskOrderNotFound() *GetMoveTaskOrderNotFound {
 	return &GetMoveTaskOrderNotFound{}
 }
 
-/* GetMoveTaskOrderNotFound describes a response with status code 404, with default header values.
+/*
+GetMoveTaskOrderNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -167,9 +261,39 @@ type GetMoveTaskOrderNotFound struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this get move task order not found response has a 2xx status code
+func (o *GetMoveTaskOrderNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get move task order not found response has a 3xx status code
+func (o *GetMoveTaskOrderNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get move task order not found response has a 4xx status code
+func (o *GetMoveTaskOrderNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get move task order not found response has a 5xx status code
+func (o *GetMoveTaskOrderNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get move task order not found response a status code equal to that given
+func (o *GetMoveTaskOrderNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *GetMoveTaskOrderNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderNotFound  %+v", 404, o.Payload)
 }
+
+func (o *GetMoveTaskOrderNotFound) String() string {
+	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderNotFound  %+v", 404, o.Payload)
+}
+
 func (o *GetMoveTaskOrderNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -191,7 +315,8 @@ func NewGetMoveTaskOrderInternalServerError() *GetMoveTaskOrderInternalServerErr
 	return &GetMoveTaskOrderInternalServerError{}
 }
 
-/* GetMoveTaskOrderInternalServerError describes a response with status code 500, with default header values.
+/*
+GetMoveTaskOrderInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -199,9 +324,39 @@ type GetMoveTaskOrderInternalServerError struct {
 	Payload *primemessages.Error
 }
 
+// IsSuccess returns true when this get move task order internal server error response has a 2xx status code
+func (o *GetMoveTaskOrderInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get move task order internal server error response has a 3xx status code
+func (o *GetMoveTaskOrderInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get move task order internal server error response has a 4xx status code
+func (o *GetMoveTaskOrderInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get move task order internal server error response has a 5xx status code
+func (o *GetMoveTaskOrderInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this get move task order internal server error response a status code equal to that given
+func (o *GetMoveTaskOrderInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *GetMoveTaskOrderInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *GetMoveTaskOrderInternalServerError) String() string {
+	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *GetMoveTaskOrderInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

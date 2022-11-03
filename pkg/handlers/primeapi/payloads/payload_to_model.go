@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -239,6 +238,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 		ActualPickupDate:           handlers.FmtDatePtrToPopPtr(mtoShipment.ActualPickupDate),
 		FirstAvailableDeliveryDate: handlers.FmtDatePtrToPopPtr(mtoShipment.FirstAvailableDeliveryDate),
 		ScheduledPickupDate:        handlers.FmtDatePtrToPopPtr(mtoShipment.ScheduledPickupDate),
+		ActualDeliveryDate:         handlers.FmtDatePtrToPopPtr(mtoShipment.ActualDeliveryDate),
+		ScheduledDeliveryDate:      handlers.FmtDatePtrToPopPtr(mtoShipment.ScheduledDeliveryDate),
 		ShipmentType:               models.MTOShipmentType(mtoShipment.ShipmentType),
 		Diversion:                  mtoShipment.Diversion,
 		CounselorRemarks:           mtoShipment.CounselorRemarks,
@@ -310,7 +311,6 @@ func PPMShipmentModelFromUpdate(ppmShipment *primemessages.UpdatePPMShipment) *m
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
-		NetWeight:                      handlers.PoundPtrFromInt64Ptr(ppmShipment.NetWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),

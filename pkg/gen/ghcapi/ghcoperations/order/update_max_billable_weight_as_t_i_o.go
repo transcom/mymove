@@ -29,12 +29,12 @@ func NewUpdateMaxBillableWeightAsTIO(ctx *middleware.Context, handler UpdateMaxB
 	return &UpdateMaxBillableWeightAsTIO{Context: ctx, Handler: handler}
 }
 
-/* UpdateMaxBillableWeightAsTIO swagger:route PATCH /orders/{orderID}/update-max-billable-weight/tio order updateMaxBillableWeightAsTIO
+/*
+	UpdateMaxBillableWeightAsTIO swagger:route PATCH /orders/{orderID}/update-max-billable-weight/tio order updateMaxBillableWeightAsTIO
 
-Updates the max billable weight with TIO remarks
+# Updates the max billable weight with TIO remarks
 
 Updates the DBAuthorizedWeight attribute for the Order Entitlements and move TIO remarks
-
 */
 type UpdateMaxBillableWeightAsTIO struct {
 	Context *middleware.Context

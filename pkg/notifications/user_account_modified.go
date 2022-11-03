@@ -13,14 +13,13 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/assets"
 )
 
 var (
-	userAccountModifiedRawTextTemplate = string(assets.MustAsset("pkg/notifications/templates/user_account_modified_template.txt"))
+	userAccountModifiedRawTextTemplate = string(assets.MustAsset("notifications/templates/user_account_modified_template.txt"))
 	userAccountModifiedTextTemplate    = text.Must(text.New("text_template").Parse(userAccountModifiedRawTextTemplate))
-	userAccountModifiedRawHTMLTemplate = string(assets.MustAsset("pkg/notifications/templates/user_account_modified_template.html"))
+	userAccountModifiedRawHTMLTemplate = string(assets.MustAsset("notifications/templates/user_account_modified_template.html"))
 	userAccountModifiedHTMLTemplate    = html.Must(html.New("text_template").Parse(userAccountModifiedRawHTMLTemplate))
 )
 

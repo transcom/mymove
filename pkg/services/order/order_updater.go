@@ -10,9 +10,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -260,6 +259,7 @@ func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UU
 		file,
 		filename,
 		uploader.MaxCustomerUserUploadFileSizeLimit,
+		uploader.AllowedTypesServiceMember,
 		&savedAmendedOrdersDoc.ID,
 	)
 

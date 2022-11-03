@@ -29,12 +29,12 @@ func NewGetMove(ctx *middleware.Context, handler GetMoveHandler) *GetMove {
 	return &GetMove{Context: ctx, Handler: handler}
 }
 
-/* GetMove swagger:route GET /move/{locator} move getMove
+/*
+	GetMove swagger:route GET /move/{locator} move getMove
 
-Returns a given move
+# Returns a given move
 
 Returns a given move for a unique alphanumeric locator string
-
 */
 type GetMove struct {
 	Context *middleware.Context

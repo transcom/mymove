@@ -11,3 +11,7 @@ export {
   PaymentServiceItemShape,
 } from './order';
 export { MatchShape, LocationShape } from './router';
+export { EvaluationReportShape } from './evaluationReport';
+export { PWSViolationShape } from './pwsViolation';
+export { ReportViolationShape } from './reportViolation';
+export { ShipmentShape } from './shipment';

@@ -6,7 +6,6 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
-
 	"github.com/gofrs/uuid"
 )
 
@@ -40,9 +39,9 @@ func (e *Entitlement) Validate(*pop.Connection) (*validate.Errors, error) {
 }
 
 // SetWeightAllotment sets the weight allotment
-//TODO probably want to reconsider keeping grade a string rather than enum
-//TODO and possibly consider creating ghc specific GetWeightAllotment should the two
-//TODO diverge in the future
+// TODO probably want to reconsider keeping grade a string rather than enum
+// TODO and possibly consider creating ghc specific GetWeightAllotment should the two
+// TODO diverge in the future
 func (e *Entitlement) SetWeightAllotment(grade string) {
 	wa := GetWeightAllotment(ServiceMemberRank(grade))
 	e.weightAllotment = &wa

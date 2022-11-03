@@ -6,9 +6,8 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/services"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -312,6 +311,220 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(models.AffiliationARMY, *moves[0].Orders.ServiceMember.Affiliation)
+	})
+}
+
+func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMarines() {
+	orderFetcher := NewOrderFetcher()
+	showMove := true
+
+	suite.Run("returns Navy order for NAVY office user when there's a ppm shipment in closeout", func() {
+		navy := models.AffiliationNAVY
+		// It doesn't matter what the Origin GBLOC is for the move. Only the navy
+		// affiliation matters for SC  who are tied to the NAVY GBLOC.
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show:   &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &navy},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   move,
+				MoveTaskOrderID: move.ID,
+			},
+		})
+
+		cg := models.AffiliationCOASTGUARD
+		nonCGMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show:   &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &cg},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   nonCGMove,
+				MoveTaskOrderID: nonCGMove.ID,
+			},
+		})
+
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "NAVY")
+
+		params := services.ListOrderParams{PerPage: swag.Int64(9), Page: swag.Int64(1)}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.AffiliationNAVY, *moves[0].Orders.ServiceMember.Affiliation)
+
+	})
+
+	suite.Run("returns TVCB order for TVCB office user when there's a ppm shipment in closeout", func() {
+		marines := models.AffiliationMARINES
+		// It doesn't matter what the Origin GBLOC is for the move. Only the marines
+		// affiliation matters for SC  who are tied to the TVCB GBLOC.
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show:   &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &marines},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   move,
+				MoveTaskOrderID: move.ID,
+			},
+		})
+
+		army := models.AffiliationARMY
+		nonMarineMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show:   &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &army},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   nonMarineMove,
+				MoveTaskOrderID: nonMarineMove.ID,
+			},
+		})
+
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "TVCB")
+
+		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.AffiliationMARINES, *moves[0].Orders.ServiceMember.Affiliation)
+
+	})
+
+	suite.Run("returns coast guard order for USCG office user when there's a ppm shipment in closeout and filters out non coast guard moves", func() {
+		cg := models.AffiliationCOASTGUARD
+		// It doesn't matter what the Origin GBLOC is for the move. Only the coast guard
+		// affiliation matters for SC  who are tied to the USCG GBLOC.
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show:   &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &cg},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   move,
+				MoveTaskOrderID: move.ID,
+			},
+		})
+
+		army := models.AffiliationARMY
+		armyMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show:   &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &army},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   armyMove,
+				MoveTaskOrderID: armyMove.ID,
+			},
+		})
+
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
+		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.AffiliationCOASTGUARD, *moves[0].Orders.ServiceMember.Affiliation)
+	})
+
+	suite.Run("Filters out moves with PPM shipments not in the status of NeedsApproval", func() {
+		cg := models.AffiliationCOASTGUARD
+
+		cgMoveInWrongStatus := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show:   &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &cg},
+		})
+		testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				Status: models.PPMShipmentStatusPaymentApproved,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    models.MTOShipmentTypePPM,
+				MoveTaskOrder:   cgMoveInWrongStatus,
+				MoveTaskOrderID: cgMoveInWrongStatus.ID,
+			},
+		})
+
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
+		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(0, len(moves))
+	})
+
+	suite.Run("Filters out moves with no PPM shipment", func() {
+		cg := models.AffiliationCOASTGUARD
+
+		moveWithHHG := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show:   &showMove,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &cg},
+		})
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ShipmentType:    models.MTOShipmentTypeHHG,
+				MoveTaskOrder:   moveWithHHG,
+				MoveTaskOrderID: moveWithHHG.ID,
+			},
+		})
+
+		officeUserSC := testdatagen.MakeServicesCounselorOfficeUserWithGBLOC(suite.DB(), "USCG")
+		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(0, len(moves))
 	})
 }
 

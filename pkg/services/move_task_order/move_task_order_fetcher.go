@@ -7,9 +7,8 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -205,7 +204,7 @@ func setMTOQueryFilters(query *pop.Query, searchParams *services.MoveTaskOrderFe
 	// No return since this function uses pointers to modify the referenced query directly
 }
 
-//fetchReweigh retrieves a reweigh for a given shipment id
+// fetchReweigh retrieves a reweigh for a given shipment id
 func fetchReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.Reweigh, error) {
 	reweigh := &models.Reweigh{}
 	err := appCtx.DB().

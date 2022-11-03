@@ -7,13 +7,11 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
-	"github.com/pkg/errors"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -345,6 +343,7 @@ func (router moveRouter) Cancel(appCtx appcontext.AppContext, reason string, mov
 // CompleteServiceCounseling sets the move status to:
 //   - "Service Counseling Completed" if a non-PPM move
 //   - "Approved" if a PPM-only move
+//
 // This makes the move available to the TOO.  This gets called when the Service Counselor is done
 // reviewing the move and submits it.
 func (router moveRouter) CompleteServiceCounseling(appCtx appcontext.AppContext, move *models.Move) error {

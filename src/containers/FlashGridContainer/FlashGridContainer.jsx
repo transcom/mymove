@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { GridContainer } from '@trussworks/react-uswds';
 
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { clearFlashMessage } from 'store/flash/actions';
 
@@ -35,7 +35,7 @@ const FlashGridContainer = ({ children, messageKey, clearMessage, ...gridContain
   return (
     // eslint-disable-next-line react/jsx-props-no-spreading
     <GridContainer {...gridContainerProps}>
-      <ScrollToTop otherDep={currentMessageKey} />
+      <NotificationScrollToTop dependency={currentMessageKey} />
       <ConnectedFlashMessage />
       {children}
     </GridContainer>

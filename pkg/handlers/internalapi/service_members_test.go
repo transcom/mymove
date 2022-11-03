@@ -1,11 +1,11 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
-//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
-//RA: in a unit test, then there is no risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+// RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+// RA: in a unit test, then there is no risk
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package internalapi
 
@@ -13,8 +13,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-
-	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -24,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )

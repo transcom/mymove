@@ -1,0 +1,18 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  service_member_id:
+    type: string
+    format: uuid
+    title: The service member this document belongs to
+  uploads:
+    type: array
+    items:
+      $ref: 'Upload.yaml'
+required:
+  - id
+  - service_member_id
+  - uploads

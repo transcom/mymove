@@ -19,6 +19,9 @@ import (
 // swagger:model EvaluationReport
 type EvaluationReport struct {
 
+	// report violations
+	ReportViolations ReportViolations `json:"ReportViolations,omitempty"`
+
 	// created at
 	// Read Only: true
 	// Format: date-time
@@ -61,15 +64,41 @@ type EvaluationReport struct {
 	// Read Only: true
 	MoveReferenceID *string `json:"moveReferenceID,omitempty"`
 
+	// observed claims response date
+	// Format: date
+	ObservedClaimsResponseDate *strfmt.Date `json:"observedClaimsResponseDate,omitempty"`
+
 	// observed date
 	// Format: date
 	ObservedDate *strfmt.Date `json:"observedDate,omitempty"`
+
+	// observed delivery date
+	// Format: date
+	ObservedDeliveryDate *strfmt.Date `json:"observedDeliveryDate,omitempty"`
+
+	// observed pickup date
+	// Format: date
+	ObservedPickupDate *strfmt.Date `json:"observedPickupDate,omitempty"`
+
+	// observed pickup spread end date
+	// Format: date
+	ObservedPickupSpreadEndDate *strfmt.Date `json:"observedPickupSpreadEndDate,omitempty"`
+
+	// observed pickup spread start date
+	// Format: date
+	ObservedPickupSpreadStartDate *strfmt.Date `json:"observedPickupSpreadStartDate,omitempty"`
 
 	// office user
 	OfficeUser *EvaluationReportOfficeUser `json:"officeUser,omitempty"`
 
 	// remarks
 	Remarks *string `json:"remarks,omitempty"`
+
+	// serious incident
+	SeriousIncident *bool `json:"seriousIncident,omitempty"`
+
+	// serious incident desc
+	SeriousIncidentDesc *string `json:"seriousIncidentDesc,omitempty"`
 
 	// shipment ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -101,6 +130,10 @@ type EvaluationReport struct {
 func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateReportViolations(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -129,7 +162,27 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateObservedClaimsResponseDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateObservedDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateObservedDeliveryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateObservedPickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateObservedPickupSpreadEndDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateObservedPickupSpreadStartDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -160,6 +213,23 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *EvaluationReport) validateReportViolations(formats strfmt.Registry) error {
+	if swag.IsZero(m.ReportViolations) { // not required
+		return nil
+	}
+
+	if err := m.ReportViolations.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ReportViolations")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ReportViolations")
+		}
+		return err
+	}
+
 	return nil
 }
 
@@ -261,12 +331,72 @@ func (m *EvaluationReport) validateMoveID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *EvaluationReport) validateObservedClaimsResponseDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObservedClaimsResponseDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observedClaimsResponseDate", "body", "date", m.ObservedClaimsResponseDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *EvaluationReport) validateObservedDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ObservedDate) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("observedDate", "body", "date", m.ObservedDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateObservedDeliveryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObservedDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observedDeliveryDate", "body", "date", m.ObservedDeliveryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateObservedPickupDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObservedPickupDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observedPickupDate", "body", "date", m.ObservedPickupDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateObservedPickupSpreadEndDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObservedPickupSpreadEndDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observedPickupSpreadEndDate", "body", "date", m.ObservedPickupSpreadEndDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateObservedPickupSpreadStartDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObservedPickupSpreadStartDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observedPickupSpreadStartDate", "body", "date", m.ObservedPickupSpreadStartDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -361,6 +491,10 @@ func (m *EvaluationReport) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateReportViolations(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -404,6 +538,20 @@ func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.R
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateReportViolations(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ReportViolations.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ReportViolations")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ReportViolations")
+		}
+		return err
+	}
+
 	return nil
 }
 

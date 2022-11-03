@@ -4,28 +4,28 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
-	"github.com/transcom/mymove/pkg/appcontext"
-
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *NotificationSuite) TestUserAccountModified() {
-	modifiedUser := testdatagen.MakeStubbedUser(suite.DB())
-	responsibleUser := testdatagen.MakeStubbedUser(suite.DB())
-	session := auth.Session{
-		UserID:   responsibleUser.ID,
-		Hostname: "adminlocal",
-	}
 
 	subject := "[MilMove] User Account Activity Alert"
 	sysAdminEmail := "admin@test.com"
 
 	suite.Run("Create emails for all possible actions", func() {
+		modifiedUser := testdatagen.MakeStubbedUser(suite.DB())
+
+		responsibleUser := testdatagen.MakeStubbedUser(suite.DB())
+		session := auth.Session{
+			UserID:   responsibleUser.ID,
+			Hostname: "adminlocal",
+		}
+
 		// Set up test cases for each action:
 		testCases := map[string]struct {
 			action     string
@@ -35,55 +35,56 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 				modifiedAt time.Time,
 			) (*UserAccountModified, error)
 		}{
-			"Success - User account created notification": {
+			"User account created notification": {
 				action:     "created",
 				newEmailer: NewUserAccountCreated,
 			},
-			"Success - User account activated notification": {
+			"User account activated notification": {
 				action:     "activated",
 				newEmailer: NewUserAccountActivated,
 			},
-			"Success - User account deactivated notification": {
+			"User account deactivated notification": {
 				action:     "deactivated",
 				newEmailer: NewUserAccountDeactivated,
 			},
-			"Success - User account removed notification": {
+			"User account removed notification": {
 				action:     "removed",
 				newEmailer: NewUserAccountRemoved,
 			},
 		}
 
 		// Loop through and run each test case:
-		for name, tc := range testCases {
-			suite.Run(name, func() {
-				emailer, err := tc.newEmailer(suite.AppContextWithSessionForTest(&session), sysAdminEmail, modifiedUser.ID, modifiedUser.UpdatedAt)
-				suite.Require().NoError(err)
-				suite.Require().NotNil(emailer)
+		for _, tc := range testCases {
 
-				emails, emailErr := emailer.emails(suite.AppContextWithSessionForTest(&session))
-				suite.Require().NoError(emailErr)
-				suite.Require().NotNil(emails)
-				suite.Equal(len(emails), 1)
+			emailer, err := tc.newEmailer(suite.AppContextWithSessionForTest(&session), sysAdminEmail, modifiedUser.ID, modifiedUser.UpdatedAt)
+			suite.Require().NoError(err)
+			suite.Require().NotNil(emailer)
 
-				email := emails[0]
-				// Check expected values against received values:
-				suite.Equal(sysAdminEmail, email.recipientEmail)
-				suite.Equal(subject, email.subject)
-				suite.NotEmpty(email.htmlBody)
-				suite.NotEmpty(email.textBody)
+			emails, emailErr := emailer.emails(suite.AppContextWithSessionForTest(&session))
+			suite.Require().NoError(emailErr)
+			suite.Require().NotNil(emails)
+			suite.Equal(len(emails), 1)
 
-				// Check email content:
-				suite.Contains(email.textBody, session.Hostname)
-				suite.Contains(email.textBody, fmt.Sprintf("Account %s", tc.action))
-				suite.Contains(email.textBody, fmt.Sprintf("Modified user ID: %s", modifiedUser.ID))
-				suite.Contains(email.textBody, fmt.Sprintf("Responsible user ID: %s", responsibleUser.ID))
-			})
+			email := emails[0]
+			// Check expected values against received values:
+			suite.Equal(sysAdminEmail, email.recipientEmail)
+			suite.Equal(subject, email.subject)
+			suite.NotEmpty(email.htmlBody)
+			suite.NotEmpty(email.textBody)
+
+			// Check email content:
+			suite.Contains(email.textBody, session.Hostname)
+			suite.Contains(email.textBody, fmt.Sprintf("Account %s", tc.action))
+			suite.Contains(email.textBody, fmt.Sprintf("Modified user ID: %s", modifiedUser.ID))
+			suite.Contains(email.textBody, fmt.Sprintf("Responsible user ID: %s", responsibleUser.ID))
+
 		}
 	})
 
 	suite.Run("Success - User account creation with no user in session", func() {
 		// Test case:   If a user just created their account, their userID information might not be in the session yet.
 		// Expectation: The email should use the modified user ID as the responsible user ID as well.
+		modifiedUser := testdatagen.MakeStubbedUser(suite.DB())
 		emptySessionCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		emailer, err := NewUserAccountCreated(emptySessionCtx, sysAdminEmail, modifiedUser.ID, modifiedUser.UpdatedAt)
@@ -103,6 +104,7 @@ func (suite *NotificationSuite) TestUserAccountModified() {
 	suite.Run("Fail - Session is nil", func() {
 		// Test case:   The session wasn't set in the AppContext, for some reason. Possibly dev error.
 		// Expectation: Initializing the UserAccountModified should return services.ContextError
+		modifiedUser := testdatagen.MakeStubbedUser(suite.DB())
 		nilSessionCtx := suite.AppContextForTest()
 
 		emailer, err := NewUserAccountCreated(nilSessionCtx, sysAdminEmail, modifiedUser.ID, modifiedUser.UpdatedAt)

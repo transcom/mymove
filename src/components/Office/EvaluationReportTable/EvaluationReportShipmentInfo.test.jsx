@@ -5,6 +5,7 @@ import EvaluationReportShipmentInfo from './EvaluationReportShipmentInfo';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 const pickupAddress = {
   city: 'Beverly Hills',
@@ -68,7 +69,7 @@ const ppmShipment = {
 describe('EvaluationReportShipmentInfo', () => {
   it('renders HHG shipment', () => {
     render(
-      <MockProviders>
+      <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
         <EvaluationReportShipmentInfo shipment={hhgShipment} shipmentNumber={1} />
       </MockProviders>,
     );
@@ -80,7 +81,7 @@ describe('EvaluationReportShipmentInfo', () => {
   });
   it('renders NTS shipment', () => {
     render(
-      <MockProviders>
+      <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
         <EvaluationReportShipmentInfo shipment={ntsShipment} shipmentNumber={1} />
       </MockProviders>,
     );
@@ -92,7 +93,7 @@ describe('EvaluationReportShipmentInfo', () => {
   });
   it('renders NTS-R shipment', () => {
     render(
-      <MockProviders>
+      <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
         <EvaluationReportShipmentInfo shipment={ntsReleaseShipment} shipmentNumber={1} />
       </MockProviders>,
     );
@@ -104,7 +105,7 @@ describe('EvaluationReportShipmentInfo', () => {
   });
   it('renders PPM shipment', () => {
     render(
-      <MockProviders>
+      <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
         <EvaluationReportShipmentInfo shipment={ppmShipment} shipmentNumber={1} />
       </MockProviders>,
     );

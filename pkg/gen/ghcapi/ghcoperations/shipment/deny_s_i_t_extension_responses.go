@@ -16,7 +16,8 @@ import (
 // DenySITExtensionOKCode is the HTTP code returned for type DenySITExtensionOK
 const DenySITExtensionOKCode int = 200
 
-/*DenySITExtensionOK Successfully denied a SIT extension
+/*
+DenySITExtensionOK Successfully denied a SIT extension
 
 swagger:response denySITExtensionOK
 */
@@ -60,7 +61,8 @@ func (o *DenySITExtensionOK) WriteResponse(rw http.ResponseWriter, producer runt
 // DenySITExtensionForbiddenCode is the HTTP code returned for type DenySITExtensionForbidden
 const DenySITExtensionForbiddenCode int = 403
 
-/*DenySITExtensionForbidden The request was denied
+/*
+DenySITExtensionForbidden The request was denied
 
 swagger:response denySITExtensionForbidden
 */
@@ -104,7 +106,8 @@ func (o *DenySITExtensionForbidden) WriteResponse(rw http.ResponseWriter, produc
 // DenySITExtensionNotFoundCode is the HTTP code returned for type DenySITExtensionNotFound
 const DenySITExtensionNotFoundCode int = 404
 
-/*DenySITExtensionNotFound The requested resource wasn't found
+/*
+DenySITExtensionNotFound The requested resource wasn't found
 
 swagger:response denySITExtensionNotFound
 */
@@ -148,7 +151,8 @@ func (o *DenySITExtensionNotFound) WriteResponse(rw http.ResponseWriter, produce
 // DenySITExtensionConflictCode is the HTTP code returned for type DenySITExtensionConflict
 const DenySITExtensionConflictCode int = 409
 
-/*DenySITExtensionConflict Conflict error
+/*
+DenySITExtensionConflict Conflict error
 
 swagger:response denySITExtensionConflict
 */
@@ -192,7 +196,8 @@ func (o *DenySITExtensionConflict) WriteResponse(rw http.ResponseWriter, produce
 // DenySITExtensionPreconditionFailedCode is the HTTP code returned for type DenySITExtensionPreconditionFailed
 const DenySITExtensionPreconditionFailedCode int = 412
 
-/*DenySITExtensionPreconditionFailed Precondition failed
+/*
+DenySITExtensionPreconditionFailed Precondition failed
 
 swagger:response denySITExtensionPreconditionFailed
 */
@@ -236,7 +241,8 @@ func (o *DenySITExtensionPreconditionFailed) WriteResponse(rw http.ResponseWrite
 // DenySITExtensionUnprocessableEntityCode is the HTTP code returned for type DenySITExtensionUnprocessableEntity
 const DenySITExtensionUnprocessableEntityCode int = 422
 
-/*DenySITExtensionUnprocessableEntity The payload was unprocessable.
+/*
+DenySITExtensionUnprocessableEntity The payload was unprocessable.
 
 swagger:response denySITExtensionUnprocessableEntity
 */
@@ -280,7 +286,8 @@ func (o *DenySITExtensionUnprocessableEntity) WriteResponse(rw http.ResponseWrit
 // DenySITExtensionInternalServerErrorCode is the HTTP code returned for type DenySITExtensionInternalServerError
 const DenySITExtensionInternalServerErrorCode int = 500
 
-/*DenySITExtensionInternalServerError A server error occurred
+/*
+DenySITExtensionInternalServerError A server error occurred
 
 swagger:response denySITExtensionInternalServerError
 */

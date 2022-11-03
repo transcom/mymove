@@ -4,11 +4,26 @@ import ShipmentEvaluationReports from './ShipmentEvaluationReports';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 export default {
   title: 'Office Components/ShipmentEvaluationReports',
   component: ShipmentEvaluationReports,
-  decorators: [(Story) => <MockProviders>{Story()}</MockProviders>],
+  decorators: [
+    (Story, context) => {
+      // Dont wrap with permissions for the read only tests
+      if (context.name.includes('Read Only')) {
+        return <MockProviders>{Story()}</MockProviders>;
+      }
+
+      // By default, show component with permissions
+      return (
+        <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
+          <Story />
+        </MockProviders>
+      );
+    },
+  ],
 };
 
 const hhgShipment = {
@@ -26,7 +41,9 @@ const hhgShipment = {
     state: 'AK',
     postalCode: '90210',
   },
+  createdAt: '2020-01-01T00:01:00.999Z',
 };
+
 const ppmShipment = {
   id: '22222222-2222-2222-2222-222222222222',
   shipmentType: SHIPMENT_OPTIONS.PPM,
@@ -34,6 +51,7 @@ const ppmShipment = {
     pickupPostalCode: '89503',
     destinationPostalCode: '90210',
   },
+  createdAt: '2020-01-01T00:02:00.999Z',
 };
 
 const ntsShipment = {
@@ -48,7 +66,9 @@ const ntsShipment = {
   storageFacility: {
     facilityName: 'Awesome Storage LLC',
   },
+  createdAt: '2020-01-01T00:03:00.999Z',
 };
+
 const ntsrShipment = {
   id: '44444444-4444-4444-4444-444444444444',
   shipmentType: SHIPMENT_OPTIONS.NTSR,
@@ -61,6 +81,7 @@ const ntsrShipment = {
   storageFacility: {
     facilityName: 'Awesome Storage LLC',
   },
+  createdAt: '2020-01-01T00:04:00.999Z',
 };
 
 const shipments = [hhgShipment, ppmShipment, ntsShipment, ntsrShipment];
@@ -85,6 +106,7 @@ const reports = [
     violationsObserved: true,
   },
 ];
+
 export const empty = () => (
   <div className="officeApp">
     <ShipmentEvaluationReports reports={[]} />
@@ -92,6 +114,12 @@ export const empty = () => (
 );
 
 export const single = () => (
+  <div className="officeApp">
+    <ShipmentEvaluationReports shipments={shipments} reports={reports} />
+  </div>
+);
+
+export const singleReadOnly = () => (
   <div className="officeApp">
     <ShipmentEvaluationReports shipments={shipments} reports={reports} />
   </div>

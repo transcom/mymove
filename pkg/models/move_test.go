@@ -1,11 +1,11 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
-//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
-//RA: in a unit test, then there is no risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+// RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+// RA: in a unit test, then there is no risk
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package models_test
 
@@ -19,7 +19,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -71,7 +70,7 @@ func (suite *ModelSuite) TestGenerateReferenceID() {
 
 func (suite *ModelSuite) TestFetchMove() {
 
-	setupTestData := func() (*auth.Session, models.Order) {
+	setupTestData := func() (*auth.Session, Order) {
 
 		order := testdatagen.MakeDefaultOrder(suite.DB())
 		testdatagen.MakeDefaultContractor(suite.DB())
@@ -168,7 +167,7 @@ func (suite *ModelSuite) TestFetchMove() {
 		session, order := setupTestData()
 		// Create a hidden move
 		hiddenMove := testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
+			Order: Order{
 				ID: order.ID,
 			},
 		})

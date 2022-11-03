@@ -6,13 +6,11 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	customersupportremarksop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -78,10 +76,12 @@ func (suite *HandlerSuite) TestListCustomerRemarksForMoveHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	var move models.Move
+	var officeUser models.OfficeUser
 
 	suite.Run("Successful POST", func() {
+		move = testdatagen.MakeDefaultMove(suite.DB())
+		officeUser = testdatagen.MakeDefaultOfficeUser(suite.DB())
 		handlerConfig := suite.HandlerConfig()
 
 		creator := &mocks.CustomerSupportRemarksCreator{}
@@ -118,6 +118,8 @@ func (suite *HandlerSuite) TestCreateCustomerSupportRemarksHandler() {
 	})
 
 	suite.Run("unsuccessful POST", func() {
+		move = testdatagen.MakeDefaultMove(suite.DB())
+
 		handlerConfig := suite.HandlerConfig()
 
 		creator := &mocks.CustomerSupportRemarksCreator{}

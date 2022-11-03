@@ -8,21 +8,27 @@ import fieldMappings from 'constants/MoveHistory/Database/FieldMappings';
 import weightFields from 'constants/MoveHistory/Database/WeightFields';
 import { shipmentTypes } from 'constants/shipments';
 import { HistoryLogRecordShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
-import optionFields from 'constants/MoveHistory/Database/Orders';
-import { formatCustomerDate } from 'utils/formatters';
+import optionFields from 'constants/MoveHistory/Database/OptionFields';
+import { formatCustomerDate, formatWeight } from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
+  const emptyValue = '—';
   const displayName = fieldMappings[fieldName];
   let displayValue = value;
 
   if (displayName === fieldMappings.storage_in_transit) {
     displayValue = `${displayValue} days`;
   } else if (weightFields[fieldName]) {
-    displayValue = `${displayValue} lbs`;
+    // turn string value into number so it can be formatted correctly
+    displayValue = formatWeight(Number(displayValue));
   } else if (optionFields[displayValue]) {
     displayValue = optionFields[displayValue];
   } else if (dateFields[fieldName]) {
     displayValue = formatCustomerDate(displayValue);
+  }
+
+  if (!displayValue) {
+    displayValue = emptyValue;
   }
 
   return {
@@ -40,9 +46,10 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
   }
 
   // Check for shipment_type to use it as a header for the row
+  // TODO: [ MB-12182 ] This will include a shipment ID label in the future
   if ('shipment_type' in changedValuesToUse) {
     shipmentDisplay = shipmentTypes[changedValuesToUse.shipment_type];
-    shipmentDisplay += ' shipment';
+    shipmentDisplay += ` shipment #${changedValuesToUse.shipment_id_display}`;
     delete changedValuesToUse.shipment_type;
   }
 
@@ -51,8 +58,13 @@ const LabeledDetails = ({ historyRecord, getDetailsLabeledDetails }) => {
     delete changedValuesToUse.service_item_name;
   }
 
+  /* Filter out empty values unless they used to be non-empty
+     These values may be non-nullish in oldValues and nullish in changedValues */
   const dbFieldsToDisplay = Object.keys(fieldMappings).filter((dbField) => {
-    return changedValuesToUse[dbField];
+    return (
+      changedValuesToUse[dbField] ||
+      (dbField in changedValuesToUse && historyRecord.oldValues && historyRecord.oldValues[dbField])
+    );
   });
 
   return (

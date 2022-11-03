@@ -1,30 +1,28 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
-//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
-//RA: in which this would be considered a risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
+// RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
+// RA: in which this would be considered a risk
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package paperwork
 
 import (
 	"time"
 
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/paperwork/mocks"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	paperworkforms "github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/services"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+	"github.com/transcom/mymove/pkg/services/paperwork/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -61,22 +59,6 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 			HasRequestedAdvance: true,
 		},
 	})
-
-	movedocuments := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
-			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   models.MoveDocumentStatusOK,
-			MoveDocumentType:         "EXPENSE",
-		},
-		Document: models.Document{
-			ServiceMemberID: serviceMemberID,
-			ServiceMember:   move.Orders.ServiceMember,
-		},
-	}
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
 
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
@@ -227,9 +209,9 @@ func (suite *PaperworkServiceSuite) TestCreateFormServiceFormFillerOutputFailure
 }
 
 func (suite *PaperworkServiceSuite) TestCreateFormServiceCreateAssetByteReaderFailure() {
-	badAssetPath := "pkg/paperwork/formtemplates/someUndefinedTemplatePath.png"
+	badAssetPath := "paperwork/formtemplates/someUndefinedTemplatePath.png"
 	templateBuffer, err := createAssetByteReader(badAssetPath)
 	suite.Nil(templateBuffer)
 	suite.NotNil(err)
-	suite.Equal("error creating asset from path; check image path: Asset pkg/paperwork/formtemplates/someUndefinedTemplatePath.png not found", err.Error())
+	suite.Equal("error creating asset from path; check image path: open paperwork/formtemplates/someUndefinedTemplatePath.png: file does not exist", err.Error())
 }

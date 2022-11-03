@@ -5,17 +5,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/etag"
-
 	"github.com/getlantern/deepcopy"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
@@ -128,6 +126,14 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 
 	if requestedUpdatedShipment.ScheduledPickupDate != nil {
 		dbShipment.ScheduledPickupDate = requestedUpdatedShipment.ScheduledPickupDate
+	}
+
+	if requestedUpdatedShipment.ActualDeliveryDate != nil {
+		dbShipment.ActualDeliveryDate = requestedUpdatedShipment.ActualDeliveryDate
+	}
+
+	if requestedUpdatedShipment.ScheduledDeliveryDate != nil {
+		dbShipment.ScheduledDeliveryDate = requestedUpdatedShipment.ScheduledDeliveryDate
 	}
 
 	if requestedUpdatedShipment.PrimeEstimatedWeight != nil {
@@ -262,7 +268,7 @@ func (e StaleIdentifierError) Error() string {
 	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
 }
 
-//UpdateMTOShipment updates the mto shipment
+// UpdateMTOShipment updates the mto shipment
 func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	eagerAssociations := []string{"MoveTaskOrder",
 		"PickupAddress",

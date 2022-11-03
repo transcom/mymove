@@ -37,7 +37,7 @@ Blank.args = {
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {},
   },
-  tripNumber: '1',
+  tripNumber: 1,
 };
 
 export const ExistingWeightTickets = Template.bind({});
@@ -60,11 +60,11 @@ ExistingWeightTickets.args = {
       uploads: [
         {
           id: 'db4713ae-6087-4330-8b0d-926b3d65c454',
-          created_at: '2022-06-10T12:59:30.000Z',
+          createdAt: '2022-06-10T12:59:30.000Z',
           bytes: 204800,
           url: 'some/path/to/',
           filename: 'emptyWeight.pdf',
-          content_type: 'application/pdf',
+          contentType: 'application/pdf',
         },
       ],
     },
@@ -74,26 +74,26 @@ ExistingWeightTickets.args = {
       uploads: [
         {
           id: '28e6e387-7b2d-441b-b96f-f9ba7ed6e794',
-          created_at: '2022-06-09T06:30:59.000Z',
+          createdAt: '2022-06-09T06:30:59.000Z',
           bytes: 4096000,
           url: 'some/path/to/',
           filename: 'Alongerfilenamewithoutspacestotestlinebreakdisplay.png',
-          content_type: 'image/png',
+          contentType: 'image/png',
         },
         {
           id: '445d2896-571e-4d2e-8bd1-a9d5878ce21f',
-          created_at: '2022-06-08T07:15:01.000Z',
+          createdAt: '2022-06-08T07:15:01.000Z',
           bytes: 10240000,
           url: 'some/path/to/',
           filename: 'A very long file name with spaces included.jpg',
-          content_type: 'image/jpeg',
+          contentType: 'image/jpeg',
         },
       ],
     },
     ownsTrailer: false,
     trailerMeetsCriteria: false,
   },
-  tripNumber: '1',
+  tripNumber: 1,
 };
 
 export const MissingWeightTickets = Template.bind({});
@@ -116,11 +116,11 @@ MissingWeightTickets.args = {
       uploads: [
         {
           id: 'db4713ae-6087-4330-8b0d-926b3d65c454',
-          created_at: '2022-06-10T12:59:30.000Z',
+          createdAt: '2022-06-10T12:59:30.000Z',
           bytes: 2048,
           url: 'some/path/to/',
           filename: 'emptyWeight.xls',
-          content_type: 'application/vnd.ms-excel',
+          contentType: 'application/vnd.ms-excel',
         },
       ],
     },
@@ -130,18 +130,18 @@ MissingWeightTickets.args = {
       uploads: [
         {
           id: '28e6e387-7b2d-441b-b96f-f9ba7ed6e794',
-          created_at: '2022-06-09T06:30:59.000Z',
+          createdAt: '2022-06-09T06:30:59.000Z',
           bytes: 4096,
           url: 'some/path/to/',
           filename: 'fullWeight.xlsx',
-          content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         },
       ],
     },
     ownsTrailer: false,
     trailerMeetsCriteria: false,
   },
-  tripNumber: '1',
+  tripNumber: 1,
 };
 
 export const TrailerOwnership = Template.bind({});
@@ -162,11 +162,11 @@ TrailerOwnership.args = {
       uploads: [
         {
           id: 'db4713ae-6087-4330-8b0d-926b3d65c454',
-          created_at: '2022-06-10T12:59:30.000Z',
+          createdAt: '2022-06-10T12:59:30.000Z',
           bytes: 204800,
           url: 'some/path/to/',
           filename: 'emptyWeight.pdf',
-          content_type: 'application/pdf',
+          contentType: 'application/pdf',
         },
       ],
     },
@@ -176,19 +176,19 @@ TrailerOwnership.args = {
       uploads: [
         {
           id: '28e6e387-7b2d-441b-b96f-f9ba7ed6e794',
-          created_at: '2022-06-09T06:30:59.000Z',
+          createdAt: '2022-06-09T06:30:59.000Z',
           bytes: 4096000,
           url: 'some/path/to/',
           filename: 'Alongerfilenamewithoutspacestotestlinebreakdisplay.png',
-          content_type: 'image/png',
+          contentType: 'image/png',
         },
         {
           id: '445d2896-571e-4d2e-8bd1-a9d5878ce21f',
-          created_at: '2022-06-08T07:15:01.000Z',
+          createdAt: '2022-06-08T07:15:01.000Z',
           bytes: 10240000,
           url: 'some/path/to/',
           filename: 'A very long file name with spaces included.jpg',
-          content_type: 'image/jpeg',
+          contentType: 'image/jpeg',
         },
       ],
     },
@@ -198,14 +198,14 @@ TrailerOwnership.args = {
       uploads: [
         {
           id: '8477cc1f-29da-4e3c-a1ce-34db433cf926',
-          created_at: '2022-06-11T12:59:30.000Z',
+          createdAt: '2022-06-11T12:59:30.000Z',
           bytes: 5120000,
           url: 'some/path/to/',
           filename: 'trailerTitle.pdf',
-          content_type: 'application/pdf',
+          contentType: 'application/pdf',
         },
       ],
     },
   },
-  tripNumber: '1',
+  tripNumber: 1,
 };

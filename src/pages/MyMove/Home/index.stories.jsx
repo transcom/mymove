@@ -4,6 +4,9 @@ import React from 'react';
 import { Home } from './index';
 
 import { MockProviders } from 'testUtils';
+import { MOVE_STATUSES } from 'shared/constants';
+import { ppmShipmentStatuses } from 'constants/shipments';
+import { createApprovedPPMShipment, createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
 
 export default {
   title: 'Customer Components / Pages / Home',
@@ -38,7 +41,7 @@ const uploadOrdersProps = {
   location: {},
   move: {
     locator: 'XYZ890',
-    status: 'DRAFT',
+    status: MOVE_STATUSES.DRAFT,
   },
   uploadedOrderDocuments: [],
   uploadedAmendedOrderDocuments: [],
@@ -85,6 +88,9 @@ const withShipmentProps = {
     {
       id: 'testMove',
       shipmentType: 'PPM',
+      ppmShipment: {
+        status: ppmShipmentStatuses.DRAFT,
+      },
     },
     {
       id: 'testShipment2',
@@ -93,6 +99,7 @@ const withShipmentProps = {
       ppmShipment: {
         id: 'ppmShipmentIncomplete',
         hasRequestedAdvance: null,
+        status: ppmShipmentStatuses.DRAFT,
       },
     },
     {
@@ -102,6 +109,7 @@ const withShipmentProps = {
       ppmShipment: {
         id: 'ppmShipmentComplete',
         hasRequestedAdvance: true,
+        status: ppmShipmentStatuses.SUBMITTED,
       },
     },
   ],
@@ -111,7 +119,7 @@ const submittedProps = {
   ...withShipmentProps,
   move: {
     ...withShipmentProps.move,
-    status: 'SUBMITTED',
+    status: MOVE_STATUSES.SUBMITTED,
     submitted_at: '2020-12-24',
   },
 };
@@ -128,6 +136,36 @@ const amendedOrderProps = {
       filename: 'Amended_Orders.pdf',
     },
   ],
+};
+
+const propsForApprovedPPMShipment = {
+  ...shipmentSelectionProps,
+  mtoShipments: [
+    createApprovedPPMShipment({
+      id: 'abcd1234-0000-0000-0000-000000000000',
+      approvedAt: '2022-10-10',
+    }),
+  ],
+  move: {
+    ...withShipmentProps.move,
+    status: MOVE_STATUSES.APPROVED,
+    submitted_at: '2020-12-24',
+  },
+};
+
+const propsForCloseoutCompletePPMShipment = {
+  ...shipmentSelectionProps,
+  mtoShipments: [
+    createPPMShipmentWithFinalIncentive({
+      id: 'abcd1234-0000-0000-0000-000000000000',
+      ppmShipment: { status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL },
+    }),
+  ],
+  move: {
+    ...withShipmentProps.move,
+    status: MOVE_STATUSES.APPROVED,
+    submitted_at: '2020-12-24',
+  },
 };
 
 export const Step2 = () => {
@@ -188,6 +226,26 @@ export const AmendedOrders = () => {
     <MockProviders>
       <div className="grid-container usa-prose">
         <Home {...amendedOrderProps} />
+      </div>
+    </MockProviders>
+  );
+};
+
+export const ApprovedPPM = () => {
+  return (
+    <MockProviders>
+      <div className="grid-container usa-prose">
+        <Home {...propsForApprovedPPMShipment} />
+      </div>
+    </MockProviders>
+  );
+};
+
+export const PPMCloseoutFinished = () => {
+  return (
+    <MockProviders>
+      <div className="grid-container usa-prose">
+        <Home {...propsForCloseoutCompletePPMShipment} />
       </div>
     </MockProviders>
   );

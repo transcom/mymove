@@ -16,7 +16,8 @@ import (
 // DeleteMTOShipmentNoContentCode is the HTTP code returned for type DeleteMTOShipmentNoContent
 const DeleteMTOShipmentNoContentCode int = 204
 
-/*DeleteMTOShipmentNoContent Successfully deleted the MTO shipment.
+/*
+DeleteMTOShipmentNoContent Successfully deleted the MTO shipment.
 
 swagger:response deleteMTOShipmentNoContent
 */
@@ -40,7 +41,8 @@ func (o *DeleteMTOShipmentNoContent) WriteResponse(rw http.ResponseWriter, produ
 // DeleteMTOShipmentBadRequestCode is the HTTP code returned for type DeleteMTOShipmentBadRequest
 const DeleteMTOShipmentBadRequestCode int = 400
 
-/*DeleteMTOShipmentBadRequest The request payload is invalid.
+/*
+DeleteMTOShipmentBadRequest The request payload is invalid.
 
 swagger:response deleteMTOShipmentBadRequest
 */
@@ -84,7 +86,8 @@ func (o *DeleteMTOShipmentBadRequest) WriteResponse(rw http.ResponseWriter, prod
 // DeleteMTOShipmentForbiddenCode is the HTTP code returned for type DeleteMTOShipmentForbidden
 const DeleteMTOShipmentForbiddenCode int = 403
 
-/*DeleteMTOShipmentForbidden The request was denied.
+/*
+DeleteMTOShipmentForbidden The request was denied.
 
 swagger:response deleteMTOShipmentForbidden
 */
@@ -128,7 +131,8 @@ func (o *DeleteMTOShipmentForbidden) WriteResponse(rw http.ResponseWriter, produ
 // DeleteMTOShipmentNotFoundCode is the HTTP code returned for type DeleteMTOShipmentNotFound
 const DeleteMTOShipmentNotFoundCode int = 404
 
-/*DeleteMTOShipmentNotFound The requested resource wasn't found.
+/*
+DeleteMTOShipmentNotFound The requested resource wasn't found.
 
 swagger:response deleteMTOShipmentNotFound
 */
@@ -172,7 +176,8 @@ func (o *DeleteMTOShipmentNotFound) WriteResponse(rw http.ResponseWriter, produc
 // DeleteMTOShipmentConflictCode is the HTTP code returned for type DeleteMTOShipmentConflict
 const DeleteMTOShipmentConflictCode int = 409
 
-/*DeleteMTOShipmentConflict The request could not be processed because of conflict in the current state of the resource.
+/*
+DeleteMTOShipmentConflict The request could not be processed because of conflict in the current state of the resource.
 
 swagger:response deleteMTOShipmentConflict
 */
@@ -216,7 +221,8 @@ func (o *DeleteMTOShipmentConflict) WriteResponse(rw http.ResponseWriter, produc
 // DeleteMTOShipmentUnprocessableEntityCode is the HTTP code returned for type DeleteMTOShipmentUnprocessableEntity
 const DeleteMTOShipmentUnprocessableEntityCode int = 422
 
-/*DeleteMTOShipmentUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
+/*
+DeleteMTOShipmentUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response deleteMTOShipmentUnprocessableEntity
 */
@@ -260,7 +266,8 @@ func (o *DeleteMTOShipmentUnprocessableEntity) WriteResponse(rw http.ResponseWri
 // DeleteMTOShipmentInternalServerErrorCode is the HTTP code returned for type DeleteMTOShipmentInternalServerError
 const DeleteMTOShipmentInternalServerErrorCode int = 500
 
-/*DeleteMTOShipmentInternalServerError A server error occurred.
+/*
+DeleteMTOShipmentInternalServerError A server error occurred.
 
 swagger:response deleteMTOShipmentInternalServerError
 */

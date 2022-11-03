@@ -1,0 +1,86 @@
+description: Expense information and receipts of costs incurred that can be reimbursed while moving a PPM shipment.
+type: object
+properties:
+  id:
+    description: Unique primary identifier of the Moving Expense object
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  ppmShipmentId:
+    description: The PPM Shipment id that this moving expense belongs to
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  documentId:
+    description: The id of the Document that contains all file uploads for this expense
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  document:
+    allOf:
+      - description: The Document object that contains all file uploads for this expense
+      - $ref: 'Document.yaml'
+  movingExpenseType:
+    $ref: 'OmittableMovingExpenseType.yaml'
+  description:
+    description: A brief description of the expense
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  paidWithGtcc:
+    description: Indicates if the service member used their government issued card to pay for the expense
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  amount:
+    description: The total amount of the expense as indicated on the receipt
+    type: integer
+    x-nullable: true
+    x-omitempty: false
+  missingReceipt:
+    description: Indicates if the service member is missing the receipt with the proof of expense amount
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  status:
+    $ref: 'OmittablePPMDocumentStatus.yaml'
+  reason:
+    $ref: 'PPMDocumentStatusReason.yaml'
+  sitStartDate:
+    description: The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
+    type: string
+    example: '2022-04-26'
+    format: date
+    x-nullable: true
+    x-omitempty: false
+  sitEndDate:
+    description: The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
+    type: string
+    example: '2018-05-26'
+    format: date
+    x-nullable: true
+    x-omitempty: false
+  createdAt:
+    description: Timestamp the moving expense object was initially created in the system (UTC)
+    type: string
+    format: date-time
+    readOnly: true
+  updatedAt:
+    description: Timestamp when a property of this moving expense object was last modified (UTC)
+    type: string
+    format: date-time
+    readOnly: true
+  eTag:
+    description: A hash that should be used as the "If-Match" header for any updates.
+    type: string
+    readOnly: true
+required:
+  - id
+  - createdAt
+  - updatedAt
+  - ppmShipmentId
+  - documentId
+  - document

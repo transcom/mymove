@@ -5,33 +5,30 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/route"
-
-	"github.com/transcom/mymove/pkg/rateengine"
-
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type ppmComputer interface {
 	ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error)
 }
 
-//SSWPPMComputer a rate engine wrapper with helper functions to simplify ppm cost calculations specific to shipment summary worksheet
+// SSWPPMComputer a rate engine wrapper with helper functions to simplify ppm cost calculations specific to shipment summary worksheet
 type SSWPPMComputer struct {
 	ppmComputer
 }
 
-//NewSSWPPMComputer creates a SSWPPMComputer
+// NewSSWPPMComputer creates a SSWPPMComputer
 func NewSSWPPMComputer(PPMComputer ppmComputer) *SSWPPMComputer {
 	return &SSWPPMComputer{ppmComputer: PPMComputer}
 }
 
-//ObligationType type corresponding to obligation sections of shipment summary worksheet
+// ObligationType type corresponding to obligation sections of shipment summary worksheet
 type ObligationType int
 
-//ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
+// ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
 func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppContext, ssfd models.ShipmentSummaryFormData, planner route.Planner) (obligation models.Obligations, err error) {
 	firstPPM, err := sswPpmComputer.nilCheckPPM(ssfd)
 	if err != nil {

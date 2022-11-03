@@ -29,12 +29,12 @@ func NewShowPPMEstimate(ctx *middleware.Context, handler ShowPPMEstimateHandler)
 	return &ShowPPMEstimate{Context: ctx, Handler: handler}
 }
 
-/* ShowPPMEstimate swagger:route GET /estimates/ppm ppm showPPMEstimate
+/*
+	ShowPPMEstimate swagger:route GET /estimates/ppm ppm showPPMEstimate
 
-Return a PPM cost estimate
+# Return a PPM cost estimate
 
 Calculates a reimbursement range for a PPM move (excluding SIT)
-
 */
 type ShowPPMEstimate struct {
 	Context *middleware.Context

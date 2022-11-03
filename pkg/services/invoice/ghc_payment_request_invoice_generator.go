@@ -9,15 +9,13 @@ import (
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/sequence"
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 /*
@@ -208,6 +206,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		Eager("MTOServiceItem.ReService", "MTOServiceItem.MTOShipment").
 		Where("payment_request_id = ?", paymentRequest.ID).
 		Where("status = ?", models.PaymentServiceItemStatusApproved).
+		Order("created_at").
 		All(&paymentServiceItems)
 	if err != nil {
 		switch err {

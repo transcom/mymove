@@ -3,11 +3,8 @@ package fuelprice
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
-
-	"go.uber.org/zap"
-
 	"math"
 	"net/http"
 	"net/url"
@@ -17,6 +14,7 @@ import (
 	"github.com/benbjohnson/clock"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/dates"
@@ -137,7 +135,7 @@ func FetchFuelPriceData(url string) (resultData EiaData, err error) {
 		return resultData, errors.Wrap(err, "Error with EIA Open Data fuel prices GET request")
 	}
 
-	response, err := ioutil.ReadAll(resp.Body)
+	response, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return resultData, errors.Wrap(err, "Unable to read response body from eia.gov")
 	}

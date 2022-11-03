@@ -3,17 +3,15 @@ package payloads
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/etag"
-
-	"github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PayloadsSuite) TestMoveTaskOrder() {
@@ -40,7 +38,6 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		UpdatedAt:                  time.Now(),
 		SelectedMoveType:           &hhgMoveType,
 		PersonallyProcuredMoves:    models.PersonallyProcuredMoves{},
-		MoveDocuments:              models.MoveDocuments{},
 		Status:                     models.MoveStatusAPPROVED,
 		SignedCertifications:       models.SignedCertifications{},
 		MTOServiceItems:            models.MTOServiceItems{},
@@ -136,9 +133,9 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 
 	now := time.Now()
 	fakeFileStorer := test.NewFakeS3Storage(true)
-	upload := testdatagen.MakeStubbedUpload(suite.DB(), testdatagen.Assertions{})
 
 	suite.Run("Success - all data populated", func() {
+		upload := testdatagen.MakeStubbedUpload(suite.DB(), testdatagen.Assertions{})
 		move := models.Move{
 			ID:                         id,
 			ExcessWeightQualifiedAt:    &now,

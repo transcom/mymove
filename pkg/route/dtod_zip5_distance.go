@@ -37,15 +37,15 @@ The Request to DTOD using the service ProcessRequest which looks like
 import (
 	"fmt"
 
-	"go.uber.org/zap"
-
 	"github.com/tiaguinho/gosoap"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 // DTODPlannerMileage is the interface for connecting to DTOD SOAP service and requesting distance mileage
 // NOTE: Placing this in a separate package/directory to avoid a circular dependency from an existing mock.
+//
 //go:generate mockery --name DTODPlannerMileage --outpkg ghcmocks --output ./ghcmocks --disable-version-string
 type DTODPlannerMileage interface {
 	DTODZip5Distance(appCtx appcontext.AppContext, pickup string, destination string) (int, error)

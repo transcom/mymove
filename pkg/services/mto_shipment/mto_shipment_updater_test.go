@@ -4,24 +4,20 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	notificationMocks "github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/fetch"
-
 	mockservices "github.com/transcom/mymove/pkg/services/mocks"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -62,6 +58,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	scheduledPickupDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	firstAvailableDeliveryDate := time.Date(2019, time.March, 10, 0, 0, 0, 0, time.UTC)
 	actualPickupDate := time.Date(2020, time.June, 8, 0, 0, 0, 0, time.UTC)
+	scheduledDeliveryDate := time.Date(2018, time.April, 10, 0, 0, 0, 0, time.UTC)
+	actualDeliveryDate := time.Date(2020, time.May, 8, 0, 0, 0, 0, time.UTC)
 	primeActualWeight := unit.Pound(1234)
 	primeEstimatedWeight := unit.Pound(1234)
 
@@ -246,6 +244,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			ScheduledPickupDate:              &scheduledPickupDate,
 			RequestedDeliveryDate:            &requestedDeliveryDate,
 			ActualPickupDate:                 &actualPickupDate,
+			ActualDeliveryDate:               &actualDeliveryDate,
+			ScheduledDeliveryDate:            &scheduledDeliveryDate,
 			PrimeActualWeight:                &primeActualWeight,
 			PrimeEstimatedWeight:             &primeEstimatedWeight,
 			FirstAvailableDeliveryDate:       &firstAvailableDeliveryDate,
@@ -263,6 +263,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.True(scheduledPickupDate.Equal(*newShipment.ScheduledPickupDate))
 		suite.True(requestedDeliveryDate.Equal(*newShipment.RequestedDeliveryDate))
 		suite.True(actualPickupDate.Equal(*newShipment.ActualPickupDate))
+		suite.True(actualDeliveryDate.Equal(*newShipment.ActualDeliveryDate))
+		suite.True(scheduledDeliveryDate.Equal(*newShipment.ScheduledDeliveryDate))
 		suite.True(firstAvailableDeliveryDate.Equal(*newShipment.FirstAvailableDeliveryDate))
 		suite.True(primeEstimatedWeightRecordedDate.Equal(*newShipment.PrimeEstimatedWeightRecordedDate))
 		suite.Equal(primeEstimatedWeight, *newShipment.PrimeEstimatedWeight)

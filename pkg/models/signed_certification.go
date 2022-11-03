@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
-
-	"github.com/transcom/mymove/pkg/auth"
-
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 // SignedCertificationType represents the types of certificates
@@ -42,6 +41,7 @@ type SignedCertification struct {
 	SubmittingUserID         uuid.UUID                `json:"submitting_user_id" db:"submitting_user_id"`
 	MoveID                   uuid.UUID                `json:"move_id" db:"move_id"`
 	PersonallyProcuredMoveID *uuid.UUID               `json:"personally_procured_move_id" db:"personally_procured_move_id"`
+	PpmID                    *uuid.UUID               `json:"ppm_id" db:"ppm_id"`
 	CertificationType        *SignedCertificationType `json:"certification_type" db:"certification_type"`
 	CreatedAt                time.Time                `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time                `json:"updated_at" db:"updated_at"`
@@ -81,6 +81,8 @@ func (s *SignedCertification) ValidateUpdate(tx *pop.Connection) (*validate.Erro
 	return validate.NewErrors(), nil
 }
 
+// DEPRECATED - This can be removed when the PPM Shipment Summary Worksheet is updated
+// to use the new PPM shipment table
 // FetchSignedCertificationsPPMPayment Fetches and Validates a PPM Payment Signature
 func FetchSignedCertificationsPPMPayment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*SignedCertification, error) {
 	var signedCertification SignedCertification

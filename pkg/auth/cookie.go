@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alexedwards/scs/v2"
 	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -35,14 +34,14 @@ func (e *errInvalidHostname) Error() string {
 }
 
 // GorillaCSRFToken is the name of the base CSRF token
-//RA Summary: gosec - G101 - Password Management: Hardcoded Password
-//RA: This line was flagged because it detected use of the word "token"
-//RA: This line is used to identify the name of the token. GorillaCSRFToken is the name of the base CSRF token.
-//RA: This variable does not store an application token.
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Validator: jneuner@mitre.org
-//RA Modified Severity: CAT III
+// RA Summary: gosec - G101 - Password Management: Hardcoded Password
+// RA: This line was flagged because it detected use of the word "token"
+// RA: This line is used to identify the name of the token. GorillaCSRFToken is the name of the base CSRF token.
+// RA: This variable does not store an application token.
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Validator: jneuner@mitre.org
+// RA Modified Severity: CAT III
 // #nosec G101
 const GorillaCSRFToken = "_gorilla_csrf"
 
@@ -55,16 +54,6 @@ const SessionExpiryInMinutes = 15
 // GetExpiryTimeFromMinutes returns 'min' minutes from now
 func GetExpiryTimeFromMinutes(min int64) time.Time {
 	return time.Now().Add(time.Minute * time.Duration(min))
-}
-
-// GetCookie returns a cookie from a request
-func GetCookie(name string, r *http.Request) (*http.Cookie, error) {
-	for _, cookie := range r.Cookies() {
-		if cookie.Name == name {
-			return cookie, nil
-		}
-	}
-	return nil, errors.Errorf("Unable to find cookie: %s", name)
 }
 
 // DeleteCookie sends a delete request for the named cookie
@@ -134,21 +123,9 @@ func ApplicationName(hostname string, appnames ApplicationServername) (Applicati
 		}, fmt.Sprintf("%s is invalid", hostname))
 }
 
-func sessionManager(session Session, sessionManagers [3]*scs.SessionManager) *scs.SessionManager {
-	if session.IsMilApp() {
-		return sessionManagers[0]
-	} else if session.IsAdminApp() {
-		return sessionManagers[1]
-	} else if session.IsOfficeApp() {
-		return sessionManagers[2]
-	}
-
-	return nil
-}
-
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
-func SessionCookieMiddleware(globalLogger *zap.Logger, appnames ApplicationServername, sessionManagers [3]*scs.SessionManager) func(next http.Handler) http.Handler {
-	globalLogger.Info("Creating session",
+func SessionCookieMiddleware(globalLogger *zap.Logger, appnames ApplicationServername, sessionManagers AppSessionManagers) func(next http.Handler) http.Handler {
+	globalLogger.Info("Creating session middleware",
 		zap.String("milServername", appnames.MilServername),
 		zap.String("officeServername", appnames.OfficeServername),
 		zap.String("adminServername", appnames.AdminServername))
@@ -158,28 +135,31 @@ func SessionCookieMiddleware(globalLogger *zap.Logger, appnames ApplicationServe
 			ctx := r.Context()
 			logger := logging.FromContext(ctx)
 
-			// Set up the new session object
-			session := Session{}
-
 			// Split the hostname from the port
 			hostname := strings.Split(r.Host, ":")[0]
-			appName, err := ApplicationName(hostname, appnames)
+			app, err := ApplicationName(hostname, appnames)
 			if err != nil {
 				logger.Error("Bad Hostname", zap.Error(err))
 				http.Error(w, http.StatusText(400), http.StatusBadRequest)
 				return
 			}
 
-			// Set more information on the session
-			session.ApplicationName = appName
-			session.Hostname = strings.ToLower(hostname)
+			sessionManager := sessionManagers.SessionManagerForApplication(app)
 
-			sessionManager := sessionManager(session, sessionManagers)
-
-			existingSession := sessionManager.Get(r.Context(), "session")
-			if existingSession != nil {
-				logger.Info("Existing session found")
-				session = existingSession.(Session)
+			// The scs session manager Get call will return an empty
+			// Session if an existing one is not found in the store
+			obj := sessionManager.Get(r.Context(), "session")
+			session, ok := obj.(Session)
+			if ok {
+				logger.Info("Existing session", zap.Any("session.user_id", session.UserID),
+					zap.Any("session.appname", session.ApplicationName))
+			} else {
+				session = Session{
+					ApplicationName: app,
+					Hostname:        strings.ToLower(hostname),
+				}
+				logger.Info("Creating new session", zap.Any("session.user_id", session.UserID),
+					zap.Any("session.appname", session.ApplicationName))
 			}
 
 			// And update the cookie. May get over-ridden later

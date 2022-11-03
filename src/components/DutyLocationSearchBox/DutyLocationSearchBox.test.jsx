@@ -4,122 +4,22 @@ import userEvent from '@testing-library/user-event';
 
 import DutyLocationSearchBox from './DutyLocationSearchBox';
 
-const testAddress = {
-  city: 'Glendale Luke AFB',
-  country: 'United States',
-  id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
-  postalCode: '85309',
-  state: 'AZ',
-  streetAddress1: 'n/a',
-};
+import dutyLocationFactory from 'utils/test/factories/dutyLocation';
 
-const testDutyLocations = [
-  {
-    address: {
-      city: '',
-      id: '00000000-0000-0000-0000-000000000000',
-      postalCode: '',
-      state: '',
-      streetAddress1: '',
-    },
-    address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
-    affiliation: 'AIR_FORCE',
-    created_at: '2021-02-11T16:48:04.117Z',
-    id: '93f0755f-6f35-478b-9a75-35a69211da1c',
-    name: 'Altus AFB',
-    updated_at: '2021-02-11T16:48:04.117Z',
-  },
-  {
-    address: {
-      city: '',
-      id: '00000000-0000-0000-0000-000000000000',
-      postalCode: '',
-      state: '',
-      streetAddress1: '',
-    },
-    address_id: '2d7e17f6-1b8a-4727-8949-007c80961a62',
-    affiliation: 'AIR_FORCE',
-    created_at: '2021-02-11T16:48:04.117Z',
-    id: '7d123884-7c1b-4611-92ae-e8d43ca03ad9',
-    name: 'Hill AFB',
-    updated_at: '2021-02-11T16:48:04.117Z',
-  },
-  {
-    address: {
-      city: '',
-      id: '00000000-0000-0000-0000-000000000000',
-      postalCode: '',
-      state: '',
-      streetAddress1: '',
-    },
-    address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
-    affiliation: 'AIR_FORCE',
-    created_at: '2021-02-11T16:48:04.117Z',
-    id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
-    name: 'Luke AFB',
-    updated_at: '2021-02-11T16:48:04.117Z',
-  },
-  {
-    address: {
-      city: '',
-      id: '00000000-0000-0000-0000-000000000000',
-      postalCode: '',
-      state: '',
-      streetAddress1: '',
-    },
-    address_id: '3dbf1fc7-3289-4c6e-90aa-01b530a7c3c3',
-    affiliation: 'AIR_FORCE',
-    created_at: '2021-02-11T16:48:20.225Z',
-    id: 'd01bd2a4-6695-4d69-8f2f-69e88dff58f8',
-    name: 'Shaw AFB',
-    updated_at: '2021-02-11T16:48:20.225Z',
-  },
-  {
-    address: {
-      city: '',
-      id: '00000000-0000-0000-0000-000000000000',
-      postalCode: '',
-      state: '',
-      streetAddress1: '',
-    },
-    address_id: '1af8f0f3-f75f-46d3-8dc8-c67c2feeb9f0',
-    affiliation: 'AIR_FORCE',
-    created_at: '2021-02-11T16:49:14.322Z',
-    id: 'b1f9a535-96d4-4cc3-adf1-b76505ce0765',
-    name: 'Yuma AFB',
-    updated_at: '2021-02-11T16:49:14.322Z',
-  },
-  {
-    address: {
-      city: '',
-      id: '00000000-0000-0000-0000-000000000000',
-      postalCode: '',
-      state: '',
-      streetAddress1: '',
-    },
-    address_id: 'f2adfebc-7703-4d06-9b49-c6ca8f7968f1',
-    affiliation: 'AIR_FORCE',
-    created_at: '2021-02-11T16:48:20.225Z',
-    id: 'a268b48f-0ad1-4a58-b9d6-6de10fd63d96',
-    name: 'Los Angeles AFB',
-    updated_at: '2021-02-11T16:48:20.225Z',
-  },
-  {
-    address: {
-      city: '',
-      id: '00000000-0000-0000-0000-000000000000',
-      postalCode: '',
-      state: '',
-      streetAddress1: '',
-    },
-    address_id: '13eb2cab-cd68-4f43-9532-7a71996d3296',
-    affiliation: 'AIR_FORCE',
-    created_at: '2021-02-11T16:48:20.225Z',
-    id: 'a48fda70-8124-4e90-be0d-bf8119a98717',
-    name: 'Wright-Patterson AFB',
-    updated_at: '2021-02-11T16:48:20.225Z',
-  },
+const mockDutyLocations = [
+  dutyLocationFactory(),
+  dutyLocationFactory(),
+  dutyLocationFactory(),
+  dutyLocationFactory(),
+  dutyLocationFactory(),
+  dutyLocationFactory(),
+  dutyLocationFactory(),
 ];
+
+const selectedDutyLocation = mockDutyLocations[2];
+const mockAddress = selectedDutyLocation.address;
+const displayAddress = `${mockAddress.city}, ${mockAddress.state} ${mockAddress.postalCode}`;
+const optionName = selectedDutyLocation.name.split(' AFB')[0];
 
 jest.mock('./api.js', () => ({
   SearchDutyLocations: async (search) => {
@@ -131,10 +31,10 @@ jest.mock('./api.js', () => ({
       throw new Error('Server returned an error');
     }
 
-    return testDutyLocations;
+    return mockDutyLocations;
   },
   ShowAddress: async () => {
-    return testAddress;
+    return mockAddress;
   },
 }));
 
@@ -173,14 +73,14 @@ describe('DutyLocationSearchBoxContainer', () => {
           input={{
             name: 'test_component',
             value: {
-              ...testDutyLocations[2],
-              address: testAddress,
+              ...selectedDutyLocation,
+              address: mockAddress,
             },
           }}
         />,
       );
-      expect(screen.getByText('Luke AFB')).toBeInTheDocument();
-      expect(screen.getByText('Glendale Luke AFB, AZ 85309')).toBeInTheDocument();
+      expect(screen.getByText(selectedDutyLocation.name)).toBeInTheDocument();
+      expect(screen.getByText(displayAddress)).toBeInTheDocument();
     });
 
     it('can render without the address', () => {
@@ -191,14 +91,14 @@ describe('DutyLocationSearchBoxContainer', () => {
           input={{
             name: 'test_component',
             value: {
-              ...testDutyLocations[2],
-              address: testAddress,
+              ...selectedDutyLocation,
+              address: mockAddress,
             },
           }}
         />,
       );
-      expect(screen.getByText('Luke AFB')).toBeInTheDocument();
-      expect(screen.queryByText('Glendale Luke AFB, AZ 85309')).not.toBeInTheDocument();
+      expect(screen.getByText(selectedDutyLocation.name)).toBeInTheDocument();
+      expect(screen.queryByText(displayAddress)).not.toBeInTheDocument();
     });
 
     it('can show placeholder text based on prop', () => {
@@ -219,7 +119,7 @@ describe('DutyLocationSearchBoxContainer', () => {
       render(<DutyLocationSearchBox input={{ name: 'test_component' }} title="Test Component" name="test_component" />);
       await userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
 
-      const option = await screen.findByText('Luke');
+      const option = await screen.findByText(optionName);
       expect(option).toBeInTheDocument();
 
       const optionsContainer = option.closest('div').parentElement;
@@ -259,12 +159,12 @@ describe('DutyLocationSearchBoxContainer', () => {
         />,
       );
       await userEvent.type(screen.getByLabelText('Test Component'), 'AFB');
-      await userEvent.click(await screen.findByText('Luke'));
+      await userEvent.click(await screen.findByText(optionName));
 
       await waitFor(() =>
         expect(onChange).toHaveBeenCalledWith({
-          ...testDutyLocations[2],
-          address: testAddress,
+          ...selectedDutyLocation,
+          address: mockAddress,
         }),
       );
     });

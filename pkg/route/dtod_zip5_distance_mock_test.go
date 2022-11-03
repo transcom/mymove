@@ -1,9 +1,5 @@
 package route
 
-import (
-	"testing"
-)
-
 func (suite *GHCTestSuite) TestMockDTODZip5Distance() {
 	tests := []struct {
 		name             string
@@ -29,7 +25,7 @@ func (suite *GHCTestSuite) TestMockDTODZip5Distance() {
 	}
 
 	for _, test := range tests {
-		suite.T().Run("fake call to DTOD: "+test.name, func(t *testing.T) {
+		suite.Run("fake call to DTOD: "+test.name, func() {
 			dtod := NewMockDTODZip5Distance()
 			distance, err := dtod.DTODZip5Distance(suite.AppContextForTest(), test.pickupZip, test.destinationZip)
 

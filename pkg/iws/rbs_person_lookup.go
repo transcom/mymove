@@ -6,8 +6,9 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -101,7 +102,7 @@ func NewRBSPersonLookup(host string, dodCACertPackage string, certString string,
 	// DMDC has switched from a DOD-signed cert to a commercially-signed cert.
 	// Seems prudent to trust both DOD and commercial certs when connecting to
 	// them from now on, just in case they change back.
-	pkcs7Package, err := ioutil.ReadFile(filepath.Clean(dodCACertPackage)) // filepath.Clean placates GOSEC
+	pkcs7Package, err := os.ReadFile(filepath.Clean(dodCACertPackage)) // filepath.Clean placates GOSEC
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +125,6 @@ func NewRBSPersonLookup(host string, dodCACertPackage string, certString string,
 		RootCAs:      caCertPool,
 		MinVersion:   tls.VersionTLS12,
 	}
-	tlsConfig.BuildNameToCertificate()
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
 
 	return &RBSPersonLookup{
@@ -147,7 +147,7 @@ func (r RBSPersonLookup) sendGetRequest(url string) ([]byte, error) {
 		}
 	}()
 
-	return ioutil.ReadAll(resp.Body)
+	return io.ReadAll(resp.Body)
 }
 
 func buildEdiURL(host string, custNum string, edipi uint64) (string, error) {

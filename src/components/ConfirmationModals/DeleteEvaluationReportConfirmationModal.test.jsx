@@ -45,7 +45,7 @@ describe('DeleteEvaluationReportConfirmationModal', () => {
   it('calls the submit function when delete button is clicked', async () => {
     render(<DeleteEvaluationReportConfirmationModal submitModal={onSubmit} closeModal={onClose} />);
 
-    const deleteButton = await screen.findByRole('button', { name: 'Yes, Cancel' });
+    const deleteButton = await screen.findByRole('button', { name: 'Yes, cancel' });
 
     await userEvent.click(deleteButton);
 

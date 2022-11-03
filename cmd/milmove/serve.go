@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -17,14 +17,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gobuffalo/pop/v6"
-
-	"github.com/alexedwards/scs/redisstore"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
 	"github.com/pkg/errors"
@@ -298,7 +296,7 @@ func initializeLogger(v *viper.Viper) (*zap.Logger, func()) {
 		if httpGetErr != nil {
 			logger.Error(errors.Wrap(httpGetErr, "could not fetch task metadata").Error())
 		} else {
-			body, readAllErr := ioutil.ReadAll(resp.Body)
+			body, readAllErr := io.ReadAll(resp.Body)
 			if readAllErr != nil {
 				logger.Error(errors.Wrap(readAllErr, "could not read task metadata").Error())
 			} else {
@@ -389,13 +387,22 @@ func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Conf
 		appCtx.Logger().Fatal("Failed to initialize DOD certificates", zap.Error(err))
 	}
 	appCtx.Logger().Debug("Server DOD Key Pair Loaded")
+	// RA Summary: staticcheck - SA1019 - Using a deprecated function, variable, constant or field
+	// RA: Linter is flagging: rootCAs.Subjects is deprecated: if s was returned by SystemCertPool, Subjects will not include the system roots.
+	// RA: Why code valuable: It allows us to log the root CA subjects that are being trusted.
+	// RA: Mitigation: The deprecation notes this is a problem when reading SystemCertPool, but we do not use this here and are building our own cert pool instead.
+	// RA Developer Status: Mitigated
+	// RA Validator Status: Mitigated
+	// RA Validator: leodis.f.scott.civ@mail.mil
+	// RA Modified Severity: CAT III
+	// nolint:staticcheck
 	appCtx.Logger().Debug("Trusted Certificate Authorities", zap.Any("subjects", rootCAs.Subjects()))
 
 	useDevlocalAuthCA := stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview, cli.EnvironmentLoadtest}, v.GetString(cli.EnvironmentFlag))
 	if useDevlocalAuthCA {
 		appCtx.Logger().Info("Adding devlocal CA to root CAs")
 		devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
-		devlocalCa, readFileErr := ioutil.ReadFile(filepath.Clean(devlocalCAPath))
+		devlocalCa, readFileErr := os.ReadFile(filepath.Clean(devlocalCAPath))
 		if readFileErr != nil {
 			appCtx.Logger().Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
 		} else {
@@ -483,19 +490,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		appCtx.Logger().Fatal("Registering login provider", zap.Error(err))
 	}
 
-	redisEnabled := v.GetBool(cli.RedisEnabledFlag)
-	var sessionStore *redisstore.RedisStore
-	if redisEnabled {
-		sessionStore = redisstore.New(redisPool)
-	}
-	sessionIdleTimeout := time.Duration(v.GetInt(cli.SessionIdleTimeoutInMinutesFlag)) * time.Minute
-	sessionLifetime := time.Duration(v.GetInt(cli.SessionLifetimeInHoursFlag)) * time.Hour
-
-	useSecureCookie := !isDevOrTest
-	sessionManagers := auth.SetupSessionManagers(redisEnabled,
-		sessionStore, useSecureCookie,
-		sessionIdleTimeout, sessionLifetime)
-	routingConfig.AuthContext = authentication.NewAuthContext(appCtx.Logger(), loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
+	routingConfig.AuthContext = authentication.NewAuthContext(appCtx.Logger(), loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 
 	// Email
 	notificationSender, err := notifications.InitEmail(v, awsSession, appCtx.Logger())
@@ -576,6 +571,13 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		routingConfig.LocalStorageWebRoot = v.GetString(cli.LocalStorageWebRootFlag)
 	}
 
+	sessionIdleTimeout := time.Duration(v.GetInt(cli.SessionIdleTimeoutInMinutesFlag)) * time.Minute
+	sessionLifetime := time.Duration(v.GetInt(cli.SessionLifetimeInHoursFlag)) * time.Hour
+
+	useSecureCookie := !isDevOrTest
+	sessionManagers := auth.SetupSessionManagers(redisPool, useSecureCookie,
+		sessionIdleTimeout, sessionLifetime)
+
 	routingConfig.HandlerConfig = handlers.NewHandlerConfig(
 		appCtx.DB(),
 		appCtx.Logger(),
@@ -591,8 +593,8 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		icnSequencer,
 		useSecureCookie,
 		appNames,
-		[]handlers.FeatureFlag{},
 		sessionManagers,
+		[]handlers.FeatureFlag{},
 	)
 
 	initializeRouteOptions(v, routingConfig)

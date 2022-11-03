@@ -3,10 +3,10 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
-
-	"github.com/gofrs/uuid"
 )
 
 /*
@@ -32,7 +32,7 @@ type ParamKeyValue struct {
 // ParamKeyValueCacheMap maps service param key string to the param cached value
 type ParamKeyValueCacheMap map[models.ServiceItemParamName]ParamKeyValue
 
-//MTOShipmentParamKeyMap maps an MTOShipmentID to a map of param caches for that shipment
+// MTOShipmentParamKeyMap maps an MTOShipmentID to a map of param caches for that shipment
 type MTOShipmentParamKeyMap map[uuid.UUID]ParamKeyValueCacheMap
 
 /******

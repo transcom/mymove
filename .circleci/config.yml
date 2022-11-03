@@ -13,13 +13,13 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-9ea16004ab38c5e43e715e09241515ec220b6067
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-4dbb2bcb421ecd4a7ea1e511b954e285a317c8fc
 
   # the cypress image to use
   cypress: &cypress milmove/circleci-docker:milmove-cypress-f678d1c6a5e2085f733f5408b7affd628f9f3576
 
   # https://circleci.com/docs/2.0/databases/#optimizing-postgres-images
-  postgres: &postgres circleci/postgres:12.7-ram
+  postgres: &postgres cimg/postgres:12.7
 
   redis: &redis redis:5.0.6
 
@@ -277,7 +277,6 @@ commands:
             scripts/circleci-announce-broken-branch
           when: on_fail
 
-
   deploy_migrations_steps:
     parameters:
       ecr_env:
@@ -382,7 +381,7 @@ commands:
             [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
@@ -451,7 +450,6 @@ commands:
           no_output_timeout: 20m
       - announce_failure
 
-
   deploy_app_storybook:
     parameters:
       s3_bucket:
@@ -512,13 +510,21 @@ commands:
             docker load -i images/<< parameters.image_name >>
       - run:
           name: 'Tag and push docker image'
+
           command: |
             aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
             docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             shopt -s extglob
-            docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
+
+            # README: We are going to replace any unwanted characters with dashes then truncate
+            #         the tag name to 100 characters. Docker tags can be a maximum of 128 characters
+            #         and this leaves some room for a prefix.
+            docker_tag_from_branch_name=${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
+            docker_tag_shortened_name=${docker_tag_from_branch_name:0:100}
+
+            docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${docker_tag_shortened_name}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${docker_tag_shortened_name}
       - run:
           name: 'Record ECR Image Digest'
           command: |
@@ -537,8 +543,7 @@ commands:
       application:
         type: string
     steps:
-      - run:
-          echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+      - run: echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
           source $BASH_ENV
       - run:
           name: make server_test_build for <<parameters.application>>
@@ -576,10 +581,12 @@ commands:
         default: *cypress
     steps:
       - setup_remote_docker:
+          version: 17.09.0-ce
           docker_layer_caching: false
       - run:
           name: setup docker for server
           command: |
+            docker version
             docker network create e2e_cypress
             docker build -t milmove_e2e:local -f Dockerfile.e2e .
       - run:
@@ -638,6 +645,7 @@ commands:
   e2e_tests_mtls:
     steps:
       - setup_remote_docker:
+          version: 17.09.0-ce
           docker_layer_caching: false
       - run:
           name: setup docker for server
@@ -673,16 +681,20 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Install dependencies
           command: for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
       - run: scripts/check-generated-code go.sum
+      - run:
+          name: Install go-swagger
+          command: make bin/swagger
       - save_cache:
-          key: go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+          key: go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
           paths:
             - '~/go'
+            - '~/transcom/mymove/bin/swagger'
       - announce_failure
 
   # `pre_deps_yarn` is used to cache yarn sources
@@ -711,9 +723,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
       - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
       - announce_failure
@@ -747,7 +758,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
@@ -802,7 +813,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run:
           name: Run Local acceptance tests
           command: |
@@ -970,7 +981,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: db_dev_fresh
@@ -1023,7 +1034,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - restore_cache:
           keys:
@@ -1038,6 +1049,15 @@ jobs:
       - server_tests_step:
           application: app
       - run:
+          name: Ensure we save both the coverage baseline & the go-coverage text files before checking test coverage status
+          command: |
+            if [ -r /tmp/coverage_baseline.txt ]; then
+              cp -v /tmp/coverage_baseline.txt ~/transcom/mymove/tmp/test-results/previous-coverage-baseline.txt
+            fi
+            if [ -r ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt ]; then
+              cp -v ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt ~/transcom/mymove/tmp/test-results/current-coverage.txt
+            fi
+      - run:
           name: Ensure Test Coverage Increasing
           command: |
             ./scripts/ensure-go-test-coverage /tmp/coverage_baseline.txt tmp/test-results/gotest/app/go-coverage.txt
@@ -1050,7 +1070,7 @@ jobs:
       # change the baseline of test results on master builds
       - when:
           condition:
-            equal: [ master, << pipeline.git.branch >>]
+            equal: [master, << pipeline.git.branch >>]
           steps:
             save_cache:
               key: server-tests-coverage
@@ -1091,7 +1111,7 @@ jobs:
       # change the baseline of test results on master builds
       - when:
           condition:
-            equal: [ master, << pipeline.git.branch >>]
+            equal: [master, << pipeline.git.branch >>]
           steps:
             save_cache:
               key: client-tests-coverage
@@ -1106,7 +1126,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       - run: make db_test_reset
       - run:
           command: make db_test_migrate
@@ -1157,7 +1177,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v3-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+            - go-mod-sources-v4-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
       # make -j 4 tells make to run 4 simultaneous builds
       - run: make -j 4 server_build build_tools
       - persist_to_workspace:
@@ -1185,7 +1205,6 @@ jobs:
             - swagger
             - pkg/testdatagen/testdata
       - announce_failure
-
 
   # Compile the client side of the app once and persist the relevant
   # build artifacts to the workspace.
@@ -1229,7 +1248,7 @@ jobs:
       # the cache
       - when:
           condition:
-            equal: [ master, << pipeline.git.branch >>]
+            equal: [master, << pipeline.git.branch >>]
           steps:
             save_cache:
               key: v2-node-modules-cache-{{ checksum "yarn.lock" }}
@@ -1641,7 +1660,7 @@ jobs:
       - tls_vars_stg
       - deploy_app_client_tls_steps:
           compare_host: gex.stg.move.mil
-          health_check_hosts: gex.stg.move.mil,orders.stg.move.mil
+          health_check_hosts: gex.stg.move.mil
           ecr_env: stg
 
   # `deploy_stg_webhook_client` deploys the webhook client to stg
@@ -1709,7 +1728,7 @@ jobs:
       - tls_vars_prd
       - deploy_app_client_tls_steps:
           compare_host: gex.move.mil
-          health_check_hosts: gex.move.mil,orders.move.mil
+          health_check_hosts: gex.move.mil
           ecr_env: prd
 
 workflows:
@@ -1725,8 +1744,8 @@ workflows:
           requires:
             - pre_deps_golang
           filters:
-              branches:
-                ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
+            branches:
+              ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
 
       - anti_virus:
           filters:

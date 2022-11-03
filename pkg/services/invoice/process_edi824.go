@@ -10,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	ediResponse824 "github.com/transcom/mymove/pkg/edi/edi824"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -24,7 +23,7 @@ func NewEDI824Processor() services.SyncadaFileProcessor {
 	return &edi824Processor{}
 }
 
-//ProcessFile parses an EDI 824 response and updates the payment request status
+// ProcessFile parses an EDI 824 response and updates the payment request status
 func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, path string, stringEDI824 string) error {
 	edi824 := ediResponse824.EDI{}
 	err := edi824.Parse(stringEDI824)

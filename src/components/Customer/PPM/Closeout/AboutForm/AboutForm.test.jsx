@@ -26,6 +26,13 @@ const mtoShipmentProps = {
       actualDestinationPostalCode: '60652',
       hasReceivedAdvance: true,
       advanceAmountReceived: 123456,
+      w2Address: {
+        streetAddress1: '11 NE Elm Road',
+        streetAddress2: '',
+        city: 'Jacksonville',
+        state: 'FL',
+        postalCode: '32217',
+      },
     },
   },
 };
@@ -62,7 +69,14 @@ describe('AboutForm component', () => {
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeChecked(); // Has advance received is set to No by default
-      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+
+      expect(screen.getByLabelText('Address 1')).toHaveDisplayValue('');
+      expect(screen.getByLabelText(/Address 2/)).toHaveDisplayValue('');
+      expect(screen.getByLabelText('City')).toHaveDisplayValue('');
+      expect(screen.getByLabelText('State')).toHaveValue('');
+      expect(screen.getByLabelText('ZIP')).toHaveDisplayValue('');
+
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -77,6 +91,13 @@ describe('AboutForm component', () => {
       expect(screen.getByLabelText('Yes')).toBeChecked();
       expect(screen.getByLabelText('No')).not.toBeChecked();
       expect(screen.getByLabelText('How much did you receive?')).toHaveDisplayValue('1,234');
+
+      expect(screen.getByLabelText('Address 1')).toHaveDisplayValue('11 NE Elm Road');
+      expect(screen.getByLabelText(/Address 2/)).toHaveDisplayValue('');
+      expect(screen.getByLabelText('City')).toHaveDisplayValue('Jacksonville');
+      expect(screen.getByLabelText('State')).toHaveDisplayValue('FL');
+      expect(screen.getByLabelText('ZIP')).toHaveDisplayValue('32217');
+
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
   });
@@ -116,13 +137,22 @@ describe('AboutForm component', () => {
       expect(
         within(requiredAlerts[3].nextElementSibling).getByLabelText('How much did you receive?'),
       ).toBeInTheDocument();
+
+      expect(requiredAlerts[4]).toHaveTextContent('Required');
+      expect(requiredAlerts[4].nextElementSibling).toHaveAttribute('name', 'w2Address.streetAddress1');
+      expect(requiredAlerts[5]).toHaveTextContent('Required');
+      expect(requiredAlerts[5].nextElementSibling).toHaveAttribute('name', 'w2Address.city');
+      expect(requiredAlerts[6]).toHaveTextContent('Required');
+      expect(requiredAlerts[6].nextElementSibling).toHaveAttribute('name', 'w2Address.state');
+      expect(requiredAlerts[7]).toHaveTextContent('Required');
+      expect(requiredAlerts[7].nextElementSibling).toHaveAttribute('name', 'w2Address.postalCode');
     });
 
     it('displays type error messages for invalid input', async () => {
       render(<AboutForm {...defaultProps} />);
 
       await userEvent.type(screen.getByLabelText('When did you leave your origin?'), '1 January 2022');
-      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+      await userEvent.tab();
 
       await waitFor(() => {
         expect(screen.getByRole('alert')).toHaveTextContent(
@@ -188,10 +218,10 @@ describe('AboutForm component', () => {
   });
 
   describe('calls button event handlers', () => {
-    it('calls onBack handler when "Finish Later" is pressed', async () => {
+    it('calls onBack handler when "Return To Homepage" is pressed', async () => {
       render(<AboutForm {...defaultProps} />);
 
-      await userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
 
       await waitFor(() => {
         expect(defaultProps.onBack).toHaveBeenCalled();
@@ -211,6 +241,13 @@ describe('AboutForm component', () => {
             actualDestinationPostalCode: '60652',
             hasReceivedAdvance: 'true',
             advanceAmountReceived: '1234',
+            w2Address: {
+              streetAddress1: '11 NE Elm Road',
+              streetAddress2: '',
+              city: 'Jacksonville',
+              state: 'FL',
+              postalCode: '32217',
+            },
           },
           expect.anything(),
         );

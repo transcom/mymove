@@ -1,10 +1,10 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used to clean up file created for unit test
-//RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values in the file are used to clean up file created for unit test
+// RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package uploader_test
 
@@ -16,18 +16,15 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/models"
-
-	"github.com/transcom/mymove/pkg/storage/mocks"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/storage/mocks"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -140,7 +137,8 @@ func (suite *UploaderSuite) TestUploadFromLocalFileWrongContentType() {
 	defer cleanup()
 
 	upload, verrs, err := up.CreateUpload(suite.AppContextForTest(), uploader.File{File: file}, uploader.AllowedTypesPDF)
-	suite.NoError(err)
+	suite.Error(err)
+	suite.Equal("content type \"application/octet-stream\" is not one of the supported types [application/pdf]", err.Error())
 	suite.True(verrs.HasAny(), "invalid content type for upload")
 	suite.Nil(upload, "returned an upload when erroring")
 }

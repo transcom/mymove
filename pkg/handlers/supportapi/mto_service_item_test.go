@@ -1,31 +1,27 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
-//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
-//RA: in a unit test, then there is no risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+// RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+// RA: in a unit test, then there is no risk
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package supportapi
 
 import (
 	"net/http/httptest"
 
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/transcom/mymove/pkg/gen/supportmessages"
-
-	"github.com/transcom/mymove/pkg/models"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-
 	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/services/query"
-
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
+	"github.com/transcom/mymove/pkg/models"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 

@@ -5,17 +5,14 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/transcom/mymove/pkg/services/move"
-
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/go-openapi/swag"
-
 	"github.com/gofrs/uuid"
 
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/move"
 	orderservice "github.com/transcom/mymove/pkg/services/order"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -158,7 +155,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	suite.Assertions.IsType(&ordersop.UploadAmendedOrdersCreated{}, response)
 	okResponse := response.(*ordersop.UploadAmendedOrdersCreated)
 	suite.Assertions.NotNil(okResponse.Payload.ID.String()) // UploadPayload
-	suite.Assertions.Equal("test.pdf", *okResponse.Payload.Filename)
+	suite.Assertions.Equal("test.pdf", okResponse.Payload.Filename)
 }
 
 // TODO: Fix now that we capture transaction error. May be a data setup problem

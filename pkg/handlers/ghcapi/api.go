@@ -3,34 +3,30 @@ package ghcapi
 import (
 	"log"
 
-	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
-	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
-
-	"github.com/transcom/mymove/pkg/services/ppmshipment"
-
-	"github.com/transcom/mymove/pkg/services/fetch"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	order "github.com/transcom/mymove/pkg/services/order"
-	"github.com/transcom/mymove/pkg/services/query"
-
-	"github.com/transcom/mymove/pkg/services/office_user/customer"
-
-	customerserviceremarks "github.com/transcom/mymove/pkg/services/customer_support_remarks"
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-
-	evaluationreport "github.com/transcom/mymove/pkg/services/evaluation_report"
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-	paymentserviceitem "github.com/transcom/mymove/pkg/services/payment_service_item"
-
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi"
 	ghcops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
+	customerserviceremarks "github.com/transcom/mymove/pkg/services/customer_support_remarks"
+	evaluationreport "github.com/transcom/mymove/pkg/services/evaluation_report"
+	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/move"
 	movehistory "github.com/transcom/mymove/pkg/services/move_history"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/office_user/customer"
+	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
+	order "github.com/transcom/mymove/pkg/services/order"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	paymentserviceitem "github.com/transcom/mymove/pkg/services/payment_service_item"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
+	pwsviolation "github.com/transcom/mymove/pkg/services/pws_violation"
+	"github.com/transcom/mymove/pkg/services/query"
+	reportviolation "github.com/transcom/mymove/pkg/services/report_violation"
 )
 
 // NewGhcAPIHandler returns a handler for the GHC API
@@ -101,12 +97,25 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		EvaluationReportFetcher: evaluationreport.NewEvaluationReportFetcher(),
 	}
 
+	ghcAPI.EvaluationReportsDownloadEvaluationReportHandler = DownloadEvaluationReportHandler{
+		HandlerConfig:           handlerConfig,
+		EvaluationReportFetcher: evaluationreport.NewEvaluationReportFetcher(),
+		MTOShipmentFetcher:      mtoshipment.NewMTOShipmentFetcher(),
+		OrderFetcher:            order.NewOrderFetcher(),
+		ReportViolationFetcher:  reportviolation.NewReportViolationFetcher(),
+	}
+
 	ghcAPI.EvaluationReportsDeleteEvaluationReportHandler = DeleteEvaluationReportHandler{
 		HandlerConfig:           handlerConfig,
 		EvaluationReportDeleter: evaluationreport.NewEvaluationReportDeleter(),
 	}
 
 	ghcAPI.EvaluationReportsSaveEvaluationReportHandler = SaveEvaluationReportHandler{
+		HandlerConfig:           handlerConfig,
+		EvaluationReportUpdater: evaluationreport.NewEvaluationReportUpdater(),
+	}
+
+	ghcAPI.EvaluationReportsSubmitEvaluationReportHandler = SubmitEvaluationReportHandler{
 		HandlerConfig:           handlerConfig,
 		EvaluationReportUpdater: evaluationreport.NewEvaluationReportUpdater(),
 	}
@@ -379,6 +388,21 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PaymentRequestsGetShipmentsPaymentSITBalanceHandler = ShipmentsSITBalanceHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestShipmentsSITBalance(),
+	}
+
+	ghcAPI.PwsViolationsGetPWSViolationsHandler = GetPWSViolationsHandler{
+		handlerConfig,
+		pwsviolation.NewPWSViolationsFetcher(),
+	}
+
+	ghcAPI.ReportViolationsAssociateReportViolationsHandler = AssociateReportViolationsHandler{
+		handlerConfig,
+		reportviolation.NewReportViolationCreator(),
+	}
+
+	ghcAPI.ReportViolationsGetReportViolationsByReportIDHandler = GetReportViolationsHandler{
+		handlerConfig,
+		reportviolation.NewReportViolationFetcher(),
 	}
 
 	return ghcAPI

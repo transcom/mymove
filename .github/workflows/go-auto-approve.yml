@@ -16,16 +16,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
         if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
       - name: reattach HEAD to Head Ref
         # b/c checkout action leaves in detached head state https://github.com/actions/checkout/issues/6
         run: git checkout "$(echo ${{ github.head_ref }})"
         if: github.head_ref != '' && (github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]')
       - name: setup go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v3
         with:
-          go-version: '1.18'
+          go-version: '1.19'
       - name: Tidy
         run: |
           go version
@@ -53,7 +55,7 @@ jobs:
     needs: [tidy]
     steps:
       - name: approve
-        uses: hmarr/auto-approve-action@v2.0.0
+        uses: hmarr/auto-approve-action@v3.1.0
         if: github.actor == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, 'dependencies')
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          github-token: '${{ secrets.GITHUB_TOKEN }}'

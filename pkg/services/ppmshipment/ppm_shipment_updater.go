@@ -50,12 +50,13 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// This potentially updates the MTOShipment.Distance field so include it in the transaction
-		estimatedIncentive, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
+		estimatedIncentive, estimatedSITCost, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
 		if err != nil {
 			return err
 		}
 
 		updatedPPMShipment.EstimatedIncentive = estimatedIncentive
+		updatedPPMShipment.SITEstimatedCost = estimatedSITCost
 
 		if appCtx.Session() != nil {
 			if appCtx.Session().IsOfficeUser() {
@@ -78,6 +79,19 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 					}
 				}
 			}
+		}
+
+		if updatedPPMShipment.W2Address != nil {
+			if verrs, errors := txnAppCtx.DB().ValidateAndSave(updatedPPMShipment.W2Address); verrs != nil && verrs.HasAny() {
+				var id uuid.UUID
+				if updatedPPMShipment.W2AddressID != nil {
+					id = *updatedPPMShipment.W2AddressID
+				}
+				return apperror.NewInvalidInputError(id, errors, verrs, "Invalid input found while updating the W2 address for a PPMShipment.")
+			} else if errors != nil {
+				return apperror.NewQueryError("W2 address for ppmShipment", errors, "")
+			}
+			updatedPPMShipment.W2AddressID = &updatedPPMShipment.W2Address.ID
 		}
 
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)

@@ -1,36 +1,31 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
-//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
-//RA: in a unit test, then there is no risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+// RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+// RA: in a unit test, then there is no risk
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package mtoserviceitem
 
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/apperror"
-	storageTest "github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/uploader"
-
-	"github.com/transcom/mymove/pkg/handlers"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
 	"github.com/go-openapi/swag"
-
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {

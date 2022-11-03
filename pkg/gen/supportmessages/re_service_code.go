@@ -19,7 +19,6 @@ import (
 //
 // Documentation of all the service items will be provided.
 //
-//
 // swagger:model ReServiceCode
 type ReServiceCode string
 

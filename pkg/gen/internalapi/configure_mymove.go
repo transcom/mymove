@@ -59,6 +59,8 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	api.JSONProducer = runtime.JSONProducer()
 
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
+	// ppm.CreatePPMUploadMaxParseMemory = 32 << 20
+	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// uploads.CreateUploadMaxParseMemory = 32 << 20
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// orders.UploadAmendedOrdersMaxParseMemory = 32 << 20
@@ -98,9 +100,9 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		})
 	}
-	if api.MoveDocsCreateMovingExpenseDocumentHandler == nil {
-		api.MoveDocsCreateMovingExpenseDocumentHandler = move_docs.CreateMovingExpenseDocumentHandlerFunc(func(params move_docs.CreateMovingExpenseDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_docs.CreateMovingExpenseDocument has not yet been implemented")
+	if api.PpmCreateMovingExpenseHandler == nil {
+		api.PpmCreateMovingExpenseHandler = ppm.CreateMovingExpenseHandlerFunc(func(params ppm.CreateMovingExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateMovingExpense has not yet been implemented")
 		})
 	}
 	if api.OrdersCreateOrdersHandler == nil {
@@ -111,6 +113,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.PpmCreatePPMAttachmentsHandler == nil {
 		api.PpmCreatePPMAttachmentsHandler = ppm.CreatePPMAttachmentsHandlerFunc(func(params ppm.CreatePPMAttachmentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreatePPMAttachments has not yet been implemented")
+		})
+	}
+	if api.PpmCreatePPMUploadHandler == nil {
+		api.PpmCreatePPMUploadHandler = ppm.CreatePPMUploadHandlerFunc(func(params ppm.CreatePPMUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreatePPMUpload has not yet been implemented")
 		})
 	}
 	if api.PpmCreatePersonallyProcuredMoveHandler == nil {
@@ -346,6 +353,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.MoveDocsUpdateMoveDocumentHandler == nil {
 		api.MoveDocsUpdateMoveDocumentHandler = move_docs.UpdateMoveDocumentHandlerFunc(func(params move_docs.UpdateMoveDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.UpdateMoveDocument has not yet been implemented")
+		})
+	}
+	if api.PpmUpdateMovingExpenseHandler == nil {
+		api.PpmUpdateMovingExpenseHandler = ppm.UpdateMovingExpenseHandlerFunc(func(params ppm.UpdateMovingExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateMovingExpense has not yet been implemented")
 		})
 	}
 	if api.OrdersUpdateOrdersHandler == nil {

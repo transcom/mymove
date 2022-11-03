@@ -4,10 +4,7 @@ DB_NAME_TEST = test_db
 DB_DOCKER_CONTAINER_DEV = milmove-db-dev
 DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS = milmove-db-deployed-migrations
 DB_DOCKER_CONTAINER_TEST = milmove-db-test
-# The version of the postgres container should match production as closely
-# as possible.
-# https://github.com/transcom/transcom-infrasec-com/blob/c32c45078f29ea6fd58b0c246f994dbea91be372/transcom-com-legacy/app-prod/main.tf#L62
-DB_DOCKER_CONTAINER_IMAGE = postgres:12.7
+DB_DOCKER_CONTAINER_IMAGE = postgres:12.11
 REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
 REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
@@ -98,7 +95,7 @@ check_go_version: .check_go_version.stamp ## Check that the correct Golang versi
 
 .PHONY: check_gopath
 check_gopath: .check_gopath.stamp ## Check that $GOPATH exists in $PATH
-.check_gopath.stamp: scripts/check-gopath
+.check_gopath.stamp: scripts/check-gopath go.sum # Make sure any go binaries rebuild if version possibly changes
 ifndef CIRCLECI
 	scripts/check-gopath
 else
@@ -162,7 +159,7 @@ client_deps: .check_hosts.stamp .check_node_version.stamp .client_deps.stamp ## 
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
 
-.client_build.stamp: .check_node_version.stamp $(wildcard src/**/*)
+.client_build.stamp: .check_node_version.stamp $(shell find src -type f)
 	yarn build
 	touch .client_build.stamp
 
@@ -221,6 +218,10 @@ bin/gotestsum: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 bin/mockery: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/mockery github.com/vektra/mockery/v2
 
+# No static linking / $(LDFLAGS) because swagger is only used for code generation
+bin/swagger: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
+	go build -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
+
 ### Cert Targets
 # AWS is only providing a bundle for the 2022 cert, which includes 2017? and rds-ca-rsa4096-g1
 bin/rds-ca-rsa4096-g1.pem:
@@ -263,34 +264,31 @@ bin/health-checker: cmd/health-checker
 bin/iws: cmd/iws
 	go build -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
 
-PKG_GOSRC := $(wildcard pkg/**/*.go)
+PKG_GOSRC := $(shell find pkg -name '*.go')
 
-bin/milmove: $(wildcard cmd/milmove/**/*.go) $(PKG_GOSRC)
+bin/milmove: $(shell find cmd/milmove -name '*.go') $(PKG_GOSRC)
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
-bin/milmove-tasks: $(wildcard cmd/milmove-tasks/**/*.go) $(PKG_GOSRC)
+bin/milmove-tasks: $(shell find cmd/milmove-tasks -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin/prime-api-client: $(wildcard cmd/prime-api-client/**/*.go) $(PKG_GOSRC)
+bin/prime-api-client: $(shell find cmd/prime-api-client -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
 
-bin/webhook-client: $(wildcard cmd/webhook-client/**/*.go) $(PKG_GOSRC)
+bin/webhook-client: $(shell find cmd/webhook-client -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/webhook-client ./cmd/webhook-client
 
-bin/read-alb-logs: $(wildcard cmd/read-alb-logs/**/*.go) $(PKG_GOSRC)
+bin/read-alb-logs: $(shell find cmd/read-alb-logs -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
-bin/send-to-gex: $(wildcard cmd/send-to-gex/**/*.go) $(PKG_GOSRC)
+bin/send-to-gex: $(shell find cmd/send-to-gex -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
 
-bin/tls-checker: $(wildcard cmd/tls-checker/**/*.go) $(PKG_GOSRC)
+bin/tls-checker: $(shell find cmd/tls-checker -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
-bin/generate-payment-request-edi: $(wildcard cmd/generate-payment-request-edi/**/*.go) $(PKG_GOSRC)
+bin/generate-payment-request-edi: $(shell find cmd/generate-payment-request-edi -name '*.go') $(PKG_GOSRC)
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
-
-pkg/assets/assets.go:
-	scripts/gen-assets
 
 #
 # ----- END BIN TARGETS -----
@@ -305,10 +303,14 @@ swagger_generate: .swagger_build.stamp ## Check that the build files haven't bee
 # If any swagger files (source or generated) have changed, re-run so
 # we can warn on improperly modified files. Look for any files so that
 # if API docs have changed, swagger regeneration will capture those
-# changes
+# changes. On Circle CI, or if the user has set
+# SWAGGER_AUTOREBUILD, rebuild automatically without asking
+ifdef CIRCLECI
+SWAGGER_AUTOREBUILD=1
+endif
 SWAGGER_FILES = $(shell find swagger swagger-def -type f)
 .swagger_build.stamp: $(SWAGGER_FILES)
-ifndef CIRCLECI
+ifndef SWAGGER_AUTOREBUILD
 ifneq ("$(shell find swagger -type f -name '*.yaml' -newer .swagger_build.stamp)","")
 	@echo "Unexpected changes found in swagger build files. Code may be overwritten."
 	@read -p "Continue with rebuild? [y/N] : " ANS && test "$${ANS}" == "y" || (echo "Exiting rebuild."; false)
@@ -319,7 +321,7 @@ endif
 
 server_generate: .server_generate.stamp
 
-.server_generate.stamp: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp pkg/assets/assets.go $(wildcard swagger/*.yaml) ## Generate golang server code from Swagger files
+.server_generate.stamp: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp bin/swagger $(wildcard swagger/*.yaml) ## Generate golang server code from Swagger files
 	scripts/gen-server
 	touch .server_generate.stamp
 
@@ -361,6 +363,7 @@ server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp
 .PHONY: build_tools
 build_tools: bin/gin \
 	bin/mockery \
+	bin/swagger \
 	bin/rds-ca-rsa4096-g1.pem \
 	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
@@ -1122,7 +1125,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-9ea16004ab38c5e43e715e09241515ec220b6067 bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-4dbb2bcb421ecd4a7ea1e511b954e285a317c8fc bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images
@@ -1141,6 +1144,10 @@ prune_volumes:  ## Prune docker volumes
 
 .PHONY: prune
 prune: prune_images prune_containers prune_volumes ## Prune docker containers, images, and volumes
+
+.PHONY: clean_server
+clean_server:
+	rm -f bin/milmove
 
 .PHONY: clean
 clean: ## Clean all generated files

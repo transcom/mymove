@@ -10,9 +10,9 @@ import (
 )
 
 func (suite *HandlerSuite) TestTacValidation() {
-	user := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 	suite.Run("TAC validation", func() {
+		user := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
 		transportationAccountingCode := testdatagen.MakeDefaultTransportationAccountingCode(suite.DB())
 		tests := []struct {
 			tacCode string

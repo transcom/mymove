@@ -6,7 +6,7 @@ import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { shipmentTypes } from 'constants/shipments';
 import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
 import { customerRoutes, generalRoutes } from 'constants/routes';
@@ -18,7 +18,7 @@ import { updateMTOShipment } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 const About = () => {
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const history = useHistory();
   const { moveId, mtoShipmentId } = useParams();
@@ -42,6 +42,7 @@ const About = () => {
         actualDestinationPostalCode: values.actualDestinationPostalCode,
         hasReceivedAdvance,
         advanceAmountReceived: hasReceivedAdvance ? values.advanceAmountReceived * 100 : null,
+        w2Address: values.w2Address,
       },
     };
 
@@ -63,7 +64,7 @@ const About = () => {
 
   return (
     <div className={ppmPageStyles.ppmPageStyle}>
-      <ScrollToTop otherDep={errorMessage} />
+      <NotificationScrollToTop dependency={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>

@@ -16,7 +16,8 @@ import (
 // ShowDocumentOKCode is the HTTP code returned for type ShowDocumentOK
 const ShowDocumentOKCode int = 200
 
-/*ShowDocumentOK the requested document
+/*
+ShowDocumentOK the requested document
 
 swagger:response showDocumentOK
 */
@@ -25,7 +26,7 @@ type ShowDocumentOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.DocumentPayload `json:"body,omitempty"`
+	Payload *internalmessages.Document `json:"body,omitempty"`
 }
 
 // NewShowDocumentOK creates ShowDocumentOK with default headers values
@@ -35,13 +36,13 @@ func NewShowDocumentOK() *ShowDocumentOK {
 }
 
 // WithPayload adds the payload to the show document o k response
-func (o *ShowDocumentOK) WithPayload(payload *internalmessages.DocumentPayload) *ShowDocumentOK {
+func (o *ShowDocumentOK) WithPayload(payload *internalmessages.Document) *ShowDocumentOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the show document o k response
-func (o *ShowDocumentOK) SetPayload(payload *internalmessages.DocumentPayload) {
+func (o *ShowDocumentOK) SetPayload(payload *internalmessages.Document) {
 	o.Payload = payload
 }
 
@@ -60,7 +61,8 @@ func (o *ShowDocumentOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 // ShowDocumentBadRequestCode is the HTTP code returned for type ShowDocumentBadRequest
 const ShowDocumentBadRequestCode int = 400
 
-/*ShowDocumentBadRequest invalid request
+/*
+ShowDocumentBadRequest invalid request
 
 swagger:response showDocumentBadRequest
 */
@@ -104,7 +106,8 @@ func (o *ShowDocumentBadRequest) WriteResponse(rw http.ResponseWriter, producer 
 // ShowDocumentForbiddenCode is the HTTP code returned for type ShowDocumentForbidden
 const ShowDocumentForbiddenCode int = 403
 
-/*ShowDocumentForbidden not authorized
+/*
+ShowDocumentForbidden not authorized
 
 swagger:response showDocumentForbidden
 */
@@ -128,7 +131,8 @@ func (o *ShowDocumentForbidden) WriteResponse(rw http.ResponseWriter, producer r
 // ShowDocumentNotFoundCode is the HTTP code returned for type ShowDocumentNotFound
 const ShowDocumentNotFoundCode int = 404
 
-/*ShowDocumentNotFound not found
+/*
+ShowDocumentNotFound not found
 
 swagger:response showDocumentNotFound
 */
@@ -152,7 +156,8 @@ func (o *ShowDocumentNotFound) WriteResponse(rw http.ResponseWriter, producer ru
 // ShowDocumentInternalServerErrorCode is the HTTP code returned for type ShowDocumentInternalServerError
 const ShowDocumentInternalServerErrorCode int = 500
 
-/*ShowDocumentInternalServerError server error
+/*
+ShowDocumentInternalServerError server error
 
 swagger:response showDocumentInternalServerError
 */

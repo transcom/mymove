@@ -2,7 +2,6 @@ package pricing
 
 import (
 	"strconv"
-	"testing"
 	"time"
 )
 
@@ -22,7 +21,7 @@ func (suite *PricingParserSuite) Test_NonStandardLocnPrices() {
 		XlsxFile:     suite.xlsxFile,
 		RunVerify:    true,
 	}
-	suite.T().Run("parse non-standard location prices", func(t *testing.T) {
+	suite.Run("parse non-standard location prices", func() {
 		slice, err := parseNonStandardLocnPrices(suite.AppContextForTest(), params, sheetIndex)
 		suite.NoError(err, "parseNonStandardLocnPrices function failed")
 
@@ -34,19 +33,19 @@ func (suite *PricingParserSuite) Test_NonStandardLocnPrices() {
 		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 	})
 
-	suite.T().Run("attempt to parse NonStandardLocation prices with incorrect sheet index", func(t *testing.T) {
+	suite.Run("attempt to parse NonStandardLocation prices with incorrect sheet index", func() {
 		_, err := parseNonStandardLocnPrices(suite.AppContextForTest(), params, 13)
 		if suite.Error(err) {
 			suite.Equal("parseNonStandardLocnPrices expected to process sheet 14, but received sheetIndex 13", err.Error())
 		}
 	})
 
-	suite.T().Run("verify NonStandardLocation prices", func(t *testing.T) {
+	suite.Run("verify NonStandardLocation prices", func() {
 		err := verifyNonStandardLocnPrices(params, sheetIndex)
 		suite.NoError(err, "verifyNonStandardLocationPrices failed")
 	})
 
-	suite.T().Run("attempt to verify non-standard location prices with incorrect sheet index", func(t *testing.T) {
+	suite.Run("attempt to verify non-standard location prices with incorrect sheet index", func() {
 		err := verifyNonStandardLocnPrices(params, 13)
 		if suite.Error(err) {
 			suite.Equal("verifyNonStandardLocnPrices expected to process sheet 14, but received sheetIndex 13", err.Error())

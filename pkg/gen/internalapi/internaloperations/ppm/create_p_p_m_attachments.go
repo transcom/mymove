@@ -29,12 +29,12 @@ func NewCreatePPMAttachments(ctx *middleware.Context, handler CreatePPMAttachmen
 	return &CreatePPMAttachments{Context: ctx, Handler: handler}
 }
 
-/* CreatePPMAttachments swagger:route POST /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments ppm createPPMAttachments
+/*
+	CreatePPMAttachments swagger:route POST /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments ppm createPPMAttachments
 
-Creates PPM attachments PDF
+# Creates PPM attachments PDF
 
 Creates a PPM attachments PDF
-
 */
 type CreatePPMAttachments struct {
 	Context *middleware.Context

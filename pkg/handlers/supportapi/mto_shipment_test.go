@@ -5,8 +5,6 @@ import (
 	"net/http/httptest"
 	"time"
 
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -20,6 +18,7 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"

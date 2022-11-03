@@ -4,10 +4,14 @@ import (
 	"context"
 	"encoding/gob"
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/alexedwards/scs/redisstore"
 	"github.com/alexedwards/scs/v2"
+	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/gofrs/uuid"
+	"github.com/gomodule/redigo/redis"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 )
@@ -15,6 +19,10 @@ import (
 type authSessionKey string
 
 const sessionContextKey authSessionKey = "session"
+
+type sessionIDKey string
+
+const sessionIDContextKey sessionIDKey = "sessionID"
 
 // Application describes the application name
 type Application string
@@ -28,26 +36,120 @@ const (
 	AdminApp Application = "admin"
 )
 
+// IsOfficeApp returns true if the application is the office app
+func (a Application) IsOfficeApp() bool {
+	return a == OfficeApp
+}
+
+// IsMilApp returns true if the application is the mil app
+func (a Application) IsMilApp() bool {
+	return a == MilApp
+}
+
+// IsAdminApp returns true if the application is the admin app
+func (a Application) IsAdminApp() bool {
+	return a == AdminApp
+}
+
+type SessionManager interface {
+	Get(context.Context, string) interface{}
+	Put(context.Context, string, interface{})
+	Destroy(context.Context) error
+	RenewToken(context.Context) error
+	Commit(context.Context) (string, time.Time, error)
+	Load(context.Context, string) (context.Context, error)
+	LoadAndSave(http.Handler) http.Handler
+	Store() scs.Store
+}
+
+type ScsSessionManagerWrapper struct {
+	ScsSessionManager *scs.SessionManager
+}
+
+func (s ScsSessionManagerWrapper) Get(ctx context.Context, key string) interface{} {
+	return s.ScsSessionManager.Get(ctx, key)
+}
+
+func (s ScsSessionManagerWrapper) Put(ctx context.Context, key string, val interface{}) {
+	s.ScsSessionManager.Put(ctx, key, val)
+}
+
+func (s ScsSessionManagerWrapper) Destroy(ctx context.Context) error {
+	return s.ScsSessionManager.Destroy(ctx)
+}
+
+func (s ScsSessionManagerWrapper) RenewToken(ctx context.Context) error {
+	return s.ScsSessionManager.RenewToken(ctx)
+}
+
+func (s ScsSessionManagerWrapper) Commit(ctx context.Context) (string, time.Time, error) {
+	return s.ScsSessionManager.Commit(ctx)
+}
+
+func (s ScsSessionManagerWrapper) Load(ctx context.Context, token string) (context.Context, error) {
+	return s.ScsSessionManager.Load(ctx, token)
+}
+
+func (s ScsSessionManagerWrapper) LoadAndSave(next http.Handler) http.Handler {
+	return s.ScsSessionManager.LoadAndSave(next)
+}
+
+func (s ScsSessionManagerWrapper) Store() scs.Store {
+	return s.ScsSessionManager.Store
+}
+
+type AppSessionManagers struct {
+	Mil    SessionManager
+	Office SessionManager
+	Admin  SessionManager
+}
+
+// sessionManagerForSession returns the appropriate session manager
+// for the session
+func (a AppSessionManagers) SessionManagerForApplication(app Application) SessionManager {
+	if app.IsMilApp() {
+		return a.Mil
+	} else if app.IsAdminApp() {
+		return a.Admin
+	} else if app.IsOfficeApp() {
+		return a.Office
+	}
+
+	return nil
+}
+
 // SetupSessionManagers configures the session manager for each app: mil, admin,
 // and office. It's necessary to have separate session managers to allow users
 // to be signed in on multiple apps at the same time.
-func SetupSessionManagers(redisEnabled bool, sessionStore scs.Store, useSecureCookie bool, idleTimeout time.Duration, lifetime time.Duration) [3]*scs.SessionManager {
-	if !redisEnabled {
-		return [3]*scs.SessionManager{}
-	}
+func SetupSessionManagers(redisPool *redis.Pool, useSecureCookie bool, idleTimeout time.Duration, lifetime time.Duration) AppSessionManagers {
 	var milSession, adminSession, officeSession *scs.SessionManager
 	gob.Register(Session{})
 
+	// we need to ensure each session manager has its own store so
+	// that sessions don't leak between apps. If a redisPool is
+	// provided, we can use a prefix to ensure sessions are separated.
+	// If redis is not configured, this would be local testing of some
+	// kind in which case we can create a separate memory store for
+	// each app
+	newSessionStoreFn := func(prefix string) scs.Store {
+		if redisPool != nil {
+			return redisstore.NewWithPrefix(redisPool, prefix)
+		}
+		// For local testing, we don't need a background thread
+		// cleaning up session
+		return memstore.NewWithCleanupInterval(time.Duration(0))
+	}
+
 	milSession = scs.New()
-	milSession.Store = sessionStore
+	milSession.Store = newSessionStoreFn("mil")
 	milSession.Cookie.Name = "mil_session_token"
 
 	adminSession = scs.New()
-	adminSession.Store = sessionStore
+	adminSession.Store = newSessionStoreFn("admin")
 	adminSession.Cookie.Name = "admin_session_token"
 
 	officeSession = scs.New()
-	officeSession.Store = sessionStore
+	officeSession.Store = newSessionStoreFn("office")
 	officeSession.Cookie.Name = "office_session_token"
 
 	// IdleTimeout controls the maximum length of time a session can be inactive
@@ -81,22 +183,32 @@ func SetupSessionManagers(redisEnabled bool, sessionStore scs.Store, useSecureCo
 		officeSession.Cookie.Secure = true
 	}
 
-	return [3]*scs.SessionManager{milSession, adminSession, officeSession}
+	return AppSessionManagers{
+		Mil: ScsSessionManagerWrapper{
+			ScsSessionManager: milSession,
+		},
+		Office: ScsSessionManagerWrapper{
+			ScsSessionManager: officeSession,
+		},
+		Admin: ScsSessionManagerWrapper{
+			ScsSessionManager: adminSession,
+		},
+	}
 }
 
 // IsOfficeApp returns true iff the request is for the office.move.mil host
 func (s *Session) IsOfficeApp() bool {
-	return s.ApplicationName == OfficeApp
+	return s.ApplicationName.IsOfficeApp()
 }
 
 // IsMilApp returns true iff the request is for the my.move.mil host
 func (s *Session) IsMilApp() bool {
-	return s.ApplicationName == MilApp
+	return s.ApplicationName.IsMilApp()
 }
 
 // IsAdminApp returns true iff the request is for the admin.move.mil host
 func (s *Session) IsAdminApp() bool {
-	return s.ApplicationName == AdminApp
+	return s.ApplicationName.IsAdminApp()
 }
 
 // Session stores information about the currently logged in session
@@ -119,12 +231,23 @@ type Session struct {
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data
 func SetSessionInRequestContext(r *http.Request, session *Session) context.Context {
-	return context.WithValue(r.Context(), sessionContextKey, session)
+	return SetSessionInContext(r.Context(), session)
 }
 
 // SetSessionInContext modifies the context to add the session data.
 func SetSessionInContext(ctx context.Context, session *Session) context.Context {
 	return context.WithValue(ctx, sessionContextKey, session)
+}
+
+func setSessionIDInContext(ctx context.Context, sessionID string) context.Context {
+	return context.WithValue(ctx, sessionIDContextKey, sessionID)
+}
+
+func SessionIDFromContext(ctx context.Context) string {
+	if sessionID, ok := ctx.Value(sessionIDContextKey).(string); ok {
+		return sessionID
+	}
+	return ""
 }
 
 // SessionFromRequestContext gets the reference to the Session stored in the request.Context()
@@ -165,4 +288,31 @@ func (s *Session) IsSystemAdmin() bool {
 func (s *Session) IsProgramAdmin() bool {
 	role := "PROGRAM_ADMIN"
 	return s.IsAdminUser() && s.AdminUserRole == role
+}
+
+func SessionIDMiddleware(appnames ApplicationServername, sessionManagers AppSessionManagers) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			// Split the hostname from the port
+			hostname := strings.Split(r.Host, ":")[0]
+			app, err := ApplicationName(hostname, appnames)
+			// the hostname may not be recognized if this is e.g.
+			// a prime session. We won't have a sessionManager in
+			// that case, so we won't add a sessionID to the context
+			if err == nil {
+				sessionManager := sessionManagers.SessionManagerForApplication(app)
+				if sessionManager != nil {
+					wrapper, ok := sessionManager.(ScsSessionManagerWrapper)
+					if ok {
+						cookie, err := r.Cookie(wrapper.ScsSessionManager.Cookie.Name)
+						if err == nil {
+							ctx = setSessionIDInContext(ctx, cookie.Value)
+						}
+					}
+				}
+			}
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
 }

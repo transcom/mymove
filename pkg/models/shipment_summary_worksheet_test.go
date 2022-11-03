@@ -1,27 +1,25 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
-//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
-//RA: in which this would be considered a risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
+// RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
+// RA: in which this would be considered a risk
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package models_test
 
 import (
 	"time"
 
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
@@ -64,21 +62,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
 	// Save advance in reimbursements table by saving ppm
 	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
-	movedocuments := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
-			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   models.MoveDocumentStatusOK,
-			MoveDocumentType:         "EXPENSE",
-		},
-		Document: models.Document{
-			ServiceMemberID: serviceMemberID,
-			ServiceMember:   move.Orders.ServiceMember,
-		},
-	}
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
 
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
@@ -125,14 +108,71 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Require().Nil(err)
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
-	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
-	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
-	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
 	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
 	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
 	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
 	suite.Equal(unit.Cents(1000), ssd.PersonallyProcuredMoves[0].Advance.RequestedAmount)
 	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
+}
+
+func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() {
+	//advanceID, _ := uuid.NewV4()
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyLocation(suite.DB())
+	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyLocation(suite.DB())
+	rank := models.ServiceMemberRankE9
+	moveType := models.SelectedMoveTypeHHGPPM
+
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &moveType,
+		},
+		Order: models.Order{
+			OrdersType:        ordersType,
+			NewDutyLocationID: fortGordon.ID,
+		},
+		ServiceMember: models.ServiceMember{
+			DutyLocationID: &yuma.ID,
+			Rank:           &rank,
+		},
+	})
+
+	moveID := uuid.Nil
+	serviceMemberID := move.Orders.ServiceMemberID
+
+	session := auth.Session{
+		UserID:          move.Orders.ServiceMember.UserID,
+		ServiceMemberID: serviceMemberID,
+		ApplicationName: auth.MilApp,
+	}
+
+	emptySSD, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
+
+	suite.Error(err)
+	suite.Equal(emptySSD, models.ShipmentSummaryFormData{})
+}
+
+func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
+	moveID, _ := uuid.NewV4()
+	serviceMemberID, _ := uuid.NewV4()
+	moveType := models.SelectedMoveTypeHHG
+
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			ID:               moveID,
+			SelectedMoveType: &moveType,
+		},
+	})
+	session := auth.Session{
+		UserID:          move.Orders.ServiceMember.UserID,
+		ServiceMemberID: serviceMemberID,
+		ApplicationName: auth.MilApp,
+	}
+
+	movingExpenses, err := models.FetchMovingExpensesShipmentSummaryWorksheet(move, suite.DB(), &session)
+
+	suite.Len(movingExpenses, 0)
+	suite.NoError(err)
 }
 
 func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
@@ -174,35 +214,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
 	// Save advance in reimbursements table by saving ppm
 	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
-	movedocuments := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
-			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   models.MoveDocumentStatusOK,
-			MoveDocumentType:         "EXPENSE",
-		},
-		Document: models.Document{
-			ServiceMemberID: serviceMemberID,
-			ServiceMember:   move.Orders.ServiceMember,
-		},
-	}
-	movedocuments2 := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
-			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   models.MoveDocumentStatusEXCLUDEFROMCALCULATION,
-			MoveDocumentType:         "EXPENSE",
-		},
-		Document: models.Document{
-			ServiceMemberID: serviceMemberID,
-			ServiceMember:   move.Orders.ServiceMember,
-		},
-	}
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
-	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments2)
+
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
@@ -247,37 +259,12 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	// E_9 rank, no dependents, no spouse pro-gear
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
-	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
-	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
-	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
 	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
 	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
 	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
 	suite.Equal(unit.Cents(1000), ssd.PersonallyProcuredMoves[0].Advance.RequestedAmount)
 	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
-}
-
-func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
-	moveID, _ := uuid.NewV4()
-	serviceMemberID, _ := uuid.NewV4()
-	moveType := models.SelectedMoveTypeHHG
-
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:               moveID,
-			SelectedMoveType: &moveType,
-		},
-	})
-	session := auth.Session{
-		UserID:          move.Orders.ServiceMember.UserID,
-		ServiceMemberID: serviceMemberID,
-		ApplicationName: auth.MilApp,
-	}
-
-	movingExpenses, err := models.FetchMovingExpensesShipmentSummaryWorksheet(move, suite.DB(), &session)
-
-	suite.Len(movingExpenses, 0)
-	suite.NoError(err)
+	suite.Require().Len(ssd.MovingExpenses, 0)
 }
 
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
@@ -403,49 +390,53 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 		HasDependents:     true,
 		SpouseHasProGear:  true,
 	}
-	movingExpenses := models.MovingExpenseDocuments{
+	paidWithGTCC := false
+	tollExpense := models.MovingExpenseReceiptTypeTolls
+	oilExpense := models.MovingExpenseReceiptTypeOil
+	amount := unit.Cents(10000)
+	movingExpenses := models.MovingExpenses{
 		{
-			MovingExpenseType:    "TOLLS",
-			RequestedAmountCents: unit.Cents(10000),
-			PaymentMethod:        "OTHER",
+			MovingExpenseType: &tollExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
 		},
 		{
-			MovingExpenseType:    "GAS",
-			RequestedAmountCents: unit.Cents(10000),
-			PaymentMethod:        "OTHER",
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
 		},
 		{
-			MovingExpenseType:    "CONTRACTED_EXPENSE",
-			RequestedAmountCents: unit.Cents(20000),
-			PaymentMethod:        "GTCC",
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
 		},
 		{
-			MovingExpenseType:    "CONTRACTED_EXPENSE",
-			RequestedAmountCents: unit.Cents(10000),
-			PaymentMethod:        "GTCC",
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
 		},
 		{
-			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
-			RequestedAmountCents: unit.Cents(100000),
-			PaymentMethod:        "GTCC",
+			MovingExpenseType: &tollExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
 		},
 		{
-			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
-			RequestedAmountCents: unit.Cents(20000),
-			PaymentMethod:        "GTCC",
+			MovingExpenseType: &tollExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
 		},
 		{
-			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
-			RequestedAmountCents: unit.Cents(10000),
-			PaymentMethod:        "OTHER",
+			MovingExpenseType: &tollExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
 		},
 	}
 
 	ssd := models.ShipmentSummaryFormData{
-		Order:                  order,
-		MovingExpenseDocuments: movingExpenses,
+		Order:          order,
+		MovingExpenses: movingExpenses,
 	}
-	sswPage2, _ := models.FormatValuesShipmentSummaryWorksheetFormPage2(ssd)
+	sswPage2 := models.FormatValuesShipmentSummaryWorksheetFormPage2(ssd)
 
 	suite.Equal("NTA4", sswPage2.TAC)
 	suite.Equal("SAC", sswPage2.SAC)
@@ -454,16 +445,16 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 	suite.Equal("$0.00", sswPage2.RentalEquipmentGTCCPaid.String())
 	suite.Equal("$0.00", sswPage2.PackingMaterialsGTCCPaid.String())
 
-	suite.Equal("$300.00", sswPage2.ContractedExpenseGTCCPaid.String())
-	suite.Equal("$300.00", sswPage2.TotalGTCCPaid.String())
-	suite.Equal("$300.00", sswPage2.TotalGTCCPaidRepeated.String())
+	suite.Equal("$0.00", sswPage2.ContractedExpenseGTCCPaid.String())
+	suite.Equal("$0.00", sswPage2.TotalGTCCPaid.String())
+	suite.Equal("$0.00", sswPage2.TotalGTCCPaidRepeated.String())
 
-	suite.Equal("$100.00", sswPage2.TollsMemberPaid.String())
-	suite.Equal("$100.00", sswPage2.GasMemberPaid.String())
-	suite.Equal("$200.00", sswPage2.TotalMemberPaid.String())
-	suite.Equal("$200.00", sswPage2.TotalMemberPaidRepeated.String())
-	suite.Equal("$100.00", sswPage2.TotalMemberPaidSIT.String())
-	suite.Equal("$1,200.00", sswPage2.TotalGTCCPaidSIT.String())
+	suite.Equal("$0.00", sswPage2.TollsMemberPaid.String())
+	suite.Equal("$0.00", sswPage2.GasMemberPaid.String())
+	suite.Equal("$0.00", sswPage2.TotalMemberPaid.String())
+	suite.Equal("$0.00", sswPage2.TotalMemberPaidRepeated.String())
+	suite.Equal("$0.00", sswPage2.TotalMemberPaidSIT.String())
+	suite.Equal("$0.00", sswPage2.TotalGTCCPaidSIT.String())
 }
 
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
@@ -472,21 +463,35 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
 		FirstName: models.StringPointer("John"),
 		LastName:  models.StringPointer("Smith"),
 	}
-	movingExpenses := models.MovingExpenseDocuments{
+	paidWithGTCC := false
+	tollExpense := models.MovingExpenseReceiptTypeTolls
+	oilExpense := models.MovingExpenseReceiptTypeOil
+	amount := unit.Cents(10000)
+	movingExpenses := models.MovingExpenses{
 		{
-			MovingExpenseType:    models.MovingExpenseTypeOTHER,
-			RequestedAmountCents: unit.Cents(100000),
-			PaymentMethod:        "GTCC",
+			MovingExpenseType: &tollExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
 		},
 		{
-			MovingExpenseType:    models.MovingExpenseTypeOTHER,
-			RequestedAmountCents: unit.Cents(20000),
-			PaymentMethod:        "GTCC",
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
 		},
 		{
-			MovingExpenseType:    models.MovingExpenseTypeOTHER,
-			RequestedAmountCents: unit.Cents(10000),
-			PaymentMethod:        "OTHER",
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &tollExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
 		},
 	}
 	signature := models.SignedCertification{
@@ -494,99 +499,91 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
 	}
 
 	ssd := models.ShipmentSummaryFormData{
-		ServiceMember:          sm,
-		SignedCertification:    signature,
-		MovingExpenseDocuments: movingExpenses,
+		ServiceMember:       sm,
+		SignedCertification: signature,
+		MovingExpenses:      movingExpenses,
 	}
 
 	sswPage3 := models.FormatValuesShipmentSummaryWorksheetFormPage3(ssd)
 
-	suite.Equal("$1,000.00\n\n$200.00\n\n$100.00", sswPage3.AmountsPaid)
+	suite.Equal("", sswPage3.AmountsPaid)
 	suite.Equal("John Smith electronically signed", sswPage3.ServiceMemberSignature)
 	suite.Equal("26 Jan 2019 at 2:40pm", sswPage3.SignatureDate)
 }
 
 func (suite *ModelSuite) TestGroupExpenses() {
+	paidWithGTCC := false
+	tollExpense := models.MovingExpenseReceiptTypeTolls
+	oilExpense := models.MovingExpenseReceiptTypeOil
+	amount := unit.Cents(10000)
 	testCases := []struct {
-		input    models.MovingExpenseDocuments
+		input    models.MovingExpenses
 		expected map[string]float64
 	}{
 		{
-			models.MovingExpenseDocuments{
+			models.MovingExpenses{
 				{
-					MovingExpenseType:    "TOLLS",
-					RequestedAmountCents: unit.Cents(10000),
-					PaymentMethod:        "GTCC",
+					MovingExpenseType: &tollExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
 				},
 				{
-					MovingExpenseType:    "GAS",
-					RequestedAmountCents: unit.Cents(10000),
-					PaymentMethod:        "OTHER",
+					MovingExpenseType: &oilExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
 				},
 				{
-					MovingExpenseType:    "GAS",
-					RequestedAmountCents: unit.Cents(20000),
-					PaymentMethod:        "OTHER",
+					MovingExpenseType: &oilExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
 				},
 				{
-					MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
-					RequestedAmountCents: unit.Cents(20000),
-					PaymentMethod:        "GTCC",
+					MovingExpenseType: &oilExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
+				},
+				{
+					MovingExpenseType: &tollExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
 				},
 			},
 			map[string]float64{
-				"TollsGTCCPaid":    100,
-				"GasMemberPaid":    300,
-				"TotalMemberPaid":  300,
-				"TotalGTCCPaid":    100,
-				"TotalPaidNonSIT":  400,
-				"StorageGTCCPaid":  200,
-				"TotalGTCCPaidSIT": 200,
-				"TotalPaidSIT":     200,
+				"OilMemberPaid":   300,
+				"TollsMemberPaid": 200,
 			},
 		},
 		{
-			models.MovingExpenseDocuments{
+			models.MovingExpenses{
 				{
-					MovingExpenseType:    "PACKING_MATERIALS",
-					RequestedAmountCents: unit.Cents(10000),
-					PaymentMethod:        "GTCC",
+					MovingExpenseType: &tollExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
 				},
 				{
-					MovingExpenseType:    "PACKING_MATERIALS",
-					RequestedAmountCents: unit.Cents(10000),
-					PaymentMethod:        "OTHER",
+					MovingExpenseType: &oilExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
 				},
 				{
-					MovingExpenseType:    "WEIGHING_FEES",
-					RequestedAmountCents: unit.Cents(10000),
-					PaymentMethod:        "GTCC",
+					MovingExpenseType: &oilExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
 				},
 				{
-					MovingExpenseType:    "WEIGHING_FEES",
-					RequestedAmountCents: unit.Cents(10000),
-					PaymentMethod:        "OTHER",
+					MovingExpenseType: &oilExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
 				},
 				{
-					MovingExpenseType:    "WEIGHING_FEES",
-					RequestedAmountCents: unit.Cents(20000),
-					PaymentMethod:        "GTCC",
-				},
-				{
-					MovingExpenseType:    "GAS",
-					RequestedAmountCents: unit.Cents(20000),
-					PaymentMethod:        "OTHER",
+					MovingExpenseType: &tollExpense,
+					Amount:            &amount,
+					PaidWithGTCC:      &paidWithGTCC,
 				},
 			},
 			map[string]float64{
-				"PackingMaterialsGTCCPaid":   100,
-				"PackingMaterialsMemberPaid": 100,
-				"WeighingFeesMemberPaid":     100,
-				"WeighingFeesGTCCPaid":       300,
-				"GasMemberPaid":              200,
-				"TotalMemberPaid":            400,
-				"TotalGTCCPaid":              400,
-				"TotalPaidNonSIT":            800,
+				"OilMemberPaid":   300,
+				"TollsMemberPaid": 200,
 			},
 		},
 	}
@@ -704,32 +701,6 @@ func (suite *ModelSuite) TestFormatShipmentNumberAndType() {
 	suite.Equal("01 - PPM\n\n02 - PPM", multiplePPMsFormatted.ShipmentNumberAndTypes)
 }
 
-func (suite *ModelSuite) TestFormatAllSITExpenses() {
-	startdate1 := time.Date(2019, 5, 12, 0, 0, 0, 0, time.UTC)
-	endDate1 := time.Date(2019, 5, 15, 0, 0, 0, 0, time.UTC)
-	startdate2 := time.Date(2019, 5, 15, 0, 0, 0, 0, time.UTC)
-	endDate2 := time.Date(2019, 5, 20, 0, 0, 0, 0, time.UTC)
-	sitExpenses := models.MovingExpenseDocuments{
-		{
-			MovingExpenseType: models.MovingExpenseTypeSTORAGE,
-			StorageStartDate:  &startdate1,
-			StorageEndDate:    &endDate1,
-		},
-		{
-			MovingExpenseType: models.MovingExpenseTypeSTORAGE,
-			StorageStartDate:  &startdate2,
-			StorageEndDate:    &endDate2,
-		},
-	}
-
-	formattedSitExpenses := models.FormatAllSITExpenses(sitExpenses)
-
-	suite.Equal("01 - PPM\n\n02 - PPM", formattedSitExpenses.NumberAndTypes)
-	suite.Equal("12-May-2019\n\n15-May-2019", formattedSitExpenses.EntryDates)
-	suite.Equal("15-May-2019\n\n20-May-2019", formattedSitExpenses.EndDates)
-	suite.Equal("3\n\n5", formattedSitExpenses.DaysInStorage)
-}
-
 func (suite *ModelSuite) TestFormatWeights() {
 	suite.Equal("0", models.FormatWeights(0))
 	suite.Equal("10", models.FormatWeights(10))
@@ -795,58 +766,6 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitl
 	suite.NoError(err)
 
 	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
-}
-
-func (suite *ModelSuite) TestFormatOtherExpenses() {
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	sm := ppm.Move.Orders.ServiceMember
-
-	assertions1 := testdatagen.Assertions{
-		MovingExpenseDocument: models.MovingExpenseDocument{
-			MovingExpenseType:    models.MovingExpenseTypeOTHER,
-			RequestedAmountCents: unit.Cents(2589),
-		},
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
-			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   "OK",
-			MoveDocumentType:         "EXPENSE",
-			Title:                    "The Bard",
-		},
-		Document: models.Document{
-			ServiceMemberID: sm.ID,
-			ServiceMember:   sm,
-		},
-	}
-
-	assertions2 := testdatagen.Assertions{
-		MovingExpenseDocument: models.MovingExpenseDocument{
-			MovingExpenseType:    models.MovingExpenseTypeOTHER,
-			RequestedAmountCents: unit.Cents(1439),
-		},
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm.Move.ID,
-			Move:                     ppm.Move,
-			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   "OK",
-			MoveDocumentType:         "EXPENSE",
-			Title:                    "The Beedle",
-		},
-		Document: models.Document{
-			ServiceMemberID: sm.ID,
-			ServiceMember:   sm,
-		},
-	}
-
-	otherExpenseDocs := models.MovingExpenseDocuments{}
-	otherExpenseDocs = append(otherExpenseDocs, testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions1))
-	otherExpenseDocs = append(otherExpenseDocs, testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions2))
-
-	formattedOtherExpenses := models.FormatOtherExpenses(otherExpenseDocs)
-
-	suite.Equal("The Bard\n\nThe Beedle", formattedOtherExpenses.Descriptions)
-	suite.Equal("$25.89\n\n$14.39", formattedOtherExpenses.AmountsPaid)
 }
 
 func (suite *ModelSuite) TestFormatSignature() {

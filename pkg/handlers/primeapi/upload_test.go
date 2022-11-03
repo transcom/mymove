@@ -5,20 +5,17 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
-
-	"github.com/transcom/mymove/pkg/models"
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-
 	"github.com/gofrs/uuid"
 
 	uploadop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
-
+	"github.com/transcom/mymove/pkg/models"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestCreateUploadHandler() {
-	primeUser := testdatagen.MakeStubbedUser(suite.DB())
+
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	setupTestData := func() (CreateUploadHandler, models.PaymentRequest) {
@@ -34,6 +31,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 	}
 
 	suite.Run("successful create upload", func() {
+		primeUser := testdatagen.MakeStubbedUser(suite.DB())
 		handler, paymentRequest := setupTestData()
 		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
 		req = suite.AuthenticateUserRequest(req, primeUser)
@@ -51,6 +49,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 	})
 
 	suite.Run("create upload fail - invalid payment request ID format", func() {
+		primeUser := testdatagen.MakeStubbedUser(suite.DB())
 		handler, paymentRequest := setupTestData()
 
 		badFormatID := strfmt.UUID("gb7b134a-7c44-45f2-9114-bb0831cc5db3")
@@ -69,6 +68,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 	})
 
 	suite.Run("create upload fail - payment request not found", func() {
+		primeUser := testdatagen.MakeStubbedUser(suite.DB())
 		handler, paymentRequest := setupTestData()
 
 		badFormatID, _ := uuid.NewV4()

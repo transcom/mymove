@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -86,7 +85,7 @@ func checkRequiredFields() reweighValidator {
 	})
 }
 
-//checks that the shipment associated with the reweigh is available to Prime
+// checks that the shipment associated with the reweigh is available to Prime
 func checkPrimeAvailability(checker services.MoveTaskOrderChecker) reweighValidator {
 	return reweighValidatorFunc(func(appCtx appcontext.AppContext, newReweigh models.Reweigh, oldReweigh *models.Reweigh, shipment *models.MTOShipment) error {
 		if shipment == nil {

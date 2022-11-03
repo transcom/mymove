@@ -2,20 +2,17 @@ package scenario
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
 	"time"
 
 	"github.com/go-openapi/swag"
-
-	"github.com/transcom/mymove/pkg/models/roles"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -271,7 +268,7 @@ func filesInBandwidthTestDirectory(fileNames *[]string) []string {
 
 	dirName := path.Join(cwd, "pkg/testdatagen/testdata/bandwidth_test_docs")
 
-	files, err := ioutil.ReadDir(dirName)
+	files, err := os.ReadDir(dirName)
 	if err != nil {
 		log.Fatalf("failed opening directory: %s", err)
 	}

@@ -6,21 +6,19 @@ import (
 	html "html/template"
 	text "text/template"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/assets"
-	"github.com/transcom/mymove/pkg/unit"
-
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/assets"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 var (
-	movePaymentReminderRawText  = string(assets.MustAsset("pkg/notifications/templates/move_payment_reminder_template.txt"))
+	movePaymentReminderRawText  = string(assets.MustAsset("notifications/templates/move_payment_reminder_template.txt"))
 	paymentReminderTextTemplate = text.Must(text.New("text_template").Parse(movePaymentReminderRawText))
-	movePaymentReminderRawHTML  = string(assets.MustAsset("pkg/notifications/templates/move_payment_reminder_template.html"))
+	movePaymentReminderRawHTML  = string(assets.MustAsset("notifications/templates/move_payment_reminder_template.html"))
 	paymentReminderHTMLTemplate = html.Must(html.New("text_template").Parse(movePaymentReminderRawHTML))
 )
 

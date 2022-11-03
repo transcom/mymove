@@ -3,16 +3,14 @@ package payloads
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MTOAgentModel model
@@ -428,6 +426,13 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
 	}
 
+	var addressModel *models.Address
+
+	if ppmShipment.W2Address != nil {
+		addressModel = AddressModel(ppmShipment.W2Address)
+		model.W2Address = addressModel
+	}
+
 	if ppmShipment.SitLocation != nil {
 		sitLocation := models.SITLocationType(*ppmShipment.SitLocation)
 		model.SITLocation = &sitLocation
@@ -475,24 +480,31 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 	}
 
 	model := models.EvaluationReport{
-		ID:                      uuid.FromStringOrNil(evaluationReport.ID.String()),
-		OfficeUser:              models.OfficeUser{},
-		OfficeUserID:            uuid.Nil,
-		Move:                    models.Move{},
-		MoveID:                  uuid.Nil,
-		Shipment:                nil,
-		ShipmentID:              nil,
-		Type:                    models.EvaluationReportType(evaluationReport.Type),
-		InspectionDate:          (*time.Time)(evaluationReport.InspectionDate),
-		InspectionType:          inspectionType,
-		TravelTimeMinutes:       travelTimeMinutes,
-		Location:                location,
-		LocationDescription:     evaluationReport.LocationDescription,
-		ObservedDate:            (*time.Time)(evaluationReport.ObservedDate),
-		EvaluationLengthMinutes: evaluationLengthMinutes,
-		ViolationsObserved:      evaluationReport.ViolationsObserved,
-		Remarks:                 evaluationReport.Remarks,
-		SubmittedAt:             handlers.FmtDateTimePtrToPopPtr(evaluationReport.SubmittedAt),
+		ID:                            uuid.FromStringOrNil(evaluationReport.ID.String()),
+		OfficeUser:                    models.OfficeUser{},
+		OfficeUserID:                  uuid.Nil,
+		Move:                          models.Move{},
+		MoveID:                        uuid.Nil,
+		Shipment:                      nil,
+		ShipmentID:                    nil,
+		Type:                          models.EvaluationReportType(evaluationReport.Type),
+		InspectionDate:                (*time.Time)(evaluationReport.InspectionDate),
+		InspectionType:                inspectionType,
+		TravelTimeMinutes:             travelTimeMinutes,
+		Location:                      location,
+		LocationDescription:           evaluationReport.LocationDescription,
+		ObservedDate:                  (*time.Time)(evaluationReport.ObservedDate),
+		EvaluationLengthMinutes:       evaluationLengthMinutes,
+		ViolationsObserved:            evaluationReport.ViolationsObserved,
+		Remarks:                       evaluationReport.Remarks,
+		SeriousIncident:               evaluationReport.SeriousIncident,
+		SeriousIncidentDesc:           evaluationReport.SeriousIncidentDesc,
+		ObservedClaimsResponseDate:    (*time.Time)(evaluationReport.ObservedClaimsResponseDate),
+		ObservedPickupDate:            (*time.Time)(evaluationReport.ObservedPickupDate),
+		ObservedPickupSpreadStartDate: (*time.Time)(evaluationReport.ObservedPickupSpreadStartDate),
+		ObservedPickupSpreadEndDate:   (*time.Time)(evaluationReport.ObservedPickupSpreadEndDate),
+		ObservedDeliveryDate:          (*time.Time)(evaluationReport.ObservedDeliveryDate),
+		SubmittedAt:                   handlers.FmtDateTimePtrToPopPtr(evaluationReport.SubmittedAt),
 	}
 	return &model
 }

@@ -3,27 +3,31 @@ package ghcapi
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
-
-	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
 
+	mtoagentop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_agent"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
-
-	mtoagentop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_agent"
 )
 
 func (suite *HandlerSuite) TestListMTOAgentsHandler() {
-	testMTOAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
-
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/mto-agents", testMTOAgent.ID.String()), nil)
-	req = suite.AuthenticateAdminRequest(req, requestUser)
+	var requestUser models.User
+	var testMTOAgent models.MTOAgent
+	setupTestData := func() *http.Request {
+		requestUser = testdatagen.MakeStubbedUser(suite.DB())
+		testMTOAgent = testdatagen.MakeDefaultMTOAgent(suite.DB())
+		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/mto-agents", testMTOAgent.ID.String()), nil)
+		req = suite.AuthenticateAdminRequest(req, requestUser)
+		return req
+	}
 
 	suite.Run("Successful Response", func() {
+		req := setupTestData()
 		params := mtoagentop.FetchMTOAgentListParams{
 			HTTPRequest: req,
 			ShipmentID:  strfmt.UUID(testMTOAgent.MTOShipmentID.String()),
@@ -48,6 +52,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 	})
 
 	suite.Run("Error Response", func() {
+		req := setupTestData()
 		params := mtoagentop.FetchMTOAgentListParams{
 			HTTPRequest: req,
 			ShipmentID:  strfmt.UUID(testMTOAgent.MTOShipmentID.String()),
@@ -72,6 +77,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 	})
 
 	suite.Run("404 Response", func() {
+		req := setupTestData()
 		params := mtoagentop.FetchMTOAgentListParams{
 			HTTPRequest: req,
 			ShipmentID:  strfmt.UUID(testMTOAgent.MTOShipmentID.String()),

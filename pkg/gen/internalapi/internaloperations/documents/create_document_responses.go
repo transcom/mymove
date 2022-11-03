@@ -16,7 +16,8 @@ import (
 // CreateDocumentCreatedCode is the HTTP code returned for type CreateDocumentCreated
 const CreateDocumentCreatedCode int = 201
 
-/*CreateDocumentCreated created document
+/*
+CreateDocumentCreated created document
 
 swagger:response createDocumentCreated
 */
@@ -25,7 +26,7 @@ type CreateDocumentCreated struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.DocumentPayload `json:"body,omitempty"`
+	Payload *internalmessages.Document `json:"body,omitempty"`
 }
 
 // NewCreateDocumentCreated creates CreateDocumentCreated with default headers values
@@ -35,13 +36,13 @@ func NewCreateDocumentCreated() *CreateDocumentCreated {
 }
 
 // WithPayload adds the payload to the create document created response
-func (o *CreateDocumentCreated) WithPayload(payload *internalmessages.DocumentPayload) *CreateDocumentCreated {
+func (o *CreateDocumentCreated) WithPayload(payload *internalmessages.Document) *CreateDocumentCreated {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create document created response
-func (o *CreateDocumentCreated) SetPayload(payload *internalmessages.DocumentPayload) {
+func (o *CreateDocumentCreated) SetPayload(payload *internalmessages.Document) {
 	o.Payload = payload
 }
 
@@ -60,7 +61,8 @@ func (o *CreateDocumentCreated) WriteResponse(rw http.ResponseWriter, producer r
 // CreateDocumentBadRequestCode is the HTTP code returned for type CreateDocumentBadRequest
 const CreateDocumentBadRequestCode int = 400
 
-/*CreateDocumentBadRequest invalid request
+/*
+CreateDocumentBadRequest invalid request
 
 swagger:response createDocumentBadRequest
 */
@@ -84,7 +86,8 @@ func (o *CreateDocumentBadRequest) WriteResponse(rw http.ResponseWriter, produce
 // CreateDocumentInternalServerErrorCode is the HTTP code returned for type CreateDocumentInternalServerError
 const CreateDocumentInternalServerErrorCode int = 500
 
-/*CreateDocumentInternalServerError server error
+/*
+CreateDocumentInternalServerError server error
 
 swagger:response createDocumentInternalServerError
 */

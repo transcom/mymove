@@ -29,9 +29,6 @@ jest.mock('react-router-dom', () => ({
     moveId: 'cc03c553-d317-46af-8b2d-3c9f899f6451',
     mtoShipmentId: '6b7a5769-4393-46fb-a4c4-d3f6ac7584c7',
   })),
-  useLocation: () => ({
-    search: 'tripNumber=2',
-  }),
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -84,11 +81,11 @@ const mockWeightTicketWithUploads = {
     uploads: [
       {
         id: '299e2fb4-432d-4261-bbed-d8280c6090af',
-        created_at: '2022-06-22T23:25:50.490Z',
+        createdAt: '2022-06-22T23:25:50.490Z',
         bytes: 819200,
         url: 'a/fake/path',
         filename: 'empty_weight.jpg',
-        content_type: 'image/jpg',
+        contentType: 'image/jpg',
       },
     ],
   },
@@ -97,11 +94,11 @@ const mockWeightTicketWithUploads = {
     uploads: [
       {
         id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
-        created_at: '2022-06-23T23:25:50.490Z',
+        createdAt: '2022-06-23T23:25:50.490Z',
         bytes: 409600,
         url: 'a/fake/path',
         filename: 'full_weight.pdf',
-        content_type: 'application/pdf',
+        contentType: 'application/pdf',
       },
     ],
   },
@@ -110,11 +107,11 @@ const mockWeightTicketWithUploads = {
     uploads: [
       {
         id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',
-        created_at: '2022-06-24T23:25:50.490Z',
+        createdAt: '2022-06-24T23:25:50.490Z',
         bytes: 204800,
         url: 'a/fake/path',
         filename: 'trailer_title.pdf',
-        content_type: 'application/pdf',
+        contentType: 'application/pdf',
       },
     ],
   },
@@ -206,7 +203,7 @@ describe('Weight Tickets page', () => {
     expect(screen.getByText('You must upload at least one set of weight tickets to get paid for your PPM.'));
 
     // renders form content
-    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 2');
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 1');
   });
 
   it('replaces the router history with newly created weight ticket id', async () => {
@@ -221,22 +218,22 @@ describe('Weight Tickets page', () => {
     });
   });
 
-  it('routes back to home when finish later is clicked', async () => {
+  it('routes back to home when return to homepage is clicked', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
     selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
     expect(mockPush).toHaveBeenCalledWith(homePath);
   });
 
   it('calls patch weight ticket with the appropriate payload', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
-    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 0 });
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 1 });
     patchWeightTicket.mockResolvedValue({});
 
     render(<WeightTickets />, { wrapper: MockProviders });
@@ -275,13 +272,13 @@ describe('Weight Tickets page', () => {
 
   it('displays an error if patchWeightTicket fails', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
-    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 0 });
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 4 });
     patchWeightTicket.mockRejectedValueOnce('an error occurred');
 
     render(<WeightTickets />, { wrapper: MockProviders });
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 2');
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 5');
     });
     await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
     await userEvent.type(screen.getByLabelText('Empty weight'), '4999');

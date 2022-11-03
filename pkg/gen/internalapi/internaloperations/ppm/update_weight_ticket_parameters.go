@@ -6,7 +6,6 @@ package ppm
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"context"
 	"io"
 	"net/http"
 
@@ -42,7 +41,7 @@ type UpdateWeightTicketParams struct {
 	  In: header
 	*/
 	IfMatch string
-	/*UUID of the ppm shipment
+	/*UUID of the PPM shipment
 	  Required: true
 	  In: path
 	*/
@@ -92,7 +91,7 @@ func (o *UpdateWeightTicketParams) BindRequest(r *http.Request, route *middlewar
 				res = append(res, err)
 			}
 
-			ctx := validate.WithOperationRequest(context.Background())
+			ctx := validate.WithOperationRequest(r.Context())
 			if err := body.ContextValidate(ctx, route.Formats); err != nil {
 				res = append(res, err)
 			}

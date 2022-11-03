@@ -5,6 +5,7 @@
 .buttonContainer {
   @include u-padding(0);
   @include u-margin-bottom(115px);
+  width: 960px;
 }
 
 .buttonRow {
@@ -23,8 +24,13 @@
   @include u-radius('05');
   @include u-border('base-lighter');
   @include u-border('1px');
-  @include u-padding(4);
+  @include u-padding-top(4);
+  @include u-padding-bottom(4);
+  @include u-padding-right(6);
+  @include u-padding-left(6);
   @include u-margin-bottom(2);
+  max-width: 960px;
+  width: 960px;
 }
 
 .durationPickers {
@@ -80,6 +86,17 @@
   width: 480px;
 }
 
+.title {
+  h3 {
+    @include u-margin-bottom(1);
+    @include u-margin-top(0);
+    font-size: 28px;
+    line-height: 34px;
+    @include u-color('base-darkest');
+  }
+  @include u-margin-bottom(4 !important);
+}
+
 .violationsGroup {
   @include u-padding-bottom(0.5);
   @include u-margin-top(0);
@@ -88,4 +105,27 @@
 .violationsInfo {
   color: $base-dark;
   @include u-margin-bottom(0);
+}
+
+.backIcon {
+  color: $link !important;
+  width: 16px;
+  height: 16px;
+}
+
+.closeModalBtn {
+  font-weight: 700;
+  color: $link;
+  @include u-padding-left(0 !important);
+}
+
+.modalActions {
+  @include u-display('flex');
+  @include u-justify-content('justify');
+  @include u-margin-top(4 !important);
+  @include u-margin-x(0 !important);
+}
+
+.submitModalBtn {
+  @include u-margin(0 !important);
 }

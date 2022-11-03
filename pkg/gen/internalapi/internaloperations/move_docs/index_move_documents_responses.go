@@ -16,7 +16,8 @@ import (
 // IndexMoveDocumentsOKCode is the HTTP code returned for type IndexMoveDocumentsOK
 const IndexMoveDocumentsOKCode int = 200
 
-/*IndexMoveDocumentsOK returns list of move douments
+/*
+IndexMoveDocumentsOK returns list of move douments
 
 swagger:response indexMoveDocumentsOK
 */
@@ -63,7 +64,8 @@ func (o *IndexMoveDocumentsOK) WriteResponse(rw http.ResponseWriter, producer ru
 // IndexMoveDocumentsBadRequestCode is the HTTP code returned for type IndexMoveDocumentsBadRequest
 const IndexMoveDocumentsBadRequestCode int = 400
 
-/*IndexMoveDocumentsBadRequest invalid request
+/*
+IndexMoveDocumentsBadRequest invalid request
 
 swagger:response indexMoveDocumentsBadRequest
 */
@@ -87,7 +89,8 @@ func (o *IndexMoveDocumentsBadRequest) WriteResponse(rw http.ResponseWriter, pro
 // IndexMoveDocumentsUnauthorizedCode is the HTTP code returned for type IndexMoveDocumentsUnauthorized
 const IndexMoveDocumentsUnauthorizedCode int = 401
 
-/*IndexMoveDocumentsUnauthorized request requires user authentication
+/*
+IndexMoveDocumentsUnauthorized request requires user authentication
 
 swagger:response indexMoveDocumentsUnauthorized
 */
@@ -111,7 +114,8 @@ func (o *IndexMoveDocumentsUnauthorized) WriteResponse(rw http.ResponseWriter, p
 // IndexMoveDocumentsForbiddenCode is the HTTP code returned for type IndexMoveDocumentsForbidden
 const IndexMoveDocumentsForbiddenCode int = 403
 
-/*IndexMoveDocumentsForbidden user is not authorized
+/*
+IndexMoveDocumentsForbidden user is not authorized
 
 swagger:response indexMoveDocumentsForbidden
 */

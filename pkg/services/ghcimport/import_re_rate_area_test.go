@@ -1,8 +1,6 @@
 package ghcimport
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -149,12 +147,27 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 		ContractCode: testContractCode,
 	}
 
-	// Prerequisite tables must be loaded.
-	err := gre.importREContract(suite.AppContextForTest())
-	suite.NoError(err)
+	setupTestData := func() {
+		//Prerequisite tables must be loaded.
+		err := gre.importREContract(suite.AppContextForTest())
+		suite.NoError(err)
 
-	suite.T().Run("Successfully run import with staged staging data (empty RE tables)", func(t *testing.T) {
 		err = gre.importRERateArea(suite.AppContextForTest())
+		suite.NoError(err)
+	}
+
+	suite.Run("Successfully run import with staged staging data (empty RE tables)", func() {
+		setupTestData()
+		suite.helperImportRERateAreaVerifyImportComplete(testContractCode)
+
+		suite.helperVerifyDomesticRateAreaToIDMap(testContractCode, gre.domesticRateAreaToIDMap)
+		suite.helperVerifyInternationalRateAreaToIDMap(testContractCode, gre.internationalRateAreaToIDMap)
+	})
+
+	suite.Run("Successfully run import, 2nd time, with staged staging data and filled in RE tables", func() {
+		setupTestData()
+
+		err := gre.importRERateArea(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.helperImportRERateAreaVerifyImportComplete(testContractCode)
 
@@ -162,19 +175,11 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 		suite.helperVerifyInternationalRateAreaToIDMap(testContractCode, gre.internationalRateAreaToIDMap)
 	})
 
-	suite.T().Run("Successfully run import, 2nd time, with staged staging data and filled in RE tables", func(t *testing.T) {
-		err = gre.importRERateArea(suite.AppContextForTest())
-		suite.NoError(err)
-		suite.helperImportRERateAreaVerifyImportComplete(testContractCode)
-
-		suite.helperVerifyDomesticRateAreaToIDMap(testContractCode, gre.domesticRateAreaToIDMap)
-		suite.helperVerifyInternationalRateAreaToIDMap(testContractCode, gre.internationalRateAreaToIDMap)
-	})
-
-	suite.T().Run("Successfully run import, prefilled re_rate_areas, update existing rate area from import", func(t *testing.T) {
+	suite.Run("Successfully run import, prefilled re_rate_areas, update existing rate area from import", func() {
+		setupTestData()
 		suite.helperImportRERateArea("setup")
 
-		err = gre.importRERateArea(suite.AppContextForTest())
+		err := gre.importRERateArea(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.helperImportRERateAreaVerifyImportComplete(testContractCode)
 
@@ -183,28 +188,28 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 		suite.helperImportRERateArea("verify")
 	})
 
-	suite.T().Run("Fail to run import, missing staging table", func(t *testing.T) {
+	suite.Run("Fail to run import, missing staging table", func() {
 		renameQuery := "ALTER TABLE stage_conus_to_oconus_prices RENAME TO missing_stage_conus_to_oconus_prices"
 		renameErr := suite.DB().RawQuery(renameQuery).Exec()
 		suite.NoError(renameErr)
 
-		err = gre.importRERateArea(suite.AppContextForTest())
+		err := gre.importRERateArea(suite.AppContextForTest())
 		suite.Error(err)
-
-		renameQuery = "ALTER TABLE missing_stage_conus_to_oconus_prices RENAME TO stage_conus_to_oconus_prices"
-		renameErr = suite.DB().RawQuery(renameQuery).Exec()
-		suite.NoError(renameErr)
 	})
 
-	gre2 := &GHCRateEngineImporter{
-		ContractCode: testContractCode2,
-	}
+	suite.Run("Run with 2 different contract codes, should add new records both times", func() {
+		setupTestData()
+		err := gre.importRERateArea(suite.AppContextForTest())
+		suite.NoError(err)
 
-	// Prerequisite tables must be loaded.
-	err = gre2.importREContract(suite.AppContextForTest())
-	suite.NoError(err)
+		gre2 := &GHCRateEngineImporter{
+			ContractCode: testContractCode2,
+		}
 
-	suite.T().Run("Run with a different contract code, should add new records", func(t *testing.T) {
+		// Prerequisite tables must be loaded.
+		err = gre2.importREContract(suite.AppContextForTest())
+		suite.NoError(err)
+
 		err = gre2.importRERateArea(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.helperImportRERateAreaVerifyImportComplete(testContractCode2)

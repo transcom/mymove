@@ -6,11 +6,9 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/db/utilities"
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -23,7 +21,7 @@ func NewEvaluationReportDeleter() services.EvaluationReportDeleter {
 
 func (o evaluationReportDeleter) DeleteEvaluationReport(appCtx appcontext.AppContext, reportID uuid.UUID) error {
 	var report models.EvaluationReport
-	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Find(&report, reportID)
+	err := appCtx.DB().Find(&report, reportID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -42,14 +40,20 @@ func (o evaluationReportDeleter) DeleteEvaluationReport(appCtx appcontext.AppCon
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		err := utilities.SoftDestroy(appCtx.DB(), &report)
+		// Delete existing report_violations for this report
+		existingReportViolations := models.ReportViolations{}
+		err := appCtx.DB().Where("report_id in (?)", reportID).All(&existingReportViolations)
 		if err != nil {
-			switch err.Error() {
-			case "error updating model":
-				return apperror.NewUnprocessableEntityError("while updating model")
-			default:
-				return apperror.NewInternalServerError("failed attempt to soft delete model")
-			}
+			return apperror.NewQueryError("EvaluationReport", err, "Unable to find existing report violations to remove")
+		}
+		err = appCtx.DB().Destroy(&existingReportViolations)
+		if err != nil {
+			return apperror.NewQueryError("EvaluationReport", err, "failed to delete existing report violations")
+		}
+
+		err = appCtx.DB().Destroy(&report)
+		if err != nil {
+			return apperror.NewQueryError("EvaluationReport", err, "failed to delete report")
 		}
 		return nil
 	})

@@ -5,9 +5,8 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -19,7 +18,7 @@ func NewCustomerFetcher() services.CustomerFetcher {
 	return &fetchCustomer{}
 }
 
-//FetchCustomer retrieves a Customer for a given UUID
+// FetchCustomer retrieves a Customer for a given UUID
 func (f fetchCustomer) FetchCustomer(appCtx appcontext.AppContext, customerID uuid.UUID) (*models.ServiceMember, error) {
 	customer := &models.ServiceMember{}
 	if err := appCtx.DB().Eager().Find(customer, customerID); err != nil {

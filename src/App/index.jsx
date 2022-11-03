@@ -6,7 +6,7 @@ import { ReactQueryConfigProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query-devtools';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { isOfficeSite, isAdminSite, isSystemAdminSite } from 'shared/constants';
+import { isOfficeSite, isAdminSite } from 'shared/constants';
 import { store, persistor, history } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
 import { detectFlags } from 'utils/featureFlags';
@@ -14,6 +14,7 @@ import '../icons';
 import 'shared/shared.css';
 import './index.css';
 import MarkerIO from 'components/ThirdParty/MarkerIO';
+import ScrollToTop from 'components/ScrollToTop';
 
 const Office = lazy(() => import('pages/Office'));
 const MyMove = lazy(() => import('scenes/MyMove'));
@@ -54,6 +55,7 @@ const App = () => {
             <AppContext.Provider value={officeContext}>
               <ConnectedRouter history={history}>
                 <Suspense fallback={<LoadingPlaceholder />}>
+                  <ScrollToTop />
                   <Office />
                   {flags.markerIO && <MarkerIO />}
                 </Suspense>
@@ -65,22 +67,27 @@ const App = () => {
       </ReactQueryConfigProvider>
     );
 
-  if (isSystemAdminSite)
+  if (isAdminSite)
     return (
-      <AppContext.Provider value={adminContext}>
-        <Suspense fallback={<LoadingPlaceholder />}>
-          <SystemAdmin />
-        </Suspense>
-      </AppContext.Provider>
+      <Provider store={store}>
+        <PersistGate loading={<LoadingPlaceholder />} persistor={persistor}>
+          <AppContext.Provider value={adminContext}>
+            <ConnectedRouter history={history}>
+              <Suspense fallback={<LoadingPlaceholder />}>
+                <SystemAdmin />
+              </Suspense>
+            </ConnectedRouter>
+          </AppContext.Provider>
+        </PersistGate>
+      </Provider>
     );
-
-  if (isAdminSite) return <SystemAdmin />;
 
   return (
     <Provider store={store}>
       <AppContext.Provider value={myMoveContext}>
         <ConnectedRouter history={history}>
           <Suspense fallback={<LoadingPlaceholder />}>
+            <ScrollToTop />
             <MyMove />
             {flags.markerIO && <MarkerIO />}
           </Suspense>

@@ -7,9 +7,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	edisegment "github.com/transcom/mymove/pkg/edi/segment"
-
 	ediResponse997 "github.com/transcom/mymove/pkg/edi/edi997"
+	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -23,7 +22,7 @@ func NewEDI997Processor() services.SyncadaFileProcessor {
 	return &edi997Processor{}
 }
 
-//ProcessFile parses an EDI 997 response and updates the payment request status
+// ProcessFile parses an EDI 997 response and updates the payment request status
 func (e *edi997Processor) ProcessFile(appCtx appcontext.AppContext, path string, stringEDI997 string) error {
 	edi997 := ediResponse997.EDI{}
 	err := edi997.Parse(stringEDI997)

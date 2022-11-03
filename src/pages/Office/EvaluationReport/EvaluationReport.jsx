@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import 'styles/office.scss';
 import { GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
@@ -9,35 +10,52 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import evaluationReportStyles from './EvaluationReport.module.scss';
 
 import EvaluationForm from 'components/Office/EvaluationForm/EvaluationForm';
-import { useShipmentEvaluationReportQueries } from 'hooks/queries';
+import { useEvaluationReportShipmentListQueries } from 'hooks/queries';
 import { CustomerShape } from 'types';
-import { OrdersShape } from 'types/customerShapes';
-import EvaluationReportMoveInfo from 'components/Office/EvaluationReportMoveInfo/EvaluationReportMoveInfo';
 import EvaluationReportShipmentInfo from 'components/Office/EvaluationReportShipmentInfo/EvaluationReportShipmentInfo';
 import QaeReportHeader from 'components/Office/QaeReportHeader/QaeReportHeader';
-import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const EvaluationReport = ({ customerInfo, orders }) => {
+const EvaluationReport = ({ customerInfo, grade, destinationDutyLocationPostalCode }) => {
   const { reportId } = useParams();
-  const { evaluationReport, mtoShipment } = useShipmentEvaluationReportQueries(reportId);
-  const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
+  const { evaluationReport, reportViolations, mtoShipments, isLoading, isError } =
+    useEvaluationReportShipmentListQueries(reportId);
+  if (isLoading) {
+    return <LoadingPlaceholder />;
+  }
+  if (isError) {
+    return <SomethingWentWrong />;
+  }
+  let mtoShipmentsToShow;
+  if (evaluationReport.shipmentID && mtoShipments) {
+    mtoShipmentsToShow = [mtoShipments.find((shipment) => shipment.id === evaluationReport.shipmentID)];
+  } else {
+    mtoShipmentsToShow = mtoShipments;
+  }
+
   return (
     <div className={classnames(styles.tabContent, evaluationReportStyles.tabContent)}>
-      <GridContainer>
+      <GridContainer className={evaluationReportStyles.container}>
         <QaeReportHeader report={evaluationReport} />
 
-        {isShipment ? (
+        {mtoShipmentsToShow?.length > 0 && (
           <EvaluationReportShipmentInfo
             customerInfo={customerInfo}
-            orders={orders}
-            shipment={mtoShipment}
+            grade={grade}
+            shipments={mtoShipmentsToShow}
             report={evaluationReport}
+            destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
           />
-        ) : (
-          <EvaluationReportMoveInfo customerInfo={customerInfo} orders={orders} />
         )}
-
-        <EvaluationForm evaluationReport={evaluationReport} />
+        <EvaluationForm
+          evaluationReport={evaluationReport}
+          reportViolations={reportViolations}
+          grade={grade}
+          customerInfo={customerInfo}
+          mtoShipments={mtoShipments}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
+        />
       </GridContainer>
     </div>
   );
@@ -45,7 +63,8 @@ const EvaluationReport = ({ customerInfo, orders }) => {
 
 EvaluationReport.propTypes = {
   customerInfo: CustomerShape.isRequired,
-  orders: OrdersShape.isRequired,
+  grade: PropTypes.string.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string.isRequired,
 };
 
 export default EvaluationReport;

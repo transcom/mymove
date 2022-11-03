@@ -2,23 +2,24 @@
 
 // Package ghcapi MilMove GHC API
 //
-//  The GHC API is a RESTful API that enables the Office application for MilMove.
+//	The GHC API is a RESTful API that enables the Office application for MilMove.
 //
-//  All endpoints are located under `/ghc/v1`.
+//	All endpoints are located under `/ghc/v1`.
 //
-//  Schemes:
-//    http
-//  Host: localhost
-//  BasePath: /ghc/v1
-//  Version: 0.0.1
-//  License: MIT https://opensource.org/licenses/MIT
-//  Contact: <dp3@truss.works>
+//	Schemes:
+//	  http
+//	Host: localhost
+//	BasePath: /ghc/v1
+//	Version: 0.0.1
+//	License: MIT https://opensource.org/licenses/MIT
+//	Contact: <dp3@truss.works>
 //
-//  Consumes:
-//    - application/json
+//	Consumes:
+//	  - application/json
 //
-//  Produces:
-//    - application/json
+//	Produces:
+//	  - application/pdf
+//	  - application/json
 //
 // swagger:meta
 package ghcapi

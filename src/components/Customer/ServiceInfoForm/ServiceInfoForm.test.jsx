@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
+import { act } from 'react-dom/test-utils';
 
 import ServiceInfoForm from './ServiceInfoForm';
 
@@ -195,7 +196,7 @@ describe('ServiceInfoForm', () => {
     // Test Duty Location Search Box interaction
     const dutyLocationInput = await screen.getByLabelText('Current duty location');
     fireEvent.change(dutyLocationInput, { target: { value: 'AFB' } });
-    await selectEvent.select(dutyLocationInput, /Luke/);
+    await act(() => selectEvent.select(dutyLocationInput, /Luke/));
 
     expect(await screen.findByRole('form')).toHaveFormValues({
       current_location: 'Luke AFB',
@@ -238,7 +239,7 @@ describe('ServiceInfoForm', () => {
     await userEvent.type(screen.getByLabelText('DoD ID number'), '1234567890');
     await userEvent.selectOptions(screen.getByLabelText('Rank'), ['E_5']);
     fireEvent.change(screen.getByLabelText('Current duty location'), { target: { value: 'AFB' } });
-    await selectEvent.select(screen.getByLabelText('Current duty location'), /Luke/);
+    await act(() => selectEvent.select(screen.getByLabelText('Current duty location'), /Luke/));
 
     expect(screen.getByRole('form')).toHaveFormValues({
       current_location: 'Luke AFB',

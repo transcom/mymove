@@ -6,9 +6,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
@@ -134,7 +133,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		suite.Equal(models.MTOShipmentStatusApproved, fetchedShipment.Status)
 		suite.Equal(shipment.ID, fetchedShipment.ID)
 
-		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
+		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).Order("created_at asc").All(&serviceItems)
 		suite.NoError(err)
 
 		suite.Equal(6, len(serviceItems))

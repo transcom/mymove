@@ -47,6 +47,7 @@ import ExpensesLanding from 'scenes/Moves/Ppm/ExpensesLanding';
 import ExpensesUpload from 'scenes/Moves/Ppm/ExpensesUpload';
 import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
+import NotFound from 'components/NotFound/NotFound';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
@@ -56,6 +57,7 @@ import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipme
 import Home from 'pages/MyMove/Home';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
+const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
 const MovingInfo = lazy(() => import('pages/MyMove/MovingInfo'));
 const EditServiceInfo = lazy(() => import('pages/MyMove/Profile/EditServiceInfo'));
 const Profile = lazy(() => import('pages/MyMove/Profile/Profile'));
@@ -70,6 +72,9 @@ const Advance = lazy(() => import('pages/MyMove/PPM/Booking/Advance/Advance'));
 const About = lazy(() => import('pages/MyMove/PPM/Closeout/About/About'));
 const WeightTickets = lazy(() => import('pages/MyMove/PPM/Closeout/WeightTickets/WeightTickets'));
 const PPMReview = lazy(() => import('pages/MyMove/PPM/Closeout/Review/Review'));
+const ProGear = lazy(() => import('pages/MyMove/PPM/Closeout/ProGear/ProGear.jsx'));
+const Expenses = lazy(() => import('pages/MyMove/PPM/Closeout/Expenses/Expenses'));
+const PPMFinalCloseout = lazy(() => import('pages/MyMove/PPM/Closeout/FinalCloseout/FinalCloseout'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -93,18 +98,6 @@ export class CustomerApp extends Component {
       info,
     });
   }
-
-  noMatch = () => (
-    <div className="usa-grid">
-      <div className="grid-container usa-prose">
-        <h1>Page not found</h1>
-        <p>Looks like you've followed a broken link or entered a URL that doesn't exist on this site.</p>
-        <button className="usa-button" onClick={this.props.goBack}>
-          Go Back
-        </button>
-      </div>
-    </div>
-  );
 
   render() {
     const props = this.props;
@@ -197,6 +190,16 @@ export class CustomerApp extends Component {
                     component={WeightTickets}
                   />
                   <CustomerPrivateRoute exact path={customerRoutes.SHIPMENT_PPM_REVIEW_PATH} component={PPMReview} />
+                  <CustomerPrivateRoute
+                    exact
+                    path={[customerRoutes.SHIPMENT_PPM_EXPENSES_PATH, customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH]}
+                    component={Expenses}
+                  />
+                  <CustomerPrivateRoute
+                    exact
+                    path={customerRoutes.SHIPMENT_PPM_COMPLETE_PATH}
+                    component={PPMFinalCloseout}
+                  />
                   <CustomerPrivateRoute path={customerRoutes.ORDERS_EDIT_PATH} component={EditOrders} />
                   <CustomerPrivateRoute path={customerRoutes.ORDERS_AMEND_PATH} component={AmendOrders} />
                   <CustomerPrivateRoute
@@ -217,6 +220,11 @@ export class CustomerApp extends Component {
                   <CustomerPrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
                   <CustomerPrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
                   <CustomerPrivateRoute path="/moves/:moveId/ppm-payment-review" component={PaymentReview} />
+                  <CustomerPrivateRoute
+                    exact
+                    path={[customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH, customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH]}
+                    component={ProGear}
+                  />
                   <CustomerPrivateRoute exact path="/ppm-customer-agreement" component={CustomerAgreementLegalese} />
 
                   {/* Errors */}
@@ -230,9 +238,10 @@ export class CustomerApp extends Component {
                       <h2>We are experiencing an internal server error</h2>
                     </div>
                   </Route>
+                  <Route exact path="/invalid-permissions" component={InvalidPermissions} />
 
                   {/* 404 */}
-                  <Route component={this.noMatch} />
+                  <Route render={(routeProps) => <NotFound {...routeProps} handleOnClick={this.props.goBack} />} />
                 </Switch>
               )}
             </main>

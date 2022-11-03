@@ -16,7 +16,8 @@ import (
 // IndexWebhookSubscriptionsOKCode is the HTTP code returned for type IndexWebhookSubscriptionsOK
 const IndexWebhookSubscriptionsOKCode int = 200
 
-/*IndexWebhookSubscriptionsOK success
+/*
+IndexWebhookSubscriptionsOK success
 
 swagger:response indexWebhookSubscriptionsOK
 */
@@ -85,7 +86,8 @@ func (o *IndexWebhookSubscriptionsOK) WriteResponse(rw http.ResponseWriter, prod
 // IndexWebhookSubscriptionsBadRequestCode is the HTTP code returned for type IndexWebhookSubscriptionsBadRequest
 const IndexWebhookSubscriptionsBadRequestCode int = 400
 
-/*IndexWebhookSubscriptionsBadRequest Invalid request
+/*
+IndexWebhookSubscriptionsBadRequest Invalid request
 
 swagger:response indexWebhookSubscriptionsBadRequest
 */
@@ -109,7 +111,8 @@ func (o *IndexWebhookSubscriptionsBadRequest) WriteResponse(rw http.ResponseWrit
 // IndexWebhookSubscriptionsUnauthorizedCode is the HTTP code returned for type IndexWebhookSubscriptionsUnauthorized
 const IndexWebhookSubscriptionsUnauthorizedCode int = 401
 
-/*IndexWebhookSubscriptionsUnauthorized Not authenticated for this endpoint
+/*
+IndexWebhookSubscriptionsUnauthorized Not authenticated for this endpoint
 
 swagger:response indexWebhookSubscriptionsUnauthorized
 */
@@ -133,7 +136,8 @@ func (o *IndexWebhookSubscriptionsUnauthorized) WriteResponse(rw http.ResponseWr
 // IndexWebhookSubscriptionsNotFoundCode is the HTTP code returned for type IndexWebhookSubscriptionsNotFound
 const IndexWebhookSubscriptionsNotFoundCode int = 404
 
-/*IndexWebhookSubscriptionsNotFound Webhook subscriptions not found
+/*
+IndexWebhookSubscriptionsNotFound Webhook subscriptions not found
 
 swagger:response indexWebhookSubscriptionsNotFound
 */
@@ -157,7 +161,8 @@ func (o *IndexWebhookSubscriptionsNotFound) WriteResponse(rw http.ResponseWriter
 // IndexWebhookSubscriptionsInternalServerErrorCode is the HTTP code returned for type IndexWebhookSubscriptionsInternalServerError
 const IndexWebhookSubscriptionsInternalServerErrorCode int = 500
 
-/*IndexWebhookSubscriptionsInternalServerError Server error
+/*
+IndexWebhookSubscriptionsInternalServerError Server error
 
 swagger:response indexWebhookSubscriptionsInternalServerError
 */

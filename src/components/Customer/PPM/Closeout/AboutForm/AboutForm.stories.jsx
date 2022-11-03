@@ -51,6 +51,13 @@ BlankWithDefaultZIPs.args = {
   postalCodeValidator: () => {},
 };
 
+const validW2Address = {
+  streetAddress1: '148 S East St',
+  streetAddress2: '',
+  city: 'San Antonio',
+  state: 'TX',
+  postalCode: '78227',
+};
 export const RequiredValues = Template.bind({});
 RequiredValues.args = {
   mtoShipment: {
@@ -62,6 +69,7 @@ RequiredValues.args = {
       actualPickupPostalCode: '10001',
       actualDestinationPostalCode: '60652',
       hasReceivedAdvance: false,
+      w2Address: validW2Address,
     },
   },
   postalCodeValidator: () => {},
@@ -79,6 +87,13 @@ OptionalValues.args = {
       actualDestinationPostalCode: '60652',
       hasReceivedAdvance: true,
       advanceAmountReceived: 456700,
+      w2Address: {
+        streetAddress1: '167 Aspen Road',
+        streetAddress2: 'Apt. 213',
+        city: 'Cheyenne',
+        state: 'WY',
+        postalCode: '82001',
+      },
     },
   },
   postalCodeValidator: () => {},
@@ -104,6 +119,10 @@ RequiredErrors.play = async ({ canvasElement }) => {
   await userEvent.click(canvas.getByText('Save & Continue'));
 };
 
+RequiredErrors.parameters = {
+  happo: false,
+};
+
 export const InvalidZIPs = Template.bind({});
 InvalidZIPs.storyName = 'Invalid ZIPs';
 InvalidZIPs.args = {
@@ -115,6 +134,7 @@ InvalidZIPs.args = {
       actualMoveDate: '2022-05-23',
       actualPickupPostalCode: '10000',
       actualDestinationPostalCode: '20000',
+      w2Address: validW2Address,
     },
   },
   postalCodeValidator: () => UnsupportedZipCodePPMErrorMsg,
@@ -125,4 +145,8 @@ InvalidZIPs.play = async ({ canvasElement }) => {
   const canvas = within(canvasElement);
 
   await userEvent.click(canvas.getByText('Save & Continue'));
+};
+
+InvalidZIPs.parameters = {
+  happo: false,
 };

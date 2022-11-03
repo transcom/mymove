@@ -10,9 +10,8 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -52,22 +51,25 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		}
 	}
 
-	branchQuery := branchFilter(params.Branch, needsCounseling)
+	ppmCloseoutGblocs := officeUserGbloc == "NAVY" || officeUserGbloc == "TVCB" || officeUserGbloc == "USCG"
+
+	branchQuery := branchFilter(params.Branch, needsCounseling, ppmCloseoutGblocs)
 
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
 	// var gblocQuery QueryOption
 	var gblocToFilterBy *string
 	if officeUserGbloc == "USMC" && !needsCounseling {
-		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), needsCounseling)
+		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)), needsCounseling, ppmCloseoutGblocs)
 		gblocToFilterBy = params.OriginGBLOC
 	} else {
 		gblocToFilterBy = &officeUserGbloc
 	}
 
-	// We need to use two different GBLOC filter queries because:
+	// We need to use three different GBLOC filter queries because:
 	//  - The Services Counselor queue filters based on the GBLOC of the origin duty location's
 	//    transportation office
+	//  - There is a separate queue for the GBLOCs: NAVY, TVCB and USCG. These GBLOCs are used by SC doing PPM Closeout
 	//  - The TOO queue uses the GBLOC we get from examining the postal code of the first shipment's
 	//    pickup address. However, if that shipment happens to be an NTS-Release, we instead drop
 	//    back to the GBLOC of the origin duty location's transportation office since an NTS-Release
@@ -75,6 +77,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	var gblocQuery QueryOption
 	if needsCounseling {
 		gblocQuery = gblocFilterForSC(gblocToFilterBy)
+	} else if ppmCloseoutGblocs {
+		gblocQuery = gblocFilterForPPMCloseoutForNavyMarineAndCG(gblocToFilterBy)
 	} else {
 		gblocQuery = gblocFilterForTOO(gblocToFilterBy)
 	}
@@ -89,30 +93,47 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
 	options := [11]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, sortOrderQuery}
 
-	query := appCtx.DB().Q().EagerPreload(
-		"Orders.ServiceMember",
-		"Orders.NewDutyLocation.Address",
-		"Orders.OriginDutyLocation.Address",
-		// See note further below about having to do this in a separate Load call due to a Pop issue.
-		// "Orders.OriginDutyLocation.TransportationOffice",
-		"Orders.Entitlement",
-		"MTOShipments",
-		"MTOServiceItems",
-		"ShipmentGBLOC",
-		"OriginDutyLocationGBLOC",
-	).InnerJoin("orders", "orders.id = moves.orders_id").
-		InnerJoin("service_members", "orders.service_member_id = service_members.id").
-		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
-		InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
-		// Need to use left join because some duty locations do not have transportation offices
-		LeftJoin("transportation_offices as origin_to", "origin_dl.transportation_office_id = origin_to.id").
-		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
-		// and we don't want it to get hidden from services counselors.
-		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
-		InnerJoin("origin_duty_location_to_gbloc as o_gbloc", "o_gbloc.move_id = moves.id").
-		LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
-		Where("show = ?", swag.Bool(true)).
-		Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
+	var query *pop.Query
+	if ppmCloseoutGblocs {
+		query = appCtx.DB().Q().EagerPreload(
+			"Orders.ServiceMember",
+			"Orders.NewDutyLocation.Address",
+			"Orders.OriginDutyLocation.Address",
+			"Orders.Entitlement",
+			"MTOShipments.PPMShipment",
+		).InnerJoin("orders", "orders.id = moves.orders_id").
+			InnerJoin("service_members", "orders.service_member_id = service_members.id").
+			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
+			InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
+			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
+			Where("show = ?", swag.Bool(true))
+	} else {
+		query = appCtx.DB().Q().EagerPreload(
+			"Orders.ServiceMember",
+			"Orders.NewDutyLocation.Address",
+			"Orders.OriginDutyLocation.Address",
+			// See note further below about having to do this in a separate Load call due to a Pop issue.
+			// "Orders.OriginDutyLocation.TransportationOffice",
+			"Orders.Entitlement",
+			"MTOShipments",
+			"MTOServiceItems",
+			"ShipmentGBLOC",
+			"OriginDutyLocationGBLOC",
+		).InnerJoin("orders", "orders.id = moves.orders_id").
+			InnerJoin("service_members", "orders.service_member_id = service_members.id").
+			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
+			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
+			// Need to use left join because some duty locations do not have transportation offices
+			LeftJoin("transportation_offices as origin_to", "origin_dl.transportation_office_id = origin_to.id").
+			// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
+			// and we don't want it to get hidden from services counselors.
+			LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
+			InnerJoin("origin_duty_location_to_gbloc as o_gbloc", "o_gbloc.move_id = moves.id").
+			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
+			Where("show = ?", swag.Bool(true)).
+			Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
+	}
+
 	for _, option := range options {
 		if option != nil {
 			option(query) // mutates
@@ -212,9 +233,9 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 }
 
 // These are a bunch of private functions that are used to cobble our list Orders filters together.
-func branchFilter(branch *string, needsCounseling bool) QueryOption {
+func branchFilter(branch *string, needsCounseling bool, ppmCloseoutGblocs bool) QueryOption {
 	return func(query *pop.Query) {
-		if branch == nil && !needsCounseling {
+		if branch == nil && !needsCounseling && !ppmCloseoutGblocs {
 			query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
 		}
 		if branch != nil {
@@ -243,7 +264,7 @@ func dodIDFilter(dodID *string) QueryOption {
 func locatorFilter(locator *string) QueryOption {
 	return func(query *pop.Query) {
 		if locator != nil {
-			query.Where("moves.locator = ?", *locator)
+			query.Where("moves.locator = ?", strings.ToUpper(*locator))
 		}
 	}
 }
@@ -314,6 +335,25 @@ func gblocFilterForTOO(gbloc *string) QueryOption {
 			// Note: extra parens necessary to keep precedence correct when AND'ing all filters together.
 			query.Where("((mto_shipments.shipment_type != ? AND move_to_gbloc.gbloc = ?) OR (mto_shipments.shipment_type = ? AND o_gbloc.gbloc = ?))",
 				models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc, models.MTOShipmentTypeHHGOutOfNTSDom, *gbloc)
+		}
+	}
+}
+
+func gblocFilterForPPMCloseoutForNavyMarineAndCG(gbloc *string) QueryOption {
+	// For PPM Closeout the SC should see moves that have ppm shipments
+	// And the GBLOC should map to the service member's affiliation
+	navyGbloc := "NAVY"
+	tvcbGbloc := "TVCB"
+	uscgGbloc := "USCG"
+	return func(query *pop.Query) {
+		if gbloc != nil {
+			if *gbloc == navyGbloc {
+				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationNAVY, models.PPMShipmentStatusNeedsPaymentApproval)
+			} else if *gbloc == tvcbGbloc {
+				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationMARINES, models.PPMShipmentStatusNeedsPaymentApproval)
+			} else if *gbloc == uscgGbloc {
+				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationCOASTGUARD, models.PPMShipmentStatusNeedsPaymentApproval)
+			}
 		}
 	}
 }

@@ -16,7 +16,8 @@ import (
 // UpdateMTOStatusServiceCounselingCompletedOKCode is the HTTP code returned for type UpdateMTOStatusServiceCounselingCompletedOK
 const UpdateMTOStatusServiceCounselingCompletedOKCode int = 200
 
-/*UpdateMTOStatusServiceCounselingCompletedOK Successfully updated move task order status
+/*
+UpdateMTOStatusServiceCounselingCompletedOK Successfully updated move task order status
 
 swagger:response updateMTOStatusServiceCounselingCompletedOK
 */
@@ -60,7 +61,8 @@ func (o *UpdateMTOStatusServiceCounselingCompletedOK) WriteResponse(rw http.Resp
 // UpdateMTOStatusServiceCounselingCompletedBadRequestCode is the HTTP code returned for type UpdateMTOStatusServiceCounselingCompletedBadRequest
 const UpdateMTOStatusServiceCounselingCompletedBadRequestCode int = 400
 
-/*UpdateMTOStatusServiceCounselingCompletedBadRequest The request payload is invalid
+/*
+UpdateMTOStatusServiceCounselingCompletedBadRequest The request payload is invalid
 
 swagger:response updateMTOStatusServiceCounselingCompletedBadRequest
 */
@@ -104,7 +106,8 @@ func (o *UpdateMTOStatusServiceCounselingCompletedBadRequest) WriteResponse(rw h
 // UpdateMTOStatusServiceCounselingCompletedUnauthorizedCode is the HTTP code returned for type UpdateMTOStatusServiceCounselingCompletedUnauthorized
 const UpdateMTOStatusServiceCounselingCompletedUnauthorizedCode int = 401
 
-/*UpdateMTOStatusServiceCounselingCompletedUnauthorized The request was denied
+/*
+UpdateMTOStatusServiceCounselingCompletedUnauthorized The request was denied
 
 swagger:response updateMTOStatusServiceCounselingCompletedUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *UpdateMTOStatusServiceCounselingCompletedUnauthorized) WriteResponse(rw
 // UpdateMTOStatusServiceCounselingCompletedForbiddenCode is the HTTP code returned for type UpdateMTOStatusServiceCounselingCompletedForbidden
 const UpdateMTOStatusServiceCounselingCompletedForbiddenCode int = 403
 
-/*UpdateMTOStatusServiceCounselingCompletedForbidden The request was denied
+/*
+UpdateMTOStatusServiceCounselingCompletedForbidden The request was denied
 
 swagger:response updateMTOStatusServiceCounselingCompletedForbidden
 */
@@ -192,7 +196,8 @@ func (o *UpdateMTOStatusServiceCounselingCompletedForbidden) WriteResponse(rw ht
 // UpdateMTOStatusServiceCounselingCompletedNotFoundCode is the HTTP code returned for type UpdateMTOStatusServiceCounselingCompletedNotFound
 const UpdateMTOStatusServiceCounselingCompletedNotFoundCode int = 404
 
-/*UpdateMTOStatusServiceCounselingCompletedNotFound The requested resource wasn't found
+/*
+UpdateMTOStatusServiceCounselingCompletedNotFound The requested resource wasn't found
 
 swagger:response updateMTOStatusServiceCounselingCompletedNotFound
 */
@@ -236,7 +241,8 @@ func (o *UpdateMTOStatusServiceCounselingCompletedNotFound) WriteResponse(rw htt
 // UpdateMTOStatusServiceCounselingCompletedConflictCode is the HTTP code returned for type UpdateMTOStatusServiceCounselingCompletedConflict
 const UpdateMTOStatusServiceCounselingCompletedConflictCode int = 409
 
-/*UpdateMTOStatusServiceCounselingCompletedConflict Conflict error
+/*
+UpdateMTOStatusServiceCounselingCompletedConflict Conflict error
 
 swagger:response updateMTOStatusServiceCounselingCompletedConflict
 */
@@ -280,7 +286,8 @@ func (o *UpdateMTOStatusServiceCounselingCompletedConflict) WriteResponse(rw htt
 // UpdateMTOStatusServiceCounselingCompletedPreconditionFailedCode is the HTTP code returned for type UpdateMTOStatusServiceCounselingCompletedPreconditionFailed
 const UpdateMTOStatusServiceCounselingCompletedPreconditionFailedCode int = 412
 
-/*UpdateMTOStatusServiceCounselingCompletedPreconditionFailed Precondition failed
+/*
+UpdateMTOStatusServiceCounselingCompletedPreconditionFailed Precondition failed
 
 swagger:response updateMTOStatusServiceCounselingCompletedPreconditionFailed
 */
@@ -324,7 +331,8 @@ func (o *UpdateMTOStatusServiceCounselingCompletedPreconditionFailed) WriteRespo
 // UpdateMTOStatusServiceCounselingCompletedUnprocessableEntityCode is the HTTP code returned for type UpdateMTOStatusServiceCounselingCompletedUnprocessableEntity
 const UpdateMTOStatusServiceCounselingCompletedUnprocessableEntityCode int = 422
 
-/*UpdateMTOStatusServiceCounselingCompletedUnprocessableEntity The payload was unprocessable.
+/*
+UpdateMTOStatusServiceCounselingCompletedUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateMTOStatusServiceCounselingCompletedUnprocessableEntity
 */
@@ -368,7 +376,8 @@ func (o *UpdateMTOStatusServiceCounselingCompletedUnprocessableEntity) WriteResp
 // UpdateMTOStatusServiceCounselingCompletedInternalServerErrorCode is the HTTP code returned for type UpdateMTOStatusServiceCounselingCompletedInternalServerError
 const UpdateMTOStatusServiceCounselingCompletedInternalServerErrorCode int = 500
 
-/*UpdateMTOStatusServiceCounselingCompletedInternalServerError A server error occurred
+/*
+UpdateMTOStatusServiceCounselingCompletedInternalServerError A server error occurred
 
 swagger:response updateMTOStatusServiceCounselingCompletedInternalServerError
 */

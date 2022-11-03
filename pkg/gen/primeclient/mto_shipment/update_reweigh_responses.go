@@ -87,7 +87,8 @@ func NewUpdateReweighOK() *UpdateReweighOK {
 	return &UpdateReweighOK{}
 }
 
-/* UpdateReweighOK describes a response with status code 200, with default header values.
+/*
+UpdateReweighOK describes a response with status code 200, with default header values.
 
 Successfully updated the reweigh.
 */
@@ -95,9 +96,39 @@ type UpdateReweighOK struct {
 	Payload *primemessages.Reweigh
 }
 
+// IsSuccess returns true when this update reweigh o k response has a 2xx status code
+func (o *UpdateReweighOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this update reweigh o k response has a 3xx status code
+func (o *UpdateReweighOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update reweigh o k response has a 4xx status code
+func (o *UpdateReweighOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update reweigh o k response has a 5xx status code
+func (o *UpdateReweighOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update reweigh o k response a status code equal to that given
+func (o *UpdateReweighOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *UpdateReweighOK) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighOK  %+v", 200, o.Payload)
 }
+
+func (o *UpdateReweighOK) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighOK  %+v", 200, o.Payload)
+}
+
 func (o *UpdateReweighOK) GetPayload() *primemessages.Reweigh {
 	return o.Payload
 }
@@ -119,7 +150,8 @@ func NewUpdateReweighBadRequest() *UpdateReweighBadRequest {
 	return &UpdateReweighBadRequest{}
 }
 
-/* UpdateReweighBadRequest describes a response with status code 400, with default header values.
+/*
+UpdateReweighBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -127,9 +159,39 @@ type UpdateReweighBadRequest struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update reweigh bad request response has a 2xx status code
+func (o *UpdateReweighBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update reweigh bad request response has a 3xx status code
+func (o *UpdateReweighBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update reweigh bad request response has a 4xx status code
+func (o *UpdateReweighBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update reweigh bad request response has a 5xx status code
+func (o *UpdateReweighBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update reweigh bad request response a status code equal to that given
+func (o *UpdateReweighBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *UpdateReweighBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *UpdateReweighBadRequest) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *UpdateReweighBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -151,7 +213,8 @@ func NewUpdateReweighUnauthorized() *UpdateReweighUnauthorized {
 	return &UpdateReweighUnauthorized{}
 }
 
-/* UpdateReweighUnauthorized describes a response with status code 401, with default header values.
+/*
+UpdateReweighUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -159,9 +222,39 @@ type UpdateReweighUnauthorized struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update reweigh unauthorized response has a 2xx status code
+func (o *UpdateReweighUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update reweigh unauthorized response has a 3xx status code
+func (o *UpdateReweighUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update reweigh unauthorized response has a 4xx status code
+func (o *UpdateReweighUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update reweigh unauthorized response has a 5xx status code
+func (o *UpdateReweighUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update reweigh unauthorized response a status code equal to that given
+func (o *UpdateReweighUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
 func (o *UpdateReweighUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighUnauthorized  %+v", 401, o.Payload)
 }
+
+func (o *UpdateReweighUnauthorized) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighUnauthorized  %+v", 401, o.Payload)
+}
+
 func (o *UpdateReweighUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -183,7 +276,8 @@ func NewUpdateReweighForbidden() *UpdateReweighForbidden {
 	return &UpdateReweighForbidden{}
 }
 
-/* UpdateReweighForbidden describes a response with status code 403, with default header values.
+/*
+UpdateReweighForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -191,9 +285,39 @@ type UpdateReweighForbidden struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update reweigh forbidden response has a 2xx status code
+func (o *UpdateReweighForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update reweigh forbidden response has a 3xx status code
+func (o *UpdateReweighForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update reweigh forbidden response has a 4xx status code
+func (o *UpdateReweighForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update reweigh forbidden response has a 5xx status code
+func (o *UpdateReweighForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update reweigh forbidden response a status code equal to that given
+func (o *UpdateReweighForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
 func (o *UpdateReweighForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighForbidden  %+v", 403, o.Payload)
 }
+
+func (o *UpdateReweighForbidden) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighForbidden  %+v", 403, o.Payload)
+}
+
 func (o *UpdateReweighForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -215,7 +339,8 @@ func NewUpdateReweighNotFound() *UpdateReweighNotFound {
 	return &UpdateReweighNotFound{}
 }
 
-/* UpdateReweighNotFound describes a response with status code 404, with default header values.
+/*
+UpdateReweighNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -223,9 +348,39 @@ type UpdateReweighNotFound struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update reweigh not found response has a 2xx status code
+func (o *UpdateReweighNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update reweigh not found response has a 3xx status code
+func (o *UpdateReweighNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update reweigh not found response has a 4xx status code
+func (o *UpdateReweighNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update reweigh not found response has a 5xx status code
+func (o *UpdateReweighNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update reweigh not found response a status code equal to that given
+func (o *UpdateReweighNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *UpdateReweighNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighNotFound  %+v", 404, o.Payload)
 }
+
+func (o *UpdateReweighNotFound) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighNotFound  %+v", 404, o.Payload)
+}
+
 func (o *UpdateReweighNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -247,7 +402,8 @@ func NewUpdateReweighConflict() *UpdateReweighConflict {
 	return &UpdateReweighConflict{}
 }
 
-/* UpdateReweighConflict describes a response with status code 409, with default header values.
+/*
+UpdateReweighConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -255,9 +411,39 @@ type UpdateReweighConflict struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update reweigh conflict response has a 2xx status code
+func (o *UpdateReweighConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update reweigh conflict response has a 3xx status code
+func (o *UpdateReweighConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update reweigh conflict response has a 4xx status code
+func (o *UpdateReweighConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update reweigh conflict response has a 5xx status code
+func (o *UpdateReweighConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update reweigh conflict response a status code equal to that given
+func (o *UpdateReweighConflict) IsCode(code int) bool {
+	return code == 409
+}
+
 func (o *UpdateReweighConflict) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighConflict  %+v", 409, o.Payload)
 }
+
+func (o *UpdateReweighConflict) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighConflict  %+v", 409, o.Payload)
+}
+
 func (o *UpdateReweighConflict) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -279,7 +465,8 @@ func NewUpdateReweighPreconditionFailed() *UpdateReweighPreconditionFailed {
 	return &UpdateReweighPreconditionFailed{}
 }
 
-/* UpdateReweighPreconditionFailed describes a response with status code 412, with default header values.
+/*
+UpdateReweighPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -287,9 +474,39 @@ type UpdateReweighPreconditionFailed struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this update reweigh precondition failed response has a 2xx status code
+func (o *UpdateReweighPreconditionFailed) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update reweigh precondition failed response has a 3xx status code
+func (o *UpdateReweighPreconditionFailed) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update reweigh precondition failed response has a 4xx status code
+func (o *UpdateReweighPreconditionFailed) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update reweigh precondition failed response has a 5xx status code
+func (o *UpdateReweighPreconditionFailed) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update reweigh precondition failed response a status code equal to that given
+func (o *UpdateReweighPreconditionFailed) IsCode(code int) bool {
+	return code == 412
+}
+
 func (o *UpdateReweighPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighPreconditionFailed  %+v", 412, o.Payload)
 }
+
+func (o *UpdateReweighPreconditionFailed) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighPreconditionFailed  %+v", 412, o.Payload)
+}
+
 func (o *UpdateReweighPreconditionFailed) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -311,7 +528,8 @@ func NewUpdateReweighUnprocessableEntity() *UpdateReweighUnprocessableEntity {
 	return &UpdateReweighUnprocessableEntity{}
 }
 
-/* UpdateReweighUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+UpdateReweighUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -319,9 +537,39 @@ type UpdateReweighUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
 }
 
+// IsSuccess returns true when this update reweigh unprocessable entity response has a 2xx status code
+func (o *UpdateReweighUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update reweigh unprocessable entity response has a 3xx status code
+func (o *UpdateReweighUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update reweigh unprocessable entity response has a 4xx status code
+func (o *UpdateReweighUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update reweigh unprocessable entity response has a 5xx status code
+func (o *UpdateReweighUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update reweigh unprocessable entity response a status code equal to that given
+func (o *UpdateReweighUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *UpdateReweighUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *UpdateReweighUnprocessableEntity) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *UpdateReweighUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -343,7 +591,8 @@ func NewUpdateReweighInternalServerError() *UpdateReweighInternalServerError {
 	return &UpdateReweighInternalServerError{}
 }
 
-/* UpdateReweighInternalServerError describes a response with status code 500, with default header values.
+/*
+UpdateReweighInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -351,9 +600,39 @@ type UpdateReweighInternalServerError struct {
 	Payload *primemessages.Error
 }
 
+// IsSuccess returns true when this update reweigh internal server error response has a 2xx status code
+func (o *UpdateReweighInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update reweigh internal server error response has a 3xx status code
+func (o *UpdateReweighInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update reweigh internal server error response has a 4xx status code
+func (o *UpdateReweighInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update reweigh internal server error response has a 5xx status code
+func (o *UpdateReweighInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this update reweigh internal server error response a status code equal to that given
+func (o *UpdateReweighInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *UpdateReweighInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *UpdateReweighInternalServerError) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/reweighs/{reweighID}][%d] updateReweighInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *UpdateReweighInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

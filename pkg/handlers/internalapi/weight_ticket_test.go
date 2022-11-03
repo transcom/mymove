@@ -5,25 +5,20 @@ import (
 	"fmt"
 	"net/http/httptest"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
-
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
+	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
-
-	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-//
 // CREATE TEST
-//
-
 func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 	// Reusable objects
 	weightTicketCreator := weightticket.NewCustomerWeightTicketCreator()
@@ -188,6 +183,14 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 
 		params := subtestData.params
 
+		// An upload must exist if trailer is owned and qualifies to be claimed
+		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			UserUpload: models.UserUpload{
+				DocumentID: &subtestData.weightTicket.ProofOfTrailerOwnershipDocumentID,
+				Document:   subtestData.weightTicket.ProofOfTrailerOwnershipDocument,
+			},
+		})
+
 		// Add vehicleDescription
 		params.UpdateWeightTicketPayload = &internalmessages.UpdateWeightTicket{
 			VehicleDescription:       "Subaru",
@@ -207,7 +210,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		suite.Equal(subtestData.weightTicket.ID.String(), updatedWeightTicket.ID.String())
 		suite.Equal(params.UpdateWeightTicketPayload.VehicleDescription, *updatedWeightTicket.VehicleDescription)
 	})
-	// TODO: for failures pick any field, except the bools, and pass in an empty string for the udpate to trigger failure
+
 	suite.Run("PATCH failure -400 - nil body", func() {
 		appCtx := suite.AppContextForTest()
 

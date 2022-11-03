@@ -7,22 +7,20 @@ import (
 	text "text/template"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/assets"
-
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/assets"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 const surveyLink = "https://www.surveymonkey.com/r/MilMovePt3-08191"
 
 var (
-	moveReviewedRawTextTemplate = string(assets.MustAsset("pkg/notifications/templates/move_reviewed_template.txt"))
+	moveReviewedRawTextTemplate = string(assets.MustAsset("notifications/templates/move_reviewed_template.txt"))
 	textTemplate                = text.Must(text.New("text_template").Parse(moveReviewedRawTextTemplate))
-	moveReviewedRawHTMLTemplate = string(assets.MustAsset("pkg/notifications/templates/move_reviewed_template.html"))
+	moveReviewedRawHTMLTemplate = string(assets.MustAsset("notifications/templates/move_reviewed_template.html"))
 	// HTMLTemplate is a template for reviewed moves
 	HTMLTemplate = html.Must(html.New("text_template").Parse(moveReviewedRawHTMLTemplate))
 )

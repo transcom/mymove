@@ -3,18 +3,15 @@ package paymentrequest
 import (
 	"errors"
 	"fmt"
-	"testing"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
-
-	"github.com/transcom/mymove/pkg/services/mocks"
-
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -145,22 +142,28 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 	recalculator := NewPaymentRequestRecalculator(creator, statusUpdater)
 	shipmentRecalculator := NewPaymentRequestShipmentRecalculator(recalculator)
 
-	// Setup baseline move/shipment/service items data along with needed rate data.
-	_ /*move*/, paymentRequestArg := suite.setupRecalculateData1()
+	setupTestData := func() *models.PaymentRequest {
+		// Setup baseline move/shipment/service items data along with needed rate data.
+		_ /*move*/, paymentRequestArg := suite.setupRecalculateData1()
 
-	paidPaymentRequest, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg)
-	suite.FatalNoError(err)
+		paidPaymentRequest, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg)
+		suite.FatalNoError(err)
 
-	suite.T().Run("Fail to find shipment ID", func(t *testing.T) {
+		return paidPaymentRequest
+	}
+
+	suite.Run("Fail to find shipment ID", func() {
+		setupTestData()
 		bogusShipmentID := uuid.Must(uuid.NewV4())
 
 		var returnPaymentRequests *models.PaymentRequests
-		returnPaymentRequests, err = shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.AppContextForTest(), bogusShipmentID)
+		returnPaymentRequests, err := shipmentRecalculator.ShipmentRecalculatePaymentRequest(suite.AppContextForTest(), bogusShipmentID)
 		suite.NoError(err) // Not finding a shipment ID doesn't produce an error. Simply no payment requests are found
 		suite.Nil((*models.PaymentRequests)(nil), returnPaymentRequests)
 	})
 
-	suite.T().Run("Old payment status has unexpected status", func(t *testing.T) {
+	suite.Run("Old payment status has unexpected status", func() {
+		paidPaymentRequest := setupTestData()
 		paidPaymentRequest.Status = models.PaymentRequestStatusPaid
 		suite.MustSave(paidPaymentRequest)
 		// Update to PAID
@@ -172,7 +175,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 		).Return(nil, apperror.NewQueryError("PaymentRequest", fmt.Errorf("testing"), fmt.Sprintf("unexpected error while testing payment request ID %s", paidPaymentRequest.ID.String())))
 
 		var oldPaymentRequest models.PaymentRequest
-		err = suite.DB().
+		err := suite.DB().
 			EagerPreload(
 				"PaymentServiceItems.MTOServiceItem.MTOShipment",
 			).
@@ -185,7 +188,8 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 		suite.Nil((*models.PaymentRequests)(nil), newPaymentRequests)
 	})
 
-	suite.T().Run("Can handle error when creating new recalculated payment request", func(t *testing.T) {
+	suite.Run("Can handle error when creating new recalculated payment request", func() {
+		paidPaymentRequest := setupTestData()
 		errString := "mock payment request recalculate test error"
 		mockRecalculator := &mocks.PaymentRequestRecalculator{}
 		mockRecalculator.On("RecalculatePaymentRequest",
@@ -195,13 +199,12 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 
 		shipmentRecalculatorWithMockRecalculate := NewPaymentRequestShipmentRecalculator(mockRecalculator)
 
-		suite.FatalNoError(err)
 		pendingPaymentRequest := paidPaymentRequest
 		pendingPaymentRequest.Status = models.PaymentRequestStatusPending
 		suite.MustSave(pendingPaymentRequest)
 		// Update to PENDING
 
-		err = suite.DB().Load(pendingPaymentRequest, "PaymentServiceItems.MTOServiceItem.MTOShipment",
+		err := suite.DB().Load(pendingPaymentRequest, "PaymentServiceItems.MTOServiceItem.MTOShipment",
 			"PaymentServiceItems.MTOServiceItem")
 		suite.NoError(err)
 

@@ -120,3 +120,43 @@ func checkEstimatedWeight() ppmShipmentValidator {
 		return verrs
 	})
 }
+
+// checkSITRequiredFields() checks that if SIT is expected that the other dependent fields are all unset or all valid
+func checkSITRequiredFields() ppmShipmentValidator {
+	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
+		verrs := validate.NewErrors()
+
+		if newPPMShipment.SITExpected == nil || !*newPPMShipment.SITExpected {
+			return verrs
+		}
+
+		// If the customer is selecting SITExpected then we will be missing the details only the services counselor can
+		// provide later
+		if newPPMShipment.SITLocation == nil &&
+			newPPMShipment.SITEstimatedWeight == nil &&
+			newPPMShipment.SITEstimatedEntryDate == nil &&
+			newPPMShipment.SITEstimatedDepartureDate == nil {
+			return verrs
+		}
+
+		if newPPMShipment.SITLocation == nil {
+			verrs.Add("sitLocation", "cannot be empty")
+		}
+
+		if newPPMShipment.SITEstimatedWeight == nil {
+			verrs.Add("sitEstimatedWeight", "cannot be empty")
+		}
+
+		if newPPMShipment.SITEstimatedEntryDate == nil || newPPMShipment.SITEstimatedEntryDate.IsZero() {
+			verrs.Add("sitEstimatedEntryDate", "cannot be empty")
+		}
+
+		if newPPMShipment.SITEstimatedDepartureDate == nil || newPPMShipment.SITEstimatedDepartureDate.IsZero() {
+			verrs.Add("sitEstimatedDepartureDate", "cannot be empty")
+		} else if newPPMShipment.SITEstimatedEntryDate != nil && newPPMShipment.SITEstimatedDepartureDate.Before(*newPPMShipment.SITEstimatedEntryDate) {
+			verrs.Add("sitEstimatedDepartureDate", "cannot come before SIT Estimated Entry Date")
+		}
+
+		return verrs
+	})
+}

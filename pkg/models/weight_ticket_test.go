@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -10,6 +12,8 @@ import (
 )
 
 func (suite *ModelSuite) TestWeightTicketValidation() {
+	blankStatusType := models.PPMDocumentStatus("")
+	validStatuses := strings.Join(models.AllowedPPMDocumentStatuses, ", ")
 	testCases := map[string]struct {
 		weightTicket models.WeightTicket
 		expectedErrs map[string][]string
@@ -41,12 +45,16 @@ func (suite *ModelSuite) TestWeightTicketValidation() {
 				FullWeight:                        models.PoundPointer(unit.Pound(-1)),
 				FullDocumentID:                    uuid.Must(uuid.NewV4()),
 				ProofOfTrailerOwnershipDocumentID: uuid.Must(uuid.NewV4()),
+				Status:                            &blankStatusType,
+				Reason:                            models.StringPointer(""),
 			},
 			expectedErrs: map[string][]string{
 				"deleted_at":          {"DeletedAt can not be blank."},
 				"vehicle_description": {"VehicleDescription can not be blank."},
 				"empty_weight":        {"-1 is less than zero."},
 				"full_weight":         {"-1 is less than zero."},
+				"status":              {fmt.Sprintf("Status is not in the list [%s].", validStatuses)},
+				"reason":              {"Reason can not be blank."},
 			},
 		},
 	}

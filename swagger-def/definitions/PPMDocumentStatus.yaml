@@ -1,0 +1,10 @@
+description: Status of the PPM document.
+type: string
+enum:
+  - APPROVED
+  - EXCLUDED
+  - REJECTED
+x-display-value:
+  APPROVED: Approved
+  EXCLUDED: Excluded
+  REJECTED: Rejected

@@ -16,7 +16,8 @@ import (
 // ProcessReviewedPaymentRequestsOKCode is the HTTP code returned for type ProcessReviewedPaymentRequestsOK
 const ProcessReviewedPaymentRequestsOKCode int = 200
 
-/*ProcessReviewedPaymentRequestsOK Successfully updated status of reviewed payment request and sent to Syncada if that flag is set
+/*
+ProcessReviewedPaymentRequestsOK Successfully updated status of reviewed payment request and sent to Syncada if that flag is set
 
 swagger:response processReviewedPaymentRequestsOK
 */
@@ -63,7 +64,8 @@ func (o *ProcessReviewedPaymentRequestsOK) WriteResponse(rw http.ResponseWriter,
 // ProcessReviewedPaymentRequestsBadRequestCode is the HTTP code returned for type ProcessReviewedPaymentRequestsBadRequest
 const ProcessReviewedPaymentRequestsBadRequestCode int = 400
 
-/*ProcessReviewedPaymentRequestsBadRequest The request payload is invalid.
+/*
+ProcessReviewedPaymentRequestsBadRequest The request payload is invalid.
 
 swagger:response processReviewedPaymentRequestsBadRequest
 */
@@ -107,7 +109,8 @@ func (o *ProcessReviewedPaymentRequestsBadRequest) WriteResponse(rw http.Respons
 // ProcessReviewedPaymentRequestsUnauthorizedCode is the HTTP code returned for type ProcessReviewedPaymentRequestsUnauthorized
 const ProcessReviewedPaymentRequestsUnauthorizedCode int = 401
 
-/*ProcessReviewedPaymentRequestsUnauthorized The request was denied.
+/*
+ProcessReviewedPaymentRequestsUnauthorized The request was denied.
 
 swagger:response processReviewedPaymentRequestsUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *ProcessReviewedPaymentRequestsUnauthorized) WriteResponse(rw http.Respo
 // ProcessReviewedPaymentRequestsForbiddenCode is the HTTP code returned for type ProcessReviewedPaymentRequestsForbidden
 const ProcessReviewedPaymentRequestsForbiddenCode int = 403
 
-/*ProcessReviewedPaymentRequestsForbidden The request was denied.
+/*
+ProcessReviewedPaymentRequestsForbidden The request was denied.
 
 swagger:response processReviewedPaymentRequestsForbidden
 */
@@ -195,7 +199,8 @@ func (o *ProcessReviewedPaymentRequestsForbidden) WriteResponse(rw http.Response
 // ProcessReviewedPaymentRequestsNotFoundCode is the HTTP code returned for type ProcessReviewedPaymentRequestsNotFound
 const ProcessReviewedPaymentRequestsNotFoundCode int = 404
 
-/*ProcessReviewedPaymentRequestsNotFound The requested resource wasn't found.
+/*
+ProcessReviewedPaymentRequestsNotFound The requested resource wasn't found.
 
 swagger:response processReviewedPaymentRequestsNotFound
 */
@@ -239,7 +244,8 @@ func (o *ProcessReviewedPaymentRequestsNotFound) WriteResponse(rw http.ResponseW
 // ProcessReviewedPaymentRequestsUnprocessableEntityCode is the HTTP code returned for type ProcessReviewedPaymentRequestsUnprocessableEntity
 const ProcessReviewedPaymentRequestsUnprocessableEntityCode int = 422
 
-/*ProcessReviewedPaymentRequestsUnprocessableEntity The payload was unprocessable.
+/*
+ProcessReviewedPaymentRequestsUnprocessableEntity The payload was unprocessable.
 
 swagger:response processReviewedPaymentRequestsUnprocessableEntity
 */
@@ -283,7 +289,8 @@ func (o *ProcessReviewedPaymentRequestsUnprocessableEntity) WriteResponse(rw htt
 // ProcessReviewedPaymentRequestsInternalServerErrorCode is the HTTP code returned for type ProcessReviewedPaymentRequestsInternalServerError
 const ProcessReviewedPaymentRequestsInternalServerErrorCode int = 500
 
-/*ProcessReviewedPaymentRequestsInternalServerError A server error occurred.
+/*
+ProcessReviewedPaymentRequestsInternalServerError A server error occurred.
 
 swagger:response processReviewedPaymentRequestsInternalServerError
 */

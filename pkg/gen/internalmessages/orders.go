@@ -109,7 +109,7 @@ type Orders struct {
 	UpdatedAt *strfmt.DateTime `json:"updated_at"`
 
 	// uploaded amended orders
-	UploadedAmendedOrders *DocumentPayload `json:"uploaded_amended_orders,omitempty"`
+	UploadedAmendedOrders *Document `json:"uploaded_amended_orders,omitempty"`
 
 	// uploaded amended orders id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -118,7 +118,7 @@ type Orders struct {
 
 	// uploaded orders
 	// Required: true
-	UploadedOrders *DocumentPayload `json:"uploaded_orders"`
+	UploadedOrders *Document `json:"uploaded_orders"`
 }
 
 // Validate validates this orders

@@ -3,21 +3,17 @@ package supportapi
 import (
 	"time"
 
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-
-	"github.com/transcom/mymove/pkg/services/support"
-
-	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
-
-	"github.com/go-openapi/runtime/middleware"
-
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/support"
 )
 
 // ListMTOsHandler lists move task orders with the option to filter since a particular date

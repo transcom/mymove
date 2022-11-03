@@ -85,14 +85,17 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		}),
-		MoveDocsCreateMovingExpenseDocumentHandler: move_docs.CreateMovingExpenseDocumentHandlerFunc(func(params move_docs.CreateMovingExpenseDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_docs.CreateMovingExpenseDocument has not yet been implemented")
+		PpmCreateMovingExpenseHandler: ppm.CreateMovingExpenseHandlerFunc(func(params ppm.CreateMovingExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateMovingExpense has not yet been implemented")
 		}),
 		OrdersCreateOrdersHandler: orders.CreateOrdersHandlerFunc(func(params orders.CreateOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.CreateOrders has not yet been implemented")
 		}),
 		PpmCreatePPMAttachmentsHandler: ppm.CreatePPMAttachmentsHandlerFunc(func(params ppm.CreatePPMAttachmentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreatePPMAttachments has not yet been implemented")
+		}),
+		PpmCreatePPMUploadHandler: ppm.CreatePPMUploadHandlerFunc(func(params ppm.CreatePPMUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreatePPMUpload has not yet been implemented")
 		}),
 		PpmCreatePersonallyProcuredMoveHandler: ppm.CreatePersonallyProcuredMoveHandlerFunc(func(params ppm.CreatePersonallyProcuredMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreatePersonallyProcuredMove has not yet been implemented")
@@ -235,6 +238,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveDocsUpdateMoveDocumentHandler: move_docs.UpdateMoveDocumentHandlerFunc(func(params move_docs.UpdateMoveDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.UpdateMoveDocument has not yet been implemented")
 		}),
+		PpmUpdateMovingExpenseHandler: ppm.UpdateMovingExpenseHandlerFunc(func(params ppm.UpdateMovingExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdateMovingExpense has not yet been implemented")
+		}),
 		OrdersUpdateOrdersHandler: orders.UpdateOrdersHandlerFunc(func(params orders.UpdateOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UpdateOrders has not yet been implemented")
 		}),
@@ -256,7 +262,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 	}
 }
 
-/*MymoveAPI The Internal API is a RESTful API that enables the Customer application for
+/*
+MymoveAPI The Internal API is a RESTful API that enables the Customer application for
 MilMove.
 
 All endpoints are located under `/internal`.
@@ -313,12 +320,14 @@ type MymoveAPI struct {
 	MoveDocsCreateGenericMoveDocumentHandler move_docs.CreateGenericMoveDocumentHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
-	// MoveDocsCreateMovingExpenseDocumentHandler sets the operation handler for the create moving expense document operation
-	MoveDocsCreateMovingExpenseDocumentHandler move_docs.CreateMovingExpenseDocumentHandler
+	// PpmCreateMovingExpenseHandler sets the operation handler for the create moving expense operation
+	PpmCreateMovingExpenseHandler ppm.CreateMovingExpenseHandler
 	// OrdersCreateOrdersHandler sets the operation handler for the create orders operation
 	OrdersCreateOrdersHandler orders.CreateOrdersHandler
 	// PpmCreatePPMAttachmentsHandler sets the operation handler for the create p p m attachments operation
 	PpmCreatePPMAttachmentsHandler ppm.CreatePPMAttachmentsHandler
+	// PpmCreatePPMUploadHandler sets the operation handler for the create p p m upload operation
+	PpmCreatePPMUploadHandler ppm.CreatePPMUploadHandler
 	// PpmCreatePersonallyProcuredMoveHandler sets the operation handler for the create personally procured move operation
 	PpmCreatePersonallyProcuredMoveHandler ppm.CreatePersonallyProcuredMoveHandler
 	// ServiceMembersCreateServiceMemberHandler sets the operation handler for the create service member operation
@@ -413,6 +422,8 @@ type MymoveAPI struct {
 	MtoShipmentUpdateMTOShipmentHandler mto_shipment.UpdateMTOShipmentHandler
 	// MoveDocsUpdateMoveDocumentHandler sets the operation handler for the update move document operation
 	MoveDocsUpdateMoveDocumentHandler move_docs.UpdateMoveDocumentHandler
+	// PpmUpdateMovingExpenseHandler sets the operation handler for the update moving expense operation
+	PpmUpdateMovingExpenseHandler ppm.UpdateMovingExpenseHandler
 	// OrdersUpdateOrdersHandler sets the operation handler for the update orders operation
 	OrdersUpdateOrdersHandler orders.UpdateOrdersHandler
 	// PpmUpdatePersonallyProcuredMoveHandler sets the operation handler for the update personally procured move operation
@@ -529,14 +540,17 @@ func (o *MymoveAPI) Validate() error {
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
 	}
-	if o.MoveDocsCreateMovingExpenseDocumentHandler == nil {
-		unregistered = append(unregistered, "move_docs.CreateMovingExpenseDocumentHandler")
+	if o.PpmCreateMovingExpenseHandler == nil {
+		unregistered = append(unregistered, "ppm.CreateMovingExpenseHandler")
 	}
 	if o.OrdersCreateOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.CreateOrdersHandler")
 	}
 	if o.PpmCreatePPMAttachmentsHandler == nil {
 		unregistered = append(unregistered, "ppm.CreatePPMAttachmentsHandler")
+	}
+	if o.PpmCreatePPMUploadHandler == nil {
+		unregistered = append(unregistered, "ppm.CreatePPMUploadHandler")
 	}
 	if o.PpmCreatePersonallyProcuredMoveHandler == nil {
 		unregistered = append(unregistered, "ppm.CreatePersonallyProcuredMoveHandler")
@@ -679,6 +693,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.MoveDocsUpdateMoveDocumentHandler == nil {
 		unregistered = append(unregistered, "move_docs.UpdateMoveDocumentHandler")
 	}
+	if o.PpmUpdateMovingExpenseHandler == nil {
+		unregistered = append(unregistered, "ppm.UpdateMovingExpenseHandler")
+	}
 	if o.OrdersUpdateOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.UpdateOrdersHandler")
 	}
@@ -820,7 +837,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/moves/{moveId}/moving_expense_documents"] = move_docs.NewCreateMovingExpenseDocument(o.context, o.MoveDocsCreateMovingExpenseDocumentHandler)
+	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/moving-expenses"] = ppm.NewCreateMovingExpense(o.context, o.PpmCreateMovingExpenseHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -829,6 +846,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments"] = ppm.NewCreatePPMAttachments(o.context, o.PpmCreatePPMAttachmentsHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/uploads"] = ppm.NewCreatePPMUpload(o.context, o.PpmCreatePPMUploadHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -1017,6 +1038,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/move_documents/{moveDocumentId}"] = move_docs.NewUpdateMoveDocument(o.context, o.MoveDocsUpdateMoveDocumentHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}"] = ppm.NewUpdateMovingExpense(o.context, o.PpmUpdateMovingExpenseHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}

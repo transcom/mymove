@@ -2,12 +2,15 @@ import * as Yup from 'yup';
 import React, { createRef } from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
-import { Button, ErrorMessage, Form, FormGroup, Label, Link, Radio } from '@trussworks/react-uswds';
-import { string, bool, func, shape } from 'prop-types';
+import { Button, ErrorMessage, Form, FormGroup, Label, Radio } from '@trussworks/react-uswds';
+import { func, number } from 'prop-types';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import styles from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm.module.scss';
 import formStyles from 'styles/form.module.scss';
+import WeightTicketUpload, {
+  acceptableFileTypes,
+} from 'components/Customer/PPM/Closeout/WeightTicketUpload/WeightTicketUpload';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { CheckboxField } from 'components/form/fields';
 import Hint from 'components/Hint';
@@ -18,12 +21,7 @@ import { WeightTicketShape } from 'types/shipment';
 import FileUpload from 'components/FileUpload/FileUpload';
 import { formatWeight } from 'utils/formatters';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
-import {
-  DocumentAndImageUploadInstructions,
-  SpreadsheetUploadInstructions,
-  UploadDropZoneLabel,
-  UploadDropZoneLabelMobile,
-} from 'content/uploads';
+import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZoneLabelMobile } from 'content/uploads';
 import { uploadShape } from 'types/uploads';
 
 const validationSchema = Yup.object().shape({
@@ -49,113 +47,6 @@ const validationSchema = Yup.object().shape({
       return ownsTrailer && trailerMeetsCriteria ? schema.min(1, 'At least one upload is required') : schema;
     }),
 });
-
-const acceptableFileTypes = [
-  'image/jpeg',
-  'image/png',
-  'application/pdf',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-excel',
-];
-
-const constructedWeightDownload = (
-  <>
-    <p>Download the official government spreadsheet to calculate constructed weight.</p>
-    <Link
-      className={classnames('usa-button', 'usa-button--secondary', styles.constructedWeightLink)}
-      href="https://www.ustranscom.mil/dp3/weightestimator.cfm"
-      target="_blank"
-      rel="noopener"
-    >
-      Go to download page
-    </Link>
-    <p>
-      Enter the constructed weight you calculated.
-      <br />
-      Upload a completed copy of the spreadsheet.
-    </p>
-  </>
-);
-
-const WeightTicketUpload = ({
-  fieldName,
-  missingWeightTicket,
-  onCreateUpload,
-  onUploadComplete,
-  onUploadDelete,
-  fileUploadRef,
-  values,
-  formikProps: { touched, errors, setFieldTouched, setFieldValue },
-}) => {
-  const weightTicketUploadLabel = (name, showConstructedWeight) => {
-    if (name === 'emptyDocument') {
-      return showConstructedWeight ? 'Upload constructed weight spreadsheet' : 'Upload empty weight ticket';
-    }
-
-    return showConstructedWeight ? 'Upload constructed weight spreadsheet' : 'Upload full weight ticket';
-  };
-
-  const weightTicketUploadHint = (showConstructedWeight) => {
-    return showConstructedWeight ? SpreadsheetUploadInstructions : DocumentAndImageUploadInstructions;
-  };
-
-  const showError = touched[`${fieldName}`] && errors[`${fieldName}`];
-
-  return (
-    <>
-      {missingWeightTicket && constructedWeightDownload}
-      <UploadsTable
-        className={styles.uploadsTable}
-        uploads={values[`${fieldName}`]}
-        onDelete={(uploadId) => onUploadDelete(uploadId, fieldName, setFieldTouched, setFieldValue)}
-      />
-      <FormGroup error={showError}>
-        <div className="labelWrapper">
-          <Label error={showError} htmlFor={fieldName}>
-            {weightTicketUploadLabel(fieldName, missingWeightTicket)}
-          </Label>
-        </div>
-        {showError && <ErrorMessage>{errors[`${fieldName}`]}</ErrorMessage>}
-        <Hint className={styles.uploadTypeHint}>{weightTicketUploadHint(missingWeightTicket)}</Hint>
-        <FileUpload
-          name={fieldName}
-          className={fieldName}
-          labelIdle={UploadDropZoneLabel}
-          labelIdleMobile={UploadDropZoneLabelMobile}
-          createUpload={(file) => onCreateUpload(fieldName, file, setFieldTouched)}
-          onChange={(err, upload) => {
-            onUploadComplete(err);
-            fileUploadRef.current.removeFile(upload.id);
-          }}
-          acceptedFileTypes={acceptableFileTypes}
-          labelFileTypeNotAllowed="Upload a supported file type"
-          fileValidateTypeLabelExpectedTypes="Supported file types: PDF, JPG, PNG, XLS, or XLSX"
-          ref={fileUploadRef}
-        />
-      </FormGroup>
-    </>
-  );
-};
-
-WeightTicketUpload.propTypes = {
-  fieldName: string.isRequired,
-  missingWeightTicket: bool,
-  onCreateUpload: func.isRequired,
-  onUploadComplete: func.isRequired,
-  onUploadDelete: func.isRequired,
-  fileUploadRef: shape({ current: shape({}) }).isRequired,
-  values: shape({}).isRequired,
-  formikProps: shape({
-    touched: shape({}),
-    errors: shape({}),
-    setFieldTouched: func,
-    setFieldValue: func,
-  }).isRequired,
-};
-
-WeightTicketUpload.defaultProps = {
-  missingWeightTicket: false,
-};
 
 const WeightTicketForm = ({
   weightTicket,
@@ -401,7 +292,7 @@ const WeightTicketForm = ({
               </SectionWrapper>
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-                  Finish Later
+                  Return To Homepage
                 </Button>
                 <Button
                   className={ppmStyles.saveButton}
@@ -422,7 +313,7 @@ const WeightTicketForm = ({
 
 WeightTicketForm.propTypes = {
   weightTicket: WeightTicketShape,
-  tripNumber: string,
+  tripNumber: number,
   onCreateUpload: func.isRequired,
   onUploadComplete: func.isRequired,
   onUploadDelete: func,
@@ -433,7 +324,7 @@ WeightTicketForm.propTypes = {
 WeightTicketForm.defaultProps = {
   weightTicket: undefined,
   onUploadDelete: undefined,
-  tripNumber: '1',
+  tripNumber: 1,
 };
 
 export default WeightTicketForm;

@@ -5,19 +5,16 @@ import (
 	"math"
 	"time"
 
-	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/services"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/storage"
 )
@@ -103,40 +100,21 @@ func CustomerSupportRemarks(customerSupportRemarks models.CustomerSupportRemarks
 	return payload
 }
 
-// EvaluationReportListItem payload
-func EvaluationReportListItem(evaluationReport *models.EvaluationReport) *ghcmessages.EvaluationReportListItem {
-	if evaluationReport == nil {
-		return nil
-	}
-	id := *handlers.FmtUUID(evaluationReport.ID)
-	moveID := *handlers.FmtUUID(evaluationReport.MoveID)
-	shipmentID := handlers.FmtUUIDPtr(evaluationReport.ShipmentID)
-
-	var location *ghcmessages.EvaluationReportLocation
-	if evaluationReport.Location != nil {
-		tempLocation := ghcmessages.EvaluationReportLocation(*evaluationReport.Location)
-		location = &tempLocation
-	}
-	reportType := ghcmessages.EvaluationReportType(evaluationReport.Type)
-
-	payload := &ghcmessages.EvaluationReportListItem{
-		ID:                 id,
-		Location:           location,
-		MoveID:             moveID,
-		ShipmentID:         shipmentID,
-		SubmittedAt:        handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
-		Type:               reportType,
-		ViolationsObserved: evaluationReport.ViolationsObserved,
-	}
-	return payload
-}
-
 // EvaluationReportList payload
 func EvaluationReportList(evaluationReports models.EvaluationReports) ghcmessages.EvaluationReportList {
 	payload := make(ghcmessages.EvaluationReportList, len(evaluationReports))
 	for i, v := range evaluationReports {
 		evaluationReport := v
-		payload[i] = EvaluationReportListItem(&evaluationReport)
+		payload[i] = EvaluationReport(&evaluationReport)
+	}
+	return payload
+}
+
+func ReportViolations(reportViolations models.ReportViolations) ghcmessages.ReportViolations {
+	payload := make(ghcmessages.ReportViolations, len(reportViolations))
+	for i, v := range reportViolations {
+		reportViolation := v
+		payload[i] = ReportViolation(&reportViolation)
 	}
 	return payload
 }
@@ -176,25 +154,83 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 	evaluationReportOfficeUserPayload := EvaluationReportOfficeUser(evaluationReport.OfficeUser)
 
 	payload := &ghcmessages.EvaluationReport{
-		CreatedAt:               strfmt.DateTime(evaluationReport.CreatedAt),
-		EvaluationLengthMinutes: handlers.FmtIntPtrToInt64(evaluationReport.EvaluationLengthMinutes),
-		ID:                      id,
-		InspectionDate:          handlers.FmtDatePtr(evaluationReport.InspectionDate),
-		InspectionType:          inspectionType,
-		Location:                location,
-		LocationDescription:     evaluationReport.LocationDescription,
-		MoveID:                  moveID,
-		ObservedDate:            handlers.FmtDatePtr(evaluationReport.ObservedDate),
-		Remarks:                 evaluationReport.Remarks,
-		ShipmentID:              shipmentID,
-		SubmittedAt:             handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
-		TravelTimeMinutes:       handlers.FmtIntPtrToInt64(evaluationReport.TravelTimeMinutes),
-		Type:                    reportType,
-		ViolationsObserved:      evaluationReport.ViolationsObserved,
-		MoveReferenceID:         evaluationReport.Move.ReferenceID,
-		OfficeUser:              &evaluationReportOfficeUserPayload,
-		ETag:                    etag.GenerateEtag(evaluationReport.UpdatedAt),
-		UpdatedAt:               strfmt.DateTime(evaluationReport.UpdatedAt),
+		CreatedAt:                     strfmt.DateTime(evaluationReport.CreatedAt),
+		EvaluationLengthMinutes:       handlers.FmtIntPtrToInt64(evaluationReport.EvaluationLengthMinutes),
+		ID:                            id,
+		InspectionDate:                handlers.FmtDatePtr(evaluationReport.InspectionDate),
+		InspectionType:                inspectionType,
+		Location:                      location,
+		LocationDescription:           evaluationReport.LocationDescription,
+		MoveID:                        moveID,
+		ObservedDate:                  handlers.FmtDatePtr(evaluationReport.ObservedDate),
+		Remarks:                       evaluationReport.Remarks,
+		ShipmentID:                    shipmentID,
+		SubmittedAt:                   handlers.FmtDateTimePtr(evaluationReport.SubmittedAt),
+		TravelTimeMinutes:             handlers.FmtIntPtrToInt64(evaluationReport.TravelTimeMinutes),
+		Type:                          reportType,
+		ViolationsObserved:            evaluationReport.ViolationsObserved,
+		MoveReferenceID:               evaluationReport.Move.ReferenceID,
+		OfficeUser:                    &evaluationReportOfficeUserPayload,
+		SeriousIncident:               evaluationReport.SeriousIncident,
+		SeriousIncidentDesc:           evaluationReport.SeriousIncidentDesc,
+		ObservedClaimsResponseDate:    handlers.FmtDatePtr(evaluationReport.ObservedClaimsResponseDate),
+		ObservedPickupDate:            handlers.FmtDatePtr(evaluationReport.ObservedPickupDate),
+		ObservedPickupSpreadStartDate: handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadStartDate),
+		ObservedPickupSpreadEndDate:   handlers.FmtDatePtr(evaluationReport.ObservedPickupSpreadEndDate),
+		ObservedDeliveryDate:          handlers.FmtDatePtr(evaluationReport.ObservedDeliveryDate),
+		ETag:                          etag.GenerateEtag(evaluationReport.UpdatedAt),
+		UpdatedAt:                     strfmt.DateTime(evaluationReport.UpdatedAt),
+		ReportViolations:              ReportViolations(evaluationReport.ReportViolations),
+	}
+	return payload
+}
+
+// PWSViolationItem payload
+func PWSViolationItem(violation *models.PWSViolation) *ghcmessages.PWSViolation {
+	if violation == nil {
+		return nil
+	}
+
+	payload := &ghcmessages.PWSViolation{
+		ID:                   strfmt.UUID(violation.ID.String()),
+		DisplayOrder:         int64(violation.DisplayOrder),
+		ParagraphNumber:      violation.ParagraphNumber,
+		Title:                violation.Title,
+		Category:             string(violation.Category),
+		SubCategory:          violation.SubCategory,
+		RequirementSummary:   violation.RequirementSummary,
+		RequirementStatement: violation.RequirementStatement,
+		IsKpi:                violation.IsKpi,
+		AdditionalDataElem:   violation.AdditionalDataElem,
+	}
+
+	return payload
+}
+
+// PWSViolations payload
+func PWSViolations(violations models.PWSViolations) ghcmessages.PWSViolations {
+	payload := make(ghcmessages.PWSViolations, len(violations))
+
+	for i, v := range violations {
+		violation := v
+		payload[i] = PWSViolationItem(&violation)
+	}
+	return payload
+}
+
+func ReportViolation(reportViolation *models.ReportViolation) *ghcmessages.ReportViolation {
+	if reportViolation == nil {
+		return nil
+	}
+	id := *handlers.FmtUUID(reportViolation.ID)
+	violationID := *handlers.FmtUUID(reportViolation.ViolationID)
+	reportID := *handlers.FmtUUID(reportViolation.ReportID)
+
+	payload := &ghcmessages.ReportViolation{
+		ID:          id,
+		ViolationID: violationID,
+		ReportID:    reportID,
+		Violation:   PWSViolationItem(&reportViolation.Violation),
 	}
 	return payload
 }
@@ -221,7 +257,6 @@ func MoveAuditHistory(logger *zap.Logger, auditHistory models.AuditHistory) *ghc
 		ActionTstampTx:       strfmt.DateTime(auditHistory.ActionTstampTx),
 		ChangedValues:        removeEscapeJSONtoObject(logger, auditHistory.ChangedData),
 		OldValues:            removeEscapeJSONtoObject(logger, auditHistory.OldData),
-		ClientQuery:          auditHistory.ClientQuery,
 		EventName:            auditHistory.EventName,
 		ID:                   strfmt.UUID(auditHistory.ID.String()),
 		ObjectID:             handlers.FmtUUIDPtr(auditHistory.ObjectID),
@@ -642,9 +677,12 @@ func PPMShipment(ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 		sitLocation := ghcmessages.SITLocationType(*ppmShipment.SITLocation)
 		payloadPPMShipment.SitLocation = &sitLocation
 	}
-
 	if ppmShipment.AdvanceStatus != nil {
 		payloadPPMShipment.AdvanceStatus = ghcmessages.PPMAdvanceStatus(*ppmShipment.AdvanceStatus)
+	}
+
+	if ppmShipment.W2Address != nil {
+		payloadPPMShipment.W2Address = Address(ppmShipment.W2Address)
 	}
 
 	return payloadPPMShipment
@@ -721,6 +759,10 @@ func MTOShipment(mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.
 
 	if mtoShipment.ScheduledPickupDate != nil {
 		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
+	}
+
+	if mtoShipment.ScheduledDeliveryDate != nil {
+		payload.ScheduledDeliveryDate = handlers.FmtDatePtr(mtoShipment.ScheduledDeliveryDate)
 	}
 
 	if mtoShipment.DestinationType != nil {
@@ -986,13 +1028,13 @@ func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghc
 // Upload payload
 func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmessages.Upload {
 	uploadPayload := &ghcmessages.Upload{
-		ID:          handlers.FmtUUID(upload.ID),
-		Filename:    swag.String(upload.Filename),
-		ContentType: swag.String(upload.ContentType),
-		URL:         handlers.FmtURI(url),
-		Bytes:       &upload.Bytes,
-		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
-		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+		ID:          handlers.FmtUUIDValue(upload.ID),
+		Filename:    upload.Filename,
+		ContentType: upload.ContentType,
+		URL:         strfmt.URI(url),
+		Bytes:       upload.Bytes,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {

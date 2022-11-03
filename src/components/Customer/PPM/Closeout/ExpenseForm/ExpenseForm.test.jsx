@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { DocumentAndImageUploadInstructions } from 'content/uploads';
+import { expenseTypes } from 'constants/ppmExpenseTypes';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -13,9 +14,9 @@ const defaultProps = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    expenseType: 'packing_materials',
+    movingExpenseType: expenseTypes.PACKING_MATERIALS,
   },
-  receiptNumber: '1',
+  receiptNumber: 1,
   onCreateUpload: jest.fn(),
   onUploadComplete: jest.fn(),
   onUploadDelete: jest.fn(),
@@ -27,11 +28,11 @@ const missingReceiptProps = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    expenseType: 'packing_materials',
+    movingExpenseType: expenseTypes.PACKING_MATERIALS,
     description: 'bubble wrap',
     missingReceipt: true,
   },
-  receiptNumber: '1',
+  receiptNumber: 1,
   onCreateUpload: jest.fn(),
   onUploadComplete: jest.fn(),
   onUploadDelete: jest.fn(),
@@ -43,20 +44,20 @@ const expenseRequiredProps = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    expenseType: 'packing_materials',
+    movingExpenseType: expenseTypes.PACKING_MATERIALS,
     description: 'bubble wrap',
     missingReceipt: false,
-    paidWithGTCC: false,
-    amount: 600,
-    receiptDocument: {
+    paidWithGtcc: false,
+    amount: 60000,
+    document: {
       uploads: [
         {
           id: 'db4713ae-6087-4330-8b0d-926b3d65c454',
-          created_at: '2022-06-10T12:59:30.000Z',
+          createdAt: '2022-06-10T12:59:30.000Z',
           bytes: 204800,
           url: 'some/path/to/',
           filename: 'expenseReceipt.pdf',
-          content_type: 'application/pdf',
+          contentType: 'application/pdf',
         },
       ],
     },
@@ -67,22 +68,22 @@ const sitExpenseProps = {
   expense: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
-    expenseType: 'storage',
+    movingExpenseType: expenseTypes.STORAGE,
     description: '10x10 storage pod',
     missingReceipt: false,
-    paidWithGTCC: false,
-    amount: 1600,
+    paidWithGtcc: false,
+    amount: 16099,
     sitStartDate: '2022-09-24',
     sitEndDate: '2022-12-26',
-    receiptDocument: {
+    document: {
       uploads: [
         {
           id: 'db4713ae-6087-4330-8b0d-926b3d65c454',
-          created_at: '2022-08-10T12:59:30.000Z',
+          createdAt: '2022-08-10T12:59:30.000Z',
           bytes: 204800,
           url: 'some/path/to/',
           filename: 'uhaulReceipt.pdf',
-          content_type: 'application/pdf',
+          contentType: 'application/pdf',
         },
       ],
     },
@@ -121,7 +122,7 @@ describe('ExpenseForm component', () => {
       expect(uploadFileTypeHints[0]).toBeInTheDocument();
       expect(screen.queryByRole('heading', { level: 3, name: 'Dates' })).not.toBeInTheDocument();
 
-      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
     });
 
@@ -132,7 +133,7 @@ describe('ExpenseForm component', () => {
         expect(screen.getByLabelText('What did you buy?')).toHaveDisplayValue('bubble wrap');
       });
       expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
-      expect(screen.getByRole('option', { name: 'Packing materials' }).selected).toBe(true);
+      expect(screen.getAllByRole('option')[3].selected).toBe(true);
       expect(screen.getByText('expenseReceipt.pdf')).toBeInTheDocument();
       const deleteButton = screen.getByRole('button', { name: 'Delete' });
       expect(deleteButton).toBeInTheDocument();
@@ -141,7 +142,7 @@ describe('ExpenseForm component', () => {
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.queryByRole('heading', { level: 3, name: 'Dates' })).not.toBeInTheDocument();
 
-      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -177,7 +178,7 @@ describe('ExpenseForm component', () => {
       expect(screen.getByLabelText('End date')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('End date')).toHaveDisplayValue('26 Dec 2022');
 
-      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
   });
@@ -209,10 +210,10 @@ describe('ExpenseForm component', () => {
         expect(defaultProps.onSubmit).toHaveBeenCalled();
       });
     });
-    it('calls the onBack prop when the Finish Later button is clicked', async () => {
+    it('calls the onBack prop when the Return To Homepage button is clicked', async () => {
       render(<ExpenseForm {...defaultProps} />);
 
-      await userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
 
       await waitFor(() => {
         expect(defaultProps.onBack).toHaveBeenCalled();

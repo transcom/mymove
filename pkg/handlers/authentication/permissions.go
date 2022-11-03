@@ -1,15 +1,11 @@
 package authentication
 
 import (
-	"github.com/spf13/cast"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-
 	"github.com/transcom/mymove/pkg/auth"
-
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
@@ -21,23 +17,71 @@ type RolePermissions struct {
 
 var TOO = RolePermissions{
 	RoleType: roles.RoleTypeTOO,
-	Permissions: []string{"update.move", "create.serviceItem",
-		"update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight", "create.shipmentCancellation", "create.SITExtension", "update.SITExtension", "create.shipmentDiversionRequest", "create.reweighRequest", "update.MTOServiceItem", "read.paymentRequest", "update.paymentServiceItemStatus"},
+	Permissions: []string{
+		"create.serviceItem",
+		"create.shipmentDiversionRequest",
+		"create.reweighRequest",
+		"create.shipmentCancellation",
+		"create.SITExtension",
+		"read.paymentRequest",
+		"update.move",
+		"update.shipment",
+		"update.financialReviewFlag",
+		"update.orders",
+		"update.allowances",
+		"update.billableWeight",
+		"update.SITExtension",
+		"update.MTOServiceItem",
+		"update.paymentServiceItemStatus",
+		"update.excessWeightRisk",
+	},
 }
 
 var TIO = RolePermissions{
-	RoleType:    roles.RoleTypeTIO,
-	Permissions: []string{"create.serviceItem", "update.shipment", "update.financialReviewFlag", "update.orders", "update.allowances", "update.billableWeight", "update.maxBillableWeight", "create.ShipmentCancellation", "create.shipmentDiversionRequest", "create.reweighRequest", "update.MTOServiceItem", "read.paymentRequest", "update.paymentServiceItemStatus"},
+	RoleType: roles.RoleTypeTIO,
+	Permissions: []string{
+		"create.ShipmentCancellation",
+		"create.shipmentDiversionRequest",
+		"create.reweighRequest",
+		"create.serviceItem",
+		"read.paymentRequest",
+		"read.shipmentsPaymentSITBalance",
+		"update.shipment",
+		"update.financialReviewFlag",
+		"update.orders",
+		"update.allowances",
+		"update.billableWeight",
+		"update.maxBillableWeight",
+		"update.paymentRequest",
+		"update.paymentServiceItemStatus",
+		"update.MTOServiceItem",
+	},
 }
 
 var ServicesCounselor = RolePermissions{
-	RoleType:    roles.RoleTypeServicesCounselor,
-	Permissions: []string{"update.financialReviewFlag", "update.shipment", "update.orders", "update.allowances", "update.billableWeight", "create.shipmentDiversionRequest", "create.reweighRequest", "update.MTOServiceItem"},
+	RoleType: roles.RoleTypeServicesCounselor,
+	Permissions: []string{
+		"create.shipmentDiversionRequest",
+		"create.reweighRequest",
+		"update.financialReviewFlag",
+		"update.shipment",
+		"update.orders",
+		"update.allowances",
+		"update.billableWeight",
+		"update.MTOServiceItem",
+		"update.customer",
+	},
 }
 
 var QAECSR = RolePermissions{
-	RoleType:    roles.RoleTypeQaeCsr,
-	Permissions: []string{"read.paymentRequest"},
+	RoleType: roles.RoleTypeQaeCsr,
+	Permissions: []string{
+		"create.reportViolation",
+		"create.evaluationReport",
+		"read.paymentRequest",
+		"update.evaluationReport",
+		"delete.evaluationReport",
+	},
 }
 
 var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAECSR}
@@ -99,7 +143,7 @@ func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]roles.Ro
 		return nil, err
 	}
 
-	logger.Info("User has the following roles: ", zap.String("user roles", cast.ToString(userRoleTypes)))
+	logger.Info("User has the following roles: ", zap.Any("user roles", userRoleTypes))
 
 	return userRoleTypes, nil
 }

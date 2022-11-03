@@ -15,7 +15,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
-
 	mtoServiceItem "github.com/transcom/mymove/pkg/gen/primeclient/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )

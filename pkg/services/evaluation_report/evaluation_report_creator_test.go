@@ -4,7 +4,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -30,7 +29,6 @@ func (suite *EvaluationReportSuite) TestEvaluationReportCreator() {
 		suite.NotNil(createdEvaluationReport.ShipmentID)
 		suite.NotNil(createdEvaluationReport.CreatedAt)
 		suite.NotNil(createdEvaluationReport.UpdatedAt)
-		suite.Nil(createdEvaluationReport.DeletedAt)
 		suite.Nil(createdEvaluationReport.SubmittedAt)
 	})
 

@@ -1,10 +1,10 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used to generate test data for use in the unit test
-//RA: Creation of test data generation for unit test consumption does not present any unexpected states and conditions
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values in the file are used to generate test data for use in the unit test
+// RA: Creation of test data generation for unit test consumption does not present any unexpected states and conditions
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package ordersapi
 
@@ -12,14 +12,13 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/transcom/mymove/pkg/testingsuite"
-
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 // HandlerSuite is an abstraction of our original suite

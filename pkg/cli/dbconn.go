@@ -3,12 +3,13 @@ package cli
 import (
 	"database/sql"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/XSAM/otelsql"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/rds"
 	pop "github.com/gobuffalo/pop/v6"
@@ -18,8 +19,6 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-
-	"github.com/XSAM/otelsql"
 
 	iampg "github.com/transcom/mymove/pkg/iampostgres"
 )
@@ -224,7 +223,7 @@ func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 	}
 
 	if filename := v.GetString(DbSSLRootCertFlag); len(filename) > 0 {
-		b, err := ioutil.ReadFile(filepath.Clean(filename))
+		b, err := os.ReadFile(filepath.Clean(filename))
 		if err != nil {
 			return errors.Wrap(err, fmt.Sprintf("error reading %s at %q", DbSSLRootCertFlag, filename))
 		}
@@ -392,7 +391,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 	return connection, nil
 }
 
-//testConnection tests the connection to determine successful ping
+// testConnection tests the connection to determine successful ping
 func testConnection(dbConnDetails *pop.ConnectionDetails, useIam bool, logger *zap.Logger) error {
 	// Copy connection info as we don't want to alter connection info
 	dbConnectionDetails := pop.ConnectionDetails{

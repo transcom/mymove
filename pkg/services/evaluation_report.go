@@ -8,6 +8,7 @@ import (
 )
 
 // EvaluationReportFetcher is the service object interface for fetching all the evaluation reports for a move as a particular office user
+//
 //go:generate mockery --name EvaluationReportFetcher --disable-version-string
 type EvaluationReportFetcher interface {
 	FetchEvaluationReports(appCtx appcontext.AppContext, reportType models.EvaluationReportType, moveID uuid.UUID, officeUserID uuid.UUID) (models.EvaluationReports, error)
@@ -22,6 +23,7 @@ type EvaluationReportCreator interface {
 //go:generate mockery --name EvaluationReportUpdater --disable-version-string
 type EvaluationReportUpdater interface {
 	UpdateEvaluationReport(appCtx appcontext.AppContext, evaluationReport *models.EvaluationReport, officeUserID uuid.UUID, eTag string) error
+	SubmitEvaluationReport(appCtx appcontext.AppContext, evaluationReportID uuid.UUID, officeUserID uuid.UUID, eTag string) error
 }
 
 //go:generate mockery --name EvaluationReportDeleter --disable-version-string

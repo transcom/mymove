@@ -373,6 +373,78 @@ func init() {
         "operationId": "createMTOShipment",
         "parameters": [
           {
+            "x-examples": {
+              "application/json": {
+                "hhg": {
+                  "summary": "HHG",
+                  "value": {
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "pickupAddress": {
+                      "city": "Muldraugh",
+                      "postalCode": "40155",
+                      "state": "KY",
+                      "streetAddress1": "204 South Prospect Lane"
+                    },
+                    "requestedPickupDate": "2022-12-31",
+                    "shipmentType": "HHG"
+                  }
+                },
+                "nts": {
+                  "summary": "NTS",
+                  "value": {
+                    "agents": [
+                      {
+                        "agentType": "RELEASING_AGENT",
+                        "email": "edgar.taylor@example.com",
+                        "firstName": "Edgar",
+                        "lastName": "Taylor",
+                        "phone": "555-555-5555"
+                      }
+                    ],
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "pickupAddress": {
+                      "city": "Muldraugh",
+                      "postalCode": "40155",
+                      "state": "KY",
+                      "streetAddress1": "204 South Prospect Lane"
+                    },
+                    "requestedPickupDate": "2022-12-31",
+                    "shipmentType": "HHG_INTO_NTS_DOMESTIC"
+                  }
+                },
+                "nts-r": {
+                  "summary": "NTS Release",
+                  "value": {
+                    "agents": [
+                      {
+                        "agentType": "RECEIVING_AGENT",
+                        "email": "edgar.taylor@example.com",
+                        "firstName": "Edgar",
+                        "lastName": "Taylor",
+                        "phone": "555-555-5555"
+                      }
+                    ],
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "shipmentType": "HHG_OUTOF_NTS_DOMESTIC"
+                  }
+                },
+                "ppm": {
+                  "summary": "PPM",
+                  "value": {
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "ppmShipment": {
+                      "destinationPostalCode": "10001",
+                      "estimatedWeight": 4999,
+                      "expectedDepartureDate": "2022-10-01",
+                      "hasProGear": false,
+                      "pickupPostalCode": "90210",
+                      "sitExpected": false
+                    },
+                    "shipmentType": "PPM"
+                  }
+                }
+              }
+            },
             "name": "body",
             "in": "body",
             "schema": {
@@ -470,6 +542,68 @@ func init() {
             "required": true
           },
           {
+            "x-examples": {
+              "application/json": {
+                "hhg": {
+                  "summary": "HHG",
+                  "value": {
+                    "actualPickupDate": "2022-12-29",
+                    "destinationAddress": {
+                      "city": "Great Bend",
+                      "postalCode": "13643",
+                      "state": "NY",
+                      "streetAddress1": "6622 Airport Way S",
+                      "streetAddress2": "#1430"
+                    },
+                    "firstAvailableDeliveryDate": "2023-01-04",
+                    "pointOfContact": "peyton.wing@example.com",
+                    "primeActualWeight": 4500,
+                    "primeEstimatedWeight": 4250,
+                    "scheduledPickupDate": "2022-12-30"
+                  }
+                },
+                "nts": {
+                  "summary": "NTS",
+                  "value": {
+                    "actualPickupDate": "2022-12-29",
+                    "actualWeight": 4500,
+                    "counselorRemarks": "Beware of dogs on property",
+                    "estimatedWeight": 4250,
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "scheduledPickupDate": "2022-12-30"
+                  }
+                },
+                "nts-r": {
+                  "summary": "NTS Release",
+                  "value": {
+                    "destinationAddress": {
+                      "city": "San Antonio",
+                      "postalCode": "78245",
+                      "state": "TX",
+                      "streetAddress1": "812 S 129th Street"
+                    },
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "ntsRecordedWeight": 4500
+                  }
+                },
+                "ppm": {
+                  "summary": "PPM",
+                  "value": {
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "ppmShipment": {
+                      "hasProGear": true,
+                      "proGearWeight": 830,
+                      "sitEstimatedDepartureDate": "2022-10-13",
+                      "sitEstimatedEntryDate": "2022-10-06",
+                      "sitEstimatedWeight": 1760,
+                      "sitExpected": true,
+                      "sitLocation": "DESTINATION",
+                      "spouseProGearWeight": 366
+                    }
+                  }
+                }
+              }
+            },
             "name": "body",
             "in": "body",
             "required": true,
@@ -1030,7 +1164,7 @@ func init() {
           "201": {
             "description": "Successfully created upload of digital file.",
             "schema": {
-              "$ref": "#/definitions/Upload"
+              "$ref": "#/definitions/UploadWithOmissions"
             }
           },
           "400": {
@@ -1321,6 +1455,7 @@ func init() {
       }
     },
     "CreatePPMShipment": {
+      "description": "Creation object containing the ` + "`" + `PPM` + "`" + ` shipmentType specific data, not used for other shipment types.",
       "type": "object",
       "required": [
         "expectedDepartureDate",
@@ -1332,6 +1467,7 @@ func init() {
       ],
       "properties": {
         "destinationPostalCode": {
+          "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -1339,31 +1475,33 @@ func init() {
           "example": "90210"
         },
         "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved in pounds.",
           "type": "integer",
           "example": 4200
         },
         "expectedDepartureDate": {
-          "description": "Date the customer expects to move.\n",
+          "description": "Date the customer expects to begin moving from their origin.\n",
           "type": "string",
           "format": "date"
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean"
         },
         "pickupPostalCode": {
-          "description": "zip code",
+          "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
         "proGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
           "type": "integer",
           "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
+          "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -1372,6 +1510,7 @@ func init() {
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
+          "description": "An optional secondary pickup location near the origin where additional goods exist.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -1380,21 +1519,25 @@ func init() {
           "example": "90210"
         },
         "sitEstimatedDepartureDate": {
+          "description": "The date that goods will exit the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitEstimatedEntryDate": {
+          "description": "The date that goods will first enter the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitEstimatedWeight": {
+          "description": "The estimated weight of the goods being put into storage in pounds.",
           "type": "integer",
           "x-nullable": true,
           "example": 2000
         },
         "sitExpected": {
+          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
           "type": "boolean"
         },
         "sitLocation": {
@@ -1408,6 +1551,7 @@ func init() {
           ]
         },
         "spouseProGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true
         }
@@ -1648,7 +1792,7 @@ func init() {
       "description": "A document uploaded by the movers proving that the customer has been counseled about excess weight.",
       "allOf": [
         {
-          "$ref": "#/definitions/Upload"
+          "$ref": "#/definitions/UploadWithOmissions"
         },
         {
           "type": "object",
@@ -2162,6 +2306,13 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualDeliveryDate": {
+          "description": "The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "actualPickupDate": {
           "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
@@ -2314,6 +2465,13 @@ func init() {
         "reweigh": {
           "$ref": "#/definitions/Reweigh"
         },
+        "scheduledDeliveryDate": {
+          "description": "The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
@@ -2374,28 +2532,29 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `NTS` + "`" + ` = Non-temporary storage\n  * ` + "`" + `UB` + "`" + ` = Unaccompanied baggage\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY",
         "HHG",
         "HHG_LONGHAUL_DOMESTIC",
-        "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
         "MOTORHOME",
-        "BOAT_HAUL_AWAY",
-        "BOAT_TOW_AWAY",
         "PPM"
       ],
       "x-display-value": {
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
         "HHG_LONGHAUL_DOMESTIC": "Domestic Longhaul HHG",
-        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS)",
-        "HHG_SHORTHAUL_DOMESTIC": "Domestic Shorthaul HHG"
+        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
+        "HHG_SHORTHAUL_DOMESTIC": "Domestic Shorthaul HHG",
+        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
       },
       "example": "HHG"
     },
@@ -2558,7 +2717,7 @@ func init() {
       }
     },
     "PPMShipment": {
-      "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
         "id",
         "shipmentId",
@@ -2582,6 +2741,7 @@ func init() {
           "example": "90210"
         },
         "actualMoveDate": {
+          "description": "The actual start date of when the PPM shipment left the origin.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -2605,27 +2765,29 @@ func init() {
           "x-omitempty": false
         },
         "advanceAmountRequested": {
-          "description": "The amount requested for an advance, or null if no advance is requested\n",
+          "description": "The amount requested as an advance by the service member, up to a maximum percentage of the estimated incentive.\n",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
         "approvedAt": {
+          "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
         },
         "createdAt": {
+          "description": "The timestamp of when the PPM shipment was created (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
         },
         "destinationPostalCode": {
+          "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
@@ -2635,24 +2797,26 @@ func init() {
           "readOnly": true
         },
         "estimatedIncentive": {
+          "description": "The estimated amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
         "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
           "example": 4200
         },
         "expectedDepartureDate": {
-          "description": "Date the customer expects to move.\n",
+          "description": "Date the customer expects to begin moving from their origin.\n",
           "type": "string",
           "format": "date"
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -2670,6 +2834,7 @@ func init() {
           "x-omitempty": false
         },
         "id": {
+          "description": "The primary unique identifier of this PPM shipment",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -2683,7 +2848,7 @@ func init() {
           "example": 4300
         },
         "pickupPostalCode": {
-          "description": "zip code",
+          "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -2691,65 +2856,73 @@ func init() {
           "example": "90210"
         },
         "proGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
         },
         "reviewedAt": {
+          "description": "The timestamp of when the Service Counselor has reviewed all of the closeout documents.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
         },
         "secondaryDestinationPostalCode": {
+          "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
+          "description": "An optional secondary pickup location near the origin where additional goods exist.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
         },
         "shipmentId": {
+          "description": "The id of the parent MTOShipment record",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "sitEstimatedCost": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
         "sitEstimatedDepartureDate": {
+          "description": "The date that goods will exit the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
         },
         "sitEstimatedEntryDate": {
+          "description": "The date that goods will first enter the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
         },
         "sitEstimatedWeight": {
+          "description": "The estimated weight of the goods being put into storage in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
           "example": 2000
         },
         "sitExpected": {
+          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
           "type": "boolean"
         },
         "sitLocation": {
@@ -2766,6 +2939,7 @@ func init() {
           ]
         },
         "spouseProGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -2774,12 +2948,14 @@ func init() {
           "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
+          "description": "The timestamp of when the customer submitted their move to the counselor.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
         },
         "updatedAt": {
+          "description": "The timestamp of when a property of this object was last updated (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
@@ -2788,6 +2964,7 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
@@ -2979,7 +3156,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/UploadWithOmissions"
           }
         }
       }
@@ -3442,6 +3619,13 @@ func init() {
     },
     "UpdateMTOShipment": {
       "properties": {
+        "actualDeliveryDate": {
+          "description": "The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "actualPickupDate": {
           "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
@@ -3508,6 +3692,13 @@ func init() {
           "type": "integer",
           "example": 4500
         },
+        "scheduledDeliveryDate": {
+          "description": "The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
@@ -3559,9 +3750,11 @@ func init() {
       }
     },
     "UpdatePPMShipment": {
+      "description": "The PPM specific fields of the shipment with values being changed",
       "type": "object",
       "properties": {
         "destinationPostalCode": {
+          "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -3570,72 +3763,71 @@ func init() {
           "example": "90210"
         },
         "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved.",
           "type": "integer",
           "x-nullable": true,
           "example": 4200
         },
         "expectedDepartureDate": {
-          "description": "Date the customer expects to move.\n",
+          "description": "Date the customer expects to begin moving from their origin.\n",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
           "x-nullable": true
         },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed\n",
-          "type": "integer",
-          "x-nullable": true,
-          "example": 4300
-        },
         "pickupPostalCode": {
-          "description": "zip code",
+          "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "example": "90210"
         },
         "proGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
           "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
+          "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
+          "description": "An optional secondary pickup location near the origin where additional goods exist.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "example": "90210"
         },
         "sitEstimatedDepartureDate": {
+          "description": "The date that goods will exit the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitEstimatedEntryDate": {
+          "description": "The date that goods will first enter the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitEstimatedWeight": {
+          "description": "The estimated weight of the goods being put into storage.",
           "type": "integer",
           "x-nullable": true,
           "example": 2000
         },
         "sitExpected": {
+          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
           "type": "boolean",
           "x-nullable": true
         },
@@ -3650,6 +3842,7 @@ func init() {
           ]
         },
         "spouseProGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
           "type": "integer",
           "x-nullable": true
         }
@@ -3677,7 +3870,7 @@ func init() {
         }
       }
     },
-    "Upload": {
+    "UploadWithOmissions": {
       "description": "An uploaded file.",
       "type": "object",
       "required": [
@@ -4308,6 +4501,78 @@ func init() {
         "operationId": "createMTOShipment",
         "parameters": [
           {
+            "x-examples": {
+              "application/json": {
+                "hhg": {
+                  "summary": "HHG",
+                  "value": {
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "pickupAddress": {
+                      "city": "Muldraugh",
+                      "postalCode": "40155",
+                      "state": "KY",
+                      "streetAddress1": "204 South Prospect Lane"
+                    },
+                    "requestedPickupDate": "2022-12-31",
+                    "shipmentType": "HHG"
+                  }
+                },
+                "nts": {
+                  "summary": "NTS",
+                  "value": {
+                    "agents": [
+                      {
+                        "agentType": "RELEASING_AGENT",
+                        "email": "edgar.taylor@example.com",
+                        "firstName": "Edgar",
+                        "lastName": "Taylor",
+                        "phone": "555-555-5555"
+                      }
+                    ],
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "pickupAddress": {
+                      "city": "Muldraugh",
+                      "postalCode": "40155",
+                      "state": "KY",
+                      "streetAddress1": "204 South Prospect Lane"
+                    },
+                    "requestedPickupDate": "2022-12-31",
+                    "shipmentType": "HHG_INTO_NTS_DOMESTIC"
+                  }
+                },
+                "nts-r": {
+                  "summary": "NTS Release",
+                  "value": {
+                    "agents": [
+                      {
+                        "agentType": "RECEIVING_AGENT",
+                        "email": "edgar.taylor@example.com",
+                        "firstName": "Edgar",
+                        "lastName": "Taylor",
+                        "phone": "555-555-5555"
+                      }
+                    ],
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "shipmentType": "HHG_OUTOF_NTS_DOMESTIC"
+                  }
+                },
+                "ppm": {
+                  "summary": "PPM",
+                  "value": {
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "ppmShipment": {
+                      "destinationPostalCode": "10001",
+                      "estimatedWeight": 4999,
+                      "expectedDepartureDate": "2022-10-01",
+                      "hasProGear": false,
+                      "pickupPostalCode": "90210",
+                      "sitExpected": false
+                    },
+                    "shipmentType": "PPM"
+                  }
+                }
+              }
+            },
             "name": "body",
             "in": "body",
             "schema": {
@@ -4435,6 +4700,68 @@ func init() {
             "required": true
           },
           {
+            "x-examples": {
+              "application/json": {
+                "hhg": {
+                  "summary": "HHG",
+                  "value": {
+                    "actualPickupDate": "2022-12-29",
+                    "destinationAddress": {
+                      "city": "Great Bend",
+                      "postalCode": "13643",
+                      "state": "NY",
+                      "streetAddress1": "6622 Airport Way S",
+                      "streetAddress2": "#1430"
+                    },
+                    "firstAvailableDeliveryDate": "2023-01-04",
+                    "pointOfContact": "peyton.wing@example.com",
+                    "primeActualWeight": 4500,
+                    "primeEstimatedWeight": 4250,
+                    "scheduledPickupDate": "2022-12-30"
+                  }
+                },
+                "nts": {
+                  "summary": "NTS",
+                  "value": {
+                    "actualPickupDate": "2022-12-29",
+                    "actualWeight": 4500,
+                    "counselorRemarks": "Beware of dogs on property",
+                    "estimatedWeight": 4250,
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "scheduledPickupDate": "2022-12-30"
+                  }
+                },
+                "nts-r": {
+                  "summary": "NTS Release",
+                  "value": {
+                    "destinationAddress": {
+                      "city": "San Antonio",
+                      "postalCode": "78245",
+                      "state": "TX",
+                      "streetAddress1": "812 S 129th Street"
+                    },
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "ntsRecordedWeight": 4500
+                  }
+                },
+                "ppm": {
+                  "summary": "PPM",
+                  "value": {
+                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
+                    "ppmShipment": {
+                      "hasProGear": true,
+                      "proGearWeight": 830,
+                      "sitEstimatedDepartureDate": "2022-10-13",
+                      "sitEstimatedEntryDate": "2022-10-06",
+                      "sitEstimatedWeight": 1760,
+                      "sitExpected": true,
+                      "sitLocation": "DESTINATION",
+                      "spouseProGearWeight": 366
+                    }
+                  }
+                }
+              }
+            },
             "name": "body",
             "in": "body",
             "required": true,
@@ -5185,7 +5512,7 @@ func init() {
           "201": {
             "description": "Successfully created upload of digital file.",
             "schema": {
-              "$ref": "#/definitions/Upload"
+              "$ref": "#/definitions/UploadWithOmissions"
             }
           },
           "400": {
@@ -5494,6 +5821,7 @@ func init() {
       }
     },
     "CreatePPMShipment": {
+      "description": "Creation object containing the ` + "`" + `PPM` + "`" + ` shipmentType specific data, not used for other shipment types.",
       "type": "object",
       "required": [
         "expectedDepartureDate",
@@ -5505,6 +5833,7 @@ func init() {
       ],
       "properties": {
         "destinationPostalCode": {
+          "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -5512,31 +5841,33 @@ func init() {
           "example": "90210"
         },
         "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved in pounds.",
           "type": "integer",
           "example": 4200
         },
         "expectedDepartureDate": {
-          "description": "Date the customer expects to move.\n",
+          "description": "Date the customer expects to begin moving from their origin.\n",
           "type": "string",
           "format": "date"
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean"
         },
         "pickupPostalCode": {
-          "description": "zip code",
+          "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
         "proGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
           "type": "integer",
           "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
+          "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -5545,6 +5876,7 @@ func init() {
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
+          "description": "An optional secondary pickup location near the origin where additional goods exist.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -5553,21 +5885,25 @@ func init() {
           "example": "90210"
         },
         "sitEstimatedDepartureDate": {
+          "description": "The date that goods will exit the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitEstimatedEntryDate": {
+          "description": "The date that goods will first enter the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitEstimatedWeight": {
+          "description": "The estimated weight of the goods being put into storage in pounds.",
           "type": "integer",
           "x-nullable": true,
           "example": 2000
         },
         "sitExpected": {
+          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
           "type": "boolean"
         },
         "sitLocation": {
@@ -5581,6 +5917,7 @@ func init() {
           ]
         },
         "spouseProGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true
         }
@@ -5821,7 +6158,7 @@ func init() {
       "description": "A document uploaded by the movers proving that the customer has been counseled about excess weight.",
       "allOf": [
         {
-          "$ref": "#/definitions/Upload"
+          "$ref": "#/definitions/UploadWithOmissions"
         },
         {
           "type": "object",
@@ -6335,6 +6672,13 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualDeliveryDate": {
+          "description": "The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "actualPickupDate": {
           "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
@@ -6487,6 +6831,13 @@ func init() {
         "reweigh": {
           "$ref": "#/definitions/Reweigh"
         },
+        "scheduledDeliveryDate": {
+          "description": "The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
@@ -6547,28 +6898,29 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `NTS` + "`" + ` = Non-temporary storage\n  * ` + "`" + `UB` + "`" + ` = Unaccompanied baggage\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY",
         "HHG",
         "HHG_LONGHAUL_DOMESTIC",
-        "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
         "MOTORHOME",
-        "BOAT_HAUL_AWAY",
-        "BOAT_TOW_AWAY",
         "PPM"
       ],
       "x-display-value": {
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
         "HHG_LONGHAUL_DOMESTIC": "Domestic Longhaul HHG",
-        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS)",
-        "HHG_SHORTHAUL_DOMESTIC": "Domestic Shorthaul HHG"
+        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
+        "HHG_SHORTHAUL_DOMESTIC": "Domestic Shorthaul HHG",
+        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
       },
       "example": "HHG"
     },
@@ -6731,7 +7083,7 @@ func init() {
       }
     },
     "PPMShipment": {
-      "description": "A personally procured move is a type of shipment that a service members moves themselves.",
+      "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
         "id",
         "shipmentId",
@@ -6755,6 +7107,7 @@ func init() {
           "example": "90210"
         },
         "actualMoveDate": {
+          "description": "The actual start date of when the PPM shipment left the origin.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -6778,27 +7131,29 @@ func init() {
           "x-omitempty": false
         },
         "advanceAmountRequested": {
-          "description": "The amount requested for an advance, or null if no advance is requested\n",
+          "description": "The amount requested as an advance by the service member, up to a maximum percentage of the estimated incentive.\n",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
         "approvedAt": {
+          "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
         },
         "createdAt": {
+          "description": "The timestamp of when the PPM shipment was created (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
         },
         "destinationPostalCode": {
+          "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
@@ -6808,24 +7163,26 @@ func init() {
           "readOnly": true
         },
         "estimatedIncentive": {
+          "description": "The estimated amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
         "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
           "example": 4200
         },
         "expectedDepartureDate": {
-          "description": "Date the customer expects to move.\n",
+          "description": "Date the customer expects to begin moving from their origin.\n",
           "type": "string",
           "format": "date"
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -6843,6 +7200,7 @@ func init() {
           "x-omitempty": false
         },
         "id": {
+          "description": "The primary unique identifier of this PPM shipment",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -6856,7 +7214,7 @@ func init() {
           "example": 4300
         },
         "pickupPostalCode": {
-          "description": "zip code",
+          "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -6864,65 +7222,73 @@ func init() {
           "example": "90210"
         },
         "proGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
         },
         "reviewedAt": {
+          "description": "The timestamp of when the Service Counselor has reviewed all of the closeout documents.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
         },
         "secondaryDestinationPostalCode": {
+          "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
+          "description": "An optional secondary pickup location near the origin where additional goods exist.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
         },
         "shipmentId": {
+          "description": "The id of the parent MTOShipment record",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "sitEstimatedCost": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
           "type": "integer",
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
         },
         "sitEstimatedDepartureDate": {
+          "description": "The date that goods will exit the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
         },
         "sitEstimatedEntryDate": {
+          "description": "The date that goods will first enter the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
         },
         "sitEstimatedWeight": {
+          "description": "The estimated weight of the goods being put into storage in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
           "example": 2000
         },
         "sitExpected": {
+          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
           "type": "boolean"
         },
         "sitLocation": {
@@ -6939,6 +7305,7 @@ func init() {
           ]
         },
         "spouseProGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -6947,12 +7314,14 @@ func init() {
           "$ref": "#/definitions/PPMShipmentStatus"
         },
         "submittedAt": {
+          "description": "The timestamp of when the customer submitted their move to the counselor.",
           "type": "string",
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
         },
         "updatedAt": {
+          "description": "The timestamp of when a property of this object was last updated (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
@@ -6961,6 +7330,7 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
@@ -7152,7 +7522,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/UploadWithOmissions"
           }
         }
       }
@@ -7618,6 +7988,13 @@ func init() {
     },
     "UpdateMTOShipment": {
       "properties": {
+        "actualDeliveryDate": {
+          "description": "The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "actualPickupDate": {
           "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
@@ -7684,6 +8061,13 @@ func init() {
           "type": "integer",
           "example": 4500
         },
+        "scheduledDeliveryDate": {
+          "description": "The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
@@ -7735,9 +8119,11 @@ func init() {
       }
     },
     "UpdatePPMShipment": {
+      "description": "The PPM specific fields of the shipment with values being changed",
       "type": "object",
       "properties": {
         "destinationPostalCode": {
+          "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -7746,72 +8132,71 @@ func init() {
           "example": "90210"
         },
         "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved.",
           "type": "integer",
           "x-nullable": true,
           "example": 4200
         },
         "expectedDepartureDate": {
-          "description": "Date the customer expects to move.\n",
+          "description": "Date the customer expects to begin moving from their origin.\n",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
           "x-nullable": true
         },
-        "netWeight": {
-          "description": "The net weight of the shipment once it has been weighed\n",
-          "type": "integer",
-          "x-nullable": true,
-          "example": 4300
-        },
         "pickupPostalCode": {
-          "description": "zip code",
+          "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "example": "90210"
         },
         "proGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
           "x-nullable": true
         },
         "secondaryDestinationPostalCode": {
+          "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "example": "90210"
         },
         "secondaryPickupPostalCode": {
+          "description": "An optional secondary pickup location near the origin where additional goods exist.",
           "type": "string",
           "format": "zip",
-          "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
           "example": "90210"
         },
         "sitEstimatedDepartureDate": {
+          "description": "The date that goods will exit the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitEstimatedEntryDate": {
+          "description": "The date that goods will first enter the storage location.",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitEstimatedWeight": {
+          "description": "The estimated weight of the goods being put into storage.",
           "type": "integer",
           "x-nullable": true,
           "example": 2000
         },
         "sitExpected": {
+          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
           "type": "boolean",
           "x-nullable": true
         },
@@ -7826,6 +8211,7 @@ func init() {
           ]
         },
         "spouseProGearWeight": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
           "type": "integer",
           "x-nullable": true
         }
@@ -7853,7 +8239,7 @@ func init() {
         }
       }
     },
-    "Upload": {
+    "UploadWithOmissions": {
       "description": "An uploaded file.",
       "type": "object",
       "required": [

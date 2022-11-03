@@ -1,7 +1,6 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
 
@@ -24,7 +23,6 @@ const NTSShipmentInfoList = ({
   const {
     pickupAddress,
     secondaryPickupAddress,
-    agents,
     mtoAgents,
     counselorRemarks,
     customerRemarks,
@@ -195,15 +193,10 @@ const NTSShipmentInfoList = ({
   );
 
   const releasingAgentFlags = getDisplayFlags('releasingAgent');
-  const releasingAgentElement = !releasingAgent ? (
-    <div className={releasingAgentFlags.classes}>
-      <dt>Releasing agent</dt>
-      <dd data-testid="RELEASING_AGENT">—</dd>
-    </div>
-  ) : (
+  const releasingAgentElement = (
     <div className={releasingAgentFlags.classes} key={`${releasingAgent.agentType}-${releasingAgent.email}`}>
       <dt>Releasing agent</dt>
-      <dd data-testid={releasingAgent.agentType}>{formatAgent(releasingAgent)}</dd>
+      <dd data-testid="releasingAgent">{releasingAgent ? formatAgent(releasingAgent) : '—'}</dd>
     </div>
   );
 
@@ -222,16 +215,6 @@ const NTSShipmentInfoList = ({
       <dd data-testid="sacType">{sacType && sac ? formatAccountingCode(sac, sacType) : '—'}</dd>
     </div>
   );
-
-  const agentsElementFlags = getDisplayFlags('agents');
-  const agentsElement = agents
-    ? agents.map((agent) => (
-        <div className={agentsElementFlags.classes} key={`${agent.agentType}-${agent.email}`}>
-          <dt>{agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}</dt>
-          <dd data-testid="agent">{formatAgent(agent)}</dd>
-        </div>
-      ))
-    : null;
 
   const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
@@ -264,7 +247,7 @@ const NTSShipmentInfoList = ({
       {requestedPickupDateElement}
       {pickupAddressElement}
       {showElement(secondaryPickupAddressElementFlags) && secondaryPickupAddressElement}
-      {showElement(agentsElementFlags) && agentsElement}
+      {showElement(releasingAgentFlags) && releasingAgentElement}
       {showElement(storageFacilityInfoElementFlags) && storageFacilityInfoElement}
       {showElement(serviceOrderNumberElementFlags) && serviceOrderNumberElement}
       {showElement(storageFacilityAddressElementFlags) && storageFacilityAddressElement}
@@ -276,43 +259,41 @@ const NTSShipmentInfoList = ({
   );
 
   const evaluationReportDetails = (
-    <GridContainer className={shipmentDefinitionListsStyles.evaluationReportDLContainer}>
-      <Grid row className={shipmentDefinitionListsStyles.evaluationReportRow}>
-        <Grid col={6}>
-          <dl
-            className={classNames(
-              shipmentDefinitionListsStyles.evaluationReportDL,
-              styles.descriptionList,
-              styles.tableDisplay,
-              styles.compact,
-              className,
-            )}
-            data-testid="shipment-info-list"
-          >
-            {isExpanded && scheduledPickupDateElement}
-            {isExpanded && actualPickupDateElement}
-            {isExpanded && releasingAgentElement}
-          </dl>
-        </Grid>
-        <Grid col={6}>
-          <dl
-            className={classNames(
-              shipmentDefinitionListsStyles.evaluationReportDL,
-              styles.descriptionList,
-              styles.tableDisplay,
-              styles.compact,
-              className,
-            )}
-            data-testid="shipment-info-list"
-          >
-            {isExpanded && scheduledDeliveryDateElement}
-            {isExpanded && requiredDeliveryDateElement}
-            {isExpanded && actualDeliveryDateElement}
-            {isExpanded && storageFacilityContactInfoElement}
-          </dl>
-        </Grid>
-      </Grid>
-    </GridContainer>
+    <div className={shipmentDefinitionListsStyles.sideBySideContainer}>
+      <div className={shipmentDefinitionListsStyles.sidebySideItem}>
+        <dl
+          className={classNames(
+            shipmentDefinitionListsStyles.evaluationReportDL,
+            styles.descriptionList,
+            styles.tableDisplay,
+            styles.compact,
+            className,
+          )}
+          data-testid="shipment-info-list"
+        >
+          {isExpanded && scheduledPickupDateElement}
+          {isExpanded && actualPickupDateElement}
+          {isExpanded && releasingAgentElement}
+        </dl>
+      </div>
+      <div className={shipmentDefinitionListsStyles.sidebySideItem}>
+        <dl
+          className={classNames(
+            shipmentDefinitionListsStyles.evaluationReportDL,
+            styles.descriptionList,
+            styles.tableDisplay,
+            styles.compact,
+            className,
+          )}
+          data-testid="shipment-info-list"
+        >
+          {isExpanded && scheduledDeliveryDateElement}
+          {isExpanded && requiredDeliveryDateElement}
+          {isExpanded && actualDeliveryDateElement}
+          {isExpanded && storageFacilityContactInfoElement}
+        </dl>
+      </div>
+    </div>
   );
 
   return <div>{isForEvaluationReport ? evaluationReportDetails : defaultDetails}</div>;

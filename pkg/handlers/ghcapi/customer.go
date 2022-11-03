@@ -3,22 +3,18 @@ package ghcapi
 import (
 	"database/sql"
 
-	"github.com/gobuffalo/validate/v3"
-
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/apperror"
-
-	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/services"
-
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	customercodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // GetCustomerHandler fetches the information of a specific customer
@@ -58,12 +54,6 @@ type UpdateCustomerHandler struct {
 func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-				forbiddenError := apperror.NewForbiddenError("user is not authenticated with service counselor office role")
-				appCtx.Logger().Error(forbiddenError.Error())
-				return customercodeop.NewUpdateCustomerForbidden(), forbiddenError
-			}
 
 			customerID, err := uuid.FromString(params.CustomerID.String())
 			if err != nil {

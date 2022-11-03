@@ -41,7 +41,7 @@ describe('EvaluationReports', () => {
 
       render(
         <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/evaluation-reports`]}>
-          <EvaluationReports />
+          <EvaluationReports customerInfo={{}} grade="" />
         </MockProviders>,
       );
 
@@ -54,7 +54,7 @@ describe('EvaluationReports', () => {
 
       render(
         <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
-          <EvaluationReports />
+          <EvaluationReports customerInfo={{}} grade="" />
         </MockProviders>,
       );
 
@@ -75,7 +75,7 @@ describe('EvaluationReports', () => {
 
       render(
         <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/evaluation-reports`]}>
-          <EvaluationReports />
+          <EvaluationReports customerInfo={{}} grade="" />
         </MockProviders>,
       );
 
@@ -100,11 +100,11 @@ describe('EvaluationReports', () => {
 
       render(
         <MockProviders>
-          <EvaluationReports />
+          <EvaluationReports customerInfo={{}} grade="" />
         </MockProviders>,
       );
 
-      const alert = await screen.getByText(/Your report has been canceled/);
+      const alert = await screen.getByText(/Your report has been deleted/);
       expect(alert).toBeInTheDocument();
     });
   });

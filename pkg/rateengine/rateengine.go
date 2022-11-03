@@ -3,12 +3,11 @@ package rateengine
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/models"
-
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -235,7 +234,7 @@ func (re *RateEngine) computePPM(
 // 	return cost, nil
 // }
 
-//computePPMIncludingLHDiscount Calculates the cost of a PPM move using zip + date derived linehaul discount
+// computePPMIncludingLHDiscount Calculates the cost of a PPM move using zip + date derived linehaul discount
 func (re *RateEngine) computePPMIncludingLHDiscount(appCtx appcontext.AppContext, weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost CostComputation, err error) {
 
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(appCtx.DB(),

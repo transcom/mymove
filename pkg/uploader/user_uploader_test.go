@@ -1,10 +1,10 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used to clean up file created for unit test
-//RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+// RA Summary: gosec - errcheck - Unchecked return value
+// RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+// RA: Functions with unchecked return values in the file are used to clean up file created for unit test
+// RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
+// RA Developer Status: Mitigated
+// RA Validator Status: Mitigated
+// RA Modified Severity: N/A
 // nolint:errcheck
 package uploader_test
 
@@ -12,7 +12,6 @@ import (
 	"io"
 
 	"github.com/transcom/mymove/pkg/storage/test"
-
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -56,7 +55,8 @@ func (suite *UploaderSuite) TestUserUploadFromLocalFileWrongContentType() {
 	defer cleanup()
 
 	upload, verrs, err := userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesPDF)
-	suite.NoError(err)
+	suite.Error(err)
+	suite.Equal("content type \"application/octet-stream\" is not one of the supported types [application/pdf]", err.Error())
 	suite.True(verrs.HasAny(), "invalid content type for upload")
 	suite.Nil(upload, "returned an upload when erroring")
 }

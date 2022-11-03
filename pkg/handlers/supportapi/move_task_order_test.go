@@ -4,33 +4,26 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/transcom/mymove/pkg/apperror"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-
-	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
-
-	"github.com/transcom/mymove/pkg/services/mocks"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-
-	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
-
-	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/query"
-	supportMocks "github.com/transcom/mymove/pkg/services/support/mocks"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
-	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
-
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/services/query"
+	supportMocks "github.com/transcom/mymove/pkg/services/support/mocks"
+	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -69,14 +62,13 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 
 func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 	request := httptest.NewRequest("PATCH", "/move-task-orders/hide", nil)
-	params := move_task_order.HideNonFakeMoveTaskOrdersParams{
+	params := movetaskorderops.HideNonFakeMoveTaskOrdersParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := suite.HandlerConfig()
 
 	suite.Run("successfully hide fake moves", func() {
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
-			handlerConfig,
+			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderHider(),
 		}
 		var moves models.Moves
@@ -111,7 +103,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		}
 		mockHider := &mocks.MoveTaskOrderHider{}
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
-			handlerConfig,
+			suite.HandlerConfig(),
 			mockHider,
 		}
 
@@ -139,7 +131,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 
 		mockHider := &mocks.MoveTaskOrderHider{}
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
-			handlerConfig,
+			suite.HandlerConfig(),
 			mockHider,
 		}
 		mockHider.On("Hide",
@@ -165,7 +157,7 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 		},
 	})
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/available-to-prime", nil)
-	params := move_task_order.MakeMoveTaskOrderAvailableParams{
+	params := movetaskorderops.MakeMoveTaskOrderAvailableParams{
 		HTTPRequest:     request,
 		MoveTaskOrderID: move.ID.String(),
 		IfMatch:         etag.GenerateEtag(move.UpdatedAt),
@@ -185,7 +177,7 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 	moveResponse := response.(*movetaskorderops.MakeMoveTaskOrderAvailableOK)
 	movePayload := moveResponse.Payload
 
-	suite.Assertions.IsType(&move_task_order.MakeMoveTaskOrderAvailableOK{}, response)
+	suite.Assertions.IsType(&movetaskorderops.MakeMoveTaskOrderAvailableOK{}, response)
 	suite.Equal(movePayload.ID, strfmt.UUID(move.ID.String()))
 	suite.NotNil(movePayload.AvailableToPrimeAt)
 }
@@ -193,7 +185,7 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
-	params := move_task_order.GetMoveTaskOrderParams{
+	params := movetaskorderops.GetMoveTaskOrderParams{
 		HTTPRequest:     request,
 		MoveTaskOrderID: move.ID.String(),
 	}
@@ -204,7 +196,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	}
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
-	suite.IsType(&move_task_order.GetMoveTaskOrderOK{}, response)
+	suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
 
 	moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
 	movePayload := moveResponse.Payload
@@ -352,7 +344,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// Now we'll try to approve this MTO and verify that it was successfully made available to the Prime
 		approvalRequest := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/available-to-prime", nil)
-		approvalParams := move_task_order.MakeMoveTaskOrderAvailableParams{
+		approvalParams := movetaskorderops.MakeMoveTaskOrderAvailableParams{
 			HTTPRequest:     approvalRequest,
 			MoveTaskOrderID: createdMTO.ID.String(),
 			IfMatch:         createdMTO.ETag,
@@ -370,7 +362,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// VERIFY RESULTS
 		suite.IsNotErrResponse(approvalResponse)
-		suite.Assertions.IsType(&move_task_order.MakeMoveTaskOrderAvailableOK{}, approvalResponse)
+		suite.Assertions.IsType(&movetaskorderops.MakeMoveTaskOrderAvailableOK{}, approvalResponse)
 		approvalOKResponse := approvalResponse.(*movetaskorderops.MakeMoveTaskOrderAvailableOK)
 		approvedMTO := approvalOKResponse.Payload
 

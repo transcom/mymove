@@ -16,7 +16,8 @@ import (
 // ListMTOsOKCode is the HTTP code returned for type ListMTOsOK
 const ListMTOsOKCode int = 200
 
-/*ListMTOsOK Successfully retrieved all move task orders.
+/*
+ListMTOsOK Successfully retrieved all move task orders.
 
 swagger:response listMTOsOK
 */
@@ -63,7 +64,8 @@ func (o *ListMTOsOK) WriteResponse(rw http.ResponseWriter, producer runtime.Prod
 // ListMTOsBadRequestCode is the HTTP code returned for type ListMTOsBadRequest
 const ListMTOsBadRequestCode int = 400
 
-/*ListMTOsBadRequest The request payload is invalid.
+/*
+ListMTOsBadRequest The request payload is invalid.
 
 swagger:response listMTOsBadRequest
 */
@@ -107,7 +109,8 @@ func (o *ListMTOsBadRequest) WriteResponse(rw http.ResponseWriter, producer runt
 // ListMTOsUnauthorizedCode is the HTTP code returned for type ListMTOsUnauthorized
 const ListMTOsUnauthorizedCode int = 401
 
-/*ListMTOsUnauthorized The request was denied.
+/*
+ListMTOsUnauthorized The request was denied.
 
 swagger:response listMTOsUnauthorized
 */
@@ -151,7 +154,8 @@ func (o *ListMTOsUnauthorized) WriteResponse(rw http.ResponseWriter, producer ru
 // ListMTOsForbiddenCode is the HTTP code returned for type ListMTOsForbidden
 const ListMTOsForbiddenCode int = 403
 
-/*ListMTOsForbidden The request was denied.
+/*
+ListMTOsForbidden The request was denied.
 
 swagger:response listMTOsForbidden
 */
@@ -195,7 +199,8 @@ func (o *ListMTOsForbidden) WriteResponse(rw http.ResponseWriter, producer runti
 // ListMTOsNotFoundCode is the HTTP code returned for type ListMTOsNotFound
 const ListMTOsNotFoundCode int = 404
 
-/*ListMTOsNotFound The requested resource wasn't found.
+/*
+ListMTOsNotFound The requested resource wasn't found.
 
 swagger:response listMTOsNotFound
 */
@@ -239,7 +244,8 @@ func (o *ListMTOsNotFound) WriteResponse(rw http.ResponseWriter, producer runtim
 // ListMTOsInternalServerErrorCode is the HTTP code returned for type ListMTOsInternalServerError
 const ListMTOsInternalServerErrorCode int = 500
 
-/*ListMTOsInternalServerError A server error occurred.
+/*
+ListMTOsInternalServerError A server error occurred.
 
 swagger:response listMTOsInternalServerError
 */

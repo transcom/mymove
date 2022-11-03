@@ -63,7 +63,8 @@ func NewCreateMTOShipmentOK() *CreateMTOShipmentOK {
 	return &CreateMTOShipmentOK{}
 }
 
-/* CreateMTOShipmentOK describes a response with status code 200, with default header values.
+/*
+CreateMTOShipmentOK describes a response with status code 200, with default header values.
 
 Successfully created a MTO shipment.
 */
@@ -71,9 +72,39 @@ type CreateMTOShipmentOK struct {
 	Payload *primemessages.MTOShipment
 }
 
+// IsSuccess returns true when this create m t o shipment o k response has a 2xx status code
+func (o *CreateMTOShipmentOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this create m t o shipment o k response has a 3xx status code
+func (o *CreateMTOShipmentOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o shipment o k response has a 4xx status code
+func (o *CreateMTOShipmentOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create m t o shipment o k response has a 5xx status code
+func (o *CreateMTOShipmentOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o shipment o k response a status code equal to that given
+func (o *CreateMTOShipmentOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *CreateMTOShipmentOK) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentOK  %+v", 200, o.Payload)
 }
+
+func (o *CreateMTOShipmentOK) String() string {
+	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentOK  %+v", 200, o.Payload)
+}
+
 func (o *CreateMTOShipmentOK) GetPayload() *primemessages.MTOShipment {
 	return o.Payload
 }
@@ -95,7 +126,8 @@ func NewCreateMTOShipmentBadRequest() *CreateMTOShipmentBadRequest {
 	return &CreateMTOShipmentBadRequest{}
 }
 
-/* CreateMTOShipmentBadRequest describes a response with status code 400, with default header values.
+/*
+CreateMTOShipmentBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -103,9 +135,39 @@ type CreateMTOShipmentBadRequest struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create m t o shipment bad request response has a 2xx status code
+func (o *CreateMTOShipmentBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o shipment bad request response has a 3xx status code
+func (o *CreateMTOShipmentBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o shipment bad request response has a 4xx status code
+func (o *CreateMTOShipmentBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o shipment bad request response has a 5xx status code
+func (o *CreateMTOShipmentBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o shipment bad request response a status code equal to that given
+func (o *CreateMTOShipmentBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *CreateMTOShipmentBadRequest) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *CreateMTOShipmentBadRequest) String() string {
+	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *CreateMTOShipmentBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -127,7 +189,8 @@ func NewCreateMTOShipmentNotFound() *CreateMTOShipmentNotFound {
 	return &CreateMTOShipmentNotFound{}
 }
 
-/* CreateMTOShipmentNotFound describes a response with status code 404, with default header values.
+/*
+CreateMTOShipmentNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -135,9 +198,39 @@ type CreateMTOShipmentNotFound struct {
 	Payload *primemessages.ClientError
 }
 
+// IsSuccess returns true when this create m t o shipment not found response has a 2xx status code
+func (o *CreateMTOShipmentNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o shipment not found response has a 3xx status code
+func (o *CreateMTOShipmentNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o shipment not found response has a 4xx status code
+func (o *CreateMTOShipmentNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o shipment not found response has a 5xx status code
+func (o *CreateMTOShipmentNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o shipment not found response a status code equal to that given
+func (o *CreateMTOShipmentNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
 func (o *CreateMTOShipmentNotFound) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentNotFound  %+v", 404, o.Payload)
 }
+
+func (o *CreateMTOShipmentNotFound) String() string {
+	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentNotFound  %+v", 404, o.Payload)
+}
+
 func (o *CreateMTOShipmentNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -159,7 +252,8 @@ func NewCreateMTOShipmentUnprocessableEntity() *CreateMTOShipmentUnprocessableEn
 	return &CreateMTOShipmentUnprocessableEntity{}
 }
 
-/* CreateMTOShipmentUnprocessableEntity describes a response with status code 422, with default header values.
+/*
+CreateMTOShipmentUnprocessableEntity describes a response with status code 422, with default header values.
 
 The request was unprocessable, likely due to bad input from the requester.
 */
@@ -167,9 +261,39 @@ type CreateMTOShipmentUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
 }
 
+// IsSuccess returns true when this create m t o shipment unprocessable entity response has a 2xx status code
+func (o *CreateMTOShipmentUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o shipment unprocessable entity response has a 3xx status code
+func (o *CreateMTOShipmentUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o shipment unprocessable entity response has a 4xx status code
+func (o *CreateMTOShipmentUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this create m t o shipment unprocessable entity response has a 5xx status code
+func (o *CreateMTOShipmentUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create m t o shipment unprocessable entity response a status code equal to that given
+func (o *CreateMTOShipmentUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
 func (o *CreateMTOShipmentUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *CreateMTOShipmentUnprocessableEntity) String() string {
+	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *CreateMTOShipmentUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -191,7 +315,8 @@ func NewCreateMTOShipmentInternalServerError() *CreateMTOShipmentInternalServerE
 	return &CreateMTOShipmentInternalServerError{}
 }
 
-/* CreateMTOShipmentInternalServerError describes a response with status code 500, with default header values.
+/*
+CreateMTOShipmentInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -199,9 +324,39 @@ type CreateMTOShipmentInternalServerError struct {
 	Payload *primemessages.Error
 }
 
+// IsSuccess returns true when this create m t o shipment internal server error response has a 2xx status code
+func (o *CreateMTOShipmentInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this create m t o shipment internal server error response has a 3xx status code
+func (o *CreateMTOShipmentInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create m t o shipment internal server error response has a 4xx status code
+func (o *CreateMTOShipmentInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create m t o shipment internal server error response has a 5xx status code
+func (o *CreateMTOShipmentInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this create m t o shipment internal server error response a status code equal to that given
+func (o *CreateMTOShipmentInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *CreateMTOShipmentInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *CreateMTOShipmentInternalServerError) String() string {
+	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *CreateMTOShipmentInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

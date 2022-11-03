@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { generatePath, useHistory, useParams, useLocation } from 'react-router-dom';
+import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
-import qs from 'query-string';
 
 import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
-import { createUploadForDocument, createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
+import { createUploadForPPMDocument, createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import ScrollToTop from 'components/ScrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
@@ -17,15 +16,11 @@ import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/
 import { updateMTOShipment } from 'store/entities/actions';
 
 const WeightTickets = () => {
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const dispatch = useDispatch();
   const history = useHistory();
   const { moveId, mtoShipmentId, weightTicketId } = useParams();
-
-  const { search } = useLocation();
-
-  const { tripNumber } = qs.parse(search);
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const { weightTicket: currentWeightTicket, index: currentIndex } = useSelector((state) =>
@@ -61,7 +56,7 @@ const WeightTickets = () => {
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentWeightTicket[`${fieldName}Id`];
 
-    createUploadForDocument(file, documentId)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file)
       .then((upload) => {
         mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
@@ -146,7 +141,7 @@ const WeightTickets = () => {
 
   return (
     <div className={ppmPageStyles.ppmPageStyle}>
-      <ScrollToTop otherDep={errorMessage} />
+      <NotificationScrollToTop dependency={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
@@ -163,7 +158,7 @@ const WeightTickets = () => {
             </div>
             <WeightTicketForm
               weightTicket={currentWeightTicket}
-              tripNumber={tripNumber}
+              tripNumber={currentIndex + 1}
               onCreateUpload={handleCreateUpload}
               onUploadComplete={handleUploadComplete}
               onUploadDelete={handleUploadDelete}

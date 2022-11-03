@@ -14,10 +14,10 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"io"
-	"net/http"
 	"path"
 
 	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
@@ -30,6 +30,7 @@ import (
 type StoreResult struct{}
 
 // FileStorer is the set of methods needed to store and retrieve objects.
+//
 //go:generate mockery --name FileStorer --disable-version-string
 type FileStorer interface {
 	Store(string, io.ReadSeeker, string, *string) (*StoreResult, error)
@@ -75,17 +76,16 @@ func DetectContentType(data io.ReadSeeker) (string, error) {
 		return "", errors.Wrap(err, "could not seek to beginning of file")
 	}
 
-	buffer := make([]byte, 512)
-	if _, err := data.Read(buffer); err != nil {
-		return "", errors.Wrap(err, "could not read first bytes of file")
+	// the default return value will default to application/octet-stream if unable to detect the MIME type
+	contentType, readErr := mimetype.DetectReader(data)
+	if readErr != nil {
+		return "", errors.Wrap(readErr, "encountered error reading file content type")
 	}
-
-	contentType := http.DetectContentType(buffer)
 
 	if _, err := data.Seek(0, io.SeekStart); err != nil { // seek back to beginning of file
 		return "", errors.Wrap(err, "could not seek to beginning of file")
 	}
-	return contentType, nil
+	return contentType.String(), nil
 }
 
 // InitStorage initializes the storage backend

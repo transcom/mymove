@@ -3,13 +3,11 @@ package mtoshipment
 import (
 	"database/sql"
 
-	"github.com/transcom/mymove/pkg/db/utilities"
-
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
@@ -45,6 +43,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"DestinationAddress",
 			"SecondaryDeliveryAddress",
 			"MTOServiceItems.Dimensions",
+			"PPMShipment.W2Address",
 			"PPMShipment.WeightTickets",
 			"PPMShipment.MovingExpenses",
 			"Reweigh",
@@ -123,6 +122,7 @@ func FindShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssoc
 
 	return &shipment, nil
 }
+
 func (f mtoShipmentFetcher) GetShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssociations ...string) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 	findShipmentQuery := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope())

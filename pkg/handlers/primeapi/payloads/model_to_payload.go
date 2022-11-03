@@ -3,21 +3,18 @@ package payloads
 import (
 	"time"
 
-	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/appcontext"
-
-	"github.com/transcom/mymove/pkg/storage"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
 // MoveTaskOrder payload
@@ -446,6 +443,8 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		RequestedPickupDate:              handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
 		RequiredDeliveryDate:             handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate),
 		ScheduledPickupDate:              handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate),
+		ScheduledDeliveryDate:            handlers.FmtDatePtr(mtoShipment.ScheduledDeliveryDate),
+		ActualDeliveryDate:               handlers.FmtDatePtr(mtoShipment.ActualDeliveryDate),
 		Agents:                           *MTOAgents(&mtoShipment.MTOAgents),
 		SitExtensions:                    *SITExtensions(&mtoShipment.SITExtensions),
 		Reweigh:                          Reweigh(mtoShipment.Reweigh),
@@ -665,19 +664,19 @@ func ExcessWeightRecord(appCtx appcontext.AppContext, storer storage.FileStorer,
 
 	upload := Upload(appCtx, storer, move.ExcessWeightUpload)
 	if upload != nil {
-		payload.Upload = *upload
+		payload.UploadWithOmissions = *upload
 	}
 
 	return payload
 }
 
 // Upload returns the data for an uploaded file.
-func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *models.Upload) *primemessages.Upload {
+func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *models.Upload) *primemessages.UploadWithOmissions {
 	if upload == nil || upload.ID == uuid.Nil {
 		return nil
 	}
 
-	payload := &primemessages.Upload{
+	payload := &primemessages.UploadWithOmissions{
 		ID:          strfmt.UUID(upload.ID.String()),
 		Bytes:       &upload.Bytes,
 		ContentType: &upload.ContentType,

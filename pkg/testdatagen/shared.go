@@ -12,21 +12,17 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime"
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/models/roles"
-
-	"github.com/transcom/mymove/pkg/random"
-
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"github.com/imdario/mergo"
+	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-
-	"github.com/transcom/mymove/pkg/uploader"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/random"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // Assertions defines assertions about what the data contains
@@ -50,9 +46,7 @@ type Assertions struct {
 	GHCDieselFuelPrice                       models.GHCDieselFuelPrice
 	Invoice                                  models.Invoice
 	Move                                     models.Move
-	MoveDocument                             models.MoveDocument
 	MovingExpense                            models.MovingExpense
-	MovingExpenseDocument                    models.MovingExpenseDocument
 	MTOAgent                                 models.MTOAgent
 	MTOServiceItem                           models.MTOServiceItem
 	MTOServiceItemCustomerContact            models.MTOServiceItemCustomerContact
@@ -83,6 +77,8 @@ type Assertions struct {
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	ReDomesticServiceAreaPrice               models.ReDomesticServiceAreaPrice
 	Reimbursement                            models.Reimbursement
+	Report                                   models.EvaluationReport
+	ReportViolation                          models.ReportViolation
 	ReRateArea                               models.ReRateArea
 	ReService                                models.ReService
 	Reweigh                                  models.Reweigh
@@ -114,10 +110,10 @@ type Assertions struct {
 	UsersRoles                               models.UsersRoles
 	UserUpload                               models.UserUpload
 	UserUploader                             *uploader.UserUploader
+	Violation                                models.PWSViolation
 	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
 	WeightTicket                             models.WeightTicket
-	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	Zip3Distance                             models.Zip3Distance
 }
 
@@ -341,8 +337,7 @@ func getOrCreateUpload(db *pop.Connection, upload models.UserUpload, assertions 
 //
 // Usage example:
 //
-//     emptyDocument := GetOrCreateDocumentWithUploads(db, assertions.WeightTicket.EmptyDocument, assertions)
-//
+//	emptyDocument := GetOrCreateDocumentWithUploads(db, assertions.WeightTicket.EmptyDocument, assertions)
 func GetOrCreateDocumentWithUploads(db *pop.Connection, document models.Document, assertions Assertions) models.Document {
 	// hang on to UserUploads, if any, for later
 	userUploads := document.UserUploads

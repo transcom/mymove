@@ -4,11 +4,10 @@ import (
 	"io"
 	"time"
 
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // UploadInformation contains information for uploads
@@ -32,12 +31,14 @@ type UploadInformation struct {
 }
 
 // UploadInformationFetcher is the service object interface for FetchUploadInformation
+//
 //go:generate mockery --name UploadInformationFetcher --disable-version-string
 type UploadInformationFetcher interface {
 	FetchUploadInformation(appCtx appcontext.AppContext, uuid uuid.UUID) (UploadInformation, error)
 }
 
 // UploadCreator is the service object interface for CreateUpload
+//
 //go:generate mockery --name UploadCreator --disable-version-string
 type UploadCreator interface {
 	CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, uploadFilename string, uploadType models.UploadType) (*models.Upload, error)

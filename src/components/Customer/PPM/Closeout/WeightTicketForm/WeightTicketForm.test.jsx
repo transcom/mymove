@@ -17,7 +17,7 @@ const defaultProps = {
     fullWeightDocumentId: '1ec00b40-447d-4c22-ac73-708b98b8bc20',
     trailerOwnershipDocumentId: '5bf3ed20-08dd-4d8e-92ad-7603bb6377a5',
   },
-  tripNumber: '2',
+  tripNumber: 2,
   onCreateUpload: jest.fn(),
   onUploadComplete: jest.fn(),
   onUploadDelete: jest.fn(),
@@ -36,11 +36,11 @@ const weightTicketRequiredProps = {
       uploads: [
         {
           id: '299e2fb4-432d-4261-bbed-d8280c6090af',
-          created_at: '2022-06-22T23:25:50.490Z',
+          createdAt: '2022-06-22T23:25:50.490Z',
           bytes: 819200,
           url: 'a/fake/path',
           filename: 'empty_weight.jpg',
-          content_type: 'image/jpg',
+          contentType: 'image/jpg',
         },
       ],
     },
@@ -50,11 +50,11 @@ const weightTicketRequiredProps = {
       uploads: [
         {
           id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
-          created_at: '2022-06-23T23:25:50.490Z',
+          createdAt: '2022-06-23T23:25:50.490Z',
           bytes: 409600,
           url: 'a/fake/path',
           filename: 'full_weight.pdf',
-          content_type: 'application/pdf',
+          contentType: 'application/pdf',
         },
       ],
     },
@@ -72,11 +72,11 @@ const weightTicketUploadsOnlyProps = {
       uploads: [
         {
           id: '299e2fb4-432d-4261-bbed-d8280c6090af',
-          created_at: '2022-06-22T23:25:50.490Z',
+          createdAt: '2022-06-22T23:25:50.490Z',
           bytes: 819200,
           url: 'a/fake/path',
           filename: 'empty_weight.jpg',
-          content_type: 'image/jpg',
+          contentType: 'image/jpg',
         },
       ],
     },
@@ -85,11 +85,11 @@ const weightTicketUploadsOnlyProps = {
       uploads: [
         {
           id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
-          created_at: '2022-06-23T23:25:50.490Z',
+          createdAt: '2022-06-23T23:25:50.490Z',
           bytes: 409600,
           url: 'a/fake/path',
           filename: 'full_weight.pdf',
-          content_type: 'application/pdf',
+          contentType: 'application/pdf',
         },
       ],
     },
@@ -108,11 +108,11 @@ const constructedWeightTrailerProps = {
       uploads: [
         {
           id: '299e2fb4-432d-4261-bbed-d8280c6090af',
-          created_at: '2022-06-22T23:25:50.490Z',
+          createdAt: '2022-06-22T23:25:50.490Z',
           bytes: 819200,
           url: 'a/fake/path',
           filename: 'weight estimator.xls',
-          content_type: 'application/vnd.ms-excel',
+          contentType: 'application/vnd.ms-excel',
         },
       ],
     },
@@ -123,11 +123,11 @@ const constructedWeightTrailerProps = {
       uploads: [
         {
           id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
-          created_at: '2022-06-23T23:25:50.490Z',
+          createdAt: '2022-06-23T23:25:50.490Z',
           bytes: 409600,
           url: 'a/fake/path',
           filename: 'weight estimator.xlsx',
-          content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         },
       ],
     },
@@ -138,11 +138,11 @@ const constructedWeightTrailerProps = {
       uploads: [
         {
           id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',
-          created_at: '2022-06-24T23:25:50.490Z',
+          createdAt: '2022-06-24T23:25:50.490Z',
           bytes: 204800,
           url: 'a/fake/path',
           filename: 'trailer_title.pdf',
-          content_type: 'application/pdf',
+          contentType: 'application/pdf',
         },
       ],
     },
@@ -188,7 +188,7 @@ describe('WeightTicketForm component', () => {
       );
       expect(screen.getByLabelText('No')).toBeChecked();
 
-      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -215,7 +215,7 @@ describe('WeightTicketForm component', () => {
 
       expect(screen.getByLabelText('No')).toBeChecked();
 
-      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -265,7 +265,7 @@ describe('WeightTicketForm component', () => {
       expect(screen.getByText('200KB')).toBeInTheDocument();
       expect(screen.getByText('Uploaded 24 Jun 2022 11:25 PM')).toBeInTheDocument();
 
-      expect(screen.getByRole('button', { name: 'Finish Later' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
   });
@@ -340,11 +340,11 @@ describe('WeightTicketForm component', () => {
             emptyDocument: [
               {
                 id: '299e2fb4-432d-4261-bbed-d8280c6090af',
-                created_at: '2022-06-22T23:25:50.490Z',
+                createdAt: '2022-06-22T23:25:50.490Z',
                 bytes: 819200,
                 url: 'a/fake/path',
                 filename: 'empty_weight.jpg',
-                content_type: 'image/jpg',
+                contentType: 'image/jpg',
               },
             ],
             fullWeight: '6999',
@@ -352,11 +352,11 @@ describe('WeightTicketForm component', () => {
             fullDocument: [
               {
                 id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
-                created_at: '2022-06-23T23:25:50.490Z',
+                createdAt: '2022-06-23T23:25:50.490Z',
                 bytes: 409600,
                 url: 'a/fake/path',
                 filename: 'full_weight.pdf',
-                content_type: 'application/pdf',
+                contentType: 'application/pdf',
               },
             ],
             ownsTrailer: 'false',
@@ -381,11 +381,11 @@ describe('WeightTicketForm component', () => {
             emptyDocument: [
               {
                 id: '299e2fb4-432d-4261-bbed-d8280c6090af',
-                created_at: '2022-06-22T23:25:50.490Z',
+                createdAt: '2022-06-22T23:25:50.490Z',
                 bytes: 819200,
                 url: 'a/fake/path',
                 filename: 'weight estimator.xls',
-                content_type: 'application/vnd.ms-excel',
+                contentType: 'application/vnd.ms-excel',
               },
             ],
             fullWeight: '7111',
@@ -393,11 +393,11 @@ describe('WeightTicketForm component', () => {
             fullDocument: [
               {
                 id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
-                created_at: '2022-06-23T23:25:50.490Z',
+                createdAt: '2022-06-23T23:25:50.490Z',
                 bytes: 409600,
                 url: 'a/fake/path',
                 filename: 'weight estimator.xlsx',
-                content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
               },
             ],
             ownsTrailer: 'true',
@@ -405,11 +405,11 @@ describe('WeightTicketForm component', () => {
             proofOfTrailerOwnershipDocument: [
               {
                 id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',
-                created_at: '2022-06-24T23:25:50.490Z',
+                createdAt: '2022-06-24T23:25:50.490Z',
                 bytes: 204800,
                 url: 'a/fake/path',
                 filename: 'trailer_title.pdf',
-                content_type: 'application/pdf',
+                contentType: 'application/pdf',
               },
             ],
           },
@@ -417,10 +417,10 @@ describe('WeightTicketForm component', () => {
         );
       });
     });
-    it('calls the onBack prop when the Finish Later button is clicked', async () => {
+    it('calls the onBack prop when the Return To Homepage button is clicked', async () => {
       render(<WeightTicketForm {...defaultProps} />);
 
-      await userEvent.click(screen.getByRole('button', { name: 'Finish Later' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
 
       await waitFor(() => {
         expect(defaultProps.onBack).toHaveBeenCalled();

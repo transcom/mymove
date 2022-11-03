@@ -30,3 +30,11 @@ export const ResidentialAddressShape = shape({
   state: string,
   postalCode: string,
 });
+
+export const W2AddressShape = shape({
+  streetAddress1: string,
+  streetAddress2: string,
+  city: string,
+  state: string,
+  postalCode: string,
+});

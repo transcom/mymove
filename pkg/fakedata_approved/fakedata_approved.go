@@ -353,8 +353,9 @@ func IsValidFakeDataAddressStrict(address string) (bool, error) {
 
 /*
 IsValidFakeDataPhone - checks for the format
- "999-999-999" or
- "###-555-####"
+
+	"999-999-999" or
+	"###-555-####"
 */
 func IsValidFakeDataPhone(phone string) (bool, error) {
 	// Make a Regex to say we only want numbers

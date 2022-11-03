@@ -16,7 +16,8 @@ import (
 // CreateUploadCreatedCode is the HTTP code returned for type CreateUploadCreated
 const CreateUploadCreatedCode int = 201
 
-/*CreateUploadCreated Successfully created upload of digital file.
+/*
+CreateUploadCreated Successfully created upload of digital file.
 
 swagger:response createUploadCreated
 */
@@ -25,7 +26,7 @@ type CreateUploadCreated struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Upload `json:"body,omitempty"`
+	Payload *primemessages.UploadWithOmissions `json:"body,omitempty"`
 }
 
 // NewCreateUploadCreated creates CreateUploadCreated with default headers values
@@ -35,13 +36,13 @@ func NewCreateUploadCreated() *CreateUploadCreated {
 }
 
 // WithPayload adds the payload to the create upload created response
-func (o *CreateUploadCreated) WithPayload(payload *primemessages.Upload) *CreateUploadCreated {
+func (o *CreateUploadCreated) WithPayload(payload *primemessages.UploadWithOmissions) *CreateUploadCreated {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create upload created response
-func (o *CreateUploadCreated) SetPayload(payload *primemessages.Upload) {
+func (o *CreateUploadCreated) SetPayload(payload *primemessages.UploadWithOmissions) {
 	o.Payload = payload
 }
 
@@ -60,7 +61,8 @@ func (o *CreateUploadCreated) WriteResponse(rw http.ResponseWriter, producer run
 // CreateUploadBadRequestCode is the HTTP code returned for type CreateUploadBadRequest
 const CreateUploadBadRequestCode int = 400
 
-/*CreateUploadBadRequest The request payload is invalid.
+/*
+CreateUploadBadRequest The request payload is invalid.
 
 swagger:response createUploadBadRequest
 */
@@ -104,7 +106,8 @@ func (o *CreateUploadBadRequest) WriteResponse(rw http.ResponseWriter, producer 
 // CreateUploadUnauthorizedCode is the HTTP code returned for type CreateUploadUnauthorized
 const CreateUploadUnauthorizedCode int = 401
 
-/*CreateUploadUnauthorized The request was denied.
+/*
+CreateUploadUnauthorized The request was denied.
 
 swagger:response createUploadUnauthorized
 */
@@ -148,7 +151,8 @@ func (o *CreateUploadUnauthorized) WriteResponse(rw http.ResponseWriter, produce
 // CreateUploadForbiddenCode is the HTTP code returned for type CreateUploadForbidden
 const CreateUploadForbiddenCode int = 403
 
-/*CreateUploadForbidden The request was denied.
+/*
+CreateUploadForbidden The request was denied.
 
 swagger:response createUploadForbidden
 */
@@ -192,7 +196,8 @@ func (o *CreateUploadForbidden) WriteResponse(rw http.ResponseWriter, producer r
 // CreateUploadNotFoundCode is the HTTP code returned for type CreateUploadNotFound
 const CreateUploadNotFoundCode int = 404
 
-/*CreateUploadNotFound The requested resource wasn't found.
+/*
+CreateUploadNotFound The requested resource wasn't found.
 
 swagger:response createUploadNotFound
 */
@@ -236,7 +241,8 @@ func (o *CreateUploadNotFound) WriteResponse(rw http.ResponseWriter, producer ru
 // CreateUploadUnprocessableEntityCode is the HTTP code returned for type CreateUploadUnprocessableEntity
 const CreateUploadUnprocessableEntityCode int = 422
 
-/*CreateUploadUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
+/*
+CreateUploadUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
 
 swagger:response createUploadUnprocessableEntity
 */
@@ -280,7 +286,8 @@ func (o *CreateUploadUnprocessableEntity) WriteResponse(rw http.ResponseWriter, 
 // CreateUploadInternalServerErrorCode is the HTTP code returned for type CreateUploadInternalServerError
 const CreateUploadInternalServerErrorCode int = 500
 
-/*CreateUploadInternalServerError A server error occurred.
+/*
+CreateUploadInternalServerError A server error occurred.
 
 swagger:response createUploadInternalServerError
 */

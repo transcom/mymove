@@ -29,7 +29,8 @@ func NewCreateMTOShipment(ctx *middleware.Context, handler CreateMTOShipmentHand
 	return &CreateMTOShipment{Context: ctx, Handler: handler}
 }
 
-/* CreateMTOShipment swagger:route POST /mto-shipments mtoShipment createMTOShipment
+/*
+	CreateMTOShipment swagger:route POST /mto-shipments mtoShipment createMTOShipment
 
 createMTOShipment
 
@@ -40,8 +41,6 @@ approve it before the contractor can proceed with billing.
 **WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to
 one of their moves. Otherwise, the Prime can fetch the related move using the
 [getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status `"APPROVED"`.
-
-
 */
 type CreateMTOShipment struct {
 	Context *middleware.Context

@@ -8,20 +8,21 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/storage"
-
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
 // OrderFetcher is the service object interface for FetchOrder
+//
 //go:generate mockery --name OrderFetcher --disable-version-string
 type OrderFetcher interface {
-	FetchOrder(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Order, error)
+	FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error)
 	ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, int, error)
 }
 
-//OrderUpdater is the service object interface for updating fields of an Order
+// OrderUpdater is the service object interface for updating fields of an Order
+//
 //go:generate mockery --name OrderUpdater --disable-version-string
 type OrderUpdater interface {
 	UploadAmendedOrdersAsCustomer(appCtx appcontext.AppContext, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error)
@@ -31,7 +32,8 @@ type OrderUpdater interface {
 	UpdateAllowanceAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error)
 }
 
-//ExcessWeightRiskManager is the service object interface for updating the max billable weight for an Order's Entitlement
+// ExcessWeightRiskManager is the service object interface for updating the max billable weight for an Order's Entitlement
+//
 //go:generate mockery --name ExcessWeightRiskManager --disable-version-string
 type ExcessWeightRiskManager interface {
 	AcknowledgeExcessWeightRisk(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string) (*models.Move, error)

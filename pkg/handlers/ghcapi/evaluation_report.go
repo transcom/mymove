@@ -1,21 +1,25 @@
 package ghcapi
 
 import (
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"bytes"
+	"fmt"
+	"io"
+	"strings"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/models"
-
-	"github.com/transcom/mymove/pkg/apperror"
-
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	evaluationReportop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	moveop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -52,7 +56,7 @@ type CreateEvaluationReportHandler struct {
 	services.EvaluationReportCreator
 }
 
-//Handle is the handler for creating an evaluation report
+// Handle is the handler for creating an evaluation report
 func (h CreateEvaluationReportHandler) Handle(params evaluationReportop.CreateEvaluationReportParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -112,6 +116,100 @@ func (h GetCounselingEvaluationReportsHandler) Handle(params moveop.GetMoveCouns
 			return moveop.NewGetMoveCounselingEvaluationReportsListOK().WithPayload(payload), nil
 		},
 	)
+}
+
+// DownloadEvaluationReportHandler is the struct for fetching an evaluation report by ID
+type DownloadEvaluationReportHandler struct {
+	handlers.HandlerConfig
+	services.EvaluationReportFetcher
+	services.MTOShipmentFetcher
+	services.OrderFetcher
+	services.ReportViolationFetcher
+}
+
+// Handle is the handler for downloading an evaluation report by ID as a PDF
+func (h DownloadEvaluationReportHandler) Handle(params evaluationReportop.DownloadEvaluationReportParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("DownloadEvaluationReport error", zap.Error(err))
+				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return evaluationReportop.NewDownloadEvaluationReportNotFound().WithPayload(payload), err
+				case apperror.ForbiddenError:
+					return evaluationReportop.NewDownloadEvaluationReportForbidden().WithPayload(payload), err
+				case apperror.QueryError:
+					return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
+				default:
+					return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
+				}
+			}
+
+			reportID := uuid.FromStringOrNil(params.ReportID.String())
+			evaluationReport, err := h.FetchEvaluationReportByID(appCtx, reportID, appCtx.Session().OfficeUserID)
+			if err != nil {
+				return handleError(err)
+			}
+			if evaluationReport.Move.OrdersID == uuid.Nil {
+				return handleError(apperror.NewNotFoundError(uuid.Nil, "Missing orders on move"))
+			}
+			orders, err := h.OrderFetcher.FetchOrder(appCtx, evaluationReport.Move.OrdersID)
+			if err != nil {
+				return handleError(err)
+			}
+			if orders == nil {
+				return handleError(apperror.NewNotFoundError(evaluationReport.Move.OrdersID, "Orders"))
+			}
+			violations, err := h.FetchReportViolationsByReportID(appCtx, reportID)
+			if err != nil {
+				return handleError(err)
+			}
+
+			formFiller, err := paperwork.NewEvaluationReportFormFiller()
+			if err != nil {
+				return handleError(err)
+			}
+			// possibly this logic should be in the form filler
+			if evaluationReport.Type == models.EvaluationReportTypeCounseling {
+				shipments, shipmentErr := h.ListMTOShipments(appCtx, evaluationReport.MoveID)
+				if shipmentErr != nil {
+					return handleError(shipmentErr)
+				}
+				err = formFiller.CreateCounselingReport(*evaluationReport, violations, shipments, orders.ServiceMember)
+				if err != nil {
+					return handleError(err)
+				}
+			} else {
+				shipment, shipmentErr := h.GetShipment(appCtx, *evaluationReport.ShipmentID, "MTOAgents",
+					"PickupAddress",
+					"SecondaryPickupAddress",
+					"DestinationAddress",
+					"StorageFacility.Address",
+				)
+				if shipmentErr != nil {
+					return handleError(shipmentErr)
+				}
+				err = formFiller.CreateShipmentReport(*evaluationReport, violations, *shipment, orders.ServiceMember)
+				if err != nil {
+					return handleError(err)
+				}
+			}
+			if err != nil {
+				appCtx.Logger().Error("Error creating PDF", zap.Error(err))
+				return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
+			}
+
+			buf := new(bytes.Buffer)
+			err = formFiller.Output(buf)
+			if err != nil {
+				appCtx.Logger().Error("Error writing out PDF", zap.Error(err))
+				return evaluationReportop.NewDownloadEvaluationReportInternalServerError(), err
+			}
+			payload := io.NopCloser(buf)
+			filename := fmt.Sprintf("inline; filename=\"%s QA-%s %s.pdf\"", *orders.ServiceMember.LastName, strings.ToUpper(evaluationReport.ID.String()[:5]), time.Now().Format("01-02-2006"))
+			return evaluationReportop.NewDownloadEvaluationReportOK().WithContentDisposition(filename).WithPayload(payload), nil
+		})
 }
 
 // GetEvaluationReportHandler is the struct for fetching an evaluation report by ID
@@ -209,5 +307,46 @@ func (h SaveEvaluationReportHandler) Handle(params evaluationReportop.SaveEvalua
 			}
 
 			return evaluationReportop.NewSaveEvaluationReportNoContent(), nil
+		})
+}
+
+type SubmitEvaluationReportHandler struct {
+	handlers.HandlerConfig
+	services.EvaluationReportUpdater
+}
+
+func (h SubmitEvaluationReportHandler) Handle(params evaluationReportop.SubmitEvaluationReportParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			eTag := params.IfMatch
+			reportID, err := uuid.FromString(params.ReportID.String())
+			if err != nil {
+				return evaluationReportop.NewSubmitEvaluationReportUnprocessableEntity(), err
+			}
+			// get officeUserID from user session
+			var officeUserID uuid.UUID
+			if appCtx.Session() != nil {
+				officeUserID = appCtx.Session().OfficeUserID
+			}
+
+			err = h.SubmitEvaluationReport(appCtx, reportID, officeUserID, eTag)
+			if err != nil {
+				appCtx.Logger().Error("Error saving evaluation report: ", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return evaluationReportop.NewSubmitEvaluationReportNotFound(), err
+				case apperror.PreconditionFailedError:
+					return evaluationReportop.NewSubmitEvaluationReportPreconditionFailed(), err
+				case apperror.ForbiddenError:
+					return evaluationReportop.NewSubmitEvaluationReportForbidden(), err
+				case apperror.InvalidInputError:
+					return evaluationReportop.NewSubmitEvaluationReportUnprocessableEntity(), err
+				default:
+					return evaluationReportop.NewSubmitEvaluationReportInternalServerError(), err
+				}
+			}
+
+			return evaluationReportop.NewSubmitEvaluationReportNoContent(), nil
 		})
 }

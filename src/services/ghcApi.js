@@ -75,6 +75,22 @@ export async function saveEvaluationReport({ reportID, ifMatchETag, body }) {
   );
 }
 
+export async function submitEvaluationReport({ reportID, ifMatchETag }) {
+  return makeGHCRequest(
+    'evaluationReports.submitEvaluationReport',
+    { reportID, 'If-Match': ifMatchETag },
+    { normalize: false },
+  );
+}
+
+export async function associateReportViolations({ reportID, body }) {
+  return makeGHCRequest('reportViolations.associateReportViolations', { reportID, body }, { normalize: false });
+}
+
+export async function getReportViolationsByReportID(key, reportID) {
+  return makeGHCRequest('reportViolations.getReportViolationsByReportID', { reportID }, { normalize: false });
+}
+
 export async function getMoveHistory(key, { moveCode, currentPage = 1, currentPageSize = 20 }) {
   return makeGHCRequest(
     'move.getMoveHistory',
@@ -117,6 +133,10 @@ export async function getCounselingEvaluationReports(key, moveID) {
     { moveID },
     { schemaKey: 'evaluationReports', normalize: false },
   );
+}
+
+export async function getPWSViolations() {
+  return makeGHCRequest('pwsViolations.getPWSViolations', {}, { normalize: false });
 }
 
 export async function getMTOServiceItems(key, moveTaskOrderID, normalize = true) {

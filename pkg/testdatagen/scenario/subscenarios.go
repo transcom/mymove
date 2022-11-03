@@ -55,19 +55,6 @@ func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyLocati
 	}
 }
 
-func subScenarioPPMOfficeQueue(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
-	return func() {
-		createPPMOfficeUser(appCtx)
-
-		// PPM Office Queue
-		createPPMWithAdvance(appCtx, userUploader, moveRouter)
-		createPPMWithNoAdvance(appCtx, userUploader, moveRouter)
-		createPPMWithPaymentRequest(appCtx, userUploader, moveRouter)
-		createCanceledPPM(appCtx, userUploader, moveRouter)
-		createPPMReadyToRequestPayment(appCtx, userUploader, moveRouter)
-	}
-}
-
 func subScenarioAdditionalPPMUsers(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		// Create additional PPM users for mymove tests
@@ -87,6 +74,15 @@ func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *upload
 		createServiceMemberWithOrdersButNoMoveType(appCtx)
 		createServiceMemberWithNoUploadedOrders(appCtx)
 		createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx, userUploader)
+	}
+}
+
+func subScenarioPPMCloseOut(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
+	return func() {
+		createServicesCounselor(appCtx)
+
+		// PPM Closeout
+		createMovesForEachBranch(appCtx, userUploader)
 	}
 }
 
@@ -111,6 +107,7 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createNeedsServicesCounselingWithoutCompletedOrders(appCtx, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION, models.MTOShipmentTypePPM, nil, "SCPPM1")
 		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSC1")
 		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMADD")
+		createSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, "PPMSCF")
 		createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx, userUploader, moveRouter, "PPMSIT")
 		// Post-onboarding
 		createApprovedMoveWithPPM(appCtx, userUploader)
@@ -122,8 +119,11 @@ func subScenarioPPMCustomerFlow(appCtx appcontext.AppContext, userUploader *uplo
 		createApprovedMoveWithPPMWithActualDateZipsAndAdvanceInfo6(appCtx, userUploader)
 		createApprovedMoveWithPPM2(appCtx, userUploader)
 		createApprovedMoveWithPPMWeightTicket(appCtx, userUploader)
-		createApprovedMoveWithPPMMovingExpense(appCtx, userUploader)
+		createApprovedMoveWithPPMMovingExpense(appCtx, nil, userUploader)
 		createApprovedMoveWithPPMProgearWeightTicket(appCtx, userUploader)
+		createApprovedMoveWithPPMProgearWeightTicket2(appCtx, userUploader)
+		createMoveWithPPMShipmentReadyForFinalCloseout(appCtx, userUploader)
+		createApprovedMoveWithPPMCloseoutComplete(appCtx, userUploader)
 	}
 }
 
@@ -243,8 +243,9 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 			},
 		)
 		shipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{
-			MoveTaskOrderID: move.ID,
-			Status:          models.MTOShipmentStatusSubmitted,
+			MoveTaskOrderID:       move.ID,
+			Status:                models.MTOShipmentStatusSubmitted,
+			ScheduledDeliveryDate: swag.Time(time.Now()),
 		}})
 		testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{Move: move})
 
@@ -257,13 +258,15 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 		ntsShipment := testdatagen.MakeNTSShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				StorageFacility: &storageFacility,
+				StorageFacility:       &storageFacility,
+				ScheduledDeliveryDate: swag.Time(time.Now()),
 			},
 		})
 		testdatagen.MakeNTSRShipment(appCtx.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				StorageFacility: &storageFacility,
+				StorageFacility:       &storageFacility,
+				ScheduledDeliveryDate: swag.Time(time.Now()),
 			},
 		})
 
@@ -481,6 +484,10 @@ func subScenarioPaymentRequestCalculations(appCtx appcontext.AppContext, userUpl
 		})
 		// Locator PARAMS
 		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter)
+		// Locator ORGSIT
+		createHHGWithOriginSITServiceItems(appCtx, primeUploader, moveRouter)
+		// Locator DSTSIT
+		createHHGWithDestinationSITServiceItems(appCtx, primeUploader, moveRouter)
 	}
 }
 

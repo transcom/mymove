@@ -7,7 +7,6 @@ import classnames from 'classnames';
 import styles from './Review.module.scss';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import ScrollToTop from 'components/ScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -15,6 +14,9 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import ReviewItems from 'components/Customer/PPM/Closeout/ReviewItems/ReviewItems';
 import {
+  calculateTotalMovingExpensesAmount,
+  calculateTotalNetWeightForProGearWeightTickets,
+  calculateTotalNetWeightForWeightTickets,
   formatAboutYourPPMItem,
   formatExpenseItems,
   formatProGearItems,
@@ -26,7 +28,7 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { deleteWeightTicket } from 'services/internalApi';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
-import { hasCompletedAllWeightTickets } from 'utils/shipments';
+import { hasCompletedAllWeightTickets, hasCompletedAllExpenses } from 'utils/shipments';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => (
   <div>
@@ -63,7 +65,7 @@ const Review = () => {
 
   const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
   const proGear = mtoShipment?.ppmShipment?.proGear;
-  const expenses = mtoShipment?.ppmShipment?.expenses;
+  const expenses = mtoShipment?.ppmShipment?.movingExpenses;
 
   if (!mtoShipment) {
     return <LoadingPlaceholder />;
@@ -108,12 +110,9 @@ const Review = () => {
     handleDelete,
   );
 
-  const weightTicketsTotal = weightTickets?.reduce((prev, curr) => {
-    const weight = Number(curr.emptyWeight) && Number(curr.fullWeight) ? curr.fullWeight - curr.emptyWeight : 0;
-    return prev + weight;
-  }, 0);
+  const weightTicketsTotal = calculateTotalNetWeightForWeightTickets(weightTickets);
 
-  const canAdvance = hasCompletedAllWeightTickets(weightTickets);
+  const canAdvance = hasCompletedAllWeightTickets(weightTickets) && hasCompletedAllExpenses(expenses);
 
   const proGearContents = formatProGearItems(
     proGear,
@@ -122,13 +121,7 @@ const Review = () => {
     handleDelete,
   );
 
-  const proGearTotal = proGear?.reduce((prev, curr) => {
-    if (curr.constructedWeight) {
-      return prev + curr.constructedWeight;
-    }
-    const weight = Number(curr.emptyWeight) && Number(curr.fullWeight) ? curr.fullWeight - curr.emptyWeight : 0;
-    return prev + weight;
-  }, 0);
+  const proGearTotal = calculateTotalNetWeightForProGearWeightTickets(proGear);
 
   const expenseContents = formatExpenseItems(
     expenses,
@@ -140,14 +133,10 @@ const Review = () => {
     handleDelete,
   );
 
-  const expensesTotal = expenses?.reduce(
-    (prev, curr) => prev + (Number.isNaN(Number(curr.amount)) ? 0 : curr.amount),
-    0,
-  );
+  const expensesTotal = calculateTotalMovingExpensesAmount(expenses);
 
   return (
     <div className={classnames(ppmPageStyles.ppmPageStyle, styles.PPMReview)}>
-      <ScrollToTop />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
@@ -198,7 +187,7 @@ const Review = () => {
                 emptyMessage="No pro-gear weight documented."
               />
               <ReviewItems
-                className={styles.reviewItems}
+                className={classnames(styles.reviewItems, 'reviewExpenses')}
                 heading={
                   <>
                     <h3>Expenses</h3>
@@ -219,7 +208,7 @@ const Review = () => {
                 className={classnames(ppmStyles.backButton, 'usa-button', 'usa-button--secondary')}
                 to={generalRoutes.HOME_PATH}
               >
-                Finish Later
+                Return To Homepage
               </Link>
               <Link
                 className={classnames(ppmStyles.saveButton, 'usa-button', {

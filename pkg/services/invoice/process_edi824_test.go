@@ -10,7 +10,6 @@ import (
 	ediResponse824 "github.com/transcom/mymove/pkg/edi/edi824"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
-
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -31,7 +30,7 @@ func TestProcessEDI824Suite(t *testing.T) {
 func (suite *ProcessEDI824Suite) TestParsingEDI824() {
 	edi824Processor := NewEDI824Processor()
 
-	suite.T().Run("successfully proccesses a valid EDI824", func(t *testing.T) {
+	suite.Run("successfully proccesses a valid EDI824", func() {
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
@@ -56,7 +55,7 @@ IEA*1*000000995
 		suite.NoError(err)
 	})
 
-	suite.T().Run("throw an error when edi824 is missing an OTI segment", func(t *testing.T) {
+	suite.Run("throw an error when edi824 is missing an OTI segment", func() {
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
@@ -72,7 +71,7 @@ IEA*1*000000995
 		suite.Contains(err.Error(), "Validation error(s) detected with the EDI824. EDI Errors could not be saved")
 	})
 
-	suite.T().Run("throw an error when edi824 is missing a transaction set", func(t *testing.T) {
+	suite.Run("throw an error when edi824 is missing a transaction set", func() {
 		sample824EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -83,7 +82,7 @@ IEA*1*000000995
 		suite.Contains(err.Error(), "Validation error(s) detected with the EDI824. EDI Errors could not be saved")
 	})
 
-	suite.T().Run("throw an error when a payment request cannot be found with the OTI.GroupControlNumber", func(t *testing.T) {
+	suite.Run("throw an error when a payment request cannot be found with the OTI.GroupControlNumber", func() {
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
@@ -100,7 +99,7 @@ IEA*1*000000995
 		suite.Contains(err.Error(), "unable to find PaymentRequest with GCN")
 	})
 
-	suite.T().Run("throw an error when a the BGN02 ref identification doesn't match the PaymentRequestNumber", func(t *testing.T) {
+	suite.Run("throw an error when a the BGN02 ref identification doesn't match the PaymentRequestNumber", func() {
 		sample824EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -126,7 +125,7 @@ IEA*1*000000995
 		suite.Contains(err.Error(), fmt.Sprintf("The BGN02 Reference Identification field: 1126-9404-2 doesn't match the PaymentRequestNumber %s of the associated payment request", paymentRequest.PaymentRequestNumber))
 	})
 
-	suite.T().Run("throw error when parsing an EDI997 when an EDI824 is expected", func(t *testing.T) {
+	suite.Run("throw error when parsing an EDI997 when an EDI824 is expected", func() {
 		sample824EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000999*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
@@ -144,7 +143,7 @@ IEA*1*000000022
 		suite.Contains(err.Error(), "unable to parse EDI824")
 	})
 
-	suite.T().Run("successfully updates a payment request status after processing a valid EDI824", func(t *testing.T) {
+	suite.Run("successfully updates a payment request status after processing a valid EDI824", func() {
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000996*0*T*|
@@ -174,7 +173,7 @@ IEA*1*000000996
 		suite.Equal(models.PaymentRequestStatusEDIError, updatedPR.Status)
 	})
 
-	suite.T().Run("doesn't update a payment request status after processing an invalid EDI824", func(t *testing.T) {
+	suite.Run("doesn't update a payment request status after processing an invalid EDI824", func() {
 		sample824EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*0000005*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -198,7 +197,7 @@ IEA*1*00000005
 		suite.Equal(models.PaymentRequestStatusPending, updatedPR.Status)
 	})
 
-	suite.T().Run("Save TED errors to the database", func(t *testing.T) {
+	suite.Run("Save TED errors to the database", func() {
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000997*0*T*|
@@ -243,7 +242,7 @@ IEA*1*000000997
 func (suite *ProcessEDI824Suite) TestValidatingEDI824() {
 	edi824Processor := NewEDI824Processor()
 
-	suite.T().Run("fails when there are validation errors on the EDI", func(t *testing.T) {
+	suite.Run("fails when there are validation errors on the EDI", func() {
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *210217*1530*U*00401*2000000000*8*A*|
@@ -290,7 +289,7 @@ IEA*1*000000001
 		}
 
 		for i, data := range testData {
-			suite.T().Run(data.TestName, func(t *testing.T) {
+			suite.Run(data.TestName, func() {
 				suite.Contains(actualErrors[i], data.ExpectedErrorMsg)
 			})
 		}
@@ -298,7 +297,7 @@ IEA*1*000000001
 }
 
 func (suite *ProcessEDI824Suite) TestIdentifyingTEDs() {
-	suite.T().Run("fetchTEDSegments can fetch all TED segments", func(t *testing.T) {
+	suite.Run("fetchTEDSegments can fetch all TED segments", func() {
 		sample824EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *210217*1530*U*00401*2000000000*8*A*|
 GS*SA*MILMOVE*8004171844*20190903*1617*2000000000*X*004010

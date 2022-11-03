@@ -1,19 +1,17 @@
 package paymentrequest
 
 import (
-	"testing"
 	"time"
-
-	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
-	suite.T().Run("If a payment request is fetched, it should be returned", func(t *testing.T) {
+	suite.Run("If a payment request is fetched, it should be returned", func() {
 
 		fetcher := NewPaymentRequestFetcher()
 
@@ -24,7 +22,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 		suite.Equal(pr.ID, paymentRequest.ID)
 	})
 
-	suite.T().Run("returns payment request with proof of service docs", func(t *testing.T) {
+	suite.Run("returns payment request with proof of service docs", func() {
 
 		fetcher := NewPaymentRequestFetcher()
 
@@ -56,7 +54,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 		suite.Equal(u.ID, paymentRequest.ProofOfServiceDocs[0].PrimeUploads[0].UploadID)
 	})
 
-	suite.T().Run("returns payment request without soft deleted proof of service docs", func(t *testing.T) {
+	suite.Run("returns payment request without soft deleted proof of service docs", func() {
 
 		fetcher := NewPaymentRequestFetcher()
 
@@ -89,7 +87,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 		suite.Len(paymentRequest.ProofOfServiceDocs[0].PrimeUploads, 0)
 	})
 
-	suite.T().Run("if there is an error, we get it with zero payment request", func(t *testing.T) {
+	suite.Run("if there is an error, we get it with zero payment request", func() {
 		fetcher := NewPaymentRequestFetcher()
 
 		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), uuid.Nil)

@@ -11,6 +11,8 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { customerRoutes } from 'constants/routes';
 import { deleteWeightTicket } from 'services/internalApi';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
+import { createBaseProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
+import { createCompleteMovingExpense, createCompleteSITMovingExpense } from 'utils/test/factories/movingExpense';
 
 const mockMoveId = v4();
 const mockMTOShipmentId = v4();
@@ -94,6 +96,58 @@ const mockMTOShipmentWithIncompleteWeightTicket = {
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
 
+const mockMTOShipmentWithProGear = {
+  id: mockMTOShipmentId,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
+  ppmShipment: {
+    id: mockPPMShipmentId,
+    actualMoveDate: '2022-05-01',
+    actualPickupPostalCode: '10003',
+    actualDestinationPostalCode: '10004',
+    advanceReceived: true,
+    advanceAmountReceived: '6000000',
+    pickupPostalCode: '10001',
+    destinationPostalCode: '10002',
+    expectedDepartureDate: '2022-04-30',
+    advanceRequested: true,
+    advanceAmountRequested: 598700,
+    estimatedWeight: 4000,
+    estimatedIncentive: 1000000,
+    sitExpected: false,
+    hasProGear: true,
+    proGearWeight: 100,
+    spouseProGearWeight: null,
+    proGear: [createBaseProGearWeightTicket()],
+  },
+  eTag: 'dGVzdGluZzIzNDQzMjQ',
+};
+
+const mockMTOShipmentWithExpenses = {
+  id: mockMTOShipmentId,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
+  ppmShipment: {
+    id: mockPPMShipmentId,
+    actualMoveDate: '2022-05-01',
+    actualPickupPostalCode: '10003',
+    actualDestinationPostalCode: '10004',
+    advanceReceived: true,
+    advanceAmountReceived: '6000000',
+    pickupPostalCode: '10001',
+    destinationPostalCode: '10002',
+    expectedDepartureDate: '2022-04-30',
+    advanceRequested: true,
+    advanceAmountRequested: 598700,
+    estimatedWeight: 4000,
+    estimatedIncentive: 1000000,
+    sitExpected: false,
+    hasProGear: true,
+    proGearWeight: 100,
+    spouseProGearWeight: null,
+    movingExpenses: [createCompleteMovingExpense(), createCompleteSITMovingExpense()],
+  },
+  eTag: 'dGVzdGluZzIzNDQzMjQ',
+};
+
 const mockPush = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -120,7 +174,7 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe('About page', () => {
+describe('Review page', () => {
   it('loads the selected shipment from redux', () => {
     render(<Review />, { wrapper: MockProviders });
 
@@ -139,7 +193,7 @@ describe('About page', () => {
     expect(screen.getAllByRole('heading', { level: 3 })[2]).toHaveTextContent('Expenses');
   });
 
-  it('renders the empty message when there are not weight tickets', () => {
+  it('renders the empty message when there are no weight tickets', () => {
     render(<Review />, { wrapper: MockProviders });
 
     expect(
@@ -200,12 +254,84 @@ describe('About page', () => {
     });
   });
 
-  it('routes to the home page when the finish later link is clicked', async () => {
+  it('routes to the add pro-gear page when the add link is clicked', async () => {
+    const newProGear = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH, {
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+    });
+
     const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    await userEvent.click(screen.getByText('Finish Later'));
+    await userEvent.click(screen.getByText('Add Pro-gear Weight'));
+
+    await waitFor(() => {
+      expect(memoryHistory.location.pathname).toEqual(newProGear);
+    });
+  });
+
+  it('routes to the edit pro-gear page when the edit link is clicked', async () => {
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithProGear);
+    const editProGearWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH, {
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+      proGearId: mockMTOShipmentWithProGear.ppmShipment.proGear[0].id,
+    });
+
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
+    render(<Review />, { wrapper: mockProviderWithHistory });
+
+    await userEvent.click(screen.getAllByText('Edit')[1]);
+
+    await waitFor(() => {
+      expect(memoryHistory.location.pathname).toEqual(editProGearWeightTicket);
+    });
+  });
+
+  it('routes to the add expenses page when the add link is clicked', async () => {
+    const newExpensePath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_PATH, {
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+    });
+
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
+    render(<Review />, { wrapper: mockProviderWithHistory });
+
+    await userEvent.click(screen.getByText('Add Expenses'));
+
+    await waitFor(() => {
+      expect(memoryHistory.location.pathname).toEqual(newExpensePath);
+    });
+  });
+
+  it('routes to the edit expense page when the edit link is clicked', async () => {
+    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithExpenses);
+    const editExpensePath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
+      moveId: mockMoveId,
+      mtoShipmentId: mockMTOShipmentId,
+      expenseId: mockMTOShipmentWithExpenses.ppmShipment.movingExpenses[0].id,
+    });
+
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
+    render(<Review />, { wrapper: mockProviderWithHistory });
+
+    await userEvent.click(screen.getAllByText('Edit')[1]);
+
+    await waitFor(() => {
+      expect(memoryHistory.location.pathname).toEqual(editExpensePath);
+    });
+  });
+
+  it('routes to the home page when the return to homepage link is clicked', async () => {
+    const { memoryHistory, mockProviderWithHistory } = setUpProvidersWithHistory();
+
+    render(<Review />, { wrapper: mockProviderWithHistory });
+
+    userEvent.click(screen.getByText('Return To Homepage'));
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual('/');

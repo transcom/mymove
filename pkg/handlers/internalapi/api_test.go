@@ -3,13 +3,21 @@ package internalapi
 import (
 	"testing"
 
-	"github.com/transcom/mymove/pkg/testingsuite"
-
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/notifications"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
+
+func (suite *HandlerSuite) createS3HandlerConfig() handlers.HandlerConfig {
+	handlerConfig := suite.HandlerConfig()
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	handlerConfig.SetFileStorer(fakeS3)
+
+	return handlerConfig
+}
 
 // HandlerSuite is an abstraction of our original suite
 type HandlerSuite struct {

@@ -6,10 +6,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
-
-	"github.com/stretchr/testify/assert"
-
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -46,12 +44,12 @@ func TestListFilesForS3WithInvalidClient(t *testing.T) {
 	assert.Error(t, expectedErr, err)
 }
 
-//mock interface
+// mock interface
 type mockS3Client struct {
 	s3iface.S3API
 }
 
-//mock function
+// mock function
 func (m *mockS3Client) ListObjects(input *s3.ListObjectsInput) (*s3.ListObjectsOutput, error) {
 	// mock response/functionality
 	var files []*s3.Object

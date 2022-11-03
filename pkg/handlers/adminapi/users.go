@@ -3,19 +3,18 @@ package adminapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/services/audit"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/adminapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -160,8 +159,7 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 				payload.RevokeMilSession = &revoke
 			}
 
-			sessionStore := h.SessionManager(appCtx.Session()).Store
-			updatedUser, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(appCtx, userID, payload, sessionStore)
+			updatedUser, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(appCtx, userID, payload, h.SessionManagers())
 			if revokeErr != nil || validationErrors != nil {
 				appCtx.Logger().Error("Error revoking user session", zap.Error(revokeErr), zap.Error(verrs))
 				return userop.NewUpdateUserInternalServerError(), revokeErr

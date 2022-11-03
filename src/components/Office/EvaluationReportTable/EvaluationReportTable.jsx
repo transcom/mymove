@@ -4,25 +4,65 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router';
 
-import { EvaluationReportShape } from '../../../types/evaluationReport';
-
 import styles from './EvaluationReportTable.module.scss';
-import EvaluationReportContainer from './EvaluationReportContainer';
 
+import ConnectedEvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
+import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
 import { formatCustomerDate, formatEvaluationReportLocation, formatQAReportID } from 'utils/formatters';
-import { CustomerShape } from 'types';
+import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
 
-const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, grade, shipmentId }) => {
+const EvaluationReportTable = ({
+  reports,
+  shipments,
+  emptyText,
+  moveCode,
+  customerInfo,
+  grade,
+  setReportToDelete,
+  setIsDeleteModalOpen,
+  deleteReport,
+  isDeleteModalOpen,
+  destinationDutyLocationPostalCode,
+}) => {
   const location = useLocation();
   const [isViewReportModalVisible, setIsViewReportModalVisible] = useState(false);
   const [reportToView, setReportToView] = useState(undefined);
+
+  // whether or not the delete report modal is displaying
+  const toggleDeleteReportModal = (reportID) => {
+    setReportToDelete(reports.find((report) => report.id === reportID));
+    setIsDeleteModalOpen(!isDeleteModalOpen);
+  };
 
   const handleViewReportClick = (report) => {
     setReportToView(report);
     setIsViewReportModalVisible(true);
   };
 
+  // this handles the close button at the bottom of the view report modal
+  const toggleCloseModal = () => {
+    setIsViewReportModalVisible(!isViewReportModalVisible);
+  };
+
   const row = (report) => {
+    let violations;
+    let seriousIncident;
+
+    if (report.violationsObserved) {
+      violations = 'Yes';
+    } else if (report.violationsObserved === false) {
+      violations = 'No';
+    } else {
+      violations = '';
+    }
+
+    if (report.seriousIncident) {
+      seriousIncident = 'Yes';
+    } else if (report.seriousIncident === false) {
+      seriousIncident = 'No';
+    } else {
+      seriousIncident = '';
+    }
     return (
       <tr key={report.id}>
         <td className={styles.reportIDColumn}>
@@ -30,8 +70,12 @@ const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, gra
         </td>
         <td className={styles.dateSubmittedColumn}>{report.submittedAt && formatCustomerDate(report.submittedAt)}</td>
         <td className={styles.locationColumn}>{formatEvaluationReportLocation(report.location)}</td>
-        <td className={styles.violationsColumn}>{report.violationsObserved ? 'Yes' : 'No'}</td>
-        <td className={styles.seriousIncidentColumn}>No</td>
+        <td data-testid="violation-column" className={styles.violationsColumn}>
+          {violations}
+        </td>
+        <td data-testid="incident-column" className={styles.seriousIncidentColumn}>
+          {seriousIncident}
+        </td>
         <td className={styles.viewReportColumn}>
           {report.submittedAt && (
             <Button
@@ -39,15 +83,40 @@ const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, gra
               id={report.id}
               className={classnames(styles.viewButton, 'text-blue usa-button--unstyled')}
               onClick={() => handleViewReportClick(report)}
+              data-testid="viewReport"
             >
               View report
             </Button>
           )}
-          {!report.submittedAt && <a href={`${location.pathname}/${report.id}`}>Edit report</a>}
+          {!report.submittedAt && (
+            <a href={`${location.pathname}/${report.id}`} data-testid="editReport">
+              Edit report
+            </a>
+          )}
         </td>
-        <td className={styles.downloadColumn}>
-          <a href={`${location}/evaluation-reports/${report.id}/download`}>Download</a>
-        </td>
+        {report.submittedAt && (
+          <td className={styles.downloadColumn}>
+            <a
+              href={`/ghc/v1/evaluation-reports/${report.id}/download`}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="downloadReport"
+            >
+              Download
+            </a>
+          </td>
+        )}
+        {!report.submittedAt && (
+          <td className={styles.downloadColumn}>
+            <Button
+              className="usa-button--unstyled"
+              onClick={() => toggleDeleteReportModal(report.id)}
+              data-testid="deleteReport"
+            >
+              Delete
+            </Button>
+          </td>
+        )}
       </tr>
     );
   };
@@ -63,16 +132,36 @@ const EvaluationReportTable = ({ reports, emptyText, moveCode, customerInfo, gra
   }
 
   return (
-    <div>
+    <div data-testid="evaluationReportTable">
+      <ConnectedDeleteEvaluationReportConfirmationModal
+        isOpen={isDeleteModalOpen}
+        closeModal={toggleDeleteReportModal}
+        submitModal={deleteReport}
+        isDeleteFromTable
+      />
       {isViewReportModalVisible && reportToView && (
-        <EvaluationReportContainer
-          reportType={reportToView.type}
-          evaluationReportId={reportToView.id}
+        <ConnectedEvaluationReportConfirmationModal
+          isOpen={isViewReportModalVisible}
+          evaluationReport={reportToView}
           moveCode={moveCode}
           customerInfo={customerInfo}
           grade={grade}
-          shipmentId={shipmentId}
-          setIsModalVisible={setIsViewReportModalVisible}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
+          mtoShipments={shipments}
+          reportViolations={reportToView.ReportViolations}
+          modalActions={
+            <div className={styles.modalActions}>
+              <Button
+                type="button"
+                onClick={toggleCloseModal}
+                aria-label="Close"
+                secondary
+                className={styles.closeModalBtn}
+              >
+                Close
+              </Button>
+            </div>
+          }
         />
       )}
       <table className={styles.evaluationReportTable}>
@@ -99,12 +188,18 @@ EvaluationReportTable.propTypes = {
   moveCode: PropTypes.string.isRequired,
   customerInfo: CustomerShape.isRequired,
   grade: PropTypes.string.isRequired,
-  shipmentId: PropTypes.string,
+  shipments: PropTypes.arrayOf(ShipmentShape),
+  setIsDeleteModalOpen: PropTypes.func.isRequired,
+  setReportToDelete: PropTypes.func.isRequired,
+  deleteReport: PropTypes.func.isRequired,
+  isDeleteModalOpen: PropTypes.bool.isRequired,
+  destinationDutyLocationPostalCode: PropTypes.string,
 };
 
 EvaluationReportTable.defaultProps = {
   reports: [],
-  shipmentId: '',
+  shipments: null,
+  destinationDutyLocationPostalCode: '',
 };
 
 export default EvaluationReportTable;

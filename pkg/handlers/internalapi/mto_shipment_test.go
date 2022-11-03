@@ -6,8 +6,6 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/transcom/mymove/pkg/swagger/nullable"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -31,6 +29,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/swagger/nullable"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -236,7 +235,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
-			Return(nil, nil).Once()
+			Return(nil, nil, nil).Once()
 
 		suite.Nil(params.Body.Validate(strfmt.Default))
 
@@ -290,7 +289,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
-			Return(nil, nil).Once()
+			Return(nil, nil, nil).Once()
 
 		suite.Nil(params.Body.Validate(strfmt.Default))
 
@@ -712,6 +711,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		type setUpOriginalPPMFunc func(appCtx appcontext.AppContext) models.PPMShipment
 		type runChecksFunc func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment)
 
+		// Address fields
+		street1 := "123 main street"
+		city := "New York"
+		state := "NY"
+		zipcode := "90210"
+
 		ppmUpdateTestCases := map[string]struct {
 			setUpOriginalPPM   setUpOriginalPPMFunc
 			desiredShipment    internalmessages.UpdatePPMShipment
@@ -992,6 +997,104 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					suite.Equal(desiredShipment.AdvanceAmountReceived, updatedShipment.PpmShipment.AdvanceAmountReceived)
 				},
 			},
+			"Add W2 Address and Final Incentive": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+						PPMShipment: models.PPMShipment{
+							EstimatedWeight:        models.PoundPointer(4000),
+							HasProGear:             models.BoolPointer(false),
+							EstimatedIncentive:     models.CentPointer(unit.Cents(500000)),
+							HasRequestedAdvance:    models.BoolPointer(true),
+							AdvanceAmountRequested: models.CentPointer(unit.Cents(200000)),
+						},
+					})
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					W2Address: &internalmessages.Address{
+						StreetAddress1: &street1,
+						City:           &city,
+						State:          &state,
+						PostalCode:     &zipcode,
+					},
+					FinalIncentive: handlers.FmtInt64(250000),
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check existing fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
+					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
+					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
+
+					// check expected fields were updated
+					suite.Equal(desiredShipment.FinalIncentive, updatedShipment.PpmShipment.FinalIncentive)
+					suite.Equal(desiredShipment.W2Address.StreetAddress1, updatedShipment.PpmShipment.W2Address.StreetAddress1)
+					suite.Equal(desiredShipment.W2Address.City, updatedShipment.PpmShipment.W2Address.City)
+					suite.Equal(desiredShipment.W2Address.PostalCode, updatedShipment.PpmShipment.W2Address.PostalCode)
+					suite.Equal(desiredShipment.W2Address.State, updatedShipment.PpmShipment.W2Address.State)
+				},
+			},
+			"Allows updates to W2 Address": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+						PPMShipment: models.PPMShipment{
+							W2Address:   &address,
+							W2AddressID: &address.ID,
+						},
+					})
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					W2Address: &internalmessages.Address{
+						ID:             "92c9d4db-1ae4-41b1-991e-3ed645ee910a",
+						StreetAddress1: &street1,
+						City:           &city,
+						State:          &state,
+						PostalCode:     &zipcode,
+					},
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check existing fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
+					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
+					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
+
+					// check expected fields were updated
+					suite.Equal(desiredShipment.W2Address.StreetAddress1, updatedShipment.PpmShipment.W2Address.StreetAddress1)
+					suite.Equal(desiredShipment.W2Address.City, updatedShipment.PpmShipment.W2Address.City)
+					suite.Equal(desiredShipment.W2Address.PostalCode, updatedShipment.PpmShipment.W2Address.PostalCode)
+					suite.Equal(desiredShipment.W2Address.State, updatedShipment.PpmShipment.W2Address.State)
+					suite.Equal(originalShipment.PPMShipment.W2Address.ID, uuid.FromStringOrNil(updatedShipment.PpmShipment.W2Address.ID.String()))
+				},
+			},
+			"Prevents arbitrary address updates": {
+				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
+					return testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+				},
+				desiredShipment: internalmessages.UpdatePPMShipment{
+					W2Address: &internalmessages.Address{
+						ID:             "92c9d4db-1ae4-41b1-991e-3ed645ee910a",
+						StreetAddress1: &street1,
+						City:           &city,
+						State:          &state,
+						PostalCode:     &zipcode,
+					},
+				},
+				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+					// check existing fields didn't change
+					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
+					checkEstimatedWeightsDidntChange(updatedShipment, originalShipment)
+					checkAdvanceRequestedFieldsDidntChange(updatedShipment, originalShipment)
+
+					// check expected fields were updated
+					suite.Equal(desiredShipment.W2Address.StreetAddress1, updatedShipment.PpmShipment.W2Address.StreetAddress1)
+					suite.Equal(desiredShipment.W2Address.City, updatedShipment.PpmShipment.W2Address.City)
+					suite.Equal(desiredShipment.W2Address.PostalCode, updatedShipment.PpmShipment.W2Address.PostalCode)
+					suite.Equal(desiredShipment.W2Address.State, updatedShipment.PpmShipment.W2Address.State)
+					suite.NotEqual(desiredShipment.W2Address.ID, updatedShipment.PpmShipment.W2Address.ID)
+				},
+			},
 			"Remove actual advance": {
 				setUpOriginalPPM: func(appCtx appcontext.AppContext) models.PPMShipment {
 					return testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
@@ -1039,7 +1142,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					mock.AnythingOfType("*appcontext.appContext"),
 					mock.AnythingOfType("models.PPMShipment"),
 					mock.AnythingOfType("*models.PPMShipment")).
-					Return(tc.estimatedIncentive, nil).Once()
+					Return(tc.estimatedIncentive, nil, nil).Once()
 
 				originalPPMShipment := tc.setUpOriginalPPM(appCtx)
 

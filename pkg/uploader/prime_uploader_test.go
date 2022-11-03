@@ -2,7 +2,6 @@ package uploader_test
 
 import (
 	"github.com/transcom/mymove/pkg/storage/test"
-
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -52,7 +51,8 @@ func (suite *UploaderSuite) TestPrimeUploadFromLocalFileWrongContentType() {
 	contractor := testdatagen.MakeDefaultContractor(suite.DB())
 
 	upload, verrs, err := primeUploader.CreatePrimeUploadForDocument(suite.AppContextForTest(), &document.ID, contractor.ID, uploader.File{File: file}, uploader.AllowedTypesPDF)
-	suite.NoError(err)
+	suite.Error(err)
+	suite.Equal("content type \"application/octet-stream\" is not one of the supported types [application/pdf]", err.Error())
 	suite.True(verrs.HasAny(), "invalid content type for upload")
 	suite.Nil(upload, "returned an upload when erroring")
 }
