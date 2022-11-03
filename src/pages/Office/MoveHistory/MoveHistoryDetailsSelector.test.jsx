@@ -99,6 +99,7 @@ describe('MoveHistoryDetailsSelector', () => {
           status: 'REQUESTED',
           shipment_id: '123',
           shipment_type: 'HHG',
+          shipment_id_abbr: 'acf7b',
         },
         {
           name: 'Domestic uncrating',
@@ -106,6 +107,7 @@ describe('MoveHistoryDetailsSelector', () => {
           status: 'REQUESTED',
           shipment_id: '456',
           shipment_type: 'HHG_INTO_NTS_DOMESTIC',
+          shipment_id_abbr: 'a1b2c',
         },
         { name: 'Move management', price: '1234', status: 'REQUESTED' },
       ],

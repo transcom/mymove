@@ -1,14 +1,13 @@
-import getTemplate from 'constants/MoveHistory/TemplateManager';
+import { screen, render } from '@testing-library/react';
+
 import e from 'constants/MoveHistory/EventTemplates/CreatePaymentRequest/createPaymentRequest';
-import a from 'constants/MoveHistory/Database/Actions';
-import t from 'constants/MoveHistory/Database/Tables';
-import o from 'constants/MoveHistory/UIDisplay/Operations';
+import getTemplate from 'constants/MoveHistory/TemplateManager';
 
 describe('when given a payment request is created through shipment update', () => {
-  const item = {
-    action: a.INSERT,
-    eventName: o.createPaymentRequest,
-    tableName: t.payment_requests,
+  const historyRecord = {
+    action: 'INSERT',
+    eventName: 'createPaymentRequest',
+    tableName: 'payment_requests',
     context: [
       {
         name: 'Test service',
@@ -16,26 +15,50 @@ describe('when given a payment request is created through shipment update', () =
         status: 'REQUESTED',
         shipment_id: '123',
         shipment_type: 'HHG',
+        shipment_id_abbr: 'acf7b',
       },
       {
         name: 'Domestic uncrating',
         price: '5555',
         status: 'REQUESTED',
-        shipment_id: '456',
-        shipment_type: 'HHG_INTO_NTS_DOMESTIC',
+        shipment_id: '123',
+        shipment_type: 'HHG',
+        shipment_id_abbr: 'acf7b',
       },
       { name: 'Move management', price: '1234', status: 'REQUESTED' },
     ],
+    changedValues: { payment_request_number: '2052-7586-3' },
   };
+
   it('correctly matches the create payment request event', () => {
-    const result = getTemplate(item);
-    expect(result).toMatchObject(e);
-    expect(result.getLabeledPaymentRequestDetails(item.context)).toMatchObject({
-      moveServices: 'Move management',
-      shipmentServices: [
-        { serviceItems: 'Test service', shipmentId: '123', shipmentType: 'HHG' },
-        { serviceItems: 'Domestic uncrating', shipmentId: '456', shipmentType: 'HHG_INTO_NTS_DOMESTIC' },
-      ],
+    const template = getTemplate(historyRecord);
+    expect(template).toMatchObject(e);
+  });
+
+  it('displays the proper event name with the correct shipment id', () => {
+    const template = getTemplate(historyRecord);
+
+    render(template.getEventNameDisplay(historyRecord));
+    expect(screen.getByText('Submitted payment request 2052-7586-3')).toBeInTheDocument();
+  });
+
+  it('displays the proper shipment type and ID', () => {
+    const template = getTemplate(historyRecord);
+
+    render(template.getDetails(historyRecord));
+    expect(screen.getByText('HHG shipment #ACF7B')).toBeInTheDocument();
+  });
+
+  describe('when given a specific set of details it displays the proper labeled information in the details column', () => {
+    it.each([
+      ['Move services', ': Move management'],
+      ['Shipment services', ': Test service, Domestic uncrating'],
+    ])('for label %s it displays the proper details value %s', async (label, value) => {
+      const template = getTemplate(historyRecord);
+
+      render(template.getDetails(historyRecord));
+      expect(screen.getByText(label)).toBeInTheDocument();
+      expect(screen.getByText(value)).toBeInTheDocument();
     });
   });
 });
