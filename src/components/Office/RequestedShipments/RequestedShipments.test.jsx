@@ -9,10 +9,10 @@ import {
   ordersInfo,
   allowancesInfo,
   customerInfo,
-  agents,
   serviceItems,
 } from './RequestedShipmentsTestData';
-import RequestedShipments from './RequestedShipments';
+import ApprovedRequestedShipments from './ApprovedRequestedShipments';
+import SubmittedRequestedShipments from './SubmittedRequestedShipments';
 
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
@@ -36,88 +36,77 @@ const moveTaskOrderServicesCounselingCompleted = {
 
 const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
 
-const requestedShipmentsComponent = (
-  <RequestedShipments
-    ordersInfo={ordersInfo}
+const submittedRequestedShipmentsComponent = (
+  <SubmittedRequestedShipments
     allowancesInfo={allowancesInfo}
-    mtoAgents={agents}
-    customerInfo={customerInfo}
-    mtoShipments={shipments}
-    approveMTO={approveMTO}
-    shipmentsStatus="SUBMITTED"
     moveCode="TE5TC0DE"
+    mtoShipments={shipments}
+    customerInfo={customerInfo}
+    ordersInfo={ordersInfo}
+    approveMTO={approveMTO}
   />
 );
 
-const requestedShipmentsComponentWithPermission = (
+const submittedRequestedShipmentsComponentWithPermission = (
   <MockProviders permissions={[permissionTypes.updateShipment]}>
-    <RequestedShipments
+    <SubmittedRequestedShipments
       ordersInfo={ordersInfo}
       allowancesInfo={allowancesInfo}
-      mtoAgents={agents}
       customerInfo={customerInfo}
       mtoShipments={shipments}
       approveMTO={approveMTO}
-      shipmentsStatus="SUBMITTED"
-      moveCode="TE5TC0DE"
-    />
-  </MockProviders>
-);
-const requestedExternalVendorShipmentsComponent = (
-  <MockProviders permissions={[permissionTypes.updateShipment]}>
-    <RequestedShipments
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      mtoAgents={agents}
-      customerInfo={customerInfo}
-      mtoShipments={ntsExternalVendorShipments}
-      approveMTO={approveMTO}
-      shipmentsStatus="SUBMITTED"
       moveCode="TE5TC0DE"
     />
   </MockProviders>
 );
 
-const requestedShipmentsComponentAvailableToPrimeAt = (
+const submittedRequestedExternalVendorShipmentsComponent = (
   <MockProviders permissions={[permissionTypes.updateShipment]}>
-    <RequestedShipments
+    <SubmittedRequestedShipments
       ordersInfo={ordersInfo}
       allowancesInfo={allowancesInfo}
-      mtoAgents={agents}
+      customerInfo={customerInfo}
+      mtoShipments={ntsExternalVendorShipments}
+      approveMTO={approveMTO}
+      moveCode="TE5TC0DE"
+    />
+  </MockProviders>
+);
+
+const submittedRequestedShipmentsComponentAvailableToPrimeAt = (
+  <MockProviders permissions={[permissionTypes.updateShipment]}>
+    <SubmittedRequestedShipments
+      ordersInfo={ordersInfo}
+      allowancesInfo={allowancesInfo}
       customerInfo={customerInfo}
       mtoShipments={shipments}
       approveMTO={approveMTO}
-      shipmentsStatus="SUBMITTED"
       moveTaskOrder={moveTaskOrderAvailableToPrimeAt}
       moveCode="TE5TC0DE"
     />
   </MockProviders>
 );
 
-const requestedShipmentsComponentServicesCounselingCompleted = (
-  <RequestedShipments
+const submittedRequestedShipmentsComponentServicesCounselingCompleted = (
+  <SubmittedRequestedShipments
     ordersInfo={ordersInfo}
     allowancesInfo={allowancesInfo}
-    mtoAgents={agents}
     customerInfo={customerInfo}
     mtoShipments={shipments}
     approveMTO={approveMTO}
-    shipmentsStatus="SUBMITTED"
     moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
     moveCode="TE5TC0DE"
   />
 );
 
-const requestedShipmentsComponentMissingRequiredInfo = (
+const submittedRequestedShipmentsComponentMissingRequiredInfo = (
   <MockProviders permissions={[permissionTypes.updateShipment]}>
-    <RequestedShipments
+    <SubmittedRequestedShipments
       ordersInfo={ordersInfo}
       allowancesInfo={allowancesInfo}
-      mtoAgents={agents}
       customerInfo={customerInfo}
       mtoShipments={shipments}
       approveMTO={approveMTO}
-      shipmentsStatus="SUBMITTED"
       missingRequiredOrdersInfo
       moveCode="TE5TC0DE"
     />
@@ -127,26 +116,26 @@ const requestedShipmentsComponentMissingRequiredInfo = (
 describe('RequestedShipments', () => {
   describe('Prime-handled shipments', () => {
     it('renders the container successfully without services counseling completed', () => {
-      render(requestedShipmentsComponent);
+      render(submittedRequestedShipmentsComponent);
       expect(screen.getByTestId('requested-shipments')).toBeInTheDocument();
       expect(screen.queryByTestId('services-counseling-completed-text')).not.toBeInTheDocument();
     });
 
     it('renders the container successfully with services counseling completed', () => {
-      render(requestedShipmentsComponentServicesCounselingCompleted);
+      render(submittedRequestedShipmentsComponentServicesCounselingCompleted);
       expect(screen.getByTestId('requested-shipments')).toBeInTheDocument();
       expect(screen.queryByTestId('services-counseling-completed-text')).not.toBeInTheDocument();
     });
 
     it('renders a shipment passed to it', () => {
-      render(requestedShipmentsComponent);
+      render(submittedRequestedShipmentsComponent);
       const withinContainer = within(screen.getByTestId('requested-shipments'));
       expect(withinContainer.getAllByText('HHG').length).toEqual(2);
       expect(withinContainer.getAllByText('NTS').length).toEqual(1);
     });
 
     it('renders the button', () => {
-      render(requestedShipmentsComponentWithPermission);
+      render(submittedRequestedShipmentsComponentWithPermission);
       expect(
         screen.getByRole('button', {
           name: 'Approve selected',
@@ -160,18 +149,18 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the button when it is available to the prime', () => {
-      render(requestedShipmentsComponentAvailableToPrimeAt);
+      render(submittedRequestedShipmentsComponentAvailableToPrimeAt);
       expect(screen.getByTestId('shipmentApproveButton')).toBeInTheDocument();
       expect(screen.getByTestId('shipmentApproveButton')).toBeDisabled();
     });
 
     it('renders the checkboxes', () => {
-      render(requestedShipmentsComponentWithPermission);
+      render(submittedRequestedShipmentsComponentWithPermission);
       expect(screen.getAllByTestId('checkbox').length).toEqual(5);
     });
 
     it('uses the duty location postal code if there is no destination address', () => {
-      render(requestedShipmentsComponent);
+      render(submittedRequestedShipmentsComponent);
       const destination = shipments[0].destinationAddress;
       expect(screen.getAllByTestId('destinationAddress').at(0)).toHaveTextContent(
         `${destination.streetAddress1}, ${destination.streetAddress2}, ${destination.city}, ${destination.state} ${destination.postalCode}`,
@@ -183,7 +172,7 @@ describe('RequestedShipments', () => {
     });
 
     it('enables the Approve selected button when a shipment and service item are checked', async () => {
-      const { container } = render(requestedShipmentsComponentWithPermission);
+      const { container } = render(submittedRequestedShipmentsComponentWithPermission);
 
       await act(async () => {
         await userEvent.type(
@@ -208,7 +197,7 @@ describe('RequestedShipments', () => {
     });
 
     it('disables the Approve selected button when there is missing required information', async () => {
-      const { container } = render(requestedShipmentsComponentMissingRequiredInfo);
+      const { container } = render(submittedRequestedShipmentsComponentMissingRequiredInfo);
 
       await act(async () => {
         await userEvent.type(
@@ -235,15 +224,13 @@ describe('RequestedShipments', () => {
 
       const { container } = render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
-          <RequestedShipments
+          <SubmittedRequestedShipments
             mtoShipments={shipments}
-            mtoAgents={agents}
             ordersInfo={ordersInfo}
             allowancesInfo={allowancesInfo}
             customerInfo={customerInfo}
             moveTaskOrder={moveTaskOrder}
             approveMTO={mockOnSubmit}
-            shipmentsStatus="SUBMITTED"
             moveCode="TE5TC0DE"
           />
         </MockProviders>,
@@ -285,14 +272,9 @@ describe('RequestedShipments', () => {
 
     it('displays approved basic service items for approved shipments', () => {
       render(
-        <RequestedShipments
+        <ApprovedRequestedShipments
           ordersInfo={ordersInfo}
-          allowancesInfo={allowancesInfo}
-          mtoAgents={agents}
-          customerInfo={customerInfo}
           mtoShipments={shipments}
-          approveMTO={approveMTO}
-          shipmentsStatus="APPROVED"
           mtoServiceItems={serviceItems}
           moveCode="TE5TC0DE"
         />,
@@ -313,19 +295,32 @@ describe('RequestedShipments', () => {
     it.each([['APPROVED'], ['SUBMITTED']])(
       'displays the customer and counselor remarks for a(n) %s shipment',
       (status) => {
-        render(
-          <RequestedShipments
-            ordersInfo={ordersInfo}
-            allowancesInfo={allowancesInfo}
-            mtoAgents={agents}
-            customerInfo={customerInfo}
-            mtoShipments={shipments}
-            approveMTO={approveMTO}
-            shipmentsStatus={status}
-            mtoServiceItems={serviceItems}
-            moveCode="TE5TC0DE"
-          />,
-        );
+        const statusTestProps = {
+          APPROVED: {
+            ordersInfo,
+            mtoShipments: shipments,
+            mtoServiceItems: serviceItems,
+            moveCode: 'TE5TC0DE',
+          },
+          SUBMITTED: {
+            ordersInfo,
+            allowancesInfo,
+            customerInfo,
+            mtoShipments: shipments,
+            approveMTO,
+            mtoServiceItems: serviceItems,
+            moveCode: 'TE5TC0DE',
+          },
+        };
+
+        const statusComponents = {
+          APPROVED: ApprovedRequestedShipments,
+          SUBMITTED: SubmittedRequestedShipments,
+        };
+
+        const Component = statusComponents[status];
+
+        render(<Component {...statusTestProps[status]} />);
 
         const customerRemarks = screen.getAllByTestId('customerRemarks');
         const counselorRemarks = screen.getAllByTestId('counselorRemarks');
@@ -341,7 +336,7 @@ describe('RequestedShipments', () => {
 
   describe('External vendor shipments', () => {
     it('enables the Approve selected button when there is only external vendor shipments and a service item is checked', async () => {
-      render(requestedExternalVendorShipmentsComponent);
+      render(submittedRequestedExternalVendorShipmentsComponent);
 
       expect(screen.getByTestId('shipmentApproveButton')).toBeDisabled();
 
@@ -359,18 +354,16 @@ describe('RequestedShipments', () => {
     const testProps = {
       ordersInfo,
       allowancesInfo,
-      mtoAgents: agents,
       customerInfo,
       mtoShipments: shipments,
       approveMTO,
-      shipmentsStatus: 'SUBMITTED',
       mtoServiceItems: serviceItems,
       moveCode: 'TE5TC0DE',
     };
     it('renders the "Add service items to move" section when user has permission', () => {
       render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
-          <RequestedShipments {...testProps} />
+          <SubmittedRequestedShipments {...testProps} />
         </MockProviders>,
       );
 
@@ -381,7 +374,7 @@ describe('RequestedShipments', () => {
     it('does not render the "Add service items to move" section when user does not have permission', () => {
       render(
         <MockProviders permissions={[]}>
-          <RequestedShipments {...testProps} />
+          <SubmittedRequestedShipments {...testProps} />
         </MockProviders>,
       );
 
