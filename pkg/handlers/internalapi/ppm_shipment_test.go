@@ -910,7 +910,11 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			if suite.NotNil(returnedPPMShipment.SubmittedAt) {
 				suite.True(
 					ppmShipment.SubmittedAt.Equal(handlers.FmtDateTimePtrToPop(returnedPPMShipment.SubmittedAt)),
-					"SubmittedAt should not have changed",
+					fmt.Sprintf(
+						"SubmittedAt should not have changed: was %s, now %s",
+						ppmShipment.SubmittedAt,
+						returnedPPMShipment.SubmittedAt,
+					),
 				)
 			}
 
