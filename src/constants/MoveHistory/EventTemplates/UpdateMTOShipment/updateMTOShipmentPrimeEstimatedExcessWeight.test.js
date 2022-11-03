@@ -1,7 +1,7 @@
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
-import updateMTOShipmentPrimeEstimatedExcessWeight from 'constants/MoveHistory/EventTemplates/updateMTOShipmentPrimeEstimatedExcessWeight';
+import updateMTOShipmentPrimeEstimatedExcessWeight from 'constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipmentPrimeEstimatedExcessWeight';
 
 describe("when Prime user updates a shipment's estimated to one that exceeds the weight limit", () => {
   const item = {

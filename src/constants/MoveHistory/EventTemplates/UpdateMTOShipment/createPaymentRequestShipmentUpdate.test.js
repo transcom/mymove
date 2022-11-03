@@ -1,5 +1,5 @@
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/createPaymentRequestShipmentUpdate';
+import e from 'constants/MoveHistory/EventTemplates/UpdateMTOShipment/createPaymentRequestShipmentUpdate';
 
 describe('when given a payment request is created through shipment update', () => {
   const item = {
