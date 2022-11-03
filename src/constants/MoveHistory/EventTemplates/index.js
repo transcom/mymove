@@ -28,7 +28,7 @@ export { default as updateBillableWeight } from './UpdateBillableWeight/updateBi
 export { default as updateBillableWeightAsTIO } from './UpdateBillableWeight/updateBillableWeightAsTIO';
 export { default as updateBillableWeightRemarksAsTIO } from './UpdateBillableWeight/updateBillableWeightRemarksAsTIO';
 export { default as updateMoveTaskOrder } from './updateMoveTaskOrder';
-export { default as updateMoveTaskOrderStatus } from './updateMoveTaskOrderStatus';
+export { default as updateMoveTaskOrderStatus } from './UpdateMoveTaskOrderStatus/updateMoveTaskOrderStatus';
 export { default as updateMTOServiceItem } from './UpdateMTOServiceItem/updateMTOServiceItem';
 export { default as updateMTOShipment } from './UpdateMTOShipment/updateMTOShipment';
 export { default as updateMTOShipmentAgent } from './updateMTOShipmentAgent';
@@ -39,7 +39,7 @@ export { default as updatePaymentRequest } from './updatePaymentRequest';
 export { default as updatePaymentRequestJobRunner } from './updatePaymentRequestJobRunner';
 export { default as updatePaymentRequestStatus } from './updatePaymentRequestStatus';
 export { default as updateReweighWeight } from './updateReweighWeight';
-export { default as updateServiceItemStatus } from './updateServiceItemStatus';
+export { default as updateServiceItemStatus } from './UpdateServiceItemStatus/updateServiceItemStatus';
 export { default as updateMTOReviewedBillableWeightsAt } from './UpdateMTOReviewedBillableWeightAt/updateMTOReviewedBillableWeightsAt';
 export { default as uploadAmendedOrders } from './UploadAmendedOrders/uploadAmendedOrders';
 export { default as updateMTOShipmentStatus } from './UpdateMTOShipmentStatus/updateMTOShipmentStatus';

@@ -766,3 +766,4 @@
 20221020202612_create-and-modify-move-history-triggers-for-multiple-tables.up.sql
 20221021145115_ppm_closeout_status.up.sql
 20221028220508_remove_deleted_at_column_from_evaluation_reports.up.sql
+20221031150502_ppm_closeout_status_remove_needs_close_out.up.sql
