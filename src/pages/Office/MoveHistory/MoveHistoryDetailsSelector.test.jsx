@@ -12,11 +12,17 @@ describe('MoveHistoryDetailsSelector', () => {
       },
       eventName: 'requestShipmentCancellation',
       oldValues: { shipment_type: 'PPM' },
-      tableName: '',
+      tableName: 'mto_shipments',
+      context: [
+        {
+          shipment_id_abbr: 'acf7b',
+          shipment_type: 'PPM',
+        },
+      ],
     };
     it('renders the plain text details appropriately', () => {
       render(<MoveHistoryDetailsSelector historyRecord={historyRecord} />);
-      expect(screen.getByText('Requested cancellation for PPM shipment')).toBeInTheDocument();
+      expect(screen.getByText('Requested cancellation for PPM shipment #ACF7B')).toBeInTheDocument();
     });
   });
 

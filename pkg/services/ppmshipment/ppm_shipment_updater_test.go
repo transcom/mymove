@@ -760,4 +760,82 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Error(err)
 		suite.Equal(fakeEstimatedIncentiveError, err)
 	})
+
+	suite.Run("Can successfully update a PPMShipment - add W-2 address", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
+
+		originalPPM := testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+
+		streetAddress1 := "10642 N Second Ave"
+		streetAddress2 := "Apt. 308"
+		city := "Atco"
+		state := "NJ"
+		postalCode := "08004"
+
+		newPPM := models.PPMShipment{
+			W2Address: &models.Address{
+				StreetAddress1: streetAddress1,
+				StreetAddress2: &streetAddress2,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+			},
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		suite.Equal(*newPPM.W2Address, *updatedPPM.W2Address)
+		suite.NotNil(updatedPPM.W2AddressID)
+		suite.Equal(streetAddress1, updatedPPM.W2Address.StreetAddress1)
+		suite.Equal(streetAddress2, *updatedPPM.W2Address.StreetAddress2)
+		suite.Equal(city, updatedPPM.W2Address.City)
+		suite.Equal(state, updatedPPM.W2Address.State)
+		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
+	})
+
+	suite.Run("Can successfully update a PPMShipment - modify W-2 address", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
+
+		address := testdatagen.MakeAddress(appCtx.DB(), testdatagen.Assertions{})
+		originalPPM := testdatagen.MakeMinimalPPMShipment(appCtx.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				W2Address:   &address,
+				W2AddressID: &address.ID,
+			},
+		})
+
+		streetAddress1 := "10642 N Second Ave"
+		streetAddress2 := "Apt. 308"
+		city := "Cookstown"
+		state := "NJ"
+		postalCode := "08511"
+
+		newPPM := models.PPMShipment{
+			W2Address: &models.Address{
+				StreetAddress1: streetAddress1,
+				StreetAddress2: &streetAddress2,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+			},
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		suite.Equal(*newPPM.W2Address, *updatedPPM.W2Address)
+		suite.Equal(address.ID, *updatedPPM.W2AddressID)
+		suite.Equal(streetAddress1, updatedPPM.W2Address.StreetAddress1)
+		suite.Equal(streetAddress2, *updatedPPM.W2Address.StreetAddress2)
+		suite.Equal(city, updatedPPM.W2Address.City)
+		suite.Equal(state, updatedPPM.W2Address.State)
+		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
+	})
 }

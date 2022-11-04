@@ -12,6 +12,7 @@ import { ErrorMessage } from 'components/form/index';
 import Hint from 'components/Hint';
 
 const MaskedTextField = ({
+  containerClassName,
   label,
   labelClassName,
   formGroupClassName,
@@ -62,7 +63,7 @@ const MaskedTextField = ({
       )}
       {/* eslint-disable react/jsx-props-no-spreading */}
       {suffix || prefix ? (
-        <div className={classnames(suffix && styles.hasSuffix, prefix && styles.hasPrefix)}>
+        <div className={classnames(suffix && styles.hasSuffix, prefix && styles.hasPrefix, containerClassName)}>
           {prefix && <div className="prefix">{prefix}</div>}
           <IMaskInput
             className={classnames('usa-input', inputClassName)}
@@ -118,6 +119,7 @@ const MaskedTextField = ({
 
 MaskedTextField.propTypes = {
   blocks: PropTypes.oneOfType([PropTypes.object]),
+  containerClassName: PropTypes.string,
   children: PropTypes.node,
   defaultValue: PropTypes.string,
   errorClassName: PropTypes.string,
@@ -146,6 +148,7 @@ MaskedTextField.propTypes = {
 MaskedTextField.defaultProps = {
   blocks: {},
   children: null,
+  containerClassName: '',
   defaultValue: '',
   errorClassName: '',
   hintClassName: '',
