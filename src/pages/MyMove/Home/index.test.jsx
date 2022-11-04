@@ -769,7 +769,7 @@ describe('Home component', () => {
           wrapper: mockProviderWithHistory,
         });
 
-        userEvent.click(screen.getByRole('button', { name: 'Upload PPM Documents' }));
+        await userEvent.click(screen.getByRole('button', { name: 'Upload PPM Documents' }));
 
         await waitFor(() => {
           expect(memoryHistory.location.pathname).toEqual(expectedRoute);

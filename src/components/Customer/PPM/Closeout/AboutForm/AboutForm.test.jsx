@@ -154,17 +154,17 @@ describe('AboutForm component', () => {
       await userEvent.type(screen.getByLabelText('When did you leave your origin?'), '1 January 2022');
       await userEvent.tab();
 
-      await waitFor(() => {
-        expect(screen.getByRole('alert')).toHaveTextContent(
-          'Enter a complete date in DD MMM YYYY format (day, month, year).',
-        );
-      });
-
       await userEvent.type(screen.getByLabelText('Starting ZIP'), '1');
       await userEvent.tab();
 
       await waitFor(() => {
         expect(screen.getAllByRole('alert')[1]).toHaveTextContent('Enter a 5-digit ZIP code');
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          'Enter a complete date in DD MMM YYYY format (day, month, year).',
+        );
       });
 
       await userEvent.type(screen.getByLabelText('Ending ZIP'), '2');

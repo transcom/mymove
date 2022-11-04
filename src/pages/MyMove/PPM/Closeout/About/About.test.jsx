@@ -133,7 +133,7 @@ const fillOutBasicForm = async () => {
   await userEvent.type(city, 'Goldsboro');
 
   const state = screen.getByLabelText('State');
-  userEvent.selectOptions(state, 'NC');
+  await userEvent.selectOptions(state, 'NC');
 
   const postalCode = screen.getByLabelText('ZIP');
   await userEvent.clear(postalCode);

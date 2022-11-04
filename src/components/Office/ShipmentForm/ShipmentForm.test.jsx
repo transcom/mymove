@@ -871,8 +871,8 @@ describe('ShipmentForm component', () => {
 
       expect(advanceAmountInput).toHaveValue('4,875');
       // Edit a requested advance amount
-      userEvent.clear(advanceAmountInput);
-      userEvent.type(advanceAmountInput, '2,000');
+      await userEvent.clear(advanceAmountInput);
+      await userEvent.type(advanceAmountInput, '2,000');
       advanceAmountInput.blur();
       await waitFor(() => {
         expect(advanceAmountInput).toHaveValue('2,000');

@@ -272,7 +272,7 @@ describe('Review page', () => {
   });
 
   it('routes to the edit pro-gear page when the edit link is clicked', async () => {
-    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithProGear);
+    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithProGear);
     const editProGearWeightTicket = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH, {
       moveId: mockMoveId,
       mtoShipmentId: mockMTOShipmentId,
@@ -331,7 +331,7 @@ describe('Review page', () => {
 
     render(<Review />, { wrapper: mockProviderWithHistory });
 
-    userEvent.click(screen.getByText('Return To Homepage'));
+    await userEvent.click(screen.getByText('Return To Homepage'));
 
     await waitFor(() => {
       expect(memoryHistory.location.pathname).toEqual('/');
@@ -373,7 +373,7 @@ describe('Review page', () => {
   });
 
   it('displays the delete confirmation modal when the delete button is clicked', async () => {
-    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithWeightTicket);
+    selectMTOShipmentById.mockImplementation(() => mockMTOShipmentWithWeightTicket);
     render(<Review />, { wrapper: MockProviders });
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);

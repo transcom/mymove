@@ -269,8 +269,8 @@ describe('RequestedShipments', () => {
         const counselingFeeInput = screen.getByRole('checkbox', { name: 'Counseling' });
         await userEvent.click(counselingFeeInput);
 
-        userEvent.click(container.querySelector('form button[type="button"]'));
-        userEvent.click(screen.getAllByRole('button').at(0));
+        await userEvent.click(container.querySelector('form button[type="button"]'));
+        await userEvent.click(screen.getAllByRole('button').at(0));
       });
 
       expect(mockOnSubmit).toHaveBeenCalled();
