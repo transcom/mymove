@@ -158,13 +158,13 @@ describe('AboutForm component', () => {
       await userEvent.tab();
 
       await waitFor(() => {
-        expect(screen.getAllByRole('alert')[1]).toHaveTextContent('Enter a 5-digit ZIP code');
+        expect(screen.getAllByRole('alert')[0]).toHaveTextContent(
+          'Enter a complete date in DD MMM YYYY format (day, month, year).',
+        );
       });
 
       await waitFor(() => {
-        expect(screen.getByRole('alert')).toHaveTextContent(
-          'Enter a complete date in DD MMM YYYY format (day, month, year).',
-        );
+        expect(screen.getAllByRole('alert')[1]).toHaveTextContent('Enter a 5-digit ZIP code');
       });
 
       await userEvent.type(screen.getByLabelText('Ending ZIP'), '2');
