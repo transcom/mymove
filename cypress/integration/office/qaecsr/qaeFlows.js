@@ -76,7 +76,7 @@ const submitReportFromPreview = () => {
     .should(($el) => {
       expect(Cypress.dom.isDetached($el)).to.eq(false);
     })
-    .click();
+    .click({ force: true });
 
   // Wait for the submit
   cy.wait(['@submitEvaluationReport']);
