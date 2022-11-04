@@ -73,13 +73,6 @@ func (suite *SimplePopSuite) TestMultipleDBPanic() {
 			if r := recover(); r == nil {
 				suite.FailNow("Did not panic")
 			}
-			// manually clean up after recovering from panic in
-			// this test.
-			for k := range suite.txnTestDb {
-				popConn := suite.txnTestDb[k]
-				suite.NoError(popConn.Close())
-				delete(suite.txnTestDb, k)
-			}
 		}()
 		var foundAddress models.Address
 		err := suite.DB().Find(&foundAddress, address.ID)
