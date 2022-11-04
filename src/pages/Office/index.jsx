@@ -24,6 +24,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import CUIHeader from 'components/CUIHeader/CUIHeader';
 import BypassBlock from 'components/BypassBlock';
 import SystemError from 'components/SystemError';
+import NotFound from 'components/NotFound/NotFound';
 import OfficeLoggedInHeader from 'containers/Headers/OfficeLoggedInHeader';
 import LoggedOutHeader from 'containers/Headers/LoggedOutHeader';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
@@ -141,6 +142,10 @@ export class OfficeApp extends Component {
         path: '/select-application',
         exact: true,
       });
+
+    const goBack = () => {
+      history.push('/');
+    };
 
     const ppmRoutes = [
       <PrivateRoute
@@ -349,6 +354,8 @@ export class OfficeApp extends Component {
                         }
                       }}
                     />
+                    {/* 404 */}
+                    <Route render={(routeProps) => <NotFound {...routeProps} handleOnClick={goBack} />} />
                   </Switch>
                 )}
               </Suspense>

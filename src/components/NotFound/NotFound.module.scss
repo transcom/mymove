@@ -1,0 +1,76 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_variables';
+
+.notFound {
+  @include u-padding-top(10);
+  @include u-padding-bottom(15);
+
+  @media (max-width: $tablet) {
+    @include u-padding-top(6);
+    @include u-padding-bottom(2);
+  }
+
+  .preheader {
+    font-size: 22px;
+  }
+
+  @media (max-width: $tablet) {
+    .preheader {
+      font-size: 20px;
+    }
+  }
+
+  .preheaderQuip {
+    @include u-padding-top(2);
+  }
+
+  @media (max-width: $tablet) {
+    .preheaderQuip {
+      @include u-padding-top(1);
+    }
+  }
+
+  h1 {
+    @include u-padding-top(5);
+
+    font-size: 60px;
+  }
+
+  @media (max-width: $tablet) {
+    h1 {
+      font-size: 32px;
+    }
+  }
+
+  b {
+    font-weight: 600;
+  }
+
+  .goBack {
+    @include u-padding(0);
+    justify-content: start;
+    display: inline;
+    width: auto;
+  }
+  :global {
+    .usa-button--unstyled {
+      text-decoration: underline;
+    }
+  }
+
+  .description {
+    @include u-padding-top(1);
+    @include u-padding-bottom(10);
+
+    font-size: 15px;
+    line-height: 23px;
+  }
+
+  .explanation {
+    @include u-margin-bottom(0);
+  }
+
+  .recommendation {
+    @include u-margin-top(0);
+  }
+}
