@@ -1,31 +1,29 @@
-import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
+import React from 'react';
+
 import t from 'constants/MoveHistory/Database/Tables';
 
 export default {
   action: null,
   eventName: null,
   tableName: null,
-  detailsType: d.PLAIN_TEXT,
   getEventNameDisplay: ({ tableName }) => {
     switch (tableName) {
       case t.orders:
-        return 'juan Updated order';
+        return <> Updated order </>;
       case t.mto_service_items:
-        return 'juan Updated service item';
+        return <> Updated service item </>;
       case t.entitlements:
-        return 'juan Updated allowances';
+        return <> Updated allowances </>;
       case t.payment_requests:
-        return 'juan Updated payment request';
+        return <> Updated payment request </>;
       case t.mto_shipments:
       case t.mto_agents:
       case t.addresses:
-        return 'juan Updated shipment';
+        return <> Updated shipment </>;
       case t.moves:
       default:
-        return 'juan Updated move';
+        return <> Updated move </>;
     }
   },
-  getDetailsPlainText: () => {
-    return '-';
-  },
+  getDetails: () => <> - </>,
 };
