@@ -1,5 +1,5 @@
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/undefined';
+import e from 'constants/MoveHistory/EventTemplates/NullEvent/undefined';
 
 describe('when given an unidentifiable move history record', () => {
   const item = {

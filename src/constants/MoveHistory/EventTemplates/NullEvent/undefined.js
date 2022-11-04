@@ -9,20 +9,20 @@ export default {
   getEventNameDisplay: ({ tableName }) => {
     switch (tableName) {
       case t.orders:
-        return 'Updated order';
+        return 'juan Updated order';
       case t.mto_service_items:
-        return 'Updated service item';
+        return 'juan Updated service item';
       case t.entitlements:
-        return 'Updated allowances';
+        return 'juan Updated allowances';
       case t.payment_requests:
-        return 'Updated payment request';
+        return 'juan Updated payment request';
       case t.mto_shipments:
       case t.mto_agents:
       case t.addresses:
-        return 'Updated shipment';
+        return 'juan Updated shipment';
       case t.moves:
       default:
-        return 'Updated move';
+        return 'juan Updated move';
     }
   },
   getDetailsPlainText: () => {
