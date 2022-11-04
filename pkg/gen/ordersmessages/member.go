@@ -41,7 +41,7 @@ type Member struct {
 	// Jr., Sr., III, etc.
 	Suffix *string `json:"suffix,omitempty"`
 
-	// If supplied, this is the preferred form of address or preferred human-readable title. This is especially useful when a rank has multiple possible titles. For example, in the Army, an E-4 can be either a Specialist or a Corporal. In the Navy, there are dozens of possible job titles and ratings for enlisted sailors. In the Marine Corps, an E-8 can be either a Master Sergeant or a First Sergeant, and they do care about the distinction.
+	// If supplied, this is the preferred form of address or preferred human-readable title. This is especially useful when a rank has multiple possible titles. For example, in the Army, an E-4 can be either a Specialist or a Corporal. In the Navy, there are dozens of possible job titles and ratings for enlisted sailors. In the Marine Corps, an E-8 can be either a main Sergeant or a First Sergeant, and they do care about the distinction.
 	//
 	// If omitted, my.move.mil will show the member the default name for the provided rank and affiliation.
 	//

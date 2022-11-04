@@ -24,7 +24,7 @@ func init() {
     "title": "MilMove Orders API",
     "license": {
       "name": "MIT",
-      "url": "https://github.com/transcom/mymove/blob/master/LICENSE.md"
+      "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
     },
     "version": "1.0.0"
   },
@@ -396,7 +396,7 @@ func init() {
           "x-nullable": true
         },
         "title": {
-          "description": "If supplied, this is the preferred form of address or preferred human-readable title. This is especially useful when a rank has multiple possible titles. For example, in the Army, an E-4 can be either a Specialist or a Corporal. In the Navy, there are dozens of possible job titles and ratings for enlisted sailors. In the Marine Corps, an E-8 can be either a Master Sergeant or a First Sergeant, and they do care about the distinction.\n\nIf omitted, my.move.mil will show the member the default name for the provided rank and affiliation.\n",
+          "description": "If supplied, this is the preferred form of address or preferred human-readable title. This is especially useful when a rank has multiple possible titles. For example, in the Army, an E-4 can be either a Specialist or a Corporal. In the Navy, there are dozens of possible job titles and ratings for enlisted sailors. In the Marine Corps, an E-8 can be either a main Sergeant or a First Sergeant, and they do care about the distinction.\n\nIf omitted, my.move.mil will show the member the default name for the provided rank and affiliation.\n",
           "type": "string",
           "x-nullable": true
         }
@@ -703,7 +703,7 @@ func init() {
     "title": "MilMove Orders API",
     "license": {
       "name": "MIT",
-      "url": "https://github.com/transcom/mymove/blob/master/LICENSE.md"
+      "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
     },
     "version": "1.0.0"
   },
@@ -1075,7 +1075,7 @@ func init() {
           "x-nullable": true
         },
         "title": {
-          "description": "If supplied, this is the preferred form of address or preferred human-readable title. This is especially useful when a rank has multiple possible titles. For example, in the Army, an E-4 can be either a Specialist or a Corporal. In the Navy, there are dozens of possible job titles and ratings for enlisted sailors. In the Marine Corps, an E-8 can be either a Master Sergeant or a First Sergeant, and they do care about the distinction.\n\nIf omitted, my.move.mil will show the member the default name for the provided rank and affiliation.\n",
+          "description": "If supplied, this is the preferred form of address or preferred human-readable title. This is especially useful when a rank has multiple possible titles. For example, in the Army, an E-4 can be either a Specialist or a Corporal. In the Navy, there are dozens of possible job titles and ratings for enlisted sailors. In the Marine Corps, an E-8 can be either a main Sergeant or a First Sergeant, and they do care about the distinction.\n\nIf omitted, my.move.mil will show the member the default name for the provided rank and affiliation.\n",
           "type": "string",
           "x-nullable": true
         }
