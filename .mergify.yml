@@ -1,13 +1,13 @@
 queue_rules:
   - name: default
     conditions:
-      - "label=ready-to-merge"
+      - 'label=ready-to-merge'
 
 pull_request_rules:
   - name: merge using the merge queue
     conditions:
-      - base=master
-      - "label=ready-to-merge"
+      - base=main
+      - 'label=ready-to-merge'
     actions:
       queue:
         name: default
