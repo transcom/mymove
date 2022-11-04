@@ -903,7 +903,16 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Can successfully resubmit a PPM shipment for close out", func() {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{})
+		// Setting some time in the past to ensure the handler doesn't it set it to the current time. This is to try to
+		// make up for a weird timezones issue that was happening in CircleCI. UTC vs Etc/UTC, which are meant to be
+		// equivalent afaict (and are when running locally), but are slightly off in CI.
+		submittedAt := time.Now().AddDate(0, 0, -5)
+
+		ppmShipment := testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				SubmittedAt: &submittedAt,
+			},
+		})
 
 		newCertText := "new certification text"
 		newSignature := "new signature"
@@ -927,11 +936,10 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			suite.Equal(string(models.PPMShipmentStatusNeedsPaymentApproval), string(returnedPPMShipment.Status))
 
 			if suite.NotNil(returnedPPMShipment.SubmittedAt) {
-				originalSubmittedAt := ppmShipment.SubmittedAt.UTC()
-				returnedSubmittedAt := handlers.FmtDateTimePtrToPop(returnedPPMShipment.SubmittedAt).UTC()
+				returnedSubmittedAt := handlers.FmtDateTimePtrToPop(returnedPPMShipment.SubmittedAt)
 
 				suite.True(
-					originalSubmittedAt.Equal(returnedSubmittedAt),
+					submittedAt.Equal(returnedSubmittedAt),
 					fmt.Sprintf(
 						"SubmittedAt should not have changed: was %s, now %s",
 						ppmShipment.SubmittedAt,
