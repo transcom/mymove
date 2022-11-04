@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -126,17 +127,22 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	errorMessagesChan := make(chan error)
 
 	// GoRoutine to continually refresh the RDS IAM auth on the given interval.
-	go refreshRDSIAM(host, port, region, user, creds, rus, ticker, logger, errorMessagesChan, shouldQuitChan)
+	refreshRDSIAM(host, port, region, user, creds, rus, ticker, logger, errorMessagesChan, shouldQuitChan)
 
-	go logEnableIAMFailed(logger, errorMessagesChan)
+	logEnableIAMFailed(logger, errorMessagesChan)
 }
 
+// logEnableIAMFailed is called when the RDS IAM token refresh fails
+// Note: An error is logged that a failure has occured
+// Note: This function will exit with an error (2) so that is does not exit cleanly and will
+// cause the calling app exit and as a result the ECS will redeploy
 func logEnableIAMFailed(logger *zap.Logger, errorMessagesChan chan error) {
 	errorMessages := <-errorMessagesChan
 
 	if errorMessages != nil {
 		logger.Error("Refreshing RDS IAM failed")
 	}
+	os.Exit(2)
 }
 
 // Open wrapper around postgres Open func
