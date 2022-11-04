@@ -6095,13 +6095,11 @@ definitions:
         type: string
         readOnly: true
     required:
-      - id
       - ppmShipmentId
       - createdAt
       - updatedAt
       - documentId
       - document
-      - eTag
   PPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service member

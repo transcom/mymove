@@ -26,6 +26,9 @@ func checkID() progearWeightTicketValidator {
 func checkCreateRequiredFields() progearWeightTicketValidator {
 	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, oldProgearWeightTicket *models.ProgearWeightTicket) error {
 		verrs := validate.NewErrors()
+		if newProgearWeightTicket == nil || oldProgearWeightTicket == nil {
+			return verrs
+		}
 
 		if newProgearWeightTicket.PPMShipmentID.IsNil() {
 			verrs.Add("PPMShipmentID", "PPMShipmentID must exist")

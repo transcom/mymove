@@ -7295,13 +7295,11 @@ func init() {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
       "required": [
-        "id",
         "ppmShipmentId",
         "createdAt",
         "updatedAt",
         "documentId",
-        "document",
-        "eTag"
+        "document"
       ],
       "properties": {
         "belongsToSelf": {
@@ -17289,13 +17287,11 @@ func init() {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
       "required": [
-        "id",
         "ppmShipmentId",
         "createdAt",
         "updatedAt",
         "documentId",
-        "document",
-        "eTag"
+        "document"
       ],
       "properties": {
         "belongsToSelf": {

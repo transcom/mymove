@@ -36,10 +36,10 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 		progearWeightTicket, err := progearWeightTicketCreator.CreateProgearWeightTicket(suite.AppContextWithSessionForTest(session), uuid.Nil)
 
 		suite.Nil(progearWeightTicket)
-		suite.ErrorContains(err, "Valid PPMShipmentID is missing")
+		suite.ErrorContains(err, "PPMShipmentID can not be blank")
 	})
 
-	suite.Run("Invalid serviceMemberID", func() {
+	suite.Run("Fails to create document when missing serviceMemberID", func() {
 		session := &auth.Session{
 			ServiceMemberID: uuid.Nil,
 		}
@@ -51,6 +51,6 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 		suite.Nil(progearWeightTicket)
 		suite.NotNil(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
-		suite.Equal("Invalid input due to invalid ServiceMemberID", err.Error())
+		suite.Equal("Invalid input found while creating the Document.", err.Error())
 	})
 }

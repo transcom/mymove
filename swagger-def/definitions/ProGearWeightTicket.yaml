@@ -61,10 +61,8 @@ properties:
     type: string
     readOnly: true
 required:
-  - id
   - ppmShipmentId
   - createdAt
   - updatedAt
   - documentId
   - document
-  - eTag
