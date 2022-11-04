@@ -126,9 +126,10 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 
 	errorMessagesChan := make(chan error)
 
-	// GoRoutine to continually refresh the RDS IAM auth on the given interval.
+	// Refresh the RDS IAM auth on the given interval
 	refreshRDSIAM(host, port, region, user, creds, rus, ticker, logger, errorMessagesChan, shouldQuitChan)
 
+	// If failed, log and exit this application with an application error returned
 	logEnableIAMFailed(logger, errorMessagesChan)
 }
 
