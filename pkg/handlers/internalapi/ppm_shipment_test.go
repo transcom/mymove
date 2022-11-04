@@ -927,15 +927,11 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			suite.Equal(string(models.PPMShipmentStatusNeedsPaymentApproval), string(returnedPPMShipment.Status))
 
 			if suite.NotNil(returnedPPMShipment.SubmittedAt) {
-				strSubmittedAt := handlers.FmtDateTimePtr(ppmShipment.SubmittedAt)
-				suite.True(
-					strSubmittedAt.Equal(*returnedPPMShipment.SubmittedAt),
-					fmt.Sprintf(
-						"SubmittedAt should not have changed. Was: (%s) | now: (%s)",
-						strSubmittedAt,
-						returnedPPMShipment.SubmittedAt,
-					),
-				)
+				// For some reason, if we compare the time.Time objects directly, the test fails, but if we truncate to
+				// the nanosecond level, they are equal.
+				truncatedOriginalSubmittedAt := ppmShipment.SubmittedAt.Truncate(time.Nanosecond)
+				truncatedNewSubmittedAt := handlers.FmtDateTimePtrToPop(returnedPPMShipment.SubmittedAt).Truncate(time.Nanosecond)
+				suite.Equal(truncatedOriginalSubmittedAt, truncatedNewSubmittedAt)
 			}
 
 			suite.NotNil(returnedPPMShipment.SignedCertification)
