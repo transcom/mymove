@@ -936,10 +936,11 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			suite.Equal(string(models.PPMShipmentStatusNeedsPaymentApproval), string(returnedPPMShipment.Status))
 
 			if suite.NotNil(returnedPPMShipment.SubmittedAt) {
-				returnedSubmittedAt := handlers.FmtDateTimePtrToPop(returnedPPMShipment.SubmittedAt)
+				originalSubmittedAt := ppmShipment.SubmittedAt.Truncate(time.Second)
+				returnedSubmittedAt := handlers.FmtDateTimePtrToPop(returnedPPMShipment.SubmittedAt).Truncate(time.Second)
 
 				suite.True(
-					submittedAt.Equal(returnedSubmittedAt),
+					originalSubmittedAt.Equal(returnedSubmittedAt),
 					fmt.Sprintf(
 						"SubmittedAt should not have changed: was %s, now %s",
 						ppmShipment.SubmittedAt,
