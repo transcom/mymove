@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
-import ReactTable from 'react-table-6';
+import ReactTable from 'react-table';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
@@ -11,7 +11,6 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { defaultColumns } from './queueTableColumns';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import 'react-table-6/react-table.css';
 
 class QueueTable extends Component {
   constructor() {

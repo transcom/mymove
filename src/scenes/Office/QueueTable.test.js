@@ -6,7 +6,7 @@ import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 
 import QueueTable from './QueueTable';
-import ReactTable from 'react-table-6';
+import ReactTable from 'react-table';
 import store from 'shared/store';
 import { mount } from 'enzyme/build';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
