@@ -68,7 +68,7 @@
     "redux-mock-store": "1.5.4",
     "redux-persist": "^6.0.0",
     "redux-saga": "^1.2.1",
-    "redux-thunk": "^2.4.1",
+    "redux-thunk": "^2.4.2",
     "regenerator-runtime": "^0.13.10",
     "reselect": "^4.1.7",
     "sass": "^1.55.0",
