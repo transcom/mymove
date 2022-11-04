@@ -1,12 +1,13 @@
+import React from 'react';
+
 import o from 'constants/MoveHistory/UIDisplay/Operations';
-import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 
 export default {
   action: a.UPDATE,
-  eventName: o.updateBillableWeightAsTIO,
+  eventName: o.updateMoveTaskOrderStatus,
   tableName: t.moves,
-  detailsType: d.LABELED,
-  getEventNameDisplay: () => 'Updated move',
+  getEventNameDisplay: () => 'Approved move',
+  getDetails: () => <> Created Move Task Order (MTO) </>,
 };
