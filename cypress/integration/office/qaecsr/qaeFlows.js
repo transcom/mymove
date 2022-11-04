@@ -267,7 +267,7 @@ describe('Quality Evaluation Report', () => {
     });
 
     // Create new report, fill out all conditional fields on 1st page fields, on second page select correct violations to display/fill out date fields, serious violations = true, submit
-    it('can complete an evaluation report with all field populated, including conditionally displayed fields', () => {
+    it('can complete an evaluation report with all fields populated, including conditionally displayed fields', () => {
       // Create a new shipment report
       createShipmentReport();
 
