@@ -69,14 +69,12 @@ func (suite *SimplePopSuite) TestMultipleDBPanic() {
 	address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 
 	suite.Run("Trying to use db in main and subtest panics", func() {
-		defer func() {
-			if r := recover(); r == nil {
-				suite.FailNow("Did not panic")
-			}
-		}()
-		var foundAddress models.Address
-		err := suite.DB().Find(&foundAddress, address.ID)
-		suite.Error(err)
+		panicFunc := func() {
+			var foundAddress models.Address
+			err := suite.DB().Find(&foundAddress, address.ID) // should panic
+			suite.Error(err)
+		}
+		suite.Panics(panicFunc)
 	})
 }
 
