@@ -82,7 +82,7 @@ configure_shell_file_for_gopath() {
 
 # If direnv stops working, it might be because the setup commands changed.
 # Check the documentation:
-# https://github.com/direnv/direnv/blob/main/docs/hook.md
+# https://github.com/direnv/direnv/blob/master/docs/hook.md
 configure_shell_file_for_direnv() {
   if [[ $SHELL == *fish ]]; then
     append_to_file "$shell_file" "direnv hook fish | source"
