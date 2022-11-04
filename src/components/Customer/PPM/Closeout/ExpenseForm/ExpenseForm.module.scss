@@ -1,19 +1,23 @@
 @import 'shared/styles/_basics';
 
 .ExpenseForm {
-    :global(.usa-select) {
-        width: 50%;
-    }
+  :global(.usa-select) {
+    width: 50%;
+  }
 
-    :global(.usa-checkbox) {
-      @include u-margin-bottom(2);
-    }
+  :global(.usa-checkbox) {
+    @include u-margin-bottom(2);
+  }
 
-    .labelWrapper {
-        @include u-margin-top(3);
-    }
+  .labelWrapper {
+    @include u-margin-top(3);
+  }
 
-    .uploadInstructions {
-        @include u-margin-bottom(1);
-    }
+  .uploadInstructions {
+    @include u-margin-bottom(1);
+  }
+
+  .storageTotal {
+    @include u-margin-bottom(0);
+  }
 }

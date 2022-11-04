@@ -291,7 +291,6 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 			models.PPMShipmentStatusNeedsAdvanceApproval: true,
 			models.PPMShipmentStatusNeedsPaymentApproval: true,
 			models.PPMShipmentStatusPaymentApproved:      true,
-			models.PPMShipmentStatusNeedsCloseOut:        true,
 		}
 
 		for status, allowed := range testCases {

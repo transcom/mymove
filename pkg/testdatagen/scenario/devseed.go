@@ -60,6 +60,7 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 		"sit_extensions":               subScenarioSITExtensions(appCtx, userUploader, primeUploader),
 		"customer_support_remarks":     subScenarioCustomerSupportRemarks(appCtx),
 		"evaluation_reports":           subScenarioEvaluationReport(appCtx),
+		"ppm_close_outs":               subScenarioPPMCloseOut(appCtx, userUploader),
 	}
 }
 

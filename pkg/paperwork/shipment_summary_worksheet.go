@@ -3,7 +3,7 @@ package paperwork
 // ShipmentSummaryPage1Layout specifies the layout and template of a
 // Shipment Summary Worksheet
 var ShipmentSummaryPage1Layout = FormLayout{
-	TemplateImagePath: "pkg/paperwork/formtemplates/shipment_summary_worksheet_page1.png",
+	TemplateImagePath: "paperwork/formtemplates/shipment_summary_worksheet_page1.png",
 
 	// For now only lists a single shipment. Will need to update to accommodate multiple shipments
 	FieldsLayout: map[string]FieldPos{
@@ -53,7 +53,7 @@ var ShipmentSummaryPage1Layout = FormLayout{
 // Shipment Summary Worksheet
 var ShipmentSummaryPage2Layout = FormLayout{
 
-	TemplateImagePath: "pkg/paperwork/formtemplates/shipment_summary_worksheet_page2.png",
+	TemplateImagePath: "paperwork/formtemplates/shipment_summary_worksheet_page2.png",
 
 	FieldsLayout: map[string]FieldPos{
 		"CUIBanner":                   FormField(0, 2, 216, floatPtr(10), nil, stringPtr("CM")),
@@ -91,7 +91,7 @@ var ShipmentSummaryPage2Layout = FormLayout{
 // Shipment Summary Worksheet
 var ShipmentSummaryPage3Layout = FormLayout{
 
-	TemplateImagePath: "pkg/paperwork/formtemplates/shipment_summary_worksheet_page3.png",
+	TemplateImagePath: "paperwork/formtemplates/shipment_summary_worksheet_page3.png",
 
 	FieldsLayout: map[string]FieldPos{
 		"CUIBanner":              FormField(0, 2, 216, floatPtr(10), nil, stringPtr("CM")),

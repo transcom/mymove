@@ -25,14 +25,8 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	suite.Run("FindPPMShipmentWithDocument - document belongs to pro gear", func() {
 		proGear := testdatagen.MakeDefaultProgearWeightTicket(suite.DB())
 
-		err := FindPPMShipmentWithDocument(suite.AppContextForTest(), proGear.PPMShipmentID, proGear.EmptyDocumentID)
-		suite.NoError(err, "expected to find PPM Shipment for empty weight document")
-
-		err = FindPPMShipmentWithDocument(suite.AppContextForTest(), proGear.PPMShipmentID, proGear.FullDocumentID)
-		suite.NoError(err, "expected to find PPM Shipment for full weight document")
-
-		err = FindPPMShipmentWithDocument(suite.AppContextForTest(), proGear.PPMShipmentID, proGear.ConstructedWeightDocumentID)
-		suite.NoError(err, "expected to find PPM Shipment for constructed weight document")
+		err := FindPPMShipmentWithDocument(suite.AppContextForTest(), proGear.PPMShipmentID, proGear.DocumentID)
+		suite.NoError(err, "expected to find PPM Shipment for weight document")
 	})
 
 	suite.Run("FindPPMShipmentWithDocument - document belongs to moving expenses", func() {
