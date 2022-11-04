@@ -29,7 +29,9 @@ func (suite *ModelSuite) TestGetPPMShipment() {
 	suite.Run("Can find an existing PPM shipment and loads associations", func() {
 		appCtx := suite.AppContextForTest()
 
-		existingPPMShipment := testdatagen.MakePPMShipmentThatNeedsCloseOut(appCtx.DB(), testdatagen.Assertions{})
+		// It doesn't matter too much what Make function is used here, mainly that it creates a PPM that has associated
+		// documents.
+		existingPPMShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(appCtx.DB(), testdatagen.Assertions{})
 
 		assertions := testdatagen.Assertions{
 			PPMShipment: existingPPMShipment,

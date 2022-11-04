@@ -65,14 +65,14 @@ func (p *ppmShipmentRouter) Submit(appCtx appcontext.AppContext, ppmShipment *mo
 
 // SendToCustomer sets the PPM shipment to the WAITING_ON_CUSTOMER status
 func (p *ppmShipmentRouter) SendToCustomer(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error {
-	if ppmShipment.Status != models.PPMShipmentStatusSubmitted && ppmShipment.Status != models.PPMShipmentStatusNeedsCloseOut {
+	if ppmShipment.Status != models.PPMShipmentStatusSubmitted && ppmShipment.Status != models.PPMShipmentStatusNeedsPaymentApproval {
 		return apperror.NewConflictError(
 			ppmShipment.ID,
 			fmt.Sprintf(
 				"PPM shipment can't be set to %s because it's not in a %s or %s status.",
 				models.PPMShipmentStatusWaitingOnCustomer,
 				models.PPMShipmentStatusSubmitted,
-				models.PPMShipmentStatusNeedsCloseOut,
+				models.PPMShipmentStatusNeedsPaymentApproval,
 			),
 		)
 	}
@@ -101,13 +101,13 @@ func (p *ppmShipmentRouter) SubmitCloseOutDocumentation(_ appcontext.AppContext,
 			ppmShipment.ID,
 			fmt.Sprintf(
 				"PPM shipment can't be set to %s because it's not in the %s status.",
-				models.PPMShipmentStatusNeedsCloseOut,
+				models.PPMShipmentStatusNeedsPaymentApproval,
 				models.PPMShipmentStatusWaitingOnCustomer,
 			),
 		)
 	}
 
-	ppmShipment.Status = models.PPMShipmentStatusNeedsCloseOut
+	ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
 
 	if ppmShipment.SubmittedAt == nil {
 		ppmShipment.SubmittedAt = models.TimePointer(time.Now())

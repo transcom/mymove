@@ -157,8 +157,8 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 		models.PPMShipmentStatusSubmitted: func() models.PPMShipment {
 			return testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{Stub: true})
 		},
-		models.PPMShipmentStatusNeedsCloseOut: func() models.PPMShipment {
-			return testdatagen.MakePPMShipmentThatNeedsCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		models.PPMShipmentStatusNeedsPaymentApproval: func() models.PPMShipment {
+			return testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{Stub: true})
 		},
 	}
 
@@ -233,7 +233,7 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 						"PPM shipment can't be set to %s because it's not in a %s or %s status.",
 						models.PPMShipmentStatusWaitingOnCustomer,
 						models.PPMShipmentStatusSubmitted,
-						models.PPMShipmentStatusNeedsCloseOut,
+						models.PPMShipmentStatusNeedsPaymentApproval,
 					),
 				)
 
@@ -308,15 +308,15 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 	mtoShipmentRouterMethodToMock := ""
 
-	suite.Run(fmt.Sprintf("Can set status to %s if it is currently %s", models.PPMShipmentStatusNeedsCloseOut, models.PPMShipmentStatusWaitingOnCustomer), func() {
-		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseout(suite.DB(), testdatagen.Assertions{Stub: true})
+	suite.Run(fmt.Sprintf("Can set status to %s if it is currently %s", models.PPMShipmentStatusNeedsPaymentApproval, models.PPMShipmentStatusWaitingOnCustomer), func() {
+		ppmShipment := testdatagen.MakePPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
 
 		err := ppmShipmentRouter.SubmitCloseOutDocumentation(suite.AppContextForTest(), &ppmShipment)
 
 		if suite.NoError(err) {
-			suite.Equal(models.PPMShipmentStatusNeedsCloseOut, ppmShipment.Status)
+			suite.Equal(models.PPMShipmentStatusNeedsPaymentApproval, ppmShipment.Status)
 
 			suite.NotNil(ppmShipment.SubmittedAt)
 		}
@@ -341,7 +341,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 		err := ppmShipmentRouter.SubmitCloseOutDocumentation(suite.AppContextForTest(), &ppmShipment)
 
 		if suite.NoError(err) {
-			suite.Equal(models.PPMShipmentStatusNeedsCloseOut, ppmShipment.Status)
+			suite.Equal(models.PPMShipmentStatusNeedsPaymentApproval, ppmShipment.Status)
 
 			suite.True(originalSubmittedAt.Equal(*ppmShipment.SubmittedAt), "SubmittedAt should not have changed")
 		}
@@ -363,8 +363,8 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 		models.PPMShipmentStatusSubmitted: func() models.PPMShipment {
 			return testdatagen.MakePPMShipment(suite.DB(), testdatagen.Assertions{Stub: true})
 		},
-		models.PPMShipmentStatusNeedsCloseOut: func() models.PPMShipment {
-			return testdatagen.MakePPMShipmentThatNeedsCloseOut(suite.DB(), testdatagen.Assertions{Stub: true})
+		models.PPMShipmentStatusNeedsPaymentApproval: func() models.PPMShipment {
+			return testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{Stub: true})
 		},
 	}
 
@@ -372,7 +372,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 		currentStatus := currentStatus
 		makePPMShipment := makePPMShipment
 
-		suite.Run(fmt.Sprintf("Can't set status to %s if it is currently %s", models.PPMShipmentStatusNeedsCloseOut, currentStatus), func() {
+		suite.Run(fmt.Sprintf("Can't set status to %s if it is currently %s", models.PPMShipmentStatusNeedsPaymentApproval, currentStatus), func() {
 			ppmShipment := makePPMShipment()
 
 			ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
@@ -385,7 +385,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 					err.Error(),
 					fmt.Sprintf(
 						"PPM shipment can't be set to %s because it's not in the %s status.",
-						models.PPMShipmentStatusNeedsCloseOut,
+						models.PPMShipmentStatusNeedsPaymentApproval,
 						models.PPMShipmentStatusWaitingOnCustomer,
 					),
 				)

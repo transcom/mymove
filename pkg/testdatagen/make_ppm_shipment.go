@@ -227,9 +227,9 @@ func MakeApprovedPPMShipmentWithActualInfo(db *pop.Connection, assertions Assert
 	return ppmShipment
 }
 
-// MakePPMShipmentReadyForFinalCustomerCloseout creates a single PPMShipment that has customer documents and is ready
+// MakePPMShipmentReadyForFinalCustomerCloseOut creates a single PPMShipment that has customer documents and is ready
 // for the customer to sign and submit.
-func MakePPMShipmentReadyForFinalCustomerCloseout(db *pop.Connection, assertions Assertions) models.PPMShipment {
+func MakePPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
 	ppmShipment := MakeApprovedPPMShipmentWithActualInfo(db, assertions)
@@ -255,12 +255,12 @@ func MakePPMShipmentReadyForFinalCustomerCloseout(db *pop.Connection, assertions
 	return ppmShipment
 }
 
-// MakePPMShipmentThatNeedsCloseOut creates a PPMShipment that is waiting for a counselor to review after a customer has
+// MakePPMShipmentThatNeedsPaymentApproval creates a PPMShipment that is waiting for a counselor to review after a customer has
 // submitted all the necessary documents.
-func MakePPMShipmentThatNeedsCloseOut(db *pop.Connection, assertions Assertions) models.PPMShipment {
+func MakePPMShipmentThatNeedsPaymentApproval(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakePPMShipmentReadyForFinalCustomerCloseout(db, assertions)
+	ppmShipment := MakePPMShipmentReadyForFinalCustomerCloseOut(db, assertions)
 
 	move := ppmShipment.Shipment.MoveTaskOrder
 	certType := models.SignedCertificationTypePPMPAYMENT
@@ -279,7 +279,7 @@ func MakePPMShipmentThatNeedsCloseOut(db *pop.Connection, assertions Assertions)
 
 	ppmShipment.SignedCertification = &signedCert
 
-	ppmShipment.Status = models.PPMShipmentStatusNeedsCloseOut
+	ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
 	ppmShipment.SubmittedAt = models.TimePointer(time.Now())
 
 	mergeModels(&ppmShipment, assertions.PPMShipment)
@@ -295,7 +295,7 @@ func MakePPMShipmentThatNeedsCloseOut(db *pop.Connection, assertions Assertions)
 func MakePPMShipmentThatNeedsToBeResubmitted(db *pop.Connection, assertions Assertions) models.PPMShipment {
 	// It's easier to use some of the data from other downstream functions if we have them go first and then make our
 	// changes on top of those changes.
-	ppmShipment := MakePPMShipmentThatNeedsCloseOut(db, assertions)
+	ppmShipment := MakePPMShipmentThatNeedsPaymentApproval(db, assertions)
 
 	// Document that got rejected. This would normally already exist and would just need to be updated to change the
 	// status, but for simplicity here, we'll just create it here and set it up with the appropriate status.
