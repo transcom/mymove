@@ -30,12 +30,12 @@ import (
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	userservice "github.com/transcom/mymove/pkg/services/user"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetUserHandler() {
 	suite.Run("integration test ok response", func() {
-		user := testdatagen.MakeDefaultUser(suite.DB())
+		user := factory.BuildDefaultUser(suite.DB())
+
 		params := userop.GetUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/users/%s", user.ID)),
 			UserID:      strfmt.UUID(user.ID.String()),
@@ -56,7 +56,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 	})
 
 	suite.Run("unsuccessful response when fetch fails", func() {
-		user := testdatagen.MakeDefaultUser(suite.DB())
+		user := factory.BuildDefaultUser(suite.DB())
 		params := userop.GetUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/users/%s", user.ID)),
 			UserID:      strfmt.UUID(user.ID.String()),
@@ -87,8 +87,8 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
 		users := models.Users{
-			testdatagen.MakeDefaultUser(suite.DB()),
-			testdatagen.MakeDefaultUser(suite.DB()),
+			factory.BuildDefaultUser(suite.DB()),
+			factory.BuildDefaultUser(suite.DB()),
 		}
 		params := userop.IndexUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/users"),

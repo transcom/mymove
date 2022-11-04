@@ -99,7 +99,6 @@ func assignType(custom *Customization) error {
 		return fmt.Errorf("Customization.Model field had type %v - should contain a struct", mv.Kind())
 	}
 	// Get the model type and find the default type
-	fmt.Println("assigning type:", defaultTypesMap[mv.Type().String()])
 	typestring, ok := defaultTypesMap[mv.Type().String()]
 	if ok {
 		custom.Type = &typestring
@@ -158,7 +157,7 @@ func setupCustomizations(customs []Customization, traits []Trait) []Customizatio
 
 }
 
-// uniqueCustomizations
+// uniqueCustomizations ensures there's only one customization per type.
 // Requirement: All customizations should already have a type assigned.
 func uniqueCustomizations(customs []Customization) ([]Customization, error) {
 	// validate that there are no repeat CustomTypes
