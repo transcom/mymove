@@ -35,6 +35,8 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 		)
 
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
+		ppmShipment.CreatedAt = time.Now()
+		ppmShipment.UpdatedAt = ppmShipment.CreatedAt.AddDate(0, 0, 5)
 		ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID = uuid.Must(uuid.NewV4())
 
 		return ppmShipment
@@ -280,6 +282,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 
 		move := ppmShipment.Shipment.MoveTaskOrder
 		certType := models.SignedCertificationTypePPMPAYMENT
+		now := time.Now()
 		signedCertification := models.SignedCertification{
 			ID:                uuid.Must(uuid.NewV4()),
 			SubmittingUserID:  move.Orders.ServiceMember.User.ID,
@@ -289,6 +292,8 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 			CertificationText: *params.SavePPMShipmentSignedCertificationPayload.CertificationText,
 			Signature:         *params.SavePPMShipmentSignedCertificationPayload.Signature,
 			Date:              handlers.FmtDatePtrToPop(params.SavePPMShipmentSignedCertificationPayload.Date),
+			CreatedAt:         now,
+			UpdatedAt:         now,
 		}
 
 		expectedPPMShipment.SignedCertification = &signedCertification
@@ -469,7 +474,12 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerUnit() {
 		)
 
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
+		ppmShipment.CreatedAt = time.Now()
+		ppmShipment.UpdatedAt = ppmShipment.CreatedAt.AddDate(0, 0, 4)
 		ppmShipment.SignedCertification.ID = uuid.Must(uuid.NewV4())
+
+		ppmShipment.SignedCertification.CreatedAt = ppmShipment.UpdatedAt.AddDate(0, 0, -1)
+		ppmShipment.SignedCertification.UpdatedAt = ppmShipment.UpdatedAt.AddDate(0, 0, 1)
 		ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID = uuid.Must(uuid.NewV4())
 
 		return ppmShipment
