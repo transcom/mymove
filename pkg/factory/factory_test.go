@@ -25,36 +25,7 @@ func TestMakerSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-func (suite *MakerSuite) TestElevateCustomization() {
-
-	suite.Run("Customization converted ", func() {
-
-		customEmail := "leospaceman123@example.com"
-		streetAddress := "235 Prospect Valley Road SE"
-
-		customizationList :=
-			[]Customization{
-				{
-					Model: models.User{LoginGovEmail: customEmail},
-					Type:  &User,
-				},
-				{
-					Model: models.Address{StreetAddress1: streetAddress},
-					Type:  &Addresses.ResidentialAddress,
-				},
-			}
-		tempCustoms := convertCustomizationInList(customizationList, Addresses.ResidentialAddress, Address)
-		// Nothing wrong with customizations
-		tempCustoms, err := uniqueCustomizations(tempCustoms)
-		suite.NoError(err)
-		// Customization has new type
-		suite.Equal(Address, *tempCustoms[1].Type)
-		// Old customization list is unchanged
-		suite.Equal(Addresses.ResidentialAddress, *customizationList[1].Type)
-	})
-}
-
-// getTraitActiveArmy is a custom Trait
+// getTraitActiveArmy is a custom Trait, used for testing
 func getTraitActiveArmy() []Customization {
 	army := models.AffiliationARMY
 	return []Customization{
@@ -420,16 +391,23 @@ func (suite *MakerSuite) TestSetupCustomizations() {
 }
 func (suite *MakerSuite) TestValidateCustomizations() {
 	suite.Run("Control obj added if missing", func() {
+		// Under test:       setupCustomizations
+		// Set up:           Create some customizations without a control object
+		// Expected outcome: A control object should be added to the list
+
 		customs := getTraitActiveArmy()
 		suite.Len(customs, 2)
 
 		customs = setupCustomizations(customs, nil)
-		suite.Len(customs, 3)
+		suite.Len(customs, 3) // ← one was added
 		_, controlCustom := findCustomWithIdx(customs, control)
 		suite.NotNil(controlCustom)
 	})
 
 	suite.Run("Control obj not added if not missing", func() {
+		// Under test:       setupCustomizations
+		// Set up:           Create some customizations with a control object
+		// Expected outcome: No objects should be added to the list
 		customs := getTraitActiveArmy()
 		customs = append(customs, Customization{
 			Model: controlObject{},
@@ -438,12 +416,17 @@ func (suite *MakerSuite) TestValidateCustomizations() {
 		suite.Len(customs, 3)
 
 		customs = setupCustomizations(customs, nil)
-		suite.Len(customs, 3)
+		suite.Len(customs, 3) // ← nothing added
 		_, controlCustom := findCustomWithIdx(customs, control)
 		suite.NotNil(controlCustom)
 	})
 
 	suite.Run("Pass if customizations not repeated", func() {
+		// Under test:       uniqueCustomizations checks that there's only one
+		//                   customization of each type
+		// Set up:           Create some customizations of different types
+		// Expected outcome: No error
+
 		customs := getTraitActiveArmy()
 		customs = append(customs, Customization{
 			Model: models.Address{},
@@ -461,7 +444,11 @@ func (suite *MakerSuite) TestValidateCustomizations() {
 		suite.NoError(err)
 	})
 	suite.Run("Error if duplicate customization is used", func() {
-		customs := getTraitActiveArmy()
+		// Under test:       uniqueCustomizations checks that there's only one
+		//                   customization of each type
+		// Set up:           Create some customizations of the same type
+		// Expected outcome: Error
+		customs := getTraitActiveArmy() // contains a User type
 		customs = append(customs, Customization{
 			Model: models.User{},
 			Type:  &User,
@@ -474,4 +461,38 @@ func (suite *MakerSuite) TestValidateCustomizations() {
 
 	})
 
+}
+
+func (suite *MakerSuite) TestElevateCustomization() {
+
+	suite.Run("Customization converted ", func() {
+		// Under test:       convertCustomizationInList converts the type of the customization
+		//                   It's needed because dealing with the slice is finicky
+		// Set up:           Create a ResidentialAddress customization, convert to Address
+		// Expected outcome: No error
+		customEmail := "leospaceman123@example.com"
+		streetAddress := "235 Prospect Valley Road SE"
+
+		customizationList :=
+			[]Customization{
+				{
+					Model: models.User{LoginGovEmail: customEmail},
+					Type:  &User,
+				},
+				{
+					Model: models.Address{StreetAddress1: streetAddress},
+					Type:  &Addresses.ResidentialAddress,
+				},
+			}
+
+		// convert customization type from residentialAddress to Address
+		tempCustoms := convertCustomizationInList(customizationList, Addresses.ResidentialAddress, Address)
+		// Nothing wrong with customizations
+		tempCustoms, err := uniqueCustomizations(tempCustoms)
+		suite.NoError(err)
+		// Customization has new type
+		suite.Equal(Address, *tempCustoms[1].Type)
+		// Old customization list is unchanged
+		suite.Equal(Addresses.ResidentialAddress, *customizationList[1].Type)
+	})
 }

@@ -38,6 +38,7 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 	return user
 }
 
+// BuildDefaultUser creates an active user
 func BuildDefaultUser(db *pop.Connection) models.User {
 	return BuildUser(db, nil, []Trait{GetTraitActiveUser})
 }

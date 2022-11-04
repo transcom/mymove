@@ -32,6 +32,7 @@ var Address CustomType = "Address"
 var User CustomType = "User"
 var ServiceMember CustomType = "ServiceMember"
 
+// defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
 	"models.Address": Address,
 	"models.User":    User,
@@ -39,47 +40,53 @@ var defaultTypesMap = map[string]CustomType{
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
 // a code-completion friendly way to select the right type
-type AddressesGroup struct {
+
+// addressGroup is a grouping of all address related fields
+type addressGroup struct {
 	PickupAddress            CustomType
 	DeliveryAddress          CustomType
 	SecondaryDeliveryAddress CustomType
 	ResidentialAddress       CustomType
 }
 
-var Addresses = AddressesGroup{
+// Addresses is the struct to access the various fields externally
+var Addresses = addressGroup{
 	PickupAddress:            "PickupAddress",
 	DeliveryAddress:          "DeliveryAddress",
 	SecondaryDeliveryAddress: "SecondaryDeliveryAddress",
 	ResidentialAddress:       "ResidentialAddress",
 }
 
-type DimensionsGroup struct {
+// dimensionGroup is a grouping of all the Dimension related fields
+type dimensionGroup struct {
 	CrateDimension CustomType
 	ItemDimension  CustomType
 }
 
-var Dimensions = DimensionsGroup{
+// Dimensions is the struct to access the fields externally
+var Dimensions = dimensionGroup{
 	// MTOServiceItems may include:
 	CrateDimension: "CrateDimension",
 	ItemDimension:  "ItemDimension",
 }
 
-type DutyLocationsGroup struct {
+// dutyLocationsGroup is a grouping of all the duty location related fields
+type dutyLocationsGroup struct {
 	OriginDutyLocation CustomType
 	NewDutyLocation    CustomType
 }
 
-var DutyLocations = DutyLocationsGroup{
+// DutyLocations is the struct to access the fields externally
+var DutyLocations = dutyLocationsGroup{
 	// Orders may include:
 	OriginDutyLocation: "OriginDutyLocation",
 	NewDutyLocation:    "NewDutyLocation",
 }
 
-// Control is a struct used with CustomType Control to
-// set flags on overall behaviour and status of the customizations
+// controlObject is a struct used to control the global behavior of a
+// set of customizations
 type controlObject struct {
 	isValid bool // has this set of customizations been validated
-	//stub    bool // if stub is false, only in-memory objects are created, not db
 }
 
 // Trait is a function that returns a set of customizations
@@ -117,9 +124,11 @@ func setDefaultTypes(clist []Customization) {
 	}
 }
 
-// setupCustomizations
-// 1 = make sure everything has types, and there's a control object
-// 2 =
+// setupCustomizations prepares the customizations for the factory
+// - Ensures a control object has been created
+// - Assigns default types to all default customizations
+// - Merges customizations and traits
+// - Ensure there's only one customization per type
 func setupCustomizations(customs []Customization, traits []Trait) []Customization {
 
 	// If a valid control object does not exist, create
@@ -273,6 +282,7 @@ func mergeCustomization(customs []Customization, traits []Trait) []Customization
 // Helper function for when you need to elevate the type of customization from say
 // ResidentialAddress to Address before you call makeAddress
 // This is a little finicky because we want to be careful not to harm the existing list
+// TBD should we validate again here?
 func convertCustomizationInList(customs []Customization, from CustomType, to CustomType) []Customization {
 	if _, custom := findCustomWithIdx(customs, to); custom != nil {
 		log.Panic(fmt.Errorf("A customization of type %s already exists", to))
@@ -303,6 +313,9 @@ func findValidCustomization(customs []Customization, customType CustomType) *Cus
 	return custom
 }
 
+// checkNestedModels ensures we have no nested models.
+// - If a field is a struct that is a model, it should be empty
+// - If a field is a pointer to struct, and that struct is a model it should be nil
 func checkNestedModels(c interface{}) error {
 
 	// c IS THE CUSTOMIZATION, SHOULD NOT BE A POINTER
