@@ -2436,9 +2436,6 @@ func init() {
             "$ref": "#/parameters/ppmShipmentId"
           },
           {
-            "$ref": "#/parameters/progearWeightTicketId"
-          },
-          {
             "name": "updateProGearWeightTicket",
             "in": "body",
             "required": true,
@@ -7619,14 +7616,6 @@ func init() {
       "in": "path",
       "required": true
     },
-    "progearWeightTicketId": {
-      "type": "string",
-      "format": "uuid",
-      "description": "UUID of the pro-gear weight ticket",
-      "name": "proGearWeightTicketId",
-      "in": "path",
-      "required": true
-    },
     "weightTicketId": {
       "type": "string",
       "format": "uuid",
@@ -10259,14 +10248,6 @@ func init() {
             "format": "uuid",
             "description": "UUID of the PPM shipment",
             "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the pro-gear weight ticket",
-            "name": "proGearWeightTicketId",
             "in": "path",
             "required": true
           },
@@ -15578,14 +15559,6 @@ func init() {
       "required": true
     },
     "proGearWeightTicketId": {
-      "type": "string",
-      "format": "uuid",
-      "description": "UUID of the pro-gear weight ticket",
-      "name": "proGearWeightTicketId",
-      "in": "path",
-      "required": true
-    },
-    "progearWeightTicketId": {
       "type": "string",
       "format": "uuid",
       "description": "UUID of the pro-gear weight ticket",

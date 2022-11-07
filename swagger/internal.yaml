@@ -5399,7 +5399,6 @@ paths:
       parameters:
         - $ref: '#/parameters/ifMatch'
         - $ref: '#/parameters/ppmShipmentId'
-        - $ref: '#/parameters/progearWeightTicketId'
         - in: body
           name: updateProGearWeightTicket
           required: true
@@ -5880,13 +5879,6 @@ parameters:
       header does not match the value of the resource on the server, the server
       rejects the change with a `412 Precondition Failed` error.
   proGearWeightTicketId:
-    name: proGearWeightTicketId
-    in: path
-    type: string
-    format: uuid
-    required: true
-    description: UUID of the pro-gear weight ticket
-  progearWeightTicketId:
     name: proGearWeightTicketId
     in: path
     type: string

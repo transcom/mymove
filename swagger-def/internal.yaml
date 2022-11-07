@@ -4306,7 +4306,6 @@ paths:
       parameters:
         - $ref: 'parameters/ifMatch.yaml'
         - $ref: 'parameters/ppmShipmentId.yaml'
-        - $ref: 'parameters/progearWeightTicketId.yaml'
         - in: body
           name: updateProGearWeightTicket
           required: true
