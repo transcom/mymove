@@ -63,7 +63,7 @@ These are to be checked by a reviewer.
 
 - [ ] User facing changes have been reviewed by design.
 - [ ] There are no aXe warnings for UI.
-- [ ] This works in [Supported Browsers and their phone views](https://github.com/transcom/mymove/tree/master/docs/adr/0016-Browser-Support.md) (Chrome, Firefox, IE, Edge).
+- [ ] This works in [Supported Browsers and their phone views](https://github.com/transcom/mymove/tree/main/docs/adr/0016-Browser-Support.md) (Chrome, Firefox, IE, Edge).
 - [ ] There are no new console errors in the browser devtools
 - [ ] There are no new console errors in the test output
 - [ ] If this PR adds a new component to Storybook, it ensures the component is fully responsive, OR if it is intentionally not, a wrapping div using the `officeApp` class or custom `min-width` styling is used to hide any states the would not be visible to the user.
