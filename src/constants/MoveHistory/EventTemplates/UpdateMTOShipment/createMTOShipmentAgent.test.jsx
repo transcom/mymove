@@ -1,7 +1,7 @@
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
-import e from 'constants/MoveHistory/EventTemplates/createMTOShipmentAgent';
+import e from 'constants/MoveHistory/EventTemplates/UpdateMTOShipment/createMTOShipmentAgent';
 
 describe('when given an mto shipment agents insert with mto agents table history record', () => {
   const item = {

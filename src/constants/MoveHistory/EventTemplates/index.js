@@ -7,7 +7,7 @@ export { default as createMTOServiceItemCustomerContacts } from './CreateMTOServ
 export { default as createMTOServiceItemDimensions } from './CreateMTOServiceItem/createMTOServiceItemDimensions';
 export { default as createMTOShipment } from './CreateMTOShipment/createMTOShipment';
 export { default as createAddresses } from './UpdateAddress/createAddress';
-export { default as createMTOShipmentAgent } from './createMTOShipmentAgent';
+export { default as createMTOShipmentAgent } from './UpdateMTOShipment/createMTOShipmentAgent';
 export { default as createOrders } from './CreateOrders/createOrders';
 export { default as createEntitlements } from './CreateOrders/createEntitlements';
 export { default as createMoves } from './CreateOrders/createMoves';
