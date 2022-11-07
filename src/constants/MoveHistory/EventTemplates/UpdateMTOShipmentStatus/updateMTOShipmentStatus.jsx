@@ -4,16 +4,14 @@ import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 
 const formatChangedValues = (historyRecord) => {
-  const { context, changedValues } = historyRecord;
-
+  const { changedValues } = historyRecord;
   const newChangedValues = {
     ...changedValues,
-    shipment_type: context[0]?.shipment_type,
-    shipment_id_display: context[0]?.shipment_id_abbr.toUpperCase(),
+    ...getMtoShipmentLabel(historyRecord),
   };
-
   return { ...historyRecord, changedValues: newChangedValues };
 };
 

@@ -2,7 +2,8 @@ import o from 'constants/MoveHistory/UIDisplay/Operations';
 import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
-import { shipmentTypes } from 'constants/shipments';
+import { shipmentTypes as SHIPMENT_TYPE } from 'constants/shipments';
+import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 
 export default {
   action: a.INSERT,
@@ -11,8 +12,9 @@ export default {
   detailsType: d.PLAIN_TEXT,
   getEventNameDisplay: () => 'Approved service item',
   getDetailsPlainText: (historyRecord) => {
-    const shipmentType = historyRecord.context[0]?.shipment_type;
-    const shipmentIdDisplay = historyRecord.context[0].shipment_id_abbr.toUpperCase();
-    return `${shipmentTypes[shipmentType]} shipment #${shipmentIdDisplay}, ${historyRecord.context[0]?.name}`;
+    const shipmentLabel = getMtoShipmentLabel(historyRecord);
+    return `${SHIPMENT_TYPE[shipmentLabel.shipment_type]} shipment #${shipmentLabel.shipment_id_display}, ${
+      shipmentLabel.service_item_name
+    }`;
   },
 };
