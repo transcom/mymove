@@ -33,7 +33,7 @@ type Document struct {
 
 	// uploads
 	// Required: true
-	Uploads []*Upload `json:"uploads"`
+	Uploads []*UploadWithOmissions `json:"uploads"`
 }
 
 // Validate validates this document

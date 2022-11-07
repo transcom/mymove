@@ -26,7 +26,7 @@ type CreateDocumentCreated struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.DocumentPayload `json:"body,omitempty"`
+	Payload *internalmessages.Document `json:"body,omitempty"`
 }
 
 // NewCreateDocumentCreated creates CreateDocumentCreated with default headers values
@@ -36,13 +36,13 @@ func NewCreateDocumentCreated() *CreateDocumentCreated {
 }
 
 // WithPayload adds the payload to the create document created response
-func (o *CreateDocumentCreated) WithPayload(payload *internalmessages.DocumentPayload) *CreateDocumentCreated {
+func (o *CreateDocumentCreated) WithPayload(payload *internalmessages.Document) *CreateDocumentCreated {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create document created response
-func (o *CreateDocumentCreated) SetPayload(payload *internalmessages.DocumentPayload) {
+func (o *CreateDocumentCreated) SetPayload(payload *internalmessages.Document) {
 	o.Payload = payload
 }
 

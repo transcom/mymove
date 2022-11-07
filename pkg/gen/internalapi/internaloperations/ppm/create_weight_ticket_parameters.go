@@ -31,7 +31,7 @@ type CreateWeightTicketParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*UUID of the ppm shipment
+	/*UUID of the PPM shipment
 	  Required: true
 	  In: path
 	*/

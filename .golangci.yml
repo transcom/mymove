@@ -58,7 +58,6 @@ run:
   issues-exit-code: 1
   tests: true
   skip-dirs:
-    - pkg/assets
     - pkg/gen
     - .*mocks # also cover custom mocks directories like "ghcmocks"
   skip-dirs-use-default: true

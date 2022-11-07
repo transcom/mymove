@@ -27,7 +27,7 @@ const PrivateRoute = (props) => {
 
   if (!userIsLoggedIn) return <Redirect to="/sign-in" />;
   if (!userIsAuthorized(userRoleTypes, requiredRoles)) {
-    return <Redirect to="/" />;
+    return <Redirect to="/invalid-permissions" />;
   }
 
   // eslint-disable-next-line react/jsx-props-no-spreading

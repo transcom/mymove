@@ -1,12 +1,12 @@
-import React, { Component } from 'react';
+import React, { Component, lazy } from 'react';
+import { Route, Switch, withRouter } from 'react-router-dom';
 
-import { get } from 'lodash';
 import Home from './Home';
-import SignIn from 'scenes/SystemAdmin/shared/SignIn';
-import { isDevelopment } from 'shared/constants';
-import { LoginButton } from 'scenes/SystemAdmin/shared/LoginButton';
 import { GetLoggedInUser } from 'utils/api';
 import CUIHeader from 'components/CUIHeader/CUIHeader';
+// Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
+const SignIn = lazy(() => import('pages/SignIn/SignIn'));
+const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
 
 class AdminWrapper extends Component {
   constructor(props) {
@@ -25,24 +25,19 @@ class AdminWrapper extends Component {
   }
 
   render() {
-    if (!this.state.isLoggedIn) {
-      return (
-        <>
-          <div id="app-root">
-            <CUIHeader />
-            <LoginButton
-              showDevlocalButton={get(this.state, 'isDevelopment', isDevelopment)}
-              isLoggedIn={this.state.isLoggedIn}
-            />
-            <SignIn location={window.location} />
-          </div>
-          <div id="modal-root" />
-        </>
-      );
-    } else {
-      return <Home />;
-    }
+    const defaultComponent = this.state.isLoggedIn ? Home : SignIn;
+    return (
+      <div id="app-root">
+        <CUIHeader />
+        <Switch>
+          {/* no auth */}
+          <Route path="/sign-in" component={SignIn} />
+          <Route path="/invalid-permissions" component={InvalidPermissions} />
+          <Route path="/" component={defaultComponent} />)
+        </Switch>
+      </div>
+    );
   }
 }
 
-export default AdminWrapper;
+export default withRouter(AdminWrapper);

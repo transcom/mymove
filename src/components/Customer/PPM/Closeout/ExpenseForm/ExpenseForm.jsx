@@ -30,17 +30,17 @@ const validationSchema = Yup.object().shape({
   paidWithGTCC: Yup.boolean().required('Required'),
   amount: Yup.string().notOneOf(['0', '0.00'], 'Please enter a non-zero amount').required('Required'),
   missingReceipt: Yup.boolean().required('Required'),
-  receiptDocument: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
+  document: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
   sitStartDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
-      is: 'STORAGE',
-      then: (schema) => schema.required('Required'),
+      is: ppmExpenseTypes.STORAGE,
+      then: (schema) => schema.required('Required').max(Yup.ref('sitEndDate'), 'Start date must be before end date.'),
     }),
   sitEndDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
-      is: 'STORAGE',
+      is: ppmExpenseTypes.STORAGE,
       then: (schema) => schema.required('Required'),
     }),
 });
@@ -63,12 +63,12 @@ const ExpenseForm = ({
     paidWithGTCC: paidWithGtcc ? 'true' : 'false',
     amount: amount ? `${formatCents(amount)}` : '',
     missingReceipt: !!missingReceipt,
-    receiptDocument: document?.uploads || [],
+    document: document?.uploads || [],
     sitStartDate: sitStartDate || '',
     sitEndDate: sitEndDate || '',
   };
 
-  const receiptDocumentRef = createRef();
+  const documentRef = createRef();
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -137,43 +137,34 @@ const ExpenseForm = ({
                         </Alert>
                       )}
                       <div className={styles.labelWrapper}>
-                        <Label
-                          error={formikProps.touched?.receiptDocument && formikProps.errors?.receiptDocument}
-                          htmlFor="receiptDocument"
-                        >
+                        <Label error={formikProps.touched?.document && formikProps.errors?.document} htmlFor="document">
                           Upload receipt
                         </Label>
                       </div>
-                      {formikProps.touched?.receiptDocument && formikProps.errors?.receiptDocument && (
-                        <ErrorMessage>{formikProps.errors?.receiptDocument}</ErrorMessage>
+                      {formikProps.touched?.document && formikProps.errors?.document && (
+                        <ErrorMessage>{formikProps.errors?.document}</ErrorMessage>
                       )}
                       <Hint className={styles.uploadInstructions}>
                         <p>{DocumentAndImageUploadInstructions}</p>
                       </Hint>
                       <UploadsTable
-                        // className={styles.uploadsTable}
-                        uploads={values.receiptDocument}
+                        uploads={values.document}
                         onDelete={(uploadId) =>
-                          onUploadDelete(
-                            uploadId,
-                            'receiptDocument',
-                            formikProps.setFieldTouched,
-                            formikProps.setFieldValue,
-                          )
+                          onUploadDelete(uploadId, 'document', formikProps.setFieldTouched, formikProps.setFieldValue)
                         }
                       />
                       <FileUpload
-                        name="receiptDocument"
+                        name="document"
                         className="receiptDocument"
-                        createUpload={(file) => onCreateUpload('receiptDocument', file)}
+                        createUpload={(file) => onCreateUpload('document', file, formikProps.setFieldTouched)}
                         labelIdle={UploadDropZoneLabel}
                         labelIdleMobile={UploadDropZoneLabelMobile}
                         onChange={(err, upload) => {
-                          formikProps.setFieldTouched('receiptDocument', true);
+                          formikProps.setFieldTouched('document', true);
                           onUploadComplete(err);
-                          receiptDocumentRef.current.removeFile(upload.id);
+                          documentRef.current.removeFile(upload.id);
                         }}
-                        ref={receiptDocumentRef}
+                        ref={documentRef}
                       />
                     </FormGroup>
                   </>

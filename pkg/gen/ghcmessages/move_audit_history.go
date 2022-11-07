@@ -37,9 +37,6 @@ type MoveAuditHistory struct {
 	// A list of (changed/updated) MoveAuditHistoryItem's for a record after the change.
 	ChangedValues interface{} `json:"changedValues,omitempty"`
 
-	// Record the text of the client query that triggered the audit event
-	ClientQuery *string `json:"clientQuery,omitempty"`
-
 	// context
 	Context []map[string]string `json:"context"`
 

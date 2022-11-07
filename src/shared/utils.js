@@ -76,7 +76,7 @@ export const convertDollarsToCents = (dollars) => {
     return undefined;
   }
 
-  return Math.round(parseFloat(String(dollars).replace(',', '')) * 100);
+  return Math.round(parseFloat(String(dollars).replace(/,/g, '')) * 100);
 };
 
 export function renderStatusIcon(status) {

@@ -467,7 +467,7 @@ describe('when getting the next incomplete page', () => {
           move: { id: 'bar' },
           uploads: [
             {
-              content_type: 'application/pdf',
+              contentType: 'application/pdf',
               filename: 'testfile.pdf',
               status: 'PROCESSING',
               url: 'storage/user/1234pdf',

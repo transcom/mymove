@@ -88,6 +88,9 @@ const basicUseTXOMoveInfoQueriesValue = {
     },
     destinationDutyLocation: {
       name: 'JB Lewis-McChord',
+      address: {
+        postalCode: '94535',
+      },
     },
     report_by_date: '2018-08-01',
   },

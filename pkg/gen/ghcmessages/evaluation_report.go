@@ -72,6 +72,10 @@ type EvaluationReport struct {
 	// Format: date
 	ObservedDate *strfmt.Date `json:"observedDate,omitempty"`
 
+	// observed delivery date
+	// Format: date
+	ObservedDeliveryDate *strfmt.Date `json:"observedDeliveryDate,omitempty"`
+
 	// observed pickup date
 	// Format: date
 	ObservedPickupDate *strfmt.Date `json:"observedPickupDate,omitempty"`
@@ -163,6 +167,10 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateObservedDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateObservedDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -341,6 +349,18 @@ func (m *EvaluationReport) validateObservedDate(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("observedDate", "body", "date", m.ObservedDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateObservedDeliveryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObservedDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observedDeliveryDate", "body", "date", m.ObservedDeliveryDate.String(), formats); err != nil {
 		return err
 	}
 

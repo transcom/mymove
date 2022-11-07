@@ -1,6 +1,6 @@
 description: A document uploaded by the movers proving that the customer has been counseled about excess weight.
 allOf:
-  - $ref: 'Upload.yaml'
+  - $ref: 'UploadWithOmissions.yaml'
   - type: object
     properties:
       moveId:

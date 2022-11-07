@@ -108,6 +108,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
 		WeightTickets:                  WeightTickets(storer, ppmShipment.WeightTickets),
 		MovingExpenses:                 MovingExpenses(storer, ppmShipment.MovingExpenses),
+		ProGearWeightTickets:           ProGearWeightTickets(ppmShipment.ProgearExpenses),
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -236,8 +237,8 @@ func ClientError(title string, detail string, instance uuid.UUID) *internalmessa
 	}
 }
 
-func PayloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
-	uploads := make([]*internalmessages.UploadPayload, len(document.UserUploads))
+func PayloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.Document, error) {
+	uploads := make([]*internalmessages.Upload, len(document.UserUploads))
 	for i, userUpload := range document.UserUploads {
 		if userUpload.Upload.ID == uuid.Nil {
 			return nil, errors.New("no uploads for user")
@@ -251,7 +252,7 @@ func PayloadForDocumentModel(storer storage.FileStorer, document models.Document
 		uploads[i] = uploadPayload
 	}
 
-	documentPayload := &internalmessages.DocumentPayload{
+	documentPayload := &internalmessages.Document{
 		ID:              handlers.FmtUUID(document.ID),
 		ServiceMemberID: handlers.FmtUUID(document.ServiceMemberID),
 		Uploads:         uploads,
@@ -263,15 +264,15 @@ func PayloadForUploadModel(
 	storer storage.FileStorer,
 	upload models.Upload,
 	url string,
-) *internalmessages.UploadPayload {
-	uploadPayload := &internalmessages.UploadPayload{
-		ID:          handlers.FmtUUID(upload.ID),
-		Filename:    swag.String(upload.Filename),
-		ContentType: swag.String(upload.ContentType),
-		URL:         handlers.FmtURI(url),
-		Bytes:       &upload.Bytes,
-		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
-		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+) *internalmessages.Upload {
+	uploadPayload := &internalmessages.Upload{
+		ID:          handlers.FmtUUIDValue(upload.ID),
+		Filename:    upload.Filename,
+		ContentType: upload.ContentType,
+		URL:         strfmt.URI(url),
+		Bytes:       upload.Bytes,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
@@ -295,19 +296,21 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		PpmShipmentID:  *handlers.FmtUUID(movingExpense.PPMShipmentID),
 		DocumentID:     *handlers.FmtUUID(movingExpense.DocumentID),
 		Document:       document,
-		CreatedAt:      handlers.FmtDateTime(movingExpense.CreatedAt),
-		UpdatedAt:      handlers.FmtDateTime(movingExpense.UpdatedAt),
+		CreatedAt:      strfmt.DateTime(movingExpense.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(movingExpense.UpdatedAt),
 		Description:    movingExpense.Description,
 		PaidWithGtcc:   movingExpense.PaidWithGTCC,
 		Amount:         handlers.FmtCost(movingExpense.Amount),
 		MissingReceipt: movingExpense.MissingReceipt,
+		ETag:           etag.GenerateEtag(movingExpense.UpdatedAt),
 	}
 	if movingExpense.MovingExpenseType != nil {
-		payload.MovingExpenseType = internalmessages.MovingExpenseType(*movingExpense.MovingExpenseType)
+		movingExpenseType := internalmessages.OmittableMovingExpenseType(*movingExpense.MovingExpenseType)
+		payload.MovingExpenseType = &movingExpenseType
 	}
 
 	if movingExpense.Status != nil {
-		status := internalmessages.PPMDocumentStatus(*movingExpense.Status)
+		status := internalmessages.OmittablePPMDocumentStatus(*movingExpense.Status)
 		payload.Status = &status
 	}
 
@@ -387,7 +390,7 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 	}
 
 	if weightTicket.Status != nil {
-		status := internalmessages.PPMDocumentStatus(*weightTicket.Status)
+		status := internalmessages.OmittablePPMDocumentStatus(*weightTicket.Status)
 		payload.Status = &status
 	}
 
@@ -396,5 +399,12 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		payload.Reason = &reason
 	}
 
+	return payload
+}
+
+// ProGearWeightTickets sets up a ProGearWeightTicket slice for the api using model data.
+func ProGearWeightTickets(proGearWeightTickets models.ProgearWeightTickets) []*internalmessages.ProGearWeightTicket {
+	payload := make([]*internalmessages.ProGearWeightTicket, len(proGearWeightTickets))
+	// TODO: MB-14168 will fill this in. Needed to at least have this for MB-13773, but the goal wasn't to get this working fully until MB-14168 and related tickets are done.
 	return payload
 }

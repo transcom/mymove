@@ -17,7 +17,7 @@ func MakeMinimalWeightTicket(db *pop.Connection, assertions Assertions) models.W
 	// so we'll look at assertions.WeightTicket.<Document>
 	emptyDocument := GetOrCreateDocument(db, assertions.WeightTicket.EmptyDocument, assertions)
 	fullDocument := GetOrCreateDocument(db, assertions.WeightTicket.FullDocument, assertions)
-	trailerDocument := GetOrCreateDocument(db, assertions.WeightTicket.FullDocument, assertions)
+	trailerDocument := GetOrCreateDocument(db, assertions.WeightTicket.ProofOfTrailerOwnershipDocument, assertions)
 
 	newWeightTicket := models.WeightTicket{
 		PPMShipmentID:                     ppmShipment.ID,
@@ -67,6 +67,7 @@ func MakeWeightTicket(db *pop.Connection, assertions Assertions) models.WeightTi
 			FullDocumentID:           fullDocument.ID,
 			FullDocument:             fullDocument,
 			OwnsTrailer:              models.BoolPointer(false),
+			TrailerMeetsCriteria:     models.BoolPointer(false),
 		},
 	}
 

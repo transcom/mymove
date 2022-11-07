@@ -22,6 +22,7 @@ tags:
   - name: mtoShipment
   - name: mtoAgent
   - name: paymentServiceItem
+  - name: ppm
   - name: tac
 paths:
   '/customer/{customerID}':
@@ -1265,6 +1266,132 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
+  /ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+      - $ref: 'parameters/weightTicketId.yaml'
+    patch:
+      summary: Updates a weight ticket document
+      description: |
+        Updates a PPM shipment's weight ticket document with new information. Only some of the weight ticket document's
+        fields are editable because some have to be set by the customer, e.g. vehicle description.
+      operationId: updateWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: 'parameters/ifMatch.yaml'
+        - in: body
+          name: updateWeightTicketPayload
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateWeightTicket'
+      responses:
+        '200':
+          description: returns an updated weight ticket object
+          schema:
+            $ref: 'definitions/WeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+      - $ref: 'parameters/movingExpenseId.yaml'
+    patch:
+      summary: Updates the moving expense
+      description: |
+        Updates a PPM shipment's moving expense with new information. Only some of the moving expense's fields are
+        editable because some have to be set by the customer, e.g. the description and the moving expense type.
+      operationId: updateMovingExpense
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: 'parameters/ifMatch.yaml'
+        - in: body
+          name: updateMovingExpense
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMovingExpense'
+      responses:
+        '200':
+          description: returns an updated moving expense object
+          schema:
+            $ref: 'definitions/MovingExpense.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+      - $ref: 'parameters/proGearWeightTicketId.yaml'
+    patch:
+      summary: Updates a pro-gear weight ticket
+      description: |
+        Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable
+        because some have to be set by the customer, e.g. the description.
+      operationId: updateProGearWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: 'parameters/ifMatch.yaml'
+        - in: body
+          name: updateProGearWeightTicket
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateProGearWeightTicket'
+      responses:
+        '200':
+          description: returns an updated pro-gear weight ticket object
+          schema:
+            $ref: 'definitions/ProGearWeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
@@ -2054,7 +2181,7 @@ paths:
       description: Fetch the possible PWS violations for an evaluation report
       operationId: getPWSViolations
       tags:
-        - evaluationReports
+        - pwsViolations
       produces:
         - application/json
       responses:
@@ -2319,7 +2446,7 @@ paths:
         '200':
           description: the requested document
           schema:
-            $ref: '#/definitions/DocumentPayload'
+            $ref: 'definitions/Document.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -3132,10 +3259,6 @@ definitions:
         description: Identifier of transaction that made the change. May wrap, but unique paired with action_tstamp_tx.
         type: integer
         x-nullable: true
-      clientQuery:
-        description: Record the text of the client query that triggered the audit event
-        type: string
-        x-nullable: true
       action:
         description: Action type; I = insert, D = delete, U = update, T = truncate
         type: string
@@ -3784,7 +3907,7 @@ definitions:
     properties:
       uploads:
         items:
-          $ref: '#/definitions/Upload'
+          $ref: 'definitions/Upload.yaml'
         type: array
   ShipmentsPaymentSITBalance:
     items:
@@ -3981,6 +4104,65 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+  UpdateWeightTicket:
+    type: object
+    properties:
+      emptyWeight:
+        description: Weight of the vehicle when empty.
+        type: integer
+        minimum: 0
+      fullWeight:
+        description: The weight of the vehicle when full.
+        type: integer
+        minimum: 0
+      ownsTrailer:
+        description: Indicates if the customer used a trailer they own for the move.
+        type: boolean
+      trailerMeetsCriteria:
+        description: Indicates if the trailer that the customer used meets all the criteria to be claimable.
+        type: boolean
+      status:
+        $ref: 'definitions/PPMDocumentStatus.yaml'
+      reason:
+        description: The reason the services counselor has excluded or rejected the item.
+        type: string
+  UpdateMovingExpense:
+    type: object
+    properties:
+      amount:
+        description: The total amount of the expense as indicated on the receipt
+        type: integer
+      sitStartDate:
+        description: The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
+        type: string
+        format: date
+      sitEndDate:
+        description: The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
+        type: string
+        format: date
+      status:
+        $ref: 'definitions/PPMDocumentStatus.yaml'
+      reason:
+        description: The reason the services counselor has excluded or rejected the item.
+        type: string
+  UpdateProGearWeightTicket:
+    type: object
+    properties:
+      belongsToSelf:
+        description: Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.
+        type: boolean
+      hasWeightTickets:
+        description: Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.
+        type: boolean
+      weight:
+        description: Weight of the pro-gear contained in the shipment.
+        type: integer
+        minimum: 0
+      status:
+        $ref: 'definitions/PPMDocumentStatus.yaml'
+      reason:
+        description: The reason the services counselor has excluded or rejected the item.
+        type: string
   MTOShipments:
     items:
       $ref: 'definitions/MTOShipment.yaml'
@@ -4243,65 +4425,6 @@ definitions:
         $ref: '#/definitions/PaymentRequestStatus'
       eTag:
         type: string
-    type: object
-  DocumentPayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
-        type: string
-        format: uuid
-        title: The service member this document belongs to
-      uploads:
-        type: array
-        items:
-          $ref: '#/definitions/Upload'
-    required:
-      - id
-      - service_member_id
-      - uploads
-  Upload:
-    properties:
-      bytes:
-        type: integer
-      contentType:
-        example: application/pdf
-        format: mime-type
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      filename:
-        example: filename.pdf
-        type: string
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      updatedAt:
-        format: date-time
-        type: string
-      url:
-        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
-        format: uri
-        type: string
-      status:
-        type: string
-        enum:
-          - INFECTED
-          - CLEAN
-          - PROCESSING
-    required:
-      - id
-      - url
-      - filename
-      - contentType
-      - bytes
-      - createdAt
-      - updatedAt
     type: object
   QueueMoves:
     type: array
@@ -4617,6 +4740,10 @@ definitions:
         format: date
         x-nullable: true
       observedPickupSpreadEndDate:
+        type: string
+        format: date
+        x-nullable: true
+      observedDeliveryDate:
         type: string
         format: date
         x-nullable: true

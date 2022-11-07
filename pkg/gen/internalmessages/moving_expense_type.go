@@ -54,8 +54,8 @@ const (
 	// MovingExpenseTypeTOLLS captures enum value "TOLLS"
 	MovingExpenseTypeTOLLS MovingExpenseType = "TOLLS"
 
-	// MovingExpenseTypeWEIGHINGFEES captures enum value "WEIGHING_FEES"
-	MovingExpenseTypeWEIGHINGFEES MovingExpenseType = "WEIGHING_FEES"
+	// MovingExpenseTypeWEIGHINGFEE captures enum value "WEIGHING_FEE"
+	MovingExpenseTypeWEIGHINGFEE MovingExpenseType = "WEIGHING_FEE"
 )
 
 // for schema
@@ -63,7 +63,7 @@ var movingExpenseTypeEnum []interface{}
 
 func init() {
 	var res []MovingExpenseType
-	if err := json.Unmarshal([]byte(`["CONTRACTED_EXPENSE","GAS","OIL","OTHER","PACKING_MATERIALS","RENTAL_EQUIPMENT","STORAGE","TOLLS","WEIGHING_FEES"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["CONTRACTED_EXPENSE","GAS","OIL","OTHER","PACKING_MATERIALS","RENTAL_EQUIPMENT","STORAGE","TOLLS","WEIGHING_FEE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

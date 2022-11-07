@@ -7,31 +7,15 @@ import (
 	"net/http/httptest"
 	"strings"
 	"time"
-
-	"github.com/alexedwards/scs/v2"
-	"github.com/alexedwards/scs/v2/memstore"
 )
 
 func (suite *authSuite) SetupTest() {
 	gob.Register(Session{})
 }
 
-func setupSessionManagers() [3]*scs.SessionManager {
-	var milSession, adminSession, officeSession *scs.SessionManager
-	store := memstore.New()
-	milSession = scs.New()
-	milSession.Store = store
-	milSession.Cookie.Name = "mil_session_token"
-
-	adminSession = scs.New()
-	adminSession.Store = store
-	adminSession.Cookie.Name = "admin_session_token"
-
-	officeSession = scs.New()
-	officeSession.Store = store
-	officeSession.Cookie.Name = "office_session_token"
-
-	return [3]*scs.SessionManager{milSession, adminSession, officeSession}
+func (suite *authSuite) SetupSessionManagers() AppSessionManagers {
+	return SetupSessionManagers(nil, false, time.Duration(180*time.Second),
+		time.Duration(180*time.Second))
 }
 
 func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseRecorder, *http.Request) {
@@ -55,8 +39,8 @@ func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseR
 
 func (suite *authSuite) TestSessionCookieMiddlewareWithBadToken() {
 	fakeToken := "some_token"
-	sessionManagers := setupSessionManagers()
-	milSession := sessionManagers[0]
+	sessionManagers := suite.SetupSessionManagers()
+	milSession := sessionManagers.Mil
 
 	var resultingSession *Session
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -124,9 +108,8 @@ func (suite *authSuite) TestMaskedCSRFMiddlewareCreatesNewToken() {
 
 func (suite *authSuite) TestMiddlewareConstructor() {
 	appnames := ApplicationTestServername()
-	sessionManagers := setupSessionManagers()
 
-	adm := SessionCookieMiddleware(suite.logger, appnames, sessionManagers)
+	adm := SessionCookieMiddleware(suite.logger, appnames, suite.SetupSessionManagers())
 	suite.NotNil(adm)
 }
 
@@ -141,8 +124,8 @@ func (suite *authSuite) TestMiddlewareMilApp() {
 		suite.False(session.IsAdminApp(), "first should not be admin app")
 		suite.Equal(appnames.MilServername, session.Hostname)
 	})
-	sessionManagers := setupSessionManagers()
-	milSession := sessionManagers[0]
+	sessionManagers := suite.SetupSessionManagers()
+	milSession := sessionManagers.Mil
 	milMoveMiddleware := SessionCookieMiddleware(suite.logger, appnames, sessionManagers)(milMoveTestHandler)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", appnames.MilServername), nil)
@@ -166,8 +149,8 @@ func (suite *authSuite) TestMiddlwareOfficeApp() {
 		suite.False(session.IsAdminApp(), "should not be admin app")
 		suite.Equal(appnames.OfficeServername, session.Hostname)
 	})
-	sessionManagers := setupSessionManagers()
-	officeSession := sessionManagers[2]
+	sessionManagers := suite.SetupSessionManagers()
+	officeSession := sessionManagers.Office
 	officeMiddleware := SessionCookieMiddleware(suite.logger, appnames, sessionManagers)(officeTestHandler)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", appnames.OfficeServername), nil)
@@ -191,8 +174,8 @@ func (suite *authSuite) TestMiddlwareAdminApp() {
 		suite.True(session.IsAdminApp(), "should be admin app")
 		suite.Equal(AdminTestHost, session.Hostname)
 	})
-	sessionManagers := setupSessionManagers()
-	adminSession := sessionManagers[1]
+	sessionManagers := suite.SetupSessionManagers()
+	adminSession := sessionManagers.Admin
 	adminMiddleware := SessionCookieMiddleware(suite.logger, appnames, sessionManagers)(adminTestHandler)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", AdminTestHost), nil)
@@ -212,8 +195,8 @@ func (suite *authSuite) TestMiddlewareBadApp() {
 		suite.Fail("Should not be called")
 	})
 	appnames := ApplicationTestServername()
-	sessionManagers := setupSessionManagers()
-	milSession := sessionManagers[0]
+	sessionManagers := suite.SetupSessionManagers()
+	milSession := sessionManagers.Mil
 	noAppMiddleware := SessionCookieMiddleware(suite.logger, appnames, sessionManagers)(noAppTestHandler)
 
 	req := httptest.NewRequest("GET", "http://totally.bogus.hostname/some_url", nil)

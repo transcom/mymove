@@ -21,7 +21,7 @@ describe('when given an mto shipment agents update with mto agents table history
       last_name: 'Griffin',
       phone: '555-555-5551',
     },
-    context: [{ shipment_type: 'HHG' }],
+    context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c' }],
   };
 
   it('correctly matches the Update mto shipment agent event for releasing agents', () => {
@@ -40,6 +40,7 @@ describe('when given an mto shipment agents update with mto agents table history
       first_name: 'Grace',
       phone: '555-555-5555',
       shipment_type: 'HHG',
+      shipment_id_display: 'A1B2C',
     });
   });
 
@@ -59,6 +60,7 @@ describe('when given an mto shipment agents update with mto agents table history
       first_name: 'Grace',
       phone: '555-555-5555',
       shipment_type: 'HHG',
+      shipment_id_display: 'A1B2C',
     });
   });
 });

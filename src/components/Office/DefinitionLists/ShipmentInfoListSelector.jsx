@@ -18,6 +18,7 @@ const ShipmentInfoListSelector = ({
   neverShow,
   shipmentType,
   isForEvaluationReport,
+  destinationDutyLocationPostalCode,
 }) => {
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.PPM:
@@ -44,6 +45,7 @@ const ShipmentInfoListSelector = ({
           shipmentType={shipmentType}
           showWhenCollapsed={showWhenCollapsed}
           isForEvaluationReport={isForEvaluationReport}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />
       );
     case SHIPMENT_OPTIONS.NTSR:
@@ -56,6 +58,7 @@ const ShipmentInfoListSelector = ({
           errorIfMissing={errorIfMissing}
           showWhenCollapsed={showWhenCollapsed}
           isForEvaluationReport={isForEvaluationReport}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />
       );
     case SHIPMENT_OPTIONS.NTS:
@@ -79,6 +82,7 @@ const ShipmentInfoListSelector = ({
           shipmentType={shipmentType}
           isExpanded={isExpanded}
           isForEvaluationReport={isForEvaluationReport}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />
       );
   }
@@ -101,6 +105,7 @@ ShipmentInfoListSelector.propTypes = {
     SHIPMENT_OPTIONS.PPM,
   ]),
   isForEvaluationReport: PropTypes.bool,
+  destinationDutyLocationPostalCode: PropTypes.string,
 };
 
 ShipmentInfoListSelector.defaultProps = {
@@ -112,6 +117,7 @@ ShipmentInfoListSelector.defaultProps = {
   showWhenCollapsed: [],
   neverShow: [],
   isForEvaluationReport: false,
+  destinationDutyLocationPostalCode: '',
 };
 
 export default ShipmentInfoListSelector;

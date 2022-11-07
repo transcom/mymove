@@ -19,15 +19,15 @@ import (
 // swagger:model UpdateMovingExpense
 type UpdateMovingExpense struct {
 
-	// amount
+	// The total amount of the expense as indicated on the receipt
 	// Required: true
 	Amount *int64 `json:"amount"`
 
-	// description
+	// A brief description of the expense
 	// Required: true
 	Description *string `json:"description"`
 
-	// missing receipt
+	// Indicates if the customer is missing the receipt for their expense.
 	// Required: true
 	MissingReceipt *bool `json:"missingReceipt"`
 
@@ -35,16 +35,16 @@ type UpdateMovingExpense struct {
 	// Required: true
 	MovingExpenseType *MovingExpenseType `json:"movingExpenseType"`
 
-	// paid with g t c c
+	// Indicates if the service member used their government issued card to pay for the expense
 	// Required: true
 	PaidWithGTCC *bool `json:"paidWithGTCC"`
 
-	// sit end date
+	// The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
 	// Example: 2018-05-26
 	// Format: date
 	SitEndDate strfmt.Date `json:"sitEndDate,omitempty"`
 
-	// sit start date
+	// The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
 	// Example: 2022-04-26
 	// Format: date
 	SitStartDate strfmt.Date `json:"sitStartDate,omitempty"`

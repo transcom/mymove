@@ -26,7 +26,7 @@ type ShowDocumentOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.DocumentPayload `json:"body,omitempty"`
+	Payload *internalmessages.Document `json:"body,omitempty"`
 }
 
 // NewShowDocumentOK creates ShowDocumentOK with default headers values
@@ -36,13 +36,13 @@ func NewShowDocumentOK() *ShowDocumentOK {
 }
 
 // WithPayload adds the payload to the show document o k response
-func (o *ShowDocumentOK) WithPayload(payload *internalmessages.DocumentPayload) *ShowDocumentOK {
+func (o *ShowDocumentOK) WithPayload(payload *internalmessages.Document) *ShowDocumentOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the show document o k response
-func (o *ShowDocumentOK) SetPayload(payload *internalmessages.DocumentPayload) {
+func (o *ShowDocumentOK) SetPayload(payload *internalmessages.Document) {
 	o.Payload = payload
 }
 

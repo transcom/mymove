@@ -183,6 +183,14 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 
 		params := subtestData.params
 
+		// An upload must exist if trailer is owned and qualifies to be claimed
+		testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			UserUpload: models.UserUpload{
+				DocumentID: &subtestData.weightTicket.ProofOfTrailerOwnershipDocumentID,
+				Document:   subtestData.weightTicket.ProofOfTrailerOwnershipDocument,
+			},
+		})
+
 		// Add vehicleDescription
 		params.UpdateWeightTicketPayload = &internalmessages.UpdateWeightTicket{
 			VehicleDescription:       "Subaru",
@@ -202,7 +210,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		suite.Equal(subtestData.weightTicket.ID.String(), updatedWeightTicket.ID.String())
 		suite.Equal(params.UpdateWeightTicketPayload.VehicleDescription, *updatedWeightTicket.VehicleDescription)
 	})
-	// TODO: for failures pick any field, except the bools, and pass in an empty string for the udpate to trigger failure
+
 	suite.Run("PATCH failure -400 - nil body", func() {
 		appCtx := suite.AppContextForTest()
 
