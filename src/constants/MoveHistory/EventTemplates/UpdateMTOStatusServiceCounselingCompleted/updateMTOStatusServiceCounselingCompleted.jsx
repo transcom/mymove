@@ -9,5 +9,5 @@ export default {
   eventName: o.updateMTOStatusServiceCounselingCompleted,
   tableName: t.moves,
   getEventNameDisplay: () => 'Updated shipment',
-  getDetailsPlainText: () => <> Counseling Completed </>,
+  getDetails: () => <> Counseling Completed </>,
 };
