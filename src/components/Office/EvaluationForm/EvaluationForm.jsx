@@ -467,20 +467,24 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
                       </Fieldset>
                     </FormGroup>
                     {showObservedDeliveryDate && (
-                      <DatePickerInput
-                        label="Observed delivery date"
-                        name="observedDate"
-                        hint="Only enter a date here if the delivery you witnessed did not happen on the scheduled delivery date"
-                        showOptional
-                      />
+                      <div className={styles.showOptional}>
+                        <DatePickerInput
+                          label="Observed delivery date"
+                          name="observedDate"
+                          hint="Only enter a date here if the delivery you witnessed did not happen on the scheduled delivery date"
+                          showOptional
+                        />
+                      </div>
                     )}
                     {showObservedPickupDate && (
-                      <DatePickerInput
-                        label="Observed pickup date"
-                        name="observedDate"
-                        hint="Only enter a date here if the pickup you witnessed did not happen on the scheduled pickup date"
-                        showOptional
-                      />
+                      <div className={styles.showOptional}>
+                        <DatePickerInput
+                          label="Observed pickup date"
+                          name="observedDate"
+                          hint="Only enter a date here if the pickup you witnessed did not happen on the scheduled pickup date"
+                          showOptional
+                        />
+                      </div>
                     )}
 
                     <Fieldset>
