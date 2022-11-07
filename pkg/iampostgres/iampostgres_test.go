@@ -34,14 +34,11 @@ func TestEnableIamNilCreds(t *testing.T) {
 
 	tmr := time.NewTicker(1 * time.Second)
 
-	shouldQuitChan := make(chan bool)
-
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		nil,
 		&rdsu,
 		tmr,
-		logger,
-		shouldQuitChan)
+		logger)
 	time.Sleep(2 * time.Second)
 
 	iamConfig.currentPassMutex.Lock()
@@ -62,20 +59,16 @@ func TestGetCurrentPassword(t *testing.T) {
 
 	tmr := time.NewTicker(2 * time.Second)
 
-	shouldQuitChan := make(chan bool)
-
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		&rdsu,
 		tmr,
-		logger,
-		shouldQuitChan)
+		logger)
 
 	// this should block for ~ 250ms and then continue
 	currentPass := GetCurrentPass()
 	assert.Equal(currentPass, "abc")
-	shouldQuitChan <- true
-
+	ShutdownIAM()
 	tmr.Stop()
 
 }
@@ -92,19 +85,16 @@ func TestGetCurrentPasswordFail(t *testing.T) {
 
 	tmr := time.NewTicker(1 * time.Second)
 
-	shouldQuitChan := make(chan bool)
-
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		&rdsu,
 		tmr,
-		logger,
-		shouldQuitChan)
+		logger)
 
 	// this should block for 30s then return empty string
 	currentPass := GetCurrentPass()
 	assert.Equal(currentPass, "")
-	shouldQuitChan <- true
+	ShutdownIAM()
 	tmr.Stop()
 
 }
@@ -143,8 +133,6 @@ func TestEnableIAMNormal(t *testing.T) {
 
 	tmr := time.NewTicker(1 * time.Second)
 
-	shouldQuitChan := make(chan bool)
-
 	// Confirm that the password got set to what we initially set it to.
 	pass := GetCurrentPass()
 	assert.Equal("123", pass)
@@ -154,8 +142,7 @@ func TestEnableIAMNormal(t *testing.T) {
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		&rdsu,
 		tmr,
-		logger,
-		shouldQuitChan)
+		logger)
 
 	// The sleep time should be greater than how often the password will cycle
 	// so that the next time the password is fetched, it will have changed.
@@ -165,8 +152,7 @@ func TestEnableIAMNormal(t *testing.T) {
 	// password) to the 1 password being cycled through.
 	pass = GetCurrentPass()
 	assert.Equal("abc", pass)
-
-	shouldQuitChan <- true
+	ShutdownIAM()
 	tmr.Stop()
 }
 

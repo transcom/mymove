@@ -43,6 +43,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/handlers/routing"
+	"github.com/transcom/mymove/pkg/iampostgres"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -612,6 +613,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dbClose := &sync.Once{}
 	var redisPool *redis.Pool
 	redisClose := &sync.Once{}
+	dbIAMEnabled := false
 
 	// cleanup that runs when this function ends ensuring we close
 	// the database connection, the redis connection, and flush the
@@ -626,6 +628,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 					logger.Info("closing database connections")
 					if err := dbConnection.Close(); err != nil {
 						logger.Error("error closing database connections", zap.Error(err))
+					}
+					if dbIAMEnabled {
+						iampostgres.ShutdownIAM()
 					}
 				})
 			}
@@ -683,6 +688,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// connect to the db
 	dbConnection = initializeDB(v, logger, session)
+
+	// set this so that on shutdown we know if we need to stop rds iam
+	// credential generation
+	dbIAMEnabled = v.GetBool(cli.DbIamFlag)
 
 	// set up appcontext
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
@@ -849,6 +858,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dbClose.Do(func() {
 		logger.Info("closing database connections")
 		dbCloseErr = dbConnection.Close()
+		if dbIAMEnabled {
+			iampostgres.ShutdownIAM()
+		}
+
 	})
 
 	var redisCloseErr error

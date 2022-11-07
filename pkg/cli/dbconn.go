@@ -310,8 +310,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 			creds,
 			iampg.RDSU{},
 			time.NewTicker(10*time.Minute), // Refresh every 10 minutes
-			logger,
-			make(chan bool))
+			logger)
 
 		dbConnectionDetails.Password = passHolder
 		// pop now use url.QueryEscape on the password, but that
