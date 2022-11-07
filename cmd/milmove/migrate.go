@@ -25,6 +25,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/ecs"
+	"github.com/transcom/mymove/pkg/iampostgres"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/migrate"
 )
@@ -340,5 +341,9 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(errUp, "error running migrations")
 	}
 
-	return nil
+	if v.GetBool(cli.DbIamFlag) {
+		iampostgres.ShutdownIAM()
+	}
+
+	return dbConnection.Close()
 }

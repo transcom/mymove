@@ -17,6 +17,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/iampostgres"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
 )
@@ -132,5 +133,10 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("Emails failed to send", zap.Error(err))
 	}
-	return nil
+
+	if v.GetBool(cli.DbIamFlag) {
+		iampostgres.ShutdownIAM()
+	}
+
+	return dbConnection.Close()
 }

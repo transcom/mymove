@@ -17,6 +17,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/iampostgres"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/services/ghcdieselfuelprice"
 )
@@ -134,5 +135,10 @@ func saveGHCFuelPriceData(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("error returned by RunStorer function in ghcdieselfuelprice service", zap.Error(err))
 	}
-	return nil
+
+	if v.GetBool(cli.DbIamFlag) {
+		iampostgres.ShutdownIAM()
+	}
+
+	return dbConnection.Close()
 }

@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
+	"github.com/transcom/mymove/pkg/iampostgres"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
@@ -279,5 +280,9 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		logger.Info("Successfully processed EDI824 application advice responses")
 	}
 
-	return nil
+	if v.GetBool(cli.DbIamFlag) {
+		iampostgres.ShutdownIAM()
+	}
+
+	return dbConnection.Close()
 }
