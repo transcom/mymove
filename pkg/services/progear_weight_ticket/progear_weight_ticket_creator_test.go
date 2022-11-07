@@ -16,7 +16,7 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 		}
 
 		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
-		progearWeightTicketCreator := NewProgearWeightTicketCreator()
+		progearWeightTicketCreator := NewCustomerProgearWeightTicketCreator()
 		progearWeightTicket, err := progearWeightTicketCreator.CreateProgearWeightTicket(suite.AppContextWithSessionForTest(session), ppmShipment.ID)
 
 		suite.Nil(err)
@@ -32,20 +32,20 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 			ServiceMemberID: serviceMember.ID,
 		}
 
-		progearWeightTicketCreator := NewProgearWeightTicketCreator()
+		progearWeightTicketCreator := NewCustomerProgearWeightTicketCreator()
 		progearWeightTicket, err := progearWeightTicketCreator.CreateProgearWeightTicket(suite.AppContextWithSessionForTest(session), uuid.Nil)
 
 		suite.Nil(progearWeightTicket)
-		suite.ErrorContains(err, "PPMShipmentID can not be blank")
+		suite.NotNil(err)
 	})
 
-	suite.Run("Fails to create document when missing serviceMemberID", func() {
+	suite.Run("Fails when session has invalid serviceMemberID", func() {
 		session := &auth.Session{
 			ServiceMemberID: uuid.Nil,
 		}
 		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
 
-		progearWeightTicketCreator := NewProgearWeightTicketCreator()
+		progearWeightTicketCreator := NewCustomerProgearWeightTicketCreator()
 		progearWeightTicket, err := progearWeightTicketCreator.CreateProgearWeightTicket(suite.AppContextWithSessionForTest(session), ppmShipment.ID)
 
 		suite.Nil(progearWeightTicket)

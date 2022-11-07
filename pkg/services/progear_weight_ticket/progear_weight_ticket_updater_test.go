@@ -11,31 +11,27 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
-
-	setupForTest := func(appCtx appcontext.AppContext, overrides *models.ProgearWeightTicket, hasWeightDocumentUploads bool) *models.ProgearWeightTicket {
+	setupForTest := func(appCtx appcontext.AppContext, overrides *models.ProgearWeightTicket, hasdocFiles bool) *models.ProgearWeightTicket {
 		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
-		ppmShipment := testdatagen.MakeMinimalPPMShipment(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ServiceMemberID: serviceMember.ID,
-				ServiceMember:   serviceMember,
-			},
-		})
+		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
 
-		document := testdatagen.MakeDocument(appCtx.DB(), testdatagen.Assertions{
+		baseDocumentAssertions := testdatagen.Assertions{
 			Document: models.Document{
 				ServiceMemberID: serviceMember.ID,
 			},
-		})
+		}
 
-		if hasWeightDocumentUploads {
+		document := testdatagen.MakeDocument(appCtx.DB(), baseDocumentAssertions)
+
+		now := time.Now()
+		if hasdocFiles {
 			for i := 0; i < 2; i++ {
 				var deletedAt *time.Time
 				if i == 1 {
-					deletedAt = models.TimePointer(time.Now())
+					deletedAt = &now
 				}
 				testdatagen.MakeUserUpload(appCtx.DB(), testdatagen.Assertions{
 					UserUpload: models.UserUpload{
@@ -48,33 +44,32 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			}
 		}
 
-		oldProgearWeightTicket := models.ProgearWeightTicket{
-			PPMShipmentID: ppmShipment.ID,
-			Document:      document,
+		originalProgearWeightTicket := models.ProgearWeightTicket{
 			DocumentID:    document.ID,
+			PPMShipmentID: ppmShipment.ID,
 		}
 
 		if overrides != nil {
-			testdatagen.MergeModels(&oldProgearWeightTicket, overrides)
+			testdatagen.MergeModels(&originalProgearWeightTicket, overrides)
 		}
 
-		verrs, err := appCtx.DB().ValidateAndCreate(&oldProgearWeightTicket)
+		verrs, err := appCtx.DB().ValidateAndCreate(&originalProgearWeightTicket)
 
 		suite.NoVerrs(verrs)
 		suite.Nil(err)
-		suite.NotNil(oldProgearWeightTicket.ID)
+		suite.NotNil(originalProgearWeightTicket.ID)
 
-		return &oldProgearWeightTicket
+		return &originalProgearWeightTicket
 	}
 
-	suite.Run("Returns an error if the old progear weight ticket doesn't exist", func() {
-		notFoundProgearWeightTicket := models.ProgearWeightTicket{
+	suite.Run("Returns an error if the original doesn't exist", func() {
+		badProgearWeightTicket := models.ProgearWeightTicket{
 			ID: uuid.Must(uuid.NewV4()),
 		}
 
-		updater := NewProgearWeightTicketUpdater()
+		updater := NewCustomerProgearWeightTicketUpdater()
 
-		updatedProgearWeightTicket, err := updater.UpdateProgearWeightTicket(suite.AppContextForTest(), notFoundProgearWeightTicket, "")
+		updatedProgearWeightTicket, err := updater.UpdateProgearWeightTicket(suite.AppContextForTest(), badProgearWeightTicket, "")
 
 		suite.Nil(updatedProgearWeightTicket)
 
@@ -82,7 +77,7 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			suite.IsType(apperror.NotFoundError{}, err)
 
 			suite.Equal(
-				fmt.Sprintf("ID: %s not found while looking for Progear", notFoundProgearWeightTicket.ID.String()),
+				fmt.Sprintf("ID: %s not found while looking for ProgearWeightTicket", badProgearWeightTicket.ID.String()),
 				err.Error(),
 			)
 		}
@@ -91,137 +86,258 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 	suite.Run("Returns a PreconditionFailedError if the input eTag is stale/incorrect", func() {
 		appCtx := suite.AppContextForTest()
 
-		oldProgearWeightTicket := setupForTest(appCtx, nil, false)
+		originalProgearWeightTicket := setupForTest(appCtx, nil, false)
 
-		updater := NewProgearWeightTicketUpdater()
+		updater := NewCustomerProgearWeightTicketUpdater()
 
-		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *oldProgearWeightTicket, "")
+		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *originalProgearWeightTicket, "")
 
 		suite.Nil(updatedProgearWeightTicket)
 
-		suite.Error(updateErr)
-		suite.IsType(apperror.PreconditionFailedError{}, updateErr)
+		if suite.Error(updateErr) {
+			suite.IsType(apperror.PreconditionFailedError{}, updateErr)
 
-		suite.Equal(
-			fmt.Sprintf("Precondition failed on update to object with ID: '%s'. The If-Match header value did not match the eTag for this record.", oldProgearWeightTicket.ID.String()),
-			updateErr.Error(),
-		)
+			suite.Equal(
+				fmt.Sprintf("Precondition failed on update to object with ID: '%s'. The If-Match header value did not match the eTag for this record.", originalProgearWeightTicket.ID.String()),
+				updateErr.Error(),
+			)
+		}
 	})
 
-	suite.Run("Successfully updates a progear weight ticket", func() {
+	suite.Run("Successfully updates", func() {
 		appCtx := suite.AppContextForTest()
 
-		oldProgearWeightTicket := setupForTest(appCtx, nil, true)
+		originalProgearWeightTicket := setupForTest(appCtx, nil, true)
 
-		updater := NewProgearWeightTicketUpdater()
-		rejectedStatus := models.PPMDocumentStatusRejected
+		updater := NewCustomerProgearWeightTicketUpdater()
 
-		expectedProgearWeightTicket := &models.ProgearWeightTicket{
-			ID:               oldProgearWeightTicket.ID,
-			BelongsToSelf:    models.BoolPointer(true),
-			Description:      models.StringPointer("Self Progear"),
+		desiredProgearWeightTicket := &models.ProgearWeightTicket{
+			ID:               originalProgearWeightTicket.ID,
+			Description:      models.StringPointer("Self progear"),
+			Weight:           models.PoundPointer(3000),
 			HasWeightTickets: models.BoolPointer(true),
-			Weight:           models.PoundPointer(unit.Pound(100)),
-			Status:           &rejectedStatus,
-			Reason:           models.StringPointer("Some info missing"),
+			BelongsToSelf:    models.BoolPointer(true),
 		}
 
-		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *expectedProgearWeightTicket, etag.GenerateEtag(oldProgearWeightTicket.UpdatedAt))
+		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
 
 		suite.Nil(updateErr)
-		suite.Equal(oldProgearWeightTicket.ID, updatedProgearWeightTicket.ID)
-		suite.Equal(oldProgearWeightTicket.DocumentID, updatedProgearWeightTicket.DocumentID)
-		// filters out the deleted upload
-		suite.Len(updatedProgearWeightTicket.Document.UserUploads, 1)
-		suite.Equal(*expectedProgearWeightTicket.Description, *updatedProgearWeightTicket.Description)
-		suite.Equal(*expectedProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.BelongsToSelf)
-		suite.Equal(*expectedProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.HasWeightTickets)
-		suite.Equal(*expectedProgearWeightTicket.Weight, *updatedProgearWeightTicket.Weight)
-		suite.Equal(*expectedProgearWeightTicket.Status, *updatedProgearWeightTicket.Status)
-		suite.Equal(*expectedProgearWeightTicket.Reason, *updatedProgearWeightTicket.Reason)
+		suite.Equal(originalProgearWeightTicket.ID, updatedProgearWeightTicket.ID)
+		suite.Equal(originalProgearWeightTicket.DocumentID, updatedProgearWeightTicket.DocumentID)
+		suite.Equal(*desiredProgearWeightTicket.Description, *updatedProgearWeightTicket.Description)
+		suite.Equal(*desiredProgearWeightTicket.Weight, *updatedProgearWeightTicket.Weight)
+		suite.Equal(*desiredProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.HasWeightTickets)
+		suite.Equal(*desiredProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.BelongsToSelf)
 	})
 
-	suite.Run("Successfully clears the reason when status of progear weight ticket is approved", func() {
+	suite.Run("Succesfully updates when files are required", func() {
 		appCtx := suite.AppContextForTest()
 
-		rejectedStatus := models.PPMDocumentStatusRejected
-		oldProgearWeightTicket := setupForTest(appCtx, &models.ProgearWeightTicket{
-			Status: &rejectedStatus,
-			Reason: models.StringPointer("Can't add progear for spouse as your own"),
-		}, true)
+		originalProgearWeightTicket := setupForTest(appCtx, nil, true)
 
-		updater := NewProgearWeightTicketUpdater()
+		updater := NewCustomerProgearWeightTicketUpdater()
 
-		approvedStatus := models.PPMDocumentStatusApproved
-		expectedProgearWeightTicket := &models.ProgearWeightTicket{
-			ID:               oldProgearWeightTicket.ID,
-			BelongsToSelf:    models.BoolPointer(true),
-			Description:      models.StringPointer("Self Progear"),
+		desiredProgearWeightTicket := &models.ProgearWeightTicket{
+			ID:               originalProgearWeightTicket.ID,
+			Description:      models.StringPointer("Self progear"),
+			Weight:           models.PoundPointer(3000),
 			HasWeightTickets: models.BoolPointer(true),
-			Weight:           models.PoundPointer(unit.Pound(100)),
-			Status:           &approvedStatus,
+			BelongsToSelf:    models.BoolPointer(true),
 		}
 
-		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *expectedProgearWeightTicket, etag.GenerateEtag(oldProgearWeightTicket.UpdatedAt))
+		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
 
 		suite.Nil(updateErr)
-		suite.Equal(oldProgearWeightTicket.ID, updatedProgearWeightTicket.ID)
-		suite.Equal(oldProgearWeightTicket.DocumentID, updatedProgearWeightTicket.DocumentID)
-		suite.Equal(*expectedProgearWeightTicket.Description, *updatedProgearWeightTicket.Description)
-		suite.Equal(*expectedProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.BelongsToSelf)
-		suite.Equal(*expectedProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.HasWeightTickets)
-		suite.Equal(*expectedProgearWeightTicket.Weight, *updatedProgearWeightTicket.Weight)
-		suite.Equal(*expectedProgearWeightTicket.Status, *updatedProgearWeightTicket.Status)
-		suite.Nil(updatedProgearWeightTicket.Reason)
+		suite.Equal(originalProgearWeightTicket.ID, updatedProgearWeightTicket.ID)
+		suite.Equal(originalProgearWeightTicket.DocumentID, updatedProgearWeightTicket.DocumentID)
+		suite.Equal(*desiredProgearWeightTicket.Description, *updatedProgearWeightTicket.Description)
+		suite.Equal(*desiredProgearWeightTicket.Weight, *updatedProgearWeightTicket.Weight)
+		suite.Equal(*desiredProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.HasWeightTickets)
+		suite.Equal(*desiredProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.BelongsToSelf)
+		suite.Equal(1, len(updatedProgearWeightTicket.Document.UserUploads))
 	})
 
 	suite.Run("Fails to update when files are missing", func() {
 		appCtx := suite.AppContextForTest()
 
-		oldProgearWeightTicket := setupForTest(appCtx, nil, false)
+		originalProgearWeightTicket := setupForTest(appCtx, nil, false)
 
-		updater := NewProgearWeightTicketUpdater()
+		updater := NewCustomerProgearWeightTicketUpdater()
 
-		approvedStatus := models.PPMDocumentStatusApproved
-		expectedProgearWeightTicket := &models.ProgearWeightTicket{
-			ID:               oldProgearWeightTicket.ID,
+		desiredProgearWeightTicket := &models.ProgearWeightTicket{
+			ID:               originalProgearWeightTicket.ID,
+			Description:      models.StringPointer("Self progear"),
+			Weight:           models.PoundPointer(3000),
+			HasWeightTickets: models.BoolPointer(true),
 			BelongsToSelf:    models.BoolPointer(true),
-			Description:      models.StringPointer("Self Progear"),
-			HasWeightTickets: models.BoolPointer(false),
-			Weight:           models.PoundPointer(unit.Pound(100)),
-			Status:           &approvedStatus,
 		}
 
-		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *expectedProgearWeightTicket, etag.GenerateEtag(oldProgearWeightTicket.UpdatedAt))
+		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
 
 		suite.Nil(updatedProgearWeightTicket)
 		suite.NotNil(updateErr)
 		suite.IsType(apperror.InvalidInputError{}, updateErr)
-		suite.ErrorContains(updateErr, "At least 1 weight ticket is required")
+		suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
 	})
 
-	suite.Run("Fails to update when a reason isn't provided for non-approved status", func() {
-		appCtx := suite.AppContextForTest()
+	suite.Run("Status and reason related", func() {
+		suite.Run("successfully", func() {
 
-		oldProgearWeightTicket := setupForTest(appCtx, nil, true)
+			suite.Run("changes status and reason", func() {
+				appCtx := suite.AppContextForTest()
 
-		updater := NewProgearWeightTicketUpdater()
+				originalProgearWeightTicket := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{})
 
-		rejectedStatus := models.PPMDocumentStatusRejected
-		expectedProgearWeightTicket := &models.ProgearWeightTicket{
-			ID:               oldProgearWeightTicket.ID,
-			BelongsToSelf:    models.BoolPointer(true),
-			Description:      models.StringPointer("Self Progear"),
-			HasWeightTickets: models.BoolPointer(false),
-			Weight:           models.PoundPointer(unit.Pound(100)),
-			Status:           &rejectedStatus,
-		}
+				updater := NewOfficeProgearWeightTicketUpdater()
 
-		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *expectedProgearWeightTicket, etag.GenerateEtag(oldProgearWeightTicket.UpdatedAt))
+				status := models.PPMDocumentStatusExcluded
 
-		suite.Nil(updatedProgearWeightTicket)
-		suite.NotNil(updateErr)
-		suite.IsType(apperror.InvalidInputError{}, updateErr)
-		suite.ErrorContains(updateErr, "A reason must be provided when the status is EXCLUDED or REJECTED")
+				desiredProgearWeightTicket := &models.ProgearWeightTicket{
+					ID:     originalProgearWeightTicket.ID,
+					Status: &status,
+					Reason: models.StringPointer("bad data"),
+				}
+
+				updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
+
+				suite.Nil(updateErr)
+				suite.NotNil(updatedProgearWeightTicket)
+				suite.Equal(*desiredProgearWeightTicket.Status, *updatedProgearWeightTicket.Status)
+				suite.Equal(*desiredProgearWeightTicket.Reason, *updatedProgearWeightTicket.Reason)
+			})
+
+			suite.Run("changes reason", func() {
+				appCtx := suite.AppContextForTest()
+
+				status := models.PPMDocumentStatusExcluded
+				originalProgearWeightTicket := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
+					ProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &status,
+						Reason: models.StringPointer("some temporary reason"),
+					},
+				})
+
+				updater := NewOfficeProgearWeightTicketUpdater()
+
+				desiredProgearWeightTicket := &models.ProgearWeightTicket{
+					ID:     originalProgearWeightTicket.ID,
+					Reason: models.StringPointer("bad data"),
+				}
+
+				updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
+
+				suite.Nil(updateErr)
+				suite.NotNil(updatedProgearWeightTicket)
+				suite.Equal(status, *updatedProgearWeightTicket.Status)
+				suite.Equal(*desiredProgearWeightTicket.Reason, *updatedProgearWeightTicket.Reason)
+			})
+
+			suite.Run("changes reason from rejected to approved", func() {
+				appCtx := suite.AppContextForTest()
+
+				status := models.PPMDocumentStatusExcluded
+				originalProgearWeightTicket := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
+					ProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &status,
+						Reason: models.StringPointer("some temporary reason"),
+					},
+				})
+
+				updater := NewOfficeProgearWeightTicketUpdater()
+
+				desiredStatus := models.PPMDocumentStatusApproved
+				desiredProgearWeightTicket := &models.ProgearWeightTicket{
+					ID:     originalProgearWeightTicket.ID,
+					Status: &desiredStatus,
+					Reason: models.StringPointer(""),
+				}
+
+				updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
+
+				suite.Nil(updateErr)
+				suite.NotNil(updatedProgearWeightTicket)
+				suite.Equal(desiredStatus, *updatedProgearWeightTicket.Status)
+				suite.Equal((*string)(nil), updatedProgearWeightTicket.Reason)
+			})
+		})
+
+		suite.Run("fails", func() {
+			suite.Run("to update when status or reason are changed", func() {
+				appCtx := suite.AppContextForTest()
+
+				originalProgearWeightTicket := setupForTest(appCtx, nil, true)
+
+				updater := NewCustomerProgearWeightTicketUpdater()
+
+				status := models.PPMDocumentStatusExcluded
+
+				desiredProgearWeightTicket := &models.ProgearWeightTicket{
+					ID:               originalProgearWeightTicket.ID,
+					Description:      models.StringPointer("Self progear"),
+					Weight:           models.PoundPointer(3000),
+					HasWeightTickets: models.BoolPointer(true),
+					BelongsToSelf:    models.BoolPointer(true),
+					Status:           &status,
+					Reason:           models.StringPointer("bad data"),
+				}
+
+				updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
+
+				suite.Nil(updatedProgearWeightTicket)
+				suite.NotNil(updateErr)
+				suite.IsType(apperror.InvalidInputError{}, updateErr)
+				suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
+			})
+
+			suite.Run("to update status", func() {
+				appCtx := suite.AppContextForTest()
+
+				status := models.PPMDocumentStatusExcluded
+				originalProgearWeightTicket := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{
+					ProgearWeightTicket: models.ProgearWeightTicket{
+						Status: &status,
+						Reason: models.StringPointer("some temporary reason"),
+					},
+				})
+
+				updater := NewOfficeProgearWeightTicketUpdater()
+
+				desiredStatus := models.PPMDocumentStatusApproved
+				desiredProgearWeightTicket := &models.ProgearWeightTicket{
+					ID:     originalProgearWeightTicket.ID,
+					Status: &desiredStatus,
+					Reason: models.StringPointer("bad data"),
+				}
+
+				updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
+
+				suite.Nil(updatedProgearWeightTicket)
+				suite.NotNil(updateErr)
+				suite.IsType(apperror.InvalidInputError{}, updateErr)
+				suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
+			})
+
+			suite.Run("to update because of invalid status", func() {
+				appCtx := suite.AppContextForTest()
+
+				originalProgearWeightTicket := testdatagen.MakeProgearWeightTicket(suite.DB(), testdatagen.Assertions{})
+
+				updater := NewOfficeProgearWeightTicketUpdater()
+
+				status := models.PPMDocumentStatus("invalid status")
+				desiredProgearWeightTicket := &models.ProgearWeightTicket{
+					ID:     originalProgearWeightTicket.ID,
+					Status: &status,
+					Reason: models.StringPointer("bad data"),
+				}
+
+				updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
+
+				suite.Nil(updatedProgearWeightTicket)
+				suite.NotNil(updateErr)
+				suite.IsType(apperror.InvalidInputError{}, updateErr)
+				suite.Equal("invalid input found while updating the ProgearWeightTicket", updateErr.Error())
+			})
+		})
 	})
 }

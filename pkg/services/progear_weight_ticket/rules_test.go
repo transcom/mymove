@@ -5,20 +5,32 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ProgearWeightTicketSuite) TestValidationRules() {
+	// setup some shared data
+	progearWeightTicketID := uuid.Must(uuid.NewV4())
+	ppmShipmentID := uuid.Must(uuid.NewV4())
+	docID := uuid.Must(uuid.NewV4())
+
+	uploads := models.UserUploads{}
+	uploads = append(uploads, models.UserUpload{
+		DocumentID: &docID,
+	})
+
+	existingProgearWeightTicket := &models.ProgearWeightTicket{
+		ID:            progearWeightTicketID,
+		PPMShipmentID: ppmShipmentID,
+		DocumentID:    docID,
+		Document: models.Document{
+			UserUploads: uploads,
+		},
+	}
+
 	suite.Run("checkID", func() {
 		suite.Run("Success", func() {
 			suite.Run("Create ProgearWeightTicket without an ID", func() {
-				progearWeightTicket := &models.ProgearWeightTicket{
-					PPMShipmentID: uuid.Must(uuid.NewV4()),
-					Document: models.Document{
-						ServiceMemberID: uuid.Must(uuid.NewV4()),
-					},
-				}
-				err := checkID().Validate(suite.AppContextForTest(), progearWeightTicket, nil)
+				err := checkID().Validate(suite.AppContextForTest(), nil, nil)
 
 				suite.NilOrNoVerrs(err)
 			})
@@ -47,178 +59,290 @@ func (suite *ProgearWeightTicketSuite) TestValidationRules() {
 		})
 	})
 
-	suite.Run("checkCreateRequiredFields", func() {
-		progearWeightTicketID := uuid.Must(uuid.NewV4())
-		ppmShipmentID := uuid.Must(uuid.NewV4())
-		docID := uuid.Must(uuid.NewV4())
-		serviceMemberID := uuid.Must(uuid.NewV4())
-
-		documentUploads := models.UserUploads{}
-		documentUploads = append(documentUploads, models.UserUpload{
-			DocumentID: &docID,
-		})
-
+	suite.Run("checkRequiredFields", func() {
 		suite.Run("Success", func() {
-			suite.Run("Create ProgearWeightTIcket", func() {
+			suite.Run("Update ProgearWeightTicket - all fields", func() {
 
-				err := checkCreateRequiredFields().Validate(suite.AppContextForTest(),
+				err := checkRequiredFields().Validate(suite.AppContextForTest(),
 					&models.ProgearWeightTicket{
-						ID:            progearWeightTicketID,
-						PPMShipmentID: ppmShipmentID,
-						Document: models.Document{
-							ServiceMemberID: serviceMemberID,
-							UserUploads:     documentUploads,
-						},
+						ID:               progearWeightTicketID,
+						Description:      models.StringPointer("self progear"),
+						Weight:           models.PoundPointer(2500),
+						HasWeightTickets: models.BoolPointer(true),
+						BelongsToSelf:    models.BoolPointer(true),
 					},
-					nil,
+					existingProgearWeightTicket,
 				)
 				suite.NilOrNoVerrs(err)
 			})
 		})
 
 		suite.Run("Failure", func() {
-			suite.Run("Create ProgearWeightTicket - missing fields", func() {
-				err := checkCreateRequiredFields().Validate(suite.AppContextForTest(),
-					&models.ProgearWeightTicket{},
-					nil,
+			suite.Run("Update ProgearWeightTicket - missing fields", func() {
+				err := checkRequiredFields().Validate(suite.AppContextForTest(),
+					&models.ProgearWeightTicket{
+						ID: progearWeightTicketID,
+					},
+					&models.ProgearWeightTicket{
+						ID: progearWeightTicketID,
+					},
 				)
 
 				switch verr := err.(type) {
 				case *validate.Errors:
 					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 2)
-					suite.Contains(verr.Keys(), "PPMShipmentID")
-					suite.Contains(verr.Keys(), "ServiceMemberID")
+					suite.Equal(len(verr.Keys()), 5)
+					suite.Contains(verr.Keys(), "Document")
+					suite.Contains(verr.Keys(), "Description")
+					suite.Contains(verr.Keys(), "Weight")
+					suite.Contains(verr.Keys(), "HasWeightTickets")
+					suite.Contains(verr.Keys(), "BelongsToSelf")
 				default:
 					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
 				}
 			})
-		})
-	})
 
-	suite.Run("checkUpdateRequiredFields", func() {
-		progearWeightTicketID := uuid.Must(uuid.NewV4())
-		ppmShipmentID := uuid.Must(uuid.NewV4())
-		documentID := uuid.Must(uuid.NewV4())
-		serviceMemberID := uuid.Must(uuid.NewV4())
-
-		documentUploads := models.UserUploads{}
-		documentUploads = append(documentUploads, models.UserUpload{
-			DocumentID: &documentID,
-		})
-
-		existingProgearWeightTicket := &models.ProgearWeightTicket{
-			ID:            progearWeightTicketID,
-			PPMShipmentID: ppmShipmentID,
-			DocumentID:    documentID,
-			Document: models.Document{
-				ID:              documentID,
-				ServiceMemberID: serviceMemberID,
-				UserUploads:     documentUploads,
-			},
-		}
-		suite.Run("Success", func() {
-			suite.Run("Update ProgearWeightTicket - Description", func() {
-				updatedProgearWeightTicket := &models.ProgearWeightTicket{
-					ID:            existingProgearWeightTicket.ID,
-					PPMShipmentID: existingProgearWeightTicket.PPMShipmentID,
-					DocumentID:    existingProgearWeightTicket.DocumentID,
-					Document: models.Document{
-						ID:              existingProgearWeightTicket.DocumentID,
-						ServiceMemberID: existingProgearWeightTicket.Document.ServiceMemberID,
-						UserUploads: models.UserUploads{
-							{
-								ID: uuid.Must(uuid.NewV4()),
-							},
-						},
-					},
-					Description: models.StringPointer("Self Progear"),
-				}
-
-				err := checkUpdateRequiredFields().Validate(suite.AppContextForTest(), updatedProgearWeightTicket, existingProgearWeightTicket)
-				suite.NilOrNoVerrs(err)
-			})
-
-			suite.Run("Update ProgearWeightTicket - approved status", func() {
-				approvedStatus := models.PPMDocumentStatusApproved
-				updatedProgearWeightTicket := &models.ProgearWeightTicket{
-					ID:            existingProgearWeightTicket.ID,
-					PPMShipmentID: existingProgearWeightTicket.PPMShipmentID,
-					DocumentID:    existingProgearWeightTicket.DocumentID,
-					Document: models.Document{
-						ID:              existingProgearWeightTicket.DocumentID,
-						ServiceMemberID: existingProgearWeightTicket.Document.ServiceMemberID,
-						UserUploads: models.UserUploads{
-							{
-								ID: uuid.Must(uuid.NewV4()),
-							},
-						},
-					},
-					BelongsToSelf:    models.BoolPointer(true),
-					Description:      models.StringPointer("Self Progear"),
-					HasWeightTickets: models.BoolPointer(true),
-					Weight:           models.PoundPointer(unit.Pound(100)),
-					Status:           &approvedStatus,
-				}
-
-				err := checkUpdateRequiredFields().Validate(suite.AppContextForTest(), updatedProgearWeightTicket, existingProgearWeightTicket)
-				suite.NilOrNoVerrs(err)
-			})
-
-			suite.Run("Update ProgearWeightTicket - not approved status with reason", func() {
-				rejectedStatus := models.PPMDocumentStatusRejected
-				updatedProgearWeightTicket := &models.ProgearWeightTicket{
-					ID:            existingProgearWeightTicket.ID,
-					PPMShipmentID: existingProgearWeightTicket.PPMShipmentID,
-					DocumentID:    existingProgearWeightTicket.DocumentID,
-					Document: models.Document{
-						ID:              existingProgearWeightTicket.DocumentID,
-						ServiceMemberID: existingProgearWeightTicket.Document.ServiceMemberID,
-						UserUploads: models.UserUploads{
-							{
-								ID: uuid.Must(uuid.NewV4()),
-							},
-						},
-					},
-					Description:      models.StringPointer("Self Progear"),
-					HasWeightTickets: models.BoolPointer(false),
-					Weight:           models.PoundPointer(unit.Pound(100)),
-					Status:           &rejectedStatus,
-					Reason:           models.StringPointer("Missing a progear weight ticket"),
-				}
-
-				err := checkUpdateRequiredFields().Validate(suite.AppContextForTest(), updatedProgearWeightTicket, existingProgearWeightTicket)
-				suite.NilOrNoVerrs(err)
-			})
-		})
-
-		suite.Run("Failure", func() {
-			suite.Run("Update ProgearWeightTicket - missing required fields", func() {
-				progearWeightTicketMissingUploads := &models.ProgearWeightTicket{
-					ID:            existingProgearWeightTicket.ID,
-					PPMShipmentID: existingProgearWeightTicket.PPMShipmentID,
-					DocumentID:    existingProgearWeightTicket.DocumentID,
-					//Document:      models.Document{},
-				}
-				err := checkUpdateRequiredFields().Validate(suite.AppContextForTest(),
+			suite.Run("Update ProgearWeightTicket - invalid weight", func() {
+				err := checkRequiredFields().Validate(suite.AppContextForTest(),
 					&models.ProgearWeightTicket{
-						ID:            progearWeightTicketMissingUploads.ID,
-						PPMShipmentID: progearWeightTicketMissingUploads.PPMShipmentID,
-						DocumentID:    progearWeightTicketMissingUploads.DocumentID,
-						Document:      progearWeightTicketMissingUploads.Document,
+						ID:               progearWeightTicketID,
+						Description:      models.StringPointer("self progear"),
+						Weight:           nil,
+						HasWeightTickets: models.BoolPointer(true),
+						BelongsToSelf:    models.BoolPointer(true),
 					},
-					progearWeightTicketMissingUploads,
+					existingProgearWeightTicket,
 				)
 
 				switch verr := err.(type) {
 				case *validate.Errors:
 					suite.True(verr.HasAny())
-					suite.Equal(len(verr.Keys()), 6)
-					suite.Contains(verr.Keys(), "Description")
-					suite.Contains(verr.Keys(), "HasWeightTickets")
+					suite.Equal(len(verr.Keys()), 1)
 					suite.Contains(verr.Keys(), "Weight")
+				default:
+					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+				}
+			})
+
+			docLessProgearWeightTicket := &models.ProgearWeightTicket{
+				ID:            progearWeightTicketID,
+				PPMShipmentID: ppmShipmentID,
+			}
+			suite.Run("Update ProgearWeightTicket - documents required", func() {
+				err := checkRequiredFields().Validate(suite.AppContextForTest(),
+					&models.ProgearWeightTicket{
+						ID:               progearWeightTicketID,
+						Description:      models.StringPointer("self progear"),
+						Weight:           models.PoundPointer(2500),
+						HasWeightTickets: models.BoolPointer(true),
+						BelongsToSelf:    models.BoolPointer(true),
+					},
+					docLessProgearWeightTicket,
+				)
+
+				switch verr := err.(type) {
+				case *validate.Errors:
+					suite.True(verr.HasAny())
+					suite.Equal(len(verr.Keys()), 1)
 					suite.Contains(verr.Keys(), "Document")
-					suite.Contains(verr.Keys(), "Status")
+				default:
+					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+				}
+
+			})
+		})
+	})
+
+	suite.Run("verifyReasonAndStatusAreConstant", func() {
+		suite.Run("Success", func() {
+			err := verifyReasonAndStatusAreConstant().Validate(suite.AppContextForTest(),
+				&models.ProgearWeightTicket{
+					ID:               progearWeightTicketID,
+					Description:      models.StringPointer("self progear"),
+					Weight:           models.PoundPointer(2500),
+					HasWeightTickets: models.BoolPointer(true),
+					BelongsToSelf:    models.BoolPointer(true),
+				},
+				existingProgearWeightTicket,
+			)
+
+			suite.NilOrNoVerrs(err)
+		})
+
+		suite.Run("Failure", func() {
+			status := models.PPMDocumentStatusRejected
+			err := verifyReasonAndStatusAreConstant().Validate(suite.AppContextForTest(),
+				&models.ProgearWeightTicket{
+					ID:               progearWeightTicketID,
+					Description:      models.StringPointer("self progear"),
+					Weight:           models.PoundPointer(2500),
+					HasWeightTickets: models.BoolPointer(true),
+					BelongsToSelf:    models.BoolPointer(true),
+					Status:           &status,
+					Reason:           models.StringPointer("bad data"),
+				},
+				existingProgearWeightTicket,
+			)
+
+			switch verr := err.(type) {
+			case *validate.Errors:
+				suite.True(verr.HasAny())
+				suite.Equal(len(verr.Keys()), 2)
+				suite.Contains(verr.Keys(), "Reason")
+				suite.Contains(verr.Keys(), "Status")
+			default:
+				suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+			}
+		})
+	})
+
+	suite.Run("verifyReasonAndStatusAreValid", func() {
+		suite.Run("Success", func() {
+			suite.Run("no status or reason", func() {
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.ProgearWeightTicket{
+						ID:               progearWeightTicketID,
+						Description:      models.StringPointer("self progear"),
+						Weight:           models.PoundPointer(2500),
+						HasWeightTickets: models.BoolPointer(true),
+						BelongsToSelf:    models.BoolPointer(true),
+					},
+					existingProgearWeightTicket,
+				)
+				suite.NilOrNoVerrs(err)
+			})
+
+			suite.Run("excluded with reason", func() {
+				status := models.PPMDocumentStatusExcluded
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.ProgearWeightTicket{
+						ID:               progearWeightTicketID,
+						Description:      models.StringPointer("self progear"),
+						Weight:           models.PoundPointer(2500),
+						HasWeightTickets: models.BoolPointer(true),
+						BelongsToSelf:    models.BoolPointer(true),
+						Status:           &status,
+						Reason:           models.StringPointer("bad data"),
+					},
+					existingProgearWeightTicket,
+				)
+				suite.NilOrNoVerrs(err)
+			})
+
+			suite.Run("approved with no reason", func() {
+				status := models.PPMDocumentStatusApproved
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.ProgearWeightTicket{
+						ID:               progearWeightTicketID,
+						Description:      models.StringPointer("self progear"),
+						Weight:           models.PoundPointer(2500),
+						HasWeightTickets: models.BoolPointer(true),
+						BelongsToSelf:    models.BoolPointer(true),
+						Status:           &status,
+						Reason:           nil,
+					},
+					existingProgearWeightTicket,
+				)
+				suite.NilOrNoVerrs(err)
+			})
+		})
+
+		suite.Run("Failure", func() {
+			suite.Run("Reason cannot be provided without status", func() {
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.ProgearWeightTicket{
+						ID:               progearWeightTicketID,
+						Description:      models.StringPointer("self progear"),
+						Weight:           models.PoundPointer(2500),
+						HasWeightTickets: models.BoolPointer(true),
+						BelongsToSelf:    models.BoolPointer(true),
+						Reason:           models.StringPointer("reason without status"),
+					},
+					existingProgearWeightTicket,
+				)
+
+				switch verr := err.(type) {
+				case *validate.Errors:
+					suite.True(verr.HasAny())
+					suite.Equal(len(verr.Keys()), 1)
+					suite.Contains(verr.Keys(), "Reason")
+					suite.Equal("reason should be empty", err.Error())
+				default:
+					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+				}
+			})
+
+			suite.Run("Reason must be empty when status is approved", func() {
+				status := models.PPMDocumentStatusApproved
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.ProgearWeightTicket{
+						ID:               progearWeightTicketID,
+						Description:      models.StringPointer("self progear"),
+						Weight:           models.PoundPointer(2500),
+						HasWeightTickets: models.BoolPointer(true),
+						BelongsToSelf:    models.BoolPointer(true),
+						Status:           &status,
+						Reason:           models.StringPointer("bad data"),
+					},
+					existingProgearWeightTicket,
+				)
+
+				switch verr := err.(type) {
+				case *validate.Errors:
+					suite.True(verr.HasAny())
+					suite.Equal(len(verr.Keys()), 1)
+					suite.Contains(verr.Keys(), "Reason")
+				default:
+					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+				}
+			})
+
+			suite.Run("Reason must be populated when status is excluded", func() {
+				status := models.PPMDocumentStatusExcluded
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.ProgearWeightTicket{
+						ID:               progearWeightTicketID,
+						Description:      models.StringPointer("self progear"),
+						Weight:           models.PoundPointer(2500),
+						HasWeightTickets: models.BoolPointer(true),
+						BelongsToSelf:    models.BoolPointer(true),
+						Status:           &status,
+						Reason:           models.StringPointer(""),
+					},
+					existingProgearWeightTicket,
+				)
+
+				switch verr := err.(type) {
+				case *validate.Errors:
+					suite.True(verr.HasAny())
+					suite.Equal(len(verr.Keys()), 1)
+					suite.Contains(verr.Keys(), "Reason")
+				default:
+					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
+				}
+
+			})
+
+			suite.Run("Reason must be populated when status is rejected", func() {
+				status := models.PPMDocumentStatusRejected
+				err := verifyReasonAndStatusAreValid().Validate(suite.AppContextForTest(),
+					&models.ProgearWeightTicket{
+						ID:               progearWeightTicketID,
+						Description:      models.StringPointer("self progear"),
+						Weight:           models.PoundPointer(2500),
+						HasWeightTickets: models.BoolPointer(true),
+						BelongsToSelf:    models.BoolPointer(true),
+						Status:           &status,
+						Reason:           models.StringPointer(""),
+					},
+					existingProgearWeightTicket,
+				)
+
+				switch verr := err.(type) {
+				case *validate.Errors:
+					suite.True(verr.HasAny())
+					suite.Equal(len(verr.Keys()), 1)
+					suite.Contains(verr.Keys(), "Reason")
 				default:
 					suite.Failf("expected *validate.Errors", "%t - %v", err, err)
 				}

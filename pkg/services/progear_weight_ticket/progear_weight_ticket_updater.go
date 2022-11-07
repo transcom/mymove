@@ -17,38 +17,47 @@ type progearWeightTicketUpdater struct {
 	checks []progearWeightTicketValidator
 }
 
-func NewProgearWeightTicketUpdater() services.ProgearWeightTicketUpdater {
+// NewCustomerProgearWeightTicketUpdater creates a new progearWeightTicketUpdater struct with the checks it needs for a customer
+func NewCustomerProgearWeightTicketUpdater() services.ProgearWeightTicketUpdater {
 	return &progearWeightTicketUpdater{
-		checks: updateChecks(),
+		checks: basicChecksForCustomer(),
 	}
 }
 
+func NewOfficeProgearWeightTicketUpdater() services.ProgearWeightTicketUpdater {
+	return &progearWeightTicketUpdater{
+		checks: basicChecksForOffice(),
+	}
+}
+
+// UpdateProgearWeightTicket updates a progearWeightTicket
 func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext.AppContext, progearWeightTicket models.ProgearWeightTicket, eTag string) (*models.ProgearWeightTicket, error) {
-	oldProgearWeightTicket, err := FetchProgearID(appCtx, progearWeightTicket.ID)
-
+	// get existing ProgearWeightTicket
+	originalProgearWeightTicket, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(appCtx, progearWeightTicket.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	if etag.GenerateEtag(oldProgearWeightTicket.UpdatedAt) != eTag {
-		return nil, apperror.NewPreconditionFailedError(oldProgearWeightTicket.ID, nil)
+	// verify ETag
+	if etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt) != eTag {
+		return nil, apperror.NewPreconditionFailedError(originalProgearWeightTicket.ID, nil)
 	}
 
-	mergedProgearWeightTicket := mergeProgearWeightTicket(progearWeightTicket, *oldProgearWeightTicket)
+	mergedProgearWeightTicket := mergeProgearWeightTicket(progearWeightTicket, *originalProgearWeightTicket)
 
-	err = validateProgearWeightTicket(appCtx, &mergedProgearWeightTicket, oldProgearWeightTicket, f.checks...)
-
-	if err != nil {
+	// validate updated model
+	if err := validateProgearWeightTicket(appCtx, &mergedProgearWeightTicket, originalProgearWeightTicket, f.checks...); err != nil {
 		return nil, err
 	}
 
+	// update the DB record
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
-		verrs, err := txnCtx.DB().Eager().ValidateAndUpdate(&mergedProgearWeightTicket)
+		verrs, err := txnCtx.DB().ValidateAndUpdate(&mergedProgearWeightTicket)
 
 		if verrs != nil && verrs.HasAny() {
-			return apperror.NewInvalidInputError(oldProgearWeightTicket.ID, err, verrs, "")
+			return apperror.NewInvalidInputError(originalProgearWeightTicket.ID, err, verrs, "invalid input found while updating the ProgearWeightTicket")
 		} else if err != nil {
-			return apperror.NewQueryError("Progear Weight Ticket", err, "")
+			return apperror.NewQueryError("ProgearWeightTicket update", err, "")
 		}
 
 		return nil
@@ -61,49 +70,58 @@ func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext
 	return &mergedProgearWeightTicket, nil
 }
 
-func FetchProgearID(appContext appcontext.AppContext, progearID uuid.UUID) (*models.ProgearWeightTicket, error) {
-	var progear models.ProgearWeightTicket
+func mergeProgearWeightTicket(progearWeightTicket models.ProgearWeightTicket, originalProgearWeightTicket models.ProgearWeightTicket) models.ProgearWeightTicket {
+	mergedProgearWeightTicket := originalProgearWeightTicket
 
-	err := appContext.DB().Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload("Document.UserUploads.Upload").Find(&progear, progearID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(progearID, "while looking for Progear")
-		default:
-			return nil, apperror.NewQueryError("Progear fetch original", err, "")
-		}
-	}
-	// set the updated Document
-	progear.Document.UserUploads = progear.Document.UserUploads.FilterDeleted()
-
-	return &progear, nil
-}
-
-func mergeProgearWeightTicket(updatedProgearWeightTicket models.ProgearWeightTicket, oldProgearWeightTicket models.ProgearWeightTicket) models.ProgearWeightTicket {
-	mergedProgearWeightTicket := oldProgearWeightTicket
-
-	progearWeightTicketStatus := services.SetOptionalStringField((*string)(updatedProgearWeightTicket.Status), (*string)(mergedProgearWeightTicket.Status))
-	if progearWeightTicketStatus != nil {
-		ppmDocumentStatus := models.PPMDocumentStatus(*progearWeightTicketStatus)
-		mergedProgearWeightTicket.Status = &ppmDocumentStatus
-
-		if ppmDocumentStatus == models.PPMDocumentStatusExcluded || ppmDocumentStatus == models.PPMDocumentStatusRejected {
-			mergedProgearWeightTicket.Reason = services.SetOptionalStringField(updatedProgearWeightTicket.Reason, mergedProgearWeightTicket.Reason)
-		} else {
-			// if that status is changed back to approved then we should clear the reason value
-			mergedProgearWeightTicket.Reason = nil
-		}
+	mergedProgearWeightTicket.Description = services.SetOptionalStringField(progearWeightTicket.Description, mergedProgearWeightTicket.Description)
+	mergedProgearWeightTicket.Weight = services.SetNoNilOptionalPoundField(progearWeightTicket.Weight, mergedProgearWeightTicket.Weight)
+	mergedProgearWeightTicket.HasWeightTickets = services.SetNoNilOptionalBoolField(progearWeightTicket.HasWeightTickets, mergedProgearWeightTicket.HasWeightTickets)
+	mergedProgearWeightTicket.BelongsToSelf = services.SetNoNilOptionalBoolField(progearWeightTicket.BelongsToSelf, mergedProgearWeightTicket.BelongsToSelf)
+	mergedProgearWeightTicket.Reason = services.SetOptionalStringField(progearWeightTicket.Reason, mergedProgearWeightTicket.Reason)
+	status := services.SetOptionalStringField((*string)(progearWeightTicket.Status), (*string)(mergedProgearWeightTicket.Status))
+	if status != nil {
+		ppmDocStatus := models.PPMDocumentStatus(*status)
+		mergedProgearWeightTicket.Status = &ppmDocStatus
 	} else {
 		mergedProgearWeightTicket.Status = nil
 	}
 
-	mergedProgearWeightTicket.BelongsToSelf = services.SetNoNilOptionalBoolField(updatedProgearWeightTicket.BelongsToSelf, mergedProgearWeightTicket.BelongsToSelf)
-	mergedProgearWeightTicket.Description = services.SetOptionalStringField(updatedProgearWeightTicket.Description, mergedProgearWeightTicket.Description)
-	mergedProgearWeightTicket.HasWeightTickets = services.SetNoNilOptionalBoolField(updatedProgearWeightTicket.HasWeightTickets, mergedProgearWeightTicket.HasWeightTickets)
-	mergedProgearWeightTicket.Weight = services.SetOptionalPoundField(updatedProgearWeightTicket.Weight, mergedProgearWeightTicket.Weight)
-	mergedProgearWeightTicket.DeletedAt = services.SetOptionalDateTimeField(updatedProgearWeightTicket.DeletedAt, mergedProgearWeightTicket.DeletedAt)
-
 	return mergedProgearWeightTicket
+}
+
+func FetchProgearWeightTicketByIDExcludeDeletedUploads(appContext appcontext.AppContext, progearWeightTicketID uuid.UUID) (*models.ProgearWeightTicket, error) {
+	var progearWeightTicket models.ProgearWeightTicket
+
+	err := appContext.DB().Scope(utilities.ExcludeDeletedScope()).
+		EagerPreload(
+			"Document.UserUploads.Upload",
+		).
+		Find(&progearWeightTicket, progearWeightTicketID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(progearWeightTicketID, "while looking for ProgearWeightTicket")
+		default:
+			return nil, apperror.NewQueryError("ProgearWeightTicket fetch original", err, "")
+		}
+	}
+
+	progearWeightTicket.Document.UserUploads = FilterDeletedValued(progearWeightTicket.Document.UserUploads)
+
+	return &progearWeightTicket, nil
+}
+
+func FilterDeletedValued(userUploads models.UserUploads) models.UserUploads {
+	if userUploads == nil {
+		return userUploads
+	}
+
+	filteredUploads := models.UserUploads{}
+	for _, userUpload := range userUploads {
+		if userUpload.DeletedAt == nil {
+			filteredUploads = append(filteredUploads, userUpload)
+		}
+	}
+	return filteredUploads
 }
