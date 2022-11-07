@@ -10,6 +10,6 @@ export default {
   detailsType: d.PAYMENT,
   getEventNameDisplay: ({ oldValues, changedValues }) => {
     const paymentRequestNumber = oldValues?.payment_request_number ?? changedValues?.payment_request_number;
-    return `Submitted payment request ${paymentRequestNumber}`;
+    return `JUN Submitted payment request ${paymentRequestNumber}`;
   },
 };
