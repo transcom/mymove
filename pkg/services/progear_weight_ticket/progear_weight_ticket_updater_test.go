@@ -48,7 +48,6 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			}
 		}
 
-		// ADD constructed weight?
 		oldProgearWeightTicket := models.ProgearWeightTicket{
 			PPMShipmentID: ppmShipment.ID,
 			Document:      document,
@@ -83,7 +82,7 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			suite.IsType(apperror.NotFoundError{}, err)
 
 			suite.Equal(
-				fmt.Sprintf("ID: %s not found while looking for a ProgearWeightTicket", notFoundProgearWeightTicket.ID.String()),
+				fmt.Sprintf("ID: %s not found while looking for Progear", notFoundProgearWeightTicket.ID.String()),
 				err.Error(),
 			)
 		}
@@ -168,11 +167,11 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 		suite.Nil(updateErr)
 		suite.Equal(oldProgearWeightTicket.ID, updatedProgearWeightTicket.ID)
 		suite.Equal(oldProgearWeightTicket.DocumentID, updatedProgearWeightTicket.DocumentID)
-		suite.Equal(*oldProgearWeightTicket.Description, *updatedProgearWeightTicket.Description)
-		suite.Equal(*oldProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.BelongsToSelf)
-		suite.Equal(*oldProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.HasWeightTickets)
-		suite.Equal(*oldProgearWeightTicket.Weight, *updatedProgearWeightTicket.Weight)
-		suite.Equal(*oldProgearWeightTicket.Status, *updatedProgearWeightTicket.Status)
+		suite.Equal(*expectedProgearWeightTicket.Description, *updatedProgearWeightTicket.Description)
+		suite.Equal(*expectedProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.BelongsToSelf)
+		suite.Equal(*expectedProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.HasWeightTickets)
+		suite.Equal(*expectedProgearWeightTicket.Weight, *updatedProgearWeightTicket.Weight)
+		suite.Equal(*expectedProgearWeightTicket.Status, *updatedProgearWeightTicket.Status)
 		suite.Nil(updatedProgearWeightTicket.Reason)
 	})
 
@@ -198,7 +197,7 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 		suite.Nil(updatedProgearWeightTicket)
 		suite.NotNil(updateErr)
 		suite.IsType(apperror.InvalidInputError{}, updateErr)
-		suite.ErrorContains(updateErr, "Missing Weight Tickets")
+		suite.ErrorContains(updateErr, "At least 1 weight ticket is required")
 	})
 
 	suite.Run("Fails to update when a reason isn't provided for non-approved status", func() {

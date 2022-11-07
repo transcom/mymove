@@ -65,7 +65,7 @@ func FetchProgearID(appContext appcontext.AppContext, progearID uuid.UUID) (*mod
 	var progear models.ProgearWeightTicket
 
 	err := appContext.DB().Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload("FullDocument.UserUploads.Upload").Find(&progear, progearID)
+		EagerPreload("Document.UserUploads.Upload").Find(&progear, progearID)
 
 	if err != nil {
 		switch err {
