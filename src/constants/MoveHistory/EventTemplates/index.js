@@ -45,7 +45,7 @@ export { default as uploadAmendedOrders } from './UploadAmendedOrders/uploadAmen
 export { default as updateMTOShipmentStatus } from './UpdateMTOShipmentStatus/updateMTOShipmentStatus';
 export { default as updateMTOServiceItemMoveStatus } from './CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus';
 export { default as updateMoveEstimatedExcessWeight } from './updateMTOShipmentPrimeEstimatedExcessWeight';
-export { default as updateMTOStatusServiceCounselingCompleted } from './updateMTOStatusServiceCounselingCompleted';
+export { default as updateMTOStatusServiceCounselingCompleted } from './UpdateMTOStatusServiceCounselingCompleted/updateMTOStatusServiceCounselingCompleted';
 export { default as updateAllowanceByCounselor } from './UpdateAllowances/updateAllowanceByCounselor';
 export { default as updateServiceMemberByCounselor } from './UpdateServiceMember/updateServiceMemberByCounselor';
 export { default as updateServiceMemberByTOO } from './UpdateServiceMember/updateServiceMemberByTOO';
