@@ -32,7 +32,7 @@ func (p *ppmShipmentNewSubmitter) SubmitNewCustomerCloseOut(appCtx appcontext.Ap
 		return nil, apperror.NewBadDataError("PPM ID is required")
 	}
 
-	ppmShipment, err := models.GetPPMShipment(appCtx, ppmShipmentID)
+	ppmShipment, err := FindPPMShipment(appCtx, ppmShipmentID)
 
 	if err != nil {
 		return nil, err

@@ -7,7 +7,6 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/unit"
@@ -141,37 +140,5 @@ func FetchPPMShipmentFromMTOShipmentID(db *pop.Connection, mtoShipmentID uuid.UU
 			return nil, apperror.NewQueryError("PPMShipment", err, "")
 		}
 	}
-	return &ppmShipment, nil
-}
-
-// GetPPMShipment returns a PPMShipment with associations by ID
-func GetPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*PPMShipment, error) {
-	var ppmShipment PPMShipment
-
-	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload(
-			"Shipment",
-			"WeightTickets",
-			"MovingExpenses",
-			"ProgearExpenses",
-		).
-		Find(&ppmShipment, id)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(id, "while looking for PPMShipment")
-		default:
-			return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipment")
-		}
-	}
-
-	// We can't load SignedCertification with EagerPreload because of a bug in Pop, so we'll load it directly next.
-	loadErr := appCtx.DB().Load(&ppmShipment, "SignedCertification")
-
-	if loadErr != nil {
-		return nil, apperror.NewQueryError("PPMShipment", loadErr, "unable to load SignedCertification")
-	}
-
 	return &ppmShipment, nil
 }
