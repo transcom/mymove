@@ -60,6 +60,13 @@ const partialPayload = {
   actualDestinationPostalCode: '10002',
   hasReceivedAdvance: true,
   advanceAmountReceived: 750000,
+  w2Address: {
+    streetAddress1: '10642 N Second Ave',
+    streetAddress2: '',
+    city: 'Goldsboro',
+    state: 'NC',
+    postalCode: '27534',
+  },
 };
 
 const mockPayload = {
@@ -116,6 +123,21 @@ const fillOutBasicForm = () => {
   const actualDestinationZip = screen.getByLabelText('Ending ZIP');
   userEvent.clear(actualDestinationZip);
   userEvent.type(actualDestinationZip, '10002');
+
+  const streetAddress1 = screen.getByLabelText('Address 1');
+  userEvent.clear(streetAddress1);
+  userEvent.type(streetAddress1, '10642 N Second Ave');
+
+  const city = screen.getByLabelText('City');
+  userEvent.clear(city);
+  userEvent.type(city, 'Goldsboro');
+
+  const state = screen.getByLabelText('State');
+  userEvent.selectOptions(state, 'NC');
+
+  const postalCode = screen.getByLabelText('ZIP');
+  userEvent.clear(postalCode);
+  userEvent.type(postalCode, '27534');
 };
 
 const fillOutAdvanceSections = () => {
@@ -145,6 +167,7 @@ describe('About page', () => {
     expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Departure date');
     expect(screen.getAllByRole('heading', { level: 2 })[1]).toHaveTextContent('Locations');
     expect(screen.getAllByRole('heading', { level: 2 })[2]).toHaveTextContent('Advance (AOA)');
+    expect(screen.getAllByRole('heading', { level: 2 })[3]).toHaveTextContent('W-2 address');
   });
 
   it('routes back to home when return to homepage is clicked', () => {

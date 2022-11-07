@@ -11,4 +11,35 @@
     @include u-border-bottom(0);
     @include u-padding-bottom(0);
   }
+
+  .W2Address {
+    p {
+      @include u-margin-bottom(0);
+      @include u-margin-top(0);
+    }
+
+    .AddressFieldSet {
+      @include u-margin-top(0);
+      border-bottom: none;
+
+      :global(.usa-form-group:first-of-type .usa-label) {
+        @include u-margin-top(0);
+      }
+
+      :global(.usa-input) {
+        width: 100%;
+      }
+
+      :global(.grid-row.grid-gap) {
+        div:nth-child(1), div:nth-child(2) {
+          @include at-media('desktop'){
+            width: 50%;
+          }
+          :global(.usa-form-group) {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
 }

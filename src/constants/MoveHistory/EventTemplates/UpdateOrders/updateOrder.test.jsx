@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 
-import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import e from 'constants/MoveHistory/EventTemplates/UpdateOrders/updateOrder';
 
@@ -9,7 +8,6 @@ describe('when given an Order update history record', () => {
     action: 'UPDATE',
     eventName: 'updateOrder',
     tableName: 'orders',
-    detailsType: d.LABELED,
     changedValues: { old_duty_location_id: 'ID1', new_duty_location_id: 'ID2', has_dependents: 'false' },
     context: [{ old_duty_location_name: 'old name', new_duty_location_name: 'new name' }],
   };
