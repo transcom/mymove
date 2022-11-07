@@ -21,7 +21,7 @@ import (
 // CREATE TEST
 func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 	// Reusable objects
-	progearCreator := progear.NewProgearWeightTicketCreator()
+	progearCreator := progear.NewCustomerProgearWeightTicketCreator()
 
 	type progearCreateSubtestData struct {
 		ppmShipment models.PPMShipment
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 		params := subtestData.params
 		serverErr := errors.New("ServerError")
 
-		mockCreator.On("CreateProgear",
+		mockCreator.On("CreateProgearWeightTicket",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
 		).Return(nil, serverErr)
@@ -137,7 +137,7 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 
 func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 	// Reusable objects
-	progearUpdater := progear.NewProgearWeightTicketUpdater()
+	progearUpdater := progear.NewCustomerProgearWeightTicketUpdater()
 
 	type progearUpdateSubtestData struct {
 		ppmShipment models.PPMShipment
@@ -189,7 +189,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 			},
 		})
 
-		// Add vehicleDescription
+		// Add Description
 		progearDes := "Pro gear desctription"
 		hasWeightTickets := true
 		belongsToSelf := true
@@ -206,7 +206,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 
 		updatedProgear := response.(*progearops.UpdateProGearWeightTicketOK).Payload
 		suite.Equal(subtestData.progear.ID.String(), updatedProgear.ID.String())
-		suite.Equal(params.UpdateProGearWeightTicket.Description, *updatedProgear.Description)
+		suite.Equal(params.UpdateProGearWeightTicket.Description, updatedProgear.Description)
 	})
 
 	suite.Run("PATCH failure -400 - nil body", func() {
@@ -230,7 +230,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		params.UpdateProGearWeightTicket = &internalmessages.UpdateProGearWeightTicket{
 			Description:      &progearDes,
 			HasWeightTickets: &hasWeightTickets,
-			Weight:           handlers.FmtInt64(4000),
+			Weight:           handlers.FmtInt64(0),
 			BelongsToSelf:    &belongsToSelf,
 		}
 
@@ -285,7 +285,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 
 		err := errors.New("ServerError")
 
-		mockUpdater.On("UpdateProgear",
+		mockUpdater.On("UpdateProgearWeightTicket",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.ProgearWeightTicket"),
 			mock.AnythingOfType("string"),

@@ -49,7 +49,7 @@ func (suite *WeightTicketSuite) TestWeightTicketCreator() {
 		}
 		ppmShipment := testdatagen.MakeMinimalDefaultPPMShipment(suite.DB())
 
-		weightTicketCreator := NewCustomerWeightTicketCreator() 
+		weightTicketCreator := NewCustomerWeightTicketCreator()
 		weightTicket, err := weightTicketCreator.CreateWeightTicket(suite.AppContextWithSessionForTest(session), ppmShipment.ID)
 
 		suite.Nil(weightTicket)
