@@ -38,7 +38,7 @@ describe('ConnectedCustomerApp tests', () => {
 
     it('renders the page not found route', () => {
       renderRoute('/pageNotFound');
-      expect(screen.queryByText('Page not found')).toBeInTheDocument();
+      expect(screen.queryByText('Error - 404')).toBeInTheDocument();
     });
   });
 
