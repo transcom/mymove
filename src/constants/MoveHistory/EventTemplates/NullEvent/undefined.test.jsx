@@ -14,6 +14,7 @@ describe('when given an unidentifiable move history record', () => {
       ['Updated allowances', 'entitlements'],
       ['Updated service item', 'mto_service_items'],
       ['Updated order', 'orders'],
+      ['Updated move', 'default'],
     ])('it displays the `%s` event name for the table `%s`', async (eventDisplayName, table) => {
       const historyRecord = {
         action: null,
