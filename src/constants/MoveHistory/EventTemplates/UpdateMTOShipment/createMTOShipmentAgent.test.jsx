@@ -49,7 +49,7 @@ describe('when given a historyRecord that updates a receiving/releasing agent', 
     expect(screen.getAllByText('HHG shipment #A1B2C'));
   });
 
-  describe('it displayes the proper labeled details for the given releasing agent', () => {
+  describe('it displays the proper labeled details for the given releasing agent', () => {
     it.each([
       ['Releasing agent', ': Grace Griffin, 555-555-5555, grace@email.com'],
       ['First name', ': Grace'],
@@ -63,7 +63,7 @@ describe('when given a historyRecord that updates a receiving/releasing agent', 
     });
   });
 
-  describe('it displayes the proper labeled details for the given receiving agent', () => {
+  describe('it displays the proper labeled details for the given receiving agent', () => {
     it.each([
       ['Receiving agent', ': Catalina Washington, 999-999-9999, catalina@email.com'],
       ['First name', ': Catalina'],
