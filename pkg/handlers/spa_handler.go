@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"net/http"
-	"os"
 	"path/filepath"
+
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/logging"
 )
@@ -17,14 +18,59 @@ import (
 type SpaHandler struct {
 	staticPath string
 	indexPath  string
+	cfs        CustomFileSystem
 }
 
 // NewSpaHandler returns a new handler for a Single Page App
-func NewSpaHandler(staticPath string, indexPath string) SpaHandler {
+func NewSpaHandler(staticPath string, indexPath string, cfs CustomFileSystem) SpaHandler {
 	return SpaHandler{
 		staticPath: staticPath,
 		indexPath:  indexPath,
+		cfs:        cfs,
 	}
+}
+
+// from https://www.alexedwards.net/blog/disable-http-fileserver-directory-listings
+type CustomFileSystem struct {
+	fs        http.FileSystem
+	indexPath string
+	logger    *zap.Logger
+}
+
+func NewCustomFileSystem(fs http.FileSystem, indexPath string, logger *zap.Logger) CustomFileSystem {
+	return CustomFileSystem{
+		fs:        fs,
+		indexPath: indexPath,
+		logger:    logger,
+	}
+}
+
+func (cfs CustomFileSystem) Open(path string) (http.File, error) {
+	f, openErr := cfs.fs.Open(path)
+	logger := cfs.logger
+	logger.Debug("Using CustomFileSystem for " + path)
+
+	if openErr != nil {
+		logger.Error("Error with opening", zap.Error(openErr))
+		return nil, openErr
+	}
+
+	s, _ := f.Stat()
+	if s.IsDir() {
+		index := filepath.Join(path, cfs.indexPath)
+		if _, indexOpenErr := cfs.fs.Open(index); indexOpenErr != nil {
+			closeErr := f.Close()
+			if closeErr != nil {
+				logger.Error("Unable to close ", zap.Error(closeErr))
+				return nil, closeErr
+			}
+
+			logger.Error("Unable to open index.html in the directory", zap.Error(indexOpenErr))
+			return nil, indexOpenErr
+		}
+	}
+
+	return f, nil
 }
 
 // ServeHTTP inspects the URL path to locate a file within the static dir
@@ -34,8 +80,9 @@ func NewSpaHandler(staticPath string, indexPath string) SpaHandler {
 func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	logger := logging.FromContext(r.Context())
 	logger.Debug("Using SPA Handler for " + r.URL.Path)
+
 	// get the absolute path to prevent directory traversal
-	path, err := filepath.Abs(r.URL.Path)
+	_, err := filepath.Abs(r.URL.Path)
 	if err != nil {
 		// if we failed to get the absolute path respond with a 400 bad request
 		// and stop
@@ -43,24 +90,9 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// prepend the path with the path to the static directory
-	path = filepath.Join(h.staticPath, path)
-
-	// check whether a file exists at the given path
-	_, err = os.Stat(path)
-	if os.IsNotExist(err) {
-		// file does not exist, serve index.html
-		http.ServeFile(w, r, filepath.Join(h.staticPath, h.indexPath))
-		return
-	} else if err != nil {
-		// if we got an error (that wasn't that the file doesn't exist) stating the
-		// file, return a 500 internal server error and stop
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	// otherwise, use http.FileServer to serve the static dir
-	http.FileServer(http.Dir(h.staticPath)).ServeHTTP(w, r)
+	// use the customFileSystem so that we do not expose directory listings
+	http.FileServer(h.cfs).ServeHTTP(w, r)
 }
 
 // NewFileHandler serves up a single file
