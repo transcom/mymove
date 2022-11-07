@@ -5,7 +5,7 @@ info:
   title: my.move.mil
   license:
     name: MIT
-    url: https://github.com/transcom/mymove/blob/master/LICENSE.md
+    url: https://github.com/transcom/mymove/blob/main/LICENSE.md
 basePath: /api/v1
 consumes:
   - application/json
