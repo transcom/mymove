@@ -479,6 +479,7 @@ const EvaluationForm = ({ evaluationReport, reportViolations, mtoShipments, cust
                         label="Observed pickup date"
                         name="observedDate"
                         hint="Only enter a date here if the pickup you witnessed did not happen on the scheduled pickup date"
+                        showOptional
                       />
                     )}
 
