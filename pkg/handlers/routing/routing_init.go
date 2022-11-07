@@ -140,9 +140,16 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
 
 	// Serves files out of build folder
+	cfs := handlers.NewCustomFileSystem(
+		http.Dir(routingConfig.BuildRoot),
+		"index.html",
+		appCtx.Logger(),
+	)
+
 	clientHandler := handlers.NewSpaHandler(
 		routingConfig.BuildRoot,
 		"index.html",
+		cfs,
 	)
 
 	// Stub health check

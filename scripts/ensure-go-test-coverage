@@ -27,7 +27,7 @@ baseline_file = sys.argv[1]
 new_file = sys.argv[2]
 
 baseline_percent = 0.0
-# we can remove this conditional once the baselines are being saved on master
+# we can remove this conditional once the baselines are being saved on main
 if not os.path.exists(baseline_file):
   print(f"Baseline file '{baseline_file}' does not exist, assuming 0")
 else:

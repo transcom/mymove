@@ -11,7 +11,7 @@ export { default as createMTOShipmentAgent } from './createMTOShipmentAgent';
 export { default as createOrders } from './CreateOrders/createOrders';
 export { default as createEntitlements } from './CreateOrders/createEntitlements';
 export { default as createMoves } from './CreateOrders/createMoves';
-export { default as createPaymentRequest } from './createPaymentRequest';
+export { default as createPaymentRequest } from './CreatePaymentRequest/createPaymentRequest';
 export { default as createPaymentRequestReweighUpdate } from './createPaymentRequestReweighUpdate';
 export { default as createPaymentRequestShipmentUpdate } from './createPaymentRequestShipmentUpdate';
 export { default as createReweighRequestWeightUpdate } from './createReweighRequestWeightUpdate';
