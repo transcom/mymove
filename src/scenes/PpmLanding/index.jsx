@@ -12,7 +12,6 @@ import {
   selectCurrentOrders,
   selectCurrentMove,
   selectHasCanceledMove,
-  selectMoveType,
   selectCurrentPPM,
 } from 'store/entities/selectors';
 import { updatePPMs } from 'store/entities/actions';
@@ -109,7 +108,6 @@ const mapStateToProps = (state) => {
 
   const props = {
     lastMoveIsCanceled: selectHasCanceledMove(state),
-    selectedMoveType: selectMoveType(state),
     isProfileComplete: selectIsProfileComplete(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],

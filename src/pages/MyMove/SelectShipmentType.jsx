@@ -12,7 +12,6 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { generalRoutes, customerRoutes } from 'constants/routes';
 import styles from 'pages/MyMove/SelectShipmentType.module.scss';
-import { patchMove, getResponseError } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadMTOShipments as loadMTOShipmentsAction } from 'shared/Entities/modules/mtoShipments';
 import { updateMove as updateMoveAction } from 'store/entities/actions';
@@ -54,26 +53,11 @@ export class SelectShipmentType extends Component {
   };
 
   handleSubmit = () => {
-    const { push, move, updateMove } = this.props;
+    const { push, move } = this.props;
     const { moveType } = this.state;
 
     const createShipmentPath = generatePath(customerRoutes.SHIPMENT_CREATE_PATH, { moveId: move.id });
-    return patchMove({
-      id: move.id,
-      selected_move_type: moveType,
-    })
-      .then((response) => {
-        // Update Redux with new data
-        updateMove(response);
-        push(`${createShipmentPath}?type=${moveType}`);
-      })
-      .catch((e) => {
-        const { response } = e;
-        const errorMessage = getResponseError(response, 'failed to update move due to server error');
-        this.setState({
-          errorMessage,
-        });
-      });
+    return push(`${createShipmentPath}?type=${moveType}`);
   };
 
   render() {

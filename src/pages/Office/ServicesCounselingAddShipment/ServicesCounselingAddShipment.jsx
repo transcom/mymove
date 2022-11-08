@@ -18,10 +18,12 @@ import { roleTypes } from 'constants/userRoles';
 import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
 
 const ServicesCounselingAddShipment = ({ match }) => {
-  const { moveCode, shipmentType } = useParams();
-  let selectedMoveType = SHIPMENT_OPTIONS[shipmentType];
+  const params = useParams();
+  let { shipmentType } = params;
+  const { moveCode } = params;
+
   if (shipmentType === SHIPMENT_OPTIONS_URL.NTSrelease) {
-    selectedMoveType = SHIPMENT_OPTIONS.NTSR;
+    shipmentType = SHIPMENT_OPTIONS.NTSR;
   }
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
@@ -67,7 +69,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   currentResidence={customer.current_address}
                   originDutyLocationAddress={order.originDutyLocation?.address}
                   newDutyLocationAddress={order.destinationDutyLocation?.address}
-                  selectedMoveType={selectedMoveType}
+                  shipmentType={shipmentType}
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}
                   mtoShipments={mtoShipments}

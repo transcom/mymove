@@ -148,8 +148,6 @@ export const selectHasCanceledMove = createSelector(selectMovesForLoggedInUser, 
   moves.some((m) => m.status === 'CANCELED'),
 );
 
-export const selectMoveType = createSelector(selectCurrentMove, (move) => move?.selected_move_type);
-
 /** MTO Shipments */
 export const selectMTOShipmentsForCurrentMove = (state) => {
   const currentMove = selectCurrentMove(state);
