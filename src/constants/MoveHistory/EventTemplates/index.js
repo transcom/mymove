@@ -36,7 +36,7 @@ export { default as updateMTOShipmentDeprecatePaymentRequest } from './updateMTO
 export { default as reweighPaymentRequest } from './reweighPaymentRequest';
 export { default as updateOrder } from './UpdateOrders/updateOrder';
 export { default as updatePaymentRequest } from './updatePaymentRequest';
-export { default as updatePaymentRequestJobRunner } from './updatePaymentRequestJobRunner';
+export { default as updatePaymentRequestJobRunner } from './UpdatePaymentRequestJobRunner/updatePaymentRequestJobRunner';
 export { default as updatePaymentRequestStatus } from './updatePaymentRequestStatus';
 export { default as updateReweighWeight } from './UpdateReweigh/updateReweighWeight';
 export { default as updateServiceItemStatus } from './UpdateServiceItemStatus/updateServiceItemStatus';
