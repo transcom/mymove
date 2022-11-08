@@ -47,7 +47,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 	suite.Run("Deactivate a user successfully", func() {
 		// This case should send an email to sys admins
 		appCtx := appcontext.NewAppContext(suite.DB(), suite.AppContextForTest().Logger(), &auth.Session{})
-		user := testdatagen.MakeDefaultUser(suite.DB())
+		user := factory.BuildDefaultUser(suite.DB())
 		mockSender := setUpMockNotificationSender()
 		updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, mockSender)
 
