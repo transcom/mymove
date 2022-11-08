@@ -10,8 +10,8 @@ export default {
   tableName: t.payment_requests,
   getEventNameDisplay: ({ changedValues }) => `Created payment request ${changedValues?.payment_request_number}`,
   getDetails: () => (
-    <div>
+    <>
       <b>Status</b>: Pending
-    </div>
+    </>
   ),
 };
