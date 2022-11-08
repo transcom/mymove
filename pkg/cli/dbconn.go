@@ -13,7 +13,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/rds"
 	pop "github.com/gobuffalo/pop/v6"
-	"github.com/jmoiron/sqlx"
 	"github.com/luna-duclos/instrumentedsql"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
@@ -315,6 +314,14 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 			make(chan bool))
 
 		dbConnectionDetails.Password = passHolder
+		// pop now use url.QueryEscape on the password, but that
+		// doesn't work with iampg. If we manually construct the URL,
+		// we can override that behavior
+		s := "postgres://%s:%s@%s:%s/%s?%s"
+		dbConnectionDetails.URL = fmt.Sprintf(s,
+			dbConnectionDetails.User, dbConnectionDetails.Password,
+			dbConnectionDetails.Host, dbConnectionDetails.Port,
+			dbConnectionDetails.Database, dbConnectionDetails.OptionsString(""))
 	}
 
 	if dbUseInstrumentedDriver {
@@ -381,65 +388,26 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 		return nil, err
 	}
 
-	err = testConnection(&dbConnectionDetails, v.GetBool(DbIamFlag), logger)
-	if err != nil {
-		logger.Error("Failed to ping database")
-		return connection, err
+	dbWithPinger, ok := connection.Store.(pinger)
+	if !ok {
+		logger.Error("Failed to convert to pinger interface")
+		return nil, errors.New("Failed to convert to pinger interface")
 	}
+
+	// Make the db ping
+	logger.Info("Starting database ping....")
+	err = dbWithPinger.Ping()
+	if err != nil {
+		logger.Warn("Failed to ping DB connection", zap.Error(err))
+		return nil, err
+	}
+
+	logger.Info("...DB ping successful!")
 
 	// Return the open connection
 	return connection, nil
 }
 
-// testConnection tests the connection to determine successful ping
-func testConnection(dbConnDetails *pop.ConnectionDetails, useIam bool, logger *zap.Logger) error {
-	// Copy connection info as we don't want to alter connection info
-	dbConnectionDetails := pop.ConnectionDetails{
-		Dialect:  "postgres",
-		Driver:   dbConnDetails.Driver,
-		Database: dbConnDetails.Database,
-		Host:     dbConnDetails.Host,
-		Port:     dbConnDetails.Port,
-		User:     dbConnDetails.User,
-		Password: dbConnDetails.Password,
-		Options:  dbConnDetails.Options,
-		Pool:     dbConnDetails.Pool,
-		IdlePool: dbConnDetails.IdlePool,
-	}
-
-	if useIam {
-		dbConnectionDetails.Password = iampg.GetCurrentPass()
-	}
-
-	// Set up the connection
-	connection, err := pop.NewConnection(&dbConnectionDetails)
-	if err != nil {
-		logger.Error("Failed create DB connection", zap.Error(err))
-		return err
-	}
-
-	// Open the connection
-	err = connection.Open()
-	if err != nil {
-		logger.Error("Failed to open DB connection", zap.Error(err))
-		return err
-	}
-
-	// Check the connection
-	db, err := sqlx.Open(connection.Dialect.Details().Dialect, connection.Dialect.URL())
-	if err != nil {
-		logger.Warn("Failed to open DB by driver name", zap.Error(err))
-		return err
-	}
-
-	// Make the db ping
-	logger.Info("Starting database ping....")
-	err = db.Ping()
-	if err != nil {
-		logger.Warn("Failed to ping DB connection", zap.Error(err))
-		return err
-	}
-
-	logger.Info("...DB ping successful!")
-	return nil
+type pinger interface {
+	Ping() error
 }
