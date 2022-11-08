@@ -52,7 +52,7 @@ func (p *Pipelines) Fetch(pageToken string) {
 	if pageToken != "" {
 		q.Add("page-token", pageToken)
 	} else {
-		q.Add("branch", "master")
+		q.Add("branch", "main")
 	}
 	req.URL.RawQuery = q.Encode()
 	resp, err := client.Do(req)
@@ -207,7 +207,7 @@ func main() {
 	before := commit2.Commit.Author.Date.Add(1 * time.Minute).Format(time.RFC3339)
 	after := commit.Commit.Author.Date.Add(1 * time.Minute).Format(time.RFC3339)
 
-	issues, _, err := ghClient.Search.Issues(ctx, fmt.Sprintf("repo:transcom/mymove is:pr is:closed base:master merged:%s..%s sort:updated-asc", after, before), nil)
+	issues, _, err := ghClient.Search.Issues(ctx, fmt.Sprintf("repo:transcom/mymove is:pr is:closed base:main merged:%s..%s sort:updated-asc", after, before), nil)
 	if err != nil {
 		var githubError *github.ErrorResponse
 
