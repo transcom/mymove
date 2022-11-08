@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
@@ -335,7 +336,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 		}
 
 		handler := SubmitPPMShipmentDocumentationHandler{
-			suite.HandlerConfig(),
+			suite.createS3HandlerConfig(),
 			submitter,
 		}
 
@@ -799,9 +800,33 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	mtoShipmentRouter := mtoshipment.NewShipmentRouter()
 	ppmShipmentRouter := ppmshipment.NewPPMShipmentRouter(mtoShipmentRouter)
 
+	userUploader, err := uploader.NewUserUploader(suite.createS3HandlerConfig().FileStorer(), 25*uploader.MB)
+	suite.NoError(err)
+
 	submitter := ppmshipment.NewPPMShipmentUpdatedSubmitter(signedCertificationUpdater, ppmShipmentRouter)
 
-	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, payload *internalmessages.SavePPMShipmentSignedCertification) (ppmops.ResubmitPPMShipmentDocumentationParams, ResubmitPPMShipmentDocumentationHandler) {
+	submissionTime := time.Now().AddDate(0, 0, -5)
+
+	var shipmentNeedsResubmitted models.PPMShipment
+	var needsResubmittedSM models.ServiceMember
+
+	var shipmentNeedsPaymentApproval models.PPMShipment
+	var needsPaymentApprovalSM models.ServiceMember
+
+	suite.PreloadData(func() {
+		shipmentNeedsResubmitted = testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{
+			PPMShipment: models.PPMShipment{
+				SubmittedAt: &submissionTime,
+			},
+			UserUploader: userUploader,
+		})
+		needsResubmittedSM = shipmentNeedsResubmitted.Shipment.MoveTaskOrder.Orders.ServiceMember
+
+		shipmentNeedsPaymentApproval = testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{})
+		needsPaymentApprovalSM = shipmentNeedsPaymentApproval.Shipment.MoveTaskOrder.Orders.ServiceMember
+	})
+
+	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, serviceMember models.ServiceMember, payload *internalmessages.SavePPMShipmentSignedCertification) (ppmops.ResubmitPPMShipmentDocumentationParams, ResubmitPPMShipmentDocumentationHandler) {
 		endpoint := fmt.Sprintf(
 			"/ppm-shipments/%s/submit-ppm-shipment-documentation/%s",
 			ppmShipment.ID.String(),
@@ -810,7 +835,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 
 		request := httptest.NewRequest("PUT", endpoint, nil)
 
-		request = suite.AuthenticateRequest(request, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+		request = suite.AuthenticateRequest(request, serviceMember)
 
 		eTag := etag.GenerateEtag(ppmShipment.SignedCertification.UpdatedAt)
 		params := ppmops.ResubmitPPMShipmentDocumentationParams{
@@ -822,7 +847,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 		}
 
 		handler := ResubmitPPMShipmentDocumentationHandler{
-			suite.HandlerConfig(),
+			suite.createS3HandlerConfig(),
 			submitter,
 		}
 
@@ -830,11 +855,14 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	}
 
 	suite.Run("Returns an error if the PPM shipment is not found", func() {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{})
+		shipmentWithUnknownID := models.PPMShipment{
+			ID: uuid.Must(uuid.NewV4()),
+			SignedCertification: &models.SignedCertification{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		}
 
-		ppmShipment.ID = uuid.Must(uuid.NewV4())
-
-		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{})
+		params, handler := setUpParamsAndHandler(shipmentWithUnknownID, needsResubmittedSM, &internalmessages.SavePPMShipmentSignedCertification{})
 
 		response := handler.Handle(params)
 
@@ -846,27 +874,14 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Returns an error if the signed certification is not found", func() {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{})
-
-		ppmShipment.SignedCertification.ID = uuid.Must(uuid.NewV4())
-
-		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{})
-
-		response := handler.Handle(params)
-
-		if suite.IsType(&ppmops.ResubmitPPMShipmentDocumentationNotFound{}, response) {
-			errResponse := response.(*ppmops.ResubmitPPMShipmentDocumentationNotFound)
-
-			suite.Contains(*errResponse.Payload.Detail, "not found while looking for SignedCertification")
+		shipmentWithUnknownSignedCert := models.PPMShipment{
+			ID: shipmentNeedsResubmitted.ID,
+			SignedCertification: &models.SignedCertification{
+				ID: uuid.Must(uuid.NewV4()),
+			},
 		}
-	})
 
-	suite.Run("Returns an error if the signed certification is not found", func() {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{})
-
-		ppmShipment.SignedCertification.ID = uuid.Must(uuid.NewV4())
-
-		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{})
+		params, handler := setUpParamsAndHandler(shipmentWithUnknownSignedCert, needsResubmittedSM, &internalmessages.SavePPMShipmentSignedCertification{})
 
 		response := handler.Handle(params)
 
@@ -878,9 +893,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Returns an error if the PPM shipment is not in the right status", func() {
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsPaymentApproval(suite.DB(), testdatagen.Assertions{})
-
-		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{
+		params, handler := setUpParamsAndHandler(shipmentNeedsPaymentApproval, needsPaymentApprovalSM, &internalmessages.SavePPMShipmentSignedCertification{
 			CertificationText: handlers.FmtString("certification text"),
 			Signature:         handlers.FmtString("signature"),
 			Date:              handlers.FmtDate(time.Now()),
@@ -903,22 +916,11 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Can successfully resubmit a PPM shipment for close out", func() {
-		// Setting some time in the past to ensure the handler doesn't it set it to the current time. This is to try to
-		// make up for a weird timezones issue that was happening in CircleCI. UTC vs Etc/UTC, which are meant to be
-		// equivalent afaict (and are when running locally), but are slightly off in CI.
-		submittedAt := time.Now().AddDate(0, 0, -5)
-
-		ppmShipment := testdatagen.MakePPMShipmentThatNeedsToBeResubmitted(suite.DB(), testdatagen.Assertions{
-			PPMShipment: models.PPMShipment{
-				SubmittedAt: &submittedAt,
-			},
-		})
-
 		newCertText := "new certification text"
 		newSignature := "new signature"
 		newSignDate := time.Now().AddDate(0, 0, 1)
 
-		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{
+		params, handler := setUpParamsAndHandler(shipmentNeedsResubmitted, needsResubmittedSM, &internalmessages.SavePPMShipmentSignedCertification{
 			CertificationText: handlers.FmtString(newCertText),
 			Signature:         handlers.FmtString(newSignature),
 			Date:              handlers.FmtDate(newSignDate),
@@ -932,34 +934,34 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 
 			suite.NoError(returnedPPMShipment.Validate(strfmt.Default))
 
-			suite.EqualUUID(ppmShipment.ID, returnedPPMShipment.ID)
+			suite.EqualUUID(shipmentNeedsResubmitted.ID, returnedPPMShipment.ID)
 			suite.Equal(string(models.PPMShipmentStatusNeedsPaymentApproval), string(returnedPPMShipment.Status))
 
 			if suite.NotNil(returnedPPMShipment.SubmittedAt) {
 				returnedSubmittedAt := handlers.FmtDateTimePtrToPop(returnedPPMShipment.SubmittedAt)
 
 				suite.True(
-					ppmShipment.SubmittedAt.UTC().Equal(returnedSubmittedAt.UTC()),
+					shipmentNeedsResubmitted.SubmittedAt.UTC().Equal(returnedSubmittedAt.UTC()),
 					fmt.Sprintf(
 						"SubmittedAt should not have changed: was %s, now %s",
-						ppmShipment.SubmittedAt,
+						shipmentNeedsResubmitted.SubmittedAt,
 						returnedPPMShipment.SubmittedAt,
 					),
 				)
 			}
 
 			suite.NotNil(returnedPPMShipment.SignedCertification)
-			suite.EqualUUID(ppmShipment.SignedCertification.ID, returnedPPMShipment.SignedCertification.ID)
+			suite.EqualUUID(shipmentNeedsResubmitted.SignedCertification.ID, returnedPPMShipment.SignedCertification.ID)
 
 			suite.EqualUUID(
-				ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.User.ID,
+				shipmentNeedsResubmitted.Shipment.MoveTaskOrder.Orders.ServiceMember.User.ID,
 				returnedPPMShipment.SignedCertification.SubmittingUserID,
 			)
 
-			suite.EqualUUID(ppmShipment.Shipment.MoveTaskOrder.ID, returnedPPMShipment.SignedCertification.MoveID)
+			suite.EqualUUID(shipmentNeedsResubmitted.Shipment.MoveTaskOrder.ID, returnedPPMShipment.SignedCertification.MoveID)
 
 			if suite.NotNil(returnedPPMShipment.SignedCertification.PpmID) {
-				suite.EqualUUID(ppmShipment.ID, *returnedPPMShipment.SignedCertification.PpmID)
+				suite.EqualUUID(shipmentNeedsResubmitted.ID, *returnedPPMShipment.SignedCertification.PpmID)
 			}
 
 			suite.Equal(
