@@ -1,5 +1,5 @@
 import detailsTypes from 'constants/MoveHistory/UIDisplay/DetailsTypes';
-import undefinedEvent from 'constants/MoveHistory/EventTemplates/undefined';
+import undefinedEvent from 'constants/MoveHistory/EventTemplates/NullEvent/undefined';
 import * as eventTemplates from 'constants/MoveHistory/EventTemplates';
 
 const allMoveHistoryEventTemplates = [];

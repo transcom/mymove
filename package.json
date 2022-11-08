@@ -71,7 +71,7 @@
     "redux-thunk": "^2.4.2",
     "regenerator-runtime": "^0.13.10",
     "reselect": "^4.1.7",
-    "sass": "^1.55.0",
+    "sass": "^1.56.0",
     "swagger-client": "^3.18.5",
     "swagger-ui-dist": "^4.15.2",
     "uswds": "2.13.3",
@@ -120,7 +120,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "~7.19.6",
+    "@babel/core": "~7.20.2",
     "@babel/helper-builder-react-jsx": "^7.19.0",
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
     "@dump247/storybook-state": "^1.6.1",

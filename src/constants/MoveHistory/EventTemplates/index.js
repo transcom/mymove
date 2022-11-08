@@ -7,7 +7,7 @@ export { default as createMTOServiceItemCustomerContacts } from './CreateMTOServ
 export { default as createMTOServiceItemDimensions } from './CreateMTOServiceItem/createMTOServiceItemDimensions';
 export { default as createMTOShipment } from './CreateMTOShipment/createMTOShipment';
 export { default as createAddresses } from './UpdateAddress/createAddress';
-export { default as createMTOShipmentAgent } from './createMTOShipmentAgent';
+export { default as createMTOShipmentAgent } from './UpdateMTOShipment/createMTOShipmentAgent';
 export { default as createOrders } from './CreateOrders/createOrders';
 export { default as createEntitlements } from './CreateOrders/createEntitlements';
 export { default as createMoves } from './CreateOrders/createMoves';
@@ -45,7 +45,7 @@ export { default as uploadAmendedOrders } from './UploadAmendedOrders/uploadAmen
 export { default as updateMTOShipmentStatus } from './UpdateMTOShipmentStatus/updateMTOShipmentStatus';
 export { default as updateMTOServiceItemMoveStatus } from './CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus';
 export { default as updateMoveEstimatedExcessWeight } from './updateMTOShipmentPrimeEstimatedExcessWeight';
-export { default as updateMTOStatusServiceCounselingCompleted } from './updateMTOStatusServiceCounselingCompleted';
+export { default as updateMTOStatusServiceCounselingCompleted } from './UpdateMTOStatusServiceCounselingCompleted/updateMTOStatusServiceCounselingCompleted';
 export { default as updateAllowanceByCounselor } from './UpdateAllowances/updateAllowanceByCounselor';
 export { default as updateServiceMemberByCounselor } from './UpdateServiceMember/updateServiceMemberByCounselor';
 export { default as updateServiceMemberByTOO } from './UpdateServiceMember/updateServiceMemberByTOO';
