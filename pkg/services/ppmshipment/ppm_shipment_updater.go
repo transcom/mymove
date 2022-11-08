@@ -14,15 +14,17 @@ type ppmShipmentUpdater struct {
 	estimator services.PPMEstimator
 }
 
+var PPMShipmentUpdaterChecks = []ppmShipmentValidator{
+	checkShipmentType(),
+	checkShipmentID(),
+	checkPPMShipmentID(),
+	checkRequiredFields(),
+	checkAdvanceAmountRequested(),
+}
+
 func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator) services.PPMShipmentUpdater {
 	return &ppmShipmentUpdater{
-		checks: []ppmShipmentValidator{
-			checkShipmentType(),
-			checkShipmentID(),
-			checkPPMShipmentID(),
-			checkRequiredFields(),
-			checkAdvanceAmountRequested(),
-		},
+		checks:    PPMShipmentUpdaterChecks,
 		estimator: ppmEstimator,
 	}
 }

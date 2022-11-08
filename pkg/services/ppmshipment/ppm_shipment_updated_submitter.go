@@ -1,6 +1,7 @@
 package ppmshipment
 
 import (
+	"github.com/getlantern/deepcopy"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -38,20 +39,33 @@ func (p *ppmShipmentUpdatedSubmitter) SubmitUpdatedCustomerCloseOut(appCtx appco
 		return nil, err
 	}
 
+	var updatedPPMShipment models.PPMShipment
+
+	err = deepcopy.Copy(&updatedPPMShipment, ppmShipment)
+	if err != nil {
+		return nil, err
+	}
+
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		ppmShipment.SignedCertification, err = p.SignedCertificationUpdater.UpdateSignedCertification(txnAppCtx, signedCertification, eTag)
+		updatedPPMShipment.SignedCertification, err = p.SignedCertificationUpdater.UpdateSignedCertification(txnAppCtx, signedCertification, eTag)
 
 		if err != nil {
 			return err
 		}
 
-		err = p.PPMShipmentRouter.SubmitCloseOutDocumentation(txnAppCtx, ppmShipment)
+		err = p.PPMShipmentRouter.SubmitCloseOutDocumentation(txnAppCtx, &updatedPPMShipment)
 
 		if err != nil {
 			return err
 		}
 
-		verrs, err := txnAppCtx.DB().ValidateAndUpdate(ppmShipment)
+		err = validatePPMShipment(appCtx, updatedPPMShipment, ppmShipment, &ppmShipment.Shipment, PPMShipmentUpdaterChecks...)
+
+		if err != nil {
+			return err
+		}
+
+		verrs, err := txnAppCtx.DB().ValidateAndUpdate(&updatedPPMShipment)
 
 		if verrs.HasAny() {
 			return apperror.NewInvalidInputError(ppmShipment.ID, err, verrs, "unable to validate PPMShipment")
@@ -66,5 +80,5 @@ func (p *ppmShipmentUpdatedSubmitter) SubmitUpdatedCustomerCloseOut(appCtx appco
 		return nil, txErr
 	}
 
-	return ppmShipment, nil
+	return &updatedPPMShipment, nil
 }
