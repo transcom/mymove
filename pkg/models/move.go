@@ -132,6 +132,7 @@ func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
 		&OptionalTimeIsPresent{Field: m.ExcessWeightQualifiedAt, Name: "ExcessWeightQualifiedAt"},
 		&OptionalUUIDIsPresent{Field: m.ExcessWeightUploadID, Name: "ExcessWeightUploadID"},
+		&OptionalUUIDIsPresent{Field: m.CloseoutOfficeID, Name: "CloseoutOfficeID"},
 	), nil
 }
 
