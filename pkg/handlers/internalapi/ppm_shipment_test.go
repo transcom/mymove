@@ -928,7 +928,8 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 				returnedSubmittedAt := handlers.FmtDateTimePtrToPop(returnedPPMShipment.SubmittedAt)
 
 				suite.True(
-					shipmentNeedsResubmitted.SubmittedAt.UTC().Equal(returnedSubmittedAt.UTC()),
+					shipmentNeedsResubmitted.SubmittedAt.UTC().Truncate(time.Millisecond).
+						Equal(returnedSubmittedAt.UTC().Truncate(time.Millisecond)),
 					fmt.Sprintf(
 						"SubmittedAt should not have changed: was %s, now %s",
 						shipmentNeedsResubmitted.SubmittedAt,
