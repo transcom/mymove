@@ -83,6 +83,7 @@ func subScenarioPPMCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 
 		// PPM Closeout
 		createMovesForEachBranch(appCtx, userUploader)
+		createMoveWithCloseoutOffice(appCtx, userUploader)
 	}
 }
 
