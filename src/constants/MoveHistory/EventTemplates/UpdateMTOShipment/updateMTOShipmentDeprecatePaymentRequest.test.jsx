@@ -1,6 +1,5 @@
 import { screen, render } from '@testing-library/react';
 
-import o from 'constants/MoveHistory/UIDisplay/Operations';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import updateMTOShipmentDeprecatePaymentRequest from 'constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipmentDeprecatePaymentRequest';
 
