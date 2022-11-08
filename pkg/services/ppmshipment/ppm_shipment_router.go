@@ -94,7 +94,7 @@ func (p *ppmShipmentRouter) SendToCustomer(appCtx appcontext.AppContext, ppmShip
 	return nil
 }
 
-// SubmitCloseOutDocumentation sets the PPM shipment to the NEEDS_CLOSE_OUT status
+// SubmitCloseOutDocumentation sets the PPM shipment to the NEEDS_PAYMENT_APPROVAL status
 func (p *ppmShipmentRouter) SubmitCloseOutDocumentation(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
 	if ppmShipment.Status != models.PPMShipmentStatusWaitingOnCustomer {
 		return apperror.NewConflictError(

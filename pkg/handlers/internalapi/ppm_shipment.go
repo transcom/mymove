@@ -141,12 +141,8 @@ type ResubmitPPMShipmentDocumentationHandler struct {
 func (h ResubmitPPMShipmentDocumentationHandler) Handle(params ppmops.ResubmitPPMShipmentDocumentationParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			if appCtx.Session() == nil {
-				return ppmops.NewResubmitPPMShipmentDocumentationUnauthorized(), apperror.NewSessionError("No user session")
-			} else if !appCtx.Session().IsMilApp() {
+			if !appCtx.Session().IsMilApp() {
 				return ppmops.NewResubmitPPMShipmentDocumentationForbidden(), apperror.NewSessionError("Request is not from the customer app")
-			} else if appCtx.Session().UserID.IsNil() {
-				return ppmops.NewResubmitPPMShipmentDocumentationForbidden(), apperror.NewSessionError("No user ID in session")
 			}
 
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
@@ -187,22 +183,7 @@ func (h ResubmitPPMShipmentDocumentationHandler) Handle(params ppmops.ResubmitPP
 				return ppmops.NewResubmitPPMShipmentDocumentationBadRequest().WithPayload(errPayload), err
 			}
 
-			payload := params.SavePPMShipmentSignedCertificationPayload
-			if payload == nil {
-				noBodyErr := apperror.NewBadDataError("No body provided")
-
-				appCtx.Logger().Error("No body provided", zap.Error(noBodyErr))
-
-				errPayload := payloads.ClientError(
-					handlers.BadRequestErrMessage,
-					noBodyErr.Error(),
-					h.GetTraceIDFromRequest(params.HTTPRequest),
-				)
-
-				return ppmops.NewResubmitPPMShipmentDocumentationBadRequest().WithPayload(errPayload), noBodyErr
-			}
-
-			signedCertification := payloads.ReSavePPMShipmentSignedCertification(ppmShipmentID, signedCertificationID, *payload)
+			signedCertification := payloads.ReSavePPMShipmentSignedCertification(ppmShipmentID, signedCertificationID, *params.SavePPMShipmentSignedCertificationPayload)
 
 			ppmShipment, err := h.PPMShipmentUpdatedSubmitter.SubmitUpdatedCustomerCloseOut(appCtx, ppmShipmentID, signedCertification, params.IfMatch)
 

@@ -64,6 +64,9 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 				Signature:         handlers.FmtString("signature"),
 				Date:              handlers.FmtDate(time.Now()),
 			}
+
+			err := params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default)
+			suite.NoError(err)
 		}
 
 		return request, params
@@ -348,7 +351,14 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
 
-		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{})
+		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{
+			CertificationText: handlers.FmtString("certification text"),
+			Date:              handlers.FmtDate(time.Now()),
+			Signature:         handlers.FmtString("signature"),
+		})
+
+		err := params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default)
+		suite.NoError(err)
 
 		response := handler.Handle(params)
 
@@ -366,6 +376,10 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 			CertificationText: handlers.FmtString("certification text"),
 			Signature:         handlers.FmtString("signature"),
 		})
+
+		err := params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default)
+		suite.Error(err)
+		suite.Contains(err.Error(), "date in body is required")
 
 		response := handler.Handle(params)
 
@@ -512,6 +526,9 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerUnit() {
 				Signature:         handlers.FmtString("signature"),
 				Date:              handlers.FmtDate(time.Now()),
 			}
+
+			err := params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default)
+			suite.NoError(err)
 		}
 
 		return request, params
@@ -538,18 +555,6 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerUnit() {
 		}
 	}
 
-	suite.Run("Returns an error if there is no session information", func() {
-		ppmShipment := setUpPPMShipment()
-
-		_, params := setUpRequestAndParams(ppmShipment, false, false)
-
-		handler := setUpHandler(setUpPPMShipmentUpdatedSubmitter(nil, nil))
-
-		response := handler.Handle(params)
-
-		suite.IsType(&ppmops.ResubmitPPMShipmentDocumentationUnauthorized{}, response)
-	})
-
 	suite.Run("Returns an error if the request isn't coming from the correct app", func() {
 		ppmShipment := setUpPPMShipment()
 
@@ -558,19 +563,6 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerUnit() {
 		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params.HTTPRequest = request
-
-		handler := setUpHandler(setUpPPMShipmentUpdatedSubmitter(nil, nil))
-
-		response := handler.Handle(params)
-
-		suite.IsType(&ppmops.ResubmitPPMShipmentDocumentationForbidden{}, response)
-	})
-
-	suite.Run("Returns an error if the user ID is missing from the session", func() {
-		ppmShipment := setUpPPMShipment()
-		ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID = uuid.Nil
-
-		_, params := setUpRequestAndParams(ppmShipment, true, false)
 
 		handler := setUpHandler(setUpPPMShipmentUpdatedSubmitter(nil, nil))
 
@@ -610,22 +602,6 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerUnit() {
 			errResponse := response.(*ppmops.ResubmitPPMShipmentDocumentationBadRequest)
 
 			suite.Contains(*errResponse.Payload.Detail, "Invalid signed certification ID")
-		}
-	})
-
-	suite.Run("Returns an error if there is no request body", func() {
-		ppmShipment := setUpPPMShipment()
-
-		_, params := setUpRequestAndParams(ppmShipment, true, false)
-
-		handler := setUpHandler(setUpPPMShipmentUpdatedSubmitter(nil, nil))
-
-		response := handler.Handle(params)
-
-		if suite.IsType(&ppmops.ResubmitPPMShipmentDocumentationBadRequest{}, response) {
-			errResponse := response.(*ppmops.ResubmitPPMShipmentDocumentationBadRequest)
-
-			suite.Contains(*errResponse.Payload.Detail, "No body provided")
 		}
 	})
 
@@ -851,6 +827,9 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			submitter,
 		}
 
+		err := params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default)
+		suite.NoError(err)
+
 		return params, handler
 	}
 
@@ -862,7 +841,11 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			},
 		}
 
-		params, handler := setUpParamsAndHandler(shipmentWithUnknownID, needsResubmittedSM, &internalmessages.SavePPMShipmentSignedCertification{})
+		params, handler := setUpParamsAndHandler(shipmentWithUnknownID, needsResubmittedSM, &internalmessages.SavePPMShipmentSignedCertification{
+			CertificationText: handlers.FmtString("certification text"),
+			Signature:         handlers.FmtString("signature"),
+			Date:              handlers.FmtDate(time.Now()),
+		})
 
 		response := handler.Handle(params)
 
@@ -881,7 +864,11 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			},
 		}
 
-		params, handler := setUpParamsAndHandler(shipmentWithUnknownSignedCert, needsResubmittedSM, &internalmessages.SavePPMShipmentSignedCertification{})
+		params, handler := setUpParamsAndHandler(shipmentWithUnknownSignedCert, needsResubmittedSM, &internalmessages.SavePPMShipmentSignedCertification{
+			CertificationText: handlers.FmtString("certification text"),
+			Signature:         handlers.FmtString("signature"),
+			Date:              handlers.FmtDate(time.Now()),
+		})
 
 		response := handler.Handle(params)
 
