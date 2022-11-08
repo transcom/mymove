@@ -14,7 +14,12 @@ import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseFor
 import { selectExpenseAndIndexById, selectMTOShipmentById } from 'store/entities/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { createUploadForDocument, createMovingExpense, deleteUpload, patchMovingExpense } from 'services/internalApi';
+import {
+  createUploadForPPMDocument,
+  createMovingExpense,
+  deleteUpload,
+  patchMovingExpense,
+} from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { formatDateForSwagger } from 'shared/dates';
 import { convertDollarsToCents } from 'shared/utils';
@@ -58,7 +63,7 @@ const Expenses = () => {
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentExpense[`${fieldName}Id`];
 
-    createUploadForDocument(file, documentId)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file)
       .then((upload) => {
         mtoShipment.ppmShipment.movingExpenses[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));

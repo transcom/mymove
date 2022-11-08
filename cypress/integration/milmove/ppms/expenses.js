@@ -10,7 +10,7 @@ describe('Expenses', function () {
   });
   beforeEach(() => {
     cy.intercept('GET', '**/internal/moves/**/mto_shipments').as('getShipment');
-    cy.intercept('POST', '**/internal/uploads**').as('uploadFile');
+    cy.intercept('POST', '**/internal/ppm-shipments/**/uploads**').as('uploadFile');
   });
   const viewportType = [
     { viewport: 'desktop', isMobile: false, userId: '146c2665-5b8a-4653-8434-9a4460de30b5' }, // movingExpensePPM@ppm.approved
