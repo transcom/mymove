@@ -97,6 +97,8 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 			suite.Equal(signedCertification.ID, actualCertification.ID)
 			suite.Equal(signedCertification.CertificationText, actualCertification.CertificationText)
 			suite.Equal(signedCertification.CertificationType, actualCertification.CertificationType)
+			fmt.Printf("signed certificate date %+v\n", signedCertification.Date.UTC())
+			fmt.Printf("actual certificate date %+v\n", actualCertification.Date.UTC())
 			suite.True(signedCertification.Date.UTC().Equal(actualCertification.Date.UTC()))
 			suite.Equal(signedCertification.MoveID, actualCertification.MoveID)
 			suite.Equal(signedCertification.PpmID, actualCertification.PpmID)
