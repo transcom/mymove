@@ -233,15 +233,8 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	for retryCount < retryMax {
 		dbConnection, errDbConn = cli.InitDatabase(v, dbCreds, logger)
 		if errDbConn != nil {
-			if dbConnection == nil {
-				// No connection object means that the configuraton failed to validate and we should kill server startup
-				logger.Fatal("Invalid DB Configuration", zap.Error(errDbConn))
-			} else {
-				// A valid connection object that still has an error indicates that the DB is not up and
-				// thus is not ready for migrations. Attempt to retry connecting.
-				logger.Error(fmt.Sprintf("DB is not ready for connections, sleeping for %q", retryInterval), zap.Error(errDbConn))
-				time.Sleep(retryInterval)
-			}
+			logger.Error(fmt.Sprintf("DB is not ready for connections, sleeping for %q", retryInterval), zap.Error(errDbConn))
+			time.Sleep(retryInterval)
 		} else {
 			break
 		}

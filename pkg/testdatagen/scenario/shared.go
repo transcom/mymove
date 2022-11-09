@@ -877,6 +877,7 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 		PPMShipment: models.PPMShipment{
 			ID:                          testdatagen.ConvertUUIDStringToUUID("defb263e-bf01-4c67-85f5-b64ab54fd4fe"),
 			ApprovedAt:                  &approvedAt,
+			SubmittedAt:                 models.TimePointer(approvedAt.Add(7 * time.Hour * 24)),
 			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
@@ -1736,6 +1737,69 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 			SubmittingUserID: userID,
 		},
 	})
+}
+
+func createMoveWithCloseoutOffice(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	userID := uuid.Must(uuid.NewV4())
+	email := "closeoutoffice@ppm.closeout"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	submittedAt := time.Now()
+
+	testdatagen.MakeUser(appCtx.DB(), testdatagen.Assertions{
+		User: models.User{
+			ID:            userID,
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	branch := models.AffiliationAIRFORCE
+	serviceMember := testdatagen.MakeExtendedServiceMember(appCtx.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			UserID:        userID,
+			FirstName:     models.StringPointer("CLOSEOUT"),
+			LastName:      models.StringPointer("OFFICE"),
+			PersonalEmail: models.StringPointer(email),
+			Affiliation:   &branch,
+		},
+	})
+
+	// Make a transportation office to use as the closeout office
+	closeoutOffice := testdatagen.MakeDefaultTransportationOffice(appCtx.DB())
+
+	// Make a move with the closeout office
+	move := testdatagen.MakeMove(appCtx.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: serviceMember.ID,
+			ServiceMember:   serviceMember,
+		},
+		UserUploader: userUploader,
+		Move: models.Move{
+			Locator:          "CLSOFF",
+			SelectedMoveType: &ppmMoveType,
+			CloseoutOfficeID: &closeoutOffice.ID,
+			CloseoutOffice:   &closeoutOffice,
+			SubmittedAt:      &submittedAt,
+		},
+	})
+
+	mtoShipment := testdatagen.MakeMTOShipment(appCtx.DB(), testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypePPM,
+			Status:       models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	testdatagen.MakePPMShipment(appCtx.DB(), testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: mtoShipment,
+		PPMShipment: models.PPMShipment{
+			Status: models.PPMShipmentStatusNeedsPaymentApproval,
+		},
+	})
+
 }
 
 func createMovesForEachBranch(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {

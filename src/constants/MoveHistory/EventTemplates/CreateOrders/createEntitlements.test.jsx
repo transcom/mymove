@@ -23,7 +23,7 @@ describe('When given a created orders event for the entitlements table', () => {
   });
   describe('When given a specific set of details', () => {
     it.each([
-      ['Authorized weight', ': 8000 lbs'],
+      ['Authorized weight', ': 8,000 lbs'],
       ['Storage in transit (SIT)', ': 90 days'],
       ['Dependents', ': Yes'],
     ])('displays the proper details value for %s', async (label, value) => {

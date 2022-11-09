@@ -11,14 +11,16 @@ type shipmentCreator struct {
 	checks             []shipmentValidator
 	mtoShipmentCreator services.MTOShipmentCreator
 	ppmShipmentCreator services.PPMShipmentCreator
+	shipmentRouter     services.ShipmentRouter
 }
 
 // NewShipmentCreator creates a new shipmentCreator struct with the basic checks and service dependencies.
-func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipmentCreator services.PPMShipmentCreator) services.ShipmentCreator {
+func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipmentCreator services.PPMShipmentCreator, shipmentRouter services.ShipmentRouter) services.ShipmentCreator {
 	return &shipmentCreator{
 		checks:             basicShipmentChecks(),
 		mtoShipmentCreator: mtoShipmentCreator,
 		ppmShipmentCreator: ppmShipmentCreator,
+		shipmentRouter:     shipmentRouter,
 	}
 }
 
@@ -35,7 +37,10 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 			shipment.Status = models.MTOShipmentStatusDraft
 		} else {
 			// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
-			shipment.Status = models.MTOShipmentStatusSubmitted
+			err := s.shipmentRouter.Submit(appCtx, shipment)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
