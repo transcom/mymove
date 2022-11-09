@@ -156,7 +156,8 @@ func InitRouting(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	// Stub health check
 	healthHandler := handlers.NewHealthHandler(appCtx, redisPool,
 		routingConfig.GitBranch, routingConfig.GitCommit)
-	site.HandleFunc("/health", healthHandler).Methods("GET")
+	requestLoggerMiddlware := middleware.RequestLogger(appCtx.Logger())
+	site.Handle("/health", requestLoggerMiddlware(healthHandler)).Methods("GET")
 
 	staticMux := site.PathPrefix("/static/").Subrouter()
 	staticMux.Use(middleware.ValidMethodsStatic(appCtx.Logger()))

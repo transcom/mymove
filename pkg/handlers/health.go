@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 
 	"github.com/gomodule/redigo/redis"
 	"go.uber.org/zap"
@@ -30,6 +29,15 @@ func redisHealthCheck(pool *redis.Pool, logger *zap.Logger) error {
 	return err
 }
 
+func healthCheckError(appCtx appcontext.AppContext, w http.ResponseWriter, data map[string]interface{}) {
+	healthCheck, err := json.Marshal(data)
+	if err != nil {
+		appCtx.Logger().Warn("Cannot marshal health data", zap.Error(err))
+		healthCheck = []byte("{}")
+	}
+	http.Error(w, string(healthCheck), http.StatusInternalServerError)
+}
+
 // NewHealthHandler creates a http.HandlerFunc for a health endpoint.
 // If redisPool is nil, redis health will not be checked
 func NewHealthHandler(appCtx appcontext.AppContext, redisPool *redis.Pool, gitBranch string, gitCommit string) http.HandlerFunc {
@@ -50,14 +58,16 @@ func NewHealthHandler(appCtx appcontext.AppContext, redisPool *redis.Pool, gitBr
 			dbErr := appCtx.DB().RawQuery("SELECT 1;").Exec()
 			if dbErr != nil {
 				appCtx.Logger().Error("Failed database health check", zap.Error(dbErr))
-				http.Error(w, "failed health check", http.StatusInternalServerError)
+				data["database"] = false
+				healthCheckError(appCtx, w, data)
 				return
 			}
 			data["database"] = true
 			if redisPool != nil {
 				redisErr := redisHealthCheck(redisPool, appCtx.Logger())
 				if redisErr != nil {
-					http.Error(w, "failed health check", http.StatusInternalServerError)
+					data["redis"] = false
+					healthCheckError(appCtx, w, data)
 					return
 				}
 				data["redis"] = true
@@ -70,40 +80,6 @@ func NewHealthHandler(appCtx appcontext.AppContext, redisPool *redis.Pool, gitBr
 			return
 		}
 
-		// We are not using request middleware here so logging directly in the check
-		var protocol string
-		if r.TLS == nil {
-			protocol = "http"
-		} else {
-			protocol = "https"
-		}
-
-		fields := []zap.Field{
-			zap.String("accepted-language", r.Header.Get("accepted-language")),
-			zap.Int64("content-length", r.ContentLength),
-			zap.String("host", r.Host),
-			zap.String("method", r.Method),
-			zap.String("protocol", protocol),
-			zap.String("protocol-version", r.Proto),
-			zap.String("referer", r.Header.Get("referer")),
-			zap.String("source", r.RemoteAddr),
-			zap.String("url", r.URL.String()),
-			zap.String("user-agent", r.UserAgent()),
-		}
-
-		// Append x- headers, e.g., x-forwarded-for.
-		for name, values := range r.Header {
-			if nameLowerCase := strings.ToLower(name); strings.HasPrefix(nameLowerCase, "x-") {
-				if len(values) > 0 {
-					fields = append(fields, zap.String(nameLowerCase, values[0]))
-				}
-			}
-		}
-
-		// Log the number of headers, which can be used for finding abnormal requests
-		fields = append(fields, zap.Int("headers", len(r.Header)))
-
-		appCtx.Logger().Info("Request health ok", fields...)
-
+		appCtx.Logger().Info("Request health ok")
 	}
 }
