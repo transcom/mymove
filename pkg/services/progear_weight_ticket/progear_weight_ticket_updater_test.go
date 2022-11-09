@@ -177,7 +177,7 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 		suite.Nil(updatedProgearWeightTicket)
 		suite.NotNil(updateErr)
 		suite.IsType(apperror.InvalidInputError{}, updateErr)
-		suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
+		suite.Equal("Invalid input found while validating the progear weight ticket.", updateErr.Error())
 	})
 
 	suite.Run("Status and reason related", func() {
@@ -286,7 +286,7 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 				suite.Nil(updatedProgearWeightTicket)
 				suite.NotNil(updateErr)
 				suite.IsType(apperror.InvalidInputError{}, updateErr)
-				suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
+				suite.Equal("Invalid input found while validating the progear weight ticket.", updateErr.Error())
 			})
 
 			suite.Run("to update status", func() {
@@ -314,7 +314,7 @@ func (suite ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 				suite.Nil(updatedProgearWeightTicket)
 				suite.NotNil(updateErr)
 				suite.IsType(apperror.InvalidInputError{}, updateErr)
-				suite.Equal("Invalid input found while validating the weight ticket.", updateErr.Error())
+				suite.Equal("Invalid input found while validating the progear weight ticket.", updateErr.Error())
 			})
 
 			suite.Run("to update because of invalid status", func() {
