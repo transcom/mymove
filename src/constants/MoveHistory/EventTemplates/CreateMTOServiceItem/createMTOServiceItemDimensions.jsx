@@ -5,6 +5,7 @@ import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import { convertFromThousandthInchToInch } from 'utils/formatters';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 
 const formatChangedValues = (historyRecord) => {
   const {
@@ -20,9 +21,7 @@ const formatChangedValues = (historyRecord) => {
   const name = type === 'ITEM' ? 'item_size' : 'crate_size';
 
   const newChangedValues = {
-    shipment_type: historyRecord.context[0]?.shipment_type,
-    shipment_id_display: historyRecord.context[0]?.shipment_id_abbr.toUpperCase(),
-    service_item_name: historyRecord.context[0]?.name,
+    ...getMtoShipmentLabel(historyRecord),
     ...historyRecord.changedValues,
   };
   newChangedValues[name] = `${height}x${length}x${width} in`;

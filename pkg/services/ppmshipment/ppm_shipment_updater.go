@@ -5,13 +5,16 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type ppmShipmentUpdater struct {
-	checks    []ppmShipmentValidator
-	estimator services.PPMEstimator
+	checks         []ppmShipmentValidator
+	estimator      services.PPMEstimator
+	addressCreator services.AddressCreator
+	addressUpdater services.AddressUpdater
 }
 
 var PPMShipmentUpdaterChecks = []ppmShipmentValidator{
@@ -22,10 +25,12 @@ var PPMShipmentUpdaterChecks = []ppmShipmentValidator{
 	checkAdvanceAmountRequested(),
 }
 
-func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator) services.PPMShipmentUpdater {
+func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator, addressCreator services.AddressCreator, addressUpdater services.AddressUpdater) services.PPMShipmentUpdater {
 	return &ppmShipmentUpdater{
-		checks:    PPMShipmentUpdaterChecks,
-		estimator: ppmEstimator,
+		checks:         PPMShipmentUpdaterChecks,
+		estimator:      ppmEstimator,
+		addressCreator: addressCreator,
+		addressUpdater: addressUpdater,
 	}
 }
 
@@ -84,16 +89,18 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		}
 
 		if updatedPPMShipment.W2Address != nil {
-			if verrs, errors := txnAppCtx.DB().ValidateAndSave(updatedPPMShipment.W2Address); verrs != nil && verrs.HasAny() {
-				var id uuid.UUID
-				if updatedPPMShipment.W2AddressID != nil {
-					id = *updatedPPMShipment.W2AddressID
-				}
-				return apperror.NewInvalidInputError(id, errors, verrs, "Invalid input found while updating the W2 address for a PPMShipment.")
-			} else if errors != nil {
-				return apperror.NewQueryError("W2 address for ppmShipment", errors, "")
+			var updatedAddress *models.Address
+			var error error
+			if updatedPPMShipment.W2Address.ID.IsNil() {
+				updatedAddress, error = f.addressCreator.CreateAddress(txnAppCtx, updatedPPMShipment.W2Address)
+			} else {
+				updatedAddress, error = f.addressUpdater.UpdateAddress(txnAppCtx, updatedPPMShipment.W2Address, etag.GenerateEtag(oldPPMShipment.W2Address.UpdatedAt))
 			}
-			updatedPPMShipment.W2AddressID = &updatedPPMShipment.W2Address.ID
+			if error != nil {
+				return error
+			}
+			updatedPPMShipment.W2AddressID = &updatedAddress.ID
+			updatedPPMShipment.W2Address = updatedAddress
 		}
 
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)
