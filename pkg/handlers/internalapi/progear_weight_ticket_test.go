@@ -132,7 +132,7 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 }
 
 //
-// UPDATE test
+// UPDATE Customer test
 //
 
 func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {

@@ -108,7 +108,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
 		WeightTickets:                  WeightTickets(storer, ppmShipment.WeightTickets),
 		MovingExpenses:                 MovingExpenses(storer, ppmShipment.MovingExpenses),
-		ProGearWeightTickets:           ProGearWeightTickets(ppmShipment.ProgearExpenses),
+		ProGearWeightTickets:           ProGearWeightTickets(storer, ppmShipment.ProgearExpenses),
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -403,9 +403,13 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 }
 
 // ProGearWeightTickets sets up a ProGearWeightTicket slice for the api using model data.
-func ProGearWeightTickets(proGearWeightTickets models.ProgearWeightTickets) []*internalmessages.ProGearWeightTicket {
+func ProGearWeightTickets(storer storage.FileStorer, proGearWeightTickets models.ProgearWeightTickets) []*internalmessages.ProGearWeightTicket {
 	payload := make([]*internalmessages.ProGearWeightTicket, len(proGearWeightTickets))
-	// TODO: MB-14168 will fill this in. Needed to at least have this for MB-13773, but the goal wasn't to get this working fully until MB-14168 and related tickets are done.
+	for i, proGearWeightTicket := range proGearWeightTickets {
+		copyOfProGearWeightTicket := proGearWeightTicket
+		proGearWeightTicketPayload := ProGearWeightTicket(storer, &copyOfProGearWeightTicket)
+		payload[i] = proGearWeightTicketPayload
+	}
 	return payload
 }
 

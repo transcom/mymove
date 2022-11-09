@@ -60,18 +60,18 @@ func (suite ProgearWeightTicketSuite) TestValidateProgearWeightTicket() {
 
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
-		suite.Contains(err.Error(), "Invalid input found while validating the weight ticket.")
+		suite.Contains(err.Error(), "Invalid input found while validating the progear weight ticket.")
 	})
 
 	suite.Run("Runs validation and returns other errors", func() {
 		checkAlwaysReturnOtherError := progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, _ *models.ProgearWeightTicket, _ *models.ProgearWeightTicket) error {
-			return apperror.NewNotFoundError(uuid.Must(uuid.NewV4()), "Weight ticket not found.")
+			return apperror.NewNotFoundError(uuid.Must(uuid.NewV4()), "Progear weight ticket not found.")
 		})
 
 		err := validateProgearWeightTicket(suite.AppContextForTest(), nil, nil, []progearWeightTicketValidator{checkAlwaysReturnOtherError}...)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Contains(err.Error(), "Weight ticket not found.")
+		suite.Contains(err.Error(), "Progear weight ticket not found.")
 	})
 }
