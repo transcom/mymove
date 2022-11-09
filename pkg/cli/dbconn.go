@@ -54,6 +54,12 @@ const (
 	// DbUseInstrumentedDriverFlag indicates if additional db
 	// instrumentation should be done
 	DbInstrumentedFlag = "db-instrumented"
+	// DbConnMaxLifetimeFlag configures the maximum connection
+	// lifetime in seconds
+	DbConnMaxLifetimeFlag = "db-conn-max-lifetime"
+	// DbConnMaxIdleFlag configures the maximum connection idle time
+	// in seconds
+	DbConnMaxIdleTimeFlag = "db-conn-max-idle-time"
 
 	// DbEnvContainer is the Container DB Env name
 	DbEnvContainer string = "container"
@@ -104,6 +110,12 @@ const (
 	DbIdlePoolDefault = 2
 	// DbPoolMax is the upper limit the db pool can use for connections which constrains the user input
 	DbPoolMax int = awsRdsT3SmallMaxConnections
+	// DbConnMaxLifetimeDefault is how long a connection should be
+	// left open to the database
+	DbConnMaxLifetimeDefault = 1 * time.Hour
+	// DbConnMaxIdleTimeDefault is how long a connection remains idle
+	// before being closed
+	DbConnMaxIdleTimeDefault = 15 * time.Minute
 )
 
 // The dependency https://github.com/lib/pq only supports a limited subset of SSL Modes and returns the error:
@@ -183,6 +195,8 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 	// Required by https://docs.aws.amazon.com/sdk-for-go/api/service/rds/rdsutils/#BuildAuthToken
 	flag.String(DbRegionFlag, "", "AWS Region of the database")
 	flag.Bool(DbInstrumentedFlag, false, "Use instrumented db driver")
+	flag.Duration(DbConnMaxLifetimeFlag, DbConnMaxLifetimeDefault, "Database connection max lifetime in seconds")
+	flag.Duration(DbConnMaxIdleTimeFlag, DbConnMaxIdleTimeDefault, "Database connection max idle time in seconds")
 }
 
 // CheckDatabase validates DB command line flags
@@ -244,6 +258,18 @@ func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 		}
 	}
 
+	dbConnMaxLifetime := v.GetDuration(DbConnMaxLifetimeFlag)
+	if dbConnMaxLifetime < 1*time.Minute || dbConnMaxLifetime > 24*time.Hour {
+		return errors.Errorf("%s should be between 1 minute and 24 hours", DbConnMaxLifetimeFlag)
+	}
+	dbConnMaxIdleTime := v.GetDuration(DbConnMaxIdleTimeFlag)
+	if dbConnMaxIdleTime < 1*time.Minute || dbConnMaxIdleTime > 24*time.Hour {
+		return errors.Errorf("%s should be between 1 minute and 24 hours", DbConnMaxIdleTimeFlag)
+	}
+	if dbConnMaxIdleTime > dbConnMaxLifetime {
+		return errors.Errorf("%s should be less than %s", DbConnMaxIdleTimeFlag, DbConnMaxLifetimeFlag)
+	}
+
 	return nil
 }
 
@@ -262,6 +288,8 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 	dbPool := v.GetInt(DbPoolFlag)
 	dbIdlePool := v.GetInt(DbIdlePoolFlag)
 	dbUseInstrumentedDriver := v.GetBool(DbInstrumentedFlag)
+	dbConnMaxLifetime := v.GetDuration(DbConnMaxLifetimeFlag)
+	dbConnMaxIdleTime := v.GetDuration(DbConnMaxIdleTimeFlag)
 
 	// Modify DB options by environment
 	dbOptions := map[string]string{
@@ -286,16 +314,18 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 
 	// Configure DB connection details
 	dbConnectionDetails := pop.ConnectionDetails{
-		Dialect:  "postgres",
-		Driver:   iampg.CustomPostgres,
-		Database: dbName,
-		Host:     dbHost,
-		Port:     dbPort,
-		User:     dbUser,
-		Password: dbPassword,
-		Options:  dbOptions,
-		Pool:     dbPool,
-		IdlePool: dbIdlePool,
+		Dialect:         "postgres",
+		Driver:          iampg.CustomPostgres,
+		Database:        dbName,
+		Host:            dbHost,
+		Port:            dbPort,
+		User:            dbUser,
+		Password:        dbPassword,
+		Options:         dbOptions,
+		Pool:            dbPool,
+		IdlePool:        dbIdlePool,
+		ConnMaxLifetime: dbConnMaxLifetime,
+		ConnMaxIdleTime: dbConnMaxIdleTime,
 	}
 
 	if v.GetBool(DbIamFlag) {
