@@ -45,7 +45,7 @@ func validateProgearWeightTicket(appCtx appcontext.AppContext, newProgearWeightT
 		if newProgearWeightTicket != nil {
 			currentID = newProgearWeightTicket.ID
 		}
-		return apperror.NewInvalidInputError(currentID, nil, verrs, "Invalid input found while validating the weight ticket.")
+		return apperror.NewInvalidInputError(currentID, nil, verrs, "Invalid input found while validating the progear weight ticket.")
 	}
 
 	return nil
