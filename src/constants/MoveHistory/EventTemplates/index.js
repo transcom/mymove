@@ -35,8 +35,8 @@ export { default as updateMTOShipmentAgent } from './UpdateMTOShipment/updateMTO
 export { default as updateMTOShipmentDeprecatePaymentRequest } from './UpdateMTOShipment/updateMTOShipmentDeprecatePaymentRequest';
 export { default as reweighPaymentRequest } from './reweighPaymentRequest';
 export { default as updateOrder } from './UpdateOrders/updateOrder';
-export { default as updatePaymentRequest } from './updatePaymentRequest';
-export { default as updatePaymentRequestJobRunner } from './UpdatePaymentRequestJobRunner/updatePaymentRequestJobRunner';
+export { default as updatePaymentRequest } from './UpdatePaymentRequest/updatePaymentRequest';
+export { default as updatePaymentRequestJobRunner } from './UpdatePaymentRequest/updatePaymentRequestJobRunner';
 export { default as updatePaymentRequestStatus } from './UpdatePaymentRequestStatus/updatePaymentRequestStatus';
 export { default as updateReweighWeight } from './UpdateReweigh/updateReweighWeight';
 export { default as updateServiceItemStatus } from './UpdateServiceItemStatus/updateServiceItemStatus';

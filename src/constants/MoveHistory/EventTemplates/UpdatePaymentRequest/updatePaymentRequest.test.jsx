@@ -1,5 +1,5 @@
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/updatePaymentRequest';
+import e from 'constants/MoveHistory/EventTemplates/UpdatePaymentRequest/updatePaymentRequest';
 
 describe('when a payment request has an update', () => {
   const item = {

@@ -1,6 +1,6 @@
 import { screen, render } from '@testing-library/react';
 
-import e from 'constants/MoveHistory/EventTemplates/UpdatePaymentRequestJobRunner/updatePaymentRequestJobRunner';
+import e from 'constants/MoveHistory/EventTemplates/UpdatePaymentRequest/updatePaymentRequestJobRunner';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 
 describe('when a payment request has an update', () => {
