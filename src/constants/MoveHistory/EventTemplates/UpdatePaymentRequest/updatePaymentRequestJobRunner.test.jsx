@@ -26,6 +26,18 @@ describe('when a payment request has an update', () => {
     },
   };
 
+  const historyRecordWithError = {
+    action: 'UPDATE',
+    tableName: 'payment_requests',
+    eventName: '',
+    changedValues: {
+      status: 'EDI_ERROR',
+    },
+    oldValues: {
+      payment_request_number: '4462-6355-3',
+    },
+  };
+
   it('should match the given event to the proper template', () => {
     const template = getTemplate(historyRecord);
 
@@ -54,6 +66,16 @@ describe('when a payment request has an update', () => {
       const template = getTemplate(historyRecord2);
 
       render(template.getDetails(historyRecord2));
+      expect(screen.getByText(label)).toBeInTheDocument();
+      expect(screen.getByText(value)).toBeInTheDocument();
+    });
+  });
+
+  describe('should display the proper labeled details when a EDI error is present', () => {
+    it.each([['Status', ': EDI error']])('label `%s` should have value `%s`', (label, value) => {
+      const template = getTemplate(historyRecord2);
+
+      render(template.getDetails(historyRecordWithError));
       expect(screen.getByText(label)).toBeInTheDocument();
       expect(screen.getByText(value)).toBeInTheDocument();
     });
