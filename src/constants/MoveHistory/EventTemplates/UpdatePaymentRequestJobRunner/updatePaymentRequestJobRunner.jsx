@@ -1,24 +1,24 @@
 import React from 'react';
 
-import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
+import { PAYMENT_REQUEST_STATUS_LABELS as p } from 'constants/paymentRequestStatus';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
-import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 
 const formatChangedValues = (historyRecord) => {
   const { changedValues } = historyRecord;
+
   const newChangedValues = {
     ...changedValues,
-    ...getMtoShipmentLabel(historyRecord),
+    status: p[changedValues.status],
   };
+
   return { ...historyRecord, changedValues: newChangedValues };
 };
 
 export default {
   action: a.UPDATE,
-  eventName: o.updateMTOShipmentStatus,
-  tableName: t.mto_shipments,
-  getEventNameDisplay: () => 'Updated shipment',
+  tableName: t.payment_requests,
+  getEventNameDisplay: ({ oldValues }) => <> Updated payment request {oldValues?.payment_request_number} </>,
   getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
 };

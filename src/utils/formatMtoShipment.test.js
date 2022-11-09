@@ -3,6 +3,7 @@ import {
   formatMtoShipmentForDisplay,
   formatPpmShipmentForAPI,
   formatPpmShipmentForDisplay,
+  getMtoShipmentLabel,
 } from './formatMtoShipment';
 
 import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
@@ -493,5 +494,57 @@ describe('formatPpmShipmentForAPI', () => {
 
     expect(ppmShipment.sitLocation).toEqual(undefined);
     expect(ppmShipment.proGearWeight).toEqual(undefined);
+  });
+});
+describe('getMtoShipmentLabel', () => {
+  const historyRecord = {
+    changedValues: {
+      status: 'SUBMITTED',
+    },
+  };
+  const context = [
+    {
+      shipment_type: 'HHG',
+      shipment_id_abbr: 'a1a1a',
+      name: 'Bars',
+    },
+  ];
+  const contextNoShipmentType = [
+    {
+      shipment_id_abbr: 'a1a1a',
+      name: 'Bars',
+    },
+  ];
+  const contextNoShipmentId = [
+    {
+      shipment_type: 'HHG',
+      name: 'Bars',
+    },
+  ];
+  const contextNoServiceItem = [
+    {
+      shipment_type: 'HHG',
+      shipment_id_abbr: 'a1a1a',
+    },
+  ];
+  it('returns an empty object if context is not present', () => {
+    const result = getMtoShipmentLabel(historyRecord);
+    expect(result).toEqual({});
+  });
+  it('returns information need to generate shipment label used in move history', () => {
+    const result = getMtoShipmentLabel({ ...historyRecord, context });
+    expect(result).toEqual({ shipment_type: 'HHG', shipment_id_display: 'A1A1A', service_item_name: 'Bars' });
+  });
+  it('returns object without shipment_type when shipment_type is not present in context', () => {
+    const result = getMtoShipmentLabel({ ...historyRecord, context: contextNoShipmentType });
+    expect(result).toEqual({ shipment_id_display: 'A1A1A', service_item_name: 'Bars' });
+  });
+  it('returns object without shipment_id_display when shipment_id_abbr is not present in context', () => {
+    const result = getMtoShipmentLabel({ ...historyRecord, context: contextNoShipmentId });
+    expect(result).toEqual({ shipment_type: 'HHG', service_item_name: 'Bars' });
+  });
+  it('returns object without shipment_service_item_name when name is not present in context ', () => {
+    const result = getMtoShipmentLabel({ ...historyRecord, context: contextNoServiceItem });
+    expect(result).toEqual({ shipment_type: 'HHG', shipment_id_display: 'A1A1A' });
   });
 });
