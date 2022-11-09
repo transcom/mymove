@@ -15,9 +15,9 @@ import (
 
 // Customization type is the building block for passing in customizations and traits
 type Customization struct {
-	Model     interface{}
-	Type      *CustomType
-	ForceUUID bool
+	Model    interface{}
+	Type     *CustomType
+	linkOnly bool
 }
 
 // CustomType is a string that represents what kind of customization it is
@@ -31,12 +31,14 @@ var control CustomType = "Control"
 var Address CustomType = "Address"
 var User CustomType = "User"
 var ServiceMember CustomType = "ServiceMember"
+var OfficeUser CustomType = "OfficeUser"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
 	"models.Address":       Address,
-	"models.User":          User,
+	"models.OfficeUser":    OfficeUser,
 	"models.ServiceMember": ServiceMember,
+	"models.User":          User,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
@@ -393,4 +395,22 @@ func RandomEdipi() string {
 		log.Panicf("Failure to generate random Edipi %v", err)
 	}
 	return strconv.Itoa(low + int(randInt))
+}
+
+// Source chars for random string
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+
+// Returns a random alphanumeric string of specified length
+func makeRandomString(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		randInt, err := random.GetRandomInt(len(letterBytes))
+		if err != nil {
+			log.Panicf("failed to create random string %v", err)
+			return ""
+		}
+		b[i] = letterBytes[randInt]
+
+	}
+	return string(b)
 }
