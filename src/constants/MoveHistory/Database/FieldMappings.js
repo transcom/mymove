@@ -51,6 +51,7 @@ export default {
   estimated_weight: 'Estimated weight',
   description: 'Description',
   reason: 'Reason',
+  rejection_reason: 'Reason',
   sit_departure_date: 'SIT departure date',
   sit_entry_date: 'SIT entry date',
   sit_postal_code: 'SIT postal code',
@@ -76,4 +77,9 @@ export default {
   residential_address: 'Current mailing address',
   backup_address: 'Backup mailing address',
   current_duty_location_name: 'Current duty location name',
+  financial_review_remarks: 'Financial review remarks',
+  backup_contact_name: 'Backup contact name',
+  backup_contact_email: 'Backup contact email',
+  backup_contact_phone: 'Backup contact phone',
+  max_billable_weight: 'Max billable weight',
 };

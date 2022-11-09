@@ -89,6 +89,10 @@ export function fillOutAboutPage(selectAdvance) {
   } else {
     cy.get('input[name="hasReceivedAdvance"][value="false"]').check({ force: true });
   }
+  cy.get('input[name="w2Address.streetAddress1"]').clear().type('1819 S Cedar Street').blur();
+  cy.get('input[name="w2Address.city"]').clear().type('Yuma').blur();
+  cy.get('select[name="w2Address.state"]').select('AZ');
+  cy.get('input[name="w2Address.postalCode"]').clear().type('85369').blur();
   navigateFromAboutPageToWeightTicketPage();
 }
 

@@ -42,6 +42,7 @@ const About = () => {
         actualDestinationPostalCode: values.actualDestinationPostalCode,
         hasReceivedAdvance,
         advanceAmountReceived: hasReceivedAdvance ? values.advanceAmountReceived * 100 : null,
+        w2Address: values.w2Address,
       },
     };
 
