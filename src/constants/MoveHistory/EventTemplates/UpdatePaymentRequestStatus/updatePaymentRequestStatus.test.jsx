@@ -20,17 +20,40 @@ describe('When given a updatePaymentRequestStatus event', () => {
     ],
   };
 
+  const historyRecord2 = {
+    action: 'UPDATE',
+    eventName: 'updatePaymentRequestStatus',
+    tableName: 'payment_requests',
+    changedValues: {
+      payment_request_number: '4462-6355-2',
+    },
+    context: [
+      {
+        status: 'APPROVED',
+        name: 'Move management',
+        price: '45985',
+      },
+    ],
+  };
+
   it('should match the event to the proper template', () => {
     const template = getTemplate(historyRecord);
 
     expect(template).toMatchObject(e);
   });
 
-  it('should display the event name with the correct payment request number', () => {
+  it('should display the event name with the correct payment request number using oldValues', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getEventNameDisplay(historyRecord));
     expect(screen.getByText('Submitted payment request 4462-6355-1')).toBeInTheDocument();
+  });
+
+  it('should display the event name with the correct payment request number using changedValues', () => {
+    const template = getTemplate(historyRecord);
+
+    render(template.getEventNameDisplay(historyRecord2));
+    expect(screen.getByText('Submitted payment request 4462-6355-2')).toBeInTheDocument();
   });
 
   it('should render the expected svg icons', () => {
@@ -46,7 +69,7 @@ describe('When given a updatePaymentRequestStatus event', () => {
       ['Approved service items total:', '$459.85'],
       ['Move management', '$0.00'],
       ['Rejected service items total:', '$0.00'],
-    ])('expect `%s` to have the value `%s`', async (label, value) => {
+    ])('expect the label `%s` to have the value `%s`', async (label, value) => {
       const template = getTemplate(historyRecord);
 
       render(template.getDetails(historyRecord));
