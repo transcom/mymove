@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -39,7 +40,9 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			).
 			Return(estimatedIncentiveAmount, sitEstimatedCost, estimatedIncentiveError)
 
-		subtestData.ppmShipmentUpdater = NewPPMShipmentUpdater(&ppmEstimator)
+		addressCreator := address.NewAddressCreator()
+		addressUpdater := address.NewAddressUpdater()
+		subtestData.ppmShipmentUpdater = NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 
 		return subtestData
 	}
@@ -788,13 +791,49 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		suite.NilOrNoVerrs(err)
 
-		suite.Equal(*newPPM.W2Address, *updatedPPM.W2Address)
 		suite.NotNil(updatedPPM.W2AddressID)
 		suite.Equal(streetAddress1, updatedPPM.W2Address.StreetAddress1)
 		suite.Equal(streetAddress2, *updatedPPM.W2Address.StreetAddress2)
 		suite.Equal(city, updatedPPM.W2Address.City)
 		suite.Equal(state, updatedPPM.W2Address.State)
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
+	})
+
+	suite.Run("Can successfully update a PPMShipment - add W-2 address with empty strings for optional fields", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
+
+		originalPPM := testdatagen.MakeMinimalDefaultPPMShipment(appCtx.DB())
+
+		streetAddress1 := "1819 S Cedar Street"
+		city := "Fayetteville"
+		state := "NC"
+		postalCode := "28314"
+
+		newPPM := models.PPMShipment{
+			W2Address: &models.Address{
+				StreetAddress1: streetAddress1,
+				StreetAddress2: models.StringPointer(""),
+				StreetAddress3: models.StringPointer(""),
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+				Country:        models.StringPointer(""),
+			},
+		}
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		suite.NotNil(updatedPPM.W2AddressID)
+		suite.Equal(streetAddress1, updatedPPM.W2Address.StreetAddress1)
+		suite.Equal(city, updatedPPM.W2Address.City)
+		suite.Equal(state, updatedPPM.W2Address.State)
+		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
+		suite.Nil(updatedPPM.W2Address.StreetAddress2)
+		suite.Nil(updatedPPM.W2Address.StreetAddress3)
+		suite.Nil(updatedPPM.W2Address.Country)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - modify W-2 address", func() {
@@ -830,12 +869,13 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		suite.NilOrNoVerrs(err)
 
-		suite.Equal(*newPPM.W2Address, *updatedPPM.W2Address)
 		suite.Equal(address.ID, *updatedPPM.W2AddressID)
 		suite.Equal(streetAddress1, updatedPPM.W2Address.StreetAddress1)
 		suite.Equal(streetAddress2, *updatedPPM.W2Address.StreetAddress2)
 		suite.Equal(city, updatedPPM.W2Address.City)
 		suite.Equal(state, updatedPPM.W2Address.State)
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
+		suite.Equal(*address.StreetAddress3, *updatedPPM.W2Address.StreetAddress3)
+		suite.Equal(*address.Country, *updatedPPM.W2Address.Country)
 	})
 }
