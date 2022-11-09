@@ -109,6 +109,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		WeightTickets:                  WeightTickets(storer, ppmShipment.WeightTickets),
 		MovingExpenses:                 MovingExpenses(storer, ppmShipment.MovingExpenses),
 		ProGearWeightTickets:           ProGearWeightTickets(ppmShipment.ProgearExpenses),
+		SignedCertification:            SignedCertification(ppmShipment.SignedCertification),
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -407,4 +408,33 @@ func ProGearWeightTickets(proGearWeightTickets models.ProgearWeightTickets) []*i
 	payload := make([]*internalmessages.ProGearWeightTicket, len(proGearWeightTickets))
 	// TODO: MB-14168 will fill this in. Needed to at least have this for MB-13773, but the goal wasn't to get this working fully until MB-14168 and related tickets are done.
 	return payload
+}
+
+// SignedCertification converts a model to the api payload type
+func SignedCertification(signedCertification *models.SignedCertification) *internalmessages.SignedCertification {
+	if signedCertification == nil {
+		return nil
+	}
+
+	model := &internalmessages.SignedCertification{
+		ID:                handlers.FmtUUIDValue(signedCertification.ID),
+		SubmittingUserID:  handlers.FmtUUIDValue(signedCertification.SubmittingUserID),
+		MoveID:            handlers.FmtUUIDValue(signedCertification.MoveID),
+		PpmID:             handlers.FmtUUIDPtr(signedCertification.PpmID),
+		CertificationText: &signedCertification.CertificationText,
+		Signature:         &signedCertification.Signature,
+		Date:              handlers.FmtDate(signedCertification.Date),
+		CreatedAt:         strfmt.DateTime(signedCertification.CreatedAt),
+		UpdatedAt:         strfmt.DateTime(signedCertification.UpdatedAt),
+		ETag:              etag.GenerateEtag(signedCertification.UpdatedAt),
+	}
+
+	// CertificationType is required from the api perspective, but at the model and DB level, it's nullable. In
+	// practice, it shouldn't ever actually be null though, so we should always be matching the API spec, but
+	// regardless, we need to do this nil check. It would be good to go back and make it required in the model/table.
+	if signedCertification.CertificationType != nil {
+		model.CertificationType = internalmessages.SignedCertificationType(*signedCertification.CertificationType)
+	}
+
+	return model
 }

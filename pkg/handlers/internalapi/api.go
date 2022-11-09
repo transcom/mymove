@@ -25,6 +25,7 @@ import (
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 )
 
@@ -42,6 +43,10 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
+	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
+	mtoShipmentRouter := mtoshipment.NewShipmentRouter()
+	ppmShipmentRouter := ppmshipment.NewPPMShipmentRouter(mtoShipmentRouter)
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{handlerConfig, officeuser.NewOfficeUserFetcherPop()}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{handlerConfig}
@@ -87,6 +92,14 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{handlerConfig, weightticket.NewCustomerWeightTicketUpdater()}
 
 	internalAPI.PpmCreatePPMUploadHandler = CreatePPMUploadHandler{handlerConfig}
+
+	ppmShipmentNewSubmitter := ppmshipment.NewPPMShipmentNewSubmitter(signedCertificationCreator, ppmShipmentRouter)
+
+	internalAPI.PpmSubmitPPMShipmentDocumentationHandler = SubmitPPMShipmentDocumentationHandler{handlerConfig, ppmShipmentNewSubmitter}
+
+	ppmShipmentUpdatedSubmitter := ppmshipment.NewPPMShipmentUpdatedSubmitter(signedCertificationUpdater, ppmShipmentRouter)
+
+	internalAPI.PpmResubmitPPMShipmentDocumentationHandler = ResubmitPPMShipmentDocumentationHandler{handlerConfig, ppmShipmentUpdatedSubmitter}
 
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler{handlerConfig}
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler{handlerConfig}

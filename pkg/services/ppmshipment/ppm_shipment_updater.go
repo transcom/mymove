@@ -17,15 +17,17 @@ type ppmShipmentUpdater struct {
 	addressUpdater services.AddressUpdater
 }
 
+var PPMShipmentUpdaterChecks = []ppmShipmentValidator{
+	checkShipmentType(),
+	checkShipmentID(),
+	checkPPMShipmentID(),
+	checkRequiredFields(),
+	checkAdvanceAmountRequested(),
+}
+
 func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator, addressCreator services.AddressCreator, addressUpdater services.AddressUpdater) services.PPMShipmentUpdater {
 	return &ppmShipmentUpdater{
-		checks: []ppmShipmentValidator{
-			checkShipmentType(),
-			checkShipmentID(),
-			checkPPMShipmentID(),
-			checkRequiredFields(),
-			checkAdvanceAmountRequested(),
-		},
+		checks:         PPMShipmentUpdaterChecks,
 		estimator:      ppmEstimator,
 		addressCreator: addressCreator,
 		addressUpdater: addressUpdater,

@@ -277,6 +277,35 @@ func WeightTicketModelFromUpdate(weightTicket *internalmessages.UpdateWeightTick
 	return model
 }
 
+// SavePPMShipmentSignedCertification converts from the SavePPMShipmentSignedCertification payload and the
+// SignedCertification model
+func SavePPMShipmentSignedCertification(ppmShipmentID uuid.UUID, signedCertification internalmessages.SavePPMShipmentSignedCertification) models.SignedCertification {
+	model := models.SignedCertification{
+		PpmID: &ppmShipmentID,
+		Date:  handlers.FmtDatePtrToPop(signedCertification.Date),
+	}
+
+	if signedCertification.CertificationText != nil {
+		model.CertificationText = *signedCertification.CertificationText
+	}
+
+	if signedCertification.Signature != nil {
+		model.Signature = *signedCertification.Signature
+	}
+
+	return model
+}
+
+// ReSavePPMShipmentSignedCertification converts from the SavePPMShipmentSignedCertification payload and the
+// SignedCertification model, taking into account an existing ID
+func ReSavePPMShipmentSignedCertification(ppmShipmentID uuid.UUID, signedCertificationID uuid.UUID, signedCertification internalmessages.SavePPMShipmentSignedCertification) models.SignedCertification {
+	model := SavePPMShipmentSignedCertification(ppmShipmentID, signedCertification)
+
+	model.ID = signedCertificationID
+
+	return model
+}
+
 // SignedCertificationFromSubmit
 func SignedCertificationFromSubmit(payload *internalmessages.SubmitMoveForApprovalPayload, userID uuid.UUID, moveID strfmt.UUID) *models.SignedCertification {
 	if payload == nil {
