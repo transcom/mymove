@@ -15,7 +15,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/assets"
-	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -166,19 +165,11 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
-			err = h.MoveRouter.Submit(appCtx, move)
+
+			newSignedCertification := payloads.SignedCertificationFromSubmit(params.SubmitMoveForApprovalPayload, appCtx.Session().UserID, params.MoveID)
+			err = h.MoveRouter.Submit(appCtx, move, newSignedCertification)
 			if err != nil {
 				return handlers.ResponseForError(logger, err), err
-			}
-
-			certificateParams := certop.NewCreateSignedCertificationParams()
-			certificateParams.CreateSignedCertificationPayload = params.SubmitMoveForApprovalPayload.Certificate
-			certificateParams.HTTPRequest = params.HTTPRequest
-			certificateParams.MoveID = params.MoveID
-			// Transaction to save move and dependencies
-			verrs, err := h.saveMoveDependencies(appCtx, move, certificateParams, appCtx.Session().UserID)
-			if err != nil || verrs.HasAny() {
-				return handlers.ResponseForVErrors(logger, verrs, err), err
 			}
 
 			err = h.NotificationSender().SendNotification(appCtx,
@@ -195,84 +186,6 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 			}
 			return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload), nil
 		})
-}
-
-// SaveMoveDependencies safely saves a Move status, ppmShipment status, mtoShipment status, orders statuses, signed certificate,
-// and shipment GBLOCs.
-func (h SubmitMoveHandler) saveMoveDependencies(appCtx appcontext.AppContext, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID) (*validate.Errors, error) {
-	responseVErrors := validate.NewErrors()
-	var responseError error
-
-	date := time.Time(*certificateParams.CreateSignedCertificationPayload.Date)
-	certType := models.SignedCertificationType(*certificateParams.CreateSignedCertificationPayload.CertificationType)
-	newSignedCertification := models.SignedCertification{
-		MoveID:                   uuid.FromStringOrNil(certificateParams.MoveID.String()),
-		PersonallyProcuredMoveID: nil,
-		CertificationType:        &certType,
-		SubmittingUserID:         userID,
-		CertificationText:        *certificateParams.CreateSignedCertificationPayload.CertificationText,
-		Signature:                *certificateParams.CreateSignedCertificationPayload.Signature,
-		Date:                     date,
-	}
-
-	if certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID != nil {
-		ppmID := uuid.FromStringOrNil(certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID.String())
-		newSignedCertification.PersonallyProcuredMoveID = &ppmID
-	}
-
-	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		transactionError := errors.New("Rollback The transaction")
-		// TODO: move creation of signed certification into a service
-		verrs, err := txnAppCtx.DB().ValidateAndCreate(&newSignedCertification)
-		if err != nil || verrs.HasAny() {
-			responseError = fmt.Errorf("error saving signed certification: %w", err)
-			responseVErrors.Append(verrs)
-			return transactionError
-		}
-
-		// update ppmShipments and mtoShipments if needed
-		for i := range move.MTOShipments {
-			if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
-				if verrs, err := txnAppCtx.DB().ValidateAndUpdate(move.MTOShipments[i].PPMShipment); verrs.HasAny() || err != nil {
-					responseVErrors.Append(verrs)
-					responseError = errors.Wrap(err, "Error Updating PPMShipment")
-					return transactionError
-				}
-
-				if verrs, err := txnAppCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
-					responseVErrors.Append(verrs)
-					responseError = errors.Wrap(err, "Error Updating MTOShipment")
-					return transactionError
-				}
-			}
-		}
-
-		if verrs, err := txnAppCtx.DB().ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error Saving Orders")
-			return transactionError
-		}
-
-		if verrs, err := txnAppCtx.DB().ValidateAndSave(move); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error Saving Move")
-			return transactionError
-		}
-		return nil
-	})
-
-	if transactionErr != nil {
-		return responseVErrors, transactionErr
-	}
-
-	appCtx.Logger().Info("signedCertification created",
-		zap.String("id", newSignedCertification.ID.String()),
-		zap.String("moveId", newSignedCertification.MoveID.String()),
-		zap.String("createdAt", newSignedCertification.CreatedAt.String()),
-		zap.String("certification_type", string(*newSignedCertification.CertificationType)),
-		zap.String("certification_text", newSignedCertification.CertificationText),
-	)
-	return responseVErrors, responseError
 }
 
 // Handle returns a generated PDF
@@ -440,7 +353,7 @@ func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersPara
 
 			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
-			err = h.MoveRouter.Submit(appCtx, move)
+			err = h.MoveRouter.Submit(appCtx, move, nil)
 			if err != nil {
 				return handlers.ResponseForError(logger, err), err
 			}
