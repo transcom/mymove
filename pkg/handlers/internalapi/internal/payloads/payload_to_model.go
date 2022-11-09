@@ -3,6 +3,7 @@ package payloads
 import (
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -303,4 +304,29 @@ func ReSavePPMShipmentSignedCertification(ppmShipmentID uuid.UUID, signedCertifi
 	model.ID = signedCertificationID
 
 	return model
+}
+
+// SignedCertificationFromSubmit
+func SignedCertificationFromSubmit(payload *internalmessages.SubmitMoveForApprovalPayload, userID uuid.UUID, moveID strfmt.UUID) *models.SignedCertification {
+	if payload == nil {
+		return nil
+	}
+	date := time.Time(*payload.Certificate.Date)
+	certType := models.SignedCertificationType(*payload.Certificate.CertificationType)
+	newSignedCertification := models.SignedCertification{
+		MoveID:                   uuid.FromStringOrNil(moveID.String()),
+		PersonallyProcuredMoveID: nil,
+		CertificationType:        &certType,
+		SubmittingUserID:         userID,
+		CertificationText:        *payload.Certificate.CertificationText,
+		Signature:                *payload.Certificate.Signature,
+		Date:                     date,
+	}
+
+	if payload.Certificate.PersonallyProcuredMoveID != nil {
+		ppmID := uuid.FromStringOrNil(payload.Certificate.PersonallyProcuredMoveID.String())
+		newSignedCertification.PersonallyProcuredMoveID = &ppmID
+	}
+
+	return &newSignedCertification
 }
