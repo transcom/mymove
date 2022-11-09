@@ -1,23 +1,25 @@
+import React from 'react';
+
 import a from 'constants/MoveHistory/Database/Actions';
-import d from 'constants/MoveHistory/UIDisplay/DetailsTypes';
 import t from 'constants/MoveHistory/Database/Tables';
-import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
+import { PAYMENT_REQUEST_STATUS_LABELS as p } from 'constants/paymentRequestStatus';
+import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+
+const formatChangedValues = (historyRecord) => {
+  const { changedValues } = historyRecord;
+
+  const newChangedValues = {
+    ...changedValues,
+    status: p[changedValues.status],
+  };
+
+  return { ...historyRecord, changedValues: newChangedValues };
+};
 
 export default {
   action: a.UPDATE,
   eventName: '',
   tableName: t.payment_requests,
-  detailsType: d.STATUS,
-  getEventNameDisplay: ({ oldValues }) => `Updated payment request ${oldValues?.payment_request_number}`,
-  getStatusDetails: ({ changedValues }) => {
-    const { status } = changedValues;
-    switch (status) {
-      case 'SENT_TO_GEX':
-        return 'Sent to GEX';
-      case 'RECEIVED_BY_GEX':
-        return 'Received';
-      default:
-        return PAYMENT_REQUEST_STATUS_LABELS[status];
-    }
-  },
+  getEventNameDisplay: ({ oldValues }) => <> Updated payment request {oldValues?.payment_request_number} </>,
+  getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
 };
