@@ -21,7 +21,7 @@ func NewShipmentRouter() services.ShipmentRouter {
 // Submit is used to submit a shipment at the time the customer submits
 // their move.
 func (router shipmentRouter) Submit(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
-	if shipment.Status != models.MTOShipmentStatusDraft {
+	if shipment.Status != models.MTOShipmentStatusDraft && shipment.Status != "" {
 		return ConflictStatusError{
 			id:                        shipment.ID,
 			transitionFromStatus:      shipment.Status,
