@@ -36,8 +36,8 @@ export class SelectShipmentType extends Component {
     loadMTOShipments(move.id);
   }
 
-  setMoveType = (e) => {
-    this.setState({ moveType: e.target.value });
+  setShipmentType = (e) => {
+    this.setState({ shipmentType: e.target.value });
   };
 
   toggleStorageModal = () => {
@@ -54,15 +54,15 @@ export class SelectShipmentType extends Component {
 
   handleSubmit = () => {
     const { push, move } = this.props;
-    const { moveType } = this.state;
+    const { shipmentType } = this.state;
 
     const createShipmentPath = generatePath(customerRoutes.SHIPMENT_CREATE_PATH, { moveId: move.id });
-    return push(`${createShipmentPath}?type=${moveType}`);
+    return push(`${createShipmentPath}?type=${shipmentType}`);
   };
 
   render() {
     const { push, move, mtoShipments } = this.props;
-    const { moveType, showStorageInfoModal, showMoveInfoModal, errorMessage } = this.state;
+    const { shipmentType, showStorageInfoModal, showMoveInfoModal, errorMessage } = this.state;
 
     const shipmentInfo = determineShipmentInfo(move, mtoShipments);
 
@@ -83,8 +83,8 @@ export class SelectShipmentType extends Component {
       : 'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.';
 
     const selectableCardDefaultProps = {
-      onChange: (e) => this.setMoveType(e),
-      name: 'moveType',
+      onChange: (e) => this.setShipmentType(e),
+      name: 'shipmentType',
     };
 
     const handleBack = () => {
@@ -128,7 +128,7 @@ export class SelectShipmentType extends Component {
                 value={SHIPMENT_OPTIONS.HHG}
                 id={SHIPMENT_OPTIONS.HHG}
                 cardText={hhgCardText}
-                checked={moveType === SHIPMENT_OPTIONS.HHG}
+                checked={shipmentType === SHIPMENT_OPTIONS.HHG}
                 disabled={!shipmentInfo.isHHGSelectable}
                 onHelpClick={this.toggleMoveInfoModal}
               />
@@ -138,7 +138,7 @@ export class SelectShipmentType extends Component {
                 value={SHIPMENT_OPTIONS.PPM}
                 id={SHIPMENT_OPTIONS.PPM}
                 cardText={ppmCardText}
-                checked={moveType === SHIPMENT_OPTIONS.PPM}
+                checked={shipmentType === SHIPMENT_OPTIONS.PPM}
                 disabled={!shipmentInfo.isPPMSelectable}
                 onHelpClick={this.toggleMoveInfoModal}
               />
@@ -161,7 +161,7 @@ export class SelectShipmentType extends Component {
                     value={SHIPMENT_OPTIONS.NTS}
                     id={SHIPMENT_OPTIONS.NTS}
                     cardText={ntsCardText}
-                    checked={moveType === SHIPMENT_OPTIONS.NTS && shipmentInfo.isNTSSelectable}
+                    checked={shipmentType === SHIPMENT_OPTIONS.NTS && shipmentInfo.isNTSSelectable}
                     disabled={!shipmentInfo.isNTSSelectable}
                     onHelpClick={this.toggleStorageModal}
                   />
@@ -171,7 +171,7 @@ export class SelectShipmentType extends Component {
                     value={SHIPMENT_OPTIONS.NTSR}
                     id={SHIPMENT_OPTIONS.NTSR}
                     cardText={ntsrCardText}
-                    checked={moveType === SHIPMENT_OPTIONS.NTSR && shipmentInfo.isNTSRSelectable}
+                    checked={shipmentType === SHIPMENT_OPTIONS.NTSR && shipmentInfo.isNTSRSelectable}
                     disabled={!shipmentInfo.isNTSRSelectable}
                     onHelpClick={this.toggleStorageModal}
                   />
@@ -189,7 +189,7 @@ export class SelectShipmentType extends Component {
 
               <div className={formStyles.formActions}>
                 <WizardNavigation
-                  disableNext={moveType === undefined || moveType === ''}
+                  disableNext={shipmentType === undefined || shipmentType === ''}
                   onBackClick={handleBack}
                   onNextClick={this.handleSubmit}
                 />

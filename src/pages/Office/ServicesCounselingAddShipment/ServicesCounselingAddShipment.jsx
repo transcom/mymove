@@ -24,7 +24,10 @@ const ServicesCounselingAddShipment = ({ match }) => {
 
   if (shipmentType === SHIPMENT_OPTIONS_URL.NTSrelease) {
     shipmentType = SHIPMENT_OPTIONS.NTSR;
+  } else {
+    shipmentType = SHIPMENT_OPTIONS[shipmentType];
   }
+
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const [mutateMTOShipments] = useMutation(createMTOShipment, {
